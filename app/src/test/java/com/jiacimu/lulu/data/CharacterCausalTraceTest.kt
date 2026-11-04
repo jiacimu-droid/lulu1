@@ -505,6 +505,44 @@ class CharacterCausalTraceTest {
         // search-result follow-through regression.
     }
 
+    @Test fun nativeChoiceBeforeReceiptIsNotReceiptFollowThrough() {
+        source(a, "trace-native-before-receipt-origin")
+        SharedExperienceTimeline.record("trace-native-before-receipt", a,
+            "网页搜索结果", "执行器", "原生搜索结果", at.plusSeconds(5),
+            triggerExtraction = false, source = "web_search",
+            evidenceKind = EventEvidenceKind.Observation)
+        receipt(a, "trace-native-before-receipt-tool",
+            "trace-native-before-receipt-origin", "web_search",
+            "succeeded", true, "工具确认", native = "trace-native-before-receipt")
+        // This choice follows the native result at +5 seconds but predates
+        // the ToolRouter receipt at +10. It must not be called a reaction
+        // to the receipt even though the evidence ID and revision match.
+        CharacterInnerLifeStore.recordDecision(a, "trace-native-early-choice",
+            "publish_moment", "先看到原生结果就有了想法", "", null,
+            "尚未发布", false, now = at.plusSeconds(7),
+            causalEvidenceId = "trace-native-before-receipt")
+        val early = CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-native-before-receipt-tool"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertFalse(early.any { it.title.contains("回执后的本人选择") &&
+            it.detail.contains("先看到原生结果") })
+        assertTrue(early.any { it.title.contains("后续关系未证实") &&
+            it.detail.contains("早于工具回执") })
+
+        CharacterInnerLifeStore.recordDecision(a, "trace-native-late-choice",
+            "publish_moment", "工具回执后重新决定", "", null,
+            "仍未发布", false, now = at.plusSeconds(20),
+            causalEvidenceId = "trace-native-before-receipt")
+        val after = CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-native-before-receipt-tool"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertEquals(1, after.count { it.title.contains("回执后的本人选择") })
+        assertTrue(after.any { it.title.contains("回执后的本人选择") &&
+            it.detail.contains("工具回执后重新决定") })
+        assertTrue(after.any { it.title.contains("后续关系未证实") &&
+            it.detail.contains("先看到原生结果") })
+    }
+
     @Test fun postToolDecisionRequiresActualResultChronologyAndRevision() {
         source(a, "trace-order-origin")
         receipt(a, "trace-order-result", "trace-order-origin",
