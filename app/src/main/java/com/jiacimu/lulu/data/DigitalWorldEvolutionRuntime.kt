@@ -123,7 +123,7 @@ internal object DigitalWorldEvolutionRuntime {
         // meeting her still requires the character to walk to her location and
         // choose an actual interaction through the executor.
         if (DigitalWorldExpansionStore.residents().isEmpty() &&
-            appContext?.let(ResidentDailyPolicy::allowNewResidents) == true &&
+            appContext?.let { ResidentDailyPolicy.mayAddResident(it, 0) } == true &&
             !DigitalWorldExpansionStore.isRetiredTemplate(residentTemplates.first().name)) {
             val initial = residentTemplates.first()
             val resident = runCatching {
@@ -155,7 +155,9 @@ internal object DigitalWorldEvolutionRuntime {
         }
         // Cafe employee is a world resident with an actual registered home.
         var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.isCafeBarista }
-        if (barista == null) {
+        if (barista == null &&
+            appContext?.let { ResidentDailyPolicy.mayAddResident(it, DigitalWorldExpansionStore.residents().size) } == true &&
+            !DigitalWorldExpansionStore.isRetiredTemplate("岑灯")) {
             barista = runCatching {
                 DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
                     name = "岑灯",
@@ -164,6 +166,8 @@ internal object DigitalWorldEvolutionRuntime {
                     createdAt = now,
                     temperament = "安静细心，重视手艺，有自己的边界",
                     preferences = "研究咖啡风味，记得真实聊过的顾客",
+                    gender = "女",
+                    background = "以前在流动小摊学做饮品，攒钱在浮光咖啡角开店；最近苦恼如何维持店铺与自己的休息时间，也有不想迎合客人的口味。",
                 ))
             }.getOrNull()
             if (barista != null) {
@@ -226,7 +230,7 @@ internal object DigitalWorldEvolutionRuntime {
         if (daySlot > consumedResidentSlot) {
             p.edit().putLong(KEY_RESIDENT_SLOT, daySlot).commit()
             val existingResidents = DigitalWorldExpansionStore.residents()
-            val allowNewResidents = appContext?.let(ResidentDailyPolicy::allowNewResidents) == true
+            val allowNewResidents = appContext?.let { ResidentDailyPolicy.mayAddResident(it, existingResidents.size) } == true
             val availableResidents = if (!allowNewResidents) emptyList() else residentTemplates.filter { template ->
                 existingResidents.none { it.templateName == template.name } &&
                     !DigitalWorldExpansionStore.isRetiredTemplate(template.name)
