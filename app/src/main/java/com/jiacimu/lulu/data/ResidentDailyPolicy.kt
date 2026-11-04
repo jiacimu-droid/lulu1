@@ -14,6 +14,32 @@ internal object ResidentDailyPolicy {
     private const val AGENDA_LIMIT = "daily_agenda_limit"
     const val MAX_AGENDA_ITEMS = 8
     const val DEFAULT_AGENDA_ITEMS = 5
+    const val MAX_RESIDENTS = 12
+    private const val RESIDENT_CAP = "resident_population_cap"
+    private const val ALLOW_SPAWN = "resident_auto_generation"
+
+    /** Existing residents are never culled by lowering this limit. */
+    fun maxResidents(context: Context): Int =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getInt(RESIDENT_CAP, MAX_RESIDENTS).coerceIn(0, MAX_RESIDENTS)
+
+    fun setMaxResidents(context: Context, count: Int): Boolean {
+        if (count !in 0..MAX_RESIDENTS) return false
+        return context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit().putInt(RESIDENT_CAP, count).commit()
+    }
+
+    fun autoGenerationEnabled(context: Context): Boolean =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(ALLOW_SPAWN, true)
+
+    fun setAutoGenerationEnabled(context: Context, enabled: Boolean): Boolean =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit().putBoolean(ALLOW_SPAWN, enabled).commit()
+
+    /** Same owner preference gates template, bootstrap and model-proposed NPCs. */
+    fun mayAddResident(context: Context, activeCount: Int): Boolean =
+        autoGenerationEnabled(context) && activeCount < maxResidents(context)
 
     fun maxAgendaItems(context: Context): Int =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
