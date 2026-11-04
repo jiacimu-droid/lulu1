@@ -110,6 +110,41 @@ class BackgroundMessageDeliveryTest {
         assertTrue(notifications().isEmpty())
     }
 
+    @Test fun realSenderAvatarIsUsedByForegroundBannerAndAndroidNotification() {
+        val image = java.io.File(context.cacheDir, "sender-notification-portrait.png")
+        val bitmap = android.graphics.Bitmap.createBitmap(48, 48, android.graphics.Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(android.graphics.Color.MAGENTA)
+        image.outputStream().use { output ->
+            assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output))
+        }
+        val uri = android.net.Uri.fromFile(image).toString()
+        role = role.copy(avatarUri = uri)
+        MigratedDomainStores.characters.update(role)
+        UserInteractionPresenceStore.setAppVisible(true)
+        UserInteractionPresenceStore.setConversation(null)
+
+        MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "用我的头像弹窗", role.characterId)
+        val banner = CharacterMessageNotifications.inAppBanner.value
+        assertNotNull(banner)
+        assertEquals(uri, banner!!.avatarUri)
+        assertEquals(role.displayName.take(2), banner.avatarText)
+        val notification = notifications().single()
+        assertNotNull("Sender photo is the system large icon", notification.getLargeIcon())
+        assertEquals(role.displayName, notification.extras.getString(Notification.EXTRA_TITLE))
+        assertEquals("用我的头像弹窗", notification.extras.getString(Notification.EXTRA_TEXT))
+
+        // A group still shows the actual speaking member, not the group's icon.
+        val other = MigratedDomainStores.characters.create("另一位角色")
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "头像测试群", listOf(role.characterId, other.characterId))
+        MigratedDomainStores.chat.appendCharacterMessage(group.id, "群里也是我", role.characterId)
+        assertEquals(uri, CharacterMessageNotifications.inAppBanner.value?.avatarUri)
+        assertEquals("后台测试角色 · 头像测试群",
+            CharacterMessageNotifications.inAppBanner.value?.title)
+        assertNotNull(notifications().first { it.extras.getString(Notification.EXTRA_TITLE)?.contains("头像测试群") == true }.getLargeIcon())
+    }
+
     @Test fun backgroundAndMutedGroupNeverShowForegroundBanner() {
         MigratedDomainStores.chat.appendCharacterMessage(
             conversation.id, "后台保留系统通知", role.characterId)
