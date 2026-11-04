@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f284ebead96c77d7e0a1d3e946103edf929098fd`
+- 基准提交：`3d6b5d68e9a37f8fd56aae41308967de084bf857`
 - 分支：`main`
-- 已索引文件：1130
-- 已索引代码/文本行：236664
-- 已发现符号：3286
+- 已索引文件：1133
+- 已索引代码/文本行：237113
+- 已发现符号：3294
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -258,7 +258,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1102 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1118 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
@@ -372,7 +372,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 331 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 146 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1241 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1243 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 233 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 184 | 5 |
@@ -699,8 +699,10 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 222 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 196 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 258 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 197 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 84 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 160 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
@@ -782,7 +784,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 126 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 151 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
@@ -878,7 +880,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 146 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 756 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 774 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 116 | 1 |
@@ -1112,6 +1114,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
