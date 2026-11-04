@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:20:31.942310+00:00",
-  "commit": "b648bebb2226a29746110b81a8fb696f823e9b8c",
+  "generatedAt": "2026-11-04T03:20:57.419513+00:00",
+  "commit": "d3e90b50448d87240fbfba6ae65049949984fd28",
   "branch": "main",
-  "sourceFingerprint": "5218faf39692ede404c00dc6f43ced3834130e16cb1be8c31b73a0ed679f3c1d",
+  "sourceFingerprint": "056ec1a6aa8ae0026596cf40cc850eebf333d0454fa846d04db7ac6f4696ab81",
   "summary": {
     "files": 1127,
-    "lines": 235352,
+    "lines": 235353,
     "symbols": 3274
   },
   "symbolIndex": {
@@ -26454,8 +26454,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
-      "lines": 228,
-      "sha256": "5dfd84da4ce2257c61a31f638b4ba75535b2668f7443e22a3b47da6fa498f94d",
+      "lines": 229,
+      "sha256": "8dbbf8b4d993933e6c00590678aa7b88296725e0dcabd6bbb06ffc44ce0c0b93",
       "symbols": [
         {
           "name": "initialize",
