@@ -74,6 +74,37 @@ class NarrativeMemoryRecallIntegrationTest {
             .sections[MemoryWorkingSet.EVIDENCE].orEmpty().contains("实际检查失败"))
     }
 
+
+    @Test fun duplicateLegacyEventIdsAcrossCharactersCannotLeakEpisodeAnnotations() {
+        val at = Instant.parse("2026-11-04T08:00:00Z")
+        fun event(id: String, owner: String, task: String, offset: Long) =
+            SharedTimelineEvent(
+                id = id, characterId = owner, channel = "工具回执",
+                speaker = "执行器", content = "仅属于 $owner 的结果",
+                occurredAt = at.plusSeconds(offset), taskId = task,
+                evidenceKind = EventEvidenceKind.ToolResult,
+            )
+        val a = event("shared-legacy-id", "role-a", "task-a", 0)
+        val b = event("shared-legacy-id", "role-b", "task-b", 10)
+        val aFollowUp = event("a-follow-up", "role-a", "task-a", 20)
+        val bFollowUp = event("b-follow-up", "role-b", "task-b", 30)
+        val labels = NarrativeEvidenceChain.annotations(listOf(a, b, aFollowUp, bFollowUp))
+
+        // A map keyed by event ID cannot represent both owners' distinct
+        // meanings. Do not silently attribute either role's task to the other.
+        assertFalse(labels.containsKey("shared-legacy-id"))
+        assertFalse(labels.containsKey("a-follow-up"))
+        assertFalse(labels.containsKey("b-follow-up"))
+        assertEquals(
+            listOf("a-follow-up"),
+            NarrativeEvidenceChain.expand(
+                seeds = listOf(aFollowUp),
+                live = listOf(aFollowUp, b, bFollowUp),
+                now = at.plusSeconds(40),
+            ).map { it.id },
+        )
+    }
+
     @Test fun revisionChangeAndOtherCharactersCannotResurrectOldEpisodeText() {
         val app = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(app)
