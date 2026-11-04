@@ -64,8 +64,18 @@ internal object CharacterEverydaySocialContext {
             .filter { chat -> chat.groupChat?.members?.any { it.characterId == characterId } == true }
             .sortedByDescending(LuluConversation::updatedAt)
             .take(6)
-        val recentMessages = ResidentSocialMailbox.inbox(characterId, 8)
+        val recentMessages = ResidentSocialMailbox.inbox(characterId, 12)
         val latestByContact = ResidentSocialMailbox.latestByContact(characterId)
+        // Sender-owned, already committed mailbox originals only: an intended
+        // message or a spoken "I sent it" never appears in this ledger.
+        val deliveredOutbox = recentMessages.asSequence()
+            .filter { it.fromId == characterId }
+            .filter { message ->
+                SharedExperienceTimeline.eventsByIds(characterId,
+                    listOf(ResidentSocialMailbox.evidenceId(message, characterId))).any {
+                    it.source == "character-message" && it.revision == 1L
+                }
+            }.takeLast(3).toList()
         val residents = DigitalWorldExpansionStore.residents()
         val at = DigitalWorldStore.locationOf(characterId)
         val ownPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
@@ -151,7 +161,12 @@ internal object CharacterEverydaySocialContext {
                         })
                     witnessedGroupDialogue(characterId, group).forEach { appendLine("  ${it}") }
                 }
-                appendLine("想和群友交流可用真实 groupId 选择 send_group_message，不需要先由主人开头，群聊成员身份并不赋予读取其他私聊的权限。")
+                appendLine("想和群友交流可用真实 groupId 选择 send_group_message，不需要先由主人开头，群聊成员身份并不赋予读取其他私聊的权限。群里显示的历史仅证明消息已经入群；如果自己只在私聊里说‘我发了’，却没有群消息/发送工具回执，就不能当作真的发给群友。")
+            }
+            appendLine("【本人已实际送达的数字人物私信｜可核验的发送原件，不是计划或心声】")
+            if (deliveredOutbox.isEmpty()) appendLine("最近信箱没有可核验的本人发出私信；不能据口头声称推断已经发送。")
+            else deliveredOutbox.forEach { sent ->
+                appendLine("- 送达=${sent.createdAt}；收件人=${sent.toId}；mailId=${sent.id}；正文=${sent.content.take(160)}")
             }
             if (recentMessages.isNotEmpty()) {
                 appendLine("本人真实通信的最近片段（旧消息不是新消息）：")
