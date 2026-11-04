@@ -304,7 +304,7 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
  */
 internal object PersonalTheaterTypography {
     enum class Kind { Title, Narration, Dialogue, End }
-    data class Section(val kind: Kind, val text: String)
+    data class Section(val kind: Kind, val text: String, val paragraphIndex: Int = 0)
 
     /**
      * One blank-line-separated paragraph is one reading beat. Ordinary single
@@ -317,11 +317,11 @@ internal object PersonalTheaterTypography {
         if (source.isBlank()) return emptyList()
         val result = mutableListOf<Section>()
         val paragraphs = source.split(Regex("\n[ \t]*\n+"))
-        paragraphs.forEach { paragraph ->
+        paragraphs.forEachIndexed { paragraphIndex, paragraph ->
             val narration = StringBuilder()
             fun flushNarration() {
                 if (narration.isNotEmpty()) {
-                    result += Section(Kind.Narration, narration.toString())
+                    result += Section(Kind.Narration, narration.toString(), paragraphIndex)
                     narration.clear()
                 }
             }
@@ -336,11 +336,11 @@ internal object PersonalTheaterTypography {
                 when {
                     line == "【小剧场已完】" -> {
                         flushNarration()
-                        result += Section(Kind.End, line)
+                        result += Section(Kind.End, line, paragraphIndex)
                     }
                     line.startsWith("《") && line.endsWith("》") && line.length < 90 -> {
                         flushNarration()
-                        result += Section(Kind.Title, line)
+                        result += Section(Kind.Title, line, paragraphIndex)
                     }
                     else -> {
                         // Only a leading, closed quote is an independently spoken
@@ -353,7 +353,7 @@ internal object PersonalTheaterTypography {
                         val end = closing?.let { line.indexOf(it, startIndex = 1) } ?: -1
                         if (end > 0) {
                             flushNarration()
-                            result += Section(Kind.Dialogue, line.substring(0, end + 1))
+                            result += Section(Kind.Dialogue, line.substring(0, end + 1), paragraphIndex)
                             addNarration(line.substring(end + 1).trimStart())
                         } else {
                             addNarration(line)
