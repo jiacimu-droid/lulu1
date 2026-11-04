@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:39:52.496452+00:00",
-  "commit": "fb91c5d8af6f0b690679ee495225a56a2624ec1e",
+  "generatedAt": "2026-11-04T03:41:02.954832+00:00",
+  "commit": "bd9babbf8a3e5e5fa4870546115b31b6e00ace85",
   "branch": "main",
-  "sourceFingerprint": "3f90800005d5ec03d190faecf5abd0910e261be8fc1f6995135b351299268633",
+  "sourceFingerprint": "30633d42bdd2e08c1f0d2a3b2d18a9179863efc9c2a66e02aa50eb178ff2964d",
   "summary": {
     "files": 1128,
-    "lines": 235456,
+    "lines": 235469,
     "symbols": 3278
   },
   "symbolIndex": {
@@ -7179,7 +7179,7 @@
     "identity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-        "line": 117
+        "line": 118
       }
     ],
     "modelContext": [
@@ -24783,8 +24783,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 137,
-      "sha256": "48a49200931e576760ede8ab68c94fbefab4eacc1bcac582c54a13e1e47bae53",
+      "lines": 138,
+      "sha256": "695eb5b7c25adf211ce7d7d577c15c9d37ac87a11f62ced996a25a0c66c6b299",
       "symbols": [
         {
           "name": "promptSection",
@@ -24796,7 +24796,7 @@
         },
         {
           "name": "identity",
-          "line": 117
+          "line": 118
         }
       ]
     },
@@ -36169,8 +36169,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt",
-      "lines": 28,
-      "sha256": "f060bc5fe8ea6ad659b3b84a62f21130a411a6f6e425fefa3161c12001115d7c",
+      "lines": 40,
+      "sha256": "cdbbfd7f982129148f447d51d3dfe31ebefe302ae3b76bc4e3ea7b71b9c488b0",
       "symbols": [
         {
           "name": "CharacterMomentSnapshotIdeasTest",
