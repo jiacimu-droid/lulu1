@@ -7,6 +7,17 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
 
+/** An earlier daily occurrence is not erased when the next authorized day starts. */
+data class DailyCommitmentAttempt(
+    val dueAt: Instant,
+    val status: String,
+    val result: String,
+    val attemptCount: Int,
+    val reviewAlarmId: String? = null,
+    val reviewAt: Instant? = null,
+    val reviewReceivedAt: Instant? = null,
+)
+
 data class CommitmentTask(
     val id: String = UUID.randomUUID().toString(),
     val characterId: String,
@@ -35,6 +46,10 @@ data class CommitmentTask(
      * Null for one-time tasks and for daily tasks saved before this field.
      */
     val dailyBaseDueAt: Instant? = null,
+    /** Next daily action is independent of the current occurrence's review. */
+    val dailyNextDueAt: Instant? = null,
+    val dailyNextAlarmId: String? = null,
+    val dailyAttempts: List<DailyCommitmentAttempt> = emptyList(),
     val currentStep: Int = 0,
     val attemptCount: Int = 0,
     val lastActionResult: String = "",
@@ -82,6 +97,7 @@ internal fun CommitmentTask.visibleOnScheduleDate(
     date: LocalDate, zone: ZoneId, today: LocalDate,
 ): Boolean {
     val scheduledDate = (dueAt ?: createdAt).atZone(zone).toLocalDate()
+    if (repeat == "daily" && dailyNextDueAt?.atZone(zone)?.toLocalDate() == date) return true
     if (repeat == "daily" && dueAt != null && status.isActive()) {
         if (date.isBefore(createdAt.atZone(zone).toLocalDate())) return false
         return !date.isBefore(scheduledDate) ||
@@ -201,7 +217,7 @@ internal object ActiveCommitmentAttention {
                 }
                 val next = task.nextCheckAt?.takeIf { it.isAfter(now) }
                 appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
-                    "nextReview=${next ?: "未安排"}; last=${task.readableLastResult().take(150)};" +
+                    "nextReview=${next ?: "未安排"}; nextDaily=${task.dailyNextDueAt ?: "未登记"}; priorUnverified=${task.dailyAttempts.count { it.status != "Completed" }}; last=${task.readableLastResult().take(150)};" +
                     " ${CommitmentClockFacts.render(task, now)}")
             }
             appendLine("【目标剩余机会与等待代价｜由本人权衡，不是系统代选】原定行动、对方想达到的实际效果与后续复查时刻是不同事实。先看现在已经过了多久、实际效果是否得到证实、继续等待会不会让原目标越来越难实现；此前排过复查不是今天已经尽责，也不代表目标自动延期。")

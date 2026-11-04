@@ -24,6 +24,18 @@ internal fun encodeCommitmentTasks(values: List<CommitmentTask>): String = JSONA
             put("deliveryAction", task.deliveryAction)
             put("repeat", task.repeat)
             put("dailyBaseDueAt", task.dailyBaseDueAt?.toString() ?: JSONObject.NULL)
+            put("dailyNextDueAt", task.dailyNextDueAt?.toString() ?: JSONObject.NULL)
+            put("dailyNextAlarmId", task.dailyNextAlarmId ?: JSONObject.NULL)
+            put("dailyAttempts", JSONArray().apply {
+                task.dailyAttempts.forEach { old -> put(JSONObject()
+                    .put("dueAt", old.dueAt.toString())
+                    .put("status", old.status).put("result", old.result)
+                    .put("attemptCount", old.attemptCount)
+                    .put("reviewAlarmId", old.reviewAlarmId ?: JSONObject.NULL)
+                    .put("reviewAt", old.reviewAt?.toString() ?: JSONObject.NULL)
+                    .put("reviewReceivedAt", old.reviewReceivedAt?.toString() ?: JSONObject.NULL))
+                }
+            })
             put("currentStep", task.currentStep)
             put("attemptCount", task.attemptCount)
             put("lastActionResult", task.lastActionResult)

@@ -38,6 +38,18 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                             .takeIf { it in setOf("start_call", "alarm_only") } ?: "send_private_message",
                         repeat = item.optString("repeat", "once").takeIf { it == "daily" } ?: "once",
                         dailyBaseDueAt = item.nullInstant("dailyBaseDueAt"),
+                        dailyNextDueAt = item.nullInstant("dailyNextDueAt"),
+                        dailyNextAlarmId = item.nullString("dailyNextAlarmId"),
+                        dailyAttempts = item.optJSONArray("dailyAttempts").let { attempts ->
+                            (0 until (attempts?.length() ?: 0)).mapNotNull { i ->
+                                val row = attempts?.optJSONObject(i) ?: return@mapNotNull null
+                                val due = row.nullInstant("dueAt") ?: return@mapNotNull null
+                                DailyCommitmentAttempt(due, row.optString("status"),
+                                    row.optString("result"), row.optInt("attemptCount"),
+                                    row.nullString("reviewAlarmId"),
+                                    row.nullInstant("reviewAt"), row.nullInstant("reviewReceivedAt"))
+                            }
+                        },
                         currentStep = item.optInt("currentStep", 0),
                         attemptCount = item.optInt("attemptCount", 0),
                         lastActionResult = item.optString("lastActionResult"),
