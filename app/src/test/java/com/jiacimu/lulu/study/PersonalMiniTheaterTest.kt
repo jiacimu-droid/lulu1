@@ -236,4 +236,51 @@ class PersonalMiniTheaterTest {
         assertEquals(PersonalTheaterTypography.Kind.Dialogue, standalone.single().kind)
     }
 
+    @Test fun originalWorldAndAlternateWorldUseDifferentIdentityBoundariesAndPersist() {
+        val character = MigratedDomainStores.characters.create(
+            "可穿越角色", "观察敏锐、嘴上冷静、行动有点冒险精神")
+        CharacterIdentityStore.set(character.characterId, "住在露露机数字世界，职业是虚拟咖啡师")
+        val original = PersonalMiniTheater.capture(character.characterId)
+        val alternate = PersonalMiniTheater.capture(character.characterId, "alternate")
+        assertTrue(original.material.contains("虚拟咖啡师"))
+        assertTrue(alternate.material.contains("观察敏锐"))
+        assertFalse(alternate.material.contains("虚拟咖啡师"))
+        assertFalse(alternate.material.contains("原设身份与背景"))
+        val library = MiniTheaterLibrary(context, emptyList())
+        val originalId = library.addPersonal(original, PersonalMiniTheater.ideas.first())
+        val alternateId = library.addPersonal(alternate, PersonalMiniTheater.customIdea(
+            "这次双方在陌生城市第一次见面。"))
+        val originalWork = library.items.value.first { it.id == originalId }
+        val alternateWork = library.items.value.first { it.id == alternateId }
+        assertEquals("original", originalWork.worldMode)
+        assertEquals("alternate", alternateWork.worldMode)
+        assertTrue(PersonalMiniTheater.request(originalWork).instructions.contains("原世界番外"))
+        assertTrue(PersonalMiniTheater.request(alternateWork).instructions.contains("彻底架空"))
+        assertFalse(PersonalMiniTheater.request(alternateWork).facts.contains("虚拟咖啡师"))
+        val restored = MiniTheaterLibrary(context, emptyList())
+        assertEquals("alternate", restored.items.value.first { it.id == alternateId }.worldMode)
+        assertEquals("original", restored.items.value.first { it.id == originalId }.worldMode)
+    }
+
+    @Test fun creativeIdeaBatchesAreSavedReusedAndFilteredAgainstExistingPremises() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val generated = PersonalMiniTheater.parseGeneratedIdeas(
+            """{"ideas":[
+                {"title":"海上收音机","premise":"两人在风暴夜被困不同船舱，只能通过短波广播协作解开谜题、求得救援。"},
+                {"title":"反向直播","premise":"一场游戏直播中双方身份被全网误认，必须在不暴露真相的情况下共同完成公开挑战。"}
+            ]}""")
+        assertEquals(2, generated.size)
+        assertEquals(2, library.addCreativeIdeas(generated))
+        assertEquals(0, library.addCreativeIdeas(generated))
+        val reopened = MiniTheaterLibrary(context, emptyList())
+        assertEquals(2, reopened.creativeIdeas.value.size)
+        val facts = PersonalMiniTheater.inspirationRequest(
+            PersonalMiniTheater.ideas + reopened.creativeIdeas.value, reopened.items.value).facts
+        assertTrue(facts.contains("反向直播"))
+        assertTrue(facts.contains("醒来竟然交换了身体"))
+        assertThrows(IllegalArgumentException::class.java) {
+            PersonalMiniTheater.parseGeneratedIdeas("not a JSON result")
+        }
+    }
+
 }
