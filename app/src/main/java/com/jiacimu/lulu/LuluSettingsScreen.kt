@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.ResidentDailyPolicy
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.ResidentCharacterBridge
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlin.math.roundToInt
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
