@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T13:35:44.802697+00:00",
-  "commit": "7c84a80b3c2be48d50193370ab0f4493f6da6b51",
+  "generatedAt": "2026-11-04T13:36:07.596721+00:00",
+  "commit": "fa9d57ea42ae0593eee6b286e03c75a1f5ac6a26",
   "branch": "main",
-  "sourceFingerprint": "80c493553652e34a00365eaad64428101a5d6d35ac45d393793ea607e60d696f",
+  "sourceFingerprint": "6a521e972f879d0164dfc1f65b48f5aae8e49a4f5dd7ee1bf9b6ef5ad406ec71",
   "summary": {
     "files": 1133,
-    "lines": 238526,
+    "lines": 238544,
     "symbols": 3307
   },
   "symbolIndex": {
@@ -1077,7 +1077,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 223
+        "line": 231
       }
     ],
     "prepareVoiceNote": [
@@ -5529,7 +5529,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 202
+        "line": 210
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6533,7 +6533,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 191
+        "line": 199
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -33123,20 +33123,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 318,
-      "sha256": "85ca0c673493abe8e6db43c082284ac67c9557d66736d77293eefb55e7914f5a",
+      "lines": 326,
+      "sha256": "b5ddc185433d11741ba928b176f58e1de9d8a97ae1e8bd69140b1b11ed3c07dc",
       "symbols": [
         {
           "name": "get",
-          "line": 191
+          "line": 199
         },
         {
           "name": "parse",
-          "line": 202
+          "line": 210
         },
         {
           "name": "enqueue",
-          "line": 223
+          "line": 231
         }
       ]
     },
@@ -39127,8 +39127,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 388,
-      "sha256": "17008e509ed4c6b80a260a5011bb0cb26ea67bf4ee4109deaf8f654b9dee08c7",
+      "lines": 398,
+      "sha256": "2eace9ae2e257c006e1f5968453cac35865f7b6c34d0eac68a94e30f721137d5",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
