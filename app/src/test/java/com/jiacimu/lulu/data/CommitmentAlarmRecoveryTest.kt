@@ -413,6 +413,28 @@ class CommitmentAlarmRecoveryTest {
         assertTrue(restored.lastActionResult.contains("仍未知"))
     }
 
+    @Test fun brieflyDueNextDayAlarmSurvivesRecoveryWithoutSkipping() {
+        val now = Instant.now()
+        val yesterday = now.minusSeconds(3600)
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = "role", goal = "每天定时监督",
+            repeat = "daily", dueAt = yesterday,
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            executionToken = "yesterday"))
+        CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, "yesterday", now)
+        val before = current(task)
+        val due = requireNotNull(before.dailyNextDueAt)
+        val alarm = requireNotNull(before.dailyNextAlarmId)
+        // Exactly thirty seconds after the approved clock is still a valid
+        // Android delivery window. Recovery must preserve this alarm ID.
+        CommitmentTaskStore.ensureNextDailyOccurrence(context, task.id, due.plusSeconds(30))
+        val after = current(task)
+        assertEquals(alarm, after.dailyNextAlarmId)
+        assertEquals(due, after.dailyNextDueAt)
+        assertEquals(before.dailyAttempts, after.dailyAttempts)
+        assertNotNull(CommitmentTaskStore.claimAlarmExecution(alarm, due, due.plusSeconds(30)))
+    }
+
     @Test fun verifiedDailyOccurrenceStillSchedulesTomorrowUsingOriginalClock() {
         val now = Instant.now()
         val task = CommitmentTaskStore.save(CommitmentTask(
