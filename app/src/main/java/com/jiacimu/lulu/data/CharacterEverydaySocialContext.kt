@@ -75,7 +75,7 @@ internal object CharacterEverydaySocialContext {
                     listOf(ResidentSocialMailbox.evidenceId(message, characterId))).any {
                     it.source == "character-message" && it.revision == 1L
                 }
-            }.takeLast(3).toList()
+            }.toList().takeLast(3)
         val residents = DigitalWorldExpansionStore.residents()
         val at = DigitalWorldStore.locationOf(characterId)
         val ownPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
