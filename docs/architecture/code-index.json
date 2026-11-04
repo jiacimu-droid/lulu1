@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:15:40.452287+00:00",
-  "commit": "fdda998008d86b34ae746c7068da35076407eefc",
+  "generatedAt": "2026-11-04T03:16:03.122082+00:00",
+  "commit": "3e8eb8245b510a1a7a6f3d15bb8bae599f798a79",
   "branch": "main",
-  "sourceFingerprint": "f16e6dfe1e10b88e2034c93c6c55da1b5786afa680a9d406c674e00a2473a21b",
+  "sourceFingerprint": "8570fc0e71d27a7a9e6ea22e86d8455d051b4fd9439b7a7f433dcd9e3bed4e89",
   "summary": {
-    "files": 1126,
-    "lines": 235163,
+    "files": 1127,
+    "lines": 235357,
     "symbols": 3271
   },
   "symbolIndex": {
@@ -11577,13 +11577,13 @@
     "sync": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "fixedContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-        "line": 81
+        "line": 82
       }
     ],
     "DayRecovery": [
@@ -19602,8 +19602,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt",
-      "lines": 187,
-      "sha256": "dc9bdab3a1d0df289f3aaa6a693614a3e5da8e58299889ff84e6c609d563f689",
+      "lines": 192,
+      "sha256": "1aad5f1553d7230c4e241e361156a36e509af27f14d13fa1a990f8c608edc42c",
       "symbols": []
     },
     {
@@ -20733,6 +20733,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
       "lines": 384,
       "sha256": "4b8ce441ff5a0883c6d98e673e0c812638e0b0469e3527261e8644f62c9747f5",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt",
+      "lines": 188,
+      "sha256": "7f196f39ae8c455718ab8c73307f2d4dfc80bf9f51201e7beccaafcdec4364a6",
       "symbols": []
     },
     {
@@ -29484,8 +29490,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-      "lines": 94,
-      "sha256": "8ec41cd6ff78040b486c5c71f0dae034f5a22cdea4e0e1fa5daee88dbf695dd9",
+      "lines": 95,
+      "sha256": "b3a237604e232098cff2c8eb588bcdecd3c8547e199188ec51069a1935551c88",
       "symbols": [
         {
           "name": "characterId",
@@ -29501,11 +29507,11 @@
         },
         {
           "name": "sync",
-          "line": 31
+          "line": 32
         },
         {
           "name": "fixedContext",
-          "line": 81
+          "line": 82
         }
       ]
     },
