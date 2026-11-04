@@ -130,12 +130,17 @@ class CommitmentOutcomeVerificationTest {
     @Test fun previousDailyEvidenceCannotVerifyTheNewOccurrence() {
         val tomorrow = at.plusSeconds(86400)
         val daily = task.copy(repeat = "daily", dueAt = tomorrow,
+            timezone = "Asia/Shanghai",
             status = CommitmentTaskStatus.WaitingForFeedback)
         val old = event("yesterday", EventEvidenceKind.Observation, "screen-consent", occurredAt = at)
         val current = event("today", EventEvidenceKind.Observation, "screen-consent",
             occurredAt = tomorrow.plusSeconds(300))
+        val earlyToday = event("early-today", EventEvidenceKind.Observation,
+            "screen-consent", occurredAt = tomorrow.minusSeconds(3600))
         assertFalse(CommitmentOutcomeVerification.eligibleEvidence(daily, old))
         assertTrue(CommitmentOutcomeVerification.eligibleEvidence(daily, current))
+        assertTrue("A real result earlier on the same local day can still count",
+            CommitmentOutcomeVerification.eligibleEvidence(daily, earlyToday))
         assertFalse(CommitmentOutcomeVerification.evaluate(daily, listOf("yesterday"),
             "昨天的截图不能证明今天达标", listOf(old)).accepted)
         val candidates = CommitmentOutcomeVerification.candidateContext(daily, listOf(old, current))
