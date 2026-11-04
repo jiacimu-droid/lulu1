@@ -31,7 +31,7 @@ internal object ResidentDailyPolicy {
 
     fun autoGenerationEnabled(context: Context): Boolean =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getBoolean(ALLOW_SPAWN, true)
+            .getBoolean(ALLOW_SPAWN, false)
 
     fun setAutoGenerationEnabled(context: Context, enabled: Boolean): Boolean =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -56,5 +56,47 @@ internal object ResidentDailyPolicy {
 
     fun setAllowNewResidents(context: Context, allowed: Boolean): Boolean =
         setAutoGenerationEnabled(context, allowed)
+
+    private const val MODEL_REQUEST_LIMIT = "daily_model_decision_limit"
+    const val MAX_MODEL_DECISIONS = 8
+    const val DEFAULT_MODEL_DECISIONS = 2
+
+    /** Different from the number of scheduled agenda rows: this bounds
+     * actual resident model requests, including mail and format correction. */
+    fun maxModelDecisions(context: Context): Int =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getInt(MODEL_REQUEST_LIMIT, DEFAULT_MODEL_DECISIONS)
+            .coerceIn(0, MAX_MODEL_DECISIONS)
+
+    fun setMaxModelDecisions(context: Context, limit: Int): Boolean =
+        limit in 0..MAX_MODEL_DECISIONS &&
+            context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit().putInt(MODEL_REQUEST_LIMIT, limit).commit()
+
+    private fun modelDay(at: java.time.Instant): String =
+        at.atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
+
+    fun modelDecisionsUsed(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Int {
+        val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return if (p.getString("model-day:$role", "") == modelDay(at))
+            p.getInt("model-count:$role", 0).coerceAtLeast(0)
+        else 0
+    }
+
+    /** Atomic attempt claim before networking. Constant-sized per-resident
+     * counter; retry/correction must not sidestep the owner's cost limit. */
+    @Synchronized fun claimModelDecision(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Boolean {
+        if (!role.startsWith("resident:")) return true
+        val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val day = modelDay(at)
+        val used = if (p.getString("model-day:$role", "") == day)
+            p.getInt("model-count:$role", 0).coerceAtLeast(0)
+        else 0
+        if (used >= maxModelDecisions(context)) return false
+        return p.edit().putString("model-day:$role", day)
+            .putInt("model-count:$role", used + 1).commit()
+    }
 
 }

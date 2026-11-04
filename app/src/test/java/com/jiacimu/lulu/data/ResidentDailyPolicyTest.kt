@@ -62,6 +62,32 @@ class ResidentDailyPolicyTest {
         }
     }
 
+    @Test fun populationSpawnAndActualResidentModelRequestsRespectOwnerLimits() {
+        val ctx = context()
+        val prefs = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        assertFalse(ResidentDailyPolicy.autoGenerationEnabled(ctx))
+        assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 0))
+        assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(ctx, true))
+        assertTrue(ResidentDailyPolicy.setMaxResidents(ctx, 1))
+        assertTrue(ResidentDailyPolicy.mayAddResident(ctx, 0))
+        assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 1))
+        assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(ctx, false))
+        assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 0))
+        assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 2))
+        val role = "resident:quota-policy"
+        val at = Instant.parse("2026-11-04T06:00:00Z")
+        assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+        assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+        assertFalse(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+        assertEquals(2, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
+        assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, "resident:another", at))
+        assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at.plusSeconds(86_400)))
+        assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 0))
+        assertFalse(ResidentDailyPolicy.claimModelDecision(ctx, role, at.plusSeconds(172_800)))
+        prefs.edit().clear().commit()
+    }
+
     @Test fun dailyDecisionRequestsCorrectionRatherThanSilentlyDroppingOverBudgetPlan() {
         val at = java.time.LocalDate.of(2026, 10, 28)
             .atStartOfDay(ZoneId.systemDefault()).toInstant()

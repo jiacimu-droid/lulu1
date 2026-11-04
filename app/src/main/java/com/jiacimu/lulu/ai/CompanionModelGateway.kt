@@ -2,6 +2,7 @@ package com.jiacimu.lulu.ai
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.data.ResidentDailyPolicy
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldStore
 import com.jiacimu.lulu.data.DigitalWorldLifeEventStore
@@ -511,6 +512,9 @@ class CompanionModelGateway(
         var failedRequestShape = ""
         var failedRequestBytes = 0L
         runCatching {
+            if (characterId.startsWith("resident:") &&
+                !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
+                error("居民今天的 AI 决断预算已用完；本次没有发送模型请求")
             val promptStartedAt = System.nanoTime()
             val requestedArchiveId = if (source.startsWith("末世求生")) {
                 ScopedModelSelections.selectedArchiveId(ScopedModelSelections.APOCALYPSE)
