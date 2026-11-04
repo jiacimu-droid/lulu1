@@ -203,4 +203,16 @@ class GroupChatTurnPlannerTest {
         assertFalse(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = true))
     }
+    @Test fun incompleteReplyNeverRunsTurnLevelFavoriteOrPoke() {
+        // Complete visible persistence is the only condition for turn-level
+        // side effects; a recalled bubble is not a delivered turn.
+        assertFalse(replyTurnSideEffectsMayRun(0, 0, stale = false))
+        assertFalse(replyTurnSideEffectsMayRun(0, 2, stale = false))
+        assertFalse(replyTurnSideEffectsMayRun(1, 2, stale = false))
+        assertFalse(replyTurnSideEffectsMayRun(1, 1, stale = true))
+        assertFalse(replyTurnSideEffectsMayRun(2, 2, stale = true))
+        assertTrue(replyTurnSideEffectsMayRun(1, 1, stale = false))
+        assertTrue(replyTurnSideEffectsMayRun(2, 2, stale = false))
+    }
+
 }
