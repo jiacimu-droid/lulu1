@@ -95,6 +95,31 @@ class TimelineStatementOwnershipTest {
             now = Instant.now().plusSeconds(1)).previousInteractionAt?.toEpochMilli())
     }
 
+    @Test fun migratedGroupPrefixStillUsesCanonicalMessageAuthorship() {
+        val a = "migrated-group-a"
+        val b = "migrated-group-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("归档群", listOf(a, b), true)
+        val userMessage = MigratedDomainStores.chat.sendUserMessage(group.id, "真正发送的群消息")
+        val ownMessage = MigratedDomainStores.chat.appendCharacterMessage(group.id, "本人发言", a)
+        val peerMessage = MigratedDomainStores.chat.appendCharacterMessage(group.id, "另一人的发言", b)
+        val migratedChannel = "手机群聊·归档群"
+
+        // A prefix or an imported row without the conventional group suffix
+        // must never bypass the shared authorship check.
+        val orphan = event(userMessage, a).copy(
+            id = "missing-original", channel = migratedChannel)
+        assertFalse(TimelineStatementOwnership.involvesUser(orphan))
+        assertTrue(TimelineStatementOwnership.involvesUser(
+            event(userMessage, a).copy(channel = migratedChannel)))
+        assertTrue(TimelineStatementOwnership.isOwnCharacterStatement(
+            event(ownMessage, a).copy(channel = migratedChannel)))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(
+            event(peerMessage, a).copy(channel = migratedChannel)))
+        assertEquals(listOf(event(userMessage, a).id),
+            CompanionContactClock.verifiedUserContacts(listOf(
+                orphan, event(userMessage, a).copy(channel = migratedChannel))).map { it.id })
+    }
+
     @Test fun orphanOrFailedGroupUserWitnessCannotOverwriteActualLastUserWords() {
         val role = "group-user-witness-validation"
         val peer = "group-user-witness-peer"
