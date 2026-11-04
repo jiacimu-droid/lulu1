@@ -1,5 +1,12 @@
 # 自主社交专项进度
 
+## 2026-11-05 S-01.1 CI 错误修复：社交发信回归的合法关系前置条件
+
+- **真实日志**：[Lulu APK #41879637273](https://github.com/jiacimu-droid/lulu1/actions/runs/41879637273) 在 1814b36 上已完成且 failure；编译完成后 `testPhoneUnitTest` 共 2441 项、6 失败，不是 NDK/构建器不可用。其中 `CharacterCreatedGroupTest.outboxContextRequiresReallyAuthoredDeliveredMailNotOwnerImpersonation` 在 `ResidentSocialMailbox.send` 的 `canContact` 被拒，报「双方尚未真实认识或同处现场」。其余五项见人物专项 CI 记录，不因 S-01 测试修复而擅改人物关系规则。
+- **真正原因与修复**：旧回归先创建群但没有确认好友/实在场见证；群里两个成员的 ID 不会自动绕过隐私/首次联系许可。仅在测试用例通过原 `MomentFriendAccess.initialize/setFriends` 建立真实的已确认关系，再对照主人代发、角色自主送达、撤回来源的独立事实；生产 `ResidentSocialMailbox.canContact` 保持不变，不为让测试通过而给陌生人放开通信。提交 [13f69b3](https://github.com/jiacimu-droid/lulu1/commit/13f69b3e82df039cbe92b9d2762d08e902188869)。
+- **验收边界**：该用例源码修复已提交，新的原索引 #41882066597 success；对应 APK/JVM #41882066458 上次查询仍 in_progress（后续公共人物提交可能取消）。此处不称新测试通过；下一轮优先核最新包含全部修复的 completed APK/JVM，真机、真实模型及多日自然社交仍待验。
+
+
 ## 2026-11-05 S-01.1 后续：主动私聊/角色群聊/居民社交三路连通与真实回执（源码提交，JVM/APK/真机仍待核验）
 
 - **本轮入口**：用户再次提供聊天、心声与角色手机截图。图中角色在私聊中声称曾发出另一段联系，但实际手机可见群聊无消息；截图不含底层 ToolRouter trace，故不能仅凭截图宣称对应联系人已收信。根因分为自主唤醒名单、群成员接话机制、对社交行为的口头声明与实际回执不一致三类。
