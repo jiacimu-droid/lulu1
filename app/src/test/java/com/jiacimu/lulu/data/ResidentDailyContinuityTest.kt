@@ -35,6 +35,11 @@ class ResidentDailyContinuityTest {
         .getDeclaredField("residents").apply { isAccessible = true }
 
     @org.junit.Before fun initializeWorkerHost() {
+        // Robolectric swaps Application/SharedPreferences between cases but
+        // keeps Kotlin singletons. Recreate the model gateway against THIS
+        // case's app, so its budget claims and our owner settings use the
+        // same preference authority (including manual recovery requests).
+        MemoryTestEnvironment.release()
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
@@ -75,6 +80,7 @@ class ResidentDailyContinuityTest {
         if (originalModelLimit == null) settings.remove("daily_model_decision_limit")
         else settings.putInt("daily_model_decision_limit", originalModelLimit!!)
         assertTrue(settings.commit())
+        MemoryTestEnvironment.release()
     }
 
 
