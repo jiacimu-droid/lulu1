@@ -475,6 +475,42 @@ class CharacterCausalTraceTest {
         assertFalse(revised.any { it.title == "原生结果记录" })
     }
 
+    @Test fun futureNativeEventCannotBecomeReceiptFollowThrough() {
+        source(a, "trace-future-native-origin")
+        // A legacy/corrupt receipt may point at an ID later reused by an
+        // unrelated native event. The native event was not yet present when
+        // the executor completed; its later decision cannot be borrowed.
+        receipt(a, "trace-future-native-receipt", "trace-future-native-origin",
+            "web_search", "succeeded", true, "结果回执",
+            native = "trace-future-native")
+        SharedExperienceTimeline.record("trace-future-native", a, "网页搜索结果", "执行器",
+            "迟到的另一条结果", at.plusSeconds(30), triggerExtraction = false,
+            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
+        val mind = JSONObject().put("decisions", JSONArray().put(
+            JSONObject().put("id", "trace-future-native-choice")
+                .put("causalEvidenceId", "trace-future-native")
+                .put("causalEvidenceRevision", 1L)
+                .put("at", at.plusSeconds(40).toString())
+                .put("selected", "publish_moment")
+                .put("reason", "对迟到结果的独立选择")))
+        for (id in listOf("trace-future-native-origin", "trace-future-native-receipt")) {
+            val lines = CharacterCausalTrace.inspect(context, a, event(a, id),
+                SharedExperienceTimeline.all(a), mind)
+            assertTrue(lines.any { it.title == "原生结果记录" &&
+                it.detail.contains("不存在或已撤回") })
+            assertFalse(lines.any { it.title.contains("回执后的本人选择") &&
+                it.detail.contains("迟到结果") })
+        }
+        // An earlier native result is still valid, as in existing search tests.
+        SharedExperienceTimeline.record("trace-future-native", a, "网页搜索结果", "执行器",
+            "真实较早的结果", at.plusSeconds(8), triggerExtraction = false,
+            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
+        val recovered = CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-future-native-receipt"), SharedExperienceTimeline.all(a), mind)
+        assertTrue(recovered.any { it.title == "原生结果记录" &&
+            it.evidenceId == "trace-future-native" })
+    }
+
     @Test fun postToolDecisionRequiresActualResultChronologyAndRevision() {
         source(a, "trace-order-origin")
         receipt(a, "trace-order-result", "trace-order-origin",
