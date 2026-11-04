@@ -14,11 +14,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
@@ -33,6 +36,7 @@ object ChatLexiconAutomation {
     private const val PREFS_NAME = "lulu_chat_lexicon_automation"
     private const val KEY_PROCESSED_SIGNATURES = "processed_signatures_v3"
     private const val QUIET_WINDOW_MS = 5_000L
+    private const val KEY_PENDING_TURNS = "pending_life_turns_v1"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val conversationJobs = mutableMapOf<String, Job>()
@@ -41,6 +45,7 @@ object ChatLexiconAutomation {
     private var appContext: Context? = null
     private var started = false
 
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
     @Synchronized
     fun initialize(context: Context) {
         if (started) return
@@ -53,6 +58,9 @@ object ChatLexiconAutomation {
                 MigratedDomainStores.chat.conversations.value.forEach { conversation ->
                     runCatching { inspectImmediateUpdate(conversation); inspectLatestTurn(conversation) }
                 }
+                // The original turn may no longer be the newest one. Its durable retry
+                // checkpoint must outlive further messages and app restarts.
+                retryPendingTurns()
             }
         }
         scope.launch {
@@ -65,11 +73,13 @@ object ChatLexiconAutomation {
                 conversations.forEach { conversation ->
                     if (conversation.id in conversationJobs) return@forEach
                     conversationJobs[conversation.id] = scope.launch {
-                        MigratedDomainStores.chat.messages(conversation.id).collectLatest {
-                            inspectImmediateUpdate(conversation)
-                            delay(QUIET_WINDOW_MS)
-                            inspectLatestTurn(conversation)
-                        }
+                        // Do not cancel a paid extraction while another chat bubble arrives.
+                        MigratedDomainStores.chat.messages(conversation.id)
+                            .debounce(QUIET_WINDOW_MS)
+                            .collect {
+                                inspectImmediateUpdate(conversation)
+                                inspectLatestTurn(conversation)
+                            }
                     }
                 }
             }
@@ -112,6 +122,7 @@ object ChatLexiconAutomation {
                 val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
                 lock.withLock {
                     if (isProcessed(signature) || !permitAttempt(signature)) return@withLock
+                    rememberPending(LexiconPendingTurn(signature, conversation.id, userMessage.id, characterId, false))
                     val saved = extractAndSave(
                         characterId = characterId,
                         userText = userMessage.content,
@@ -139,8 +150,9 @@ object ChatLexiconAutomation {
             val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
             lock.withLock {
                 val sourceId = if (conversation.groupChat == null) message.id else "${message.id}:group:$characterId"
-                if (permitAttempt(signature) &&
-                    extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
+                if (!permitAttempt(signature)) return@withLock
+                rememberPending(LexiconPendingTurn(signature, conversation.id, message.id, characterId, true))
+                if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
                     markProcessed(signature)
                 }
             }
@@ -243,15 +255,127 @@ object ChatLexiconAutomation {
         return true
     }
 
+    /**
+     * Reconstruct the exact failed source turn, rather than retrying whatever
+     * happens to be the newest conversation after a timeout. Each job is saved
+     * before its chargeable request so process death cannot drop the checkpoint.
+     */
+    private suspend fun retryPendingTurns() {
+        pendingTurns().forEach { pending ->
+            if (isProcessed(pending.signature)) {
+                forgetPending(pending.signature)
+                return@forEach
+            }
+            val conversation = MigratedDomainStores.chat.conversations.value
+                .firstOrNull { it.id == pending.conversationId }
+            if (conversation == null) {
+                forgetPending(pending.signature)
+                return@forEach
+            }
+            if (ChatGenerationActivity.isRunning(conversation.id) ||
+                com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) return@forEach
+            val messages = MigratedDomainStores.chat.messages(conversation.id).value
+            val userIndex = messages.indexOfFirst {
+                it.id == pending.userMessageId && it.sender == LuluChatMessage.Sender.User &&
+                    it.status == LuluChatMessage.Status.Sent
+            }
+            if (userIndex < 0) {
+                // A deleted source must never be recreated from a stale checkpoint.
+                forgetPending(pending.signature)
+                return@forEach
+            }
+            val user = messages[userIndex]
+            val nextUserIndex = messages.indexOfFirst { it.sender == LuluChatMessage.Sender.User &&
+                it.status == LuluChatMessage.Status.Sent && messages.indexOf(it) > userIndex }
+            val turnEnd = if (nextUserIndex < 0) messages.size else nextUserIndex
+            val roleReplies = if (pending.immediate) emptyList() else
+                messages.subList(userIndex + 1, turnEnd).filter {
+                    it.sender == LuluChatMessage.Sender.Character &&
+                        it.status == LuluChatMessage.Status.Sent &&
+                        (it.authorCharacterId ?: conversation.characterId) == pending.characterId
+                }
+            if (!pending.immediate && roleReplies.isEmpty()) {
+                if (nextUserIndex >= 0) forgetPending(pending.signature)
+                return@forEach
+            }
+            val sourceEventIds = (listOf(user.id) + roleReplies.map(LuluChatMessage::id)).map {
+                if (conversation.groupChat == null) it else "$it:group:${pending.characterId}"
+            }
+            val lock = synchronized(characterLocks) {
+                characterLocks.getOrPut(pending.characterId) { Mutex() }
+            }
+            lock.withLock {
+                if (isProcessed(pending.signature) || !permitAttempt(pending.signature)) return@withLock
+                val saved = extractAndSave(
+                    characterId = pending.characterId,
+                    userText = user.content,
+                    characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim(),
+                    groupName = conversation.groupChat?.name,
+                    sourceEventIds = sourceEventIds,
+                )
+                if (saved) markProcessed(pending.signature)
+            }
+        }
+    }
+
+    @Synchronized
+    private fun pendingTurns(): List<LexiconPendingTurn> {
+        val raw = prefs?.getString(KEY_PENDING_TURNS, null) ?: return emptyList()
+        return runCatching {
+            val array = JSONArray(raw)
+            buildList {
+                for (index in 0 until array.length()) {
+                    val item = array.optJSONObject(index) ?: continue
+                    val signature = item.optString("signature")
+                    val conversationId = item.optString("conversationId")
+                    val userMessageId = item.optString("userMessageId")
+                    val characterId = item.optString("characterId")
+                    if (signature.isBlank() || conversationId.isBlank() ||
+                        userMessageId.isBlank() || characterId.isBlank()) continue
+                    add(LexiconPendingTurn(signature, conversationId, userMessageId, characterId,
+                        item.optBoolean("immediate")))
+                }
+            }
+        }.getOrDefault(emptyList())
+    }
+
+    @Synchronized
+    private fun rememberPending(job: LexiconPendingTurn) {
+        val current = pendingTurns()
+        if (current.any { it.signature == job.signature }) return
+        persistPending(current + job)
+    }
+
+    @Synchronized
+    private fun forgetPending(signature: String) {
+        val current = pendingTurns()
+        if (current.none { it.signature == signature }) return
+        persistPending(current.filterNot { it.signature == signature })
+    }
+
+    private fun persistPending(turns: List<LexiconPendingTurn>) {
+        val array = JSONArray()
+        turns.forEach { turn ->
+            array.put(JSONObject()
+                .put("signature", turn.signature)
+                .put("conversationId", turn.conversationId)
+                .put("userMessageId", turn.userMessageId)
+                .put("characterId", turn.characterId)
+                .put("immediate", turn.immediate))
+        }
+        check(prefs?.edit()?.putString(KEY_PENDING_TURNS, array.toString())?.commit() == true) {
+            "生活近况整理的待重试任务未能保存；禁止无检查点地再次调用模型"
+        }
+    }
+
     private fun permitAttempt(signature: String): Boolean {
         val p = prefs ?: return false
         val key = "attempt:${signature.hashCode()}"
         val last = p.getLong("$key:at", 0L)
         val count = p.getInt("$key:count", 0)
         val now = System.currentTimeMillis()
-        // At most two attempts for one actual turn, separated by 15 minutes.
-        // Malformed JSON/failed network must not bill the next background tick.
-        if (count >= 2 || (last > 0 && now - last < 15 * 60_000L)) return false
+        val delayMs = lexiconRetryDelayMillis(count) ?: return false
+        if (last > 0 && now - last < delayMs) return false
         return p.edit().putInt("$key:count", count + 1).putLong("$key:at", now).commit()
     }
 
@@ -261,8 +385,27 @@ object ChatLexiconAutomation {
     private fun markProcessed(signature: String) {
         val current = prefs?.getStringSet(KEY_PROCESSED_SIGNATURES, emptySet()).orEmpty().toMutableList()
         current += signature
-        prefs?.edit()?.putStringSet(KEY_PROCESSED_SIGNATURES, current.takeLast(400).toSet())?.apply()
+        check(prefs?.edit()?.putStringSet(KEY_PROCESSED_SIGNATURES, current.takeLast(400).toSet())?.commit() == true)
+        forgetPending(signature)
     }
+}
+
+internal data class LexiconPendingTurn(
+    val signature: String,
+    val conversationId: String,
+    val userMessageId: String,
+    val characterId: String,
+    val immediate: Boolean,
+)
+
+/** Task-level retry only; transport must not silently replay chargeable POSTs. */
+internal fun lexiconRetryDelayMillis(attempts: Int): Long? = when (attempts) {
+    0 -> 0L
+    1 -> 2 * 60_000L
+    2 -> 15 * 60_000L
+    3 -> 60 * 60_000L
+    4 -> 4 * 60 * 60_000L
+    else -> null // Five total paid attempts; retain checkpoint for diagnosis.
 }
 
 internal fun looksLikeCommitmentRequest(text: String): Boolean {
