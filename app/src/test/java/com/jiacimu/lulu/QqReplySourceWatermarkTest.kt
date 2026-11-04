@@ -4,6 +4,7 @@ import com.jiacimu.lulu.data.InMemoryLuluChatStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.ToolRouter
 import com.jiacimu.lulu.data.OrderedCharacterActions
+import com.jiacimu.lulu.data.mirroredPrivateReplyStepIndices
 import com.jiacimu.lulu.data.verifiedRoleDeliveries
 import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
@@ -405,6 +406,50 @@ class QqReplySourceWatermarkTest {
         assertFalse(timings.any { it.detail.contains("trace=not-model-controlled") })
     }
 
+
+    @Test fun oneDecisionCannotResendItsAlreadyDeliveredPrimaryThroughSideActions() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("主副消息重复屏障角色").characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(role, "一次决定一份正文")
+        val user = MigratedDomainStores.chat.sendUserMessage(chat.id, "学完了")
+        val first = MigratedDomainStores.chat.appendCharacterMessage(chat.id,
+            "学得怎么样了，宝宝？", role)
+        val second = MigratedDomainStores.chat.appendCharacterMessage(chat.id,
+            "现在都快十一点半了，头还晕不晕？要是累了，咱们就收拾准备洗漱。", role)
+        val duplicate = JSONObject().put("action", "message")
+            .put("text", first.content + second.content)
+        val followUp = JSONObject().put("tool", "send_private_message")
+            .put("args", JSONObject().put("text", "记得喝一点水哦。"))
+        val steps = JSONArray().put(duplicate).put(followUp)
+        assertEquals(setOf(0), mirroredPrivateReplyStepIndices(
+            steps, first.content + SemanticBubbleSeparator + second.content))
+        val result = OrderedCharacterActions.execute(app, role, steps,
+            requestId = "primary-side-mirror-" + java.util.UUID.randomUUID().toString(),
+            userEvidenceIds = setOf(user.id),
+            alreadyDeliveredPrivateText = first.content + second.content)
+        assertEquals(result.notes.joinToString(), 1, result.completedCount)
+        assertEquals(1, result.deliveredMessageRefs.size)
+        val actual = MigratedDomainStores.chat.messages(chat.id).value.filter {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        }
+        assertEquals(listOf(first.content, second.content, "记得喝一点水哦。"),
+            actual.map { it.content })
+        assertTrue(result.notes.any { it.contains("主回复已真实送达相同正文") })
+    }
+
+    @Test fun mirroredSideSpeechMustMatchTheWholeTurnRatherThanARepeatedPhrase() {
+        val steps = JSONArray().put(JSONObject().put("tool", "send_private_message")
+            .put("args", JSONObject().put("text", "接着说，我在听。")))
+        assertTrue(mirroredPrivateReplyStepIndices(steps, "我在听，接着说。").isEmpty())
+        val split = JSONArray()
+            .put(JSONObject().put("action", "message").put("text", "第一句。"))
+            .put(JSONObject().put("action", "message").put("text", "第二句！"))
+            .put(JSONObject().put("action", "message").put("text", "后来想到的补充。"))
+        assertEquals(setOf(0, 1), mirroredPrivateReplyStepIndices(
+            split, "第一句。" + SemanticBubbleSeparator + "第二句！"))
+        assertTrue(mirroredPrivateReplyStepIndices(
+            split, "第一句。第二句！这句不同。").isEmpty())
+    }
 
     @Test fun sameToolRequestReplaysAcrossNewDiagnosticTurnIdsWithoutSendingAgain() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
