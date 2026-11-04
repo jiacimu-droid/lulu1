@@ -614,16 +614,9 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
     LaunchedEffect(game.turn, game.opened, game.matched, game.finished) {
         if (game.turn != MemoryTurn.Character || game.finished || game.opened.size >= 2) return@LaunchedEffect
         delay(550)
-        val available = game.cards.indices.filter { it !in game.matched && it !in game.opened }
-        if (available.isEmpty()) return@LaunchedEffect
-        if (game.opened.isEmpty()) {
-            store.openCharacterMemoryCard(available.random())
-        } else {
-            val first = game.opened.first()
-            val pair = available.firstOrNull { game.cards[it] == game.cards[first] }
-            val choice = if (pair != null && kotlin.random.Random.nextInt(100) < 68) pair else available.random()
-            store.openCharacterMemoryCard(choice)
-        }
+        // Both layouts use the same observed-only opponent policy.
+        val choice = chooseObservedMemoryCard(game) ?: return@LaunchedEffect
+        store.openCharacterMemoryCard(choice)
     }
     GamePageList {
         item {
