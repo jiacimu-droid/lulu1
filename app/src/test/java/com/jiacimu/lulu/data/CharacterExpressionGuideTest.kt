@@ -494,4 +494,37 @@ class CharacterExpressionGuideTest {
         assertFalse(common.contains("凌晨四点必须"))
     }
 
+    @Test fun causalPrivateNegationAndAddedConditionAreNotOutwardDuplicates() {
+        val outward = "我想继续和她聊下去。"
+        val basis = JSONObject().put("focus", "她刚刚表达了不满")
+            .put("change", "我重新考虑是否继续这个话题")
+            .put("unsaidWhy", "内心的犹豫并没有全部说出口")
+        val innerLife = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "犹豫").put("cause", "她刚刚表达了不满"))
+        listOf("我不想继续和她聊下去。",
+            outward + "但我还不确定她愿不愿意听。").forEach { thought ->
+            val delta = PrivateStateDeltaEngine.evaluate(JSONObject(), innerLife, null, basis, thought)
+            assertTrue(delta.meaningful)
+            assertTrue(delta.privateResidue)
+            assertEquals(thought, CharacterHeartVoicePolicy.keepOrBlank(
+                thought = thought, outward = outward, innerLife = innerLife,
+                basis = basis, delta = delta, hasFreshEvidence = true))
+        }
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = outward.removeSuffix("。"), outward = outward,
+            innerLife = innerLife, basis = basis, hasFreshEvidence = true))
+    }
+
+    @Test fun authoredWaitingWithFreshCausalBasisIsNotVetoedByAKeyword() {
+        val thought = "这次我愿意先不催，等她自己开口。"
+        val basis = JSONObject().put("focus", "她刚刚明确表示不想继续被追问")
+            .put("change", "我从想追问变为愿意等一等")
+            .put("unsaidWhy", "这次的等待是我重新考虑后的私人选择")
+        assertEquals(thought, CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, basis = basis, hasFreshEvidence = true))
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, hasFreshEvidence = true))
+    }
+
+
 }

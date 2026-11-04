@@ -42,16 +42,9 @@ internal object CharacterPersonalityArchitecture {
 
 /**
  * Heart voice is a sparse projection of a private state delta, not a mandatory second answer.
- * The model may propose prose, but the program decides whether it is grounded enough to surface.
+ * The model authors the private meaning; this projection validates causal evidence and exact repetition.
  */
 internal object CharacterHeartVoicePolicy {
-    private val genericWaiting = Regex(
-        "(先)?(等(她|他|对方)?|再等等|继续等|不催|先不催|不打扰|先不打扰|给(她|他|对方)点空间|把选择交给(她|他|对方)|让(她|他|对方)自己决定|按(她|他|对方)自己的节奏)"
-    )
-    private val genericRelationshipAnalysis = Regex(
-        "展现.*真实.*自己|尊重.*选择|给.*空间|不想.*压力|不想逼.*回应|让.*自己想清楚"
-    )
-
     fun keepOrBlank(
         thought: String,
         outward: String = "",
@@ -87,10 +80,9 @@ internal object CharacterHeartVoicePolicy {
         if (delta != null && (!delta.meaningful || !privateResidue)) return ""
         if (!structuredDelta && !causalBasis) return ""
         if (!hasFreshEvidence && !structuredDelta) return ""
-        if (outward.isNotBlank() && sameMeaning(clean, outward)) return ""
-        val normalized = normalize(clean)
-        if (!structuredDelta && (genericWaiting.containsMatchIn(normalized) ||
-                genericRelationshipAnalysis.containsMatchIn(normalized))) return ""
+        // Compare the authored text before its presentation excerpt is made:
+        // an outward prefix does not make a private negation/condition a duplicate.
+        if (outward.isNotBlank() && isOutwardDuplicate(thought, outward)) return ""
         return clean
     }
 
@@ -120,16 +112,13 @@ internal object CharacterHeartVoicePolicy {
         return false
     }
 
-    internal fun sameMeaning(left: String, right: String): Boolean {
-        val a = normalize(left)
-        val b = normalize(right)
-        if (a.isBlank() || b.isBlank()) return false
-        if (a == b || a.contains(b) || b.contains(a)) return true
-        if (a.length < 5 || b.length < 5) return false
-        val aPairs = a.windowed(2).toSet()
-        val bPairs = b.windowed(2).toSet()
-        val denominator = minOf(aPairs.size, bPairs.size).coerceAtLeast(1)
-        return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.60
+    /** Formatting-only duplicate check, never a semantic similarity verdict. */
+    internal fun isOutwardDuplicate(left: String, right: String): Boolean {
+        fun identity(value: String): String = value.replace(Regex("\\s+"), " ")
+            .trim().trimEnd('。', '.')
+        val a = identity(left)
+        val b = identity(right)
+        return a.isNotBlank() && a == b
     }
 
     private fun compactThought(value: String, maxCharacters: Int): String {
@@ -144,8 +133,4 @@ internal object CharacterHeartVoicePolicy {
         return if (boundary >= if (maxCharacters > 140) maxCharacters / 2 else 48) head.substring(0, boundary + 1).trim()
         else head.trimEnd('，', ',', '、', '：', ':') + "…"
     }
-
-    private fun normalize(value: String): String = value.lowercase()
-        .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\"'（）()]+"), "")
-        .replace(Regex("^(还是|就是|只是|现在|这会儿|此刻|嗯|唔|好吧)+"), "")
 }
