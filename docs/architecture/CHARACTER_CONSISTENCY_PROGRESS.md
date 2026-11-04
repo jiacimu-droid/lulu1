@@ -876,3 +876,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式入口**：`PersonalMiniTheaterScreen` 之前仅原世界/平行世界选择与随机灵感/自写，没有世界书选择；`MiniTheaterWorker` 采用 `CompanionContextMode.Isolated`，故不会自动包含聊天世界书。长篇剧场已有 `TheaterWorldBookContext.capture` 与显式选择，单篇复用这一数据契约，不另造世界书仓库。
 - **修改**：新番外可按标题/内容搜索并多选 `LuluRepositories.worldBook` 的现有条目，支持清空，默认不选。创建作品时对条目存在性校验，冻结 ID/标题/正文为 `MiniTheaterItem` 的附加字段，沿原 JSON 持久化；`PersonalMiniTheater.request` 只注入所选快照，明确是本篇虚构设定。其他故事、未选条目、全局开关、真实记忆不受影响；旧作品缺字段按空选择兼容。即使原世界书被编辑、删除，已创作品的继续/重写也不会悄悄换设定。未选不产生额外 API；保存快照本身也不收费。
 - **已提交**：源码 `a18cc2f`、`bb0b2f3`、`0827759`、`0d3c3ea`；测试 `9fa7579`、`6b6d9f5`。前者覆盖多选中的单选/未选隔离、关闭/持久重载、快照冻结及已删除 ID 拒绝；未运行 JVM/APK CI，无真机或真实模型生成对照。后续先验编译和单测，再验窄屏世界书弹窗、旧作品和原/平行世界两模式，保留 P-10.6 待外部验收。
+
+
+## 2026-11-04 · 每小时接力 P-08c.1 群聊单次模型请求可执行回归
+
+- **接手**：读取 main AGENTS、CODE_INDEX、唯一路线图、统一人物契约、成长框架与最新进度；核实 QqChatReplyEngine 原代码已移除空回复隐藏第二次请求，但原 GroupChatTurnPlannerTest 没有请求次数断言。已有真实送达锚、模型 bubbles 及旧回执不重复实现。
+- **源码**：[c7c942c](https://github.com/jiacimu-droid/lulu1/commit/c7c942c29891826021d52df9ffa50ea8b0bdef86) 把现有单次 LuluDeviceToolBridge.respond 调用封装为 requestGroupRoleOnce，默认网关参数保持全部原有角色、上下文、模型选择、证据字段和原结果，未增加请求、补偿重试或第二状态中心。
+- **回归**：[cb1bcf8](https://github.com/jiacimu-droid/lulu1/commit/cb1bcf891ad2fcdbdaaa5fe86acd0fab9f22a521) 的 GroupChatTurnPlannerTest.groupRoleAttemptNeverRetriesBlankToolOnlyOrFailedResults 用注入网关验证空正文、工具型、异常、正常回复均只调用一次且保留原始成功/失败及模型路由参数，不实际消耗 API。
+- **状态边界**：只完成源码/回归提交，尚未获得这两次提交的 JVM/APK CI 结果；不宣称测试通过或真机/真实模型验通。路线图 P-08c.1 标源码完成、待 CI，P-08c.2/3 仍待验。若 CI 编译失败，优先修首个真实错误。
+- **下一轮**：刷新 main 与本轮 Actions，验证单测与 APK；继续 P-08a 真实 trace 证据或 P-08c.2 的实际发送/失败回执回归。避免重做已存在的 bubbles 和旧隐藏重试修复。
