@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.ResidentDailyPolicy
+import com.jiacimu.lulu.data.DigitalWorldExpansionStore
+import com.jiacimu.lulu.data.ResidentCharacterBridge
 import kotlin.math.roundToInt
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -257,13 +259,6 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("数字世界 · 居民统一管理", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("所有 NPC 共享以下每日活动预算，个人角色不受影响。", color = SettingsMuted, fontSize = 12.sp)
-                }
-            }
-            item { SettingsCardBox { ResidentActivityBudgetSettings() } }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     Text("所有模型存档与功能分工都在这里统一管理；角色私聊仍可单独选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
@@ -374,5 +369,131 @@ private fun ResidentActivityBudgetSettings() {
             "修改后用于新的每日规划。今天已保存的行程不会被悄悄删除；已排的活动和即时私信、好友回信、普通职责各自保留原有回执。每日规划模型仍会进行当天的正常选择。",
             fontSize = 12.sp, color = SettingsMuted, lineHeight = 19.sp,
         )
+    }
+}
+
+
+/** Owner-facing management for existing native residents. Shared history
+ * remains in its original stores; removing one resident does not rewrite
+ * other characters' memories, chat messages or past encounters. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    remember(context) {
+        DigitalWorldExpansionStore.initialize(context.applicationContext)
+        MigratedDomainStores.initialize(context.applicationContext)
+        true
+    }
+    val revision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val residents = remember(revision) { DigitalWorldExpansionStore.residents() }
+    var allowNew by remember(context) {
+        mutableStateOf(ResidentDailyPolicy.allowNewResidents(context))
+    }
+    var editingId by remember { mutableStateOf<String?>(null) }
+    var deletingId by remember { mutableStateOf<String?>(null) }
+    var message by remember { mutableStateOf("") }
+
+    val deleting = residents.firstOrNull { it.id == deletingId }
+    if (deleting != null) {
+        AlertDialog(
+            onDismissRequest = { deletingId = null },
+            title = { Text("移除“${deleting.name}”？") },
+            text = { Text("此人将退出当前居民名单与日常活动；已发生的聊天和相处记录仍保留。为避免刚删完又新增居民，会同时暂停自动生成，你可以随时重新开启。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        check(DigitalWorldExpansionStore.removeResident(deleting.id)) { "居民已不在名单中" }
+                        check(ResidentDailyPolicy.setAllowNewResidents(context, false)) {
+                            "无法暂停自动生成，请在本页手动关闭"
+                        }
+                    }.onSuccess {
+                        allowNew = false
+                        message = "已移除“${deleting.name}”，保留既往相处记录"
+                    }.onFailure { message = it.message ?: "移除居民失败" }
+                    deletingId = null
+                }) { Text("移除居民", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { deletingId = null }) { Text("取消") } },
+        )
+    }
+    residents.firstOrNull { it.id == editingId }?.let { resident ->
+        ResidentProfileEditDialog(
+            resident = resident,
+            onDismiss = { editingId = null },
+            onSaved = {
+                ResidentCharacterBridge.sync(context)
+                editingId = null
+            },
+        )
+    }
+    Scaffold(
+        containerColor = SettingsPaper,
+        topBar = {
+            TopAppBar(
+                title = { Text("居民管理", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, "返回")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                Text("当前居民 · ${residents.size} 位", fontWeight = FontWeight.Bold,
+                    fontSize = 19.sp, color = SettingsInk)
+            }
+            item { SettingsCardBox { ResidentActivityBudgetSettings() } }
+            item {
+                SettingsCardBox {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("自动新增居民", fontWeight = FontWeight.SemiBold, color = SettingsInk)
+                            Text("关闭后不再由世界演化自动增加居民；现有居民的活动和社交照常进行。",
+                                color = SettingsMuted, fontSize = 12.sp)
+                        }
+                        Switch(checked = allowNew, onCheckedChange = { next ->
+                            if (ResidentDailyPolicy.setAllowNewResidents(context, next)) {
+                                allowNew = next
+                                message = ""
+                            } else message = "保存自动新增设置失败"
+                        })
+                    }
+                }
+            }
+            if (message.isNotBlank()) item {
+                Text(message, color = SettingsMuted, fontSize = 12.sp)
+            }
+            if (residents.isEmpty()) item {
+                SettingsCardBox { Text("目前没有居民", color = SettingsMuted) }
+            }
+            items(residents, key = { it.id }) { resident ->
+                SettingsCardBox {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(resident.name, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                            Text(listOf(resident.gender, resident.identity).filter(String::isNotBlank)
+                                .joinToString(" · "), color = SettingsMuted, fontSize = 12.sp)
+                        }
+                        TextButton(onClick = { editingId = resident.id }) { Text("编辑") }
+                        IconButton(onClick = { deletingId = resident.id }) {
+                            Icon(Icons.Outlined.DeleteOutline, "移除${resident.name}",
+                                tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                    val summary = listOf(resident.temperament, resident.preferences, resident.background)
+                        .filter(String::isNotBlank).joinToString(" · ")
+                    if (summary.isNotBlank()) Text(summary.take(150), fontSize = 12.sp,
+                        color = SettingsMuted, maxLines = 3)
+                }
+            }
+        }
     }
 }
