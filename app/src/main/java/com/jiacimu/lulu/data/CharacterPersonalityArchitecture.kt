@@ -82,7 +82,7 @@ internal object CharacterHeartVoicePolicy {
         if (!hasFreshEvidence && !structuredDelta) return ""
         // Compare the authored text before its presentation excerpt is made:
         // an outward prefix does not make a private negation/condition a duplicate.
-        if (outward.isNotBlank() && isOutwardDuplicate(thought, outward)) return ""
+        if (outward.isNotBlank() && sameMeaning(thought, outward)) return ""
         return clean
     }
 
@@ -112,8 +112,9 @@ internal object CharacterHeartVoicePolicy {
         return false
     }
 
-    /** Formatting-only duplicate check, never a semantic similarity verdict. */
-    internal fun isOutwardDuplicate(left: String, right: String): Boolean {
+    /** Compatibility name for existing history/idea consumers. This is only a
+     * formatting duplicate check, never a semantic similarity verdict. */
+    internal fun sameMeaning(left: String, right: String): Boolean {
         fun identity(value: String): String = value.replace(Regex("\\s+"), " ")
             .trim().trimEnd('。', '.')
         val a = identity(left)

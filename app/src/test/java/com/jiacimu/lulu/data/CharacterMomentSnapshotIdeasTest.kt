@@ -24,4 +24,16 @@ class CharacterMomentSnapshotIdeasTest {
     @Test fun noEvidenceDoesNotSynthesizePrivateIdeas() {
         assertEquals("", CharacterMomentSnapshot.reflection(null, appraisal = JSONObject()))
     }
+    @Test fun privateNegationIsNotHiddenByItsOppositeOutwardStatement() {
+        val outward = "想继续和她聊下去"
+        val negative = "不想继续和她聊下去"
+        val appraisal = JSONObject().put("privateIdeas",
+            JSONArray().put(outward).put(negative))
+        assertEquals(2, CharacterMomentSnapshot.reflection(null,
+            appraisal = appraisal).lines().size)
+        assertEquals(negative, CharacterMomentSnapshot.reflection(null,
+            appraisal = appraisal, outward = outward))
+    }
+
+
 }
