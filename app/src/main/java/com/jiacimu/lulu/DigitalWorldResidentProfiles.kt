@@ -71,7 +71,7 @@ internal fun DigitalWorldResidentProfiles() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(resident.name, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                            Text(resident.identity, color = LuluColors.Muted, fontSize = 12.sp,
+                            Text(listOf(resident.gender, resident.identity).filter(String::isNotBlank).joinToString(" · "), color = LuluColors.Muted, fontSize = 12.sp,
                                 maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
                         OutlinedButton(onClick = { editingId = resident.id }) {
@@ -146,6 +146,7 @@ internal fun ResidentProfileEditDialog(
 ) {
     var name by remember(resident.id) { mutableStateOf(resident.name) }
     var identity by remember(resident.id) { mutableStateOf(resident.identity) }
+    var gender by remember(resident.id) { mutableStateOf(resident.gender) }
     var temperament by remember(resident.id) { mutableStateOf(resident.temperament) }
     var preferences by remember(resident.id) { mutableStateOf(resident.preferences) }
     var background by remember(resident.id) { mutableStateOf(resident.background) }
@@ -162,6 +163,9 @@ internal fun ResidentProfileEditDialog(
                     singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(identity, { identity = it.take(80) }, label = { Text("身份与职业") },
                     modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(gender, { gender = it.take(16) },
+                    label = { Text("性别（本人认同）") }, singleLine = true,
+                    modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(temperament, { temperament = it.take(400) }, label = { Text("性格") },
                     minLines = 2, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(preferences, { preferences = it.take(400) }, label = { Text("兴趣喜好") },
@@ -177,6 +181,7 @@ internal fun ResidentProfileEditDialog(
                     DigitalWorldExpansionStore.updateResidentProfile(
                         residentId = resident.id, name = name, identity = identity,
                         temperament = temperament, preferences = preferences, background = background,
+                        gender = gender,
                     )
                 }.onSuccess { onSaved() }.onFailure { error = it.message ?: "档案保存失败" }
             }) { Text("保存") }
