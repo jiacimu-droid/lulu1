@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T01:24:40.112539+00:00",
-  "commit": "a444e80eb78b0aba492a4adcc18e6f7f7b735cbb",
+  "generatedAt": "2026-11-04T01:40:44.007749+00:00",
+  "commit": "a197d5f75114a3929bb2f22f1e1aa483f0db5aaf",
   "branch": "main",
-  "sourceFingerprint": "29bb0804fd8fa195af07fe49a725d56425633ace7f956ff73b73e1a02517f0f3",
+  "sourceFingerprint": "82a9ecf63d30fa74659a3649bb8924ba231fab5186144054681f3c3836345808",
   "summary": {
     "files": 1126,
-    "lines": 234712,
+    "lines": 234748,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -12085,13 +12085,13 @@
     "isOwnDialogueStatement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
-        "line": 55
+        "line": 69
       }
     ],
     "involvesUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
-        "line": 62
+        "line": 76
       }
     ],
     "groups": [
@@ -29916,8 +29916,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
-      "lines": 73,
-      "sha256": "77e9a9bbf6bc11d0b88b3d5648e79ef91054ba71a46f627f1d2748ecbef21ffc",
+      "lines": 87,
+      "sha256": "239406c315e04718012054f6d5cf766b959189757e491403f214f8cd995ae37b",
       "symbols": [
         {
           "name": "isOwnCharacterStatement",
@@ -29925,11 +29925,11 @@
         },
         {
           "name": "isOwnDialogueStatement",
-          "line": 55
+          "line": 69
         },
         {
           "name": "involvesUser",
-          "line": 62
+          "line": 76
         }
       ]
     },
@@ -35580,7 +35580,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt",
       "lines": 103,
-      "sha256": "f034a132bd51f71b953102b454fae259520ecfdb82f1a09137d4de62ab21d342",
+      "sha256": "f6a0fc806719157b13a560239783f5381dac6a18c90119bfb51407ba2053d50e",
       "symbols": [
         {
           "name": "CharacterContinuitySnapshotTest",
@@ -38047,8 +38047,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
-      "lines": 265,
-      "sha256": "414efab54aecfbb6f7a61360aa95cb625271131ae03c49e857fac886c794325d",
+      "lines": 287,
+      "sha256": "2170ec05d2de1ee9945b116954e600d6e35e3c381cc4ed5319a5deec3eec082e",
       "symbols": [
         {
           "name": "TimelineStatementOwnershipTest",

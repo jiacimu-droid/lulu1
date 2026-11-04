@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a444e80eb78b0aba492a4adcc18e6f7f7b735cbb`
+- 基准提交：`a197d5f75114a3929bb2f22f1e1aa483f0db5aaf`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234712
+- 已索引代码/文本行：234748
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -560,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 73 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 576 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
@@ -1057,7 +1057,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 265 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 287 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
