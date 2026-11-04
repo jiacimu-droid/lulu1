@@ -98,7 +98,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     title = "新一批番外灵感",
                     contextMode = CompanionContextMode.Isolated,
                     connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                    maxTokens = 2_600,
+                    maxTokens = 3_800,
                     readTimeoutMillis = 120_000,
                 ).getOrThrow()
                 val before = PersonalMiniTheater.ideas.size + library.creativeIdeas.value.size
@@ -108,7 +108,14 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (e: Exception) {
-                error = "新灵感获取失败：${e.message ?: "请重试"}"
+                // Provider/JSON errors can contain the entire generated body.
+                // Never render that raw payload inside the story reader.
+                error = if (e is IllegalArgumentException ||
+                    e.message.orEmpty().contains("灵感")) {
+                    "这次没取得可用的新灵感，原有灵感已保留；可以再次尝试。"
+                } else {
+                    "灵感请求未成功，原有灵感已保留；请检查网络或模型设置。"
+                }
             } finally {
                 inspirationLoading = false
             }
@@ -155,7 +162,10 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                             enabled = fontSize < 20) { Text("A＋") }
                     }
                 }
-                if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
+                if (error.isNotBlank()) Text(error,
+                    color = MaterialTheme.colorScheme.error,
+                    maxLines = 3,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
             if (work == null) {
                 item {
