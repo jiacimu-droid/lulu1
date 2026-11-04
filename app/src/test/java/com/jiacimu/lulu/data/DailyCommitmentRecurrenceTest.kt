@@ -45,6 +45,25 @@ class DailyCommitmentRecurrenceTest {
             nextDailyCommitmentDue(after.dailyBaseDueAt!!, at(2026, 10, 25, 10, 0), shanghai))
     }
 
+    @Test fun distinctDailyClockAndUnverifiedOccurrenceSurviveCodec() {
+        val first = at(2026, 11, 4, 23, 30)
+        val future = at(2026, 11, 5, 23, 30)
+        val task = CommitmentTask(characterId = "role", goal = "每天监督学习",
+            repeat = "daily", dueAt = first, dailyNextDueAt = future,
+            dailyNextAlarmId = "tomorrow-alarm", status = CommitmentTaskStatus.WaitingForFeedback,
+            dailyAttempts = listOf(DailyCommitmentAttempt(first.minusSeconds(86400),
+                "WaitingForFeedback", "昨天提醒送达，结果未知", 2,
+                reviewAlarmId = "old-review", reviewAt = future.plusSeconds(3600))))
+        val restored = decodeCommitmentTasks(encodeCommitmentTasks(listOf(task))).single()
+        assertEquals(task.id, restored.id)
+        assertEquals(task.dailyNextDueAt, restored.dailyNextDueAt)
+        assertEquals(task.dailyNextAlarmId, restored.dailyNextAlarmId)
+        assertEquals(task.dailyAttempts, restored.dailyAttempts)
+        assertTrue(restored.visibleOnScheduleDate(
+            java.time.LocalDate.of(2026, 11, 5), shanghai,
+            java.time.LocalDate.of(2026, 11, 4)))
+    }
+
     @Test fun oldSavedTasksAreNotAccidentallyMadeDaily() {
         val before = CommitmentTask(characterId = "role", goal = "今晚电话提醒",
             dueAt = at(2026, 10, 24, 23, 30))
