@@ -106,7 +106,7 @@ internal object DigitalWorldExpansionStore {
         val previous = residents
         val oldRetired = retiredTemplates
         residents = residents.filterNot { it.id == residentId }
-        retiredTemplates = retiredTemplates + person.templateName
+        retiredTemplates = retiredTemplates + setOf(person.templateName, person.name)
         try {
             persist()
         } catch (error: Throwable) {
