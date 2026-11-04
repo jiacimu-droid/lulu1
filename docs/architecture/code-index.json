@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:23:19.086625+00:00",
-  "commit": "f1272dbd213e0e3f0159ae1baf8fc518eb07a1e6",
+  "generatedAt": "2026-11-04T03:24:10.835489+00:00",
+  "commit": "98f684c7ffe950b2ec0867b86af8bd31b5ec6491",
   "branch": "main",
-  "sourceFingerprint": "79fe14b3437aa1ca89b20d77c0bac0c3eeef2b6ecbc0c29754510fd1500ed126",
+  "sourceFingerprint": "47e371fc54394012f3891b27cc5898ed53f6f925133e53696a46fd1b0efe869e",
   "summary": {
     "files": 1128,
-    "lines": 235596,
+    "lines": 235619,
     "symbols": 3277
   },
   "symbolIndex": {
@@ -26490,7 +26490,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
       "lines": 425,
-      "sha256": "9434ba4c2fd966b4b84a6f183f62c87e1152883cb1fc41fb1ca2a9659be7596b",
+      "sha256": "5ee2e3e3ecc645d2f4575051b1986c669dc4dd7225564eff88196a73958c0907",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -37428,8 +37428,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 165,
-      "sha256": "4a3bd4d7023e2bdc2babbdd33e9d2aa1fb159ad3e8cf7da282c3c6fb6a5de929",
+      "lines": 188,
+      "sha256": "23964105f14101b5fe16276226671261b8f9d198e2610b75148d383d6cdee3d7",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
