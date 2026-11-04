@@ -64,7 +64,7 @@ object ChatLexiconAutomation {
             // Independent of latest-turn inspection: a stuck input generation
             // must not block recovery of an older failed extraction.
             while (true) {
-                delay(60_000)
+                delay(10_000)
                 try {
                     retryPendingTurns()
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
@@ -144,7 +144,7 @@ object ChatLexiconAutomation {
                             if (conversation.groupChat == null) it else "$it:group:$characterId"
                         },
                     )
-                    if (saved) markProcessed(signature)
+                    if (saved) markProcessed(signature) else schedulePromptRetry(signature)
                 }
             }
     }
@@ -166,7 +166,7 @@ object ChatLexiconAutomation {
                 if (!permitAttempt(signature)) return@withLock
                 if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
                     markProcessed(signature)
-                }
+                } else schedulePromptRetry(signature)
             }
         }
     }
@@ -327,7 +327,7 @@ object ChatLexiconAutomation {
                     groupName = conversation.groupChat?.name,
                     sourceEventIds = sourceEventIds,
                 )
-                if (saved) markProcessed(pending.signature)
+                if (saved) markProcessed(pending.signature) else schedulePromptRetry(pending.signature)
             }
         }
     }
@@ -382,6 +382,27 @@ object ChatLexiconAutomation {
         }
     }
 
+    /**
+     * Promptly retry one failed background task without replaying a POST at
+     * the transport level. The bounded schedule avoids hammering an outage.
+     * The durable ten-second recovery poll also survives process death.
+     */
+    private fun schedulePromptRetry(signature: String) {
+        val p = prefs ?: return
+        val count = p.getInt("attempt:${signature.hashCode()}:count", 0)
+        val delayMs = lexiconRetryDelayMillis(count) ?: return
+        scope.launch {
+            delay(delayMs)
+            try {
+                retryPendingTurns()
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                android.util.Log.w("LuluLexicon", "Prompt life extraction retry failed", failure)
+            }
+        }
+    }
+
     private fun permitAttempt(signature: String): Boolean {
         val p = prefs ?: return false
         val key = "attempt:${signature.hashCode()}"
@@ -415,10 +436,10 @@ internal data class LexiconPendingTurn(
 /** Task-level retry only; transport must not silently replay chargeable POSTs. */
 internal fun lexiconRetryDelayMillis(attempts: Int): Long? = when (attempts) {
     0 -> 0L
-    1 -> 2 * 60_000L
-    2 -> 15 * 60_000L
-    3 -> 60 * 60_000L
-    4 -> 4 * 60 * 60_000L
+    1 -> 2_000L    // First failure: retry almost immediately.
+    2 -> 30_000L   // Repeated failure: brief cooldown.
+    3 -> 2 * 60_000L
+    4 -> 10 * 60_000L
     else -> null // Five total paid attempts; retain checkpoint for diagnosis.
 }
 
