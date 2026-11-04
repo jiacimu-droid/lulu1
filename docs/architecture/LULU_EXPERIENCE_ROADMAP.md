@@ -14,7 +14,7 @@
 6. **交接**：完成子步骤勾 [x]，把证据追加到专项进度；只剩外部验收的项目保留具体待验子步骤，不保留已完成开发流水。每轮报告改了什么、为何、提交和测试结果、下一编号。不重用 ID；有新根因则在原 ID 下新增子步骤。
 7. **并发与授权**：多窗口/自动任务先核 main 与同文件 SHA；有冲突时刷新或避让，不强推、不覆盖用户改动。真实模型和真机证据无法拿到时写「未知」，不能编造，也不能把私人日志提交公开仓库。
 
-**最近已核对的快照（仅供接手，须重新核查）**：动作回执修复 bd0fd27 对应 APK/JVM [41811001667](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001667) success；旧 [41802053512](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053512) failure、[41795220233](https://github.com/jiacimu-droid/lulu1/actions/runs/41795220233) cancelled、[41808947837](https://github.com/jiacimu-droid/lulu1/actions/runs/41808947837) cancelled。江渡批准版替换 f6c5b42 已提交，[41820410872](https://github.com/jiacimu-droid/lulu1/actions/runs/41820410872) 查询时 in_progress。已存在 OriginalEvidenceSpans、回合 trace、群聊模型 bubbles、好友/通知部分链路、番外排版、翻牌公开牌策略，禁止重复造轮子。
+**最近已核对的完整构建基线（接手须刷新）**：`cb1bcf8` 的 [APK/JVM/发布41831351831](https://github.com/jiacimu-droid/lulu1/actions/runs/41831351831) 与原索引41831352008均success，发布v7776。追踪回执修复 `cadd595` 原索引41839212471 success、APK/JVM41839212468提交后pending；基线成功不代表后继源码通过。真机/真实模型未验，旧失败与取消流水见专项历史。
 
 ## 二、跨窗口接力看板（仅列未完成项）
 
@@ -46,7 +46,7 @@
 ### P-08a 全链追踪
 - [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
 - [ ] **P-08a.2** 若已证关联缺失，修权威链路并加跨私聊/群聊/后台的测试；无缺陷不空改。
-- [x] **P-08a.2a 源码/回归已提交，待CI**：因果追踪和日程归因复用原执行完成规则；双层状态矛盾不确认成功，旧本地结果及实际完成状态兼容，原始事实/感知不变。其余关联及真实回合仍待P-08a.1/2/3。
+- [x] **P-08a.2a cadd595 源码/回归已提交，待CI**：因果追踪和日程归因复用原执行完成规则；双层状态矛盾不确认成功，旧本地结果及实际完成状态兼容，原始事实/感知不变。原索引41839212471 success，APK/JVM41839212468 pending；其余关联及真实回合仍待P-08a.1/2/3。
 - [ ] **P-08a.3** 用获授权脱敏真实回合对齐输入/选择/表达 bubbles/送达/后续，未取得样本就标外部待验。
 
 ### P-08b 本人人格和心理
