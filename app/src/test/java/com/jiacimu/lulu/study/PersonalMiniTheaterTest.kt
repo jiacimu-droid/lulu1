@@ -240,10 +240,14 @@ class PersonalMiniTheaterTest {
         val character = MigratedDomainStores.characters.create(
             "可穿越角色", "观察敏锐、嘴上冷静、行动有点冒险精神")
         CharacterIdentityStore.set(character.characterId, "住在露露机数字世界，职业是虚拟咖啡师")
+        CharacterLifeStore.setProfile(character.characterId, "care",
+            "亲密相处时可以自信地主导，也愿意把主导交给亲近的人；原世界称呼主人。")
         val original = PersonalMiniTheater.capture(character.characterId)
         val alternate = PersonalMiniTheater.capture(character.characterId, "alternate")
         assertTrue(original.material.contains("虚拟咖啡师"))
         assertTrue(alternate.material.contains("观察敏锐"))
+        assertTrue(alternate.material.contains("自信地主导"))
+        assertTrue(alternate.material.contains("身份、世界观或既定关系"))
         assertFalse(alternate.material.contains("虚拟咖啡师"))
         assertFalse(alternate.material.contains("原设身份与背景"))
         val library = MiniTheaterLibrary(context, emptyList())
