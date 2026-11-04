@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:58:40.433767+00:00",
-  "commit": "17b1d6e3bf2fcdd6b1b3da8af75d9c4ba138ac06",
+  "generatedAt": "2026-11-04T18:38:56.497769+00:00",
+  "commit": "0980eef8f19fcd9b7f2bbca275eb4eb52452fbd9",
   "branch": "main",
-  "sourceFingerprint": "d8aa81235ff162ba69b9543ecc4560bec35122a5020b9878f51a993ea3008d35",
+  "sourceFingerprint": "8f3480a83ebcf9492a4a8ff18fcbf12f08a0bf5ecd49a421c0fab12d70f30f0f",
   "summary": {
     "files": 1137,
-    "lines": 240776,
-    "symbols": 3317
+    "lines": 240818,
+    "symbols": 3318
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5951,13 +5951,13 @@
     "provenanceProblem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 520
+        "line": 527
       }
     ],
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 661
+        "line": 668
       }
     ],
     "snapshot": [
@@ -16184,6 +16184,12 @@
         "line": 1098
       }
     ],
+    "recordReceipt": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 1182
+      }
+    ],
     "CharacterContinuityGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
@@ -23869,8 +23875,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 734,
-      "sha256": "d1c7bace2cf5005913ae3a1a81d915942f5dfa62543c235101f50a0ea3517987",
+      "lines": 741,
+      "sha256": "1540d3454a8843a889721aefc33ffbfc08799a35b3be4161a58d853baa2edcfa",
       "symbols": [
         {
           "name": "inspect",
@@ -23878,11 +23884,11 @@
         },
         {
           "name": "provenanceProblem",
-          "line": 520
+          "line": 527
         },
         {
           "name": "unverifiedReason",
-          "line": 661
+          "line": 668
         }
       ]
     },
@@ -36066,8 +36072,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 1170,
-      "sha256": "17d1367f315600560f1ac527484e353245e6fef2857ec35bfdcb42cd82c78e3e",
+      "lines": 1205,
+      "sha256": "5ad26ad305bb0a2d922c1bfe4f747c7d0b71ec9f1ef854625708ae22744882dd",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -36104,6 +36110,10 @@
         {
           "name": "lineFor",
           "line": 1098
+        },
+        {
+          "name": "recordReceipt",
+          "line": 1182
         }
       ]
     },
