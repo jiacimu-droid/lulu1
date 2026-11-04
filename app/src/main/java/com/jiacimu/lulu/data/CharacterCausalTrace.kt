@@ -152,15 +152,25 @@ internal object CharacterCausalTrace {
         // or undated choices as uncertain; only reject demonstrably impossible
         // current-version attribution. This is read-only and does not erase
         // the original decision from its owner archive.
-        val relatedDecisions = decisionsForSource(characterId, current.id, mind)
-            .filter { decision ->
-                val revision = decision.optLong("causalEvidenceRevision", 0L)
-                val decidedAt = runCatching {
-                    java.time.Instant.parse(decision.optString("at"))
-                }.getOrNull()
-                revision != current.revision || decidedAt == null ||
-                    !decidedAt.isBefore(current.occurredAt)
+        val sourceDecisions = decisionsForSource(characterId, current.id, mind)
+        val (prematureDecisions, relatedDecisions) = sourceDecisions.partition { decision ->
+            val decidedAt = runCatching {
+                java.time.Instant.parse(decision.optString("at"))
+            }.getOrNull()
+            decision.optLong("causalEvidenceRevision", 0L) == current.revision &&
+                decidedAt?.isBefore(current.occurredAt) == true
+        }
+        // An impossible attribution remains visible as an unverified diagnostic,
+        // but cannot recover receipts or claim that its action actually ran.
+        prematureDecisions.forEach { decision ->
+            if (decision.optString("executionRequestId").isNotBlank()) {
+                rows += CharacterCausalTraceLine(
+                    "主动作 · 回执归属未证实",
+                    "本人选择早于其原始依据，不能认定该次执行归属；" +
+                        "保留原始选择，不能据此认定工具已经执行",
+                )
             }
+        }
         // The timeline card receives a bounded UI window. An older search
         // receipt can fall outside it even though the original model choice
         // preserved the exact ToolRouter request IDs. Recover ONLY those
