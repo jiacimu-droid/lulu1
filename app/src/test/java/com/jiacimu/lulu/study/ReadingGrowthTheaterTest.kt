@@ -41,8 +41,9 @@ class ReadingGrowthTheaterTest {
         DigitalLifeProfileStore.initialize(context)
         CharacterDevelopmentStore.initialize(context)
         SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
         val person = MigratedDomainStores.characters.create("学会幽默的数字生命", "成人判断成熟，生活经验尚少")
-        val at = Instant.now()
+        val at = Instant.now().minusSeconds(30)
         val experiences = listOf(
             Triple("learning-book", "独自阅读《诗集》", "实际读到了文字表达"),
             Triple("learning-game", "独自游戏", "实际玩过一局游戏"),
@@ -53,13 +54,12 @@ class ReadingGrowthTheaterTest {
                 detail, at.plusSeconds(index.toLong()), false)
         }
         val firstExpression = "learning-owned-line-1"
-        val secondExpression = "learning-owned-line-2"
         SharedExperienceTimeline.record(firstExpression, person.characterId, "私人日记",
             person.displayName, "今天试着用一个奇怪的停顿自言自语", at.plusSeconds(4), false,
             source = "journal:own", evidenceKind = EventEvidenceKind.CharacterStatement)
-        SharedExperienceTimeline.record(secondExpression, person.characterId, "私聊",
-            person.displayName, "嗯……算了，我确实挺喜欢这种停顿", at.plusSeconds(5), false,
-            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        val conversation = MigratedDomainStores.chat.ensureConversation(person.characterId, "真实聊天")
+        val secondExpression = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "嗯……算了，我确实挺喜欢这种停顿", person.characterId).id
         val persona = CharacterRuntime.personaConstraintSnapshot(person.characterId)
         val exposureIds = experiences.map { it.first }
         fun learn(ids: List<String>) = CharacterDevelopmentStore.applyProposal(

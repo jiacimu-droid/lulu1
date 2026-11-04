@@ -184,10 +184,10 @@ class TimelineStatementOwnershipTest {
     @Test fun orphanOrFailedGroupUserWitnessCannotOverwriteActualLastUserWords() {
         val role = "group-user-witness-validation"
         val peer = "group-user-witness-peer"
-        val at = Instant.now().minusSeconds(120)
-        SharedExperienceTimeline.record("prior-direct-user", role, "私聊", "用户",
-            "我先去吃饭，回来再聊。", at, triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val direct = MigratedDomainStores.chat.ensureConversation(role, "上一次私聊")
+        val prior = MigratedDomainStores.chat.sendUserMessage(
+            direct.id, "我先去吃饭，回来再聊。")
+        val at = prior.createdAt
         val group = MigratedDomainStores.chat.createGroupConversation(
             "可核验的群聊", listOf(role, peer), true)
         val sent = MigratedDomainStores.chat.sendUserMessage(group.id, "我回来啦。")
@@ -210,7 +210,7 @@ class TimelineStatementOwnershipTest {
         assertFalse(TimelineStatementOwnership.involvesUser(valid))
         val snapshot = CharacterContinuityRuntime.snapshot(role,
             now = Instant.now().plusSeconds(3))
-        assertEquals("prior-direct-user", snapshot.lastUserStatement?.id)
+        assertEquals(prior.id, snapshot.lastUserStatement?.id)
         assertEquals(at.toEpochMilli(), snapshot.previousInteractionAt?.toEpochMilli())
     }
 
