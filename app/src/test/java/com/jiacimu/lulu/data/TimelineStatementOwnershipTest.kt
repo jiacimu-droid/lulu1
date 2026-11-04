@@ -69,7 +69,7 @@ class TimelineStatementOwnershipTest {
         val b = "independent-life-b"
         val at = Instant.now().minusSeconds(3_600)
         SharedExperienceTimeline.record("old-direct-user", a, "私聊", "用户", "此前的聊天",
-            occurredAt = at, triggerExtraction = false, source = "message",
+            occurredAt = at, triggerExtraction = false, source = "legacy",
             evidenceKind = EventEvidenceKind.UserStatement)
         val group = MigratedDomainStores.chat.createGroupConversation("自己的社交", listOf(a, b), false)
         val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我在和朋友讨论这本书。", a)
@@ -261,4 +261,26 @@ class TimelineStatementOwnershipTest {
             assertNull(chat.recordedMessage(group.id, own.id))
         } finally { worker.shutdownNow() }
     }
+    @Test fun privateWitnessNeedsTheSameSentOriginalAndCurrentRevision() {
+        val role = "private-canonical-proof"
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "真实私聊")
+        val user = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先等等，我还没决定。")
+        val own = MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "好，我等你。", role)
+        val userEvent = SharedExperienceTimeline.eventsByIds(role, listOf(user.id)).single()
+        val ownEvent = SharedExperienceTimeline.eventsByIds(role, listOf(own.id)).single()
+        assertTrue(TimelineStatementOwnership.involvesUser(userEvent))
+        assertTrue(TimelineStatementOwnership.isOwnDialogueStatement(ownEvent))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            userEvent.copy(content = "我已经决定了")))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            userEvent.copy(occurredAt = userEvent.occurredAt.plusSeconds(1))))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            userEvent.copy(sessionId = "other-conversation")))
+        MigratedDomainStores.chat.markFailed(user.id)
+        assertFalse(TimelineStatementOwnership.involvesUser(userEvent))
+        MigratedDomainStores.chat.markFailed(own.id)
+        assertFalse(TimelineStatementOwnership.isOwnDialogueStatement(ownEvent))
+    }
+
+
 }

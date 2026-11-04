@@ -72,11 +72,11 @@ class CharacterContinuitySnapshotTest {
         val role = "solo-artifact-contact-boundary"
         val base = Instant.parse("2026-11-04T04:00:00Z")
         SharedExperienceTimeline.record("contact-user", role, "私聊", "用户",
-            "明天再聊。", base, triggerExtraction = false, source = "message",
+            "明天再聊。", base, triggerExtraction = false, source = "legacy",
             evidenceKind = EventEvidenceKind.UserStatement)
         SharedExperienceTimeline.record("contact-own", role, "私聊", "角色",
             "好，明天见。", base.plusSeconds(1), triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+            source = "legacy", evidenceKind = EventEvidenceKind.CharacterStatement)
         SharedExperienceTimeline.record("solo-practice", role, "自主学习·私人练习", "角色",
             "{\"artifact\":\"私人练习稿\"}", base.plusSeconds(2),
             triggerExtraction = false, source = "learning-practice:goal",

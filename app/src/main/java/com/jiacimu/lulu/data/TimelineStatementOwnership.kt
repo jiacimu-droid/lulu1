@@ -9,17 +9,17 @@ internal object TimelineStatementOwnership {
     private fun isGroup(event: SharedTimelineEvent): Boolean =
         event.channel.contains("群聊") || event.id.endsWith(":group:${event.characterId}")
 
-    private fun original(event: SharedTimelineEvent): Pair<LuluConversation, LuluChatMessage>? {
-        if (event.sessionId.isBlank()) return null
+    /** Resolve a timeline projection to the same sent chat message. Both
+     * private speech and group witnesses use one provenance/revision gate. */
+    private fun original(event: SharedTimelineEvent, group: Boolean):
+        Pair<LuluConversation, LuluChatMessage>? {
+        if (event.source != "message" || event.sessionId.isBlank()) return null
         val conversation = MigratedDomainStores.chat.conversations.value
-            .firstOrNull { it.id == event.sessionId && it.groupChat != null } ?: return null
-        val id = event.id.removeSuffix(":group:${event.characterId}")
+            .firstOrNull { it.id == event.sessionId && (it.groupChat != null) == group &&
+                (group || it.characterId == event.characterId) } ?: return null
+        val id = if (group) event.id.removeSuffix(":group:${event.characterId}") else event.id
         val message = MigratedDomainStores.chat.recordedMessage(conversation.id, id)
             ?.takeIf { it.status == LuluChatMessage.Status.Sent } ?: return null
-        // A same-ID message in a different conversation, or an obsolete copied
-        // witness, must not establish the user's latest words or this character's
-        // authorship. The timeline projection is created from this exact content
-        // and timestamp; edits regenerate the projection with a new revision.
         if (event.occurredAt.toEpochMilli() != message.createdAt.toEpochMilli() ||
             event.content != qqForwardContextText(message.content).trim()) return null
         return conversation to message
@@ -31,9 +31,14 @@ internal object TimelineStatementOwnership {
         // Existing direct/self records retain their established meaning.
         // A group witness requires positive source attribution, even for old
         // records whose original conversation is no longer available.
-        if (!isGroup(event)) return true
+        if (!isGroup(event)) {
+            if (event.source != "message") return true
+            val (conversation, message) = original(event, group = false) ?: return false
+            return message.sender == LuluChatMessage.Sender.Character && !message.onBehalfByOwner &&
+                (message.authorCharacterId ?: conversation.characterId) == event.characterId
+        }
         if (event.source != "message") return false
-        val (conversation, message) = original(event) ?: return false
+        val (conversation, message) = original(event, group = true) ?: return false
         return message.sender == LuluChatMessage.Sender.Character && !message.onBehalfByOwner &&
             (message.authorCharacterId ?: conversation.characterId) == event.characterId
     }
@@ -42,7 +47,16 @@ internal object TimelineStatementOwnership {
      * the user: moments, journals, solo learning and resident encounters are
      * firsthand character statements with different audiences. */
     private fun isDirectUserExchange(event: SharedTimelineEvent): Boolean = when (event.source) {
-        "message", "watch-together" -> true
+        "message" -> original(event, group = false)?.let { (conversation, message) ->
+            when (event.evidenceKind) {
+                EventEvidenceKind.UserStatement -> message.sender == LuluChatMessage.Sender.User
+                EventEvidenceKind.CharacterStatement ->
+                    message.sender == LuluChatMessage.Sender.Character && !message.onBehalfByOwner &&
+                        (message.authorCharacterId ?: conversation.characterId) == event.characterId
+                else -> false
+            }
+        } == true
+        "watch-together" -> true
         "meeting" -> event.sessionId.isNotBlank() &&
             DigitalWorldStore.state.value.meetings.any { session ->
                 session.id == event.sessionId &&
@@ -66,7 +80,7 @@ internal object TimelineStatementOwnership {
         // A witnessed group row is not proof of a user message on its own.
         // Resolve the original sent message, just as we do for character authorship.
         // This also rejects deleted/failed/rewritten or orphaned witness records.
-        val (_, message) = original(event) ?: return false
+        val (_, message) = original(event, group = true) ?: return false
         return message.sender == LuluChatMessage.Sender.User
     }
 }
