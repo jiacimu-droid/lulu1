@@ -32,8 +32,7 @@ internal data class QqComposerPayload(
 
 @Composable
 internal fun QqChatComposer(
-    input: String,
-    onInputChange: (String) -> Unit,
+    inputState: MutableState<String>,
     groupMode: Boolean,
     characterId: String,
     receiving: Boolean,
@@ -89,12 +88,12 @@ internal fun QqChatComposer(
         val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             ?.firstOrNull().orEmpty().trim()
         if (spoken.isNotBlank()) {
-            onInputChange(listOf(input.trim(), spoken).filter(String::isNotBlank).joinToString(" "))
+            inputState.value = listOf(inputState.value.trim(), spoken).filter(String::isNotBlank).joinToString(" ")
         }
     }
 
     fun payload(): QqComposerPayload = QqComposerPayload(
-        text = input.trim(),
+        text = inputState.value.trim(),
         imageUri = imageUri,
         imageDescription = "",
     )
@@ -114,7 +113,7 @@ internal fun QqChatComposer(
         if (showStickerShelf) {
             QqStickerShelf(
                 onSendSticker = onSendSticker,
-                onInsertText = { kaomoji -> onInputChange(input + kaomoji) },
+                onInsertText = { kaomoji -> inputState.value += kaomoji },
                 onNotice = { stickerNotice = it },
             )
             if (stickerNotice.isNotBlank()) {
@@ -243,8 +242,8 @@ internal fun QqChatComposer(
             ) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", modifier = Modifier.size(27.dp)) }
 
             TextField(
-                value = input,
-                onValueChange = onInputChange,
+                value = inputState.value,
+                onValueChange = { inputState.value = it },
                 modifier = Modifier.weight(1f),
                 minLines = 1,
                 maxLines = 5,
@@ -261,7 +260,7 @@ internal fun QqChatComposer(
                 ),
             )
 
-            val canSend = !importingPhoto && (input.isNotBlank() || imageUri != null)
+            val canSend = !importingPhoto && (inputState.value.isNotBlank() || imageUri != null)
             FilledIconButton(
                 onClick = { if (onSendOnly(payload())) clearAttachment() },
                 enabled = canSend,
