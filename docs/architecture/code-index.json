@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T13:32:59.251867+00:00",
-  "commit": "b1113e3e4be4db214529114cf4e96ba054f8e41c",
+  "generatedAt": "2026-11-04T13:33:19.209441+00:00",
+  "commit": "04b89e81d878c0a198115a48b1aa5c24e674aca0",
   "branch": "main",
-  "sourceFingerprint": "198a208e93e691306ca82b50b7f5316579b6cccaace75bfdd36bf98a3f176b2c",
+  "sourceFingerprint": "5b9bdd3845a13a1596d3dd2e588b37a4a950c0e75d03af3501ae664421682a09",
   "summary": {
     "files": 1133,
-    "lines": 238375,
+    "lines": 238385,
     "symbols": 3306
   },
   "symbolIndex": {
@@ -14223,37 +14223,37 @@
     "Kind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 470
+        "line": 480
       }
     ],
     "Section": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 471
+        "line": 481
       }
     ],
     "sections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 479
+        "line": 489
       }
     ],
     "flushNarration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 486
+        "line": 496
       }
     ],
     "addNarration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 492
+        "line": 502
       }
     ],
     "leadingTitle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 534
+        "line": 544
       }
     ],
     "PomodoroTimerMode": [
@@ -33189,8 +33189,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-      "lines": 538,
-      "sha256": "a20b74313e6debed7c2ba87f386974c0127ba93d1f9c7eea08c4fcf7e88ca85e",
+      "lines": 548,
+      "sha256": "6dd77a4c928ede51f71dd8908afda9ac07e5f30829a3ff3ed82790595f303448",
       "symbols": [
         {
           "name": "nextInspiration",
@@ -33198,27 +33198,27 @@
         },
         {
           "name": "Kind",
-          "line": 470
+          "line": 480
         },
         {
           "name": "Section",
-          "line": 471
+          "line": 481
         },
         {
           "name": "sections",
-          "line": 479
+          "line": 489
         },
         {
           "name": "flushNarration",
-          "line": 486
+          "line": 496
         },
         {
           "name": "addNarration",
-          "line": 492
+          "line": 502
         },
         {
           "name": "leadingTitle",
-          "line": 534
+          "line": 544
         }
       ]
     },
