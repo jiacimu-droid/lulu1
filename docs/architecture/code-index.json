@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:14:24.303761+00:00",
-  "commit": "9b8f1aa52753c6c23e2104fee0053b1a91f28d27",
+  "generatedAt": "2026-11-04T12:15:29.904564+00:00",
+  "commit": "89a446b88fcbf1f25ef45e140237d1ec3a3e6e2f",
   "branch": "main",
-  "sourceFingerprint": "7731a75bb3c698ff7f95788f185338898de9afd72968ee21aff561f69b3f6bbc",
+  "sourceFingerprint": "05aee9acd0e37bc0c3909bc87f5336fe79ff373e7e434de4b31dad28635d228a",
   "summary": {
     "files": 1133,
-    "lines": 238067,
+    "lines": 238072,
     "symbols": 3305
   },
   "symbolIndex": {
@@ -203,7 +203,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 90
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -14205,13 +14205,13 @@
     "inspirationRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 121
+        "line": 126
       }
     ],
     "parseGeneratedIdeas": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 142
+        "line": 147
       }
     ],
     "nextInspiration": [
@@ -33136,8 +33136,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-      "lines": 160,
-      "sha256": "22171c704c1a999aedce9c188b8042e127623202d580b2246900f549527b49b6",
+      "lines": 165,
+      "sha256": "470fb9c468a1f4b9e066eded10490e43d057078902fedc02632a668d67f795e0",
       "symbols": [
         {
           "name": "Idea",
@@ -33169,15 +33169,15 @@
         },
         {
           "name": "request",
-          "line": 90
+          "line": 95
         },
         {
           "name": "inspirationRequest",
-          "line": 121
+          "line": 126
         },
         {
           "name": "parseGeneratedIdeas",
-          "line": 142
+          "line": 147
         }
       ]
     },
