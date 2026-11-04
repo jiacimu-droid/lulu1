@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:19:33.780695+00:00",
-  "commit": "952123f27a58a85a2a65a92e9003a9e2dbacac60",
+  "generatedAt": "2026-11-04T16:20:08.649901+00:00",
+  "commit": "ec43eba8640111ac586b4f08e2094dcd2f97500c",
   "branch": "main",
-  "sourceFingerprint": "62df82121e9ac92fdd30df43734aa4743a6c9cda51ce28a784db70e9b6d5939c",
+  "sourceFingerprint": "49def7ce447b5aa936a043beb659934d43ede56d0618fa76c4e0e6d4b104004b",
   "summary": {
     "files": 1134,
-    "lines": 239280,
+    "lines": 239285,
     "symbols": 3309
   },
   "symbolIndex": {
@@ -2619,7 +2619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1387
+        "line": 1388
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7969,43 +7969,43 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1285
+        "line": 1286
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1349
+        "line": 1350
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1356
+        "line": 1357
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1370
+        "line": 1371
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1380
+        "line": 1381
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1427
+        "line": 1428
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1789
+        "line": 1790
       }
     ],
     "age": [
@@ -11171,7 +11171,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3264
+        "line": 3268
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -25913,8 +25913,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1837,
-      "sha256": "1df288074c20f53f9710f01bb7ebe68ce84447343b81744164184227020403fc",
+      "lines": 1838,
+      "sha256": "745b85f22d366c533475aa22412962b3e77f117f198f718a04cc15f544eaa85d",
       "symbols": [
         {
           "name": "asJson",
@@ -25930,35 +25930,35 @@
         },
         {
           "name": "world",
-          "line": 1285
+          "line": 1286
         },
         {
           "name": "recordedReceiptId",
-          "line": 1349
+          "line": 1350
         },
         {
           "name": "completedEvidence",
-          "line": 1356
+          "line": 1357
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1370
+          "line": 1371
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1380
+          "line": 1381
         },
         {
           "name": "from",
-          "line": 1387
+          "line": 1388
         },
         {
           "name": "requiresCompletion",
-          "line": 1427
+          "line": 1428
         },
         {
           "name": "availableContext",
-          "line": 1789
+          "line": 1790
         }
       ]
     },
@@ -29264,8 +29264,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3331,
-      "sha256": "b3c97bce5b004b73e0b571fac54e77e1b1ceb2554a2fee832d75c809ef5c2e43",
+      "lines": 3335,
+      "sha256": "8a8f46fe308d28be341656efcc0eacd6989b90409e32a61823105499a9f0d8ab",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29297,7 +29297,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3264
+          "line": 3268
         }
       ]
     },
