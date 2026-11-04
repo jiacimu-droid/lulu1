@@ -773,3 +773,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 下一轮先核本轮CI，再真机复现女性店员称呼、居民相遇后实际日程/回执/后续，及失败后次轮能否继续本人整理；实际模型性格质量、跨日成本与体验仍待验。
 
 - 本轮实际源码主提交 `53093fa5a2f9e67954036526876e9e244d0d32de`，共享身份只读作者字段补充 `5a7a000c629d16e5f93c9e90851005ed91b8d5a9`。最新原索引 [41805757602](https://github.com/jiacimu-droid/lulu1/actions/runs/41805757602) completed/success，生成提交9942a76；前次索引41805562909亦success。最新 [APK/JVM 41805757625](https://github.com/jiacimu-droid/lulu1/actions/runs/41805757625) 查询时pending，前轮41802904855仍in_progress；被后继替代的41805562890 cancelled不算通过。回归已提交但尚无本轮通过结果，真机、真实模型称谓及跨日责任/成本仍待验。本窗口本轮没有修改阅读小剧场。
+
+## 2026-11-04 · S-02 居民删除孤儿会话与 S-01 角色消息头像
+
+- **用户截图实证**：删掉居民后 QQ 消息页出现 `resident:<内部ID>` 的私人会话，卡片高度异常、名称和头像缺失；用户另要求角色消息顶部横幅显示本人头像，不再只展示 APK 图标。
+- **数据链根因**：`DigitalWorldExpansionStore.removeResident` 删除居民注册及 `CharacterSettings`，但按历史保留约定不删除 `LuluConversation`。原 `ChatHubV2Messages` 仍遍历全部会话，`characters.get` 在缺失时合成以 ID 为名的伪人物；顶部标题未给长 ID 留出受约束宽度，未读统计也计算孤儿私人会话。正确修复是筛选**当前本人可见会话投影**，不是清空真实历史和其他成员的共享群聊。
+- **源码**：`cc03dadd705c37636ff6a81f7a8de8b78e20c775` 在 `ownerVisibleQqConversations` 屏蔽已注销居民的私人会话（不影响普通人物、合法群聊），消息页/总未读共用该投影；收件箱随角色注册状态变化刷新，标题使用约束宽度。保留 `LuluChatStore` 原消息、群聊、事件与独立收件箱回执，不建新 Store 或请求。
+- **通知双入口**：`9a8e4686c48fb65d576b8970d50aa2af2e8049af` 在 `CharacterMessageNotifications.onSaved` 使用实际 `authorCharacterId` 的 `avatarUri`（群聊仍取实际发言人）填充前台 `CharacterMessageBanner` 与系统通知大图标；`e3f101ffc3ce996a740a7a9b811697f55713c227` 复用 `LuluProfileAvatar` 本地/缓存缩略图，无额外网络请求或解码超大图；`66166984a6a374b5a7ae61b4ab418fffdec9570f` 前台顶部横幅左侧显示真实角色头像，名称不再带固定“露露机”前缀。**Android 系统仍强制应用级 smallIcon**，OEM 是否在真正系统横幅左侧显示大头像须真机判断，不可承诺所有机型替换系统标识。
+- **回归**：`0afb0fd72ed17110d385fe4899668b350143ed1d` 覆盖已删除居民私聊过滤、现存角色和共同群聊继续可见；`dfdb11c81f9030048cda8ef3cfd90f0e48f8b118` 延伸正式删除居民的集成测试，确认历史消息保存但不再进消息列表（并行任务修改同一文件时曾遇 GitHub 409，刷新后成功合并，不覆盖他人修改）；`908f7cf6ce02f72ca22477b33ecaa740421745d3` 验证私聊/群聊发件人头像注入前台预览与系统通知。
+- **验证边界**：代码索引在 `66166984` 的 [41806238518](https://github.com/jiacimu-droid/lulu1/actions/runs/41806238518) 为 completed/success；包含全部本轮测试的 [APK/JVM 41806471453](https://github.com/jiacimu-droid/lulu1/actions/runs/41806471453) 与 [索引 41806471494](https://github.com/jiacimu-droid/lulu1/actions/runs/41806471494) 最后核查仍 pending/in_progress，**不记成功**。真机删居民后列表高度/未读红点、横幅头像及系统通知 OEM 展示未验。
+- **下一轮**：先看 `41806471453` 单测/APK 首条失败和对应 SHA，再检查索引是否生成并发布；安装新 APK 复现用户截图、重启后旧居民不复活、共同群聊保留、消息横幅前后台和角色自己的头像；有新的证据再处理未覆盖入口。
