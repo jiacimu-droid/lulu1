@@ -1060,3 +1060,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **边界与下一步**：本地仅Java，无Gradle/Kotlin/adb，JVM/APK随源码提交进入原Actions，原generate_code_index.py由已有workflow运行。真实设备/模型/跨日待验；本轮不改变aim/why或其他心理字段，不声称所有截断已清零。先核本轮测试/索引，再续P-08a.1/P-08b.1或P-08d其余真实回执和条件交接。
 
 - **同根因的投影补齐与实际发布**：主修复/回归 [555ade6](https://github.com/jiacimu-droid/lulu1/commit/555ade65ab50d042b70ad3a15bcb3e59bad415f6)。继续核查发现CharacterMotiveDeliberation已用brief提供完整下一步，却在真实结果之后再次take(130)复述，仍可能把尾部条件截掉；[8d6cf2e](https://github.com/jiacimu-droid/lulu1/commit/8d6cf2ef6c25676a5441e18050c0978cf3c3ca4d)删除这份重复投影，并增强同一回归为每次只交接一条完整下一步。源数据与执行器未另改。原生成器工作流41898046889、41898269211均completed/success；自动索引提交7d7cd67/d861172，CODE_INDEX最新基准精确8d6cf2e。APK/JVM41898046890查验in_progress，后继41898269295 pending；尚无本轮单测/APK通过结论。提交前后刷新main并compare，仅本轮源码、测试、文档与原生成索引变更，无他窗覆盖。真机/真实模型/跨日未知，下一轮先核最新完整CI结果。
+
+
+## 2026-11-05 · P-08a.2f 同任务旧回执的时间与类型边界
+
+- **源码根因**：CharacterCausalTrace.inspect 从 UI 事件窗口按同 taskId/显式 cause 收集 tool-router 候选时，原过滤未要求 ToolResult 类型，也未排除发生在当前来源之前的记录。旧无 causeEvidenceId 回执共享 taskId 即可出现在本来源的行动回执列表，造成时间倒置或将非结果记录冒充执行结果。
+- **修复**：[78089e7](https://github.com/jiacimu-droid/lulu1/commit/78089e7498035e7a56ffc32914678380b746b9eb) 在已有候选过滤中要求 evidenceKind=ToolResult 且 occurredAt 不早于当前来源；保留显式 cause 优先、旧 taskId 回退及其他独立精确 requestId 检索路径。不改角色状态、历史数据或模型调用。
+- **回归**：[a1e6ba9](https://github.com/jiacimu-droid/lulu1/commit/a1e6ba9c31f6ccedf08f49d192695edd61fdc97d) 新增同任务早于来源的真实工具回执、晚于来源但非 ToolResult 的记录、有效旧回执与跨角色隔离测试。
+- **验证边界**：两个提交已到 main，但未在本轮取得其 JVM/APK/索引成功证据；后继提交的 workflow 查询接口仅返回 PR 触发，空结果不代表未运行。先前 41898269295 查询仍 in_progress，不能证明本次代码。此运行环境没有仓库本地工作树，尚未手动运行 scripts/generate_code_index.py；应核自动索引是否在后继 main 生成并检查其基准 SHA，未完成前不得声称索引同步。真机/真实模型/跨日均未验。下一轮优先检查本次 CI/索引，继续 P-08a.1 的其他正式入口或 P-08c.2 取消与发泡链路。
