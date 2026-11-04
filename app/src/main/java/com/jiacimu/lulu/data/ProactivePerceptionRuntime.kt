@@ -1839,6 +1839,20 @@ object ProactivePerceptionRuntime {
             )
             return null
         }
+        // Select the canonical inbound user evidence once before choosing
+        // its one-reply delivery lane; later appraisal and execution reuse it.
+        val messageStimulus = PerceptionStimulusResolver.select(
+            unreadText = onlineUnread.text,
+            unreadIds = onlineUnread.newestIds,
+            worldEvent = "",
+            worldEventId = "",
+            pendingText = pendingUserContext,
+            pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
+        )?.let { input ->
+            val actualRevision = SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(input.evidenceId)).firstOrNull()?.revision
+            if (actualRevision != null) input.copy(revision = actualRevision) else input
+        }
         val decision = onlineSpeech.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
@@ -1847,7 +1861,7 @@ object ProactivePerceptionRuntime {
                 // There is one private conversational reply, which may contain
                 // multiple model-authored bubbles. Do not let steps/nextAction
                 // become a second private-message sender for this same input.
-                if (privateDialogue.isNotEmpty() && onlineUnread.messageIds.isNotEmpty())
+                if (privateDialogue.isNotEmpty() && messageStimulus != null)
                     chosen.withSinglePrivateInboundReply() else chosen
             }
         LuluRepositories.performance.recordTiming("P08a在线决定", 0,
@@ -1955,18 +1969,6 @@ object ProactivePerceptionRuntime {
         val privateStateBefore = CharacterInnerLifeStore.snapshot(characterId)
         // The executor, not the model, anchors subjective emotion to a real observed event.
         // Old chat history alone must not create an apparently new emotional stimulus.
-        val messageStimulus = PerceptionStimulusResolver.select(
-            unreadText = onlineUnread.text,
-            unreadIds = onlineUnread.newestIds,
-            worldEvent = "",
-            worldEventId = "",
-            pendingText = pendingUserContext,
-            pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
-        )?.let { input ->
-            val actualRevision = SharedExperienceTimeline.eventsByIds(
-                characterId, listOf(input.evidenceId)).firstOrNull()?.revision
-            if (actualRevision != null) input.copy(revision = actualRevision) else input
-        }
         val perceptionInput = CharacterPerceptionContext.integrate(
             context = appContext,
             characterId = characterId,
