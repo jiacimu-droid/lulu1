@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T09:18:38.085443+00:00",
-  "commit": "9372e85e1e64f5b24a8eef08755976532cb2fd8b",
+  "generatedAt": "2026-11-04T09:19:19.466090+00:00",
+  "commit": "dfdb11c81f9030048cda8ef3cfd90f0e48f8b118",
   "branch": "main",
-  "sourceFingerprint": "ec44e48cfc35112d26d665e55d420ed8007125615d603fa5047b8705e0884dee",
+  "sourceFingerprint": "6ebbcdb992ada0b178838841a4bb9e15bed113e6b597d1862de3fccf8d82c76d",
   "summary": {
     "files": 1130,
-    "lines": 236515,
+    "lines": 236529,
     "symbols": 3286
   },
   "symbolIndex": {
@@ -37513,8 +37513,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 272,
-      "sha256": "3a1ae090adc85e06594f55a3f75e54be74740de9440f983aeba9278b2a841ad1",
+      "lines": 286,
+      "sha256": "28d24bc9c2501bc0e89981e93ae483de7368cf5772e95241a7f3813c98cf8737",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
