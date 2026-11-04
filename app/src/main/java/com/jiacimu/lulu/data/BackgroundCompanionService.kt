@@ -101,10 +101,7 @@ class BackgroundCompanionService : Service() {
                 while (isActive && BackgroundCompanionControl.enabled(applicationContext)) {
                     AutonomousPerceptionAttempts.recoverInterrupted(applicationContext)
                     val due = ProactivePerceptionRuntime.nextDueAt(applicationContext)
-                    val hasEnabledRole = MigratedDomainStores.chat.conversations.value.any {
-                        it.parentConversationId == null && it.groupChat == null &&
-                            !it.id.endsWith("-study-focus") && ProactivePerceptionPolicyStore.get(it.characterId).enabled
-                    }
+                    val hasEnabledRole = ProactivePerceptionRuntime.hasEnabledAutonomousRole()
                     if (!hasEnabledRole) {
                         BackgroundCompanionControl.report(false, "角色主动感知已关闭")
                         stopSelf()
