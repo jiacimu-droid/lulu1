@@ -114,6 +114,7 @@ object CharacterLifeStore {
                     existingExamples in setOf(
                         CharacterProfileSchema.jiangDuDialogueExamplesV24,
                         CharacterProfileSchema.jiangDuDialogueExamplesV25,
+                        CharacterProfileSchema.jiangDuDialogueExamplesV25Reviewed,
                     )) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
@@ -749,6 +750,14 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v26: rewrite only previous factory fields and seed the new cognitive
+        // area. Any independently authored value, including "", stays intact.
+        CharacterProfileSchema.jiangDuV26Overrides.forEach { (key, value) ->
+            if (!profile.has(key) ||
+                profile.optString(key) == CharacterProfileSchema.jiangDuV25StockFields[key]) {
+                profile.put(key, value)
+            }
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -811,7 +820,8 @@ object CharacterLifeStore {
             else -> updatedPersona
         }
         MigratedDomainStores.characters.update(character.copy(
-            displayName = restoredName, persona = layeredPersona))
+            displayName = restoredName, persona = if (layeredPersona == CharacterProfileSchema.jiangDuV24Persona)
+                CharacterProfileSchema.jiangDuV26Persona else layeredPersona))
         root.optJSONObject("socialNames")?.let { names ->
             if (names.optString("selfNickname") in setOf("江一舟", "江都")) {
                 names.put("selfNickname", "江渡")
@@ -1100,7 +1110,7 @@ object CharacterLifeStore {
         // and optional interests/expression. Keep other roles' authored order intact.
         val orderedGroups = CharacterProfileSchema.groupedFields().let { groups ->
             if (state(characterId).optInt("jiangDuPresetVersion") >= 16) {
-                val order = listOf("人物内核", "行事方式", "亲密与社交", "呈现与表达")
+                val order = listOf("人物内核", "认知结构", "行事方式", "亲密与社交", "呈现与表达")
                 groups.sortedBy { (group, _) -> order.indexOf(group).takeIf { it >= 0 } ?: order.size }
             } else groups
         }

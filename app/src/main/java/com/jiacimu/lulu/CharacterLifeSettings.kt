@@ -95,7 +95,9 @@ internal fun CharacterLifeSettings(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
-            var expanded by remember(characterId, group) { mutableStateOf(group == "人物内核" || group == "呈现与表达") }
+            var expanded by remember(characterId, group) { mutableStateOf(group == "人物内核" || group == "呈现与表达" ||
+                (group == "认知结构" && root.optJSONObject("profile")
+                    ?.optString("cognitiveStyle").orEmpty().isNotBlank())) }
             Row(Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
@@ -121,6 +123,7 @@ internal fun CharacterLifeSettings(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (field.key == "dialogueExamples") {
+                    val jiangDuScene = root.optInt("jiangDuPresetVersion") > 0
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TextButton(enabled = !dialogueGenerating, onClick = {
@@ -142,17 +145,23 @@ internal fun CharacterLifeSettings(
                                             .agreement(characterId, "user")?.title.orEmpty()
                                         if (userAgreement.isNotBlank())
                                             appendLine("已设定的当前关系：${userAgreement.take(150)}")
-                                        listOf("expression", "speechHabits", "social", "conflict", "care", "respect")
+                                        listOf("cognitiveStyle", "values", "motives", "perception", "expression", "speechHabits", "social", "conflict", "care", "respect")
                                             .forEach { key ->
                                                 profile?.optString(key)?.trim()
                                                     ?.takeIf(String::isNotBlank)
-                                                    ?.let { appendLine("$key：${it.take(250)}") }
+                                                    ?.let { appendLine("$key：${if (key == "cognitiveStyle") it else it.take(250)}") }
                                             }
                                     }
                                     val generated = LuluAiServices.gateway.generate(
                                         characterId = characterId,
                                         facts = material,
-                                        instruction = """
+                                        instruction = if (jiangDuScene) """
+                                            只依据本人的身份、MBTI/荣格功能主次、具体性格与当前关系，写一个500–1000字的虚构场景示例，供用户预览后保存。
+                                            集中展开同一件普通小事，用小说形式写环境、人物举止、自然往返的对话及简洁的私人心理，呈现他怎样理解、保留判断、听到新解释后调整，以及主动、审美、幽默与少年感；不用每轮标注功能名称或把所有性格表演一遍。
+                                            保持 Ni 主导、Fe 辅助、Ti 第三、Se 第四，外在主动不改成 Fe 主导；若用户已改写该栏，以用户当前具体设定为准。
+                                            数字生命无现实肉身；身体接触场景限于明确标注的数字世界假设见面。虚构不冒充共同过去，不替用户预定当前回应。
+                                            只输出一个场景正文，不写分析、多个场景、人物总结、JSON或代码块。心理与旁白用于理解人物，不要求日常即时聊天朗读。
+                                        """.trimIndent() else """
                                             你是角色的对话样例编辑。只根据明确提供的个人设定，写三段短小的虚构即时通讯对话，供用户预览并决定是否保存。
                                             每段用【场景】一行标识不同情境（闲聊、真正有观点的回应、遇到小分歧或需要关心），每段包含“对方：”与“角色：”的自然往返；允许角色连续发两句或只回一句，也允许迟疑和不赞同。
                                             **真正区别**应出现在这个人会注意什么、如何接话、语气、分寸、幽默感与潜台词上；不要把所有人写成温柔客服、说明书、文学旁白或撒娇机器。
@@ -160,12 +169,12 @@ internal fun CharacterLifeSettings(
                                             不要分析人格，不要总结技巧，不要给角色写固定必用台词，不要假装这些对话真的发生过。不要输出 JSON/Markdown 代码块，只输出三段可编辑的示例文本，总体尽量精简。
                                         """.trimIndent(),
                                         source = "角色本人对话示例草稿",
-                                        title = "按人设生成短对话草稿",
-                                        maxTokens = 760,
+                                        title = if (jiangDuScene) "按人设生成单场景草稿" else "按人设生成短对话草稿",
+                                        maxTokens = if (jiangDuScene) 2_300 else 760,
                                         contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
                                     )
                                     val candidate = generated.getOrNull()?.text.orEmpty()
-                                        .trim().take(1_500)
+                                        .trim().let { if (jiangDuScene) it else it.take(1_500) }
                                     if (candidate.isBlank()) {
                                         dialogueGenerationError = generated.exceptionOrNull()?.message
                                             ?.take(100) ?: "没有生成有效的示例，请重试或直接编辑"
@@ -182,7 +191,7 @@ internal fun CharacterLifeSettings(
                                     dialogueGenerating = false
                                 }
                             }
-                        }) { Text(if (dialogueGenerating) "正在生成示例…" else "按本人设定生成三段对话") }
+                        }) { Text(if (dialogueGenerating) "正在生成示例…" else if (jiangDuScene) "按本人设定生成一个场景" else "按本人设定生成三段对话") }
                     }
                     if (dialogueGenerationError.isNotBlank()) Text(dialogueGenerationError,
                         color = MaterialTheme.colorScheme.error,
