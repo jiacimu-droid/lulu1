@@ -103,4 +103,24 @@ class PersonalMiniTheaterTest {
         assertEquals(3, PersonalMiniTheater.suggestions(-1).size)
         assertEquals("原要求", library.items.value.single().prompt)
     }
+    @Test fun aSingleSystemOrCustomPremiseNeedsNoPersonalitySelection() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val cast = PersonalMiniTheater.Cast("single-premise-role", "角色", "保留本人的判断方式")
+        val guidance = "身体互换之后，双方要一起完成一件事。\n结尾让角色坦白一个小小的心愿。"
+        val custom = PersonalMiniTheater.customIdea(guidance)
+        val customId = library.addPersonal(cast, custom)
+        val work = library.items.value.first { it.id == customId }
+        assertEquals(guidance, work.prompt)
+        assertEquals("", work.variationContext)
+        val request = PersonalMiniTheater.request(work)
+        assertTrue(request.facts.contains(guidance))
+        assertFalse(request.facts.contains("旧版作品保留的补充设定"))
+        val systemId = library.addPersonal(cast,
+            PersonalMiniTheater.ideas.first { it.id == "tender-spell" })
+        val system = library.items.value.first { it.id == systemId }
+        assertTrue(system.prompt.contains("温柔体贴"))
+        assertEquals("", system.variationContext)
+        assertThrows(IllegalArgumentException::class.java) { PersonalMiniTheater.customIdea("  ") }
+    }
+
 }

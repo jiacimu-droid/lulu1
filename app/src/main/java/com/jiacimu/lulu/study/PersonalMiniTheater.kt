@@ -21,7 +21,10 @@ internal object PersonalMiniTheater {
         Idea("cat", "多出来的耳朵和尾巴", "角色突然长出会泄露情绪的耳朵和尾巴，本人仍是原来的成年人。让身体的意外反应与他努力维持的神气碰撞，发展成有趣的相处事件。"),
         Idea("dream", "闯进对方的奇幻梦境", "用户与角色一起落入一个会把情绪具象化的梦境，需要面对一个由彼此性格引发的小挑战。场景可以大胆奇幻，人物选择仍有本人特点。"),
         Idea("reverse", "一夜颠倒的童话身份", "用户和角色进入童话世界，原本预期的身份与处境完全颠倒。选择意外而具体的童话身份，让两人用原有性格应对，不照搬原作或只改称呼。"),
-        Idea("echo", "碰一下就会共感", "奇幻设定中，两人接触时会短暂感受到彼此的某一种感官或情绪。围绕一次误会与发现推进情节，让相处出现新的理解与心动。")
+        Idea("echo", "碰一下就会共感", "奇幻设定中，两人接触时会短暂感受到彼此的某一种感官或情绪。围绕一次误会与发现推进情节，让相处出现新的理解与心动。"),
+        Idea("tender-spell", "今天温柔得有点犯规", "一场只持续一天的魔法，把角色原本温柔体贴的一面放大。其他性格仍然存在。围绕一个具体情景展开用户与角色的相处，不写成温柔表现清单。"),
+        Idea("fox-spell", "藏不住的狡黠与玩心", "角色原有的玩心与狡黠被奇幻设定暂时放大。用户发现平常熟悉的人突然更会逗人、更敢表达，双方有来有往地发展出一件完整的事。"),
+        Idea("clingy-spell", "突然特别想黏着用户", "一种神奇的小意外，让角色今天格外坦率地想靠近用户、讨偏爱。保留本人其他性格，让这种变化推动一个有趣的完整情节。")
     )
     val variations = listOf(
         Variation("original", "原本的他／她", "保持本人原有性格比例，由本篇奇幻处境自然激发不同反应。"),
@@ -33,6 +36,12 @@ internal object PersonalMiniTheater {
 
     fun suggestions(offset: Int): List<Idea> = (0..2).map {
         ideas[Math.floorMod(offset + it, ideas.size)]
+    }
+
+    fun customIdea(guidance: String): Idea {
+        val premise = guidance.trim()
+        require(premise.isNotBlank()) { "写一句想看的情景或设定就好" }
+        return Idea("custom", premise.lineSequence().first().take(24), premise)
     }
 
     fun capture(characterId: String): Cast {
@@ -62,7 +71,8 @@ internal object PersonalMiniTheater {
                 appendLine("绑定角色：${item.characterName}（${item.characterId}）")
                 appendLine(item.characterContext)
                 appendLine("本篇幻想情节：${item.prompt}")
-                appendLine("本篇性格侧面：${item.variationContext}")
+                if (item.variationContext.isNotBlank())
+                    appendLine("旧版作品保留的补充设定：${item.variationContext}")
                 if (item.sceneContext.isNotBlank()) appendLine("用户补充：${item.sceneContext}")
                 if (draft.isNotBlank()) appendLine("同一篇已经保存的正文（只续写）：\n$draft")
             },

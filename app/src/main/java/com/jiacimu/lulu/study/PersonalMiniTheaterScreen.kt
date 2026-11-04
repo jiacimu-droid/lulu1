@@ -1,11 +1,9 @@
 package com.jiacimu.lulu.study
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -30,7 +28,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var opened by rememberSaveable(characterId) { mutableStateOf<String?>(null) }
     var offset by rememberSaveable(characterId) { mutableIntStateOf(
         Math.floorMod(LocalDate.now().toEpochDay(), PersonalMiniTheater.ideas.size.toLong()).toInt()) }
-    var variationId by rememberSaveable(characterId) { mutableStateOf("original") }
+    var guidance by rememberSaveable(characterId) { mutableStateOf("") }
     var background by rememberSaveable(opened) { mutableStateOf(
         all.firstOrNull { it.id == opened }?.sceneContext.orEmpty()) }
     var error by remember { mutableStateOf("") }
@@ -38,12 +36,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var deleting by remember { mutableStateOf(false) }
     val work = all.firstOrNull { it.id == opened && it.characterId == characterId }
     val saved = all.filter { it.characterId == characterId }.asReversed()
-    val variation = PersonalMiniTheater.variations.first { it.id == variationId }
     val busy = work?.status in setOf("queued", "running")
     BackHandler { if (work != null) { opened = null; error = "" } else onBack() }
 
     Scaffold(topBar = {
-        TopAppBar(title = { Text(if (work == null) "和我的小剧场" else work.title, maxLines = 1) },
+        TopAppBar(title = { Text(if (work == null) "番外" else work.title, maxLines = 1) },
             navigationIcon = { IconButton(onClick = {
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } })
@@ -60,41 +57,48 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             }
             if (work == null) {
                 item {
-                    Text("今天想看哪一面", fontWeight = FontWeight.SemiBold)
-                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        PersonalMiniTheater.variations.forEach { choice ->
-                            FilterChip(selected = choice.id == variationId,
-                                onClick = { variationId = choice.id }, label = { Text(choice.label) })
-                        }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("系统给个设定", fontWeight = FontWeight.SemiBold)
+                        TextButton(onClick = { offset += 1 }) { Text("换一个") }
                     }
-                    TextButton(onClick = { offset += 3 }) { Text("换一批幻想题材") }
                 }
-                items(PersonalMiniTheater.suggestions(offset), key = { "idea-" + it.id }) { idea ->
+                item {
+                    val idea = PersonalMiniTheater.suggestions(offset).first()
                     OutlinedCard(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(idea.title, fontWeight = FontWeight.SemiBold)
                             Text(idea.premise, style = MaterialTheme.typography.bodyMedium)
                             Button(enabled = character != null, onClick = {
                                 runCatching {
-                                    val cast = PersonalMiniTheater.capture(characterId)
-                                    val id = library.addPersonal(cast, idea, variation)
+                                    val id = library.addPersonal(PersonalMiniTheater.capture(characterId), idea)
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                            }) { Text("就看这篇") }
+                            }) { Text("写这一篇") }
                         }
                     }
                 }
-                item { Text("我的番外 · ${saved.size}", fontWeight = FontWeight.SemiBold) }
+                item {
+                    Text("或者自己写", fontWeight = FontWeight.SemiBold)
+                    OutlinedTextField(guidance, { guidance = it }, modifier = Modifier.fillMaxWidth(),
+                        label = { Text("想看的情景或设定") }, minLines = 3,
+                        placeholder = { Text("比如：醒来后，我和他交换了身体……") })
+                    Button(enabled = character != null && guidance.isNotBlank(), onClick = {
+                        runCatching {
+                            val idea = PersonalMiniTheater.customIdea(guidance)
+                            val id = library.addPersonal(PersonalMiniTheater.capture(characterId), idea)
+                            opened = id; background = ""; error = ""
+                            MiniTheaterJobs.enqueue(context, id, "")
+                        }.onFailure { error = it.message ?: "没有开始创作，请重试" }
+                    }) { Text("按这个写") }
+                }
+                item { Text("已保存 · ${saved.size}", fontWeight = FontWeight.SemiBold) }
                 items(saved, key = { it.id }) { item ->
                     OutlinedCard(onClick = {
                         opened = item.id; background = item.sceneContext; error = ""
                     }, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Text(item.title, fontWeight = FontWeight.SemiBold)
-                            Text(item.variationContext.substringBefore("："),
-                                style = MaterialTheme.typography.bodySmall)
                             Text(when (item.status) {
                                 "queued", "running" -> "正在创作"
                                 "complete" -> "点击阅读"
@@ -107,7 +111,6 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 }
             } else {
                 item {
-                    Text(work.variationContext.substringBefore("："), fontWeight = FontWeight.Medium)
                     Text(work.prompt, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (busy) {
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 12.dp))

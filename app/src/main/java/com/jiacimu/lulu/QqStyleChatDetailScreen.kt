@@ -681,7 +681,7 @@ fun QqStyleChatDetailScreen(
                                     DropdownMenuItem(text = { Text("日程") }, onClick = { moreExpanded = false; onSchedule() })
                                     DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
                                     if (groupChat == null) DropdownMenuItem(
-                                        text = { Text("和我的小剧场") },
+                                        text = { Text("番外") },
                                         leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
                                         onClick = {
                                             moreExpanded = false

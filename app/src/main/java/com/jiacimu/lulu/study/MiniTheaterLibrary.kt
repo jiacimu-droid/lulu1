@@ -51,12 +51,12 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     }
 
     @Synchronized fun addPersonal(cast: PersonalMiniTheater.Cast,
-        idea: PersonalMiniTheater.Idea, variation: PersonalMiniTheater.Variation): String {
+        idea: PersonalMiniTheater.Idea, variation: PersonalMiniTheater.Variation? = null): String {
         require(cast.characterId.isNotBlank() && cast.material.isNotBlank()) { "请先选择角色" }
         val item = MiniTheaterItem(id = "personal-" + UUID.randomUUID(),
             title = idea.title, prompt = idea.premise, characterId = cast.characterId,
             characterName = cast.name, characterContext = cast.material,
-            variationContext = variation.label + "：" + variation.direction)
+            variationContext = variation?.let { it.label + "：" + it.direction }.orEmpty())
         save(items.value + item)
         return item.id
     }
