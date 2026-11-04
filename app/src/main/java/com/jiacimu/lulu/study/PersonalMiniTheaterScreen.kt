@@ -63,9 +63,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
                 if (work == null) {
-                    Text((character?.displayName ?: "已移除角色") + " × 用户",
-                        fontWeight = FontWeight.SemiBold)
-                    Text("独立幻想番外 · 不计入角色记忆",
+                    Text("和" + (character?.displayName ?: "这位角色") + "的番外",
+                        style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+                    Text("挑个奇妙设定，或者写下自己的脑洞 · 不计入真实记忆",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
@@ -83,29 +83,40 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             if (work == null) {
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("系统给个设定", fontWeight = FontWeight.SemiBold)
+                        Text("今日灵感", style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold)
                         TextButton(onClick = { offset += 1 }) { Text("换一个") }
                     }
                 }
                 item {
                     val idea = PersonalMiniTheater.suggestions(offset).first()
-                    OutlinedCard(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(idea.title, fontWeight = FontWeight.SemiBold)
-                            Text(idea.premise, style = MaterialTheme.typography.bodyMedium)
+                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(containerColor =
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))) {
+                        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Text(idea.title, style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold)
+                            Text(idea.premise, style = MaterialTheme.typography.bodyMedium,
+                                lineHeight = 23.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(enabled = character != null, onClick = {
                                 runCatching {
                                     val id = library.addPersonal(PersonalMiniTheater.capture(characterId), idea)
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                            }) { Text("写这一篇") }
+                            }, shape = RoundedCornerShape(13.dp)) { Text("写这一篇") }
                         }
                     }
                 }
                 item {
-                    Text("或者自己写", fontWeight = FontWeight.SemiBold)
+                    Column(Modifier.fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f),
+                            RoundedCornerShape(22.dp))
+                        .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("自己来设定", style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(guidance, { guidance = it }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
                         label = { Text("想看的情景或设定") }, minLines = 3,
                         placeholder = { Text("比如：醒来后，我和他交换了身体……") })
                     Button(enabled = character != null && guidance.isNotBlank(), onClick = {
@@ -115,22 +126,37 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                             opened = id; background = ""; error = ""
                             MiniTheaterJobs.enqueue(context, id, "")
                         }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                    }) { Text("按这个写") }
+                    }, shape = RoundedCornerShape(13.dp)) { Text("按这个写") }
+                    }
                 }
-                item { Text("已保存 · ${saved.size}", fontWeight = FontWeight.SemiBold) }
+                item { Text("我的番外 · ${saved.size}", style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold) }
                 items(saved, key = { it.id }) { item ->
-                    OutlinedCard(onClick = {
+                    Card(onClick = {
                         opened = item.id; background = item.sceneContext; error = ""
-                    }, modifier = Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text(item.title, fontWeight = FontWeight.SemiBold)
+                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor =
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f))) {
+                        Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(item.title, style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold)
+                            val snippet = remember(item.text) {
+                                PersonalTheaterTypography.sections(item.text)
+                                    .firstOrNull { it.kind == PersonalTheaterTypography.Kind.Narration }
+                                    ?.text.orEmpty()
+                            }
+                            if (snippet.isNotBlank()) Text(snippet, maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(when (item.status) {
                                 "queued", "running" -> "正在创作"
                                 "complete" -> "点击阅读"
                                 "draft" -> "可继续写完"
                                 "failed" -> "生成失败 · 可重试"
                                 else -> "尚未开始"
-                            }, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }, style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
