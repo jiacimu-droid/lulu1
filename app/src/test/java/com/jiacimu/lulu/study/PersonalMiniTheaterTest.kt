@@ -178,4 +178,57 @@ class PersonalMiniTheaterTest {
         assertThrows(IllegalArgumentException::class.java) { PersonalMiniTheater.customIdea("  ") }
     }
 
+
+    @Test fun readerKeepsParagraphsAndSeparatesActualSpeechWithoutLosingFiction() {
+        val original = """
+            《偷偷冒出来的耳朵》
+
+            你走过去。
+            他把帽檐压低，耳朵却抖了抖。
+
+            “江渡？”
+            他耳尖一下竖起来。
+
+            “你来啦。”他笑着偏过头。
+
+            你说“别装”，他一下没绷住。
+
+            【小剧场已完】
+        """.trimIndent()
+        val sections = PersonalTheaterTypography.sections(original)
+        assertEquals(listOf(
+            PersonalTheaterTypography.Kind.Title,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Dialogue,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Dialogue,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.End,
+        ), sections.map { it.kind })
+        assertEquals("你走过去。\n他把帽檐压低，耳朵却抖了抖。", sections[1].text)
+        assertEquals("“江渡？”", sections[2].text)
+        assertEquals("他耳尖一下竖起来。", sections[3].text)
+        assertEquals("“你来啦。”", sections[4].text)
+        assertEquals("他笑着偏过头。", sections[5].text)
+        assertEquals("你说“别装”，他一下没绷住。", sections[6].text)
+        assertEquals("偷偷冒出来的耳朵", PersonalTheaterTypography.leadingTitle(sections, "备用标题"))
+        assertEquals("备用标题", PersonalTheaterTypography.leadingTitle(
+            PersonalTheaterTypography.sections("先有旁白\n\n《中途的小标题》"),
+            "备用标题"))
+        // Reading is only a projection. This test never rewrites an original work.
+        assertEquals(original, original.toString())
+    }
+
+    @Test fun readerSupportsLegacyUntitledAndEmptyWorks() {
+        assertTrue(PersonalTheaterTypography.sections(" \n  ").isEmpty())
+        val untitled = PersonalTheaterTypography.sections("天亮了。\r\n他转头望过来。")
+        assertEquals(1, untitled.size)
+        assertEquals(PersonalTheaterTypography.Kind.Narration, untitled.single().kind)
+        assertEquals("天亮了。\n他转头望过来。", untitled.single().text)
+        assertEquals("旧作品", PersonalTheaterTypography.leadingTitle(untitled, "旧作品"))
+        val standalone = PersonalTheaterTypography.sections("「我没事。」")
+        assertEquals(PersonalTheaterTypography.Kind.Dialogue, standalone.single().kind)
+    }
+
 }
