@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T21:32:15.698599+00:00",
-  "commit": "ab1dac13d6a2d68c646724289c3319ccc9ab5862",
+  "generatedAt": "2026-11-04T21:46:32.448692+00:00",
+  "commit": "828186cca975489dbd9a32b0f7aa2c1edb23640f",
   "branch": "main",
-  "sourceFingerprint": "7ecb8f8cdb89a265a10288b5aad449c46fc3f53f228b8120e59b465dd4659b34",
+  "sourceFingerprint": "d5f46aad712092573fa553f4028426305589231f33b0c1ef432c498ffe0de929",
   "summary": {
     "files": 1137,
-    "lines": 241059,
+    "lines": 241099,
     "symbols": 3322
   },
   "symbolIndex": {
@@ -583,7 +583,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 79
+        "line": 105
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
@@ -5869,11 +5869,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 236
+        "line": 262
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 272
+        "line": 298
       }
     ],
     "hasExplicitBasis": [
@@ -5959,13 +5959,13 @@
     "provenanceProblem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 544
+        "line": 558
       }
     ],
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 687
+        "line": 701
       }
     ],
     "snapshot": [
@@ -6495,7 +6495,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 116
+        "line": 142
       }
     ],
     "feedbackTopic": [
@@ -11867,7 +11867,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1119
+        "line": 1145
       }
     ],
     "contactsOf": [
@@ -16169,37 +16169,37 @@
     "rejection": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 400
+        "line": 426
       }
     ],
     "dailyDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 446
+        "line": 472
       }
     ],
     "actualStep": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 960
+        "line": 986
       }
     ],
     "toolResult": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1136
+        "line": 1162
       }
     ],
     "lineFor": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1175
+        "line": 1201
       }
     ],
     "recordReceipt": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1297
+        "line": 1323
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -23893,8 +23893,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 760,
-      "sha256": "2452356239db10d47e54676f626286aed51d3d4965298dbe1936f71fbb92acb5",
+      "lines": 774,
+      "sha256": "60652e90767a431cc4c8e79cbe3b4d24a0c7a52010b021e81c2ed73fd4372434",
       "symbols": [
         {
           "name": "inspect",
@@ -23902,11 +23902,11 @@
         },
         {
           "name": "provenanceProblem",
-          "line": 544
+          "line": 558
         },
         {
           "name": "unverifiedReason",
-          "line": 687
+          "line": 701
         }
       ]
     },
@@ -36090,8 +36090,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 1320,
-      "sha256": "1f635060788254b0587e87eba3003cb894ad0b8ec033992c2b4cf9350c37db71",
+      "lines": 1346,
+      "sha256": "095128a107eec4728120076d47f95a38dd990be8c6b9c11473e572e563cb7b3f",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -36099,47 +36099,47 @@
         },
         {
           "name": "write",
-          "line": 79
+          "line": 105
         },
         {
           "name": "result",
-          "line": 116
+          "line": 142
         },
         {
           "name": "trace",
-          "line": 236
+          "line": 262
         },
         {
           "name": "trace",
-          "line": 272
+          "line": 298
         },
         {
           "name": "rejection",
-          "line": 400
+          "line": 426
         },
         {
           "name": "dailyDecision",
-          "line": 446
+          "line": 472
         },
         {
           "name": "actualStep",
-          "line": 960
+          "line": 986
         },
         {
           "name": "plan",
-          "line": 1119
+          "line": 1145
         },
         {
           "name": "toolResult",
-          "line": 1136
+          "line": 1162
         },
         {
           "name": "lineFor",
-          "line": 1175
+          "line": 1201
         },
         {
           "name": "recordReceipt",
-          "line": 1297
+          "line": 1323
         }
       ]
     },
