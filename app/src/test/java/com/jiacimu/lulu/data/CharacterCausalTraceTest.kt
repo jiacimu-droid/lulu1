@@ -95,6 +95,33 @@ class CharacterCausalTraceTest {
         assertTrue(CharacterCausalTrace.inspect(context, b, original, before, mind).isEmpty())
     }
 
+    @Test fun currentVersionThoughtPredatingSourceIsOnlyAnUnverifiedAttribution() {
+        val sourceId = "trace-thought-before-source"
+        source(a, sourceId)
+        val original = event(a, sourceId)
+        val mind = JSONObject().put("thoughts", JSONArray()
+            .put(JSONObject().put("thought", "未来来源不可能触发的旧想法")
+                .put("evidenceId", sourceId).put("evidenceRevision", original.revision)
+                .put("at", at.minusSeconds(5).toString()).put("status", "held"))
+            .put(JSONObject().put("thought", "消息之后的想法")
+                .put("evidenceId", sourceId).put("evidenceRevision", original.revision)
+                .put("at", at.plusSeconds(5).toString()).put("status", "held"))
+            .put(JSONObject().put("thought", "无时间的旧档案想法")
+                .put("evidenceId", sourceId)))
+        val before = SharedExperienceTimeline.all(a)
+        val lines = CharacterCausalTrace.inspect(context, a, original, before, mind)
+        assertTrue(lines.any { it.detail.contains("未来来源不可能触发的旧想法") &&
+            it.title.contains("因果未证实") && it.detail.contains("不能认定由此事件触发") })
+        assertFalse(lines.any { it.detail.contains("未来来源不可能触发的旧想法") &&
+            it.title.contains("仍被保留") })
+        assertTrue(lines.any { it.detail.contains("消息之后的想法") &&
+            it.title.contains("仍被保留") })
+        assertTrue(lines.any { it.detail.contains("无时间的旧档案想法") &&
+            it.title.contains("来源版本未证实") })
+        assertEquals(before, SharedExperienceTimeline.all(a))
+        assertTrue(CharacterCausalTrace.inspect(context, b, original, before, mind).isEmpty())
+    }
+
     @Test fun linkedTaskReceiptMustBeActualResultAfterItsSource() {
         val sourceId = "trace-task-chronology-source"
         val taskId = "trace-task-chronology-shared"
