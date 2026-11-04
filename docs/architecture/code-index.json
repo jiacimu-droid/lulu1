@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:11:16.226758+00:00",
-  "commit": "3f5efe4c7b89738df008f6c0e7f7c11983f4f607",
+  "generatedAt": "2026-11-04T17:19:12.755403+00:00",
+  "commit": "ac51f50435c1125a10a8d131271c9cf7eea4f443",
   "branch": "main",
-  "sourceFingerprint": "5c5c4c55e3ddeff9ce9eaf797481628f88ed18d4e23c5bd693bbc5881e91f1b9",
+  "sourceFingerprint": "d3d6a23f5fc1d5f3c12f001fe7b609ffa46ee5369d2267affacc4f0008dfa27c",
   "summary": {
-    "files": 1135,
-    "lines": 239739,
-    "symbols": 3311
+    "files": 1136,
+    "lines": 240034,
+    "symbols": 3312
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -823,7 +823,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-        "line": 45
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
@@ -3813,7 +3813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 8
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -7641,7 +7641,7 @@
     "ChatLexiconAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-        "line": 32
+        "line": 35
       }
     ],
     "ChatMemoryAutomation": [
@@ -15373,7 +15373,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-        "line": 140
+        "line": 189
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -16770,6 +16770,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
         "line": 5
+      }
+    ],
+    "ChatLexiconRetryPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt",
+        "line": 6
       }
     ],
     "CommitmentAlarmRecoveryTest": [
@@ -24108,12 +24114,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 142,
-      "sha256": "57c6c43c8879ced51d287a3a6a652fd6ab89ba286e688a4214c0c3f76f5be5a8",
+      "lines": 189,
+      "sha256": "536ca73ea975a61a000225d67428b08d55046bf61701048f07acf61f2ed84700",
       "symbols": [
         {
           "name": "render",
-          "line": 8
+          "line": 46
         }
       ]
     },
@@ -25496,16 +25502,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 379,
-      "sha256": "ac76398e1bfa865fe44bcfaf6eb11de402bd3c76ca4894833505bcb489174e8f",
+      "lines": 557,
+      "sha256": "39a66f6731dff803225285392c91dc522c782b534bfbe47bd7ac3d86aac7d1ba",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
-          "line": 32
+          "line": 35
         },
         {
           "name": "initialize",
-          "line": 45
+          "line": 50
         }
       ]
     },
@@ -29773,7 +29779,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2339,
-      "sha256": "d08d46e6303ba87b2e646e71508cad8910eb761f4b38cea81695448d8d8f16e7",
+      "sha256": "bd05915d35ed620151a375857a9fd32252c8f05ad3968e08bbaae05fa2136455",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -36096,8 +36102,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-      "lines": 157,
-      "sha256": "2d1e75d80c9ecafa444a2b1712c7a8c168fa333d76b05df976b179c8e2f1f2c9",
+      "lines": 206,
+      "sha256": "b4067ba031d97e6c1e39b1b23b8cdd3e19a2bc82a047f172667dd978cc4bb143",
       "symbols": [
         {
           "name": "CharacterCreatedGroupTest",
@@ -36105,7 +36111,7 @@
         },
         {
           "name": "event",
-          "line": 140
+          "line": 189
         }
       ]
     },
@@ -36844,6 +36850,17 @@
         {
           "name": "ChatAutomationRoutingTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt",
+      "lines": 21,
+      "sha256": "121a012fb1e1117db41f010fe6ff48657cca659c46833418e0f67517ebaef070",
+      "symbols": [
+        {
+          "name": "ChatLexiconRetryPolicyTest",
+          "line": 6
         }
       ]
     },
