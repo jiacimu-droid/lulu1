@@ -70,7 +70,11 @@ object CommitmentTaskStore {
         // Every completion/cancellation path (tool verification, model turns,
         // wake confirmation and UI) passes through this single durable store.
         // The old pending child wakeups cannot outlive their parent contract.
-        if (current.invalidatesUndatedFollowUps(next)) {
+        if (cancelled && current.status != CommitmentTaskStatus.Cancelled) {
+            // Both the UI and the role's structured cancel flow use update().
+            // Stop child plans for either route without deleting real receipts.
+            revokePendingLinkedPlans(id, "原约定已取消，关联未来行动一并停止")
+        } else if (current.invalidatesUndatedFollowUps(next)) {
             revokePendingLinkedPlans(id,
                 "原约定已改变或不再需要后续执行；保留已经发生的结果")
         }
@@ -378,8 +382,6 @@ object CommitmentTaskStore {
                 lastActionResult = reason,
             )
         }
-        if (cancelled != null)
-            revokePendingLinkedPlans(id, "原约定已取消，未执行的关联日程同步撤销")
         return cancelled
     }
 
