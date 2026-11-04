@@ -965,3 +965,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **架构调整**：singlePrivateInboundReply 在新私聊决定进入执行器前整合无条件对主人的 side 私聊消息为同一条模型回复的自然气泡；真正不同的话继续成为气泡，重复正文不再额外下发 ToolRouter。ProactivePerceptionRuntime 只对可归因的新私聊 messageStimulus 启用；独立生活/主动发消息仍由本人自由选择，其他工具与步骤保留。依赖 requiresPreviousSuccess、带 planId 的已排期提醒保持原动作与凭据，避免提前假装成功。保留原有文本/语音气泡与自然分泡，不改用户历史、人格、关系或模型调用次数。
 - **提交**：bea933c、9c6728b、83bac39、a5bd04f、4b8068a、0a66ac8；回归 77c3dba、5979aef、83fb0c4（单一真实私聊入库、重复全文与拆泡、不同新话、语音、定时提醒与依赖条件）。相关路线图 P-08c.2c 已跟踪。
 - **验证边界**：已提交 main 源码/回归。combined status 对新测试提交未返回检查记录，不能称 CI/JVM/APK 通过；真机、真实模型与源用户 ID/turnTraceId 的重复回合对照仍欠缺。若安装新构建后依旧双发，需从已有真实 trace 区分同轮输出重复和两个独立生成轮次，不能凭字符串相似度全局禁止人物重复说话。
+
+## 2026-11-05：P-08d.4 自序所行只读工具与学习监督
+- **用户目标**：角色能查看自序→所行中一天该做、还没做、已经勾选的任务，理解今天学习进度、由本人选择如何提醒/继续监督。此前角色只能启动短时学习视觉监督（需用户批准），没有读取本机所行原有清单的工具，不能凭主人的对话臆造任务。
+- **数据权威**：SelfTodoScreen 的 SelfTodoStore / SelfTodoCalendar 唯一持久化与重复/截止日期计算；旧所行源 SelfPrefaceScreen.SelfPageStore.readStrict。将 legacyAdditions 与 readForRole 共用，角色读取只预览尚未迁移的旧页，不写迁移标记、任务或用户其它所思/所愿笔记。任何旧页或新任务存档不可解析时返回失败，不把损坏解释为零任务。
+- **工具链**：read_self_todo(scope=today|all,offset) 在 CapabilityRegistry 注册为非居民可使用、只读重试安全；ToolRouter 原唯一执行入口返回含真实 device date、pendingToday/overdue/upcoming/checkedToday、任务ID/名称/时间/备注/重复/勾选时间的分页 JSON，待办数量和完成勾选保持只读。现有结果归属/权限/幂等记录与同角色搜索式工具回执复用，读取所行专用反馈明确它是本机清单而非网页搜索，不假装真实专注；快捷本地读不再先发一条‘我去查’然后又发确认结果。
+- **人格与执行**：ProactivePerceptionRuntime 正常感知添加真实今天总量、角色自主可选 read_self_todo；LuluDeviceToolBridge 通过既有 CompanionActionRuntime.capabilityContext 获得同一工具/概览。不强制自动催促、不新建固定日程或跨域读取、不将主人番茄钟启动强绑角色；想核实学习时仍使用已存在的 start_study_watch 时段许可、实际截图/状态与责任执行器。所行勾选不是学习证据。
+- **已提交**：6454836、6415876、2ee9a0d、3ea3dfb、bc6079f、821ebda、952123f、1d61383、ec43eba、009944f、4eff893、3a030f8、9cbcb57、da2079d。测试 08f0781、dbea372（每日/每周/逾期/已完成/将来、旧未迁移只读、其它笔记隔离、工具受限角色、数据损坏不假装为空、原数据不变）。路线图 P-08d.4 保留 CI/实际结果待核。
+- **验收边界**：GitHub main 已更新。现有环境无 Android SDK/Gradle，未在本轮跑 JVM/APK，真实模型是否自主查看并在之后正确选择监督行动、前后台限时授权、真机升级旧数据，都须后续 Actions 与用户手机验收；不能以源码提交代替已验通。
