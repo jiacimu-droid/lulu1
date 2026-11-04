@@ -167,6 +167,12 @@ class NativeResidentLifeIntegrationTest {
         assertTrue(MigratedDomainStores.characters.settings.value.containsKey(id))
         assertTrue(MigratedDomainStores.characters.get(id).persona.contains("性别身份：女"))
         val meeting = DigitalWorldStore.startMeeting(listOf(id), "世界入口")
+        val archivedConversation = MigratedDomainStores.chat.ensureConversation(id, native.name)
+        MigratedDomainStores.chat.sendUserMessage(archivedConversation.id, "曾经共同讨论过的事")
+        assertTrue(com.jiacimu.lulu.ownerVisibleQqConversations(
+            MigratedDomainStores.chat.conversations.value,
+            MigratedDomainStores.characters.settings.value.keys,
+        ).any { it.id == archivedConversation.id })
         val eventId = "resident-retirement-record-${native.id}"
         SharedExperienceTimeline.record(eventId, id, "数字世界", native.name, "曾在入口见面",
             triggerExtraction = false, source = "resident-duty",
@@ -177,6 +183,14 @@ class NativeResidentLifeIntegrationTest {
         assertTrue(DigitalWorldExpansionStore.isRetiredTemplate(name))
         assertFalse(DigitalWorldExpansionStore.residents().any { it.id == native.id })
         assertFalse(MigratedDomainStores.characters.settings.value.containsKey(id))
+        // Removing a resident hides its orphaned private card, not the archived
+        // message or other people's shared witness records.
+        assertFalse(com.jiacimu.lulu.ownerVisibleQqConversations(
+            MigratedDomainStores.chat.conversations.value,
+            MigratedDomainStores.characters.settings.value.keys,
+        ).any { it.id == archivedConversation.id })
+        assertEquals("曾经共同讨论过的事",
+            MigratedDomainStores.chat.messages(archivedConversation.id).value.last().content)
         assertFalse(DigitalLifeProfileStore.isEnabled(id))
         assertFalse(DigitalWorldStore.state.value.characterLocations.containsKey(id))
         assertTrue(DigitalWorldStore.state.value.meetings
