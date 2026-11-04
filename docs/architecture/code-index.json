@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:21:02.035794+00:00",
-  "commit": "f23eaf1f07f3e32958af96646ed130832074b700",
+  "generatedAt": "2026-11-04T17:21:59.157005+00:00",
+  "commit": "984520f8234e71fa09ce3fb388f491c786588e67",
   "branch": "main",
-  "sourceFingerprint": "0d419de562ba4f31e95127fb71c19d6ac8981c0dd99f1406081958021b12feb5",
+  "sourceFingerprint": "50f527c728a177e9a17343cea56890da08cb21f975fe0d75be7e40c2159fb7b3",
   "summary": {
-    "files": 1136,
-    "lines": 240074,
-    "symbols": 3313
+    "files": 1137,
+    "lines": 240253,
+    "symbols": 3314
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -225,7 +225,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 290
+        "line": 366
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -1117,7 +1117,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 389
+        "line": 481
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -6301,7 +6301,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 430
+        "line": 528
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7929,19 +7929,19 @@
     "reconcileAfterRestart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 76
+        "line": 89
       }
     ],
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 231
+        "line": 254
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 423
+        "line": 517
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -11165,19 +11165,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 651
+        "line": 679
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 653
+        "line": 681
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3285
+        "line": 3314
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16016,6 +16016,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousSharingWakeContractTest.kt",
         "line": 12
+      }
+    ],
+    "AutonomousSocialWakeAnchorsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousSocialWakeAnchorsTest.kt",
+        "line": 6
       }
     ],
     "AutonomyCallAndReceiptTest": [
@@ -25867,8 +25873,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 443,
-      "sha256": "9b2bc270bdd634ba4d069a0577fb9305f5d37ab664d3460496765a5b2e75ff33",
+      "lines": 545,
+      "sha256": "938274a96f21f0d762679491651c78e1eb22e3cbd4ef59cadab0b43ceeab024d",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -25896,27 +25902,27 @@
         },
         {
           "name": "reconcileAfterRestart",
-          "line": 76
+          "line": 89
         },
         {
           "name": "claimAlarmExecution",
-          "line": 231
+          "line": 254
         },
         {
           "name": "cancel",
-          "line": 290
+          "line": 366
         },
         {
           "name": "remove",
-          "line": 389
+          "line": 481
         },
         {
           "name": "removeBySourceEvent",
-          "line": 423
+          "line": 517
         },
         {
           "name": "clearCharacter",
-          "line": 430
+          "line": 528
         }
       ]
     },
@@ -29292,8 +29298,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3352,
-      "sha256": "2c236997def49ca5b436ff0c26da4b2e3302f0274497289c1c71c7d97fba3b1e",
+      "lines": 3381,
+      "sha256": "d8fd4875724866f2b90f5a5c9a33905dcd68f1fe80cf7b6f8cd704bc18332683",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29317,15 +29323,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 651
+          "line": 679
         },
         {
           "name": "deferSupersededDecision",
-          "line": 653
+          "line": 681
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3285
+          "line": 3314
         }
       ]
     },
@@ -35809,6 +35815,17 @@
         {
           "name": "AutonomousSharingWakeContractTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousSocialWakeAnchorsTest.kt",
+      "lines": 48,
+      "sha256": "e184899d56edbcd5e6d042c356d23021cf6d660570ab3a5581abe5382351a7be",
+      "symbols": [
+        {
+          "name": "AutonomousSocialWakeAnchorsTest",
+          "line": 6
         }
       ]
     },
