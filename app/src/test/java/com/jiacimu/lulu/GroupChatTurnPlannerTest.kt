@@ -105,6 +105,31 @@ class GroupChatTurnPlannerTest {
         assertEquals("", groupChatLiveReplyAnchor(listOf(failed, system), names, "我"))
     }
 
+    @Test fun modelAuthoredGroupBubblesAreRealSendBoundariesNotPostHocSentenceSplits() {
+        val raw = """{"action":"reply","bubbles":[
+            {"text":"啊？"},
+            {"text":"你说的是刚才那个吗？"}],
+            "reason":"想问清楚"}"""
+        val authored = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(raw)
+        assertEquals(listOf("啊？", "你说的是刚才那个吗？"), authored)
+        val flow = parseGroupReplyFlow(authored!!.joinToString(SemanticBubbleSeparator))
+        assertTrue(flow.authoredBubbleBoundaries)
+        val plan = characterOutgoingBubblePlan(CharacterReplyPresentation(
+            flow.content, preserveAuthoredBubbleBoundaries = flow.authoredBubbleBoundaries))
+        assertEquals(listOf("啊？", "你说的是刚才那个吗？"), plan.map { it.text })
+
+        val completeLong = "我把这事想明白了，不过里面确实有几种不同的可能，我们需要逐个核对真实的证据。"
+        val one = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(
+            """{"action":"reply","bubbles":[{"text":"$completeLong"}]}""")!!
+        val chosen = parseGroupReplyFlow(one.joinToString(SemanticBubbleSeparator))
+        assertEquals(listOf(completeLong),
+            characterOutgoingBubblePlan(CharacterReplyPresentation(chosen.content,
+                preserveAuthoredBubbleBoundaries = chosen.authoredBubbleBoundaries)).map { it.text })
+        // Old models with only text still follow the existing readable fallback.
+        assertEquals(listOf("我就想问一下。"), com.jiacimu.lulu.data.ModelStructuredOutput
+            .completedReplyBubbles("""{"action":"reply","text":"我就想问一下。"}"""))
+    }
+
     @Test fun onlyOwnerGroupInputUsesForegroundCoordinator() {
         assertTrue(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = false))
