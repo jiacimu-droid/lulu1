@@ -1753,6 +1753,10 @@ internal object ResidentDailyDecision {
         CharacterPhoneInbox.initialize(app)
         CharacterInnerLifeStore.initialize(app)
         val id = ResidentCharacterBridge.characterId(native.id)
+        // A daily worker can keep a snapshot after the owner removes a resident.
+        // Never request another model decision for a retired native actor.
+        if (ResidentCharacterBridge.nativeResident(id) == null ||
+            !DigitalLifeProfileStore.isEnabled(id)) return false
         ScopedModelSelections.initialize(app)
         val today = date(now)
         val p = prefs(app)
