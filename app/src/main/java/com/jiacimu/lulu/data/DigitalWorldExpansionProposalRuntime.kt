@@ -44,7 +44,8 @@ internal object DigitalWorldExpansionProposalRuntime {
         now: Instant = Instant.now(),
     ): String? {
         initialize(context)
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return null
+        if (!DigitalLifeProfileStore.isEnabled(characterId) ||
+            !ResidentDailyPolicy.allowNewResidents(context)) return null
         val slot = Math.floorDiv(now.epochSecond, SLOT_SECONDS)
         val key = "consumed_slot:$characterId"
         val p = prefs ?: return null
@@ -116,6 +117,8 @@ internal object DigitalWorldExpansionProposalRuntime {
             contextMode = CompanionContextMode.CharacterAndScenario,
         ).getOrNull() ?: return null
         val proposal = parseObject(result.text) ?: return null
+        // The owner can stop auto generation while an asynchronous proposal is in flight.
+        if (!ResidentDailyPolicy.allowNewResidents(context)) return null
         return when (proposal.optString("action").trim().lowercase()) {
             "place" -> applyPlaceProposal(characterId, proposal, availableLocations, now)
             "resident" -> if (ResidentDailyPolicy.mayAddResident(context, DigitalWorldExpansionStore.residents().size))

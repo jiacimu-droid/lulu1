@@ -394,6 +394,9 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
     var populationCap by remember(context) {
         mutableIntStateOf(ResidentDailyPolicy.maxResidents(context))
     }
+    var modelBudget by remember(context) {
+        mutableIntStateOf(ResidentDailyPolicy.maxModelDecisions(context))
+    }
     var editingId by remember { mutableStateOf<String?>(null) }
     var deletingId by remember { mutableStateOf<String?>(null) }
     var message by remember { mutableStateOf("") }
@@ -455,6 +458,26 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                     fontSize = 19.sp, color = SettingsInk)
             }
             item { SettingsCardBox { ResidentActivityBudgetSettings() } }
+            item {
+                SettingsCardBox {
+                    Text("每日 AI 决断请求上限", fontWeight = FontWeight.SemiBold, color = SettingsInk)
+                    Text("每位居民每天最多 " + modelBudget + " 次模型请求",
+                        color = SettingsMuted, fontSize = 12.sp)
+                    Slider(
+                        value = modelBudget.toFloat(),
+                        onValueChange = { next ->
+                            val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_MODEL_DECISIONS)
+                            if (count != modelBudget &&
+                                ResidentDailyPolicy.setMaxModelDecisions(context, count)) modelBudget = count
+                        },
+                        valueRange = 0f..ResidentDailyPolicy.MAX_MODEL_DECISIONS.toFloat(),
+                        steps = ResidentDailyPolicy.MAX_MODEL_DECISIONS - 1,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("每日规划、到点决断、收到私信后的回应及结构补正都会计入。设为 0 时不再为居民发起新 AI 请求，但历史消息和已执行行为保留。",
+                        color = SettingsMuted, fontSize = 12.sp)
+                }
+            }
             item {
                 SettingsCardBox {
                     Text("居民人数上限", fontWeight = FontWeight.SemiBold, color = SettingsInk)

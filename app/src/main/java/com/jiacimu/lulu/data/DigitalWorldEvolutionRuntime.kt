@@ -115,7 +115,8 @@ internal object DigitalWorldEvolutionRuntime {
             appContext?.let { ResidentDailyRoutine.refresh(it, now) }
             return emptyList()
         }
-        scheduleValidatedModelProposal(characterId, now)
+        if (appContext?.let(ResidentDailyPolicy::allowNewResidents) == true)
+            scheduleValidatedModelProposal(characterId, now)
         val results = mutableListOf<String>()
         // A brand-new persistent world with literally ZERO residents has no
         // possible social encounter. The old 30% daily spawn probability could
