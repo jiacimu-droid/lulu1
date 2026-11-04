@@ -63,16 +63,7 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
     LaunchedEffect(game.turn, game.opened, game.matched, game.finished) {
         if (game.turn != MemoryTurn.Character || game.finished || game.opened.size >= 2) return@LaunchedEffect
         delay(550)
-        val available = game.cards.indices.filter { it !in game.matched && it !in game.opened }
-        if (available.isEmpty()) return@LaunchedEffect
-        val choice = if (game.opened.isEmpty()) {
-            available.random()
-        } else {
-            val first = game.opened.first()
-            available.firstOrNull { game.cards[it] == game.cards[first] }
-                ?.takeIf { Random.nextInt(100) < 68 }
-                ?: available.random()
-        }
+        val choice = chooseObservedMemoryCard(game) ?: return@LaunchedEffect
         GameSoundEffects.play(GameSoundEffect.Interact)
         store.openCharacterMemoryCard(choice)
     }
