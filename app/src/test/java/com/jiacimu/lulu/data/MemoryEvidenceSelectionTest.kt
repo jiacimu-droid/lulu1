@@ -31,6 +31,40 @@ class MemoryEvidenceSelectionTest {
         assertFalse(newer.text.contains("只在星期三联系"))
     }
 
+    @Test fun aSingleLongEventCanDeliverDistantConditionsWithoutInventingMissingText() {
+        // No lexical focus is required for head/middle/tail to be discoverable.
+        // The earlier renderer selected only firstOrNull() despite sufficient
+        // evidence budget, silently losing later exceptions and cancellations.
+        val original = "开头条件：只在周三联系。" + "甲".repeat(1640) +
+            "中段条件：必须获得明确同意。" + "乙".repeat(1100) +
+            "末尾条件：一旦取消，不得再拨号。"
+        val source = event("multi-range").copy(content = original, revision = 7)
+        val rendered = MemoryEvidenceSelection.render(listOf(source), 3_600)
+        assertTrue(rendered.text.length <= 3_600)
+        assertEquals(listOf("multi-range"), rendered.ids)
+        assertEquals(listOf("multi-range"), rendered.truncatedIds)
+        assertTrue(rendered.text.contains("开头条件：只在周三联系"))
+        assertTrue(rendered.text.contains("中段条件：必须获得明确同意"))
+        assertTrue(rendered.text.contains("末尾条件：一旦取消，不得再拨号"))
+        assertEquals(3, "原文字符".toRegex().findAll(rendered.text).count())
+        assertTrue(rendered.text.contains("eventId=multi-range@7"))
+        assertTrue(rendered.text.contains("其余未注入，勿视为连续"))
+
+        val tiny = MemoryEvidenceSelection.render(listOf(source), 1_050)
+        assertTrue(tiny.text.length <= 1_050)
+        assertTrue(tiny.text.contains("开头条件：只在周三联系"))
+        assertFalse(tiny.text.contains("末尾条件：一旦取消"))
+        assertEquals(listOf("multi-range"), tiny.truncatedIds)
+        // New revision is rendered from current bytes, never patched together
+        // from an older event's cached excerpt.
+        val edited = source.copy(revision = 8, content = original.replace(
+            "末尾条件：一旦取消，不得再拨号。", "末尾条件：改为仅发送文字。"))
+        val current = MemoryEvidenceSelection.render(listOf(edited), 3_600)
+        assertTrue(current.text.contains("末尾条件：改为仅发送文字"))
+        assertFalse(current.text.contains("末尾条件：一旦取消"))
+        assertTrue(current.text.contains("eventId=multi-range@8"))
+    }
+
     @Test fun missingFocusStillPreservesMiddleAndEndAsSearchableSourceSpans() {
         val content = "甲".repeat(2_000) + "中段不可忽略" + "乙".repeat(2_000)
         val spans = OriginalEvidenceSpans.ranked(content, "", maxSpans = 5)
