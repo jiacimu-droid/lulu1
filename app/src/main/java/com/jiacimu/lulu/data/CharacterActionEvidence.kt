@@ -25,6 +25,15 @@ internal object CharacterActionEvidence {
         return wrapper.optString("tool")
     }
 
+    /** Scheduling and editing metadata are real actions, but not researched material. */
+    fun supportsExploration(e: SharedTimelineEvent, action: String): Boolean {
+        if (!supports(e, action)) return false
+        return successfulTool(e) !in setOf(
+            "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity",
+            "schedule_commitment_review", "create_alarm", "cancel_alarm",
+            "retire_development_record", "set_user_remark", "set_self_nickname")
+    }
+
     fun supports(e: SharedTimelineEvent, action: String): Boolean {
         val tool = successfulTool(e)
         return when (action.trim().lowercase()) {

@@ -283,7 +283,7 @@ internal object CharacterCuriosityRuntime {
         if (!succeeded || !CharacterExplorationContinuity.informativeAction(action) || characterId.isBlank() ||
             receipt.isBlank() || evidenceId.isBlank() || prefs == null) return
         val verified = CharacterActionEvidence.resolve(characterId, evidenceId) ?: return
-        if (!CharacterActionEvidence.supports(verified, action)) return
+        if (!CharacterActionEvidence.supportsExploration(verified, action)) return
         // A slow model or a long-running real-world action may finish well
         // after the perception cycle started; only distant future IDs are suspect.
         if (verified.occurredAt.isAfter(now.plusSeconds(3600))) return

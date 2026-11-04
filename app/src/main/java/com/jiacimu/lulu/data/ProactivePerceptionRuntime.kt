@@ -2092,12 +2092,6 @@ object ProactivePerceptionRuntime {
                     decision.curiosity, decision.curiosities,
                     (onlineUnread.messageIds + newlyObserved.map { it.evidenceId } +
                         recentLifeEvents.map { it.id } + listOf(awakeObservationId)).distinct(), Instant.now())
-                // Review is consumed by a real decision, never a scheduler tick.
-                if (selfReviewDue && pendingUserContext.isBlank()) {
-                    check(prefs.edit().putString(
-                        "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),
-                    ).commit()) { "本人心事回顾进度未保存" }
-                }
             },
         )
         // Exploration counts only after an executor receipt, never from model prose.
@@ -2319,6 +2313,14 @@ object ProactivePerceptionRuntime {
                 requestId = shadowRequestId,
                 turnTraceId = turnTraceId,
             )
+        }
+        // A normal decision alone does not prove the daily review happened.
+        // Keep the opportunity pending when a chosen primary/side action failed.
+        if (selfReviewDue && pendingUserContext.isBlank() &&
+            CharacterLifeSelfReview.completed(decision.appraisal, execution.success)) {
+            check(prefs.edit().putString(
+                "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),
+            ).commit()) { "本人心事回顾进度未保存" }
         }
         // This is the executor's independent result, not the model's claim of delivery.
         LuluRepositories.performance.recordTiming("P08a真实执行", 0,

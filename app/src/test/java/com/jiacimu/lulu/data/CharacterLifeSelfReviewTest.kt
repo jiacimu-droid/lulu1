@@ -165,4 +165,17 @@ class CharacterLifeSelfReviewTest {
             listOf("heart-review-source")).isNotEmpty())
         SharedExperienceTimeline.deleteEvent("heart-review-source")
     }
+    @Test fun reviewRequiresExplicitAcknowledgementAndSuccessfulExecution() {
+        assertFalse(CharacterLifeSelfReview.completed(null, true))
+        assertFalse(CharacterLifeSelfReview.completed(JSONObject().put("reason", "只是一次普通聊天"), true))
+        val review = JSONObject().put("lifeReview", JSONObject()
+            .put("reviewed", true).put("reason", "旧安排仍适用，另一项已亲自改期"))
+        assertFalse(CharacterLifeSelfReview.completed(review, false))
+        assertTrue(CharacterLifeSelfReview.completed(review, true))
+        review.getJSONObject("lifeReview").put("reason", "")
+        assertFalse(CharacterLifeSelfReview.completed(review, true))
+        review.getJSONObject("lifeReview").put("reason", "全部保留").put("reviewed", false)
+        assertFalse(CharacterLifeSelfReview.completed(review, true))
+    }
+
 }

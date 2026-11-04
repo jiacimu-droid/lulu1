@@ -209,4 +209,63 @@ class NativeResidentLifeIntegrationTest {
         assertTrue(character.persona.contains("绘制路线"))
     }
 
+    @Test fun dailySceneKeepsExplicitFemaleIdentityAndFullAuthoredTailWithoutPrivateMind() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        DigitalWorldExpansionStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val native = DigitalWorldExpansionStore.registerResident(
+            person("日常场景店员" + UUID.randomUUID().toString().take(5), "女性店员").copy(
+                gender = "女性", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD))
+        val id = ResidentCharacterBridge.characterId(native.id)
+        try {
+            ResidentCharacterBridge.sync(context)
+            val role = MigratedDomainStores.characters.get(id)
+            val authored = "长期审美与行事方式。".repeat(50) + "尾部设定：女性，表达直接。"
+            MigratedDomainStores.characters.update(role.copy(persona = authored))
+            CharacterInnerLifeStore.initialize(context)
+            CharacterInnerLifeStore.recordInnerVoice(id, "private-source", "不该给公共作者的私密心声")
+            val peer = WorldSceneParticipantProfile.context(listOf(id), forNarrator = false)
+            val narrator = WorldSceneParticipantProfile.context(listOf(id), forNarrator = true)
+            assertTrue(peer.contains("明确性别=女性"))
+            assertTrue(peer.contains("女性店员"))
+            assertFalse(peer.contains("尾部设定"))
+            assertTrue(narrator.contains(authored))
+            assertFalse(narrator.contains("不该给公共作者"))
+            assertFalse(peer.contains("不该给公共作者"))
+        } finally {
+            DigitalWorldExpansionStore.removeResident(native.id)
+        }
+    }
+
+    @Test fun residentCanScheduleFollowUpButCannotBypassDailyAgendaQuota() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        val id = "resident:follow-up-" + UUID.randomUUID()
+        val before = ResidentDailyPolicy.maxAgendaItems(context)
+        val now = Instant.now()
+        try {
+            assertTrue(ResidentDailyPolicy.setMaxAgendaItems(context, 1))
+            assertTrue(CapabilityRegistry.allows(context, id,
+                CapabilityRegistry.find("plan_personal_activity")!!, false))
+            val first = RoleDayScheduleStore.arrange(context, id, "继续交流", "想听听对方的后续看法",
+                now.plusSeconds(600), now, activityAction = "digital_world_action")
+            assertEquals(first.id, RoleDayScheduleStore.arrange(context, id, "继续交流", "想听听对方的后续看法",
+                now.plusSeconds(600), now, activityAction = "digital_world_action").id)
+            assertThrows(IllegalArgumentException::class.java) {
+                RoleDayScheduleStore.arrange(context, id, "另一件事", "另有一件想继续的事",
+                    now.plusSeconds(1200), now, activityAction = "digital_world_action")
+            }
+            assertThrows(IllegalArgumentException::class.java) {
+                RoleDayScheduleStore.arrange(context, id, "现实屏幕", "不能越权安排现实手机",
+                    now.plusSeconds(1800), now, activityAction = "capture_screen")
+            }
+            RoleDayScheduleStore.cancel(context, id, first.id, "测试结束", now)
+        } finally {
+            ResidentDailyPolicy.setMaxAgendaItems(context, before)
+        }
+    }
+
 }

@@ -57,6 +57,8 @@ internal object DigitalWorldResidentInteractionRuntime {
             val actorReply = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = "你此刻在数字世界$location，与真正同处现场的${resident.name}交流。居民身份=${resident.identity}，正在做=${resident.dutyActivity}。\n" +
+                    WorldSceneParticipantProfile.context(listOf(nativeId), forNarrator = false) + "\n" +
+                    WorldSceneParticipantProfile.instruction + "\n" +
                     "此前实际说过的话：\n${history.take(2300)}\n" +
                     "你对这位居民的主观看法（对方并不知道）：\n" +
                     CharacterSocialRelationship.perspectivesFor(characterId, listOf(nativeId)),
@@ -80,6 +82,8 @@ internal object DigitalWorldResidentInteractionRuntime {
             val nativeReply = LuluAiServices.gateway.generate(
                 characterId = nativeId,
                 facts = "数字世界真实位置=$location；本人的当前职责=${resident.dutyActivity}。本次与${character.displayName}同处现场。\n" +
+                    WorldSceneParticipantProfile.context(listOf(characterId), forNarrator = false) + "\n" +
+                    WorldSceneParticipantProfile.instruction + "\n" +
                     "双方以前确实说过：\n${history.take(2300)}\n" +
                     "你刚刚亲耳听到${character.displayName}说：“$actorText”。\n" +
                     "对方私聊、内心、未向你说过的记忆一概未知。你可以有不同立场，也可以拒绝。",

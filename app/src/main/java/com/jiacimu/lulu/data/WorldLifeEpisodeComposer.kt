@@ -186,6 +186,8 @@ internal object WorldLifeEpisodeComposer {
             .flatMap { it.participantIds.asSequence() }
             .filter { it != characterId }
             .distinct().toList()
+        val participantProfiles = WorldSceneParticipantProfile.context(
+            listOf(characterId) + encounteredPeople, forNarrator = true)
         val actualSocialContext = if (encounteredPeople.isEmpty()) "" else
             CharacterSocialRelationship.perspectivesFor(characterId, encounteredPeople)
         val sceneScope = if (category == "encounter")
@@ -200,6 +202,8 @@ internal object WorldLifeEpisodeComposer {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
+                        appendLine(participantProfiles)
+                        appendLine(WorldSceneParticipantProfile.instruction)
                         appendLine("【本篇已执行的世界行动与交往结果】$confirmedAction")
                         if (sourceFacts.isNotBlank()) appendLine("【已保存的原始事件与实际发言（只能依据这些事件描写）】\n$sourceFacts")
                         if (actualSocialContext.isNotBlank())
@@ -271,6 +275,8 @@ internal object WorldLifeEpisodeComposer {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
+                        appendLine(participantProfiles)
+                        appendLine(WorldSceneParticipantProfile.instruction)
                         appendLine("已执行世界动作：$confirmedAction")
                         if (sourceFacts.isNotBlank()) appendLine("真实事件与双向台词：\n$sourceFacts")
                         if (actualSocialContext.isNotBlank()) appendLine("已知关系：${actualSocialContext.take(600)}")

@@ -404,6 +404,25 @@ object RoleDayScheduleStore {
         }) { "同一件定时提醒已有约定，已保留原任务；无需重复安排个人日程" }
         // Replayed identical choice keeps its original persistent work/alarm.
         existing.firstOrNull { duplicateOwnPlan(it, proposed) }?.let { return it }
+        // Encounter-authored resident follow-ups use this same calendar and
+        // existing native due worker. They must not bypass the owner's daily
+        // agenda budget, or create a new recurring paid wake lane.
+        // Persisted daily agenda recovery has its own accepted budget/source.
+        if (characterId.startsWith("resident:") && originEvidenceId.isBlank()) {
+            require(repeat == "once") { "居民自主追加日程只支持单次安排" }
+            val tool = CapabilityRegistry.find(action)
+            require(tool != null && CapabilityRegistry.allows(context, characterId, tool, false)) {
+                "居民日程只能选择本人已开放的数字世界能力"
+            }
+            val day = now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            val createdToday = existing.count {
+                it.characterId == characterId &&
+                    it.createdAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate() == day
+            }
+            require(createdToday < ResidentDailyPolicy.maxAgendaItems(context)) {
+                "居民今日新增日程额度已用完；意愿保留，未创建日程"
+            }
+        }
         // Do not lock a long-term commitment after one future step. Identical
         // decisions are deduplicated above; different slots/actions are valid.
         // No arbitrary per-person plan quota: an ongoing life may have many distinct intentions.

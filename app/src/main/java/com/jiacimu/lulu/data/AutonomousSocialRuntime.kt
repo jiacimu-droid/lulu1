@@ -487,7 +487,8 @@ internal object AutonomousSocialRuntime {
                         }
                     }
                     appendLine("确实在场的其他人（不包含他们的私人档案）：")
-                    peers.forEach { id -> appendLine("- $id：${characters.getValue(id).displayName}") }
+                    appendLine(WorldSceneParticipantProfile.context(peers, forNarrator = false))
+                    appendLine(WorldSceneParticipantProfile.instruction)
                     appendLine("已有共同亲历的公开会面：${sharedPast.ifBlank { "暂无" }}")
                     appendLine("双方共同可见的现有关系事实：$socialHistory")
                     appendLine("你本人对对方的主观看法（对方未必知道）：")
@@ -627,6 +628,8 @@ internal object AutonomousSocialRuntime {
                 appendLine("时间：$at；${DigitalWorldEnvironment.snapshot(at).context()}")
                 if (tick != null) appendLine("现场真实事件：${tick.summary}；状态=${tick.status}")
                 else appendLine("没有新环境事件。")
+                appendLine(WorldSceneParticipantProfile.context(participants, forNarrator = false))
+                appendLine(WorldSceneParticipantProfile.instruction)
                 appendLine("在场人物的公开名称：")
                 participants.forEach { id ->
                     appendLine("$id：${characters.getValue(id).displayName}")

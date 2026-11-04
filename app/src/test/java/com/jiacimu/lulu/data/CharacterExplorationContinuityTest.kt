@@ -602,4 +602,25 @@ class CharacterExplorationContinuityTest {
         assertFalse(CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
             emptyList(), now.plusSeconds(20)).contains("当时搜索确实失败"))
     }
+    @Test fun scheduledResearchRemainsUnexploredUntilMaterialActuallyReturns() {
+        val q = question("约好的查证")
+        CharacterExplorationContinuity.remember(context, role, q, null, listOf("input"), now)
+        SharedExperienceTimeline.record("planned-only", role, "实际工具执行", "执行器",
+            JSONObject().put("tool", "plan_personal_activity").put("status", "succeeded")
+                .put("result", JSONObject().put("success", true).toString()).toString(),
+            now.plusSeconds(2), triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        assertTrue(CharacterActionEvidence.supports(
+            CharacterActionEvidence.resolve(role, "planned-only")!!, "tool"))
+        CharacterCuriosityRuntime.recordOutcome(role, q, "tool", true,
+            "日程已经保存", "planned-only", now.plusSeconds(2))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role).optJSONArray("threads")?.length() ?: 0)
+        assertEquals(1, questions().length())
+        val material = outcome("actual-material")
+        CharacterCuriosityRuntime.recordOutcome(role, q, "web_search", true,
+            "真正取得资料", material.id, now.plusSeconds(10))
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").length())
+        assertTrue(CharacterExplorationContinuity.context(role).contains("约好的查证"))
+    }
+
 }

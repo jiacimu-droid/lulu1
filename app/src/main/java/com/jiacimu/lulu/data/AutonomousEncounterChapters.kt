@@ -140,9 +140,8 @@ internal object AutonomousEncounterChapters {
             }}")
             worldTick?.let { appendLine("公开现场事件：${it.summary}；状态=${it.status}") }
             appendLine("【人物已设定的外在气质与说话风格，仅供文学表现，不是新事件或任何人讲过的话】")
-            ids.forEach { id ->
-                appendLine("${characters.getValue(id).displayName}：${characters.getValue(id).persona.take(350)}")
-            }
+            appendLine(WorldSceneParticipantProfile.context(ids, forNarrator = true))
+            appendLine(WorldSceneParticipantProfile.instruction)
             appendLine("【当事人共同可见的现有关系事实】")
             appendLine(CharacterSocialRelationship.contextForGroup(ids).ifBlank { "尚无全部见证者共同确认的既往互动" })
             appendLine("以下为同一场会面已保存的原始时间线，不能添加未记载的事或台词：")

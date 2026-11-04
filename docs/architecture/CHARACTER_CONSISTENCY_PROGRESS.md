@@ -760,3 +760,14 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **六条明确失败**：`BundledJiangDuImportTest.kt:49` 仍要求旧“选画”场景；`CharacterLifeStoreTest.kt:561/610/655/707/903` 仍检查过时的 `AI前沿` 字面是否出现在合成 prompt。当前 v29 人设、字段、示例已更新，旧断言并不能可靠证明迁移结果。修改测试而非恢复旧人格台词。
 - **实际修改**：`abf6d7a3be6eed5a22fe95756500d4621e479604` 将五条旧提示词字面断言改为核对 `CharacterLifeStore.state` 中的 `jiangDuV29Overrides["interests"]` 完整值；原测试中角色隔离、主人手改/留空、原意图和迁移版本断言保持。 `f47d5290821c336e42f1ec408d5a4b85291010b7` 将旧场景标题检查换成当前正式“靠近”，其他人物示例隔离断言保留。**没有修改正式人格、语义决策、Store 或添加调用**。
 - **验证边界**：[新 APK/JVM 41802904855](https://github.com/jiacimu-droid/lulu1/actions/runs/41802904855) 与 [索引 41802904784](https://github.com/jiacimu-droid/lulu1/actions/runs/41802904784) 提交后已排队，未取得 success；旧 `abf6d7a` 单测 run `41802893951` cancelled，不计成功。上轮长事件多片段 [41802053512](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053512) 查询时 in_progress。下一轮先查这两个实际结果，若失败取最新日志的精确首错，再继续 P-08 人物因果真实证据；真机/真实模型仍待验。
+
+
+## 2026-11-04：日常相遇小剧场身份交接、本人整理与后续执行
+
+- 用户纠正：本轮“小剧场”是数字世界居民/角色日常相遇及其文学生活片段，不是阅读里的单篇番外。本轮没有提交MiniTheater阅读修改。日常线路沿用系统导演→同场人物各自决策→真实交流/工具回执→合场文学与各自后续；不新建随机故事或常态生成请求。
+- 已证根因1：ProactivePerceptionRuntime在afterCausalRecord内无条件消耗当天自我回顾，即便模型没有确认回顾、工具还没执行。改为既有appraisal.lifeReview明确确认及理由、执行器整轮success后才消耗；不回顾或失败保留下一次普通感知机会，不增付费唤醒。
+- 已证根因2：场景提供plan_personal_activity，但居民CapabilityRegistry拒绝该工具。开放原工具，原RoleDayScheduleStore追加居民单次/能力/每日新增日程额度检查，原native due worker与请求预算不变；相同已保存选择仍幂等，拒绝保留真实失败而不装作主动放弃。
+- 已证根因3：CharacterCuriosityRuntime把成功的计划工具tool回执也计为探索成果。新增独立supportsExploration检查：计划/改期/取消/元数据编辑仍是实际执行，却不能当取得资料。原curiosity问题保留，真实搜索/阅读回执才继续。澄清satisfied可由本人据真实结果判断已弄清，无须先向用户分享；不将日程成功冒充研究完成。
+- 已证根因4：相遇者模型对同场人只拿姓名；合场文学只拿persona.take(350)，丢失居民明确gender/identity与后部设定。新增无状态WorldSceneParticipantProfile，从原居民登记与角色权威读取事实，普通相遇/专门居民互动显式交接公开性别身份；导演与合场/单人补写获得完整稳定设定。人物脑不接收对方私有心声/记忆，文学不改实际世界或关系。性别未知不按职业/姓名推断，不做输出关键词替换。
+- 回归：整理确认/失败保留；成功排程不算探索且真实搜索能承接；女性店员及350字之后完整设定入投影、私密心声隔离；居民安排后续/幂等/额度与现实能力隔离。尚无本轮CI成功，需查提交关联流水。前轮f47d529的APK/JVM41802904855检查时in_progress，索引41802904784 success；旧6c8a934流水failure不计成功。
+- 下一轮先核本轮CI，再真机复现女性店员称呼、居民相遇后实际日程/回执/后续，及失败后次轮能否继续本人整理；实际模型性格质量、跨日成本与体验仍待验。
