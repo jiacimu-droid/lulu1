@@ -24,7 +24,7 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class SelfTodoRoleReadTest {
-    private val app get() = RuntimeEnvironment.getApplication<android.content.Context>()
+    private val app get() = RuntimeEnvironment.getApplication<android.app.Application>()
 
     @Before fun setup() {
         MemoryTestEnvironment.release()
