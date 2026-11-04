@@ -128,5 +128,14 @@ class SelfTodoRoleReadTest {
         val result = SelfTodoRoleRead.execute(app, JSONObject())
         assertFalse(result.getBoolean("success"))
         assertTrue(result.getString("summary").contains("不能假定清单为空"))
+        // Syntactically valid JSON can still conceal a malformed/partial task.
+        // The character must not confidently announce an empty plan then.
+        assertTrue(prefs.edit().putString("tasks",
+            "[{\\"title\\":\\"缺少ID和日期的待办\\"}]").commit())
+        val partiallyBroken = SelfTodoRoleRead.execute(app, JSONObject())
+        assertFalse(partiallyBroken.getBoolean("success"))
+        assertEquals("this is not json", "this is not json") // No owner data written back.
+        assertEquals("[{\\"title\\":\\"缺少ID和日期的待办\\"}]",
+            prefs.getString("tasks", ""))
     }
 }
