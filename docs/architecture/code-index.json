@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T15:41:32.025601+00:00",
-  "commit": "fd7758f3833800bd91258b395b4082cbf908ba12",
+  "generatedAt": "2026-11-04T15:42:05.440798+00:00",
+  "commit": "f9927f545710f84edbe2cac5d714ede65936ebdb",
   "branch": "main",
-  "sourceFingerprint": "31bfc20c808421d6825ce3e15459dd9d3a6998f1306dff48ee51b07e34945596",
+  "sourceFingerprint": "13d0cbad8168e40cac047ef6f7844ebc82d3d728957b2fb1317fc2601e485282",
   "summary": {
     "files": 1133,
-    "lines": 238782,
+    "lines": 238848,
     "symbols": 3308
   },
   "symbolIndex": {
@@ -5949,7 +5949,7 @@
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 652
+        "line": 657
       }
     ],
     "snapshot": [
@@ -11833,7 +11833,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 957
+        "line": 973
       }
     ],
     "contactsOf": [
@@ -15601,7 +15601,7 @@
     "QqReplySourceWatermarkTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "QqXhsShareCodecTest": [
@@ -16129,19 +16129,19 @@
     "actualStep": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 798
+        "line": 814
       }
     ],
     "toolResult": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 974
+        "line": 990
       }
     ],
     "lineFor": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1013
+        "line": 1029
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -23802,8 +23802,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 720,
-      "sha256": "ee316ad07c8b3245cfca6ccc10f8b9bd2e67125e46c22f2eb3689b353ef7999c",
+      "lines": 725,
+      "sha256": "add28daeb6fe649b87348f25ae3eb479031814e35935a0814f6a0340415ebfe9",
       "symbols": [
         {
           "name": "inspect",
@@ -23815,7 +23815,7 @@
         },
         {
           "name": "unverifiedReason",
-          "line": 652
+          "line": 657
         }
       ]
     },
@@ -35110,12 +35110,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 482,
-      "sha256": "42690e446e74070e43973a96231756d9efcfc3be7682bb17ed94b5624727f520",
+      "lines": 527,
+      "sha256": "d1f3144a4c7035fda58b5ed398b0ccb4413717ffcfa66eb48eb426294114ab43",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
-          "line": 31
+          "line": 32
         }
       ]
     },
@@ -35965,8 +35965,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 1085,
-      "sha256": "c410c05b08d2cc7b16e947e589f4e2f1a84d75d79678d30b19b0e4eb68929c35",
+      "lines": 1101,
+      "sha256": "21f30c8c94e55d7d1f82e995f989bcf1a3f935d4fea9c23f08252cf577f37bae",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -35990,19 +35990,19 @@
         },
         {
           "name": "actualStep",
-          "line": 798
+          "line": 814
         },
         {
           "name": "plan",
-          "line": 957
+          "line": 973
         },
         {
           "name": "toolResult",
-          "line": 974
+          "line": 990
         },
         {
           "name": "lineFor",
-          "line": 1013
+          "line": 1029
         }
       ]
     },
