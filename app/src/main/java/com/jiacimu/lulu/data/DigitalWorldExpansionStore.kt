@@ -115,7 +115,7 @@ internal object DigitalWorldExpansionStore {
         // Disable the actor and clear its current physical presence. Historical
         // messages, meetings and other people's independent memories remain.
         val role = ResidentCharacterBridge.characterId(residentId)
-        DigitalLifeProfileStore.remove(role)
+        DigitalLifeProfileStore.retireResident(role)
         MigratedDomainStores.characters.delete(role)
         CharacterIdentityStore.delete(role)
         return true
