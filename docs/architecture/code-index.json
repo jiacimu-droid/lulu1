@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:16:19.539772+00:00",
-  "commit": "03c9801294c479034365c4971e8150090c688578",
+  "generatedAt": "2026-11-04T03:16:55.680497+00:00",
+  "commit": "e023791ee610a754c2dc35272a730e40e8646ddc",
   "branch": "main",
-  "sourceFingerprint": "8570fc0e71d27a7a9e6ea22e86d8455d051b4fd9439b7a7f433dcd9e3bed4e89",
+  "sourceFingerprint": "6fb0e6967c8edd2b20354ed6406e3164182961b36067964f1878af458ac0e223",
   "summary": {
-    "files": 1127,
-    "lines": 235357,
+    "files": 1126,
+    "lines": 235170,
     "symbols": 3271
   },
   "symbolIndex": {
@@ -2945,25 +2945,25 @@
     "LuluSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "loadConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 73
+        "line": 74
       }
     ],
     "clearEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 85
+        "line": 86
       }
     ],
     "saveCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "speak": [
@@ -20736,12 +20736,6 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt",
-      "lines": 188,
-      "sha256": "7f196f39ae8c455718ab8c73307f2d4dfc80bf9f51201e7beccaafcdec4364a6",
-      "symbols": []
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
       "lines": 252,
       "sha256": "adf22ea46871cfaa561d0e7531a39e20e799c88c408e0bc70056f459ac7bcdd9",
@@ -20754,24 +20748,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-      "lines": 500,
-      "sha256": "de218951f7ceca224933b175ffc53fe67ae36ac2cd0debefb87008c8d22c436b",
+      "lines": 501,
+      "sha256": "3ddcd3ccbce5e148b951a71665169d48769dfd4093d2863e3ada1f8208021e81",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
-          "line": 39
+          "line": 40
         },
         {
           "name": "loadConfiguration",
-          "line": 73
+          "line": 74
         },
         {
           "name": "clearEditor",
-          "line": 85
+          "line": 86
         },
         {
           "name": "saveCurrent",
-          "line": 97
+          "line": 98
         }
       ]
     },
