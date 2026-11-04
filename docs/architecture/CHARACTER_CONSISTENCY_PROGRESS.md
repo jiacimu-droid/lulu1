@@ -1022,3 +1022,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：[b14c167](https://github.com/jiacimu-droid/lulu1/commit/b14c167456b97285f985ff1c3eb39acabcfbc599) 增 Robolectric 测试：原生事件 +5、本人决定 +7、回执 +10 不得归为回执后；真正 +20 决定仍可归因。测试已提交但**本轮未实际执行**。
 - **CI 边界**：旧 902d426 的 APK/JVM 41878588585 和索引 41878588646 本轮查询均 queued；不属于本次源码提交，也不证明本次成功。此工具没有拿到本次 push 的 Actions run，JVM/APK/索引、真机、真实模型、跨日均待验。依 AGENTS 原代码索引生成工作流应在 Actions 运行后核实，不手写伪造索引。
 - **下一步**：先核 0db87d4/b14c167 后继的真实 JVM/APK、索引；若测试失败按首个真实错误修复。继续 P-08a.1 的跨入口 requestId/source revision 归因或 P-08c.2 剩余取消/部分送达；若只剩外部样本，转可执行的回归与性能任务。
+
+## 2026-11-05：P-08b.1c 去除关系标题关键词对本人设定的二次覆盖
+
+- **接手与避让**：main e6ce026，先读AGENTS、CODE_INDEX、唯一大纲、统一契约、成长框架及最新进度；查近期提交。并行窗口正修改跨日责任、心事、重复发送与trace，刷新到b0fe49b后保留0db87d4/b14c167等新改动，不重复开发。
+- **前轮CI实证**：0df8e07的APK41859812891、原索引41859812905均completed/success。最新完整成功基线fc56278的APK41873143222及原索引41873142543success，job126725641840测试构建与发布均成功。历史c8c37d的41333088808实际failure，job124927310890日志为2226tests/2failed，分别CharacterLifeStoreTest.jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits和ConversationExpressionGatewayTest.renderAndRepairKeepTheSameVoiceWithoutReceivingASecondPlannerContract；旧断言及后继修复不能混为该历史提交通过，当前后继完整基线已成功，不重演旧开发。
+- **完整链路证据**：用户编辑CharacterLifeStore.relationshipAgreements → CharacterSocialRelationship.promptSection → CharacterRuntime.definition.relationshipPromptSection → CompanionModelGateway的Full/CharacterAndScenario（含精简聊天表达与电话） → 同一角色判断/表达。原链路完整保留当前约定，但baseRules另外调用PeerRelationshipContext；后者仅凭title.contains("闺蜜")并details非空，就附加「你和对方是平等朋友，不是她的助手、仆人、恋人」及不得主动转话题等固定脚本，还把details截到500字符。这与用户明确填写「闺蜜兼恋人」或自主约定的其他关系直接冲突，而且同一词命中的任何角色都会受影响。是公共装配覆盖用户设定，不是某一角色需要更温柔/更负责。
+- **结构修复**：移除PeerRelationshipContext及网关第二注入入口，只沿原有完整关系投影，不新增解释器、关系标签、Store、关键词或模型轮次。星禾本人既有「平等闺蜜、不把关心变管家/恋人告白」仍在原人设和原关系字段；江渡与所有角色资料、事实历史、权限和具体工具决定均不改。抽象性格场景与Isolated仍不继承原世界关系。
+- **回归**：把旧模板存在性测试改为CharacterRelationshipAuthorityTest，从权威关系读取验证星禾本人边界、其他角色不套用、完整长约定与末尾条件、用户改关系/清空实时生效、稳定人格与另一角色不变。RelationshipPreferenceGatewayTest新增通过MockWebServer捕获六次实际网关请求，验证Full私聊、Full精简表达、CharacterAndScenario电话有完整当前约定且无关键词覆盖，PersonaAndScenario/Isolated无原世界关系，编辑后旧约定消失，每次只调用一次。模拟服务器仅证明请求组装与隔离，不能证明真实模型自然度或行为质量。
+- **验证与剩余**：本地仅Java，无Gradle/Kotlin/adb，未本地执行Android测试；提交后使用仓库原JVM/APK与scripts/generate_code_index.py工作流，必须查真实状态，不把排队当通过。真实模型对自定义关系的取舍、实际行动与跨轮连续性仍须相同模型/事实对照。P-08a仍缺获授权真实回合；本轮完成可实做的P-08b.1公共注入缺口。
+- **下一步**：优先核本轮CI/原索引和并行跨日责任构建；若源码正常，继续P-08b.1其余入口及P-08d逐步回执，不复原这个被明确证明冲突的公共关系模板。

@@ -68,6 +68,56 @@ class RelationshipPreferenceGatewayTest {
         }
     }
 
+
+    @Test fun currentAuthoredRelationshipReachesRealWorldModesWithoutKeywordRoleOverlay() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val actor = MigratedDomainStores.characters.create("关系入口测试", "独立、有自己的判断")
+        val role = actor.characterId
+        val details = "按双方实际约定相处。".repeat(100) + "末尾边界：监督只在双方另有明确约定时成立。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", "闺蜜兼恋人", details))
+        val server = MockWebServer()
+        repeat(6) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"好"},"finish_reason":"stop"}]}""")) }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val calls = listOf(
+                CompanionContextMode.Full to "私聊",
+                CompanionContextMode.Full to "聊天表达渲染",
+                CompanionContextMode.CharacterAndScenario to "电话",
+                CompanionContextMode.PersonaAndScenario to "独立性格场景",
+                CompanionContextMode.Isolated to "独立工具任务",
+            )
+            calls.forEach { (mode, source) ->
+                LuluAiServices.gateway.generate(role, "本次只自然接话", "按当前场景回应", source,
+                    "test", connectionOverride = connection, contextMode = mode).getOrThrow()
+                val prompt = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                    .getJSONArray("messages").getJSONObject(0).getString("content")
+                val includesRelationship = mode == CompanionContextMode.Full ||
+                    mode == CompanionContextMode.CharacterAndScenario
+                assertEquals(includesRelationship, prompt.contains(details))
+                assertEquals(includesRelationship, prompt.contains("闺蜜兼恋人"))
+                assertFalse(prompt.contains("你和对方是平等朋友，不是她的助手、仆人、恋人"))
+                assertFalse(prompt.contains("不要未经明确邀请就主动将普通话题转成"))
+                if (includesRelationship) assertEquals(1, prompt.split(details).size - 1)
+            }
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user",
+                "普通朋友", "新约定：此前恋爱关系已经结束，保留各自生活。"))
+            LuluAiServices.gateway.generate(role, "新的谈话", "按当前场景回应", "私聊",
+                "test", connectionOverride = connection, contextMode = CompanionContextMode.Full).getOrThrow()
+            val changed = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                .getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(changed.contains("新约定：此前恋爱关系已经结束，保留各自生活。"))
+            assertFalse(changed.contains(details))
+            assertFalse(changed.contains("闺蜜兼恋人"))
+            assertEquals(6, server.requestCount)
+            assertEquals("普通朋友", CharacterSocialRelationship.agreement(role, "user")?.title)
+        } finally { server.shutdown() }
+    }
+
     @Test fun leanExpressionActuallyReceivesEnduringPreferencesAndCoreButIsolatedTasksDoNot() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
