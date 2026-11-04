@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:21:42.726811+00:00",
-  "commit": "1c0769f6527f5c0ec2cc1a53e2350ec0f09ee78d",
+  "generatedAt": "2026-11-04T03:22:21.263791+00:00",
+  "commit": "b4c2f4d8bb6a2c5259a7a33e750e6cc06bc119d4",
   "branch": "main",
-  "sourceFingerprint": "b26a34849fd27326494c1a70b791a08f36ff5a3bc46945244f4831c7cbc11fa7",
+  "sourceFingerprint": "12d8fdb7141ee68ee5d0957819d561c2ef4893896a2649b249d7a7e200028751",
   "summary": {
     "files": 1127,
-    "lines": 235358,
+    "lines": 235370,
     "symbols": 3274
   },
   "symbolIndex": {
@@ -8561,7 +8561,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 266
+        "line": 278
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8657,61 +8657,61 @@
     "residentHomeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 125
+        "line": 137
       }
     ],
     "residentHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 129
+        "line": 141
       }
     ],
     "residenceLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 132
+        "line": 144
       }
     ],
     "registerPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 138
+        "line": 150
       }
     ],
     "registerResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 152
+        "line": 164
       }
     ],
     "updateResidentProfile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 174
+        "line": 186
       }
     ],
     "fillResidentTraitsIfBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 212
+        "line": 224
       }
     ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 229
+        "line": 241
       }
     ],
     "commitResidentDuty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 250
+        "line": 262
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 285
+        "line": 297
       }
     ],
     "isAmbientMoment": [
@@ -26465,8 +26465,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 413,
-      "sha256": "2ca59f72c6a9470345fc8ee730fbb9b66cb13068f4f90c81f7b0232a2122f012",
+      "lines": 425,
+      "sha256": "9434ba4c2fd966b4b84a6f183f62c87e1152883cb1fc41fb1ca2a9659be7596b",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -26502,47 +26502,47 @@
         },
         {
           "name": "residentHomeLocation",
-          "line": 125
+          "line": 137
         },
         {
           "name": "residentHome",
-          "line": 129
+          "line": 141
         },
         {
           "name": "residenceLabel",
-          "line": 132
+          "line": 144
         },
         {
           "name": "registerPlace",
-          "line": 138
+          "line": 150
         },
         {
           "name": "registerResident",
-          "line": 152
+          "line": 164
         },
         {
           "name": "updateResidentProfile",
-          "line": 174
+          "line": 186
         },
         {
           "name": "fillResidentTraitsIfBlank",
-          "line": 212
+          "line": 224
         },
         {
           "name": "moveResident",
-          "line": 229
+          "line": 241
         },
         {
           "name": "commitResidentDuty",
-          "line": 250
+          "line": 262
         },
         {
           "name": "contextFor",
-          "line": 266
+          "line": 278
         },
         {
           "name": "isExistingLocation",
-          "line": 285
+          "line": 297
         }
       ]
     },
