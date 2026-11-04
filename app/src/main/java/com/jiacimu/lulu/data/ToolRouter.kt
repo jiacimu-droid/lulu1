@@ -66,7 +66,10 @@ object ToolRouter {
         reason: String = "", curiosity: JSONObject? = null,
         motiveId: String = "", concernId: String = "", experienceId: String = "",
         goalReviewMode: Boolean = false,
-        expectedPlanDueAt: Instant? = null): String = requests.withLock("$characterId:$requestId") {
+        expectedPlanDueAt: Instant? = null,
+        // A group-notice decision is a one-hop reply, not a fresh invitation
+        // to recursively wake every group member again.
+        groupNoticeFollowUp: Boolean = false): String = requests.withLock("$characterId:$requestId") {
         CharacterCuriosityRuntime.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterLifeFollowThroughStore.initialize(context)
@@ -414,6 +417,24 @@ object ToolRouter {
                     // the gauge for pleasant/share-worthy lived experiences.
                     triggerExtraction = parsed.optBoolean("success"))
                 projectReceipt(context, characterId, receiptId, execution, intentionId)
+                // Group delivery is an actual persisted event, not a character
+                // saying it happened. Give peers a bounded independent choice
+                // only from the initiating send, never from its own follow-up.
+                // Foreground director-generated turns already own their room
+                // round and must not start a second background response round.
+                if (name == "send_group_message" &&
+                    ToolExecutionStatus.completed(parsed) &&
+                    !groupNoticeFollowUp && !requestId.startsWith("group-")) {
+                    val deliveredIds = parsed.optJSONArray("deliveredMessageIds")
+                    val lastMessageId = if (deliveredIds != null && deliveredIds.length() > 0)
+                        deliveredIds.optString(deliveredIds.length() - 1) else
+                        parsed.optString("evidenceId").takeUnless { it == receiptId }.orEmpty()
+                    if (lastMessageId.isNotBlank()) runCatching {
+                        ProactivePerceptionScheduler.scheduleGroupMessageReview(context,
+                            characterId, parsed.optString("conversationId"), lastMessageId)
+                    }.onFailure { android.util.Log.w("ToolRouter",
+                        "Could not enqueue group peers; delivered message remains saved", it) }
+                }
                 // Central receipt-to-perception handoff. All scenes and all initiators use
                 // this exact persisted tool event and the ordinary character decision loop.
                 // Pending permissions are not returned knowledge; failures are still useful.
