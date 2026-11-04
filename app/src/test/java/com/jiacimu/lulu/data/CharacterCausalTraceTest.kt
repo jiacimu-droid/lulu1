@@ -616,10 +616,26 @@ class CharacterCausalTraceTest {
                     .put("summary", "结果确实发给了用户").toString()).toString(),
             at.plusSeconds(30), triggerExtraction = false, source = "tool-router",
             evidenceKind = EventEvidenceKind.ToolResult)
+        // Another request may reference the same search result, but its
+        // separately named feedback is not this search decision's delivery.
+        val unrelatedReplyId = "tool-$a-unrelated-feedback:verified-search-feedback"
+        SharedExperienceTimeline.record(unrelatedReplyId, a, "其他请求的回执", "执行器",
+            JSONObject().put("tool", "send_private_message")
+                .put("requestId", "unrelated-feedback:verified-search-feedback")
+                .put("causeEvidenceId", searchReceipt)
+                .put("causeEvidenceRevision", 1L)
+                .put("status", "succeeded")
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "另一请求已发送").toString()).toString(),
+            at.plusSeconds(31), triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
         val original = CharacterCausalTrace.inspect(context, a, event(a, origin),
             SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
         assertTrue(original.any { it.evidenceId == replyId &&
             it.title.contains("搜索结果后的实际反馈") && it.title.contains("执行器确认成功") })
+        assertFalse(original.any { it.evidenceId == unrelatedReplyId &&
+            it.title.contains("搜索结果后的实际反馈") })
+
         assertTrue(CharacterCausalTrace.inspect(context, a, event(a, searchReceipt),
             SharedExperienceTimeline.all(a), JSONObject()).any { it.evidenceId == replyId })
         assertFalse(CharacterCausalTrace.inspect(context, b, event(b,
