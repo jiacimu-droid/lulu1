@@ -66,8 +66,36 @@ internal object CommitmentAlarmDelivery {
     suspend fun execute(context: Context, id: String, source: String) {
         val now = Instant.now()
         CommitmentTaskStore.initialize(context)
-        val hadTask = CommitmentTaskStore.snapshot().any { it.linkedAlarmId == id }
+        val hadTask = CommitmentTaskStore.snapshot().any { task ->
+            task.linkedAlarmId == id || task.dailyNextAlarmId == id ||
+                task.dailyAttempts.any { it.reviewAlarmId == id }
+        }
         val alarm = LuluAlarmSystem.takeForDelivery(context, id, now) ?: return
+        val carry = CommitmentTaskStore.claimPastDailyReview(id, alarm.triggerAt, now)
+        if (carry != null) {
+            val (owner, old) = carry
+            withContext(Dispatchers.IO) {
+                LuluRepositories.initialize(context)
+                MigratedDomainStores.initialize(context)
+                SharedExperienceTimeline.initialize(context)
+                val details = "此前每日约定的独立结果复查；原执行时刻=${old.dueAt}；" +
+                    "原状态=${old.status}；上次回执=${old.result.take(250)}；" +
+                    "该轮效果尚不能凭旧通知或沉默判断。"
+                val evidenceId = "commitment:prior-review:${owner.id}:$id"
+                SharedExperienceTimeline.record(evidenceId, owner.characterId,
+                    "跨日约定结果复查", "系统观察", details, occurredAt = now,
+                    source = "commitment-follow-up",
+                    evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
+                    triggerExtraction = false)
+                com.jiacimu.lulu.data.CompanionOnlineStore.initialize(context)
+                com.jiacimu.lulu.data.CompanionOnlineStore.wakeCharacter(
+                    owner.characterId,
+                    com.jiacimu.lulu.data.CompanionOnlineReason.ScheduledCommitment,
+                    details + "今天的独立每日安排不受此回执影响；请本人结合有效证据自行判断。",
+                    perceiveNow = true, now = now)
+            }
+            return
+        }
         val task = CommitmentTaskStore.claimAlarmExecution(id, alarm.triggerAt, now, source)
         // Canceled, duplicate, early and very late deliveries cannot produce an incoming call.
         if (task == null && (hadTask || alarm.commitmentTaskId != null)) return
@@ -89,6 +117,16 @@ internal object CommitmentAlarmDelivery {
                     MigratedDomainStores.initialize(context)
                     SharedExperienceTimeline.initialize(context)
                     LuluAlarmSystem.initialize(context.applicationContext)
+                    task.dailyAttempts.forEach { earlier ->
+                        val eid = "commitment:daily-history:${task.id}:${earlier.dueAt.toEpochMilli()}"
+                        if (SharedExperienceTimeline.eventsByIds(task.characterId, listOf(eid)).isEmpty())
+                            SharedExperienceTimeline.record(eid, task.characterId,
+                                "每日约定历史", "系统事实",
+                                "原时间=${earlier.dueAt}；状态=${earlier.status}；结果=${earlier.result}",
+                                source = "commitment-occurrence",
+                                evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.ToolResult,
+                                triggerExtraction = false)
+                    }
                     if (!isCurrent(task)) return@withContext
                     val shown = when {
                         alarm.silentCallback -> NotificationManagerCompat.from(context).areNotificationsEnabled()
@@ -120,8 +158,8 @@ internal object CommitmentAlarmDelivery {
             ) }
             if (error is CancellationException) throw error
         } finally {
-            // Attempt completion is not goal completion. The store advances
-            // only a verified occurrence; unresolved care retains tonight's ID.
+            // Each already-accepted daily occurrence is independently scheduled.
+            // Tomorrow never changes today's unknown outcome into completed.
             CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken,
                 outcomeReview = task.isOutcomeReview())
             CommitmentTaskStore.finishAlarmExecution(task.id, task.executionToken)
