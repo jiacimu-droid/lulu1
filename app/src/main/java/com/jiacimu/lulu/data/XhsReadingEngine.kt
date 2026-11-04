@@ -64,6 +64,7 @@ internal object XhsReadingEngine {
     @Volatile private var foregroundReady = false
     @Volatile private var browserAttached = false
     private var controlledBrowser: WebView? = null
+    @Volatile private var browserParked = false
     private val attachmentListener = object : View.OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(view: View) {
             if (visibleBrowser?.get() === view) browserAttached = true
@@ -101,6 +102,7 @@ internal object XhsReadingEngine {
             resetSession()
         }
         visibleBrowser = WeakReference(view)
+        browserParked = false
         view.removeOnAttachStateChangeListener(attachmentListener)
         view.addOnAttachStateChangeListener(attachmentListener)
         browserAttached = view.isAttachedToWindow
@@ -109,14 +111,20 @@ internal object XhsReadingEngine {
         if (visibleBrowser?.get() === view) {
             visibleBrowser = null
             browserAttached = false
+            browserParked = false
             view.removeOnAttachStateChangeListener(attachmentListener)
             resetSession()
         }
     }
     /** Parking retains the same session; attach/detach events publish whether
      * the foreground slot can actually service a request. */
-    fun parkBrowser(view: WebView) {
-        if (visibleBrowser?.get() === view) controlledBrowser = null
+    /** Keep the authenticated WebView attached for reading, but pause its
+     * rendering/JS timers when it is only parked beneath the other app pages.
+     * Never suspend a role read that already owns the navigation mutex. */
+    fun parkBrowser(view: WebView): Boolean {
+        if (visibleBrowser?.get() !== view) return false
+        browserParked = true
+        return controlledBrowser !== view
     }
     fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
     /** A foreground, attached WebView is mandatory for native reading.
@@ -621,6 +629,10 @@ internal object XhsReadingEngine {
                     val shared = view
                     val noteReadiness = XhsNoteReadiness()
                     controlledBrowser = view
+                    // Parked sessions do not need to animate/render a feed until
+                    // someone actually reads. Resume before the first request.
+                    val restoreParked = browserParked
+                    if (restoreParked) view.onResume()
                     var mainError = ""
                     // Do not overwrite the screen's own WebViewClient. That
                     // client holds login, error and native navigation state.
@@ -840,6 +852,9 @@ internal object XhsReadingEngine {
                         @Suppress("UNREACHABLE_CODE") JSONObject()
                     } finally {
                         controlledBrowser = null
+                        // The owner may have opened the real reader meanwhile;
+                        // never pause a now-visible WebView on a tool completion.
+                        if (restoreParked && browserParked) view.onPause()
                         CookieManager.getInstance().flush()
                         // Browser lifetime is owned by its composable screen.
                     }
