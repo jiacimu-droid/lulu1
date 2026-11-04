@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T18:39:14.764555+00:00",
-  "commit": "40f46e059d35a56924a002bf4b07c4065f05c70c",
+  "generatedAt": "2026-11-04T19:33:37.709138+00:00",
+  "commit": "555ade65ab50d042b70ad3a15bcb3e59bad415f6",
   "branch": "main",
-  "sourceFingerprint": "8f3480a83ebcf9492a4a8ff18fcbf12f08a0bf5ecd49a421c0fab12d70f30f0f",
+  "sourceFingerprint": "bde94da2a3310f556baf89caff2036400f7d6d7575133c555365c2d17d2dd88a",
   "summary": {
     "files": 1137,
-    "lines": 240818,
-    "symbols": 3318
+    "lines": 240879,
+    "symbols": 3319
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6837,7 +6837,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 42
+        "line": 46
       }
     ],
     "CharacterLifeStore": [
@@ -7019,7 +7019,7 @@
     "brief": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 50
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -7029,19 +7029,19 @@
     "ensureFollowUp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 60
+        "line": 64
       }
     ],
     "resolveMotiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 70
+        "line": 74
       }
     ],
     "invalidatePlanIfSourceDeleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 84
+        "line": 88
       }
     ],
     "candidate": [
@@ -16554,6 +16554,12 @@
         "line": 18
       }
     ],
+    "assertComplete": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
+        "line": 155
+      }
+    ],
     "CharacterMotiveDeliberationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt",
@@ -24809,8 +24815,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-      "lines": 92,
-      "sha256": "66cc4cf98e03cd68727b119c7d147bb1887ab8c38c4ce1fc7a87adc93157851c",
+      "lines": 96,
+      "sha256": "d35391cd2866a289ab6e07058efb4e72b402a4ededca81b9f52424b171996e8b",
       "symbols": [
         {
           "name": "applyPlan",
@@ -24818,23 +24824,23 @@
         },
         {
           "name": "isDue",
-          "line": 42
+          "line": 46
         },
         {
           "name": "brief",
-          "line": 50
+          "line": 54
         },
         {
           "name": "ensureFollowUp",
-          "line": 60
+          "line": 64
         },
         {
           "name": "resolveMotiveId",
-          "line": 70
+          "line": 74
         },
         {
           "name": "invalidatePlanIfSourceDeleted",
-          "line": 84
+          "line": 88
         }
       ]
     },
@@ -36599,12 +36605,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-      "lines": 153,
-      "sha256": "659d4db80c9fec96f85fb96921774183aadbd0e4077d1a91605ef88880237cf6",
+      "lines": 210,
+      "sha256": "e6d4137beeefb52f324d4b5d803483a4ab90645998a23c6d5308900691557e06",
       "symbols": [
         {
           "name": "CharacterMotiveContinuityTest",
           "line": 18
+        },
+        {
+          "name": "assertComplete",
+          "line": 155
         }
       ]
     },
