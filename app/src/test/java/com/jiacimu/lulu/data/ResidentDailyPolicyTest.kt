@@ -41,7 +41,10 @@ class ResidentDailyPolicyTest {
         pref.edit().clear().commit()
         try {
             assertEquals(ResidentDailyPolicy.MAX_RESIDENTS, ResidentDailyPolicy.maxResidents(ctx))
-            assertTrue(ResidentDailyPolicy.allowNewResidents(ctx))
+            // Real installations default to no new residents until the owner opts in.
+            assertFalse(ResidentDailyPolicy.allowNewResidents(ctx))
+            assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 0))
+            assertTrue(ResidentDailyPolicy.setAllowNewResidents(ctx, true))
             assertTrue(ResidentDailyPolicy.mayAddResident(ctx, 0))
             assertTrue(ResidentDailyPolicy.setMaxResidents(ctx, 2))
             assertEquals(2, ResidentDailyPolicy.maxResidents(ctx.applicationContext))
