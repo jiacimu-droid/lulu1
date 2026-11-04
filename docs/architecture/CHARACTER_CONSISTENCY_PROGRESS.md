@@ -639,3 +639,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **并行冲突与修复**：设置首页在 `1ec89844` 增加入口。并行修改先后产生两份同名 `LuluResidentManagementScreen`；`2ed5e4af` 删除独立页面，`fbea180d` 删除旧 API 页面同名实现后，两边同时不存在。实查 `main` 的设置首页仍调用该页面但文件 404；已提交 `190be18fbf14a4daea8c4a977bdd8caf5afe1d20` 在现有 `main` 恢复唯一独立页面，旧 `LuluSettingsScreen.kt` 不包含重复实现。恢复版本有单独开关、居民列表/编辑/删人确认、人数/日排程及每人每日 AI 决断预算。**这一缺陷是并行竞态引入，不能误记为已验收。**
 - **真实 CI**：最后确认完整基线 Android/JVM/APK `811b428` 的 run `41763912049` success、索引 `41763912115` success，只证明旧代码；恢复页面后的 `190be18fbf` 索引 run `41767222838` completed/success，Android/JVM/APK run `41767222877` 检查时 pending；旧 `41767007417` cancelled 不算通过。未真机验「新增→编辑→删除→重启」/历史保留与已删居民后台 Worker/群聊，未实际测日模型调用额度和新居民人设多样性。S-02 仍在唯一看板，P-08 不因本轮勾选。
 - **下一轮**：先确认 run `41767222877` 最终 Kotlin 编译/JVM/APK；有失败取首个实质报错，修根因。真机查设置入口、删除后重启不复生/不冒充发送、旧聊天和见面仍能在历史访问、每人 0/2/5/8 AI 决断上限与 0/2/5/8 行程分别起效。并行窗口先看当前已恢复的唯一 Composable，不得重复创建或再次同时删除两份。
+
+## 2026-11-04 · P-08b 心声输出前的同义猜测与关键词否决（`fb91c5d`／`bd9babb`，待 CI）
+
+- **交接核验**：前轮 `1a948f1` 解决的是 presence 历史保存阶段文字相似度丢心声；本轮先读最新 AGENTS、看板、人物契约/成长框架与进度。其含代码的后继 `190be18` [APK 41767222877](https://github.com/jiacimu-droid/lulu1/actions/runs/41767222877) 查询时 in_progress，索引 41767222838 success，尚不能将新心声回归报通过。最后确认完整 Android 基线仍为 `811b428`。
+- **独立根因**：生成结果先经过 `CharacterHeartVoicePolicy.keepOrBlank`，再进私人状态/历史。它的 `sameMeaning` 对内心与外发台词用去前缀/标点、包含关系和 0.60 字组重合判同义，会把“想继续聊”与“不想继续聊”、带新条件的内心当作已说出口而丢弃；无 structuredDelta 的兼容入口即使有 focus/change/unsaidWhy 和新依据，还会被“先不催、给空间”等词表否决。这里是程序替本人判断念头意义，和上轮持久化门禁不同。
+- **实改**：`fb91c5d8af6f0b690679ee495225a56a2624ec1e` 移除词表语义否决，把 outward 去重限定为原文格式归一后的相同内容，并在做展示片段前对完整本人原文比较。因果状态/新鲜依据检查继续走原协议，无新人格中心、模型轮次或统一主动/克制脚本。当前 140/320/600 展示截取策略尚未更动，长原文保真仍需单列核查，不宣称本轮解决任意长心声。
+- **共享调用与回归**：首版将方法改名时漏查了想法卡片/历史 UI 的共享调用；`bd9babbf8a3e5e5fa4870546115b31b6e00ace85` 恢复原入口名并共用精确比较。新增 `CharacterExpressionGuideTest` 两项覆盖有运行时因果 delta 的否定/附加条件、明确因果依据的等待选择和无依据仍为空；`CharacterMomentSnapshotIdeasTest` 新增真实想法投影的相反意愿共存与 outward 为肯定时私人否定仍可见。保留已有相同正文去重、空依据和重复 delta 拒绝测试。
+- **真实验收边界**：`fb91c5d` APK 41768483477 cancelled，索引 41768483506 success，不能代表补齐版通过。含完整回归的 [Android/JVM/APK 41768606587](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606587) 查询时 pending，[原索引生成器 41768606590](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606590) in_progress。先查完整结果，若有失败修首条真实报错；再真机对照原模型输出→因果依据→过滤后心声→当前状态/历史→下轮行动。更换措辞的近似内容可能比以前多显示，需实测噪声；没有假模型自然度结论。P-08b/e 仍待验。
