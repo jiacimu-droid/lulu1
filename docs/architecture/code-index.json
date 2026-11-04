@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:20:57.419513+00:00",
-  "commit": "d3e90b50448d87240fbfba6ae65049949984fd28",
+  "generatedAt": "2026-11-04T03:21:21.746809+00:00",
+  "commit": "bfff7fbecfa45ab4a69253ff9d859625e313a585",
   "branch": "main",
-  "sourceFingerprint": "056ec1a6aa8ae0026596cf40cc850eebf333d0454fa846d04db7ac6f4696ab81",
+  "sourceFingerprint": "b26a34849fd27326494c1a70b791a08f36ff5a3bc46945244f4831c7cbc11fa7",
   "summary": {
     "files": 1127,
-    "lines": 235353,
+    "lines": 235358,
     "symbols": 3274
   },
   "symbolIndex": {
@@ -1723,7 +1723,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2271
+        "line": 2275
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11713,7 +11713,7 @@
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2137
+        "line": 2141
       }
     ],
     "maxResidents": [
@@ -26454,8 +26454,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
-      "lines": 229,
-      "sha256": "8dbbf8b4d993933e6c00590678aa7b88296725e0dcabd6bbb06ffc44ce0c0b93",
+      "lines": 230,
+      "sha256": "82af7959a96d44a9c4424ade50ab3c90e795bb9e683fdbaf3ebc43ae27427610",
       "symbols": [
         {
           "name": "initialize",
@@ -29537,8 +29537,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2335,
-      "sha256": "f1714a8a91eb4a72742d2007152040639148a165e2c21a37f05f3aec15bdb0d7",
+      "lines": 2339,
+      "sha256": "d08d46e6303ba87b2e646e71508cad8910eb761f4b38cea81695448d8d8f16e7",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29614,11 +29614,11 @@
         },
         {
           "name": "errorOf",
-          "line": 2137
+          "line": 2141
         },
         {
           "name": "schedule",
-          "line": 2271
+          "line": 2275
         }
       ]
     },
