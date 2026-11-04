@@ -263,9 +263,13 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
     SelectionContainer {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(19.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
-            sections.forEach { section ->
+            sections.forEachIndexed { index, section ->
+                if (index > 0) {
+                    val sameParagraph = sections[index - 1].paragraphIndex == section.paragraphIndex
+                    Spacer(Modifier.height(if (sameParagraph) 7.dp else 19.dp))
+                }
                 when (section.kind) {
                     PersonalTheaterTypography.Kind.Title -> Text(
                         section.text, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
@@ -299,7 +303,7 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
 
 
 /** Paragraphs and quoted speech are display semantics, never a rewrite of fiction.
- * Dialogue is only a standalone quotation paragraph; mixed prose remains intact.
+ * Paragraph-leading quoted speech has its own style; other quotes remain in prose.
  * No first-line indentation: the rhythm comes from spacing and restrained contrast.
  */
 internal object PersonalTheaterTypography {
