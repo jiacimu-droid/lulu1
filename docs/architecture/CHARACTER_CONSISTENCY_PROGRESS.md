@@ -1041,3 +1041,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码根因及修复**：公共协议同时重复展开身份记录边界、工具学习、探索连续性，达到约3086字符；并非缺少角色心理能力。提交 [3ec761c](https://github.com/jiacimu-droid/lulu1/commit/3ec761c95bc3c78a33bd85c33bd9164901c88bf4) 将重复的记录归属文案压缩，并简化目标字段重复说明，保留原有长/短期心事、原日程任务引擎、学习/收藏/回执及完整 `CharacterExplorationContinuity.runtimeGuidance` 等原结构；按 Kotlin trimIndent 与嵌套常量拼装计算新长度为约2953字符（未用 Gradle 跑此版本）。不移除原测试的长度和语义断言、不增加第二轮模型调用。
 - **人物设定不反弹**：1814b36 已明确删除按关系标题关键词全局附加的 `PeerRelationshipContext`，旧测试却仍索要这一删除模板的逐字「平等朋友」「不是她的助手、仆人、恋人」「不代表她在要求哄睡」等文案。提交 [8c5bf66](https://github.com/jiacimu-droid/lulu1/commit/8c5bf66184bc279806da67e3349bfda6d9c2a74e) 把真实网关请求测试改为对照当前 `CharacterSocialRelationship.agreement("lulu", "user")` 的完整角色本人关系原文，并断言旧模板不得重新出现，保留「最好的闺蜜」、同音字、星禾本人表达字段、江渡隔离和两次真实网关模式下的检查。角色现有身份/关系/人设原文未改。
 - **验证与下一步**：原索引在 3ec761c 上 #41882143607 success；JVM/APK #41882143434 上次查询 pending。8c5bf66 的后继完整 JVM/APK 尚无可确认的 success，不能用 1814b36 的失败报告或别的成功基线掩盖。下次优先核包含全部三个纠正提交的最终 CI，然后再按新的失败日志定向修复；真机与真实模型的关系取舍仍未验。
+
+
+## 2026-11-05 · P-08a.2e 同任务不同来源的回执归因
+
+- **接手**：读取 main AGENTS.md、CODE_INDEX.md、唯一 ROADMAP 与人物进度；最新已核验完整 JVM/APK 41882293649 的 build job completed/success，不能据此宣称本次后继提交通过。
+- **确证根因**：CharacterCausalTrace.inspect 对 UI 窗口中的 tool-router 回执以 `causeEvidenceId == current.id || event.taskId == current.taskId` 匹配。一个 taskId 下两个不同用户来源时，即使回执明确声明另一个 causeEvidenceId，仍会错误显示为当前事件的行动回执；只看 taskId 会覆盖更精确的因果归属。
+- **源码**：[231a557](https://github.com/jiacimu-droid/lulu1/commit/231a557851fef8fe6e448bd5683125ccf71f5d68) 优先使用回执明确的 causeEvidenceId 和可用的 causeEvidenceRevision；只有旧回执没有 causeEvidenceId 时才允许沿原 taskId 回退。保留旧数据，不改变执行/角色本人选择，不新增模型调用。
+- **回归**：[0980eef](https://github.com/jiacimu-droid/lulu1/commit/0980eef8f19fcd9b7f2bbca275eb4eb52452fbd9) 同 taskId 两来源、明确另一来源回执、正确来源回执、无 cause 的旧回执及跨角色隔离。测试已提交但未运行，不能标通过。
+- **CI/设备**：查询后继提交的 workflow runs 未返回记录（该接口只枚举 PR 触发，不能据此断言 Actions 未触发）；本次 JVM/APK/索引、真机、真实模型均未证实。下一轮先核真实后继 Actions 和测试日志，再继续 P-08a.1 的其它来源/版本/时间精确关联；若无可证缺口转 P-08c.2 或下一可执行子项。
