@@ -148,25 +148,88 @@ internal object PersonalMiniTheater {
                 每个提案给出具体、有趣、可展开的变故和互动，避免泛泛“逐渐亲密”；
                 不同提案的核心机制和关系结构彼此不同，不能复刻历史题材。
                 不从真实聊天、记忆或私人资料获取灵感。
-                严格只输出 JSON 对象：{"ideas":[{"title":"简短中文题名","premise":"约60—130字的具体独立剧情设定"}]}。
+                每个 premise 用40—75个汉字讲清关键变故、互动和可展开的矛盾，十条总量务必控制在输出预算内。
+                严格只输出 JSON 对象：{"ideas":[{"title":"简短中文题名","premise":"40—75字的具体独立剧情设定"}]}。
                 不要 markdown 代码块或解释。
             """.trimIndent()
         )
 
+    /**
+     * Models sometimes exhaust their output budget mid-array. A finished
+     * top-level idea object is useful even if the surrounding array never
+     * closed; never invent the unfinished final item or buy a retry.
+     */
     fun parseGeneratedIdeas(raw: String): List<Idea> {
-        val open = raw.indexOf('{')
-        val close = raw.lastIndexOf('}')
-        require(open >= 0 && close > open) { "灵感返回格式不正确" }
-        val array = JSONObject(raw.substring(open, close + 1)).optJSONArray("ideas")
-            ?: error("模型没有返回灵感列表")
-        require(array.length() in 1..20) { "灵感数量不正确" }
-        return (0 until array.length()).mapNotNull { i ->
-            val row = array.optJSONObject(i) ?: return@mapNotNull null
+        val marker = Regex(""""ideas"\s*:\s*\[""").find(raw)
+            ?: throw IllegalArgumentException("模型没有返回灵感列表")
+        val arrayStart = marker.range.last + 1
+        val objects = mutableListOf<JSONObject>()
+        var objectStart = -1
+        var objectDepth = 0
+        var insideString = false
+        var escaped = false
+        var arrayClosed = false
+        var malformed = false
+
+        for (i in arrayStart until raw.length) {
+            val char = raw[i]
+            if (insideString) {
+                when {
+                    escaped -> escaped = false
+                    char == '\\' -> escaped = true
+                    char == '"' -> insideString = false
+                }
+                continue
+            }
+            when (char) {
+                '"' -> insideString = true
+                '{' -> {
+                    if (objectDepth == 0) objectStart = i
+                    objectDepth++
+                }
+                '}' -> {
+                    if (objectDepth == 0) {
+                        malformed = true
+                        break
+                    }
+                    objectDepth--
+                    if (objectDepth == 0) {
+                        val value = runCatching {
+                            JSONObject(raw.substring(objectStart, i + 1))
+                        }.getOrNull()
+                        if (value == null) {
+                            malformed = true
+                            break
+                        }
+                        objects += value
+                        objectStart = -1
+                    }
+                }
+                ']' -> if (objectDepth == 0) {
+                    arrayClosed = true
+                    break
+                }
+                ',' -> Unit
+                else -> if (!char.isWhitespace() && objectDepth == 0) {
+                    malformed = true
+                    break
+                }
+            }
+        }
+        if (malformed || objects.isEmpty() || objects.size > 20 ||
+            (arrayClosed && objectDepth != 0)) {
+            throw IllegalArgumentException("这一批灵感格式不完整，请重新生成")
+        }
+
+        val ideas = objects.mapNotNull { row ->
             val title = row.optString("title").trim().take(70)
             val premise = row.optString("premise").trim().take(500)
             if (title.length < 2 || premise.length < 20) null
             else Idea("ai-" + UUID.randomUUID(), title, premise)
         }.distinctBy { it.title.lowercase() }
+
+        if (ideas.isEmpty()) throw IllegalArgumentException("这一批没有可用的新灵感")
+        return ideas
     }
 
 }
