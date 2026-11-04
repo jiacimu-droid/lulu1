@@ -186,11 +186,15 @@ class ConversationExpressionGatewayTest {
                     .getJSONArray("messages").getJSONObject(0).getString("content")
                 assertTrue(system.contains("最好的闺蜜"))
                 assertTrue(system.contains("同音字"))
-                assertTrue(system.contains("平等朋友"))
-                assertTrue(system.contains("不是她的助手、仆人、恋人"))
-                assertTrue(system.contains("不代表她在要求哄睡"))
-                assertTrue(system.contains("过去请别的角色做过某事"))
-                assertFalse(system.contains("对主人实际承担的提醒"))
+                // The old title-keyword overlay was deliberately removed:
+                // read this role's CURRENT agreement once, with no imposed
+                // assistant/romance exclusion that could contradict later edits.
+                val actual = CharacterSocialRelationship.agreement("lulu", "user")!!
+                assertTrue(actual.details.contains("平等"))
+                assertTrue(system.contains(actual.title))
+                assertTrue(system.contains(actual.details))
+                assertFalse(system.contains("你和对方是平等朋友，不是她的助手、仆人、恋人"))
+                assertFalse(system.contains("过去请别的角色做过某事"))
                 assertTrue(system.contains(CharacterProfileSchema.xingHeProfile.getValue("expression")))
                 assertTrue(system.contains("星禾"))
             }
