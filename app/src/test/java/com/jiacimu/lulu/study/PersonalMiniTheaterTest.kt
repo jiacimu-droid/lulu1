@@ -327,6 +327,42 @@ class PersonalMiniTheaterTest {
         }
     }
 
+    @Test fun truncatedModelArrayKeepsFinishedIdeasAndNeverPersistsIncompleteTail() {
+        // Real provider failure: opening {"ideas":[ is present but output budget ends
+        // midway through a later JSON string; previously the entire paid batch was lost.
+        val result = """{"ideas":[
+            {"title":"三分钟重置回廊","premise":"两人误入古代遗迹，必须共同破解机关，在倒计时里带走不会重置的线索。"},
+            {"title":"假死调查员","premise":"两名互不相识的调查者在同一夜进入荒废当铺，发现一份足以改变双方身份的旧证据。"},
+            {"title":"半途截断","premise":"这是没有结尾的故事"""
+        val rescued = PersonalMiniTheater.parseGeneratedIdeas(result)
+        assertEquals(listOf("三分钟重置回廊", "假死调查员"), rescued.map { it.title })
+        val library = MiniTheaterLibrary(context, emptyList())
+        assertEquals(2, library.addCreativeIdeas(rescued))
+        assertEquals(2, MiniTheaterLibrary(context, emptyList()).creativeIdeas.value.size)
+        assertFalse(library.creativeIdeas.value.any { it.title == "半途截断" })
+        assertEquals(0, library.addCreativeIdeas(rescued))
+    }
+
+    @Test fun ideaRecoveryRespectsJsonEscapesAndDoesNotInventAnUnfinishedFirstItem() {
+        val complete = """{"ideas":[
+            {"title":"书房的镜子","premise":"镜子上出现了\"请别回头\"几个字，两人必须互相协作，才能找到幕后留下的线索。"},
+            {"title":"午夜的约定","premise":"城里的钟每响一次，就会换一个人保管钥匙，两人必须抢在天亮前追上它。"}
+        ]}"""
+        val parsed = PersonalMiniTheater.parseGeneratedIdeas(complete)
+        assertEquals(2, parsed.size)
+        assertTrue(parsed[0].premise.contains("请别回头"))
+        assertThrows(IllegalArgumentException::class.java) {
+            PersonalMiniTheater.parseGeneratedIdeas(
+                """{"ideas":[{"title":"没写完","premise":"只留下"""
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            PersonalMiniTheater.parseGeneratedIdeas("Unauthenticated provider error")
+        }
+        assertTrue(PersonalMiniTheater.inspirationRequest(emptyList(), emptyList())
+            .instructions.contains("40—75个汉字"))
+    }
+
     @Test fun creativeIdeaBatchesAreSavedReusedAndFilteredAgainstExistingPremises() {
         val library = MiniTheaterLibrary(context, emptyList())
         val generated = PersonalMiniTheater.parseGeneratedIdeas(
