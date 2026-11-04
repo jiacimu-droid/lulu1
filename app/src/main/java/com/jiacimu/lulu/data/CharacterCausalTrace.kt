@@ -634,8 +634,12 @@ internal object CharacterCausalTrace {
         val rows = mutableListOf<CharacterCausalTraceLine>()
         val result = objectValue(body.opt("result"))
         val nativeId = result?.optString("evidenceId").orEmpty()
+        // A referenced native event written AFTER this receipt cannot have
+        // been the result it observed. Keep the raw ID visible as unverified,
+        // but never borrow that future event's decisions as follow-through.
         val native = if (nativeId.isNotBlank() && nativeId != receipt.id)
-            SharedExperienceTimeline.eventsByIds(characterId, listOf(nativeId)).firstOrNull()
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(nativeId))
+                .firstOrNull { !it.occurredAt.isAfter(receipt.occurredAt) }
         else null
         if (nativeId.isNotBlank() && nativeId != receipt.id) {
             rows += CharacterCausalTraceLine("原生结果记录",
