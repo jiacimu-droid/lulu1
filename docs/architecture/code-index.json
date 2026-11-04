@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:20:29.863414+00:00",
-  "commit": "ad71a6894cb89a095d22dc43dc7a3f4b8d72eb43",
+  "generatedAt": "2026-11-04T16:21:19.240216+00:00",
+  "commit": "08f07813841a4df5aa87df18f036195193bca298",
   "branch": "main",
-  "sourceFingerprint": "49def7ce447b5aa936a043beb659934d43ede56d0618fa76c4e0e6d4b104004b",
+  "sourceFingerprint": "1e2114aad15dbefc4307c1d3e2c00c6f3f3df3e97c0a939f9925841b2b405d4a",
   "summary": {
-    "files": 1134,
-    "lines": 239285,
-    "symbols": 3309
+    "files": 1135,
+    "lines": 239418,
+    "symbols": 3311
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15710,6 +15710,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
         "line": 96
+      }
+    ],
+    "SelfTodoRoleReadTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
+        "line": 26
+      }
+    ],
+    "task": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
+        "line": 45
       }
     ],
     "SelfWishFoldersTest": [
@@ -35257,6 +35269,21 @@
         {
           "name": "completedOneTimeTaskDoesNotReappearAfterDateChanges",
           "line": 96
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
+      "lines": 133,
+      "sha256": "d8d59e07aa3337a1c8d06543740ebf2dbfe904e97f213f88b7856225070ac7ce",
+      "symbols": [
+        {
+          "name": "SelfTodoRoleReadTest",
+          "line": 26
+        },
+        {
+          "name": "task",
+          "line": 45
         }
       ]
     },
