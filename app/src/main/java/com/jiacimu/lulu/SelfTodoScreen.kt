@@ -205,9 +205,42 @@ internal object SelfTodoStore {
         }
     }
 
+    /** Role access refuses any incomplete current task record, rather than
+     * silently dropping it and telling the character the owner's plan is clear.
+     * The historical UI parser retains its existing compatibility behavior. */
+    private fun roleSnapshotIsComplete(context: Context): Boolean = runCatching {
+        val raw = preferences(context).getString(TASKS, "[]") ?: "[]"
+        val rows = JSONArray(raw)
+        val ids = mutableSetOf<String>()
+        for (index in 0 until rows.length()) {
+            val row = rows.optJSONObject(index) ?: return@runCatching false
+            val id = row.optString("id")
+            if (id.isBlank() || !ids.add(id)) return@runCatching false
+            if (runCatching { LocalDate.parse(row.getString("firstDate")) }.isFailure)
+                return@runCatching false
+            if (runCatching { TodoRepeat.valueOf(row.getString("repeat")) }.isFailure)
+                return@runCatching false
+            for (key in listOf("completions", "reopened")) {
+                if (row.has(key) && row.optJSONArray(key) == null) return@runCatching false
+            }
+            val logs = row.optJSONArray("completions") ?: JSONArray()
+            for (j in 0 until logs.length()) {
+                val log = logs.optJSONObject(j) ?: return@runCatching false
+                if (runCatching { LocalDate.parse(log.getString("date")) }.isFailure)
+                    return@runCatching false
+            }
+            val reopened = row.optJSONArray("reopened") ?: JSONArray()
+            for (j in 0 until reopened.length())
+                if (runCatching { LocalDate.parse(reopened.getString(j)) }.isFailure)
+                    return@runCatching false
+        }
+        true
+    }.getOrDefault(false)
+
     /** Read the same not-yet-imported source as the 所行 UI, without writing
      * the user's original pages or marking migration complete. */
     internal fun readForRole(context: Context): List<TodoTask>? {
+        if (!roleSnapshotIsComplete(context)) return null
         val stored = readStrict(context) ?: return null
         if (preferences(context).getBoolean(MIGRATED, false)) return stored
         val legacy = legacySelfTodoRecords(context) ?: return null
