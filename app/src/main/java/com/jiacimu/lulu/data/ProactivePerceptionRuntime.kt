@@ -2817,6 +2817,20 @@ object ProactivePerceptionRuntime {
                     it.characterId == character.characterId
             }
             if (destination != null) {
+                val fromSide = verifiedRoleDeliveries(
+                    destination.id, character.characterId,
+                    stepReport.deliveredMessageRefs.filter { it.conversationId == destination.id }
+                        .map { it.messageId },
+                ).filter { it.status == LuluChatMessage.Status.Sent }
+                    .joinToString("") { it.content }
+                if (samePrivateReplyContent(fromSide, decision.text)) {
+                    // A side step already delivered this SAME model-authored
+                    // text. The later convenience-reply path must not post a
+                    // second copy under requestId:reply.
+                    deliveredExtra = true
+                    extraConversationId = destination.id
+                    effectNotes += "本轮附加消息已真实送达同一正文，不再重复发送"
+                } else {
                 val responseArgs = JSONObject().put("text", decision.text)
                     .put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
                     .put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
@@ -2836,6 +2850,7 @@ object ProactivePerceptionRuntime {
                 }.orEmpty()
                 if (!deliveredExtra) effectNotes += "回复未送达：" +
                     replyResult.optString("error").take(150)
+                }
             }
         }
         // A tool result is not a delivered message. Complete the promised
