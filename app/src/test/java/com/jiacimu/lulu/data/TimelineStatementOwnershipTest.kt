@@ -120,6 +120,30 @@ class TimelineStatementOwnershipTest {
                 orphan, event(userMessage, a).copy(channel = migratedChannel))).map { it.id })
     }
 
+    @Test fun bareGroupMessageIdDoesNotProveThatThisCharacterWitnessedIt() {
+        val a = "group-witness-identity-a"
+        val b = "group-witness-identity-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("见证归属", listOf(a, b), true)
+        val user = MigratedDomainStores.chat.sendUserMessage(group.id, "这句确实发到群里了")
+        val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我确实说过", a)
+        val userWitness = event(user, b)
+        val ownWitness = event(own, a)
+        assertTrue(TimelineStatementOwnership.involvesUser(userWitness))
+        assertTrue(TimelineStatementOwnership.isOwnCharacterStatement(ownWitness))
+
+        // Same session, original message, content and time, but not the
+        // persisted witness ID for this character. Do not turn an imported
+        // bare chat message into a firsthand encounter or self speech.
+        val bareUser = userWitness.copy(id = user.id)
+        val bareOwn = ownWitness.copy(id = own.id)
+        assertFalse(TimelineStatementOwnership.involvesUser(bareUser))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(bareOwn))
+        assertTrue(CompanionContactClock.verifiedUserContacts(
+            listOf(bareUser, userWitness)).map { it.id } == listOf(userWitness.id))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            userWitness.copy(id = "${user.id}:group:$a")))
+    }
+
     @Test fun staleOrForeignGroupWitnessCannotBorrowARealMessageId() {
         val a = "group-origin-a"
         val b = "group-origin-b"
