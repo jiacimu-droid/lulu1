@@ -1489,6 +1489,60 @@ internal fun mirroredPrivateReplyStepIndices(
     return mirrored
 }
 
+/** Private inbound chat owns ONE spoken reply. Explicit extra private-message
+ * actions from the same model decision become bubbles of that reply, not more
+ * ToolRouter sends with independent request IDs. Independent life turns never
+ * pass through this adapter and may still initiate their own messages.
+ *
+ * A conditional send (requiresPreviousSuccess) is a later, evidence-dependent
+ * action and remains in the ordered executor; it cannot be spoken early.
+ * Only model-authored words are combined: never invent a new message.
+ */
+internal data class PrivateInboundReplyPlan(
+    val text: String,
+    val actions: org.json.JSONArray?,
+    val absorbedSends: Int = 0,
+)
+
+internal fun singlePrivateInboundReply(
+    authoredText: String,
+    actions: org.json.JSONArray?,
+): PrivateInboundReplyPlan {
+    if (actions == null) return PrivateInboundReplyPlan(authoredText, null)
+    val rest = org.json.JSONArray()
+    val parts = mutableListOf<String>()
+    if (authoredText.isNotBlank()) parts += authoredText
+    var absorbed = 0
+    for (index in 0 until actions.length()) {
+        val original = actions.optJSONObject(index)
+        if (original == null) {
+            rest.put(actions.opt(index) ?: org.json.JSONObject.NULL)
+            continue
+        }
+        val normalized = AutonomousActionWireProtocol.normalizeStep(original)
+        val isUnconditionalPrivateSend = normalized.optString("tool") == "send_private_message" &&
+            !normalized.optBoolean("requiresPreviousSuccess", false)
+        val body = normalized.optJSONObject("args")?.optString("text").orEmpty().trim()
+        if (isUnconditionalPrivateSend && body.isNotBlank()) {
+            // Each authored speech fragment is heard once in this particular
+            // reply, regardless of whether it was returned in text, bubbles,
+            // steps, sideActions or a nested nextAction.
+            val canonicalBody = canonicalPrivateReplyContent(body)
+            val alreadySpoken = canonicalPrivateReplyContent(
+                parts.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator))
+            if (canonicalBody.isNotBlank() && !alreadySpoken.contains(canonicalBody)) {
+                parts += body
+            }
+            absorbed++
+        } else rest.put(original)
+    }
+    return PrivateInboundReplyPlan(
+        parts.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+        rest.takeIf { it.length() > 0 },
+        absorbed,
+    )
+}
+
 internal object OrderedCharacterActions {
     suspend fun execute(
         context: Context,
