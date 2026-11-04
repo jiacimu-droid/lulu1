@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T04:01:49.896067+00:00",
-  "commit": "d86102f9bd387c00126533911d50003551f78e59",
+  "generatedAt": "2026-11-04T04:57:10.103147+00:00",
+  "commit": "8c388e73bae56fab4b8dca9572ca5b25ccea7f01",
   "branch": "main",
-  "sourceFingerprint": "fb0060b8bb166dcc9c00f1f42920847efeb2a4faab08b15677a4473835068176",
+  "sourceFingerprint": "8cc9756105b49c953f12c44f9f7e1807b430300f226a5230318b2b74c88687c2",
   "summary": {
     "files": 1128,
-    "lines": 235576,
+    "lines": 235596,
     "symbols": 3278
   },
   "symbolIndex": {
@@ -16217,7 +16217,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2887
+        "line": 2907
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17647,7 +17647,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2661
+        "line": 2681
       }
     ],
     "modelAnswer": [
@@ -17693,43 +17693,43 @@
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2275
+        "line": 2283
       }
     ],
     "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2317
+        "line": 2325
       }
     ],
     "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2377
+        "line": 2389
       }
     ],
     "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2442
+        "line": 2454
       }
     ],
     "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2600
+        "line": 2620
       }
     ],
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2782
+        "line": 2802
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2864
+        "line": 2884
       }
     ],
     "ResidentDailyPolicyTest": [
@@ -37906,8 +37906,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2939,
-      "sha256": "11ee5b2dd84b050c060df328a75bc952e6c4ebf747526d8807e66ffca2f39a11",
+      "lines": 2959,
+      "sha256": "6ca1da669cc769278b64f4ab09bff3b075c5ab6046da13ff3893d585be1c4433",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -37967,39 +37967,39 @@
         },
         {
           "name": "posts",
-          "line": 2275
+          "line": 2283
         },
         {
           "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
-          "line": 2317
+          "line": 2325
         },
         {
           "name": "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance",
-          "line": 2377
+          "line": 2389
         },
         {
           "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
-          "line": 2442
+          "line": 2454
         },
         {
           "name": "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay",
-          "line": 2600
+          "line": 2620
         },
         {
           "name": "citizen",
-          "line": 2661
+          "line": 2681
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 2782
+          "line": 2802
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 2864
+          "line": 2884
         },
         {
           "name": "proposal",
-          "line": 2887
+          "line": 2907
         }
       ]
     },
