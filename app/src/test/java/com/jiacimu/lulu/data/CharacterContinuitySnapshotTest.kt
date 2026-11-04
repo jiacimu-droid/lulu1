@@ -39,6 +39,48 @@ class CharacterContinuitySnapshotTest {
         assertFalse(CharacterContinuityRuntime.render(snapshot).contains("其他成员在群里说话"))
     }
 
+    @Test fun identicalShortUserMessagesRemainSeparatePriorTurns() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val role = "identical-user-echo-continuity"
+        val base = Instant.parse("2026-11-04T06:00:00Z")
+        SharedExperienceTimeline.record("first-yes", role, "私聊", "用户",
+            "好。", base, triggerExtraction = false, source = "legacy",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record("second-yes", role, "私聊", "用户",
+            "好。", base.plusSeconds(20), triggerExtraction = false, source = "legacy",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val now = base.plusSeconds(30)
+        // The latest one may be the current input, but the preceding same
+        // words were an independent real message, not another copy of it.
+        val echo = CharacterContinuityRuntime.snapshot(role, "好", now)
+        assertEquals("first-yes", echo.lastUserStatement?.id)
+        assertEquals(base, echo.previousInteractionAt)
+        assertEquals("second-yes", CharacterContinuityRuntime.snapshot(role, now = now)
+            .lastUserStatement?.id)
+    }
+
+    @Test fun matchingEchoExclusionIsNotRepeatedAcrossGroupWitnessPages() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val role = "repeated-echo-with-busy-group"
+        val base = Instant.parse("2026-11-04T06:30:00Z")
+        listOf("earlier-user", "latest-user").forEachIndexed { index, id ->
+            SharedExperienceTimeline.record(id, role, "私聊", "用户",
+                "嗯", base.plusSeconds(index.toLong()), triggerExtraction = false,
+                source = "legacy", evidenceKind = EventEvidenceKind.UserStatement)
+        }
+        repeat(175) { index ->
+            SharedExperienceTimeline.record("other-${index}:group:$role", role,
+                "群聊·旁人讨论", "别的角色", "群里其他人 #$index",
+                base.plusSeconds(index + 2L), triggerExtraction = false,
+                source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        }
+        val snapshot = CharacterContinuityRuntime.snapshot(role, "嗯", base.plusSeconds(179))
+        assertEquals("earlier-user", snapshot.lastUserStatement?.id)
+        assertEquals(base, snapshot.previousInteractionAt)
+    }
+
     @Test fun backgroundEventsDoNotEvictLastActualExchange() {
         val context = RuntimeEnvironment.getApplication() as Context
         SharedExperienceTimeline.initialize(context)
