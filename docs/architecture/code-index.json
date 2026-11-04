@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:50:00.692999+00:00",
-  "commit": "8a59490f134b575a39da14d9e5476fb0a4d3e434",
+  "generatedAt": "2026-11-04T03:50:23.998802+00:00",
+  "commit": "dabe997276430c3903412515fe30f6820a97999d",
   "branch": "main",
-  "sourceFingerprint": "b31e7a2c5d21e7a9eba98f22d37f45e52da48756f862d3b75d980b203e527317",
+  "sourceFingerprint": "09d7147a08ec9ac35fd06e4bf5d0b788dac185a2254e5a024d8abdfc5c542849",
   "summary": {
     "files": 1128,
-    "lines": 235548,
+    "lines": 235559,
     "symbols": 3278
   },
   "symbolIndex": {
@@ -35514,8 +35514,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 599,
-      "sha256": "be2f81a86484943a719632bd4c2e21344b3ecbeb57452400ad3cc919e306c87d",
+      "lines": 610,
+      "sha256": "1885236b2e934c8c2498f5f45eb65e7d0e450efd287e1475a7324a64e8776590",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
