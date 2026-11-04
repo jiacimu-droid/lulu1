@@ -43,6 +43,11 @@
 
 ## 三、逐项施工清单
 
+### P-08a.2g 本轮交接（待 CI，非验通）
+
+- [ ] **P-08a.2g** 已提交来源—选择—回执时间边界源码 7c589ed/3494474 与回归 0c2b4a3；**待真实 JVM/APK/原索引运行**，确认通过后才勾选。旧 APK/JVM 41898269295 已 failure，包含两条 CharacterCausalTraceTest 失败，先查后继是否仍复现，勿把旧 pending 当成功。详见专项进度末尾。
+- [ ] **P-08a.2g 后续验收**：真机/真实模型/跨日未知；若本轮 CI 失败，先修首个实质失败，不重复造 trace。
+
 ### P-08a 全链追踪
 - [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
 - [ ] **P-08a.2** 若已证关联缺失，修权威链路并加跨私聊/群聊/后台的测试；无缺陷不空改。
