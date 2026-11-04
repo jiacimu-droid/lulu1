@@ -266,6 +266,28 @@ class PersonalMiniTheaterTest {
         assertEquals("original", restored.items.value.first { it.id == originalId }.worldMode)
     }
 
+    @Test fun animalTemperamentMetaphorsStayCharacterTraitsNotFixedStoryLabels() {
+        val fictionalPersona = "有时像小狐狸般机灵地主动接近，也可以像小狗一样自愿柔软、信任别人。"
+        val cast = PersonalMiniTheater.Cast("metaphor-role", "角色", fictionalPersona)
+        val library = MiniTheaterLibrary(context, emptyList())
+        val originalId = library.addPersonal(cast, PersonalMiniTheater.customIdea("两人一起处理一场误会。"))
+        val original = PersonalMiniTheater.request(library.items.value.first { it.id == originalId })
+        assertTrue(original.facts.contains(fictionalPersona))
+        assertTrue(original.instructions.contains("行为侧面"))
+        assertTrue(original.instructions.contains("不需要解释他此刻切换了哪一种人格"))
+        assertTrue(original.instructions.contains("不要把这类人格比喻写成旁白反复喊的"))
+        val alternateId = library.addPersonal(
+            cast.copy(worldMode = "alternate"), PersonalMiniTheater.customIdea("陌生城市里第一次合作。"))
+        val alternate = PersonalMiniTheater.request(library.items.value.first { it.id == alternateId })
+        assertTrue(alternate.instructions.contains("彻底架空"))
+        assertTrue(alternate.instructions.contains("这些是可能的行为侧面"))
+        val earsId = library.addPersonal(cast, PersonalMiniTheater.ideas.first { it.id == "cat" })
+        val ears = PersonalMiniTheater.request(library.items.value.first { it.id == earsId })
+        assertTrue(ears.facts.contains("耳朵和尾巴"))
+        assertTrue(ears.instructions.contains("如果本篇明确设有兽耳、尾巴"))
+        assertFalse(ears.instructions.contains("所有动物元素都不许出现"))
+    }
+
     @Test fun creativeIdeaBatchesAreSavedReusedAndFilteredAgainstExistingPremises() {
         val library = MiniTheaterLibrary(context, emptyList())
         val generated = PersonalMiniTheater.parseGeneratedIdeas(
