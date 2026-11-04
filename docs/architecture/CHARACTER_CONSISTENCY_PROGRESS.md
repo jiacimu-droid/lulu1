@@ -603,3 +603,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **基准与结果**：按 AGENTS、代码索引、唯一看板、统一人物契约复查最新 main。`7a5fbefd` 的 [完整 Android/JVM/APK run 41761363900](https://github.com/jiacimu-droid/lulu1/actions/runs/41761363900) 已 completed/failure：2352 项 JVM 测试中 2 项失败，均为 `CharacterMotiveContinuityTest`，预期 `waiting_feedback` 实际 `active`；APK 阶段未完成。此前 12 项失败中其余 10 项已在该运行通过，不代表真机验收。
 - **修复**：`811b428732c805f2707ea0e503ef783ce007bf81` 只调整测试发送 fixture：成功行动通过正式 `appendCharacterMessage`，用户效果反馈通过正式 `sendUserMessage`，撤回用真实返回的 `feedback.id`。原测试用手写语音 ID 并未得到与当前消息时间线契约匹配的本人已送达证据，导致 `recordActionResult` 拒绝成功。未放宽 `CharacterActionEvidence`/来源核验，未更改正式人物或添加模型调用。
 - **验证边界**：本轮已提交源码测试修复，**尚未取得包含 `811b428` 的最终 JVM/APK/索引 run**，不宣称通过。下一轮先核对新 run，若仍失败查看具体断言和正式消息时间线；通过后再做真机、真实模型、跨轮目标与成本验收。P-08d/P-08e 继续待验。
+
+## 2026-11-04 · P-08b 心声历史不能用文字相似度替本人判断变化（main `1a948f1`，待后继 CI）
+
+- **先核对回归**：`811b428` 的 [完整 Android/JVM/APK 41763912049](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912049) 与[索引 41763912115](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912115) 已 completed/success，证明此前严格来源契约的测试 fixture 收敛；并不证明真实模型或真机体验已经验收。
+- **已证产品根因**：`CompanionPresenceStore.meaningfullyDifferentThought` 先去标点/前缀，再用包含关系和二元字组重合率 0.68 判定两段心声相同。新因果指纹已变化时，“我想继续和她聊下去”→“我不想继续和她聊下去”仍被当作重复；原句后补重要条件也会因字符串包含关系被压掉。当前 state 虽已更新，但历史快照的 innerThought/momentReflection 和下游 presence 时间线可能为空，造成心声历史看不到真实心理变化。该缺口能解释一类症状，不证明用户先前截图必定由它独自造成。
+- **实改**：`1a948f1210a1b0b8d0bdf3d243a607321d65dcca` 将文字层判重限定为已清洗原文 trim 后完全相同；保留标点、否定词、时间词和新增条件。原因果指纹、新鲜依据、聊天/后台时序及近期完全重复控制继续沿既有管线；不同 wording 的意义由本人已有评估负责，不增加二次语义模型、收费调用或另一个心理 Store。
+- **必要回归**：`CompanionPresenceThoughtHistoryTest` 经真实 presence Store 与时间线写入，测试变因明确的否定翻转、原句追加条件都保留在心声历史／本刻反思／presence 原始事件；变化后的相同原句再次出现仍只记一次心声。按原算法的独立字组计算复现，两组 changed 样本均返回 false；这只是根因静态复现，不替代待跑 Android 测试。
+- **边界**：更换措辞的近似念头可能比以前多出历史记录，尚需真机观察质量；保留的因果指纹仍可能有其他漏判，需要真实回合证实后再改。没有凭代码声称能让模型生成更多或更好的心理活动。
+- **CI 与接力**：本提交 [APK 41766161850](https://github.com/jiacimu-droid/lulu1/actions/runs/41766161850) 因并行居民代码后继推送 cancelled，不能报通过；索引和后继完整 JVM/APK 按最新包含本修复的 run 核对。已比较后继主干，居民相关修改未覆盖本文件或回归。下一步先查后继单测；通过后在获授权真机对照真实用户纠正、关系分歧、同词否定和补条件，核对模型原输出、因果指纹、当前态、历史及下轮行为。P-08b/e 仍待验。
