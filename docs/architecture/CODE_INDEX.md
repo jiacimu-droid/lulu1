@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5dc77d435725b513aa4bef34994b5df32a4f8978`
+- 基准提交：`e256d5bceeeae25214a38e0159b30444c3c1d91d`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234819
+- 已索引代码/文本行：234860
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -880,7 +880,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 116 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
@@ -894,7 +894,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt` | 103 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 99 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt` | 131 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 806 | 1 |
@@ -915,7 +915,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 883 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeBoundaryTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt` | 241 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 249 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 248 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 351 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 169 | 1 |
@@ -923,7 +923,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 226 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 150 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 153 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
@@ -953,7 +953,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 33 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt` | 40 | 1 |

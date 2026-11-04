@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T02:13:27.145400+00:00",
-  "commit": "5dc77d435725b513aa4bef34994b5df32a4f8978",
+  "generatedAt": "2026-11-04T02:28:46.555288+00:00",
+  "commit": "e256d5bceeeae25214a38e0159b30444c3c1d91d",
   "branch": "main",
-  "sourceFingerprint": "48a8d10c3e94284284284af6cfe6c7cb2d2c89489399ff73aa89f4fb72a5244f",
+  "sourceFingerprint": "d9b4444ea17f9b483caaee0a3cf4aad3c1bb464a0d38487519f258db2730179d",
   "summary": {
     "files": 1126,
-    "lines": 234819,
+    "lines": 234860,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -2171,7 +2171,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-        "line": 102
+        "line": 103
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
@@ -16605,7 +16605,7 @@
     "ConversationTurnEvidenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt",
-        "line": 6
+        "line": 17
       }
     ],
     "CoreMemoryDeliveryIntegrationTest": [
@@ -35400,8 +35400,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt",
-      "lines": 43,
-      "sha256": "31fdbefdaaa91f12e22622cbf689d24c10d6b865437df52c199c948aa677b4a0",
+      "lines": 44,
+      "sha256": "ac922281f00e76901f69c67bed659e05514fadecbba34419605e3c41fca01f07",
       "symbols": [
         {
           "name": "CharacterActionEvidenceTest",
@@ -35590,8 +35590,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt",
-      "lines": 99,
-      "sha256": "4e431ca17b83e4cd8ef457a59a678f1ef90c32adbb33f667d819ba0f5dfc7af8",
+      "lines": 103,
+      "sha256": "003e3f299493ee3297de3331eabb29e2efcb8881ee62ff0d3fb98ebeb1d4cf13",
       "symbols": [
         {
           "name": "CharacterConversationAgencyTest",
@@ -35853,8 +35853,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-      "lines": 249,
-      "sha256": "e6ee36f3313a50b4609fc5bbf53069219caa8f6e65342f0ec532644b42ef64ee",
+      "lines": 248,
+      "sha256": "ba5f4ca32639a0fdfecfc6dc7b82027311238df1b49def9254d356a924bf081a",
       "symbols": [
         {
           "name": "CharacterLearningLedgerTest",
@@ -35862,7 +35862,7 @@
         },
         {
           "name": "record",
-          "line": 102
+          "line": 103
         }
       ]
     },
@@ -36029,8 +36029,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-      "lines": 150,
-      "sha256": "2b5b0de6c37d767d7b1767171b2abfb7e6ac7cf823b0efe2e9434dfee2621121",
+      "lines": 153,
+      "sha256": "54eb0eb34ee67d1a5a69eeffb080d62a353ce4422224b5fe24fc7a9c3249e399",
       "symbols": [
         {
           "name": "CharacterMotiveContinuityTest",
@@ -36495,12 +36495,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt",
-      "lines": 33,
-      "sha256": "0679c6527f2b65fd4f3e247baf1bd572a59d6fe4123888f6b19971b4c8591bb9",
+      "lines": 67,
+      "sha256": "79bca66c3fee87caeb882f0c6c616e8efe70e27284652ec11dc93bf50664cceb",
       "symbols": [
         {
           "name": "ConversationTurnEvidenceTest",
-          "line": 6
+          "line": 17
         }
       ]
     },
