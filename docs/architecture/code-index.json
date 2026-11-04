@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:18:53.928448+00:00",
-  "commit": "b3595845ea13fe20623a1e192b4a9068d4fedf9a",
+  "generatedAt": "2026-11-04T03:19:39.961820+00:00",
+  "commit": "231645ccf57125e4bec35eb7fb5cc3f0ca2a2bc5",
   "branch": "main",
-  "sourceFingerprint": "103ba746eea47fd5c3044f965dd2dd4ec06a250226f3306ddb384de5d22c7563",
+  "sourceFingerprint": "affea4a29418673e7d0339315d0baa6ab0dfce2fd17d1b89f413ab887020d6f6",
   "summary": {
     "files": 1127,
-    "lines": 235319,
+    "lines": 235324,
     "symbols": 3274
   },
   "symbolIndex": {
@@ -879,7 +879,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 70
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8561,7 +8561,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 261
+        "line": 266
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8627,91 +8627,91 @@
     "places": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 84
+        "line": 86
       }
     ],
     "residents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 87
+        "line": 89
       }
     ],
     "residentsAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 90
+        "line": 92
       }
     ],
     "isRetiredTemplate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "removeResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 101
+        "line": 103
       }
     ],
     "residentHomeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 123
+        "line": 125
       }
     ],
     "residentHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 127
+        "line": 129
       }
     ],
     "residenceLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 130
+        "line": 132
       }
     ],
     "registerPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 136
+        "line": 138
       }
     ],
     "registerResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 150
+        "line": 152
       }
     ],
     "updateResidentProfile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 169
+        "line": 174
       }
     ],
     "fillResidentTraitsIfBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 207
+        "line": 212
       }
     ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 224
+        "line": 229
       }
     ],
     "commitResidentDuty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 245
+        "line": 250
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 280
+        "line": 285
       }
     ],
     "isAmbientMoment": [
@@ -26465,8 +26465,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 408,
-      "sha256": "d834a307af304f12894c6a9be3e818456aec3c4a6ff646332702f8dba9f6d8b1",
+      "lines": 413,
+      "sha256": "2ca59f72c6a9470345fc8ee730fbb9b66cb13068f4f90c81f7b0232a2122f012",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -26478,71 +26478,71 @@
         },
         {
           "name": "initialize",
-          "line": 70
+          "line": 71
         },
         {
           "name": "places",
-          "line": 84
+          "line": 86
         },
         {
           "name": "residents",
-          "line": 87
+          "line": 89
         },
         {
           "name": "residentsAt",
-          "line": 90
+          "line": 92
         },
         {
           "name": "isRetiredTemplate",
-          "line": 95
+          "line": 97
         },
         {
           "name": "removeResident",
-          "line": 101
+          "line": 103
         },
         {
           "name": "residentHomeLocation",
-          "line": 123
+          "line": 125
         },
         {
           "name": "residentHome",
-          "line": 127
+          "line": 129
         },
         {
           "name": "residenceLabel",
-          "line": 130
+          "line": 132
         },
         {
           "name": "registerPlace",
-          "line": 136
+          "line": 138
         },
         {
           "name": "registerResident",
-          "line": 150
+          "line": 152
         },
         {
           "name": "updateResidentProfile",
-          "line": 169
+          "line": 174
         },
         {
           "name": "fillResidentTraitsIfBlank",
-          "line": 207
+          "line": 212
         },
         {
           "name": "moveResident",
-          "line": 224
+          "line": 229
         },
         {
           "name": "commitResidentDuty",
-          "line": 245
+          "line": 250
         },
         {
           "name": "contextFor",
-          "line": 261
+          "line": 266
         },
         {
           "name": "isExistingLocation",
-          "line": 280
+          "line": 285
         }
       ]
     },
