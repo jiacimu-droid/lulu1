@@ -332,7 +332,14 @@ class CommitmentAlarmRecoveryTest {
             // The real delivery finally block invokes this even when no model
             // review was scheduled, or when the notification failed.
             CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken, now)
-            assertEquals(task, current(task))
+            val kept = current(task)
+            assertEquals(task.dueAt, kept.dueAt)
+            assertEquals(status, kept.status)
+            assertEquals(task.lastActionResult, kept.lastActionResult)
+            assertEquals(task.attemptCount, kept.attemptCount)
+            assertNotNull("Tomorrow must be armed even without outcome proof", kept.dailyNextAlarmId)
+            assertEquals(nextDailyCommitmentDue(task.dueAt!!, now, java.time.ZoneId.systemDefault()),
+                kept.dailyNextDueAt)
             assertTrue(CompanionSleepHandoff.uncovered(context, "role", now).any { it.id == task.id })
             assertTrue(task.needsUnverifiedDailyRecovery(now))
             // Restart recovery must not roll Blocked (or WaitingForFeedback)
@@ -343,9 +350,45 @@ class CommitmentAlarmRecoveryTest {
             assertEquals(task.dueAt, current(task).dueAt)
             assertEquals(status, current(task).status)
             assertEquals(task.executionToken, current(task).executionToken)
+            assertNotNull(current(task).dailyNextAlarmId)
             assertEquals(1, current(task).attemptCount)
             assertTrue(ActiveCommitmentAttention.render(listOf(current(task)), now).contains(task.id))
         }
+    }
+
+    @Test fun nextDailyExecutionKeepsUnverifiedPastAndItsOwnLateReview() {
+        val now = Instant.now()
+        val yesterday = now.minusSeconds(3600)
+        val next = nextDailyCommitmentDue(yesterday, now, java.time.ZoneId.systemDefault())
+        val reviewAt = next.plusSeconds(3600)
+        val review = LuluAlarmSystem.create("role", "角色", reviewAt,
+            "旧结果复查", silentCallback = true).getOrThrow()
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = "role", goal = "每天监督专业课", repeat = "daily",
+            status = CommitmentTaskStatus.WaitingForFeedback, dueAt = yesterday,
+            linkedAlarmId = review.id, nextCheckAt = reviewAt,
+            followUpKind = "verification", attemptCount = 2,
+            lastActionResult = "昨天监督已尝试，但仍无可靠学习结果",
+            executionToken = "yesterday"))
+        CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, "yesterday", now)
+        val dueAlarm = current(task).dailyNextAlarmId
+        assertNotNull(dueAlarm)
+        assertTrue(LuluAlarmSystem.list().any { it.id == review.id })
+        val claimed = CommitmentTaskStore.claimAlarmExecution(dueAlarm!!, next, next)!!
+        assertEquals(CommitmentTaskStatus.Running, claimed.status)
+        assertEquals(next, claimed.dueAt)
+        assertEquals(0, claimed.attemptCount)
+        assertEquals(1, claimed.dailyAttempts.size)
+        assertEquals(yesterday, claimed.dailyAttempts.single().dueAt)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback.name,
+            claimed.dailyAttempts.single().status)
+        assertEquals(review.id, claimed.dailyAttempts.single().reviewAlarmId)
+        val past = CommitmentTaskStore.claimPastDailyReview(review.id, reviewAt, reviewAt)!!
+        assertEquals(yesterday, past.second.dueAt)
+        assertEquals(CommitmentTaskStatus.Running, current(task).status)
+        assertEquals(claimed.executionToken, current(task).executionToken)
+        assertNull(current(task).dailyAttempts.single().reviewAlarmId)
+        assertNull(CommitmentTaskStore.claimPastDailyReview(review.id, reviewAt, reviewAt))
     }
 
     @Test fun verifiedDailyOccurrenceStillSchedulesTomorrowUsingOriginalClock() {
