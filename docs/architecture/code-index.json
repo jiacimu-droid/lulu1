@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:07:01.629895+00:00",
-  "commit": "555f66c33f9472070bcccdcbea9cc17c9754682d",
+  "generatedAt": "2026-11-04T12:07:23.411368+00:00",
+  "commit": "7a8d6e86de4b32c3f44c258e9f98ce36531870f1",
   "branch": "main",
-  "sourceFingerprint": "a433bcb22f454c44daa69e75f22eb9690fea72368cb6dd5ffe5ee8ec3ad9aa3f",
+  "sourceFingerprint": "a59b14440f3d78c020accad132a1f36495e6c853cbc06becbcaeea0b48c18548",
   "summary": {
     "files": 1133,
-    "lines": 237904,
+    "lines": 237948,
     "symbols": 3304
   },
   "symbolIndex": {
@@ -1077,7 +1077,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 163
+        "line": 207
       }
     ],
     "prepareVoiceNote": [
@@ -5529,7 +5529,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 142
+        "line": 186
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6533,7 +6533,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 131
+        "line": 175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -33105,20 +33105,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 258,
-      "sha256": "474581f95bc33a592109028b5e79c97f44466f2fa8b364c3c9a4c78c28b2275d",
+      "lines": 302,
+      "sha256": "6865bb57d82677e55e1c6ec68d0603958ddacfad5beb65f6c68280f893232007",
       "symbols": [
         {
           "name": "get",
-          "line": 131
+          "line": 175
         },
         {
           "name": "parse",
-          "line": 142
+          "line": 186
         },
         {
           "name": "enqueue",
-          "line": 163
+          "line": 207
         }
       ]
     },
