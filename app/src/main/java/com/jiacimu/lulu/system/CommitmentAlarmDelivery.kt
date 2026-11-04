@@ -117,7 +117,10 @@ internal object CommitmentAlarmDelivery {
                     MigratedDomainStores.initialize(context)
                     SharedExperienceTimeline.initialize(context)
                     LuluAlarmSystem.initialize(context.applicationContext)
-                    task.dailyAttempts.forEach { earlier ->
+                    // The durable task already retains the full dated history.
+                    // Record only the newly carried occurrence here; replaying
+                    // every historical day on each delivery grows quadratically.
+                    task.dailyAttempts.takeLast(1).forEach { earlier ->
                         val eid = "commitment:daily-history:${task.id}:${earlier.dueAt.toEpochMilli()}"
                         if (SharedExperienceTimeline.eventsByIds(task.characterId, listOf(eid)).isEmpty())
                             SharedExperienceTimeline.record(eid, task.characterId,
