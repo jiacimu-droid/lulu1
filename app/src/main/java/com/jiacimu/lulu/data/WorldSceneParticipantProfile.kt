@@ -10,7 +10,7 @@ internal object WorldSceneParticipantProfile {
         val native = ResidentCharacterBridge.nativeResident(id)
         return Profile(id, character?.displayName ?: native?.name ?: id,
             native?.gender.orEmpty(), native?.identity.orEmpty(),
-            CharacterIdentityStore.get(id), CharacterRuntime.personaConstraintSnapshot(id))
+            CharacterIdentityStore.identities.value[id].orEmpty(), CharacterRuntime.personaConstraintSnapshot(id))
     }
 
     fun format(profile: Profile, forNarrator: Boolean): String = buildString {

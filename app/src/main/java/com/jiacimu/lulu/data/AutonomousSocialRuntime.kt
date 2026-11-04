@@ -633,7 +633,7 @@ internal object AutonomousSocialRuntime {
                 appendLine("在场人物的公开名称：")
                 participants.forEach { id ->
                     appendLine("$id：${characters.getValue(id).displayName}")
-                    appendLine("稳定身份与背景设定（用于构思，不自动变成其他人物的知识）：${CharacterIdentityStore.get(id)}")
+                    appendLine("稳定身份与背景设定（用于构思，不自动变成其他人物的知识）：${CharacterIdentityStore.identities.value[id].orEmpty()}")
                     appendLine("完整稳定人设（只供导演构思，不向其他人物公开）：${CharacterRuntime.personaConstraintSnapshot(id)}")
                 }
                 if (participants.size == 2) {
