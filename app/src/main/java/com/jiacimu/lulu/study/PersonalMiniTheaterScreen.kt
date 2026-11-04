@@ -85,7 +85,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 val ask = PersonalMiniTheater.inspirationRequest(
                     PersonalMiniTheater.ideas + library.creativeIdeas.value, library.items.value)
                 val response = LuluAiServices.gateway.generate(
-                    characterId = "theater-ideas",
+                    characterId = "theater",
                     facts = ask.facts,
                     instruction = ask.instructions,
                     source = "剧场·番外灵感",
