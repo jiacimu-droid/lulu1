@@ -118,7 +118,8 @@ internal object DigitalWorldExpansionProposalRuntime {
         val proposal = parseObject(result.text) ?: return null
         return when (proposal.optString("action").trim().lowercase()) {
             "place" -> applyPlaceProposal(characterId, proposal, availableLocations, now)
-            "resident" -> if (allowResidents) applyResidentProposal(characterId, proposal, availableLocations, now) else null
+            "resident" -> if (ResidentDailyPolicy.mayAddResident(context, DigitalWorldExpansionStore.residents().size))
+                applyResidentProposal(characterId, proposal, availableLocations, now) else null
             else -> null
         }
     }
