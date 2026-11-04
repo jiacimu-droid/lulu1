@@ -1835,7 +1835,7 @@ internal object ResidentDailyDecision {
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
                  "messageTo":"上文列出的确实认识的角色ID，否则为空",
                  "message":"给这位角色真正想说的私信，否则为空",
-                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
+                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
                  "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。
