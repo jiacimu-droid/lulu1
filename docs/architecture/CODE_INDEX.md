@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`555ade65ab50d042b70ad3a15bcb3e59bad415f6`
+- 基准提交：`8d6cf2ef6c25676a5441e18050c0978cf3c3ca4d`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：240879
+- 已索引代码/文本行：240884
 - 已发现符号：3319
 
 | 文件 | 行数 | 符号数 |
@@ -379,7 +379,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 184 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 136 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 47 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 46 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 96 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 138 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
@@ -930,7 +930,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 248 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 210 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 216 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
