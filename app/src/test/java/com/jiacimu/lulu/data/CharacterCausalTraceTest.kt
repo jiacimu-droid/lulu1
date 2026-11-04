@@ -69,6 +69,32 @@ class CharacterCausalTraceTest {
     private fun event(role: String, id: String) =
         SharedExperienceTimeline.eventsByIds(role, listOf(id)).single()
 
+    @Test fun currentVersionChoiceCannotPredateItsSourceEvenWithExactEvidenceId() {
+        val sourceId = "trace-choice-before-source"
+        source(a, sourceId)
+        val original = event(a, sourceId)
+        val mind = JSONObject().put("decisions", JSONArray()
+            .put(JSONObject().put("id", "choice-impossible")
+                .put("causalEvidenceId", sourceId).put("causalEvidenceRevision", original.revision)
+                .put("at", at.minusSeconds(3).toString()).put("selected", "message")
+                .put("reason", "未来的消息不可能触发这次决定"))
+            .put(JSONObject().put("id", "choice-valid")
+                .put("causalEvidenceId", sourceId).put("causalEvidenceRevision", original.revision)
+                .put("at", at.plusSeconds(3).toString()).put("selected", "message")
+                .put("reason", "消息之后的真实决定"))
+            .put(JSONObject().put("id", "choice-legacy-undated")
+                .put("causalEvidenceId", sourceId).put("selected", "silent")
+                .put("reason", "旧档案没有时间和版本")))
+        val before = SharedExperienceTimeline.all(a)
+        val lines = CharacterCausalTrace.inspect(context, a, original, before, mind)
+        assertFalse(lines.any { it.detail.contains("未来的消息不可能触发") })
+        assertTrue(lines.any { it.detail.contains("消息之后的真实决定") })
+        assertTrue(lines.any { it.detail.contains("旧档案没有时间和版本") &&
+            it.title.contains("来源版本未证实") })
+        assertEquals(before, SharedExperienceTimeline.all(a))
+        assertTrue(CharacterCausalTrace.inspect(context, b, original, before, mind).isEmpty())
+    }
+
     @Test fun linkedTaskReceiptMustBeActualResultAfterItsSource() {
         val sourceId = "trace-task-chronology-source"
         val taskId = "trace-task-chronology-shared"
