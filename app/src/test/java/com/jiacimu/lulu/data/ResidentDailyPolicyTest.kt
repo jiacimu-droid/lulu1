@@ -35,6 +35,33 @@ class ResidentDailyPolicyTest {
             ResidentDailyPolicy.MAX_AGENDA_ITEMS))
     }
 
+    @Test fun ownerPopulationCapAndSpawnSwitchUseOnePersistentAuthority() {
+        val ctx = context()
+        val pref = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        pref.edit().clear().commit()
+        try {
+            assertEquals(ResidentDailyPolicy.MAX_RESIDENTS, ResidentDailyPolicy.maxResidents(ctx))
+            assertTrue(ResidentDailyPolicy.allowNewResidents(ctx))
+            assertTrue(ResidentDailyPolicy.mayAddResident(ctx, 0))
+            assertTrue(ResidentDailyPolicy.setMaxResidents(ctx, 2))
+            assertEquals(2, ResidentDailyPolicy.maxResidents(ctx.applicationContext))
+            assertTrue(ResidentDailyPolicy.mayAddResident(ctx, 1))
+            assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 2))
+            assertTrue(ResidentDailyPolicy.setAllowNewResidents(ctx, false))
+            assertFalse(ResidentDailyPolicy.autoGenerationEnabled(ctx))
+            assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 0))
+            assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(ctx, true))
+            assertTrue(ResidentDailyPolicy.allowNewResidents(ctx))
+            assertFalse(ResidentDailyPolicy.setMaxResidents(ctx, -1))
+            assertFalse(ResidentDailyPolicy.setMaxResidents(ctx, 13))
+            assertEquals(2, ResidentDailyPolicy.maxResidents(ctx))
+            assertTrue(ResidentDailyPolicy.setMaxResidents(ctx, 0))
+            assertFalse(ResidentDailyPolicy.mayAddResident(ctx, 0))
+        } finally {
+            pref.edit().clear().commit()
+        }
+    }
+
     @Test fun dailyDecisionRequestsCorrectionRatherThanSilentlyDroppingOverBudgetPlan() {
         val at = java.time.LocalDate.of(2026, 10, 28)
             .atStartOfDay(ZoneId.systemDefault()).toInstant()
