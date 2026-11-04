@@ -2707,6 +2707,23 @@ object ProactivePerceptionRuntime {
         val primaryDeliveredIds = resultJson.optJSONArray("deliveredMessageIds")?.let { ids ->
             (0 until ids.length()).mapNotNull { ids.optString(it).takeIf(String::isNotBlank) }
         }.orEmpty()
+        // Only the authoritative private-message sender can prove what this
+        // exact primary request delivered. Used below to block a model-side
+        // mirror of the SAME speech, never a new side message or later turn.
+        val primaryDeliveredPrivateText = if (tool == "send_private_message" &&
+            primaryDeliveredIds.isNotEmpty()) {
+            val deliveredIds = primaryDeliveredIds.toSet()
+            resultJson.optString("conversationId").takeIf(String::isNotBlank)
+                ?.let { destination ->
+                    MigratedDomainStores.chat.messages(destination).value
+                        .filter { message ->
+                            message.id in deliveredIds &&
+                                message.sender == LuluChatMessage.Sender.Character &&
+                                message.authorCharacterId == character.characterId &&
+                                message.status == LuluChatMessage.Status.Sent
+                        }.joinToString("") { it.content }
+                }.orEmpty()
+        } else ""
         val result = CompanionActionResult(
             resultJson.optBoolean("success"),
             resultJson.optString("summary").ifBlank {
@@ -2751,6 +2768,7 @@ object ProactivePerceptionRuntime {
                     shouldDeferRemaining = supersededByNewMessage,
                     goalReviewMode = goalReviewMode,
                     turnTraceId = turnTraceId,
+                    alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2763,6 +2781,7 @@ object ProactivePerceptionRuntime {
             shouldDeferRemaining = supersededByNewMessage,
             goalReviewMode = goalReviewMode,
             turnTraceId = turnTraceId,
+            alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
