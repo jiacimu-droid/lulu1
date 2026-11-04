@@ -584,8 +584,11 @@ fun QqStyleChatDetailScreen(
         return
     }
 
+    // Keep the app bar and page scaffold stable while IME height animates.
+    // Only the composer region follows the keyboard; the LazyColumn receives
+    // the remaining viewport through Scaffold's bottom-bar padding.
     Scaffold(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier.fillMaxSize(),
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
@@ -685,6 +688,7 @@ fun QqStyleChatDetailScreen(
             )
         },
         bottomBar = {
+            Box(Modifier.imePadding()) {
             if (multiSelectMode) {
                 Surface(color = QqHeader, shadowElevation = 4.dp) {
                     Row(
@@ -784,6 +788,7 @@ fun QqStyleChatDetailScreen(
                         )
                     }
                 }
+            }
             }
         },
     ) { padding ->
