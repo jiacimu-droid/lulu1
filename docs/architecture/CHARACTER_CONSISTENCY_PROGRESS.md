@@ -693,3 +693,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因**：前轮正式源码 `3871031903f6363aecf9a58f6b8461fd48ce3453` 已取消“后台 15 分钟内不同心声不写历史”的旧时间否决，保留的是**完全相同原句** 15 分钟去重。旧 `UserMessageFavoritesTest` 还断言后台 4 分钟内两个不同文本只存第一条，与已更改的来源/心声因果契约矛盾；`CompanionPresenceThoughtHistoryTest` 已有前轮同条件不同意愿应保留的反向断言。对照源码确认问题是旧测试期望过时，不是为了过绿需要放宽生产心声逻辑。
 - **实改**：`0fb54a6d85fad3ff863fec10a2193356404d06b6` 将旧用例改为 `backgroundPerceptionRetainsChangedThoughtButCoalescesExactReplays`：断言两条真实不同后台原句皆留历史，且新一次感知完全重播同一句、即使 fingerprint 改变也不加新历史条。保留正式代码、既有原句去重、角色权限、模型决断和费用不变；没有新 Store、固定台词或常态额外模型调用。
 - **验收边界**：此 SHA 的 [Android/JVM/APK run 41788133290](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133290) 与 [原代码索引 run 41788133287](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133287) 最后核查均 in_progress，未得出构建/单测成功结论。下一轮先查两个 run 与后继 main 的真实状态，若有失败取日志最先实质断言；通过后还需真机验证背景心声相反意愿入历史、不同近似表达是否引入噪声、下轮本人选择是否真正承接。P-08b/d/e 未完成真机、真实模型或跨日验收，均不勾选。
+
+## 2026-11-04 · G-01 记忆翻牌角色不再偷看背面
+
+- **先核对 P-08**：接手 main `e8af2f7`，读取 AGENTS、CODE_INDEX（索引 `0fb54a6d`）、唯一看板、人物专项、统一人物契约、`CompanionPresenceStore` 和旧测试。上轮 `0fb54a6d` 的索引 [41788133287](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133287) completed/success；APK/JVM [41788133290](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133290) 查询时 in_progress，**未宣称通过**。前一轮 [41782081329](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081329) 为 2366 项、1 项旧断言失败，已由 `0fb54a6d` 更新测试，尚待 CI 证明。P-08 的真机/真实模型验收仍阻塞，未重写已验过的心理 Store。
+- **G-01 已证源码根因**：`LuluGamesApp.MemoryMatchScreen` 与 `ImmersiveMemoryMatchScreen` 均在第二次翻牌时直接查 `game.cards[it] == game.cards[first]`，读到从未翻开的背面值；以 68% 概率使用作弊答案伪装正常记忆，且两套 UI 各自复制决策。游戏 Store 原先没有“哪些位置确实被看到过”的状态，无法约束可见知识。
+- **正式修改**：`f31d50b7631e74edc63a6eff213ca9c6e8b9be33` 在 `MemoryMatchState` 保存本局已翻开的 `observed` 牌面（从实际开牌入口记录），新增纯选择函数 `chooseObservedMemoryCard`，只用已观察牌找配对，否则在未匹配/未打开牌中随机探索；`eab949a0dbba633b0230abce0504818165e457a6`、`9528d1669ab8886d8e9f7d936c8ba17d6075873a` 让普通/沉浸两入口复用相同策略。无模型调用、无统一人格、无新 Store、无费用；观察事实只属于当前对局，重开即清空。
+- **回归**：`017a1a92ba2dd23c35f883346e6907211474bc46` 新增 `MemoryMatchOpponentFairnessTest`：已观察配对优先、隐藏牌位置互换不改变同种随机种子的选择、已匹配和已打开牌不可重复选择。尚未拿到 Android/JVM 完整通过结果，不能当作已通过测试；还需真机试玩核查观察记忆、交替轮次和胜负记录。
+- **交接**：唯一看板 G-01 仍为待 CI/待真机；P-08b/d/e 与 S-02 未勾选。先核对本轮 G-01 最新完整 Actions、代码索引与可能的编译错误；若 APK 失败先修首个实质失败，之后再回到 P-08 真实回合/心理后续以及 S 社交。并行 main 以最新 SHA 为准，不重复开发。
