@@ -22,7 +22,10 @@ internal object DigitalWorldExpansionProposalRuntime {
     private const val MAX_SUBTITLE_LENGTH = 50
     private const val MAX_PURPOSE_LENGTH = 240
     private const val MAX_NAME_LENGTH = 12
-    private const val MAX_IDENTITY_LENGTH = 120
+    private const val MAX_IDENTITY_LENGTH = 80
+    private const val MAX_GENDER_LENGTH = 16
+    private const val MAX_TRAITS_LENGTH = 400
+    private const val MAX_BACKGROUND_LENGTH = 1200
 
     private var prefs: android.content.SharedPreferences? = null
 
@@ -55,7 +58,8 @@ internal object DigitalWorldExpansionProposalRuntime {
 
         val places = DigitalWorldExpansionStore.places()
         val residents = DigitalWorldExpansionStore.residents()
-        if (places.size >= 8 && residents.size >= 12) return null
+        val allowResidents = ResidentDailyPolicy.allowNewResidents(context)
+        if (places.size >= 8 && (!allowResidents || residents.size >= 12)) return null
         val availableLocations = buildList {
             add(DigitalWorldStore.CLOUD_MEADOW)
             add(DigitalWorldStore.ARRIVAL)
@@ -93,25 +97,27 @@ internal object DigitalWorldExpansionProposalRuntime {
                 只输出 JSON，不要代码块：
                 1) 不新增：{"action":"none"}
                 2) 新地点：{"action":"place","label":"中文短名称","subtitle":"2~3个真实可做的日常活动，用·分隔","purpose":"这个地点长期存在的明确用途","connectedTo":["现有地点ID"]}
-                3) 新居民：{"action":"resident","name":"固定中文姓名","identity":"稳定且普通的数字世界身份","neighborhoodCode":"现有公共地点ID"}
+                3) 新居民：{"action":"resident","name":"固定中文姓名","gender":"本人性别身份（男/女/非二元/其他自述）","identity":"稳定职业与生活角色","temperament":"独特的性格、优点、缺点、处事与交往方式","preferences":"日常兴趣、具体偏好和不喜欢什么","background":"成长经历、日常生活和一个尚在努力处理的个人课题；只是生平设定，不是与当前角色已发生的共同事件","neighborhoodCode":"现有公共地点ID"}
 
                 硬规则：
                 - connectedTo/neighborhoodCode 只能逐字使用上面列出的真实公共地点 ID；不得创造 ID。居民住宅由程序建立独立地址，不能把公共场所当成家。
                 - 不得新增神、管理员级万能角色、现实人类、用户本人替身、危险组织或会强制改变其他角色设定的实体。
                 - 地点必须能长期支持具体日常活动，不要只写一次性剧情布景，不要复制现有地点用途。
+                - 居民必须有清晰、自洽、互不雷同的性别自述、性格长短处、具体兴趣与生活背景；性别不推导性格与职业。不要只用“开朗善良/温柔认真”之类空泛形容代替人物。
+                - 居民可以有成长经历与私人打算，但不得编造与现有角色已实际相处/结交的历史，也不得假定已经取得社交关系。
                 - 居民必须是可以长期重复遇见的普通数字居民，不得冒充现有角色，也不要使用已有居民姓名。
                 - 没有自然、必要的新想法就 action=none；不要为了展示功能硬扩张。
             """.trimIndent(),
             source = "数字世界扩展提案",
             title = "${character.displayName}的低频世界提案",
-            maxTokens = 420,
+            maxTokens = 700,
             connectionOverride = connection,
             contextMode = CompanionContextMode.CharacterAndScenario,
         ).getOrNull() ?: return null
         val proposal = parseObject(result.text) ?: return null
         return when (proposal.optString("action").trim().lowercase()) {
             "place" -> applyPlaceProposal(characterId, proposal, availableLocations, now)
-            "resident" -> applyResidentProposal(characterId, proposal, availableLocations, now)
+            "resident" -> if (allowResidents) applyResidentProposal(characterId, proposal, availableLocations, now) else null
             else -> null
         }
     }
@@ -160,16 +166,26 @@ internal object DigitalWorldExpansionProposalRuntime {
         if (DigitalWorldExpansionStore.residents().size >= 12) return null
         val name = proposal.optString("name").trim().take(MAX_NAME_LENGTH)
         val identity = proposal.optString("identity").trim().take(MAX_IDENTITY_LENGTH)
+        val gender = proposal.optString("gender").trim().take(MAX_GENDER_LENGTH)
+        val temperament = proposal.optString("temperament").trim().take(MAX_TRAITS_LENGTH)
+        val preferences = proposal.optString("preferences").trim().take(MAX_TRAITS_LENGTH)
+        val background = proposal.optString("background").trim().take(MAX_BACKGROUND_LENGTH)
         val neighborhood = proposal.optString("neighborhoodCode").ifBlank {
             proposal.optString("homeLocationCode") // Accept proposals from older prompts.
         }.trim()
-        if (name.length !in 2..MAX_NAME_LENGTH || identity.length < 4 || neighborhood !in availableLocations) return null
+        if (name.length !in 2..MAX_NAME_LENGTH || identity.length < 4 ||
+            gender.isBlank() || temperament.length < 12 || preferences.length < 6 ||
+            background.length < 20 || neighborhood !in availableLocations) return null
         if (DigitalWorldExpansionStore.residents().any { it.name == name }) return null
         val resident = runCatching {
             DigitalWorldExpansionStore.registerResident(
                 DigitalWorldResident(
                     name = name,
                     identity = identity,
+                    gender = gender,
+                    temperament = temperament,
+                    preferences = preferences,
+                    background = background,
                     homeLocationCode = neighborhood,
                     neighborhoodCode = neighborhood,
                     currentLocationCode = neighborhood,
