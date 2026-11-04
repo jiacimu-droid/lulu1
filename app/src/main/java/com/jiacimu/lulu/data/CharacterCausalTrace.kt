@@ -186,9 +186,15 @@ internal object CharacterCausalTrace {
                             requestId == if (explicit == null) "$base:step:$index"
                                 else explicit.optString(index).trim()
                         }
+                // The request cannot be caused by this source if its saved
+                // model choice predates the source itself. Matching request
+                // and receipt IDs alone do not establish chronological cause.
                 belongsToDecision && runCatching {
                     java.time.Instant.parse(decision.optString("at"))
-                }.getOrNull()?.let { !event.occurredAt.isBefore(it) } == true
+                }.getOrNull()?.let { decidedAt ->
+                    !decidedAt.isBefore(current.occurredAt) &&
+                        !event.occurredAt.isBefore(decidedAt)
+                } == true
             }
             if (!matchingDecision) return@mapNotNull null
             event to body
