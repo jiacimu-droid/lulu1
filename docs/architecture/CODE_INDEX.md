@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`195af98f15a77210b2f28c001c26223969563e97`
+- 基准提交：`8963e0c283deb69f5a9ff35855596f9f68c67077`
 - 分支：`main`
 - 已索引文件：1138
-- 已索引代码/文本行：240617
+- 已索引代码/文本行：240619
 - 已发现符号：3317
 
 | 文件 | 行数 | 符号数 |
@@ -329,7 +329,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 103 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 1000 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 132 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
@@ -535,7 +535,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3387 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3392 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1217 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:29:18.946978+00:00",
-  "commit": "195af98f15a77210b2f28c001c26223969563e97",
+  "generatedAt": "2026-11-04T17:30:00.264157+00:00",
+  "commit": "8963e0c283deb69f5a9ff35855596f9f68c67077",
   "branch": "main",
-  "sourceFingerprint": "7fd1f8d8c5984badab04e422dfbf4b7b991edeff976ebab7cbf5d2306e6b3696",
+  "sourceFingerprint": "d19d88cd24e9aef92915874c4e4b031f37596a1ca32c90a52ab29d88cde6f6e4",
   "summary": {
     "files": 1138,
-    "lines": 240617,
+    "lines": 240619,
     "symbols": 3317
   },
   "symbolIndex": {
@@ -11173,19 +11173,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 680
+        "line": 685
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 682
+        "line": 687
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3320
+        "line": 3325
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -23538,8 +23538,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
-      "lines": 212,
-      "sha256": "c0ebbff42db6c12a30ae6ce09653691e6694e104a58416ffe89b6976694f2d8a",
+      "lines": 209,
+      "sha256": "c240319b87e42c3056900fd2d23a956c5935bdd2043f420e72a7ac5e49d21034",
       "symbols": [
         {
           "name": "BackgroundCompanionStatus",
@@ -29327,8 +29327,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3387,
-      "sha256": "d14f0ba88f3dd22ab13d4c752e4f533a8b1d4fb23cab1c90d401062b9f94dedb",
+      "lines": 3392,
+      "sha256": "db08a3bdfabba163c5bcf9b20b09961ba8a78ec50f7313c197b715ef4eb53a00",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29352,15 +29352,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 680
+          "line": 685
         },
         {
           "name": "deferSupersededDecision",
-          "line": 682
+          "line": 687
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3320
+          "line": 3325
         }
       ]
     },
