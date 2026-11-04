@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bacf4f6b74054ef073eca60783a5e00d5b05c1b5`
+- 基准提交：`6793b33c6abe5af1fbe44f9ea3c43e6c5bfd5f66`
 - 分支：`main`
 - 已索引文件：1128
-- 已索引代码/文本行：235496
+- 已索引代码/文本行：235548
 - 已发现符号：3278
 
 | 文件 | 行数 | 符号数 |
@@ -1009,7 +1009,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MomentOwnerUnreadTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 102 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 188 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 213 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1014 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 90 | 1 |
@@ -1076,7 +1076,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 200 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 366 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 121 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 190 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 231 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt` | 42 | 2 |

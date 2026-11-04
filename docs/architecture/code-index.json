@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:49:13.839290+00:00",
-  "commit": "bacf4f6b74054ef073eca60783a5e00d5b05c1b5",
+  "generatedAt": "2026-11-04T03:49:43.827983+00:00",
+  "commit": "6793b33c6abe5af1fbe44f9ea3c43e6c5bfd5f66",
   "branch": "main",
-  "sourceFingerprint": "8cd6d0a052f6654719b7eb6b162ce4df12e1fa77d455bc33a813744356f2248e",
+  "sourceFingerprint": "b31e7a2c5d21e7a9eba98f22d37f45e52da48756f862d3b75d980b203e527317",
   "summary": {
     "files": 1128,
-    "lines": 235496,
+    "lines": 235548,
     "symbols": 3278
   },
   "symbolIndex": {
@@ -37438,8 +37438,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 188,
-      "sha256": "23964105f14101b5fe16276226671261b8f9d198e2610b75148d383d6cdee3d7",
+      "lines": 213,
+      "sha256": "b484c1f77e3314b9fe6fce776f618afb529c4beea810a775c6fce75bbcd6b35a",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
@@ -38443,8 +38443,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt",
-      "lines": 163,
-      "sha256": "c28d21768d21543038ae83e42523d43c03956a24aca9819bc36f50508ef3a37f",
+      "lines": 190,
+      "sha256": "412ecf5a68b0586b981e9e7d03b4955b48cfb3f9ac2b29b12d8e0e423a6d5f77",
       "symbols": [
         {
           "name": "WorldInteractionRegressionTest",
