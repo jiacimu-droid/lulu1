@@ -2,6 +2,9 @@ package com.jiacimu.lulu.study
 
 import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.CharacterLifeStore
+import com.jiacimu.lulu.data.CharacterProfileSchema
+import org.json.JSONObject
+import java.util.UUID
 import com.jiacimu.lulu.data.CharacterRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ResidentCharacterBridge
@@ -10,7 +13,7 @@ import com.jiacimu.lulu.data.ResidentCharacterBridge
 internal object PersonalMiniTheater {
     data class Idea(val id: String, val title: String, val premise: String)
     data class Variation(val id: String, val label: String, val direction: String)
-    data class Cast(val characterId: String, val name: String, val material: String)
+    data class Cast(val characterId: String, val name: String, val material: String, val worldMode: String = "original")
     data class WritingRequest(val facts: String, val instructions: String)
 
     val ideas = listOf(
@@ -44,14 +47,32 @@ internal object PersonalMiniTheater {
         return Idea("custom", premise.lineSequence().first().take(24), premise)
     }
 
-    fun capture(characterId: String): Cast {
+    fun capture(characterId: String, worldMode: String = "original"): Cast {
+        require(worldMode == "original" || worldMode == "alternate") { "未知的番外世界" }
         val character = MigratedDomainStores.characters.settings.value[characterId]
             ?: error("角色已不存在，请重新选择")
         val native = ResidentCharacterBridge.nativeResident(characterId)
-        val material = buildString {
+        val material = if (worldMode == "alternate") {
+            // Prefer structured temperament; autobiography often mixes original-world facts.
+            val profile = CharacterLifeStore.state(characterId).optJSONObject("profile")
+            val temperament = CharacterProfileSchema.fields.filter {
+                it.key in setOf("values", "motives", "enneagram", "traits", "attachment",
+                    "cognitiveStyle", "perception", "conflict", "expression", "speechHabits", "interests")
+            }.mapNotNull { field ->
+                profile?.optString(field.key)?.trim()?.takeIf(String::isNotBlank)
+                    ?.let { "${field.label}：$it" }
+            }.joinToString("\n")
+            buildString {
+                appendLine("角色姓名：${character.displayName}")
+                native?.gender?.takeIf(String::isNotBlank)?.let { appendLine("人物性别：$it") }
+                appendLine("【仅继承人格，不继承原世界身份、世界观或既定关系】")
+                if (temperament.isNotBlank()) appendLine(temperament)
+                else appendLine("人物性格与表达素材（若含旧身份/关系，仅当作性格参考）：\n${character.persona}")
+            }
+        } else buildString {
             appendLine("角色姓名：${character.displayName}")
             native?.let { appendLine("明确性别：${it.gender.ifBlank { "未说明" }}；身份：${it.identity}") }
-            appendLine("原设身份背景（仅供辨认，本篇明确的幻想条件可以改变世界、职业和身体）：")
+            appendLine("原设身份与背景：")
             appendLine(CharacterIdentityStore.identities.value[characterId].orEmpty())
             appendLine("本人稳定性格与思考方式：")
             appendLine(CharacterRuntime.personaConstraintSnapshot(characterId))
@@ -60,7 +81,7 @@ internal object PersonalMiniTheater {
                     appendLine("与用户的原设关系：${it.optString("title")}；${it.optString("details")}")
                 }
         }
-        return Cast(characterId, character.displayName, material)
+        return Cast(characterId, character.displayName, material, worldMode)
     }
 
     fun request(item: MiniTheaterItem): WritingRequest {
@@ -70,6 +91,7 @@ internal object PersonalMiniTheater {
                 appendLine("作品：${item.title}")
                 appendLine("绑定角色：${item.characterName}（${item.characterId}）")
                 appendLine(item.characterContext)
+                appendLine("本篇世界模式：${if (item.worldMode == "alternate") "完全平行世界" else "原世界幻想"}")
                 appendLine("本篇幻想情节：${item.prompt}")
                 if (item.variationContext.isNotBlank())
                     appendLine("旧版作品保留的补充设定：${item.variationContext}")
@@ -79,10 +101,11 @@ internal object PersonalMiniTheater {
             instructions = """
                 为用户创作一篇“用户与绑定角色”的独立幻想恋爱番外，读起来有趣、心动、满足。
                 这是虚构作品，不是角色本人发送的消息，不读取或编造双方已经真实发生过的聊天和共同经历。
-                原设性格、价值、认知方式、明确性别与表达是人物辨认的基线；本篇奇幻前提可以真实改变故事里的世界、职业、大小或身体。
+                人物的稳定性格、价值、认知方式与说话习惯是辨认基线。题材中的世界规则、身份和身体变化要真正影响剧情。
                 身体互换必须真的互换身体，缩小必须影响具体行动，不能把大胆题材退化成换称呼或普通聊天。
                 性格侧面放大只在本篇生效，保留其他面貌与核心辨识度，不把所有题材写成同一个男主或女主，不修改原角色。
-                对话中以自然的你我交流；旁白可称用户或采用第二人称。姓名、称谓与性别以所给资料为准，身体互换时分清身体与意识身份。
+                ${if (item.worldMode == "alternate") "【彻底架空】本篇与露露机原世界无关：双方可以从陌生人开始，拥有全新职业、身份、社会地位与关系；原世界的主人/闺蜜/恋人/数字生命、已有约定与经历均不继承。仅保留本人的性格、判断和说话习惯。称谓与关系仅由本篇剧情产生，不要带回数字世界。" else "【原世界番外】保留已给出的原世界身份和原有关系，可以有本篇具体幻想变化；故事不写回真正的共同经历。"}
+                对话自然；旁白可用第二人称。身体互换时分清身体与意识身份。
                 已成年的人物按成人的自主意愿相处；用户与角色有各自的主动和回应，亲密变化有具体缘由。
                 一个完整场景或短篇，有环境、动作、对话与心理，情节大胆而因果连贯；不逐项展示人格标签，不写成解释性报告。
                 约1000—1800字，充分展开一件事并收束；不要写大纲、后续预告或强制未完待续。若前文已有正文，只补后文，不重演开头。
@@ -90,4 +113,43 @@ internal object PersonalMiniTheater {
             """.trimIndent()
         )
     }
+    /** One paid ideation call returns a reusable batch, without real chat context. */
+    fun inspirationRequest(used: List<Idea>, works: List<MiniTheaterItem>): WritingRequest =
+        WritingRequest(
+            facts = buildString {
+                appendLine("已有灵感（核心机制、事件、情节转折与关系不可换皮重复）：")
+                used.takeLast(120).forEach { appendLine("- ${it.title}：${it.premise.take(100)}") }
+                appendLine("此前已写的番外：")
+                works.filter { it.characterId.isNotBlank() }.takeLast(100).forEach {
+                    appendLine("- ${it.title}：${it.prompt.take(100)}")
+                }
+            },
+            instructions = """
+                你是幻想短篇灵感企划。只构思，不写正文。一次给出10个真正不同的独立故事提案。
+                两种都需要：保留原本世界与关系的原世界番外；彻底换身份、职业、关系、时空的平行世界番外。
+                可以有直播、悬疑、竞技、生活喜剧、童话、秘密、反转等，但只是可能性，不必照抄。
+                每个提案给出具体、有趣、可展开的变故和互动，避免泛泛“逐渐亲密”；
+                不同提案的核心机制和关系结构彼此不同，不能复刻历史题材。
+                不从真实聊天、记忆或私人资料获取灵感。
+                严格只输出 JSON 对象：{"ideas":[{"title":"简短中文题名","premise":"约60—130字的具体独立剧情设定"}]}。
+                不要 markdown 代码块或解释。
+            """.trimIndent()
+        )
+
+    fun parseGeneratedIdeas(raw: String): List<Idea> {
+        val open = raw.indexOf('{')
+        val close = raw.lastIndexOf('}')
+        require(open >= 0 && close > open) { "灵感返回格式不正确" }
+        val array = JSONObject(raw.substring(open, close + 1)).optJSONArray("ideas")
+            ?: error("模型没有返回灵感列表")
+        require(array.length() in 1..20) { "灵感数量不正确" }
+        return (0 until array.length()).mapNotNull { i ->
+            val row = array.optJSONObject(i) ?: return@mapNotNull null
+            val title = row.optString("title").trim().take(70)
+            val premise = row.optString("premise").trim().take(500)
+            if (title.length < 2 || premise.length < 20) null
+            else Idea("ai-" + UUID.randomUUID(), title, premise)
+        }.distinctBy { it.title.lowercase() }
+    }
+
 }
