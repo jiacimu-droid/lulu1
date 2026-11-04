@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:19:12.755403+00:00",
-  "commit": "ac51f50435c1125a10a8d131271c9cf7eea4f443",
+  "generatedAt": "2026-11-04T17:21:02.035794+00:00",
+  "commit": "f23eaf1f07f3e32958af96646ed130832074b700",
   "branch": "main",
-  "sourceFingerprint": "d3d6a23f5fc1d5f3c12f001fe7b609ffa46ee5369d2267affacc4f0008dfa27c",
+  "sourceFingerprint": "0d419de562ba4f31e95127fb71c19d6ac8981c0dd99f1406081958021b12feb5",
   "summary": {
     "files": 1136,
-    "lines": 240034,
-    "symbols": 3312
+    "lines": 240074,
+    "symbols": 3313
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3829,11 +3829,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 154
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 183
+        "line": 199
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -7874,28 +7874,34 @@
         "line": 864
       }
     ],
+    "DailyCommitmentAttempt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 11
+      }
+    ],
     "CommitmentTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 9
+        "line": 20
       }
     ],
     "local": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 156
+        "line": 172
       }
     ],
     "elapsed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 157
+        "line": 173
       }
     ],
     "clock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 159
+        "line": 175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -25780,32 +25786,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 222,
-      "sha256": "d2c8604c1333b2a0f9b4df76c4d6dbf111b054deebaf6dfa3ca4a1668ef8e09b",
+      "lines": 238,
+      "sha256": "10079789c1d17606feb2dced91f522bdb2cbe158c47846bb181869686eb518ae",
       "symbols": [
         {
+          "name": "DailyCommitmentAttempt",
+          "line": 11
+        },
+        {
           "name": "CommitmentTask",
-          "line": 9
+          "line": 20
         },
         {
           "name": "render",
-          "line": 154
+          "line": 170
         },
         {
           "name": "local",
-          "line": 156
+          "line": 172
         },
         {
           "name": "elapsed",
-          "line": 157
+          "line": 173
         },
         {
           "name": "clock",
-          "line": 159
+          "line": 175
         },
         {
           "name": "render",
-          "line": 183
+          "line": 199
         }
       ]
     },
@@ -25817,8 +25827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 75,
-      "sha256": "756b96d81fe8a406dba99ca691a4696d196a5788ff51c6774bd5f49954f73170",
+      "lines": 87,
+      "sha256": "b1f6019f8a67fb59626c1a0ef39e47d8b8c2162c46c91d0f7c9e3363cefe940e",
       "symbols": []
     },
     {
@@ -25834,8 +25844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 44,
-      "sha256": "96c1a670af25d0191ed29478547b9bf36efc059e534bd68338783cdbd0b11300",
+      "lines": 56,
+      "sha256": "e33137019de7bed6525fe8856a5536fb35aba84999850be8b22cf74aa6861194",
       "symbols": []
     },
     {
