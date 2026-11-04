@@ -2083,16 +2083,10 @@ internal object ResidentDailyDecision {
                             (groupNotice && event.source == "message" &&
                                 event.evidenceKind == EventEvidenceKind.CharacterStatement))
                 } ?: return@withLock false
-            if (groupNotice) {
-                val policy = ProactivePerceptionPolicyStore.get(characterId)
-                val localTime = now.atZone(java.time.ZoneId.systemDefault()).toLocalTime()
-                if (ProactiveMessageGate.isQuiet(ProactiveGatePolicy(
-                    enabled = true,
-                    quietHoursEnabled = policy.quietHoursEnabled,
-                    quietStartMinutesOfDay = policy.quietStartMinutesOfDay,
-                    quietEndMinutesOfDay = policy.quietEndMinutesOfDay,
-                ), localTime)) return@withLock false
-            }
+            // Native digital-to-digital phone messages are not user-device
+            // interruptions. Like existing private mail, a real group witness
+            // may reach this decision regardless of the generic quiet-hour
+            // setting; the owner's daily model budget still applies.
             val p = prefs(app)
             val key = "resident-social:$characterId:$evidenceId"
             val choiceKey = "$key:choice"
