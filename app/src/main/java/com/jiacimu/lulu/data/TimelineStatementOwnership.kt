@@ -20,7 +20,7 @@ internal object TimelineStatementOwnership {
         // witness, must not establish the user's latest words or this character's
         // authorship. The timeline projection is created from this exact content
         // and timestamp; edits regenerate the projection with a new revision.
-        if (event.occurredAt != message.createdAt ||
+        if (event.occurredAt.toEpochMilli() != message.createdAt.toEpochMilli() ||
             event.content != qqForwardContextText(message.content).trim()) return null
         return conversation to message
     }
