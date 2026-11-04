@@ -753,3 +753,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：`6c8a934ef422f0aec741750cae6b9320365b203a` 新增无词面焦点长事件首/中/尾三处约定与撤销条件测试，覆盖充足预算多段、狭窄预算仅首段且明确截断、revision 8 修改不复活旧尾段。此处仅证明代码提交，尚无本提交完整测试通过结果。
 - **CI 分层**：[原代码索引 41802053558](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053558) completed/success；[Android/JVM/APK 41802053512](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053512) 最后查询 pending，**没有通过验收**。`2fc2b59` 的旧 [41802008330](https://github.com/jiacimu-droid/lulu1/actions/runs/41802008330) cancelled，不作为成功。真机、真实模型、跨日仍待证实。
 - **下一轮**：先查 `41802053512` 的最终单测与 APK 产物，如失败取首条真实失败；其后继续 P-05/M1 的同事件远距约束是否进入最终模型输入，并复核 P-06 时空人物联合检索、经历展开的来源和任务回执，不把片段选中等同于模型已使用或目标已完成。
+
+## 2026-11-04：v29 迁移测试失败收敛（接力）
+
+- **核验**：先读最新 AGENTS、CODE_INDEX、唯一大纲、人物专项、UNIFIED_CHARACTER_CONTRACT、成长框架及江渡迁移测试/正式字段；`911c73cef75fd1305d3d2346b137ee1f614df098` 的 [Android/JVM/APK 41801645241](https://github.com/jiacimu-droid/lulu1/actions/runs/41801645241) 已 completed/failure，日志 job `126478599595` 为 **2373 tests completed, 6 failed**。不是 Android 编译或 VPN 故障，失败均为断言 `AssertionError`。
+- **六条明确失败**：`BundledJiangDuImportTest.kt:49` 仍要求旧“选画”场景；`CharacterLifeStoreTest.kt:561/610/655/707/903` 仍检查过时的 `AI前沿` 字面是否出现在合成 prompt。当前 v29 人设、字段、示例已更新，旧断言并不能可靠证明迁移结果。修改测试而非恢复旧人格台词。
+- **实际修改**：`abf6d7a3be6eed5a22fe95756500d4621e479604` 将五条旧提示词字面断言改为核对 `CharacterLifeStore.state` 中的 `jiangDuV29Overrides["interests"]` 完整值；原测试中角色隔离、主人手改/留空、原意图和迁移版本断言保持。 `f47d5290821c336e42f1ec408d5a4b85291010b7` 将旧场景标题检查换成当前正式“靠近”，其他人物示例隔离断言保留。**没有修改正式人格、语义决策、Store 或添加调用**。
+- **验证边界**：[新 APK/JVM 41802904855](https://github.com/jiacimu-droid/lulu1/actions/runs/41802904855) 与 [索引 41802904784](https://github.com/jiacimu-droid/lulu1/actions/runs/41802904784) 提交后已排队，未取得 success；旧 `abf6d7a` 单测 run `41802893951` cancelled，不计成功。上轮长事件多片段 [41802053512](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053512) 查询时 in_progress。下一轮先查这两个实际结果，若失败取最新日志的精确首错，再继续 P-08 人物因果真实证据；真机/真实模型仍待验。
