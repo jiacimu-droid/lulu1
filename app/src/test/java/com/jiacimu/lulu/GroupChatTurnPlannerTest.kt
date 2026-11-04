@@ -130,6 +130,36 @@ class GroupChatTurnPlannerTest {
             .completedReplyBubbles("""{"action":"reply","text":"我就想问一下。"}"""))
     }
 
+    @Test fun groupRoleAttemptNeverRetriesBlankToolOnlyOrFailedResults() = kotlinx.coroutines.runBlocking {
+        val outcomes = listOf(
+            Result.success(com.jiacimu.lulu.ai.ModelReply("")),
+            Result.success(com.jiacimu.lulu.ai.ModelReply("""{"action":"tool","text":""}""")),
+            Result.failure<com.jiacimu.lulu.ai.ModelReply>(IllegalStateException("gateway unavailable")),
+            Result.success(com.jiacimu.lulu.ai.ModelReply("啊？")),
+        )
+        outcomes.forEach { expected ->
+            var calls = 0
+            val actual = requestGroupRoleOnce(
+                "role-a", "visible history", "group prompt", "selected model", "archive-a",
+                "group scene", "group trace", listOf("message:group:role-a"),
+            ) { id, history, prompt, label, archive, scene, turn, evidence ->
+                calls++
+                assertEquals("role-a", id)
+                assertEquals("visible history", history)
+                assertEquals("group prompt", prompt)
+                assertEquals("selected model", label)
+                assertEquals("archive-a", archive)
+                assertEquals("group scene", scene)
+                assertEquals("group trace", turn)
+                assertEquals(listOf("message:group:role-a"), evidence)
+                expected
+            }
+            assertEquals("one request even for empty, tool-only and failure", 1, calls)
+            assertEquals(expected.getOrNull()?.text, actual.getOrNull()?.text)
+            assertEquals(expected.exceptionOrNull()?.message, actual.exceptionOrNull()?.message)
+        }
+    }
+
     @Test fun onlyOwnerGroupInputUsesForegroundCoordinator() {
         assertTrue(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = false))
