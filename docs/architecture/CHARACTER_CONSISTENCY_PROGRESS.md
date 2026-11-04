@@ -973,3 +973,5 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **人格与执行**：ProactivePerceptionRuntime 正常感知添加真实今天总量、角色自主可选 read_self_todo；LuluDeviceToolBridge 通过既有 CompanionActionRuntime.capabilityContext 获得同一工具/概览。不强制自动催促、不新建固定日程或跨域读取、不将主人番茄钟启动强绑角色；想核实学习时仍使用已存在的 start_study_watch 时段许可、实际截图/状态与责任执行器。所行勾选不是学习证据。
 - **已提交**：6454836、6415876、2ee9a0d、3ea3dfb、bc6079f、821ebda、952123f、1d61383、ec43eba、009944f、4eff893、3a030f8、9cbcb57、da2079d。测试 08f0781、dbea372（每日/每周/逾期/已完成/将来、旧未迁移只读、其它笔记隔离、工具受限角色、数据损坏不假装为空、原数据不变）。路线图 P-08d.4 保留 CI/实际结果待核。
 - **验收边界**：GitHub main 已更新。现有环境无 Android SDK/Gradle，未在本轮跑 JVM/APK，真实模型是否自主查看并在之后正确选择监督行动、前后台限时授权、真机升级旧数据，都须后续 Actions 与用户手机验收；不能以源码提交代替已验通。
+- **补充完成**：`abeba400` 只在角色读取入口对存档行 ID、日期、重复类型、完成记录及撤销日期进行严格核对（UI原有兼容解析不改变），源JSON缺字段也不会漏读后错误宣称零待办；`de8e25d`、`062d1e8` 增加坏行不可假报空以及不写回原存档测试。`da2079d` 对快速本机所行读取关闭 action=tool 的预先套话发送，改以真实读取回执后的一次自然反馈为主，避免重新引入“一次模型决定发两轮”的旧问题。`4eff893` 加设备观察时间；`3a030f8`、`9cbcb57` 确保实际所行条目与勾选详情有限长回流，而不仅返回数字计数。
+- **最新验证**：查询 `062d1e8` combined statuses 与关联PR workflow runs 均未返回记录（后者只检 PR），**不能判定 JVM/APK 构建成功**；当前容器无 Android SDK，无法本地跑 Android JVM/APK。其他并行 main 提交存在，继续按最新 SHA 接力，不覆盖他人工作。
