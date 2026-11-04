@@ -275,7 +275,7 @@ class PersonalMiniTheaterTest {
         assertTrue(original.facts.contains(fictionalPersona))
         assertTrue(original.instructions.contains("行为侧面"))
         assertTrue(original.instructions.contains("不需要解释他此刻切换了哪一种人格"))
-        assertTrue(original.instructions.contains("不要把这类人格比喻写成旁白反复喊的"))
+        assertTrue(original.instructions.contains("不要把人格比喻反复写成旁白的"))
         val alternateId = library.addPersonal(
             cast.copy(worldMode = "alternate"), PersonalMiniTheater.customIdea("陌生城市里第一次合作。"))
         val alternate = PersonalMiniTheater.request(library.items.value.first { it.id == alternateId })
