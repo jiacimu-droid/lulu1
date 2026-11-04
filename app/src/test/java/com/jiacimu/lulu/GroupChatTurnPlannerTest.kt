@@ -79,6 +79,32 @@ class GroupChatTurnPlannerTest {
         assertEquals("", scene.hintFor("c", emptyMap()))
     }
 
+    @Test fun nextParticipantAnchorsOnLatestDeliveredSpeechRatherThanRestartingOwnerQuestion() {
+        val owner = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.User,
+            content = "大家今天怎么样？",
+        )
+        val a = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "a", content = "我发现一件好玩的事。",
+        )
+        val failed = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "b", content = "根本没有送达的草稿",
+            status = com.jiacimu.lulu.data.LuluChatMessage.Status.Failed,
+        )
+        val system = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.System,
+            content = "成员变更通知",
+        )
+        val names = mapOf("a" to "甲", "b" to "乙")
+        assertEquals("当前群里最后一条真实送达的发言（不要求你一定回复）：甲：我发现一件好玩的事。",
+            groupChatLiveReplyAnchor(listOf(owner, a, failed, system), names, "我"))
+        assertEquals("当前群里最后一条真实送达的发言（不要求你一定回复）：我：大家今天怎么样？",
+            groupChatLiveReplyAnchor(listOf(owner, failed, system), names, "我"))
+        assertEquals("", groupChatLiveReplyAnchor(listOf(failed, system), names, "我"))
+    }
+
     @Test fun onlyOwnerGroupInputUsesForegroundCoordinator() {
         assertTrue(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = false))
