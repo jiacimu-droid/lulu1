@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T08:53:23.320617+00:00",
-  "commit": "56dbd33eb9e3ffe3da23f3a658b70e33b03c0938",
+  "generatedAt": "2026-11-04T09:12:47.894701+00:00",
+  "commit": "53093fa5a2f9e67954036526876e9e244d0d32de",
   "branch": "main",
-  "sourceFingerprint": "e689cebcad7882e7ff848fae5127734c74565d91db804282a20ea1006e83f3c2",
+  "sourceFingerprint": "a6a64db0786af2cf73ec015c1ab18297f3f55747667ef35810aef48a3f4d33fd",
   "summary": {
-    "files": 1129,
-    "lines": 236237,
-    "symbols": 3281
+    "files": 1130,
+    "lines": 236411,
+    "symbols": 3286
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -225,7 +225,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 430
+        "line": 449
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -461,7 +461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 49
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -518,6 +518,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
         "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -1121,7 +1125,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 480
+        "line": 499
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -3678,6 +3682,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
         "line": 125
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+        "line": 15
       }
     ],
     "pauseBeforeNextLine": [
@@ -5439,7 +5447,7 @@
     "AutonomousEncounterChaptersWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 257
+        "line": 256
       }
     ],
     "Outcome": [
@@ -5706,10 +5714,16 @@
         "line": 208
       }
     ],
+    "supportsExploration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
+        "line": 29
+      }
+    ],
     "supports": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
-        "line": 27
+        "line": 36
       }
     ],
     "pendingChoices": [
@@ -5982,6 +5996,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
         "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+        "line": 7
       }
     ],
     "absorb": [
@@ -6295,7 +6313,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 750
+        "line": 769
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -6797,13 +6815,13 @@
     "localDay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 15
+        "line": 21
       }
     ],
     "isDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 17
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
@@ -11133,7 +11151,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3157
+        "line": 3159
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11897,25 +11915,25 @@
     "cancelPendingLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 457
+        "line": 476
       }
     ],
     "removeLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 491
+        "line": 510
       }
     ],
     "mergeMatchingDailyCallPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 510
+        "line": 529
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 529
+        "line": 548
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -11925,37 +11943,37 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 618
+        "line": 637
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 636
+        "line": 655
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 684
+        "line": 703
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 719
+        "line": 738
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 757
+        "line": 776
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 773
+        "line": 792
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -12540,6 +12558,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
         "line": 22
+      }
+    ],
+    "Profile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+        "line": 5
       }
     ],
     "failureMessage": [
@@ -23209,8 +23233,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 301,
-      "sha256": "4f5466b7148bdf43c407be61661157fb574170429e4bce763562a0b0df88a7d0",
+      "lines": 300,
+      "sha256": "96e6750b74a9809f3d51e2f12772ab911d1c05ec41fd7ba88073405cb7a2be12",
       "symbols": [
         {
           "name": "enqueue",
@@ -23222,7 +23246,7 @@
         },
         {
           "name": "AutonomousEncounterChaptersWorker",
-          "line": 257
+          "line": 256
         }
       ]
     },
@@ -23315,8 +23339,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 997,
-      "sha256": "304e50549d29c887e24e3060f0a2f766d9eebd3df7c4e3ce9fc254cb153ad886",
+      "lines": 1000,
+      "sha256": "44977986676fe410708eb4faf4ed3b9722057e25e86fb1695cfc75e2f30f22b4",
       "symbols": []
     },
     {
@@ -23368,7 +23392,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 132,
-      "sha256": "e865abc78a3c67b66a921f6afaaa2b6a24a57ef8ed8d5b17b92915fd00adb7e1",
+      "sha256": "6d66de88e460fa6ebf8657c43903b5e341e20e0fd43f975dd24581f0217f5e24",
       "symbols": [
         {
           "name": "Capability",
@@ -23441,16 +23465,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
-      "lines": 59,
-      "sha256": "67dce8ba3b73f030c8264a1993fe1ae01992b17dd7426f2746c989858ffd4b9d",
+      "lines": 68,
+      "sha256": "9cf9dd19238cfd4482cbe3ce21fb3eaf072c5262fcc5f3a046e0da4af95b1ec4",
       "symbols": [
         {
           "name": "resolve",
           "line": 7
         },
         {
+          "name": "supportsExploration",
+          "line": 29
+        },
+        {
           "name": "supports",
-          "line": 27
+          "line": 36
         }
       ]
     },
@@ -23715,7 +23743,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
       "lines": 881,
-      "sha256": "eb92ba14a63a372ebbcc98cdcbed44a732173ba1d166dd612d197e5b9f7c1e1f",
+      "sha256": "a9809e36a03dd9b865c5311ba92bfade3dabc79eeed1881662d4c45ebb6a019b",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -23966,7 +23994,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
       "lines": 126,
-      "sha256": "8cdc9753b0236ba821557a7faf66bca39732780929036973df7a6c7802842946",
+      "sha256": "b5afd769cd1ef450c00034162691f67b57506bcc2ce4cd02c233ed9e3d3090db",
       "symbols": [
         {
           "name": "context",
@@ -24396,20 +24424,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-      "lines": 138,
-      "sha256": "080f0b95018247fc790b9c91986587f4fed857bfb3cc48c574bf985e3a907062",
+      "lines": 146,
+      "sha256": "b84003f7670297749f0712409848ce17384b0bbe8e4dbb14e1ecffbb7d46c9a2",
       "symbols": [
         {
           "name": "localDay",
-          "line": 15
+          "line": 21
         },
         {
           "name": "isDue",
-          "line": 17
+          "line": 24
         },
         {
           "name": "context",
-          "line": 49
+          "line": 56
         }
       ]
     },
@@ -26751,8 +26779,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 236,
-      "sha256": "376a69cded55bd207a5c82c3f9d6bf4998f1aba1ab1cf4df7152b7771f8c815a",
+      "lines": 240,
+      "sha256": "bb4d2cbe445a859e0c9560c681144b6793b173c395625fc790f4949cc702b5aa",
       "symbols": []
     },
     {
@@ -29087,8 +29115,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3224,
-      "sha256": "b6a7bc51d03fb8dfae12056fd05746e002e928e5dde06df3b669142948070a2a",
+      "lines": 3226,
+      "sha256": "d810733ceffad477249e13afd402c669289695acf99e26c03d36aa3c5da683c7",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29120,7 +29148,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3157
+          "line": 3159
         }
       ]
     },
@@ -29771,8 +29799,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 893,
-      "sha256": "8c9f4e439345b92483fd572f20b1b93656b80bd09b49d872c9042bdd44c6c973",
+      "lines": 912,
+      "sha256": "a0f91e5c566863cc2a20d1d2efc20e5ebc9a295d2e448bcf2e8919980f9154e1",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -29816,55 +29844,55 @@
         },
         {
           "name": "cancel",
-          "line": 430
+          "line": 449
         },
         {
           "name": "cancelPendingLinkedCommitmentPlans",
-          "line": 457
+          "line": 476
         },
         {
           "name": "remove",
-          "line": 480
+          "line": 499
         },
         {
           "name": "removeLinkedCommitmentPlans",
-          "line": 491
-        },
-        {
-          "name": "mergeMatchingDailyCallPlans",
           "line": 510
         },
         {
-          "name": "reschedule",
+          "name": "mergeMatchingDailyCallPlans",
           "line": 529
         },
         {
+          "name": "reschedule",
+          "line": 548
+        },
+        {
           "name": "canBegin",
-          "line": 618
+          "line": 637
         },
         {
           "name": "completeFromReceipt",
-          "line": 636
+          "line": 655
         },
         {
           "name": "markDue",
-          "line": 684
+          "line": 703
         },
         {
           "name": "dueContext",
-          "line": 719
+          "line": 738
         },
         {
           "name": "clearCharacter",
-          "line": 750
+          "line": 769
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 757
+          "line": 776
         },
         {
           "name": "canResume",
-          "line": 773
+          "line": 792
         }
       ]
     },
@@ -30557,8 +30585,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
-      "lines": 320,
-      "sha256": "a0995fc80ac553d5d10aab6d90dc212d67279356ff57e759aac39d123f4045ee",
+      "lines": 326,
+      "sha256": "ea0ae86883b2fb75753da28cfc2f027e49c02055a7ba65fd7fd70d26568ff330",
       "symbols": []
     },
     {
@@ -30615,6 +30643,29 @@
         {
           "name": "sourceFacts",
           "line": 22
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+      "lines": 31,
+      "sha256": "71758660cf81dc3173f0dcb56ab124a5154b47842eb59b8505c780d635463fdb",
+      "symbols": [
+        {
+          "name": "Profile",
+          "line": 5
+        },
+        {
+          "name": "snapshot",
+          "line": 7
+        },
+        {
+          "name": "format",
+          "line": 15
+        },
+        {
+          "name": "context",
+          "line": 25
         }
       ]
     },
@@ -35905,8 +35956,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 606,
-      "sha256": "7d625e93eeb9a776e034291bf18984afa5b6127db7479b35bd15af71dd7f781c",
+      "lines": 627,
+      "sha256": "08af6095384b91e081a7f61a9571bb340237241c2798303dc4be539b965dd379",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
@@ -36068,8 +36119,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt",
-      "lines": 169,
-      "sha256": "6dc365cb5fffa8dc01e6cd8de95bab5e033eda3e16520256b6749ff65f7c12ef",
+      "lines": 182,
+      "sha256": "08ad25b3a63516fa6a34467338568f6fe8bdd0a065dada3219982ee5d85e9921",
       "symbols": [
         {
           "name": "CharacterLifeSelfReviewTest",
@@ -37462,8 +37513,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 213,
-      "sha256": "b484c1f77e3314b9fe6fce776f618afb529c4beea810a775c6fce75bbcd6b35a",
+      "lines": 272,
+      "sha256": "3a1ae090adc85e06594f55a3f75e54be74740de9440f983aeba9278b2a841ad1",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
