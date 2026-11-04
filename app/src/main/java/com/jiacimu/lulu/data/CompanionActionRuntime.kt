@@ -1433,6 +1433,56 @@ internal object SearchResultContinuation {
         if (protect) withContext(NonCancellable) { block() } else block()
 }
 
+/**
+ * Primary reply and optional side actions share one model decision but receive
+ * DIFFERENT tool requestIds. ToolRouter's retry idempotency cannot recognize the
+ * same authored speech mirrored across those two fields.
+ *
+ * Match the WHOLE already-delivered utterance, ignoring only presentation
+ * whitespace and bubble boundaries; never suppress a distinct follow-up or
+ * another turn's intentional speech.
+ */
+internal fun mirroredPrivateReplyStepIndices(
+    steps: org.json.JSONArray?,
+    alreadyDeliveredPrivateText: String,
+): Set<Int> {
+    if (steps == null || alreadyDeliveredPrivateText.isBlank()) return emptySet()
+    fun canonical(text: String): String =
+        text.replace(com.jiacimu.lulu.SemanticBubbleSeparator, "")
+            .filterNot(Char::isWhitespace)
+    val delivered = canonical(alreadyDeliveredPrivateText)
+    if (delivered.isBlank()) return emptySet()
+
+    val sends = (0 until steps.length()).mapNotNull { index ->
+        val step = steps.optJSONObject(index) ?: return@mapNotNull null
+        val normalized = AutonomousActionWireProtocol.normalizeStep(step)
+        if (normalized.optString("tool") != "send_private_message") return@mapNotNull null
+        val body = canonical(normalized.optJSONObject("args")?.optString("text").orEmpty())
+        index to body.takeIf(String::isNotBlank).orEmpty()
+    }.filter { it.second.isNotBlank() }
+    if (sends.isEmpty()) return emptySet()
+    val mirrored = mutableSetOf<Int>()
+    // A side action may repeat the entire primary reply in one message even
+    // when the primary was delivered as several model-authored bubbles.
+    sends.filterTo(mutableListOf()) { it.second == delivered }
+        .forEach { mirrored += it.first }
+    // Or the side actions may re-split the same primary reply into parts.
+    // Suppress only a COMPLETE leading copy, never partial overlaps.
+    var accumulated = ""
+    val prefix = mutableListOf<Int>()
+    for ((index, body) in sends) {
+        if (index in mirrored) continue
+        accumulated += body
+        prefix += index
+        if (accumulated == delivered) {
+            mirrored.addAll(prefix)
+            break
+        }
+        if (!delivered.startsWith(accumulated)) break
+    }
+    return mirrored
+}
+
 internal object OrderedCharacterActions {
     suspend fun execute(
         context: Context,
@@ -1458,6 +1508,7 @@ internal object OrderedCharacterActions {
         goalReviewMode: Boolean = false,
         requestIdForStep: (Int) -> String = { "$requestId:step:$it" },
         turnTraceId: String = "",
+        alreadyDeliveredPrivateText: String = "",
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1472,6 +1523,7 @@ internal object OrderedCharacterActions {
         var previousTerminalFailure = false
         val attemptedMailTargets = mutableSetOf<String>()
         val completedMailTargets = mutableSetOf<String>()
+        val mirroredReplySteps = mirroredPrivateReplyStepIndices(steps, alreadyDeliveredPrivateText)
         for (index in 0 until steps.length()) {
             if (shouldDeferRemaining?.invoke() == true) {
                 for (pending in index until steps.length()) {
@@ -1498,6 +1550,13 @@ internal object OrderedCharacterActions {
             // every nested step shares the primary action vocabulary adapter.
             val normalized = AutonomousActionWireProtocol.normalizeStep(step)
             val name = normalized.optString("tool").trim()
+            if (index in mirroredReplySteps) {
+                // Already persisted by the primary sender. Do not re-run an
+                // equivalent private send under this side step's requestId.
+                // Preserve the preceding real result for dependent steps.
+                notes += "第${index + 1}步send_private_message跳过：本轮主回复已真实送达相同正文"
+                continue
+            }
             if (name == "send_character_message") normalized.optJSONObject("args")
                 ?.optString("targetCharacterId")?.takeIf(String::isNotBlank)
                 ?.let(attemptedMailTargets::add)
