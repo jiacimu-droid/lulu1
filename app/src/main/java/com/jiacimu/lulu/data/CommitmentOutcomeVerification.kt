@@ -36,11 +36,17 @@ internal object CommitmentOutcomeVerification {
      * Otherwise the prompt can offer event IDs that the executor will reject.
      */
     internal fun eligibleEvidence(task: CommitmentTask, e: SharedTimelineEvent): Boolean {
+        // The occurrence owns its LOCAL calendar day, not just the alarm
+        // minute. Finishing early on the same day may be genuine; yesterday's
+        // observation cannot fulfill today's recurring goal.
+        val dailyDayStart = if (task.repeat == "daily") task.dueAt?.let { due ->
+            val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+                ?: java.time.ZoneId.systemDefault()
+            due.atZone(zone).toLocalDate().atStartOfDay(zone).toInstant()
+        } else null
         if (e.characterId != task.characterId ||
             e.occurredAt.isBefore(task.createdAt.minusSeconds(3)) ||
-            // Evidence from an earlier daily occurrence cannot verify today.
-            (task.repeat == "daily" && task.dueAt != null &&
-                e.occurredAt.isBefore(task.dueAt.minusSeconds(3)))) return false
+            (dailyDayStart != null && e.occurredAt.isBefore(dailyDayStart))) return false
         return when (task.verificationMode) {
             "subjective_report" -> e.evidenceKind == EventEvidenceKind.UserStatement ||
                 isObservedOutcome(e)
