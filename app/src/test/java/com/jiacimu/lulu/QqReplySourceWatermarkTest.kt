@@ -6,6 +6,7 @@ import com.jiacimu.lulu.data.ToolRouter
 import com.jiacimu.lulu.data.OrderedCharacterActions
 import com.jiacimu.lulu.data.mirroredPrivateReplyStepIndices
 import com.jiacimu.lulu.data.samePrivateReplyContent
+import com.jiacimu.lulu.data.singlePrivateInboundReply
 import com.jiacimu.lulu.data.verifiedRoleDeliveries
 import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
@@ -407,6 +408,63 @@ class QqReplySourceWatermarkTest {
         assertFalse(timings.any { it.detail.contains("trace=not-model-controlled") })
     }
 
+
+    @Test fun oneInboundReplyOwnsAllUnconditionalSpeechAndPreservesOtherTools() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("私聊一次正文归口角色").characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(role, "一次回复多个气泡")
+        val user = MigratedDomainStores.chat.sendUserMessage(chat.id, "学习累了")
+        val first = "学得怎么样了，宝宝？"
+        val second = "头还晕不晕？"
+        // The old dual route used to send primary bubbles AND this one-piece
+        // private tool message, producing exactly the screenshot symptom.
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "send_private_message").put("args",
+                JSONObject().put("text", "$first $second")))
+            .put(JSONObject().put("action", "message").put("text", "喝口温水。"))
+            .put(JSONObject().put("tool", "plan_personal_activity").put("args",
+                JSONObject().put("title", "之后再核实").put("intent", "询问实际学习进度")))
+        val selected = singlePrivateInboundReply(first + SemanticBubbleSeparator + second, steps)
+        assertEquals(2, selected.absorbedSends)
+        assertEquals(first + SemanticBubbleSeparator + second + SemanticBubbleSeparator + "喝口温水。", selected.text)
+        assertEquals(1, selected.actions?.length())
+        assertEquals("plan_personal_activity",
+            selected.actions!!.getJSONObject(0).optString("tool"))
+        val receipt = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject().put("text", selected.text)
+                .put("_replyEvidenceIds", JSONArray().put(user.id)),
+            requestId = "normalized-private-reply-" + java.util.UUID.randomUUID()))
+        assertTrue(receipt.toString(), receipt.optBoolean("success"))
+        assertEquals(3, receipt.getJSONArray("deliveredMessageIds").length())
+        val actual = MigratedDomainStores.chat.messages(chat.id).value.filter {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        }
+        assertEquals(listOf(first, second, "喝口温水。"), actual.map { it.content })
+        // The only remaining side step is a non-speech tool. An extra
+        // send_private_message can no longer be dispatched through it.
+        assertFalse(selected.actions.toString().contains("send_private_message"))
+    }
+
+    @Test fun inboundReplyPreservesConditionalSendsAndIndependentSilence() {
+        val actions = JSONArray()
+            .put(JSONObject().put("tool", "send_private_message")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", "搜索完成了才告诉你结果。")))
+            .put(JSONObject().put("tool", "read_book")
+                .put("args", JSONObject().put("bookId", "existing-book")))
+        val selected = singlePrivateInboundReply("我先查查看。", actions)
+        assertEquals("我先查查看。", selected.text)
+        assertEquals(0, selected.absorbedSends)
+        assertEquals(2, selected.actions?.length())
+        // With no inbound normalizer, independent life turns still run
+        // whatever independently authored send actions they chose.
+        val followup = singlePrivateInboundReply("", JSONArray()
+            .put(JSONObject().put("tool", "send_private_message")
+                .put("args", JSONObject().put("text", "嗨，我刚想到一件事。"))))
+        assertEquals(1, followup.absorbedSends)
+        assertEquals("嗨，我刚想到一件事。", followup.text)
+        assertNull(followup.actions)
+    }
 
     @Test fun oneDecisionCannotResendItsAlreadyDeliveredPrimaryThroughSideActions() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
