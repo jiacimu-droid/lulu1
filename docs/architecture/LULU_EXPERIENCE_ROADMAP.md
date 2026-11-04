@@ -6,9 +6,9 @@
 
 ## 一、当前核对结果与接手顺序
 
-本轮接手 main `c6161c1`，当前源码与 Actions 分开核对：
+本轮接手 main `e8af2f7`，当前源码与 Actions 分开核对：
 - 已核实的完整 Android/JVM/APK 基线更新为 `811b428`：[run 41763912049](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912049) success，索引 [41763912115](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912115) success；真机与真实模型仍待验。
-- 最新完整失败为 `91163251` 的 [Android/JVM/APK 41782081329](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081329) completed/failure：2366 项中仅 `UserMessageFavoritesTest.ambientPerceptionStillThrottlesUnrelatedThoughtOnlyEvents` 失败，索引 [41782081227](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081227) success。测试仍要求旧 15 分钟时间节流吞掉不同的后台心声，与已修 `38710319` 的真实不同原句保留契约冲突。`0fb54a6d85fad3ff863fec10a2193356404d06b6` 只更新该旧测试并核对精确原句重复不会增加历史；含新测试的 APK/JVM [41788133290](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133290) 与索引 [41788133287](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133287) 最后查询均 in_progress，不能算通过。
+- 最新完整失败为 `91163251` 的 [Android/JVM/APK 41782081329](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081329) completed/failure：2366 项中仅 `UserMessageFavoritesTest.ambientPerceptionStillThrottlesUnrelatedThoughtOnlyEvents` 失败，索引 [41782081227](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081227) success。测试仍要求旧 15 分钟时间节流吞掉不同的后台心声，与已修 `38710319` 的真实不同原句保留契约冲突。`0fb54a6d85fad3ff863fec10a2193356404d06b6` 只更新该旧测试并核对精确原句重复不会增加历史；含新测试的 APK/JVM [41788133290](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133290) 最后查询仍 in_progress；索引 [41788133287](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133287) 已 completed/success，不能把索引成功当 APK 通过。后续 G-01 源码提交另触发 Actions，先以最新完整 CI 结果为准。
 - P-01 人格/关系分项、P-02 初版作者归属、P-04 独立事件来源去重的已完成开发已移出本页。P-03、P-05 的已落地代码也不再列为待开发，保留尚缺的运行验收。
 - 原文分段 `OriginalEvidenceSpans`、来源敏感去重、回合 trace、实际注入审计、结构化气泡交接、精确消息回执和分享意愿持久化已有实现。接力从当前入口核查与真实样本入手。
 
@@ -32,7 +32,7 @@
 | P-09 / M4 | 长期记忆与繁忙群聊的性能和费用测量 | 待测量；先测 1千/1万/10万记录规模下冷/热启动、召回、分页、缓存与后台恢复 | P50/P95、RAM、I/O、API 次数、召回质量有实际数据，再决定索引/存储调整 |
 | S-01 | 自主社交、双方关系、话题后续与邀请活动的真实闭环 | 已有可靠收发修复，待真实模型/跨日；从正式邮箱和关系图检查双方独立选择及失败重试后的原信 | 发起、送达、已处理、回应、各自印象与后续可追踪；用户未在场的私聊不冒充已告诉用户 |
 | S-02 | 居民管理、真实请求预算、完整身份与移除后的连续性 | 唯一居民管理页、人数/生成开关、0–8 请求额度、档案编辑/删除与背景差异已有代码。`716c86ed` CI 剩 5 项居民人工补正/后续请求失败；`8b4091e` 重建每个 Robolectric 应用的模型网关，修复旧上下文预算污染，保持正式默认 2 次与禁自动增员。待后继 CI，再验真机 0/2/5/8 实际请求、重启保留、删人后 Worker/群聊停止、历史保留与人物差异 | 不产生幽灵居民或改写历史，人数与请求上限实际生效；本人身份进入模型且不串人格 |
-| G-01 | 翻牌对手的可见信息与公平性 | 待开发；本次源码仍见 `available.firstOrNull { game.cards[it] == game.cards[first] }` 读取隐藏牌配对 | 对手仅使用已公开牌及自己的实际观察；难度改变策略/记忆，不能全知后假装失误 |
+| G-01 | 翻牌对手的可见信息与公平性 | `f31d50b` 记录实际翻开牌的观察事实；`eab949a`、`9528d16` 统一普通/沉浸两入口使用仅观察牌策略，不再窥探隐藏牌；`017a1a9` 新增隐藏牌互换不影响决策、已知配对及已翻/已匹配过滤回归。待最新完整 CI、真机；不把待运行视为通过 | 对手仅使用已公开牌及自己的实际观察；难度改变策略/记忆，不能全知后假装失误 |
 | G-02 | 方块小岛的整体可玩性与角色协作 | 已有控制/建造基础，待当前版本真机试玩；核对连续移动、采集、建造、工作台和存档 | 镜头/HUD/方向恢复可用，双方共享真实资源，角色操作与共同结果持久可追溯 |
 | G-03 | 迷雾摸金的战斗收益、撤离目标与合作体验 | 已有玩法基础，待真机；核对攻击预告、命中、物资/战利品、队友救援及失败恢复 | 战斗→奖励→撤离有真实收益，角色对玩家和局面变化有实际反应 |
 | G-04 | 自主游戏邀约从决定到共同对局的体验 | 邀约工具和决策入口已接，待当前完整 CI/真实模型/真机 | 通知、点击加入、接受/拒绝/未回应、实际对局与双方结果均有回执；频率由本人选择 |
