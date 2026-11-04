@@ -889,3 +889,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 ## 2026-11-04：P-10.6 新版番外世界书构建回归失败与修复
 - **证据**：GitHub [Issue #746](https://github.com/jiacimu-droid/lulu1/issues/746)，[APK/JVM workflow 41829654028](https://github.com/jiacimu-droid/lulu1/actions/runs/41829654028) 对应 `6e0b731`。检查 build job `126573321584` 完整日志：`:app:compilePhoneKotlin` 成功，`:app:testPhoneUnitTest` 2401 项 1 failed。唯一失败 `PersonalMiniTheaterTest.selectedWorldBookRulesAreIsolatedPersistedAndFrozenPerWork` 行 310，原因 `request.instructions` 实际文案「仅根据本篇明确选中的条目」，测试硬编码预期「只根据本篇明确选中的条目」，并非生成链路世界书注入断开。旧 `555f66c` run 41826440968 的 worldMode 编译失败为历史提交，已经被后续新增 `MiniTheaterItem.worldMode` 的代码取代；不能用旧结果判断当前源码。
 - **修复**：`2ced2582` 更新测试断言与当前唯一正式创作指令一致，并增加 `facts` 中选中世界书明确标题的断言；没有改写用户世界书、模型提示、已保存番外和人物资料。代码已推 main，修复后完整 APK/JVM 的实际 CI 状态和手机端质量待验，Issue #746 暂不能宣称已关闭。
+
+## 2026-11-04：P-08a.2a 因果追踪与日程归因的完成状态同源
+
+- **接手与链路**：main `7528713`，读取 AGENTS、原索引、唯一看板、统一契约、成长框架与最新进度。沿 CharacterCausalTrace.inspect → receiptLine/receiptContinuation/个人日程归因核查。已有来源角色/修订、决定原请求ID、后续时间与窗口外精确回执恢复均保留，没有另造trace中心。
+- **已证根因**：CharacterCausalTrace.receiptStatus 另写三种外层成功状态，未核对内层 unverified/未知状态；外层 succeeded、内层 success=true但仍unverified/未知时会显示“执行器确认成功”。同一函数又被 completed个人日程的 verifiedReceipt 使用，所以还可把矛盾的旧回执展示为“日程执行有回执”。相反，现有执行门禁认可的notification_posted/unchanged等实际完成状态又被追踪显示未知。前轮bd0fd27已统一动作/学习真实性，却未覆盖这份只读追踪解释。
+- **实际修改**：receiptStatus对持久状态与内层result同时复用原ToolExecutionStatus.completed，保留原授权/拒绝/失败/待确认展示；显式未知不冒充成功，无内层status的老本地完成结果仍兼容。追踪卡片与日程归因因此使用执行链的同一完成规则；不改变真实日程状态、不补造本人后续、不执行动作、不标感知检查点、不改人格/记忆或增加模型请求。
+- **必要回归**：CharacterCausalTraceTest新增双层状态矩阵，经原inspect核对pending/unverified/未知/缺外层状态均不确认，原九种完成状态及旧本地无内层状态继续识别；原始回执不变、跨角色不可见、查看不消费感知。扩展既有旧completed日程集成回归，验证内层pending/unverified的外层成功不能借本日程ID显示为真实完成，原真成功/失败/原生结果/来源编辑测试保留。
+- **CI实证**：最新完整源码 `cb1bcf8` [41831351831](https://github.com/jiacimu-droid/lulu1/actions/runs/41831351831) completed/success；job126580122901日志为 BUILD SUCCESSFUL in 10m22s，APK已发布 [v7776](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v7776)。原索引41831352008同为success。它包含既有江渡修订、探索说明、番外及群聊单次调用回归，不能把此成功扩大为本次新增回归已通过。本次本地无Kotlin/Android构建环境，单测/APK随提交触发；真机、真实模型、跨日均待验。
+- **看板与下一步**：新增已提交P-08a.2a窄范围子项，完整P-08a.1/2仍需逐入口核对turnTraceId/sourceMessageId/taskId与真实阶段，P-08a.3外部样本待验。接手先查本轮CI，再继续P-08a或P-08b正式注入；不重复已经成功的群聊单次请求回归，也不把显示修正当作“角色更像活人”质量验收。

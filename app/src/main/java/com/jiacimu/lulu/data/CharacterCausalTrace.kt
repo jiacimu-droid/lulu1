@@ -40,8 +40,8 @@ internal object CharacterCausalTrace {
 
     private fun receiptStatus(payload: JSONObject): String {
         val result = objectValue(payload.opt("result"))
-        val status = payload.optString("status").lowercase()
-        val innerStatus = result?.optString("status")?.lowercase().orEmpty()
+        val status = payload.optString("status").trim().lowercase()
+        val innerStatus = result?.optString("status")?.trim()?.lowercase().orEmpty()
         return when {
             payload.optString("stage") == "rejected" && status == "waiting_user" -> "等待主人授权"
             payload.optString("stage") == "rejected" -> "执行前被拒绝"
@@ -51,7 +51,11 @@ internal object CharacterCausalTrace {
                 "结果尚未证实"
             status in setOf("failed", "error", "cancelled") || result?.optBoolean("success") == false ->
                 "执行失败"
-            status in setOf("succeeded", "verified", "observed") && result?.optBoolean("success") == true ->
+            // Trace and schedule attribution must agree with the actual executor gate.
+            // An outer success cannot override a pending/unknown nested result.
+            result != null && status.isNotBlank() &&
+                ToolExecutionStatus.completed(result) &&
+                ToolExecutionStatus.completed(JSONObject().put("success", true).put("status", status)) ->
                 "执行器确认成功"
             else -> "结果状态未知"
         }

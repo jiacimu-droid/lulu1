@@ -962,6 +962,8 @@ class CharacterCausalTraceTest {
         val genuine = plan("本日程的真实成功回执")
         val failed = plan("执行失败的回执")
         val native = plan("原生动态结果尚待归属核对")
+        val pendingNested = plan("内层仍待确认的旧成功状态")
+        val unknownNested = plan("内层未知的旧成功状态")
         try {
             val userId = "trace-scheduled-unrelated-user"
             SharedExperienceTimeline.record(userId, a, "私聊", "用户", "我也有计划",
@@ -969,11 +971,13 @@ class CharacterCausalTraceTest {
                 source = "message", evidenceKind = EventEvidenceKind.UserStatement)
             assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
                 unrelated.id, "publish_moment", userId, "旧记录", due.plusSeconds(3)))
-            fun toolResult(id: String, planId: String, success: Boolean = true) {
+            fun toolResult(id: String, planId: String, success: Boolean = true, nestedStatus: String = "") {
                 SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
                     JSONObject().put("tool", "publish_moment").put("planId", planId)
                         .put("status", if (success) "succeeded" else "failed")
-                        .put("result", JSONObject().put("success", success).toString())
+                        .put("result", JSONObject().put("success", success).apply {
+                            if (nestedStatus.isNotBlank()) put("status", nestedStatus)
+                        }.toString())
                         .toString(), due.plusSeconds(2), triggerExtraction = false,
                     source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
             }
@@ -998,6 +1002,12 @@ class CharacterCausalTraceTest {
             assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
                 native.id, "publish_moment", nativeId, "原生动态",
                 due.plusSeconds(3)))
+            for ((plan, state) in listOf(pendingNested to "pending", unknownNested to "unverified")) {
+                val id = "tool-$a-nested-" + plan.id
+                toolResult(id, plan.id, nestedStatus = state)
+                assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                    plan.id, "publish_moment", id, "旧记录仅按外层成功结案", due.plusSeconds(3)))
+            }
             val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
                 listOf(event(a, sourceId)), JSONObject())
             fun lineFor(title: String) = lines.single {
@@ -1011,6 +1021,8 @@ class CharacterCausalTraceTest {
             assertTrue(lineFor("执行失败的回执").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").detail.contains("没有独立核对"))
+            assertTrue(lineFor("内层仍待确认的旧成功状态").title.contains("日程状态待核对"))
+            assertTrue(lineFor("内层未知的旧成功状态").title.contains("日程状态待核对"))
             // A later edit may keep the same request ID and a success status.
             // The plan did not persist the original receipt revision, so the
             // edited row cannot retroactively prove its original completion.
@@ -1028,10 +1040,45 @@ class CharacterCausalTraceTest {
             assertTrue(CharacterCausalTrace.inspect(context, b,
                 event(a, sourceId), listOf(event(a, sourceId)), JSONObject()).isEmpty())
         } finally {
-            listOf(unrelated, wrongPlan, genuine, failed, native).forEach {
+            listOf(unrelated, wrongPlan, genuine, failed, native, pendingNested, unknownNested).forEach {
                 RoleDayScheduleStore.remove(context, a, it.id)
             }
         }
     }
 
+
+    @Test fun traceCompletionUsesBothReceiptLayersAndPreservesRealCompletedStates() {
+        source(a, "trace-completion-contract-source")
+        val states = listOf(
+            Triple("succeeded", "pending", false),
+            Triple("succeeded", "unverified", false),
+            Triple("succeeded", "future_vendor_state", false),
+            Triple("future_vendor_state", "verified", false),
+            Triple("pending", "verified", false),
+            Triple("", "verified", false),
+            Triple("succeeded", null, true), // Local legacy result without its own status.
+        ) + listOf("succeeded", "observed", "notification_posted", "popup_requested",
+            "verified", "already_at_target", "unchanged", "capped", "at_safe_limit")
+            .map { Triple(it, it, true) }
+        states.forEachIndexed { index, (outerStatus, innerStatus, confirmed) ->
+            val id = "trace-completion-contract-$index"
+            val result = JSONObject().put("success", true).put("summary", "保留原始执行结果")
+            innerStatus?.let { result.put("status", it) }
+            val payload = JSONObject().put("tool", "control_volume")
+                .put("status", outerStatus).put("result", result.toString())
+                .put("causeEvidenceId", "trace-completion-contract-source")
+                .put("causeEvidenceRevision", 1L)
+            SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器", payload.toString(),
+                at.plusSeconds(index + 10L), triggerExtraction = false,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+            val original = event(a, id)
+            val line = CharacterCausalTrace.inspect(context, a, original, listOf(original), JSONObject())
+                .single { it.evidenceId == id && it.title.startsWith("行动回执") }
+            assertEquals("$outerStatus/$innerStatus", confirmed, line.title.contains("执行器确认成功"))
+            assertTrue(line.detail.contains("保留原始执行结果"))
+            assertEquals(original, event(a, id))
+            assertFalse(PerceptionStimulusLedger.hasSeen(context, a, id))
+            assertTrue(CharacterCausalTrace.inspect(context, b, original, listOf(original), JSONObject()).isEmpty())
+        }
+    }
 }
