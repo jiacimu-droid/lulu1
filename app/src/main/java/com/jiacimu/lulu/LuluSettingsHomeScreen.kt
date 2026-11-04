@@ -64,6 +64,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         )
         SettingsHomePage.Voice -> LuluVoiceSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Memory -> LuluMemorySettingsScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Residents -> LuluResidentManagementScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Vision -> LuluVisionSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Backup -> LuluBackupScreen(onBack = { page = SettingsHomePage.Home })
@@ -74,6 +75,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onOpenIntegrations = { page = SettingsHomePage.Integrations },
             onOpenVoice = { page = SettingsHomePage.Voice },
             onOpenMemory = { page = SettingsHomePage.Memory },
+            onOpenResidents = { page = SettingsHomePage.Residents },
             onOpenImage = { page = SettingsHomePage.Image },
             onOpenVision = { page = SettingsHomePage.Vision },
             onOpenBackup = { page = SettingsHomePage.Backup },
@@ -81,7 +83,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Image, Vision, Backup }
+private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Residents, Image, Vision, Backup }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +94,7 @@ private fun SettingsEntryScreen(
     onOpenIntegrations: () -> Unit,
     onOpenVoice: () -> Unit,
     onOpenMemory: () -> Unit,
+    onOpenResidents: () -> Unit,
     onOpenImage: () -> Unit,
     onOpenVision: () -> Unit,
     onOpenBackup: () -> Unit,
@@ -161,6 +164,14 @@ private fun SettingsEntryScreen(
                     title = "记忆设置",
                     subtitle = "配置记忆抽取、Embedding 向量检索与 Rerank 模型",
                     onClick = onOpenMemory,
+                )
+            }
+            item {
+                SettingsEntryRow(
+                    icon = Icons.Outlined.Groups,
+                    title = "居民管理",
+                    subtitle = "管理数字世界居民的每日活动安排",
+                    onClick = onOpenResidents,
                 )
             }
             item {
