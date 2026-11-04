@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:28:13.831390+00:00",
-  "commit": "da2079dbf10db2976257d6957aa82b53c93e3cba",
+  "generatedAt": "2026-11-04T16:30:13.610040+00:00",
+  "commit": "de8e25d4822371b0b093df76ca2ff1ac5612b928",
   "branch": "main",
-  "sourceFingerprint": "972acc811295df9f6bd0ad134a1f1315e9f15f1af028cadd53442994d5dca453",
+  "sourceFingerprint": "96b1807def9091c419423bc6a012790d7b33e93a7ce727d97ee6cc1a30ea6435",
   "summary": {
     "files": 1135,
-    "lines": 239443,
+    "lines": 239485,
     "symbols": 3311
   },
   "symbolIndex": {
@@ -1421,7 +1421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 272
+        "line": 305
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
@@ -4137,7 +4137,7 @@
     "loadWithLegacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 216
+        "line": 249
       }
     ],
     "create": [
@@ -22232,8 +22232,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-      "lines": 501,
-      "sha256": "462decc2cd516d671c8add14ed7d3a7d01995333d84e090953a7bcb5a2f73eb5",
+      "lines": 534,
+      "sha256": "e9cbc1d44d6a30dde0cb29bc51a9b22791a7bc8478fce1376900ef5bd651a669",
       "symbols": [
         {
           "name": "pending",
@@ -22261,11 +22261,11 @@
         },
         {
           "name": "loadWithLegacy",
-          "line": 216
+          "line": 249
         },
         {
           "name": "save",
-          "line": 272
+          "line": 305
         }
       ]
     },
@@ -35274,8 +35274,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 133,
-      "sha256": "e07983dfcbd7e9cd548787be7cdb9f0ae3f021381bc13eff59eb7e06a27e6f11",
+      "lines": 142,
+      "sha256": "9203e84543b3b01a92ae70d4a5e915fa67ba6529df896230050872f1c16f610a",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
