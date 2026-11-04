@@ -849,3 +849,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **接手验证**：前轮 `bd0fd27` [APK/JVM 41811001667](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001667) 与 [原索引 41811001719](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001719) 均 completed/success；另一窗口番外美化后最新 `a3ed157` [APK/JVM 41819706046](https://github.com/jiacimu-droid/lulu1/actions/runs/41819706046) 查询时 pending、索引41819705955 success，不改其代码。本轮回归/编译随新提交实际执行，尚无通过结论；真机旧安装升级、实际模型扮演待验。新代码须随 APK 安装运行才会修改手机上的原资料，仓库提交不能冒充已远程改写手机。
 
 - **本轮发布**：源码/回归 [f6c5b42](https://github.com/jiacimu-droid/lulu1/commit/f6c5b4207d80c5cbcaeb1bd62b6234e9cbe5488a) 已直接进入 main；原索引 [41820410934](https://github.com/jiacimu-droid/lulu1/actions/runs/41820410934) completed/success，生成 `d12b456`。本轮 [APK/JVM 41820410872](https://github.com/jiacimu-droid/lulu1/actions/runs/41820410872) 提交后 pending，未取得单测/APK通过结论。手机实际应用批准版和真实模型质量仍待安装后验证。
+
+## 2026-11-04：P-08d / M3 探索结束契约的跨场景冲突
+
+- **链路与根因**：接手 main `7cab74c`，读取 AGENTS、原索引、唯一大纲、统一契约、成长框架与最新进度。CharacterDecisionProtocol 的探索协议已按“本人结合真实材料判断弄清”解释 satisfied；但 CharacterCuriosityRuntime.briefContext（经 CharacterRuntime.personalityRuntimeContext 进入私聊/电话等）和 promptSection（后台 ProactivePerceptionRuntime 正式调用）仍分别提示“把结果告诉对方”即可标 satisfied。settleInterest 注释也沿用“分享即结束”的旧语义。相同问题在决策与下一轮回想中收到冲突的结束条件，可能将分享当解决，或把独立弄清的问题拖成待汇报。
+- **实际修改**：将结束说明收敛为 CharacterExplorationContinuity.settlementGuidance，同一份文本用于完整/精简决策协议及两种探索上下文。本人依据真实材料、观察、回执或对话的新信息判断是否弄清；分享送达本身不证明问题解决，弄清也不要求先分享。仍可继续或放下，程序不靠词表替他判断。原 settleInterest、来源所有权/修订、逐步回执与原 Store 保持；不新增模型请求、唤醒或人格字段。
+- **必要回归**：正式探索测试覆盖四种决策/回想投影获得相同契约且不再出现旧“告诉对方即结束”指令；实际材料→原 returned 解释→不发消息也可结案；另一个问题真实发送分享后仍未结案，重载保留本人未解问题。回归仍约束精简协议小于原3000字符预算，没有提高费用/长度上限。这些测试证明契约/生命周期，不是实际模型台词质量验收。
+- **前轮分层核实**：`9dc3f1b` [41817669325](https://github.com/jiacimu-droid/lulu1/actions/runs/41817669325) overall failure，首败在 Publish Lulu release，原日志为 GitHub releases HTTP 500；此前 Test and build phone APK 成功且 BUILD SUCCESSFUL，不能称单测/编译失败，也不能把发布算成功。该源码索引41817669433 success。江渡批准替换 `f6c5b42` 的原索引41820410934 success，APK/JVM41820410872本轮查询 in_progress，未宣布通过；本次新增回归尚待实际 CI。环境只有 Java、无本地 Kotlin/Android 构建；真机、真实模型、跨日仍待验。
+- **下一轮**：先查本轮与 `f6c5b42` 的最终 CI；再沿真实 turnTraceId 对比问题含义、材料、本人继续/结案选择与实际送达，检查不同人物在不向用户汇报时能否自行整理、已分享但未解时能否继续。P-08a/b/c/e 的实际模型自然度与群聊无第二次收费回归缺口继续保留，不重复已完成的源码修复。

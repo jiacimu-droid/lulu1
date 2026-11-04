@@ -623,4 +623,72 @@ class CharacterExplorationContinuityTest {
         assertTrue(CharacterExplorationContinuity.context(role).contains("约好的查证"))
     }
 
+
+    @Test fun theSameSettlementContractReachesDecisionAndBothLaterProjections() {
+        val inquiry = question("持续查证")
+        CharacterExplorationContinuity.remember(context, role, inquiry, null, listOf("input"), now)
+        val material = outcome("settlement-contract-material")
+        CharacterCuriosityRuntime.recordOutcome(role, inquiry, "web_search", true,
+            "取得真实材料但问题还未解", material.id, now.plusSeconds(10))
+        val contract = CharacterExplorationContinuity.settlementGuidance
+        val projections = listOf(
+            CharacterDecisionProtocol.runtimePrinciples,
+            CharacterDecisionProtocol.causalPrinciples,
+            CharacterCuriosityRuntime.briefContext(role, now.plusSeconds(20)),
+            CharacterCuriosityRuntime.promptSection(role, "探索连续性测试", emptyList(), now.plusSeconds(20)),
+        )
+        projections.forEach {
+            assertTrue(it, it.contains(contract))
+            assertFalse(it.contains("已经把结果告诉对方、或者已经聊清楚的线索"))
+            assertFalse(it.contains("已经把最近结果告诉对方、或者已经和对方聊清楚的问题"))
+        }
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.length < 3000)
+    }
+
+    @Test fun privateUnderstandingCanSettleWithoutSharingAndSendingAShareDoesNotSettleOtherQuestions() {
+        val sharedQuestion = question("准备分享但还未解的问题")
+        val privateQuestion = question("只想自己弄清的问题")
+        CharacterExplorationContinuity.remember(context, role, null,
+            JSONArray().put(sharedQuestion).put(privateQuestion), listOf("input"), now)
+        val first = outcome("shared-question-material")
+        val second = outcome("private-question-material", 11)
+        CharacterCuriosityRuntime.recordOutcome(role, sharedQuestion, "web_search", true,
+            "已取得第一份资料，仍有疑问", first.id, now.plusSeconds(10))
+        CharacterCuriosityRuntime.recordOutcome(role, privateQuestion, "web_search", true,
+            "已取得第二份资料", second.id, now.plusSeconds(11))
+        val privateThread = CharacterCuriosityRuntime.activeThreads(role)
+            .single { it.getString("topic") == privateQuestion.getString("topic") }
+        assertFalse(SharedExperienceTimeline.all(role).any {
+            it.evidenceKind == EventEvidenceKind.CharacterStatement && it.source == "message"
+        })
+
+        // The ordinary result interpretation can close a private question with no outgoing words.
+        CharacterExplorationContinuity.returned(context, role,
+            JSONObject().put("curiosity", JSONObject(privateQuestion.toString())
+                .put("threadId", privateThread.getString("threadId"))
+                .put("sourceEvidenceId", second.id).put("status", "satisfied")),
+            listOf(second.id), now.plusSeconds(20))
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(sharedQuestion.getString("topic"),
+            CharacterCuriosityRuntime.activeThreads(role).single().getString("topic"))
+        assertEquals("satisfied", CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+            .let { records -> (0 until records.length()).map { records.getJSONObject(it) }
+                .single { it.getString("threadId") == privateThread.getString("threadId") } }
+            .getString("status"))
+
+        // Deliver an actual chat message. It proves sending, not answering the remaining question.
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "探索分享")
+        val sent = MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "我找到了一些资料")
+        CharacterCuriosityRuntime.recordOutcome(role,
+            JSONObject(sharedQuestion.toString()).put("status", "satisfied"),
+            "message", true, "分享已送达", sent.id, sent.createdAt)
+        CharacterExplorationContinuity.returned(context, role,
+            JSONObject().put("curiosity", JSONObject(sharedQuestion.toString())
+                .put("status", "satisfied").put("sourceEvidenceId", sent.id)),
+            listOf(sent.id), sent.createdAt.plusSeconds(1))
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals("exploring", CharacterCuriosityRuntime.activeThreads(role).single().getString("status"))
+        assertTrue(CharacterCuriosityRuntime.briefContext(role, sent.createdAt.plusSeconds(2))
+            .contains(sharedQuestion.getString("topic")))
+    }
 }
