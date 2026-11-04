@@ -975,3 +975,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **验收边界**：GitHub main 已更新。现有环境无 Android SDK/Gradle，未在本轮跑 JVM/APK，真实模型是否自主查看并在之后正确选择监督行动、前后台限时授权、真机升级旧数据，都须后续 Actions 与用户手机验收；不能以源码提交代替已验通。
 - **补充完成**：`abeba400` 只在角色读取入口对存档行 ID、日期、重复类型、完成记录及撤销日期进行严格核对（UI原有兼容解析不改变），源JSON缺字段也不会漏读后错误宣称零待办；`de8e25d`、`062d1e8` 增加坏行不可假报空以及不写回原存档测试。`da2079d` 对快速本机所行读取关闭 action=tool 的预先套话发送，改以真实读取回执后的一次自然反馈为主，避免重新引入“一次模型决定发两轮”的旧问题。`4eff893` 加设备观察时间；`3a030f8`、`9cbcb57` 确保实际所行条目与勾选详情有限长回流，而不仅返回数字计数。
 - **最新验证**：查询 `062d1e8` combined statuses 与关联PR workflow runs 均未返回记录（后者只检 PR），**不能判定 JVM/APK 构建成功**；当前容器无 Android SDK，无法本地跑 Android JVM/APK。其他并行 main 提交存在，继续按最新 SHA 接力，不覆盖他人工作。
+
+
+## 2026-11-05 · 每小时接力 P-08a.2c：未来原生事件不得借给较早回执
+
+- **接手**：读取最新 AGENTS.md、CODE_INDEX.md（索引基准 a9ab2ab，须区别于最新 main）、唯一 roadmap、人物专项进度、统一契约、成长框架，以及 CharacterCausalTrace 和现有 Robolectric 回归。已完成的搜索反馈 rootRequestId、群聊送达、旧探索材料过滤不重复开发。
+- **证实的源码缺口**：CharacterCausalTrace.receiptContinuation 从工具结果的 result.evidenceId 读取任意仍存在的同角色原生事件，未校验其发生时间是否晚于工具回执。旧数据/错误复用 ID 时，未来的另一原生事件会被显示为该次回执的“真实记录”，并且其后来的决策可能被错误列为“回执后的本人选择”。单有相同 evidenceId 不足以证明该工具回执观察过未来事件。
+- **正式修复**：[1830860](https://github.com/jiacimu-droid/lulu1/commit/18308608550ed4c6d9ce2f0ce17f72bbca22aab4) 对原生事件加 occurredAt <= receipt.occurredAt 时间门禁；仍保留原始引用 ID 与“未证实”说明，不删除源事件、不修改真实结果、角色状态、执行器或模型调用。
+- **回归**：[8f840e0](https://github.com/jiacimu-droid/lulu1/commit/8f840e0b79bf3d5c85700454ed304fbd26921319) 在 CharacterCausalTraceTest 覆盖回执先于同 ID 原生事件时，不能显示未来原生事件或借其决定；原有真实先于回执的搜索结果正例仍保留。测试源码已提交，**尚未在本轮实际运行 JVM/Android**。
+- **CI 事实**：本轮 8f840e0 的 combined statuses 为空；关联 PR workflow 查询也为空（该接口只查 PR，不代表 push Actions 失败或成功）。旧 0df8e07 对应 41859812891 build 已 completed/success，不能据此宣称本轮提交通过。代码索引是否被后续 Actions 刷新仍需核实；真机、真实模型、实际回合样本未验。
+- **下一轮**：先核本轮 JVM/APK 与索引最终状态；继续 P-08a.1 检查跨入口真实 turnTraceId/requestId/source revision 关联及 P-08c.2 的剩余取消/送达边界。若没有可证源码缺口，转可实施的回归/性能任务，不伪造实机证据。
