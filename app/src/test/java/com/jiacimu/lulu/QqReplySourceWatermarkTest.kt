@@ -5,6 +5,7 @@ import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.ToolRouter
 import com.jiacimu.lulu.data.OrderedCharacterActions
 import com.jiacimu.lulu.data.mirroredPrivateReplyStepIndices
+import com.jiacimu.lulu.data.samePrivateReplyContent
 import com.jiacimu.lulu.data.verifiedRoleDeliveries
 import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
@@ -438,6 +439,11 @@ class QqReplySourceWatermarkTest {
     }
 
     @Test fun mirroredSideSpeechMustMatchTheWholeTurnRatherThanARepeatedPhrase() {
+        // One model-authored turn may be re-segmented into different bubbles.
+        assertTrue(samePrivateReplyContent(
+            "学得怎么样了，宝宝？" + SemanticBubbleSeparator + "头还晕不晕？",
+            "学得怎么样了，宝宝？ 头还晕不晕？"))
+        assertFalse(samePrivateReplyContent("记得喝水。", "记得喝水，而且早点睡。"))
         val steps = JSONArray().put(JSONObject().put("tool", "send_private_message")
             .put("args", JSONObject().put("text", "接着说，我在听。")))
         assertTrue(mirroredPrivateReplyStepIndices(steps, "我在听，接着说。").isEmpty())
