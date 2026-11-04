@@ -164,9 +164,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = worldMode == "original", onClick = { worldMode = "original" },
-                            label = { Text("原世界 · 保留身份关系") })
+                            label = { Text("原世界") })
                         FilterChip(selected = worldMode == "alternate", onClick = { worldMode = "alternate" },
-                            label = { Text("平行世界 · 重新设定") })
+                            label = { Text("平行世界") })
                     }
                     Text(if (worldMode == "alternate")
                             "只继承人物的性格，不带入原世界身份或与你的既定关系。"
