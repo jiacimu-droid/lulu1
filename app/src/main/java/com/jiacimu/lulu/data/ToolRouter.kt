@@ -279,6 +279,8 @@ object ToolRouter {
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
                             saveToAlbum = args.optBoolean("saveToAlbum", false))
+                    } else if (name == "read_self_todo") {
+                        com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
                     } else if (name == "start_study_watch") {
                         com.jiacimu.lulu.system.LuluStudyWatch.request(
                             context, characterId, args.optInt("minutes", 45))
