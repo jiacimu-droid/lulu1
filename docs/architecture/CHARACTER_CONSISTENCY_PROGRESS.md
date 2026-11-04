@@ -532,3 +532,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮已证根因**：`CharacterContinuityRuntime` 已用 `TimelineStatementOwnership.involvesUser` 核验群聊用户原话来源，但另一条仍正式注入模型的 `CompanionContactClock.context` 与 `RelationshipRhythmPerception.context` 只按 `UserStatement + 群聊 channel` 统计。群聊见证的角色归属是见证者，原聊天消息已删/失败/孤儿时仍可能在时间线上留下 UserStatement，于是关系时间线错误声称“最近联系过”，21 天关系节律还会错误统计“前14天 48 条”等假变化。这是同一原始证据在两个模型上下文入口采用不同来源门禁的公共事实一致性错误，不是某角色应更主动的性格问题。
 - **实改**：`4b5f1af` 在已有 `CompanionContactClock` 内统一投影 `verifiedUserContacts(events)`，仅对群聊见证复用已存在的原消息发送归属核验，不改变私聊、电话、见面旧记录的现有语义；`2f44d1c` 让关系节律调用同一投影，防止两份互相矛盾的“最近用户联系”输入；无新 Store、模型调用、硬编码台词或群聊私有数据跨脑广播。`13d6e55` 增加 48 条无原消息群聊见证+1 条真实私聊回归，验证孤儿记录既不重置用户联系，也不伪造关系节律突变；旧频率、通话时段和独处过滤测试保留。
 - **CI/验收**：此前最近完整成功 run 如上。本轮中间源码 `2f44d1c` 的 APK run `41742915426` 已 cancelled（不算通过）；测试 `13d6e55` 的完整 Android/JVM/APK 与索引 run 尚待最新 Actions 最终确认。下一轮先取含 `13d6e55` 的最终 run，失败定位首个真实编译/单测根因；再真机核对私聊、群聊删除/失败、电话、后台同一人物的“最后用户联系”和关系节律，确认没有因孤儿群聊见证产生假久别/假联系。P-08 仍 `[ ]`。
+
+## 2026-11-04 · P-08 群聊历史频道改名后绕过联系来源校验（`069e1728`／`43bb18bc`，待 CI/真机）
+
+- **前轮 CI 实证**：包含 `13d6e55` 的 [APK/JVM run 41742934029](https://github.com/jiacimu-droid/lulu1/actions/runs/41742934029) 与索引 run `41742933999` 均 completed/success。并行文档提交未改变代码；真机/模型质量仍未验收。
+- **根因**：`CompanionContactClock.verifiedUserContacts` 允许频道名包含“群聊”但不以“群聊”开头的 UserStatement 绕过 `TimelineStatementOwnership.involvesUser`；历史群聊见证的 `:group:角色ID` 后缀若频道后来改名为“私聊”，也会被当成用户真实联系。这与权威 `TimelineStatementOwnership` 对群聊 ID 的判定不一致，继续污染最近联系和 `RelationshipRhythmPerception`。
+- **修复**：`069e172823f2` 让所有频道含“群聊”或保留 `:group:角色ID` 的候选，都必须经过既有原消息归属核验。真实非群聊的电话、见面、私聊原有来源语义不变；不增加模型调用或新 Store。`43bb18bce554` 补频道前缀变更、历史 ID 后缀、普通孤儿群聊与真实私聊并存的回归测试。
+- **待验**：最新包含 `43bb18bc` 的 Android/JVM/APK 与代码索引需要读取真实最终状态，pending/cancelled 不算通过；真机还需确认群聊删除/迁移、私聊、电话、后台的时间线与实际模型输出。P-08 维持 [ ]。
