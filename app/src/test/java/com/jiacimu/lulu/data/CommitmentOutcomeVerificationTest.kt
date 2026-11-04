@@ -127,6 +127,22 @@ class CommitmentOutcomeVerificationTest {
             "已经发出了本机闹钟所以人肯定睡了", listOf(action)).accepted)
     }
 
+    @Test fun previousDailyEvidenceCannotVerifyTheNewOccurrence() {
+        val tomorrow = at.plusSeconds(86400)
+        val daily = task.copy(repeat = "daily", dueAt = tomorrow,
+            status = CommitmentTaskStatus.WaitingForFeedback)
+        val old = event("yesterday", EventEvidenceKind.Observation, "screen-consent", occurredAt = at)
+        val current = event("today", EventEvidenceKind.Observation, "screen-consent",
+            occurredAt = tomorrow.plusSeconds(300))
+        assertFalse(CommitmentOutcomeVerification.eligibleEvidence(daily, old))
+        assertTrue(CommitmentOutcomeVerification.eligibleEvidence(daily, current))
+        assertFalse(CommitmentOutcomeVerification.evaluate(daily, listOf("yesterday"),
+            "昨天的截图不能证明今天达标", listOf(old)).accepted)
+        val candidates = CommitmentOutcomeVerification.candidateContext(daily, listOf(old, current))
+        assertFalse(candidates.contains("id=yesterday"))
+        assertTrue(candidates.contains("id=today"))
+    }
+
     @Test fun followUpKindDoesNotMisrouteWakeRetries() {
         assertTrue(task.copy(attemptCount = 1, followUpKind = "verification").isOutcomeReview())
         assertFalse(task.copy(attemptCount = 1, followUpKind = "retry").isOutcomeReview())
