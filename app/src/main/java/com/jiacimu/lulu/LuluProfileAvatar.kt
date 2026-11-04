@@ -158,6 +158,24 @@ private fun loadLuluAvatarBitmap(context: Context, value: String, preferPreview:
     return bitmap
 }
 
+/** Notification sender portrait, backed by the same preview cache as chat.
+ * Never start a remote download on the message-delivery thread.
+ * System notifications still require the app's small status-bar icon. */
+internal fun luluNotificationAvatarBitmap(context: Context, imageUri: String?): Bitmap? {
+    val source = imageUri?.takeIf(String::isNotBlank) ?: return null
+    cachedLuluAvatarPreviewBitmap(source)?.let { return it }
+    cachedLuluAvatarFullBitmap(source)?.let { return createLuluAvatarPreview(it) }
+    loadStoredLuluAvatarPreview(context, source)?.let { return it }
+    val uri = runCatching { Uri.parse(source) }.getOrNull() ?: return null
+    // Local, user-authorized media may be decoded if the chat avatar hasn't
+    // yet been opened. Remote URLs must rely on previously cached previews.
+    if (uri.scheme !in setOf("content", "file")) return null
+    val bitmap = decodeContentUriBounded(context, uri) ?: return null
+    return createLuluAvatarPreview(bitmap).also { preview ->
+        synchronized(luluAvatarPreviewCache) { luluAvatarPreviewCache.put(source, preview) }
+    }
+}
+
 private fun cacheLuluAvatarBitmap(context: Context, value: String, bitmap: Bitmap) {
     synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
     val preview = createLuluAvatarPreview(bitmap)
