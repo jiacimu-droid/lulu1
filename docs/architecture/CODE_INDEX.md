@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4df00b0833da84be9d280fff77bd1603ca4270f6`
+- 基准提交：`5e51136467ec973e383b170610f1f928bedc1329`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234667
+- 已索引代码/文本行：234675
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -560,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 65 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 73 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 576 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
