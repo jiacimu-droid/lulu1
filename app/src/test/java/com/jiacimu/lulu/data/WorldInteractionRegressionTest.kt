@@ -14,6 +14,33 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class WorldInteractionRegressionTest {
+    private var savedAutomaticBirths: Boolean? = null
+    private var savedPopulationLimit: Int? = null
+
+    @Before fun enableExplicitResidentFixtures() {
+        val app = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        savedAutomaticBirths = if (prefs.contains("resident_auto_generation"))
+            prefs.getBoolean("resident_auto_generation", false) else null
+        savedPopulationLimit = if (prefs.contains("resident_population_cap"))
+            prefs.getInt("resident_population_cap", ResidentDailyPolicy.MAX_RESIDENTS) else null
+        assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(app, true))
+        assertTrue(ResidentDailyPolicy.setMaxResidents(app, ResidentDailyPolicy.MAX_RESIDENTS))
+    }
+
+    @After fun restoreCreationPolicy() {
+        val app = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        val edit = prefs.edit()
+        if (savedAutomaticBirths == null) edit.remove("resident_auto_generation")
+        else edit.putBoolean("resident_auto_generation", savedAutomaticBirths!!)
+        if (savedPopulationLimit == null) edit.remove("resident_population_cap")
+        else edit.putInt("resident_population_cap", savedPopulationLimit!!)
+        assertTrue(edit.commit())
+    }
+
     @Before @After fun detachPreferences() {
         listOf(DigitalWorldStore, DigitalLifeProfileStore, DigitalWorldExpansionStore).forEach { store ->
             store.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(store, null)
