@@ -3041,16 +3041,31 @@ object ProactivePerceptionRuntime {
         val finalCount = plan.text.split(com.jiacimu.lulu.SemanticBubbleSeparator)
             .count(String::isNotBlank)
         val added = (finalCount - initialCount).coerceAtLeast(0)
-        val modes = if (initialCount > 0 && bubbleDeliveryModes.size == initialCount)
-            bubbleDeliveryModes + List(added) { "text" } else bubbleDeliveryModes
-        val tracks = if (initialCount > 0 && bubbleSpeechTracks.size == initialCount)
-            bubbleSpeechTracks + List(added) { "" } else bubbleSpeechTracks
-        if (primaryPrivateTool) return copy(
-            toolArgs = JSONObject(toolArgs.toString()).put("text", plan.text),
-            sideActions = plan.actions,
-            bubbleDeliveryModes = modes,
-            bubbleSpeechTracks = tracks,
-        )
+        val originalSegments = authored.split(com.jiacimu.lulu.SemanticBubbleSeparator)
+            .map(String::trim).filter(String::isNotBlank)
+        val originalModes = if (bubbleDeliveryModes.size == initialCount)
+            bubbleDeliveryModes else originalSegments.map { segment ->
+                if (segment in voiceBubbleTexts) "voice" else "text"
+            }
+        val originalTracks = if (bubbleSpeechTracks.size == initialCount)
+            bubbleSpeechTracks else List(initialCount) { "" }
+        val modes = if (plan.addedModes.size == added)
+            originalModes + plan.addedModes else originalModes + List(added) { "text" }
+        val tracks = if (plan.addedTracks.size == added)
+            originalTracks + plan.addedTracks else originalTracks + List(added) { "" }
+        if (primaryPrivateTool) {
+            val mergedArgs = JSONObject(toolArgs.toString()).put("text", plan.text)
+            if (modes.size == finalCount && modes.isNotEmpty()) {
+                mergedArgs.put("bubbleDeliveries", org.json.JSONArray(modes))
+                mergedArgs.put("bubbleSpeechTracks", org.json.JSONArray(tracks))
+            }
+            return copy(
+                toolArgs = mergedArgs,
+                sideActions = plan.actions,
+                bubbleDeliveryModes = modes,
+                bubbleSpeechTracks = tracks,
+            )
+        }
         return copy(
             action = if (action == Action.SILENT && plan.text.isNotBlank()) Action.MESSAGE else action,
             text = plan.text,
