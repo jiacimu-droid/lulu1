@@ -62,12 +62,14 @@ internal object DigitalWorldExpansionStore {
     val revisions = revision.asStateFlow()
 
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private var places: List<DigitalWorldDiscoveredPlace> = emptyList()
     private var residents: List<DigitalWorldResident> = emptyList()
     private var retiredTemplates: Set<String> = emptySet()
 
     @Synchronized
     fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         places = decodePlaces(prefs?.getString(KEY_PLACES, null))
@@ -153,6 +155,9 @@ internal object DigitalWorldExpansionStore {
         require(residents.none { it.id == resident.id || it.name == resident.name }) { "这个居民已经存在" }
         require(resident.templateName !in retiredTemplates) { "这位居民已被主人移除，不能自动重新生成" }
         require(residents.size < MAX_RESIDENTS) { "动态居民数量已达到上限" }
+        require(appContext?.let { ResidentDailyPolicy.mayAddResident(it, residents.size) } == true) {
+            "主人已关闭居民自动新增，或人数已经达到设置上限"
+        }
         val neighborhood = resident.homeLocationCode.takeIf(::isNeighborhood)
             ?: resident.neighborhoodCode.takeIf(::isNeighborhood)
             ?: DigitalWorldPublicPlaces.COURTYARD
