@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f5a1d20af6b76ba414f67e78d45f3552f16c539b`
+- 基准提交：`cec9f81a2826729eefb253005dbcfff2c7f7beb9`
 - 分支：`main`
 - 已索引文件：1133
-- 已索引代码/文本行：237298
+- 已索引代码/文本行：237310
 - 已发现符号：3299
 
 | 文件 | 行数 | 符号数 |
@@ -702,7 +702,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 258 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 197 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 94 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 256 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 268 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
