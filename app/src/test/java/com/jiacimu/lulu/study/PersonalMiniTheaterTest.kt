@@ -363,6 +363,16 @@ class PersonalMiniTheaterTest {
             .instructions.contains("40—75个汉字"))
     }
 
+    @Test fun rejectedDuplicatePremiseDoesNotConsumeAnOtherwiseNewTitle() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val title = "意外的双重借书证"
+        val collision = PersonalMiniTheater.Idea("dup", title, PersonalMiniTheater.ideas.first().premise)
+        val valid = PersonalMiniTheater.Idea("new", title,
+            "两人在互不相识的两所学校收到同一张借书证，一次误会让他们不得不共同追查书的主人。")
+        assertEquals(1, library.addCreativeIdeas(listOf(collision, valid)))
+        assertEquals(listOf("new"), library.creativeIdeas.value.map { it.id })
+    }
+
     @Test fun creativeIdeaBatchesAreSavedReusedAndFilteredAgainstExistingPremises() {
         val library = MiniTheaterLibrary(context, emptyList())
         val generated = PersonalMiniTheater.parseGeneratedIdeas(
