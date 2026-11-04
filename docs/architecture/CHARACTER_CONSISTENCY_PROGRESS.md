@@ -921,3 +921,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：[bff33e9](https://github.com/jiacimu-droid/lulu1/commit/bff33e9bc2c506592ed210c3a1d3db73a835216e) 新增 groupDeferredActionsRequireACompletePersistedDelivery，覆盖完整成功、空文字、无消息 ID、部分送达、撤回/过期与来源更新。它是纯契约测试，不等于真机音频实测。
 - **验证边界**：本轮查询 bff33e9 combined statuses 空，关联 PR workflow_runs 空（该接口只筛 PR），旧 41839212468 job 列表为空；不能断言最新 JVM/APK/发布已成功或失败。本轮无可用 Android 本地构建环境，源码/回归已提交 main，**待实际 CI、真机多人电话/文本群聊及真实模型回归**。
 - **下一步**：刷新最新 main 和 Actions，优先核本轮编译/单测；P-08c.2 继续审本人 bubbles、最后一条真实发言锚、沉默/取消与长答否定条件，尤其部分发泡后被新用户消息取代的后续动作和音频时序。P-08a.1 全链 trace 仍是更高优先待核，不重做已成功的 P-08c.1。
+
+## 2026-11-04 · 每小时接力 P-08c.2b：未完整送达时禁止收藏/戳一戳
+
+- **接手核查**：读最新 AGENTS、CODE_INDEX、roadmap、人物进度与 QqChatReplyEngine、QqReplySourceWatermarkTest。已完成的群聊单次请求、实际 messageIds 和群电话送达门禁不重复开发。
+- **实际根因**：appendRoleReplyWithPacingReceipt 在发现来源被更新时能返回 superseded；但当 plannedBubbles 内有空白/被撤回泡，spoken.size < bubbles.size 时，仍无条件执行 favoriteTarget 和 pokeUser。这样模型未完整发出的草稿仍可对用户消息产生收藏/戳一戳副作用，和此前已修的 deferredActions 真实性门禁不一致。
+- **源码提交**：[387412c](https://github.com/jiacimu-droid/lulu1/commit/387412c1963362ea79faea587ad0505af0983bf2)、[a13fdeb](https://github.com/jiacimu-droid/lulu1/commit/a13fdebfce6dea354149af2c8bbb442db953cdb6)。在现有 sender 中只有全部泡真实持久化且未撤回才允许整轮收藏/戳一戳；完整性判断提取为 replyTurnSideEffectsMayRun，不加模型调用/影子 Store，不修改人物决定。
+- **回归提交**：[79e2c09](https://github.com/jiacimu-droid/lulu1/commit/79e2c099fae3de282269cb6703ea456c51e4ff8d) 为零泡、空送达、部分送达、取消和完整一/多泡添加门禁矩阵。该测试只覆盖判定函数，实际 Android 端到端仍需验证。
+- **验收边界**：GitHub 源码与测试已提交 main。本轮尚未取得这些提交的 JVM/APK CI 最终结果，未在当前环境运行 Android/Kotlin 构建；按 AGENTS.md 必须运行的 generate_code_index.py 在本轮 GitHub contents 接口环境不可直接执行，索引是否被仓库 Actions 自动更新须后续核对，不能称索引同步已通过。真机、真实模型、群聊收藏/戳一戳体验待验。
+- **下一轮**：先核 79e2c09 对应 CI 和 CODE_INDEX；继续 P-08a.1 真实 turnTraceId 关联、P-08c.2 的取消/部分发泡回执；有真实证据才修改其余链路。
