@@ -18,12 +18,10 @@ internal object CompanionContactClock {
             event.evidenceKind == EventEvidenceKind.UserStatement &&
                 (event.channel == "私聊" || event.channel.contains("群聊") ||
                     event.channel.contains("电话") || event.channel.contains("见面")) &&
-                // Group provenance is identified by both channel and the
-                // canonical witness ID. A renamed/migrated channel must not
-                // turn an orphan group witness into a direct user contact.
-                (!(event.channel.contains("群聊") ||
-                    event.id.endsWith(":group:${event.characterId}")) ||
-                    TimelineStatementOwnership.involvesUser(event))
+                // The same canonical message proof applies to private and
+                // group contact. Legacy non-message records keep their existing
+                // source-specific compatibility in the ownership gate.
+                TimelineStatementOwnership.involvesUser(event)
         }
 
     fun context(characterId: String, now: Instant = Instant.now()): String {

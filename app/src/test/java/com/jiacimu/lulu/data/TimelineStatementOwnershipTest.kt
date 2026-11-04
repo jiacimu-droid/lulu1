@@ -269,6 +269,7 @@ class TimelineStatementOwnershipTest {
         val userEvent = SharedExperienceTimeline.eventsByIds(role, listOf(user.id)).single()
         val ownEvent = SharedExperienceTimeline.eventsByIds(role, listOf(own.id)).single()
         assertTrue(TimelineStatementOwnership.involvesUser(userEvent))
+        assertEquals(listOf(userEvent), CompanionContactClock.verifiedUserContacts(listOf(userEvent)))
         assertTrue(TimelineStatementOwnership.isOwnDialogueStatement(ownEvent))
         assertFalse(TimelineStatementOwnership.involvesUser(
             userEvent.copy(content = "我已经决定了")))
@@ -278,6 +279,7 @@ class TimelineStatementOwnershipTest {
             userEvent.copy(sessionId = "other-conversation")))
         MigratedDomainStores.chat.markFailed(user.id)
         assertFalse(TimelineStatementOwnership.involvesUser(userEvent))
+        assertTrue(CompanionContactClock.verifiedUserContacts(listOf(userEvent)).isEmpty())
         MigratedDomainStores.chat.markFailed(own.id)
         assertFalse(TimelineStatementOwnership.isOwnDialogueStatement(ownEvent))
     }
