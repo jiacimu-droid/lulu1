@@ -46,14 +46,27 @@ object CommitmentTaskStore {
     @Synchronized
     fun update(id: String, transform: (CommitmentTask) -> CommitmentTask): CommitmentTask? {
         val current = mutableTasks.value.firstOrNull { it.id == id } ?: return null
-        val next = transform(current).copy(
+        val proposed = transform(current)
+        val cancelled = proposed.status == CommitmentTaskStatus.Cancelled
+        val next = proposed.copy(
             id = current.id,
             characterId = current.characterId,
             createdAt = current.createdAt,
             revision = current.revision + 1L,
             updatedAt = Instant.now(),
+            dailyNextAlarmId = if (cancelled) null else proposed.dailyNextAlarmId,
+            dailyNextDueAt = if (cancelled) null else proposed.dailyNextDueAt,
+            dailyAttempts = if (cancelled) proposed.dailyAttempts.map {
+                it.copy(reviewAlarmId = null)
+            } else proposed.dailyAttempts,
         )
         persist(listOf(next) + mutableTasks.value.filterNot { it.id == id })
+        if (current.dailyNextAlarmId != next.dailyNextAlarmId &&
+            current.dailyNextAlarmId != next.linkedAlarmId)
+            current.dailyNextAlarmId?.let(LuluAlarmSystem::cancel)
+        val retainedReviews = next.dailyAttempts.mapNotNull { it.reviewAlarmId }.toSet()
+        current.dailyAttempts.mapNotNull { it.reviewAlarmId }
+            .filterNot(retainedReviews::contains).forEach(LuluAlarmSystem::cancel)
         // Every completion/cancellation path (tool verification, model turns,
         // wake confirmation and UI) passes through this single durable store.
         // The old pending child wakeups cannot outlive their parent contract.
@@ -153,6 +166,15 @@ object CommitmentTaskStore {
         appContext?.let {
             RoleDayScheduleStore.mergeMatchingDailyCallPlans(it)
             restoreMissedDailyCalls(it, now)
+            mutableTasks.value.filter { task ->
+                task.repeat == "daily" && task.dueAt != null &&
+                    task.status in setOf(CommitmentTaskStatus.WaitingForFeedback,
+                        CommitmentTaskStatus.Blocked, CommitmentTaskStatus.Completed,
+                        CommitmentTaskStatus.Expired) &&
+                    (task.dailyNextAlarmId == null ||
+                        task.dailyNextDueAt?.let { due -> CommitmentAlarmTiming.expired(due, now) } == true ||
+                        task.status == CommitmentTaskStatus.Completed)
+            }.forEach { task -> ensureNextDailyOccurrence(it, task.id, now) }
             // A delivered nightly reminder with unknown outcome cannot be
             // silently treated as the next day's already-covered obligation.
             // Wake the SAME role for a bounded recovery choice, not an
@@ -188,7 +210,8 @@ object CommitmentTaskStore {
                 // daily clock; otherwise the original responsibility vanishes.
                 task.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Expired) &&
                 !task.dueAt.isAfter(now.minusSeconds(120)) &&
-                (task.executionToken == null || inFlight[task.id] != task.executionToken)
+                (task.executionToken == null || inFlight[task.id] != task.executionToken) &&
+                task.dailyNextAlarmId == null
         }
         overdue.forEach { task ->
             val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
@@ -236,8 +259,11 @@ object CommitmentTaskStore {
     ): CommitmentTask? {
         if (alarmId.isBlank()) return null
         val current = mutableTasks.value.firstOrNull {
-            it.linkedAlarmId == alarmId && it.status.isActive()
+            (it.linkedAlarmId == alarmId && it.status.isActive()) ||
+                (it.repeat == "daily" && it.dailyNextAlarmId == alarmId &&
+                    it.status != CommitmentTaskStatus.Cancelled)
         } ?: return null
+        val isNewDaily = current.dailyNextAlarmId == alarmId
         // The alarm receiver can launch the process before Activity recovery.
         // Never let a legacy misrouted alarm trigger an unwanted new call.
         if (current.isMisroutedLiveHangup()) {
@@ -248,21 +274,54 @@ object CommitmentTaskStore {
             ) }
             return null
         }
-        val deadline = scheduledAt ?: current.nextCheckAt ?: current.dueAt
+        val deadline = scheduledAt ?: if (isNewDaily) current.dailyNextDueAt
+            else current.nextCheckAt ?: current.dueAt
         if (deadline != null && !CommitmentAlarmTiming.due(deadline, receivedAt)) {
-            if (CommitmentAlarmTiming.expired(deadline, receivedAt)) update(current.id) { old -> old.copy(
-                status = if (old.followUpKind == "verification")
-                    CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
-                linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
-                lastAlarmScheduledAt = deadline, lastAlarmReceivedAt = receivedAt,
-                lastAlarmDeliverySource = deliverySource,
-                lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
-            ) }
+            if (CommitmentAlarmTiming.expired(deadline, receivedAt)) {
+                if (isNewDaily) {
+                    update(current.id) { old -> old.copy(
+                        dailyNextDueAt = null, dailyNextAlarmId = null,
+                        dailyAttempts = old.dailyAttempts + DailyCommitmentAttempt(
+                            deadline, "Expired", "下一次每日闹钟逾期，未补做或假称完成", 0),
+                        lastActionResult = old.lastActionResult +
+                            "；${deadline} 的每日执行因系统回调过期而错过",
+                    ) }
+                    appContext?.let { ensureNextDailyOccurrence(it, current.id, receivedAt) }
+                } else update(current.id) { old -> old.copy(
+                    status = if (old.followUpKind == "verification")
+                        CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
+                    linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
+                    lastAlarmScheduledAt = deadline, lastAlarmReceivedAt = receivedAt,
+                    lastAlarmDeliverySource = deliverySource,
+                    lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
+                ) }
+            }
             return null
         }
+        // Tomorrow is a distinct occurrence, even when yesterday's evidence
+        // remains unknown or its explicitly selected review is still pending.
+        val keepReview = isNewDaily && current.followUpKind == "verification" &&
+            current.linkedAlarmId != null && current.nextCheckAt?.isAfter(receivedAt) == true
+        val past = if (isNewDaily && current.dueAt != null)
+            DailyCommitmentAttempt(current.dueAt, current.status.name,
+                current.readableLastResult(), current.attemptCount,
+                if (keepReview) current.linkedAlarmId else null,
+                if (keepReview) current.nextCheckAt else null)
+            else null
+        if (isNewDaily && !keepReview) current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
         val claimed = current.copy(
             status = CommitmentTaskStatus.Running,
+            dueAt = if (isNewDaily) deadline else current.dueAt,
+            dailyNextDueAt = if (isNewDaily) null else current.dailyNextDueAt,
+            dailyNextAlarmId = if (isNewDaily) null else current.dailyNextAlarmId,
+            dailyAttempts = if (past == null) current.dailyAttempts else current.dailyAttempts + past,
             linkedAlarmId = null,
+            nextCheckAt = if (isNewDaily) null else current.nextCheckAt,
+            followUpKind = if (isNewDaily) "" else current.followUpKind,
+            attemptCount = if (isNewDaily) 0 else current.attemptCount,
+            wakeAttemptHistory = if (isNewDaily) emptyList() else current.wakeAttemptHistory,
+            completionEvidenceIds = if (isNewDaily) emptyList() else current.completionEvidenceIds,
+            lastVerificationReason = if (isNewDaily) "" else current.lastVerificationReason,
             executionToken = alarmId,
             revision = current.revision + 1L,
             updatedAt = receivedAt,
@@ -279,6 +338,23 @@ object CommitmentTaskStore {
             throw error
         }
         return claimed
+    }
+
+    /** A late verification callback cannot consume another day's action token. */
+    @Synchronized
+    internal fun claimPastDailyReview(alarmId: String, scheduledAt: Instant,
+        receivedAt: Instant): Pair<CommitmentTask, DailyCommitmentAttempt>? {
+        val task = mutableTasks.value.firstOrNull { old ->
+            old.status != CommitmentTaskStatus.Cancelled &&
+                old.dailyAttempts.any { it.reviewAlarmId == alarmId }
+        } ?: return null
+        val past = task.dailyAttempts.firstOrNull { it.reviewAlarmId == alarmId } ?: return null
+        update(task.id) { current -> current.copy(dailyAttempts = current.dailyAttempts.map { old ->
+            if (old.reviewAlarmId == alarmId) old.copy(reviewAlarmId = null,
+                reviewReceivedAt = receivedAt) else old
+        }) }
+        return if (past.reviewAt == scheduledAt &&
+            CommitmentAlarmTiming.due(scheduledAt, receivedAt)) task to past else null
     }
 
     @Synchronized
@@ -311,71 +387,87 @@ object CommitmentTaskStore {
     }
 
     /**
-     * A daily promise is ONE durable task. Only its verified completion moves
-     * the clock to tomorrow. Delivery, silence and failure keep this occurrence
-     * open for its owner's next choice; they never replay the original call.
+     * A recurring authorized clock is independent of the result verification.
+     * Both belong to this one existing task ID, never to two fake promises.
      */
     @Synchronized
     internal fun advanceDailyAfterAttempt(
-        context: Context,
-        taskId: String,
-        executionToken: String?,
-        now: Instant = Instant.now(),
-        outcomeReview: Boolean = false,
+        context: Context, taskId: String, executionToken: String?,
+        now: Instant = Instant.now(), outcomeReview: Boolean = false,
     ) {
-        // This callback belongs to the ongoing occurrence. Never replace its
-        // still-unverified outcome with tomorrow's clock before the role has
-        // evaluated the observation and chosen its next step.
         if (outcomeReview) return
         val task = mutableTasks.value.firstOrNull { it.id == taskId } ?: return
         if (task.repeat != "daily" || task.executionToken == null ||
-            task.executionToken != executionToken ||
-            task.status != CommitmentTaskStatus.Completed) return
-        val previousDue = task.dueAt ?: return
-        // Keep the same task's one pending outcome-review callback before
-        // moving a daily bedside promise to tomorrow. No second task/store.
-        if (task.hasPendingOutcomeReview(now) ||
-            (task.followUpKind == "retry" &&
-                task.status == CommitmentTaskStatus.WaitingForFeedback &&
-                task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true)) return
-        val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
-            ?: java.time.ZoneId.systemDefault()
-        // Same anchor rule as the missed-call restore above.
-        val next = nextDailyCommitmentDue(task.dailyBaseDueAt ?: previousDue, now, zone)
-        task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
-        val allowed = task.deliveryAction != "start_call" ||
-            MigratedDomainStores.characters.get(task.characterId).contactPolicy.proactiveCallsEnabled
-        if (!allowed) {
-            update(taskId) { it.copy(status = CommitmentTaskStatus.Blocked,
-                linkedAlarmId = null, nextCheckAt = null, executionToken = null,
-                lastActionResult = "下次每日来电无法登记：角色主动来电权限已关闭") }
+            task.executionToken != executionToken) return
+        ensureNextDailyOccurrence(context, taskId, now)
+    }
+
+    @Synchronized
+    internal fun ensureNextDailyOccurrence(context: Context, taskId: String,
+        now: Instant = Instant.now(),
+    ) {
+        val task = mutableTasks.value.firstOrNull { it.id == taskId } ?: return
+        if (task.repeat != "daily" || task.dueAt == null ||
+            task.status in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.NeedsClarification))
+            return
+        if (task.status == CommitmentTaskStatus.Scheduled && task.linkedAlarmId != null)
+            return
+
+        val existing = task.dailyNextAlarmId
+        if (existing != null && task.dailyNextDueAt?.isAfter(now) == true &&
+            LuluAlarmSystem.list().any { it.id == existing && it.characterId == task.characterId &&
+                it.commitmentTaskId == task.id }) {
+            if (task.status == CommitmentTaskStatus.Completed) {
+                update(taskId) { old -> old.copy(
+                    status = CommitmentTaskStatus.Scheduled, dueAt = old.dailyNextDueAt,
+                    nextCheckAt = old.dailyNextDueAt, linkedAlarmId = old.dailyNextAlarmId,
+                    dailyNextDueAt = null, dailyNextAlarmId = null,
+                    executionToken = null, attemptCount = 0, followUpKind = "",
+                    completionEvidenceIds = emptyList(), lastVerificationReason = "",
+                    wakeAttemptHistory = emptyList(),
+                    lastActionResult = old.lastActionResult.take(240) +
+                        "；已履行的一轮留历史，下次每日行动依原时刻继续")
+                }
+            }
             return
         }
-        val name = MigratedDomainStores.characters.get(task.characterId).displayName
-        val result = LuluAlarmSystem.create(task.characterId, name, next, task.goal,
-            commitmentTaskId = task.id)
-        result.onSuccess { alarm ->
+        if (existing != null) {
+            LuluAlarmSystem.cancel(existing)
+            update(taskId) { it.copy(dailyNextDueAt = null, dailyNextAlarmId = null) }
+        }
+        val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+            ?: java.time.ZoneId.systemDefault()
+        val next = nextDailyCommitmentDue(task.dailyBaseDueAt ?: task.dueAt, now, zone)
+        if (task.deliveryAction == "start_call" &&
+            !MigratedDomainStores.characters.get(task.characterId).contactPolicy.proactiveCallsEnabled) {
+            update(taskId) { old -> old.copy(lastActionResult =
+                old.lastActionResult.take(220) + "；下一次每日来电未登记：主动来电权限关闭") }
+            return
+        }
+        val characterName = MigratedDomainStores.characters.get(task.characterId).displayName
+        LuluAlarmSystem.create(task.characterId, characterName, next, task.goal,
+            commitmentTaskId = task.id).onSuccess { alarm ->
+            val latest = mutableTasks.value.firstOrNull { it.id == taskId }
+            if (latest == null || latest.status == CommitmentTaskStatus.Cancelled ||
+                latest.dailyNextAlarmId != null) {
+                LuluAlarmSystem.cancel(alarm.id)
+                return@onSuccess
+            }
             update(taskId) { current ->
-                if (current.executionToken != executionToken ||
-                    current.status == CommitmentTaskStatus.Cancelled) current else current.copy(
-                    status = CommitmentTaskStatus.Scheduled,
-                    dueAt = next,
-                    nextCheckAt = next,
-                    linkedAlarmId = alarm.id,
-                    executionToken = null,
-                    followUpKind = "",
-                    attemptCount = 0,
-                    wakeAttemptHistory = emptyList(),
-                    lastActionResult = current.lastActionResult.take(220) +
-                        "；每日循环已登记下次时刻：${next.atZone(zone)}",
-                )
+                if (current.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Expired))
+                    current.copy(status = CommitmentTaskStatus.Scheduled,
+                        dueAt = next, nextCheckAt = next, linkedAlarmId = alarm.id,
+                        executionToken = null, attemptCount = 0, followUpKind = "",
+                        completionEvidenceIds = emptyList(), lastVerificationReason = "",
+                        wakeAttemptHistory = emptyList(),
+                        lastActionResult = current.lastActionResult.take(240) +
+                            "；下一次每日执行已登记，上次真实回执保持在历史")
+                else current.copy(dailyNextDueAt = next, dailyNextAlarmId = alarm.id)
             }
         }.onFailure { error ->
-            update(taskId) { current -> current.copy(
-                status = CommitmentTaskStatus.Blocked,
-                linkedAlarmId = null, nextCheckAt = null, executionToken = null,
-                lastActionResult = "每日循环下次登记失败：${error.message.orEmpty().take(150)}",
-            ) }
+            update(taskId) { old -> old.copy(lastActionResult =
+                old.lastActionResult.take(220) +
+                    "；下次每日执行登记失败：" + error.message.orEmpty().take(120)) }
         }
     }
 
@@ -389,6 +481,8 @@ object CommitmentTaskStore {
     fun remove(id: String): Boolean {
         val current = mutableTasks.value.firstOrNull { it.id == id } ?: return false
         current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        current.dailyNextAlarmId?.let(LuluAlarmSystem::cancel)
+        current.dailyAttempts.mapNotNull { it.reviewAlarmId }.forEach(LuluAlarmSystem::cancel)
         appContext?.let { RoleDayScheduleStore.removeLinkedCommitmentPlans(it, current.characterId, id) }
         persist(mutableTasks.value.filterNot { it.id == id })
         return true
@@ -422,14 +516,22 @@ object CommitmentTaskStore {
     @Synchronized
     fun removeBySourceEvent(eventId: String) {
         val affected = mutableTasks.value.filter { eventId in it.sourceEventIds }
-        affected.forEach { task -> task.linkedAlarmId?.let(LuluAlarmSystem::cancel) }
+        affected.forEach { task ->
+            task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+            task.dailyNextAlarmId?.let(LuluAlarmSystem::cancel)
+            task.dailyAttempts.mapNotNull { it.reviewAlarmId }.forEach(LuluAlarmSystem::cancel)
+        }
         persist(mutableTasks.value.filterNot { eventId in it.sourceEventIds })
     }
 
     @Synchronized
     fun clearCharacter(characterId: String) {
         mutableTasks.value.filter { it.characterId == characterId }
-            .forEach { task -> task.linkedAlarmId?.let(LuluAlarmSystem::cancel) }
+            .forEach { task ->
+                task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+                task.dailyNextAlarmId?.let(LuluAlarmSystem::cancel)
+                task.dailyAttempts.mapNotNull { it.reviewAlarmId }.forEach(LuluAlarmSystem::cancel)
+            }
         persist(mutableTasks.value.filterNot { it.characterId == characterId })
     }
 
