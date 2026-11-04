@@ -1107,3 +1107,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **真实根因**：3420e794 为防止早于来源的当前版本选择被冒充本人选择，将其从 relatedDecisions 过滤；同时意外移除了此前 executionRequestLines 对该不可能时间归因应展示的「主动作 · 回执归属未证实」诊断。测试第一条 assertTrue 因此失败。不是执行器真正成功，也不是测试本身错误。
 - **源码修复**：[3ba3281](https://github.com/jiacimu-droid/lulu1/commit/3ba32816ad34c006afa24ea9f91b397d8f59f3e7) 把同来源当前版本且时间早于来源的选择单独分流：仅展示未证实诊断，不进入精确 requestId 回执恢复、真实送达或成功归因；其他当前/历史/无时间选择沿原路径。权威人物档案、消息、回执均不变，不增加模型请求。已有失败回归 exactReceiptCannotProveDecisionMadeBeforeItsSource 同时断言诊断可见、成功不冒认、独立回执不借用、跨角色隔离，保留并直接用于后继 CI。
 - **验证边界**：本轮新提交的 JVM/APK 尚未取得成功结论，不能以 642b0df 的失败或索引成功代替；真机、真实模型、跨日未验。下一轮先核 3ba3281 的 Actions；若通过，继续 P-08a.1 其他入口的真实关联审计。
+
+
+## 2026-11-05 · P-08a.2k 心声时间来源归因
+
+- **先核真实 CI**：前轮 3ba3281 的 APK/JVM [41927755186](https://github.com/jiacimu-droid/lulu1/actions/runs/41927755186) completed/success；索引 [41927754781](https://github.com/jiacimu-droid/lulu1/actions/runs/41927754781) completed/success。仅覆盖前轮代码，不代表本轮测试通过。
+- **根因**：CharacterCausalTrace.inspect 的 selectedThoughts 按 evidenceId/stimuli 及 stimulusRevisions 投影心声，旧版和来源修订有提示，但当前版本的想法若记录时间早于其引用来源，仍显示为「本人想法 · 仍被保留」，与同文件决定/回执的时间因果校验不一致。此处只修解释投影，不修改原始心声、人物决定或数据存储。
+- **正式修复**：[80ab933](https://github.com/jiacimu-droid/lulu1/commit/80ab933e868491e83f686fe4bee36808c262f768) 对可解析的当前版本时间矛盾显示「因果未证实 · 来源时间不符」，保留原文以供诊断；正常后续、历史版本及缺时间的旧档案继续原有路径。没有新模型调用、关键词语义判断或角色人格变更。
+- **回归**：[acb8582](https://github.com/jiacimu-droid/lulu1/commit/acb8582522eca3b4dc7a1a6c5f2ce2f6cb9371f7) 增加早于来源/晚于来源/无时间旧档案、只读不删、跨角色隔离。新增测试已提交但本轮尚无针对该提交的 JVM/APK 成功证据；真机与真实模型未验。
+- **下一轮**：先查 acb8582 之后的 APK/JVM、原代码索引是否完成；若红灯优先取失败日志并修首个实质问题。然后继续 P-08a.1 审计实际私聊、群聊、后台的 turnTraceId→送达→工具回执→后续；仅发现可证缺口才改。注意其他窗口可能并行推进，写入前刷新 main 与文件 SHA。
