@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:40:07.666193+00:00",
-  "commit": "44b3f8ac40a13387ebc6bef872bd442ae9ac5d95",
+  "generatedAt": "2026-11-04T17:42:14.231386+00:00",
+  "commit": "1814b36d4513c0483e8ffd2e37854560860c49ce",
   "branch": "main",
-  "sourceFingerprint": "0a6f161062c8041243f484e97ce2c1e5871cfb8e59eb51aeb5847509f419e689",
+  "sourceFingerprint": "4b2f6f4bd010561788286945075a126e9a1841a96944e80594c0efcee530d0f6",
   "summary": {
-    "files": 1138,
-    "lines": 240741,
-    "symbols": 3318
+    "files": 1137,
+    "lines": 240767,
+    "symbols": 3317
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -791,7 +791,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1399
+        "line": 1392
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4945,31 +4945,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 694
+        "line": 687
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 700
+        "line": 693
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1194
+        "line": 1187
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1206
+        "line": 1199
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1389
+        "line": 1382
       }
     ],
     "configured": [
@@ -5832,10 +5832,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
         "line": 37
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PeerRelationshipContext.kt",
-        "line": 5
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
@@ -16642,6 +16638,12 @@
         "line": 15
       }
     ],
+    "CharacterRelationshipAuthorityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt",
+        "line": 13
+      }
+    ],
     "CharacterSelfActivityRuntimeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
@@ -17508,12 +17510,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
         "line": 5
-      }
-    ],
-    "PeerRelationshipContextTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt",
-        "line": 14
       }
     ],
     "PerceptionStimulusLedgerTest": [
@@ -22841,8 +22837,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1407,
-      "sha256": "c73136da868b1c8b02aa041f478292a42f76471a4abba6b12448666c73011195",
+      "lines": 1400,
+      "sha256": "9dd5f298bbb5095fd1524fb5b0ff1dcbd53c62e5ac47cc968ca182e28a0c37b7",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -22934,27 +22930,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 694
+          "line": 687
         },
         {
           "name": "positionedBooks",
-          "line": 700
+          "line": 693
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1194
+          "line": 1187
         },
         {
           "name": "consumeEvent",
-          "line": 1206
+          "line": 1199
         },
         {
           "name": "LuluAiServices",
-          "line": 1389
+          "line": 1382
         },
         {
           "name": "initialize",
-          "line": 1399
+          "line": 1392
         }
       ]
     },
@@ -29064,17 +29060,6 @@
         {
           "name": "ranked",
           "line": 18
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/PeerRelationshipContext.kt",
-      "lines": 23,
-      "sha256": "de37cf301dc2309a2a60357735e20777d605ccb4d53f7c1da39d6364a1353180",
-      "symbols": [
-        {
-          "name": "promptSection",
-          "line": 5
         }
       ]
     },
@@ -36753,6 +36738,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt",
+      "lines": 56,
+      "sha256": "ae2a4c4eb07717cbd53c050bcdbb1c2571ec031b035dad1686c497e8ebb8f6bc",
+      "symbols": [
+        {
+          "name": "CharacterRelationshipAuthorityTest",
+          "line": 13
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
       "lines": 264,
       "sha256": "ac3a45b7a013070c976a090f4eb76df4ce94ef962e5be8c90de766be103887a1",
@@ -37917,17 +37913,6 @@
       ]
     },
     {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt",
-      "lines": 50,
-      "sha256": "48f94ace285a25b6b8656bfcc90a9c428dc99c021f2aedf445b1528258e773c3",
-      "symbols": [
-        {
-          "name": "PeerRelationshipContextTest",
-          "line": 14
-        }
-      ]
-    },
-    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt",
       "lines": 112,
       "sha256": "2a8430a39f26ea60d26e398807da9095329ad70f5f2696eedef76021b28cc423",
@@ -38235,8 +38220,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 107,
-      "sha256": "d12a2749da02a22e6cd9bae054e7c113e1f2b9eae055bdf88436372094a0f8ed",
+      "lines": 157,
+      "sha256": "dd75d88eab084c63be1718ae751738b179ceab76c5d9b1981582e1d36dd060a0",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
