@@ -102,8 +102,8 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state(id)
             val actual = upgraded.getJSONObject("profile")
-            assertEquals(27, upgraded.getInt("jiangDuPresetVersion"))
-            CharacterProfileSchema.jiangDuV27Overrides.forEach { (key, value) ->
+            assertEquals(28, upgraded.getInt("jiangDuPresetVersion"))
+            CharacterProfileSchema.jiangDuV28Overrides.forEach { (key, value) ->
                 assertEquals("Factory field should migrate: $key", value, actual.getString(key))
             }
             assertEquals(identity, CharacterIdentityStore.get(id))
@@ -161,7 +161,7 @@ class BundledJiangDuImportTest {
             assertEquals("", personalized.getString("cognitiveStyle"))
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
             assertEquals("本人手写的核心人格", MigratedDomainStores.characters.get(id).persona)
-            assertEquals(CharacterProfileSchema.jiangDuV27Overrides.getValue("motives"),
+            assertEquals(CharacterProfileSchema.jiangDuV28Overrides.getValue("motives"),
                 personalized.getString("motives"))
             CharacterLifeStore.setProfile(id, "cognitiveStyle", "用户自己写的功能主次")
             CharacterLifeStore.initialize(context)
@@ -251,7 +251,7 @@ class BundledJiangDuImportTest {
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[id])
         val state = CharacterLifeStore.state(id)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, state.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV27Overrides.getValue("care"),
+        assertEquals(CharacterProfileSchema.jiangDuV28Overrides.getValue("care"),
             state.getJSONObject("profile").getString("care"))
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV24,
             state.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
@@ -647,7 +647,7 @@ class BundledJiangDuImportTest {
             seed(false)
             CharacterLifeStore.initialize(context)
             val profile = CharacterLifeStore.state(id).getJSONObject("profile")
-            CharacterProfileSchema.jiangDuV27Overrides.forEach { (key, value) ->
+            CharacterProfileSchema.jiangDuV28Overrides.forEach { (key, value) ->
                 assertEquals(key, value, profile.getString(key))
             }
             assertEquals(CharacterProfileSchema.jiangDuV27Persona,
@@ -669,6 +669,37 @@ class BundledJiangDuImportTest {
         } finally {
             save.invoke(CharacterLifeStore, id, original)
             MigratedDomainStores.characters.update(role)
+        }
+    }
+
+    @Test fun v28SwitchUpdatesOnlyJiangDuStockCareAndPreservesManualCare() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val original = JSONObject(CharacterLifeStore.state(id).toString())
+        val other = CharacterLifeStore.state("lulu").toString()
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            for (care in listOf(CharacterProfileSchema.jiangDuV27Overrides.getValue("care"), "", "手写亲密偏好")) {
+                val prior = JSONObject(original.toString()).put("jiangDuPresetVersion", 27)
+                prior.getJSONObject("profile").put("care", care)
+                save.invoke(CharacterLifeStore, id, prior)
+                CharacterLifeStore.initialize(context)
+                val actual = CharacterLifeStore.state(id).getJSONObject("profile").getString("care")
+                if (care == CharacterProfileSchema.jiangDuV27Overrides.getValue("care")) {
+                    assertEquals(CharacterProfileSchema.jiangDuV28Overrides.getValue("care"), actual)
+                    assertTrue(CharacterRuntime.definition(id).persona.contains("switch"))
+                    assertTrue(CharacterRuntime.definition(id).persona.contains("Dom"))
+                    assertTrue(CharacterRuntime.definition(id).persona.contains("sub"))
+                } else assertEquals(care, actual)
+                assertEquals(prior.getJSONObject("relationshipAgreements").toString(),
+                    CharacterLifeStore.state(id).getJSONObject("relationshipAgreements").toString())
+                assertEquals(other, CharacterLifeStore.state("lulu").toString())
+            }
+        } finally {
+            save.invoke(CharacterLifeStore, id, original)
         }
     }
 

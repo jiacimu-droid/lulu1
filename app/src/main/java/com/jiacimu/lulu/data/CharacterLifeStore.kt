@@ -764,6 +764,11 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        CharacterProfileSchema.jiangDuV28Overrides.forEach { (key, value) ->
+            if (!profile.has(key) || profile.optString(key) == CharacterProfileSchema.jiangDuV27Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
