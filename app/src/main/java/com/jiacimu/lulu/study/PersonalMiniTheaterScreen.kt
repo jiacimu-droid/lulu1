@@ -247,7 +247,19 @@ internal object PersonalTheaterTypography {
                         (value.startsWith("「") && value.endsWith("」")) -> Kind.Dialogue
                     else -> Kind.Narration
                 }
-                result += Section(kind, value)
+                val closingQuote = when {
+                    value.startsWith("“") -> '”'
+                    value.startsWith("「") -> '」'
+                    else -> null
+                }
+                val closingIndex = closingQuote?.let { value.indexOf(it, 1) } ?: -1
+                if (kind == Kind.Narration && closingIndex > 0 &&
+                    closingIndex < value.lastIndex) {
+                    result += Section(Kind.Dialogue, value.substring(0, closingIndex + 1))
+                    result += Section(Kind.Narration, value.substring(closingIndex + 1).trimStart())
+                } else {
+                    result += Section(kind, value)
+                }
             }
         }
         return result
