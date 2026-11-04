@@ -240,6 +240,7 @@ internal object CompanionActionRuntime {
             friendCandidateContext(context, characterId).takeIf(String::isNotBlank)?.let { appendLine(it) }
         }
         appendLine(CapabilityRegistry.screenVisionContext(context, characterId))
+        appendLine("- read_self_todo，args={\\\"scope\\\":\\\"today|all\\\",\\\"offset\\\":0}：只读主人自序→所行的原始待办、今天完成记录、逾期/今日未完成及未来安排；today只列今天与逾期，all连以后任务也列出，每次最多30项可用nextOffset翻页。只有真实ToolRouter回执才能说已查看；不擅自编辑、勾选或转成角色自己的日程。清单未勾选不证明没学习，需结合真实计时和获主人本时段许可的start_study_watch核实。")
         if (CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
             appendLine("- read_xiaohongshu：读用户分享的指定笔记时传 args={\"url\":\"聊天里实际分享的官方链接\"}；自己寻找资料时才传 args={\"keyword\":\"自己好奇的具体主题，可留空看推荐\"}。不能把关键词搜索到的另一篇当成用户分享的原帖；要真实打开正文并取得回执后才声称已读。可以形成独立兴趣与感想；是否分享给用户/朋友圈须另选真实发送动作。博主经历不是自己的经历。")
             appendLine("  当前可复用阅读会话=${XhsReadingEngine.available(context)}；这是本轮运行条件，不是有无搜索能力。只有真实回执证明搜到、读到或形成理解；会话不可用时保留兴趣，不反复盲目重试。已有学习目标可用 learn_topic 的 attach 关联阅读回执 evidenceId，复用原文与理解。")
@@ -1339,7 +1340,7 @@ internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
      * references, across all scene adapters. No result selects a new action. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu",
-        "capture_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
+        "read_self_todo", "capture_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
 
     /** Use the actual persisted receipt ID, including a pre-execution refusal.
      * A native result ID alone does not prove which request produced it.
@@ -1390,6 +1391,7 @@ internal object SearchReceiptFeedback {
             args.optString("keyword").isNotBlank() -> "search_read"
             else -> "home_read"
         } else if (tool == "capture_screen") "observe"
+        else if (tool == "read_self_todo") args.optString("scope", "today")
         else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL) "consider"
         else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
