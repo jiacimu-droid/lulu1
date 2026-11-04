@@ -871,3 +871,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因与范围**：正式 `PersonalMiniTheater.capture` 将 `CharacterRuntime.personaConstraintSnapshot` 或 `CharacterLifeStore.profile` 中的稳定人格原话带入 `characterContext`（按作品持久）；`MiniTheaterWorker` 使用 `PersonalMiniTheater.request` 的独立隔离写作指令。江渡批准人设的「小狐狸/小狗」比喻表达同一个人在不同亲密情境的主动和柔软，不是兽化身份/固定旁白标签。写作指令此前只要求保留稳定性格，未界定隐喻如何落实为人物抉择，容易复述“撩人=狐狸、顺从=小狗”。
 - **实际代码**：`PersonalMiniTheater.kt` 写作契约新增“人格形容/动物隐喻→具体动作、态度、心理和对话”的解释，禁止机械贴标签或因性格变化凭空长耳朵尾巴；保留人物自然撒娇、自愿臣服与身体亲近，明确题材要求真实动物化时不得屏蔽。两个世界模式沿同一个 request，不动江渡 profile、原关系、主循环、旧番外正文或长期记忆，不增加模型调用。源码 `50f7c439`、`bc453173`。
 - **回归与状态**：`PersonalMiniTheaterTest` 使用含狐狸狗比喻的角色材料、原世界与平行世界两类写作请求及真实耳尾题材，断言人物资料完整、提示词正确区分隐喻与设定；提交 `45d364b8`、`4397f50e`。仅完成源码/测试提交，**尚未获取新提交的 JVM/APK CI、安装版真机与真实模型正文对照结果**，这些不是已验通。后续同模型比较“隐喻重复频率/场景与人格连续性/兽耳设定完整度”，必要时按实际样本再调整文案，不加输出关键词删除器或额外付费后处理。
+
+## 2026-11-04：P-10.6 单篇番外独立世界书选择
+- **正式入口**：`PersonalMiniTheaterScreen` 之前仅原世界/平行世界选择与随机灵感/自写，没有世界书选择；`MiniTheaterWorker` 采用 `CompanionContextMode.Isolated`，故不会自动包含聊天世界书。长篇剧场已有 `TheaterWorldBookContext.capture` 与显式选择，单篇复用这一数据契约，不另造世界书仓库。
+- **修改**：新番外可按标题/内容搜索并多选 `LuluRepositories.worldBook` 的现有条目，支持清空，默认不选。创建作品时对条目存在性校验，冻结 ID/标题/正文为 `MiniTheaterItem` 的附加字段，沿原 JSON 持久化；`PersonalMiniTheater.request` 只注入所选快照，明确是本篇虚构设定。其他故事、未选条目、全局开关、真实记忆不受影响；旧作品缺字段按空选择兼容。即使原世界书被编辑、删除，已创作品的继续/重写也不会悄悄换设定。未选不产生额外 API；保存快照本身也不收费。
+- **已提交**：源码 `a18cc2f`、`bb0b2f3`、`0827759`、`0d3c3ea`；测试 `9fa7579`、`6b6d9f5`。前者覆盖多选中的单选/未选隔离、关闭/持久重载、快照冻结及已删除 ID 拒绝；未运行 JVM/APK CI，无真机或真实模型生成对照。后续先验编译和单测，再验窄屏世界书弹窗、旧作品和原/平行世界两模式，保留 P-10.6 待外部验收。
