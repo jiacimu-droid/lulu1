@@ -670,6 +670,11 @@ internal object CharacterCausalTrace {
                 decidedAt == null -> "选择未记录可核对的时间"
                 decidedAt.isBefore(source.occurredAt) ->
                     "选择时间早于实际结果，不能视为结果后的决定"
+                // A native event may precede its ToolRouter receipt. A decision
+                // about that native event made in between is genuine, but it
+                // cannot be attributed to perception of the later receipt.
+                decidedAt.isBefore(receipt.occurredAt) ->
+                    "选择时间早于工具回执，不能视为回执后的决定"
                 else -> null
             }
         }
