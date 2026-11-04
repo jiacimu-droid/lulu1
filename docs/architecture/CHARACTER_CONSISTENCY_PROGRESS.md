@@ -613,3 +613,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **边界**：更换措辞的近似念头可能比以前多出历史记录，尚需真机观察质量；保留的因果指纹仍可能有其他漏判，需要真实回合证实后再改。没有凭代码声称能让模型生成更多或更好的心理活动。
 - **CI 与接力**：本提交 [APK 41766161850](https://github.com/jiacimu-droid/lulu1/actions/runs/41766161850) 因并行居民代码后继推送 cancelled，不能报通过；索引和后继完整 JVM/APK 按最新包含本修复的 run 核对。已比较后继主干，居民相关修改未覆盖本文件或回归。下一步先查后继单测；通过后在获授权真机对照真实用户纠正、关系分歧、同词否定和补条件，核对模型原输出、因果指纹、当前态、历史及下轮行为。P-08b/e 仍待验。
 - **后继 CI 核实**：包含本修复且未改动本文件/测试的 `6510fcc0e71c`，[索引 run 41766211096](https://github.com/jiacimu-droid/lulu1/actions/runs/41766211096) completed/success，已运行原生成器；[Android/JVM/APK 41766210954](https://github.com/jiacimu-droid/lulu1/actions/runs/41766210954) 仍 pending。已核对提交祖先关系；新回归未获完整单测结论，不能宣称通过。
+
+## 2026-11-04 · P-08b 与 S-02 继续实改交接（main `9652f4dbfe`）
+
+- **P-08b 事实缺口**：`CharacterContinuityRuntime.snapshot` 从前把三分钟内字面同于当前输入的全部用户发言都当回显丢弃，导致真实连续两次“好/嗯”的上一句遗忘。源码 `13d129410` 仅跳过最新一条已验真回显，跨群聊分页不反复过滤；测试 `f14133d` 覆盖相同短句与 175 条群聊旁人记录。前置 `811b428` APK/JVM `41763912049`、索引 `41763912115` success；本修复后继完整 JVM/APK 因并行提交尚未独立验收。
+- **S-02 设置和移除**：新独立「居民管理」入口；当前居民列表、编辑资料、移除确认、每人日行程上限、人数上限及自动新增开关已接入正式设置入口。现有 `DigitalWorldExpansionStore` 支持标记移除模板及编辑后姓名，防止同一居民再被自动复生；`DigitalLifeProfileStore.retireResident`／`DigitalWorldStore.retireResidentPresence` 仅清理活跃资料/位置/住宅，**保留曾经共同见面的参与者与原始聊天**；正式人物目录不再保留其活跃角色。
+- **人物档案**：固定模板有不同的生平、性格/边界、兴趣及明确性别；模型低频提案的新居民必须同时给出 gender、temperament、preferences、background，未完整则不注册。不增加独立模型请求或新的角色记忆 Store。原住民性别随原 Character persona 进入模型，旧档案仅非用户编辑者补缺，不根据性别决定言行。
+- **回归与状态**：`NativeResidentLifeIntegrationTest` 的 `b3595845` 覆盖创建→性别与人设同步→确实存在的见面/时间线→安全移除→原记录和参与者仍保留、模板不能复活；第二项测试编辑后角色 persona 及时同步。索引对 `b3595845` 的 `41766304839` 已 completed/success；其 APK `41766305006` cancelled（不算通过）。代码继续由其他自动窗口并行提交，最新新 APK／索引必须按其对应 SHA 最终结论验，不将 pending/cancelled 当 success。
+- **未验与继续**：真机入口、删除后的群聊/后台 Worker、重启稳定、真实生成的人物质量、心事/记忆因果及跨日仍待验。下次若 APK 失败先修真实首条报错，继续 P-08b/S-02；两项均不得标记完成。
