@@ -22,6 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.ai.CompanionContextMode
+import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,12 +35,17 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     val context = LocalContext.current
     val library = remember(context) { MiniTheaterLibrary.get(context) }
     val all by library.items.collectAsState()
+    val freshIdeas by library.creativeIdeas.collectAsState()
+    val availableIdeas = PersonalMiniTheater.ideas + freshIdeas
+    val scope = rememberCoroutineScope()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val character = characters[characterId]
     var opened by rememberSaveable(characterId) { mutableStateOf<String?>(null) }
     var offset by rememberSaveable(characterId) { mutableIntStateOf(
         Math.floorMod(LocalDate.now().toEpochDay(), PersonalMiniTheater.ideas.size.toLong()).toInt()) }
     var guidance by rememberSaveable(characterId) { mutableStateOf("") }
+    var worldMode by rememberSaveable(characterId) { mutableStateOf("original") }
+    var inspirationLoading by remember { mutableStateOf(false) }
     var background by rememberSaveable(opened) { mutableStateOf(
         all.firstOrNull { it.id == opened }?.sceneContext.orEmpty()) }
     var error by remember { mutableStateOf("") }
@@ -60,6 +70,45 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             ?.text?.removePrefix("《")?.removeSuffix("》")
             ?.takeIf(String::isNotBlank) ?: work?.title.orEmpty()
     }
+    // Reuse local suggestions until exhausted; then purchase one 10-idea batch.
+    fun nextInspiration() {
+        if (inspirationLoading) return
+        if (offset + 1 < availableIdeas.size) {
+            offset++
+            return
+        }
+        inspirationLoading = true
+        error = ""
+        scope.launch {
+            try {
+                LuluAiServices.initialize(context.applicationContext)
+                val ask = PersonalMiniTheater.inspirationRequest(
+                    PersonalMiniTheater.ideas + library.creativeIdeas.value, library.items.value)
+                val response = LuluAiServices.gateway.generate(
+                    characterId = "theater-ideas",
+                    facts = ask.facts,
+                    instruction = ask.instructions,
+                    source = "剧场·番外灵感",
+                    title = "新一批番外灵感",
+                    contextMode = CompanionContextMode.Isolated,
+                    connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                    maxTokens = 2_600,
+                    readTimeoutMillis = 120_000,
+                ).getOrThrow()
+                val before = PersonalMiniTheater.ideas.size + library.creativeIdeas.value.size
+                val added = library.addCreativeIdeas(PersonalMiniTheater.parseGeneratedIdeas(response.text))
+                check(added > 0) { "这一批脑洞与旧题材重复啦，可以再试一次" }
+                offset = before
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (e: Exception) {
+                error = "新灵感获取失败：${e.message ?: "请重试"}"
+            } finally {
+                inspirationLoading = false
+            }
+        }
+    }
+
     BackHandler { if (work != null) { opened = null; error = "" } else onBack() }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background, topBar = {
@@ -83,7 +132,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center)
-                    Text((character?.displayName ?: work.characterName) + " × 你   ·   幻想番外",
+                    Text((character?.displayName ?: work.characterName) + " × 你   ·   " +
+                        (if (work.worldMode == "alternate") "平行世界番外" else "原世界番外"),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
@@ -104,13 +154,27 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             if (work == null) {
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("今日灵感", style = MaterialTheme.typography.titleMedium,
+                        Text("故事灵感", style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold)
-                        TextButton(onClick = { offset += 1 }) { Text("换一个") }
+                        TextButton(onClick = { nextInspiration() }, enabled = !inspirationLoading) {
+                            Text(if (inspirationLoading) "正在想新脑洞…" else if (offset + 1 >= availableIdeas.size) "AI 再想10个" else "下一个")
+                        }
                     }
                 }
                 item {
-                    val idea = PersonalMiniTheater.suggestions(offset).first()
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = worldMode == "original", onClick = { worldMode = "original" },
+                            label = { Text("原世界 · 保留身份关系") })
+                        FilterChip(selected = worldMode == "alternate", onClick = { worldMode = "alternate" },
+                            label = { Text("平行世界 · 重新设定") })
+                    }
+                    Text(if (worldMode == "alternate")
+                            "只继承人物的性格，不带入原世界身份或与你的既定关系。"
+                        else "保留原本的世界、身份和关系，展开另一种可能。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (inspirationLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    val idea = availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)]
                     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                         colors = CardDefaults.cardColors(containerColor =
                             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))) {
@@ -121,7 +185,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                 lineHeight = 23.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(enabled = character != null, onClick = {
                                 runCatching {
-                                    val id = library.addPersonal(PersonalMiniTheater.capture(characterId), idea)
+                                    val id = library.addPersonal(PersonalMiniTheater.capture(characterId, worldMode), idea)
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
@@ -143,7 +207,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     Button(enabled = character != null && guidance.isNotBlank(), onClick = {
                         runCatching {
                             val idea = PersonalMiniTheater.customIdea(guidance)
-                            val id = library.addPersonal(PersonalMiniTheater.capture(characterId), idea)
+                            val id = library.addPersonal(PersonalMiniTheater.capture(characterId, worldMode), idea)
                             opened = id; background = ""; error = ""
                             MiniTheaterJobs.enqueue(context, id, "")
                         }.onFailure { error = it.message ?: "没有开始创作，请重试" }
