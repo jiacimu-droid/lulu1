@@ -87,8 +87,15 @@ internal object CharacterCausalTrace {
         val candidates = events.filter { it.characterId == characterId && it.id != current.id &&
             it.source == "tool-router" }.mapNotNull { event ->
             val body = objectValue(event.content) ?: return@mapNotNull null
-            if (body.optString("causeEvidenceId") == current.id ||
-                (current.taskId.isNotBlank() && event.taskId == current.taskId)) event to body else null
+            // An explicit cause is authoritative. A shared task ID alone must
+            // not attach a receipt for another source to this event.
+            val causeId = body.optString("causeEvidenceId")
+            val causeRevision = body.optLong("causeEvidenceRevision", 0L)
+            val sameCause = causeId == current.id &&
+                (causeRevision == 0L || causeRevision == current.revision)
+            val legacyTaskLink = causeId.isBlank() &&
+                current.taskId.isNotBlank() && event.taskId == current.taskId
+            if (sameCause || legacyTaskLink) event to body else null
         }
         val active = SharedExperienceTimeline.eventsByIds(characterId,
             candidates.map { it.first.id }).associateBy { it.id }
