@@ -108,6 +108,43 @@ class CharacterCreatedGroupTest {
             b.characterId, group).size)
     }
 
+    @Test fun verifiedGroupSocialOpportunityIsOneHopAndWithdrawalsRemoveIt() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val a = MigratedDomainStores.characters.create("起话者-" + UUID.randomUUID())
+        val b = MigratedDomainStores.characters.create("看到消息的人-" + UUID.randomUUID())
+        val c = MigratedDomainStores.characters.create("另一群友-" + UUID.randomUUID())
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "真实社交群", listOf(a.characterId, b.characterId, c.characterId),
+            ownerIncluded = false)
+        val notice = MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "有人想一起去庭院吗？", a.characterId)
+        val bSource = "${notice.id}:group:${b.characterId}"
+        assertTrue(GroupSocialOpportunity.witnessed(b.characterId, bSource))
+        assertFalse(GroupSocialOpportunity.witnessed(a.characterId,
+            "${notice.id}:group:${a.characterId}"))
+        assertFalse(GroupSocialOpportunity.witnessed("stranger", bSource))
+        val eligible = GroupSocialOpportunity.recipients(
+            group.groupChat!!, a.characterId,
+            setOf(a.characterId, b.characterId, c.characterId), notice.id)
+        assertEquals(setOf(b.characterId, c.characterId), eligible.toSet())
+        assertTrue(GroupSocialOpportunity.recipients(
+            group.groupChat!!.copy(allowCharacterConversation = false),
+            a.characterId, setOf(a.characterId, b.characterId, c.characterId),
+            notice.id).isEmpty())
+        assertEquals(1, GroupSocialOpportunity.recipients(
+            group.groupChat!!.copy(maxAutoReplies = 1),
+            a.characterId, setOf(a.characterId, b.characterId, c.characterId),
+            notice.id).size)
+        SharedExperienceTimeline.deleteEvent(bSource)
+        assertFalse(GroupSocialOpportunity.witnessed(b.characterId, bSource))
+        // The same real group message remains visible to C; withdrawing one
+        // role's experience does not erase everyone else's actual history.
+        assertTrue(GroupSocialOpportunity.witnessed(c.characterId,
+            "${notice.id}:group:${c.characterId}"))
+    }
+
     @Test fun retiredResidentPrivateThreadIsHiddenButSharedGroupAndStoredMessagesSurvive() {
         val residentId = "resident:retired-example"
         val normalId = "active-role"
