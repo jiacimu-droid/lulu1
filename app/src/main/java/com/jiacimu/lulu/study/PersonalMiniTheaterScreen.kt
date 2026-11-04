@@ -250,39 +250,68 @@ internal object PersonalTheaterTypography {
     enum class Kind { Title, Narration, Dialogue, End }
     data class Section(val kind: Kind, val text: String)
 
+    /**
+     * One blank-line-separated paragraph is one reading beat. Ordinary single
+     * newlines are preserved INSIDE its text, not inflated into separate 19dp
+     * cards. Standalone quoted speech is visually distinct without rewriting
+     * or persisting any of the model's original fiction.
+     */
     fun sections(raw: String): List<Section> {
-        val cleaned = raw.replace("\r\n", "\n").trim()
-        if (cleaned.isBlank()) return emptyList()
+        val source = raw.replace("\r\n", "\n").trim()
+        if (source.isBlank()) return emptyList()
         val result = mutableListOf<Section>()
-        // Preserve original line breaks and content; only visually group empty-line paragraphs.
-        val paragraphs = cleaned.split(Regex("\n[\\t ]*\n+"))
+        val paragraphs = source.split(Regex("\n[ \t]*\n+"))
         paragraphs.forEach { paragraph ->
-            val lines = paragraph.trim().lines().filter { it.isNotBlank() }
-            lines.forEach { line ->
-                val value = line.trim()
-                val kind = when {
-                    value == "【小剧场已完】" -> Kind.End
-                    value.startsWith("《") && value.endsWith("》") &&
-                        value.length < 90 -> Kind.Title
-                    (value.startsWith("“") && value.endsWith("”")) ||
-                        (value.startsWith("「") && value.endsWith("」")) -> Kind.Dialogue
-                    else -> Kind.Narration
-                }
-                val closingQuote = when {
-                    value.startsWith("“") -> '”'
-                    value.startsWith("「") -> '」'
-                    else -> null
-                }
-                val closingIndex = closingQuote?.let { value.indexOf(it, 1) } ?: -1
-                if (kind == Kind.Narration && closingIndex > 0 &&
-                    closingIndex < value.lastIndex) {
-                    result += Section(Kind.Dialogue, value.substring(0, closingIndex + 1))
-                    result += Section(Kind.Narration, value.substring(closingIndex + 1).trimStart())
-                } else {
-                    result += Section(kind, value)
+            val narration = StringBuilder()
+            fun flushNarration() {
+                if (narration.isNotEmpty()) {
+                    result += Section(Kind.Narration, narration.toString())
+                    narration.clear()
                 }
             }
+            fun addNarration(text: String) {
+                if (text.isBlank()) return
+                if (narration.isNotEmpty()) narration.append('\n')
+                narration.append(text)
+            }
+            paragraph.lines().forEach { rawLine ->
+                val line = rawLine.trim()
+                if (line.isEmpty()) return@forEach
+                when {
+                    line == "【小剧场已完】" -> {
+                        flushNarration()
+                        result += Section(Kind.End, line)
+                    }
+                    line.startsWith("《") && line.endsWith("》") && line.length < 90 -> {
+                        flushNarration()
+                        result += Section(Kind.Title, line)
+                    }
+                    else -> {
+                        // Only a leading, closed quote is an independently spoken
+                        // line. An embedded quotation stays in the narrator's prose.
+                        val closing = when {
+                            line.startsWith("“") -> '”'
+                            line.startsWith("「") -> '」'
+                            else -> null
+                        }
+                        val end = closing?.let { line.indexOf(it, startIndex = 1) } ?: -1
+                        if (end > 0) {
+                            flushNarration()
+                            result += Section(Kind.Dialogue, line.substring(0, end + 1))
+                            addNarration(line.substring(end + 1).trimStart())
+                        } else {
+                            addNarration(line)
+                        }
+                    }
+                }
+            }
+            flushNarration()
         }
         return result
     }
+
+    /** Generated title belongs to the reader header, not to two stacked headings. */
+    fun leadingTitle(sections: List<Section>, fallback: String): String =
+        sections.firstOrNull()?.takeIf { it.kind == Kind.Title }
+            ?.text?.removePrefix("《")?.removeSuffix("》") ?: fallback
 }
