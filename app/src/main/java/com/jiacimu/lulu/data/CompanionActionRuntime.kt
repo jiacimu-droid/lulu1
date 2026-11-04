@@ -1464,8 +1464,7 @@ internal fun mirroredPrivateReplyStepIndices(
     val mirrored = mutableSetOf<Int>()
     // A side action may repeat the entire primary reply in one message even
     // when the primary was delivered as several model-authored bubbles.
-    sends.filterTo(mutableListOf()) { it.second == delivered }
-        .forEach { mirrored += it.first }
+    sends.filter { it.second == delivered }.forEach { mirrored += it.first }
     // Or the side actions may re-split the same primary reply into parts.
     // Suppress only a COMPLETE leading copy, never partial overlaps.
     var accumulated = ""
