@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:17:29.000701+00:00",
-  "commit": "2ee9a0df53fd6f533f339d6975c9f0a8200c26d4",
+  "generatedAt": "2026-11-04T16:18:13.108681+00:00",
+  "commit": "bc6079f3b80da544e99f11fd435f0961613ed38b",
   "branch": "main",
-  "sourceFingerprint": "96de490e473a8472410dcac5899f17de0a4a03b59fdbfb25912701e227636b3b",
+  "sourceFingerprint": "fee2de33a2bc065efe1e9ad94aa2059910680e0bec31686708fb5cda396b6fa7",
   "summary": {
     "files": 1134,
-    "lines": 239276,
+    "lines": 239278,
     "symbols": 3309
   },
   "symbolIndex": {
@@ -12273,7 +12273,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 462
+        "line": 464
       }
     ],
     "allowsExpansion": [
@@ -23541,7 +23541,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 132,
-      "sha256": "6d66de88e460fa6ebf8657c43903b5e341e20e0fd43f975dd24581f0217f5e24",
+      "sha256": "2bf8f9c5b424deb19dd361a28c11e7afc3778509fcca2b6df7024d055dba7bab",
       "symbols": [
         {
           "name": "Capability",
@@ -30305,8 +30305,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 576,
-      "sha256": "d69a6597a00e507602c44ffe5e4d6a704ee073e373d2a667e673f82dce4205ae",
+      "lines": 578,
+      "sha256": "65c2f9b8cfe9a9afe4d46bdb00de37c176b153b02595f9d5e8510d0c2a3f6baf",
       "symbols": [
         {
           "name": "completed",
@@ -30334,7 +30334,7 @@
         },
         {
           "name": "project",
-          "line": 462
+          "line": 464
         }
       ]
     },
