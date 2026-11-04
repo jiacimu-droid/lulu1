@@ -498,8 +498,14 @@ private fun CharacterMessageHeadsUp(onOpen: (String) -> Unit) {
                 modifier = Modifier.padding(start = 14.dp, top = 7.dp, bottom = 7.dp, end = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                LuluProfileAvatar(
+                    imageUri = current.avatarUri,
+                    fallback = current.avatarText.ifBlank { current.title.take(1) },
+                    size = 42,
+                )
+                Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("露露机 · " + current.title,
+                    Text(current.title,
                         color = Color(0xFF234A40), fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(current.text, color = Color(0xFF32433E),
