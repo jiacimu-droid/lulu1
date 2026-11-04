@@ -24,6 +24,29 @@ class NativeResidentLifeIntegrationTest {
             identity = identity, homeLocationCode = "resident-home:testing",
             templateName = template)
 
+    @Test fun ownerPopulationControlsRejectAllResidentRegistrationSources() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        DigitalWorldExpansionStore.initialize(context)
+        val prefs = context.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        val resident = person("受人数上限保护" + UUID.randomUUID().toString().take(7))
+            .copy(homeLocationCode = DigitalWorldPublicPlaces.COURTYARD)
+        try {
+            assertTrue(ResidentDailyPolicy.setMaxResidents(context, 0))
+            assertThrows(IllegalArgumentException::class.java) {
+                DigitalWorldExpansionStore.registerResident(resident)
+            }
+            assertTrue(ResidentDailyPolicy.setMaxResidents(context, ResidentDailyPolicy.MAX_RESIDENTS))
+            assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(context, false))
+            assertThrows(IllegalArgumentException::class.java) {
+                DigitalWorldExpansionStore.registerResident(resident)
+            }
+            assertFalse(DigitalWorldExpansionStore.residents().any { it.id == resident.id })
+        } finally {
+            prefs.edit().clear().commit()
+        }
+    }
+
     @Test fun cafeWorkerHasARealHomeAndBusinessShift() {
         val employee = person("岑灯", "咖啡店店员")
         assertEquals(DigitalWorldPublicPlaces.CAFE,
