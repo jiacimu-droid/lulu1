@@ -1311,15 +1311,10 @@ object CharacterInnerLifeStore {
             ?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val recentMinutes = latestAt?.let { runCatching { Duration.between(it, now).toMinutes() }.getOrNull() }
         val cleanFingerprint = causeFingerprint.trim().take(120)
-        if (cleanFingerprint.isNotBlank()) {
-            for (i in maxOf(0, old.length() - 5) until old.length()) {
-                val prior = old.optJSONObject(i) ?: continue
-                val at = prior.optString("occurredAt").takeIf(String::isNotBlank)
-                    ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: continue
-                val minutes = runCatching { Duration.between(at, now).toMinutes() }.getOrNull() ?: continue
-                if (minutes in 0..30 && prior.optString("causeFingerprint") == cleanFingerprint) return
-            }
-        }
+        // A cause fingerprint describes the surrounding appraisal, not the
+        // identity of a thought. The same situation can produce a different
+        // wish, qualification or negation. Keep it as provenance; only an
+        // identical authored sentence may be coalesced below.
         if (recentMinutes != null && recentMinutes in 0..10 &&
             sameInnerVoiceMeaning(latest?.optString("thought").orEmpty(), clean)) return
         root.put("innerVoices", JSONArray().apply {
@@ -1745,19 +1740,8 @@ object CharacterInnerLifeStore {
     }
 
 
-    private fun sameInnerVoiceMeaning(left: String, right: String): Boolean {
-        fun normalize(value: String): String = value.lowercase()
-            .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_-]+"), "")
-            .replace(Regex("^(还是|就是|只是|现在|这会儿|此刻|嗯|唔|好吧)+"), "")
-        val a = normalize(left)
-        val b = normalize(right)
-        if (a.isBlank() || b.isBlank()) return false
-        if (a == b || a.contains(b) || b.contains(a)) return true
-        // A shared topic or sentence skeleton is not the same inner voice.
-        // Exact normalized duplication was checked above; do not discard two
-        // different, independently sourced thoughts based on short bigrams.
-        return false
-    }
+    private fun sameInnerVoiceMeaning(left: String, right: String): Boolean =
+        CharacterHeartVoicePolicy.sameMeaning(left, right)
 
     /** Durable but focused subjective state. Full introspection stays available to
      * background deliberation, world scenes and exact continuity/reconciliation turns.

@@ -769,16 +769,19 @@ class CharacterInnerLifeStoreTest {
         assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-b", now.plusSeconds(300)))
     }
 
-    @Test fun nearDuplicateInnerVoicesWithinTenMinutesDoNotCreateNewMoments() {
+    @Test fun onlyIdenticalInnerVoicesWithinTenMinutesAreCoalesced() {
         start()
         val id = "inside-test-voice-dedupe"
         CharacterInnerLifeStore.clear(id)
         val now = Instant.parse("2026-10-10T08:00:00Z")
         CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-1", "还是先等她回消息吧", now)
-        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-2", "还是先等她回消息", now.plusSeconds(120))
+        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-2", "还是先等她回消息吧。", now.plusSeconds(120))
         assertEquals(1, CharacterInnerLifeStore.snapshot(id).getJSONArray("innerVoices").length())
-        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-3", "突然想起那本书还没看完", now.plusSeconds(180))
-        assertEquals(2, CharacterInnerLifeStore.snapshot(id).getJSONArray("innerVoices").length())
+        val qualified = "还是先等她回消息吧，但到约定时间我会再联系她"
+        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-3", qualified, now.plusSeconds(180))
+        val voices = CharacterInnerLifeStore.snapshot(id).getJSONArray("innerVoices")
+        assertEquals(2, voices.length())
+        assertEquals(qualified, voices.getJSONObject(1).getString("thought"))
         CharacterInnerLifeStore.clear(id)
     }
 

@@ -363,20 +363,14 @@ object CompanionPresenceStore {
             previous.mood != next.mood
         val thoughtChanged = previous == null ||
             hasDifferentAuthoredThought(previous.innerThought, next.innerThought)
-        val hasCausalFingerprint = next.innerThoughtFingerprint.isNotBlank()
-        val causalFingerprintChanged = hasCausalFingerprint &&
-            (previous?.innerThoughtFingerprint.isNullOrBlank() ||
-                previous?.innerThoughtFingerprint != next.innerThoughtFingerprint)
+        // Causal validation happened before this projection. Its fingerprint
+        // is provenance, not a semantic identity: one cause can leave several
+        // distinct authored thoughts. Keep changed text even when the cause is
+        // unchanged; the existing exact-repeat window below still coalesces
+        // replays, including an identical sentence with a different cause.
         val newHeartVoice = when {
-            innerThought == null -> ""
-            next.innerThought.isBlank() -> ""
-            // A changed *cause* fingerprint is not a newly authored sentence.
-            // When the model repeats the same voice after another state/action
-            // update, keep that update but never manufacture a second heart-voice
-            // event solely because its appraisal/focus fingerprint changed.
-            hasCausalFingerprint -> if (causalFingerprintChanged && thoughtChanged)
-                next.innerThought else ""
-            previous == null || thoughtChanged -> next.innerThought
+            innerThought == null || next.innerThought.isBlank() -> ""
+            thoughtChanged -> next.innerThought
             else -> ""
         }
         // A quiet turn may clear the current innerThought while the original

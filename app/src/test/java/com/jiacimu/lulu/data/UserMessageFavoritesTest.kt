@@ -208,7 +208,7 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
-    @Test fun sameCausalHeartVoiceDoesNotResurfaceWhenModelParaphrasesIt() {
+    @Test fun sameCauseDoesNotEraseASeparatelyAuthoredPrivateThought() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
         val role = "presence-heart-fingerprint-test"
@@ -224,8 +224,8 @@ class UserMessageFavoritesTest {
         )
         val history = CompanionPresenceStore.histories.value[role].orEmpty()
         assertEquals(2, history.size)
-        assertEquals("", history.first().innerThought)
-        assertFalse(history.first().showInHistory)
+        assertEquals("还是怪我没领会她的意思", history.first().innerThought)
+        assertTrue(history.first().showInHistory)
         assertEquals("刚才是我理解偏了，心里有点发紧", history.last().innerThought)
         CompanionPresenceStore.clearCharacter(role)
     }
