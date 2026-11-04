@@ -286,7 +286,8 @@ object ProactivePerceptionRuntime {
                     if (motiveReviewId.isNotBlank() &&
                         CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) continue
                     val policy = ProactivePerceptionPolicyStore.get(characterId)
-                    if (trigger.startsWith("数字社交真实通知") &&
+                    if ((trigger.startsWith("数字社交真实通知") ||
+                        trigger == GroupSocialOpportunity.WAKE_TRIGGER) &&
                         isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
                         // Keep the exact unobserved notification for the next
                         // natural wake; a QQ application is not an emergency
@@ -2353,6 +2354,7 @@ object ProactivePerceptionRuntime {
                 acceptedOnlineRevision = onlineRevision,
                 requestId = shadowRequestId,
                 turnTraceId = turnTraceId,
+                groupNoticeFollowUp = trigger == GroupSocialOpportunity.WAKE_TRIGGER,
             )
         }
         // A normal decision alone does not prove the daily review happened.
@@ -2636,6 +2638,7 @@ object ProactivePerceptionRuntime {
         userText: String = "",
         acceptedOnlineRevision: Long? = null,
         turnTraceId: String = "",
+        groupNoticeFollowUp: Boolean = false,
     ): ActionExecution {
         if (decision.action == Action.SILENT && (decision.sideActions?.length() ?: 0) == 0)
             return ActionExecution(false, "角色选择保持安静")
@@ -2739,6 +2742,7 @@ object ProactivePerceptionRuntime {
                 reason = decision.reason, curiosity = decision.curiosity,
                 motiveId = decision.motiveId, concernId = decision.concernId,
                 experienceId = decision.experienceId,
+                groupNoticeFollowUp = groupNoticeFollowUp,
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
@@ -2810,6 +2814,7 @@ object ProactivePerceptionRuntime {
                     goalReviewMode = goalReviewMode,
                     turnTraceId = turnTraceId,
                     alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
+                    groupNoticeFollowUp = groupNoticeFollowUp,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2823,6 +2828,7 @@ object ProactivePerceptionRuntime {
             goalReviewMode = goalReviewMode,
             turnTraceId = turnTraceId,
             alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
+            groupNoticeFollowUp = groupNoticeFollowUp,
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
