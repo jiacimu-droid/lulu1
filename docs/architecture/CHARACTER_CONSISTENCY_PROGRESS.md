@@ -783,3 +783,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：`0afb0fd72ed17110d385fe4899668b350143ed1d` 覆盖已删除居民私聊过滤、现存角色和共同群聊继续可见；`dfdb11c81f9030048cda8ef3cfd90f0e48f8b118` 延伸正式删除居民的集成测试，确认历史消息保存但不再进消息列表（并行任务修改同一文件时曾遇 GitHub 409，刷新后成功合并，不覆盖他人修改）；`908f7cf6ce02f72ca22477b33ecaa740421745d3` 验证私聊/群聊发件人头像注入前台预览与系统通知。
 - **验证边界（刷新）**：前一 [APK/JVM 41806471453](https://github.com/jiacimu-droid/lulu1/actions/runs/41806471453) 已 completed/cancelled，绝不算通过；包含本轮全部改动和新测试的后继 [APK/JVM 41806587972](https://github.com/jiacimu-droid/lulu1/actions/runs/41806587972) 最后查询仍 pending，未获全量单测或 APK 通过证据。[代码索引 41806587809](https://github.com/jiacimu-droid/lulu1/actions/runs/41806587809) completed/success，生成索引已发布。真机删居民后列表高度/未读红点、横幅头像及系统通知 OEM 展示未验。
 - **下一轮**：先看 `41806471453` 单测/APK 首条失败和对应 SHA，再检查索引是否生成并发布；安装新 APK 复现用户截图、重启后旧居民不复活、共同群聊保留、消息横幅前后台和角色自己的头像；有新的证据再处理未覆盖入口。
+
+## 2026-11-04 · P-08c：群聊后继成员重复回答原始用户消息的现场锚定缺口
+
+- **用户体验**：用户在群里只发一句，两个角色各连续多个气泡、六行以上，像分别回答问卷；希望即时接话既能一字响应、也能在重要事情上自然展开，用户明确比较「单次模型包办所有人」与「分别本人调用」。本轮沿现有 `GroupChatRoundCoordinator → GroupChatTurnPlanner → runGroupReplies → LuluDeviceToolBridge.respond → appendRoleReplyWithPacing` 核查；导演本就调用一次独立决策提供机会与节奏，每位成员独立调本人模型，实际气泡按模型原文入库。未改为单模型包办，避免替别人决定、泄露私记忆或伪造不同人的主观意愿。
+- **已证根因**：后继成员的 `history` 已包含前一角色实际已发送内容，但同时被重新注入 `这轮最初由用户说：$pendingText` 作为本轮单独完整的文本提问；第一人和第二人都容易以用户原句为中心作各自长回复。原来 `index>0` 只选最近一个 Character 信息，不会在上一人沉默时准确以最后一条真实 User 发言为锚。程序不该硬裁输出或靠拆短气泡掩盖决策偏离。
+- **实际源码**：`f6e171ba9588fa46158da5de43a8c5dd279805a8` 引入 `groupChatLiveReplyAnchor`，只按实际 `Sent` 的 User/Character 群内消息选择最后一条，过滤 system/失败草稿；首位仍看到本轮用户最新话，后继者按真实群史与最近送达发言接话，不再重复原用户输入作为新的问题。角色仍自由回应/沉默，保留 source watermark、逐成员模型、每泡真实回执及取消规则。
+- **本人人格/表达边界**：`72087a06eda8bbbf04fcac02ceab678e25da045f` 调整现有群聊本人结构化决策说明：少量应和/反问本身即完整发言，必要事实、争执和认真分享仍可长答；不固定字数、气泡数量、角色轮次或整群统一人格台词。没有额外 API/Store，也没有自动代写下一位台词。
+- **回归提交**：`8a07f698fd397d525461e65b36284f77bfdd6c96`，涵盖最近真实角色发言/用户发言优先、失败角色草稿与系统通知不构成实际接话锚、无已送达消息时不编造人物发言。静态/代码已提交，不代表真实模型已自然。
+- **CI**：[源码测试 SHA 的代码索引 41807675219](https://github.com/jiacimu-droid/lulu1/actions/runs/41807675219) completed/success；[同 SHA APK/JVM 41807675225](https://github.com/jiacimu-droid/lulu1/actions/runs/41807675225) cancelled，不能算通过。并行 main 后继改动 `d015ea2` 的 [代码索引 41807739893](https://github.com/jiacimu-droid/lulu1/actions/runs/41807739893) completed/success；[APK/JVM 41807739954](https://github.com/jiacimu-droid/lulu1/actions/runs/41807739954) 查询时 pending。没有可证明的本轮全量 JVM/APK success。
+- **继续点**：先查 `41807739954` 最终单测/打包证据，再新 APK 用真实模型测：用户单行→角色 A 可只给微反应→角色 B 接 A 而不是重复答用户；一人沉默时 B 接最新已发言者；有复杂提问时保留必要解释；记录实际请求数、每人发言字符/气泡、取消后无旧回执。按事实修根因，不自动截断模型选择。
