@@ -127,6 +127,16 @@ private object SelfPageStore {
 }
 
 
+/** The role's read-only 所行 tool sees legacy pending items even before
+ * the owner opens the 所行 page. Other private pages are never exposed. */
+internal fun legacySelfTodoRecords(context: Context): List<LegacySelfTodo>? =
+    SelfPageStore.readStrict(context)?.asSequence()
+        ?.filter { it.area == "所行" }
+        ?.map { LegacySelfTodo(it.id, it.title, it.body, it.done, it.updated) }
+        ?.toList()
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfPrefaceScreen(
