@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:24:29.430385+00:00",
-  "commit": "dbf076e8f94df787509b760f7578a8e9ab393f58",
+  "generatedAt": "2026-11-04T17:25:04.615696+00:00",
+  "commit": "8eb02b20f5850afad4215c30a983a33d942eb224",
   "branch": "main",
-  "sourceFingerprint": "287c2ae3bdbbdfda0a72f1a1cb65723075f851fe7e138b3ac764c89fd5fcc49f",
+  "sourceFingerprint": "4f17a725cb32d5347ae64753173ea535b74905227a5498eb2f00b8696f8a791b",
   "summary": {
-    "files": 1137,
-    "lines": 240376,
-    "symbols": 3314
+    "files": 1138,
+    "lines": 240426,
+    "symbols": 3316
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8650,6 +8650,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt",
         "line": 5
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/GroupSocialOpportunity.kt",
+        "line": 10
       }
     ],
     "maybeEvolve": [
@@ -8814,6 +8818,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
         "line": 38
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/GroupSocialOpportunity.kt",
+        "line": 26
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -22092,8 +22100,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt",
-      "lines": 231,
-      "sha256": "8148cf7d64af290646d2f8da76157509bfef66eb845561010b9ef25c85859100",
+      "lines": 235,
+      "sha256": "63623509b89f1e7c238e8ae29bc9c9cd07e1963aac64d467d41911345d3062d2",
       "symbols": []
     },
     {
@@ -27285,6 +27293,21 @@
         {
           "name": "hasRequestedSpace",
           "line": 68
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/GroupSocialOpportunity.kt",
+      "lines": 46,
+      "sha256": "6f88df27f3ca9b90ea5b244e9d9264824f6a79046cf1a3434069d883b72da8e2",
+      "symbols": [
+        {
+          "name": "recipients",
+          "line": 10
+        },
+        {
+          "name": "witnessed",
+          "line": 26
         }
       ]
     },

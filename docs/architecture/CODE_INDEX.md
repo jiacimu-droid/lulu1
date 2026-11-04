@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dbf076e8f94df787509b760f7578a8e9ab393f58`
+- 基准提交：`8eb02b20f5850afad4215c30a983a33d942eb224`
 - 分支：`main`
-- 已索引文件：1137
-- 已索引代码/文本行：240376
-- 已发现符号：3314
+- 已索引文件：1138
+- 已索引代码/文本行：240426
+- 已发现符号：3316
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -267,7 +267,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 180 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 231 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 235 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |
@@ -469,6 +469,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 44 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 72 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/GroupSocialOpportunity.kt` | 46 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 664 | 14 |
