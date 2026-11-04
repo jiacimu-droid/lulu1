@@ -306,16 +306,7 @@ object CommitmentTurnAutomation {
             // The recovery uses the same typed executor and receipt as the primary model.
             CommitmentDecisionRuntime.apply(
                 appContext ?: return@forEach, characterId, sourceTurnId,
-                userBatch.map(LuluChatMessage::id), org.json.JSONArray().apply {
-                    filtered.forEach { draft -> put(org.json.JSONObject().apply {
-                        put("action", draft.action); put("goal", draft.goal)
-                        put("targetTaskId", draft.targetTaskId.orEmpty())
-                        put("dueAt", draft.dueAt?.toString().orEmpty()); put("timezone", draft.timezone.orEmpty())
-                        put("promiseKind", draft.promiseKind.orEmpty()); put("deliveryAction", draft.deliveryAction)
-                        put("needsClarification", draft.needsClarification); put("completionCondition", draft.completionCondition)
-                        put("steps", org.json.JSONArray(draft.steps))
-                    }) }
-                },
+                userBatch.map(LuluChatMessage::id), commitmentDraftsToChanges(filtered),
             )
             markProcessed(signature)
         }

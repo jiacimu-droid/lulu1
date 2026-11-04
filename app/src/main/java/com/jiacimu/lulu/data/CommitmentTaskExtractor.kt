@@ -43,7 +43,7 @@ internal suspend fun extractCommitmentTaskDrafts(
             "\n只处理本轮已经表达或确认的约定；旧对话只用于理解指代，不重复创建。只返回约定变更JSON数组，没有变化返回[]。不返回thoughts/motives等心理状态。",
         source = "承诺任务",
         title = "承诺任务提取",
-        maxTokens = 1_500,
+        maxTokens = 2_400,
         contextMode = CompanionContextMode.Isolated,
         connectionOverride = commitmentBackgroundConnection(),
     )
@@ -124,3 +124,27 @@ internal fun detectSelfPromisedCall(text: String): Boolean {
     return future && call
 }
 
+
+/** Preserve every model-selected field when the slow compatibility scanner hands
+ * structured decisions to the SAME typed runtime as the foreground planner. */
+internal fun commitmentDraftsToChanges(drafts: List<CommitmentTaskDraft>): JSONArray = JSONArray().apply {
+    drafts.forEach { draft ->
+        put(org.json.JSONObject().apply {
+            put("action", draft.action)
+            put("goal", draft.goal)
+            put("targetTaskId", draft.targetTaskId.orEmpty())
+            put("dueAt", draft.dueAt?.toString().orEmpty())
+            put("timezone", draft.timezone.orEmpty())
+            put("promiseKind", draft.promiseKind.orEmpty())
+            put("needsClarification", draft.needsClarification)
+            put("completionCondition", draft.completionCondition)
+            put("verificationMode", draft.verificationMode.orEmpty())
+            put("completionEvidenceIds", JSONArray(draft.completionEvidenceIds))
+            put("verificationReason", draft.verificationReason)
+            put("steps", JSONArray(draft.steps))
+            put("deliveryAction", draft.deliveryAction)
+            put("repeat", draft.repeat.orEmpty())
+            put("permanent", draft.permanent)
+        })
+    }
+}

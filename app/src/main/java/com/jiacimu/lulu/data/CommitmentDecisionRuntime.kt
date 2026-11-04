@@ -41,11 +41,14 @@ internal object CommitmentDecisionRuntime {
         val active = before.filter { it.status.isActive() }
         val sourceIds = evidenceIds.map { it.substringBefore(":group:") }.toSet()
         val proposed = drafts.filter { draft ->
-            // Replaying a role's original reply must not create a second task.
-            // To CHANGE a previous task the model must name its precise ID;
-            // a program side date parser never supplies that missing decision.
+            // One user turn may contain SEVERAL independent accepted promises.
+            // Earlier code suppressed every subsequent create as soon as any task
+            // shared the source message, silently losing the other obligations.
+            // Reconcile only an already-stored, identical goal from this source;
+            // the typed applier still handles duplicate alarm/clock protection.
             draft.action != "create" || active.none { existing ->
-                existing.sourceEventIds.any { it.substringBefore(":group:") in sourceIds }
+                existing.sourceEventIds.any { it.substringBefore(":group:") in sourceIds } &&
+                    existing.goal.trim().equals(draft.goal.trim(), ignoreCase = true)
             }
         }
         proposed.forEach { draft ->

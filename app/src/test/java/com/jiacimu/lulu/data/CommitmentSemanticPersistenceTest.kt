@@ -195,6 +195,56 @@ class CommitmentSemanticPersistenceTest {
         assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
     }
 
+    @Test fun sameUserTurnCanRecoverSeveralIndependentRecurringPromises() = runBlocking {
+        val evidence = "multi-duty-user"
+        val turn = "chat:multi-duty:$role"
+        val due = Instant.now().plusSeconds(26 * 3600L)
+        val morning = CommitmentTaskDraft(action = "create", goal = "每天早上叫我起床",
+            dueAt = due, timezone = zone.id, repeat = "daily", deliveryAction = "alarm_only")
+        val learning = CommitmentTaskDraft(action = "create", goal = "每天监督专业课复习",
+            dueAt = due.plusSeconds(3600L), timezone = zone.id,
+            repeat = "daily", deliveryAction = "send_private_message")
+        val meals = CommitmentTaskDraft(action = "create", goal = "长期关注我的饮食安排",
+            promiseKind = "long_term_supervision", completionCondition = "每天依据真实进食反馈继续跟进")
+        // Foreground already persisted one goal. The recovery must still retain
+        // the OTHER goals from the same source, not filter out every create.
+        CommitmentDecisionRuntime.apply(context, role, turn, listOf(evidence),
+            commitmentDraftsToChanges(listOf(morning)))
+        val recovered = CommitmentDecisionRuntime.applyModelRecovery(context, role,
+            turn, listOf(evidence), listOf(morning, learning, meals))
+        assertEquals(2, recovered.size)
+        val tasks = CommitmentTaskStore.snapshot(role)
+        assertEquals(3, tasks.size)
+        assertEquals(2, tasks.count { it.repeat == "daily" })
+        assertEquals(2, tasks.count { it.linkedAlarmId != null })
+        assertEquals(1, tasks.count { it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback })
+        assertTrue(CommitmentDecisionRuntime.applyModelRecovery(context, role,
+            turn, listOf(evidence), listOf(morning, learning, meals)).isEmpty())
+        assertEquals(3, CommitmentTaskStore.snapshot(role).size)
+    }
+
+    @Test fun slowScannerRoundTripPreservesDailyAndVerificationDecisions() {
+        val due = Instant.now().plusSeconds(4000L)
+        val draft = CommitmentTaskDraft(action = "reschedule", goal = "以后每天提醒学习",
+            targetTaskId = "existing", dueAt = due, timezone = zone.id,
+            repeat = "daily", permanent = true, verificationMode = "outcome",
+            completionCondition = "真实开始学习", completionEvidenceIds = listOf("real-1"),
+            verificationReason = "来源已核实", deliveryAction = "alarm_only",
+            steps = listOf("核对执行情况"))
+        val replayed = parseCommitmentTaskDrafts(commitmentDraftsToChanges(listOf(draft)).toString()).single()
+        assertEquals("daily", replayed.repeat)
+        assertTrue(replayed.permanent)
+        assertEquals(draft.targetTaskId, replayed.targetTaskId)
+        assertEquals(draft.dueAt, replayed.dueAt)
+        assertEquals(draft.verificationMode, replayed.verificationMode)
+        assertEquals(draft.completionCondition, replayed.completionCondition)
+        assertEquals(draft.completionEvidenceIds, replayed.completionEvidenceIds)
+        assertEquals(draft.verificationReason, replayed.verificationReason)
+        assertEquals(draft.steps, replayed.steps)
+        assertEquals(draft.deliveryAction, replayed.deliveryAction)
+        assertTrue(CommitmentDecisionProtocol.instruction.contains("多个责任要逐项落地"))
+    }
+
     @Test fun modelDecidesDeliveryRouteAndTheExecutorRejectsQuietWake() = runBlocking {
         val due = Instant.now().plusSeconds(20 * 60)
         val quiet = parseCommitmentTaskDrafts(

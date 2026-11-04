@@ -55,11 +55,13 @@ private suspend fun createCommitmentTask(
     // days are not duplicates. A user asking for daily recurrence may upgrade
     // the existing one-off record rather than registering another alarm.
     val existing = CommitmentTaskStore.active(characterId).firstOrNull { task ->
-        (task.sourceTurnId == sourceTurnId && task.goal.sameTaskText(draft.goal)) ||
-            sameTimedReminderTask(task, draft) &&
-                (task.sourceTurnId == sourceTurnId ||
-                    task.repeat == "daily" || draft.repeat == "daily" ||
-                    task.deliveryAction == draft.deliveryAction)
+        // A clock and broad topic are not a task identity: "remind me to study"
+        // and "check how studying went" can share both yet remain independent.
+        // The model should name targetTaskId to update an existing obligation.
+        task.goal.sameTaskText(draft.goal) && (
+            (task.dueAt == null && draft.dueAt == null) ||
+                (task.dueAt != null && draft.dueAt != null && sameTimedReminderTask(task, draft))
+        )
     }
     if (existing != null) {
         if (draft.repeat == "daily" && existing.repeat != "daily" &&
@@ -335,7 +337,7 @@ private fun String.sameTaskText(other: String): Boolean {
     val left = lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
     val right = other.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
     if (left.isBlank() || right.isBlank()) return false
-    return left == right || (left.length >= 6 && right.length >= 6 && (left.contains(right) || right.contains(left)))
+    return left == right
 }
 
 /** Exact local clock slot and shared subject; unrelated appointments stay independent. */
