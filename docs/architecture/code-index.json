@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T09:18:16.455335+00:00",
-  "commit": "3df19d039183cbe56c5f84012027b922cea726c2",
+  "generatedAt": "2026-11-04T09:18:38.085443+00:00",
+  "commit": "9372e85e1e64f5b24a8eef08755976532cb2fd8b",
   "branch": "main",
-  "sourceFingerprint": "45f7a4202636615851b0c3034d2cdd7318b95055046c01f4afb43b5d7cafc89f",
+  "sourceFingerprint": "ec44e48cfc35112d26d665e55d420ed8007125615d603fa5047b8705e0884dee",
   "summary": {
     "files": 1130,
     "lines": 236515,
@@ -3865,61 +3865,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 254
+        "line": 255
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 266
+        "line": 267
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 272
+        "line": 273
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 279
+        "line": 280
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 283
+        "line": 284
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 306
+        "line": 307
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 319
+        "line": 320
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 327
+        "line": 328
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 361
+        "line": 362
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 440
+        "line": 441
       }
     ],
     "saveChatMessage": [
@@ -21812,7 +21812,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 1097,
-      "sha256": "37c1895c3110323e383487d0c5ceb3183b9d599d2a9ce6974cb6e685575ddc31",
+      "sha256": "72bdbefc081c4f2f17145c76a119e884e076c83236cba5a8c4fcc500cfa4a613",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -21820,43 +21820,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 254
+          "line": 255
         },
         {
           "name": "repliedPreview",
-          "line": 266
+          "line": 267
         },
         {
           "name": "beginReply",
-          "line": 272
+          "line": 273
         },
         {
           "name": "toggleSelected",
-          "line": 279
+          "line": 280
         },
         {
           "name": "buildForwardPayload",
-          "line": 283
+          "line": 284
         },
         {
           "name": "appendDraft",
-          "line": 306
+          "line": 307
         },
         {
           "name": "stopReceiving",
-          "line": 319
+          "line": 320
         },
         {
           "name": "wakeOnline",
-          "line": 327
+          "line": 328
         },
         {
           "name": "sendAndReceive",
-          "line": 361
+          "line": 362
         },
         {
           "name": "regenerateLatestReply",
-          "line": 440
+          "line": 441
         }
       ]
     },
