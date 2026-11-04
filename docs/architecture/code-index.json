@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:17:14.646838+00:00",
-  "commit": "1a948f1210a1b0b8d0bdf3d243a607321d65dcca",
+  "generatedAt": "2026-11-04T03:17:36.632710+00:00",
+  "commit": "da36ec1532fc3a8d9ffe8e8bc9a45000fefd3a91",
   "branch": "main",
-  "sourceFingerprint": "066f7ce4a658e54e572b9d0c397912337da69a5cfe4267cca37128cea1e0478a",
+  "sourceFingerprint": "99fe651580c4e6170bc601f22e72d4d83a3ddfbc35c807e7fdfcae2e3edf64a9",
   "summary": {
     "files": 1127,
-    "lines": 235237,
-    "symbols": 3272
+    "lines": 235264,
+    "symbols": 3274
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1113,7 +1113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 145
+        "line": 157
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -5797,7 +5797,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 172
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -6283,7 +6283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 906
+        "line": 921
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -8512,10 +8512,16 @@
         "line": 117
       }
     ],
+    "retireResident": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 148
+      }
+    ],
     "restartOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 158
+        "line": 170
       }
     ],
     "optionsFor": [
@@ -9028,6 +9034,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 837
+      }
+    ],
+    "retireResidentPresence": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 910
       }
     ],
     "strongest": [
@@ -26229,8 +26241,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 249,
-      "sha256": "fe7d02a6f8a7e091cdcb273f52011a9eeb4bc8cb51e2f1447d759294eaea3adc",
+      "lines": 261,
+      "sha256": "20d452883b8bea22355ae3b7e03cba910e3022b8f5fa24bea851b15a9e3d1024",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -26285,16 +26297,20 @@
           "line": 117
         },
         {
+          "name": "retireResident",
+          "line": 148
+        },
+        {
           "name": "remove",
-          "line": 145
+          "line": 157
         },
         {
           "name": "restartOrigin",
-          "line": 158
+          "line": 170
         },
         {
           "name": "promptSection",
-          "line": 172
+          "line": 184
         }
       ]
     },
@@ -26695,8 +26711,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1195,
-      "sha256": "60768fbff4c3764115c719a63a62ff464f25dba1236765ed2f7e158d9031fdad",
+      "lines": 1210,
+      "sha256": "e77eb65a164587a42ebbc7ec5e49bbecb210176e287919e5643704528275ba41",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -26839,8 +26855,12 @@
           "line": 837
         },
         {
+          "name": "retireResidentPresence",
+          "line": 910
+        },
+        {
           "name": "clearCharacter",
-          "line": 906
+          "line": 921
         }
       ]
     },
