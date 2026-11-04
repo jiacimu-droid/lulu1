@@ -3049,10 +3049,19 @@ object ProactivePerceptionRuntime {
             }
         val originalTracks = if (bubbleSpeechTracks.size == initialCount)
             bubbleSpeechTracks else List(initialCount) { "" }
-        val modes = if (plan.addedModes.size == added)
-            originalModes + plan.addedModes else originalModes + List(added) { "text" }
-        val tracks = if (plan.addedTracks.size == added)
-            originalTracks + plan.addedTracks else originalTracks + List(added) { "" }
+        // Only force authored-boundary delivery when a model actually
+        // supplied aligned modes, or an absorbed side send chose VOICE.
+        // Otherwise the original grammar-based text bubble splitter remains.
+        val needsAlignedDelivery = (bubbleDeliveryModes.isNotEmpty() &&
+            bubbleDeliveryModes.size == initialCount) || plan.addedModes.any { it == "voice" }
+        val modes = if (needsAlignedDelivery) {
+            if (plan.addedModes.size == added) originalModes + plan.addedModes
+            else originalModes + List(added) { "text" }
+        } else bubbleDeliveryModes
+        val tracks = if (needsAlignedDelivery) {
+            if (plan.addedTracks.size == added) originalTracks + plan.addedTracks
+            else originalTracks + List(added) { "" }
+        } else bubbleSpeechTracks
         if (primaryPrivateTool) {
             val mergedArgs = JSONObject(toolArgs.toString()).put("text", plan.text)
             if (modes.size == finalCount && modes.isNotEmpty()) {
