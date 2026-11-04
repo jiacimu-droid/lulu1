@@ -69,7 +69,8 @@ object CharacterLifeStore {
         val id = BUNDLED_JIANG_DU_ID
         val character = MigratedDomainStores.characters.settings.value[id] ?: return
         val root = state(id)
-        if (root.optInt("jiangDuApprovedReplacementRevision") >= 2) return
+        val previousRevision = root.optInt("jiangDuApprovedReplacementRevision")
+        if (previousRevision >= 3) return
         val appliedBefore = root.optBoolean("jiangDuApprovedReplacement20261104")
         if (character.displayName !in CharacterProfileSchema.jiangDuNames ||
             root.optInt("xingHeProfileVersion") > 0 ||
@@ -84,19 +85,34 @@ object CharacterLifeStore {
             // A partial launch retries without replacing this recovery copy.
             save(id, root)
         }
-        // Revision 2 refines only the owner-approved intimacy field and sample.
-        // Already-applied profiles keep all unrelated edits made since revision 1.
-        val approved = if (appliedBefore) mapOf(
-            "care" to CharacterProfileSchema.jiangDuApprovedOverrides.getValue("care")
-        ) else CharacterProfileSchema.jiangDuApprovedOverrides
-        approved.forEach { (key, value) -> profile.put(key, value) }
-        profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
-        if (!appliedBefore) MigratedDomainStores.characters.update(character.copy(
-            persona = CharacterProfileSchema.jiangDuV29Persona))
+        if (!appliedBefore) {
+            // The earlier explicit full-replacement authorization is consumed
+            // once, including formerly edited/blank fields; no later reset.
+            CharacterProfileSchema.jiangDuApprovedOverrides.forEach { (key, value) ->
+                profile.put(key, value)
+            }
+            profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
+            MigratedDomainStores.characters.update(character.copy(
+                persona = CharacterProfileSchema.jiangDuV29Persona))
+        } else {
+            // Preserve revision-2's previously authorized intimacy refresh.
+            // Never replay it over an owner's edits made AFTER that revision.
+            if (previousRevision < 2) {
+                profile.put("care", CharacterProfileSchema.jiangDuApprovedOverrides.getValue("care"))
+                profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
+            }
+            // The owner specifically clarified the SAME current character's
+            // values/commitment axis. Only stock v29 text is upgraded; even an
+            // intentionally blank or later hand-edited field remains sovereign.
+            listOf("values", "motives", "perception", "conflict", "respect").forEach { key ->
+                if (profile.optString(key) == CharacterProfileSchema.jiangDuV29Overrides.getValue(key))
+                    profile.put(key, CharacterProfileSchema.jiangDuApprovedOverrides.getValue(key))
+            }
+        }
         root.put("profile", profile)
             .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
             .put("jiangDuApprovedReplacement20261104", true)
-            .put("jiangDuApprovedReplacementRevision", 2)
+            .put("jiangDuApprovedReplacementRevision", 3)
         save(id, root)
     }
 
