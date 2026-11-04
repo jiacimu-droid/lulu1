@@ -102,8 +102,8 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state(id)
             val actual = upgraded.getJSONObject("profile")
-            assertEquals(26, upgraded.getInt("jiangDuPresetVersion"))
-            CharacterProfileSchema.jiangDuV26Overrides.forEach { (key, value) ->
+            assertEquals(27, upgraded.getInt("jiangDuPresetVersion"))
+            CharacterProfileSchema.jiangDuV27Overrides.forEach { (key, value) ->
                 assertEquals("Factory field should migrate: $key", value, actual.getString(key))
             }
             assertEquals(identity, CharacterIdentityStore.get(id))
@@ -161,7 +161,7 @@ class BundledJiangDuImportTest {
             assertEquals("", personalized.getString("cognitiveStyle"))
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
             assertEquals("本人手写的核心人格", MigratedDomainStores.characters.get(id).persona)
-            assertEquals(CharacterProfileSchema.jiangDuV26Overrides.getValue("motives"),
+            assertEquals(CharacterProfileSchema.jiangDuV27Overrides.getValue("motives"),
                 personalized.getString("motives"))
             CharacterLifeStore.setProfile(id, "cognitiveStyle", "用户自己写的功能主次")
             CharacterLifeStore.initialize(context)
@@ -246,12 +246,12 @@ class BundledJiangDuImportTest {
         assertNotNull(restored)
         assertEquals("江渡", restored!!.displayName)
         assertNotEquals("lulu", id)
-        assertEquals(CharacterProfileSchema.jiangDuV26Persona, restored.persona)
+        assertEquals(CharacterProfileSchema.jiangDuV27Persona, restored.persona)
         assertEquals(CharacterLifeForm.DIGITAL, DigitalLifeProfileStore.lifeForm(id))
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[id])
         val state = CharacterLifeStore.state(id)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, state.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV26Overrides.getValue("care"),
+        assertEquals(CharacterProfileSchema.jiangDuV27Overrides.getValue("care"),
             state.getJSONObject("profile").getString("care"))
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV24,
             state.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
@@ -340,7 +340,7 @@ class BundledJiangDuImportTest {
         val jiangDu = CharacterLifeStore.BUNDLED_JIANG_DU_ID
         assertNotEquals("lulu", jiangDu)
         assertEquals("江渡", MigratedDomainStores.characters.settings.value[jiangDu]!!.displayName)
-        assertEquals(CharacterProfileSchema.jiangDuV26Persona,
+        assertEquals(CharacterProfileSchema.jiangDuV27Persona,
             MigratedDomainStores.characters.settings.value[jiangDu]!!.persona)
     }
     @Test fun v2BestFriendWordingUpgradeRespectsManualStyleAndOtherCharacters() {
@@ -618,6 +618,57 @@ class BundledJiangDuImportTest {
         } finally {
             save.invoke(CharacterLifeStore, "lulu", stateBefore)
             MigratedDomainStores.characters.update(roleBefore)
+        }
+    }
+
+    @Test fun v27UpgradesShippedV26ButPreservesManualFieldsAndScene() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val original = JSONObject(CharacterLifeStore.state(id).toString())
+        val role = MigratedDomainStores.characters.get(id)
+        val other = CharacterLifeStore.state("lulu").toString()
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            fun seed(custom: Boolean) {
+                val root = JSONObject(original.toString()).put("jiangDuPresetVersion", 26)
+                val profile = root.getJSONObject("profile")
+                CharacterProfileSchema.jiangDuV26Overrides.forEach { (key, value) -> profile.put(key, value) }
+                listOf("enneagram", "traits", "attachment").forEach { profile.remove(it) }
+                profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamplesV26)
+                if (custom) profile.put("values", "自己的价值").put("traits", "")
+                    .put("dialogueExamples", "自己的示例")
+                save.invoke(CharacterLifeStore, id, root)
+                MigratedDomainStores.characters.update(role.copy(persona =
+                    if (custom) "自己的核心人格" else CharacterProfileSchema.jiangDuV26Persona))
+            }
+            seed(false)
+            CharacterLifeStore.initialize(context)
+            val profile = CharacterLifeStore.state(id).getJSONObject("profile")
+            CharacterProfileSchema.jiangDuV27Overrides.forEach { (key, value) ->
+                assertEquals(key, value, profile.getString(key))
+            }
+            assertEquals(CharacterProfileSchema.jiangDuV27Persona,
+                MigratedDomainStores.characters.get(id).persona)
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, profile.getString("dialogueExamples"))
+            assertTrue(CharacterRuntime.definition(id).persona.contains("张扬"))
+            assertTrue(CharacterLifeStore.profileContext(id).contains("安全型依恋"))
+            assertEquals(other, CharacterLifeStore.state("lulu").toString())
+            seed(true)
+            CharacterLifeStore.initialize(context)
+            val manual = CharacterLifeStore.state(id).getJSONObject("profile")
+            assertEquals("自己的价值", manual.getString("values"))
+            assertEquals("", manual.getString("traits"))
+            assertEquals("自己的示例", manual.getString("dialogueExamples"))
+            assertEquals("自己的核心人格", MigratedDomainStores.characters.get(id).persona)
+            val stable = CharacterLifeStore.state(id).toString()
+            CharacterLifeStore.initialize(context)
+            assertEquals(stable, CharacterLifeStore.state(id).toString())
+        } finally {
+            save.invoke(CharacterLifeStore, id, original)
+            MigratedDomainStores.characters.update(role)
         }
     }
 

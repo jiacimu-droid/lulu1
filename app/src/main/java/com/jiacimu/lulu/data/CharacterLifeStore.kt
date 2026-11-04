@@ -115,6 +115,7 @@ object CharacterLifeStore {
                         CharacterProfileSchema.jiangDuDialogueExamplesV24,
                         CharacterProfileSchema.jiangDuDialogueExamplesV25,
                         CharacterProfileSchema.jiangDuDialogueExamplesV25Reviewed,
+                        CharacterProfileSchema.jiangDuDialogueExamplesV26,
                     )) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
@@ -758,6 +759,11 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        CharacterProfileSchema.jiangDuV27Overrides.forEach { (key, value) ->
+            if (!profile.has(key) || profile.optString(key) == CharacterProfileSchema.jiangDuV26Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -820,8 +826,8 @@ object CharacterLifeStore {
             else -> updatedPersona
         }
         MigratedDomainStores.characters.update(character.copy(
-            displayName = restoredName, persona = if (layeredPersona == CharacterProfileSchema.jiangDuV24Persona)
-                CharacterProfileSchema.jiangDuV26Persona else layeredPersona))
+            displayName = restoredName, persona = if (layeredPersona in setOf(CharacterProfileSchema.jiangDuV24Persona,
+                CharacterProfileSchema.jiangDuV26Persona)) CharacterProfileSchema.jiangDuV27Persona else layeredPersona))
         root.optJSONObject("socialNames")?.let { names ->
             if (names.optString("selfNickname") in setOf("江一舟", "江都")) {
                 names.put("selfNickname", "江渡")
