@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T02:32:18.958463+00:00",
-  "commit": "7a5fbefdd5c9b7e129a4e7b90432c56d219ecca1",
+  "generatedAt": "2026-11-04T02:56:27.063400+00:00",
+  "commit": "1443eeef937c181d5263e5b58e73abb98dbdff35",
   "branch": "main",
-  "sourceFingerprint": "5cf3e300ff03dc50608c35c316fa6ea59ad5e9e1f70157d1a955cb89f4e8e2a1",
+  "sourceFingerprint": "10983e71f47c29fb6c87316f5eeb46449cdf552d94ea4ee77635e1e8e2c45015",
   "summary": {
     "files": 1126,
     "lines": 234855,
@@ -36030,7 +36030,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
       "lines": 153,
-      "sha256": "54eb0eb34ee67d1a5a69eeffb080d62a353ce4422224b5fe24fc7a9c3249e399",
+      "sha256": "659d4db80c9fec96f85fb96921774183aadbd0e4077d1a91605ef88880237cf6",
       "symbols": [
         {
           "name": "CharacterMotiveContinuityTest",
