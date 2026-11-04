@@ -539,3 +539,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因**：`CompanionContactClock.verifiedUserContacts` 允许频道名包含“群聊”但不以“群聊”开头的 UserStatement 绕过 `TimelineStatementOwnership.involvesUser`；历史群聊见证的 `:group:角色ID` 后缀若频道后来改名为“私聊”，也会被当成用户真实联系。这与权威 `TimelineStatementOwnership` 对群聊 ID 的判定不一致，继续污染最近联系和 `RelationshipRhythmPerception`。
 - **修复**：`069e172823f2` 让所有频道含“群聊”或保留 `:group:角色ID` 的候选，都必须经过既有原消息归属核验。真实非群聊的电话、见面、私聊原有来源语义不变；不增加模型调用或新 Store。`43bb18bce554` 补频道前缀变更、历史 ID 后缀、普通孤儿群聊与真实私聊并存的回归测试。
 - **待验**：最新包含 `43bb18bc` 的 Android/JVM/APK 与代码索引需要读取真实最终状态，pending/cancelled 不算通过；真机还需确认群聊删除/迁移、私聊、电话、后台的时间线与实际模型输出。P-08 维持 [ ]。
+
+## 2026-11-04 · P-08 前几轮修复防回归审查：群聊来源门禁不一致（`a99a9b3a`／`746883a9`，待 APK/真机）
+
+- **复核结论**：前轮 `13d6e55` 的 APK/JVM `41742934029` 和索引 `41742933999` confirmed success，但 `43bb18bc` 的 APK `41750883166` 已取消，索引 `41750883216` success；不把前轮成功外推到新代码。真实角色体验仍未验收。
+- **已证缺口**：`069e1728` 在联系时钟把“频道包含群聊”的记录送入 `TimelineStatementOwnership.involvesUser`，但该权威门禁只认“以群聊开头”或带 `:group:角色ID` 的记录。故频道 `手机群聊·旧群`、不带后缀的孤儿记录会在门禁内误走非群聊 `message` 直通路径。新增 `43bb18bc` 测试覆盖了这个情况，却不能在 JVM 通过前宣称已修好。
+- **根因级修复**：`a99a9b3a517d215fbbdd11be20eeb8cc5d26f31c` 统一 `TimelineStatementOwnership.isGroup` 为频道包含“群聊”或真实见证后缀，使所有消费者使用同一原始群消息发送状态/作者核验；无新 Store、人格模板和模型请求。回归 `746883a9abffead3e7af474a9bd6c12431390f10` 用已有群聊消息 Store 同时验证真正的用户/本角色/同伴原话与缺失原消息的导入行：真实消息仍能被识别，假见证不能冒充联系。
+- **真实 CI**：旧 `41750883166` cancelled；含新回归的 APK/JVM `41751433717` 查询时 pending；代码索引 `41751433482` completed/success。pending/cancelled 均不可算通过，`P-08` 继续 `[ ]`。下一轮核对该 SHA 的全量 JVM 和 APK 首个失败步骤，并实机核查迁移旧群记录、真实私聊/群聊/电话与后台联系节律；再继续真实模型盲评与分页成本评估。此轮未执行真机/实际模型对话验证。
