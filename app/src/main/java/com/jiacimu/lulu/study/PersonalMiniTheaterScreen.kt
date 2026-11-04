@@ -219,3 +219,37 @@ private fun PersonalMiniTheaterProse(source: String) {
         }
     }
 }
+
+
+/** Paragraphs and quoted speech are display semantics, never a rewrite of fiction.
+ * Dialogue is only a standalone quotation paragraph; mixed prose remains intact.
+ * No first-line indentation: the rhythm comes from spacing and restrained contrast.
+ */
+internal object PersonalTheaterTypography {
+    enum class Kind { Title, Narration, Dialogue, End }
+    data class Section(val kind: Kind, val text: String)
+
+    fun sections(raw: String): List<Section> {
+        val cleaned = raw.replace("\r\n", "\n").trim()
+        if (cleaned.isBlank()) return emptyList()
+        val result = mutableListOf<Section>()
+        // Preserve original line breaks and content; only visually group empty-line paragraphs.
+        val paragraphs = cleaned.split(Regex("\n[\\t ]*\n+"))
+        paragraphs.forEach { paragraph ->
+            val lines = paragraph.trim().lines().filter { it.isNotBlank() }
+            lines.forEach { line ->
+                val value = line.trim()
+                val kind = when {
+                    value == "【小剧场已完】" -> Kind.End
+                    value.startsWith("《") && value.endsWith("》") &&
+                        value.length < 90 -> Kind.Title
+                    (value.startsWith("“") && value.endsWith("”")) ||
+                        (value.startsWith("「") && value.endsWith("」")) -> Kind.Dialogue
+                    else -> Kind.Narration
+                }
+                result += Section(kind, value)
+            }
+        }
+        return result
+    }
+}
