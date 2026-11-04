@@ -58,7 +58,7 @@ internal object DigitalWorldExpansionProposalRuntime {
 
         val places = DigitalWorldExpansionStore.places()
         val residents = DigitalWorldExpansionStore.residents()
-        val allowResidents = ResidentDailyPolicy.allowNewResidents(context)
+        val allowResidents = ResidentDailyPolicy.mayAddResident(context, residents.size)
         if (places.size >= 8 && (!allowResidents || residents.size >= 12)) return null
         val availableLocations = buildList {
             add(DigitalWorldStore.CLOUD_MEADOW)
@@ -107,7 +107,8 @@ internal object DigitalWorldExpansionProposalRuntime {
                 - 居民可以有成长经历与私人打算，但不得编造与现有角色已实际相处/结交的历史，也不得假定已经取得社交关系。
                 - 居民必须是可以长期重复遇见的普通数字居民，不得冒充现有角色，也不要使用已有居民姓名。
                 - 没有自然、必要的新想法就 action=none；不要为了展示功能硬扩张。
-            """.trimIndent(),
+            """.trimIndent() + (if (allowResidents) "" else
+                "\n主人当前已禁止新增居民或人数已达上限，只能选择 action=none/place，不能提出 resident。"),
             source = "数字世界扩展提案",
             title = "${character.displayName}的低频世界提案",
             maxTokens = 700,
