@@ -942,7 +942,8 @@ internal object ResidentDailyDecision {
      */
     private suspend fun executeWakeStepsReport(context: Context, role: String,
         decision: JSONObject, turnId: String, initialCompleted: Boolean = true,
-        causeEvidenceId: String = ""): OrderedCharacterActionReport {
+        causeEvidenceId: String = "",
+        groupNoticeFollowUp: Boolean = false): OrderedCharacterActionReport {
         val original = decision.optJSONArray("steps")
             ?: return OrderedCharacterActionReport(emptyList(), false)
         val steps = JSONArray()
@@ -966,6 +967,7 @@ internal object ResidentDailyDecision {
             requestId = turnId, initialCompleted = initialCompleted,
             causeEvidenceId = causeEvidenceId,
             autonomousLifeTurn = true, sceneAllowedTools = wakeTools,
+            groupNoticeFollowUp = groupNoticeFollowUp,
             // Existing releases used these IDs; replay must recover the same
             // receipts instead of performing a second post/message/like.
             requestIdForStep = { index -> "$turnId-extra-$index" })
@@ -2072,12 +2074,25 @@ internal object ResidentDailyDecision {
             CharacterInnerLifeStore.initialize(app)
             val native = ResidentCharacterBridge.nativeResident(characterId)
                 ?: return@withLock false
+            val groupNotice = GroupSocialOpportunity.witnessed(characterId, evidenceId)
             val stimulus = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
                 .singleOrNull { event ->
                     event.revision == 1L &&
-                        event.evidenceKind == EventEvidenceKind.Observation &&
-                        event.source in setOf("character-message", "owner-on-behalf", "phone:friend")
+                        ((event.evidenceKind == EventEvidenceKind.Observation &&
+                            event.source in setOf("character-message", "owner-on-behalf", "phone:friend")) ||
+                            (groupNotice && event.source == "message" &&
+                                event.evidenceKind == EventEvidenceKind.CharacterStatement))
                 } ?: return@withLock false
+            if (groupNotice) {
+                val policy = ProactivePerceptionPolicyStore.get(characterId)
+                val localTime = now.atZone(java.time.ZoneId.systemDefault()).toLocalTime()
+                if (ProactiveMessageGate.isQuiet(ProactiveGatePolicy(
+                    enabled = true,
+                    quietHoursEnabled = policy.quietHoursEnabled,
+                    quietStartMinutesOfDay = policy.quietStartMinutesOfDay,
+                    quietEndMinutesOfDay = policy.quietEndMinutesOfDay,
+                ), localTime)) return@withLock false
+            }
             val p = prefs(app)
             val key = "resident-social:$characterId:$evidenceId"
             val choiceKey = "$key:choice"
@@ -2212,7 +2227,7 @@ internal object ResidentDailyDecision {
                     witnessed.socialIds, now)
             }
             val report = executeWakeStepsReport(app, characterId, decided, decisionId,
-                causeEvidenceId = decisionSource.id)
+                causeEvidenceId = decisionSource.id, groupNoticeFollowUp = groupNotice)
             check(CharacterPhoneInbox.acknowledgeObserved(characterId, unread)) {
                 "居民真实看过的朋友圈未读回执没有保存"
             }
