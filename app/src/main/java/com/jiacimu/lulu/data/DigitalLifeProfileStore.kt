@@ -143,6 +143,18 @@ object DigitalLifeProfileStore {
         }
     }
 
+    /** A native resident leaving must not erase their historical participation
+     * from surviving people's meetings or independent memory timelines. */
+    fun retireResident(characterId: String) {
+        require(characterId.startsWith("resident:")) { "只允许移除原住民" }
+        synchronized(lock) {
+            mutable.value = mutable.value - characterId
+            persistLocked()
+        }
+        DigitalWorldStore.retireResidentPresence(characterId)
+        CharacterLifeStore.clearBodyState(characterId)
+    }
+
     fun remove(characterId: String) {
         val cleanId = characterId.trim()
         if (cleanId.isBlank()) return
