@@ -744,3 +744,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 选画旧稿保留为不可变v28迁移对照，新单场景“靠近”正文706字符；成年恋人数字世界相处，以连续对话、心理、环境表现主动调情和自愿交出主导；非真实经历、无固定轮流行为与新收费调用。对话中的“你”属于人物台词，人设字段全部用“用户”。
 - 默认字段/核心/示例迁移到v29；手改、留空、已有关系与其他人物隔离回归保留，新增v28→v29正式注入及定制保护回归。
 - 追查前轮CI：v27 APK/JVM41797232153与v28 41797850151均failure；v28日志126467248113显示4条失败：模板新增字段未纳入江渡默认字段完整性契约、3条旧迁移测试仍断言已替换的清俊/温柔旧文案。本轮补齐默认字段，更新为当前获批文案的断言，保留原迁移、手改、隔离断言。索引前两轮均success；本轮单测/APK/索引随提交触发，真机与真实模型仍待验。
+
+## 2026-11-04 · P-05/M1 单条长事件的多个原文条件曾只注入第一个片段
+
+- **接手证据**：读取最新 AGENTS、CODE_INDEX、唯一大纲、人物专项、统一因果契约及 `UnifiedMemoryOrchestrator → MemoryEvidenceSelection.render → OriginalEvidenceSpans.ranked`。v27 Android/JVM/APK run [41797232153](https://github.com/jiacimu-droid/lulu1/actions/runs/41797232153) completed/failure（2371 项中 4 项失败）；并行 main 的 v29 `911c73c` 已修正相关默认字段和旧断言，本轮不重复修改该处。
+- **已证根因**：`OriginalEvidenceSpans.ranked` 已能按当前检索焦点返回长事件的多个精确原文区间，包含无匹配时的首/中/尾候选；但 `MemoryEvidenceSelection.render` 直接 `firstOrNull()`，即使证据预算充足，仍只向同一个人物交付首个区间。同一长事件中相隔较远的许可、否定或取消条件会在渲染层丢失，M1 的候选能力不等于实际注入能力。
+- **实际代码**：`2fc2b594294a15b43b5599c0e8202c7f343b48ef` 修改现有证据渲染：按原有候选优先级使用剩余预算接纳多段，最终按原文位置输出，各段保留 `eventId@revision`、字符范围与「其余未注入」标记；超出预算仍跳过而不是虚构连续性。只读取同一权威事件，不新增 Store、常态模型调用或选择模型语义的规则。
+- **回归**：`6c8a934ef422f0aec741750cae6b9320365b203a` 新增无词面焦点长事件首/中/尾三处约定与撤销条件测试，覆盖充足预算多段、狭窄预算仅首段且明确截断、revision 8 修改不复活旧尾段。此处仅证明代码提交，尚无本提交完整测试通过结果。
+- **CI 分层**：[原代码索引 41802053558](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053558) completed/success；[Android/JVM/APK 41802053512](https://github.com/jiacimu-droid/lulu1/actions/runs/41802053512) 最后查询 pending，**没有通过验收**。`2fc2b59` 的旧 [41802008330](https://github.com/jiacimu-droid/lulu1/actions/runs/41802008330) cancelled，不作为成功。真机、真实模型、跨日仍待证实。
+- **下一轮**：先查 `41802053512` 的最终单测与 APK 产物，如失败取首条真实失败；其后继续 P-05/M1 的同事件远距约束是否进入最终模型输入，并复核 P-06 时空人物联合检索、经历展开的来源和任务回执，不把片段选中等同于模型已使用或目标已完成。
