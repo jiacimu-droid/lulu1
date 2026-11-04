@@ -1013,3 +1013,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归已提交、未宣称运行**：CommitmentAlarmRecoveryTest 扩充旧结果未知但次日有闹钟、次日原任务 ID 与旧复查并存、重启漏次如实记录、两分钟执行窗口内仍允许领取；DailyCommitmentRecurrenceTest 验双闹钟/历史 codec 与日期投影；CommitmentOutcomeVerificationTest 验昨日证据不能为今日结案、同日提前完成的候选不会被拒。提交 e897995、8aaa4eb、1ae09a1、dbf076e、9020684、3f11cd4。源文件修改后由仓库原 Refresh code index workflow 更新索引，不手改造假生成结果。
 - **当前 Actions 边界**：接手/修改期间大量并发提交触发 queue，最新 902d426 的 APK run 41878588585、索引 run 41878588646 为 queued；较早 f23eaf1 的 APK run 41876701402 在查验时为 in_progress。已取消的同内容前序 CI 不代表成功；无该次最终 JVM/APK/真机结果，不保证编译及通知与系统后台行为已经验通。
 - **下一步**：核最新 main 对应 APK/JVM 全链结果；有失败按第一个失败步骤修源码；真机连续三天分别核原时刻、前一日结果核查、次日独立闹钟、状态/手机屏幕授权与应用重启、用户取消/改期、角色自然跟进及真实 API 次数。旧综合责任不按关键词自动拆；仍需同一角色读原始约定后以结构化变更明确拆分和关联心事。
+
+## 2026-11-05 · P-08a.2d 原生事件先于回执时的后续归因
+
+- **接手与依据**：接手 main e6ce026；已阅读 AGENTS、CODE_INDEX、ROADMAP 和本文件最近记录。继续检查 CharacterCausalTrace.receiptContinuation；此前 1830860 已阻止「晚于回执的原生事件」被引用，本轮没有重做。
+- **确证缺口**：原生事件发生在 t=5，工具回执发生在 t=10，角色对原生事件的决定发生在 t=7 时，旧 unverifiedReason 仅检查决定不早于原生事件，因而错误标成「回执后的本人选择」。这会把尚未收到的回执当作已经参与判断，破坏「感知→判断→执行→回执→再判断」时间因果。
+- **正式修复**：[0db87d4](https://github.com/jiacimu-droid/lulu1/commit/0db87d46c5add8c655920c22d6b7e8526eb4b9eb) 在既有来源版本与时间门禁后，要求所有被称为「回执后的本人选择」的决定时间也不得早于该工具回执；过早的真实决定仍显示为「关联选择 · 后续关系未证实」，不删事件、不改变执行结果或本人决定。
+- **回归**：[b14c167](https://github.com/jiacimu-droid/lulu1/commit/b14c167456b97285f985ff1c3eb39acabcfbc599) 增 Robolectric 测试：原生事件 +5、本人决定 +7、回执 +10 不得归为回执后；真正 +20 决定仍可归因。测试已提交但**本轮未实际执行**。
+- **CI 边界**：旧 902d426 的 APK/JVM 41878588585 和索引 41878588646 本轮查询均 queued；不属于本次源码提交，也不证明本次成功。此工具没有拿到本次 push 的 Actions run，JVM/APK/索引、真机、真实模型、跨日均待验。依 AGENTS 原代码索引生成工作流应在 Actions 运行后核实，不手写伪造索引。
+- **下一步**：先核 0db87d4/b14c167 后继的真实 JVM/APK、索引；若测试失败按首个真实错误修复。继续 P-08a.1 的跨入口 requestId/source revision 归因或 P-08c.2 剩余取消/部分送达；若只剩外部样本，转可执行的回归与性能任务。
