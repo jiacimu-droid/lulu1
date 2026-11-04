@@ -1099,3 +1099,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式代码**：[3420e794](https://github.com/jiacimu-droid/lulu1/commit/3420e794b3cea69baae23744b55aae5970865cfb) 在同一 CharacterCausalTrace.inspect 投影处仅过滤「明确当前 revision 且可解析时间严格早于当前来源」的决定；旧版决定仍按历史标记、无时间/无版本旧档案保留不确定性。原 CharacterInnerLifeStore/时间线不修改，不新增模型调用/任务或新 Store。
 - **回归**：[642b0df](https://github.com/jiacimu-droid/lulu1/commit/642b0df830e3f13e6fbfaff31f414bf22ffe4511) 增 CharacterCausalTraceTest.currentVersionChoiceCannotPredateItsSourceEvenWithExactEvidenceId：前于来源的当前版本选择不可显示；来源之后的决定可见；旧无时间无版本选择标记不确定；只读历史不变、跨角色隔离。测试源码已提交，但**本轮未获得针对 642b0df 的 JVM/APK 实际运行成功**，不能标为测试通过。
 - **下一步**：核 642b0df 的后继 APK/JVM 与索引，失败先看首个真实日志；之后 P-08a.1 查其他正式入口关联或 P-08c.2 的取消/部分送达边界。真机、真实模型与跨日因果质量仍未验。
+
+
+## 2026-11-05 · P-08a.2j 修复红 CI 的时间归因诊断回归
+
+- **接手与真实 CI**：读取 main 四份入口文档、CharacterCausalTrace 和现有 CharacterCausalTraceTest；最新 642b0df 的 [APK/JVM 41919182717](https://github.com/jiacimu-droid/lulu1/actions/runs/41919182717) completed/failure，job 126889651883 的 Gradle 日志显示 2448 tests completed, 1 failed，唯一失败 CharacterCausalTraceTest.exactReceiptCannotProveDecisionMadeBeforeItsSource:1298。索引 [41919182996](https://github.com/jiacimu-droid/lulu1/actions/runs/41919182996) completed/success，不能替代 JVM。
+- **真实根因**：3420e794 为防止早于来源的当前版本选择被冒充本人选择，将其从 relatedDecisions 过滤；同时意外移除了此前 executionRequestLines 对该不可能时间归因应展示的「主动作 · 回执归属未证实」诊断。测试第一条 assertTrue 因此失败。不是执行器真正成功，也不是测试本身错误。
+- **源码修复**：[3ba3281](https://github.com/jiacimu-droid/lulu1/commit/3ba32816ad34c006afa24ea9f91b397d8f59f3e7) 把同来源当前版本且时间早于来源的选择单独分流：仅展示未证实诊断，不进入精确 requestId 回执恢复、真实送达或成功归因；其他当前/历史/无时间选择沿原路径。权威人物档案、消息、回执均不变，不增加模型请求。已有失败回归 exactReceiptCannotProveDecisionMadeBeforeItsSource 同时断言诊断可见、成功不冒认、独立回执不借用、跨角色隔离，保留并直接用于后继 CI。
+- **验证边界**：本轮新提交的 JVM/APK 尚未取得成功结论，不能以 642b0df 的失败或索引成功代替；真机、真实模型、跨日未验。下一轮先核 3ba3281 的 Actions；若通过，继续 P-08a.1 其他入口的真实关联审计。
