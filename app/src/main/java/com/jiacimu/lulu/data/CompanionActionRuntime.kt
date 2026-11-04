@@ -1502,6 +1502,8 @@ internal data class PrivateInboundReplyPlan(
     val text: String,
     val actions: org.json.JSONArray?,
     val absorbedSends: Int = 0,
+    val addedModes: List<String> = emptyList(),
+    val addedTracks: List<String> = emptyList(),
 )
 
 internal fun singlePrivateInboundReply(
@@ -1512,6 +1514,8 @@ internal fun singlePrivateInboundReply(
     val rest = org.json.JSONArray()
     val parts = mutableListOf<String>()
     if (authoredText.isNotBlank()) parts += authoredText
+    val addedModes = mutableListOf<String>()
+    val addedTracks = mutableListOf<String>()
     var absorbed = 0
     for (index in 0 until actions.length()) {
         val original = actions.optJSONObject(index)
@@ -1520,9 +1524,11 @@ internal fun singlePrivateInboundReply(
             continue
         }
         val normalized = AutonomousActionWireProtocol.normalizeStep(original)
+        val args = normalized.optJSONObject("args") ?: org.json.JSONObject()
         val isUnconditionalPrivateSend = normalized.optString("tool") == "send_private_message" &&
-            !normalized.optBoolean("requiresPreviousSuccess", false)
-        val body = normalized.optJSONObject("args")?.optString("text").orEmpty().trim()
+            !normalized.optBoolean("requiresPreviousSuccess", false) &&
+            args.optString("planId").isBlank()
+        val body = args.optString("text").trim()
         if (isUnconditionalPrivateSend && body.isNotBlank()) {
             // Each authored speech fragment is heard once in this particular
             // reply, regardless of whether it was returned in text, bubbles,
@@ -1532,6 +1538,21 @@ internal fun singlePrivateInboundReply(
                 parts.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator))
             if (canonicalBody.isNotBlank() && !alreadySpoken.contains(canonicalBody)) {
                 parts += body
+                val segments = body.split(com.jiacimu.lulu.SemanticBubbleSeparator)
+                    .map(String::trim).filter(String::isNotBlank)
+                val modes = args.optJSONArray("bubbleDeliveries")
+                val voiced = args.optJSONArray("voiceBubbles")?.let { array ->
+                    (0 until array.length()).map { array.optString(it).trim() }
+                }.orEmpty()
+                val tracks = args.optJSONArray("bubbleSpeechTracks")
+                val aligned = modes != null && modes.length() == segments.size
+                segments.forEachIndexed { index, segment ->
+                    addedModes += if (aligned) {
+                        if (modes!!.optString(index).equals("voice", true)) "voice" else "text"
+                    } else if (segment in voiced) "voice" else "text"
+                    addedTracks += if (aligned && tracks?.length() == segments.size)
+                        tracks.optString(index) else ""
+                }
             }
             absorbed++
         } else rest.put(original)
@@ -1540,6 +1561,8 @@ internal fun singlePrivateInboundReply(
         parts.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
         rest.takeIf { it.length() > 0 },
         absorbed,
+        addedModes,
+        addedTracks,
     )
 }
 
