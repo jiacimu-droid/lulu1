@@ -95,7 +95,18 @@ internal object NarrativeEvidenceChain {
         val ordered = compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }
         // Annotation indexes are per owner as well; duplicate event IDs in
         // broken/legacy mixed batches must not make one role's facts win.
-        val distinct = events.distinctBy { it.characterId to it.id }.sortedWith(ordered)
+        // The caller-facing annotation map is keyed only by event ID. Legacy
+        // mixed-owner batches can reuse an ID, so there is no safe way to
+        // attribute that key to one character. Omit ambiguous IDs entirely
+        // instead of allowing the last owner to overwrite the first.
+        val ambiguousIds = events.groupBy { it.id }
+            .filterValues { rows -> rows.map { it.characterId }.distinct().size > 1 }
+            .keys
+        val distinct = events.asSequence()
+            .filterNot { it.id in ambiguousIds }
+            .distinctBy { it.characterId to it.id }
+            .sortedWith(ordered)
+            .toList()
         val result = mutableMapOf<String, String>()
         val byTask = distinct.filter { it.taskId.isNotBlank() }
             .groupBy { it.characterId to it.taskId }
