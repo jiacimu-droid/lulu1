@@ -173,6 +173,7 @@ private suspend fun updateCommitmentTask(
     // new time actually replaces it. Cancel/complete still cancel as before.
     // Failed verification must not cancel the real pending reminder/review.
     if (!complete && !(reschedule && needsClarification)) target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+    if (reschedule && !needsClarification) target.dailyNextAlarmId?.let(LuluAlarmSystem::cancel)
     val next = CommitmentTaskStore.update(target.id) { current ->
         when {
             cancel -> current.copy(status = CommitmentTaskStatus.Cancelled, nextCheckAt = null, linkedAlarmId = null, followUpKind = "", lastActionResult = "用户取消了约定")
@@ -204,6 +205,8 @@ private suspend fun updateCommitmentTask(
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 repeat = draft.repeat ?: current.repeat,
                 dailyBaseDueAt = newDailyBaseDueAt,
+                dailyNextDueAt = if (needsClarification) current.dailyNextDueAt else null,
+                dailyNextAlarmId = if (needsClarification) current.dailyNextAlarmId else null,
                 // When the new time is unclear, keep the old alarm's identity
                 // so the kept alarm above still belongs to this task.
                 linkedAlarmId = if (needsClarification) current.linkedAlarmId else null,
