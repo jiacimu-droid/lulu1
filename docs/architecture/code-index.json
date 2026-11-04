@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T01:40:44.007749+00:00",
-  "commit": "a197d5f75114a3929bb2f22f1e1aa483f0db5aaf",
+  "generatedAt": "2026-11-04T01:43:42.983649+00:00",
+  "commit": "0579848ecca8992bfbb7169365ee22fe2cf607f0",
   "branch": "main",
-  "sourceFingerprint": "82a9ecf63d30fa74659a3649bb8924ba231fab5186144054681f3c3836345808",
+  "sourceFingerprint": "582a5e0338827e8a973df221a1b85025602748da9a9170e7ad5b63fbe2e28042",
   "summary": {
     "files": 1126,
     "lines": 234748,
@@ -489,7 +489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 28
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
@@ -2215,7 +2215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 35
+        "line": 33
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
@@ -7971,7 +7971,7 @@
     "age": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 39
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
@@ -25669,20 +25669,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-      "lines": 67,
-      "sha256": "e11b096fe5464554996f26979530814043be4c5bc5d4d24b903abd624e90bf95",
+      "lines": 65,
+      "sha256": "ae7789648ea7540757ed382339aff426f4df0f548dace854d9d1ba9c8bc3a0bc",
       "symbols": [
         {
           "name": "context",
-          "line": 28
+          "line": 26
         },
         {
           "name": "describe",
-          "line": 35
+          "line": 33
         },
         {
           "name": "age",
-          "line": 39
+          "line": 37
         }
       ]
     },
@@ -38047,8 +38047,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
-      "lines": 287,
-      "sha256": "2170ec05d2de1ee9945b116954e600d6e35e3c381cc4ed5319a5deec3eec082e",
+      "lines": 289,
+      "sha256": "8d645bdd212c7a34a3fbfa21d5058b4eeb3173ffacaa1fc95b5b5401b7f061b5",
       "symbols": [
         {
           "name": "TimelineStatementOwnershipTest",
