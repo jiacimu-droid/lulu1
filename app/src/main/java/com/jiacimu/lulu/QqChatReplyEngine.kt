@@ -531,6 +531,25 @@ internal fun groupChatLiveReplyAnchor(
         "$speaker：${qqForwardContextText(last.content).take(650)}"
 }
 
+/** One paid attempt per group role. Blank/tool-only/failure returns unchanged.
+ * Gateway injection verifies no coordinator retry without making paid requests. */
+internal suspend fun requestGroupRoleOnce(
+    characterId: String,
+    history: String,
+    prompt: String,
+    modelLabel: String,
+    archiveId: String?,
+    sceneContext: String,
+    turnContext: String,
+    evidenceIds: List<String>,
+    gateway: suspend (String, String, String, String, String?, String, String, List<String>) ->
+        Result<com.jiacimu.lulu.ai.ModelReply> = { id, context, input, label, archive, scene, turn, evidence ->
+        LuluDeviceToolBridge.respond(id, context, input, label, archive, scene,
+            turnContext = turn, userEvidenceIds = evidence)
+    },
+): Result<com.jiacimu.lulu.ai.ModelReply> =
+    gateway(characterId, history, prompt, modelLabel, archiveId, sceneContext, turnContext, evidenceIds)
+
 internal suspend fun runGroupReplies(
     conversationId: String,
     group: LuluGroupChat,
@@ -658,10 +677,10 @@ internal suspend fun runGroupReplies(
         // A blank/non-silent response is a failed or incomplete attempt, not permission
         // to silently buy a second model call with a different prompt. Preserve the
         // original result for the existing error/receipt path below.
-        val result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, memberLabel,
+        val result = requestGroupRoleOnce(member.characterId, history, prompt, memberLabel,
             memberArchive, sceneContext,
             turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
-            userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
+            evidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         if (!currentCoroutineContext().isActive) return
         if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
             onSpeakerChange(null)
