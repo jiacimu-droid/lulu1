@@ -130,7 +130,10 @@ internal object SelfTodoStore {
     private fun preferences(context: Context) =
         context.applicationContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 
-    fun read(context: Context): List<TodoTask> = runCatching {
+    fun read(context: Context): List<TodoTask> = readStrict(context).orEmpty()
+
+    /** Unlike the UI fallback, the tool must never report corrupt storage as empty. */
+    internal fun readStrict(context: Context): List<TodoTask>? = runCatching {
         val array = JSONArray(preferences(context).getString(TASKS, "[]"))
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
@@ -161,7 +164,7 @@ internal object SelfTodoStore {
                 }.toSet(),
             )
         }
-    }.getOrDefault(emptyList())
+    }.getOrNull()
 
     private fun encode(tasks: List<TodoTask>): String {
         val array = JSONArray()
@@ -186,21 +189,36 @@ internal object SelfTodoStore {
     fun save(context: Context, tasks: List<TodoTask>): Boolean =
         preferences(context).edit().putString(TASKS, encode(tasks)).commit()
 
+    private fun legacyAdditions(legacy: List<LegacySelfTodo>, stored: List<TodoTask>): List<TodoTask> {
+        val today = LocalDate.now()
+        return legacy.filterNot { old -> stored.any { it.id == old.id } }.map { old ->
+            val oldDate = Instant.ofEpochMilli(old.updatedAt.coerceAtLeast(0L))
+                .atZone(ZoneId.systemDefault()).toLocalDate()
+            TodoTask(
+                id = old.id, title = old.title.ifBlank { old.note },
+                note = if (old.title.isBlank()) "" else old.note,
+                firstDate = if (old.done) oldDate else today,
+                minutes = null, repeat = TodoRepeat.ONCE, createdAt = old.updatedAt,
+                completions = if (old.done) listOf(TodoCompletion(oldDate, old.updatedAt))
+                    else emptyList(),
+            )
+        }
+    }
+
+    /** Read the same not-yet-imported source as the 所行 UI, without writing
+     * the user's original pages or marking migration complete. */
+    internal fun readForRole(context: Context): List<TodoTask>? {
+        val stored = readStrict(context) ?: return null
+        if (preferences(context).getBoolean(MIGRATED, false)) return stored
+        val legacy = legacySelfTodoRecords(context) ?: return null
+        return stored + legacyAdditions(legacy, stored)
+    }
+
     fun loadWithLegacy(context: Context, legacy: List<LegacySelfTodo>): List<TodoTask> {
         val stored = read(context)
         val prefs = preferences(context)
         if (prefs.getBoolean(MIGRATED, false)) return stored
-        val now = LocalDate.now()
-        val additions = legacy.filterNot { old -> stored.any { it.id == old.id } }.map { old ->
-            val oldDate = Instant.ofEpochMilli(old.updatedAt.coerceAtLeast(0L))
-                .atZone(ZoneId.systemDefault()).toLocalDate()
-            TodoTask(
-                id = old.id, title = old.title.ifBlank { old.note }, note = if (old.title.isBlank()) "" else old.note,
-                firstDate = if (old.done) oldDate else now,
-                minutes = null, repeat = TodoRepeat.ONCE, createdAt = old.updatedAt,
-                completions = if (old.done) listOf(TodoCompletion(oldDate, old.updatedAt)) else emptyList(),
-            )
-        }
+        val additions = legacyAdditions(legacy, stored)
         val merged = stored + additions
         // Mark the migration only together with its data. Failed commits can retry.
         prefs.edit().putString(TASKS, encode(merged)).putBoolean(MIGRATED, true).commit()
