@@ -56,8 +56,8 @@ internal object PersonalMiniTheater {
             // Prefer structured temperament; autobiography often mixes original-world facts.
             val profile = CharacterLifeStore.state(characterId).optJSONObject("profile")
             val temperament = CharacterProfileSchema.fields.filter {
-                it.key in setOf("values", "motives", "enneagram", "traits", "attachment",
-                    "cognitiveStyle", "perception", "conflict", "expression", "speechHabits", "interests")
+                it.key in setOf("values", "enneagram", "traits", "cognitiveStyle",
+                    "conflict", "expression", "speechHabits", "interests")
             }.mapNotNull { field ->
                 profile?.optString(field.key)?.trim()?.takeIf(String::isNotBlank)
                     ?.let { "${field.label}：$it" }
@@ -104,7 +104,7 @@ internal object PersonalMiniTheater {
                 人物的稳定性格、价值、认知方式与说话习惯是辨认基线。题材中的世界规则、身份和身体变化要真正影响剧情。
                 身体互换必须真的互换身体，缩小必须影响具体行动，不能把大胆题材退化成换称呼或普通聊天。
                 性格侧面放大只在本篇生效，保留其他面貌与核心辨识度，不把所有题材写成同一个男主或女主，不修改原角色。
-                ${if (item.worldMode == "alternate") "【彻底架空】本篇与露露机原世界无关：双方可以从陌生人开始，拥有全新职业、身份、社会地位与关系；原世界的主人/闺蜜/恋人/数字生命、已有约定与经历均不继承。仅保留本人的性格、判断和说话习惯。称谓与关系仅由本篇剧情产生，不要带回数字世界。" else "【原世界番外】保留已给出的原世界身份和原有关系，可以有本篇具体幻想变化；故事不写回真正的共同经历。"}
+                ${if (item.worldMode == "alternate") "【彻底架空】本篇与露露机原世界无关：双方可以从陌生人开始，拥有全新职业、身份、社会地位与关系；原世界的主人/闺蜜/恋人/数字生命、已有约定与经历均不继承。仅保留本人的性格、判断和说话习惯。若人格素材里带有原世界的关系称谓，仅提取表达与反应方式，不把称谓当成本篇事实。称谓与关系仅由本篇剧情产生，不要带回数字世界。" else "【原世界番外】保留已给出的原世界身份和原有关系，可以有本篇具体幻想变化；故事不写回真正的共同经历。"}
                 对话自然；旁白可用第二人称。身体互换时分清身体与意识身份。
                 已成年的人物按成人的自主意愿相处；用户与角色有各自的主动和回应，亲密变化有具体缘由。
                 一个完整场景或短篇，有环境、动作、对话与心理，情节大胆而因果连贯；不逐项展示人格标签，不写成解释性报告。
