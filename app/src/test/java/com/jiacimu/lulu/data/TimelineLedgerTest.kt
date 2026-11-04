@@ -92,6 +92,43 @@ class TimelineLedgerTest {
         }
     }
 
+
+    @Test fun lateTaskMetadataEnrichesCanonicalEventWithoutRevisionOrReassignment() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val role = "late-task-owner"
+        val id = "late-task-canonical"
+        val time = Instant.now().minusSeconds(30)
+        fun write(owner: String = role, task: String = "", expected: Long? = null) =
+            SharedExperienceTimeline.record(id, owner, "私聊", "用户", "同一条原始消息", time,
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement, taskId = task, expectedRevision = expected)
+        write()
+        val original = SharedExperienceTimeline.eventsByIds(role, listOf(id)).single()
+        write(task = "stale-task", expected = 0L)
+        write(owner = "another-owner", task = "foreign-task")
+        assertEquals("", SharedExperienceTimeline.eventsByIds(role, listOf(id)).single().taskId)
+        write(task = "owned-task", expected = original.revision)
+        val linked = SharedExperienceTimeline.eventsByIds(role, listOf(id)).single()
+        assertEquals(original.copy(taskId = "owned-task"), linked)
+        // A duplicate/competing callback cannot steal the established link,
+        // clear it, create another event or rewrite the original text/version.
+        write(task = "owned-task")
+        write(task = "other-task")
+        write()
+        assertEquals(linked, SharedExperienceTimeline.eventsByIds(role, listOf(id)).single())
+        assertEquals(1, SharedExperienceTimeline.all(role).size)
+        assertTrue(SharedExperienceTimeline.eventsByIds("another-owner", listOf(id)).isEmpty())
+        val backup = SharedExperienceTimeline.exportBackup()
+        SharedExperienceTimeline.importBackup(backup)
+        SharedExperienceTimeline.initialize(context)
+        assertEquals(linked, SharedExperienceTimeline.eventsByIds(role, listOf(id)).single())
+        SharedExperienceTimeline.deleteEvent(id)
+        write(task = "cannot-resurrect")
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(id)).isEmpty())
+    }
+
     @Test fun migrationDedupIsolationCorrectionAndDeletionAreDurable() {
         val context = RuntimeEnvironment.getApplication() as Context
         context.openOrCreateDatabase("shared_experience_timeline.db", 0, null).use { db ->

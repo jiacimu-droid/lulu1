@@ -1078,3 +1078,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **验收边界**：本轮尚无 JVM/APK/索引成功证据；当前环境无本地仓库执行脚本，必须核原 Actions 索引是否生成并以源码 SHA 为基准，不手工伪造。真机/真实模型/跨日未验。先检查后继 CI 的首个失败及上述两条旧失败是否仍在，再续 P-08a.1 / P-08c.2。
 
 - **后继索引核对**：原生成索引已在 main 自动更新，CODE_INDEX 基准提交为 `0c2b4a31bde12431568a890c3d15b9726858590a`（对应本轮全部源码与测试）；此事实只证明索引文件同步，尚未取得 Android/JVM/APK 通过证据。
+
+## 2026-11-05：P-08a.2h 先修真实CI：晚到任务关联与历史来源回执
+
+- **接手与真实失败**：main ebdd371；读取必读规范、原索引、大纲、人物进度与近期提交。8d6cf2e的APK41898269295实际failure，不能延续上一轮pending表述；后继0c2b4a3的APK41908471007同为failure，job126853253924日志直接给出三条CharacterCausalTraceTest失败：searchResultHasSameFollowThroughFromOriginAndReceiptWithoutClaimingGoalCompletion:508、linkedTaskReceiptMustBeActualResultAfterItsSource:100、sharedTaskIdDoesNotClaimDirectCauseWithoutMatchingSourceId:349。原索引41908470912success不等于APK通过。
+- **已证第一根因/链路**：原始消息先入SharedExperienceTimeline.record（无taskId）→同文同时间后补任务关联→现有早返回分支只补session/kind/channel，丢掉taskId→inspect无法按同任务恢复合法旧回执。不是让测试凭空指定任务：正式record接受此元数据参数，本应与session一样可补齐。现仅在原taskId空且新值非空时补task_id，沿原owner/expectedRevision/tombstone校验；不变正文、时间或revision，不重跑抽取，不让重复回调重绑既有任务。
+- **已证第二根因/链路**：来源编辑→revision递增→inspect候选先要求回执causeRevision等于当前版本→后面的「历史版本的行动回执」分支永远拿不到旧版实际回执。现精确causeId相同且0<旧版本<当前版本时，仅进入历史告警，不调用receiptContinuation，不把旧执行/后续算成对新文字的回应；老回执可早于本次编辑，但未知版本、未来版本、当前版本仍要满足原时间门禁。明确指向其他来源的回执继续排除，无cause的旧同任务回退继续保留。
+- **旧断言纠正**：sharedTaskId旧测试仍要求显示causeEvidenceId明确属于别处的结果，与231a557及sharedTaskDoesNotAttachAnotherSourcesExplicitReceipt冲突。更新为本卡不能借该回执，同时在实际回执自身卡仍显示原执行失败；不恢复错归因、不删测试或真实历史。
+- **必要回归**：TimelineLedgerTest.lateTaskMetadataEnrichesCanonicalEventWithoutRevisionOrReassignment经原SQLite记录路径覆盖空关联补齐、stale expectedRevision/跨角色拒绝、同请求重放/另一任务不可抢占、原文版本不变、备份和删除不复活。CharacterCausalTraceTest.sourceEditKeepsOnlyOlderExplicitReceiptAsHistoricalWithoutBorrowingFollowThrough覆盖编辑时间晚于旧回执、当前真实新回执、未知早回执/未来版本拒绝、不得借用旧后续、只读不消费与角色隔离；原三条失败及其正例保留。
+- **验收边界与下一步**：本地无Gradle/Kotlin/adb，不能本地跑Android测试。提交后核真实JVM/APK与原generate_code_index.py流程；优先等本轮结果，有失败继续按日志定位，不再在红CI上叠加trace功能。人物设置、本人决定、原数据与模型调用次数不改；真机/真实模型/跨日尚未验收。

@@ -178,6 +178,10 @@ object SharedExperienceTimeline {
         if (previous != null && previous.content == clean && previous.occurredAt.toEpochMilli() == occurredAt.toEpochMilli()) {
             val metadata = ContentValues()
             if (previous.sessionId.isBlank() && sessionId.isNotBlank()) metadata.put("session_id", sessionId)
+            // The task association can arrive after the canonical message.
+            // Enrich only an empty link; a replay cannot silently reassign it
+            // or manufacture a new content revision/extraction.
+            if (previous.taskId.isBlank() && taskId.isNotBlank()) metadata.put("task_id", taskId)
             if (previous.evidenceKind == EventEvidenceKind.Legacy && evidenceKind != EventEvidenceKind.Legacy) {
                 metadata.put("evidence_kind", evidenceKind.name)
                 metadata.put("source", source)

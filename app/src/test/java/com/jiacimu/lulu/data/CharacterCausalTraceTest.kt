@@ -104,6 +104,43 @@ class CharacterCausalTraceTest {
             SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
     }
 
+
+    @Test fun sourceEditKeepsOnlyOlderExplicitReceiptAsHistoricalWithoutBorrowingFollowThrough() {
+        val sourceId = "trace-edited-source-version"
+        source(a, sourceId)
+        receipt(a, "trace-before-edit", sourceId, "web_search", "succeeded", true, "旧版实际结果")
+        // The edited source has a later timestamp as well as a new revision.
+        SharedExperienceTimeline.record(sourceId, a, "私聊", "用户", "重新确认后的问题",
+            at.plusSeconds(20), triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        fun result(id: String, revision: Long, time: Instant) {
+            SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
+                JSONObject().put("tool", "web_search").put("requestId", id)
+                    .put("status", "succeeded").put("causeEvidenceId", sourceId)
+                    .put("causeEvidenceRevision", revision)
+                    .put("result", JSONObject().put("success", true).toString()).toString(),
+                time, triggerExtraction = false, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        result("trace-after-edit", 2L, at.plusSeconds(30))
+        result("trace-unknown-before-edit", 0L, at.plusSeconds(10))
+        result("trace-impossible-future-version", 3L, at.plusSeconds(30))
+        val mind = JSONObject().put("decisions", JSONArray().put(JSONObject()
+            .put("causalEvidenceId", "trace-before-edit").put("causalEvidenceRevision", 1L)
+            .put("at", at.plusSeconds(35).toString()).put("selected", "message")
+            .put("reason", "旧结果后的实际选择").put("outcome", "旧回执不能替新版问题结案")))
+        val before = SharedExperienceTimeline.all(a)
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId), before, mind)
+        assertTrue(lines.any { it.title == "历史版本的行动回执" && it.evidenceId == "trace-before-edit" })
+        assertTrue(lines.any { it.evidenceId == "trace-after-edit" && it.title.contains("执行器确认成功") })
+        assertFalse(lines.any { it.evidenceId == "trace-unknown-before-edit" })
+        assertFalse(lines.any { it.evidenceId == "trace-impossible-future-version" })
+        assertFalse(lines.any { it.title.contains("回执后的本人选择") })
+        assertEquals(before, SharedExperienceTimeline.all(a))
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, "trace-before-edit"))
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, sourceId), before, mind).isEmpty())
+    }
+
     @Test fun sourceThoughtDecisionToolReceiptAndPerceptionStaySeparateForEachPerson() {
         source(a, "trace-a-source")
         source(b, "trace-b-source", "B独有的秘密")
@@ -332,7 +369,7 @@ class CharacterCausalTraceTest {
         assertFalse(withoutDeleted.any { it.evidenceId == "trace-failed" })
     }
 
-    @Test fun sharedTaskIdDoesNotClaimDirectCauseWithoutMatchingSourceId() {
+    @Test fun sharedTaskIdCannotDisplayReceiptExplicitlyOwnedByAnotherSource() {
         SharedExperienceTimeline.record("trace-task-source", a, "日程", "角色", "同一日程的原始记录",
             at, triggerExtraction = false, source = "resident-day",
             evidenceKind = EventEvidenceKind.Observation, taskId = "shared-task")
@@ -346,8 +383,13 @@ class CharacterCausalTraceTest {
             taskId = "shared-task")
         val lines = CharacterCausalTrace.inspect(context, a, event(a, "trace-task-source"),
             SharedExperienceTimeline.all(a), JSONObject())
-        assertTrue(lines.any { it.title.contains("同任务记录") &&
-            it.detail.contains("不证明由当前事件直接触发") })
+        assertFalse(lines.any { it.evidenceId == "trace-task-receipt" })
+        // Excluding another source from this card must not erase its actual failure.
+        val stored = event(a, "trace-task-receipt")
+        assertTrue(CharacterCausalTrace.inspect(context, a, stored,
+            SharedExperienceTimeline.all(a), JSONObject()).any {
+                it.title.contains("执行失败") && it.evidenceId == stored.id
+            })
     }
 
     @Test fun residentRejectedAgendaSurvivesShortUiWindowAndHonorsEditWithdrawalAndRole() {

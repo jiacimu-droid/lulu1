@@ -86,16 +86,21 @@ internal object CharacterCausalTrace {
         val payload = if (current.source == "tool-router") objectValue(current.content) else null
         val candidates = events.filter { it.characterId == characterId && it.id != current.id &&
             it.source == "tool-router" &&
-            it.evidenceKind == EventEvidenceKind.ToolResult &&
-            !it.occurredAt.isBefore(current.occurredAt) }.mapNotNull { event ->
+            it.evidenceKind == EventEvidenceKind.ToolResult }.mapNotNull { event ->
             val body = objectValue(event.content) ?: return@mapNotNull null
             // An explicit cause is authoritative. A shared task ID alone must
             // not attach a receipt for another source to this event.
             val causeId = body.optString("causeEvidenceId")
             val causeRevision = body.optLong("causeEvidenceRevision", 0L)
-            val sameCause = causeId == current.id &&
-                (causeRevision == 0L || causeRevision == current.revision)
-            val legacyTaskLink = causeId.isBlank() &&
+            val currentChronology = !event.occurredAt.isBefore(current.occurredAt)
+            // An older version is historical attribution only: its receipt can
+            // precede the current edit and must reach the warning branch below,
+            // never the current-version continuation. Unknown/future versions
+            // cannot borrow that exception to establish current causality.
+            val historicalCause = causeRevision > 0L && causeRevision < current.revision
+            val sameCause = causeId == current.id && (historicalCause ||
+                ((causeRevision == 0L || causeRevision == current.revision) && currentChronology))
+            val legacyTaskLink = causeId.isBlank() && currentChronology &&
                 current.taskId.isNotBlank() && event.taskId == current.taskId
             if (sameCause || legacyTaskLink) event to body else null
         }
