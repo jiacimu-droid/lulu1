@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T02:56:27.063400+00:00",
-  "commit": "1443eeef937c181d5263e5b58e73abb98dbdff35",
+  "generatedAt": "2026-11-04T03:06:44.766584+00:00",
+  "commit": "13d129410f7baab3d6e0cb8ee390e93b33f2e266",
   "branch": "main",
-  "sourceFingerprint": "10983e71f47c29fb6c87316f5eeb46449cdf552d94ea4ee77635e1e8e2c45015",
+  "sourceFingerprint": "f3c2c202ad2dc8eb9b68f020786aab5a2c226e69ffe8e3cada25b0fc5db1a8bf",
   "summary": {
     "files": 1126,
-    "lines": 234855,
+    "lines": 234863,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -433,7 +433,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 106
+        "line": 114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
@@ -5987,13 +5987,13 @@
     "absorb": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 47
+        "line": 52
       }
     ],
     "proactiveContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 152
+        "line": 160
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -23547,8 +23547,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-      "lines": 171,
-      "sha256": "4cb0466ea58c09094b869218dad1f84093c2aab0822a4851fa034a3f12efa4d3",
+      "lines": 179,
+      "sha256": "0f2129452decefec04181429ef9bd6167332135c02db9dd053f7e51070cd1a84",
       "symbols": [
         {
           "name": "snapshot",
@@ -23556,15 +23556,15 @@
         },
         {
           "name": "absorb",
-          "line": 47
+          "line": 52
         },
         {
           "name": "context",
-          "line": 106
+          "line": 114
         },
         {
           "name": "proactiveContext",
-          "line": 152
+          "line": 160
         }
       ]
     },
