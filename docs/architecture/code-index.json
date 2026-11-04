@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T09:37:28.525966+00:00",
-  "commit": "3d6b5d68e9a37f8fd56aae41308967de084bf857",
+  "generatedAt": "2026-11-04T09:44:54.531284+00:00",
+  "commit": "888c1aa03bfbd62e2764f6e9e5417e549072c105",
   "branch": "main",
-  "sourceFingerprint": "c7d8b3ec3176d56cc278d9801a0ff65490b91975dc70b9051aa1d03384ad7d92",
+  "sourceFingerprint": "51a6dc177d327f704106ff0783154adc559770ede1f4c459c4db0e6e55608e60",
   "summary": {
     "files": 1133,
-    "lines": 237113,
-    "symbols": 3294
+    "lines": 237146,
+    "symbols": 3295
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -203,7 +203,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 56
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -10957,7 +10957,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 37
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
@@ -14193,7 +14193,13 @@
     "suggestions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 33
+        "line": 36
+      }
+    ],
+    "customIdea": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
+        "line": 40
       }
     ],
     "PomodoroTimerMode": [
@@ -21856,7 +21862,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 1118,
-      "sha256": "dd51bb4098252055cf4538acbe503fa87ae2bbfe8a1c143a9dfd72a9d2c10ef7",
+      "sha256": "b78878a2ac90cd9b033ff0dc560ab9667e920a373becd2e58fea436e8b233ad9",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -33046,7 +33052,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
       "lines": 258,
-      "sha256": "e7013c211e915516fb1765bfb930db65cbc318e3b18ff890102d7aaf03e8f171",
+      "sha256": "474581f95bc33a592109028b5e79c97f44466f2fa8b364c3c9a4c78c28b2275d",
       "symbols": [
         {
           "name": "get",
@@ -33070,8 +33076,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-      "lines": 84,
-      "sha256": "449a5ddae85e6ba852a0f67e3d0ce219328033c448d19fa9021dfbd0cfa97f2d",
+      "lines": 94,
+      "sha256": "db2ed0c4bf77d8a1e70eb50d44e48b180da08ba11b4b8ff574b45fb530dc164f",
       "symbols": [
         {
           "name": "Idea",
@@ -33091,22 +33097,26 @@
         },
         {
           "name": "suggestions",
-          "line": 33
+          "line": 36
+        },
+        {
+          "name": "customIdea",
+          "line": 40
         },
         {
           "name": "capture",
-          "line": 37
+          "line": 46
         },
         {
           "name": "request",
-          "line": 56
+          "line": 65
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-      "lines": 160,
-      "sha256": "6b169700da2596a08c31358eb96664043348d7139ba6d63bb4af2560ab0e0a64",
+      "lines": 163,
+      "sha256": "09a1964ed545b3794e4effba1640d84b2a5e6bddbd1ec522dbe7933115345b05",
       "symbols": []
     },
     {
@@ -38996,8 +39006,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 107,
-      "sha256": "e8cae651bfb75e5efac1848382a3c5bac2a65dabd01c97c948ad9e3e8243e3d0",
+      "lines": 127,
+      "sha256": "52a4f9e85de63d0cfccb887480e5ac2ebabb34c69e9f511c6a2b832847c39bb7",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
