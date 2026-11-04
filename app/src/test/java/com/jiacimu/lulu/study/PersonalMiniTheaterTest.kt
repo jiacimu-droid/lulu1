@@ -29,6 +29,61 @@ class PersonalMiniTheaterTest {
         context.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE).edit().clear().commit()
     }
 
+    @Test fun readerSeparatesQuotedSpeechFromNarrationWithoutChangingSavedStory() {
+        val story = """
+            《耳尖藏不住》
+            
+            空气里有微暖的光。
+
+            “江渡？”你走近两步。
+
+            少年微微一僵，帽子掉了下来。
+
+            “你来了。”
+
+            【小剧场已完】
+        """.trimIndent()
+        val parts = PersonalTheaterTypography.sections(story)
+        assertEquals(listOf(
+            PersonalTheaterTypography.Kind.Title,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Dialogue,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Dialogue,
+            PersonalTheaterTypography.Kind.End,
+        ), parts.map { it.kind })
+        assertEquals("“江渡？”", parts[2].text)
+        assertEquals("你走近两步。", parts[3].text)
+        assertEquals("《耳尖藏不住》", parts[0].text)
+        assertEquals("少年微微一僵，帽子掉了下来。", parts[4].text)
+        assertEquals("“你来了。”", parts[5].text)
+        assertEquals("【小剧场已完】", parts[6].text)
+
+        val library = MiniTheaterLibrary(context, emptyList())
+        val id = library.addPersonal(PersonalMiniTheater.Cast("reader-role", "角色", "独立人物"),
+            PersonalMiniTheater.ideas.first())
+        val token = library.begin(id, "", rewrite = false)
+        assertTrue(library.finish(id, token, "complete", text = story))
+        // Rendering a story never edits the canonical stored text or its evidence.
+        PersonalTheaterTypography.sections(library.items.value.single().text)
+        assertEquals(story, library.items.value.single().text)
+    }
+
+    @Test fun readerSupportsSingleLineQuotePlainParagraphsAndOldUnstructuredText() {
+        val parts = PersonalTheaterTypography.sections(
+            "“只说一句。”\n旁白没有空行。\n\n我没有加首行缩进。")
+        assertEquals(listOf(
+            PersonalTheaterTypography.Kind.Dialogue,
+            PersonalTheaterTypography.Kind.Narration,
+            PersonalTheaterTypography.Kind.Narration,
+        ), parts.map { it.kind })
+        assertEquals("只说一句。", parts.first().text.removeSurrounding("“", "”"))
+        assertTrue(PersonalTheaterTypography.sections(" \n \n ").isEmpty())
+        assertEquals(listOf(PersonalTheaterTypography.Kind.Narration),
+            PersonalTheaterTypography.sections("旧版保存的普通正文").map { it.kind })
+    }
+
     @Test fun roleSnapshotAndFictionStayOutsideRealMemoryAndOtherCharactersWorks() {
         val a = MigratedDomainStores.characters.create("江渡番外测试", "独立、有审美、主动可靠")
         val b = MigratedDomainStores.characters.create("女性角色测试", "女性，机灵，语言直接")
