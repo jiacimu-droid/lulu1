@@ -630,3 +630,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **验证边界**：`ResidentDailyPolicyTest.populationSpawnAndActualResidentModelRequestsRespectOwnerLimits` 添加单独日、独立居民、零预算、人口开关与持久设置回归。包含当前后继的代码索引 `41767007418` completed/success；Android APK/JVM `41767007417` 查询时 pending，先前 `41766992738`（`2ed5e4af`）cancelled 不算通过；尚未安装真机，也没有实际模型用量/费用/自然社交盲评。
 - **好友不聊天的边界**：已有 `CharacterFriendRequests.notice` 把接受/拒绝送进真实时间线并 `scheduleSocialNoticeReview`，`ResidentDailyDecision.runSocialWake` 接受 `phone:friend`，`CharacterEverydaySocialContext` 提供已确认好友和可联系对象；这不证明实际发了私信。需脱敏实际事件对照「确认好友 → 通知投递 → 同一居民模型选择 → 工具发送回执 → 对方处理 → 后续」。程序不得硬编码“加好友必聊天”；额度为 0 时允许角色暂时不发而非伪造社交。
 - **下次接力**：先查最新 SHA 的 Android/JVM/APK 首个失败步骤并修复；随后真机验证独立入口、0/2/5/8 真正供应商请求预算、重启保留、低成本 NPC 生活、删除后后台 Worker 停止、旧聊天保留及新居民性别背景投射。S-01/S-02 仍未验收；P-08 不因为这轮居民代码而打勾。
+
+## 2026-11-04 · S-02 居民管理与并行页面去重修复（唯一入口恢复，APK 待验）
+
+- 用户新增明确要求：设置新增单独「居民管理」，允许减少居民数量、编辑/删除指定居民，新生成居民要有性别、个人性格长短处、具体兴趣和相对丰满的生平。只提交可复用工程实现，不上传用户个人资料。
+- 现有权威：`DigitalWorldExpansionStore` 保存原住民ID/生平/所在世界；`ResidentCharacterBridge` 用原角色人物 Store/时间线/社交，没有建立影子角色中心。已与并行窗口合并：`331e8f9` 持久性别/退场模板禁止复生，`d6bf8cb` 要求模型低频提案的 gender/temperament/preferences/background 完整，`e581013` 为原生模板增差异化人设；`3e8eb82` 让性别进本人模型身份。本人用户编辑的人设不能被初始化覆盖。
+- 实改：`705016c` / `87c81b7` 统一新增开关+人数上限的持久配置；`231645cc` 对权威注册落点做上限校验，`b648bebb` 使初始、店员、每日居民新增遵循上限，`d3e90b50` 限制模型提案并发新增；`b4c2f4d8` 删除居民后撤销仍未履行的居民日程，保留已执行回执和其他居民见闻；`bfff7fbe` 拦住持旧原住民快照的过期每日 Worker。测试 `51222179` / `855c11a5` 验证开关/人数上限同一配置和正式注册拒绝。
+- **并行冲突与修复**：设置首页在 `1ec89844` 增加入口。并行修改先后产生两份同名 `LuluResidentManagementScreen`；`2ed5e4af` 删除独立页面，`fbea180d` 删除旧 API 页面同名实现后，两边同时不存在。实查 `main` 的设置首页仍调用该页面但文件 404；已提交 `190be18fbf14a4daea8c4a977bdd8caf5afe1d20` 在现有 `main` 恢复唯一独立页面，旧 `LuluSettingsScreen.kt` 不包含重复实现。恢复版本有单独开关、居民列表/编辑/删人确认、人数/日排程及每人每日 AI 决断预算。**这一缺陷是并行竞态引入，不能误记为已验收。**
+- **真实 CI**：最后确认完整基线 Android/JVM/APK `811b428` 的 run `41763912049` success、索引 `41763912115` success，只证明旧代码；恢复页面后的 `190be18fbf` 索引 run `41767222838` completed/success，Android/JVM/APK run `41767222877` 检查时 pending；旧 `41767007417` cancelled 不算通过。未真机验「新增→编辑→删除→重启」/历史保留与已删居民后台 Worker/群聊，未实际测日模型调用额度和新居民人设多样性。S-02 仍在唯一看板，P-08 不因本轮勾选。
+- **下一轮**：先确认 run `41767222877` 最终 Kotlin 编译/JVM/APK；有失败取首个实质报错，修根因。真机查设置入口、删除后重启不复生/不冒充发送、旧聊天和见面仍能在历史访问、每人 0/2/5/8 AI 决断上限与 0/2/5/8 行程分别起效。并行窗口先看当前已恢复的唯一 Composable，不得重复创建或再次同时删除两份。
