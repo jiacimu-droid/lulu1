@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:11:29.195089+00:00",
-  "commit": "baded65735434c176c8541a8b1ff7e1087aec3fc",
+  "generatedAt": "2026-11-04T03:12:03.277952+00:00",
+  "commit": "331e8f9776554f39892d1a9ab0863f287eb40183",
   "branch": "main",
-  "sourceFingerprint": "c393184e3947279bb2cc194092c7083754dac427f59199498711f0f8586fc583",
+  "sourceFingerprint": "84758fbdf517ca7fd18bef8aa4c3e528010dc564d4b3f9ee42169db265a1dd5f",
   "summary": {
     "files": 1126,
-    "lines": 234928,
-    "symbols": 3264
+    "lines": 234994,
+    "symbols": 3271
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -879,7 +879,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 66
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8555,7 +8555,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 218
+        "line": 256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8615,85 +8615,97 @@
     "DigitalWorldDiscoveredPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 35
+        "line": 37
       }
     ],
     "places": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 79
+        "line": 84
       }
     ],
     "residents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 82
+        "line": 87
       }
     ],
     "residentsAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 85
+        "line": 90
       }
     ],
-    "residentHomeLocation": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 88
-      }
-    ],
-    "residentHome": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 92
-      }
-    ],
-    "residenceLabel": [
+    "isRetiredTemplate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
         "line": 95
       }
     ],
-    "registerPlace": [
+    "removeResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
         "line": 101
       }
     ],
+    "residentHomeLocation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 123
+      }
+    ],
+    "residentHome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 127
+      }
+    ],
+    "residenceLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 130
+      }
+    ],
+    "registerPlace": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 136
+      }
+    ],
     "registerResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 115
+        "line": 150
       }
     ],
     "updateResidentProfile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 133
+        "line": 169
       }
     ],
     "fillResidentTraitsIfBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 169
+        "line": 207
       }
     ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 181
+        "line": 219
       }
     ],
     "commitResidentDuty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 202
+        "line": 240
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 237
+        "line": 275
       }
     ],
     "isAmbientMoment": [
@@ -11692,28 +11704,58 @@
         "line": 2137
       }
     ],
-    "maxAgendaItems": [
+    "maxResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 17
+        "line": 22
       }
     ],
-    "setMaxAgendaItems": [
+    "setMaxResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 23
+        "line": 25
       }
     ],
-    "allowNewResidents": [
+    "autoGenerationEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
         "line": 31
       }
     ],
-    "setAllowNewResidents": [
+    "setAutoGenerationEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
         "line": 35
+      }
+    ],
+    "mayAddResident": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 41
+      }
+    ],
+    "maxAgendaItems": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 43
+      }
+    ],
+    "setMaxAgendaItems": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 49
+      }
+    ],
+    "allowNewResidents": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 57
+      }
+    ],
+    "setAllowNewResidents": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 61
       }
     ],
     "plan": [
@@ -26401,8 +26443,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 363,
-      "sha256": "ba3ddb1188e4db8088255948786bebf1652adece81d06a8e3ab891c7bafdea8b",
+      "lines": 403,
+      "sha256": "cc1ca8376738ba839e97667376a14123dfab9335726d8cffa221ed0c1640acc6",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -26410,67 +26452,75 @@
         },
         {
           "name": "DigitalWorldDiscoveredPlace",
-          "line": 35
+          "line": 37
         },
         {
           "name": "initialize",
-          "line": 66
+          "line": 70
         },
         {
           "name": "places",
-          "line": 79
+          "line": 84
         },
         {
           "name": "residents",
-          "line": 82
+          "line": 87
         },
         {
           "name": "residentsAt",
-          "line": 85
+          "line": 90
         },
         {
-          "name": "residentHomeLocation",
-          "line": 88
-        },
-        {
-          "name": "residentHome",
-          "line": 92
-        },
-        {
-          "name": "residenceLabel",
+          "name": "isRetiredTemplate",
           "line": 95
         },
         {
-          "name": "registerPlace",
+          "name": "removeResident",
           "line": 101
         },
         {
+          "name": "residentHomeLocation",
+          "line": 123
+        },
+        {
+          "name": "residentHome",
+          "line": 127
+        },
+        {
+          "name": "residenceLabel",
+          "line": 130
+        },
+        {
+          "name": "registerPlace",
+          "line": 136
+        },
+        {
           "name": "registerResident",
-          "line": 115
+          "line": 150
         },
         {
           "name": "updateResidentProfile",
-          "line": 133
-        },
-        {
-          "name": "fillResidentTraitsIfBlank",
           "line": 169
         },
         {
+          "name": "fillResidentTraitsIfBlank",
+          "line": 207
+        },
+        {
           "name": "moveResident",
-          "line": 181
+          "line": 219
         },
         {
           "name": "commitResidentDuty",
-          "line": 202
+          "line": 240
         },
         {
           "name": "contextFor",
-          "line": 218
+          "line": 256
         },
         {
           "name": "isExistingLocation",
-          "line": 237
+          "line": 275
         }
       ]
     },
@@ -29548,24 +29598,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 41,
-      "sha256": "ffc9baf2d31ce84ed83c9c2f4ea5516e415e9861b827c5910ee60ebe1ecfad7f",
+      "lines": 67,
+      "sha256": "681deaac5fb055345dca69bccd11f5c28caf3332cb510286fdb82a32ef756b6f",
       "symbols": [
         {
-          "name": "maxAgendaItems",
-          "line": 17
+          "name": "maxResidents",
+          "line": 22
         },
         {
-          "name": "setMaxAgendaItems",
-          "line": 23
+          "name": "setMaxResidents",
+          "line": 25
         },
         {
-          "name": "allowNewResidents",
+          "name": "autoGenerationEnabled",
           "line": 31
         },
         {
-          "name": "setAllowNewResidents",
+          "name": "setAutoGenerationEnabled",
           "line": 35
+        },
+        {
+          "name": "mayAddResident",
+          "line": 41
+        },
+        {
+          "name": "maxAgendaItems",
+          "line": 43
+        },
+        {
+          "name": "setMaxAgendaItems",
+          "line": 49
+        },
+        {
+          "name": "allowNewResidents",
+          "line": 57
+        },
+        {
+          "name": "setAllowNewResidents",
+          "line": 61
         }
       ]
     },

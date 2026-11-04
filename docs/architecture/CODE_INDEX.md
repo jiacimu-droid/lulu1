@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`baded65735434c176c8541a8b1ff7e1087aec3fc`
+- 基准提交：`331e8f9776554f39892d1a9ab0863f287eb40183`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234928
-- 已发现符号：3264
+- 已索引代码/文本行：234994
+- 已发现符号：3271
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -452,7 +452,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 297 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 363 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 403 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 785 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 61 | 7 |
@@ -549,7 +549,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 602 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2335 | 20 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 41 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 67 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 166 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 239 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 893 | 23 |
