@@ -3,6 +3,7 @@ package com.jiacimu.lulu.study
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.*
+import com.jiacimu.lulu.core.WorldBookEntry
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
