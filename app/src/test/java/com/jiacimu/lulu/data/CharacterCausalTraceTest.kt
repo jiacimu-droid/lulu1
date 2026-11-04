@@ -69,6 +69,41 @@ class CharacterCausalTraceTest {
     private fun event(role: String, id: String) =
         SharedExperienceTimeline.eventsByIds(role, listOf(id)).single()
 
+    @Test fun linkedTaskReceiptMustBeActualResultAfterItsSource() {
+        val sourceId = "trace-task-chronology-source"
+        val taskId = "trace-task-chronology-shared"
+        source(a, sourceId)
+        val original = event(a, sourceId)
+        // A pre-existing receipt with the same task ID cannot have been
+        // caused by a message that had not yet occurred.
+        fun write(id: String, whenAt: Instant, kind: EventEvidenceKind) {
+            SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
+                JSONObject().put("tool", "web_search")
+                    .put("status", "succeeded")
+                    .put("result", JSONObject().put("success", true)
+                        .put("summary", id).toString()).toString(),
+                whenAt, triggerExtraction = false, source = "tool-router",
+                evidenceKind = kind, taskId = taskId)
+        }
+        // The source itself shares the task ID through its timeline record.
+        SharedExperienceTimeline.record(sourceId, a, "私聊", "用户",
+            "今天想看点新东西", at, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement,
+            taskId = taskId)
+        write("trace-task-too-early", at.minusSeconds(2), EventEvidenceKind.ToolResult)
+        write("trace-task-not-result", at.plusSeconds(2), EventEvidenceKind.UserStatement)
+        write("trace-task-valid", at.plusSeconds(3), EventEvidenceKind.ToolResult)
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertFalse(lines.any { it.evidenceId == "trace-task-too-early" })
+        assertFalse(lines.any { it.evidenceId == "trace-task-not-result" })
+        assertTrue(lines.any { it.evidenceId == "trace-task-valid" &&
+            it.title.contains("同任务记录") })
+        assertEquals(original.characterId, event(a, sourceId).characterId)
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, sourceId),
+            SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
+    }
+
     @Test fun sourceThoughtDecisionToolReceiptAndPerceptionStaySeparateForEachPerson() {
         source(a, "trace-a-source")
         source(b, "trace-b-source", "B独有的秘密")
