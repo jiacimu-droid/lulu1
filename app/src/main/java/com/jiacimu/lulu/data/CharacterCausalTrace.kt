@@ -85,7 +85,9 @@ internal object CharacterCausalTrace {
             .firstOrNull { it.revision == anchor.revision } ?: return emptyList()
         val payload = if (current.source == "tool-router") objectValue(current.content) else null
         val candidates = events.filter { it.characterId == characterId && it.id != current.id &&
-            it.source == "tool-router" }.mapNotNull { event ->
+            it.source == "tool-router" &&
+            it.evidenceKind == EventEvidenceKind.ToolResult &&
+            !it.occurredAt.isBefore(current.occurredAt) }.mapNotNull { event ->
             val body = objectValue(event.content) ?: return@mapNotNull null
             // An explicit cause is authoritative. A shared task ID alone must
             // not attach a receipt for another source to this event.
