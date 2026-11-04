@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0fb54a6d85fad3ff863fec10a2193356404d06b6`
+- 基准提交：`017a1a92ba2dd23c35f883346e6907211474bc46`
 - 分支：`main`
-- 已索引文件：1128
-- 已索引代码/文本行：235678
-- 已发现符号：3278
+- 已索引文件：1129
+- 已索引代码/文本行：235739
+- 已发现符号：3279
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -662,7 +662,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 321 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 64 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 303 | 1 |
@@ -675,8 +675,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 880 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 630 | 27 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 873 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 270 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
@@ -1105,6 +1105,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
