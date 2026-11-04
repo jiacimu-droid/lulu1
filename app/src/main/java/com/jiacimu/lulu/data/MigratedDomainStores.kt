@@ -606,12 +606,17 @@ class InMemoryLuluChatStore : LuluChatStore {
 
     override fun markConversationRead(conversationId: String) {
         synchronized(lock) {
-            conversationState.update { conversations ->
-                conversations.map { conversation ->
-                    if (conversation.id == conversationId) conversation.copy(unreadCount = 0) else conversation
+            // Opening the chat and receiving every new bubble both call
+            // markRead. An already-zero counter must not serialize EVERY
+            // conversation's multi-year chat history again on the UI thread.
+            if (conversationState.value.any { it.id == conversationId && it.unreadCount > 0 }) {
+                conversationState.update { conversations ->
+                    conversations.map { conversation ->
+                        if (conversation.id == conversationId) conversation.copy(unreadCount = 0) else conversation
+                    }
                 }
+                persistLocked()
             }
-            persistLocked()
         }
         appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
     }
