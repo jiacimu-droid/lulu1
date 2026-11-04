@@ -219,6 +219,11 @@ internal object ActiveCommitmentAttention {
                 appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
                     "nextReview=${next ?: "未安排"}; nextDaily=${task.dailyNextDueAt ?: "未登记"}; priorUnverified=${task.dailyAttempts.count { it.status != "Completed" }}; last=${task.readableLastResult().take(150)};" +
                     " ${CommitmentClockFacts.render(task, now)}")
+                task.dailyAttempts.takeLast(3).forEach { old ->
+                    appendLine("  旧轮次=${old.dueAt}; 状态=${old.status}; 已尝试=${old.attemptCount}; " +
+                        "未确认的结果=${old.result.take(160)}; 原复查=${old.reviewAt ?: "无"}; " +
+                        "实际复查=${old.reviewReceivedAt ?: "未有"}")
+                }
             }
             appendLine("【目标剩余机会与等待代价｜由本人权衡，不是系统代选】原定行动、对方想达到的实际效果与后续复查时刻是不同事实。先看现在已经过了多久、实际效果是否得到证实、继续等待会不会让原目标越来越难实现；此前排过复查不是今天已经尽责，也不代表目标自动延期。")
             appendLine("若眼下就有获授权、确实有意义的行动，自己比较现在做与以后再做的效果；若倾向等待，要想明白到那个时刻预计会新增什么可核实的事实、等待的好处是否值得消耗这段时间。没有新增证据只继续等，可能只是在把问题推后。可以改变方法、联系、观察、短暂等待或暂停，按本人的关系与真实现场选择；不要把固定五分钟或半小时当作默认间隔，也不要机械重复打扰。")
