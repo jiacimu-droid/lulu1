@@ -88,6 +88,8 @@ data class MemoryMatchState(
     val cards: List<String> = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕").shuffled(),
     val opened: Set<Int> = emptySet(),
     val matched: Set<Int> = emptySet(),
+    // Only cards actually flipped during this match may inform the opponent.
+    val observed: Map<Int, String> = emptyMap(),
     val moves: Int = 0,
     val userPairs: Int = 0,
     val characterPairs: Int = 0,
@@ -97,6 +99,31 @@ data class MemoryMatchState(
 )
 
 enum class MemoryTurn { User, Character }
+
+/**
+ * The companion may remember cards that were actually exposed to either player,
+ * but must never inspect the still-hidden deck to choose a match.
+ * A random unknown card is a legitimate exploratory move.
+ */
+internal fun chooseObservedMemoryCard(
+    game: MemoryMatchState,
+    random: kotlin.random.Random = kotlin.random.Random.Default,
+): Int? {
+    val available = game.cards.indices.filter { it !in game.matched && it !in game.opened }
+    if (available.isEmpty()) return null
+    val known = available.filter { it in game.observed }
+    val choice = if (game.opened.isNotEmpty()) {
+        val firstValue = game.observed[game.opened.first()]
+        known.firstOrNull { game.observed[it] == firstValue }
+    } else {
+        known.firstNotNullOfOrNull { first ->
+            known.firstOrNull { it != first && game.observed[it] == game.observed[first] }?.let { first }
+        }
+    }
+    return choice ?: available.random(random)
+}
+
+
 
 data class MoodGuessRound(
     val clue: String,
@@ -156,8 +183,9 @@ class LuluGameStore internal constructor(context: Context) {
             com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.selectedCharacterId)
         }
         val opened = current.opened + index
+        val observed = current.observed + (index to current.cards[index])
         if (opened.size < 2) {
-            mutate { it.copy(memoryMatch = current.copy(opened = opened)) }
+            mutate { it.copy(memoryMatch = current.copy(opened = opened, observed = observed)) }
             return
         }
         val pair = opened.toList()
@@ -167,6 +195,7 @@ class LuluGameStore internal constructor(context: Context) {
         val next = current.copy(
             opened = if (foundPair) emptySet() else opened,
             matched = matched,
+            observed = observed,
             moves = current.moves + 1,
             userPairs = current.userPairs + if (foundPair && player == MemoryTurn.User) 1 else 0,
             characterPairs = current.characterPairs + if (foundPair && player == MemoryTurn.Character) 1 else 0,
