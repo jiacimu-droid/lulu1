@@ -58,9 +58,20 @@ object ChatLexiconAutomation {
                 MigratedDomainStores.chat.conversations.value.forEach { conversation ->
                     runCatching { inspectImmediateUpdate(conversation); inspectLatestTurn(conversation) }
                 }
-                // The original turn may no longer be the newest one. Its durable retry
-                // checkpoint must outlive further messages and app restarts.
-                retryPendingTurns()
+            }
+        }
+        scope.launch {
+            // Independent of latest-turn inspection: a stuck input generation
+            // must not block recovery of an older failed extraction.
+            while (true) {
+                delay(60_000)
+                try {
+                    retryPendingTurns()
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    android.util.Log.w("LuluLexicon", "Pending life extraction recovery failed", failure)
+                }
             }
         }
         scope.launch {
@@ -121,8 +132,9 @@ object ChatLexiconAutomation {
                 if (isProcessed(signature)) return@forEach
                 val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
                 lock.withLock {
-                    if (isProcessed(signature) || !permitAttempt(signature)) return@withLock
+                    if (isProcessed(signature)) return@withLock
                     rememberPending(LexiconPendingTurn(signature, conversation.id, userMessage.id, characterId, false))
+                    if (!permitAttempt(signature)) return@withLock
                     val saved = extractAndSave(
                         characterId = characterId,
                         userText = userMessage.content,
@@ -150,8 +162,8 @@ object ChatLexiconAutomation {
             val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
             lock.withLock {
                 val sourceId = if (conversation.groupChat == null) message.id else "${message.id}:group:$characterId"
-                if (!permitAttempt(signature)) return@withLock
                 rememberPending(LexiconPendingTurn(signature, conversation.id, message.id, characterId, true))
+                if (!permitAttempt(signature)) return@withLock
                 if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
                     markProcessed(signature)
                 }
@@ -285,8 +297,10 @@ object ChatLexiconAutomation {
                 return@forEach
             }
             val user = messages[userIndex]
-            val nextUserIndex = messages.indexOfFirst { it.sender == LuluChatMessage.Sender.User &&
-                it.status == LuluChatMessage.Status.Sent && messages.indexOf(it) > userIndex }
+            val nextUserIndex = ((userIndex + 1) until messages.size).firstOrNull { index ->
+                messages[index].sender == LuluChatMessage.Sender.User &&
+                    messages[index].status == LuluChatMessage.Status.Sent
+            } ?: -1
             val turnEnd = if (nextUserIndex < 0) messages.size else nextUserIndex
             val roleReplies = if (pending.immediate) emptyList() else
                 messages.subList(userIndex + 1, turnEnd).filter {
