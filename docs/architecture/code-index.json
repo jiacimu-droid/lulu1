@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:17:36.632710+00:00",
-  "commit": "da36ec1532fc3a8d9ffe8e8bc9a45000fefd3a91",
+  "generatedAt": "2026-11-04T03:17:56.561439+00:00",
+  "commit": "6510fcc0e71c31d9b37ac099cce1663159d0ab78",
   "branch": "main",
-  "sourceFingerprint": "99fe651580c4e6170bc601f22e72d4d83a3ddfbc35c807e7fdfcae2e3edf64a9",
+  "sourceFingerprint": "e480b65f087626fea2be6bb6b1b27bf53c490f7fcc8f789be844a49f15378c99",
   "summary": {
     "files": 1127,
-    "lines": 235264,
+    "lines": 235258,
     "symbols": 3274
   },
   "symbolIndex": {
@@ -11761,13 +11761,13 @@
     "allowNewResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 57
+        "line": 55
       }
     ],
     "setAllowNewResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 61
+        "line": 56
       }
     ],
     "plan": [
@@ -26466,7 +26466,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
       "lines": 408,
-      "sha256": "28572fd4aca9f81e932d55c219a59fae2086ba154cc0e6d0d983f7f9b6b369f7",
+      "sha256": "d834a307af304f12894c6a9be3e818456aec3c4a6ff646332702f8dba9f6d8b1",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -29624,8 +29624,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 67,
-      "sha256": "681deaac5fb055345dca69bccd11f5c28caf3332cb510286fdb82a32ef756b6f",
+      "lines": 61,
+      "sha256": "59601ed40c7401803b35ccf6b857c58357279494eb0ec7b52898434213a6414e",
       "symbols": [
         {
           "name": "maxResidents",
@@ -29657,11 +29657,11 @@
         },
         {
           "name": "allowNewResidents",
-          "line": 57
+          "line": 55
         },
         {
           "name": "setAllowNewResidents",
-          "line": 61
+          "line": 56
         }
       ]
     },
