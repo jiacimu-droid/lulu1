@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:34:32.535424+00:00",
-  "commit": "e0e1f0e73c6819142b47ca509d4c40989a49d5b0",
+  "generatedAt": "2026-11-04T17:39:42.810066+00:00",
+  "commit": "b14c167456b97285f985ff1c3eb39acabcfbc599",
   "branch": "main",
-  "sourceFingerprint": "d68c77e1c43bc0d6d0edf538025d19b9b32b3b1937f317fbecf0d058ddbc8713",
+  "sourceFingerprint": "0a6f161062c8041243f484e97ce2c1e5871cfb8e59eb51aeb5847509f419e689",
   "summary": {
     "files": 1138,
-    "lines": 240698,
+    "lines": 240741,
     "symbols": 3318
   },
   "symbolIndex": {
@@ -11859,7 +11859,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1004
+        "line": 1042
       }
     ],
     "contactsOf": [
@@ -16173,19 +16173,19 @@
     "actualStep": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 845
+        "line": 883
       }
     ],
     "toolResult": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1021
+        "line": 1059
       }
     ],
     "lineFor": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 1060
+        "line": 1098
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -23873,8 +23873,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 729,
-      "sha256": "20c406b9e66269ee3bc6f4508559ca3076cb5ee1449790f59a7a620c8e8939a3",
+      "lines": 734,
+      "sha256": "d1c7bace2cf5005913ae3a1a81d915942f5dfa62543c235101f50a0ea3517987",
       "symbols": [
         {
           "name": "inspect",
@@ -36081,8 +36081,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 1132,
-      "sha256": "ab493088704cfd565da530f43f0443b797cf5479fc761949346fd959c29922c5",
+      "lines": 1170,
+      "sha256": "17d1367f315600560f1ac527484e353245e6fef2857ec35bfdcb42cd82c78e3e",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -36106,19 +36106,19 @@
         },
         {
           "name": "actualStep",
-          "line": 845
+          "line": 883
         },
         {
           "name": "plan",
-          "line": 1004
+          "line": 1042
         },
         {
           "name": "toolResult",
-          "line": 1021
+          "line": 1059
         },
         {
           "name": "lineFor",
-          "line": 1060
+          "line": 1098
         }
       ]
     },
