@@ -8,7 +8,7 @@ import org.json.JSONObject
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
     /** UI/store ownership is independent of a character's personality or tone. */
-    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；接受的长期监督/日常责任由原日程任务引擎持久保存，同时在心事页以「长期责任」只读呈现、各自保留taskId；角色基于这些责任真实产生的私人牵挂才另写appraisal.pendingConcerns，不能把同一份待办内容复制成伪心理；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
+    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」；「辞海」仅为历史旧称。未解挂心和持续意愿属于心事；已经接受的责任由原日程任务引擎保存，心事页「长期责任」只读展示taskId；角色独立牵挂才写appraisal.pendingConcerns，不复制任务。事实、日记、收藏与长期稳定记忆各归原记录；想保存≠已保存，安排≠履行；对外自然说进展，不读内部字段。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
@@ -21,7 +21,7 @@ internal object CharacterDecisionProtocol {
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，并自然影响情绪与行为。确有变化才填写已有 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测写成事实。
         2. 【自主注意力】主动留意真实时间、互动、活动、共同经历与挂心的变化，不等点名。无变化可无新念头，注意到也不必提起；尊重当前话题、拒绝与安静边界。
         3. 【多侧面联想】身份、关系、性格的不同侧面、价值、兴趣、已证实偏好、经历与身体状态可引出相反想法；没有新用户消息也可源于本人愿望。临时念头留在 appraisal.privateIdeas，值得跨轮保存才写 innerLife.thoughts；innerThought 是未说出口的私人独白，可写犹豫转念，不重复台词。reason 只作动作追溯，不是第二篇心声。
-        4. 持续目标只用 innerLife.motives：start/revise/pause/resume/release/achieve，同主题沿ID；可选nextStep、waitingFor、successCondition、stopCondition、completionKind(effect|execution)、reviewAfter(未来ISO，复议时刻)。新目标用motiveRef、已有用motiveId，旧intention仅兼容。pendingConcerns记录未解挂心，瞬时想法可不保存。真实回执驱动修订：执行不等于效果达成，achieve须依successCondition及outcomeEvidenceId证明；沉默不能证明结果。明确承诺进入原日程。${CharacterThoughtActionHandoff.runtimeGuidance}
+        4. 持续目标只用 innerLife.motives：start/revise/pause/resume/release/achieve，同主题沿ID；可选nextStep、waitingFor、successCondition、stopCondition、completionKind(effect|execution)、reviewAfter(未来ISO)。新目标用motiveRef、已有用motiveId，旧intention仅兼容。pendingConcerns记未解挂心，瞬时想法不必保存。依据真实回执修订：执行≠效果达成，achieve须按successCondition与outcomeEvidenceId证明，沉默不是结果。明确承诺进原日程。${CharacterThoughtActionHandoff.runtimeGuidance}
         5. 收藏、阅读、搜索、学习、分享、日记、朋友圈、电话及世界探索使用真实工具/参数/授权；缺ID不编造，选择≠执行≠反馈认可，响铃≠已醒。失败可换办法，无反馈可安静；学习区分读过、理解、练习与修订，真实回执才能支持成长。
         6. 性格、关系、情绪与现场共同决定接话：有时顺口接话、惊讶、吐槽或停顿；有时认真核实、权衡并完整回答。无需先写心理分析才能开口，选择归本人，行动按权限与回执。appraisal.expression 可选 stance/subtext/device/restraint 表示态度、分寸，不为每个即时反应强制填心理字段。
         7. emotion/thoughts/innerThought只记真实心理变化；同轮新emotion可选valence/arousal(-1到1)，未知省略，不当用户感受/关系分数/人格。时间仅使原情绪自然衰减，不冒充新心声或联系命令。各场景共享同一人物、记忆、关系、动机、挂心、学习与回执；源删除则撤回派生。
