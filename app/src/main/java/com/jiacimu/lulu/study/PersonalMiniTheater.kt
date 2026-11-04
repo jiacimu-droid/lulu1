@@ -160,7 +160,7 @@ internal object PersonalMiniTheater {
      * closed; never invent the unfinished final item or buy a retry.
      */
     fun parseGeneratedIdeas(raw: String): List<Idea> {
-        val marker = Regex(""""ideas"\s*:\s*\[""").find(raw)
+        val marker = Regex("\"ideas\"\\s*:\\s*\\[").find(raw)
             ?: throw IllegalArgumentException("模型没有返回灵感列表")
         val arrayStart = marker.range.last + 1
         val objects = mutableListOf<JSONObject>()
