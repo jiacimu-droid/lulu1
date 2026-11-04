@@ -173,6 +173,7 @@ object CommitmentTaskStore {
                         CommitmentTaskStatus.Expired) &&
                     (task.dailyNextAlarmId == null ||
                         task.dailyNextDueAt?.let { due -> CommitmentAlarmTiming.expired(due, now) } == true ||
+                        task.dailyNextAlarmId?.let { id -> LuluAlarmSystem.list().none { it.id == id } } == true ||
                         task.status == CommitmentTaskStatus.Completed)
             }.forEach { task -> ensureNextDailyOccurrence(it, task.id, now) }
             // A delivered nightly reminder with unknown outcome cannot be
@@ -433,7 +434,14 @@ object CommitmentTaskStore {
         }
         if (existing != null) {
             LuluAlarmSystem.cancel(existing)
-            update(taskId) { it.copy(dailyNextDueAt = null, dailyNextAlarmId = null) }
+            update(taskId) { old ->
+                val skipped = old.dailyNextDueAt
+                    ?.takeIf { CommitmentAlarmTiming.expired(it, now) }
+                old.copy(dailyNextDueAt = null, dailyNextAlarmId = null,
+                    dailyAttempts = if (skipped == null) old.dailyAttempts
+                        else old.dailyAttempts + DailyCommitmentAttempt(
+                            skipped, "Expired", "设备恢复时已错过本轮每日时刻；未补发、未算履行", 0))
+            }
         }
         val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
             ?: java.time.ZoneId.systemDefault()
