@@ -118,6 +118,18 @@ internal object DigitalWorldExpansionStore {
         // messages, meetings and other people's independent memories remain.
         val role = ResidentCharacterBridge.characterId(residentId)
         DigitalLifeProfileStore.retireResident(role)
+        // Stop pending alarms as well as new decisions. Keep resolved plans
+        // and their actual receipts for historical continuity.
+        appContext?.let { context ->
+            RoleDayScheduleStore.plans(context, role)
+                .filter { it.status in setOf("planned", "due") }
+                .forEach { plan ->
+                    runCatching {
+                        RoleDayScheduleStore.cancel(context, role, plan.id,
+                            reason = "主人已移除居民")
+                    }
+                }
+        }
         MigratedDomainStores.characters.delete(role)
         CharacterIdentityStore.delete(role)
         return true
