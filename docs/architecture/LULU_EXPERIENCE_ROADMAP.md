@@ -8,7 +8,7 @@
 
 当前复核基准 main `811b428732c805f2707ea0e503ef783ce007bf81`、最新源码和 Actions：
 - 已核实的完整 Android/JVM/APK 基线更新为 `811b428`：[run 41763912049](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912049) success，索引 [41763912115](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912115) success；真机与真实模型仍待验。
-- `5dc77d4` 的 [APK/JVM 41759294383](https://github.com/jiacimu-droid/lulu1/actions/runs/41759294383) 已确认为 **failure**，日志共 12 项旧测试失败：测试直接伪造 `source=message`、与新真实消息来源门禁冲突。已在 `e256d5bc`、`555464ec`、`7a5fbefd` 将八个测试文件的相关证据改为真实聊天 Store 发送路径（不放宽来源验证）；[索引 run 41761363925](https://github.com/jiacimu-droid/lulu1/actions/runs/41761363925) success，[完整 APK/JVM run 41761363900](https://github.com/jiacimu-droid/lulu1/actions/runs/41761363900) 已 completed/failure：2352 项测试中仅 `CharacterMotiveContinuityTest` 两项失败（`waiting_feedback` 实际 `active`），APK 未生成。`811b428` 已将两处测试改为正式聊天发送原件，并以实际反馈 ID 撤回；等待包含该提交的新 JVM/APK 结果。旧取消运行不算通过。
+- 先前来源契约引起的旧测试失败已由 `811b428` 完整 CI 收敛；当前心声历史修复 `1a948f1` 包含于后继 `6510fcc`。其 [APK/JVM 41766210954](https://github.com/jiacimu-droid/lulu1/actions/runs/41766210954) 查询时 pending，[索引 41766211096](https://github.com/jiacimu-droid/lulu1/actions/runs/41766211096) success。只追最新含修复的完整 CI，取消运行不算通过。
 - P-01 人格/关系分项、P-02 初版作者归属、P-04 独立事件来源去重的已完成开发已移出本页。P-03、P-05 的已落地代码也不再列为待开发，保留尚缺的运行验收。
 - 原文分段 `OriginalEvidenceSpans`、来源敏感去重、回合 trace、实际注入审计、结构化气泡交接、精确消息回执和分享意愿持久化已有实现。接力从当前入口核查与真实样本入手。
 

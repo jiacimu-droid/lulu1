@@ -612,3 +612,4 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **必要回归**：`CompanionPresenceThoughtHistoryTest` 经真实 presence Store 与时间线写入，测试变因明确的否定翻转、原句追加条件都保留在心声历史／本刻反思／presence 原始事件；变化后的相同原句再次出现仍只记一次心声。按原算法的独立字组计算复现，两组 changed 样本均返回 false；这只是根因静态复现，不替代待跑 Android 测试。
 - **边界**：更换措辞的近似念头可能比以前多出历史记录，尚需真机观察质量；保留的因果指纹仍可能有其他漏判，需要真实回合证实后再改。没有凭代码声称能让模型生成更多或更好的心理活动。
 - **CI 与接力**：本提交 [APK 41766161850](https://github.com/jiacimu-droid/lulu1/actions/runs/41766161850) 因并行居民代码后继推送 cancelled，不能报通过；索引和后继完整 JVM/APK 按最新包含本修复的 run 核对。已比较后继主干，居民相关修改未覆盖本文件或回归。下一步先查后继单测；通过后在获授权真机对照真实用户纠正、关系分歧、同词否定和补条件，核对模型原输出、因果指纹、当前态、历史及下轮行为。P-08b/e 仍待验。
+- **后继 CI 核实**：包含本修复且未改动本文件/测试的 `6510fcc0e71c`，[索引 run 41766211096](https://github.com/jiacimu-droid/lulu1/actions/runs/41766211096) completed/success，已运行原生成器；[Android/JVM/APK 41766210954](https://github.com/jiacimu-droid/lulu1/actions/runs/41766210954) 仍 pending。已核对提交祖先关系；新回归未获完整单测结论，不能宣称通过。
