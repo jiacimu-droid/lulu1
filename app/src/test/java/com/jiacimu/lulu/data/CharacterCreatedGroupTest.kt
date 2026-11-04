@@ -145,6 +145,37 @@ class CharacterCreatedGroupTest {
             "${notice.id}:group:${c.characterId}"))
     }
 
+    @Test fun outboxContextRequiresReallyAuthoredDeliveredMailNotOwnerImpersonation() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        ResidentSocialMailbox.initialize(context)
+        val a = MigratedDomainStores.characters.create("主动问候者-" + UUID.randomUUID())
+        val b = MigratedDomainStores.characters.create("真实熟人-" + UUID.randomUUID())
+        listOf(a, b).forEach { actor ->
+            DigitalLifeProfileStore.registerNewLife(
+                actor.characterId, actor.displayName, "数字生命", Instant.now().minusSeconds(60))
+        }
+        MigratedDomainStores.chat.createGroupConversation(
+            "已认识", listOf(a.characterId, b.characterId), ownerIncluded = false)
+        val ownerAct = ResidentSocialMailbox.send(
+            a.characterId, b.characterId, "主人替他打出的文字",
+            author = "owner-on-behalf")
+        fun outbox(): String = CharacterEverydaySocialContext.render(a.characterId)
+            .substringAfter("【本人已实际送达的数字人物私信")
+            .substringBefore("本人真实通信的最近片段")
+        assertTrue(outbox().contains("没有可核验的本人发出私信"))
+        assertFalse(outbox().contains("mailId=${ownerAct.id}"))
+
+        val real = ResidentSocialMailbox.send(
+            a.characterId, b.characterId, "刚才见了那盆小花，我想起你了")
+        assertTrue(outbox().contains("mailId=${real.id}"))
+        assertFalse(outbox().contains("mailId=${ownerAct.id}"))
+        SharedExperienceTimeline.deleteEvent(ResidentSocialMailbox.evidenceId(real, a.characterId))
+        assertFalse(outbox().contains("mailId=${real.id}"))
+    }
+
     @Test fun retiredResidentPrivateThreadIsHiddenButSharedGroupAndStoredMessagesSurvive() {
         val residentId = "resident:retired-example"
         val normalId = "active-role"
