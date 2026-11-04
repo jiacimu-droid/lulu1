@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:59:23.927799+00:00",
-  "commit": "3ef95f12edbbc5e069e1f661597570c0abc39457",
+  "generatedAt": "2026-11-04T16:59:51.441753+00:00",
+  "commit": "7b979df8c888594eca156accd5bb813bcbe1df0e",
   "branch": "main",
-  "sourceFingerprint": "d6359e091a4bf06efb83e0cc7b016563443c48e1089b72c2a7bead9664392482",
+  "sourceFingerprint": "1c2dcc8485d44542bf265b996f47d24a2dce6f081f000d782c8fe1b683a829a5",
   "summary": {
     "files": 1135,
-    "lines": 239541,
+    "lines": 239546,
     "symbols": 3311
   },
   "symbolIndex": {
@@ -5811,7 +5811,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 25
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
@@ -7319,55 +7319,55 @@
     "relationshipPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 21
+        "line": 26
       }
     ],
     "CharacterRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 36
+        "line": 41
       }
     ],
     "definition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 38
+        "line": 43
       }
     ],
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 58
+        "line": 63
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 86
+        "line": 91
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 96
+        "line": 101
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 181
+        "line": 186
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 186
+        "line": 191
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 190
+        "line": 195
       }
     ],
     "offer": [
@@ -25113,8 +25113,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 194,
-      "sha256": "eabf38d8ac01680a53fb585ec2a98de609ed7b27527ab44f1596873ed922d280",
+      "lines": 199,
+      "sha256": "8e77ef244afd19e6012404e8cf04cb4bed643dfa46dbfd73c5b4f2ee238f9aff",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -25130,43 +25130,43 @@
         },
         {
           "name": "relationshipPromptSection",
-          "line": 21
+          "line": 26
         },
         {
           "name": "promptSection",
-          "line": 25
+          "line": 30
         },
         {
           "name": "CharacterRuntime",
-          "line": 36
+          "line": 41
         },
         {
           "name": "definition",
-          "line": 38
+          "line": 43
         },
         {
           "name": "definitionChanges",
-          "line": 58
+          "line": 63
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 86
+          "line": 91
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 96
+          "line": 101
         },
         {
           "name": "learningContext",
-          "line": 181
-        },
-        {
-          "name": "leanExpressionContext",
           "line": 186
         },
         {
+          "name": "leanExpressionContext",
+          "line": 191
+        },
+        {
           "name": "developmentContext",
-          "line": 190
+          "line": 195
         }
       ]
     },
