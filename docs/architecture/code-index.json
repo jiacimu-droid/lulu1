@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:15:31.067359+00:00",
-  "commit": "5d1db9a147125bae4ee82a733492fe4a5a116147",
+  "generatedAt": "2026-11-04T16:17:29.000701+00:00",
+  "commit": "2ee9a0df53fd6f533f339d6975c9f0a8200c26d4",
   "branch": "main",
-  "sourceFingerprint": "fec90daea828349d00a5e6b8416b620f4df684f7ec68d268d822450bd9ed695c",
+  "sourceFingerprint": "96de490e473a8472410dcac5899f17de0a4a03b59fdbfb25912701e227636b3b",
   "summary": {
-    "files": 1133,
-    "lines": 239162,
-    "symbols": 3307
+    "files": 1134,
+    "lines": 239276,
+    "symbols": 3309
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4076,6 +4076,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt",
         "line": 117
+      }
+    ],
+    "execute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
+        "line": 13
+      }
+    ],
+    "opportunity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
+        "line": 98
       }
     ],
     "pending": [
@@ -22190,6 +22202,21 @@
       "lines": 267,
       "sha256": "210238bfb94ee8965df1b17a8af2bd3994dd933a70c0b39fbdcd72720c6d81b0",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
+      "lines": 114,
+      "sha256": "f76ae0311f7e20a4ccc0736a6ef16458fc39c78ef3301a5433743e3752725704",
+      "symbols": [
+        {
+          "name": "execute",
+          "line": 13
+        },
+        {
+          "name": "opportunity",
+          "line": 98
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
