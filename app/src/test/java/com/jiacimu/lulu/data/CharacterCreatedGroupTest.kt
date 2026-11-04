@@ -59,6 +59,32 @@ class CharacterCreatedGroupTest {
             listOf(notice.id + ":group:" + b.characterId)).isEmpty())
     }
 
+    @Test fun retiredResidentPrivateThreadIsHiddenButSharedGroupAndStoredMessagesSurvive() {
+        val residentId = "resident:retired-example"
+        val normalId = "active-role"
+        val at = Instant.parse("2026-11-04T09:00:00Z")
+        val stale = LuluConversation("old-private", residentId, residentId,
+            "[共同活动] 在游戏馆见面", at, unreadCount = 3, pinned = true)
+        val active = LuluConversation("active-private", normalId, "好朋友", "你好", at)
+        val shared = LuluConversation("shared-history", residentId, "旧群", "曾一起玩",
+            at, groupChat = LuluGroupChat(
+                "旧群", members = listOf(
+                    LuluGroupMember(residentId),
+                    LuluGroupMember(normalId),
+                )))
+        val rows = listOf(stale, active, shared)
+        // A removed actor's private card used to show the raw resident:ID
+        // and a giant broken layout, while still contributing to unread badges.
+        assertEquals(listOf(active.id, shared.id),
+            ownerVisibleQqConversations(rows, setOf(normalId)).map { it.id })
+        assertEquals(listOf(stale.id, active.id, shared.id),
+            ownerVisibleQqConversations(rows, setOf(residentId, normalId)).map { it.id })
+        // This is a read-only list projection: the archived records remain
+        // available for their witnesses and for legitimate historical views.
+        assertEquals(3, rows.size)
+        assertEquals("[共同活动] 在游戏馆见面", stale.lastMessage)
+    }
+
     @Test fun groupInviteIsInThePersonalTimelineAndRejoiningHasNewEvidence() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
