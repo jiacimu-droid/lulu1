@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:26:55.849173+00:00",
-  "commit": "bca86311656855a74d8af1bb4b2ae2c786815848",
+  "generatedAt": "2026-11-04T17:27:19.016912+00:00",
+  "commit": "233fc6dca51b39cbd0d0518d30ca7d2661ce37f6",
   "branch": "main",
-  "sourceFingerprint": "535d6b0e4575ca617209a8f6ee34da25d0d93d05a79214891edc28191fa643d4",
+  "sourceFingerprint": "d38c5c755edaf45136dcf5c8f199618dcfec83ed8abfd8e013329a20e67f4882",
   "summary": {
     "files": 1138,
-    "lines": 240551,
+    "lines": 240588,
     "symbols": 3317
   },
   "symbolIndex": {
@@ -15393,7 +15393,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-        "line": 189
+        "line": 226
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -36162,8 +36162,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-      "lines": 206,
-      "sha256": "b4067ba031d97e6c1e39b1b23b8cdd3e19a2bc82a047f172667dd978cc4bb143",
+      "lines": 243,
+      "sha256": "db1b7785ba99f4b319f1df9200cdf21d90d15a38d309a59a138d6ca0bb457b09",
       "symbols": [
         {
           "name": "CharacterCreatedGroupTest",
@@ -36171,7 +36171,7 @@
         },
         {
           "name": "event",
-          "line": 189
+          "line": 226
         }
       ]
     },
