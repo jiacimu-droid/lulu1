@@ -13,10 +13,35 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class NativeResidentLifeIntegrationTest {
+    private var previousAutomaticBirths: Boolean? = null
+    private var previousResidentCap: Int? = null
+
+    @org.junit.After fun restoreResidentCreationPolicy() {
+        val ctx = RuntimeEnvironment.getApplication() as android.content.Context
+        val p = ctx.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        val edit = p.edit()
+        if (previousAutomaticBirths == null) edit.remove("resident_auto_generation")
+        else edit.putBoolean("resident_auto_generation", previousAutomaticBirths!!)
+        if (previousResidentCap == null) edit.remove("resident_population_cap")
+        else edit.putInt("resident_population_cap", previousResidentCap!!)
+        assertTrue(edit.commit())
+    }
+
     @org.junit.Before fun initializeWorkerHost() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
+        // Creating test citizens is an explicit fixture choice; production defaults
+        // remain off until the owner enables automatic births.
+        val p = app.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        previousAutomaticBirths = if (p.contains("resident_auto_generation"))
+            p.getBoolean("resident_auto_generation", false) else null
+        previousResidentCap = if (p.contains("resident_population_cap"))
+            p.getInt("resident_population_cap", ResidentDailyPolicy.MAX_RESIDENTS) else null
+        assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(app, true))
+        assertTrue(ResidentDailyPolicy.setMaxResidents(app, ResidentDailyPolicy.MAX_RESIDENTS))
     }
 
     private fun person(template: String, identity: String = "世界巡逻员") =
