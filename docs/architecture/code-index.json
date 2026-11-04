@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:22:47.811773+00:00",
-  "commit": "4397f50eb47b86c3d38d87dafa7c1b4167173c63",
+  "generatedAt": "2026-11-04T12:24:41.222292+00:00",
+  "commit": "a18cc2fdd20429a53b4974825982b5c43d504940",
   "branch": "main",
-  "sourceFingerprint": "1f1423b56207c8bae0adf46b9c9b2264ee424fe2654dc11dbc844c51b39a6bf2",
+  "sourceFingerprint": "5a12212f41be15f0eabcff884655653e9c03145ab401e6b278c891ceeb93d397",
   "summary": {
     "files": 1133,
-    "lines": 238100,
-    "symbols": 3305
+    "lines": 238110,
+    "symbols": 3306
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10961,7 +10961,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-        "line": 19
+        "line": 29
       }
     ],
     "PhoneXhsReadWorker": [
@@ -14726,10 +14726,16 @@
         "line": 13
       }
     ],
+    "standalonePromptText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+        "line": 17
+      }
+    ],
     "requireUnchanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-        "line": 13
+        "line": 23
       }
     ],
     "scheduleBackup": [
@@ -33795,20 +33801,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-      "lines": 25,
-      "sha256": "d323c4385f1efcedf25e28e412c3769e936ff2e75163e6c2b112f77ab4c6454d",
+      "lines": 35,
+      "sha256": "2846a0db792697b0dc685879712e2eced10d3109def81a888a0e33b739b5599b",
       "symbols": [
         {
           "name": "promptText",
           "line": 8
         },
         {
+          "name": "standalonePromptText",
+          "line": 17
+        },
+        {
           "name": "requireUnchanged",
-          "line": 13
+          "line": 23
         },
         {
           "name": "capture",
-          "line": 19
+          "line": 29
         }
       ]
     },
