@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:25:25.288312+00:00",
-  "commit": "4eff893ab810a01347d01b5a16d598c56a0a18a1",
+  "generatedAt": "2026-11-04T16:25:44.733132+00:00",
+  "commit": "9cbcb5727e0f4d172cbdd13b5ebbb58227a634e5",
   "branch": "main",
-  "sourceFingerprint": "bae11d3dcc3aa4c5a8cfd7d87059e69c7c2e8eea16b552b6e2728c43a2292896",
+  "sourceFingerprint": "2001055959de091ba618df10c761c346face938c8eef9d378fa4d447ca047a59",
   "summary": {
     "files": 1135,
-    "lines": 239434,
+    "lines": 239441,
     "symbols": 3311
   },
   "symbolIndex": {
@@ -7999,13 +7999,13 @@
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1428
+        "line": 1435
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1790
+        "line": 1797
       }
     ],
     "age": [
@@ -25925,8 +25925,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1838,
-      "sha256": "745b85f22d366c533475aa22412962b3e77f117f198f718a04cc15f544eaa85d",
+      "lines": 1845,
+      "sha256": "9651f62699b786a6a29e6ad9cd8563ce6e56e3fa8e8bf94ca237b202a0474636",
       "symbols": [
         {
           "name": "asJson",
@@ -25966,11 +25966,11 @@
         },
         {
           "name": "requiresCompletion",
-          "line": 1428
+          "line": 1435
         },
         {
           "name": "availableContext",
-          "line": 1790
+          "line": 1797
         }
       ]
     },
@@ -29277,7 +29277,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3350,
-      "sha256": "e4ff6fb06afba970d809b7902e82aebdcd361574a0bd6e4c06482f7e34d8a6c1",
+      "sha256": "4b93862d89f60aa8890ee971af7453c3da8041840f48bea3f64eb9d7cf24dc71",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
