@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.qqForwardContextText
+
 /** The timeline owner is the witness, not necessarily the speaker.
  * Resolve group authorship from the existing canonical chat message/IDs;
  * names, nicknames and the words themselves never establish authorship. */
@@ -10,10 +12,16 @@ internal object TimelineStatementOwnership {
     private fun original(event: SharedTimelineEvent): Pair<LuluConversation, LuluChatMessage>? {
         if (event.sessionId.isBlank()) return null
         val conversation = MigratedDomainStores.chat.conversations.value
-            .firstOrNull { it.id == event.sessionId } ?: return null
+            .firstOrNull { it.id == event.sessionId && it.groupChat != null } ?: return null
         val id = event.id.removeSuffix(":group:${event.characterId}")
         val message = MigratedDomainStores.chat.recordedMessage(conversation.id, id)
             ?.takeIf { it.status == LuluChatMessage.Status.Sent } ?: return null
+        // A same-ID message in a different conversation, or an obsolete copied
+        // witness, must not establish the user's latest words or this character's
+        // authorship. The timeline projection is created from this exact content
+        // and timestamp; edits regenerate the projection with a new revision.
+        if (event.occurredAt != message.createdAt ||
+            event.content != qqForwardContextText(message.content).trim()) return null
         return conversation to message
     }
 
