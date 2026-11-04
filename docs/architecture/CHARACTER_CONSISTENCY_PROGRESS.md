@@ -820,3 +820,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 系统预设现为11个等位情境，包括身体互换、缩小、巨人、心声魔法和温柔/狡黠/黏人被暂时放大；后者不再是所有情节额外叠加的轴。新作品variationContext默认空，完整自填引导原文入本篇素材；旧作品已保存的补充设定仍兼容，姓名、人格基线、作品隔离与真实记忆边界不变。
 - 增加回归验证不传Variation也能创建系统或自定作品、完整多行引导到达请求、空引导不发送、温柔放大是普通情境。没有新增常态/策划调用。
 - 核实前轮APK/JVM41808871477（70e6ef2）completed/failure：2384项中2项失败，均为BundledJiangDuImportTest的星禾旧示例/风格断言；该轮3条PersonalMiniTheaterTest均实际执行且无失败。后继3d6b5d6/当前main已有另一窗口修正，不重复改迁移；不把局部回归通过说成整套APK成功。本次新回归/编译/索引随提交触发，真机和真实模型质量待验。
+
+## 2026-11-04：P-08d / M3 统一真实回执的完成判据
+
+- **最新基线与链路**：接手 main `1d53248`（源码 `888c1aa`）；读取 AGENTS、唯一大纲、原索引、统一人物契约及成长框架。沿本人决定 → ToolRouter 原始结果及持久回执 → CharacterActionEvidence → 探索/学习/关系与下一轮上下文核查，不改本人性格或决策。
+- **完整根因**：动作依赖与即时检索反馈已用 ToolExecutionStatus.completed 的完成白名单；CharacterActionEvidence.successfulTool 另用不完整状态黑名单，`success=true,status=unverified/queued/未知状态` 可被当真实行动。CharacterExperienceLearning.receipt 虽核对外层状态，却未核内层 result.status；外层 succeeded、内层 pending 的矛盾回执可进入经历/结果反馈。JSON 对象形式 result 又只被学习识别、未被动作证据识别。同一结果因此在不同投影中有不一致的“做过”事实。
+- **正式修复**：CharacterActionEvidence 复用原 CharacterExperienceLearning.receipt；后者对持久 envelope 和执行器 result 同时复用 ToolExecutionStatus.completed。未知/待确认不算完成，原失败/拒绝/请求未证实仍能留下失败经验；不删除原始回执。既有无内层 status 的本地完成结果与字符串/对象两种格式兼容；已完成屏幕观察的原请求归属校验及 learn_topic 非研究操作检查保留。不新增 Store、语义分类器、模型调用或唤醒。
+- **必要回归**：在正式 CharacterExperienceLearningTest 增加未确认状态矩阵，验证动作证据/检索反馈/学习应用同时拒绝，探索问题重载后仍未实践，后来真实 verified 资料只推进原问题；另验证 envelope 不能覆盖内层 pending/未知状态，两种 result 格式及省略内层 status 的旧本地回执继续可用。既有失败学习、每步归因、屏幕授权与真实观察隔离测试保留。
+- **验证分层**：源码与调用点已复核；本环境仅有 Java，没有 Kotlin 编译器/Android SDK，未声称本地单测通过。前轮原索引 [41809621905](https://github.com/jiacimu-droid/lulu1/actions/runs/41809621905) completed/success，源码 `888c1aa` 的 [APK/JVM 41809621907](https://github.com/jiacimu-droid/lulu1/actions/runs/41809621907) 检查时仍 in_progress；`3d6b5d6` 的 41808947837 cancelled 不算通过。本轮单测/APK/原索引随正式源码提交触发，结果待核。没有真机、真实模型或跨日质量验收证据。
+- **下一轮**：先查本轮及前轮真实 CI 首错；其后 P-08a/b/c/e 仍需真实回合 trace 对齐本人判断、表达、发送和后续。本次仅消除虚假“做过”证据，不宣称人物活人感已验收。

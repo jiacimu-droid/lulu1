@@ -11,18 +11,16 @@ internal object CharacterActionEvidence {
     private fun successfulTool(e: SharedTimelineEvent): String? {
         if (e.source == "screen-consent") return CharacterExperienceLearning.receipt(e)
             ?.takeIf { it.success }?.tool
-        if (e.evidenceKind != EventEvidenceKind.ToolResult || e.source != "tool-router") return null
+        // Use the same verified receipt as learning, causal projections and result feedback.
+        // A success flag alone (or an unknown/pending state) is not an executed action.
+        val receipt = CharacterExperienceLearning.receipt(e)?.takeIf { it.success } ?: return null
         val wrapper = runCatching { JSONObject(e.content) }.getOrNull() ?: return null
-        val result = runCatching { JSONObject(wrapper.optString("result")) }.getOrNull() ?: return null
-        if (!result.optBoolean("success") || wrapper.optString("status") in
-            setOf("running", "failed", "waiting_user", "waiting_permission", "pending", "requested",
-                "requested_unverified", "denied")) return null
         if (wrapper.optString("tool") == "learn_topic") {
             val args = runCatching { JSONObject(wrapper.optString("fingerprint").substringAfter(':')) }.getOrNull()
             if (args?.optString("op").orEmpty().ifBlank { "study" } !in setOf("study", "practice", "review"))
                 return null // Intention/pause/attach is not new exploration or learning.
         }
-        return wrapper.optString("tool")
+        return receipt.tool
     }
 
     /** Scheduling and editing metadata are real actions, but not researched material. */

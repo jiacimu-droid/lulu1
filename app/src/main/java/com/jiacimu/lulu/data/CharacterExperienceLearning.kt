@@ -54,13 +54,15 @@ internal object CharacterExperienceLearning {
             ?: return null
         val tool = root.optString("tool")
         if (CapabilityRegistry.find(tool) == null) return null
-        val status = root.optString("status")
-        val confirmed = setOf("succeeded", "observed", "notification_posted", "popup_requested",
-            "verified", "already_at_target", "unchanged", "capped", "at_safe_limit")
-        val unconfirmed = setOf("failed", "denied", "requested_unverified")
-        if (status !in confirmed && status !in unconfirmed) return null
+        val status = root.optString("status").trim().lowercase()
         val success = result.optBoolean("success")
-        if ((status in confirmed) != success) return null
+        if (success) {
+            // The durable envelope AND the original executor result must confirm completion.
+            // Do not let a stale/legacy envelope turn a pending nested result into experience.
+            val envelope = JSONObject().put("success", true).put("status", status)
+            if (status.isBlank() || !ToolExecutionStatus.completed(envelope) ||
+                !ToolExecutionStatus.completed(result)) return null
+        } else if (status !in setOf("failed", "denied", "requested_unverified")) return null
         return Receipt(tool, status, success,
             result.optString("summary").ifBlank { result.optString("error").ifBlank { result.optString("verification") } },
             root.optString("causeEvidenceId"), root.optString("reason"))

@@ -245,4 +245,68 @@ class CharacterExperienceLearningTest {
             assertNotNull(decision.javaClass.getDeclaredField(field).apply { isAccessible = true }.get(decision))
         }
     }
+
+    @Test fun unconfirmedReceiptsCannotAdvanceResearchOrBecomeCompletedApplications() {
+        CharacterCuriosityRuntime.initialize(context)
+        val inquiry = JSONObject().put("topic", "查证条件").put("question", "还需要哪些现实条件")
+            .put("why", "希望依据真实材料判断").put("sourceEvidenceId", "wake")
+        CharacterExplorationContinuity.remember(context, role, inquiry, null, listOf("wake"), now)
+        tool("music")
+        assertTrue(CharacterLearningLedger.recordExperience(role, experience()))
+        for (state in listOf("pending", "running", "unverified", "queued", "future_vendor_state")) {
+            val e = tool("unfinished-$state", state, tool = "web_search")
+            assertNull(state, CharacterExperienceLearning.receipt(e))
+            assertFalse(state, CharacterActionEvidence.supports(e, "tool"))
+            assertFalse(state, SearchReceiptFeedback.completedEvidence(e))
+            assertFalse(state, CharacterLearningLedger.recordApplication(role, apply("music"),
+                e.id, "web_search", true, "不能仅凭success当成已完成"))
+            CharacterCuriosityRuntime.recordOutcome(role, inquiry, "web_search", true,
+                "请求已接受但资料尚未确认", e.id, now.plusSeconds(10))
+        }
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(1, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        assertTrue(CharacterCuriosityRuntime.activeThreads(role).isEmpty())
+
+        val returned = tool("actually-returned", "verified", seconds = 20, tool = "web_search")
+        assertTrue(SearchReceiptFeedback.completedEvidence(returned))
+        CharacterCuriosityRuntime.recordOutcome(role, inquiry, "web_search", true,
+            "真实返回的资料", returned.id, now.plusSeconds(20))
+        CharacterCuriosityRuntime.initialize(context)
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(role).isEmpty())
+        assertEquals(returned.id, CharacterCuriosityRuntime.activeThreads(role).single()
+            .getJSONArray("steps").getJSONObject(0).getString("evidenceId"))
+        assertEquals(5, SharedExperienceTimeline.all(role).count { it.id.startsWith("unfinished-") })
+    }
+
+    @Test fun persistedEnvelopeCannotOverrideNestedStatusAndBothResultFormatsRemainReadable() {
+        fun recorded(id: String, nestedStatus: String, objectResult: Boolean): SharedTimelineEvent {
+            val result = JSONObject().put("success", true).put("summary", "执行器返回的原始状态")
+            if (nestedStatus.isNotBlank()) result.put("status", nestedStatus)
+            val body = JSONObject().put("tool", "web_search").put("status", "succeeded")
+                .put("causeEvidenceId", "wake")
+                .put("result", if (objectResult) result else result.toString())
+            SharedExperienceTimeline.record(id, role, "实际工具执行", "执行器", body.toString(),
+                now.plusSeconds(10), triggerExtraction = false, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+            return CharacterActionEvidence.resolve(role, id)!!
+        }
+        for (objectResult in listOf(false, true)) {
+            for (state in listOf("pending", "unverified", "future_vendor_state")) {
+                val e = recorded("nested-$objectResult-$state", state, objectResult)
+                assertNull(CharacterExperienceLearning.receipt(e))
+                assertFalse(CharacterActionEvidence.supports(e, "web_search"))
+                assertFalse(SearchReceiptFeedback.completedEvidence(e))
+                assertFalse(CharacterLearningLedger.recordExperience(role, experience(e.id)))
+            }
+            // Local executors may omit status. ToolRouter's explicit durable completion
+            // remains compatible, as do completed payloads stored as JSON objects.
+            for (state in listOf("", "verified")) {
+                val e = recorded("complete-$objectResult-$state", state, objectResult)
+                assertTrue(CharacterExperienceLearning.receipt(e)!!.success)
+                assertTrue(CharacterActionEvidence.supports(e, "web_search"))
+                assertTrue(SearchReceiptFeedback.completedEvidence(e))
+                assertTrue(CharacterLearningLedger.recordExperience(role, experience(e.id)))
+            }
+        }
+    }
 }
