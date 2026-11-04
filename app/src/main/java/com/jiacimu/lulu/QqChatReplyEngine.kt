@@ -489,6 +489,11 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     )
 }
 
+/** Deferred tools require a completed persisted turn, not a drafted or partial reply. */
+internal fun groupDeferredActionsMayRun(delivery: RoleReplyDeliveryReceipt, sourceCurrent: Boolean): Boolean =
+    sourceCurrent && delivery.complete && !delivery.superseded && delivery.messageIds.isNotEmpty() &&
+        delivery.text.isNotBlank()
+
 internal data class GroupReplyFlow(
     val content: String,
     val nextSpeakerName: String?,
@@ -694,7 +699,7 @@ internal suspend fun runGroupReplies(
             val flow = parseGroupReplyFlow(reply.text)
             val visibleContent = if (phonePerformance) VoicePerformance.plain(flow.content) else flow.content
             if (flow.content.isNotBlank()) {
-                val shown = appendRoleReplyWithPacing(
+                val delivery = appendRoleReplyWithPacingReceipt(
                     conversationId, member.characterId, label,
                     CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser,
                         preserveAuthoredBubbleBoundaries = flow.authoredBubbleBoundaries),
@@ -703,11 +708,15 @@ internal suspend fun runGroupReplies(
                     sourceWatermark = sourceWatermark,
                     diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                 )
-                if ((shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) &&
-                    (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
-                    if (!phonePerformance && shown.isNotBlank() && reply.deferredActions != null &&
+                // A model's proposed phone script is not audible speech. Only
+                // retained, persisted bubbles may enter the phone speech queue.
+                // Incomplete/recalled/superseded turns must not run deferred
+                // tools as if the whole model reply had been delivered.
+                val sourceCurrent = sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark)
+                if (delivery.text.isNotBlank() && sourceCurrent) {
+                    if (!phonePerformance && reply.deferredActions != null &&
                         currentCoroutineContext().isActive &&
-                        (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
+                        groupDeferredActionsMayRun(delivery, sourceCurrent)) {
                         LuluDeviceToolBridge.executeDeferredReplyActions(
                             member.characterId, reply.deferredActions,
                             requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
@@ -715,7 +724,7 @@ internal suspend fun runGroupReplies(
                             diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                         )
                     }
-                    afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)
+                    afterReply(member.characterId, delivery.text)
                 }
             }
             // A correction during paced delivery also cancels the remaining
