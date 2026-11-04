@@ -831,3 +831,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **下一轮**：先查本轮及前轮真实 CI 首错；其后 P-08a/b/c/e 仍需真实回合 trace 对齐本人判断、表达、发送和后续。本次仅消除虚假“做过”证据，不宣称人物活人感已验收。
 
 - **发布核对**：本轮正式源码与回归为 [bd0fd27](https://github.com/jiacimu-droid/lulu1/commit/bd0fd270760fff9e13f6182b7476b89032b15d1f)。原生成器 [41811001719](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001719) 已 completed/success，自动生成索引提交 `153d695`，索引基准确为本轮源码 SHA。[本轮 APK/JVM 41811001667](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001667) 检查时 pending；前轮 41809621907 仍在 Test and build phone APK，未取得单测总数、APK或质量通过证据。历史 `c8c37d` 的 41333088808 已重新核实 failure（2226 tests、2 failed：CharacterLifeStoreTest 的旧预设断言与 ConversationExpressionGatewayTest 的交接断言），41333088856 skipped；既有专项已有其后续记录，不重复实施旧修复。
+
+
+## 2026-11-04 · P-08c 群聊空回复重复收费修正
+
+- 接手 main `082ff903`，复核群聊导演 `GroupChatTurnPlanner.choose` → `QqChatReplyEngine` 逐人 `LuluDeviceToolBridge.respond` → 真实发泡/错误路径。发现同一角色首轮非 silent 且正文为空时，协调器无条件再调用一次同模型并附加劝说提示；这会对空回复、工具型回复或异常结果产生额外收费，并可能改写原先的本人决定。
+- 源码修正 [`9dc3f1b`](https://github.com/jiacimu-droid/lulu1/commit/9dc3f1bfa89b5953d09112953b9bf6439bc42598)：取消该隐藏第二次模型请求，保留原始结果交给既有发送/错误回执路径；未增加 Store、统一人格提示或后台调用。既有群聊角色决策、真实送达水印和导演静默权不变。
+- CI 分层：前一人物回执修复 `bd0fd27` 的 APK/JVM [41811001667](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001667) completed/success，索引 [41811001719](https://github.com/jiacimu-droid/lulu1/actions/runs/41811001719) completed/success。本次 `9dc3f1b` 尚未取得可核实的独立单测/APK/索引 run，**待 CI，不能勾选**；本轮没有新增回归测试，需在后续补群聊空回复/工具回复不重发的可注入网关测试。真机及真实模型自然度仍待验。
+- 下一轮先查 `9dc3f1b` 对应 Android/JVM 和索引是否真正成功，优先补上述回归；随后继续 P-08a/b/c/e 真实回合证据。群聊 A→B→A 当前仍由导演去重且协调器每人仅一次，若改需连同 hintFor 和实际发言后现场重新判断一起设计，不能只删 seen。
