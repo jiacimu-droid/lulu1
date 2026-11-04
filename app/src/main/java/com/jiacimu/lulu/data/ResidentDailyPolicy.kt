@@ -51,16 +51,10 @@ internal object ResidentDailyPolicy {
         return context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit().putInt(AGENDA_LIMIT, count).commit()
     }
-    // Separate from the daily agenda budget: deleting residents should not
-    // silently repopulate the world on the next autonomous evolution tick.
-    private const val ALLOW_NEW_RESIDENTS = "allow_new_residents"
-
-    fun allowNewResidents(context: Context): Boolean =
-        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getBoolean(ALLOW_NEW_RESIDENTS, true)
+    // Retain the old API for callers while storing ONE authoritative switch.
+    fun allowNewResidents(context: Context): Boolean = autoGenerationEnabled(context)
 
     fun setAllowNewResidents(context: Context, allowed: Boolean): Boolean =
-        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putBoolean(ALLOW_NEW_RESIDENTS, allowed).commit()
+        setAutoGenerationEnabled(context, allowed)
 
 }
