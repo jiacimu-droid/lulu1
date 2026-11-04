@@ -37,7 +37,10 @@ internal object CommitmentOutcomeVerification {
      */
     internal fun eligibleEvidence(task: CommitmentTask, e: SharedTimelineEvent): Boolean {
         if (e.characterId != task.characterId ||
-            e.occurredAt.isBefore(task.createdAt.minusSeconds(3))) return false
+            e.occurredAt.isBefore(task.createdAt.minusSeconds(3)) ||
+            // Evidence from an earlier daily occurrence cannot verify today.
+            (task.repeat == "daily" && task.dueAt != null &&
+                e.occurredAt.isBefore(task.dueAt.minusSeconds(3)))) return false
         return when (task.verificationMode) {
             "subjective_report" -> e.evidenceKind == EventEvidenceKind.UserStatement ||
                 isObservedOutcome(e)
