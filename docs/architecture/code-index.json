@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T23:55:59.511680+00:00",
-  "commit": "df054b5602a8e4305b27cfa2bff0c1e867943b77",
+  "generatedAt": "2026-11-04T00:59:47.687608+00:00",
+  "commit": "43bb18bce554cfc156217682675be2cafe269c78",
   "branch": "main",
-  "sourceFingerprint": "453998d0ef8987da0546d73f2f6764a0782941ae37b949e4630e7490576ca121",
+  "sourceFingerprint": "0d4417ce5a30e33cae763f4391a632f8da1c1d6fce8c1c8c1dfe6100b028fb64",
   "summary": {
     "files": 1126,
-    "lines": 234610,
+    "lines": 234642,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -489,7 +489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 24
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
@@ -2215,7 +2215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 31
+        "line": 35
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
@@ -7971,7 +7971,7 @@
     "age": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 35
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
@@ -25669,20 +25669,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-      "lines": 63,
-      "sha256": "05cace03b9c774f1de685fdd25233c50670e8c9b1c02af5857460ed5e38ab53c",
+      "lines": 67,
+      "sha256": "e11b096fe5464554996f26979530814043be4c5bc5d4d24b903abd624e90bf95",
       "symbols": [
         {
           "name": "context",
-          "line": 24
+          "line": 28
         },
         {
           "name": "describe",
-          "line": 31
+          "line": 35
         },
         {
           "name": "age",
-          "line": 35
+          "line": 39
         }
       ]
     },
@@ -37674,8 +37674,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt",
-      "lines": 82,
-      "sha256": "701e8b832f0b0059333f18265b1c819221ae8c6dde3639596c1f535d602d66b0",
+      "lines": 110,
+      "sha256": "93f1cdfcdeef47f67fd62c534e1cac496cd506ae1fcdb0f2f61f2456e10d9f36",
       "symbols": [
         {
           "name": "RelationshipRhythmPerceptionTest",
