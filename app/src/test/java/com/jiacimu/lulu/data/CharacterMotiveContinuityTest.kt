@@ -137,6 +137,63 @@ class CharacterMotiveContinuityTest {
         assertEquals("active", goal().getString("status"))
     }
 
+
+    @Test fun completePlanConditionsSurvivePersistenceBothContextsAndTailOnlyRevision() {
+        val prefix = "先核对材料、现场与真实反馈，不预判执行结果。".repeat(16)
+        val fields = JSONObject()
+            .put("aim", "核实并继续自己的调查")
+            .put("why", "需要保留实际条件而非只保存前半句")
+            .put("nextStep", prefix + "只有明确获准后才联系，未获准不发送。")
+            .put("waitingFor", prefix + "等待对方确认；没有回复不等于同意。")
+            .put("successCondition", prefix + "必须有实际结果证据，单纯通知已送达不算完成。")
+            .put("stopCondition", prefix + "对方撤销或材料推翻假设时先停止，不能照旧推进。")
+            .put("completionKind", "effect")
+            .put("reviewAfter", now.plusSeconds(600).toString())
+        change("start", now, fields)
+        val id = goal().getString("id")
+        val planKeys = listOf("nextStep", "waitingFor", "successCondition", "stopCondition")
+        fun assertComplete(expected: JSONObject, at: Instant) {
+            val stored = goal()
+            assertEquals(id, stored.getString("id"))
+            for (key in planKeys) assertEquals(expected.getString(key), stored.getString(key))
+            val before = CharacterInnerLifeStore.snapshot(role).toString()
+            val projections = listOf(
+                CharacterMotiveProgress.brief(stored),
+                CharacterInnerLifeStore.compactContext(role, at),
+                CharacterInnerLifeStore.context(role, at),
+                CharacterMotiveDeliberation.context(JSONArray().put(stored), at),
+            )
+            for (projection in projections) for (key in planKeys) {
+                assertTrue("Missing complete $key", projection.contains(expected.getString(key)))
+            }
+            assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
+            assertFalse(CharacterInnerLifeStore.context(other, at).contains(prefix))
+            assertEquals("effect", stored.getString("completionKind"))
+            assertEquals(now.plusSeconds(600), CharacterMotiveReview.from(stored)?.dueAt)
+        }
+        assertComplete(fields, now)
+        // A real process restart must read the complete original plan from disk.
+        CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
+        CharacterInnerLifeStore.initialize(context)
+        assertComplete(fields, now.plusSeconds(10))
+
+        val revised = JSONObject(fields.toString())
+            .put("successCondition", prefix + "修订：原先材料不足，须补齐独立观察后再判断完成。")
+        val revisionAt = now.plusSeconds(20)
+        change("revise", revisionAt, revised)
+        assertComplete(revised, revisionAt)
+        assertEquals("motive-input:$revisionAt:revise", goal().getString("planEvidenceId"))
+        assertFalse(CharacterInnerLifeStore.compactContext(role, revisionAt)
+            .contains(fields.getString("successCondition")))
+        // Retraction still follows the original source, rather than retaining a
+        // silently clipped condition that appears unchanged under a shared prefix.
+        CharacterInnerLifeStore.invalidateEvidence("motive-input:$revisionAt:revise")
+        assertFalse(goal().has("successCondition"))
+        assertFalse(goal().has("stopCondition"))
+        assertEquals(id, goal().getString("id"))
+    }
+
     @Test fun sameDecisionReferenceLinksOnlyItsOwnNewGoalAndRevisedCriteriaRetractWithSource() {
         start()
         val id = goal().getString("id")

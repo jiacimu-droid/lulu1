@@ -17,9 +17,13 @@ internal object CharacterMotiveProgress {
                 "reviewAfter" -> value.takeIf {
                     it.isBlank() || runCatching { !Instant.parse(it).isBefore(now) }.getOrDefault(false)
                 }
-                "nextStep", "successCondition", "stopCondition" -> value.take(180)
                 "completionKind" -> value.takeIf { it in setOf("", "effect", "execution") }
-                else -> value.take(120)
+                // These are authored semantic conditions, not display summaries.
+                // Prefix clipping can delete a trailing refusal/exception and also
+                // conceal a later revision that changes only the end of a condition.
+                // Keep them intact in the original store; prompt working-set budgets
+                // select context without rewriting the character's actual plan.
+                else -> value
             } ?: continue
             if (target.optString(key) != clean) {
                 target.put(key, clean)

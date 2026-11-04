@@ -1050,3 +1050,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码**：[231a557](https://github.com/jiacimu-droid/lulu1/commit/231a557851fef8fe6e448bd5683125ccf71f5d68) 优先使用回执明确的 causeEvidenceId 和可用的 causeEvidenceRevision；只有旧回执没有 causeEvidenceId 时才允许沿原 taskId 回退。保留旧数据，不改变执行/角色本人选择，不新增模型调用。
 - **回归**：[0980eef](https://github.com/jiacimu-droid/lulu1/commit/0980eef8f19fcd9b7f2bbca275eb4eb52452fbd9) 同 taskId 两来源、明确另一来源回执、正确来源回执、无 cause 的旧回执及跨角色隔离。测试已提交但未运行，不能标通过。
 - **CI/设备**：查询后继提交的 workflow runs 未返回记录（该接口只枚举 PR 触发，不能据此断言 Actions 未触发）；本次 JVM/APK/索引、真机、真实模型均未证实。下一轮先核真实后继 Actions 和测试日志，再继续 P-08a.1 的其它来源/版本/时间精确关联；若无可证缺口转 P-08c.2 或下一可执行子项。
+
+## 2026-11-05：P-08d.2c 持续目标条件在写入时截断，导致下轮语义已丢失
+
+- **接手与CI**：main b156653。读取总纲、原索引、大纲、统一人物契约、成长框架与最新进度并查近期提交。前轮1814b36原APK41879637273确为failure（六项，已有其他窗口具体修复）；含协议长度与旧模板断言修正后的8c5bf66，APK41882293649与原索引41882293653均success，job126760322141的Test and build phone APK/Publish Lulu release均success。不重复关系模板、trace或跨日责任开发。
+- **完整因果路径**：模型innerLife.motives的start/revise/pause/resume → CharacterInnerLifeStore.observe → CharacterMotiveProgress.applyPlan → 同一motives持久字段/planEvidenceId → 重启snapshot → CharacterMotiveProgress.brief → compactContext/context/CharacterMotiveDeliberation → 同一人物下轮取舍。原applyPlan保存nextStep/successCondition/stopCondition时take(180)，waitingFor时take(120)；因此尾部「未获准不联系」「没有回复不等于同意」「通知送达不算完成」等条件可在入库时永远丢掉。后续读全字段也只读得到残文。同样前缀但尾部改变的真实修订还会因clean相同而漏更新planEvidenceId。
+- **源码修复**：只取消这四个计划语义字段的前缀裁剪，保持trim、reviewAfter有效时刻校验、completionKind枚举、权威Store、同角色ID、原调度与结果核验不变。没有关键词代判断、不新增强制工具/模型请求/人格或目标中心。存储完整原决定与上下文选取是不同职责，现有工作集预算仍按原机制选择；不另设无测量依据的文本上限，不冒充每次所有目标都已注入。原已丢尾部的旧记录不会自动恢复，须同一人物从真实原话形成新修订。
+- **必要回归**：CharacterMotiveContinuityTest.completePlanConditionsSurvivePersistenceBothContextsAndTailOnlyRevision，沿真实observe写四个超出旧阈值的字段，检查原文与末尾条件、同ID、重启、compact/full/取舍投影一致、只读不改状态、另一角色不可见、明确复查时间与effect类型不变；再修改共享长前缀之后的完成条件，确认完整新值及新来源生效，撤回仍沿原来源使计划失效，原目标ID保留。它证明保存和契约，不证明真实模型行为质量。
+- **边界与下一步**：本地仅Java，无Gradle/Kotlin/adb，JVM/APK随源码提交进入原Actions，原generate_code_index.py由已有workflow运行。真实设备/模型/跨日待验；本轮不改变aim/why或其他心理字段，不声称所有截断已清零。先核本轮测试/索引，再续P-08a.1/P-08b.1或P-08d其余真实回执和条件交接。
