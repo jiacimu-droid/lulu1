@@ -89,9 +89,10 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
             WebViewCompat.addDocumentStartJavaScript(view, reader + "\n" + routes, xhsOrigins)
         }
         retained = view
-        park(view)
+        // Register before parking: parking marks the session as low-activity.
         XhsReadingEngine.attachBrowser(view)
         view.loadUrl("https://www.xiaohongshu.com/explore")
+        park(view)
     }
 
     private fun safeParkedClient(): WebViewClient = object : WebViewClient() {
@@ -138,6 +139,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
         val view = retained ?: return null
         // Compose's AndroidView will attach it to its new current slot.
         (view.parent as? ViewGroup)?.removeView(view)
+        view.onResume()
         return view
     }
 
@@ -167,7 +169,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
         host.addView(view, FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT))
-        XhsReadingEngine.parkBrowser(view)
+        if (XhsReadingEngine.parkBrowser(view)) view.onPause()
     }
 
     fun hasBrowser(): Boolean = retained != null && !destroyed
