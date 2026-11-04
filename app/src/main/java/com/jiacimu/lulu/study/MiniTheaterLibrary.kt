@@ -23,6 +23,7 @@ internal data class MiniTheaterItem(
     val rewriting: Boolean = false,
     val characterId: String = "", val characterName: String = "",
     val characterContext: String = "", val variationContext: String = "",
+    val worldMode: String = "original",
 )
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
@@ -31,6 +32,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     private val prefs = app.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE)
     private val changes = MutableStateFlow(load())
     val items: StateFlow<List<MiniTheaterItem>> = changes
+    private val ideaChanges = MutableStateFlow(loadCreativeIdeas())
+    val creativeIdeas: StateFlow<List<PersonalMiniTheater.Idea>> = ideaChanges
 
     init {
         val seeds = initialTemplates ?: parse(app.assets.open("theater/wanxiang_mini_scenes.json")
@@ -56,10 +59,50 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
         val item = MiniTheaterItem(id = "personal-" + UUID.randomUUID(),
             title = idea.title, prompt = idea.premise, characterId = cast.characterId,
             characterName = cast.name, characterContext = cast.material,
-            variationContext = variation?.let { it.label + "：" + it.direction }.orEmpty())
+            variationContext = variation?.let { it.label + "：" + it.direction }.orEmpty(),
+            worldMode = cast.worldMode)
         save(items.value + item)
         return item.id
     }
+
+    /** Persist AI batches separately from finished works; no model call on ordinary swipes. */
+    @Synchronized fun addCreativeIdeas(candidates: List<PersonalMiniTheater.Idea>): Int {
+        val previous = ideaChanges.value
+        val usedTitles = (PersonalMiniTheater.ideas + previous).mapTo(mutableSetOf()) {
+            it.title.trim().lowercase()
+        }
+        val usedPremises = (PersonalMiniTheater.ideas + previous)
+            .mapTo(mutableSetOf()) { it.premise.trim().lowercase() }
+        changes.value.filter { it.characterId.isNotBlank() }.forEach {
+            usedTitles.add(it.title.trim().lowercase())
+            usedPremises.add(it.prompt.trim().lowercase())
+        }
+        val fresh = candidates.filter {
+            it.title.isNotBlank() && it.premise.isNotBlank() &&
+                usedTitles.add(it.title.trim().lowercase()) &&
+                usedPremises.add(it.premise.trim().lowercase())
+        }
+        if (fresh.isEmpty()) return 0
+        val all = previous + fresh
+        val encoded = JSONArray()
+        all.forEach { encoded.put(JSONObject().put("id", it.id).put("title", it.title).put("premise", it.premise)) }
+        check(prefs.edit().putString("creative_ideas", encoded.toString()).commit()) {
+            "灵感保存失败"
+        }
+        ideaChanges.value = all
+        return fresh.size
+    }
+
+    private fun loadCreativeIdeas(): List<PersonalMiniTheater.Idea> = runCatching {
+        val array = JSONArray(prefs.getString("creative_ideas", "[]"))
+        (0 until array.length()).mapNotNull { i ->
+            val obj = array.optJSONObject(i) ?: return@mapNotNull null
+            val title = obj.optString("title").trim()
+            val premise = obj.optString("premise").trim()
+            if (title.isBlank() || premise.isBlank()) null
+            else PersonalMiniTheater.Idea(obj.optString("id", "ai-$i"), title, premise)
+        }
+    }.getOrDefault(emptyList())
 
     @Synchronized fun deletePersonal(id: String, characterId: String): Boolean {
         val entry = items.value.firstOrNull { it.id == id && it.characterId == characterId }
@@ -106,7 +149,7 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 .put("generationToken", it.generationToken)
                 .put("rewriting", it.rewriting).put("characterId", it.characterId)
                 .put("characterName", it.characterName).put("characterContext", it.characterContext)
-                .put("variationContext", it.variationContext))
+                .put("variationContext", it.variationContext).put("worldMode", it.worldMode))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -122,7 +165,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 o.optString("text"), o.optString("status", "new"),
                 o.optString("error"), o.optString("generationToken"),
                 o.optBoolean("rewriting"), o.optString("characterId"), o.optString("characterName"),
-                o.optString("characterContext"), o.optString("variationContext"))
+                o.optString("characterContext"), o.optString("variationContext"),
+                o.optString("worldMode", "original"))
         }
     }.getOrDefault(emptyList())
 
