@@ -56,7 +56,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     LaunchedEffect(fontSize) { readerPrefs.edit().putInt("font_size_sp", fontSize).apply() }
     val storyTitle = remember(work?.title, work?.text) {
         PersonalTheaterTypography.sections(work?.text.orEmpty())
-            .firstOrNull { it.kind == PersonalTheaterTypography.Kind.Title }
+            .firstOrNull()?.takeIf { it.kind == PersonalTheaterTypography.Kind.Title }
             ?.text?.removePrefix("《")?.removeSuffix("》")
             ?.takeIf(String::isNotBlank) ?: work?.title.orEmpty()
     }
@@ -87,6 +87,17 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("字号", style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { fontSize = (fontSize - 1).coerceAtLeast(14) },
+                            enabled = fontSize > 14) { Text("A−") }
+                        Text(fontSize.toString(), style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { fontSize = (fontSize + 1).coerceAtMost(20) },
+                            enabled = fontSize < 20) { Text("A＋") }
+                    }
                 }
                 if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
             }
@@ -264,19 +275,21 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
                         "·  完  ·", modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
                         textAlign = TextAlign.Center, fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    PersonalTheaterTypography.Kind.Dialogue -> Column(
-                        modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
-                                RoundedCornerShape(14.dp))
-                            .padding(horizontal = 15.dp, vertical = 12.dp),
+                    PersonalTheaterTypography.Kind.Dialogue -> Row(
+                        modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text(section.text, fontSize = 16.sp, lineHeight = 28.sp,
-                            color = ink)
+                        Box(Modifier.padding(top = 5.dp).width(3.dp).height(21.dp)
+                            .background(Color(0xFFB3A3CE), RoundedCornerShape(3.dp)))
+                        Text(section.text, modifier = Modifier.weight(1f),
+                            fontSize = fontSize.sp, lineHeight = (fontSize + 12).sp,
+                            fontWeight = FontWeight.Medium, color = ink)
                     }
                     PersonalTheaterTypography.Kind.Narration -> Text(
                         section.text,
                         modifier = Modifier.fillMaxWidth(),
-                        fontSize = 16.sp, lineHeight = 29.sp,
+                        fontSize = fontSize.sp, lineHeight = (fontSize + 13).sp,
                         color = ink)
                 }
             }
