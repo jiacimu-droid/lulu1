@@ -1166,4 +1166,39 @@ class CharacterCausalTraceTest {
             assertTrue(CharacterCausalTrace.inspect(context, b, original, listOf(original), JSONObject()).isEmpty())
         }
     }
+    @Test fun sharedTaskDoesNotAttachAnotherSourcesExplicitReceipt() {
+        val task = "trace-shared-task-unique"
+        val first = "trace-shared-task-first"
+        val second = "trace-shared-task-second"
+        SharedExperienceTimeline.record(first, a, "私聊", "用户", "第一个请求", at,
+            triggerExtraction = false, source = "message", taskId = task,
+            evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record(second, a, "私聊", "用户", "第二个请求", at.plusSeconds(1),
+            triggerExtraction = false, source = "message", taskId = task,
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val wrongId = "trace-shared-task-wrong-receipt"
+        val validId = "trace-shared-task-valid-receipt"
+        val oldId = "trace-shared-task-legacy-receipt"
+        fun recordReceipt(id: String, cause: String, revision: Long) {
+            val payload = JSONObject().put("tool", "web_search")
+                .put("requestId", id).put("status", "succeeded")
+                .put("result", JSONObject().put("success", true).toString())
+            if (cause.isNotBlank()) payload.put("causeEvidenceId", cause)
+            if (revision > 0) payload.put("causeEvidenceRevision", revision)
+            SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
+                payload.toString(), at.plusSeconds(10),
+                triggerExtraction = false, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult, taskId = task)
+        }
+        recordReceipt(wrongId, second, 1L)
+        recordReceipt(validId, first, 1L)
+        recordReceipt(oldId, "", 0L) // Older receipt had only task linkage.
+        val all = SharedExperienceTimeline.all(a)
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, first), all, JSONObject())
+        assertTrue(lines.any { it.evidenceId == validId })
+        assertTrue(lines.any { it.evidenceId == oldId })
+        assertFalse(lines.any { it.evidenceId == wrongId })
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, first), all, JSONObject()).isEmpty())
+    }
+
 }
