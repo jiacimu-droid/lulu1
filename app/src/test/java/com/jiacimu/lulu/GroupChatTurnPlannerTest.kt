@@ -160,6 +160,32 @@ class GroupChatTurnPlannerTest {
         }
     }
 
+    @Test fun groupDeferredActionsRequireACompletePersistedDelivery() {
+        val complete = RoleReplyDeliveryReceipt(
+            text = "真的发出去了", messageIds = listOf("message-1"), complete = true,
+        )
+        org.junit.Assert.assertTrue(groupDeferredActionsMayRun(complete, true))
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(complete, false))
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(
+            complete.copy(text = ""), true,
+        ))
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(
+            complete.copy(messageIds = emptyList()), true,
+        ))
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(
+            complete.copy(complete = false), true,
+        ))
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(
+            complete.copy(superseded = true), true,
+        ))
+        // A recalled final bubble can leave real earlier messages, but it
+        // cannot authorize the model's deferred actions for the whole turn.
+        org.junit.Assert.assertFalse(groupDeferredActionsMayRun(
+            RoleReplyDeliveryReceipt(text = "只发出第一条", messageIds = listOf("message-1"),
+                complete = false), true,
+        ))
+    }
+
     @Test fun onlyOwnerGroupInputUsesForegroundCoordinator() {
         assertTrue(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = false))
