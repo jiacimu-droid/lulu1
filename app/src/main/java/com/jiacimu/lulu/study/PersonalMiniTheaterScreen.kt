@@ -213,22 +213,29 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
         }
     }
     if (rewrite && work != null) AlertDialog(onDismissRequest = { rewrite = false },
-        title = { Text("重新写这篇番外？") },
-        text = { Text("沿用本篇人物和幻想设定。新版本完整写完后才替换旧版。") },
-        confirmButton = { TextButton(onClick = {
+        shape = RoundedCornerShape(24.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text("重新写这篇番外？", style = MaterialTheme.typography.titleLarge) },
+        text = { Text("沿用这篇的角色和幻想设定。新版本写完前，旧版会一直保留。",
+            style = MaterialTheme.typography.bodyMedium, lineHeight = 23.sp) },
+        confirmButton = { Button(onClick = {
             rewrite = false
             runCatching { MiniTheaterJobs.enqueue(context, work.id, background, rewrite = true) }
                 .onFailure { error = it.message ?: "未能重新创作" }
-        }) { Text("重新创作") } },
+        }, shape = RoundedCornerShape(12.dp)) { Text("重新创作") } },
         dismissButton = { TextButton(onClick = { rewrite = false }) { Text("取消") } })
     if (deleting && work != null) AlertDialog(onDismissRequest = { deleting = false },
-        title = { Text("删除这篇番外？") }, text = { Text("只删除这篇作品。") },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text("删除这篇番外？", style = MaterialTheme.typography.titleLarge) },
+        text = { Text("这篇作品删除后无法恢复，其他番外不受影响。",
+            style = MaterialTheme.typography.bodyMedium, lineHeight = 23.sp) },
         confirmButton = { TextButton(onClick = {
             deleting = false
             runCatching { check(library.deletePersonal(work.id, characterId)) }
                 .onSuccess { opened = null; error = "" }
                 .onFailure { error = it.message ?: "删除失败" }
-        }) { Text("删除") } },
+        }) { Text("删除", color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton(onClick = { deleting = false }) { Text("取消") } })
 }
 
