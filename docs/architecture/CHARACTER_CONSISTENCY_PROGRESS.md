@@ -1002,3 +1002,14 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **已证链路**：模型通常在一次 commitmentChanges 决策中可输出多项。原 applyModelRecovery 只要任一活跃任务共享来源消息就过滤其它 create；兼容扫描把 draft 转回 JSON 时遗漏 repeat/permanent/证据条件；按同钟点与关键词大主题去重也可能吞不同任务。[7be1f2b](https://github.com/jiacimu-droid/lulu1/commit/7be1f2bdae44e1673cb16359d800d302a503ed14) 修正三处并补回归。原 CharacterLifeVisibility.matters 只有主观挂心、motives、探索与个人日程，没有把 CommitmentTaskStore 长期责任显示在心事页；这不是角色真的没有关心的证据，而是视图数据源缺口。
 - **本轮心事修复**：直接以现有 CommitmentTaskStore 的同角色 active undated/daily 责任投影为「长期责任」卡片；不另存心理、不将一项旧综合约定自动分裂为多个伪事实。页面订阅原状态变更、取消沿原任务取消和关联安排。每日 CharacterLifeSelfReview 同样读取这些责任但不强制产生 emotions/pendingConcerns；模型是否自己真挂心留给同一人物判断。新增 role 隔离、取消排除、单次提醒排除、重复ID去重的只读回归。
 - **验收边界**：本轮尚未得到新提交的 JVM/APK 成功回执、旧混合记录拆分的真实模型回合、日期更替与安卓后台提醒及角色主观挂心证据；不得将源码/单测提交当作真机通过。下一轮沿 P-08d.1/2/3 对真实原话、任务列表、pendingConcerns、planId、到点实际回执和第二天重排逐项对照。
+
+
+## 2026-11-05 · P-08d.2b 每日责任次日执行与前轮未知结果解耦（源码已提交，CI/真机待验）
+
+- **输入与根因**：主人明确反馈长期监督不是仅今天生效。原 CommitmentTaskStore 以一份 dueAt/linkedAlarmId 同时代表每日行动与上次结果复查；当上一次 WaitingForFeedback 或 Blocked，advanceDailyAfterAttempt 拒绝滚动到明天，手机虽然保留了“尚未证实”，却丢失未来日程。截图只能证明现有显示，不证明具体系统闹钟已执行。
+- **原 Store 结构修复**：CommitmentTask.kt 增 dailyNextDueAt/dailyNextAlarmId 和分日期 DailyCommitmentAttempt，Encoder/Decoder 保留旧字段默认兼容。CommitmentTaskStore 让新一日执行时刻与仍待核验的上轮任务各持有独立 token，但一条总责任只保留原 taskId；到次日只重置本轮尝试次数并将旧状态/结果按原日期存档，不把“闹钟送达/用户无回复”标记为完成。CommitmentAlarmDelivery 的旧日期 review 回调只作观察和角色再决策，不覆盖今日闹钟；重启恢复跳过已真正错过的旧电话但建立未来重复，保留仍处于原两分钟可执行窗的 alarm。用户/角色通过任何有效取消入口撤回关联待办、双闹钟与旧复查，不删实际经历。源码节点 f23eaf1、8aef038、7740d26、2a7672e、f0bde63、2f2dc52、902d426、48ecc7e。
+- **同轮解释与 UI**：CommitmentDecisionProtocol 消除“可独立完成的多项生活责任可合为总责任”的矛盾示例，提示模型分别考虑各项约定与每日/跨日证据（5e9f3cf）。Committed 状态/心事投影与日程 ScheduledCommitmentCard 明示下次每日时刻与上一轮待核实（8eb02b2、bca8631、abd19ba）。不改变角色本人的主观情绪，也不设第二套任务库或增加日常模型调用。
+- **证据边界**：CommitmentOutcomeVerification 以任务实际时区的当天零点排除昨日证据，同时允许角色判断同一天早于闹钟发生的真实结果，不由程序仅按闹钟分钟判定无效（cfc6077、f31053f）。工具成功、通知送达和睡眠猜测依旧不证明最终效果；旧回执原文仍在 SharedExperienceTimeline 另可核实。
+- **回归已提交、未宣称运行**：CommitmentAlarmRecoveryTest 扩充旧结果未知但次日有闹钟、次日原任务 ID 与旧复查并存、重启漏次如实记录、两分钟执行窗口内仍允许领取；DailyCommitmentRecurrenceTest 验双闹钟/历史 codec 与日期投影；CommitmentOutcomeVerificationTest 验昨日证据不能为今日结案、同日提前完成的候选不会被拒。提交 e897995、8aaa4eb、1ae09a1、dbf076e、9020684、3f11cd4。源文件修改后由仓库原 Refresh code index workflow 更新索引，不手改造假生成结果。
+- **当前 Actions 边界**：接手/修改期间大量并发提交触发 queue，最新 902d426 的 APK run 41878588585、索引 run 41878588646 为 queued；较早 f23eaf1 的 APK run 41876701402 在查验时为 in_progress。已取消的同内容前序 CI 不代表成功；无该次最终 JVM/APK/真机结果，不保证编译及通知与系统后台行为已经验通。
+- **下一步**：核最新 main 对应 APK/JVM 全链结果；有失败按第一个失败步骤修源码；真机连续三天分别核原时刻、前一日结果核查、次日独立闹钟、状态/手机屏幕授权与应用重启、用户取消/改期、角色自然跟进及真实 API 次数。旧综合责任不按关键词自动拆；仍需同一角色读原始约定后以结构化变更明确拆分和关联心事。
