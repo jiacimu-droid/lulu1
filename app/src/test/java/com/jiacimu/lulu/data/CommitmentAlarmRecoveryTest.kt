@@ -391,6 +391,28 @@ class CommitmentAlarmRecoveryTest {
         assertNull(CommitmentTaskStore.claimPastDailyReview(review.id, reviewAt, reviewAt))
     }
 
+    @Test fun coldRecoveryRecordsMissedTomorrowWithoutForgettingYesterday() {
+        val now = Instant.now()
+        val original = now.minusSeconds(25 * 3600)
+        val missed = now.minusSeconds(3600)
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = "role", goal = "每日监督专业课",
+            repeat = "daily", dueAt = original,
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            lastActionResult = "前一天学习结果仍未知",
+            dailyNextDueAt = missed, dailyNextAlarmId = "missing-next-alarm"))
+        CommitmentTaskStore.reconcileAfterRestart(now)
+        val restored = current(task)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, restored.status)
+        assertEquals(original, restored.dueAt)
+        assertEquals(1, restored.dailyAttempts.size)
+        assertEquals(missed, restored.dailyAttempts.single().dueAt)
+        assertEquals("Expired", restored.dailyAttempts.single().status)
+        assertNotNull(restored.dailyNextAlarmId)
+        assertTrue(restored.dailyNextDueAt!!.isAfter(now))
+        assertTrue(restored.lastActionResult.contains("仍未知"))
+    }
+
     @Test fun verifiedDailyOccurrenceStillSchedulesTomorrowUsingOriginalClock() {
         val now = Instant.now()
         val task = CommitmentTaskStore.save(CommitmentTask(
