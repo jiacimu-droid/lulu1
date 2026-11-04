@@ -100,4 +100,65 @@ class NativeResidentLifeIntegrationTest {
         assertEquals(first.dutyKey, DigitalWorldExpansionStore.residents().first { it.id == native.id }.dutyKey)
         assertEquals(bodyBefore, CharacterLifeStore.bodyState(ResidentCharacterBridge.characterId(native.id))?.toString())
     }
+    @Test fun retiringNativeResidentStopsActiveLifeWithoutDeletingSharedMeetingHistory() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldExpansionStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        val name = "可退出居民" + UUID.randomUUID().toString().take(6)
+        val native = DigitalWorldExpansionStore.registerResident(
+            person(name, "街区手工艺人").copy(
+                homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                gender = "女", temperament = "有原则，也会因过分较真与人争执",
+                preferences = "修补旧衣、收集小铜扣",
+                background = "独自经营一间小修补铺，习惯为老物件留下原主的故事。"))
+        val id = ResidentCharacterBridge.characterId(native.id)
+        ResidentCharacterBridge.sync(context)
+        assertTrue(MigratedDomainStores.characters.settings.value.containsKey(id))
+        assertTrue(MigratedDomainStores.characters.get(id).persona.contains("性别身份：女"))
+        val meeting = DigitalWorldStore.startMeeting(listOf(id), "世界入口")
+        val eventId = "resident-retirement-record-${native.id}"
+        SharedExperienceTimeline.record(eventId, id, "数字世界", native.name, "曾在入口见面",
+            triggerExtraction = false, source = "resident-duty",
+            evidenceKind = EventEvidenceKind.Observation)
+        assertTrue(DigitalWorldStore.state.value.meetings.any { it.id == meeting.id })
+        assertTrue(DigitalWorldExpansionStore.removeResident(native.id))
+        assertFalse(DigitalWorldExpansionStore.removeResident(native.id))
+        assertTrue(DigitalWorldExpansionStore.isRetiredTemplate(name))
+        assertFalse(DigitalWorldExpansionStore.residents().any { it.id == native.id })
+        assertFalse(MigratedDomainStores.characters.settings.value.containsKey(id))
+        assertFalse(DigitalLifeProfileStore.isEnabled(id))
+        assertFalse(DigitalWorldStore.state.value.characterLocations.containsKey(id))
+        assertTrue(DigitalWorldStore.state.value.meetings
+            .any { it.id == meeting.id && id in it.participantIds })
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).firstOrNull())
+        assertThrows(IllegalArgumentException::class.java) {
+            DigitalWorldExpansionStore.registerResident(native.copy(id = UUID.randomUUID().toString()))
+        }
+    }
+
+    @Test fun nativeResidentEditsKeepGenderAndLifeHistoryAcrossBridgeSync() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldExpansionStore.initialize(context)
+        val native = DigitalWorldExpansionStore.registerResident(
+            person("性别档案" + UUID.randomUUID().toString().take(6)).copy(
+                homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                gender = "男", background = "独自研究旧街的路标。"))
+        ResidentCharacterBridge.sync(context)
+        val revised = DigitalWorldExpansionStore.updateResidentProfile(
+            residentId = native.id, name = native.name, identity = native.identity,
+            temperament = "外向而有自己的界限", preferences = "地形图",
+            background = "小时候在旧街迷过路，后来自己绘制路线。", gender = "非二元")
+        assertEquals("非二元", revised.gender)
+        ResidentCharacterBridge.sync(context)
+        val character = MigratedDomainStores.characters.get(ResidentCharacterBridge.characterId(native.id))
+        assertTrue(character.persona.contains("性别身份：非二元"))
+        assertTrue(character.persona.contains("绘制路线"))
+    }
+
 }
