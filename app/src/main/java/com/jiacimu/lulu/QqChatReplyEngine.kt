@@ -474,8 +474,14 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
         // The shared online/perception engine makes the next autonomous choice.
         com.jiacimu.lulu.data.CompanionOnlineStore.schedulePersistedConcernReview(characterId)
     }
-    favoriteTarget?.let { CharacterMessageFavorites.favorite(characterId, conversationId, it) }
-    if (presentation.pokeUser && currentCoroutineContext().isActive) {
+    // Favorite/poke are turn-level side effects, not bubble-level receipts.
+    // A cancelled turn, an empty sanitized bubble or a recalled bubble must
+    // never act on the user's message merely because the model proposed it.
+    val turnDelivered = spoken.size == bubbles.size && spoken.isNotEmpty()
+    if (turnDelivered) favoriteTarget?.let {
+        CharacterMessageFavorites.favorite(characterId, conversationId, it)
+    }
+    if (turnDelivered && presentation.pokeUser && currentCoroutineContext().isActive) {
         delay(700L + rolePacingSeed(characterId) % 500L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
@@ -485,7 +491,7 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     return RoleReplyDeliveryReceipt(
         text = spoken.joinToString("\n", transform = LuluChatMessage::content),
         messageIds = spoken.map(LuluChatMessage::id),
-        complete = spoken.size == bubbles.size,
+        complete = turnDelivered,
     )
 }
 
