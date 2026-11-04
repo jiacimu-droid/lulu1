@@ -1602,6 +1602,7 @@ internal object OrderedCharacterActions {
         requestIdForStep: (Int) -> String = { "$requestId:step:$it" },
         turnTraceId: String = "",
         alreadyDeliveredPrivateText: String = "",
+        groupNoticeFollowUp: Boolean = false,
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1714,6 +1715,7 @@ internal object OrderedCharacterActions {
                     reason = normalized.optString("reason"), curiosity = normalized.optJSONObject("curiosity"),
                     motiveId = normalized.optString("motiveId"), concernId = normalized.optString("concernId"),
                     experienceId = normalized.optString("experienceId"),
+                    groupNoticeFollowUp = groupNoticeFollowUp,
                 ))
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
