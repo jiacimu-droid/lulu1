@@ -425,7 +425,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
 private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
     val sections = remember(source) {
         // The generated chapter title is displayed once in the reader header.
-        PersonalTheaterTypography.sections(source).filterIndexed { index, section ->
+        PersonalTheaterTypography.readingSections(source).filterIndexed { index, section ->
             !(index == 0 && section.kind == PersonalTheaterTypography.Kind.Title)
         }
     }
@@ -438,7 +438,11 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
             sections.forEachIndexed { index, section ->
                 if (index > 0) {
                     val sameParagraph = sections[index - 1].paragraphIndex == section.paragraphIndex
-                    Spacer(Modifier.height(if (sameParagraph) 7.dp else 19.dp))
+                    Spacer(Modifier.height(when {
+                        section.softBreakBefore -> 13.dp
+                        sameParagraph -> 7.dp
+                        else -> 19.dp
+                    }))
                 }
                 when (section.kind) {
                     PersonalTheaterTypography.Kind.Title -> Text(
@@ -478,7 +482,11 @@ private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
  */
 internal object PersonalTheaterTypography {
     enum class Kind { Title, Narration, Dialogue, End }
-    data class Section(val kind: Kind, val text: String, val paragraphIndex: Int = 0)
+    data class Section(
+        val kind: Kind, val text: String, val paragraphIndex: Int = 0,
+        /** A visible pause inside a long source paragraph, without changing saved prose. */
+        val softBreakBefore: Boolean = false,
+    )
 
     /**
      * One blank-line-separated paragraph is one reading beat. Ordinary single
@@ -538,6 +546,50 @@ internal object PersonalTheaterTypography {
             flushNarration()
         }
         return result
+    }
+
+    /**
+     * Reader-only projection: keep the authored/persisted paragraph exactly as is,
+     * but give long mobile paragraphs smaller reading beats at natural boundaries.
+     * Never split through a word, quotation or arbitrary character count.
+     */
+    fun readingSections(raw: String): List<Section> = sections(raw).flatMap { section ->
+        if (section.kind != Kind.Narration) listOf(section)
+        else softParagraphs(section.text).mapIndexed { index, piece ->
+            section.copy(text = piece, softBreakBefore = index > 0)
+        }
+    }
+
+    private fun softParagraphs(text: String): List<String> {
+        if (text.length <= 90) return listOf(text)
+        val sentences = mutableListOf<Int>()
+        val clauses = mutableListOf<Int>()
+        var quoteDepth = 0
+        for (i in text.indices) {
+            when (text[i]) {
+                '“', '「', '『' -> quoteDepth++
+                '”', '」', '』' -> quoteDepth = (quoteDepth - 1).coerceAtLeast(0)
+            }
+            if (quoteDepth != 0) continue
+            when (text[i]) {
+                '。', '！', '？', '!', '?', '；', ';' -> sentences += i + 1
+                '，', ',' -> clauses += i + 1
+            }
+        }
+        val pieces = mutableListOf<String>()
+        var start = 0
+        while (text.length - start > 90) {
+            // Prefer complete sentences around 60–70 characters. Fall back to
+            // clause breaks only if no safe full sentence boundary is available.
+            val candidates = sentences.filter { it - start in 40..110 && text.length - it >= 20 }
+            val cut = (candidates.ifEmpty {
+                clauses.filter { it - start in 60..110 && text.length - it >= 25 }
+            }).minByOrNull { kotlin.math.abs((it - start) - 65) } ?: break
+            pieces += text.substring(start, cut)
+            start = cut
+        }
+        pieces += text.substring(start)
+        return pieces
     }
 
     /** Generated title belongs to the reader header, not to two stacked headings. */
