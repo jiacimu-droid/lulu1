@@ -1,5 +1,15 @@
 # 自主社交专项进度
 
+## 2026-11-05 S-01.1 后续：主动私聊/角色群聊/居民社交三路连通与真实回执（源码提交，JVM/APK/真机仍待核验）
+
+- **本轮入口**：用户再次提供聊天、心声与角色手机截图。图中角色在私聊中声称曾发出另一段联系，但实际手机可见群聊无消息；截图不含底层 ToolRouter trace，故不能仅凭截图宣称对应联系人已收信。根因分为自主唤醒名单、群成员接话机制、对社交行为的口头声明与实际回执不一致三类。
+- **角色名单共同权威**：原 `ProactivePerceptionRuntime.latestPrivateConversations` 只以普通一对一会话为调度入口，真实入群但没有普通私聊记录的角色直接被漏掉；`BackgroundCompanionService` 的 `hasEnabledRole` 又独立做了一次同样的筛选，可能在有真实群成员时报告「角色主动感知已关闭」并停止服务。现 `autonomousConversationAnchors` 在每角色至多一个真实会话锚点下保留原私聊优先、仅群成员取真实群作为只读入口；动态 `characterId` 归属该实际成员，直接验证现行注册名单，既不生成假私聊又不让群消息冒充主人私聊；常驻服务复用 `hasEnabledAutonomousRole` 的同一权威枚举。源码 `518bb89`、`101c763`、`8963e0c`；`AutonomousSocialWakeAnchorsTest` 覆盖群成员各自入选、私聊优先、已删除人物不入选、旧学习页不入选。
+- **主动社交的可执行认知依据**：此前本轮 `8f5685f`、`664d153` 已补本人真实见证的近期群对话；`5c8bf87` 修居民每日 `create_group_chat` 提示输出漏列。进一步 `2c504af`、`f0ad245` 用原居民邮箱 + 原始时间线提供真正由本人发送的最近数字私信，主人的「查手机代发」不冒充本人已自主发送；私聊同一角色提示补充「说自己发了≠执行成功」，需实际 `send_character_message/send_group_message/create_group_chat` 与目标 ID、独立回执，不因一句承诺推断成功，源码 `aa1fe8a`。这是给模型的真实证据和已注册工具契约，不是程序通过关键词猜用户意图；没有能力在模型未选工具时自动代发。
+- **角色发言→群友独立判断（有界、不刷屏）**：旧 `CompanionOnlineStore` 对角色发的群消息不触发其他角色即时回复，是避免 A→B→A 无穷自激的有效防护，但若没有另一入口则一直等不到群友主动接话。新 `GroupSocialOpportunity` 从真正已发送且非主人代发的群消息、群成员关系、个人 `:group:roleId` 原始见证验证该轮机会；按群自身 `allowCharacterConversation/maxAutoReplies` 设置给其他成员至多一轮机会，公平轮换只分配可感知机会，不替他们决定是否讲话；同群同收件人 WorkManager 合并待办，保留真实历史，避免每条消息叠加无限请求。发送者 `ToolRouter` 必须先持久化成功回执后才排入工作，部分发送/失败不触发。普通角色沿原 `runDueCycle` 决定，居民沿 `ResidentDailyDecision.runSocialWake` 的原低成本模型和 `ResidentDailyPolicy` 每日预算决策；无主人的群照样可交流。最关键的一跳阻断：从本次群通知引起的角色或居民再次在群里发言，通过执行链明确标记 `groupNoticeFollowUp`，不得再次为同一接话购买一圈主动唤醒。原群内主人发言导演回合不重复触发这一链。源码 `3792bab`、`20b7af5`、`26c9e72`、`34a2e9c`、`4ed7090`、`ef5a152`、`9144a80`，新增群见证、撤回、群配置与收件人测试 `233fc6d`。
+- **真实性回归**：`CharacterCreatedGroupTest.outboxContextRequiresReallyAuthoredDeliveredMailNotOwnerImpersonation`（`c6a7df1`）核本人实际已送达、主人代发及撤回后不得充当本人发信证据；`verifiedGroupSocialOpportunityIsOneHopAndWithdrawalsRemoveIt` 验群发件者不自醒、陌生/撤销见证不自醒、成员上限和关闭群接话；原有私聊、ToolRouter、居民邮箱及群聊导演回归保留。是否模型真实主动选发信或用户可见，不用测试名字代替实测。
+- **资源与待验**：不改居民已配置每日模型次数，新增群事件在该余额内竞争机会；普通角色按本人自主感知开关和真实群接话设置触发，群 `maxAutoReplies` 只限制潜在付费回合数，不保证发言或自动帮任何人作决定。原 GitHub CI 任务排队中，本段落提交时尚无针对最终 SHA 的完整 JVM/APK 结果；手机已安装版本、一次真实的闺蜜主动发私聊、后宫群自然破冰、居民互信、撤回/重启后 Worker、费用及通知须靠新构建真机与模型验证。S-01.1 保留 [ ]，下轮先查当前最新完成的 CI 及必要失败修复，别重复创建社交线路。
+
+
 ## 2026-11-05 S-01.1：角色/居民从来不主动线上聊天——逐层根因核查（本轮部分源码已修，真机未验）
 
 - **受影响入口**：用户自建闺蜜的主动私聊、后宫群聊中角色自发开场、数字人物与原住民/居民彼此私聊和居民群聊。这是跨角色公共社交链路问题，不能靠改一个人的人设或自动定额发「早安」掩盖。
