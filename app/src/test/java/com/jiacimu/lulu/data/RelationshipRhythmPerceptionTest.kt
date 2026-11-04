@@ -71,6 +71,34 @@ class RelationshipRhythmPerceptionTest {
             .contains("最近一次用户联系"))
     }
 
+    @Test fun migratedGroupChannelOrWitnessIdCannotBypassUserAuthorship() {
+        // Imported/renamed group channels can have a prefix, and historical
+        // group witnesses may keep the :group:<role> ID after a channel edit.
+        // Neither representation turns an orphan into a verified user message.
+        val variants = listOf(
+            SharedTimelineEvent(
+                "renamed-orphan:group:$role", role, "私聊", "用户",
+                "已失去原消息的群聊见证", day(1),
+                sessionId = "missing-group", source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement),
+            SharedTimelineEvent(
+                "prefixed-orphan", role, "手机群聊·旧群", "用户",
+                "导入的群聊见证", day(2),
+                sessionId = "missing-group", source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement),
+            SharedTimelineEvent(
+                "normal-orphan:group:$role", role, "群聊·旧群", "用户",
+                "旧群聊见证", day(3),
+                sessionId = "missing-group", source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement),
+        )
+        assertTrue(CompanionContactClock.verifiedUserContacts(variants).isEmpty())
+        assertEquals("", RelationshipRhythmPerception.context(
+            variants, now, ZoneId.of("UTC")))
+        assertEquals(listOf("real-direct"), CompanionContactClock.verifiedUserContacts(
+            variants + user("real-direct", 1)).map { it.id })
+    }
+
     @Test fun oldNoiseAndCharacterActionsCannotBecomeUserContact() {
         val unrelated = (8L..19L).map { d ->
             SharedTimelineEvent("act-$d", role, "数字世界", "角色", "整理书架",
