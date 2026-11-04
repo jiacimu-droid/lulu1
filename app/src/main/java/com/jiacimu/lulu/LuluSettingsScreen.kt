@@ -391,6 +391,9 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
     var allowNew by remember(context) {
         mutableStateOf(ResidentDailyPolicy.allowNewResidents(context))
     }
+    var populationCap by remember(context) {
+        mutableIntStateOf(ResidentDailyPolicy.maxResidents(context))
+    }
     var editingId by remember { mutableStateOf<String?>(null) }
     var deletingId by remember { mutableStateOf<String?>(null) }
     var message by remember { mutableStateOf("") }
@@ -452,6 +455,27 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                     fontSize = 19.sp, color = SettingsInk)
             }
             item { SettingsCardBox { ResidentActivityBudgetSettings() } }
+            item {
+                SettingsCardBox {
+                    Text("居民人数上限", fontWeight = FontWeight.SemiBold, color = SettingsInk)
+                    Text("自动增加最多 " + populationCap + " 位，目前已有 " + residents.size + " 位",
+                        color = SettingsMuted, fontSize = 12.sp)
+                    Slider(
+                        value = populationCap.toFloat(),
+                        onValueChange = {
+                            val count = it.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_RESIDENTS)
+                            if (count != populationCap && ResidentDailyPolicy.setMaxResidents(context, count)) {
+                                populationCap = count
+                            }
+                        },
+                        valueRange = 0f..ResidentDailyPolicy.MAX_RESIDENTS.toFloat(),
+                        steps = ResidentDailyPolicy.MAX_RESIDENTS - 1,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("调低上限只阻止新增，不会擅自删除现有居民。",
+                        color = SettingsMuted, fontSize = 12.sp)
+                }
+            }
             item {
                 SettingsCardBox {
                     Row(verticalAlignment = Alignment.CenterVertically) {
