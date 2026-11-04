@@ -501,14 +501,8 @@ class CharacterCausalTraceTest {
             assertFalse(lines.any { it.title.contains("回执后的本人选择") &&
                 it.detail.contains("迟到结果") })
         }
-        // An earlier native result is still valid, as in existing search tests.
-        SharedExperienceTimeline.record("trace-future-native", a, "网页搜索结果", "执行器",
-            "真实较早的结果", at.plusSeconds(8), triggerExtraction = false,
-            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
-        val recovered = CharacterCausalTrace.inspect(context, a,
-            event(a, "trace-future-native-receipt"), SharedExperienceTimeline.all(a), mind)
-        assertTrue(recovered.any { it.title == "原生结果记录" &&
-            it.evidenceId == "trace-future-native" })
+        // Earlier native events remain covered by the existing positive
+        // search-result follow-through regression.
     }
 
     @Test fun postToolDecisionRequiresActualResultChronologyAndRevision() {
