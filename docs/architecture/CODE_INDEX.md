@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c73b6170502aed1d7159b6d37943e93602ea4734`
+- 基准提交：`cfc6077d2cedc933e739878fc1a55e9eda66b9d7`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：240253
+- 已索引代码/文本行：240312
 - 已发现符号：3314
 
 | 文件 | 行数 | 符号数 |
@@ -354,7 +354,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 266 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 331 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 189 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 204 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 155 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 129 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
@@ -416,10 +416,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 149 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 517 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 95 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 238 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 376 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 379 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 56 | 0 |
@@ -732,7 +732,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt` | 199 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 35 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 167 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 205 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |

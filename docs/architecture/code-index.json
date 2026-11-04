@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:22:16.114947+00:00",
-  "commit": "c73b6170502aed1d7159b6d37943e93602ea4734",
+  "generatedAt": "2026-11-04T17:23:10.612708+00:00",
+  "commit": "cfc6077d2cedc933e739878fc1a55e9eda66b9d7",
   "branch": "main",
-  "sourceFingerprint": "50f527c728a177e9a17343cea56890da08cb21f975fe0d75be7e40c2159fb7b3",
+  "sourceFingerprint": "063daeb4d136d9e1dff55cdc91bbb06b1c7ead79f5f2e4412e2703fe919b73b4",
   "summary": {
     "files": 1137,
-    "lines": 240253,
+    "lines": 240312,
     "symbols": 3314
   },
   "symbolIndex": {
@@ -14783,7 +14783,7 @@
     "CommitmentAlarmWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-        "line": 140
+        "line": 178
       }
     ],
     "CommitmentAlarmService": [
@@ -24126,8 +24126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 189,
-      "sha256": "536ca73ea975a61a000225d67428b08d55046bf61701048f07acf61f2ed84700",
+      "lines": 204,
+      "sha256": "07b4697a1f3fe229fee0c2fc34c6d0e302e5195933c9dd17dca650c0ed51b351",
       "symbols": [
         {
           "name": "render",
@@ -25770,8 +25770,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
-      "lines": 95,
-      "sha256": "95f0f186a82592e2a42c2c1aff4701947d381d33e8e11e09e3be699a775c4fb5",
+      "lines": 98,
+      "sha256": "d7bbbfc608b07deae911b36cd5afea0ffbd741d4b722def4d7f39dcd435d8ebc",
       "symbols": [
         {
           "name": "Result",
@@ -25827,8 +25827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 376,
-      "sha256": "6003d65202352da9553677fe302bedb4255401829436896b6f5d04e56c2ed95a",
+      "lines": 379,
+      "sha256": "af37dea774df716ed17391f71801d2ecbc0501ff8de52dfdc2945aa24d13bdf9",
       "symbols": []
     },
     {
@@ -33895,8 +33895,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-      "lines": 167,
-      "sha256": "3c81b74f6ca5d4a16a401356f8f80341188b32ec86b69a4b1b23e7ddd495fd40",
+      "lines": 205,
+      "sha256": "9c07ccdae15acf5da05f3a85482e1f2503246ab8ef0ed9f45b16793ed82185b1",
       "symbols": [
         {
           "name": "scheduleBackup",
@@ -33912,7 +33912,7 @@
         },
         {
           "name": "CommitmentAlarmWorker",
-          "line": 140
+          "line": 178
         }
       ]
     },
