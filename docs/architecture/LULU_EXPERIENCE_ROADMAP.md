@@ -8,7 +8,7 @@
 
 当前复核基准 main `811b428732c805f2707ea0e503ef783ce007bf81`、最新源码和 Actions：
 - 已核实的完整 Android/JVM/APK 基线更新为 `811b428`：[run 41763912049](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912049) success，索引 [41763912115](https://github.com/jiacimu-droid/lulu1/actions/runs/41763912115) success；真机与真实模型仍待验。
-- 来源契约测试回归已由 `811b428` 完整 CI 收敛；最新心声过滤修复 `bd9babb` 的 [APK/JVM 41768606587](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606587) 查询时 pending，[索引 41768606590](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606590) in_progress。只追包含完整回归的后继结果，取消运行不算通过。
+- 来源契约测试回归已由 `811b428` 完整 CI 收敛；最新心声过滤修复 `bd9babb` 的 [APK/JVM 41768606587](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606587) 查询时 pending，[索引 41768606590](https://github.com/jiacimu-droid/lulu1/actions/runs/41768606590) completed/success。只追包含完整回归的后继结果，取消运行不算通过。
 - P-01 人格/关系分项、P-02 初版作者归属、P-04 独立事件来源去重的已完成开发已移出本页。P-03、P-05 的已落地代码也不再列为待开发，保留尚缺的运行验收。
 - 原文分段 `OriginalEvidenceSpans`、来源敏感去重、回合 trace、实际注入审计、结构化气泡交接、精确消息回执和分享意愿持久化已有实现。接力从当前入口核查与真实样本入手。
 
