@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d5b981c690a5bd7f839556bd897e24e6b564c0ee`
+- 基准提交：`fbea180df8e62fabda717d2cba9801ae6b82a642`
 - 分支：`main`
-- 已索引文件：1128
-- 已索引代码/文本行：235619
+- 已索引文件：1127
+- 已索引代码/文本行：235311
 - 已发现符号：3277
 
 | 文件 | 行数 | 符号数 |
@@ -197,9 +197,8 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 631 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 578 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 384 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 127 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 252 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 525 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 340 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 567 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
@@ -451,8 +450,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 93 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 328 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 230 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 329 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 233 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 425 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 785 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
