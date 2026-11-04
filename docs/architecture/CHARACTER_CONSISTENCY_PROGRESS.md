@@ -912,3 +912,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因**：`PersonalMiniTheater.request` 只说明“空行分段”，并未约束段内叙事节拍；`PersonalTheaterTypography.sections` 把单个原文自然段投影为单块旁白，原段过长则原样在手机上自动折行。仅增大段落间距无法解决段内密度。
 - **实施**：`PersonalMiniTheater.kt` 明确旁白随一组动作/反应/心理转折与独立对白自然分段，手机一至三行只是参考，不机械切句或删文学信息（`0c4ef4f1`）。阅读页改用 `readingSections` 只读投影：若单块旁白过长，优先在句末符号、必要时逗号断开，且只有安全边界才换行，小说原文存储与 `sections()` 的原始语义不变。视觉上同段拆出的部分使用中等间距，原段落仍较明显分开；对白、标题和尾标不触碰（`7c84a80b`）。
 - **回归**：`554fd888` 新增原段唯一、视觉变多段、投影逐块拼合完全等于原文字、带引号独立台词完整、短无标点段落不切、写作提示存在的单测。代码已提交 main，未在本轮确证 GitHub JVM/APK 或真机实际对比；真实模型语言质量仍需安装新 APK 后验证。 
+
+## 2026-11-04 · 每小时接力 P-08c.2a 群电话实际送达与延后动作回执
+
+- **接手**：读取最新 main 的 AGENTS、CODE_INDEX、唯一 roadmap、人物专项进度与 QqChatReplyEngine / GroupChatTurnPlannerTest；已有 bubbles、真实送达锚、空回复单次请求回归，不重复。
+- **证实的链路问题**：runGroupReplies 在电话模式使用 `shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()`，即使发送函数没有持久化任何气泡（如全撤回/空送达），仍可能将模型拟稿通过 afterReply 送入 LuluGroupVoiceCallScreen 的 speechQueue。文本群聊只看 shown 非空，未区分完整与部分送达，可能在最后气泡撤回后仍执行整个模型回合的 deferredActions；而底层 appendRoleReplyWithPacingReceipt 已经有真实 messageIds/complete/superseded，调用方没有利用。
+- **源码**：[5145505](https://github.com/jiacimu-droid/lulu1/commit/5145505ba49b370699efde8e2cc3ab73c3b8acd3) 使用原 RoleReplyDeliveryReceipt；电话 afterReply 只传实际已落库的 delivery.text，完全无送达时不入音频队列；延后工具仅在 complete、非 superseded、有持久 messageId 且当前来源有效时运行。未添加模型调用、影子状态或修改角色人设；部分已送达的文字仍可按真实文字播放，不伪造整轮完成。
+- **回归**：[bff33e9](https://github.com/jiacimu-droid/lulu1/commit/bff33e9bc2c506592ed210c3a1d3db73a835216e) 新增 groupDeferredActionsRequireACompletePersistedDelivery，覆盖完整成功、空文字、无消息 ID、部分送达、撤回/过期与来源更新。它是纯契约测试，不等于真机音频实测。
+- **验证边界**：本轮查询 bff33e9 combined statuses 空，关联 PR workflow_runs 空（该接口只筛 PR），旧 41839212468 job 列表为空；不能断言最新 JVM/APK/发布已成功或失败。本轮无可用 Android 本地构建环境，源码/回归已提交 main，**待实际 CI、真机多人电话/文本群聊及真实模型回归**。
+- **下一步**：刷新最新 main 和 Actions，优先核本轮编译/单测；P-08c.2 继续审本人 bubbles、最后一条真实发言锚、沉默/取消与长答否定条件，尤其部分发泡后被新用户消息取代的后续动作和音频时序。P-08a.1 全链 trace 仍是更高优先待核，不重做已成功的 P-08c.1。
