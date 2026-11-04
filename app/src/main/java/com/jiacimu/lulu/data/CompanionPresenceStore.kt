@@ -183,23 +183,14 @@ object CompanionPresenceStore {
         return old.gesture.takeIf { ageMinutes in 0..(8 * 60) && isSustainedGesture(it) }.orEmpty()
     }
 
-    private fun normalizedThought(text: String): String = text
-        .lowercase()
-        .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_-]+"), "")
-        .replace(Regex("^(还是|就是|只是|现在|这会儿|此刻|嗯|唔|好吧)+"), "")
+    // The model's causal appraisal decides whether a private thought is new.
+    // This storage projection only suppresses identical authored text. Lexical
+    // overlap/substrings cannot distinguish a negation or an added condition.
+    private fun authoredThoughtIdentity(text: String): String = text.trim()
 
-    private fun meaningfullyDifferentThought(previous: String, next: String): Boolean {
-        val left = normalizedThought(previous)
-        val right = normalizedThought(next)
-        if (right.isBlank()) return false
-        if (left.isBlank()) return true
-        if (left == right || left.contains(right) || right.contains(left)) return false
-        if (left.length < 4 || right.length < 4) return true
-        val leftPairs = left.windowed(2).toSet()
-        val rightPairs = right.windowed(2).toSet()
-        val denominator = minOf(leftPairs.size, rightPairs.size).coerceAtLeast(1)
-        val overlap = leftPairs.intersect(rightPairs).size.toDouble() / denominator
-        return overlap < 0.68
+    private fun hasDifferentAuthoredThought(previous: String, next: String): Boolean {
+        val right = authoredThoughtIdentity(next)
+        return right.isNotBlank() && authoredThoughtIdentity(previous) != right
     }
 
     /**
@@ -371,7 +362,7 @@ object CompanionPresenceStore {
             previous.gesture != next.gesture ||
             previous.mood != next.mood
         val thoughtChanged = previous == null ||
-            meaningfullyDifferentThought(previous.innerThought, next.innerThought)
+            hasDifferentAuthoredThought(previous.innerThought, next.innerThought)
         val hasCausalFingerprint = next.innerThoughtFingerprint.isNotBlank()
         val causalFingerprintChanged = hasCausalFingerprint &&
             (previous?.innerThoughtFingerprint.isNullOrBlank() ||
@@ -399,7 +390,7 @@ object CompanionPresenceStore {
                     runCatching {
                         Duration.between(saved.updatedAt, now).toMinutes() in 0L..15L
                     }.getOrDefault(false) &&
-                    normalizedThought(saved.innerThought) == normalizedThought(newHeartVoice)
+                    authoredThoughtIdentity(saved.innerThought) == authoredThoughtIdentity(newHeartVoice)
             }
         val uniqueHeartVoice = if (repeatedRecentVoice) "" else newHeartVoice
         val heartVoiceEventChanged = uniqueHeartVoice.isNotBlank()
@@ -408,7 +399,7 @@ object CompanionPresenceStore {
             ?: previous?.momentReflection.orEmpty()
         val reflectionChanged = next.momentReflection.isNotBlank() &&
             (earlierReflection.isBlank() ||
-                meaningfullyDifferentThought(earlierReflection, next.momentReflection))
+                hasDifferentAuthoredThought(earlierReflection, next.momentReflection))
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
         val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
         val thoughtHistoryDue = lastRecordedAt == null ||
@@ -417,7 +408,7 @@ object CompanionPresenceStore {
         // A sent chat message owns a concrete moment. Background perception is different: a role can
         // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
         // changes are recorded immediately; thought-only background changes are rate-limited and must
-        // contain materially new wording. Exact/near repeats remain current state only.
+        // contain different authored text. Identical repeats remain current state only.
         if (isChatTurn || visibleChanged || reflectionChanged ||
             (heartVoiceEventChanged && thoughtHistoryDue)) {
             val historySnapshot = next.copy(
