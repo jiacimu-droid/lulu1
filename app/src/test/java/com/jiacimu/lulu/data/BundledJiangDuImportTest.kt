@@ -103,6 +103,14 @@ class BundledJiangDuImportTest {
             CharacterProfileSchema.jiangDuV25Overrides.forEach { (key, value) ->
                 assertEquals("Stock trait should upgrade: $key", value, profile.getString(key))
             }
+            // This is the actual live role definition seen by private chat,
+            // phone and other Full-context gateways—not merely a saved JSON
+            // field or a migration version counter.
+            val actualPersona = CharacterRuntime.definition(id).persona
+            assertTrue(actualPersona.contains("对她长远有益"))
+            assertTrue(actualPersona.contains("温和而坚定地陪她"))
+            assertTrue(actualPersona.contains("已接受的照顾"))
+            assertFalse(CharacterRuntime.definition("lulu").persona.contains("对她长远有益"))
             val dialogue = profile.getString("dialogueExamples")
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, dialogue)
             assertEquals(1, Regex("【学习时").findAll(dialogue).count())
@@ -138,6 +146,9 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.initialize(context)
             val personalized = CharacterLifeStore.state(id).getJSONObject("profile")
             assertEquals("主人亲自编辑的照顾方式", personalized.getString("care"))
+            val customizedPersona = CharacterRuntime.definition(id).persona
+            assertTrue(customizedPersona.contains("主人亲自编辑的照顾方式"))
+            assertFalse(customizedPersona.contains("在对她长远有益且双方仍认同的约定上保持原则"))
             assertEquals("", personalized.getString("perception"))
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
             assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("motives"),
