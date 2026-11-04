@@ -27,6 +27,8 @@ import com.jiacimu.lulu.data.DigitalWorldStore
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Home's centre area is a real world bulletin, not a decorative quote.
@@ -44,18 +46,26 @@ internal fun DesktopWorldBulletinCard() {
     var opened by remember { mutableStateOf(false) }
 
     LaunchedEffect(context) {
-        DigitalWorldStore.initialize(context)
-        DigitalWorldExpansionStore.initialize(context)
-        CharacterFriendRequests.initialize(context)
+        // Prefs parsing and expansion initialization do not belong on the UI
+        // thread. Keep the bulletin accurate on first load and afterwards.
+        withContext(Dispatchers.IO) {
+            DigitalWorldStore.initialize(context)
+            DigitalWorldExpansionStore.initialize(context)
+            CharacterFriendRequests.initialize(context)
+        }
         while (true) {
             refresh++
             delay(20_000L)
         }
     }
-    val notices = remember(world, refresh) {
-        DigitalWorldBulletin.collect(
-            world, DigitalWorldExpansionStore.residents(), DigitalWorldExpansionStore.places(),
-        )
+    val notices by produceState(emptyList<DigitalWorldNotice>(), world, refresh) {
+        // Persisted world events can grow for years. Do not sort/filter the
+        // complete event ledger on the frame that also handles pager gestures.
+        value = withContext(Dispatchers.Default) {
+            DigitalWorldBulletin.collect(
+                world, DigitalWorldExpansionStore.residents(), DigitalWorldExpansionStore.places(),
+            )
+        }
     }
     val unread = notices.count { it.id !in seen }
     val latest = notices.firstOrNull()
