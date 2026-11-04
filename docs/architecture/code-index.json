@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:12:45.063346+00:00",
-  "commit": "d6bf8cb8c0765ed6ce7a4b2eccb510a943d25f68",
+  "generatedAt": "2026-11-04T03:13:38.776275+00:00",
+  "commit": "ff7668f85a85a309452c72262067fb6dbe433baf",
   "branch": "main",
-  "sourceFingerprint": "8b92ea43b349356c1f9b91edb0e37a7904e60a85804a3b8ad3621378edf8ca03",
+  "sourceFingerprint": "f41c00c5143fa1ac99b68bef4eb2944993193c253659040483ecb0b711f77feb",
   "summary": {
     "files": 1126,
-    "lines": 235010,
+    "lines": 235042,
     "symbols": 3271
   },
   "symbolIndex": {
@@ -871,7 +871,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 83
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
@@ -8555,7 +8555,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 256
+        "line": 261
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -8603,7 +8603,7 @@
     "maybeEvolve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 95
+        "line": 109
       }
     ],
     "DigitalWorldResident": [
@@ -8693,19 +8693,19 @@
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 219
+        "line": 224
       }
     ],
     "commitResidentDuty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 240
+        "line": 245
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 275
+        "line": 280
       }
     ],
     "isAmbientMoment": [
@@ -26417,16 +26417,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 297,
-      "sha256": "90a383a3a24c4aea3f89854bd9376f00efb1d79990cd95d9fd613f7d9fbcd63e",
+      "lines": 324,
+      "sha256": "30532d7f9dcdaaec2e18013d2001913c41ff38b462cd6688da744fab71a655ae",
       "symbols": [
         {
           "name": "initialize",
-          "line": 83
+          "line": 97
         },
         {
           "name": "maybeEvolve",
-          "line": 95
+          "line": 109
         }
       ]
     },
@@ -26443,8 +26443,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 403,
-      "sha256": "cc1ca8376738ba839e97667376a14123dfab9335726d8cffa221ed0c1640acc6",
+      "lines": 408,
+      "sha256": "28572fd4aca9f81e932d55c219a59fae2086ba154cc0e6d0d983f7f9b6b369f7",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -26508,19 +26508,19 @@
         },
         {
           "name": "moveResident",
-          "line": 219
+          "line": 224
         },
         {
           "name": "commitResidentDuty",
-          "line": 240
+          "line": 245
         },
         {
           "name": "contextFor",
-          "line": 256
+          "line": 261
         },
         {
           "name": "isExistingLocation",
-          "line": 275
+          "line": 280
         }
       ]
     },
