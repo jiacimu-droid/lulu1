@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T09:16:06.714534+00:00",
-  "commit": "cc03dadd705c37636ff6a81f7a8de8b78e20c775",
+  "generatedAt": "2026-11-04T09:16:48.635197+00:00",
+  "commit": "9a8e4686c48fb65d576b8970d50aa2af2e8049af",
   "branch": "main",
-  "sourceFingerprint": "18c84575daafd4c8eaf780acb7eca2414373f02f850f53e5077cdf140d13a5ec",
+  "sourceFingerprint": "58ab2b7c42ec0d836f1496da0a9738293ca28614c8f26e79c76932c0a3256432",
   "summary": {
     "files": 1130,
-    "lines": 236421,
+    "lines": 236457,
     "symbols": 3286
   },
   "symbolIndex": {
@@ -217,7 +217,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 166
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6925,25 +6925,25 @@
     "dismissInApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 34
+        "line": 36
       }
     ],
     "visibleConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "channelId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 46
+        "line": 48
       }
     ],
     "sendHeadsUpTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 134
+        "line": 144
       }
     ],
     "reflection": [
@@ -15251,7 +15251,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-        "line": 114
+        "line": 140
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -24528,28 +24528,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-      "lines": 174,
-      "sha256": "3f626c898b48deea6ca3bf3cb4ad8021a720e3660f79e4ff817677d048283bad",
+      "lines": 184,
+      "sha256": "6adf9a17bc0e3193ed2459c779ce6b57fd12b2261b6bec1a465db4887b5e3f39",
       "symbols": [
         {
           "name": "dismissInApp",
-          "line": 34
+          "line": 36
         },
         {
           "name": "visibleConversation",
-          "line": 42
+          "line": 44
         },
         {
           "name": "channelId",
-          "line": 46
+          "line": 48
         },
         {
           "name": "sendHeadsUpTest",
-          "line": 134
+          "line": 144
         },
         {
           "name": "cancel",
-          "line": 166
+          "line": 176
         }
       ]
     },
@@ -35830,8 +35830,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-      "lines": 131,
-      "sha256": "0c8694bb6291b43dd7bcb241e53ce48141a0f3adb2715bd2974dfba28128dd46",
+      "lines": 157,
+      "sha256": "2d1e75d80c9ecafa444a2b1712c7a8c168fa333d76b05df976b179c8e2f1f2c9",
       "symbols": [
         {
           "name": "CharacterCreatedGroupTest",
@@ -35839,7 +35839,7 @@
         },
         {
           "name": "event",
-          "line": 114
+          "line": 140
         }
       ]
     },
