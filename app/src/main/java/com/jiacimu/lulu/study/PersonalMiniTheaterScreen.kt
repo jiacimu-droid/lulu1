@@ -10,6 +10,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -44,6 +45,15 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     val work = all.firstOrNull { it.id == opened && it.characterId == characterId }
     val saved = all.filter { it.characterId == characterId }.asReversed()
     val busy = work?.status in setOf("queued", "running")
+    val pageScroll = rememberLazyListState()
+    LaunchedEffect(opened) { pageScroll.scrollToItem(0) }
+    val readerPrefs = remember(context) {
+        context.getSharedPreferences("personal_mini_theater_reader", 0)
+    }
+    var fontSize by rememberSaveable {
+        mutableIntStateOf(readerPrefs.getInt("font_size_sp", 16).coerceIn(14, 20))
+    }
+    LaunchedEffect(fontSize) { readerPrefs.edit().putInt("font_size_sp", fontSize).apply() }
     val storyTitle = remember(work?.title, work?.text) {
         PersonalTheaterTypography.sections(work?.text.orEmpty())
             .firstOrNull { it.kind == PersonalTheaterTypography.Kind.Title }
@@ -58,7 +68,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } })
     }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding),
+        LazyColumn(Modifier.fillMaxSize().padding(padding), state = pageScroll,
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
@@ -190,7 +200,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     if (work.rewriting) Text("上一版 · 新版本写完前保留",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    PersonalMiniTheaterProse(work.text)
+                    PersonalMiniTheaterProse(work.text, fontSize)
                 }
                 if (!busy) item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -224,11 +234,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
 
 /** Reader-only presentation. Original generated text stays byte-for-byte in the library. */
 @Composable
-private fun PersonalMiniTheaterProse(source: String) {
+private fun PersonalMiniTheaterProse(source: String, fontSize: Int) {
     val sections = remember(source) {
         // The generated chapter title is displayed once in the reader header.
-        PersonalTheaterTypography.sections(source).filterNot {
-            it.kind == PersonalTheaterTypography.Kind.Title
+        PersonalTheaterTypography.sections(source).filterIndexed { index, section ->
+            !(index == 0 && section.kind == PersonalTheaterTypography.Kind.Title)
         }
     }
     val ink = MaterialTheme.colorScheme.onSurface
