@@ -941,3 +941,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **下一轮**：先核本轮CI/索引，再继续P-08a.1或P-08b.1正式注入和P-08d逐步回执；不能把这次事实投影修复宣称为活人感已验收。
 
 - **本轮实际提交/验证**：源码与回归 [0df8e07](https://github.com/jiacimu-droid/lulu1/commit/0df8e075203a8cd80177c6982a37732be2c9eb87)。原生成器 [41859812905](https://github.com/jiacimu-droid/lulu1/actions/runs/41859812905) completed/success，自动索引98912e3，CODE_INDEX基准精确为0df8e07；源码提交前刷新main，索引后compare核对仅本轮四文件与生成索引。随后他窗6520ae5更新CompanionActionRuntime，刷新核对后保留，无冲突覆盖。JVM/APK [41859812891](https://github.com/jiacimu-droid/lulu1/actions/runs/41859812891) 当前in_progress，job126678201366正在Test and build phone APK，**尚无本轮单测/APK通过结论**。接手必须刷新该结果，失败则先修本轮回归；真机与真实模型仍未知。
+
+
+## 2026-11-05 · 每小时接力 P-08a.2b：搜索结果反馈不能借用另一请求的送达
+
+- **接手核查**：读取 main 的 AGENTS、CODE_INDEX、唯一路线图、人物进度、统一人物契约与成长框架；对照 CharacterCausalTrace.searchFeedbackLines 和 CharacterCausalTraceTest 已有精确请求、版本、撤回及短窗口测试。此前群聊部分送达、收藏/戳一戳和探索旧记录修复不重复。
+- **证实的缺口**：searchFeedbackLines 已按搜索回执的 requestId 构造精确 rootRequestId，且索引检索只取该 root 的反馈；但同时合并 UI events 的候选时，只检验任何以 :verified-search-feedback 结尾的 requestId、同一 causeEvidenceId 和 revision。于是**另一请求**对同一搜索回执产生的真实反馈，也可能在本次搜索的因果卡片中显示为「搜索结果后的实际反馈」。同一来源不等于同一请求，不能误归因本人本轮选择的实际送达。
+- **正式修复**：[87ce2bb](https://github.com/jiacimu-droid/lulu1/commit/87ce2bb4d9426b7e7b1d6e26a6b2e4550501686f) 将可见 UI 候选和精确索引候选统一要求 requestId == rootRequestId + :verified-search-feedback；保留原角色归属、事件版本、实际回执状态、事件时间及删除检查。不增加模型请求、Store、人物提示或执行动作。
+- **回归**：[f9927f5](https://github.com/jiacimu-droid/lulu1/commit/f9927f545710f84edbe2cac5d714ede65936ebdb) 在原 searchFinalReplyIsVisibleFromOriginalRequestAndOnlyFromLiveResultRevision 增加「另一请求指向同一结果且已真实成功」的负例，要求原请求只归因自己的反馈；原正例、跨角色、修订、删除仍保留。
+- **验证边界**：源码和测试已提交 main；提交后查询 f9927f5 的 workflow_runs 和 combined statuses 均为空，不能据此宣称编译成功或失败；没有本地 Android/JVM 运行和真机、真实模型证据。索引由现有生成流程处理，未确认对应新提交已完成。
+- **下一轮**：先查 f9927f5 的 APK/JVM 与索引最终状态，失败修首个实质错误；再继续 P-08a.1 其余跨入口 requestId/来源版本追踪或 P-08c.2 的群聊取消/部分送达链路。P-08a.3 仍需获授权的真实回合证据。
