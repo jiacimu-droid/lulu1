@@ -211,6 +211,11 @@ class PersonalMiniTheaterTest {
         assertEquals("他耳尖一下竖起来。", sections[3].text)
         assertEquals("“你来啦。”", sections[4].text)
         assertEquals("他笑着偏过头。", sections[5].text)
+        // The quoted line and its gesture belong to the same paragraph,
+        // so the reader should use a small gap rather than full paragraph spacing.
+        assertEquals(sections[2].paragraphIndex, sections[3].paragraphIndex)
+        assertNotEquals(sections[3].paragraphIndex, sections[4].paragraphIndex)
+        assertEquals(sections[4].paragraphIndex, sections[5].paragraphIndex)
         assertEquals("你说“别装”，他一下没绷住。", sections[6].text)
         assertEquals("偷偷冒出来的耳朵", PersonalTheaterTypography.leadingTitle(sections, "备用标题"))
         assertEquals("备用标题", PersonalTheaterTypography.leadingTitle(
