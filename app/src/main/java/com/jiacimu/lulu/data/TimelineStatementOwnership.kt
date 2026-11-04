@@ -5,7 +5,7 @@ package com.jiacimu.lulu.data
  * names, nicknames and the words themselves never establish authorship. */
 internal object TimelineStatementOwnership {
     private fun isGroup(event: SharedTimelineEvent): Boolean =
-        event.channel.startsWith("群聊") || event.id.endsWith(":group:${event.characterId}")
+        event.channel.contains("群聊") || event.id.endsWith(":group:${event.characterId}")
 
     private fun original(event: SharedTimelineEvent): Pair<LuluConversation, LuluChatMessage>? {
         if (event.sessionId.isBlank()) return null
