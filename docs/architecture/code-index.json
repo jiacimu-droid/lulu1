@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T02:29:50.324756+00:00",
-  "commit": "555464ec1828b622a7c87934d5b7b2123ab1c361",
+  "generatedAt": "2026-11-04T02:32:18.958463+00:00",
+  "commit": "7a5fbefdd5c9b7e129a4e7b90432c56d219ecca1",
   "branch": "main",
-  "sourceFingerprint": "28177fce879172be9118846018434b5c35ae114bcf2b1e0d47668d80c9e2d40e",
+  "sourceFingerprint": "5cf3e300ff03dc50608c35c316fa6ea59ad5e9e1f70157d1a955cb89f4e8e2a1",
   "summary": {
     "files": 1126,
-    "lines": 234859,
+    "lines": 234855,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -2175,7 +2175,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 112
+        "line": 108
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
@@ -17741,13 +17741,13 @@
     "say": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "propose": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 137
+        "line": 133
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
@@ -38013,8 +38013,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-      "lines": 168,
-      "sha256": "29609c5510a021c30d57e22342c667885b614a048b3d968bdf26f7199ae5aeed",
+      "lines": 164,
+      "sha256": "bf2da6bbce69e86c07bb9aa25a2e1c63618cf5dc4dbdd72b8251ebc9c346145a",
       "symbols": [
         {
           "name": "TimelineLedgerTest",
@@ -38022,15 +38022,15 @@
         },
         {
           "name": "say",
-          "line": 29
+          "line": 30
         },
         {
           "name": "record",
-          "line": 112
+          "line": 108
         },
         {
           "name": "propose",
-          "line": 137
+          "line": 133
         }
       ]
     },
@@ -38048,7 +38048,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
       "lines": 313,
-      "sha256": "54f7c0a1bae002119ba289fafa8fe8ad6a018a2b72a764ce5ddd62e34ce6b37c",
+      "sha256": "ed31ab5bfcea86c0de46877de8f479fecbc624793d58b3d1c3008596e1c58b7b",
       "symbols": [
         {
           "name": "TimelineStatementOwnershipTest",
@@ -38664,7 +38664,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
       "lines": 189,
-      "sha256": "7acea78cd33d9afefe330ffb2585b8af405fef674f3534fd3d8cec07f1ea6244",
+      "sha256": "f6d6a4f4c2e1bdde1478668296f279c528059af7e95de71a355696040957c550",
       "symbols": [
         {
           "name": "ReadingGrowthTheaterTest",
