@@ -2820,8 +2820,10 @@ object ProactivePerceptionRuntime {
         var deliveredExtra = false
         var extraConversationId: String? = null
         var extraDeliveredIds = emptyList<String>()
+        // A fast local 所行 read has one user-visible answer AFTER its receipt.
+        // Do not send an extra "I'll check" bubble before the actual task data.
         if (decision.action == Action.TOOL && decision.text.isNotBlank() &&
-            tool !in setOf("send_private_message", "send_group_message") &&
+            tool !in setOf("send_private_message", "send_group_message", "read_self_todo") &&
             hasFreshUserMessage && replyConversationIds.isNotEmpty() &&
             !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
