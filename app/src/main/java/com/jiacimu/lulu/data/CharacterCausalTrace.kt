@@ -529,6 +529,10 @@ internal object CharacterCausalTrace {
         val decidedAt = runCatching {
             java.time.Instant.parse(decision.optString("at"))
         }.getOrNull()
+        val sourceOccurredAt = chosenSource.takeIf(String::isNotBlank)?.let { sourceId ->
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(sourceId))
+                .firstOrNull()?.occurredAt
+        }
         // An executor request ID is necessary but not sufficient to attribute
         // an old receipt to THIS choice. A reused/legacy ID may belong to a
         // different source or revision; do not turn that effect into success.
@@ -540,6 +544,8 @@ internal object CharacterCausalTrace {
             body.optLong("causeEvidenceRevision", 0L) != chosenRevision ->
                 "执行记录的原始依据版本与本人选择不同"
             decidedAt == null -> "本人选择时间缺失"
+            sourceOccurredAt != null && decidedAt.isBefore(sourceOccurredAt) ->
+                "本人选择早于其原始依据，不能认定该次执行归属"
             occurredAt == null -> "执行记录时间缺失"
             occurredAt.isBefore(decidedAt) -> "执行记录早于本人选择"
             else -> null
