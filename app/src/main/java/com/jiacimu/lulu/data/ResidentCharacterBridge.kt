@@ -22,6 +22,7 @@ internal object ResidentCharacterBridge {
             } else null
 
     fun seedPersona(resident: DigitalWorldResident): String = buildString {
+        if (resident.gender.isNotBlank()) append("性别身份：").append(resident.gender).append("；")
         append(resident.temperament.ifBlank { "拥有独立判断、日常兴趣与个人界限" })
         if (resident.preferences.isNotBlank()) append("；喜欢").append(resident.preferences)
         if (resident.background.isNotBlank()) append("；背景：").append(resident.background)
@@ -83,7 +84,7 @@ internal object ResidentCharacterBridge {
         val native = nativeResident(characterId) ?: return ""
         return buildString {
             appendLine("【原住民本人已知的身份与职责】")
-            appendLine("你的名字是${native.name}，身份与工作=${native.identity}；真正的住所=${native.homeLocationCode}。")
+            appendLine("你的名字是${native.name}，性别身份=${native.gender.ifBlank { "未说明" }}，身份与工作=${native.identity}；真正的住所=${native.homeLocationCode}。")
             appendLine("现在位于=${native.currentLocationCode}；本人的岗位职责与活动，以已保存的实际日程为准。")
             appendLine("对你来说庭院、咖啡厅、家、街道和其他住户就是真正的生活世界，不会把周围看成手机软件、NPC舞台或虚拟场景。")
             appendLine("你可以有独立的人格、真实体感、私人心思、朋友圈与熟人；你不知道别人的私人心声、用户现实手机和其他没有听见看见的事情。")
