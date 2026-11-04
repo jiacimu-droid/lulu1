@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:26:31.537454+00:00",
-  "commit": "4ed709086bd19c74a0ef7ae9ecb2b7a7607d5e3a",
+  "generatedAt": "2026-11-04T17:26:55.849173+00:00",
+  "commit": "bca86311656855a74d8af1bb4b2ae2c786815848",
   "branch": "main",
-  "sourceFingerprint": "6fcd87fbd97e346fb8eefd855cff940ab6d321a545782f18244cae8c434ecc8b",
+  "sourceFingerprint": "535d6b0e4575ca617209a8f6ee34da25d0d93d05a79214891edc28191fa643d4",
   "summary": {
     "files": 1138,
-    "lines": 240530,
+    "lines": 240551,
     "symbols": 3317
   },
   "symbolIndex": {
@@ -1735,7 +1735,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2275
+        "line": 2290
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11771,13 +11771,13 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1559
+        "line": 1561
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2141
+        "line": 2156
       }
     ],
     "maxResidents": [
@@ -24679,8 +24679,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 265,
-      "sha256": "c13e608581d6002a13138210031fb5e9913bacf800ce52d3e80fabbf97dbb59d",
+      "lines": 271,
+      "sha256": "b3bd814dc012b4aca39e715c3ab3468b6494fb96c911191f737d1ce650db1427",
       "symbols": [
         {
           "name": "current",
@@ -29827,8 +29827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2339,
-      "sha256": "bd05915d35ed620151a375857a9fd32252c8f05ad3968e08bbaae05fa2136455",
+      "lines": 2354,
+      "sha256": "7a85b540deddb7499e0d711d27850e4b958ac9126598a7bce27e1ee10c284cab",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29900,15 +29900,15 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1559
+          "line": 1561
         },
         {
           "name": "errorOf",
-          "line": 2141
+          "line": 2156
         },
         {
           "name": "schedule",
-          "line": 2275
+          "line": 2290
         }
       ]
     },
