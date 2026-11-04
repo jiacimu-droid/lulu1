@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T07:21:38.416052+00:00",
-  "commit": "291dc41b12530d35266e7409567a2c4a655b774c",
+  "generatedAt": "2026-11-04T07:52:02.162782+00:00",
+  "commit": "2d33ffcec3c33c9d7b20ec070734445eca022fa1",
   "branch": "main",
-  "sourceFingerprint": "c89cc2eeb5bcf889e38f2d14a5e51c20c791fe333a9f5556ea50e8c26f01f669",
+  "sourceFingerprint": "73b15ee358b79592719bbb16ca44a7d41a6078f1d601c370431e3d281a60f093",
   "summary": {
     "files": 1129,
-    "lines": 235858,
-    "symbols": 3279
+    "lines": 235900,
+    "symbols": 3280
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15234,6 +15234,10 @@
         "line": 480
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
+        "line": 80
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
         "line": 136
       },
@@ -28745,8 +28749,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-      "lines": 130,
-      "sha256": "dbedd695bfbd2d8950276c5845b31f377ae0f508829ab697182c4926b5597a9e",
+      "lines": 141,
+      "sha256": "68f800bf04878c197ff2191ce4a19af7491ad4510a950d8113fc636172654942",
       "symbols": [
         {
           "name": "expand",
@@ -37433,12 +37437,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
-      "lines": 102,
-      "sha256": "7ed95019f6144758b2d961d4f3a434709213938837ed62b219024e6a2ecff962",
+      "lines": 133,
+      "sha256": "5ccc7271050129ab623f45a0f96ae38116724629e1997190a62309f9756f7489",
       "symbols": [
         {
           "name": "NarrativeMemoryRecallIntegrationTest",
           "line": 21
+        },
+        {
+          "name": "event",
+          "line": 80
         }
       ]
     },
