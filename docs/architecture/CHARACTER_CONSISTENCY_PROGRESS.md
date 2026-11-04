@@ -621,3 +621,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **人物档案**：固定模板有不同的生平、性格/边界、兴趣及明确性别；模型低频提案的新居民必须同时给出 gender、temperament、preferences、background，未完整则不注册。不增加独立模型请求或新的角色记忆 Store。原住民性别随原 Character persona 进入模型，旧档案仅非用户编辑者补缺，不根据性别决定言行。
 - **回归与状态**：`NativeResidentLifeIntegrationTest` 的 `b3595845` 覆盖创建→性别与人设同步→确实存在的见面/时间线→安全移除→原记录和参与者仍保留、模板不能复活；第二项测试编辑后角色 persona 及时同步。索引对 `b3595845` 的 `41766304839` 已 completed/success；其 APK `41766305006` cancelled（不算通过）。代码继续由其他自动窗口并行提交，最新新 APK／索引必须按其对应 SHA 最终结论验，不将 pending/cancelled 当 success。
 - **未验与继续**：真机入口、删除后的群聊/后台 Worker、重启稳定、真实生成的人物质量、心事/记忆因果及跨日仍待验。下次若 APK 失败先修真实首条报错，继续 P-08b/S-02；两项均不得标记完成。
+
+## 2026-11-04 · S-02 居民人数、AI 费用、档案与删除入口整合（main `f1272dbd` / `2ed5e4af`）
+
+- **用户真实反馈**：居民不断自动增加、好友不聊天、人数太多、找不到独立管理页面和删除入口、居民性格背景单薄及缺少性别，付费费用不可控。先确认正式 app 的既有 `ResidentDailyPolicy` 只限制新增日程行数，不是模型决断调用上限；旧滑块误藏在 API 设置。系统自动演化有每日模板出生与低频额外模型扩张提案。
+- **实际代码**：`f1272dbd213e0e3f0159ae1baf8fc518eb07a1e6` 在已有 `ResidentDailyPolicy` 持久增加每位 `resident:` 居民本地日 0–8 次模型请求额度（默认 2），并在已有 `CompanionModelGateway.generate` 发请求前原子领取，额度耗尽不请求供应商，不需要新 Store/额外模型调用；同一次格式补正也计入。默认自动增员已设为关闭。首版独立 UI 因并行提交重复，`2ed5e4afb21e6d9c0081523feee1d988992c88f1` 合并后只留下设置首页一个「居民管理」入口；后继 main 复核已有 `LuluResidentManagementScreen.kt`，提供自动增员、人口上限、真实 AI 决断上限、每日新增行程及逐人编辑/删除。
+- **生成与清理**：关闭自动增员后，`DigitalWorldEvolutionRuntime` 不再启动低频模型世界扩张提案，`DigitalWorldExpansionProposalRuntime` 在请求前及异步结果返回后再核实开关。并行主干已有模板/模型新居民姓名、gender、temperament、preferences、background 及相互不同的生活经历要求，档案可编辑，原 `ResidentCharacterBridge` 的 persona 继续同步，不按性别决定性格。删除保留原始私信/共同经历与其他人的记忆，撤销未完成日程、停用实体和角色，已移除模板不自动重新出生。
+- **验证边界**：`ResidentDailyPolicyTest.populationSpawnAndActualResidentModelRequestsRespectOwnerLimits` 添加单独日、独立居民、零预算、人口开关与持久设置回归。包含当前后继的代码索引 `41767007418` completed/success；Android APK/JVM `41767007417` 查询时 pending，先前 `41766992738`（`2ed5e4af`）cancelled 不算通过；尚未安装真机，也没有实际模型用量/费用/自然社交盲评。
+- **好友不聊天的边界**：已有 `CharacterFriendRequests.notice` 把接受/拒绝送进真实时间线并 `scheduleSocialNoticeReview`，`ResidentDailyDecision.runSocialWake` 接受 `phone:friend`，`CharacterEverydaySocialContext` 提供已确认好友和可联系对象；这不证明实际发了私信。需脱敏实际事件对照「确认好友 → 通知投递 → 同一居民模型选择 → 工具发送回执 → 对方处理 → 后续」。程序不得硬编码“加好友必聊天”；额度为 0 时允许角色暂时不发而非伪造社交。
+- **下次接力**：先查最新 SHA 的 Android/JVM/APK 首个失败步骤并修复；随后真机验证独立入口、0/2/5/8 真正供应商请求预算、重启保留、低成本 NPC 生活、删除后后台 Worker 停止、旧聊天保留及新居民性别背景投射。S-01/S-02 仍未验收；P-08 不因为这轮居民代码而打勾。
