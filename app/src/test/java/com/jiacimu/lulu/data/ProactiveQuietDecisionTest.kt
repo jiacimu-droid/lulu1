@@ -164,6 +164,34 @@ class ProactiveQuietDecisionTest {
             com.jiacimu.lulu.semanticReplyBubbles(spoken))
     }
 
+    @Test fun realParsedPrivateDecisionHasOneSpeechOwnerBeforeExecution() {
+        val parsed = parse("""{
+            "action":"message",
+            "bubbles":["学得怎么样了，宝宝？","头还晕不晕？"],
+            "steps":[
+                {"action":"message","text":"学得怎么样了，宝宝？头还晕不晕？"},
+                {"tool":"send_private_message","args":{"text":"喝点温水。"}},
+                {"tool":"control_music","args":{"command":"pause"}}
+            ]
+        }""")!!
+        val before = parsed.javaClass.getDeclaredField("sideActions").apply { isAccessible = true }
+            .get(parsed) as org.json.JSONArray
+        assertEquals(3, before.length())
+        val normalize = ProactivePerceptionRuntime::class.java.declaredMethods.first {
+            it.name == "withSinglePrivateInboundReply" && it.parameterCount == 1
+        }.apply { isAccessible = true }
+        val consolidated = normalize.invoke(ProactivePerceptionRuntime, parsed)!!
+        val textField = consolidated.javaClass.getDeclaredField("text").apply { isAccessible = true }
+        val spoken = textField.get(consolidated) as String
+        assertEquals(listOf("学得怎么样了，宝宝？", "头还晕不晕？", "喝点温水。"),
+            com.jiacimu.lulu.semanticReplyBubbles(spoken))
+        val after = consolidated.javaClass.getDeclaredField("sideActions").apply { isAccessible = true }
+            .get(consolidated) as org.json.JSONArray
+        assertEquals(1, after.length())
+        assertEquals("control_music", after.getJSONObject(0).getString("tool"))
+        assertFalse(after.toString().contains("send_private_message"))
+    }
+
     @Test fun partialAutonomousJsonKeepsCompletedBubblesWithoutInventingAnotherReply() {
         val incomplete = """{"action":"message","bubbles":["刚学完？","过来让我抱抱。"],"innerLife":{"unfinished":"""
         val recovered = AutonomousDecisionRecovery.completedPrivateMessage(incomplete)
