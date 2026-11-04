@@ -31,9 +31,8 @@ internal object CharacterMotiveDeliberation {
                 if (last != null) appendLine("  最近实际尝试：" +
                     (if (last.optBoolean("success")) "执行成功" else "未成功") +
                     "；" + last.optString("summary").take(140))
-                m.optString("nextStep").takeIf(String::isNotBlank)?.let {
-                    appendLine("  曾考虑的下一步：" + it.take(130))
-                }
+                // The complete next step and its conditions are already in brief(m).
+                // Do not restate a clipped prefix after the real result.
             }
             if (paused.isNotEmpty()) appendLine("暂缓而非完成：" +
                 paused.take(3).joinToString("；") { it.optString("id") + "：" + it.optString("aim").take(80) } +

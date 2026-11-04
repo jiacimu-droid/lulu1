@@ -166,6 +166,12 @@ class CharacterMotiveContinuityTest {
             for (projection in projections) for (key in planKeys) {
                 assertTrue("Missing complete $key", projection.contains(expected.getString(key)))
             }
+            val handoff = CharacterMotiveDeliberation.context(JSONArray().put(stored), at)
+            val nextStepLines = handoff.lineSequence().filter {
+                it.contains("拟议下一步：") || it.contains("曾考虑的下一步：")
+            }.toList()
+            assertEquals(1, nextStepLines.size)
+            assertTrue(nextStepLines.single().contains(expected.getString("nextStep")))
             assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
             assertFalse(CharacterInnerLifeStore.context(other, at).contains(prefix))
             assertEquals("effect", stored.getString("completionKind"))
