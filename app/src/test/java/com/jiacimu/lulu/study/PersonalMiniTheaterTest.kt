@@ -85,6 +85,40 @@ class PersonalMiniTheaterTest {
             PersonalTheaterTypography.sections("旧版保存的普通正文").map { it.kind })
     }
 
+    @Test fun longNarrationGetsReadableVisualBeatsWithoutChangingTheStoredFiction() {
+        val paragraph = "雨停之后，江渡先推开了屋檐下的木门，确认街角没有人等着。" +
+            "他发现门后留下了一盏没有熄灭的灯，灯罩上还沾着昨夜的水汽。" +
+            "你刚要问他是不是看见了什么，他却抬手示意你先听一听走廊里的脚步声。" +
+            "脚步声慢慢停住，原本紧张的空气忽然松了下来。"
+        val story = "《雨后》\n\n" + paragraph + "\n\n“回来吧。”\n\n【小剧场已完】"
+        val canonical = PersonalTheaterTypography.sections(story)
+        assertEquals(1, canonical.count { it.kind == PersonalTheaterTypography.Kind.Narration })
+        val reading = PersonalTheaterTypography.readingSections(story)
+        val displayedNarration = reading.filter { it.kind == PersonalTheaterTypography.Kind.Narration }
+        assertTrue(displayedNarration.size >= 2)
+        assertEquals(paragraph, displayedNarration.joinToString("") { it.text })
+        assertFalse(displayedNarration.first().softBreakBefore)
+        assertTrue(displayedNarration.drop(1).all { it.softBreakBefore })
+        assertEquals(listOf("“回来吧。”"),
+            reading.filter { it.kind == PersonalTheaterTypography.Kind.Dialogue }.map { it.text })
+        assertEquals(PersonalTheaterTypography.Kind.End, reading.last().kind)
+        assertEquals(1, PersonalTheaterTypography.readingSections("没有标点的短正文").size)
+        // A spoken quote isn't chopped mid-sentence just for being long.
+        val oneQuote = "“" + "他想了想才回答，".repeat(17) + "好。”"
+        assertEquals(1, PersonalTheaterTypography.readingSections(oneQuote).size)
+        assertEquals(story, story.toString())
+    }
+
+    @Test fun newStoriesRequestNaturalMobileParagraphsAndIndependentDialogue() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val id = library.addPersonal(PersonalMiniTheater.Cast("prose-test", "江渡", "细心又狡黠"),
+            PersonalMiniTheater.ideas.first())
+        val instructions = PersonalMiniTheater.request(library.items.value.first { it.id == id }).instructions
+        assertTrue(instructions.contains("手机阅读的叙事节奏"))
+        assertTrue(instructions.contains("角色直接说出的对白通常独立成段"))
+        assertTrue(instructions.contains("不是硬按字数"))
+    }
+
     @Test fun roleSnapshotAndFictionStayOutsideRealMemoryAndOtherCharactersWorks() {
         val a = MigratedDomainStores.characters.create("江渡番外测试", "独立、有审美、主动可靠")
         val b = MigratedDomainStores.characters.create("女性角色测试", "女性，机灵，语言直接")
