@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T01:00:09.122689+00:00",
-  "commit": "78b0f889525d2b46de2ca6a62e3502455dbf79e3",
+  "generatedAt": "2026-11-04T01:04:11.820597+00:00",
+  "commit": "746883a9abffead3e7af474a9bd6c12431390f10",
   "branch": "main",
-  "sourceFingerprint": "0d4417ce5a30e33cae763f4391a632f8da1c1d6fce8c1c8c1dfe6100b028fb64",
+  "sourceFingerprint": "e2904354d8052c30ee01149a7ed7751f628e29e73a4c8b59ed0aea65d9177535",
   "summary": {
     "files": 1126,
-    "lines": 234642,
+    "lines": 234667,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -17751,7 +17751,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
-        "line": 166
+        "line": 191
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
@@ -29917,7 +29917,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
       "lines": 65,
-      "sha256": "5cb40411c9e2ebd11bcf939f10ec6aa0db705b02e510438252286b2cd0748e13",
+      "sha256": "787b0363bc05e4a5c65a3e14cef98ec1bd0eb9abc3e26405d79772128d793ace",
       "symbols": [
         {
           "name": "isOwnCharacterStatement",
@@ -38047,8 +38047,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
-      "lines": 203,
-      "sha256": "cbe7604436d2dae600103f23645e8f4895421b8edf0575c8202571e62ade9eff",
+      "lines": 228,
+      "sha256": "fa1916c2e74e4ee48ee4ce5cc7cb66480df70305455080f0868e5663e36154a4",
       "symbols": [
         {
           "name": "TimelineStatementOwnershipTest",
@@ -38056,7 +38056,7 @@
         },
         {
           "name": "propose",
-          "line": 166
+          "line": 191
         }
       ]
     },
