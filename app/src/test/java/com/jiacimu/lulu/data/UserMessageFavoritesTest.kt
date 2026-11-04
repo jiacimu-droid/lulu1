@@ -186,7 +186,7 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
-    @Test fun ambientPerceptionStillThrottlesUnrelatedThoughtOnlyEvents() {
+    @Test fun backgroundPerceptionRetainsChangedThoughtButCoalescesExactReplays() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
         val role = "ambient-thought-throttle"
@@ -201,10 +201,18 @@ class UserMessageFavoritesTest {
             "在线持续感知", start.plusSeconds(4 * 60),
             innerThoughtFingerprint = "new-ambient-topic",
         )
-        // No fresh user message: keep the previous anti-spam cadence.
+        // Even without a new user message, the model's different authored
+        // thought is a real event. Only identical replays are coalesced.
         val history = CompanionPresenceStore.histories.value[role].orEmpty()
-        assertEquals(1, history.size)
-        assertEquals("这本书里的问题还挺有趣的", history.single().innerThought)
+        assertEquals(2, history.size)
+        assertEquals("等会儿想换本小说读一读", history.first().innerThought)
+        assertEquals("这本书里的问题还挺有趣的", history.last().innerThought)
+        CompanionPresenceStore.update(
+            role, null, null, "等会儿想换本小说读一读", null,
+            "在线持续感知", start.plusSeconds(5 * 60),
+            innerThoughtFingerprint = "another-observation",
+        )
+        assertEquals(2, CompanionPresenceStore.histories.value[role].orEmpty().size)
         CompanionPresenceStore.clearCharacter(role)
     }
 
