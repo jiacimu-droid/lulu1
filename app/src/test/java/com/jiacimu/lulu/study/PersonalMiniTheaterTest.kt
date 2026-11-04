@@ -307,7 +307,8 @@ class PersonalMiniTheaterTest {
         val request = PersonalMiniTheater.request(work)
         assertTrue(request.facts.contains("水下城市"))
         assertFalse(request.facts.contains("月亮森林"))
-        assertTrue(request.instructions.contains("只根据本篇明确选中的条目"))
+        assertTrue(request.instructions.contains("仅根据本篇明确选中的条目"))
+        assertTrue(request.facts.contains("【本篇明确选中的世界书｜仅本篇虚构设定】"))
         assertEquals("", library.items.value.first { it.id == noBookId }.worldBookContext)
         val reopened = MiniTheaterLibrary(context, emptyList())
         val frozen = reopened.items.value.first { it.id == id }
