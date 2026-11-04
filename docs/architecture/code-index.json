@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:04:52.528719+00:00",
-  "commit": "7be1f2bdae44e1673cb16359d800d302a503ed14",
+  "generatedAt": "2026-11-04T17:09:42.557185+00:00",
+  "commit": "699be32eb27fc14583fb73f88b98dd9614da7470",
   "branch": "main",
-  "sourceFingerprint": "36a718d6b7f21d7b39fa05eef174e219a76d8aba1948593f0a1622151f5638e3",
+  "sourceFingerprint": "ae4534ad581c1699df82d6c2c7f75cd3c203e6d357052acdfdbfa06b3a6f0d74",
   "summary": {
     "files": 1135,
-    "lines": 239670,
+    "lines": 239739,
     "symbols": 3311
   },
   "symbolIndex": {
@@ -6891,7 +6891,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-        "line": 81
+        "line": 103
       }
     ],
     "matters": [
@@ -6901,25 +6901,25 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-        "line": 82
+        "line": 104
       }
     ],
     "include": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 90
+        "line": 92
       }
     ],
     "duplicatesLearning": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 162
+        "line": 164
       }
     ],
     "compact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 163
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
@@ -16499,7 +16499,7 @@
     "followThrough": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-        "line": 204
+        "line": 226
       }
     ],
     "CharacterMomentSnapshotIdeasTest": [
@@ -20037,8 +20037,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 651,
-      "sha256": "21ccd59e41c8902be890c8bd2d1e165aca44374faa9a80fd70b7e52bb8f71082",
+      "lines": 659,
+      "sha256": "527373da2ac3bb88e3f2f71fe48ec369be755bac18fba197a8b49a9719667b23",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -23939,7 +23939,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "174202b6913a830598f7b0ba6b5c3629288ce06eef9f603478a6ca86f3338119",
+      "sha256": "d59fc55c90089ba0adb715ba292f5b73d1e18ac8228ef4477f052d688ebe673e",
       "symbols": [
         {
           "name": "expressionContext",
@@ -24585,8 +24585,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-      "lines": 146,
-      "sha256": "b84003f7670297749f0712409848ce17384b0bbe8e4dbb14e1ecffbb7d46c9a2",
+      "lines": 148,
+      "sha256": "3893c31700d01918b597752ce5ed653b11c6da2c367c27be3a601421511fabe4",
       "symbols": [
         {
           "name": "localDay",
@@ -24647,8 +24647,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 228,
-      "sha256": "ff4523ac272a2bced7e9dadad40c0440468bca00043199fed84a7d95b89f9ec0",
+      "lines": 265,
+      "sha256": "4178c89f295fa9458f2de2583eb19a31cd52bbd9183b6e847694cae968174b06",
       "symbols": [
         {
           "name": "current",
@@ -24660,15 +24660,15 @@
         },
         {
           "name": "include",
-          "line": 90
+          "line": 92
         },
         {
           "name": "duplicatesLearning",
-          "line": 162
+          "line": 164
         },
         {
           "name": "compact",
-          "line": 163
+          "line": 165
         }
       ]
     },
@@ -36483,8 +36483,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-      "lines": 226,
-      "sha256": "88bbb05b4b32027f20f96be8b941c2568c452fc6cc0b8f8456a8be2ffbf98b7f",
+      "lines": 248,
+      "sha256": "60ddbc92a2f1492732508a0bedf0f1af208cea6ac6983c90c03d2c007effa736",
       "symbols": [
         {
           "name": "CharacterLifeVisibilityTest",
@@ -36492,15 +36492,15 @@
         },
         {
           "name": "current",
-          "line": 81
+          "line": 103
         },
         {
           "name": "matters",
-          "line": 82
+          "line": 104
         },
         {
           "name": "followThrough",
-          "line": 204
+          "line": 226
         }
       ]
     },

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7be1f2bdae44e1673cb16359d800d302a503ed14`
+- 基准提交：`699be32eb27fc14583fb73f88b98dd9614da7470`
 - 分支：`main`
 - 已索引文件：1135
-- 已索引代码/文本行：239670
+- 已索引代码/文本行：239739
 - 已发现符号：3311
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 201 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 659 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 962 | 3 |
@@ -372,9 +372,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 331 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 146 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 148 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1303 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 265 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 233 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 184 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 136 | 5 |
@@ -926,7 +926,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 351 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 182 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 987 | 19 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 226 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 248 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 153 | 1 |
