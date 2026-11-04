@@ -233,6 +233,9 @@ object CommitmentTaskStore {
                 task.goal, commitmentTaskId = task.id).onSuccess { alarm ->
                 update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Scheduled,
                     dueAt = next, nextCheckAt = next, linkedAlarmId = alarm.id,
+                    dailyAttempts = old.dailyAttempts + DailyCommitmentAttempt(
+                        old.dueAt!!, old.status.name, old.readableLastResult(),
+                        old.attemptCount),
                     executionToken = null, attemptCount = 0,
                     wakeAttemptHistory = emptyList(),
                     lastActionResult = "已恢复下一次每日安排；上一轮时间=${task.dueAt?.atZone(zone)}；" +
@@ -375,6 +378,8 @@ object CommitmentTaskStore {
                 lastActionResult = reason,
             )
         }
+        if (cancelled != null)
+            revokePendingLinkedPlans(id, "原约定已取消，未执行的关联日程同步撤销")
         return cancelled
     }
 
@@ -415,13 +420,15 @@ object CommitmentTaskStore {
             return
 
         val existing = task.dailyNextAlarmId
-        if (existing != null && task.dailyNextDueAt?.isAfter(now) == true &&
+        if (existing != null && task.dailyNextDueAt?.let { !CommitmentAlarmTiming.expired(it, now) } == true &&
             LuluAlarmSystem.list().any { it.id == existing && it.characterId == task.characterId &&
                 it.commitmentTaskId == task.id }) {
             if (task.status == CommitmentTaskStatus.Completed) {
                 update(taskId) { old -> old.copy(
                     status = CommitmentTaskStatus.Scheduled, dueAt = old.dailyNextDueAt,
                     nextCheckAt = old.dailyNextDueAt, linkedAlarmId = old.dailyNextAlarmId,
+                    dailyAttempts = old.dailyAttempts + DailyCommitmentAttempt(
+                        old.dueAt!!, old.status.name, old.readableLastResult(), old.attemptCount),
                     dailyNextDueAt = null, dailyNextAlarmId = null,
                     executionToken = null, attemptCount = 0, followUpKind = "",
                     completionEvidenceIds = emptyList(), lastVerificationReason = "",
@@ -465,6 +472,9 @@ object CommitmentTaskStore {
                 if (current.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Expired))
                     current.copy(status = CommitmentTaskStatus.Scheduled,
                         dueAt = next, nextCheckAt = next, linkedAlarmId = alarm.id,
+                        dailyAttempts = current.dailyAttempts + DailyCommitmentAttempt(
+                            current.dueAt!!, current.status.name,
+                            current.readableLastResult(), current.attemptCount),
                         executionToken = null, attemptCount = 0, followUpKind = "",
                         completionEvidenceIds = emptyList(), lastVerificationReason = "",
                         wakeAttemptHistory = emptyList(),
