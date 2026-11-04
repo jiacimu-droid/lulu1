@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T23:39:55.235106+00:00",
-  "commit": "fb7371ca1af3e888b103520ffb0bb5d72908931e",
+  "generatedAt": "2026-11-04T23:45:40.119672+00:00",
+  "commit": "24781fa04b828973ba6b6f6cec3d98133bb938a7",
   "branch": "main",
-  "sourceFingerprint": "19b0517f2e01671933951cc181022a53ffb59b14f10304055bcd0a0bc1c436d1",
+  "sourceFingerprint": "8eaca9edee4bd07ce87a2c0ddc22b00226d4abf2b53bd55ab0a04b8c8624cfe6",
   "summary": {
     "files": 1137,
-    "lines": 241147,
-    "symbols": 3322
+    "lines": 241297,
+    "symbols": 3325
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7050,10 +7050,16 @@
         "line": 74
       }
     ],
+    "bindStepMotive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
+        "line": 92
+      }
+    ],
     "invalidatePlanIfSourceDeleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 88
+        "line": 110
       }
     ],
     "candidate": [
@@ -8019,7 +8025,7 @@
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1799
+        "line": 1803
       }
     ],
     "age": [
@@ -11193,7 +11199,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3325
+        "line": 3329
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16563,13 +16569,23 @@
     "CharacterMotiveContinuityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "assertComplete": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-        "line": 155
+        "line": 156
+      }
+    ],
+    "motive": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
+        "line": 256
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
+        "line": 172
       }
     ],
     "CharacterMotiveDeliberationTest": [
@@ -24827,8 +24843,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-      "lines": 96,
-      "sha256": "d35391cd2866a289ab6e07058efb4e72b402a4ededca81b9f52424b171996e8b",
+      "lines": 118,
+      "sha256": "afaf12e0a4759c439e48173eb27bc4b93cbbd059160fa1879e09e82d06af3df0",
       "symbols": [
         {
           "name": "applyPlan",
@@ -24851,8 +24867,12 @@
           "line": 74
         },
         {
+          "name": "bindStepMotive",
+          "line": 92
+        },
+        {
           "name": "invalidatePlanIfSourceDeleted",
-          "line": 88
+          "line": 110
         }
       ]
     },
@@ -25395,8 +25415,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 131,
-      "sha256": "f7284db8027a144c6d5383bacc7d8fc2f5eab4a37b8680899160e5308740c5a0",
+      "lines": 135,
+      "sha256": "440083dec66f8cdc56d630951465e2f7671bd40c9159fcf6918162394aef3be4",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -25987,8 +26007,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1847,
-      "sha256": "8b4709c5099d6fdd9ace268f94ac070b4bbe004a974d3ca74abfec3d26bb7be6",
+      "lines": 1851,
+      "sha256": "c361c1347f3171db96190521bbceb4842b39deeabf083961216fcd0d35928f3d",
       "symbols": [
         {
           "name": "asJson",
@@ -26032,7 +26052,7 @@
         },
         {
           "name": "availableContext",
-          "line": 1799
+          "line": 1803
         }
       ]
     },
@@ -29342,8 +29362,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3392,
-      "sha256": "db08a3bdfabba163c5bcf9b20b09961ba8a78ec50f7313c197b715ef4eb53a00",
+      "lines": 3396,
+      "sha256": "56b33dc51b4d9fa21ca86f9de9e7b876b4bc7d44bd0f40e64c1f9e32425ccf93",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29375,7 +29395,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3325
+          "line": 3329
         }
       ]
     },
@@ -34061,8 +34081,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2161,
-      "sha256": "dda7411e5420c307f569f0ff932fe657564a242386bc61efa1a51da9cf25055e",
+      "lines": 2180,
+      "sha256": "67c072e6ad607621fb1e4c8629cd8d56166eee394dd56b3e7e7c6bb0c075e892",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36625,16 +36645,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-      "lines": 216,
-      "sha256": "eacd0920b541a51f7d321f8e469747b9eb867e5cbfcde9374e82357d2a3dd156",
+      "lines": 290,
+      "sha256": "a3f15167e2a12d02539c2147fa678101a1a311cad7277ff3b930f76bb360050c",
       "symbols": [
         {
           "name": "CharacterMotiveContinuityTest",
-          "line": 18
+          "line": 19
         },
         {
           "name": "assertComplete",
-          "line": 155
+          "line": 156
+        },
+        {
+          "name": "motive",
+          "line": 256
         }
       ]
     },
@@ -36863,8 +36887,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 332,
-      "sha256": "9ca33e4c6d84246513e66b67591b96602c2fab334b87b6a52cf8ddc5472b10cc",
+      "lines": 355,
+      "sha256": "b284b2eb4b54f64f713348e17f4589ced6b3541d70744272833bfe20b8d97852",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
@@ -36873,6 +36897,10 @@
         {
           "name": "linked",
           "line": 136
+        },
+        {
+          "name": "motive",
+          "line": 172
         }
       ]
     },
