@@ -1076,3 +1076,5 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实际源码**：[7c589ed](https://github.com/jiacimu-droid/lulu1/commit/7c589ed6d7755d4b64b766b4d98fed778863e5f2) 精确恢复要求 source <= decision <= receipt；[3494474](https://github.com/jiacimu-droid/lulu1/commit/3494474c0d99d4a0a9ae072bad267bb7f1514d80) 在持久回执归属复用相同时间边界，未删除真实回执、未改变角色决定或新增模型调用。
 - **回归**：[0c2b4a3](https://github.com/jiacimu-droid/lulu1/commit/0c2b4a31bde12431568a890c3d15b9726858590a) 新增未来来源、较早选择、后到真实回执的测试；精确回执不得被误作该选择的成功，跨角色隔离仍保留。
 - **验收边界**：本轮尚无 JVM/APK/索引成功证据；当前环境无本地仓库执行脚本，必须核原 Actions 索引是否生成并以源码 SHA 为基准，不手工伪造。真机/真实模型/跨日未验。先检查后继 CI 的首个失败及上述两条旧失败是否仍在，再续 P-08a.1 / P-08c.2。
+
+- **后继索引核对**：原生成索引已在 main 自动更新，CODE_INDEX 基准提交为 `0c2b4a31bde12431568a890c3d15b9726858590a`（对应本轮全部源码与测试）；此事实只证明索引文件同步，尚未取得 Android/JVM/APK 通过证据。
