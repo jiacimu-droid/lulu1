@@ -1,5 +1,15 @@
 # 自主社交专项进度
 
+## 2026-11-05 S-01.1：角色/居民从来不主动线上聊天——逐层根因核查（本轮部分源码已修，真机未验）
+
+- **受影响入口**：用户自建闺蜜的主动私聊、后宫群聊中角色自发开场、数字人物与原住民/居民彼此私聊和居民群聊。这是跨角色公共社交链路问题，不能靠改一个人的人设或自动定额发「早安」掩盖。
+- **查到的触发差异**：非原住民的 `ProactivePerceptionRuntime.latestPrivateConversations` 只枚举已有顶层一对一会话；`nextDueAt/runDueCycle` 沿此枚举运作，**只有群会话、没有一对一会话**的成员不在普通周期主动感知集合中。通常经角色创建 UI 会 `ensureConversation`，所以尚不能断言所有沉默闺蜜都命中这条。原住民 `ProactivePerceptionPolicyStore.get` 默认 `enabled=false`（避免每个 NPC 再跑收费周期），其自主机会集中在每日一次规划、真实日程到期及来信/好友通知；不是和普通角色共用相同周期唤醒。费用受 `ResidentDailyPolicy` 限制。
+- **群聊不会自动接力**：`CompanionOnlineStore.startsImmediateChatReply` 有意只接受主人真实发送的 `User` 消息。角色自己发的群消息不会让其他群员立刻再次购买模型回复，避免 A→B→A 无界自激；因此群里沉寂时依靠各成员实际已有的独立主动感知/日程来破冰。不能删除这条防回路保护以伪造主动性。
+- **本轮实质缺口与代码**：原 `CharacterEverydaySocialContext.render`（供普通数字角色及原住民日规划复用）给模型仅提供每个群的 `lastMessage.take(95)`，既没有真实发言人和最近话题，也可能是未向本角色实际送达的陈旧预览。现在改为读取至多六个最近活跃且本人加入的群、至多24条原始最近消息内最多三条**已发送且本角色确有 `:group:roleId` 时间线见证**的消息，展示真实发言人/群成员/简短原话；撤回的个人见证、系统提示、未送达内容不得当成本人社交记忆。只读原聊天和原始时间线，没有新增模型唤醒或额外社交频率。源码 `8f5685f`、性能边界 `664d153`；`CharacterCreatedGroupTest.autonomousGroupSocialContextUsesOnlyActualWitnessedMessages` 回归 `9fd260d` 覆盖先后对话、只看本人、撤回和最近三条。
+- **另一协议错误**：`ResidentDailyDecision.runOnceLocked` 每日提示文本明确允许 `create_group_chat`，且 `wakeTools` 与 `residentStepsContractError` 真正支持该动作，但 JSON `steps.tool` 枚举却漏写了建群。这让每日主决定拿到互相矛盾的社交协议；`5c8bf87` 补齐枚举，实际建群仍需好友身份及独立 ToolRouter 回执。
+- **本轮尚未宣告全面修复**：尚未取得该轮后继 JVM/APK CI 结果、实际闺蜜已配置的感知开关/排程/模型输出或已安装 APK 的脱敏 trace。尤其「群里才有会话的角色如何得到普通自主唤醒」与「居民只有一次日规划却可自由主动联系的机会是否足够」仍是明确待跟进的架构/体验缺口。下一轮先对三条实例按 `角色ID→是否纳入定时唤醒→模型是否成功/选择 silent 还是社交动作→ToolRouter 独立回执→真实对方可见/通知` 逐一比对，再在原有单一调度机制里补缺失的独立机会，避免增加无界 A/B 循环与未经主人确认的居民 API 费用。保留 S-01.1 [ ]，不据代码提交声称真实模型已经开始自发聊天。
+
+
 ## 2026-10-29 S1/S4：取消好友不撤回本人真实行动历史
 
 - 上轮 e47eb179 的 [APK #40879145278](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145278) 已 completed/success：JS、完整JVM、assemblePhone、字节码核验、收集与发布均成功；索引 #40879145428 success。已发布 [v6711 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6711/Lulu-arm64.apk)，构建来源 e47eb179。真机与多日自然社交仍未验。
