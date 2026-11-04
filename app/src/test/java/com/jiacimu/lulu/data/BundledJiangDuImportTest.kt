@@ -882,6 +882,60 @@ class BundledJiangDuImportTest {
         }
     }
 
+    @Test fun approvedValuesFollowUpUpdatesStockOnlyAndPreservesOwnerEditsAndIntimacy() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val original = JSONObject(CharacterLifeStore.state(id).toString())
+        val character = MigratedDomainStores.characters.get(id)
+        val peerBefore = CharacterLifeStore.state("lulu").toString()
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            val prior = JSONObject(original.toString())
+                .put("jiangDuApprovedReplacement20261104", true)
+                .put("jiangDuApprovedReplacementRevision", 2)
+            val profile = prior.getJSONObject("profile")
+            listOf("values", "motives", "perception", "conflict", "respect").forEach { key ->
+                profile.put(key, CharacterProfileSchema.jiangDuV29Overrides.getValue(key))
+            }
+            profile.put("perception", "用户后来自己写的理解方式")
+                .put("conflict", "")
+                .put("care", "用户后来自己写的亲密偏好")
+                .put("dialogueExamples", "用户另外写的对话样例")
+            save.invoke(CharacterLifeStore, id, prior)
+            CharacterLifeStore.initialize(context)
+
+            val current = CharacterLifeStore.state(id)
+            val actual = current.getJSONObject("profile")
+            assertEquals(3, current.getInt("jiangDuApprovedReplacementRevision"))
+            for (key in listOf("values", "motives", "respect")) {
+                assertEquals(key, CharacterProfileSchema.jiangDuApprovedOverrides.getValue(key),
+                    actual.getString(key))
+            }
+            assertEquals("用户后来自己写的理解方式", actual.getString("perception"))
+            assertEquals("", actual.getString("conflict"))
+            assertEquals("用户后来自己写的亲密偏好", actual.getString("care"))
+            assertEquals("用户另外写的对话样例", actual.getString("dialogueExamples"))
+            val role = CharacterRuntime.definition(id).personaPromptSection()
+            assertTrue(role.contains("美与责任"))
+            assertTrue(role.contains("当前本人一致性核对"))
+            assertTrue(com.jiacimu.lulu.study.PersonalMiniTheater.capture(id)
+                .material.contains(CharacterProfileSchema.jiangDuApprovedOverrides.getValue("values")))
+            assertEquals(peerBefore, CharacterLifeStore.state("lulu").toString())
+
+            // After this single upgrade, subsequent user edits always win.
+            CharacterLifeStore.setProfile(id, "values", "我新写的价值观")
+            CharacterLifeStore.initialize(context)
+            assertEquals("我新写的价值观", CharacterLifeStore.state(id)
+                .getJSONObject("profile").getString("values"))
+        } finally {
+            save.invoke(CharacterLifeStore, id, original)
+            MigratedDomainStores.characters.update(character)
+        }
+    }
+
     @Test fun approvedSwitchRefinementReplacesOnlyIntimacyAndSampleOnce() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
@@ -901,7 +955,7 @@ class BundledJiangDuImportTest {
             MigratedDomainStores.characters.update(character.copy(persona = "新版之后手写的简介"))
             CharacterLifeStore.initialize(context)
             val current = CharacterLifeStore.state(id)
-            assertEquals(2, current.getInt("jiangDuApprovedReplacementRevision"))
+            assertEquals(3, current.getInt("jiangDuApprovedReplacementRevision"))
             assertEquals(CharacterProfileSchema.jiangDuApprovedOverrides.getValue("care"),
                 current.getJSONObject("profile").getString("care"))
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples,
