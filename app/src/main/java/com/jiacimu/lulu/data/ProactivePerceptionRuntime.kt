@@ -596,11 +596,39 @@ object ProactivePerceptionRuntime {
         return if (start < end) minute in start until end else minute >= start || minute < end
     }
 
-    private fun latestPrivateConversations(): List<LuluConversation> =
-        MigratedDomainStores.chat.conversations.value.asSequence()
-            .filter { it.parentConversationId == null && it.groupChat == null && !it.id.endsWith("-study-focus") }
+    /**
+     * One real chat anchor per registered role for the SAME autonomous wake loop.
+     * A group-only role is not a nonexistent role: it must not disappear from
+     * periodic awareness merely because no owner-private thread was created.
+     * Keep an actual group as the read-only anchor, with the member as the
+     * observer; never create a phantom owner chat or merge group into private.
+     */
+    internal fun autonomousConversationAnchors(
+        conversations: List<LuluConversation>,
+        registeredRoleIds: Set<String>,
+    ): List<LuluConversation> {
+        val privateByRole = conversations.asSequence()
+            .filter { it.parentConversationId == null && it.groupChat == null &&
+                !it.id.endsWith("-study-focus") && it.characterId in registeredRoleIds }
             .groupBy(LuluConversation::characterId)
-            .mapNotNull { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
+            .mapValues { (_, values) -> values.maxBy(LuluConversation::updatedAt) }
+        val groupOnly = conversations.asSequence()
+            .filter { it.groupChat != null }
+            .flatMap { conversation ->
+                conversation.groupChat!!.members.asSequence()
+                    .map { member -> member.characterId to conversation }
+            }
+            .filter { (roleId, _) -> roleId in registeredRoleIds && roleId !in privateByRole }
+            .groupBy({ it.first }, { it.second })
+            .mapNotNull { (roleId, groups) ->
+                groups.maxByOrNull(LuluConversation::updatedAt)?.copy(characterId = roleId)
+            }
+        return (privateByRole.values + groupOnly).sortedByDescending(LuluConversation::updatedAt)
+    }
+
+    private fun latestPrivateConversations(): List<LuluConversation> =
+        autonomousConversationAnchors(MigratedDomainStores.chat.conversations.value,
+            MigratedDomainStores.characters.settings.value.keys)
 
     private suspend fun evaluateCharacter(
         appContext: Context, conversation: LuluConversation, trigger: String,
@@ -699,11 +727,12 @@ object ProactivePerceptionRuntime {
         val phoneUnread = CharacterPhoneInbox.unreadMoments(characterId)
         // Normal live chat is generated here, in the same paid decision call.
         // Do not leave conversational context only on the legacy chat-page path.
-        val privateDialogue = PrivateChatExpressionContext.unreadConversation(
-            characterId, conversation.id,
-            messages.filter { DigitalLifeProfileStore.allowsTimestamp(characterId, it.createdAt) },
-            onlineUnread,
-        )
+        val privateDialogue = if (conversation.groupChat == null)
+            PrivateChatExpressionContext.unreadConversation(
+                characterId, conversation.id,
+                messages.filter { DigitalLifeProfileStore.allowsTimestamp(characterId, it.createdAt) },
+                onlineUnread,
+            ) else emptyList() // A group-only wake must never masquerade as an owner DM.
         val privateInput = privateDialogue.lastOrNull()?.content.orEmpty()
         // One optional, character-authored review on an ordinary independent
         // perception. Incoming user messages keep their own reply priority.
@@ -711,9 +740,9 @@ object ProactivePerceptionRuntime {
             CharacterLifeSelfReview.isDue(
                 prefs.getString("last_self_review_day_$characterId", "").orEmpty(), now,
             )
-        val lastUserPrivateAt = messages.filter {
-            it.sender == LuluChatMessage.Sender.User && it.createdAt <= now
-        }.maxByOrNull { it.createdAt }?.createdAt
+        val lastUserPrivateAt = messages.takeIf { conversation.groupChat == null }
+            ?.filter { it.sender == LuluChatMessage.Sender.User && it.createdAt <= now }
+            ?.maxByOrNull { it.createdAt }?.createdAt
         val minutesSinceLastPrivateUser = lastUserPrivateAt?.let {
             Duration.between(it, now).toMinutes().coerceAtLeast(0)
         }
