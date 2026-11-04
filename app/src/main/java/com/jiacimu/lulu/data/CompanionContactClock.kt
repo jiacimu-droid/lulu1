@@ -18,7 +18,11 @@ internal object CompanionContactClock {
             event.evidenceKind == EventEvidenceKind.UserStatement &&
                 (event.channel == "私聊" || event.channel.contains("群聊") ||
                     event.channel.contains("电话") || event.channel.contains("见面")) &&
-                (!event.channel.startsWith("群聊") ||
+                // Group provenance is identified by both channel and the
+                // canonical witness ID. A renamed/migrated channel must not
+                // turn an orphan group witness into a direct user contact.
+                (!(event.channel.contains("群聊") ||
+                    event.id.endsWith(":group:${event.characterId}")) ||
                     TimelineStatementOwnership.involvesUser(event))
         }
 
