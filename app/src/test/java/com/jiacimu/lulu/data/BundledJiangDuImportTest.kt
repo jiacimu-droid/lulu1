@@ -109,7 +109,7 @@ class BundledJiangDuImportTest {
             val actualPersona = CharacterRuntime.definition(id).persona
             assertTrue(actualPersona.contains("对她长远有益"))
             assertTrue(actualPersona.contains("温和而坚定地陪她"))
-            assertTrue(actualPersona.contains("已接受的照顾"))
+            assertTrue(actualPersona.contains("已承担的照顾"))
             assertFalse(CharacterRuntime.definition("lulu").persona.contains("对她长远有益"))
             val dialogue = profile.getString("dialogueExamples")
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, dialogue)
