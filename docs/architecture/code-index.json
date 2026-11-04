@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T05:36:14.166056+00:00",
-  "commit": "fedf758899fab2f6d67cca7c946ed482bf242bc5",
+  "generatedAt": "2026-11-04T05:54:28.277811+00:00",
+  "commit": "629f19e8129043f296e247ebffeecf3bfe650b81",
   "branch": "main",
-  "sourceFingerprint": "14499174684343d6b10d9633ec4a416317e0bb8dd6fc425e1ca0ad6c7c3a3988",
+  "sourceFingerprint": "2e4f6d200599b1779da17c881ce3f4211e66e0b9defb2e7fb5eae9708ab38615",
   "summary": {
     "files": 1128,
-    "lines": 235648,
-    "symbols": 3277
+    "lines": 235670,
+    "symbols": 3278
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1598,6 +1598,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 92
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt",
+        "line": 83
       }
     ],
     "locationArrival": [
@@ -6267,7 +6271,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 513
+        "line": 511
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -8183,25 +8187,25 @@
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 424
+        "line": 422
       }
     ],
     "forgetEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 455
+        "line": 453
       }
     ],
     "forgetTimelineMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 470
+        "line": 468
       }
     ],
     "deleteMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 486
+        "line": 484
       }
     ],
     "planningGuidance": [
@@ -25881,8 +25885,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 649,
-      "sha256": "b1aea9d51140374a18b6f66479a1beeb74a150c97958666d23109410f5f0c3ef",
+      "lines": 647,
+      "sha256": "7c3a04249a4170c7c828575083401e389a64be43e520a2eaba6f462884392e9a",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -25950,23 +25954,23 @@
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 424
+          "line": 422
         },
         {
           "name": "forgetEvidence",
-          "line": 455
+          "line": 453
         },
         {
           "name": "forgetTimelineMoment",
-          "line": 470
+          "line": 468
         },
         {
           "name": "deleteMoment",
-          "line": 486
+          "line": 484
         },
         {
           "name": "clearCharacter",
-          "line": 513
+          "line": 511
         }
       ]
     },
@@ -36570,12 +36574,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt",
-      "lines": 141,
-      "sha256": "6f5dd0c33207f72237f881d7471230c9597855f735f933c9542ce84f850ee782",
+      "lines": 165,
+      "sha256": "a1114861051a6c8b49c6a24bbfd5ef477b6d9c9269dd4646a7c2268589e732af",
       "symbols": [
         {
           "name": "CompanionPresenceThoughtHistoryTest",
           "line": 19
+        },
+        {
+          "name": "observe",
+          "line": 83
         }
       ]
     },
