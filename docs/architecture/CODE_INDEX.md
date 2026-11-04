@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`51222179c25bc6ec14bff36dc4ef06c5861fce9b`
+- 基准提交：`f1272dbd213e0e3f0159ae1baf8fc518eb07a1e6`
 - 分支：`main`
-- 已索引文件：1127
-- 已索引代码/文本行：235397
-- 已发现符号：3274
+- 已索引文件：1128
+- 已索引代码/文本行：235596
+- 已发现符号：3277
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -197,6 +197,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 631 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 578 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 384 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 127 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 252 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 525 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 567 | 6 |
@@ -301,7 +302,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 271 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1403 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1407 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -549,7 +550,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 602 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2339 | 20 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 61 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 103 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 166 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 239 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 893 | 23 |
@@ -1041,7 +1042,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 178 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2915 | 23 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
