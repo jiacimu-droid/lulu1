@@ -46,7 +46,7 @@ class BundledJiangDuImportTest {
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, jiang)
             assertEquals(CharacterProfileSchema.xingHeDialogueExamples, xing)
             assertNotEquals(jiang, xing)
-            assertTrue(jiang.contains("【数字世界见面·选画"))
+            assertTrue(jiang.contains("【数字世界见面·靠近"))
             assertTrue(xing.contains("星禾："))
             assertFalse(jiang.contains("星禾："))
             assertFalse(xing.contains("江渡："))
