@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T11:09:23.489356+00:00",
-  "commit": "cec9f81a2826729eefb253005dbcfff2c7f7beb9",
+  "generatedAt": "2026-11-04T11:12:27.455206+00:00",
+  "commit": "c76eb55e23c25162e08f25ee346ee1027b7e9623",
   "branch": "main",
-  "sourceFingerprint": "a4c3ad2d1ab9eac647e1fa6c3d0d3481c6e902598de7e0f6125490fd662d5e3d",
+  "sourceFingerprint": "f3dde12c682dfba4ce8fc4d6a3f9d719245b74aa7721d61b2a3016ec26da4472",
   "summary": {
     "files": 1133,
-    "lines": 237310,
+    "lines": 237331,
     "symbols": 3299
   },
   "symbolIndex": {
@@ -14205,19 +14205,19 @@
     "Kind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 229
+        "line": 250
       }
     ],
     "Section": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 230
+        "line": 251
       }
     ],
     "sections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 231
+        "line": 252
       }
     ],
     "PomodoroTimerMode": [
@@ -33139,20 +33139,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-      "lines": 268,
-      "sha256": "78bbf9fae8d0cd96cbea75fdbeffffa10bc9107d356e338f49871fae690b7d15",
+      "lines": 289,
+      "sha256": "620cffac00f76cccd640c921052ceb12d6bc805e909b93581a378b091418baa3",
       "symbols": [
         {
           "name": "Kind",
-          "line": 229
+          "line": 250
         },
         {
           "name": "Section",
-          "line": 230
+          "line": 251
         },
         {
           "name": "sections",
-          "line": 231
+          "line": 252
         }
       ]
     },
