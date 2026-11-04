@@ -21,6 +21,8 @@ data class DigitalWorldResident(
     val temperament: String = "",
     val preferences: String = "",
     val background: String = "",
+    /** Self-described identity, never inferred from a name or a job. */
+    val gender: String = "",
     /** Immutable origin: editing a display name must not regenerate a template NPC. */
     val templateName: String = name,
     /** Explicit edits, including deliberately blank traits, outrank default templates. */
@@ -52,6 +54,7 @@ internal object DigitalWorldExpansionStore {
     private const val PREFS_NAME = "lulu_digital_world_expansion_v1"
     private const val KEY_PLACES = "places"
     private const val KEY_RESIDENTS = "residents"
+    private const val KEY_RETIRED_RESIDENTS = "retired_resident_templates"
     private const val MAX_PLACES = 8
     private const val MAX_RESIDENTS = 12
 
@@ -61,6 +64,7 @@ internal object DigitalWorldExpansionStore {
     private var prefs: android.content.SharedPreferences? = null
     private var places: List<DigitalWorldDiscoveredPlace> = emptyList()
     private var residents: List<DigitalWorldResident> = emptyList()
+    private var retiredTemplates: Set<String> = emptySet()
 
     @Synchronized
     fun initialize(context: Context) {
@@ -69,6 +73,7 @@ internal object DigitalWorldExpansionStore {
         places = decodePlaces(prefs?.getString(KEY_PLACES, null))
         val storedResidents = prefs?.getString(KEY_RESIDENTS, null)
         residents = decodeResidents(storedResidents)
+        retiredTemplates = prefs?.getStringSet(KEY_RETIRED_RESIDENTS, emptySet())?.toSet().orEmpty()
         // Legacy residents used public squares as a 'home'. Give each one a private address once.
         if (storedResidents != null && residents.any { resident ->
             !storedResidents.contains("\"homeLocationCode\":\"${resident.homeLocationCode}\"")
@@ -85,6 +90,36 @@ internal object DigitalWorldExpansionStore {
     fun residentsAt(locationCode: String): List<DigitalWorldResident> = residents
         .filter { it.currentLocationCode == locationCode }
         .sortedBy(DigitalWorldResident::name)
+
+    @Synchronized
+    fun isRetiredTemplate(name: String): Boolean = name in retiredTemplates
+
+    /** Stop this resident's active world life without erasing shared witnessed
+     * conversations or another person's historical relationship evidence.
+     * Retired origin templates are never silently spawned again. */
+    @Synchronized
+    fun removeResident(residentId: String): Boolean {
+        checkNotNull(prefs) { "居民管理尚未初始化" }
+        val person = residents.firstOrNull { it.id == residentId } ?: return false
+        val previous = residents
+        val oldRetired = retiredTemplates
+        residents = residents.filterNot { it.id == residentId }
+        retiredTemplates = retiredTemplates + person.templateName
+        try {
+            persist()
+        } catch (error: Throwable) {
+            residents = previous
+            retiredTemplates = oldRetired
+            throw error
+        }
+        // Disable the actor and clear its current physical presence. Historical
+        // messages, meetings and other people's independent memories remain.
+        val role = ResidentCharacterBridge.characterId(residentId)
+        DigitalLifeProfileStore.remove(role)
+        MigratedDomainStores.characters.delete(role)
+        CharacterIdentityStore.delete(role)
+        return true
+    }
 
     fun residentHomeLocation(residentId: String): String = "resident-home:$residentId"
 
@@ -116,6 +151,7 @@ internal object DigitalWorldExpansionStore {
         checkNotNull(prefs) { "数字世界扩展状态尚未初始化" }
         require(resident.name.isNotBlank() && resident.identity.isNotBlank()) { "新居民必须有稳定姓名和身份" }
         require(residents.none { it.id == resident.id || it.name == resident.name }) { "这个居民已经存在" }
+        require(resident.templateName !in retiredTemplates) { "这位居民已被主人移除，不能自动重新生成" }
         require(residents.size < MAX_RESIDENTS) { "动态居民数量已达到上限" }
         val neighborhood = resident.homeLocationCode.takeIf(::isNeighborhood)
             ?: resident.neighborhoodCode.takeIf(::isNeighborhood)
@@ -133,13 +169,14 @@ internal object DigitalWorldExpansionStore {
     fun updateResidentProfile(
         residentId: String, name: String, identity: String,
         temperament: String, preferences: String, background: String,
+        gender: String = "",
     ): DigitalWorldResident {
         checkNotNull(prefs) { "数字世界居民存档尚未初始化" }
         val cleanName = name.trim()
         val cleanIdentity = identity.trim()
         require(cleanName.length in 1..24) { "居民姓名须为 1—24 字" }
         require(cleanIdentity.length in 1..80) { "身份须为 1—80 字" }
-        require(temperament.length <= 400 && preferences.length <= 400 && background.length <= 1200) {
+        require(temperament.length <= 400 && preferences.length <= 400 && background.length <= 1200 && gender.length <= 16) {
             "居民档案内容过长"
         }
         require(residents.none { it.id != residentId && it.name == cleanName }) { "已有同名居民" }
@@ -150,6 +187,7 @@ internal object DigitalWorldExpansionStore {
             temperament = temperament.trim(),
             preferences = preferences.trim(),
             background = background.trim(),
+            gender = gender.trim(),
             profileEdited = true,
         )
         if (updated == original) return updated
@@ -227,7 +265,7 @@ internal object DigitalWorldExpansionStore {
                 appendLine("- 地点 id=${place.code}；${place.label}；用途=${place.purpose}；连接=${place.connectedTo.joinToString("/")}")
             }
             relevantResidents.forEach { resident ->
-                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}；背景=${resident.background.ifBlank { "暂未登记" }}；正在做=${resident.dutyActivity.ifBlank { "自由活动" }}；上次确认=${resident.dutySince ?: "未确认"}")
+                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；性别=${resident.gender.ifBlank { "未登记" }}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}；背景=${resident.background.ifBlank { "暂未登记" }}；正在做=${resident.dutyActivity.ifBlank { "自由活动" }}；上次确认=${resident.dutySince ?: "未确认"}")
             }
             append("未列出的新地点、新居民都不存在；模型不能只靠叙述把它们变成世界事实。")
         }
@@ -274,6 +312,7 @@ internal object DigitalWorldExpansionStore {
                     .put("temperament", resident.temperament)
                     .put("preferences", resident.preferences)
                     .put("background", resident.background)
+                    .put("gender", resident.gender)
                     .put("templateName", resident.templateName)
                     .put("profileEdited", resident.profileEdited)
                     .put("dutyKey", resident.dutyKey)
@@ -281,7 +320,7 @@ internal object DigitalWorldExpansionStore {
                     .put("dutySince", resident.dutySince?.toString() ?: JSONObject.NULL))
             }
         }
-        check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.commit() == true) {
+        check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.putStringSet(KEY_RETIRED_RESIDENTS, retiredTemplates)?.commit() == true) {
             "数字世界扩展状态保存失败"
         }
         revision.value += 1
@@ -339,6 +378,7 @@ internal object DigitalWorldExpansionStore {
                         temperament = item.optString("temperament").take(400),
                         preferences = item.optString("preferences").take(400),
                         background = item.optString("background").take(1200),
+                        gender = item.optString("gender").take(16),
                         templateName = item.optString("templateName").ifBlank { name },
                         profileEdited = item.optBoolean("profileEdited", false),
                         dutyKey = item.optString("dutyKey"),
