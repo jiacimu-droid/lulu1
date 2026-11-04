@@ -57,6 +57,7 @@ internal object CharacterLifeSelfReview {
     fun context(context: Context, characterId: String, now: Instant = Instant.now()): String {
         val current = CharacterLifeVisibility.matters(
             characterId, now, plans = RoleDayScheduleStore.plans(context, characterId),
+            commitments = CommitmentTaskStore.snapshot(characterId),
         )
         val mind = CharacterInnerLifeStore.snapshot(characterId)
         val heldThoughts = thoughtCandidates(mind, now)
@@ -84,6 +85,7 @@ internal object CharacterLifeSelfReview {
             appendLine("【今天自己的心事整理｜仅这一次自主决策里的回顾，不是自动清理命令】")
             appendLine("此刻本地日期=${localDay(now)}。请真正回顾下列已存档的心事与具体日程，以自己目前的兴趣、责任、情绪、经历、已有真实尝试和时间精力判断：哪些想继续、哪些可以放下、哪些突然想起来值得今天或以后做。可以不安排，也可以在同一轮安排几件不同的事，数量和日期由你选择；不是每日打卡或给用户交作业。")
             appendLine("若本轮确实回顾过这些事项，在appraisal中填写lifeReview={reviewed:true,reason:本人为何保留或调整的具体理由}；决定全部保留也可以确认。没有回顾就省略，不用为了打卡编造调整。执行失败不消耗今天的整理机会；下次普通自主感知承接真实回执，不额外唤醒。")
+            appendLine("长期责任是本人已接受、需要持续履行的外部约定；它们与自发挂心同在这个回顾视野，但不是角色自动产生的主观情绪。长期责任必须按各自 taskId 单独核对；本日某一步完成不表示整条长期责任结束，下一日仍要决定具体执行与核验安排。旧版一条混合责任如含可独立取消/执行的多个目标，应由本人根据最新原话在真实结构化承诺决策中拆分并原位取消旧混合约定，不能由程序按词硬拆，也不能只在心事页改标题就当已完成迁移。")
             appendLine("心事列表是尚未解决的本人想法，并非已做成的事。不要从过时的搜索标题臆造今日活动状态；不能仅靠经过七天或一次搜索就自动认定已解决。")
             heldThoughts.forEach { thought ->
                 appendLine(JSONObject().put("category", "还没理清的私人念头")

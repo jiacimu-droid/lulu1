@@ -994,3 +994,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **确证的提示契约缺口**：当前批准 v29 版本侧重亲密主导风格，values/motives/conflict/respect 对“短暂心软 vs 仍有效的共同目标”的价值权衡过于抽象；共享提示允许 silent/暂缓，但不足以要求当前模型把这次冲突与本人的长期价值、原责任、执行回执在同一结构化决定内核对。对话的心声并非工具调用、日程记录或送达。
 - **已做源码**：6fba2546 只强化江渡当前获批人格的 values/motives/perception/conflict/respect，不覆盖已批准的 Dom/sub care、既有示例与其他角色；7f13aea7 新版 revision3 仅升级仍为 v29 原样的上述字段，对新版后手写/空字段不覆盖，既有的 care/示例不重放；7b979df8 在 CharacterRuntime.personaPromptSection 为所有各自不同的人设做同轮隐式价值→心理→行动→台词一致性核对，不增加模型调用、不建新决策器、不用关键词删掉模型有效选择；fc56278f 回归验证 v2→v3、手写字段不变、性格同源、小剧场同源、星禾隔离与之后编辑保留。
 - **验收边界**：只已证实 main 源码提交；本轮未取得对应 JVM/Actions/APK 成功、设备当次责任任务原记录与行动回执，亦未做真实模型前后同样条件对照。不能承诺每句心理都无 OOC。下一步仍按 P-08b.1/B.2 用授权后的脱敏真实决策、有效责任及同轮 action/innerThought/实际回执，核查是否依旧以怜惜代替已约定的行动，并进一步追承诺→执行→下一轮，而不把睡觉例子做成一条固定强制话术。
+
+
+## 2026-11-05 · P-08d.2a 多责任拆分、心事与跨日（源码提交，待验收）
+
+- **真实症状**：主人一次托付起床、学习、休息等各自事项，截图只见一个综合长期责任及一条已取消的每日学习任务；其心事却没有各项责任。不能据截图认定已取消任务是谁取消或是否有未展示的后台计划。
+- **已证链路**：模型通常在一次 commitmentChanges 决策中可输出多项。原 applyModelRecovery 只要任一活跃任务共享来源消息就过滤其它 create；兼容扫描把 draft 转回 JSON 时遗漏 repeat/permanent/证据条件；按同钟点与关键词大主题去重也可能吞不同任务。[7be1f2b](https://github.com/jiacimu-droid/lulu1/commit/7be1f2bdae44e1673cb16359d800d302a503ed14) 修正三处并补回归。原 CharacterLifeVisibility.matters 只有主观挂心、motives、探索与个人日程，没有把 CommitmentTaskStore 长期责任显示在心事页；这不是角色真的没有关心的证据，而是视图数据源缺口。
+- **本轮心事修复**：直接以现有 CommitmentTaskStore 的同角色 active undated/daily 责任投影为「长期责任」卡片；不另存心理、不将一项旧综合约定自动分裂为多个伪事实。页面订阅原状态变更、取消沿原任务取消和关联安排。每日 CharacterLifeSelfReview 同样读取这些责任但不强制产生 emotions/pendingConcerns；模型是否自己真挂心留给同一人物判断。新增 role 隔离、取消排除、单次提醒排除、重复ID去重的只读回归。
+- **验收边界**：本轮尚未得到新提交的 JVM/APK 成功回执、旧混合记录拆分的真实模型回合、日期更替与安卓后台提醒及角色主观挂心证据；不得将源码/单测提交当作真机通过。下一轮沿 P-08d.1/2/3 对真实原话、任务列表、pendingConcerns、planId、到点实际回执和第二天重排逐项对照。

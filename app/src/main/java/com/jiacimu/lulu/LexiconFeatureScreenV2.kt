@@ -280,6 +280,7 @@ fun LexiconFeatureScreenV2(
 private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scheduleRevision by RoleDayScheduleStore.changes.collectAsState()
+    val commitmentTasks by CommitmentTaskStore.tasks.collectAsState()
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val learningRevision by CharacterLearningAgenda.revisions.collectAsState()
@@ -290,13 +291,15 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val scope = rememberCoroutineScope()
     val entries by produceState(
         initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
-        characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision, scheduleRevision,
+        characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision, scheduleRevision, commitmentTasks,
     ) {
         value = withContext(Dispatchers.Default) {
-            CharacterLifeVisibility.matters(characterId, plans = RoleDayScheduleStore.plans(context, characterId))
+            CharacterLifeVisibility.matters(characterId,
+                plans = RoleDayScheduleStore.plans(context, characterId),
+                commitments = commitmentTasks)
         }
     }
-    val sections = listOf("挂心", "持续意愿", "正在琢磨", "日程")
+    val sections = listOf("挂心", "长期责任", "持续意愿", "正在琢磨", "日程")
     val shown = entries.filter { selected == "全部" || selected == it.category }
     LazyColumn(modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 36.dp),
@@ -305,7 +308,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("还放在心上的事", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                     color = LuluColors.Ink)
-                Text("牵挂、目标、探索与已安排的日程",
+                Text("私人牵挂、已接受的长期责任、目标与具体日程",
                     fontSize = 12.sp, color = LuluColors.Muted)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -361,6 +364,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(when (section) {
                                     "挂心" -> "仍在牵挂"
+                                    "长期责任" -> "已接受的约定"
                                     "持续意愿" -> "希望推进"
                                     "日程" -> "已安排的事"
                                     else -> "尚待探索"
@@ -400,13 +404,15 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     deleteTarget?.let { target ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null; deleteError = "" },
-            title = { Text(if (target.category == "日程") "取消这项日程？" else "删除这条心事？") },
+            title = { Text(when (target.category) { "日程" -> "取消这项日程？"; "长期责任" -> "取消这项长期约定？"; else -> "删除这条心事？" }) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(target.title, maxLines = 3)
-                    Text(if (target.category == "日程")
-                        "这会取消尚未执行的日程；已经发生的经历不会删除。"
-                        else "这会从角色待处理的心事中移除这条记录，不会抹去真实聊天与搜索经历。",
+                    Text(when (target.category) {
+                        "日程" -> "这会取消尚未执行的日程；已经发生的经历不会删除。"
+                        "长期责任" -> "将取消这条真实约定及其待执行关联安排，不会抹去原始聊天和已发生的回执。"
+                        else -> "这会从角色待处理的心事中移除这条记录，不会抹去真实聊天与搜索经历。"
+                    },
                         color = LuluColors.Muted, fontSize = 12.sp)
                     if (deleteError.isNotBlank())
                         Text(deleteError, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
@@ -423,6 +429,8 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                                     "learning" -> CharacterLearningAgenda.deleteGoal(characterId, target.sourceId)
                                     "curiosity" -> CharacterCuriosityRuntime.deleteInterest(characterId, target.sourceId)
                                     "schedule" -> RoleDayScheduleStore.cancel(context, characterId, target.sourceId, "主人从心事取消")
+                                    "commitment" -> CommitmentTaskStore.snapshot(characterId).any { it.id == target.sourceId && it.status.isActive() } &&
+                                        CommitmentTaskStore.cancel(target.sourceId, "主人从心事取消长期责任") != null
                                     else -> false
                                 }
                             }.getOrDefault(false)
@@ -430,7 +438,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                         if (deleted) { deleteTarget = null; deleteError = "" }
                         else deleteError = "删除未成功，记录可能正在执行或已经更新。"
                     }
-                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+                }) { Text(if (target.category in setOf("长期责任", "日程")) "取消约定" else "删除", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
                 TextButton(onClick = { deleteTarget = null; deleteError = "" }) { Text("取消") }

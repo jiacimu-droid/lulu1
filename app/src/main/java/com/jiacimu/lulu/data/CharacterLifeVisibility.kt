@@ -84,8 +84,10 @@ internal object CharacterLifeVisibility {
      */
     fun matters(role: String, now: Instant = Instant.now(),
         @Suppress("UNUSED_PARAMETER") historyLimit: Int = 160,
-        plans: List<RoleDayPlan> = emptyList()): List<CharacterLifeVisible> = buildList {
+        plans: List<RoleDayPlan> = emptyList(),
+        commitments: List<CommitmentTask> = emptyList()): List<CharacterLifeVisible> = buildList {
         addAll(scheduledMatters(role, plans, now))
+        addAll(commitmentMatters(role, commitments, now))
         val mind = CharacterInnerLifeStore.snapshot(role)
         fun include(at: Instant?, category: String, title: String, detail: String, id: String,
                     sourceKind: String = "", sourceId: String = "") {
@@ -192,9 +194,44 @@ internal object CharacterLifeVisibility {
 
 
     }.distinctBy { listOf(it.category, it.title, it.detail, it.evidenceId).joinToString("|") }
-        .sortedWith(compareBy<CharacterLifeVisible> { when (it.category) { "挂心" -> 0; "持续意愿" -> 1; "日程" -> 3; else -> 2 } }
+        .sortedWith(compareBy<CharacterLifeVisible> { when (it.category) { "挂心" -> 0; "长期责任" -> 1; "持续意愿" -> 2; "日程" -> 4; else -> 3 } }
             .thenComparator { a, b -> if (a.category == "日程") a.at.compareTo(b.at) else b.at.compareTo(a.at) }
             .thenBy { it.title })
+
+    /**
+     * Accepted recurring/undated user responsibilities appear in 心事 as a
+     * read-only projection, without claiming they are the role's own emotion.
+     * One canonical commitment ID = one card. Its executable alarm and status
+     * stay exclusively in CommitmentTaskStore; completion is never inferred.
+     */
+    internal fun commitmentMatters(
+        role: String, tasks: List<CommitmentTask>, now: Instant,
+    ): List<CharacterLifeVisible> = tasks.filter { task ->
+        task.characterId == role && task.status.isActive() &&
+            (task.dueAt == null || task.repeat == "daily") &&
+            !task.createdAt.isAfter(now) && task.goal.isNotBlank()
+    }.distinctBy(CommitmentTask::id).map { task ->
+        val state = when (task.status) {
+            CommitmentTaskStatus.NeedsClarification -> "等待确定执行条件"
+            CommitmentTaskStatus.Scheduled -> "已安排下一次行动，尚未履行"
+            CommitmentTaskStatus.Running -> "执行中，等待实际回执"
+            CommitmentTaskStatus.Blocked -> "执行受阻，仍待处理"
+            CommitmentTaskStatus.WaitingForFeedback -> "等待核实结果，责任仍在"
+            else -> "仍待跟进"
+        }
+        val detail = buildList {
+            add("已接受的长期责任 · $state")
+            add(if (task.repeat == "daily") "每天重复" else "尚无固定执行时间")
+            task.dueAt?.let { add("原定行动：$it") }
+            task.nextCheckAt?.let { add("后续检查：$it") }
+            task.completionCondition.takeIf(String::isNotBlank)?.let { add("完成条件：$it") }
+            task.readableLastResult().takeIf(String::isNotBlank)?.let { add("最近回执：$it") }
+            add("日程负责具体行动；这里不代表角色已产生同名心理挂心，也不等于已完成。")
+        }.joinToString("\n")
+        CharacterLifeVisible(task.createdAt, "长期责任", task.goal, detail,
+            evidenceId = "commitment-${task.id}",
+            sourceKind = "commitment", sourceId = task.id)
+    }
 
     /** The original schedule is authoritative; future slots are intentionally visible. */
     internal fun scheduledMatters(role: String, plans: List<RoleDayPlan>,

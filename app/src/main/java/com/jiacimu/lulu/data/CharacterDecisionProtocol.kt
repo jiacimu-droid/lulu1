@@ -8,7 +8,7 @@ import org.json.JSONObject
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
     /** UI/store ownership is independent of a character's personality or tone. */
-    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；对用户实际承担的提醒、监督、约定由日程任务引擎负责；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
+    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；接受的长期监督/日常责任由原日程任务引擎持久保存，同时在心事页以「长期责任」只读呈现、各自保留taskId；角色基于这些责任真实产生的私人牵挂才另写appraisal.pendingConcerns，不能把同一份待办内容复制成伪心理；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
@@ -79,7 +79,7 @@ internal object CharacterDecisionProtocol {
         {"status":"open|revise|settled|dismissed","threadId":"续想或结束时已有ID","topicKey":"简短稳定英文主题键",
          "focus":"角色自己尚未解决的一个具体问题","whyItMatters":"真实经历与个人在意的原因",
          "hesitation":"此刻的顾虑","possibleNextStep":"可修订的下一个可能行动","priority":1到3}。
-        数组最多四项变化，不是要求每轮凑足四条；同一主题只开一条，不同主题各自独立。
+        数组最多四项变化，不是要求每轮凑足四条；同一主题只开一条，不同主题各自独立。起床、学习、睡觉等若分别使你挂心，允许各自有明确的focus、缘由与下一步，而非合成「照顾她的一切」；只承担了责任但尚无独立主观挂心时不要硬造情绪，同一责任的履行由原任务系统负责。
         仍挂心但暂时不再关注时以 status=pause、原threadId 暂缓，它不再进入当前「心事」与未竟行动；
         之后确实重新在意时 status=resume。settled 表示想通，dismissed 表示决定放下，两者归历史心路。
         不因48小时没更新就推断角色已放下；旧版无状态且长久未更新的记录只作备查，

@@ -54,6 +54,28 @@ class CharacterLifeVisibilityTest {
             listOf(future.copy(status = "cancelled")), now).isEmpty())
     }
 
+    @Test fun acceptedRecurringAndUndatedDutiesAppearAsIndependentHeartCardsWithoutFakingEmotion() {
+        val now = Instant.parse("2026-11-05T03:00:00Z")
+        val base = CommitmentTask(id = "wakeup", characterId = "role-a",
+            goal = "每天叫起床", dueAt = now.plusSeconds(3600),
+            repeat = "daily", status = CommitmentTaskStatus.Scheduled,
+            createdAt = now.minusSeconds(100))
+        val learning = base.copy(id = "learning", goal = "每天监督专业课学习",
+            dueAt = now.plusSeconds(7200))
+        val meals = base.copy(id = "meals", goal = "持续提醒合理饮食",
+            dueAt = null, repeat = "once", status = CommitmentTaskStatus.WaitingForFeedback)
+        val cancelled = base.copy(id = "cancelled", status = CommitmentTaskStatus.Cancelled)
+        val doneOnce = base.copy(id = "once", repeat = "once", status = CommitmentTaskStatus.Scheduled)
+        val foreign = base.copy(id = "foreign", characterId = "role-b")
+        val visible = CharacterLifeVisibility.commitmentMatters("role-a",
+            listOf(base, learning, meals, cancelled, doneOnce, foreign, base), now)
+        assertEquals(setOf("wakeup", "learning", "meals"), visible.map { it.sourceId }.toSet())
+        assertEquals(3, visible.size)
+        assertTrue(visible.all { it.category == "长期责任" && it.sourceKind == "commitment" })
+        assertTrue(visible.all { it.detail.contains("尚未履行") || it.detail.contains("等待核实") })
+        assertTrue(CharacterLifeVisibility.commitmentMatters("role-b", listOf(base), now).isEmpty())
+    }
+
     @Test fun activeLongTermConcernPersistsInPresenceAndDisappearsWhenPaused() {
         val role = "test-current-concern-long-term"
         val firstSource = "test-long-term-concern-first"
