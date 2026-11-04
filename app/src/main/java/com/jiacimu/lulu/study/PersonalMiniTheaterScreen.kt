@@ -187,6 +187,13 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                 else "已选 ${chosenWorldBookIds.size} 条 · 修改")
                         }
                     }
+                    if (chosenWorldBookIds.isNotEmpty()) {
+                        Text(worldBooks.filter { it.id in chosenWorldBookIds }
+                            .joinToString(" · ") { it.title },
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     if (inspirationLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
                     val idea = availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)]
                     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
@@ -277,6 +284,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     if (work.worldBookIds.isNotEmpty()) {
                         Text("本篇选用世界书 · ${work.worldBookIds.size} 条（创作时设定已保存）",
                             style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (showPremise && work.worldBookContext.isNotBlank()) {
+                        Text("本篇世界书设定（创建时保存）：", style = MaterialTheme.typography.labelMedium)
+                        Text(work.worldBookContext, style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (showPremise) Text(work.prompt,
