@@ -85,6 +85,7 @@ internal object SelfTodoRoleRead {
         }
         return JSONObject().put("success", true).put("status", "succeeded")
             .put("source", "self_todo_store").put("localDate", today.toString())
+            .put("observedAt", now.toString())
             .put("scope", scope).put("offset", offset)
             .put("nextOffset", if (offset + shown.size < selected.size) offset + shown.size else JSONObject.NULL)
             .put("pendingTotalInScope", selected.size)
