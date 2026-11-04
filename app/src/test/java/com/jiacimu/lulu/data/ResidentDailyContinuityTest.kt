@@ -2164,6 +2164,10 @@ class ResidentDailyContinuityTest {
             assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == actor &&
                 (it.content == original || it.content == post) })
             val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
+            assertEquals("explicitly opted-in resident fixture budget", 8,
+                ResidentDailyPolicy.maxModelDecisions(app))
+            assertEquals("initial response plus one correction charged separately", 2,
+                ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
             assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
             assertEquals(3, server.requestCount)
             val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
@@ -2214,6 +2218,10 @@ class ResidentDailyContinuityTest {
             // flight. The durable original response remains the authority.
             assertTrue(prefs.edit().putString(phaseKey, "repair_requesting").commit())
             val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
+            assertEquals("explicitly opted-in resident fixture budget", 8,
+                ResidentDailyPolicy.maxModelDecisions(app))
+            assertEquals("initial response plus one correction charged separately", 2,
+                ResidentDailyPolicy.modelDecisionsUsed(app, ResidentCharacterBridge.characterId(native.id), now))
             assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
             assertEquals(3, server.requestCount)
             val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
@@ -2350,6 +2358,10 @@ class ResidentDailyContinuityTest {
                     "重新考虑$kind", now.minusSeconds(120L + index),
                     now.minusSeconds(600), activityAction = "publish_moment",
                     activityArgs = JSONObject().put("text", "主活动不能重放$kind"))
+                assertEquals("fixture must allow three genuine model requests", 8,
+                    ResidentDailyPolicy.maxModelDecisions(app))
+                assertEquals("no other role may consume this resident's quota", index,
+                    ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
                 assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
                 assertEquals(index + 1, server.requestCount)
                 val live = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
@@ -2524,6 +2536,10 @@ class ResidentDailyContinuityTest {
             assertFalse(ResidentDailyDecision.runOnce(app, native, now))
             assertEquals(2, server.requestCount)
             val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
+            assertEquals("explicitly opted-in resident fixture budget", 8,
+                ResidentDailyPolicy.maxModelDecisions(app))
+            assertEquals("initial response plus one correction charged separately", 2,
+                ResidentDailyPolicy.modelDecisionsUsed(app, ResidentCharacterBridge.characterId(native.id), now))
             assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
             assertEquals(3, server.requestCount)
             val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
@@ -2584,6 +2600,10 @@ class ResidentDailyContinuityTest {
             assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
             assertEquals(2, server.requestCount)
             val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
+            assertEquals("explicitly opted-in resident fixture budget", 8,
+                ResidentDailyPolicy.maxModelDecisions(app))
+            assertEquals("initial response plus one correction charged separately", 2,
+                ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
             assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
             assertEquals(3, server.requestCount)
             val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
