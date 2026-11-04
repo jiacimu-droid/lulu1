@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:27:40.690187+00:00",
-  "commit": "abd19bae570e1ff2f4b1ab03ec64c311895b24ba",
+  "generatedAt": "2026-11-04T17:28:56.994365+00:00",
+  "commit": "8aaa4ebf913ede452bd4d3a8f133664a638a4edb",
   "branch": "main",
-  "sourceFingerprint": "699abef34f71b39b74445dd39ec1401f4a137c0b79874222d795435b036f5334",
+  "sourceFingerprint": "7fd1f8d8c5984badab04e422dfbf4b7b991edeff976ebab7cbf5d2306e6b3696",
   "summary": {
     "files": 1138,
-    "lines": 240593,
+    "lines": 240617,
     "symbols": 3317
   },
   "symbolIndex": {
@@ -225,7 +225,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 366
+        "line": 367
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -1117,7 +1117,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 481
+        "line": 489
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1735,7 +1735,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2290
+        "line": 2284
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -6301,7 +6301,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 528
+        "line": 536
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7935,13 +7935,13 @@
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 254
+        "line": 255
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 517
+        "line": 525
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -11777,7 +11777,7 @@
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2156
+        "line": 2150
       }
     ],
     "maxResidents": [
@@ -25887,8 +25887,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 545,
-      "sha256": "938274a96f21f0d762679491651c78e1eb22e3cbd4ef59cadab0b43ceeab024d",
+      "lines": 553,
+      "sha256": "d174664dc3c19d58044c5b283f07ccd8e98f917d846643d4b31ea4cff0549078",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -25920,23 +25920,23 @@
         },
         {
           "name": "claimAlarmExecution",
-          "line": 254
+          "line": 255
         },
         {
           "name": "cancel",
-          "line": 366
+          "line": 367
         },
         {
           "name": "remove",
-          "line": 481
+          "line": 489
         },
         {
           "name": "removeBySourceEvent",
-          "line": 517
+          "line": 525
         },
         {
           "name": "clearCharacter",
-          "line": 528
+          "line": 536
         }
       ]
     },
@@ -29827,8 +29827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2354,
-      "sha256": "7a85b540deddb7499e0d711d27850e4b958ac9126598a7bce27e1ee10c284cab",
+      "lines": 2348,
+      "sha256": "3d984540c674cdb2a674de8e3c024fa19c7688bef66fb630fd851ade3c46c9ac",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29904,11 +29904,11 @@
         },
         {
           "name": "errorOf",
-          "line": 2156
+          "line": 2150
         },
         {
           "name": "schedule",
-          "line": 2290
+          "line": 2284
         }
       ]
     },
@@ -36926,8 +36926,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
-      "lines": 430,
-      "sha256": "91577bb70b61a6cf6e841706a32e44f48ab9c94c174a87e86aa1f11ae3473394",
+      "lines": 452,
+      "sha256": "423b13135ddff17383d355346e1fe80bf66ac50f5a9ec67fd13898e0ba0c807d",
       "symbols": [
         {
           "name": "CommitmentAlarmRecoveryTest",
