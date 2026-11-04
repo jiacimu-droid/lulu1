@@ -207,7 +207,8 @@ internal object CharacterLifeVisibility {
     internal fun commitmentMatters(
         role: String, tasks: List<CommitmentTask>, now: Instant,
     ): List<CharacterLifeVisible> = tasks.filter { task ->
-        task.characterId == role && task.status.isActive() &&
+        task.characterId == role &&
+            (task.status.isActive() || (task.repeat == "daily" && task.dailyNextAlarmId != null)) &&
             (task.dueAt == null || task.repeat == "daily") &&
             !task.createdAt.isAfter(now) && task.goal.isNotBlank()
     }.distinctBy(CommitmentTask::id).map { task ->
@@ -217,13 +218,18 @@ internal object CharacterLifeVisibility {
             CommitmentTaskStatus.Running -> "执行中，等待实际回执"
             CommitmentTaskStatus.Blocked -> "执行受阻，仍待处理"
             CommitmentTaskStatus.WaitingForFeedback -> "等待核实结果，责任仍在"
+            CommitmentTaskStatus.Completed -> "本轮已核实，下一次仍已安排"
             else -> "仍待跟进"
         }
         val detail = buildList {
             add("已接受的长期责任 · $state")
             add(if (task.repeat == "daily") "每天重复" else "尚无固定执行时间")
-            task.dueAt?.let { add("原定行动：$it") }
-            task.nextCheckAt?.let { add("后续检查：$it") }
+            task.dueAt?.let { add("本轮原定行动：$it") }
+            task.dailyNextDueAt?.let { add("下一次每日执行：$it") }
+            task.nextCheckAt?.let { add("本轮结果复查：$it") }
+            task.dailyAttempts.lastOrNull()?.let { previous ->
+                add("之前的执行：${previous.dueAt} · ${if (previous.status == "Completed") "已核实" else "结果未确认"}")
+            }
             task.completionCondition.takeIf(String::isNotBlank)?.let { add("完成条件：$it") }
             task.readableLastResult().takeIf(String::isNotBlank)?.let { add("最近回执：$it") }
             add("日程负责具体行动；这里不代表角色已产生同名心理挂心，也不等于已完成。")
