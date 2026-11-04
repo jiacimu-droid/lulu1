@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:27:29.257073+00:00",
-  "commit": "190be18fbf14a4daea8c4a977bdd8caf5afe1d20",
+  "generatedAt": "2026-11-04T03:39:52.496452+00:00",
+  "commit": "fb91c5d8af6f0b690679ee495225a56a2624ec1e",
   "branch": "main",
-  "sourceFingerprint": "e79a5cb7e491abf210143bddf86c2670e750ea0f21d79b483fcd738dbb9bd8d9",
+  "sourceFingerprint": "3f90800005d5ec03d190faecf5abd0910e261be8fc1f6995135b351299268633",
   "summary": {
     "files": 1128,
-    "lines": 235438,
-    "symbols": 3277
+    "lines": 235456,
+    "symbols": 3278
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7173,7 +7173,13 @@
     "keepOrBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-        "line": 54
+        "line": 48
+      }
+    ],
+    "identity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
+        "line": 117
       }
     ],
     "modelContext": [
@@ -24777,8 +24783,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 152,
-      "sha256": "0fb641c8f6dfc9e900fe55f02b1dc197415e2075e970d790676988ee4f2a7271",
+      "lines": 137,
+      "sha256": "48a49200931e576760ede8ab68c94fbefab4eacc1bcac582c54a13e1e47bae53",
       "symbols": [
         {
           "name": "promptSection",
@@ -24786,7 +24792,11 @@
         },
         {
           "name": "keepOrBlank",
-          "line": 54
+          "line": 48
+        },
+        {
+          "name": "identity",
+          "line": 117
         }
       ]
     },
@@ -35905,8 +35915,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 498,
-      "sha256": "f6a79cf3e5b26dd0e34061193020038d83dd9525d57ff89cdf10ccab0a4f1f0e",
+      "lines": 531,
+      "sha256": "b3f703567f7cfdd658c7d4881ac7c0ee8e9eb9364da8f3149284121404089e24",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
