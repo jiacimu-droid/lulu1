@@ -572,3 +572,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：`76254f68b2a9becb63e78a3ebd8c92cac907d161` 的 `TimelineStatementOwnershipTest.bareGroupMessageIdDoesNotProveThatThisCharacterWitnessedIt` 使用实际群聊 Store 验证真见证仍通过、裸原消息 ID 不能伪造本角色用户联系或本人发言、其他角色的见证后缀不能借给自己；联系时钟只计有效见证。
 - **验收**：该源码和测试的完整 Android/JVM/APK、索引须核对包含 `76254f68` 的新运行；中间 `4008a981` run `41757656601` 最后查询 pending，索引 `41757656604` in_progress，不能作为测试提交的结果。真机群聊迁移/编辑、私聊/电话、后台连续性与 P-08e 真模型盲评尚未验证。**P-08 仍 [ ]**。
 - **下一步**：先读取最新 main 对应的 Actions 完整状态，失败按首个实际日志修。若 CI 成功，实机检查历史群见证、群名变更、失败消息/编辑回滚、私聊/电话与角色之间的来源隔离，评估旧群无后缀记录能否通过合法迁移补原件；不能用当前成员身份直接补造历史见证。
+
+## 2026-11-04 · 用户要求清理大纲：仅保留未完成工作
+
+- 本轮为明确授权的文档整理，未改 app/scripts/preview 源码，按 AGENTS 的文档例外无需重跑代码索引。整理基准 main `b964fdd579d710ebcc9f0fe8ec747fc7490d4c25`。
+- `LULU_EXPERIENCE_ROADMAP.md` 从约 2.2 万字符精简为约 5500 字符：删除已完成的 P-01/P-02/P-04 待办、历次提交流水、重复能力介绍和过时“待 CI”指令；P-03/P-05 保留具体真机/真实模型验收，P-08a/b 的已有 trace/注入审计不再列为重新开发。S/G/V 的尚缺验收、M1–M6 的剩余范围和原稳定 ID 保留。
+- 核实 `e6f423d`、`f739f79`、`c8c37d3` 均为完整成功 `a444e80` 的祖先；[Android/JVM/APK 41753840954](https://github.com/jiacimu-droid/lulu1/actions/runs/41753840954) 与索引 41753841122 success。现存 `MemoryWorkingSetPolicy` 来源敏感去重、`OriginalEvidenceSpans` 原文分段已复核，移除的是已完成开发待办，不表示全体验验收。
+- 新来源门禁的最新测试 `76254f68` [APK/JVM 41757668136](https://github.com/jiacimu-droid/lulu1/actions/runs/41757668136) 整理时仍 pending，索引 41757668267 success；该项保留待 CI。翻牌当前源码仍读取隐藏牌查配对，G-01 继续保留。
+- `AGENTS.md` 更新为新版看板/记忆范围锚点，明确“独立项完成写专项证据后从待办移除；部分完成仅保留剩余工作，固定 ID 不复用”。本进度保留历史证据以便追溯。
