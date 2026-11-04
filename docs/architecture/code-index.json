@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:11:11.581811+00:00",
-  "commit": "7d817106cfbe87c21b789e7c7c89dd4da5247158",
+  "generatedAt": "2026-11-04T12:12:39.227620+00:00",
+  "commit": "b9fae0b2a53273916a8326b841d560bdb70ee716",
   "branch": "main",
-  "sourceFingerprint": "632b391096b96e70ff1af4d7031a56cb9ea705c906fecf0698332c3aa5641a2f",
+  "sourceFingerprint": "0afa8234f27247b95471fed5353a653000f6569e63b5d73e3c3ecd8cca8c477c",
   "summary": {
     "files": 1133,
     "lines": 238059,
@@ -33184,7 +33184,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
       "lines": 442,
-      "sha256": "3f075755d1f86d8036434a89991ab4d1cf9b55f837d5630ee505d2757194a5b6",
+      "sha256": "d7f745c46fa956d62cd6fe6c5bebe3455961592ce198f365b3315de7e0f386ca",
       "symbols": [
         {
           "name": "nextInspiration",
