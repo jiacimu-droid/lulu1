@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fc56278f6ae886e770317abca8bc6ae2950f3285`
+- 基准提交：`7be1f2bdae44e1673cb16359d800d302a503ed14`
 - 分支：`main`
 - 已索引文件：1135
-- 已索引代码/文本行：239600
+- 已索引代码/文本行：239670
 - 已发现符号：3311
 
 | 文件 | 行数 | 符号数 |
@@ -413,20 +413,20 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 79 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 69 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 146 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 149 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 517 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 95 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 222 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 374 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 376 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 44 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 127 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 443 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 406 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 397 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1845 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 988 | 22 |
@@ -952,7 +952,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 157 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 391 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 441 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |

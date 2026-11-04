@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:00:20.503811+00:00",
-  "commit": "fc56278f6ae886e770317abca8bc6ae2950f3285",
+  "generatedAt": "2026-11-04T17:04:52.528719+00:00",
+  "commit": "7be1f2bdae44e1673cb16359d800d302a503ed14",
   "branch": "main",
-  "sourceFingerprint": "441fe359182959bc3f3982e7bcb01d923106a6317ef8968ec492cbcfd2ed9ed1",
+  "sourceFingerprint": "36a718d6b7f21d7b39fa05eef174e219a76d8aba1948593f0a1622151f5638e3",
   "summary": {
     "files": 1135,
-    "lines": 239600,
+    "lines": 239670,
     "symbols": 3311
   },
   "symbolIndex": {
@@ -25697,7 +25697,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 69,
-      "sha256": "7927ccaa9338dd29ef76dcffab5fbf5441d9dac5b17c8db276e74acdd2710473",
+      "sha256": "4e228d623c244844660ed59ff6ff665c1a94eb59b369e9fc6dd7802d43d61a4d",
       "symbols": [
         {
           "name": "context",
@@ -25711,8 +25711,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 146,
-      "sha256": "dbe7a539039f3e5e1dd15f3f3361990ac471257ce9d9216211568b98f9d21478",
+      "lines": 149,
+      "sha256": "90d76ca3268360e520abb2f5de28cd84edf1e479f3a75df5dfd6a57383843fb2",
       "symbols": [
         {
           "name": "handled",
@@ -25805,8 +25805,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 374,
-      "sha256": "a31e9486d0f62d10b70db3ec20dd15a4ddaa3256b77ecd7c700f9efbf45a3325",
+      "lines": 376,
+      "sha256": "6003d65202352da9553677fe302bedb4255401829436896b6f5d04e56c2ed95a",
       "symbols": []
     },
     {
@@ -25834,8 +25834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 127,
-      "sha256": "6d567b5d907564e9f7f5c4a3ea103355ff4e72dec2ba5a8497d6d8af02647c7f",
+      "lines": 151,
+      "sha256": "dfbfafd65c2f224300d6bf19adf8ce6fc3dd7d9dc6610d2f0896e90a6c941e1c",
       "symbols": []
     },
     {
@@ -25906,8 +25906,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 406,
-      "sha256": "db6f72f05505f31d9868883a555c7067eadb76b401bb10c70070f9de12649ed5",
+      "lines": 397,
+      "sha256": "1d97b7869983a9773057ef98e7d0789f08a90e48741fa5bbdcb393705d25274c",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -36893,8 +36893,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 391,
-      "sha256": "c5b5f5a914a7f06a37b8c30f7c2b16b952ffd55cb167ba85f7a5f6abd77db1ab",
+      "lines": 441,
+      "sha256": "4c8c854bd360c82f3c4ce54cb4c86060ecd0cd916470662caa6dc96552b055d9",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
