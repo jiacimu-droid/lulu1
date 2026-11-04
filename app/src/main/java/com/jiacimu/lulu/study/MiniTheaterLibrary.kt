@@ -21,17 +21,19 @@ internal data class MiniTheaterItem(
     val error: String = "", val generationToken: String = "",
     /** A rewrite keeps the last completed page until a replacement is committed. */
     val rewriting: Boolean = false,
+    val characterId: String = "", val characterName: String = "",
+    val characterContext: String = "", val variationContext: String = "",
 )
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
-internal class MiniTheaterLibrary private constructor(context: Context) {
+internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniTheaterItem>? = null) {
     private val app = context.applicationContext
     private val prefs = app.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE)
     private val changes = MutableStateFlow(load())
     val items: StateFlow<List<MiniTheaterItem>> = changes
 
     init {
-        val seeds = parse(app.assets.open("theater/wanxiang_mini_scenes.json")
+        val seeds = initialTemplates ?: parse(app.assets.open("theater/wanxiang_mini_scenes.json")
             .bufferedReader().use { it.readText() })
         synchronized(this) {
             val known = changes.value.mapTo(mutableSetOf()) { it.title to it.prompt }
@@ -46,6 +48,26 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
         val inserted = candidates.filter { known.add(it.title to it.prompt) }
         if (inserted.isNotEmpty()) save(changes.value + inserted)
         return inserted.size
+    }
+
+    @Synchronized fun addPersonal(cast: PersonalMiniTheater.Cast,
+        idea: PersonalMiniTheater.Idea, variation: PersonalMiniTheater.Variation): String {
+        require(cast.characterId.isNotBlank() && cast.material.isNotBlank()) { "请先选择角色" }
+        val item = MiniTheaterItem(id = "personal-" + UUID.randomUUID(),
+            title = idea.title, prompt = idea.premise, characterId = cast.characterId,
+            characterName = cast.name, characterContext = cast.material,
+            variationContext = variation.label + "：" + variation.direction)
+        save(items.value + item)
+        return item.id
+    }
+
+    @Synchronized fun deletePersonal(id: String, characterId: String): Boolean {
+        val entry = items.value.firstOrNull { it.id == id && it.characterId == characterId }
+            ?: return false
+        if (entry.characterId.isBlank()) return false
+        save(items.value.filterNot { it.id == id })
+        WorkManager.getInstance(app).cancelUniqueWork("single-theater-$id")
+        return true
     }
 
     @Synchronized fun begin(id: String, background: String, rewrite: Boolean): String {
@@ -82,7 +104,9 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
                 .put("sceneContext", it.sceneContext).put("text", it.text)
                 .put("status", it.status).put("error", it.error)
                 .put("generationToken", it.generationToken)
-                .put("rewriting", it.rewriting))
+                .put("rewriting", it.rewriting).put("characterId", it.characterId)
+                .put("characterName", it.characterName).put("characterContext", it.characterContext)
+                .put("variationContext", it.variationContext))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -97,7 +121,8 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
                 o.optBoolean("builtIn"), o.optString("sceneContext"),
                 o.optString("text"), o.optString("status", "new"),
                 o.optString("error"), o.optString("generationToken"),
-                o.optBoolean("rewriting"))
+                o.optBoolean("rewriting"), o.optString("characterId"), o.optString("characterName"),
+                o.optString("characterContext"), o.optString("variationContext"))
         }
     }.getOrDefault(emptyList())
 
@@ -137,6 +162,10 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
 internal object MiniTheaterJobs {
     fun enqueue(context: Context, id: String, background: String, rewrite: Boolean = false) {
         val store = MiniTheaterLibrary.get(context)
+        if (rewrite) {
+            val item = store.items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
+            check(item.characterId.isBlank() || com.jiacimu.lulu.data.MigratedDomainStores.characters.settings.value.containsKey(item.characterId)) { "角色已移除，保留已保存的作品" }
+        }
         val token = store.begin(id, background, rewrite)
         try {
             WorkManager.getInstance(context).enqueueUniqueWork(
@@ -160,6 +189,12 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
         val store = MiniTheaterLibrary.get(applicationContext)
         val snapshot = store.items.value.firstOrNull { it.id == id && it.generationToken == token }
             ?: return Result.success()
+        // A recovered personal work whose paid request may already have started
+        // is not automatically bought a second time after process death.
+        if (snapshot.characterId.isNotBlank() && snapshot.status == "running") {
+            store.finish(id, token, "failed", error = "上次创作中断，未自动重复请求；可以手动重试")
+            return Result.success()
+        }
         if (!store.finish(id, token, "running")) return Result.success()
         return try {
             LuluAiServices.initialize(applicationContext)
@@ -186,15 +221,16 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
                 if (originalDraft.isNotBlank())
                     appendLine("这篇已保存的正文末尾：\n${originalDraft.takeLast(10_000)}")
             }
+            val personal = if (snapshot.characterId.isNotBlank()) PersonalMiniTheater.request(snapshot) else null
             val generated = LuluAiServices.gateway.generate(
                 characterId = "theater",
-                facts = facts,
-                instruction = instructions,
+                facts = personal?.facts ?: facts,
+                instruction = personal?.instructions ?: instructions,
                 source = "剧场·单篇小剧场",
                 title = "${snapshot.title} · 单篇",
                 contextMode = CompanionContextMode.Isolated,
                 connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                maxTokens = null,
+                maxTokens = if (personal == null) null else 4_500,
                 readTimeoutMillis = 540_000,
             ).getOrThrow().text.trim()
             check(generated.isNotBlank()) { "没有生成正文" }

@@ -67,8 +67,9 @@ fun QqStyleChatDetailScreen(
 ) {
     val context = LocalContext.current
     var showPhoneInspection by rememberSaveable(conversationId) { mutableStateOf(false) }
-    DisposableEffect(conversationId, routeVisible, showPhoneInspection) {
-        if (routeVisible && !showPhoneInspection) {
+    var showPersonalTheater by rememberSaveable(conversationId) { mutableStateOf(false) }
+    DisposableEffect(conversationId, routeVisible, showPhoneInspection, showPersonalTheater) {
+        if (routeVisible && !showPhoneInspection && !showPersonalTheater) {
             ChatAutoVoicePlayback.setVisibleConversation(conversationId)
             UserInteractionPresenceStore.setConversation(conversationId)
         } else {
@@ -579,6 +580,12 @@ fun QqStyleChatDetailScreen(
         previousVisibleCount = count
     }
 
+    if (showPersonalTheater && groupChat == null) {
+        com.jiacimu.lulu.study.PersonalMiniTheaterScreen(characterId = characterId,
+            onBack = { showPersonalTheater = false })
+        return
+    }
+
     if (showPhoneInspection) {
         PhoneInspectionScreen(initialRoleId = characterId, onBack = { showPhoneInspection = false })
         return
@@ -673,6 +680,15 @@ fun QqStyleChatDetailScreen(
                                     DropdownMenuItem(text = { Text("生活记录") }, onClick = { moreExpanded = false; onLexicon() })
                                     DropdownMenuItem(text = { Text("日程") }, onClick = { moreExpanded = false; onSchedule() })
                                     DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
+                                    if (groupChat == null) DropdownMenuItem(
+                                        text = { Text("和我的小剧场") },
+                                        leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
+                                        onClick = {
+                                            moreExpanded = false
+                                            keyboardController?.hide()
+                                            focusManager.clearFocus()
+                                            showPersonalTheater = true
+                                        })
                                     DropdownMenuItem(
                                         text = { Text("查手机") },
                                         leadingIcon = { Icon(Icons.Outlined.Smartphone, null) },

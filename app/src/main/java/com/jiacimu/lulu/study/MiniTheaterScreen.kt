@@ -28,7 +28,8 @@ import kotlinx.coroutines.withContext
 internal fun MiniTheaterScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val library = remember { MiniTheaterLibrary.get(context) }
-    val scenes by library.items.collectAsState()
+    val allScenes by library.items.collectAsState()
+    val scenes = allScenes.filter { it.characterId.isBlank() }
     val scope = rememberCoroutineScope()
     var opened by remember { mutableStateOf<String?>(null) }
     var background by remember(opened) { mutableStateOf("") }
