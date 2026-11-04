@@ -558,7 +558,8 @@ class CharacterLifeStoreTest {
         assertTrue(prompt.contains("给用户留出接话位置"))
         assertTrue(prompt.contains("关系中的态度"))
         assertTrue(prompt.contains("帅气鲜明"))
-        assertTrue(prompt.contains("AI前沿"))
+        assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
+            CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
         val personalized = CharacterLifeStore.state(custom.characterId)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, personalized.getInt("jiangDuPresetVersion"))
         assertEquals("自己专门写的长谈习惯", personalized.getJSONObject("profile").getString("expression"))
@@ -607,7 +608,8 @@ class CharacterLifeStoreTest {
         assertEquals("继续学习AI", upgraded.getJSONObject("intention").getString("aim"))
         val prompt = CharacterRuntime.definition(stock.characterId).promptSection()
         assertTrue(prompt.contains("帅气鲜明"))
-        assertTrue(prompt.contains("AI前沿"))
+        assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
+            CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
         assertTrue(prompt.contains("认真讨论或被追问时再展开"))
         assertEquals("我独特的表达风格",
             CharacterLifeStore.state(edited.characterId).getJSONObject("profile").getString("expression"))
@@ -652,7 +654,8 @@ class CharacterLifeStoreTest {
         assertTrue(full.contains("美与责任同为内核"))
         assertTrue(full.contains("Ni主导"))
         assertFalse(full.contains(CharacterProfileSchema.jiangDuV22Persona))
-        assertTrue(full.contains("AI前沿"))
+        assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
+            CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
         assertTrue(full.indexOf("【人物内核】") < full.indexOf("【行事方式】"))
         assertTrue(full.indexOf("【行事方式】") < full.indexOf("【呈现与表达】"))
         assertEquals("今天继续读书",
@@ -704,7 +707,8 @@ class CharacterLifeStoreTest {
         assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("motives"),
             now.getJSONObject("profile").getString("motives"))
         assertEquals("整理自己的书架", now.getJSONObject("intention").getString("aim"))
-        assertTrue(CharacterRuntime.definition(original.characterId).promptSection().contains("AI前沿"))
+        assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
+            CharacterLifeStore.state(original.characterId).getJSONObject("profile").getString("interests"))
         val personal = CharacterLifeStore.state(customized.characterId)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, personal.getInt("jiangDuPresetVersion"))
         assertEquals("我自己改的AI兴趣", personal.getJSONObject("profile").getString("interests"))
@@ -900,7 +904,8 @@ class CharacterLifeStoreTest {
         assertEquals("宝宝", upgraded.getJSONObject("socialNames").getString("preferredAddress"))
         assertEquals(old.getJSONObject("expressionPreferences").toString(), upgraded.getJSONObject("expressionPreferences").toString())
         assertEquals(old.getJSONObject("intention").toString(), upgraded.getJSONObject("intention").toString())
-        assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("AI前沿"))
+        assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
+            CharacterLifeStore.state(role.characterId).getJSONObject("profile").getString("interests"))
         val backup = upgraded.getJSONObject("jiangDuV9Backup").toString()
         assertEquals("江一舟", upgraded.getJSONObject("jiangDuV9Backup").getString("displayName"))
 
