@@ -678,3 +678,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮链路地图与回归**：本人实际 appraisal/basis → delta meaningful/privateResidue → keepOrBlank → recordCausalTransition/recordInnerVoice（同一权威心理 Store）→ presence 历史与原时间线 → compact/full 后续上下文。新增测试使用真实 delta engine 产生“不同 responseAim、相同原因指纹”，验证相反意愿经过上述存储/投影仍保留、来源重放和相同原句不增条、撤回一条不删除另一条、他人上下文不可见；旧两处测试由“程序认定近义”改成明确原句去重/不同原文保留，新增包含条件回归。测试证明契约与数据流，绝不是模型自然度评分。
 - **本轮验证状态**：含全部源码与回归的 [Android/JVM/APK 41780234127](https://github.com/jiacimu-droid/lulu1/actions/runs/41780234127) 查询时 pending；[原索引 41780233960](https://github.com/jiacimu-droid/lulu1/actions/runs/41780233960) completed/success，CODE_INDEX 基准明确为 `fedf758899fab2f6d67cca7c946ed482bf242bc5`。提交前核对并行 main，期间只有索引提交，没有覆盖他窗源码。
 - **未验与下一轮**：先等上述完整 CI，失败读首个真实堆栈；再对照授权真实回合的原输出/过滤/心理 Store/此刻历史/下一轮动作。相同原因下改写的近似心声会比以前多保留，需真机测噪声；原本没持久化的旧心声不凭空补造。原有长心声展示截取和后台历史节流未由本轮解决。P-08b/d/e 仍待真机、实际模型、多日，不可打勾；S-02 只在剩余 CI 真通过后移除测试排障，继续真机预算与删除恢复验收。
+
+## 2026-11-04 14:53 JST · P-08b 后台新心声不应被固定历史节流吞掉
+
+- **最新基准与并行检查**：开始时 main `feb5bf64fd7cc7ba5bb903377668861d35507d39`；已读取 AGENTS、CODE_INDEX（基准 `fedf758`）、唯一看板、人物专项、统一契约、`CharacterInnerLifeStore` / `CompanionPresenceStore` 及现有回归。先前 `716c86ed` 的 APK `41776228860` completed/failure（5 项）；`8b4091e` 的 `41779928520` 仍 in_progress，索引 `41779928585` success；`fedf758` 的 `41780234127` 已 cancelled，索引 `41780233960` success。不能把取消/运行中视为通过，未重复改动旧 5 项预算隔离修复。
+- **已证公共断点**：前轮 `fedf758` 修复了同原因不同原句被心理 Store / presence 原句去重吞掉；但 `CompanionPresenceStore.update` 还有独立的 `thoughtHistoryDue`：后台感知若 15 分钟内仅心理原句变化、外显状态/情绪不变，尽管上游已有因果验证、`thoughtChanged` 和 `uniqueHeartVoice` 均为真，仍不写历史或 presence 时间线。当前内心与历史/后续跨场景召回产生断层，尤其相反意愿会消失。该时间否决是旧显示节流，不是本人决定，也不是设备/API 资源硬约束。
+- **源码修复 `3871031903f6363aecf9a58f6b8461fd48ce3453`**：移除这层针对不同原句的固定 15 分钟历史否决；保留旧的 15 分钟完全相同原句去重、角色归属、既有源事件验证和历史数量上限，后台无新心声时不额外写入；不改变模型选择、增加 API 调用或额外 Store。
+- **回归 `9116325107d88e5c838de6c400fe8aabb27abfe6`**：在 `CompanionPresenceThoughtHistoryTest` 中同一后台场景 20 秒内本人从「想继续」转为「不想继续，先处理约定」，验证两个历史心声、后一条 timeline 以及原句重复不再新增。验证范围为源码/测试契约，不是已通过的 Android/JVM 或真实模型质量。
+- **后续 CI**：含生产修复的 `38710319` APK run `41782070882` 最后查询为 pending，索引 `41782070720` in_progress；新增回归 `91163251` 与本进度后继运行需重新查 main / Actions。优先看后继完整 JVM/APK 首个失败堆栈，继续核查 5 项居民请求重试；人物 P-08b/d/e 仍待真机与实际模型（需观察新心声数量是否有噪声）。未完成项不勾选。
