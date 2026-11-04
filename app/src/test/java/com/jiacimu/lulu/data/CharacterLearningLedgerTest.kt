@@ -22,6 +22,7 @@ class CharacterLearningLedgerTest {
         MemoryTestEnvironment.release()
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
         CharacterLearningLedger.initialize(context)
         CharacterLearningLedger.clearCharacter(character)
@@ -157,28 +158,26 @@ class CharacterLearningLedgerTest {
         CharacterLearningLedger.recordReading(character, "read-feedback", note("说话不必长篇大论"))
         val proposal = JSONObject().put("sourceEvidenceId", "read-feedback")
             .put("howApplied", "尝试用更短的回复")
-        SharedExperienceTimeline.record("delivered-message", character, "私聊", "角色",
-            "其实没必要解释这么多。", now.plusSeconds(20), triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        val conversation = MigratedDomainStores.chat.ensureConversation(character, "学习反馈")
+        val delivered = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "其实没必要解释这么多。")
         assertTrue(CharacterLearningLedger.recordApplication(character, proposal,
-            "delivered-message", "message", true, "已实际送达"))
-        SharedExperienceTimeline.record("user-feedback", character, "私聊", "用户",
-            "我喜欢你这样说话，更自然了。", now.plusSeconds(30), triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+            delivered.id, "message", true, "已实际送达"))
+        val positive = MigratedDomainStores.chat.sendUserMessage(
+            conversation.id, "我喜欢你这样说话，更自然了。")
         val feedback = JSONObject().put("sourceEvidenceId", "read-feedback")
-            .put("actionEvidenceId", "delivered-message").put("evaluation", "helped")
-        assertTrue(CharacterLearningLedger.recordFeedback(character, feedback, "user-feedback"))
-        assertFalse(CharacterLearningLedger.recordFeedback(character, feedback, "user-feedback"))
+            .put("actionEvidenceId", delivered.id).put("evaluation", "helped")
+        assertTrue(CharacterLearningLedger.recordFeedback(character, feedback, positive.id))
+        assertFalse(CharacterLearningLedger.recordFeedback(character, feedback, positive.id))
         assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("用户真实反馈"))
-        SharedExperienceTimeline.deleteEvent("user-feedback")
+        SharedExperienceTimeline.deleteEvent(positive.id)
         assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("用户真实反馈"))
-        SharedExperienceTimeline.record("user-negative", character, "私聊", "用户",
-            "别这么说了，我不喜欢这种表达。", now.plusSeconds(40), triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val negative = MigratedDomainStores.chat.sendUserMessage(
+            conversation.id, "别这么说了，我不喜欢这种表达。")
         assertFalse(CharacterLearningLedger.recordFeedback(character,
-            feedback, "user-negative"))
+            feedback, negative.id))
         assertTrue(CharacterLearningLedger.recordFeedback(character,
-            JSONObject(feedback.toString()).put("evaluation", "unhelpful"), "user-negative"))
+            JSONObject(feedback.toString()).put("evaluation", "unhelpful"), negative.id))
         assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("不适合"))
     }
 
@@ -234,15 +233,15 @@ class CharacterLearningLedgerTest {
             .put("howApplied", "尝试先听完再回应")
         assertFalse(CharacterLearningLedger.recordApplication(character, application,
             "no-result", "message", true, "已经成功"))
-        SharedExperienceTimeline.record("real-result", character, "私聊", "角色", "真的发出回复",
-            now.plusSeconds(8), triggerExtraction = false, source = "message",
-            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val conversation = MigratedDomainStores.chat.ensureConversation(character, "行动练习")
+        val delivered = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "真的发出回复")
         assertFalse(CharacterLearningLedger.recordApplication(character, application,
-            "real-result", "message", false, "失败"))
+            delivered.id, "message", false, "失败"))
         assertTrue(CharacterLearningLedger.recordApplication(character, application,
-            "real-result", "message", true, "真的发出回复"))
+            delivered.id, "message", true, "真的发出回复"))
         assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("已尝试实践"))
-        SharedExperienceTimeline.deleteEvent("real-result")
+        SharedExperienceTimeline.deleteEvent(delivered.id)
         assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("已尝试实践"))
     }
 }

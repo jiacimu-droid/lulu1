@@ -18,7 +18,7 @@ import java.time.Instant
 class CharacterMotiveContinuityTest {
     private val role = "motive-continuity-owner"
     private val other = "motive-continuity-other"
-    private val now = Instant.parse("2026-10-24T12:00:00Z")
+    private val now = Instant.now().minusSeconds(5)
     private lateinit var context: Context
 
     @Before fun begin() {
@@ -29,6 +29,8 @@ class CharacterMotiveContinuityTest {
         // testing a reload; otherwise the writes go to the previous sandbox app.
         CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
             .set(CharacterInnerLifeStore, null)
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterInnerLifeStore.clear(role)
@@ -62,10 +64,10 @@ class CharacterMotiveContinuityTest {
     }
 
     private fun delivered(at: Instant) {
-        SharedExperienceTimeline.record("sleep-story-delivered", role, "私聊", "角色",
-            "故事已经实际送达", at, triggerExtraction = false,
-            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
-        CharacterInnerLifeStore.recordActionResult(role, goal().getString("id"), "sleep-story-delivered",
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "睡前陪伴")
+        val sent = MigratedDomainStores.chat.appendVoiceMessage(
+            conversation.id, "sleep-story-delivered", "故事已经实际送达", character = true)
+        CharacterInnerLifeStore.recordActionResult(role, goal().getString("id"), sent.id,
             "message", true, "实际发送了一段故事", at)
     }
 
@@ -125,9 +127,10 @@ class CharacterMotiveContinuityTest {
             change("achieve", now.plusSeconds(90 + source.length.toLong()), JSONObject().put("outcomeEvidenceId", source))
             assertEquals("waiting_feedback", goal().getString("status"))
         }
-        SharedExperienceTimeline.record("actual-sleep-feedback", role, "私聊", "用户", "刚才那次睡得很好",
-            now.plusSeconds(200), triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
-        change("achieve", now.plusSeconds(201), JSONObject().put("outcomeEvidenceId", "actual-sleep-feedback"))
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "睡前陪伴")
+        val feedback = MigratedDomainStores.chat.appendVoiceMessage(
+            conversation.id, "actual-sleep-feedback", "刚才那次睡得很好", character = false)
+        change("achieve", now.plusSeconds(201), JSONObject().put("outcomeEvidenceId", feedback.id))
         assertEquals("achieved", goal().getString("status"))
         assertNull(CharacterMotiveReview.from(goal()))
         SharedExperienceTimeline.deleteEvent("actual-sleep-feedback")

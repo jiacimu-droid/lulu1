@@ -17,26 +17,27 @@ class CharacterActionEvidenceTest {
     @Test fun aRealMessageMustNotBeReplacedByItsLaterToolReceipt() {
         val ctx = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
         SharedExperienceTimeline.initialize(ctx)
         val role = "action-source-cross-scene-test"
         val at = Instant.parse("2026-10-12T03:00:00Z")
-        SharedExperienceTimeline.record("actual-sent-text", role, "私聊", "角色",
-            "真的发给了用户", at, triggerExtraction = false, source = "message",
-            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "来源回执")
+        val sent = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "真的发给了用户")
         SharedExperienceTimeline.record("newer-tool-receipt", role, "实际工具执行", "执行器",
             JSONObject().put("status", "succeeded").put("tool", "send_private_message")
                 .put("result", JSONObject().put("success", true).toString()).toString(),
             at.plusSeconds(5), triggerExtraction = false, source = "tool-router",
             evidenceKind = EventEvidenceKind.ToolResult)
-        val message = CharacterActionEvidence.resolve(role, "actual-sent-text")
+        val message = CharacterActionEvidence.resolve(role, sent.id)
         val tool = CharacterActionEvidence.resolve(role, "newer-tool-receipt")
         assertNotNull(message)
         assertNotNull(tool)
         assertTrue(CharacterActionEvidence.supports(message!!, "message"))
         assertFalse(CharacterActionEvidence.supports(tool!!, "message"))
         assertTrue(CharacterActionEvidence.supports(tool, "tool"))
-        SharedExperienceTimeline.deleteEvent("actual-sent-text")
-        assertNull(CharacterActionEvidence.resolve(role, "actual-sent-text"))
+        SharedExperienceTimeline.deleteEvent(sent.id)
+        assertNull(CharacterActionEvidence.resolve(role, sent.id))
         SharedExperienceTimeline.deleteEvent("newer-tool-receipt")
     }
 }
