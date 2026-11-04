@@ -959,3 +959,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：`1d3eae6` 在 `QqReplySourceWatermarkTest` 增加主回复两泡入库后、副动作携同一文本（另一种拼泡形式）应跳过但真正“记得喝水”的独立新消息仍须成功落库；另涵盖不完整重复、新文追加、两步重构同一段的边界。只提交 JVM 测试源码，尚未看到新提交的全量 CI 成功；未在手机读取该真实回合的 trace，下一步查 build 以及回复来源/送达回执、是否跨轮第二次实际模型决策。不能把此代码当全部重复问题已经真机解决。
 
 - **同一缺口的另一入口补全**：当 action=tool 且模型仍选了文字回复，`performAction` 原本会先执行 `sideActions`，随后无条件通过 `requestId:reply` 再发 `decision.text`；若 sideActions 已真实发送同一段正文，会再次出现不同气泡格式的同词重发。源码 `bd950b0` 抽出共享的“仅去除空白与原气泡分隔符的精确正文等价判定”，`8e5efed` 从本轮 sideActions 的真实回执 ID、准确私聊和当前未撤回已送达消息计算正文，仅完全相同才不额外送出；不同后续话仍正常发送，搜索/工具真实结果处理不变。回归 `21496a0` 增加两种气泡形式等价和增加新意思不等价的场景。此为代码提交与静态路径复核，**本轮 JVM/APK 仍未取得真实通过结论**；真机的原始重复究竟来自哪一入口待 trace 核查。
+
+## 2026-11-04：P-08c.2c 一次私聊决定的正文只能有一个出口
+- **实际体验**：主人手机 23:14 截图：两条私聊气泡文本又被拼在一起重发；截图不能单独证明调用次数。但源码证实同一模型决定可同时由主 action=message/bubbles 和 steps/sideActions/nextAction 内的 send_private_message 分别走不同 ToolRouter requestId。此前跨请求镜像抑制是在发送后防重复，不是统一表达归口。
+- **架构调整**：singlePrivateInboundReply 在新私聊决定进入执行器前整合无条件对主人的 side 私聊消息为同一条模型回复的自然气泡；真正不同的话继续成为气泡，重复正文不再额外下发 ToolRouter。ProactivePerceptionRuntime 只对可归因的新私聊 messageStimulus 启用；独立生活/主动发消息仍由本人自由选择，其他工具与步骤保留。依赖 requiresPreviousSuccess、带 planId 的已排期提醒保持原动作与凭据，避免提前假装成功。保留原有文本/语音气泡与自然分泡，不改用户历史、人格、关系或模型调用次数。
+- **提交**：bea933c、9c6728b、83bac39、a5bd04f、4b8068a、0a66ac8；回归 77c3dba、5979aef、83fb0c4（单一真实私聊入库、重复全文与拆泡、不同新话、语音、定时提醒与依赖条件）。相关路线图 P-08c.2c 已跟踪。
+- **验证边界**：已提交 main 源码/回归。combined status 对新测试提交未返回检查记录，不能称 CI/JVM/APK 通过；真机、真实模型与源用户 ID/turnTraceId 的重复回合对照仍欠缺。若安装新构建后依旧双发，需从已有真实 trace 区分同轮输出重复和两个独立生成轮次，不能凭字符串相似度全局禁止人物重复说话。
