@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c4ef4f1e5533a2cc098d311235ead3755ac24ee`
+- 基准提交：`7c84a80b3c2be48d50193370ab0f4493f6da6b51`
 - 分支：`main`
 - 已索引文件：1133
-- 已索引代码/文本行：238438
-- 已发现符号：3306
+- 已索引代码/文本行：238526
+- 已发现符号：3307
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -702,7 +702,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 318 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 197 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 238 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 548 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 600 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
@@ -1114,7 +1114,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 352 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 388 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
