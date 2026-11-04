@@ -102,6 +102,7 @@ internal object PersonalMiniTheater {
                 appendLine(item.characterContext)
                 appendLine("本篇世界模式：${if (item.worldMode == "alternate") "完全平行世界" else "原世界幻想"}")
                 appendLine("本篇幻想情节：${item.prompt}")
+                if (item.worldBookContext.isNotBlank()) appendLine(item.worldBookContext)
                 if (item.variationContext.isNotBlank())
                     appendLine("旧版作品保留的补充设定：${item.variationContext}")
                 if (item.sceneContext.isNotBlank()) appendLine("用户补充：${item.sceneContext}")
@@ -113,6 +114,7 @@ internal object PersonalMiniTheater {
                 人物的稳定性格、价值、认知方式与说话习惯是辨认基线。题材中的世界规则、身份和身体变化要真正影响剧情。
                 身体互换必须真的互换身体，缩小必须影响具体行动，不能把大胆题材退化成换称呼或普通聊天。
                 性格侧面放大只在本篇生效，保留其他面貌与核心辨识度，不把所有题材写成同一个男主或女主，不修改原角色。
+                选用世界书时，仅根据本篇明确选中的条目塑造虚构社会、氛围和情节，不自动加入未选的世界书。单篇保存的设定快照优先于后来修改的世界书，不得当作真实记忆或人物身份变更。
                 【人物性格如何进入文学正文】
                 人设里的形容、动物比喻、关系互动偏好，只是理解同一个人如何思考、行动和亲近他人的素材，不是人物的第二名字、固定身份或出场造型。
                 例如“像小狐狸”表示狡黠、有主见、喜欢主动逗人；“像小狗”表示自愿信任、愿意亲近或偶尔交出主导。这些是可能的行为侧面，不是“撩人＝狐狸、示弱＝小狗”的剧情分类器。
