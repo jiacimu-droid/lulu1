@@ -555,3 +555,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：`a444e80eb78b0aba492a4adcc18e6f7f7b735cbb` 的 `TimelineStatementOwnershipTest.staleOrForeignGroupWitnessCannotBorrowARealMessageId` 覆盖可核验真群用户发言、伪造正文/伪造时间、以私聊 Sent 消息冒充群聊、群聊原话编辑后旧见证失效与新见证继续有效；已有真实群本人／同伴归属测试保留，不放宽断言。
 - **真实验证**：代码索引生成 run `41753841122` completed/success；包含回归测试的 Android/JVM/APK run `41753840954` 最后查询 pending（无完成的单测/产物，不可算通过）。尚未真机核对旧群导入、重启/编辑、私聊、电话与后台的连续性，也未做 P-08e 真模型盲评。**P-08 保持 [ ]**。
 - **下轮**：先核对 run `41753840954` 首个真实编译/JVM/打包结果；如失败按日志修。若成功，在实际安装版核对新旧消息编辑、群聊改名/真实联系时钟、不同角色之间的历史可见性；缺失原件的旧群聊见证仍只能作为未经核实的历史材料，不擅自恢复或虚构作者、不要把“当前群成员”倒推为历史在场者。继续监测群聊大量消息的分页与内存成本。
+
+## 2026-11-04 · P-08 私聊最近联系也须由原消息证明（main `a197d5f`，待本轮 CI）
+
+- **先核对 CI**：此前 `16a4d6b` 的 [APK/JVM 41740733303](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733303) 与[索引 41740733580](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733580) 已 completed/success；最近包含群聊见证修订完整性回归的 `a444e80` [APK/JVM 41753840954](https://github.com/jiacimu-droid/lulu1/actions/runs/41753840954) 和[索引 41753841122](https://github.com/jiacimu-droid/lulu1/actions/runs/41753841122) 也已 completed/success。真机与模型活人感仍未证明。
+- **根因**：`TimelineStatementOwnership.original` 仅校验群聊见证，而非群聊 `message` 的 `isOwnCharacterStatement` 和 `involvesUser` 仍可只凭时间线类型/来源就承认为最近双方对话。正式聊天 Store 的 `markFailed` 会把原消息变为 Failed，却不删除原时间线行；编辑前或跨会话复制的旧行同样可能留下。因此私聊/电话与群聊对“已真实发送”的证据要求不一致，人物最后一句和关系联系时间仍可能被失败行污染。
+- **实改**：`a197d5f75114a3929bb2f22f1e1aa483f0db5aaf` 让私聊 `message` 与群聊共用同一原聊天消息核验：会话归属、Sent 状态、毫秒时间、当前正文与真实发言者必须一致；角色独处、一起看和已确认用户在场的见面仍保留原类别，旧无来源私聊保留兼容。没有新 Store、模型调用、自动催促或统一人格话术。
+- **回归与下一步**：`TimelineStatementOwnershipTest.privateWitnessNeedsTheSameSentOriginalAndCurrentRevision` 从实际私聊 Store 发送两条消息，再检验正文/时间/会话伪造和 `markFailed` 后均不能作为联系/本人发言证明；原“独处不冒充联系”的合成旧记录 fixture 改为 `legacy` 来源，使测试归属与新契约一致。源码提交后 [Android/JVM/APK 41755663260](https://github.com/jiacimu-droid/lulu1/actions/runs/41755663260) 与[原索引 41755663217](https://github.com/jiacimu-droid/lulu1/actions/runs/41755663217) 查询时 queued；先看最终结果，失败修首条真实断言。真机仍需私聊失败/编辑/电话、群聊和后台联系节律核对，P-08 保持 [ ]。
