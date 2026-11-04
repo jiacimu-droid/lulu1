@@ -53,7 +53,7 @@
 - [x] **P-08a.2b 源码与回归已提交（CI 待验）**：搜索回执的实际反馈必须属于同一 root requestId，不能只凭同一搜索结果/版本把其他请求的消息误归因；[源码 87ce2bb](https://github.com/jiacimu-droid/lulu1/commit/87ce2bb4d9426b7e7b1d6e26a6b2e4550501686f)、[回归 f9927f5](https://github.com/jiacimu-droid/lulu1/commit/f9927f545710f84edbe2cac5d714ede65936ebdb)。仅勾代码提交，JVM/APK、真机、真实模型未验；下轮先核 CI，P-08a.1 其余入口仍未完成。
 
 ### P-08b 本人人格和心理
-- [ ] **P-08b.1c 关系标题不能覆盖本人约定（源码/回归待CI）**：公共PeerRelationshipContext按标题含「闺蜜」额外注入固定非恋人/非仆人等关系脚本，与完整自定义复合关系及具体约定冲突。移除该第二解释器及网关重复入口，继续仅由CharacterRuntime→CharacterSocialRelationship读取同一权威Store。星禾原有明确闺蜜边界留在人设/关系原文，不修改任何角色资料；补完整长约定、编辑/清空、角色隔离与Full/精简表达/电话/PersonaAndScenario/Isolated真实网关请求回归。真实模型取舍仍待对照。
+- [ ] **P-08b.1c 关系标题不能覆盖本人约定（1814b36已提交，待JVM/APK）**：公共PeerRelationshipContext按标题含「闺蜜」额外注入固定非恋人/非仆人等关系脚本，与完整自定义复合关系及具体约定冲突。移除该第二解释器及网关重复入口，继续仅由CharacterRuntime→CharacterSocialRelationship读取同一权威Store。星禾原有明确闺蜜边界留在人设/关系原文，不修改任何角色资料；补完整长约定、编辑/清空、角色隔离与Full/精简表达/电话/PersonaAndScenario/Isolated真实网关请求回归。原索引已自动更新为1814b36（16b8ea5），自身索引41879637363与APK41879637273仍queued，不能称本轮CI通过；真实模型取舍仍待对照。
 - [ ] **P-08b.2a 旧探索结果读写同源**：已证实旧记录读取仍可把排程/元数据修改当真实材料；本轮统一 lastRealStep 与 recordOutcome 的 supportsExploration，保留原始记录，仅投影回退到仍有效的材料。新增九类旧元数据、重启、两入口注入、来源及角色隔离回归；源码/测试0df8e07，原索引41859812905 success（98912e3），JVM/APK41859812891与原索引41859812905均success，真机/真实模型未验。不会把被排除的历史动作自动变成新问题或新任务。
 - [ ] **P-08b.1** 核 CharacterLifeStore 新江渡/星禾预设、用户后续编辑及私聊/电话/群聊/后台实际注入；确保隔离场景不泄露真实关系，不能通用化江渡性格。
 - [ ] **P-08b.1b 江渡当前人格的价值→心理→取舍同轮一致性（源码/回归已提交，CI/真机/模型待验）**：6fba2546、7f13aea7、7b979df8、fc56278f。只按已批准的稳定价值加强“美与责任”及已约监督取舍，保留当前 Dom/sub 和新版后手写字段；各角色在自身人设注入中同轮自核对，不另买模型请求、不硬编码训话或监督工具。小剧场 Isolated 的稳定人设快照与正常 Full 私聊的心理/承诺/工具上下文已查清区别；仍需对照已授权的真机新旧心声、模型结构化 action、真实任务、发送/观察/复查回执；不能据单张心声图断言真实设备状态或行动已完成。
