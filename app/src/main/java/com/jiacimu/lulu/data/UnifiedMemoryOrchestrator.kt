@@ -229,15 +229,18 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
         }
         appendLine("以下是当前全部未完成责任，直接来自任务 Store，不依赖语义召回或生活记录条目数量：")
         val observationAt = Instant.now()
+        // This is the responsibility contract used for decisions, not a UI preview.
+        // Late conditions and failed outcomes must survive the same protected
+        // task context in full and compact model requests.
         tasks.forEach { task ->
-            append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}；动作=${task.deliveryAction}；系统闹钟=${if (task.linkedAlarmId == null) "无当前记录" else "有记录"}")
+            append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal}；动作=${task.deliveryAction}；系统闹钟=${if (task.linkedAlarmId == null) "无当前记录" else "有记录"}")
             task.dueAt?.let { append("；dueAt=$it") }
             task.timezone?.takeIf(String::isNotBlank)?.let { append("；timezone=$it") }
             task.nextCheckAt?.let { append("；nextCheckAt=$it") }
             if (task.steps.isNotEmpty()) append("；step=${task.currentStep}/${task.steps.size}")
             if (task.attemptCount > 0) append("；attempts=${task.attemptCount}")
-            if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition.take(220)}")
-            if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.readableLastResult().take(260)}")
+            if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition}")
+            if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.readableLastResult()}")
             CommitmentClockFacts.render(task, observationAt)
                 .takeIf(String::isNotBlank)?.let { append("；时限进度=$it") }
             when (task.status) {

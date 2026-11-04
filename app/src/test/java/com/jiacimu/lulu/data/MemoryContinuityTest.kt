@@ -114,4 +114,43 @@ class MemoryContinuityTest {
         assertEquals(listOf("event"), restored.sourceEventIds)
         assertEquals(now, restored.lastFollowUpAt)
     }
+    @Test fun activeResponsibilityKeepsLateConditionsAndFailedOutcomeInBothPromptViews() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CommitmentTaskStore.initialize(context)
+        val role = "complete-duty-" + java.util.UUID.randomUUID()
+        val goal = "原先讨论的目标及背景。".repeat(40) + "但尚未得到许可，不能替对方提交。"
+        val condition = "需结合已取得的反馈继续判断。".repeat(30) +
+            "最后一步仍未确认，不能把已经提醒视为目标完成。"
+        val outcome = "已执行部分步骤并收到中间反馈。".repeat(30) +
+            "最终提交失败，目标尚未达成。"
+        val task = CommitmentTask(characterId = role, goal = goal,
+            completionCondition = condition, lastActionResult = outcome,
+            status = CommitmentTaskStatus.WaitingForFeedback)
+        val foreign = CommitmentTask(characterId = role + "-other",
+            goal = "另一人物的私有目标不得进入这轮",
+            status = CommitmentTaskStatus.WaitingForFeedback)
+        CommitmentTaskStore.save(task)
+        CommitmentTaskStore.save(foreign)
+        try {
+            val assembled = UnifiedMemoryOrchestrator.assemble(role,
+                UnifiedMemoryRequest(currentInput = "接着聊刚才的事"))
+            // The full gateway uses activeTaskContext, and the compact gateway
+            // also carries this protected responsibility block.
+            listOf(assembled.activeTaskContext, assembled.recentTimeline,
+                assembled.compactPromptSection(900)).forEach { prompt ->
+                assertTrue(prompt.contains("taskId=" + task.id))
+                assertTrue(prompt.contains(goal))
+                assertTrue(prompt.contains(condition))
+                assertTrue(prompt.contains(outcome))
+                assertFalse(prompt.contains(foreign.goal))
+            }
+        } finally {
+            CommitmentTaskStore.remove(task.id)
+            CommitmentTaskStore.remove(foreign.id)
+        }
+    }
+
+
 }
