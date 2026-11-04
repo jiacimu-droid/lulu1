@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T13:32:27.182485+00:00",
-  "commit": "06f5687a3973e65cb1d77e59d3d232089a23a816",
+  "generatedAt": "2026-11-04T13:32:59.251867+00:00",
+  "commit": "b1113e3e4be4db214529114cf4e96ba054f8e41c",
   "branch": "main",
-  "sourceFingerprint": "903f9a49e7119a8a91b4601aa4d99b6bef040cad7a55a62d098c90eda3d55a98",
+  "sourceFingerprint": "198a208e93e691306ca82b50b7f5316579b6cccaace75bfdd36bf98a3f176b2c",
   "summary": {
     "files": 1133,
     "lines": 238375,
@@ -33143,7 +33143,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
       "lines": 236,
-      "sha256": "24382932ce5f2550cb36f5c676734745185501ef132e7851a478a49df55bf2fe",
+      "sha256": "1bdbbb119704b81e1414a33a44f14f1fd2ed5258143066f0ebd1e8d9652565c0",
       "symbols": [
         {
           "name": "Idea",
