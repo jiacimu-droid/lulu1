@@ -2954,7 +2954,7 @@ object ProactivePerceptionRuntime {
                 }.orEmpty()
             } else ""
             "工具=${entry.tool}；操作=${entry.operation}；实际状态=$outcome；证据ID=${entry.evidenceId}\n" +
-                entry.details.take(2_000) +
+                entry.details.take(if (entry.tool == "read_self_todo") 4_000 else 2_000) +
                 (if (readingEvidence.isNotBlank()) "\n$readingEvidence" else "")
         }
         val isTodoRead = receipts.any { it.tool == "read_self_todo" }
