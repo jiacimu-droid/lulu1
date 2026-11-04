@@ -156,15 +156,34 @@ jobs:
           title="Lulu v${RELEASE_NUMBER}"
           notes="${title}，仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。修复 Android 16 VerifyError：此版未启用 R8 优化、使用原签名支持保留数据覆盖安装；实际运行仍需真机验证。"
 
-          if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" apk-artifacts/*.apk --clobber
-            gh release edit "$tag" --title "$title" --notes "$notes"
-          else
-            gh release create "$tag" apk-artifacts/*.apk \
-              --target "$GITHUB_SHA" \
-              --title "$title" \
-              --notes "$notes"
-          fi
+          # GitHub Releases can return a temporary HTTP 5xx after a valid APK
+          # has already been built. Retry only publication, never the Gradle
+          # test/build; re-check the tag each time in case creation succeeded
+          # on the server before the request failed.
+          publish_release() {
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release upload "$tag" apk-artifacts/*.apk --clobber || return
+              gh release edit "$tag" --title "$title" --notes "$notes" || return
+            else
+              gh release create "$tag" apk-artifacts/*.apk \
+                --target "$GITHUB_SHA" \
+                --title "$title" \
+                --notes "$notes" || return
+            fi
+          }
+
+          for attempt in 1 2 3; do
+            if publish_release; then
+              echo "Lulu release published on attempt ${attempt}/3"
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::GitHub Release publication failed after three attempts"
+              exit 1
+            fi
+            echo "::warning::GitHub Release publication attempt ${attempt}/3 failed; retrying"
+            sleep "$((attempt * 5))"
+          done
 
       # A passing main build supersedes build-only tickets from older commits.
       # Do not touch feature/bug issues authored by humans.
