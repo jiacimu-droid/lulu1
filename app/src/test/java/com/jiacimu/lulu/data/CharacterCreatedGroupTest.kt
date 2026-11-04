@@ -151,12 +151,17 @@ class CharacterCreatedGroupTest {
         DigitalLifeProfileStore.initialize(context)
         SharedExperienceTimeline.initialize(context)
         ResidentSocialMailbox.initialize(context)
+        MomentFriendAccess.initialize(context)
         val a = MigratedDomainStores.characters.create("主动问候者-" + UUID.randomUUID())
         val b = MigratedDomainStores.characters.create("真实熟人-" + UUID.randomUUID())
         listOf(a, b).forEach { actor ->
             DigitalLifeProfileStore.registerNewLife(
                 actor.characterId, actor.displayName, "数字生命", Instant.now().minusSeconds(60))
         }
+        // Group membership alone does not silently mint a verified personal
+        // friendship. Test first-contact mail through an actual confirmed
+        // friend link, leaving the production canContact permission intact.
+        assertTrue(MomentFriendAccess.setFriends(a.characterId, b.characterId, true))
         MigratedDomainStores.chat.createGroupConversation(
             "已认识", listOf(a.characterId, b.characterId), ownerIncluded = false)
         val ownerAct = ResidentSocialMailbox.send(
