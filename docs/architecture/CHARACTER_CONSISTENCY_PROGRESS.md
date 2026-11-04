@@ -1116,3 +1116,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式修复**：[80ab933](https://github.com/jiacimu-droid/lulu1/commit/80ab933e868491e83f686fe4bee36808c262f768) 对可解析的当前版本时间矛盾显示「因果未证实 · 来源时间不符」，保留原文以供诊断；正常后续、历史版本及缺时间的旧档案继续原有路径。没有新模型调用、关键词语义判断或角色人格变更。
 - **回归**：[acb8582](https://github.com/jiacimu-droid/lulu1/commit/acb8582522eca3b4dc7a1a6c5f2ce2f6cb9371f7) 增加早于来源/晚于来源/无时间旧档案、只读不删、跨角色隔离。新增测试已提交但本轮尚无针对该提交的 JVM/APK 成功证据；真机与真实模型未验。
 - **下一轮**：先查 acb8582 之后的 APK/JVM、原代码索引是否完成；若红灯优先取失败日志并修首个实质问题。然后继续 P-08a.1 审计实际私聊、群聊、后台的 turnTraceId→送达→工具回执→后续；仅发现可证缺口才改。注意其他窗口可能并行推进，写入前刷新 main 与文件 SHA。
+
+## 2026-11-05：P-08d.2d 本轮新目标的独立动作与真实回执归属
+
+- **接手与CI**：main 9f876bd，先读AGENTS、原索引、唯一大纲、人物进度、统一契约与成长框架，查近期提交。ab1dac1的41916963280与41916963410均success；最新完整成功源码3ba3281的APK41927755186、原索引41927754781均success，job126916536623的Test and build phone APK、Publish Lulu release均success。旧41908471007超时没有在这两次成功构建中复现；没有据此猜测旧超时根因。其他窗口继续改trace，已刷新并保留其源码/文档，当前轮不再叠追踪补丁。
+- **完整实际链路/根因**：CharacterThoughtActionHandoff.actions解码innerLife.motives[].nextAction → CharacterInnerLifeStore.observe把start.ref保存为creationRef并生成真实UUID → OrderedCharacterActions/电话副动作 → ToolRouter执行与projectCausalLinks → recordActionResult及个人日程motiveId → 下轮本人的同一motives。旧解码只从父项id取motiveId，start尚无id，明明有ref却被丢；去重causalLinks也漏motiveRef，把不同新目标选的相同工具合为一个。两条执行入口只传motiveId，未在目标保存后解析ref。另查到ProactivePerceptionRuntime.performAction只把onlineUnread.messageIds交给执行器，无用户消息的自主决定虽有causalEvidenceId却未带下去，主/副回执都可缺原始来源。
+- **源码修复**：父项明确start且没有step显式归属时继承ref；把motiveRef加入同动作兼容性比较与merge。CharacterMotiveProgress.bindStepMotive复用原resolveMotiveId，按已有本人motives、明确ref与程序提供的本轮来源ID唯一绑定，不从文字或最近目标猜；复制动作，保留原JSON，日程args与回执使用同一目标ID。前台observe之后统一绑定，供电话、沉默工具与延后文本步骤共同使用；Ordered执行时以同角色Store再绑定尚未绑定的引用。后台performAction补充既有causalEvidenceId参数，只作缺失用户来源时的真实回执回退，也供独立步骤解析；不冒充用户发言/回复送达/任务完成。
+- **必要回归**：CharacterThoughtActionHandoffTest扩展不同因果所有者矩阵到motiveRef，新增两个父级新目标相同工具不得合并、ref继承、显式归属保留、原决定不变。CharacterMotiveContinuityTest新增纯绑定边界矩阵（不同来源/空角色状态/暂停/多目标歧义/显式ID）及nestedNewGoalActionsReachRealScheduleAndIndependentReceiptsOnce：真实原时间线观察、原observe生成目标ID、两项Ordered本地工具（个人日程/发圈）、原计划ID与逐步ToolRouter回执/来源归属、未冒充目标达成、原请求重放不重复写日程或目标结果。没有付费模型测试，模拟或组装回归不能证明自然度。
+- **范围和诚实缺口**：本项修明确ref的独立steps/nextAction，不生成缺省ref、不把任意念头自动变任务，不建立新目标Store或收费理解轮次。顶层action=tool与nested nextAction完全相同的旧提前return仍需专项复核主动作元数据合并，当前不能声称所有目标关联变体已验通。原始角色人格、权限、条件、请求幂等、预算和完成证据规则不变。已有完整上下文与协议可选择不同人物行为，模型是否这样做仍需真实对照。
+- **交接**：本地无Gradle/Kotlin/adb；提交后核原JVM/APK与generate_code_index.py结果。路线同步最新完整CI，已验通的P-08a.2a–j施工流水移回专项历史，完整trace的P-08a.1/3与他窗未验条目保留，避免继续重复开发已通过的诊断。下一轮先查本轮CI，再核P-08d.2d真实模型/手机回执，或复核明确尚缺的主动作镜像归属。

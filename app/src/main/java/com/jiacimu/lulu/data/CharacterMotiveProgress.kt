@@ -84,6 +84,28 @@ internal object CharacterMotiveProgress {
         return if (matches.size == 1) matches.single().optString("id") else ""
     }
 
+    /**
+     * Bind a same-turn creation reference only AFTER the role's motive was saved.
+     * Explicit IDs retain their existing authority; ambiguous/foreign/old-input
+     * references stay unbound rather than being guessed from aim text.
+     */
+    fun bindStepMotive(motives: JSONArray?, step: JSONObject, evidenceIds: Collection<String>): JSONObject {
+        val bound = JSONObject(step.toString())
+        if (bound.optString("motiveId").isBlank() && bound.optString("motiveRef").isNotBlank()) {
+            val matches = evidenceIds.filter(String::isNotBlank).distinct().map {
+                resolveMotiveId(motives, "", bound.optString("motiveRef"), it)
+            }.filter(String::isNotBlank).distinct()
+            matches.singleOrNull()?.let { bound.put("motiveId", it) }
+        }
+        // A future plan and its execution receipt must name the same owned goal.
+        val id = bound.optString("motiveId")
+        if (bound.optString("tool") == "plan_personal_activity" && id.isNotBlank()) {
+            val args = bound.optJSONObject("args") ?: JSONObject().also { bound.put("args", it) }
+            if (args.optString("motiveId").isBlank()) args.put("motiveId", id)
+        }
+        return bound
+    }
+
     /** Revoked evidence cannot continue to supply a revised plan. */
     fun invalidatePlanIfSourceDeleted(motive: JSONObject, eventId: String): Boolean {
         if (motive.optString("planEvidenceId") != eventId) return false

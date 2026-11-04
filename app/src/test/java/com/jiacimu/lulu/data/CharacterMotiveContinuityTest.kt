@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -198,6 +199,79 @@ class CharacterMotiveContinuityTest {
         assertFalse(goal().has("successCondition"))
         assertFalse(goal().has("stopCondition"))
         assertEquals(id, goal().getString("id"))
+    }
+
+
+    @Test fun nestedNewGoalActionsReachRealScheduleAndIndependentReceiptsOnce() = runBlocking {
+        val person = MigratedDomainStores.characters.create("目标行动交接", "独立、有条理")
+        val actor = person.characterId
+        DigitalLifeProfileStore.registerNewLife(actor, person.displayName, "数字生命", Instant.now())
+        val observedAt = Instant.now()
+        val sourceId = "new-goal-source-$actor"
+        SharedExperienceTimeline.record(sourceId, actor, "数字世界事件", "现场",
+            "本人确实看到一份值得继续研究的材料", observedAt, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val ref = "investigation-this-turn"
+        val post = JSONObject().put("tool", "publish_moment")
+            .put("args", JSONObject().put("text", "想把刚看到的材料继续弄清楚"))
+        val later = JSONObject().put("tool", "plan_personal_activity").put("args", JSONObject()
+            .put("title", "稍后继续比较材料").put("intent", "继续刚才的独立问题")
+            .put("dueAt", observedAt.plusSeconds(3600).atOffset(java.time.ZoneOffset.UTC).toString())
+            .put("activityAction", "publish_moment")
+            .put("activityArgs", JSONObject().put("text", "继续整理自己的观察")))
+        val decision = JSONObject().put("innerLife", JSONObject().put("motives", JSONArray()
+            .put(JSONObject().put("op", "start").put("ref", ref).put("aim", "把这份材料弄清楚")
+                .put("why", "本人独立兴趣").put("nextAction", post))))
+            .put("steps", JSONArray().put(JSONObject(later.toString()).put("motiveRef", ref)))
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        CharacterInnerLifeStore.observe(actor, sourceId, "真实观察",
+            decision.getJSONObject("innerLife"), now = observedAt)
+        val motiveId = CharacterInnerLifeStore.snapshot(actor).getJSONArray("motives")
+            .getJSONObject(0).getString("id")
+        val unbound = steps.toString()
+        val requestId = "new-goal-actions-$actor"
+        suspend fun execute() = OrderedCharacterActions.execute(context, actor, steps,
+            requestId = requestId, causeEvidenceId = sourceId, autonomousLifeTurn = true)
+        val report = execute()
+        assertEquals(report.notes.toString(), 2, report.completedCount)
+        val plans = RoleDayScheduleStore.plans(context, actor)
+        assertEquals(1, plans.size)
+        assertEquals(motiveId, plans.single().motiveId)
+        val receipts = SharedExperienceTimeline.all(actor).filter { it.source == "tool-router" }
+            .map { JSONObject(it.content) }.filter { it.optString("requestId").startsWith(requestId) }
+        assertEquals(2, receipts.size)
+        assertTrue(receipts.all { it.optString("motiveId") == motiveId &&
+            it.optString("causeEvidenceId") == sourceId })
+        val goal = CharacterInnerLifeStore.snapshot(actor).getJSONArray("motives").getJSONObject(0)
+        assertNotEquals("achieved", goal.getString("status"))
+        assertEquals(2, goal.getJSONArray("outcomes").length())
+        val beforeReplay = CharacterInnerLifeStore.snapshot(actor).toString()
+        assertEquals(2, execute().completedCount)
+        assertEquals(1, RoleDayScheduleStore.plans(context, actor).size)
+        assertEquals(beforeReplay, CharacterInnerLifeStore.snapshot(actor).toString())
+        assertEquals(unbound, steps.toString()) // Runtime binding never rewrites the authored decision.
+    }
+
+    @Test fun stepCreationRefsRequireUnambiguousActiveOwnershipAndTheActualInput() {
+        fun motive(id: String, source: String) = JSONObject().put("id", id).put("aim", "同名问题")
+            .put("status", "active").put("creationRef", "shared-ref").put("evidenceId", source)
+        val motives = JSONArray().put(motive("first", "first-input")).put(motive("second", "second-input"))
+        val step = JSONObject().put("tool", "plan_personal_activity").put("motiveRef", "shared-ref")
+            .put("args", JSONObject().put("title", "原计划"))
+        val before = step.toString()
+        val bound = CharacterMotiveProgress.bindStepMotive(motives, step, listOf("first-input"))
+        assertEquals("first", bound.getString("motiveId"))
+        assertEquals("first", bound.getJSONObject("args").getString("motiveId"))
+        for ((state, sources) in listOf(
+            motives to listOf("unrelated-input"),
+            motives to listOf("first-input", "second-input"),
+            JSONArray() to listOf("first-input"),
+            JSONArray().put(motive("paused", "first-input").put("status", "paused")) to listOf("first-input"),
+        )) assertFalse(CharacterMotiveProgress.bindStepMotive(state, step, sources).has("motiveId"))
+        assertEquals(before, step.toString())
+        val explicit = JSONObject(step.toString()).put("motiveId", "explicit-owned-id")
+        assertEquals("explicit-owned-id", CharacterMotiveProgress.bindStepMotive(motives,
+            explicit, listOf("first-input")).getString("motiveId"))
     }
 
     @Test fun sameDecisionReferenceLinksOnlyItsOwnNewGoalAndRevisedCriteriaRetractWithSource() {

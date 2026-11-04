@@ -60,8 +60,12 @@ internal object CharacterThoughtActionHandoff {
             }
             if (concern && step.optString("concernId").isBlank())
                 owner.optString("threadId").takeIf(String::isNotBlank)?.let { step.put("concernId", it) }
-            if (motive && step.optString("motiveId").isBlank())
-                owner.optString("id").takeIf(String::isNotBlank)?.let { step.put("motiveId", it) }
+            if (motive && step.optString("motiveId").isBlank() && step.optString("motiveRef").isBlank()) {
+                val id = owner.optString("id")
+                if (id.isNotBlank()) step.put("motiveId", id)
+                else if (owner.optString("op") == "start")
+                    owner.optString("ref").takeIf(String::isNotBlank)?.let { step.put("motiveRef", it) }
+            }
             if (step.optString("tool") == "plan_personal_activity") {
                 val args = step.optJSONObject("args") ?: JSONObject().also { step.put("args", it) }
                 step.optString("motiveId").takeIf(String::isNotBlank)?.let {
@@ -97,7 +101,7 @@ internal object CharacterThoughtActionHandoff {
         return result.takeIf { it.length() > 0 }
     }
 
-    private val causalLinks = listOf("motiveId", "concernId", "experienceId", "curiosity", "learningApplication")
+    private val causalLinks = listOf("motiveId", "motiveRef", "concernId", "experienceId", "curiosity", "learningApplication")
 
     /** Same executable request AND compatible explicitly authored ownership.
      * Conflicting links must not credit one question/goal with another's work. */

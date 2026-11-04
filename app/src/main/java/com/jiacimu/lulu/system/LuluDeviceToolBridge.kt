@@ -832,7 +832,7 @@ object LuluDeviceToolBridge {
             }
             receipt
         } else ""
-        val plannedSideActions = plan.sideActions
+        val authoredSideActions = plan.sideActions
         val commitmentChanges = plan.commitmentChanges
         val commitmentReceipt = if (com.jiacimu.lulu.CallCommitmentDecisionPolicy.canApply(
                 rewriting, callSilence, commitmentEvidenceIds) && commitmentChanges != null) {
@@ -989,7 +989,7 @@ object LuluDeviceToolBridge {
             // A tool-first choice can create an unspoken thought without
             // requiring an invented emotion or a spoken chat bubble.
             hasChosenToolAction = plan.action == "tool" ||
-                (plannedSideActions?.length() ?: 0) > 0,
+                (authoredSideActions?.length() ?: 0) > 0,
         )
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
@@ -1076,9 +1076,27 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, plan.afterglow, if (callSilence) sceneContext else userText),
                 combined?.socialIds.orEmpty(), now,
             )
-            plan = plan.copy(motiveId = com.jiacimu.lulu.data.CharacterMotiveProgress.resolveMotiveId(
-                com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
-                plan.motiveId, plan.motiveRef, causalEvidenceId))
+            val savedMotives = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
+                .optJSONArray("motives")
+            // Only after this same turn's motives have durable IDs can nested
+            // actions bind their creation refs. Keep the same bound steps for
+            // phone execution, silent tools and deferred text-chat delivery.
+            val boundSideActions = authoredSideActions?.let { authored ->
+                org.json.JSONArray().apply {
+                    for (i in 0 until authored.length()) {
+                        val step = authored.optJSONObject(i)
+                        put(if (step == null) authored.opt(i) else
+                            com.jiacimu.lulu.data.CharacterMotiveProgress.bindStepMotive(
+                                savedMotives, step, userEvidenceIds + listOf(causalEvidenceId, groundingEvidenceId),
+                            ))
+                    }
+                }
+            }
+            plan = plan.copy(
+                motiveId = com.jiacimu.lulu.data.CharacterMotiveProgress.resolveMotiveId(
+                    savedMotives, plan.motiveId, plan.motiveRef, causalEvidenceId),
+                sideActions = boundSideActions,
+            )
             // One role, one durable causal-commit order across phone, foreground
             // and autonomous/online turns. Scene-specific audio/UI stays here.
             com.jiacimu.lulu.data.CharacterTurnStateCommit.commit(
@@ -1103,6 +1121,7 @@ object LuluDeviceToolBridge {
         // These pre-existing phone request IDs differ from the ordered executor's
         // ":step:N" convention. Store the exact IDs rather than changing them
         // and accidentally repeating a previously delivered effect on upgrade.
+        val plannedSideActions = plan.sideActions
         val phoneSteps = plannedSideActions
         val phoneSideInputKey = userEvidenceIds.lastOrNull()
             ?: silenceObservationId.takeIf(String::isNotBlank)

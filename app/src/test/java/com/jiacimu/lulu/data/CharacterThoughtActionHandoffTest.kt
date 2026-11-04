@@ -132,7 +132,7 @@ class CharacterThoughtActionHandoffTest {
     }
 
     @Test fun differentCausalOwnersAndLearningApplicationsAreNeverSilentlyCollapsed() {
-        for (field in listOf("motiveId", "concernId", "experienceId", "curiosity", "learningApplication")) {
+        for (field in listOf("motiveId", "motiveRef", "concernId", "experienceId", "curiosity", "learningApplication")) {
             fun linked(value: String): JSONObject = action().put(field,
                 if (field in listOf("curiosity", "learningApplication"))
                     JSONObject().put("id", value) else value)
@@ -165,6 +165,29 @@ class CharacterThoughtActionHandoffTest {
         assertEquals("actual-question", steps.getJSONObject(0)
             .getJSONObject("curiosity").getString("threadId"))
         assertEquals(before, decision.toString())
+    }
+
+
+    @Test fun nestedNewMotivesCarryDistinctCreationRefsWithoutChangingExplicitOwnership() {
+        fun motive(ref: String) = JSONObject().put("op", "start").put("ref", ref)
+            .put("aim", "独立问题").put("why", "本人想弄清").put("nextAction", action())
+        val first = motive("first-wish")
+        val second = motive("second-wish")
+        val decision = JSONObject().put("innerLife", JSONObject()
+            .put("motives", JSONArray().put(first).put(second)))
+        val before = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(2, steps.length())
+        assertEquals("first-wish", steps.getJSONObject(0).getString("motiveRef"))
+        assertEquals("second-wish", steps.getJSONObject(1).getString("motiveRef"))
+        assertFalse(steps.getJSONObject(0).has("motiveId"))
+        assertEquals(before, decision.toString())
+        first.getJSONObject("nextAction").put("motiveRef", "explicit-ref")
+        assertEquals("explicit-ref", CharacterThoughtActionHandoff.actions(decision)!!
+            .getJSONObject(0).getString("motiveRef"))
+        first.getJSONObject("nextAction").put("motiveId", "explicit-id")
+        assertEquals("explicit-id", CharacterThoughtActionHandoff.actions(decision)!!
+            .getJSONObject(0).getString("motiveId"))
     }
 
     @Test fun nestedQuestionActionKeepsItsOwnerWithoutOverridingExplicitQuestion() {

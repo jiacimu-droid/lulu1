@@ -1642,7 +1642,11 @@ internal object OrderedCharacterActions {
             }
             // Defensive boundary for saved plans and non-model callers too:
             // every nested step shares the primary action vocabulary adapter.
-            val normalized = AutonomousActionWireProtocol.normalizeStep(step)
+            val normalized = CharacterMotiveProgress.bindStepMotive(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                AutonomousActionWireProtocol.normalizeStep(step),
+                userEvidenceIds + listOf(causeEvidenceId),
+            )
             val name = normalized.optString("tool").trim()
             if (index in mirroredReplySteps) {
                 // Already persisted by the primary sender. Do not re-run an
