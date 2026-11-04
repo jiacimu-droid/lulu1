@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T03:50:23.998802+00:00",
-  "commit": "dabe997276430c3903412515fe30f6820a97999d",
+  "generatedAt": "2026-11-04T04:01:30.502001+00:00",
+  "commit": "c4dfdcd00a2f7c35b27ebe62e02d37c9c8ff7e8a",
   "branch": "main",
-  "sourceFingerprint": "09d7147a08ec9ac35fd06e4bf5d0b788dac185a2254e5a024d8abdfc5c542849",
+  "sourceFingerprint": "fb0060b8bb166dcc9c00f1f42920847efeb2a4faab08b15677a4473835068176",
   "summary": {
     "files": 1128,
-    "lines": 235559,
+    "lines": 235576,
     "symbols": 3278
   },
   "symbolIndex": {
@@ -35515,7 +35515,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
       "lines": 610,
-      "sha256": "1885236b2e934c8c2498f5f45eb65e7d0e450efd287e1475a7324a64e8776590",
+      "sha256": "64eed0dbb8025283c27893463257eca94dbab223d8f5ac20e91d79571a63a40b",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -38112,8 +38112,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt",
-      "lines": 183,
-      "sha256": "0c4430fcac7b97dc334c7b7eb8d5f87bb5d87a40b45f317f50125b65f9857309",
+      "lines": 200,
+      "sha256": "51a4a5990cc4bfe339facd377900a82c6f4991c86a4741b12fcd87ebb0701e06",
       "symbols": [
         {
           "name": "ScheduledSocialEncounterVenueTest",
