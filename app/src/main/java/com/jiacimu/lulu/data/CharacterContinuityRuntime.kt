@@ -44,11 +44,19 @@ internal object CharacterContinuityRuntime {
         var lastUser: SharedTimelineEvent? = null
         var lastOwn: SharedTimelineEvent? = null
         var previous: SharedTimelineEvent? = null
+        // Only the latest matching, genuinely authored user message may be the
+        // current-turn echo. Several identical short messages are distinct
+        // events and must not all vanish from the previous-dialogue anchor.
+        // Carry this marker across pagination so older pages are not re-filtered.
+        var skippedCurrentEcho = false
         fun absorb(page: List<SharedTimelineEvent>) {
             for (event in page) {
-                if (isCurrentInputEcho(event, currentUserText, now)) continue
                 if (event.evidenceKind == EventEvidenceKind.UserStatement &&
                     TimelineStatementOwnership.involvesUser(event)) {
+                    if (!skippedCurrentEcho && isCurrentInputEcho(event, currentUserText, now)) {
+                        skippedCurrentEcho = true
+                        continue
+                    }
                     // Group witnesses are only user words when the canonical
                     // sent message still establishes a real user author.
                     if (lastUser == null) lastUser = event
