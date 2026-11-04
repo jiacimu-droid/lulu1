@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`21f19310349070ea48aebe64560c4dc94e49c9df`
+- 基准提交：`3df19d039183cbe56c5f84012027b922cea726c2`
 - 分支：`main`
 - 已索引文件：1130
-- 已索引代码/文本行：236481
+- 已索引代码/文本行：236515
 - 已发现符号：3286
 
 | 文件 | 行数 | 符号数 |
@@ -246,7 +246,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 525 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 315 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 314 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
@@ -876,7 +876,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 332 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousSharingWakeContractTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 146 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 222 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 756 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
