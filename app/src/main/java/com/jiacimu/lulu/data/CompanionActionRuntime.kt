@@ -1442,22 +1442,29 @@ internal object SearchResultContinuation {
  * whitespace and bubble boundaries; never suppress a distinct follow-up or
  * another turn's intentional speech.
  */
+internal fun canonicalPrivateReplyContent(text: String): String =
+    text.replace(com.jiacimu.lulu.SemanticBubbleSeparator, "")
+        .filterNot(Char::isWhitespace)
+
+/** Compare one actually sent utterance against another form of the same text. */
+internal fun samePrivateReplyContent(delivered: String, candidate: String): Boolean {
+    val first = canonicalPrivateReplyContent(delivered)
+    return first.isNotBlank() && first == canonicalPrivateReplyContent(candidate)
+}
+
 internal fun mirroredPrivateReplyStepIndices(
     steps: org.json.JSONArray?,
     alreadyDeliveredPrivateText: String,
 ): Set<Int> {
     if (steps == null || alreadyDeliveredPrivateText.isBlank()) return emptySet()
-    fun canonical(text: String): String =
-        text.replace(com.jiacimu.lulu.SemanticBubbleSeparator, "")
-            .filterNot(Char::isWhitespace)
-    val delivered = canonical(alreadyDeliveredPrivateText)
+    val delivered = canonicalPrivateReplyContent(alreadyDeliveredPrivateText)
     if (delivered.isBlank()) return emptySet()
 
     val sends = (0 until steps.length()).mapNotNull { index ->
         val step = steps.optJSONObject(index) ?: return@mapNotNull null
         val normalized = AutonomousActionWireProtocol.normalizeStep(step)
         if (normalized.optString("tool") != "send_private_message") return@mapNotNull null
-        val body = canonical(normalized.optJSONObject("args")?.optString("text").orEmpty())
+        val body = canonicalPrivateReplyContent(normalized.optJSONObject("args")?.optString("text").orEmpty())
         index to body.takeIf(String::isNotBlank).orEmpty()
     }.filter { it.second.isNotBlank() }
     if (sends.isEmpty()) return emptySet()
