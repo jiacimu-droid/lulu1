@@ -52,6 +52,8 @@
 
 - [x] **P-08a.2b 源码与回归已提交（CI 待验）**：搜索回执的实际反馈必须属于同一 root requestId，不能只凭同一搜索结果/版本把其他请求的消息误归因；[源码 87ce2bb](https://github.com/jiacimu-droid/lulu1/commit/87ce2bb4d9426b7e7b1d6e26a6b2e4550501686f)、[回归 f9927f5](https://github.com/jiacimu-droid/lulu1/commit/f9927f545710f84edbe2cac5d714ede65936ebdb)。仅勾代码提交，JVM/APK、真机、真实模型未验；下轮先核 CI，P-08a.1 其余入口仍未完成。
 
+- [x] **P-08a.2e 代码与回归已提交，CI 未验**：同 taskId 的工具回执有明确另一 causeEvidenceId 时不得被归到当前来源；仅无 cause 的旧回执可按 taskId 兼容。源码 231a557、测试 0980eef；JVM/APK/真机/真实模型未验，继续 P-08a.1 其他精确来源关联。
+
 ### P-08b 本人人格和心理
 - [ ] **P-08b.1c 关系标题不能覆盖本人约定（旧版CI六项失败；3ec761c/8c5bf66纠正，待最终JVM/APK）**：公共PeerRelationshipContext按标题含「闺蜜」额外注入固定非恋人/非仆人等关系脚本，与完整自定义复合关系及具体约定冲突。移除该第二解释器及网关重复入口，继续仅由CharacterRuntime→CharacterSocialRelationship读取同一权威Store。星禾原有明确闺蜜边界留在人设/关系原文，不修改任何角色资料；补完整长约定、编辑/清空、角色隔离与Full/精简表达/电话/PersonaAndScenario/Isolated真实网关请求回归。原索引已自动更新为1814b36（16b8ea5），旧 APK 41879637273 实际 failure（2441 项、6 失败；四项共享规则超长、一项旧关系模板断言、一项社交测试 ACL 前置不足），针对性修复见人物及社交专项进度；新 APK 41882293649 待验，不能称完成；真实模型取舍仍待对照。
 - [ ] **P-08b.2a 旧探索结果读写同源**：已证实旧记录读取仍可把排程/元数据修改当真实材料；本轮统一 lastRealStep 与 recordOutcome 的 supportsExploration，保留原始记录，仅投影回退到仍有效的材料。新增九类旧元数据、重启、两入口注入、来源及角色隔离回归；源码/测试0df8e07，原索引41859812905 success（98912e3），JVM/APK41859812891与原索引41859812905均success，真机/真实模型未验。不会把被排除的历史动作自动变成新问题或新任务。
