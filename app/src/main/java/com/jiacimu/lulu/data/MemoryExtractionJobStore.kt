@@ -16,6 +16,8 @@ data class MemoryExtractionJob(
     val lastError: String = "",
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
+    /** Future date set only for unpaid resident quota deferral, not for a failure. */
+    val deferredUntil: Instant? = null,
 )
 
 internal object MemoryExtractionJobStore {
@@ -56,10 +58,24 @@ internal object MemoryExtractionJobStore {
             createdAt = old?.createdAt ?: now,
             // A new event does not erase a failing extractor's backoff.
             updatedAt = old?.updatedAt ?: now,
+            deferredUntil = old?.deferredUntil,
         )
         jobs = jobs.filterNot { it.characterId == characterId } + job
         persist()
         return job
+    }
+
+    /** Keep the same dirty watermark and all later arrivals. An exhausted
+     * daily quota is not a failed model request and must not increment retries. */
+    @Synchronized
+    fun defer(expected: MemoryExtractionJob, until: Instant) {
+        jobs = jobs.map { job ->
+            if (job.id != expected.id) job else job.copy(
+                attempts = 0, lastError = "", updatedAt = Instant.now(),
+                deferredUntil = until,
+            )
+        }
+        persist()
     }
 
     @Synchronized
@@ -69,6 +85,7 @@ internal object MemoryExtractionJobStore {
                 attempts = job.attempts + 1,
                 lastError = error.message.orEmpty().take(500),
                 updatedAt = Instant.now(),
+                deferredUntil = null,
             )
         }
         persist()
@@ -118,7 +135,8 @@ internal object MemoryExtractionJobStore {
                     .put("attempts", job.attempts)
                     .put("lastError", job.lastError)
                     .put("createdAt", job.createdAt.toString())
-                    .put("updatedAt", job.updatedAt.toString()))
+                    .put("updatedAt", job.updatedAt.toString())
+                    .put("deferredUntil", job.deferredUntil?.toString() ?: JSONObject.NULL))
             }
         }
         prefs?.let { check(it.edit().putString(KEY_JOBS, array.toString()).commit()) { "记忆整理队列保存失败" } }
@@ -143,6 +161,10 @@ internal object MemoryExtractionJobStore {
                         lastError = item.optString("lastError"),
                         createdAt = item.optString("createdAt").toJobInstant(),
                         updatedAt = item.optString("updatedAt").toJobInstant(),
+                        deferredUntil = item.optString("deferredUntil")
+                            .takeIf { it.isNotBlank() && it != "null" }
+                            ?.let { runCatching { value -> Instant.parse(value) }
+                                .getOrNull() },
                     ))
                 }
             }
