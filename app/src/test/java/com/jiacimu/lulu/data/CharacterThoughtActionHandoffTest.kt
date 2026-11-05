@@ -16,6 +16,29 @@ class CharacterThoughtActionHandoffTest {
     private fun concern(item: JSONObject) = JSONObject().put("action", "silent")
         .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(item)))
 
+    @Test fun nonAdjacentSideActionIsNotCollapsedAcrossAnInterveningStep() {
+        val first = action().put("reason", "第一次核对")
+        val middle = JSONObject().put("tool", "read_book")
+            .put("args", JSONObject().put("bookId", "book-1"))
+        val again = action().put("reason", "阅读之后再次核对")
+        val decision = JSONObject().put("action", "silent")
+            .put("steps", JSONArray().put(first))
+            .put("sideActions", JSONArray().put(middle).put(again))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(3, steps.length())
+        assertEquals("web_search", steps.getJSONObject(0).getString("tool"))
+        assertEquals("read_book", steps.getJSONObject(1).getString("tool"))
+        assertEquals("web_search", steps.getJSONObject(2).getString("tool"))
+        assertEquals("第一次核对", steps.getJSONObject(0).getString("reason"))
+        assertEquals("阅读之后再次核对", steps.getJSONObject(2).getString("reason"))
+        assertEquals(original, decision.toString())
+
+        val adjacent = JSONObject().put("steps", JSONArray().put(action()))
+            .put("sideActions", JSONArray().put(action()))
+        assertEquals(1, CharacterThoughtActionHandoff.actions(adjacent)!!.length())
+    }
+
     @Test fun unknownPrimaryPreservesOnlyIndependentlyRegisteredSideSteps() {
         val chosen = JSONObject().put("action", "tool")
             .put("tool", "nonexistent_primary_tool")
