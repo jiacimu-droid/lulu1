@@ -358,9 +358,16 @@ internal object AutonomousActionWireProtocol {
             result.put("location", result.optString("locationCode"))
         }
         if (result.optString("action").equals("journal", true)) {
-            if (result.optString("journalTitle").isBlank())
+            // An absent journal title/body is NOT an authored empty parameter.
+            // Injecting blank flat fields made primary and nested executions
+            // appear different after normalizeStep copied them into args.
+            // Preserve only actual model-supplied values, so one receipt owns
+            // the mirrored action rather than paying for a duplicate.
+            if (result.optString("journalTitle").isBlank() &&
+                result.optString("title").isNotBlank())
                 result.put("journalTitle", result.optString("title"))
-            if (result.optString("journalContent").isBlank())
+            if (result.optString("journalContent").isBlank() &&
+                result.optString("content").isNotBlank())
                 result.put("journalContent", result.optString("content"))
         }
         return CharacterThoughtActionHandoff.withPrimaryActionOwnership(result)
