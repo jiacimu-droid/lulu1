@@ -28,10 +28,26 @@ internal object CharacterThoughtActionHandoff {
         // silently loses genuinely selected actions and their future schedules.
         val result = JSONArray()
         val primary = decision.optJSONArray("steps")
+        // The top-level primary tool is executed separately. Explicit steps
+        // may mirror it too, not just nextAction under a motive or concern.
+        // Suppress only a fully credited mirror; conflicting owners must keep
+        // their own execution/receipt rather than silently disappear.
+        fun coveredByPrimary(step: JSONObject): Boolean {
+            if (!AutonomousActionWireProtocol.isPrimaryToolChoice(decision)) return false
+            val chosen = AutonomousActionWireProtocol.normalizeStep(decision)
+            return sameAction(chosen, step) && causalLinks.all { key ->
+                !step.has(key) || (chosen.has(key) &&
+                    canonical(chosen.opt(key)) == canonical(step.opt(key)))
+            }
+        }
         for (index in 0 until (primary?.length() ?: 0)) {
             val raw = primary?.optJSONObject(index)
-            result.put(if (raw == null) primary?.opt(index) else
-                AutonomousActionWireProtocol.normalizeStep(raw))
+            if (raw == null) {
+                result.put(primary?.opt(index) ?: JSONObject.NULL)
+            } else {
+                val step = AutonomousActionWireProtocol.normalizeStep(raw)
+                if (!coveredByPrimary(step)) result.put(step)
+            }
         }
         val secondary = decision.optJSONArray("sideActions")
         for (index in 0 until (secondary?.length() ?: 0)) {
@@ -43,6 +59,7 @@ internal object CharacterThoughtActionHandoff {
                 continue
             }
             val step = AutonomousActionWireProtocol.normalizeStep(raw)
+            if (coveredByPrimary(step)) continue
             val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
                 .firstOrNull { sameAction(it, step) }
             if (duplicate == null) result.put(step)
@@ -143,6 +160,15 @@ internal object CharacterThoughtActionHandoff {
             nested.put(step)
         }
         collect(decision)
+        // Explicit steps/sideActions are another spelling of the same
+        // primary effect. Carry their authored owner onto its real receipt
+        // before the side-action decoder decides whether to suppress a mirror.
+        for (field in listOf("steps", "sideActions")) {
+            val declared = decision.optJSONArray(field)
+            for (index in 0 until (declared?.length() ?: 0)) {
+                declared?.optJSONObject(index)?.let { nested.put(AutonomousActionWireProtocol.normalizeStep(it)) }
+            }
+        }
         CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
             .filter { it.optString("status", "open") !in setOf("settled", "dismissed") }
             .forEach { collect(it, concern = true) }
