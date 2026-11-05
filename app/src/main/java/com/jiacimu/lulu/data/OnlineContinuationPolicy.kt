@@ -48,4 +48,17 @@ internal object OnlineContinuationPolicy {
         previousReason: String,
         minutesSincePrevious: Long,
     ): Boolean = choice == "continue" && contractIssue(choice, reason) == null
+    /**
+     * When an online lease cannot be renewed, a still-unassigned accepted duty
+     * needs a bounded recovery opportunity regardless of whether the role
+     * selected sleep, continue, or returned an invalid online decision.
+     * This checks execution ownership only; it never selects the next time,
+     * channel or action on behalf of the character.
+     */
+    fun needsCommitmentRecovery(
+        keptAwake: Boolean,
+        superseded: Boolean,
+        hasUncoveredCommitment: Boolean,
+    ): Boolean = !keptAwake && !superseded && hasUncoveredCommitment
+
 }
