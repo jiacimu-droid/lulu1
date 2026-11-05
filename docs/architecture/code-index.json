@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:49:58.498987+00:00",
-  "commit": "97edddcde76bbb16cbad49d3af9ca6f072cd6d47",
+  "generatedAt": "2026-11-05T16:50:53.378133+00:00",
+  "commit": "7c5390ede6b693b6a49f8c9763060439440d7463",
   "branch": "main",
-  "sourceFingerprint": "4c74711c3accaf73c1a908c8cb888b432327abe84e52847d1b2716116250b595",
+  "sourceFingerprint": "1fa83ab2a57c9792e75f0b8119c136be2caea7d66532b83d0397a13bcddc5807",
   "summary": {
     "files": 1137,
-    "lines": 242765,
+    "lines": 242819,
     "symbols": 3339
   },
   "symbolIndex": {
@@ -20191,8 +20191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 659,
-      "sha256": "527373da2ac3bb88e3f2f71fe48ec369be755bac18fba197a8b49a9719667b23",
+      "lines": 713,
+      "sha256": "d9efd8a5eb7784e9a630efaa9d2b66ac0c0d79afa1fd1e95af1033b41ea23062",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`97edddcde76bbb16cbad49d3af9ca6f072cd6d47`
+- 基准提交：`7c5390ede6b693b6a49f8c9763060439440d7463`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：242765
+- 已索引代码/文本行：242819
 - 已发现符号：3339
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 201 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 659 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 713 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 962 | 3 |
