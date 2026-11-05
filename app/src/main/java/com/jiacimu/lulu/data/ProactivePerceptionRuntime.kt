@@ -1948,11 +1948,20 @@ object ProactivePerceptionRuntime {
                 },
                 Instant.now(),
             )
-            if (decision.onlineChoice == "sleep" && !sleepHandoff.ok && !newerWindow) {
-                // The five-minute lease has already expired. A bounded
-                // durable repair prevents an unplanned sleep from stranding
-                // this real responsibility until an unrelated routine check.
-                ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(
+            // Expiry is not necessarily a character-chosen sleep. A rejected
+            // continue or invalid online decision could previously strand an
+            // unverified commitment with no further scheduled opportunity.
+            // Check the same authoritative tasks AFTER the sleep handoff, and
+            // ask the same role to repair only if no newer lease owns the turn.
+            // The worker later rechecks uncovered() before charging a model.
+            if (OnlineContinuationPolicy.needsCommitmentRecovery(
+                    keptAwake = keptAwake,
+                    superseded = newerWindow,
+                    hasUncoveredCommitment = !keptAwake && !newerWindow &&
+                        CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now())
+                            .isNotEmpty(),
+                )) {
+                ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(
                     appContext, characterId)
             }
             // If another event won the lease after the model generated its
