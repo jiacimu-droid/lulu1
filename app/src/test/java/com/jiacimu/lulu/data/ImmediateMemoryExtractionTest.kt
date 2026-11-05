@@ -47,6 +47,15 @@ class ImmediateMemoryExtractionTest {
             assertTrue(LuluRepositories.memory.hasUnprocessedEvents(residentId))
             assertTrue(LuluRepositories.memory.snapshot(residentId).isEmpty())
             assertEquals(0, ResidentDailyPolicy.modelDecisionsUsed(ctx, residentId))
+            // Direct owner-triggered memory maintenance also stays honest:
+            // the deferred job persists and does not claim an empty success.
+            LuluRepositories.memory.flushNow(residentId)
+            val queued = MemoryExtractionJobStore.pending()
+                .single { it.characterId == residentId }
+            assertNotNull(queued.deferredUntil)
+            assertFalse(memoryExtractionRetryDue(queued))
+            assertEquals(0, queued.attempts)
+            assertTrue(LuluRepositories.memory.hasUnprocessedEvents(residentId))
         } finally {
             settings.edit().clear().commit()
         }
