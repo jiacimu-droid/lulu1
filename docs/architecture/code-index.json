@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T02:00:18.511148+00:00",
-  "commit": "279070b9c2366c66656909216dd1454253878d6c",
+  "generatedAt": "2026-11-05T02:01:13.953075+00:00",
+  "commit": "1e6b3168ead95fbdcb57fcdb52d5b21d3b72f55a",
   "branch": "main",
-  "sourceFingerprint": "80d2bd5cc5b21d9f6916da182114090ec2a8b0bcebb1bec59845c85a0b417ff3",
+  "sourceFingerprint": "39a331f0defb5c5c9a8df74a2898aa73686108f442c2eedd06401552931b4163",
   "summary": {
     "files": 1137,
-    "lines": 241304,
-    "symbols": 3325
+    "lines": 241312,
+    "symbols": 3326
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11866,6 +11866,12 @@
         "line": 78
       }
     ],
+    "hasModelRequestAllowance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 90
+      }
+    ],
     "plan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
@@ -18569,7 +18575,7 @@
     {
       "path": "app/build.gradle.kts",
       "lines": 234,
-      "sha256": "c4ea7d3bae58a3e8c02c5fc89fca025d69cde510d6347df029385499a11e9165",
+      "sha256": "31d5a3a84592c9ee9ca0bf35b656f94b36d45fd7417278113d8ee0a0c1a482ad",
       "symbols": []
     },
     {
@@ -29949,8 +29955,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 103,
-      "sha256": "cf5444833c2342b3f6f1fbccee28ec0d091aa52112c85b0947a451c6c9664fea",
+      "lines": 111,
+      "sha256": "dfb0a044c65431532108882e8e5337e97b94d4b58c2644fb2b761dcca72927d7",
       "symbols": [
         {
           "name": "maxResidents",
@@ -29999,6 +30005,10 @@
         {
           "name": "modelDecisionsUsed",
           "line": 78
+        },
+        {
+          "name": "hasModelRequestAllowance",
+          "line": 90
         }
       ]
     },
