@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T10:23:48.936006+00:00",
-  "commit": "31630ae91af6185df5ad15e8bbae3c7b1b8ff9a0",
+  "generatedAt": "2026-11-05T10:25:57.624935+00:00",
+  "commit": "3bc541e0e11ea5c67eff64d4a27b4848e995de8e",
   "branch": "main",
-  "sourceFingerprint": "b498dee08e3c288c0afd23c3d761c566aeb5f26698c5f2b6837f0cba96022fa7",
+  "sourceFingerprint": "f7167d3fa736e55cdfb4e0967e0e5c198456ce14cf38312829eff332c7a91588",
   "summary": {
     "files": 1137,
-    "lines": 241869,
+    "lines": 241855,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -5803,7 +5803,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 66
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -6457,19 +6457,19 @@
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 60
+        "line": 46
       }
     ],
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 76
+        "line": 62
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 91
+        "line": 77
       }
     ],
     "relationships": [
@@ -24318,24 +24318,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 110,
-      "sha256": "f4879fc67d09c7913848087d55effb460b75e507eb45a27cc5f85befe97c8592",
+      "lines": 96,
+      "sha256": "0cf9087dc1861de27cd4db5b1329b381724354672435664eb2471c06f064eceb",
       "symbols": [
         {
           "name": "isExpressionOnly",
-          "line": 60
+          "line": 46
         },
         {
           "name": "promptSection",
-          "line": 66
+          "line": 52
         },
         {
           "name": "forGeneration",
-          "line": 76
+          "line": 62
         },
         {
           "name": "channelNote",
-          "line": 91
+          "line": 77
         }
       ]
     },
