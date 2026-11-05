@@ -349,6 +349,6 @@ internal object AutonomousActionWireProtocol {
             if (result.optString("journalContent").isBlank())
                 result.put("journalContent", result.optString("content"))
         }
-        return result
+        return CharacterThoughtActionHandoff.withPrimaryActionOwnership(result)
     }
 }
