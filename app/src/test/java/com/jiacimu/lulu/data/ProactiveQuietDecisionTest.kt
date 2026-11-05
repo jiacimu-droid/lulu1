@@ -10,6 +10,32 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun onlineExpiryPromptKeepsDecisionAndHandoffContract() {
+        // Runtime now supplies only live facts for an expiring lease; static
+        // instructions must retain the single model-owned decision and its
+        // executable task handoff. This is not a real-model quality test.
+        val renewal = onlineRenewalDecisionInstruction()
+        assertEquals(1, renewal.split("【五分钟自主续醒决定｜本轮必须回答】").size - 1)
+        for (required in listOf(
+            "onlineDecision", "continue|sleep", "choice 和 reason 均为必填",
+            "nextChecks 写 taskId", "带时区偏移", "真实回执",
+            "提醒已送达不代表她已入睡", "不能因有挂心就被迫续时",
+            "不能把时间到了当作所有挂心自动完成",
+        )) assertTrue("Missing renewal requirement: $required", renewal.contains(required))
+        assertTrue(renewal.contains("字段缺失时程序只会请你补正"))
+        assertTrue(renewal.contains("由你本人选择"))
+    }
+
+    @Test fun idleAutonomousDecisionStillCanActOrStaySilentAfterRuntimeRuleTrim() {
+        val prompt = proactiveDecisionInstruction("autonomy-no-new-messages")
+        for (required in listOf(
+            "plan_personal_activity", "send_character_message",
+            "web_search", "read_xiaohongshu", "learn_topic",
+            "action=tool", "silent", "真实", "innerLife.motives",
+        )) assertTrue("Missing autonomous capability: $required", prompt.contains(required))
+        assertTrue(prompt.contains("自己确实决定暂不行动"))
+    }
+
     @Test fun compiledAutonomousPromptKeepsUniqueActionContractsAfterRuleConsolidation() {
         val prompt = proactiveDecisionInstruction("prompt-assembly-test-role")
         for (field in listOf(
