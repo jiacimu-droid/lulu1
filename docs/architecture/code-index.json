@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T04:11:02.358943+00:00",
-  "commit": "e7e7f536d4f2d0356cc5f6039d9d1772b1c7d8d2",
+  "generatedAt": "2026-11-05T04:11:35.565081+00:00",
+  "commit": "861334e7545a6b79a04d3ca4b7fe95af44966089",
   "branch": "main",
-  "sourceFingerprint": "4a0139e91a37bd1ef2291bf4b4fdd61ecdc7cc96bbae8e2f8989519746375680",
+  "sourceFingerprint": "b918cfeac0e265f63dab63575c63d214c470249602ab79f51d8c1ea549b5a507",
   "summary": {
     "files": 1137,
-    "lines": 241467,
+    "lines": 241495,
     "symbols": 3328
   },
   "symbolIndex": {
@@ -37479,8 +37479,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
-      "lines": 59,
-      "sha256": "9ba88d20d9dc06627ffa33873245fe56bbe307a5f37248e3eed2b38c48abea3c",
+      "lines": 87,
+      "sha256": "9d5ce4003f27dc2ed48be8ff6ab3d08885c763566a5013c3bf80737f2989a989",
       "symbols": [
         {
           "name": "ImmediateMemoryExtractionTest",
