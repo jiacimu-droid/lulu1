@@ -1157,3 +1157,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮代码**：[6a2a878](https://github.com/jiacimu-droid/lulu1/commit/6a2a878ed0bfc0dfc30b899b166b87f610a5a121) 增只读复制的 withPrimaryActionOwnership，按同一工具、相同规范化 args、依赖标记及兼容归属，将确实镜像的内层目标/挂心显式归属并到顶层；冲突/歧义不猜。 [c67ee0c](https://github.com/jiacimu-droid/lulu1/commit/c67ee0cb4404c9723328e48f35b01f4b5b03beb5) 在既有 AutonomousActionWireProtocol.normalize 主入口使用，供后台和前台/电话共享，不增加收费模型调用、不动角色原设定、不会派第二份镜像动作。
 - **新增回归**：[53858af](https://github.com/jiacimu-droid/lulu1/commit/53858af087e5fc06a9e1fa78a427c53fcfea26df) CharacterThoughtActionHandoffTest.mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect，覆盖 start.ref、挂心 threadId、原模型 JSON 不变、同动作 sideActions 为空、不同显式归属不覆盖且仍保留独立动作。**本轮未取得该 SHA 的 JVM/APK 通过结果**；GitHub commit combined statuses 空列表不等于 CI 通过，真机、真实模型与跨日均未验。
 - **下一轮**：先核含 53858af 的 Actions 是否成功或首个编译/断言失败，失败优先修；再检查含本次归属字段的真实主动作 ToolRouter 回执与重放幂等，必要时补全链 Robolectric 回归。P-08a.CI-01.2 静默诊断亦继续核新运行；不能用旧 success 替代新构建。
+
+## 2026-11-05 · P-08d.2e 主工具镜像问题归属（源码与回归已提交）
+
+- **接手**：main c9012f4，按 AGENTS/原索引/唯一路线/人物进度、统一人物契约与成长框架读取；检查 CharacterThoughtActionHandoff、AutonomousActionWireProtocol 与现有镜像目标/挂心测试，避免重复 P-08d.2d。
+- **已证根因**：actions() 已将 curiosity/curiosities[].nextAction 的原 threadId/sourceEvidenceId 投影到执行步骤，并对与主工具镜像的动作提前 return；但 withPrimaryActionOwnership() 只收集 decision、pendingConcerns、innerLife.thoughts/motives，遗漏 curiosity 两种槽位。结果主工具本身未继承问题归属，后续动作还可能被当成独立效果。不能靠删除去重解决，否则同工具可能产生重复副作用。
+- **正式修复**：[50b32d3](https://github.com/jiacimu-droid/lulu1/commit/50b32d3f8e84537e357e0af6885416c5d6b82843) 复用同一显式 question 投影（去 nextAction 的只读副本），在 primary 合并前纳入 curiosity 和 curiosities[]；保留原 sameAction 的工具/规范化参数/依赖/归属兼容性检查与多目标冲突不猜原则。没有改原始 JSON、存储、人设或模型调用。
+- **回归**：[c2e98fc](https://github.com/jiacimu-droid/lulu1/commit/c2e98fc67166156231f3021e240d479699e0c2fc) 增 mirroredPrimaryToolRetainsExplicitQuestionAndNeverExecutesTwice：单一 question 的 threadId/sourceEvidenceId 归属进入主工具、无镜像 side action；与显式其他 question 冲突时保留独立动作；两项不同 question 不冒认唯一主归属；原始模型输出保持不变。测试源码已提交，不宣称 JVM 运行通过。
+- **CI 与下一轮**：GitHub commit combined statuses 对 c2e98fc 返回空，fetch_commit_workflow_runs 亦无可核验 run（此接口只筛 PR 触发），不代表构建成功或失败。旧 41936349268 completed/failure 是先前版本 40 分钟超时，不用于本轮验收。下一轮先核含 c2e98fc 的 push APK/JVM 真实日志，若红先修编译/断言；随后 P-08d.2e 补真实 ToolRouter 主动作 receipt/重放幂等集成回归，再继续 P-08a.1 跨入口链。真机/真实模型/跨日未验。
