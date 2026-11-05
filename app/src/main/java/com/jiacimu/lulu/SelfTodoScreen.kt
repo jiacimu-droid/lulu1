@@ -37,6 +37,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -64,8 +65,11 @@ internal data class TodoTask(
     val createdAt: Long,
     val completions: List<TodoCompletion> = emptyList(),
     val reopened: Set<LocalDate> = emptySet(),
+    // Old saved scheduled items remain scheduled; legacy undated imports opt out.
+    val dateSpecified: Boolean = true,
 )
 internal data class TodoOccurrence(val task: TodoTask, val date: LocalDate)
+internal enum class TodoSection { TODAY_SPECIAL, DAILY, REGULAR, UPCOMING, OVERDUE }
 
 /**
  * A recurring task is one definition with dated completion records, not a task
@@ -78,7 +82,7 @@ internal object SelfTodoCalendar {
         if (task.repeat == TodoRepeat.ONCE && task.completions.isNotEmpty()) return emptyList()
         val completed = task.completions.map { it.date }.toSet()
         val due = when (task.repeat) {
-            TodoRepeat.ONCE -> task.firstDate
+            TodoRepeat.ONCE -> if (task.dateSpecified) task.firstDate else today
             TodoRepeat.DAILY -> if (today.isBefore(task.firstDate)) task.firstDate else today
             TodoRepeat.WEEKLY -> {
                 if (today.isBefore(task.firstDate)) task.firstDate
@@ -93,14 +97,26 @@ internal object SelfTodoCalendar {
             .toList()
     }
 
+    /** Shared owner/character display priority, without changing durable dates. */
+    fun section(occurrence: TodoOccurrence, today: LocalDate): TodoSection = when {
+        occurrence.task.repeat == TodoRepeat.ONCE && !occurrence.task.dateSpecified ->
+            TodoSection.REGULAR
+        occurrence.date.isBefore(today) -> TodoSection.OVERDUE
+        occurrence.date.isAfter(today) -> TodoSection.UPCOMING
+        occurrence.task.repeat == TodoRepeat.DAILY -> TodoSection.DAILY
+        else -> TodoSection.TODAY_SPECIAL
+    }
+
+    fun order(occurrences: List<TodoOccurrence>, today: LocalDate): List<TodoOccurrence> =
+        occurrences.sortedWith(compareBy<TodoOccurrence> { section(it, today).ordinal }
+            .thenBy { if (section(it, today) == TodoSection.OVERDUE)
+                -it.date.toEpochDay() else it.date.toEpochDay() }
+            .thenBy { it.task.minutes ?: Int.MAX_VALUE }
+            .thenBy { it.task.createdAt }
+            .thenBy { it.task.id })
+
     fun allPending(tasks: List<TodoTask>, today: LocalDate): List<TodoOccurrence> =
-        tasks.flatMap { pending(it, today) }
-            .sortedWith(
-                compareBy<TodoOccurrence> { it.date }
-                    .thenBy { it.task.minutes ?: Int.MAX_VALUE }
-                    .thenBy { it.task.createdAt }
-                    .thenBy { it.task.id },
-            )
+        order(tasks.flatMap { pending(it, today) }, today)
 
     fun complete(task: TodoTask, date: LocalDate, at: Long): TodoTask =
         if (task.completions.any { it.date == date }) task
@@ -162,6 +178,7 @@ internal object SelfTodoStore {
                 reopened = (0 until reopened.length()).mapNotNull { i ->
                     runCatching { LocalDate.parse(reopened.getString(i)) }.getOrNull()
                 }.toSet(),
+                dateSpecified = item.optBoolean("dateSpecified", true),
             )
         }
     }.getOrNull()
@@ -180,6 +197,7 @@ internal object SelfTodoStore {
                     .put("note", item.note).put("firstDate", item.firstDate.toString())
                     .put("minutes", item.minutes ?: JSONObject.NULL)
                     .put("repeat", item.repeat.name).put("createdAt", item.createdAt)
+                    .put("dateSpecified", item.dateSpecified)
                     .put("completions", logs).put("reopened", reopened),
             )
         }
@@ -201,6 +219,7 @@ internal object SelfTodoStore {
                 minutes = null, repeat = TodoRepeat.ONCE, createdAt = old.updatedAt,
                 completions = if (old.done) listOf(TodoCompletion(oldDate, old.updatedAt))
                     else emptyList(),
+                dateSpecified = false,
             )
         }
     }
@@ -282,6 +301,7 @@ internal fun SelfTodoScreen(
     val context = LocalContext.current
     var tasks by remember { mutableStateOf(SelfTodoStore.loadWithLegacy(context, legacy)) }
     var today by remember { mutableStateOf(LocalDate.now()) }
+    var nowMinutes by remember { mutableIntStateOf(LocalTime.now().toSecondOfDay() / 60) }
     var showingHistory by rememberSaveable { mutableStateOf(false) }
     var editing by remember { mutableStateOf<TodoTask?>(null) }
     var showEditor by remember { mutableStateOf(false) }
@@ -299,6 +319,7 @@ internal fun SelfTodoScreen(
     LaunchedEffect(Unit) {
         while (true) {
             today = LocalDate.now()
+            nowMinutes = LocalTime.now().toSecondOfDay() / 60
             delay(60_000L)
         }
     }
@@ -321,12 +342,14 @@ internal fun SelfTodoScreen(
     // scrolling stutter even though each card itself is light. These keep
     // their identity until the data they actually use changes, so rows can
     // skip recomposition while scrolling.
-    val visiblePending = remember(pending, exiting) {
-        (pending + exiting.values).distinctBy { it.task.id + "@" + it.date }
-            .sortedWith(compareBy<TodoOccurrence> { it.date }
-                .thenBy { it.task.minutes ?: Int.MAX_VALUE }
-                .thenBy { it.task.createdAt }
-                .thenBy { it.task.id })
+    val visiblePending = remember(pending, exiting, today) {
+        SelfTodoCalendar.order(
+            (pending + exiting.values).distinctBy { it.task.id + "@" + it.date }, today)
+    }
+    val pendingGroups = remember(visiblePending, today) {
+        TodoSection.values().map { section ->
+            section to visiblePending.filter { SelfTodoCalendar.section(it, today) == section }
+        }.filter { it.second.isNotEmpty() }
     }
     val onEditRow: (TodoOccurrence) -> Unit = remember {
         { occurrence -> editing = occurrence.task; showEditor = true }
@@ -410,12 +433,31 @@ internal fun SelfTodoScreen(
                         }
                     }
                 } else {
-                    items(visiblePending, key = { it.task.id + "@" + it.date },
-                        contentType = { "pending" }) { occurrence ->
-                        TodoPendingRow(
-                            occurrence = occurrence, today = today,
-                            onEdit = onEditRow, onComplete = onCompleteRow, onFaded = onFadedRow,
-                        )
+                    pendingGroups.forEach { (section, entries) ->
+                        item(key = "todo_section_" + section.name, contentType = { "heading" }) {
+                            TodoSectionHeading(section, entries.size)
+                        }
+                        items(entries, key = { it.task.id + "@" + it.date },
+                            contentType = { "pending" }) { occurrence ->
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                TodoPendingRow(
+                                    occurrence = occurrence, today = today,
+                                    nowMinutes = nowMinutes, onEdit = onEditRow,
+                                    onComplete = onCompleteRow, onFaded = onFadedRow,
+                                )
+                                if (section == TodoSection.OVERDUE) {
+                                    Row(Modifier.fillMaxWidth().padding(start = 56.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        TextButton(onClick = { onEditRow(occurrence) }) {
+                                            Text("重新安排", color = TodoInk.violet, fontSize = 12.sp)
+                                        }
+                                        TextButton(onClick = { toDelete = occurrence.task }) {
+                                            Text("删除", color = TodoInk.overdue, fontSize = 12.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -480,7 +522,7 @@ internal fun SelfTodoScreen(
                 showEditor = false
                 toDelete = target
             },
-            onSave = { title, note, firstDate, minute, repeat ->
+            onSave = { title, note, firstDate, minute, repeat, dateSpecified ->
                 val updated = TodoTask(
                     id = original?.id ?: UUID.randomUUID().toString(),
                     title = title, note = note, firstDate = firstDate,
@@ -488,6 +530,7 @@ internal fun SelfTodoScreen(
                     createdAt = original?.createdAt ?: System.currentTimeMillis(),
                     completions = original?.completions.orEmpty(),
                     reopened = original?.reopened.orEmpty(),
+                    dateSpecified = dateSpecified,
                 )
                 save(tasks.filterNot { it.id == updated.id } + updated)
             },
@@ -506,9 +549,28 @@ internal fun SelfTodoScreen(
 }
 
 @Composable
+private fun TodoSectionHeading(section: TodoSection, count: Int) {
+    val title = when (section) {
+        TodoSection.TODAY_SPECIAL -> "今日特别安排"
+        TodoSection.DAILY -> "每日例行"
+        TodoSection.REGULAR -> "普通待办"
+        TodoSection.UPCOMING -> "未来安排"
+        TodoSection.OVERDUE -> "已过期"
+    }
+    Row(Modifier.fillMaxWidth().padding(top = 11.dp, bottom = 3.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Text(title, color = if (section == TodoSection.OVERDUE) TodoInk.overdue
+            else TodoInk.title, fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp, modifier = Modifier.weight(1f))
+        Text("$count 项", fontSize = 12.sp, color = TodoInk.secondary)
+    }
+}
+
+@Composable
 private fun TodoPendingRow(
     occurrence: TodoOccurrence,
     today: LocalDate,
+    nowMinutes: Int,
     onEdit: (TodoOccurrence) -> Unit,
     onComplete: (TodoOccurrence) -> Boolean,
     onFaded: (TodoOccurrence) -> Unit,
@@ -525,7 +587,8 @@ private fun TodoPendingRow(
         exit = fadeOut(tween(205)) + shrinkVertically(tween(205)),
     ) {
         TodoTaskCard(
-            occurrence = occurrence, today = today, checked = hiding,
+            occurrence = occurrence, today = today, nowMinutes = nowMinutes,
+            checked = hiding,
             onCheck = { if (!hiding && onComplete(occurrence)) hiding = true },
             onEdit = { onEdit(occurrence) },
         )

@@ -31,23 +31,30 @@ internal object SelfTodoRoleRead {
         val overdue = pending.filter { it.date.isBefore(today) }
         val dueToday = pending.filter { it.date == today }
         val future = pending.filter { it.date.isAfter(today) }
+        val unscheduled = pending.count {
+            it.task.repeat == TodoRepeat.ONCE && !it.task.dateSpecified
+        }
         val checkedToday = tasks.flatMap { task ->
             task.completions.filter { log -> log.completedAt > 0 &&
                 Instant.ofEpochMilli(log.completedAt).atZone(zone).toLocalDate() == today
             }.map { task to it }
         }.sortedByDescending { it.second.completedAt }
-        val selected = if (scope == "all") pending else overdue + dueToday
+        val selected = if (scope == "all") pending
+            else pending.filter { !it.date.isAfter(today) }
         val shown = selected.drop(offset).take(PAGE_SIZE)
         val entries = JSONArray()
         shown.forEach { occurrence ->
             val task = occurrence.task
             entries.put(JSONObject().put("taskId", task.id)
                 .put("title", task.title).put("note", task.note.take(240))
-                .put("dueDate", occurrence.date.toString())
+                .put("dueDate", if (task.repeat == TodoRepeat.ONCE && !task.dateSpecified)
+                    JSONObject.NULL else occurrence.date.toString())
                 .put("time", task.minutes?.let { "%02d:%02d".format(it / 60, it % 60) }
                     ?: JSONObject.NULL)
                 .put("repeat", task.repeat.name.lowercase())
+                .put("dateSpecified", task.dateSpecified)
                 .put("state", when {
+                    task.repeat == TodoRepeat.ONCE && !task.dateSpecified -> "unscheduled"
                     occurrence.date.isBefore(today) -> "overdue"
                     occurrence.date == today -> "pending_today"
                     else -> "upcoming"
@@ -63,8 +70,8 @@ internal object SelfTodoRoleRead {
         val summary = buildString {
             append("自序·所行（设备本地日期${today}）：今天未完成${dueToday.size}项，")
             append("逾期未完成${overdue.size}项，今天勾选完成${checkedToday.size}次，")
-            append("未来待办${future.size}项。")
-            val immediate = (overdue + dueToday)
+            append("未来待办${future.size}项，未指定日期${unscheduled}项。")
+            val immediate = (dueToday + overdue)
             if (immediate.isNotEmpty()) append("\n目前要做：")
             immediate.take(12).forEach { item ->
                 val time = item.task.minutes?.let { "%02d:%02d".format(it / 60, it % 60) }
@@ -90,7 +97,8 @@ internal object SelfTodoRoleRead {
             .put("nextOffset", if (offset + shown.size < selected.size) offset + shown.size else JSONObject.NULL)
             .put("pendingTotalInScope", selected.size)
             .put("pendingTodayCount", dueToday.size).put("overdueCount", overdue.size)
-            .put("upcomingCount", future.size).put("checkedTodayCount", checkedToday.size)
+            .put("upcomingCount", future.size).put("unscheduledCount", unscheduled)
+            .put("checkedTodayCount", checkedToday.size)
             .put("pending", entries).put("completedToday", checked)
             .put("summary", summary)
     }

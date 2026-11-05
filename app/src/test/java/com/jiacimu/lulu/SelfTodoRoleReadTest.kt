@@ -69,7 +69,8 @@ class SelfTodoRoleReadTest {
         val all = SelfTodoRoleRead.snapshot(tasks, today, now, JSONObject().put("scope", "all"))
         assertEquals(4, all.getJSONArray("pending").length())
         assertTrue(all.getJSONArray("pending").toString().contains("future"))
-        assertEquals("overdue", all.getJSONArray("pending").getJSONObject(0).getString("state"))
+        assertEquals("pending_today", all.getJSONArray("pending").getJSONObject(0).getString("state"))
+        assertEquals("overdue", all.getJSONArray("pending").getJSONObject(2).getString("state"))
     }
 
     @Test fun readOnlyRoleSeesUnmigratedOldTodoButNeverOtherPrivateNotebookPages() {
@@ -97,8 +98,12 @@ class SelfTodoRoleReadTest {
         assertFalse(taskPrefs.contains("legacy_imported"))
         assertFalse(taskPrefs.contains("tasks"))
         // Old data is still migrated by the same UI path if user opens 所行.
-        assertEquals(1, SelfTodoStore.loadWithLegacy(app,
-            legacySelfTodoRecords(app)!!).count { it.id == "legacy-todo" })
+        val legacyTasks = SelfTodoStore.loadWithLegacy(app, legacySelfTodoRecords(app)!!)
+        assertEquals(1, legacyTasks.count { it.id == "legacy-todo" })
+        assertFalse(legacyTasks.single().dateSpecified)
+        val later = LocalDate.now().plusDays(5)
+        assertEquals(TodoSection.REGULAR, SelfTodoCalendar.section(
+            SelfTodoCalendar.pending(legacyTasks.single(), later).single(), later))
     }
 
     @Test fun toolRouterUsesTheOnlyAuthoritativeReadAndRejectsResidentAccess() = runBlocking {
@@ -119,6 +124,21 @@ class SelfTodoRoleReadTest {
         assertEquals("review", result.getJSONArray("pending").getJSONObject(0).getString("taskId"))
         assertTrue(result.getString("summary").contains("整理错题本"))
         assertEquals(listOf(task), SelfTodoStore.read(app))
+    }
+
+    @Test fun undatedTaskSurvivesPersistenceAndRoleReadDoesNotInventDeadline() {
+        val today = LocalDate.of(2026, 11, 5)
+        val task = TodoTask("undated", "随时整理书桌", "", today.minusDays(12),
+            null, TodoRepeat.ONCE, 100L, dateSpecified = false)
+        assertTrue(SelfTodoStore.save(app, listOf(task)))
+        assertEquals(task, SelfTodoStore.read(app).single())
+        val now = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+        val output = SelfTodoRoleRead.snapshot(SelfTodoStore.read(app), today, now)
+        assertEquals(0, output.getInt("overdueCount"))
+        assertEquals(1, output.getInt("unscheduledCount"))
+        val row = output.getJSONArray("pending").getJSONObject(0)
+        assertEquals("unscheduled", row.getString("state"))
+        assertTrue(row.isNull("dueDate"))
     }
 
     @Test fun unreadableOwnerDataIsAnErrorNotAFalseEmptyPlan() {

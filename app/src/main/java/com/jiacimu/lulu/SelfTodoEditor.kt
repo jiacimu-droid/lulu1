@@ -83,7 +83,7 @@ internal fun TodoEditorDialog(
     original: TodoTask?,
     onDismiss: () -> Unit,
     onDelete: (TodoTask) -> Unit,
-    onSave: (String, String, LocalDate, Int?, TodoRepeat) -> Boolean,
+    onSave: (String, String, LocalDate, Int?, TodoRepeat, Boolean) -> Boolean,
 ) {
     val context = LocalContext.current
     var title by remember(original?.id) { mutableStateOf(original?.title.orEmpty()) }
@@ -91,6 +91,9 @@ internal fun TodoEditorDialog(
     var date by remember(original?.id) { mutableStateOf(original?.firstDate ?: LocalDate.now()) }
     var minutes by remember(original?.id) { mutableStateOf(original?.minutes) }
     var repeat by remember(original?.id) { mutableStateOf(original?.repeat ?: TodoRepeat.ONCE) }
+    var dateSpecified by remember(original?.id) {
+        mutableStateOf(original?.dateSpecified ?: false)
+    }
 
     val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     Dialog(onDismissRequest = onDismiss,
@@ -176,11 +179,15 @@ internal fun TodoEditorDialog(
                     TodoFormLabel("03", "安排日期与时间")
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                         TodoDateTile(Icons.Outlined.CalendarMonth,
-                            if (repeat == TodoRepeat.ONCE) "截止日期"
+                            if (repeat == TodoRepeat.ONCE) "截止日期（可选）"
                             else if (repeat == TodoRepeat.DAILY) "开始日期" else "每周执行日",
-                            date.format(todoVisualDate), Modifier.weight(1.14f)) {
+                            if (repeat == TodoRepeat.ONCE && !dateSpecified) "未指定 · 普通待办"
+                            else date.format(todoVisualDate), Modifier.weight(1.14f)) {
                             DatePickerDialog(context,
-                                { _, year, month, day -> date = LocalDate.of(year, month + 1, day) },
+                                { _, year, month, day ->
+                                    date = LocalDate.of(year, month + 1, day)
+                                    dateSpecified = true
+                                },
                                 date.year, date.monthValue - 1, date.dayOfMonth).show()
                         }
                         TodoDateTile(Icons.Outlined.Schedule, "具体时间",
@@ -189,8 +196,22 @@ internal fun TodoEditorDialog(
                             } ?: "不设时间", Modifier.weight(.86f)) {
                             val current = minutes ?: 9 * 60
                             TimePickerDialog(context,
-                                { _, hour, minute -> minutes = hour * 60 + minute },
+                                { _, hour, minute ->
+                                    minutes = hour * 60 + minute
+                                    dateSpecified = true
+                                },
                                 current / 60, current % 60, true).show()
+                        }
+                    }
+                    if (repeat == TodoRepeat.ONCE) {
+                        Text(if (dateSpecified) "指定日期当天优先显示，错过后可在已过期中重新安排"
+                            else "不指定日期：普通待办，不会自动过期",
+                            color = TodoInk.secondary, fontSize = 11.sp)
+                        if (dateSpecified) {
+                            TextButton(onClick = { dateSpecified = false; minutes = null },
+                                contentPadding = PaddingValues(horizontal = 4.dp)) {
+                                Text("改为不设截止日", fontSize = 11.sp, color = TodoInk.violet)
+                            }
                         }
                     }
                     if (minutes != null) {
@@ -215,7 +236,9 @@ internal fun TodoEditorDialog(
                     Spacer(Modifier.weight(1f))
                     Button(
                         onClick = {
-                            if (onSave(title.trim(), note.trim(), date, minutes, repeat)) onDismiss()
+                            if (onSave(title.trim(), note.trim(), date,
+                                    if (repeat == TodoRepeat.ONCE && !dateSpecified) null else minutes,
+                                    repeat, repeat != TodoRepeat.ONCE || dateSpecified)) onDismiss()
                         },
                         enabled = title.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(

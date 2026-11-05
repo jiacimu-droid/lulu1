@@ -164,17 +164,20 @@ internal fun TodoListHeading(title: String, caption: String) {
  */
 @Composable
 internal fun TodoTaskCard(
-    occurrence: TodoOccurrence, today: LocalDate, checked: Boolean,
+    occurrence: TodoOccurrence, today: LocalDate, nowMinutes: Int, checked: Boolean,
     onCheck: () -> Unit, onEdit: () -> Unit,
 ) {
     val task = occurrence.task
-    val overdue = occurrence.date.isBefore(today)
+    val overdue = SelfTodoCalendar.section(occurrence, today) == TodoSection.OVERDUE
+    val lateToday = SelfTodoCalendar.section(occurrence, today) == TodoSection.TODAY_SPECIAL &&
+        task.minutes != null && nowMinutes > task.minutes
     val tint = when {
         overdue -> TodoInk.overdue
         occurrence.date == today.plusDays(1) -> TodoInk.sage
         else -> TodoInk.violet
     }
     val dayLabel = when {
+        task.repeat == TodoRepeat.ONCE && !task.dateSpecified -> "不设截止日"
         overdue -> "逾期 · " + occurrence.date.format(todoVisualDate)
         occurrence.date == today -> "今天"
         occurrence.date == today.plusDays(1) -> "明天"
@@ -186,7 +189,7 @@ internal fun TodoTaskCard(
     val recurrence = when (task.repeat) {
         TodoRepeat.DAILY -> "每天"
         TodoRepeat.WEEKLY -> "每周"
-        TodoRepeat.ONCE -> ""
+        TodoRepeat.ONCE -> if (task.dateSpecified) "仅一次" else ""
     }
 
     Surface(
@@ -235,8 +238,11 @@ internal fun TodoTaskCard(
                         maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (timeText != null) Text(timeText, fontSize = 10.sp,
                         color = TodoInk.secondary)
-                    if (recurrence.isNotEmpty()) Text("↻ $recurrence",
+                    if (recurrence.isNotEmpty()) Text(
+                        if (task.repeat == TodoRepeat.ONCE) recurrence else "↻ $recurrence",
                         fontSize = 10.sp, color = TodoInk.secondary)
+                    if (lateToday) Text("已超时", fontSize = 10.sp,
+                        color = TodoInk.overdue)
                 }
                 if (task.note.isNotBlank()) Text(
                     task.note, fontSize = 11.sp, color = TodoInk.secondary,

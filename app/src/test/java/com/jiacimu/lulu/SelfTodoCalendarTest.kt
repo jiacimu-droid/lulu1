@@ -93,6 +93,52 @@ class SelfTodoCalendarTest {
     }
 
     @Test
+    fun scheduledAppointmentTodayBeatsEverydayAndUpcomingTasks() {
+        val today = monday.plusDays(1)
+        val routine = item("routine", repeat = TodoRepeat.DAILY, created = 1)
+        val special = item("appointment", date = today, at = 14 * 60, created = 9999)
+        val future = item("future", date = today.plusDays(1), created = 1)
+        val sorted = SelfTodoCalendar.allPending(listOf(future, routine, special), today)
+        assertEquals(listOf("appointment", "routine", "future"), sorted.map { it.task.id })
+        assertEquals(TodoSection.TODAY_SPECIAL, SelfTodoCalendar.section(sorted[0], today))
+    }
+
+    @Test
+    fun missedOneOffIsLastAndReschedulingMovesItBackToFuture() {
+        val past = item("past", date = monday.minusDays(1))
+        val routine = item("routine", repeat = TodoRepeat.DAILY)
+        val future = item("future", date = monday.plusDays(5))
+        val sorted = SelfTodoCalendar.allPending(listOf(past, future, routine), monday)
+        assertEquals(listOf("routine", "future", "past"), sorted.map { it.task.id })
+        assertEquals(TodoSection.OVERDUE, SelfTodoCalendar.section(sorted.last(), monday))
+        val rescheduled = past.copy(firstDate = monday.plusDays(2))
+        assertEquals(TodoSection.UPCOMING, SelfTodoCalendar.section(
+            SelfTodoCalendar.pending(rescheduled, monday).single(), monday))
+    }
+
+    @Test
+    fun undatedOnceRemainsOrdinaryWithoutAccumulatedOverdue() {
+        val ordinary = item("ordinary", date = monday.minusWeeks(4)).copy(dateSpecified = false)
+        val later = monday.plusDays(4)
+        assertEquals(later, SelfTodoCalendar.pending(ordinary, later).single().date)
+        assertEquals(TodoSection.REGULAR, SelfTodoCalendar.section(
+            SelfTodoCalendar.pending(ordinary, later).single(), later))
+        assertEquals(later.plusDays(1),
+            SelfTodoCalendar.pending(ordinary, later.plusDays(1)).single().date)
+    }
+
+    @Test
+    fun weeklyMissNeverAccumulatesAcrossWeeks() {
+        val weekly = item("weekly", repeat = TodoRepeat.WEEKLY)
+        val missedDay = monday.plusDays(1)
+        assertEquals(TodoSection.OVERDUE, SelfTodoCalendar.section(
+            SelfTodoCalendar.pending(weekly, missedDay).single(), missedDay))
+        assertEquals(monday.plusWeeks(1),
+            SelfTodoCalendar.pending(weekly, monday.plusWeeks(1)).single().date)
+        assertEquals(1, SelfTodoCalendar.pending(weekly, monday.plusWeeks(1)).size)
+    }
+
+    @Test
     fun completedOneTimeTaskDoesNotReappearAfterDateChanges() {
         val done = SelfTodoCalendar.complete(item("exam"), monday, 150L)
         assertTrue(SelfTodoCalendar.pending(done.copy(firstDate = monday.plusDays(5)),
