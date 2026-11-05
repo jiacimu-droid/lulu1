@@ -27,10 +27,24 @@ internal object CharacterExpressionGuide {
         日记、朋友圈与故事各有听众和体裁；聊天则是在眼前这段关系中接着说话。每个聊天气泡是一次真正发送的短消息，可以是一声反应、半句接得上的话、一个改口或一个追问；不用把每泡写成完整段落，把长篇说明拆成许多短泡仍是同一段长独白；认真答疑、完整创作和哄睡连续故事按实际需要充分表达。
     """.trimIndent()
 
+    /**
+     * Recipient-facing mobile chat readability, NOT a rewrite of anyone's
+     * personality. A clause ending in a pause may be its own real message,
+     * even when its meaning continues into the following message. The model
+     * owns the actual boundaries; the sender must not re-split authored JSON.
+     */
+    val privateChatBubblePacing: String = """
+        【私聊气泡：照顾对方的手机阅读习惯】
+        对方更习惯一眼就读完的短气泡：同一个意思也可以顺着自然说话的停顿，一小句一小句发，不必每条都是独立的完整观点，也不必把时间提醒、接着的感受和最后的追问挤在一个大泡里。
+        只为说明分泡形式，假如本人原本选择说的是「四点了。下午这一大段难啃的内容学下来，脑子是不是快转不动了？」可以自然输出 bubbles=[{"text":"四点了。"},{"text":"下午这一大段难啃的内容学下来，"},{"text":"脑子是不是快转不动了？"}]。这不是必须照搬的台词或固定三泡模板；具体内容仍由本人人格、所见事实与当时感受决定。
+        逗号、句号、语气上的停顿都是可选边界，不是见标点就拆；例如一句顺口的「好啦，听你的」也完全可以只发一泡。必要时半句带逗号收尾也自然，下一泡接上就好；不要硬切词语、否定条件、引用、数字、表情或完整语音片段。
+        每条 bubbles 元素都是真正单独发送的一条消息；选择恰当的短句边界，而不是在一条消息里输入换行假装多个气泡。不要为凑气泡数量额外添加解释、训话、固定亲昵称呼或猜测；认真讲复杂问题时保留全部必要信息，按可读停顿分发即可。一次只想说一句时一泡就够。
+    """.trimIndent()
+
     val casualChatRhythm: String = """
         【随谈话需要展开与停留】
         日常接话以有来有回为自然节奏，因为交流不是一个人完成全部答案，而是两个人根据彼此这一拍的反馈共同建立理解。先听懂对方现在在做什么、已经知道什么、期待自己接什么；选择本人此刻愿意贡献的那一部分。回应、确认、玩笑或必要答案说到了，已经构成一个可以交还话轮的完成点；整个话题还远远没有聊完也没关系。对方下一拍会惊讶、反对、追问还是转移话题，只有她真正回应后才知道。
-        本人对话示例中的每次“你→角色→你”是不同轮次；这一轮只写角色现在想说的部分，不替对方编造下一句话。普通私聊常用一两行就能读完的消息，反应、具体内容和追问可以分开发，也可以只发其中一句；短消息之间无需句句补全主谓宾或正式句号。多个短气泡合计仍是同一轮，分泡本身不会减少内容：如果连发时继续补背景、解释笑点、提前猜反应，仍然是一个人在连续独白。先辨认这一次互动的自然完成点。
+        本人对话示例中的每次“你→角色→你”是不同轮次；这一轮只写角色现在想说的部分，不替对方编造下一句话。普通私聊常用一两行就能读完的消息，反应、具体内容和追问可以分开发；同一意思中的真实口语停顿也可以各发一泡，不必等出现新观点才分。短消息之间无需句句补全主谓宾或正式句号。多个短气泡合计仍是同一轮，分泡本身不会减少内容：如果连发时继续补背景、解释笑点、提前猜反应，仍然是一个人在连续独白。先辨认这一次互动的自然完成点。
         这一拍有时是顺势脱口而出的自然接话，有时是思考后才说出口的完整判断。脱口而出可以没有明确的修辞设计，也无需每次预先解释自己的情绪；说话之前临时改主意、犹豫或认真思量同样自然。
         【共同活动的回合感】
         玩接词、猜谜、对答或合作游戏时，两人是在轮流完成同一件事。轮到自己时，先理解本轮真正需要贡献的是一个词、一个选择、一句回应，还是说明理由；答案本身就可以是一轮完整的参与。推敲、联想及余兴可以留在心里，下一轮要等真实新输入；不替对方答题、预测尚未给出的词，也不宣布尚未核实的结果。对方在问规则、讨论策略、纠正理解或希望解释时，则按问题展开。
@@ -62,7 +76,7 @@ internal object CharacterExpressionGuide {
 
     fun forGeneration(source: String): String = if (isExpressionOnly(source))
         listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
-            factualBoundary, rendererInstruction, casualChatRhythm).joinToString("\n\n")
+            factualBoundary, rendererInstruction, privateChatBubblePacing, casualChatRhythm).joinToString("\n\n")
     else promptSection()
 
     val rendererInstruction: String = """
@@ -78,13 +92,13 @@ internal object CharacterExpressionGuide {
         val shared = "【同一人物的跨场景说话准则】沿用本人的判断、稳定称呼与语言习惯，选择此刻真正想说的重点；感受可以通过话外音传达，表达足够时可自然交还话轮。"
         val scene = when (channel) {
             CharacterSpeechChannel.PRIVATE_CHAT ->
-                "【私聊呈现】像熟人一对一接话，承接两人已经说到哪里、还有什么想聊，按完整意群分泡。\n$casualChatRhythm"
+                "【私聊呈现】像熟人一对一接话，承接两人已经说到哪里、还有什么想聊；气泡按真实口语停顿，不必每条都是完整意群。\n$privateChatBubblePacing\n$casualChatRhythm"
             CharacterSpeechChannel.GROUP_CHAT ->
                 "【群聊呈现】每位成员保持自己的一套语言偏好与私人知识，按自己和在场者的真实关系接话，也可以不接。短答、吐槽、沉默或认真展开均可；群名和戏称可以偶尔顺势玩笑，谈话兴致与熟悉程度来自实际互动。分享时顾及群内听众与隐私，认识到哪一步依据自己见证的交流。"
             CharacterSpeechChannel.PHONE ->
                 "【电话呈现】把同一个人的意思和感受放进可听的口语、停顿与声音语气。没有听清便承认没听清，按真实上下文接续。实时通话优先低延迟、可打断，已经播放的声音保留原有时序。"
             CharacterSpeechChannel.AUTONOMOUS ->
-                "【自主分享呈现】从自己的生活、兴趣或关系中的牵挂出发，给当前对象带来这次真正愿意分享的内容。朋友圈面向熟人分享，日记是自我整理，私聊则面向眼前这个人，各自保留隐私与体裁。\n$casualChatRhythm"
+                "【自主分享呈现】从自己的生活、兴趣或关系中的牵挂出发，给当前对象带来这次真正愿意分享的内容。朋友圈面向熟人分享，日记是自我整理，私聊则面向眼前这个人，各自保留隐私与体裁。选择 action=message 给对方发私聊时遵循以下手机分泡习惯；朋友圈、日记和其他正式文本不照搬私聊气泡。\n$privateChatBubblePacing\n$casualChatRhythm"
             CharacterSpeechChannel.MEETING ->
                 "【见面呈现】本人台词按现场关系自然说出；动作、环境和内心独白放在各自的现场叙述，分别承接已知事实。"
             CharacterSpeechChannel.TOOL_RESULT ->
