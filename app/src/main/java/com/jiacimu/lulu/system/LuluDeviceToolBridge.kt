@@ -2041,7 +2041,13 @@ object LuluDeviceToolBridge {
 
     private fun parsePlan(raw: String): ToolPlan? {
         return runCatching {
-            val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
+            val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw)
+                ?.let(com.jiacimu.lulu.data.CharacterThoughtActionHandoff::withPrimaryActionOwnership)
+                ?: return null
+            // Front chat/telephone keep their existing action vocabulary.
+            // Only enrich the primary REAL tool's explicit motive/concern/
+            // question ownership before deriving its side steps. Otherwise
+            // raw tool+innerLife.nextAction may execute the same effect twice.
             // Legacy models sometimes output the tool name as action directly.
             // Normalize this one known, locally verified action instead of
             // rejecting the entire telephone response for a wrapper mismatch.
