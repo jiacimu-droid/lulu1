@@ -252,6 +252,66 @@ class CharacterMotiveContinuityTest {
         assertEquals(unbound, steps.toString()) // Runtime binding never rewrites the authored decision.
     }
 
+    @Test fun mirroredPrimaryPlanCarriesNewGoalIntoDurableReceiptAndReplayIsIdempotent() = runBlocking {
+        val person = MigratedDomainStores.characters.create("镜像主动作归属", "自己选择真实行动")
+        val actor = person.characterId
+        DigitalLifeProfileStore.registerNewLife(actor, person.displayName, "数字生命", Instant.now())
+        val now = Instant.now()
+        val sourceId = "mirrored-primary-source-$actor"
+        SharedExperienceTimeline.record(sourceId, actor, "数字世界事件", "现场",
+            "真实看到一份值得继续整理的材料", now, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val ref = "mirrored-plan-$actor"
+        val plan = JSONObject().put("tool", "plan_personal_activity").put("args", JSONObject()
+            .put("title", "继续整理真实材料").put("intent", "稍后检查刚看到的资料")
+            .put("dueAt", now.plusSeconds(3600).atOffset(java.time.ZoneOffset.UTC).toString())
+            .put("activityAction", "publish_moment")
+            .put("activityArgs", JSONObject().put("text", "分享整理后的真实观察")))
+        val decision = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject(plan.getJSONObject("args").toString()))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(JSONObject()
+                .put("op", "start").put("ref", ref).put("aim", "持续研究这些材料")
+                .put("why", "本人的长期兴趣")
+                .put("nextAction", JSONObject(plan.toString())))))
+        val original = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals(ref, normalized.getString("motiveRef"))
+        assertEquals(original, decision.toString())
+        // The nested mirror is not a second tool execution. The top-level
+        // primary is the only actual request; use the existing receipt executor.
+        assertNull(CharacterThoughtActionHandoff.actions(normalized))
+        CharacterInnerLifeStore.observe(actor, sourceId, "真实观察",
+            decision.getJSONObject("innerLife"), now = now)
+        val goalId = CharacterInnerLifeStore.snapshot(actor).getJSONArray("motives")
+            .getJSONObject(0).getString("id")
+        val primary = AutonomousActionWireProtocol.normalizeStep(normalized)
+        val steps = JSONArray().put(primary)
+        val before = steps.toString()
+        val requestId = "mirrored-primary-plan-$actor"
+        suspend fun execute() = OrderedCharacterActions.execute(context, actor, steps,
+            requestId = requestId, causeEvidenceId = sourceId, autonomousLifeTurn = true)
+        val first = execute()
+        assertEquals(first.notes.toString(), 1, first.completedCount)
+        assertEquals(goalId, RoleDayScheduleStore.plans(context, actor).single().motiveId)
+        val receipts = SharedExperienceTimeline.all(actor).filter { it.source == "tool-router" }
+            .map { JSONObject(it.content) }
+            .filter { it.optString("requestId").startsWith(requestId) }
+        assertEquals(1, receipts.size)
+        assertEquals(goalId, receipts.single().getString("motiveId"))
+        assertEquals(sourceId, receipts.single().getString("causeEvidenceId"))
+        val goalBeforeReplay = CharacterInnerLifeStore.snapshot(actor).toString()
+        assertEquals(1, execute().completedCount)
+        assertEquals(1, RoleDayScheduleStore.plans(context, actor).size)
+        assertEquals(1, SharedExperienceTimeline.all(actor).count {
+            it.source == "tool-router" && runCatching {
+                JSONObject(it.content).optString("requestId").startsWith(requestId)
+            }.getOrDefault(false)
+        })
+        assertEquals(goalBeforeReplay, CharacterInnerLifeStore.snapshot(actor).toString())
+        assertEquals(before, steps.toString())
+    }
+
     @Test fun stepCreationRefsRequireUnambiguousActiveOwnershipAndTheActualInput() {
         fun motive(id: String, source: String) = JSONObject().put("id", id).put("aim", "同名问题")
             .put("status", "active").put("creationRef", "shared-ref").put("evidenceId", source)
