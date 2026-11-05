@@ -2534,7 +2534,7 @@ object ProactivePerceptionRuntime {
         if (!CompanionPresenceStore.isInCall(characterId) &&
             ActiveCommitmentAttention.render(CommitmentTaskStore.active(characterId), Instant.now()).isNotBlank() &&
             CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now()).isNotEmpty()) {
-            ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(appContext, characterId)
+            ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(appContext, characterId)
         }
         // No spoken primary action is not the same as "did nothing".
         // One decision can intentionally stay silent while selecting steps;
