@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T10:29:28.145242+00:00",
-  "commit": "20197800c9daa3424095acce0f1918e100c04735",
+  "generatedAt": "2026-11-05T10:30:46.745822+00:00",
+  "commit": "caf247cf9b05e631df81ff45b389993733c82b2d",
   "branch": "main",
-  "sourceFingerprint": "87a73ce2ed2859e3dea86c9b3e4122fe5bfc4b180ff8249a09530281ca4526a8",
+  "sourceFingerprint": "04dd55a1c56bf2ff8825089ed1024193532b3d0039f302d54bb81d13037880e2",
   "summary": {
     "files": 1137,
-    "lines": 241904,
+    "lines": 241947,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -16937,29 +16937,29 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 114
+        "line": 157
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 343
+        "line": 386
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 407
+        "line": 450
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 445
+        "line": 488
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 476
+        "line": 519
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 346
+        "line": 389
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -37140,8 +37140,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 612,
-      "sha256": "8e9309fabc2873a84bbed349044e6fc29bd916f7e76ec163e2c42c6d3a188dc1",
+      "lines": 655,
+      "sha256": "ccadb86c7052a960d26690c8ae96d9e50f47fb2209bf12669cc2e8cfdc77598e",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -37149,27 +37149,27 @@
         },
         {
           "name": "response",
-          "line": 114
+          "line": 157
         },
         {
           "name": "response",
-          "line": 343
+          "line": 386
         },
         {
           "name": "bubbles",
-          "line": 346
+          "line": 389
         },
         {
           "name": "response",
-          "line": 407
+          "line": 450
         },
         {
           "name": "response",
-          "line": 445
+          "line": 488
         },
         {
           "name": "response",
-          "line": 476
+          "line": 519
         }
       ]
     },
