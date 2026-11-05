@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T08:43:36.370261+00:00",
-  "commit": "4c80a938177fe6735e00b26f209d3c545c94b36f",
+  "generatedAt": "2026-11-05T09:40:47.718018+00:00",
+  "commit": "99830ef00454bb010d3f84e3c8ead406dbb808d0",
   "branch": "main",
-  "sourceFingerprint": "e7c6dd6acaf4ffe09e253dcd96cda2e7e06e76c1a32143d324192857c7fb345a",
+  "sourceFingerprint": "1de681cc00cf8fcd5d6eef3f42fd88927cc1d3ab86ce41acaee1332b75ff8979",
   "summary": {
     "files": 1137,
-    "lines": 241795,
+    "lines": 241855,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -16609,7 +16609,7 @@
     "motive": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-        "line": 256
+        "line": 316
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
@@ -36693,8 +36693,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt",
-      "lines": 290,
-      "sha256": "a3f15167e2a12d02539c2147fa678101a1a311cad7277ff3b930f76bb360050c",
+      "lines": 350,
+      "sha256": "ff6287f0a32b8df9c17d3b47f08d588b477402f1708e5fea84eadd71eff90369",
       "symbols": [
         {
           "name": "CharacterMotiveContinuityTest",
@@ -36706,7 +36706,7 @@
         },
         {
           "name": "motive",
-          "line": 256
+          "line": 316
         }
       ]
     },

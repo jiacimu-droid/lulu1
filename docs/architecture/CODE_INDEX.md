@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4c80a938177fe6735e00b26f209d3c545c94b36f`
+- 基准提交：`99830ef00454bb010d3f84e3c8ead406dbb808d0`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：241795
+- 已索引代码/文本行：241855
 - 已发现符号：3330
 
 | 文件 | 行数 | 符号数 |
@@ -930,7 +930,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 248 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 290 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 350 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
