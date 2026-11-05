@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`861334e7545a6b79a04d3ca4b7fe95af44966089`
+- 基准提交：`be8a344690356c6c10bc1608051632b2ba15baf3`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：241495
+- 已索引代码/文本行：241512
 - 已发现符号：3328
 
 | 文件 | 行数 | 符号数 |
@@ -483,7 +483,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1169 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1177 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 554 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
@@ -986,7 +986,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 228 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt` | 66 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 87 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
