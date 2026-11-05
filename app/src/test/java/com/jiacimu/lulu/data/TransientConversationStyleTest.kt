@@ -21,7 +21,8 @@ class TransientConversationStyleTest {
         val style = TransientConversationStyle.analyze("我学累了\n脑子都转不动了\n想歇一下")
         assertTrue(style.prefersShortBurst)
         val context = TransientConversationStyle.context("我学累了\n脑子都转不动了\n想歇一下")
-        assertTrue(context.contains("自然分成完整气泡"))
+        assertTrue(context.contains("自然决定每条消息的停顿和发出时机"))
+        assertFalse(context.contains("必须分成完整气泡"))
     }
 
     @Test fun complexRequestAllowsFullerResponse() {
@@ -77,7 +78,8 @@ class TransientConversationStyleTest {
         assertTrue(brief.contains("真实对话"))
         assertTrue(brief.contains("具体表达仍属于这个人"))
         val normal = TransientConversationStyle.context("我今天走了好远的路，还去逛了昨天跟你说的那家店")
-        assertTrue(normal.contains("完整气泡"))
+        assertTrue(normal.contains("同一个意思也能分几泡说完"))
+        assertTrue(normal.contains("结合现场决定"))
         listOf("帮我分析学习计划怎么调整", "继续讲故事哄我睡", "详细解释原因").forEach { input ->
             assertEquals(input, brief, TransientConversationStyle.context(input))
         }
