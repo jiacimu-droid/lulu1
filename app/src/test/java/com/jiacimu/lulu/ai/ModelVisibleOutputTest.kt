@@ -96,6 +96,84 @@ class ModelVisibleOutputTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun slowRelayFinalMessageIsNotDiscardedWhenDeltaObjectIsEmpty() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        // A relay may buffer for a while, then emit a final message with an
+        // empty delta. The client must read the actual text, not mistake the
+        // normal thinking delay or that empty delta for an empty model reply.
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBodyDelay(1, java.util.concurrent.TimeUnit.SECONDS)
+            .setBody("""data: {"choices":[{"delta":{},"message":{"content":"我确实收到你的安排。"},"finish_reason":"stop"}]}
+
+"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "buffered-final-message", "", "请回复", "后台主动感知", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            ).getOrThrow()
+            assertEquals("我确实收到你的安排。", response.text)
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun incompleteRelayStreamIsDiagnosedAsEarlyEndWithoutPaidReplay() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("""data: {"choices":[{"delta":{"reasoning_content":"$privateText"}}]}
+
+"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "early-close", "", "请回复", "后台主动感知", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            )
+            assertTrue(response.isFailure)
+            val error = response.exceptionOrNull()?.message.orEmpty()
+            assertTrue(error, error.contains("提前结束流式连接"))
+            assertTrue(error, error.contains("未自动重新请求"))
+            assertFalse(error.contains(privateText))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun responseApiPublicTextDeltaIsDeliveredWithoutExposingReasoning() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("""data: {"type":"response.reasoning_summary_text.delta","delta":"$privateText"}
+
+data: {"type":"response.output_text.delta","delta":"现在去看你的待办。"}
+
+data: {"type":"response.completed","response":{}}
+
+"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "response-events", "", "请回复", "后台主动感知", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            ).getOrThrow()
+            assertEquals("现在去看你的待办。", response.text)
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun jsonReasoningFieldsCannotSubstituteForMissingContent() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
