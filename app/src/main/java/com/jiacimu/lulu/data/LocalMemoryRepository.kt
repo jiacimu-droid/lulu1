@@ -32,6 +32,11 @@ internal fun residentMemoryBudgetDepleted(
 ): Boolean = characterId.startsWith("resident:") &&
     !ResidentDailyPolicy.hasModelRequestAllowance(context, characterId, now)
 
+/** A normal, non-failure outcome for automatic memory extraction. The queue
+ * must keep its watermark and reawaken only after the next budget window. */
+internal class ResidentMemoryBudgetDeferred(val resumeAt: Instant) :
+    IllegalStateException("居民每日 AI 请求额度已满，未整理的记忆等待新预算日继续")
+
 /**
  * Persistent memory store with retry-safe extraction checkpoints.
  * A batch is marked processed only after a valid model result has been parsed and saved.
@@ -149,14 +154,18 @@ class LocalMemoryRepository : MemoryRepository {
      * Checkpoints remain unmodified and ordinary resident plans keep priority.
      * The gateway still claims atomically against concurrent requests.
      */
-    private fun deferResidentMemoryIfBudgetSpent(characterId: String, pendingCount: Int): Boolean {
-        val context = appContext ?: return false
-        if (!residentMemoryBudgetDepleted(context, characterId)) return false
+    private fun deferResidentMemoryIfBudgetSpent(characterId: String, pendingCount: Int) {
+        val context = appContext ?: return
+        val now = Instant.now()
+        if (!residentMemoryBudgetDepleted(context, characterId, now)) return
+        val resume = ResidentDailyPolicy.nextModelBudgetDayStart(now)
         refreshDebug(
-            "居民今日模型请求额度已满；本次未发送记忆请求。仍有 $pendingCount 条待整理消息，原文与处理进度已保留；下一个预算日可继续。",
+            "居民今日模型请求额度已满；本次没有发送记忆请求。仍有 $pendingCount 条待整理消息，保留原文与处理进度；新预算日再继续。",
             characterId = characterId, pendingCount = pendingCount, extracting = false,
         )
-        return true
+        // Do not return a successful Unit: ChatMemoryAutomation would then
+        // permanently complete the pending job, losing next-day scheduling.
+        throw ResidentMemoryBudgetDeferred(resume)
     }
 
     private suspend fun extractImmediateMemories(characterId: String) {
@@ -167,7 +176,7 @@ class LocalMemoryRepository : MemoryRepository {
                 state.value.processedMessageIds[characterId].orEmpty()
             val targets = events.filter { it.id !in done && it.isUserMemoryStatement() && requestsImmediateMemory(it.content) }.take(8)
             if (targets.isEmpty()) return
-            if (deferResidentMemoryIfBudgetSpent(characterId, targets.size)) return
+            deferResidentMemoryIfBudgetSpent(characterId, targets.size)
             val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             // Include neighbours of each target, not an unrelated newest conversation.
             val contextIds = events.indices.filter { events[it].id in targetIds }.flatMap { index ->
@@ -248,7 +257,7 @@ class LocalMemoryRepository : MemoryRepository {
                 return
             }
 
-            if (deferResidentMemoryIfBudgetSpent(characterId, pending.size)) return
+            deferResidentMemoryIfBudgetSpent(characterId, pending.size)
             val batchStart = processed.size + 1
             val batchEnd = processed.size + batch.size
             refreshDebug(
