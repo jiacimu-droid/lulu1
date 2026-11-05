@@ -1270,3 +1270,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式源码**：[e12149c](https://github.com/jiacimu-droid/lulu1/commit/e12149c1317dab200d654423ec3d050594c554dc) 将旧调用改为既存恢复入口；不新建恢复器、不增加收费模型调用、不修改角色选择或历史。Roadmap 记录 [1bcc98a](https://github.com/jiacimu-droid/lulu1/commit/1bcc98ada38b75c996a9adfbe1c13e3a1e0d8754)。
 - **验证边界**：本环境无法访问 github.com 克隆仓库，未运行 `scripts/generate_code_index.py` 或本地 Gradle；需原 Actions 索引生成和新 push APK/JVM 确认。修复是明确符号引用错误，但未宣称编译通过。真机、真实模型、跨日、外部回执均未验。
 - **下一轮**：刷新 main 和同文件 SHA，先核 e12149c 后继 Actions 首个失败；通过后回 P-08d.2h 主工具镜像成功/失败、`requiresPreviousSuccess` 与真实入口幂等，不能仅靠解析测试关闭整项。
+
+
+## 2026-11-06 · P-08d.2h.3 有序动作去重与 CI 失败断言
+
+- **接手**：main 92e1bdd91bb55174bd2c263bb69adb49e5fce70b；核 AGENTS、CODE_INDEX、roadmap、本文、CharacterThoughtActionHandoff 正式源码及测试、最新 push Actions。此前 e12149c 已修复 Kotlin 未解析引用，不重复修改。
+- **实际 CI**：[42076430945](https://github.com/jiacimu-droid/lulu1/actions/runs/42076430945) 对应 e12149c completed/failure，build job 127417729369 的原始日志显示 2487 tests completed, 1 failed：CharacterThoughtActionHandoffTest.stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts，expected 2 but was 3。失败在 testPhoneUnitTest，未完成 APK；旧 Kotlin 编译阻断已不再出现。代码索引 [42076431019](https://github.com/jiacimu-droid/lulu1/actions/runs/42076431019) success。
+- **根因与正式源码**：原 06809cd6 已使 sideActions 仅合并紧邻同一动作，旧测试却仍期待「search→journal→search」被压成两步；此外 nested nextAction 的 add() 仍全列表找重复、跨中间步骤吞掉角色再次选择的工具。源码 [1beed430](https://github.com/jiacimu-droid/lulu1/commit/1beed4303f9f87d9ce2e1c5d1414c0a9705ebdae) 使嵌套动作也只与紧邻且条件/归属兼容的步骤合并。测试 [a8afe867](https://github.com/jiacimu-droid/lulu1/commit/a8afe867532070486fa5b8f2c0d1ab03a14064d9) 更新旧断言为三步，挂心归第二次搜索，并新增嵌套跨间隔再执行回归；原模型 JSON 不变。
+- **验证边界**：源码/测试已提交，未获得新 HEAD JVM/APK 结果，不能宣称通过；尚未真机验证主工具失败/成功、条件副动作、外部 ToolRouter 独立回执及重放幂等。不新增模型调用，不改角色人设或历史。
+- **下一轮**：刷新 main 与 [Actions](https://github.com/jiacimu-droid/lulu1/actions)，优先修新 push 首个实际失败；成功后继续 P-08d.2h 前台/后台主工具镜像及 requiresPreviousSuccess 执行器级验证，随后 P-08a.1 全链。
