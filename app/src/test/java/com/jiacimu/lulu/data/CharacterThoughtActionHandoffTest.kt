@@ -117,6 +117,38 @@ class CharacterThoughtActionHandoffTest {
         assertEquals(1, CharacterThoughtActionHandoff.actions(same)!!.length())
     }
 
+    @Test fun mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect() {
+        val tool = action("publish_moment")
+        val decision = JSONObject().put("action", "tool")
+            .put("tool", "publish_moment")
+            .put("args", JSONObject(tool.getJSONObject("args").toString()))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "start").put("ref", "fresh-goal")
+                    .put("nextAction", JSONObject(tool.toString())))))
+        val before = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals("fresh-goal", normalized.getString("motiveRef"))
+        assertNull(CharacterThoughtActionHandoff.actions(normalized))
+        assertEquals(before, decision.toString())
+
+        val concernDecision = JSONObject(decision.toString()).apply {
+            remove("innerLife")
+            put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(
+                JSONObject().put("threadId", "concern-7").put("status", "open")
+                    .put("nextAction", JSONObject(tool.toString())))))
+        }
+        val concernNormalized = AutonomousActionWireProtocol.normalize(concernDecision)
+        assertEquals("concern-7", concernNormalized.getString("concernId"))
+        assertNull(CharacterThoughtActionHandoff.actions(concernNormalized))
+
+        val conflicting = JSONObject(decision.toString()).put("motiveRef", "other-goal")
+        val conflictingNormalized = AutonomousActionWireProtocol.normalize(conflicting)
+        assertEquals("other-goal", conflictingNormalized.getString("motiveRef"))
+        val independent = CharacterThoughtActionHandoff.actions(conflictingNormalized)!!
+        assertEquals(1, independent.length())
+        assertEquals("fresh-goal", independent.getJSONObject(0).getString("motiveRef"))
+    }
+
     @Test fun malformedSecondarySlotsSurviveBeforeDependentActions() {
         for (invalid in listOf<Any>("not an action", JSONObject.NULL, 7)) {
             val decision = JSONObject().put("steps", JSONArray().put(action()))
