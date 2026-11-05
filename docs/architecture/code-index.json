@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T04:09:30.012261+00:00",
-  "commit": "0963140616bc5fbbd95fafc383a336eeb2fceb2d",
+  "generatedAt": "2026-11-05T04:10:42.832426+00:00",
+  "commit": "600c3403e951c053e827a1175020c402e4027857",
   "branch": "main",
-  "sourceFingerprint": "7ee78c8d670f15c2dc6d3b2fa5857170939a71fdcbbf033b3edc6ae53c847c77",
+  "sourceFingerprint": "4a0139e91a37bd1ef2291bf4b4fdd61ecdc7cc96bbae8e2f8989519746375680",
   "summary": {
     "files": 1137,
-    "lines": 241423,
+    "lines": 241467,
     "symbols": 3328
   },
   "symbolIndex": {
@@ -37734,8 +37734,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt",
-      "lines": 80,
-      "sha256": "c02e22b2ecb7d2158395455e72e7045c98697426ef000f12fbe895f6ce082503",
+      "lines": 112,
+      "sha256": "f250691e80113d3f6ea12bd44fcecf18dedacb07f946b68187bdf29662e46406",
       "symbols": [
         {
           "name": "MemoryExtractionCheckpointTest",
@@ -38520,8 +38520,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 138,
-      "sha256": "3efa1389df072efbe03ad3d0a2b3e43aba55aad3f466a1e11d64141dc5504a84",
+      "lines": 150,
+      "sha256": "305f2a873a90ba4492d2abf57da2f0f3cbc5d3d36a6cead798d769ec05e062f9",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",

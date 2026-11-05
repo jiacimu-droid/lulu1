@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0963140616bc5fbbd95fafc383a336eeb2fceb2d`
+- 基准提交：`600c3403e951c053e827a1175020c402e4027857`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：241423
+- 已索引代码/文本行：241467
 - 已发现符号：3328
 
 | 文件 | 行数 | 符号数 |
@@ -1003,7 +1003,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 171 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 218 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 80 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 152 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt` | 59 | 4 |
@@ -1049,7 +1049,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 178 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2965 | 23 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 138 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
