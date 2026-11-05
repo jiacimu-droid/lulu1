@@ -163,8 +163,7 @@ internal object MemoryExtractionJobStore {
                         updatedAt = item.optString("updatedAt").toJobInstant(),
                         deferredUntil = item.optString("deferredUntil")
                             .takeIf { it.isNotBlank() && it != "null" }
-                            ?.let { runCatching { value -> Instant.parse(value) }
-                                .getOrNull() },
+                            ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() },
                     ))
                 }
             }
