@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3ebb5e741bf4ddf7e2c90afabefd5d6eb2e8cb3a`
+- 基准提交：`2e20001380d118cf273cd042fcd0408aef0b5c44`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：242151
+- 已索引代码/文本行：242187
 - 已发现符号：3332
 
 | 文件 | 行数 | 符号数 |
@@ -506,7 +506,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 72 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 373 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 403 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 199 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
@@ -856,7 +856,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 97 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 176 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |

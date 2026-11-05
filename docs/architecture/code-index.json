@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T11:44:29.756181+00:00",
-  "commit": "3ebb5e741bf4ddf7e2c90afabefd5d6eb2e8cb3a",
+  "generatedAt": "2026-11-05T11:46:12.679665+00:00",
+  "commit": "2e20001380d118cf273cd042fcd0408aef0b5c44",
   "branch": "main",
-  "sourceFingerprint": "11314d383a2a14b71f5d258754085e29d5783667410a49c31bdd0ae9210ead6e",
+  "sourceFingerprint": "51d1d95fd329725c28e09094d77a7b00d3ccf5d9dd99b7587034f0f53267fa36",
   "summary": {
     "files": 1137,
-    "lines": 242151,
+    "lines": 242187,
     "symbols": 3332
   },
   "symbolIndex": {
@@ -947,7 +947,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 116
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
@@ -10401,25 +10401,25 @@
     "report": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 51
+        "line": 57
       }
     ],
     "eligibleCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 89
+        "line": 95
       }
     ],
     "startManual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 94
+        "line": 100
       }
     ],
     "pendingBatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 167
+        "line": 177
       }
     ],
     "replacementId": [
@@ -28561,28 +28561,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 373,
-      "sha256": "e4871b156342272e35ca3de1ee6fcbafb0ba76556236445add5d05456de2f9d1",
+      "lines": 403,
+      "sha256": "10ebd3bc3297f377bdec1c4be37465d72eee5e5eff034ca90b239f1393cc899d",
       "symbols": [
         {
           "name": "report",
-          "line": 51
+          "line": 57
         },
         {
           "name": "eligibleCount",
-          "line": 89
+          "line": 95
         },
         {
           "name": "startManual",
-          "line": 94
+          "line": 100
         },
         {
           "name": "initialize",
-          "line": 116
+          "line": 122
         },
         {
           "name": "pendingBatches",
-          "line": 167
+          "line": 177
         }
       ]
     },
@@ -35679,8 +35679,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 97,
-      "sha256": "fe1ca7c88945ffbc77af014610b08cf06da248d78f2c23e399173c3ad4348123",
+      "lines": 103,
+      "sha256": "41c8ca1a66ac94deb3cdf51f8244f69eabaf0d2df356c089101c3fdc43b56e37",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
