@@ -59,6 +59,10 @@
 
 - [x] **P-08a.2k 源码与回归已提交，CI/真机待验**：只读 CharacterCausalTrace 对想法采用来源 ID/版本，却未核当前版本想法的记录时间；早于来源的想法会被错误展示成该事件触发的「仍被保留」心理。源码 80ab933 将这种时间矛盾明确显示为「因果未证实」，保留原文和历史，不冒认人物心理；测试 acb8582 覆盖早于来源、正常后续、旧无时间记录、只读和跨角色。不得将源码提交视为 JVM/APK 通过。P-08a.1 其余跨入口链路仍待审计。
 
+### P-08a.CI-01.3 · 2026-11-05 所行排序验收阻断
+- [x] **定位并修正唯一失败断言，源码已提交**：最新 [Lulu APK 42027260248](https://github.com/jiacimu-droid/lulu1/actions/runs/42027260248)（479e262）实际完成 2481 项 JVM 测试，2480 通过、1 失败：`SelfTodoRoleReadTest.todayOverdueFutureAndCheckedTodayUseTheSameOccurrenceCalendar` 仍要求 `scope=all` 第三条为逾期事项。新的用户确认排序为“本日专门安排→每日事项→未来安排→逾期”，故第三条实际为未来安排，第四条才是逾期。提交 [84d0d2d](https://github.com/jiacimu-droid/lulu1/commit/84d0d2d81598082556c2816d08250436ed80ffff) 只更新此回归，分别断言 `all` 的四条稳定顺序及 `today` 仍包含逾期；保留 UI 与角色工具共用的 `SelfTodoCalendar` 权威排序，不反向改坏功能。
+- [ ] **同提交 JVM/APK 与真机待验**：[构建 42029112180](https://github.com/jiacimu-droid/lulu1/actions/runs/42029112180) 已触发，尚不得声明成功；还需真机核所行列表和角色 `read_self_todo` 一致、以及前述中转站慢响应修复在真实中转线路上是否恢复。不要用旧版成功 APK 或仅单测源码替代当前版本验收。
+
 ### P-08a.CI-01 · 全量人物回归运行停滞的可复核诊断（2026-11-05）
 - [x] **P-08a.CI-01.1 非侵入式源码与本地脚本冒烟**：实际 [41936349268](https://github.com/jiacimu-droid/lulu1/actions/runs/41936349268) 的 Test and build phone APK 在日志已开始 57 项 ResidentDailyContinuityTest 后持续静默，40 分钟步骤超时；原日志只有 STARTED，无 PASSED 和线程栈，不足以确定是哪条用例/锁/网络/GC。新增 `scripts/ci_gradle_stall_watch.sh` 仅在 Gradle 日志静默 180 秒时采样进程 PID/内存、最多 6 个 JVM 的有界 `jcmd Thread.print -l`，每 600 秒至多一组，保存到失败日志产物；新增 `scripts/test_ci_gradle_stall_watch.sh`，本地 shell 模拟「持续输出不触发、静默触发且不重复」已通过。Actions `release.yml` 接入 watcher 并保留原 40 分钟超时、全部 JVM 测试和 APK 流程；`app/build.gradle.kts` 新增 PASSED 事件，与 STARTED/FAILED 对应。提交 63431ea、5d46f2d、00186e5、1ba310b。
 - [ ] **P-08a.CI-01.2 CI 根因收敛与修复**：核包含这些提交的下次实际 JVM/APK run：脚本测试是否运行、若再静默是否生成 `gradle-stall-diagnostics.log` 和测试完成序列；按线程栈或真实错误修同一根因并补应用/构建回归。若通过则仅记录该版本未复现，不宣称旧超时根因已解决。
