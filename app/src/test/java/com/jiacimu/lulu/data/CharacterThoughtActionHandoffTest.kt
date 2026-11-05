@@ -16,6 +16,25 @@ class CharacterThoughtActionHandoffTest {
     private fun concern(item: JSONObject) = JSONObject().put("action", "silent")
         .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(item)))
 
+    @Test fun primaryMirrorThenInterveningEffectThenSameToolIsASecondAttempt() {
+        val primary = JSONObject().put("action", "tool").put("tool", "web_search")
+            .put("args", JSONObject().put("query", "同一问题"))
+        val mirror = JSONObject().put("tool", "web_search")
+            .put("args", JSONObject().put("query", "同一问题"))
+        val intervening = JSONObject().put("tool", "read_book")
+            .put("args", JSONObject().put("bookId", "source"))
+        val raw = JSONObject(primary.toString()).put("steps",
+            JSONArray().put(JSONObject(mirror.toString())).put(intervening)
+                .put(JSONObject(mirror.toString()).put("requiresPreviousSuccess", false)))
+        val before = raw.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(raw)
+        val steps = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(2, steps.length())
+        assertEquals("read_book", steps.getJSONObject(0).getString("tool"))
+        assertEquals("web_search", steps.getJSONObject(1).getString("tool"))
+        assertEquals(before, raw.toString())
+    }
+
     @Test fun nonAdjacentSideActionIsNotCollapsedAcrossAnInterveningStep() {
         val first = action().put("reason", "第一次核对")
         val middle = JSONObject().put("tool", "read_book")
