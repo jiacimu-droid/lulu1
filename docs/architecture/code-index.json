@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T11:49:50.025411+00:00",
-  "commit": "31aa26df72bcac39dfd65ff743e0b5c3ff44fdf6",
+  "generatedAt": "2026-11-05T11:52:45.890282+00:00",
+  "commit": "27cebe0f5ee3cc901103a4dc7f78a780bcb63462",
   "branch": "main",
-  "sourceFingerprint": "40b3d01c82e26af48f260802ba5e847220feb6adbf9e5b6d1f875d3051b90407",
+  "sourceFingerprint": "accc28d30cf25ab5c4cce5e82be21fb8a1a4f766c0c8805783a98c81f896e7f7",
   "summary": {
     "files": 1137,
-    "lines": 242223,
+    "lines": 242243,
     "symbols": 3332
   },
   "symbolIndex": {
@@ -6703,7 +6703,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 256
+        "line": 276
       }
     ],
     "axis": [
@@ -18071,7 +18071,7 @@
     "savedPlan": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 387
+        "line": 407
       }
     ],
     "ScheduledReminderDeliveryTest": [
@@ -38635,8 +38635,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 466,
-      "sha256": "59e3d86d943b98947e833b0f96e485a28626cb1a6e6dd2b5971a84d760667dd0",
+      "lines": 486,
+      "sha256": "05245ceede6054a0cf813286dd5f420e557d2eabe8b8698a85576f7fef2adfc4",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
@@ -38644,11 +38644,11 @@
         },
         {
           "name": "completed",
-          "line": 256
+          "line": 276
         },
         {
           "name": "savedPlan",
-          "line": 387
+          "line": 407
         }
       ]
     },
