@@ -20,7 +20,7 @@
 
 | 顺序与 ID | 当前阶段 | 下一可执行步骤 | 完成边界 |
 |---|---|---|---|
-| 1 P-08a | 待源码复核/真实样本 | P-08a.1 检查 turnTraceId 关联 | 能定位决策→表达→发送→后续哪个阶段失真 |
+| 1 P-08a | CI 诊断待 JVM/APK；全链待源码复核/真实样本 | P-08a.CI-01.2 核新构建静默诊断和首个真实失败，再做 P-08a.1 | 能定位决策→表达→发送→后续哪个阶段失真 |
 | 2 P-08b | 待正式注入/真实模型 | P-08b.1 核江渡、星禾不同入口的人设注入 | 人设实际改变本人判断，且不串人格 |
 | 3 P-08c | 待回归/真实模型 | P-08c.2 验证发泡、送达锚与失败回执 | 接话与 bubbles 自然，送达真实 |
 | 4 P-08d | 待源码复核/跨日 | P-08d.1 沿 taskId 追逐步回执 | 目标、执行结果、后续能完整承接 |
@@ -50,6 +50,11 @@
 ### P-08a.2k 心声来源时间归因（2026-11-05）
 
 - [x] **P-08a.2k 源码与回归已提交，CI/真机待验**：只读 CharacterCausalTrace 对想法采用来源 ID/版本，却未核当前版本想法的记录时间；早于来源的想法会被错误展示成该事件触发的「仍被保留」心理。源码 80ab933 将这种时间矛盾明确显示为「因果未证实」，保留原文和历史，不冒认人物心理；测试 acb8582 覆盖早于来源、正常后续、旧无时间记录、只读和跨角色。不得将源码提交视为 JVM/APK 通过。P-08a.1 其余跨入口链路仍待审计。
+
+### P-08a.CI-01 · 全量人物回归运行停滞的可复核诊断（2026-11-05）
+- [x] **P-08a.CI-01.1 非侵入式源码与本地脚本冒烟**：实际 [41936349268](https://github.com/jiacimu-droid/lulu1/actions/runs/41936349268) 的 Test and build phone APK 在日志已开始 57 项 ResidentDailyContinuityTest 后持续静默，40 分钟步骤超时；原日志只有 STARTED，无 PASSED 和线程栈，不足以确定是哪条用例/锁/网络/GC。新增 `scripts/ci_gradle_stall_watch.sh` 仅在 Gradle 日志静默 180 秒时采样进程 PID/内存、最多 6 个 JVM 的有界 `jcmd Thread.print -l`，每 600 秒至多一组，保存到失败日志产物；新增 `scripts/test_ci_gradle_stall_watch.sh`，本地 shell 模拟「持续输出不触发、静默触发且不重复」已通过。Actions `release.yml` 接入 watcher 并保留原 40 分钟超时、全部 JVM 测试和 APK 流程；`app/build.gradle.kts` 新增 PASSED 事件，与 STARTED/FAILED 对应。提交 63431ea、5d46f2d、00186e5、1ba310b。
+- [ ] **P-08a.CI-01.2 CI 根因收敛与修复**：核包含这些提交的下次实际 JVM/APK run：脚本测试是否运行、若再静默是否生成 `gradle-stall-diagnostics.log` 和测试完成序列；按线程栈或真实错误修同一根因并补应用/构建回归。若通过则仅记录该版本未复现，不宣称旧超时根因已解决。
+- **边界**：本轮是构建诊断链的可执行修复，不是人物功能问题根治；没有跳过居民测试、延长超时、增加模型请求或改角色状态。CI 与真实 APK、真机、真实模型尚待验。
 
 ### P-08a 全链追踪
 - [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
