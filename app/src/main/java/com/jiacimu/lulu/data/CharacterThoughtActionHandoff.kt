@@ -108,9 +108,12 @@ internal object CharacterThoughtActionHandoff {
                             canonical(primaryStep.opt(key)) == canonical(step.opt(key)))
                     }) return
             }
-            val existing = (0 until result.length()).mapNotNull(result::optJSONObject)
-                .firstOrNull { sameAction(it, step) }
-            if (existing != null) mergeLinks(existing, step) else result.put(step)
+            // Nested choices also follow the authored execution order. A
+            // repeated request after another action is a new attempt, not a
+            // duplicate receipt of an earlier request.
+            val previous = result.optJSONObject(result.length() - 1)
+            if (previous != null && sameAction(previous, step)) mergeLinks(previous, step)
+            else result.put(step)
         }
         add(decision)
         CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
