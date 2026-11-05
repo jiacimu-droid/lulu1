@@ -116,6 +116,18 @@ class ResidentDailyPolicyTest {
         }
     }
 
+    @Test fun nextResidentBudgetWindowUsesRealLocalMidnightNotRolling24Hours() {
+        val zone = ZoneId.systemDefault()
+        val original = java.time.LocalDate.of(2026, 11, 5)
+            .atTime(23, 58).atZone(zone).toInstant()
+        val expected = java.time.LocalDate.of(2026, 11, 6)
+            .atStartOfDay(zone).toInstant()
+        assertEquals(expected, ResidentDailyPolicy.nextModelBudgetDayStart(original))
+        assertTrue(ResidentDailyPolicy.nextModelBudgetDayStart(original).isAfter(original))
+        assertTrue(ResidentDailyPolicy.nextModelBudgetDayStart(original)
+            .isBefore(original.plusSeconds(24 * 3600)))
+    }
+
     @Test fun dailyDecisionRequestsCorrectionRatherThanSilentlyDroppingOverBudgetPlan() {
         val at = java.time.LocalDate.of(2026, 10, 28)
             .atStartOfDay(ZoneId.systemDefault()).toInstant()
