@@ -714,12 +714,13 @@ object ProactivePerceptionScheduler {
     }
 
     /**
-     * Exceptional recovery only: an online expiry chose sleep but could not
-     * persist the role's required follow-up. Retry the SAME character decision
-     * once after a quiet delay, not an infinite five-minute paid loop.
-     * This is a system recovery wake, NOT a fabricated owner-selected deadline.
+     * Bounded recovery when a finished online lease left an accepted duty
+     * without a durable successor. This also covers rejected continue/invalid
+     * online decisions, not just an explicitly chosen sleep.
+     * The worker asks the SAME character to decide; it does not fabricate a
+     * deadline, message, call, or owner-selected sleep.
      */
-    fun scheduleUnfinishedSleepHandoff(context: Context, characterId: String) {
+    fun scheduleUnfinishedCommitmentRecovery(context: Context, characterId: String) {
         if (characterId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
         val app = context.applicationContext
@@ -737,9 +738,10 @@ object ProactivePerceptionScheduler {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("trigger",
-                    "休眠责任交接失败：仍有未完成的本人承诺缺少真实未来复查。读取原任务ID，" +
-                    "由本人重新选择实际下一步；如果想安静休息，可调用 go_offline 并在 nextChecks " +
-                    "填好每项尚未交接责任的复查时刻。不要重发原提醒或假定主人睡着。")
+                    "未完成责任交接恢复：在线窗口结束后仍有未完成的本人承诺缺少真实后续复查。" +
+                    "读取原任务ID、执行回执和当前在线状态，由本人选择现在采取实际行动，" +
+                    "或用 schedule_commitment_review（也可选择休眠时提交 nextChecks）真实登记未来时刻。" +
+                    "不要凭心声自动安排、重发原提醒或假定主人睡着。")
                 .putString("characterId", characterId)
                 .putBoolean("force", true)
                 // This corrective worker must run for an offline role even
@@ -956,7 +958,8 @@ class ProactivePerceptionWorker(
             PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId, retryRevision)) {
             return@runCatching Result.success()
         }
-        if (trigger.startsWith("休眠责任交接失败") && characterId != null &&
+        if ((trigger.startsWith("休眠责任交接失败") ||
+                trigger.startsWith("未完成责任交接恢复")) && characterId != null &&
             (CompanionOnlineStore.isOnline(characterId) ||
                 CompanionSleepHandoff.uncovered(applicationContext, characterId, Instant.now()).isEmpty())) {
             // The original obligation has already been handed off or the role
