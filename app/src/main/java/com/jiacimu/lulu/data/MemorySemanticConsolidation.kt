@@ -46,6 +46,12 @@ internal object MemorySemanticConsolidation {
     private val reportStore = MutableStateFlow<Map<String, MemoryReviewStatus>>(emptyMap())
     val reports: StateFlow<Map<String, MemoryReviewStatus>> = reportStore.asStateFlow()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
+
+    /** Semantic maintenance is optional paid work, not a reason to submit
+     * requests after the owner has exhausted this resident's daily allowance. */
+    private fun residentBudgetSpent(characterId: String): Boolean =
+        appContext?.let { residentMemoryBudgetDepleted(it, characterId) } == true
 
     /** Restores last result when the settings sheet is reopened; a killed run is not complete. */
     fun report(characterId: String): MemoryReviewStatus {
@@ -114,6 +120,7 @@ internal object MemorySemanticConsolidation {
 
     @Synchronized
     fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
@@ -141,6 +148,9 @@ internal object MemorySemanticConsolidation {
             }
             if (due(previous, now, Duration.ofDays(7))) {
                 if (MemoryModelRuntime.extractionConnection() == null) return@withLock
+                // A quota pause is NOT an unsuccessful weekly paid attempt.
+                // Keep its existing cursor and check again when budget returns.
+                if (residentBudgetSpent(characterId)) return@withLock
                 val retryKey = "weeklyAttempt:$characterId"
                 if (!due(storage.getString(retryKey, null), now, Duration.ofHours(12))) return@withLock
                 // Record attempts BEFORE the paid call to avoid hourly retry storms after crashes.
@@ -218,6 +228,17 @@ internal object MemorySemanticConsolidation {
             return 0
         }
 
+        // If a resident has no remaining budget, avoid starting the paid
+        // semantic review. No checkpoints, weekly completion or source facts
+        // change; the next maintenance window can resume normally.
+        if (residentBudgetSpent(characterId)) {
+            publish(characterId, report(characterId).copy(
+                phase = MemoryReviewPhase.Partial,
+                totalRecords = totalRecords, eligibleRecords = facts.size,
+                reviewedBatches = start, totalBatches = windows.size,
+                detail = "居民今日请求额度已满，语义审核延期；原始记忆与批次进度保留"))
+            return 0
+        }
         // The original candidate set is persisted before the first paid request.
         if (start == 0) {
             check(storage.edit().putString(snapshotKey, JSONArray(facts.map(MemoryEntry::id)).toString())
@@ -236,6 +257,15 @@ internal object MemorySemanticConsolidation {
             detail = "正在审核第 ${start + 1} / ${windows.size} 批有效来源记忆"))
         for ((offset, window) in windows.subList(start, end).withIndex()) {
             if (window.size < 2) continue
+            // Another paid resident action may have used the last slot between
+            // batches. Never buy a request merely to receive quota rejection.
+            if (residentBudgetSpent(characterId)) {
+                publish(characterId, report(characterId).copy(
+                    phase = MemoryReviewPhase.Partial,
+                    archived = archived,
+                    detail = "居民请求额度已满，剩余语义审核等待后续预算日"))
+                return archived
+            }
             val evidence = window.joinToString("\n") { memory ->
                 "id=${memory.id} | 类型=${memory.kind} | 来源=${memory.sourceIds().joinToString(",")} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
             }
