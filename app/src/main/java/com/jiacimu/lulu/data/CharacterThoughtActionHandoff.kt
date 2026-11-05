@@ -49,12 +49,11 @@ internal object CharacterThoughtActionHandoff {
         fun suppressExplicitMirror(step: JSONObject): Boolean {
             val mirror = coveredByPrimary(step)
             if (!mirror) {
-                if (primaryMirrorSeen &&
-                    AutonomousActionWireProtocol.normalizeStep(decision).optString("tool") != step.optString("tool"))
+                if (AutonomousActionWireProtocol.normalizeStep(decision).optString("tool") != step.optString("tool"))
                     differentEffectSinceMirror = true
                 return false
             }
-            if (primaryMirrorSeen && differentEffectSinceMirror) return false
+            if (differentEffectSinceMirror) return false
             primaryMirrorSeen = true
             return true
         }
@@ -188,10 +187,20 @@ internal object CharacterThoughtActionHandoff {
         // Explicit steps/sideActions are another spelling of the same
         // primary effect. Carry their authored owner onto its real receipt
         // before the side-action decoder decides whether to suppress a mirror.
+        var interveningExplicitEffect = false
         for (field in listOf("steps", "sideActions")) {
             val declared = decision.optJSONArray(field)
             for (index in 0 until (declared?.length() ?: 0)) {
-                declared?.optJSONObject(index)?.let { nested.put(AutonomousActionWireProtocol.normalizeStep(it)) }
+                val raw = declared?.optJSONObject(index)
+                if (raw == null) {
+                    interveningExplicitEffect = true
+                    continue
+                }
+                val step = AutonomousActionWireProtocol.normalizeStep(raw)
+                if (step.optString("tool") != primary.optString("tool"))
+                    interveningExplicitEffect = true
+                // Only an initial mirror can be credited to the primary receipt.
+                if (!interveningExplicitEffect) nested.put(step)
             }
         }
         CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
