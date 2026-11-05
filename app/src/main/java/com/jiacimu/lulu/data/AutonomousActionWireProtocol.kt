@@ -25,6 +25,20 @@ internal object AutonomousActionWireProtocol {
         "set_user_remark" to "user_remark",
         "set_self_nickname" to "self_nickname",
     )
+    /**
+     * A direct registered tool remains the SAME primary effect when the
+     * outward wire action is translated to its friendly delivery kind.
+     * Example: action=tool + tool=publish_moment -> action=moment.
+     * Its owner links and duplicate-suppression must survive that mapping.
+     * A stale/unrelated tool field on an ordinary reply is not an action.
+     */
+    internal fun isPrimaryToolChoice(decision: JSONObject): Boolean {
+        val action = decision.optString("action").trim().lowercase()
+        val tool = decision.optString("tool").trim().lowercase()
+        return (action == "tool" && tool.isNotBlank()) ||
+            (tool.isNotBlank() && friendlyActionForTool[tool] == action)
+    }
+
     private val argumentKeys = setOf(
         "text", "groupId", "stickerId", "gameId", "location", "locationCode",
         "readingBookId", "worldAction", "itemId", "activityId",
