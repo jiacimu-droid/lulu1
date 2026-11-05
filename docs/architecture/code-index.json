@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T04:08:21.787816+00:00",
-  "commit": "0a4e011a4a20729bb851c727f6002a8ca118d458",
+  "generatedAt": "2026-11-05T04:09:05.005686+00:00",
+  "commit": "580ba4b32ef8d90581ca5fdabc815692aebec754",
   "branch": "main",
-  "sourceFingerprint": "3179ac919a91e3d3ca4e5099edeb080d76d858636282694e8dbf95206d96a30e",
+  "sourceFingerprint": "9020c5930b3198597c355c61d84ef506ebf9bad77411ee054f2a355d38184398",
   "summary": {
     "files": 1137,
-    "lines": 241394,
-    "symbols": 3327
+    "lines": 241415,
+    "symbols": 3328
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -939,7 +939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 28
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
@@ -1073,7 +1073,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 44
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -4113,7 +4113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 41
+        "line": 43
       }
     ],
     "allPending": [
@@ -4129,11 +4129,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 78
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 82
+        "line": 99
       }
     ],
     "undo": [
@@ -6325,7 +6325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 104
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6751,11 +6751,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 66
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 84
+        "line": 101
       }
     ],
     "nextOperation": [
@@ -7959,7 +7959,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 93
+        "line": 110
       }
     ],
     "CommitmentTurnAutomation": [
@@ -10314,6 +10314,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
         "line": 8
+      }
+    ],
+    "defer": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 71
       }
     ],
     "MemoryRecallInspection": [
@@ -28378,8 +28384,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-      "lines": 154,
-      "sha256": "30bfa48b7f56be9f79fbb249bfe7f0ccf4778154e5f5590621886463779c6df2",
+      "lines": 175,
+      "sha256": "12fde9b07473b76f105ca45b9cb5c36021297fcdf038ddeb76682ee3436167b2",
       "symbols": [
         {
           "name": "MemoryExtractionJob",
@@ -28387,39 +28393,43 @@
         },
         {
           "name": "initialize",
-          "line": 28
+          "line": 30
         },
         {
           "name": "pending",
-          "line": 41
+          "line": 43
         },
         {
           "name": "enqueue",
-          "line": 44
+          "line": 46
+        },
+        {
+          "name": "defer",
+          "line": 71
         },
         {
           "name": "failed",
-          "line": 66
-        },
-        {
-          "name": "complete",
-          "line": 78
-        },
-        {
-          "name": "complete",
           "line": 82
         },
         {
+          "name": "complete",
+          "line": 95
+        },
+        {
+          "name": "complete",
+          "line": 99
+        },
+        {
           "name": "failed",
-          "line": 84
+          "line": 101
         },
         {
           "name": "removeBySourceEvent",
-          "line": 93
+          "line": 110
         },
         {
           "name": "clearCharacter",
-          "line": 104
+          "line": 121
         }
       ]
     },
