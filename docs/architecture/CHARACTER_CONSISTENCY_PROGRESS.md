@@ -1242,3 +1242,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式修复**：[06809cd6](https://github.com/jiacimu-droid/lulu1/commit/06809cd6a29fb2f9c36ec410717b99d152fecb4d) 限定 sideActions 只与结果末尾紧邻的兼容动作合并；不改变主工具归属、其他动作来源或原始模型决定。[dcfb3ba](https://github.com/jiacimu-droid/lulu1/commit/dcfb3ba98489fb131c5f8457e26cfa377b495221) 新增 nonAdjacentSideActionIsNotCollapsedAcrossAnInterveningStep，覆盖跨间隔重复保留、相邻去重、独立理由和原 JSON 不变。
 - **验证**：旧 APK Actions [42029112180](https://github.com/jiacimu-droid/lulu1/actions/runs/42029112180) completed/success 只覆盖 84d0d2d；新 [42066569144](https://github.com/jiacimu-droid/lulu1/actions/runs/42066569144) 为 06809cd6 的 in_progress（查询时），不能宣称 dcfb3ba 或文档后继 HEAD 的 JVM/APK 通过。无本地 Android 构建结果；真机、真实模型、跨日及实际 ToolRouter 副作用未验。没有额外收费模型调用。
 - **下一轮**：先刷新 main 与新 push Actions，修首个实际失败；再按 P-08d.2h 检验主工具镜像被过滤时的 requiresPreviousSuccess 前驱与主工具成功/失败回执，补执行器级失败用例，避免只做解析断言。之后追前台/后台真实入口与重放幂等。
+
+
+## 2026-11-06 · P-08d 旧晚复查在心声中、未证实已执行
+
+- **用户真机观察**：11月5日23:35心声写“23:45复查、洗漱后尝试哄睡电话”，23:30后无可见联系。所附日程选中11月6日，23:30为次日定时责任，不足以直接证明11月5日23:45是否曾保存复查。私人心声文字不是可执行动作；实际模型JSON和工具回执尚未导出。
+- **已证实控制流缺口**：`ProactivePerceptionRuntime` 在线窗口到期时，只有本人选择sleep且`CompanionSleepHandoff.ensure`失败才会触发有界恢复。角色选择continue但未能续租、或在线决定不符合结构时，即使本人的正式责任仍没有未来复查，原路由也可能就此结束。后一日的每日闹钟并不等于前夜未知结果的复查。不能仅凭截图断言当晚必经该分支。
+- **提交至main**：`OnlineContinuationPolicy.needsCommitmentRecovery`在窗口真正结束、未被新窗口接管且`CompanionSleepHandoff.uncovered`仍有未交接正式责任时允许原调度器补救；`scheduleUnfinishedCommitmentRecovery`仍为原WorkManager六分钟延后和每角色每小时一次的有限同角色决策机会，保留旧队列触发兼容；不是自动将心声词句注册为23:45、拨电话或判定主人已睡。代码提交：`49893e7`、`da5698d`、`4480730`、`4f808ae`。
+- **回归已写，待CI**：`OnlineContinuationPolicyTest`覆盖续期失败/新窗口覆盖/已有排期的恢复判定；`OnlineChatExperienceTest`以真实明日闹钟和当晚独立结果复查验证同一任务跨日不混淆（`633fe8c`、`1d83fd6`）。未取得Android单测、APK或真机通过证据，不能标记已验通。
+- **后续**：核实最终head的CI，并获取23:35真实模型`onlineDecision/steps/commitmentChanges`、工具`schedule_commitment_review`回执及`nextCheckAt/linkedAlarmId`，区分模型未选择、工具未保存、闹钟未交付或窗口退出未交接；不凭心声关键词代人物作语义决定。
