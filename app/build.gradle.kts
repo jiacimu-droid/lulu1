@@ -117,10 +117,10 @@ android {
         unitTests.isIncludeAndroidResources = true
         unitTests.all {
             it.testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-            // Emit each test name before execution: a stuck Robolectric test otherwise
-            // leaves the Actions log on "testDebugUnitTest" with no useful evidence.
-            // Preserve every test and assertion; this is visibility, not skipping.
-            it.testLogging.events("started", "failed")
+            // Report both STARTED and PASSED: STARTED alone cannot tell whether
+            // the last visible Robolectric case completed before a worker hung.
+            // Keep every test and assertion, and retain full failure stack traces.
+            it.testLogging.events("started", "passed", "failed")
             // Robolectric downloads instrumented Android SDK jars at test
             // runtime, outside Gradle's normal repository resolution. The
             // default repo1.maven.org endpoint returned 404 for five valid
