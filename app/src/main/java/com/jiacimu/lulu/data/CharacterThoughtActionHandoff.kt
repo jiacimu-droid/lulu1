@@ -40,13 +40,31 @@ internal object CharacterThoughtActionHandoff {
                     canonical(chosen.opt(key)) == canonical(step.opt(key)))
             }
         }
+        // A second explicitly authored primary-equivalent action after a different
+        // executable step is a new attempt, not another spelling of the first
+        // primary receipt. Ownership conflicts alone do not mark an intervening
+        // effect: those are handled independently by the causal-link contract.
+        var primaryMirrorSeen = false
+        var differentEffectSinceMirror = false
+        fun suppressExplicitMirror(step: JSONObject): Boolean {
+            val mirror = coveredByPrimary(step)
+            if (!mirror) {
+                if (primaryMirrorSeen &&
+                    AutonomousActionWireProtocol.normalizeStep(decision).optString("tool") != step.optString("tool"))
+                    differentEffectSinceMirror = true
+                return false
+            }
+            if (primaryMirrorSeen && differentEffectSinceMirror) return false
+            primaryMirrorSeen = true
+            return true
+        }
         for (index in 0 until (primary?.length() ?: 0)) {
             val raw = primary?.optJSONObject(index)
             if (raw == null) {
                 result.put(primary?.opt(index) ?: JSONObject.NULL)
             } else {
                 val step = AutonomousActionWireProtocol.normalizeStep(raw)
-                if (!coveredByPrimary(step)) result.put(step)
+                if (!suppressExplicitMirror(step)) result.put(step)
             }
         }
         val secondary = decision.optJSONArray("sideActions")
@@ -59,7 +77,7 @@ internal object CharacterThoughtActionHandoff {
                 continue
             }
             val step = AutonomousActionWireProtocol.normalizeStep(raw)
-            if (coveredByPrimary(step)) continue
+            if (suppressExplicitMirror(step)) continue
             // Ordered steps are a sequence, not a set. An intervening action
             // may change state or fail; collapsing a later identical tool into
             // an earlier slot would erase the model's chosen second attempt and
