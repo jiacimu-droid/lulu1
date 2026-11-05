@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T11:41:07.301483+00:00",
-  "commit": "fbf12b7654657dc706050f28e0c0e61d6bfce203",
+  "generatedAt": "2026-11-05T11:41:34.652539+00:00",
+  "commit": "b92dd250cc7c3bcaca5109346e2305ca31da9814",
   "branch": "main",
-  "sourceFingerprint": "f83766379898e94d9b488a9d12c806d255089fbf558ddd5fc54fd791ecdea113",
+  "sourceFingerprint": "25b768fe34e92f5399e2c7183ba77fd783bd52bd15b909b053eb1df21893185c",
   "summary": {
     "files": 1137,
-    "lines": 242055,
+    "lines": 242084,
     "symbols": 3332
   },
   "symbolIndex": {
@@ -1743,7 +1743,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2284
+        "line": 2311
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11807,13 +11807,13 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1561
+        "line": 1566
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2150
+        "line": 2177
       }
     ],
     "maxResidents": [
@@ -29918,8 +29918,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2348,
-      "sha256": "3d984540c674cdb2a674de8e3c024fa19c7688bef66fb630fd851ade3c46c9ac",
+      "lines": 2377,
+      "sha256": "0ed9375424c1e3e9c680cb59e3e2b0736138a5efdaca3327c625fdd0a8bc6e5e",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29991,15 +29991,15 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1561
+          "line": 1566
         },
         {
           "name": "errorOf",
-          "line": 2150
+          "line": 2177
         },
         {
           "name": "schedule",
-          "line": 2284
+          "line": 2311
         }
       ]
     },
