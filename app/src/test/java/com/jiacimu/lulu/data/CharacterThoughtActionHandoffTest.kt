@@ -467,6 +467,42 @@ class CharacterThoughtActionHandoffTest {
         // gets its own independent receipt, not the primary's owner.
     }
 
+    @Test fun friendlyPrimaryAliasesSuppressOnlyFullyOwnedExplicitMirrors() {
+        // Main delivery is executed outside OrderedCharacterActions. Its
+        // secondary spellings must not publish or send the same effect twice.
+        for ((tool, expectedAction) in listOf(
+            "publish_moment" to "moment",
+            "send_private_message" to "message",
+            "start_call" to "call",
+        )) {
+            val args = JSONObject().put("text", "角色本人选择的真实内容")
+            val mirror = JSONObject().put("tool", tool).put("args", JSONObject(args.toString()))
+            val decision = JSONObject().put("action", "tool").put("tool", tool)
+                .put("args", JSONObject(args.toString()))
+                .put("steps", JSONArray().put(JSONObject(mirror.toString())
+                    .put("motiveRef", "same-goal")))
+                .put("sideActions", JSONArray().put(JSONObject(mirror.toString())
+                    .put("concernId", "same-concern")))
+            val original = decision.toString()
+            val normalized = AutonomousActionWireProtocol.normalize(decision)
+            assertEquals(expectedAction, normalized.getString("action"))
+            assertEquals("same-goal", normalized.getString("motiveRef"))
+            assertEquals("same-concern", normalized.getString("concernId"))
+            assertNull("Mirror must not repeat the real primary effect: $tool",
+                CharacterThoughtActionHandoff.actions(normalized))
+            assertEquals(original, decision.toString())
+
+            // A second explicitly different goal is not credited with the
+            // first goal's delivery; it retains its own execution/receipt.
+            val conflict = JSONObject(decision.toString()).put("motiveRef", "other-goal")
+            val conflictNormalized = AutonomousActionWireProtocol.normalize(conflict)
+            val steps = CharacterThoughtActionHandoff.actions(conflictNormalized)!!
+            assertEquals(tool, 1, steps.length())
+            assertEquals("same-goal", steps.getJSONObject(0).getString("motiveRef"))
+            assertEquals("same-concern", conflictNormalized.getString("concernId"))
+        }
+    }
+
     @Test fun stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts() {
         val search = action()
         val journal = JSONObject().put("tool", "write_journal")
