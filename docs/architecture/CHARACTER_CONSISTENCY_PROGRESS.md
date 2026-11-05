@@ -1261,3 +1261,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归源码**：`DailyCommitmentRecurrenceTest.oneTimePromiseWithUnknownOutcomeIsAlsoEligibleForRestartRecovery` 覆盖一次性未证实/Blocked、未来/完成/未到期边界；`CommitmentAlarmRecoveryTest.coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery` 检查真实Store重启恢复之后原ID、未知状态、过期闹钟清理和后继缺口仍可识别；提交 `585342f`、`0dd4e42`。没有增加影子Store、关键词解析、私人心声自动任务、额外常态模型轮次。
 - **CI界限**：旧push `06809cd6` 的 APK Actions `42066569144`（job `127382156671`）已 completed/failure，2481项单测1项失败：`CharacterThoughtActionHandoffTest.stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts`。**该失败发生在本轮提交前且不直接证明本轮复查修改有错**；当前新提交的 JVM/APK、设备跨午夜/后台闹钟与原23:45模型实际选择尚待对应run验证。不能把旧 success 或已写测试当作现版通过。
 - **下一步**：优先用对应head的Actions和失败日志核对新测试，必要时追真实重启恢复Worker/AlarmManager回调与工具receipt；采集23:35那轮 `onlineDecision/steps/commitmentChanges`、到点闹钟和`linkedAlarmId`，区分未提交、未保存、没触发或后台不再决策，不能从心声硬推已经安排。
+
+
+## 2026-11-06 · P-08a.CI-01.4 编译阻断：恢复调度器旧名称
+
+- **接手 main**：25ab7c9605442c88e3e3765786411781d25dfe86；核 AGENTS、CODE_INDEX、roadmap、本文最新记录，及 ProactivePerceptionRuntime / ProactivePerceptionScheduler 正式源码和 push Actions。
+- **实际失败**：[42069227302](https://github.com/jiacimu-droid/lulu1/actions/runs/42069227302) 对应 0dd4e42，build 在 `:app:compilePhoneKotlin` 失败，日志明确 `ProactivePerceptionRuntime.kt:2537:42 Unresolved reference 'scheduleUnfinishedSleepHandoff'`；APK 未生成、JVM 全量测试未跑完。恢复调度器已改为 `scheduleUnfinishedCommitmentRecovery`，执行回执处残留旧调用。不是网络、模型或真机故障。
+- **正式源码**：[e12149c](https://github.com/jiacimu-droid/lulu1/commit/e12149c1317dab200d654423ec3d050594c554dc) 将旧调用改为既存恢复入口；不新建恢复器、不增加收费模型调用、不修改角色选择或历史。Roadmap 记录 [1bcc98a](https://github.com/jiacimu-droid/lulu1/commit/1bcc98ada38b75c996a9adfbe1c13e3a1e0d8754)。
+- **验证边界**：本环境无法访问 github.com 克隆仓库，未运行 `scripts/generate_code_index.py` 或本地 Gradle；需原 Actions 索引生成和新 push APK/JVM 确认。修复是明确符号引用错误，但未宣称编译通过。真机、真实模型、跨日、外部回执均未验。
+- **下一轮**：刷新 main 和同文件 SHA，先核 e12149c 后继 Actions 首个失败；通过后回 P-08d.2h 主工具镜像成功/失败、`requiresPreviousSuccess` 与真实入口幂等，不能仅靠解析测试关闭整项。
