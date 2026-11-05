@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T06:57:32.013335+00:00",
-  "commit": "47ba84947869765ad1d5caaacdadf991cd97eecd",
+  "generatedAt": "2026-11-05T06:58:11.471011+00:00",
+  "commit": "0ad901efb35ac8973d57086e955b25396e0e1101",
   "branch": "main",
-  "sourceFingerprint": "77d7627bc52d327e15bc869934b537c9cbc27eaf1b58b015600d41f1dbf35b19",
+  "sourceFingerprint": "792ba5a8263e6c11348293e8d28005eed23909969b8655fd994c01dd19dc3665",
   "summary": {
     "files": 1137,
-    "lines": 241664,
+    "lines": 241720,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -16613,7 +16613,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 250
+        "line": 306
       }
     ],
     "CharacterMotiveDeliberationTest": [
@@ -16799,7 +16799,7 @@
     "linked": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 214
+        "line": 270
       }
     ],
     "CharacterTopicCandidatesTest": [
@@ -36935,8 +36935,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 433,
-      "sha256": "4bba9b5ba218d4c25efd3e3cb5a9cf4303481fa95be85d75de70b0fdaf567e60",
+      "lines": 489,
+      "sha256": "6b4f1a5bb0c440225e8ca512fe53bfe2072308fa9a927c915c51f984067f51b5",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
@@ -36944,11 +36944,11 @@
         },
         {
           "name": "linked",
-          "line": 214
+          "line": 270
         },
         {
           "name": "motive",
-          "line": 250
+          "line": 306
         }
       ]
     },
