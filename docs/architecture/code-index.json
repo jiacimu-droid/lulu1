@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:53:23.961762+00:00",
-  "commit": "8bf3052fc634127c075f671878b6fba3073b6dd6",
+  "generatedAt": "2026-11-05T16:53:47.049345+00:00",
+  "commit": "12a35fec1a388de66e594ba490ba590817db59c0",
   "branch": "main",
-  "sourceFingerprint": "d61ce4ffcf2cdb868e08629f3ba41b1c3b0f2e05c160330a7536f6cd1083523c",
+  "sourceFingerprint": "6d29b17a25dcd2bc9804bc5ce78c392cfcc68700c4845a6172aeedf2aea8ce7c",
   "summary": {
     "files": 1137,
     "lines": 242915,
@@ -29510,7 +29510,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
       "lines": 1220,
-      "sha256": "de40b1c44fc3a875b198474d6617db7d0333d843a0f5772208c8fdc50ecfec96",
+      "sha256": "53c9264829f34d6c4b2d5900a699d97ef8140ab24753d3958a8e908b39090bad",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
