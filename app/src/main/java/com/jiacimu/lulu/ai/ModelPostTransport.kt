@@ -14,8 +14,13 @@ import okio.BufferedSink
  * One-shot body, disabled redirects and transport retry prevent silent paid replays. */
 internal object ModelPostTransport {
     internal enum class Phase { CONNECT, WRITE_BODY, READ_RESPONSE }
+    // OkHttp defaults writeTimeout to 10s even if readTimeout is 3–5 min.
+    // Large UTF-8/JSON posts can time out in the request-body flush itself;
+    // allow a bounded slower upload without replaying an uncertain paid POST.
+    internal const val REQUEST_WRITE_TIMEOUT_SECONDS = 60L
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .retryOnConnectionFailure(false)
         .followRedirects(false)
         .followSslRedirects(false)
