@@ -140,6 +140,14 @@ class LocalMemoryRepository : MemoryRepository {
             try {
                 extractImmediateMemories(characterId)
                 summarizeContinuously(characterId, flushTail = true)
+            } catch (deferred: ResidentMemoryBudgetDeferred) {
+                // A manual check at zero quota also needs a durable next-day
+                // queue entry. Do not report success/failure or lose the tail.
+                appContext?.let { MemoryExtractionJobStore.initialize(it) }
+                val queued = MemoryExtractionJobStore.enqueue(characterId)
+                MemoryExtractionJobStore.defer(queued, deferred.resumeAt)
+                refreshDebug("居民的记忆整理已延期至下一个预算日；待处理原文和进度完整保留",
+                    characterId, extracting = false)
             } catch (error: Exception) {
                 refreshDebug("记忆整理失败，记录保留等待重试", characterId, lastError = error.message)
                 throw error
