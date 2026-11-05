@@ -438,6 +438,35 @@ class CharacterThoughtActionHandoffTest {
             .put("nextAction", action()).put("steps", JSONArray().put(action("write_journal"))))!!.length())
     }
 
+    @Test fun explicitStepsAndSideActionsMirroringPrimaryDoNotExecuteTwiceOrLoseOwners() {
+        val plan = JSONObject().put("title", "继续研究").put("intent", "稍后核实")
+            .put("dueAt", "2026-11-06T12:00:00Z")
+            .put("activityAction", "publish_moment")
+            .put("activityArgs", JSONObject().put("text", "整理发现"))
+        val primary = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject(plan.toString()))
+        val motiveMirror = JSONObject().put("tool", "plan_personal_activity")
+            .put("args", JSONObject(plan.toString())).put("motiveRef", "new-goal-ref")
+        val concernMirror = JSONObject().put("tool", "plan_personal_activity")
+            .put("args", JSONObject(plan.toString())).put("concernId", "existing-concern")
+        val conflict = JSONObject().put("tool", "plan_personal_activity")
+            .put("args", JSONObject(plan.toString())).put("motiveRef", "other-goal-ref")
+        val decision = JSONObject(primary.toString())
+            .put("steps", JSONArray().put(motiveMirror).put(conflict))
+            .put("sideActions", JSONArray().put(concernMirror))
+        val original = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals("new-goal-ref", normalized.getString("motiveRef"))
+        assertEquals("existing-concern", normalized.getString("concernId"))
+        val remaining = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(1, remaining.length())
+        assertEquals("other-goal-ref", remaining.getJSONObject(0).getString("motiveRef"))
+        assertEquals(original, decision.toString())
+        // No mirror may execute twice; conflicting explicit ownership still
+        // gets its own independent receipt, not the primary's owner.
+    }
+
     @Test fun stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts() {
         val search = action()
         val journal = JSONObject().put("tool", "write_journal")
