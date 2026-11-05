@@ -118,6 +118,12 @@ fun LexiconFeatureScreenV2(
     var visibleCount by rememberSaveable(characterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val photoSnackbar = remember { SnackbarHostState() }
+    val albumRevision by RolePhotoAlbumStore.revisions.collectAsState()
+    val albumSources = remember(context, characterId, albumRevision) {
+        RolePhotoAlbumStore.list(context, characterId).mapTo(hashSetOf()) { it.source }
+    }
+    var savingFavoriteImageId by remember { mutableStateOf<String?>(null) }
     var selectedEpisodeId by remember { mutableStateOf<String?>(null) }
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -132,7 +138,8 @@ fun LexiconFeatureScreenV2(
         }
         if (index >= 0) { visibleCount = maxOf(visibleCount, index + 1); listState.scrollToItem(index) }
     }
-    Scaffold(containerColor = LuluColors.Paper, topBar = {
+    Scaffold(containerColor = LuluColors.Paper,
+        snackbarHost = { SnackbarHost(photoSnackbar) }, topBar = {
         TopAppBar(title = { Column {
             Text(title, fontWeight = FontWeight.SemiBold)
             if (personal) Text(characters[characterId]?.displayName.orEmpty(), fontSize = 12.sp, color = LuluColors.Muted)
@@ -251,6 +258,33 @@ fun LexiconFeatureScreenV2(
                             onEdit = { editing = entry }, onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } })
                         else FavoriteEntryCard(entry, characters[characterId]?.displayName ?: "角色",
                             highlighted = entry.id == initialFavoriteEntryId,
+                            savedToAlbum = "聊天收藏 · ${entry.id}" in albumSources,
+                            savingPhoto = savingFavoriteImageId == entry.id,
+                            onSavePhoto = { image ->
+                                if (savingFavoriteImageId == null) {
+                                    savingFavoriteImageId = entry.id
+                                    scope.launch {
+                                        val result = runCatching {
+                                            withContext(Dispatchers.IO) {
+                                                val source = "聊天收藏 · ${entry.id}"
+                                                if (RolePhotoAlbumStore.list(context, entry.characterId)
+                                                        .none { it.source == source }) {
+                                                    RolePhotoAlbumStore.saveUri(
+                                                        context, entry.characterId, image.imageUri, source,
+                                                        image.caption.ifBlank { image.imageDescription },
+                                                        image.sourceUrl,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        savingFavoriteImageId = null
+                                        photoSnackbar.showSnackbar(result.fold(
+                                            onSuccess = { "图片已存进这位角色的相册" },
+                                            onFailure = { "图片没能存入相册：${it.message ?: "原图可能已不存在"}" },
+                                        ))
+                                    }
+                                }
+                            },
                             onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } })
                     }
                     if (visibleCount < entries.size) item { TextButton(onClick = { visibleCount += LEXICON_PAGE_SIZE },
@@ -452,6 +486,9 @@ private fun FavoriteEntryCard(
     entry: LexiconEntry,
     characterName: String,
     highlighted: Boolean = false,
+    savedToAlbum: Boolean = false,
+    savingPhoto: Boolean = false,
+    onSavePhoto: (QqChatImageMessage) -> Unit = {},
     onDelete: () -> Unit,
 ) {
     val parts = remember(entry.id, entry.content) {
@@ -463,12 +500,29 @@ private fun FavoriteEntryCard(
                 entry.content.substring(index + FAVORITE_REASON_SEPARATOR.length).trim()
         }
     }
+    val image = remember(parts.first) { decodeQqChatImage(parts.first) }
     LexiconV2Card(highlighted = highlighted) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("$characterName 收藏的主人消息", color = LuluColors.Muted, fontSize = 11.sp)
-                Text("“${parts.first}”", color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+                if (image != null) {
+                    MomentImageAttachment(image.imageUri, Modifier.fillMaxWidth().height(210.dp))
+                    val imageText = image.caption.ifBlank { image.imageDescription }
+                    if (imageText.isNotBlank()) {
+                        Text(imageText, color = LuluColors.Ink, fontSize = 13.sp, lineHeight = 19.sp)
+                    }
+                    OutlinedButton(
+                        onClick = { onSavePhoto(image) },
+                        enabled = !savedToAlbum && !savingPhoto,
+                    ) { Text(if (savedToAlbum) "已存入相册" else if (savingPhoto) "保存中…" else "保存到角色相册") }
+                } else {
+                    // A damaged historical attachment must not show its raw encoded payload.
+                    val text = if (parts.first.contains("⟪CHAT_IMAGE:"))
+                        "这是一张聊天图片，图片信息不完整，暂时无法预览"
+                        else parts.first
+                    Text("“$text”", color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+                }
                 if (parts.second.isNotBlank()) {
                     Surface(
                         color = LuluColors.CardStrong,
