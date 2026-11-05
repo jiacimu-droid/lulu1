@@ -146,6 +146,11 @@ object CommitmentTaskStore {
                     task.nextCheckAt != null &&
                     CommitmentAlarmTiming.expired(task.nextCheckAt, now) &&
                     task.linkedAlarmId != null -> {
+                    // A missed RESULT check is also a missed time-bound
+                    // responsibility, not an action to quietly forget. The
+                    // original check must not be replayed or deemed successful.
+                    if (task.followUpKind == "verification")
+                        missedByRole.putIfAbsent(task.characterId, task.nextCheckAt)
                     task.linkedAlarmId.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
@@ -180,15 +185,23 @@ object CommitmentTaskStore {
                         task.dailyNextAlarmId?.let { id -> LuluAlarmSystem.list().none { it.id == id } } == true ||
                         task.status == CommitmentTaskStatus.Completed)
             }.forEach { task -> ensureNextDailyOccurrence(it, task.id, now) }
-            // A delivered nightly reminder with unknown outcome cannot be
-            // silently treated as the next day's already-covered obligation.
-            // Wake the SAME role for a bounded recovery choice, not an
-            // automatic new message, call, or invented sleep confirmation.
+            // Unknown outcomes of one-time AND daily promises must survive
+            // process death. The next daily alarm is not last night's result;
+            // nor is a missed one-time result check a completed task.
+            // Check the real alarm/linked-plan authority before a bounded
+            // SAME-role recovery decision. Missed native callbacks already
+            // have an immediate coalesced role wake below.
             mutableTasks.value.filter { task ->
-                task.needsUnverifiedDailyRecovery(now)
-            }.map(CommitmentTask::characterId).distinct().forEach { role ->
-                ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(it, role)
-            }
+                task.needsUnverifiedCommitmentRecoveryCandidate(now)
+            }.map(CommitmentTask::characterId).distinct()
+                .filterNot(missedByRole::containsKey)
+                .filter { role ->
+                    CompanionSleepHandoff.uncovered(it, role, now).any { task ->
+                        task.needsUnverifiedCommitmentRecoveryCandidate(now)
+                    }
+                }.forEach { role ->
+                    ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(it, role)
+                }
             missedByRole.forEach { (characterId, missedAt) ->
                 runCatching {
                     ProactivePerceptionScheduler.scheduleMissedCommitmentReview(
