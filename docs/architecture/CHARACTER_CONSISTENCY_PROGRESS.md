@@ -1209,3 +1209,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式修复**：[c47fb4a](https://github.com/jiacimu-droid/lulu1/commit/c47fb4a618de1b5c4a7715b094b243790ecaafa1) 在现有归属聚合器纳入显式 steps/sideActions 的规范化动作，只按原 sameAction/累积兼容 owner 规则合并；actions 对已由主工具覆盖全部明确归属的完全镜像跳过，冲突归属独立保留。不新增 Store、收费模型、硬编码意图或清理历史。
 - **回归**：[d746e9a](https://github.com/jiacimu-droid/lulu1/commit/d746e9a0e195116cb1109bc0a6b7f2a2d320a0ee) explicitStepsAndSideActionsMirroringPrimaryDoNotExecuteTwiceOrLoseOwners：显式主步骤目标 ref、侧步骤挂心 ID、同效果冲突目标分别验合并、保留和原始 JSON 不变。测试源码已提交，**本轮没有可核验的对应 JVM/APK 完成结果**，不能声称通过；尚未覆盖真实外部工具副作用或手机。
 - **下一轮**：先查 d746e9a 后继 push Actions 的首个真实失败或成功（PR-only 查询/combined statuses 为空不代表通过）；若失败按日志修。随后做 P-08d.2h 前台/后台真实主动作→ToolRouter 回执与重放集成，若新代码已有他窗实现则只记录证据。P-08a.CI-01.2 静默诊断继续按新 run 核实。真机、真实模型、跨日未验。
+
+## 2026-11-05 · V-01.3a 视频触摸不应抢话并额外收费（待 CI / 真机）
+
+- **根因**：LuluVoiceCallSession.onLive2DTouch 原先合并 950ms 触摸后，若 replyGeneration 未变即将真实触摸证据送到 onExternalToolResult。CallExternalResultPolicy 只在空闲状态下放行，而队列会继续等待。角色正在回复时的触摸因此可能在 TTS 结束后单独触发第二轮模型响应，抢在主人下一句话之前并造成额外 TTS 与打断费用。replyGeneration 相等不能证明现在需要一轮新的发言。
+- **正式代码与提交**：[c7dccae](https://github.com/jiacimu-droid/lulu1/commit/c7dccae53486b35c522e3966b9ff853876402d04) 移除触摸→额外工具回执排队的直接调用。依旧记录本次真实接触（部位、方式、力度、总时长）到 InteractionSignalBridge→SharedExperienceTimeline，触摸动画不变。handleUserSpeech 在真正用户语音或电话内已入库文字回合前主动 flush 尚未到期的同通话触摸批次，随后由原 CharacterPerceptionContext.pending 在本来就会发生的模型请求里合并理解；不新增轮询、规则解释器或影子记忆。
+- **回归**：[545e588](https://github.com/jiacimu-droid/lulu1/commit/545e5887e2f533d8c0a88ffffcb4a7722f16ace0) Live2DTouchAndNativeProbeTest 扩充：真实触摸可进入同一角色未处理感知，已有真实用户轮次可接入并认领，同一证据不再被重新算作新刺激。**本轮已提交源码和测试，未取得本次完整 JVM/APK 成功、真机调用次数或第三方实际费用记录**。
+- **交接**：路线 V-01.3a 保持待验，先确认含源码/测试的实际 push Actions JVM/APK 是否成功，再用真机执行「角色思考中触摸→角色念完→主人尚未讲话」「连续触摸→立刻讲话」「讲话与触摸交错」「切电话/挂断」四组；检查实际模型/TTS 请求、触摸后下一轮感知及播放器停止/取消。其他外部工具回执、既有哄睡续讲、叫醒承诺和电话安静定时观察不在本次禁用范围。
