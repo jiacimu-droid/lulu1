@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.ResidentDailyPolicy
+import com.jiacimu.lulu.data.ResidentDailyDecision
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +69,12 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                     onValueChange = { next ->
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_MODEL_DECISIONS)
                         if (count != calls && ResidentDailyPolicy.setMaxModelDecisions(context, count)) calls = count
+                    },
+                    onValueChangeFinished = {
+                        // A raised cap after 08:00 may make today's previously
+                        // skipped plan affordable. Reuse the existing catch-up
+                        // scheduler; never auto-create a new paid decision.
+                        ResidentDailyDecision.schedule(context.applicationContext)
                     })
                 Text("包含每日规划、到点决策、社交来信回应、记忆提取及格式补正。记忆在额度用尽时保留原始消息等待后续整理，不会超额收费；设为 0 会暂停该居民的所有新 AI 请求。",
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
