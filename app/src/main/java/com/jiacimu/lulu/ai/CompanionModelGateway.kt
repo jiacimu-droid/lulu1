@@ -838,6 +838,11 @@ class CompanionModelGateway(
             val reductionAvailable = RelayRequestPressurePolicy.savesEnough(originalBytes, reducedBytes)
             var sentReduced = reductionAvailable &&
                 RelayRequestPressurePolicy.shouldCompactBeforeSend(source, originalBytes)
+            // The diagnostic must describe the attempted wire projection,
+            // not just the bigger draft prompt. Never persist prompt content.
+            failedRequestShape += ";preflightBytes=$originalBytes;" +
+                "reductionAvailable=$reductionAvailable;projectedBytes=$reducedBytes;" +
+                "precompact=$sentReduced"
             var sentRequestBodyBytes = 0L
             val reply = try {
                 openAiCompatible(
