@@ -121,8 +121,18 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p ci-logs
+          # Test the watchdog separately; it only diagnoses silent Gradle runs
+          # and must never change the tests or prematurely kill the worker.
+          bash scripts/test_ci_gradle_stall_watch.sh
           node scripts/test_xhs_reader.js
           python scripts/test_timeline_migration.py
+          : > ci-logs/gradle-build.log
+          bash scripts/ci_gradle_stall_watch.sh \
+            ci-logs/gradle-build.log ci-logs/gradle-stall-diagnostics.log &
+          stall_watch_pid=$!
+          trap 'kill "$stall_watch_pid" 2>/dev/null || true; wait "$stall_watch_pid" 2>/dev/null || true' EXIT
+          # Preserve full unit suite and its original build timeout. If Robolectric
+          # stops emitting progress, collect an actionable JVM thread snapshot.
           gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:verifyArtSafeVariants :app:testPhoneUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
