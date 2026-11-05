@@ -1142,3 +1142,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **09:44 现场诊断**：PerformanceLog 的江渡「后台主动感知·后台定时」报告 transport=sse、contextMode=Full、systemChars=79179、currentChars=41428、historyMessages=0、images=0、bodyBytes=263226；约 12.925 秒后写 POST 正文报 timeout，阶段 WRITE_BODY。无法证明服务端已经完整接收或完成计费，故仍不自动重发同一可能收费的请求，不归因 VPN。原 RelayRequestPressurePolicy 大于280000才提前保护，请求低于阈值。c1fd18a 将阈值调整为220000（基于本次实际 263KB 丢传），保护任务规则/人设/关系/世界书/核心记忆/未完成责任与本轮用户输入，只精简可选较早投影，必须实际 savings >4096 才使用；a731013 回归，17e982e 保留真实尝试投影字节审计，不持久化隐私原文。压缩并不保证第三方断流不会再发生。
 - **09:48 独立预算现象**：居民「记忆·连续记忆提取」提示每日AI决断预算耗尽、0ms、未发送模型请求。ResidentDailyPolicy 实际按 resident: 的所有模型请求计量（包括记忆与修正）；旧网关在生成提示词/确认配置之前先扣每日次数。为维持主人配置的每位居民费用上限，不给记忆隐藏例外或额外收费：3f84731 将原子 claim 放到网络调用交接前，避免本地 prompt 组装失败消耗预算；1e6b316 增 read-only allowance，ef8e981 让 LocalMemoryRepository 两条提取循环在预算耗尽时正常延期、保留未处理批次/原始事件，避免0ms空拒绝泛滥；73cf293 补额度边界与跨日回归；f39dc8a UI 显示“每日AI请求总上限”并解释记忆提取、社交回应等均计入。
 - **验收界限**：源码提交和静态检查并不代表 JVM/APK、实际远端 SSE 和居民持续记忆都已成功。后续以最后合并的 main sha 对应 Actions 的首个真实失败步骤为准；真机侧验证大请求在本轮是否真的被精简、内容与角色策略完整、请求中断不重复扣费、居民日额度前后没有多发送，以及次日原记忆批次有没有被正常调用处理。CI 取消不算通过，截图是旧安装版观察，不等于新包真机结果。
+
+
+## 2026-11-05 · S-02.1b 居民记忆预算续接队列误结案
+
+- **源码根因**：旧 LocalMemoryRepository 遇居民额度用尽时仅刷新提示并返回；ChatMemoryAutomation.drain 据此错误地 complete 记忆提取 job，虽然未处理原文仍在 SQLite，却丢失后续自动唤醒的脏水位。仅靠页面不报错不代表下一日会继续。
+- **修复**：无额度抛非网络的 ResidentMemoryBudgetDeferred，经 ChatMemoryAutomation 分流为 MemoryExtractionJobStore.defer（不计失败/不消除队列）；保留原 id/revision 与并发新消息，存 deferredUntil 到下个本地自然日零点；到期后后台常规队列再处理。手动 flushNow 亦登记相同延期。不绕开用户总请求额度、不新增请求模型、不删原始数据。
+- **测试**：提交 f3590d3、0a4e011、263375a、a218430、0963140、1687bc3、600c340、861334e、392013a、be8a344，测试真实 resident 0 额度事件、手动 flush 持久队列、次日触发时间、入队并发改版和冷启动续接。旧输入预算修复基线 APK/JVM 41952677579 completed/success；本批仍需自身同 SHA APK/JVM 结果与真机隔日验收，旧 cancelled 不作为结果。
