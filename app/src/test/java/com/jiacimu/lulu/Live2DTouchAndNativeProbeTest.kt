@@ -1,7 +1,9 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.data.CharacterPerceptionContext
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.InteractionSignalBridge
+import com.jiacimu.lulu.data.PerceptionStimulusLedger
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import org.junit.Assert.*
 import org.junit.Test
@@ -16,6 +18,7 @@ class Live2DTouchAndNativeProbeTest {
     @Test fun onlyRenderedAvatarCanRecordARealContact() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
         val role = "touch-role-" + UUID.randomUUID()
         val call = "touch-call-" + UUID.randomUUID()
         val renderedId = "interaction-call-video-rendered-$call"
@@ -34,6 +37,17 @@ class Live2DTouchAndNativeProbeTest {
             assertTrue(evidence.content.contains("头部"))
             assertTrue(evidence.content.contains("3次"))
             assertTrue(evidence.content.contains("不替角色推断情绪"))
+            // Touch is saved, but is not an autonomous paid phone reply.
+            // Its real evidence remains readable on the NEXT ordinary user turn
+            // and is acknowledged only once the existing perception commits.
+            assertTrue(CharacterPerceptionContext.pending(app, role).any { it.id == recordedId })
+            val nextUserTurn = CharacterPerceptionContext.integrate(
+                app, role, listOf(evidence), deferAcknowledgement = true)
+            assertTrue(nextUserTurn.freshStimuli.any { it.evidenceId == recordedId })
+            assertTrue(nextUserTurn.combined?.description.orEmpty().contains("头部"))
+            CharacterPerceptionContext.acknowledge(app, role, nextUserTurn)
+            assertTrue(PerceptionStimulusLedger.hasSeen(app, role, recordedId!!))
+            assertFalse(CharacterPerceptionContext.pending(app, role).any { it.id == recordedId })
             // Different touches in one gesture burst must keep their own
             // parts, instead of falsely reporting every touch on the head.
             val mixed = InteractionSignalBridge.recordAvatarTouches(
@@ -71,6 +85,7 @@ class Live2DTouchAndNativeProbeTest {
         } finally {
             recordedId?.let(SharedExperienceTimeline::deleteEvent)
             SharedExperienceTimeline.deleteEvent(renderedId)
+            PerceptionStimulusLedger.clear(role)
         }
     }
 
