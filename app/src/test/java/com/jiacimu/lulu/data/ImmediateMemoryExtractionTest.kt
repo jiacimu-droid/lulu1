@@ -24,6 +24,34 @@ import java.util.concurrent.TimeUnit
 class ImmediateMemoryExtractionTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
+    @Test fun residentImportantMemoryAtZeroQuotaDefersWithoutNetworkAndKeepsSource() = runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        val settings = ctx.getSharedPreferences(
+            "lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        settings.edit().clear().commit()
+        try {
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 0))
+            LuluRepositories.initialize(ctx)
+            SharedExperienceTimeline.initialize(ctx)
+            val residentId = "resident:memory-at-quota"
+            val eventId = "resident-quota-memory-source"
+            SharedExperienceTimeline.record(eventId, residentId, "私聊", "用户",
+                "你记住，以后别把我叫作那个旧称呼。",
+                triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.UserStatement)
+            val result = runCatching { LuluRepositories.memory.summarizeNow(residentId) }
+            val paused = result.exceptionOrNull()
+            assertTrue("Budget deferral is a distinct pending outcome, not a successful summary",
+                paused is ResidentMemoryBudgetDeferred)
+            assertTrue((paused as ResidentMemoryBudgetDeferred).resumeAt.isAfter(java.time.Instant.now()))
+            assertTrue(LuluRepositories.memory.hasUnprocessedEvents(residentId))
+            assertTrue(LuluRepositories.memory.snapshot(residentId).isEmpty())
+            assertEquals(0, ResidentDailyPolicy.modelDecisionsUsed(ctx, residentId))
+        } finally {
+            settings.edit().clear().commit()
+        }
+    }
+
     @Test fun importantFirstMessageRetriesAndPersistsBeforeBatchThreshold() = runBlocking {
         val server = MockWebServer()
         val result = JSONArray().put(JSONObject().put("kind", "Fact").put("content", "用户要求以后不要用旧昵称称呼她")
