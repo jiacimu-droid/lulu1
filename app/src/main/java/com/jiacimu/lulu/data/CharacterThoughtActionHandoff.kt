@@ -60,10 +60,14 @@ internal object CharacterThoughtActionHandoff {
             }
             val step = AutonomousActionWireProtocol.normalizeStep(raw)
             if (coveredByPrimary(step)) continue
-            val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
-                .firstOrNull { sameAction(it, step) }
-            if (duplicate == null) result.put(step)
-            else mergeLinks(duplicate, step)
+            // Ordered steps are a sequence, not a set. An intervening action
+            // may change state or fail; collapsing a later identical tool into
+            // an earlier slot would erase the model's chosen second attempt and
+            // change which result a dependent step observes. Only adjacent
+            // equivalent requests can share one execution/receipt.
+            val previous = result.optJSONObject(result.length() - 1)
+            if (previous != null && sameAction(previous, step)) mergeLinks(previous, step)
+            else result.put(step)
         }
         fun add(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false, inquiry: Boolean = false) {
             val chosen = owner?.optJSONObject("nextAction") ?: return
