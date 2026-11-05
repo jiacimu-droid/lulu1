@@ -149,6 +149,52 @@ class CharacterThoughtActionHandoffTest {
         assertEquals("fresh-goal", independent.getJSONObject(0).getString("motiveRef"))
     }
 
+    @Test fun mirroredPrimaryToolRetainsExplicitQuestionAndNeverExecutesTwice() {
+        val tool = action("web_search")
+        val question = JSONObject().put("threadId", "question-1")
+            .put("topic", "我想继续核对的问题")
+            .put("sourceEvidenceId", "observed-1")
+            .put("nextAction", JSONObject(tool.toString()))
+        val decision = JSONObject().put("action", "tool")
+            .put("tool", "web_search")
+            .put("args", JSONObject(tool.getJSONObject("args").toString()))
+            .put("curiosities", JSONArray().put(question))
+        val original = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        val owner = normalized.getJSONObject("curiosity")
+        assertEquals("question-1", owner.getString("threadId"))
+        assertEquals("observed-1", owner.getString("sourceEvidenceId"))
+        assertFalse(owner.has("nextAction"))
+        assertNull(CharacterThoughtActionHandoff.actions(normalized))
+        assertEquals(original, decision.toString())
+
+        // A distinct question is not silently credited with the first one's
+        // receipt; its separately chosen effect remains visible to the executor.
+        val conflict = JSONObject(decision.toString())
+            .put("curiosity", JSONObject().put("threadId", "other-question"))
+        val conflictNormalized = AutonomousActionWireProtocol.normalize(conflict)
+        assertEquals("other-question",
+            conflictNormalized.getJSONObject("curiosity").getString("threadId"))
+        val side = CharacterThoughtActionHandoff.actions(conflictNormalized)!!
+        assertEquals(1, side.length())
+        assertEquals("question-1",
+            side.getJSONObject(0).getJSONObject("curiosity").getString("threadId"))
+
+        // Multiple different nested question owners cannot be collapsed into
+        // one primary result or guessed from ordering.
+        val second = JSONObject(question.toString()).put("threadId", "question-2")
+        val ambiguous = JSONObject(decision.toString())
+            .put("curiosities", JSONArray().put(question).put(second))
+        val ambiguousNormalized = AutonomousActionWireProtocol.normalize(ambiguous)
+        assertFalse(ambiguousNormalized.has("curiosity"))
+        val independent = CharacterThoughtActionHandoff.actions(ambiguousNormalized)!!
+        assertEquals(2, independent.length())
+        assertEquals("question-1",
+            independent.getJSONObject(0).getJSONObject("curiosity").getString("threadId"))
+        assertEquals("question-2",
+            independent.getJSONObject(1).getJSONObject("curiosity").getString("threadId"))
+    }
+
     @Test fun malformedSecondarySlotsSurviveBeforeDependentActions() {
         for (invalid in listOf<Any>("not an action", JSONObject.NULL, 7)) {
             val decision = JSONObject().put("steps", JSONArray().put(action()))
