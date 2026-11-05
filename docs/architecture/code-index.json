@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:41:10.374270+00:00",
-  "commit": "dbda6cc401a20d45800ce952011b86a5a1fceb25",
+  "generatedAt": "2026-11-05T16:49:39.273786+00:00",
+  "commit": "241f440c8c4a8fcb9305d76a68f32b1227575222",
   "branch": "main",
-  "sourceFingerprint": "e7b3cf12b44339f20e852a03a90435d2f525b135b3fcd8d92e37d9bb81170b04",
+  "sourceFingerprint": "708b89f606163e15b9c6cd4ba96341888ead952416e60ac38d24ee1a80f8d6bc",
   "summary": {
     "files": 1137,
-    "lines": 242739,
+    "lines": 242756,
     "symbols": 3339
   },
   "symbolIndex": {
@@ -303,7 +303,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
-        "line": 12
+        "line": 16
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt",
@@ -25365,12 +25365,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
-      "lines": 56,
-      "sha256": "21acf63974890fcb7f8f06c42b0d02b141289276e38eda97ed523d2effd9502f",
+      "lines": 73,
+      "sha256": "32729be2401dc10391578b0f9c5d2629176ff4614e4068d65748dd900413fa0b",
       "symbols": [
         {
           "name": "prompt",
-          "line": 12
+          "line": 16
         }
       ]
     },
