@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T12:22:18.463775+00:00",
-  "commit": "5733ea04a79fc7fa76b2e280c07edee7cc8fb23a",
+  "generatedAt": "2026-11-05T12:22:38.044636+00:00",
+  "commit": "988a99dd0a9387f60fb9d8bbeb0cdfb81c0bf505",
   "branch": "main",
-  "sourceFingerprint": "6bccaf2365bd08311bd4c59f5e1a2418bfa0207ae8925bfc4307d86ddfe3c304",
+  "sourceFingerprint": "5a21f522a50884d9a62a7c9ef945e031450e701755320b65d8e2e7ce0214497b",
   "summary": {
     "files": 1137,
-    "lines": 242389,
+    "lines": 242394,
     "symbols": 3332
   },
   "symbolIndex": {
@@ -29258,7 +29258,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 172,
-      "sha256": "8fcbc3ec2022097002c1021fe150a5e4fa3d1a40f7b47d1c0510a02aa60f5c7d",
+      "sha256": "ad779c8e36dc870ccac69eee850722fb454b8e79f4e76bca4510b0bdc861dd74",
       "symbols": []
     },
     {
@@ -38127,8 +38127,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 163,
-      "sha256": "3047fd761e49fcf7fa5d0092c059b2fac61efb6bd57230621f91ef47f64359e2",
+      "lines": 166,
+      "sha256": "7fb0e917d8064b464db38c2df183f3d8bb5b6bab54dca0862eaf20b45db119d4",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",
@@ -38814,8 +38814,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
-      "lines": 86,
-      "sha256": "2ed33cbbfe5556b37e35243a9bdea2bb983359f3087c2e0f545b40bd80f579ec",
+      "lines": 88,
+      "sha256": "1d582d62dee39353f92b0d0c6d91744ca5baf88eb0ece3f9dd8a51c42bdc3df6",
       "symbols": [
         {
           "name": "TransientConversationStyleTest",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5733ea04a79fc7fa76b2e280c07edee7cc8fb23a`
+- 基准提交：`988a99dd0a9387f60fb9d8bbeb0cdfb81c0bf505`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：242389
+- 已索引代码/文本行：242394
 - 已发现符号：3332
 
 | 文件 | 行数 | 符号数 |
@@ -1028,7 +1028,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 163 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
@@ -1069,7 +1069,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 313 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 88 | 1 |
