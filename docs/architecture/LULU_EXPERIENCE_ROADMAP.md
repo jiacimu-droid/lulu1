@@ -111,6 +111,10 @@
 
 - [ ] **P-08c.2b CI通过、待真机**：部分/撤回/空泡不得执行整轮收藏或戳一戳；源码 387412c、a13fdeb，回归 79e2c09 已通过 JVM/APK/发布41851034430和原索引41851034417，仍待手机验证。完整送达仍允许原本副作用。
 
+### P-08d.2h.6 嵌套同工具在显式异动作之后的独立归属（源码/回归已提交，CI 待验）
+
+- [ ] **P-08d.2h.6**：顶层主工具 A、显式 B、嵌套 motive.nextAction A 时，原 actions() 无条件把嵌套 A 归为顶层镜像；withPrimaryActionOwnership() 又提前将后一次 A 的 motiveId 记在首次主回执。源码 [91b23e1](https://github.com/jiacimu-droid/lulu1/commit/91b23e1e09061407667efd1bccc25a722c25fd4c) 在显式异工具后保留嵌套 A，并只把异工具之前的镜像候选归主回执；回归 [5a8fa37](https://github.com/jiacimu-droid/lulu1/commit/5a8fa37744700d7e3418361ba342055413075dd1) 覆盖独立执行顺序、motiveId 不错归和输入不变。未取得该提交 JVM/APK、真实 ToolRouter 回执、失败/条件依赖或真机结果，保持待验；不勾整个 P-08d.2h。
+
 ### P-08d 0/1/N 行动与自我整理
 - **P-08d.2h.5 主工具后非镜像重复执行与归属（源码/回归已提交，CI待验）**：`76951454` 修复顶层 A 后显式 B→A 时第二次 A 被当镜像删除，同时 `withPrimaryActionOwnership` 不再把 B 之后 A 的 owner 错归顶层首次回执；`287c9305` 补 B→A 独立回执与 motiveId 归属回归。待对应 JVM/APK、前后台实际 ToolRouter 回执与失败/条件依赖验证，不勾 P-08d.2h 整体完成。
 
