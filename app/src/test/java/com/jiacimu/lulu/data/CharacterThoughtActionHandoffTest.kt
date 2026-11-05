@@ -523,9 +523,15 @@ class CharacterThoughtActionHandoffTest {
         assertNull(CharacterThoughtActionHandoff.actions(paused))
         assertNull(CharacterThoughtActionHandoff.actions(concern(JSONObject()
             .put("status", "settled").put("nextAction", action()))))
-        assertEquals(1, CharacterThoughtActionHandoff.actions(JSONObject().put("action", "tool")
+        // The primary web_search runs before the explicitly chosen journal.
+        // The nested web_search is therefore a second attempt, not a mirror
+        // of the already executed primary request.
+        val repeatedAfterJournal = CharacterThoughtActionHandoff.actions(JSONObject().put("action", "tool")
             .put("tool", "web_search").put("args", action().getJSONObject("args"))
-            .put("nextAction", action()).put("steps", JSONArray().put(action("write_journal"))))!!.length())
+            .put("nextAction", action()).put("steps", JSONArray().put(action("write_journal"))))!!
+        assertEquals(2, repeatedAfterJournal.length())
+        assertEquals("write_journal", repeatedAfterJournal.getJSONObject(0).getString("tool"))
+        assertEquals("web_search", repeatedAfterJournal.getJSONObject(1).getString("tool"))
     }
 
     @Test fun explicitStepsAndSideActionsMirroringPrimaryDoNotExecuteTwiceOrLoseOwners() {
