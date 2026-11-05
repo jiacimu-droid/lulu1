@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:39:23.016924+00:00",
-  "commit": "ad7751f1725293acd1313e87101fd100d72f509a",
+  "generatedAt": "2026-11-05T16:39:39.737550+00:00",
+  "commit": "4f808ae5855c5007c0519f2dd2fdf70c9845873f",
   "branch": "main",
-  "sourceFingerprint": "b0f6ec54b48d30a87f281a4a6656974ba7128b75124ece2a089b191a8891db95",
+  "sourceFingerprint": "c47656a291d8fdea1c7155a777d932d4b6b399183d35daddb38a8c7ea5b7e10b",
   "summary": {
     "files": 1137,
-    "lines": 242635,
-    "symbols": 3338
+    "lines": 242660,
+    "symbols": 3339
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10992,6 +10992,12 @@
         "line": 42
       }
     ],
+    "needsCommitmentRecovery": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
+        "line": 58
+      }
+    ],
     "ranked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
@@ -11231,7 +11237,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3300
+        "line": 3309
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11366,52 +11372,52 @@
         "line": 695
       }
     ],
-    "scheduleUnfinishedSleepHandoff": [
+    "scheduleUnfinishedCommitmentRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 722
+        "line": 723
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 822
+        "line": 824
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 849
+        "line": 851
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 876
+        "line": 878
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 893
+        "line": 895
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 907
+        "line": 909
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1153
+        "line": 1156
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1161
+        "line": 1164
       }
     ],
     "ProactiveSendReceipt": [
@@ -26028,7 +26034,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
       "lines": 565,
-      "sha256": "576df2cb938bdef54b109aa64bad7e325377ca6d4397d4eaea76093bea74bec3",
+      "sha256": "9e01591b6114b4ec49e2612590f264ea341b293a84690a60c1c93a411cc55209",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -29177,8 +29183,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-      "lines": 52,
-      "sha256": "3b034445efd39897ad5363995a6c9599d8cf24827858d3e835ea7f9559543332",
+      "lines": 65,
+      "sha256": "0d8914a57187e120677dfe583389ceed7974d120748e51f2bf58102401b36c1f",
       "symbols": [
         {
           "name": "signed",
@@ -29191,6 +29197,10 @@
         {
           "name": "permits",
           "line": 42
+        },
+        {
+          "name": "needsCommitmentRecovery",
+          "line": 58
         }
       ]
     },
@@ -29460,8 +29470,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3367,
-      "sha256": "ebf781c9e5d4cf862c8954f762f99b86c8abba7388ac2ea927cc2590243bbcde",
+      "lines": 3376,
+      "sha256": "b7ef6b55307ed5cae9d3b4f5863c4de192ada40304c00544d9195ed52afaa235",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29493,14 +29503,14 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3300
+          "line": 3309
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1217,
-      "sha256": "94b27e9ff76c468745d7acc1831e1945a0f8131a71d6057110152b946dd44aca",
+      "lines": 1220,
+      "sha256": "de40b1c44fc3a875b198474d6617db7d0333d843a0f5772208c8fdc50ecfec96",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -29595,36 +29605,36 @@
           "line": 695
         },
         {
-          "name": "scheduleUnfinishedSleepHandoff",
-          "line": 722
+          "name": "scheduleUnfinishedCommitmentRecovery",
+          "line": 723
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 822
+          "line": 824
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 849
+          "line": 851
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 876
+          "line": 878
         },
         {
           "name": "cancelOnline",
-          "line": 893
+          "line": 895
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 907
+          "line": 909
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1153
+          "line": 1156
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1161
+          "line": 1164
         }
       ]
     },
