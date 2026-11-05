@@ -86,4 +86,22 @@ class OnlineContinuationPolicyTest {
         assertNull(OnlineContinuationPolicy.contractIssue("continue", "想陪她"))
         assertNull(OnlineContinuationPolicy.contractIssue("sleep", "想休息"))
     }
+    @Test fun unfinishedCommitmentRecoveryDependsOnLeaseOwnershipNotSleepWording() {
+        // At the expiry of a real online window, an unverified duty cannot
+        // disappear because the character chose continue but renewal failed.
+        assertTrue(OnlineContinuationPolicy.needsCommitmentRecovery(
+            keptAwake = false, superseded = false, hasUncoveredCommitment = true))
+        // Valid sleep with failed handoff uses this same recovery path.
+        assertTrue(OnlineContinuationPolicy.needsCommitmentRecovery(
+            keptAwake = false, superseded = false, hasUncoveredCommitment = true))
+        // Never race a fresh message/call or schedule a paid repair while awake.
+        assertFalse(OnlineContinuationPolicy.needsCommitmentRecovery(
+            keptAwake = true, superseded = false, hasUncoveredCommitment = true))
+        assertFalse(OnlineContinuationPolicy.needsCommitmentRecovery(
+            keptAwake = false, superseded = true, hasUncoveredCommitment = true))
+        // A previously committed alarm or independent future plan owns the task.
+        assertFalse(OnlineContinuationPolicy.needsCommitmentRecovery(
+            keptAwake = false, superseded = false, hasUncoveredCommitment = false))
+    }
+
 }
