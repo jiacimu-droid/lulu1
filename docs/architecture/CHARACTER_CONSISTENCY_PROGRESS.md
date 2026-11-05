@@ -1295,3 +1295,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 根因：顶层主工具 A 后显式 B→A，旧 `suppressExplicitMirror` 只在已遇到一次镜像后才记住 B，因此第二次 A 仍被删除；`withPrimaryActionOwnership` 还会扫描全部显式步骤，将 B 之后 A 的 owner 提前归入顶层首次回执。
 - 正式源码 `76951454`：不同工具出现即标记间隔，后续相同工具保留为独立执行；主工具归属只吸收间隔之前的显式镜像，不改原模型 JSON、不增加收费模型调用。测试 `287c9305`：B→A 仍两步，后一次 motiveId 不污染顶层，原决定不变。
 - 新 JVM/APK 与真机/实际 ToolRouter 回执尚未确认；主工具失败、requiresPreviousSuccess 及嵌套后续仍待独立验收。下一轮先核最新 Actions 失败，再继续 P-08d.2h 执行器级依赖/重放，随后 P-08a.1。
+
+
+## 2026-11-06 · P-08d.2h.6 嵌套行动在显式异动作后的独立执行
+
+- 接手最新 main 49323a5（索引自动提交），核 AGENTS、CODE_INDEX、roadmap、人物进度与 CharacterThoughtActionHandoff/OrderedCharacterActions/既有测试。前轮 7695145/287c930 已覆盖显式 B→A，不重复实现。
+- 新确认源码断点：顶层 A → 显式 B → 嵌套 motive.nextAction A 时，actions() 不顾 B 无条件过滤嵌套 A；withPrimaryActionOwnership() 先收集嵌套 owner 后扫描显式 B，又把后一次 A 的 motiveId 错记在顶层首次回执。这与此前显式重复动作的修复不同。
+- 正式源码提交 91b23e1e09061407667efd1bccc25a722c25fd4c：嵌套主工具镜像仅在没有显式异工具间隔时过滤；主工具归属收集保留显式镜像候选，但在显式异工具出现后不再吸收随后才执行的嵌套 owner。模型原 JSON 不变，不加模型调用。
+- 回归 5a8fa37744700d7e3418361ba342055413075dd1：顶层 web_search、显式 read_book、嵌套同参数 web_search，第二次必须保留且 motiveId 仅归第二次；原决定不变。Roadmap f7bfca9c06bd979afcbb67129aa529d67f215d1b。
+- **验证边界**：目前只确认 GitHub 提交成功，未获得本轮完整 JVM/APK、Actions 成功、真实 ToolRouter 回执/幂等、失败条件依赖及真机结果，不能称通过。GitHub commit combined status 返回空 statuses，不能据此判定 Actions 成功或失败。
+- **下一轮**：先查包含 5a8fa37 的 push Actions 和第一条实际失败，失败先修；通过后针对主工具失败/成功、requiresPreviousSuccess、嵌套与显式混排的执行器级回执和重放幂等补集成回归。继续人物因果优先，不重复修改已验项目。
