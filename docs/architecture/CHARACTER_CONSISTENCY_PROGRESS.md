@@ -1180,3 +1180,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮修改**：[feb2ae1](https://github.com/jiacimu-droid/lulu1/commit/feb2ae103a96ed5d493c717ed5a903d863fd9769) 在原 `CharacterThoughtActionHandoff.withPrimaryActionOwnership` 内对候选按主动作已累积的明确因果 owner 逐个校验和合并，允许同一真实回执同时带不同字段的 motive/concern，但同字段冲突仍不能覆盖或猜测。沿用现有回归 `friendlyPrimaryToolAliasesKeepOwnershipAndCannotDoubleExecute` 与 `mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect`；没有增加模型调用或新 Store。
 - **验证限制**：本提交尚未取得对应 JVM/APK 运行结果，不能声称该失败已修复。若仍失败，须读取新运行同一断言与 normalized JSON，追 `normalizeStep` 参数投影或 `isPrimaryToolChoice` 的实际差异，不能仅因源码推理勾完成。原有 40 分钟静默问题本次未复现（5m50s 结束），不代表根因已消除。真机、真实模型、跨日未验。
 - **下一轮**：先查 feb2ae1 及后继主线 CI 的首个失败；通过后继续 P-08d.2f 真实 ToolRouter 回执/重放幂等，再 P-08a.1 全链。
+
+## 2026-11-05 · P-08d.2g 部分兼容归属被后续冲突整批抹除
+
+- **接手与证据**：main 278cebd；已读 AGENTS、CODE_INDEX、唯一路线、人物进度、统一人物契约/成长框架及实际 Handoff/normalizeStep/相关测试。前轮 [41984588215](https://github.com/jiacimu-droid/lulu1/actions/runs/41984588215) 为 2461 tests / 1 failed，不能拿来判断后继 feb2ae1 是否成功。最新主线在读取时尚未取得可核验的对应完整 APK/JVM 运行结果。
+- **已证根因**：withPrimaryActionOwnership 原本逐项合并与主工具相同效果的嵌套动作。先成功合并 concernId 后，若后续候选 motiveRef 与主工具已有 motiveRef 冲突，旧 `return decision` 把已合并的兼容 concernId 一并丢掉。应当只拒绝冲突候选，不撤销已证兼容归属；独立冲突动作仍由 actions() 保留，不推测它和主工具是同一目标。
+- **正式修复**：[e00edd1](https://github.com/jiacimu-droid/lulu1/commit/e00edd1bc0b9ed851574cabab4ef19e86e000863) 在原归属聚合器跳过不兼容候选，继续保留此前兼容归属；[52c914c](https://github.com/jiacimu-droid/lulu1/commit/52c914c4af8ef4f9dcecdce10bbe7e48dcd70d04) 增 laterConflictingGoalCannotEraseEarlierCompatiblePrimaryConcern 回归：原始主目标、先合并挂心、后冲突新目标的独立步骤、输入不可变。没有增加收费模型调用、修改人格或清理历史。
+- **交接**：roadmap [93ddf8e](https://github.com/jiacimu-droid/lulu1/commit/93ddf8ef7ce293546c60609a1fd7c14152841d2d) 标明源码/回归提交和 CI/真机未验；下一轮先核含 52c914c 的 JVM/APK，失败按实际首个失败修，再做 P-08d.2g ToolRouter 主/独立步骤回执与幂等集成验证，随后继续 P-08a.1。不能把源码提交当 JVM/APK 通过。
