@@ -56,7 +56,7 @@ internal fun RolePhoneAlbum(characterId: String) {
                     ) {
                         Column(Modifier.padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             LuluProfileAvatar(photo.uri, "图", 100)
-                            Text(photo.source, maxLines = 1, fontSize = 11.sp,
+                            Text(photo.source.substringBefore(" · "), maxLines = 1, fontSize = 11.sp,
                                 color = LuluColors.Muted,
                                 modifier = Modifier.padding(top = 5.dp))
                         }
@@ -68,7 +68,7 @@ internal fun RolePhoneAlbum(characterId: String) {
     selected?.let { photo ->
         AlertDialog(
             onDismissRequest = { selected = null },
-            title = { Text("相册 · ${photo.source}") },
+            title = { Text("相册 · ${photo.source.substringBefore(" · ")}") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
