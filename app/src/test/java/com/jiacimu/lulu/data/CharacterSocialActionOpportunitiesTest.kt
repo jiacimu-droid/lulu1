@@ -32,6 +32,58 @@ class CharacterSocialActionOpportunitiesTest {
         assertTrue(view.contains("不需要"))
     }
 
+    @Test fun chatImageIsOfferedAsAnAlbumPhotoInsteadOfEncodedUserWords() = kotlinx.coroutines.runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
+        CharacterLifeStore.initialize(ctx)
+        val role = MigratedDomainStores.characters.create(
+            "图片收藏与相册测试-" + java.util.UUID.randomUUID(), "珍惜收到的照片")
+        val other = MigratedDomainStores.characters.create(
+            "不可访问别人图片-" + java.util.UUID.randomUUID(), "独立")
+        val convo = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        val original = java.io.File(ctx.filesDir, "album-chat-" + java.util.UUID.randomUUID() + ".png")
+        val bitmap = android.graphics.Bitmap.createBitmap(8, 8, android.graphics.Bitmap.Config.ARGB_8888)
+        try {
+            original.outputStream().use { assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) }
+            val encoded = com.jiacimu.lulu.encodeQqChatImage(
+                android.net.Uri.fromFile(original).toString(),
+                caption = "我画的小猫", imageDescription = "纸上的涂鸦")
+            val message = MigratedDomainStores.chat.sendUserMessage(convo.id, encoded)
+            val view = CharacterSocialActionOpportunities.prompt(role.characterId)
+            assertTrue(view.contains("messageId=${message.id}"))
+            assertTrue(view.contains("聊天图片"))
+            assertTrue(view.contains("我画的小猫"))
+            assertTrue(view.contains("save_photo"))
+            assertFalse(view.contains("⟪CHAT_IMAGE:"))
+            assertFalse(view.contains("eyJ1cmki"))
+            assertFalse(CharacterSocialActionOpportunities.prompt(other.characterId)
+                .contains("messageId=${message.id}"))
+
+            // The already-existing real executor accepts precisely the same message ID.
+            val saved = com.jiacimu.lulu.RolePhotoAlbumStore.saveChatMessage(
+                ctx, role.characterId, message.id)
+            assertEquals("我画的小猫", saved.caption)
+            assertTrue(java.io.File(android.net.Uri.parse(saved.uri).path!!).isFile)
+            assertTrue(com.jiacimu.lulu.RolePhotoAlbumStore.list(ctx, other.characterId).isEmpty())
+
+            // An explicitly chosen chat keepsake remains a separate action. It stores
+            // the COMPLETE media reference, but its event text must stay readable.
+            val receipt = CharacterMessageFavorites.favoriteExplicit(
+                role.characterId, message, "这张图是今天收到的惊喜")
+            assertNotNull(receipt)
+            val favoriteId = CharacterMessageFavorites.entryId(role.characterId, message.id)
+            assertTrue(LuluRepositories.lexicon.snapshot(role.characterId)
+                .any { it.id == favoriteId && it.content.contains(encoded) })
+            assertTrue(SharedExperienceTimeline.eventsByIds(role.characterId, listOf(receipt!!))
+                .none { it.content.contains("⟪CHAT_IMAGE:") })
+        } finally {
+            bitmap.recycle()
+            original.delete()
+        }
+    }
+
     @Test fun anExecutedRemarkActionPersistsAndTheInspectedPhoneUsesIt() = kotlinx.coroutines.runBlocking {
         val ctx = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(ctx)
