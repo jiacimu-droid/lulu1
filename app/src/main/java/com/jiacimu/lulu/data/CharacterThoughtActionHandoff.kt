@@ -75,9 +75,18 @@ internal object CharacterThoughtActionHandoff {
                     if (args.optString("concernId").isBlank()) args.put("concernId", it)
                 }
             }
-            // A direct tool or explicit steps already owns this effect.
-            if (AutonomousActionWireProtocol.isPrimaryToolChoice(decision) &&
-                sameAction(AutonomousActionWireProtocol.normalizeStep(decision), step)) return
+            // A direct tool can suppress the mirrored nested action ONLY
+            // when that exact primary receipt already carries the nested
+            // causal owner. With two distinct open questions/motives, the
+            // primary has no unique owner: never discard BOTH side actions
+            // just because their executable tool and args look the same.
+            if (AutonomousActionWireProtocol.isPrimaryToolChoice(decision)) {
+                val primaryStep = AutonomousActionWireProtocol.normalizeStep(decision)
+                if (sameAction(primaryStep, step) && causalLinks.all { key ->
+                        !step.has(key) || (primaryStep.has(key) &&
+                            canonical(primaryStep.opt(key)) == canonical(step.opt(key)))
+                    }) return
+            }
             val existing = (0 until result.length()).mapNotNull(result::optJSONObject)
                 .firstOrNull { sameAction(it, step) }
             if (existing != null) mergeLinks(existing, step) else result.put(step)
