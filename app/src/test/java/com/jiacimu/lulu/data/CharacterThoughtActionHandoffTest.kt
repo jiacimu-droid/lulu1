@@ -186,6 +186,33 @@ class CharacterThoughtActionHandoffTest {
         }
     }
 
+    @Test fun rawPhoneAndForegroundToolPlansInheritExplicitCausalOwnerBeforeSideSteps() {
+        val tool = action("publish_moment")
+        val raw = JSONObject().put("action", "tool")
+            .put("tool", "publish_moment")
+            .put("args", JSONObject(tool.getJSONObject("args").toString()))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "start").put("ref", "phone-wish")
+                    .put("nextAction", JSONObject(tool.toString())))))
+            .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(
+                JSONObject().put("threadId", "phone-concern")
+                    .put("status", "open")
+                    .put("nextAction", JSONObject(tool.toString())))))
+        val original = raw.toString()
+        val bridged = CharacterThoughtActionHandoff.withPrimaryActionOwnership(raw)
+        assertEquals("tool", bridged.getString("action"))
+        assertEquals("publish_moment", bridged.getString("tool"))
+        assertEquals("phone-wish", bridged.getString("motiveRef"))
+        assertEquals("phone-concern", bridged.getString("concernId"))
+        assertNull(CharacterThoughtActionHandoff.actions(bridged))
+        assertEquals("Original caller JSON must remain unchanged", original, raw.toString())
+        // A raw plan without ownership enrichment must not silently erase
+        // a distinct author-chosen motive, even with identical tool/args.
+        val rawSteps = CharacterThoughtActionHandoff.actions(raw)!!
+        assertEquals(1, rawSteps.length())
+        assertEquals("phone-wish", rawSteps.getJSONObject(0).getString("motiveRef"))
+    }
+
     @Test fun unrelatedToolFieldOnOrdinarySpeechDoesNotStealTheSecondaryAction() {
         val decision = JSONObject()
             .put("action", "message")
