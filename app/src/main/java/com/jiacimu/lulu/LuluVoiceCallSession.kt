@@ -373,30 +373,34 @@ internal object LuluVoiceCallSession {
             touchBatchCall = callId
         }
         touchBatch += Live2DTouchContact(region, gesture, force, durationMillis)
-        val earlierGeneration = replyGeneration
         touchBatchJob?.cancel()
         touchBatchJob = scope.launch {
             delay(950L)
-            if (!mutableState.value.connected ||
-                mutableState.value.callExperienceId != callId ||
-                mutableState.value.characterId != characterId) {
-                touchBatch.clear()
-                return@launch
-            }
-            val grouped = touchBatch.toList()
-            touchBatch.clear()
-            if (grouped.isEmpty()) return@launch
-            val id = InteractionSignalBridge.recordAvatarTouches(
-                characterId, callId, grouped.map { it.region to it.gesture },
-                forces = grouped.map { it.force },
-                durationsMillis = grouped.map { it.durationMillis })
-                ?: return@launch
-            // New user speech owns the reply; don't interrupt to repeat it.
-            if (replyGeneration == earlierGeneration && !confirmedSpeechInProgress()) {
-                onExternalToolResult(characterId, callId, id)
-            }
+            flushPendingLive2DTouchBatch(characterId, callId)
         }
         return true
+    }
+
+    /**
+     * Touch is an observed interaction, not a fresh request to speak.
+     * Persist the whole gesture burst in the character's existing timeline,
+     * which the next actual user turn (or its ordinary perception cycle) reads.
+     * Never feed it to the external-tool-result speech queue: that queue waits
+     * until the role finishes talking and then starts an unwanted paid turn.
+     */
+    private fun flushPendingLive2DTouchBatch(characterId: String, callId: String) {
+        if (touchBatchRole != characterId || touchBatchCall != callId) return
+        touchBatchJob?.cancel()
+        touchBatchJob = null
+        val grouped = touchBatch.toList()
+        touchBatch.clear()
+        val live = mutableState.value
+        if (grouped.isEmpty() || !live.connected ||
+            live.callExperienceId != callId || live.characterId != characterId) return
+        InteractionSignalBridge.recordAvatarTouches(
+            characterId, callId, grouped.map { it.region to it.gesture },
+            forces = grouped.map { it.force },
+            durationsMillis = grouped.map { it.durationMillis })
     }
 
     fun isActiveForChat(conversationId: String): Boolean {
@@ -1560,6 +1564,12 @@ internal object LuluVoiceCallSession {
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
         if (autonomousSilence && ((current.sleepMode && externalToolResult == null) || userSpeechInProgress || current.thinking ||
             current.speaking || speechQueue?.hasPendingAudio == true || current.opening)) return
+        // If the owner speaks or types before the 950ms touch batch expires,
+        // include that real contact in this same paid user turn, not a later one.
+        if (!opening && !autonomousSleep && !autonomousSilence &&
+            (spoken.isNotBlank() || alreadyPersisted)) {
+            flushPendingLive2DTouchBatch(current.characterId, current.callExperienceId)
+        }
         sleepContinuationJob?.cancel()
         if (!opening && !autonomousSleep && !autonomousSilence &&
             spoken.isNotBlank()) {
