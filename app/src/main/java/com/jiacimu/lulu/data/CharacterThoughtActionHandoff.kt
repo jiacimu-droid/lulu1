@@ -76,7 +76,7 @@ internal object CharacterThoughtActionHandoff {
                 }
             }
             // A direct tool or explicit steps already owns this effect.
-            if (decision.optString("action") == "tool" &&
+            if (AutonomousActionWireProtocol.isPrimaryToolChoice(decision) &&
                 sameAction(AutonomousActionWireProtocol.normalizeStep(decision), step)) return
             val existing = (0 until result.length()).mapNotNull(result::optJSONObject)
                 .firstOrNull { sameAction(it, step) }
@@ -108,7 +108,7 @@ internal object CharacterThoughtActionHandoff {
      * Conflicting or ambiguous owners remain separate, never guessed.
      */
     fun withPrimaryActionOwnership(decision: JSONObject): JSONObject {
-        if (decision.optString("action") != "tool") return decision
+        if (!AutonomousActionWireProtocol.isPrimaryToolChoice(decision)) return decision
         val primary = AutonomousActionWireProtocol.normalizeStep(decision)
         if (primary.optString("tool").isBlank()) return decision
         val nested = JSONArray()
