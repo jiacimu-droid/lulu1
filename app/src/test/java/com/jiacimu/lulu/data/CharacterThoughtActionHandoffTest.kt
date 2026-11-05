@@ -565,14 +565,30 @@ class CharacterThoughtActionHandoffTest {
         val original = decision.toString()
 
         val steps = CharacterThoughtActionHandoff.actions(decision)!!
-        assertEquals(2, steps.length())
+        assertEquals(3, steps.length())
         assertEquals("web_search", steps.getJSONObject(0).getString("tool"))
-        assertEquals("original-concern", steps.getJSONObject(0).getString("concernId"))
+        assertEquals("original-concern", steps.getJSONObject(2).getString("concernId"))
         assertEquals("write_journal", steps.getJSONObject(1).getString("tool"))
         assertTrue(steps.getJSONObject(1).getBoolean("requiresPreviousSuccess"))
+        assertEquals("web_search", steps.getJSONObject(2).getString("tool"))
         assertEquals(original, decision.toString())
     }
 
+
+    @Test fun nestedActionAfterInterveningStepRemainsIndependent() {
+        val search = action()
+        val journal = JSONObject().put("tool", "write_journal")
+            .put("args", JSONObject().put("title", "独立记录"))
+        val decision = JSONObject().put("steps", JSONArray().put(search).put(journal))
+            .put("innerLife", JSONObject().put("thoughts", JSONArray().put(
+                JSONObject().put("nextAction", JSONObject(search.toString())))))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(3, steps.length())
+        assertEquals(listOf("web_search", "write_journal", "web_search"),
+            (0 until steps.length()).map { steps.getJSONObject(it).getString("tool") })
+        assertEquals(original, decision.toString())
+    }
 
     @Test fun threeFriendlyLifeStepsFromOneCompletedMealAreNotBlankUnknownTools() {
         // Regression for: a real sandwich receipt followed by three "未知工具"
