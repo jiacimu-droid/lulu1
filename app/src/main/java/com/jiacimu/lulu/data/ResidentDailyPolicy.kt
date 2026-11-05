@@ -84,6 +84,14 @@ internal object ResidentDailyPolicy {
         else 0
     }
 
+    /** Read-only preflight for optional resident maintenance tasks.
+     * This is NOT a reservation: the gateway still owns the atomic claim,
+     * so races cannot evade the owner's total paid-request limit. */
+    fun hasModelRequestAllowance(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Boolean =
+        !role.startsWith("resident:") ||
+            modelDecisionsUsed(context, role, at) < maxModelDecisions(context)
+
     /** Atomic attempt claim before networking. Constant-sized per-resident
      * counter; retry/correction must not sidestep the owner's cost limit. */
     @Synchronized fun claimModelDecision(context: Context, role: String,
