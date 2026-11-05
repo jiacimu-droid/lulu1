@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6d6996581a8e73abe707502195badf5e8b890678`
+- 基准提交：`8a8e71f2e6161c708a4e1d21d96f45350a9da8ae`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：241762
+- 已索引代码/文本行：241768
 - 已发现符号：3330
 
 | 文件 | 行数 | 符号数 |
@@ -399,7 +399,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 54 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 443 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 204 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 210 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 119 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
