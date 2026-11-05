@@ -62,14 +62,14 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                     })
             }
             item {
-                Text("每位居民每日 AI 决断上限：" + calls + " 次")
+                Text("每位居民每日 AI 请求总上限：" + calls + " 次")
                 Slider(value = calls.toFloat(), valueRange = 0f..ResidentDailyPolicy.MAX_MODEL_DECISIONS.toFloat(),
                     steps = ResidentDailyPolicy.MAX_MODEL_DECISIONS - 1,
                     onValueChange = { next ->
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_MODEL_DECISIONS)
                         if (count != calls && ResidentDailyPolicy.setMaxModelDecisions(context, count)) calls = count
                     })
-                Text("包含每日规划、到点决策、社交来信回应和格式补正。设为 0 可暂停居民的所有新 AI 请求；本地职责和历史仍在。",
+                Text("包含每日规划、到点决策、社交来信回应、记忆提取及格式补正。记忆在额度用尽时保留原始消息等待后续整理，不会超额收费；设为 0 会暂停该居民的所有新 AI 请求。",
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             item {
@@ -80,7 +80,7 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_AGENDA_ITEMS)
                         if (count != agenda && ResidentDailyPolicy.setMaxAgendaItems(context, count)) agenda = count
                     })
-                Text("行程预算不同于模型决断预算，之前保存的日程不会因调整而被抹除。",
+                Text("行程预算不同于 AI 请求总预算，调整后已保存的日程不会被抹除。",
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             item { HorizontalDivider() }
