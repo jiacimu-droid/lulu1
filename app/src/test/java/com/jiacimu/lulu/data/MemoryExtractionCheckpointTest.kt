@@ -52,6 +52,38 @@ class MemoryExtractionCheckpointTest {
         assertEquals(recreated, MemoryExtractionJobStore.pending().single())
     }
 
+    @Test fun residentQuotaDeferralSurvivesNewMessagesAndColdStartUntilNextBudgetDay() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val first = MemoryExtractionJobStore.enqueue("resident:quota-resume", sourceReplyId = "first")
+        val resumeAt = Instant.now().plusSeconds(3_600)
+        MemoryExtractionJobStore.defer(first, resumeAt)
+        var deferred = MemoryExtractionJobStore.pending().single()
+        assertEquals(first.id, deferred.id)
+        assertEquals(first.revision, deferred.revision)
+        assertEquals(0, deferred.attempts)
+        assertEquals("", deferred.lastError)
+        assertEquals(resumeAt, deferred.deferredUntil)
+        assertFalse(memoryExtractionRetryDue(deferred, resumeAt.minusNanos(1)))
+        assertTrue(memoryExtractionRetryDue(deferred, resumeAt))
+        // New source events are still dirty, but cannot override the cost cap.
+        MemoryExtractionJobStore.enqueue("resident:quota-resume", sourceReplyId = "arrived-while-deferred")
+        deferred = MemoryExtractionJobStore.pending().single()
+        assertEquals(2L, deferred.revision)
+        assertEquals(resumeAt, deferred.deferredUntil)
+        MemoryExtractionJobStore.complete(first)
+        assertEquals(deferred, MemoryExtractionJobStore.pending().single())
+        MemoryTestEnvironment.release()
+        MemoryExtractionJobStore.initialize(context)
+        val restored = MemoryExtractionJobStore.pending().single()
+        assertEquals("arrived-while-deferred", restored.sourceReplyId)
+        assertEquals(deferred.revision, restored.revision)
+        assertEquals(resumeAt, restored.deferredUntil)
+        assertFalse(memoryExtractionRetryDue(restored, resumeAt.minusSeconds(1)))
+        assertTrue(memoryExtractionRetryDue(restored, resumeAt))
+        MemoryExtractionJobStore.complete(restored)
+        assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+    }
+
     @Test fun dirtyRoleSurvivesSourceDeletionAndRestartWithBackoff() {
         val context = RuntimeEnvironment.getApplication() as Context
         MemoryExtractionJobStore.enqueue("role", sourceReplyId = "older")
