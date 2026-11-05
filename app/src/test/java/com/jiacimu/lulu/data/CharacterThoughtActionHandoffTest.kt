@@ -615,6 +615,27 @@ class CharacterThoughtActionHandoffTest {
     }
 
 
+    @Test fun nestedPrimaryEquivalentAfterExplicitDifferentEffectKeepsItsOwnReceipt() {
+        val raw = JSONObject().put("action", "tool").put("tool", "web_search")
+            .put("args", JSONObject().put("query", "same"))
+            .put("steps", JSONArray().put(JSONObject().put("tool", "read_book")
+                .put("args", JSONObject().put("bookId", "source"))))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "revise").put("id", "later-goal")
+                    .put("nextAction", JSONObject().put("tool", "web_search")
+                        .put("args", JSONObject().put("query", "same"))))))
+        val original = raw.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(raw)
+        assertFalse("Later nested action cannot own the first primary receipt",
+            normalized.has("motiveId"))
+        val steps = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(2, steps.length())
+        assertEquals("read_book", steps.getJSONObject(0).getString("tool"))
+        assertEquals("web_search", steps.getJSONObject(1).getString("tool"))
+        assertEquals("later-goal", steps.getJSONObject(1).getString("motiveId"))
+        assertEquals(original, raw.toString())
+    }
+
     @Test fun nestedActionAfterInterveningStepRemainsIndependent() {
         val search = action()
         val journal = JSONObject().put("tool", "write_journal")
