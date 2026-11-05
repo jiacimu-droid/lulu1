@@ -85,11 +85,20 @@ internal fun CommitmentTask.hasPendingOutcomeReview(now: Instant): Boolean =
         followUpKind == "verification" && linkedAlarmId != null &&
         nextCheckAt?.isAfter(now) == true
 
-/** Unverified nightly results remain responsibilities after the first reminder fires. */
+/**
+ * A past-due accepted commitment still needs a decision about its unknown
+ * outcome, whether it repeats daily or was a one-time promise. This is only
+ * a recovery candidate: CompanionSleepHandoff.uncovered checks the actual
+ * alarm/linked-plan authority before scheduling any model work.
+ */
+internal fun CommitmentTask.needsUnverifiedCommitmentRecoveryCandidate(now: Instant): Boolean =
+    status in setOf(CommitmentTaskStatus.WaitingForFeedback, CommitmentTaskStatus.Blocked) &&
+        dueAt?.isBefore(now) == true
+
+/** Legacy daily-specific predicate, retained for existing occurrence checks. */
 internal fun CommitmentTask.needsUnverifiedDailyRecovery(now: Instant): Boolean =
-    repeat == "daily" && status in setOf(
-        CommitmentTaskStatus.WaitingForFeedback, CommitmentTaskStatus.Blocked) &&
-        dueAt?.isBefore(now) == true && !hasPendingOutcomeReview(now) &&
+    repeat == "daily" && needsUnverifiedCommitmentRecoveryCandidate(now) &&
+        !hasPendingOutcomeReview(now) &&
         !(followUpKind == "retry" && linkedAlarmId != null && nextCheckAt?.isAfter(now) == true)
 
 /** Calendar projection keeps past unverified duties visible without duplicating them. */
