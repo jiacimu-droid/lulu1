@@ -9,6 +9,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ModelPostTransportTest {
+    @Test fun bodyUploadHasItsOwnBoundedWriteTimeoutNotOkHttpTenSecondDefault() {
+        // A long model readTimeout must not leave a large JSON upload exposed
+        // to OkHttp's unrelated 10-second default write timeout.
+        assertEquals(60L, ModelPostTransport.REQUEST_WRITE_TIMEOUT_SECONDS)
+    }
+
     @Test fun utf8BodyUsesExactLengthAndOnePost() {
         val server = MockWebServer()
         server.enqueue(MockResponse().setBody("ok"))
