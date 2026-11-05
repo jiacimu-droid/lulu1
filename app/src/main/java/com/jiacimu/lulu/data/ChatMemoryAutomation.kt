@@ -72,6 +72,12 @@ object ChatMemoryAutomation {
                 }
                 // Events arriving during an API call increment revision and remain queued.
                 MemoryExtractionJobStore.complete(job.id, job.revision)
+            } catch (deferred: ResidentMemoryBudgetDeferred) {
+                // A budget-deferred summarizer has NOT processed its batch.
+                // Keep the dirty watermark; resume after local midnight rather
+                // than spin every 1.5s, flood logs or spend past owner's cap.
+                MemoryExtractionJobStore.defer(job, deferred.resumeAt)
+                return
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -91,6 +97,8 @@ object ChatMemoryAutomation {
 }
 
 internal fun memoryExtractionRetryDue(job: MemoryExtractionJob, now: Instant = Instant.now()): Boolean {
+    // Quota deferral is a normal state, independent of network failure backoff.
+    if (job.deferredUntil?.isAfter(now) == true) return false
     if (job.attempts == 0) return true
     val seconds = (30L * (1L shl job.attempts.coerceIn(1, 6))).coerceAtMost(1_800L)
     return !job.updatedAt.isAfter(now) && Duration.between(job.updatedAt, now).seconds >= seconds
