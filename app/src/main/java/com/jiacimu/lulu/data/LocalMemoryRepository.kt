@@ -22,6 +22,17 @@ import java.time.Instant
 import java.util.UUID
 
 /**
+ * Resident memory maintenance cannot spend past the same user-selected AI
+ * request allowance. This read-only check is advisory; the model gateway still
+ * atomically claims the quota. An empty quota must never mark pending events done.
+ */
+internal fun residentMemoryBudgetDepleted(
+    context: Context, characterId: String,
+    now: Instant = Instant.now(),
+): Boolean = characterId.startsWith("resident:") &&
+    !ResidentDailyPolicy.hasModelRequestAllowance(context, characterId, now)
+
+/**
  * Persistent memory store with retry-safe extraction checkpoints.
  * A batch is marked processed only after a valid model result has been parsed and saved.
  */
@@ -32,6 +43,7 @@ class LocalMemoryRepository : MemoryRepository {
     private val historyGenerations = mutableMapOf<String, Long>()
     private var prefs: android.content.SharedPreferences? = null
     private var advancedPrefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private val lock = Any()
 
     val debugState: StateFlow<MemoryDebugState> = debugFlow.asStateFlow()
@@ -39,6 +51,7 @@ class LocalMemoryRepository : MemoryRepository {
     fun initialize(context: Context) {
         synchronized(lock) {
             if (prefs != null) return
+            appContext = context.applicationContext
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             advancedPrefs = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             state.value = decode(prefs?.getString(KEY_STATE, null))
@@ -129,6 +142,23 @@ class LocalMemoryRepository : MemoryRepository {
         }
     }
 
+    /**
+     * Resident memory extraction is maintenance, not an emergency override of
+     * the owner's paid-request cap. Defer instead of calling the model only to
+     * obtain a zero-duration quota exception in performance diagnostics.
+     * Checkpoints remain unmodified and ordinary resident plans keep priority.
+     * The gateway still claims atomically against concurrent requests.
+     */
+    private fun deferResidentMemoryIfBudgetSpent(characterId: String, pendingCount: Int): Boolean {
+        val context = appContext ?: return false
+        if (!residentMemoryBudgetDepleted(context, characterId)) return false
+        refreshDebug(
+            "居民今日模型请求额度已满；本次未发送记忆请求。仍有 $pendingCount 条待整理消息，原文与处理进度已保留；下一个预算日可继续。",
+            characterId = characterId, pendingCount = pendingCount, extracting = false,
+        )
+        return true
+    }
+
     private suspend fun extractImmediateMemories(characterId: String) {
         val generation = synchronized(lock) { historyGenerations[characterId] ?: 0L }
         while (true) {
@@ -137,6 +167,7 @@ class LocalMemoryRepository : MemoryRepository {
                 state.value.processedMessageIds[characterId].orEmpty()
             val targets = events.filter { it.id !in done && it.isUserMemoryStatement() && requestsImmediateMemory(it.content) }.take(8)
             if (targets.isEmpty()) return
+            if (deferResidentMemoryIfBudgetSpent(characterId, targets.size)) return
             val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             // Include neighbours of each target, not an unrelated newest conversation.
             val contextIds = events.indices.filter { events[it].id in targetIds }.flatMap { index ->
@@ -217,6 +248,7 @@ class LocalMemoryRepository : MemoryRepository {
                 return
             }
 
+            if (deferResidentMemoryIfBudgetSpent(characterId, pending.size)) return
             val batchStart = processed.size + 1
             val batchEnd = processed.size + batch.size
             refreshDebug(
