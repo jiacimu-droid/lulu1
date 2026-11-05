@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.core.LexiconEntry
+import com.jiacimu.lulu.qqChatImageContextText
 import com.jiacimu.lulu.core.LexiconSection
 
 internal object MemoryWorkingSet {
@@ -81,12 +82,23 @@ internal object MemoryWorkingSet {
                     return@forEachIndexed
                 }
                 val subjective = entry.section in setOf(LexiconSection.Diary, LexiconSection.Favorite)
+                // The lexicon retains the exact image attachment for visual playback,
+                // while a character's model receives its meaning, not its base64 transport token.
+                val readableContent = if (entry.section == LexiconSection.Favorite) {
+                    val imageContext = qqChatImageContextText(entry.content)
+                    if (imageContext != null) {
+                        val reason = entry.content.substringAfter("\n\n收藏理由：", "").take(180)
+                        imageContext + if (reason.isNotBlank()) "\n收藏理由：" + reason else ""
+                    } else if (entry.content.contains("⟪CHAT_IMAGE:")) {
+                        "[收藏的聊天图片，媒体信息不完整]"
+                    } else entry.content
+                } else entry.content
                 add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
                     if (entry.section == LexiconSection.Life)
                         "- [真实生活近况/收录于${entry.updatedAt}，不代表每日习惯] ${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}；只有新旧时间及事实明确时才自然比较变化，不臆测结果"
-                    else "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",
+                    else "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${readableContent}",
                     740 - index.coerceAtMost(80),
-                    payload = entry.content, sources = entry.sourceEventIds.toSet(), derivedSummary = !subjective))
+                    payload = readableContent, sources = entry.sourceEventIds.toSet(), derivedSummary = !subjective))
             }
         }
         val protected = listOf(coreSection, context.activeTaskContext).filter(String::isNotBlank)
