@@ -1191,6 +1191,9 @@ class CompanionModelGateway(
             var cachedTokens = 0
             var finishReason: String? = null
             var streamFinished = false
+            var sawTerminalMarker = false
+            var parsedFrames = 0
+            var unparsedFrames = 0
             var lastCallbackLength = 0
             var lastCallbackNanos = System.nanoTime()
 
@@ -1211,9 +1214,11 @@ class CompanionModelGateway(
                 if (payload.isBlank()) return true
                 if (payload == "[DONE]") {
                     streamFinished = true
+                    sawTerminalMarker = true
                     return true
                 }
                 val chunk = runCatching { JSONObject(payload) }.getOrNull() ?: return false
+                parsedFrames++
                 when (chunk.optString("type")) {
                     "error" -> error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "Claude流式请求失败" })
                     "message_start" -> chunk.optJSONObject("message")?.optJSONObject("usage")?.let {
@@ -1221,7 +1226,23 @@ class CompanionModelGateway(
                         cachedTokens = it.optInt("cache_read_input_tokens", cachedTokens)
                     }
                     "content_block_delta" -> chunk.optJSONObject("delta")?.takeIf { it.optString("type") == "text_delta" }?.let { content.append(it.optString("text")) }
-                    "message_stop" -> streamFinished = true
+                    "message_stop" -> {
+                        streamFinished = true
+                        sawTerminalMarker = true
+                    }
+                    // Some OpenAI-compatible relays forward Responses-style
+                    // text events through /chat/completions. Only public text
+                    // deltas count; reasoning/thinking events remain private.
+                    "response.output_text.delta" ->
+                        content.append(modelTextValue(chunk.opt("delta")))
+                    "response.completed" -> {
+                        if (content.isEmpty()) {
+                            content.append(modelTextValue(
+                                chunk.optJSONObject("response")?.opt("output")))
+                        }
+                        streamFinished = true
+                        sawTerminalMarker = true
+                    }
                     "message_delta" -> {
                         chunk.optJSONObject("usage")?.let { outputTokens = it.optInt("output_tokens", outputTokens) }
                         chunk.optJSONObject("delta")?.optString("stop_reason")?.takeIf(String::isNotBlank)?.let { finishReason = it }
@@ -1238,10 +1259,16 @@ class CompanionModelGateway(
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {
                     content.append(modelTextValue(delta.opt("content")))
-                } else if (content.isEmpty()) {
+                }
+                // A relay may supply an empty delta alongside the final
+                // message. The old else-if discarded that real response.
+                // Never append the final message after text deltas: it would
+                // duplicate an already collected answer.
+                if (content.isEmpty()) {
                     val message = choice?.optJSONObject("message")
                     content.append(modelTextValue(message?.opt("content")))
                     content.append(modelTextValue(choice?.opt("text")))
+                    content.append(modelTextValue(chunk.opt("output_text")))
                 }
                 chunk.optJSONObject("usage")?.let { usage ->
                     inputTokens = usage.optInt("prompt_tokens", inputTokens)
@@ -1257,6 +1284,7 @@ class CompanionModelGateway(
                 // until the read timeout. Claude still finishes on message_stop.
                 if (terminalChoiceReason != null) {
                     streamFinished = true
+                    sawTerminalMarker = true
                 }
                 return true
             }
@@ -1268,7 +1296,7 @@ class CompanionModelGateway(
                     when {
                         line.isBlank() -> {
                             if (eventData.isNotEmpty()) {
-                                consumeEvent(eventData.toString())
+                                if (!consumeEvent(eventData.toString())) unparsedFrames++
                                 eventData.setLength(0)
                             }
                         }
@@ -1286,7 +1314,8 @@ class CompanionModelGateway(
                         else -> plainResponse.appendLine(line)
                     }
                 }
-                if (eventData.isNotEmpty()) consumeEvent(eventData.toString())
+                if (eventData.isNotEmpty() &&
+                    !consumeEvent(eventData.toString())) unparsedFrames++
             }
 
             if (content.isEmpty() && plainResponse.isNotBlank()) {
@@ -1295,7 +1324,21 @@ class CompanionModelGateway(
                 }
             }
             val text = content.toString().trim()
-            check(text.isNotBlank()) { "模型流式响应没有返回可读取的内容" }
+            // A read timeout does NOT equal an empty response: OkHttp waits
+            // for the configured socket-idle budget. Reaching here means the
+            // relay ended the body (EOF or a terminal SSE marker), possibly
+            // before delivering actual model text. Do not silently retry a
+            // chargeable request or claim that the model chose silence.
+            if (text.isBlank()) {
+                val cause = when {
+                    sawTerminalMarker -> "中转站发送了流式结束标记，但没有可显示的正文"
+                    unparsedFrames > 0 -> "中转站的流式数据无法完整解析，连接已经结束"
+                    parsedFrames > 0 -> "中转站提前结束流式连接，收到事件但没有正文或结束标记"
+                    else -> "中转站结束了连接，但没有发送可解析的流式数据"
+                }
+                error("$cause（有效事件=$parsedFrames，不完整事件=$unparsedFrames；" +
+                    "并非客户端等待超时，本次可能已计费，未自动重新请求）")
+            }
             publishVisibleProgress(force = true)
             ModelReply(
                 text = text,
