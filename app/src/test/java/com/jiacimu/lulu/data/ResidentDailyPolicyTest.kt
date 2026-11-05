@@ -116,6 +116,38 @@ class ResidentDailyPolicyTest {
         }
     }
 
+    @Test fun dailyPlannerOffersOnlyFutureDecisionsCoveredByRemainingPaidCalls() {
+        // The daily plan itself needs one paid call. One call may also include
+        // many immediate local steps; only future agenda wakes cost more calls.
+        assertEquals(0, ResidentDailyPolicy.affordableNewAgendaItems(5, 0))
+        assertEquals(0, ResidentDailyPolicy.affordableNewAgendaItems(5, 1))
+        assertEquals(1, ResidentDailyPolicy.affordableNewAgendaItems(5, 2))
+        assertEquals(2, ResidentDailyPolicy.affordableNewAgendaItems(5, 4, pendingDueDecisions = 1))
+        assertEquals(0, ResidentDailyPolicy.affordableNewAgendaItems(5, 2, pendingDueDecisions = 1))
+        assertEquals(0, ResidentDailyPolicy.affordableNewAgendaItems(0, 8))
+        assertEquals(3, ResidentDailyPolicy.affordableNewAgendaItems(3, 8))
+        val ctx = context()
+        val prefs = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        try {
+            val role = "resident:planning-budget"
+            val now = Instant.parse("2026-11-05T05:00:00Z")
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 2))
+            assertEquals(2, ResidentDailyPolicy.remainingModelRequests(ctx, role, now))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, now))
+            assertEquals(1, ResidentDailyPolicy.remainingModelRequests(ctx, role, now))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, now))
+            assertEquals(0, ResidentDailyPolicy.remainingModelRequests(ctx, role, now))
+            assertFalse(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, now))
+            assertEquals(0, ResidentDailyPolicy.affordableNewAgendaItems(5,
+                ResidentDailyPolicy.remainingModelRequests(ctx, role, now)))
+            assertEquals(2, ResidentDailyPolicy.remainingModelRequests(ctx,
+                role, ResidentDailyPolicy.nextModelBudgetDayStart(now)))
+            assertEquals(Int.MAX_VALUE,
+                ResidentDailyPolicy.remainingModelRequests(ctx, "not-a-resident", now))
+        } finally { prefs.edit().clear().commit() }
+    }
+
     @Test fun nextResidentBudgetWindowUsesRealLocalMidnightNotRolling24Hours() {
         val zone = ZoneId.systemDefault()
         val original = java.time.LocalDate.of(2026, 11, 5)
