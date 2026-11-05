@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T12:08:40.663504+00:00",
-  "commit": "42d3849ed87fbe73ae5fa8657db799f7109d2249",
+  "generatedAt": "2026-11-05T12:09:59.100362+00:00",
+  "commit": "b434784e6449f7e2b076060e4fa180dbf17b81b9",
   "branch": "main",
-  "sourceFingerprint": "831ad06d2abb3bcea5e0bc67cd258c9151b827f7ad22b8f4f000cb30682c52c9",
+  "sourceFingerprint": "ec330e1e008cdac15ef70231df20f0b6d4299a499779a4b1794d03dfc3f827a9",
   "summary": {
     "files": 1137,
     "lines": 242374,
@@ -35045,7 +35045,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt",
       "lines": 100,
-      "sha256": "0487e1cd363abbb065855f6bc949b5bb60b10f1ca3b88a8330734f4f44e6ddc7",
+      "sha256": "04adfcb55f0ac9b127dee440cfc710c2b0765b127c827329c1eede6c6c8c99fe",
       "symbols": [
         {
           "name": "Live2DTouchAndNativeProbeTest",
