@@ -1173,3 +1173,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源头**：AutonomousActionWireProtocol.normalize 会将部分真实注册工具从 action=tool 变成对外友好 action=moment/message/call/journal，旧 CharacterThoughtActionHandoff 只有 action=tool 才合并根主动作同一 motive/concern/curiosity 归属；共享工具参数的不同 question 没有被主动作继承，仍被粗去重吞掉。
 - **修复与回归**：7a3f82a 添加已注册友好工具别名与实际主工具同一性检查；47ba849 在主归属和 steps 去重共用；85006c2 对内层动作必须先由主动作继承全部显式 causalLinks 才可省略第二次执行，否则保留独立归属；be1ca97 将相同只读归属合并引入电话/前台原 parsePlan。0ad901e 和 6d69965 补朋友圈/消息/日记/电话、不同主归属、原 JSON 不变和双发拦截回归。保持原唯一心理/事实来源，不加模型调用，不偷改人物。
 - **验收边界**：已推 main；新 JVM/APK run 41984588215 在提交时为 pending。索引 success 不是 APK 成功，旧 failure issue 在后继测试通过前不要手动关闭，实机真实工具和回执仍需对照。
+
+## 2026-11-05 · P-08d.2f 后继 CI 单失败与主回执归属兼容性
+
+- **实际 CI**：[41984588215](https://github.com/jiacimu-droid/lulu1/actions/runs/41984588215) job 127105049514 completed/failure，2461 tests / 1 failed，非编译错误或超时；唯一失败 `CharacterThoughtActionHandoffTest.friendlyPrimaryToolAliasesKeepOwnershipAndCannotDoubleExecute` 在第174行缺 `motiveRef`。此前两条镜像回归已 PASSED，故不是所有主工具都失效。
+- **本轮修改**：[feb2ae1](https://github.com/jiacimu-droid/lulu1/commit/feb2ae103a96ed5d493c717ed5a903d863fd9769) 在原 `CharacterThoughtActionHandoff.withPrimaryActionOwnership` 内对候选按主动作已累积的明确因果 owner 逐个校验和合并，允许同一真实回执同时带不同字段的 motive/concern，但同字段冲突仍不能覆盖或猜测。沿用现有回归 `friendlyPrimaryToolAliasesKeepOwnershipAndCannotDoubleExecute` 与 `mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect`；没有增加模型调用或新 Store。
+- **验证限制**：本提交尚未取得对应 JVM/APK 运行结果，不能声称该失败已修复。若仍失败，须读取新运行同一断言与 normalized JSON，追 `normalizeStep` 参数投影或 `isPrimaryToolChoice` 的实际差异，不能仅因源码推理勾完成。原有 40 分钟静默问题本次未复现（5m50s 结束），不代表根因已消除。真机、真实模型、跨日未验。
+- **下一轮**：先查 feb2ae1 及后继主线 CI 的首个失败；通过后继续 P-08d.2f 真实 ToolRouter 回执/重放幂等，再 P-08a.1 全链。
