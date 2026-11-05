@@ -149,6 +149,33 @@ class CharacterThoughtActionHandoffTest {
         assertEquals("fresh-goal", independent.getJSONObject(0).getString("motiveRef"))
     }
 
+    @Test fun journalPresentationAliasesDoNotMakeOneAuthoredActionExecuteTwice() {
+        val journal = JSONObject().put("action", "tool")
+            .put("tool", "write_journal")
+            .put("args", JSONObject().put("title", "今天的感受")
+                .put("content", "想把发生的事记下来"))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "start").put("ref", "one-journal")
+                    .put("nextAction", JSONObject().put("action", "journal")
+                        .put("journalTitle", "今天的感受")
+                        .put("journalContent", "想把发生的事记下来")))))
+        val before = journal.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(journal)
+        assertEquals("journal", normalized.getString("action"))
+        assertEquals("one-journal", normalized.getString("motiveRef"))
+        assertNull(CharacterThoughtActionHandoff.actions(normalized))
+        assertEquals(before, journal.toString())
+
+        val nested = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "journal")
+                .put("journalTitle", "今天的感受")
+                .put("journalContent", "想把发生的事记下来"))
+        assertEquals("今天的感受", nested.getJSONObject("args").getString("title"))
+        assertEquals("想把发生的事记下来", nested.getJSONObject("args").getString("content"))
+        assertFalse(nested.getJSONObject("args").has("journalTitle"))
+        assertFalse(nested.getJSONObject("args").has("journalContent"))
+    }
+
     @Test fun friendlyPrimaryToolAliasesKeepOwnershipAndCannotDoubleExecute() {
         val aliases = listOf(
             "publish_moment" to "moment",
