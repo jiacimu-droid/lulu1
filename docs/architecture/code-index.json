@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T04:13:35.341190+00:00",
-  "commit": "13a58ce5ef42987a9c06e81a3ad90687fe839742",
+  "generatedAt": "2026-11-05T05:44:48.764599+00:00",
+  "commit": "30119665cc2b7aa1bad4b501e043da2f50fcd74a",
   "branch": "main",
-  "sourceFingerprint": "ec87e7f81dc260c362fbc2d8af6ca8894601c6164eb7342518526aa6d0dc85ea",
+  "sourceFingerprint": "96695afeb6eb25c1b22d8c01c974b6d99ea501409e8e36a82e00808cad03e91c",
   "summary": {
     "files": 1137,
-    "lines": 241512,
-    "symbols": 3328
+    "lines": 241591,
+    "symbols": 3330
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7486,6 +7486,10 @@
         "line": 116
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
+        "line": 115
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
         "line": 17
       }
@@ -7524,6 +7528,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
         "line": 24
+      }
+    ],
+    "withPrimaryActionOwnership": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
+        "line": 110
       }
     ],
     "candidates": [
@@ -16603,7 +16613,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 172
+        "line": 204
       }
     ],
     "CharacterMotiveDeliberationTest": [
@@ -16789,7 +16799,7 @@
     "linked": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 136
+        "line": 168
       }
     ],
     "CharacterTopicCandidatesTest": [
@@ -23446,7 +23456,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
       "lines": 355,
-      "sha256": "58d01794f555269978b42245ad7b499bccf4ca7f8a4c30e1a16e8d483e94c7e4",
+      "sha256": "0054f38ffcfaad09231209fdf11a8af638537ba1900a0d04dfbe7e837718c3d3",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -25433,8 +25443,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 135,
-      "sha256": "440083dec66f8cdc56d630951465e2f7671bd40c9159fcf6918162394aef3be4",
+      "lines": 182,
+      "sha256": "2329c54fac9670c5e4113ef1a335209e3c58ff6f6346ff89a2aac8e0eb3fc122",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -25447,6 +25457,14 @@
         {
           "name": "add",
           "line": 51
+        },
+        {
+          "name": "withPrimaryActionOwnership",
+          "line": 110
+        },
+        {
+          "name": "collect",
+          "line": 115
         }
       ]
     },
@@ -36917,8 +36935,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 355,
-      "sha256": "b284b2eb4b54f64f713348e17f4589ced6b3541d70744272833bfe20b8d97852",
+      "lines": 387,
+      "sha256": "392281c0a7e71b528240592404a8bf350ef0a2065c4bffe90871de2adce67c24",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
@@ -36926,11 +36944,11 @@
         },
         {
           "name": "linked",
-          "line": 136
+          "line": 168
         },
         {
           "name": "motive",
-          "line": 172
+          "line": 204
         }
       ]
     },
