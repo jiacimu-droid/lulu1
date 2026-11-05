@@ -84,13 +84,30 @@ internal object ResidentDailyPolicy {
         else 0
     }
 
+    /** Actual remaining paid calls, not the independent number of agenda rows.
+     * Called before a resident plans or wakes; the gateway remains the atomic
+     * spending authority when several resident events compete. */
+    fun remainingModelRequests(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Int =
+        if (!role.startsWith("resident:")) Int.MAX_VALUE
+        else (maxModelDecisions(context) - modelDecisionsUsed(context, role, at))
+            .coerceAtLeast(0)
+
+    /** A daily plan itself costs one request. Each future resident agenda wake
+     * costs another fresh decision; existing due plans also require a slot.
+     * Local duty changes and immediate steps in the SAME decision cost no
+     * additional model call. Never reserve imaginary credits or delete plans. */
+    internal fun affordableNewAgendaItems(configured: Int, remainingCalls: Int,
+        pendingDueDecisions: Int = 0): Int =
+        minOf(configured.coerceIn(0, MAX_AGENDA_ITEMS),
+            (remainingCalls - 1 - pendingDueDecisions.coerceAtLeast(0)).coerceAtLeast(0))
+
     /** Read-only preflight for optional resident maintenance tasks.
      * This is NOT a reservation: the gateway still owns the atomic claim,
      * so races cannot evade the owner's total paid-request limit. */
     fun hasModelRequestAllowance(context: Context, role: String,
         at: java.time.Instant = java.time.Instant.now()): Boolean =
-        !role.startsWith("resident:") ||
-            modelDecisionsUsed(context, role, at) < maxModelDecisions(context)
+        remainingModelRequests(context, role, at) > 0
 
     /** Local midnight when this resident's next configured daily allowance starts.
      * This is scheduling arithmetic only, not a new decision or paid request. */
