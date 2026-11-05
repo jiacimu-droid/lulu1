@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T05:45:08.373640+00:00",
-  "commit": "427b995158451f8d073938faf94fa8dc07056040",
+  "generatedAt": "2026-11-05T06:44:09.586251+00:00",
+  "commit": "c2e98fc67166156231f3021e240d479699e0c2fc",
   "branch": "main",
-  "sourceFingerprint": "96695afeb6eb25c1b22d8c01c974b6d99ea501409e8e36a82e00808cad03e91c",
+  "sourceFingerprint": "9c736c0a5cae8a3cf9859d454ddc80ad53d818ae7decab94057769edfa0a08b7",
   "summary": {
     "files": 1137,
-    "lines": 241591,
+    "lines": 241650,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -16613,7 +16613,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 204
+        "line": 250
       }
     ],
     "CharacterMotiveDeliberationTest": [
@@ -16799,7 +16799,7 @@
     "linked": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-        "line": 168
+        "line": 214
       }
     ],
     "CharacterTopicCandidatesTest": [
@@ -25443,8 +25443,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 182,
-      "sha256": "2329c54fac9670c5e4113ef1a335209e3c58ff6f6346ff89a2aac8e0eb3fc122",
+      "lines": 195,
+      "sha256": "841dc441bbc691928df74188c07fecb65f4d1faecd59bd8f1bec02d6def9d22b",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -36935,8 +36935,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 387,
-      "sha256": "392281c0a7e71b528240592404a8bf350ef0a2065c4bffe90871de2adce67c24",
+      "lines": 433,
+      "sha256": "4bba9b5ba218d4c25efd3e3cb5a9cf4303481fa95be85d75de70b0fdaf567e60",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
@@ -36944,11 +36944,11 @@
         },
         {
           "name": "linked",
-          "line": 168
+          "line": 214
         },
         {
           "name": "motive",
-          "line": 204
+          "line": 250
         }
       ]
     },
