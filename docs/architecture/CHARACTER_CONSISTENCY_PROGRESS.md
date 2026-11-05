@@ -1251,3 +1251,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **提交至main**：`OnlineContinuationPolicy.needsCommitmentRecovery`在窗口真正结束、未被新窗口接管且`CompanionSleepHandoff.uncovered`仍有未交接正式责任时允许原调度器补救；`scheduleUnfinishedCommitmentRecovery`仍为原WorkManager六分钟延后和每角色每小时一次的有限同角色决策机会，保留旧队列触发兼容；不是自动将心声词句注册为23:45、拨电话或判定主人已睡。代码提交：`49893e7`、`da5698d`、`4480730`、`4f808ae`。
 - **回归已写，待CI**：`OnlineContinuationPolicyTest`覆盖续期失败/新窗口覆盖/已有排期的恢复判定；`OnlineChatExperienceTest`以真实明日闹钟和当晚独立结果复查验证同一任务跨日不混淆（`633fe8c`、`1d83fd6`）。未取得Android单测、APK或真机通过证据，不能标记已验通。
 - **后续**：核实最终head的CI，并获取23:35真实模型`onlineDecision/steps/commitmentChanges`、工具`schedule_commitment_review`回执及`nextCheckAt/linkedAlarmId`，区分模型未选择、工具未保存、闹钟未交付或窗口退出未交接；不凭心声关键词代人物作语义决定。
+
+
+## 2026-11-06 · P-08d.2b/2 重启后错过一次性结果复查也必须续接
+
+- **接手来源**：主人11月5日23:35心声提及23:45复查，实际后续未见；前轮已修在线租期结束时没交接正式责任的补救，截图不能证明是否有真实`schedule_commitment_review`模型指令/回执。
+- **新证实的源码断点**：`CommitmentTaskStore.reconcileAfterRestart` 对 `WaitingForFeedback` 已错过的静默结果复查，只清理失效 `nextCheckAt/linkedAlarmId` 并保留“未知”，没有像原到点主动作错过那样交给 `scheduleMissedCommitmentReview`。重启恢复的其他无后继任务也只针对 `repeat=daily` 安排有界补救：一次性承诺若曾执行但效果待证实，会留在 Store 而丢失主动再次考虑的机会。
+- **直接改动 main**：`CommitmentTask.needsUnverifiedCommitmentRecoveryCandidate` 将一次性/每日、到期、仍等待反馈或Blocked的**恢复候选**归一，仅描述客观状态；`CompanionSleepHandoff.uncovered` 随后用现有真实Alarm/关联日程检验是否仍缺后继，避免把第二天独立每日执行当作旧结果复查。重启时已错过的verification计入原`missedByRole`并沿`scheduleMissedCommitmentReview`立刻交回同一人物决策（不是自动重拨或判定完成），其他旧结果未证实且没有后继的once/daily任务走已有每小时一次、六分钟后的有界恢复。已有真的后续、其他窗口已接管、正在运行的执行器仍不重复收费唤醒。更新错过事件文案，使原执行和结果复查不混为一谈。源码 commits `aa6cef4`、`bbcad13`、`12a35fe`。
+- **回归源码**：`DailyCommitmentRecurrenceTest.oneTimePromiseWithUnknownOutcomeIsAlsoEligibleForRestartRecovery` 覆盖一次性未证实/Blocked、未来/完成/未到期边界；`CommitmentAlarmRecoveryTest.coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery` 检查真实Store重启恢复之后原ID、未知状态、过期闹钟清理和后继缺口仍可识别；提交 `585342f`、`0dd4e42`。没有增加影子Store、关键词解析、私人心声自动任务、额外常态模型轮次。
+- **CI界限**：旧push `06809cd6` 的 APK Actions `42066569144`（job `127382156671`）已 completed/failure，2481项单测1项失败：`CharacterThoughtActionHandoffTest.stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts`。**该失败发生在本轮提交前且不直接证明本轮复查修改有错**；当前新提交的 JVM/APK、设备跨午夜/后台闹钟与原23:45模型实际选择尚待对应run验证。不能把旧 success 或已写测试当作现版通过。
+- **下一步**：优先用对应head的Actions和失败日志核对新测试，必要时追真实重启恢复Worker/AlarmManager回调与工具receipt；采集23:35那轮 `onlineDecision/steps/commitmentChanges`、到点闹钟和`linkedAlarmId`，区分未提交、未保存、没触发或后台不再决策，不能从心声硬推已经安排。
