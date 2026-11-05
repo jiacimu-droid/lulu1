@@ -40,14 +40,14 @@ class Live2DTouchAndNativeProbeTest {
             // Touch is saved, but is not an autonomous paid phone reply.
             // Its real evidence remains readable on the NEXT ordinary user turn
             // and is acknowledged only once the existing perception commits.
-            assertTrue(CharacterPerceptionContext.pending(app, role).any { it.id == recordedId })
+            assertTrue(CharacterPerceptionContext.pending(app, role, java.time.Instant.now()).any { it.id == recordedId })
             val nextUserTurn = CharacterPerceptionContext.integrate(
                 app, role, listOf(evidence), deferAcknowledgement = true)
             assertTrue(nextUserTurn.freshStimuli.any { it.evidenceId == recordedId })
             assertTrue(nextUserTurn.combined?.description.orEmpty().contains("头部"))
             CharacterPerceptionContext.acknowledge(app, role, nextUserTurn)
             assertTrue(PerceptionStimulusLedger.hasSeen(app, role, recordedId!!))
-            assertFalse(CharacterPerceptionContext.pending(app, role).any { it.id == recordedId })
+            assertFalse(CharacterPerceptionContext.pending(app, role, java.time.Instant.now()).any { it.id == recordedId })
             // Different touches in one gesture burst must keep their own
             // parts, instead of falsely reporting every touch on the head.
             val mixed = InteractionSignalBridge.recordAvatarTouches(
