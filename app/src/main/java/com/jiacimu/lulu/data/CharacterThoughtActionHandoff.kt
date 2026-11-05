@@ -194,7 +194,15 @@ internal object CharacterThoughtActionHandoff {
         // A conflicting explicit value still cannot be assigned to the same
         // primary effect; preserve those nested steps for independent receipts.
         val result = JSONObject(decision.toString())
+        // One primary tool result cannot be credited to two different open
+        // questions just because both requested an identical tool+args.
+        // Unlike a compatible concern+motive pair, different question IDs
+        // have no unambiguous primary owner, so both stay independent.
+        val competingQuestions = candidates.mapNotNull {
+            it.optJSONObject("curiosity")?.let(::canonical)
+        }.distinct().size > 1
         for (candidate in candidates) {
+            if (competingQuestions && candidate.has("curiosity")) continue
             // An incompatible second owner does not invalidate the first
             // compatible owner already attached to this real primary receipt.
             // Keep the conflicting nested step for its own execution/receipt.
