@@ -1165,3 +1165,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式修复**：[50b32d3](https://github.com/jiacimu-droid/lulu1/commit/50b32d3f8e84537e357e0af6885416c5d6b82843) 复用同一显式 question 投影（去 nextAction 的只读副本），在 primary 合并前纳入 curiosity 和 curiosities[]；保留原 sameAction 的工具/规范化参数/依赖/归属兼容性检查与多目标冲突不猜原则。没有改原始 JSON、存储、人设或模型调用。
 - **回归**：[c2e98fc](https://github.com/jiacimu-droid/lulu1/commit/c2e98fc67166156231f3021e240d479699e0c2fc) 增 mirroredPrimaryToolRetainsExplicitQuestionAndNeverExecutesTwice：单一 question 的 threadId/sourceEvidenceId 归属进入主工具、无镜像 side action；与显式其他 question 冲突时保留独立动作；两项不同 question 不冒认唯一主归属；原始模型输出保持不变。测试源码已提交，不宣称 JVM 运行通过。
 - **CI 与下一轮**：GitHub commit combined statuses 对 c2e98fc 返回空，fetch_commit_workflow_runs 亦无可核验 run（此接口只筛 PR 触发），不代表构建成功或失败。旧 41936349268 completed/failure 是先前版本 40 分钟超时，不用于本轮验收。下一轮先核含 c2e98fc 的 push APK/JVM 真实日志，若红先修编译/断言；随后 P-08d.2e 补真实 ToolRouter 主动作 receipt/重放幂等集成回归，再继续 P-08a.1 跨入口链。真机/真实模型/跨日未验。
+
+
+## 2026-11-05 · P-08d.2f 主动作镜像归属导致 CI issue 769/770
+
+- **实测失败**：run 41975920197 为 2457 tests completed, 1 failed，CharacterThoughtActionHandoffTest 中 mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect 缺 motiveRef；run 41982399574 为 2458 tests completed, 2 failed，再加 mirroredPrimaryToolRetainsExplicitQuestionAndNeverExecutesTwice 因歧义步骤被一起吞掉。对应 CI issues #769/#770，单测/生成 APK 未通过，不是 Gradle 编译失败。
+- **源头**：AutonomousActionWireProtocol.normalize 会将部分真实注册工具从 action=tool 变成对外友好 action=moment/message/call/journal，旧 CharacterThoughtActionHandoff 只有 action=tool 才合并根主动作同一 motive/concern/curiosity 归属；共享工具参数的不同 question 没有被主动作继承，仍被粗去重吞掉。
+- **修复与回归**：7a3f82a 添加已注册友好工具别名与实际主工具同一性检查；47ba849 在主归属和 steps 去重共用；85006c2 对内层动作必须先由主动作继承全部显式 causalLinks 才可省略第二次执行，否则保留独立归属；be1ca97 将相同只读归属合并引入电话/前台原 parsePlan。0ad901e 和 6d69965 补朋友圈/消息/日记/电话、不同主归属、原 JSON 不变和双发拦截回归。保持原唯一心理/事实来源，不加模型调用，不偷改人物。
+- **验收边界**：已推 main；新 JVM/APK run 41984588215 在提交时为 pending。索引 success 不是 APK 成功，旧 failure issue 在后继测试通过前不要手动关闭，实机真实工具和回执仍需对照。
