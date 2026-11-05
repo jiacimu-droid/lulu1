@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:54:37.964764+00:00",
-  "commit": "fd599f8fcc3d4dc36bd33afc76c79921716371de",
+  "generatedAt": "2026-11-05T17:37:40.256229+00:00",
+  "commit": "1bcc98ada38b75c996a9adfbe1c13e3a1e0d8754",
   "branch": "main",
-  "sourceFingerprint": "a07cd57e6001859eb4dfb6ff2b0443bb1bdb49dea75841373dc675638fcf15d6",
+  "sourceFingerprint": "7f217f550c7efc4b85aa1156c47d6bb3237021d56bb67899f11cfb90963f8258",
   "summary": {
     "files": 1137,
     "lines": 242962,
@@ -29471,7 +29471,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3376,
-      "sha256": "b7ef6b55307ed5cae9d3b4f5863c4de192ada40304c00544d9195ed52afaa235",
+      "sha256": "b209ef67de749e1ace4405b359f0962f2072fa5a66c53242bce0cb45d0a29fcc",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
