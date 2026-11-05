@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T12:27:31.007192+00:00",
-  "commit": "479e262b7b3b3e7f6c9553c473efef42c48ae508",
+  "generatedAt": "2026-11-05T12:40:30.882402+00:00",
+  "commit": "84d0d2d81598082556c2816d08250436ed80ffff",
   "branch": "main",
-  "sourceFingerprint": "cb908f470e89b1cf8f1706bb4c9a54339bdc4a58acac4e6fa7740c07158302bb",
+  "sourceFingerprint": "963769f7800ce1ac9ea6e6f61f24c7d7775314aa59ae18b53474a3bd84ecda65",
   "summary": {
     "files": 1137,
-    "lines": 242593,
+    "lines": 242608,
     "symbols": 3338
   },
   "symbolIndex": {
@@ -35490,8 +35490,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 160,
-      "sha256": "ce69d3d8b4c14e4d0865c08dc009667e558b3ee09fe59d23efa996c89c88d7e6",
+      "lines": 175,
+      "sha256": "4d49580e3c52629afad793956eddb1a4ea26257baa9a5c882f99cdf4945df7d3",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
