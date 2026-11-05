@@ -120,7 +120,7 @@ internal object CharacterThoughtActionHandoff {
             // just because their executable tool and args look the same.
             if (AutonomousActionWireProtocol.isPrimaryToolChoice(decision)) {
                 val primaryStep = AutonomousActionWireProtocol.normalizeStep(decision)
-                if (sameAction(primaryStep, step) && causalLinks.all { key ->
+                if (resultHasInterveningEffect(result, primaryStep).not() && sameAction(primaryStep, step) && causalLinks.all { key ->
                         !step.has(key) || (primaryStep.has(key) &&
                             canonical(primaryStep.opt(key)) == canonical(step.opt(key)))
                     }) return
@@ -184,6 +184,7 @@ internal object CharacterThoughtActionHandoff {
             nested.put(step)
         }
         collect(decision)
+        val explicitCandidateStart = nested.length()
         // Explicit steps/sideActions are another spelling of the same
         // primary effect. Carry their authored owner onto its real receipt
         // before the side-action decoder decides whether to suppress a mirror.
@@ -203,6 +204,7 @@ internal object CharacterThoughtActionHandoff {
                 if (!interveningExplicitEffect) nested.put(step)
             }
         }
+        val explicitCandidateEnd = nested.length()
         CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
             .filter { it.optString("status", "open") !in setOf("settled", "dismissed") }
             .forEach { collect(it, concern = true) }
@@ -219,8 +221,12 @@ internal object CharacterThoughtActionHandoff {
         val questions = decision.optJSONArray("curiosities")
         for (index in 0 until (questions?.length() ?: 0))
             collect(questions?.optJSONObject(index), inquiry = true)
-        val candidates = (0 until nested.length()).mapNotNull(nested::optJSONObject)
-            .filter { sameAction(primary, it) }
+        val candidates = (0 until nested.length()).mapNotNull { index ->
+            // Nested actions execute after explicit steps. An intervening
+            // explicit effect makes them new attempts, not primary receipts.
+            if (interveningExplicitEffect && index !in explicitCandidateStart until explicitCandidateEnd)
+                null else nested.optJSONObject(index)
+        }.filter { sameAction(primary, it) }
         if (candidates.isEmpty()) return decision
         // A primary receipt may legitimately belong to both a concern and a
         // motive. Validate compatibility against the ACCUMULATED ownership,
@@ -246,6 +252,12 @@ internal object CharacterThoughtActionHandoff {
         }
         return result
     }
+
+    private fun resultHasInterveningEffect(steps: JSONArray, primary: JSONObject): Boolean =
+        (0 until steps.length()).any { index ->
+            val step = steps.optJSONObject(index) ?: return@any true
+            step.optString("tool") != primary.optString("tool")
+        }
 
     private val causalLinks = listOf("motiveId", "motiveRef", "concernId", "experienceId", "curiosity", "learningApplication")
 
