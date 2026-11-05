@@ -149,6 +149,62 @@ class CharacterThoughtActionHandoffTest {
         assertEquals("fresh-goal", independent.getJSONObject(0).getString("motiveRef"))
     }
 
+    @Test fun friendlyPrimaryToolAliasesKeepOwnershipAndCannotDoubleExecute() {
+        val aliases = listOf(
+            "publish_moment" to "moment",
+            "send_private_message" to "message",
+            "write_journal" to "journal",
+            "start_call" to "call",
+        )
+        for ((tool, outwardAction) in aliases) {
+            val effect = action(tool)
+            val decision = JSONObject().put("action", "tool")
+                .put("tool", tool)
+                .put("args", JSONObject(effect.getJSONObject("args").toString()))
+                .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                    JSONObject().put("op", "start").put("ref", "wish-$tool")
+                        .put("nextAction", JSONObject(effect.toString())))))
+                .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(
+                    JSONObject().put("threadId", "care-$tool")
+                        .put("status", "open")
+                        .put("nextAction", JSONObject(effect.toString())))))
+            val before = decision.toString()
+            val normalized = AutonomousActionWireProtocol.normalize(decision)
+            assertEquals(tool, outwardAction, normalized.getString("action"))
+            assertEquals("wish-$tool", normalized.getString("motiveRef"))
+            assertEquals("care-$tool", normalized.getString("concernId"))
+            assertNull("The same effect must not execute twice",
+                CharacterThoughtActionHandoff.actions(normalized))
+            assertEquals(before, decision.toString())
+            // A genuinely different owner still produces an independent action.
+            val conflicting = JSONObject(decision.toString()).put("motiveRef", "other-owner")
+            val conflict = AutonomousActionWireProtocol.normalize(conflicting)
+            assertEquals("other-owner", conflict.getString("motiveRef"))
+            val side = CharacterThoughtActionHandoff.actions(conflict)!!
+            assertEquals(1, side.length())
+            assertEquals("wish-$tool", side.getJSONObject(0).getString("motiveRef"))
+        }
+    }
+
+    @Test fun unrelatedToolFieldOnOrdinarySpeechDoesNotStealTheSecondaryAction() {
+        val decision = JSONObject()
+            .put("action", "message")
+            .put("tool", "publish_moment")
+            .put("text", "只是聊天，没有选择朋友圈主动作")
+            .put("args", JSONObject().put("query", "真实待核对的问题"))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "start").put("ref", "real-next-action")
+                    .put("nextAction", action("publish_moment")))))
+        val original = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals("message", normalized.getString("action"))
+        assertFalse(AutonomousActionWireProtocol.isPrimaryToolChoice(normalized))
+        val secondary = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(1, secondary.length())
+        assertEquals("real-next-action", secondary.getJSONObject(0).getString("motiveRef"))
+        assertEquals(original, decision.toString())
+    }
+
     @Test fun mirroredPrimaryToolRetainsExplicitQuestionAndNeverExecutesTwice() {
         val tool = action("web_search")
         val question = JSONObject().put("threadId", "question-1")
