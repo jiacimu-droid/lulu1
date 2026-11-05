@@ -193,6 +193,34 @@ class CommitmentAlarmRecoveryTest {
         assertEquals(CommitmentTaskStatus.Expired, current(expired).status)
     }
 
+    @Test fun coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery() {
+        val now = Instant.now()
+        val task = saveTask(now.minusSeconds(3600))
+        val missedReviewAt = now.minusSeconds(10 * 60)
+        CommitmentTaskStore.update(task.id) { original -> original.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            nextCheckAt = missedReviewAt,
+            linkedAlarmId = "one-off-missed-review",
+            followUpKind = "verification",
+            lastActionResult = "最初提醒已发出，结果尚未知",
+        ) }
+        assertTrue(current(task).needsUnverifiedCommitmentRecoveryCandidate(now))
+        // Reconciliation may discard the stale physical alarm, but it must
+        // keep the original responsibility and let the same role choose a
+        // new step instead of silently treating a missed review as success.
+        CommitmentTaskStore.reconcileAfterRestart(now)
+        val recovered = current(task)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, recovered.status)
+        assertNull(recovered.nextCheckAt)
+        assertNull(recovered.linkedAlarmId)
+        assertEquals("", recovered.followUpKind)
+        assertTrue(recovered.lastActionResult.contains("目标结果仍未确认"))
+        assertTrue(CompanionSleepHandoff.uncovered(context, task.characterId, now)
+            .any { it.id == task.id })
+        assertTrue(recovered.needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertFalse(recovered.needsUnverifiedDailyRecovery(now))
+    }
+
     @Test fun cancelledAlarmCannotBeHandedToForegroundService() {
         val task = saveTask(Instant.now().minusSeconds(1))
         writeAlarm(task)
