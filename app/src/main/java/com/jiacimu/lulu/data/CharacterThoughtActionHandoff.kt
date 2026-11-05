@@ -101,6 +101,53 @@ internal object CharacterThoughtActionHandoff {
         return result.takeIf { it.length() > 0 }
     }
 
+    /**
+     * A top-level tool is executed by the primary route, not OrderedCharacterActions.
+     * When the same effect is also authored as a nested nextAction, retain its
+     * explicit owner on that PRIMARY receipt instead of enqueuing it twice.
+     * Conflicting or ambiguous owners remain separate, never guessed.
+     */
+    fun withPrimaryActionOwnership(decision: JSONObject): JSONObject {
+        if (decision.optString("action") != "tool") return decision
+        val primary = AutonomousActionWireProtocol.normalizeStep(decision)
+        if (primary.optString("tool").isBlank()) return decision
+        val nested = JSONArray()
+        fun collect(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false) {
+            val raw = owner?.optJSONObject("nextAction") ?: return
+            val step = AutonomousActionWireProtocol.normalizeStep(raw)
+            if (concern && step.optString("concernId").isBlank())
+                owner.optString("threadId").takeIf(String::isNotBlank)?.let { step.put("concernId", it) }
+            if (motive && step.optString("motiveId").isBlank() && step.optString("motiveRef").isBlank()) {
+                owner.optString("id").takeIf(String::isNotBlank)?.let { step.put("motiveId", it) }
+                    ?: owner.optString("ref").takeIf { owner.optString("op") == "start" && it.isNotBlank() }
+                        ?.let { step.put("motiveRef", it) }
+            }
+            nested.put(step)
+        }
+        collect(decision)
+        CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
+            .filter { it.optString("status", "open") !in setOf("settled", "dismissed") }
+            .forEach { collect(it, concern = true) }
+        val inner = decision.optJSONObject("innerLife")
+        for (key in listOf("thoughts", "motives")) {
+            val items = inner?.optJSONArray(key)
+            for (index in 0 until (items?.length() ?: 0)) {
+                val owner = items?.optJSONObject(index) ?: continue
+                if (key == "motives" && owner.optString("op") in setOf("pause", "release", "achieve")) continue
+                collect(owner, motive = key == "motives")
+            }
+        }
+        val candidates = (0 until nested.length()).mapNotNull(nested::optJSONObject)
+            .filter { sameAction(primary, it) }
+        // Multiple distinct nested owners are not one primary action.
+        if (candidates.isEmpty() || candidates.any { other ->
+                candidates.any { candidate -> !sameAction(other, candidate) }
+            }) return decision
+        val result = JSONObject(decision.toString())
+        candidates.forEach { mergeLinks(result, it) }
+        return result
+    }
+
     private val causalLinks = listOf("motiveId", "motiveRef", "concernId", "experienceId", "curiosity", "learningApplication")
 
     /** Same executable request AND compatible explicitly authored ownership.
