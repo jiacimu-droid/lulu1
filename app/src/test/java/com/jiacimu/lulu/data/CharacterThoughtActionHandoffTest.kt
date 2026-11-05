@@ -186,6 +186,30 @@ class CharacterThoughtActionHandoffTest {
         }
     }
 
+    @Test fun laterConflictingGoalCannotEraseEarlierCompatiblePrimaryConcern() {
+        val effect = action("publish_moment")
+        val decision = JSONObject().put("action", "tool")
+            .put("tool", "publish_moment")
+            .put("args", JSONObject(effect.getJSONObject("args").toString()))
+            .put("motiveRef", "original-goal")
+            .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(
+                JSONObject().put("threadId", "related-concern")
+                    .put("status", "open")
+                    .put("nextAction", JSONObject(effect.toString())))))
+            .put("innerLife", JSONObject().put("motives", JSONArray().put(
+                JSONObject().put("op", "start").put("ref", "different-goal")
+                    .put("nextAction", JSONObject(effect.toString())))))
+        val original = decision.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals("original-goal", normalized.getString("motiveRef"))
+        assertEquals("related-concern", normalized.getString("concernId"))
+        val separate = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(1, separate.length())
+        assertEquals("different-goal", separate.getJSONObject(0).getString("motiveRef"))
+        assertEquals("related-concern", normalized.getString("concernId"))
+        assertEquals(original, decision.toString())
+    }
+
     @Test fun rawPhoneAndForegroundToolPlansInheritExplicitCausalOwnerBeforeSideSteps() {
         val tool = action("publish_moment")
         val raw = JSONObject().put("action", "tool")
