@@ -91,6 +91,25 @@ class DailyCommitmentRecurrenceTest {
         assertEquals(1, next.atZone(zone).dayOfMonth)
     }
 
+    @Test fun oneTimePromiseWithUnknownOutcomeIsAlsoEligibleForRestartRecovery() {
+        val now = at(2026, 11, 6, 0, 35)
+        val oneTime = CommitmentTask(characterId = "role", goal = "核实今晚睡前状态",
+            repeat = "once", status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = at(2026, 11, 5, 23, 30), nextCheckAt = null)
+        // The daily-only migration predicate is deliberately not reused as
+        // the sole owner of restart recovery for all accepted commitments.
+        assertFalse(oneTime.needsUnverifiedDailyRecovery(now))
+        assertTrue(oneTime.needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertTrue(oneTime.copy(status = CommitmentTaskStatus.Blocked)
+            .needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertFalse(oneTime.copy(status = CommitmentTaskStatus.Completed)
+            .needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertFalse(oneTime.copy(status = CommitmentTaskStatus.Scheduled)
+            .needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertFalse(oneTime.copy(dueAt = now.plusSeconds(600))
+            .needsUnverifiedCommitmentRecoveryCandidate(now))
+    }
+
     @Test fun pendingReviewSurvivesMidnightAndCodecWithoutRollingToTomorrow() {
         val now = at(2026, 11, 1, 0, 39)
         val nightly = CommitmentTask(characterId = "role", goal = "每天23:30监督睡觉",
