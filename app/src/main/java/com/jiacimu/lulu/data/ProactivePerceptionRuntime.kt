@@ -1166,15 +1166,18 @@ object ProactivePerceptionRuntime {
                 trigger.contains("用户手动唤醒") -> "手动唤醒"
                 else -> "其他独立触发"
             },
-            // A complete action/text is more useful than a long private monologue.
-            // Headroom keeps a final JSON brace from being cut off.
-            maxTokens = 3_000,
+            // A reasoning-capable relay may spend much of a 3k output limit
+            // reasoning over a long scene, then return no visible answer.
+            // Reserve extra headroom only when an actual private message needs
+            // a reply; this is an output ceiling, not a second model request.
+            maxTokens = if (privateDialogue.isNotEmpty() || onlineUnread.text.isNotBlank())
+                6_000 else 3_000,
             connectionOverride = connection,
-            // A single structured decision can take longer than the default
-            // non-streaming read window. Consume incremental chunks from the
-            // same request rather than letting a silent 90s read expire.
-            // The gateway falls back only on an explicit stream-protocol rejection;
-            // ambiguous timeouts must not be replayed and charged twice.
+            // Let slow relays keep this single HTTP/SSE response open for the
+            // full supported socket-idle budget (5 minutes). If a relay itself
+            // closes or terminates its stream early, waiting longer cannot
+            // retrieve missing bytes and no potentially billed replay is made.
+            readTimeoutMillis = 300_000,
             streamResponse = true,
             conversation = privateDialogue,
             memoryRequest = UnifiedMemoryRequest(
