@@ -105,6 +105,12 @@ internal object AutonomousActionWireProtocol {
         if (candidate.isNotBlank()) step.put("tool", candidate)
         if (CapabilityRegistry.find(candidate) != null) {
             argumentKeys.forEach { key ->
+                // Journal's legacy title aliases are presentation fields, not
+                // second arguments. Normalize both primary and nested tools to
+                // canonical title/content, or the duplicate-suppression receipt
+                // check will wrongly execute the same journal twice.
+                if (candidate == "write_journal" &&
+                    key in setOf("journalTitle", "journalContent")) return@forEach
                 if (!args.has(key) && step.has(key)) args.put(key, step.opt(key))
             }
             if (worldVerb.isNotBlank() && args.optString("worldAction").isBlank())
