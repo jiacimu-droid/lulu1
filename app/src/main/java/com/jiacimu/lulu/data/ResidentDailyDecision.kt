@@ -1255,6 +1255,11 @@ internal object ResidentDailyDecision {
             if (p.getString("due-invalid:$key", "").isNullOrBlank() ||
                 p.getString("due-invalid-reason:$key", "").isNullOrBlank()) return false
         } else {
+            // No budget must never mark a fresh appointment as "requesting".
+            // The durable wake worker will defer this same plan to the next
+            // budget window without pretending that its action was completed.
+            if (!ResidentDailyPolicy.hasModelRequestAllowance(app, plan.characterId, at))
+                return false
             // A crash/timeout before receiving an answer is uncertain: never
             // silently buy a second model request for this appointment.
             if (!claimDueRequest(p, live, connectionFingerprint(checkNotNull(selected)))) return false
@@ -1762,7 +1767,21 @@ internal object ResidentDailyDecision {
         ScopedModelSelections.initialize(app)
         val today = date(now)
         val p = prefs(app)
-        val agendaLimit = ResidentDailyPolicy.maxAgendaItems(app)
+        // One call plans the day; every future agenda wake buys another decision.
+        // Do not propose five future paid wakes when the owner allows two calls.
+        // Already-scheduled due work is real and must not be erased by a new
+        // plan; account for its remaining cost before offering new slots.
+        val alreadyPending = RoleDayScheduleStore.plans(app, id).count {
+            it.status in setOf("planned", "due") &&
+                !it.dueAt.isBefore(now) &&
+                it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() ==
+                    now.atZone(ZoneId.systemDefault()).toLocalDate()
+        }
+        val agendaLimit = ResidentDailyPolicy.affordableNewAgendaItems(
+            ResidentDailyPolicy.maxAgendaItems(app),
+            ResidentDailyPolicy.remainingModelRequests(app, id, now),
+            alreadyPending,
+        )
         val decisionKey = dayDecisionKey(native.id, today)
         val phaseKey = dayPhaseKey(native.id, today)
         val recoveriesKey = dayRecoveriesKey(native.id, today)
@@ -1794,6 +1813,9 @@ internal object ResidentDailyDecision {
                 p.getString("invalid-reason:${native.id}:$today", "").isNullOrBlank() ||
                 p.getString("attempt:${native.id}", "") != today) return false
         } else {
+            // An empty allowance is a normal scheduling state, not a failed
+            // remote call. Preserve today's unattempted decision opportunity.
+            if (!ResidentDailyPolicy.hasModelRequestAllowance(app, id, now)) return false
             if (!claimDayRequest(app, native.id, now,
                     connectionFingerprint(checkNotNull(selected)))) return false
         }
@@ -2101,6 +2123,11 @@ internal object ResidentDailyDecision {
             // Leave unread mail/request available to the next real daily wake
             // instead of automatically buying a duplicate inference.
             if (saved == null && phase.isNotBlank()) return@withLock false
+            // Leave the real unread event for the next authorized daily
+            // decision instead of logging a zero-duration gateway rejection.
+            if (saved == null &&
+                !ResidentDailyPolicy.hasModelRequestAllowance(app, characterId, now))
+                return@withLock false
             val pending = ResidentSocialMailbox.pendingIncoming(characterId)
             val unread = CharacterPhoneInbox.unreadMoments(characterId)
             val decided = if (saved != null) saved else {
@@ -2310,8 +2337,10 @@ internal object ResidentDailyDecision {
                 prefs(app).getInt(dayRecoveriesKey(it.id, date(now)), 0)
             }.minOrNull()
             val needsCatchup = savedRecovery != null || residents.any {
-                prefs(app).getString("attempt:${it.id}", "") != date(now) ||
-                    hasSafeDayRequestToRetry(app, it.id, now)
+                val role = ResidentCharacterBridge.characterId(it.id)
+                ResidentDailyPolicy.hasModelRequestAllowance(app, role, now) &&
+                    (prefs(app).getString("attempt:${it.id}", "") != date(now) ||
+                        hasSafeDayRequestToRetry(app, it.id, now))
             }
             if (needsCatchup) {
                 // KEEP on a single daily catch-up name cannot enqueue the next
