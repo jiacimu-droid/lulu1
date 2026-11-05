@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T12:09:59.100362+00:00",
-  "commit": "b434784e6449f7e2b076060e4fa180dbf17b81b9",
+  "generatedAt": "2026-11-05T12:22:18.463775+00:00",
+  "commit": "5733ea04a79fc7fa76b2e280c07edee7cc8fb23a",
   "branch": "main",
-  "sourceFingerprint": "ec330e1e008cdac15ef70231df20f0b6d4299a499779a4b1794d03dfc3f827a9",
+  "sourceFingerprint": "6bccaf2365bd08311bd4c59f5e1a2418bfa0207ae8925bfc4307d86ddfe3c304",
   "summary": {
     "files": 1137,
-    "lines": 242374,
+    "lines": 242389,
     "symbols": 3332
   },
   "symbolIndex": {
@@ -23467,8 +23467,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 369,
-      "sha256": "8cdb2c75cce65a9f4d8b528b72da76b50c2b05f1bff2231b3bd34d564b3de177",
+      "lines": 376,
+      "sha256": "9a9d3b76cbc57fa7343870c84360873d4d8b533c4d3c5d7d3159e966c8e6349b",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -25455,8 +25455,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 239,
-      "sha256": "29fe056a7f97493bb87910a1596606d9501667ad3e8237a394e5ca15cf09b4a4",
+      "lines": 247,
+      "sha256": "363b03b40e79aa57f06d06f2c128e23c01b0b0e94d1c84691f2edbb1fdb4bcde",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
