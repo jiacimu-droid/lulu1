@@ -1201,3 +1201,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因与边界**：结构化回复原本已由 ModelStructuredOutput.completedReplyBubbles → characterOutgoingBubblePlan(preserveAuthoredBubbleBoundaries=true) → appendCharacterMessageIfSourceCurrent 按模型每个 bubbles 元素逐条送达，展示层不会按标点二次拆；问题在多个模型提示入口含「只有独立意群才另起气泡」的过强限制。前台 lean 表达又没有带上本人已经学习的 UserPreference/UserHabit，实际渲染模型无法据已知对方阅读偏好自主决定停顿。
 - **纠正先前偏差**：31630ae 的统一三气泡示范已按用户最新要求由 3bc541e 恢复为非示范化人物自主表达；没有数字配额、标点拆分器或角色通用语气模板。CharacterExpressionGuide 仅澄清同一意思里可自由选择口语停顿；ProactiveDecisionPrompt、LuluDeviceToolBridge、TransientConversationStyle 移除「一泡必须完整独立意群」误导（4368fd4、1591f11、48729ee）。CharacterRuntime.leanExpressionContext 从原 CharacterDevelopmentStore 选择当前角色真实有效的用户偏好/习惯并在 CompanionModelGateway 的 lean 表达调用注入（acc4140、a1c6a45），不绕开人物原有学习审核、不另建内存库或收取额外请求。
 - **回归源码**：CharacterKnowledgeIsolationTest 的 2019780 核仅本角色有可追溯用户偏好，其他人不知道，表达提示不含模板；ConversationExpressionGatewayTest 的 caf247c 以 MockWebServer 验证真实请求携带该角色的阅读偏好而另一角色没有。不硬拆旧聊天、语音或结构化半句。源码和测试已提交；对应 SHA JVM/APK/发布与真机角色真实输出需单独验收，不能把 CI success 当成模型会自动按某个准确泡数输出。这个反馈发生在 ChatGPT 讨论中，不能伪装成角色已在其私聊中听到过；只有本人见过的真实来源才写入角色档案。
+
+## 2026-11-05 · P-08d.2h 显式主工具镜像
+
+- **接手**：读取最新 AGENTS、CODE_INDEX、唯一 roadmap、人物进度、统一人物契约、成长框架与 CharacterThoughtActionHandoff/CharacterMotiveContinuityTest/已有纯解析测试。main 初始 2b42bd2（并行更新中）；此前 99830ef 的 nested nextAction 主工具日程/回执测试已存在，不重复添加。历史 41984588215 为旧 2461 tests / 1 failure，不能代表新提交。
+- **证实的源码缺口**：原 withPrimaryActionOwnership 仅 collect(decision/挂心/innerLife/curiosity) 的 nextAction，不收集模型在 steps/sideActions 显式重复列出的主工具；actions 又原样加入显式 steps/sideActions，顶层主工具已由入口执行后仍会把同效果步骤交 Ordered 执行，或让明确的 motiveRef/concernId 留在重复动作上而非主工具回执。
+- **正式修复**：[c47fb4a](https://github.com/jiacimu-droid/lulu1/commit/c47fb4a618de1b5c4a7715b094b243790ecaafa1) 在现有归属聚合器纳入显式 steps/sideActions 的规范化动作，只按原 sameAction/累积兼容 owner 规则合并；actions 对已由主工具覆盖全部明确归属的完全镜像跳过，冲突归属独立保留。不新增 Store、收费模型、硬编码意图或清理历史。
+- **回归**：[d746e9a](https://github.com/jiacimu-droid/lulu1/commit/d746e9a0e195116cb1109bc0a6b7f2a2d320a0ee) explicitStepsAndSideActionsMirroringPrimaryDoNotExecuteTwiceOrLoseOwners：显式主步骤目标 ref、侧步骤挂心 ID、同效果冲突目标分别验合并、保留和原始 JSON 不变。测试源码已提交，**本轮没有可核验的对应 JVM/APK 完成结果**，不能声称通过；尚未覆盖真实外部工具副作用或手机。
+- **下一轮**：先查 d746e9a 后继 push Actions 的首个真实失败或成功（PR-only 查询/combined statuses 为空不代表通过）；若失败按日志修。随后做 P-08d.2h 前台/后台真实主动作→ToolRouter 回执与重放集成，若新代码已有他窗实现则只记录证据。P-08a.CI-01.2 静默诊断继续按新 run 核实。真机、真实模型、跨日未验。
