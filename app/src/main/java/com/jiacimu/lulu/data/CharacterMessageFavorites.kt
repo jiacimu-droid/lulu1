@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.decodeQqChatImage
+import com.jiacimu.lulu.qqChatImageContextText
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
@@ -73,7 +75,11 @@ object CharacterMessageFavorites {
         val now = Instant.now()
         val character = MigratedDomainStores.characters.get(characterId)
         val title = "收藏 · ${message.createdAt.atZone(ZoneId.systemDefault()).format(titleTime)}"
-        val content = message.content.trim().take(2_400) + "\n\n收藏理由：" + reason.take(180)
+        // Preserve a complete structured image reference for the archive's media renderer.
+        // Truncating the encoded payload makes a previously viewable photo undecodable.
+        val source = if (decodeQqChatImage(message.content) != null) message.content.trim()
+            else message.content.trim().take(2_400)
+        val content = source + "\n\n收藏理由：" + reason.take(180)
         LuluRepositories.lexicon.save(LexiconEntry(id = id, characterId = characterId,
             section = LexiconSection.Favorite, title = title, content = content,
             createdAt = now, updatedAt = now))
@@ -84,7 +90,7 @@ object CharacterMessageFavorites {
         val evidenceId = receiptId(id)
         SharedExperienceTimeline.record(eventId = evidenceId,
             characterId = characterId, channel = "收藏", speaker = character.displayName,
-            content = "收藏了用户真实发出的消息：${message.content.take(600)}；原因：${reason.take(180)}",
+            content = "收藏了用户真实发出的消息：${(qqChatImageContextText(message.content) ?: message.content).take(600)}；原因：${reason.take(180)}",
             occurredAt = now, triggerExtraction = false, source = "favorite:own",
             evidenceKind = EventEvidenceKind.CharacterStatement)
         // Explicit autonomous/phone favorites previously never generated chat receipts.
@@ -125,11 +131,14 @@ object CharacterMessageFavorites {
         val character = MigratedDomainStores.characters.get(characterId)
         val sourceTime = message.createdAt
         val title = "收藏 · ${sourceTime.atZone(ZoneId.systemDefault()).format(titleTime)}"
-        val messageText = message.content.trim().take(2_400)
+        val image = decodeQqChatImage(message.content)
+        val messageText = if (image != null) message.content.trim()
+            else message.content.trim().take(2_400)
+        val readableText = qqChatImageContextText(message.content) ?: messageText
 
         scope.launch {
             try {
-                val reason = generateFavoriteReason(character, conversationId, messageText)
+                val reason = generateFavoriteReason(character, conversationId, readableText)
                 // Another character's conversation, a deleted source, or a
                 // reset while the model was working must never create a
                 // personal archive item after the fact.
@@ -160,7 +169,7 @@ object CharacterMessageFavorites {
                     characterId = characterId,
                     channel = "收藏",
                     speaker = character.displayName,
-                    content = "收藏了用户在聊天中的一条消息：$messageText\n收藏理由：$reason",
+                    content = "收藏了用户在聊天中的一条消息：$readableText\n收藏理由：$reason",
                     occurredAt = actionNow,
                 )
                 appendSavedFavoriteNotice(characterId, entryId, character.displayName)
