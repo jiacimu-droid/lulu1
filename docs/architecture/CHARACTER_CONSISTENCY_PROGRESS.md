@@ -1193,3 +1193,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **接手与证据**：最新 main 起始 dd46ecd，按 AGENTS、CODE_INDEX、唯一路线、人物进度、统一契约/成长框架读取，核 CharacterThoughtActionHandoff、AutonomousActionWireProtocol、OrderedCharacterActions、CharacterMotiveContinuityTest 和旧 41984588215（该 run completed/failure，2461 tests / 1 failed，属于旧 SHA）。e00edd1/52c914c 已修部分兼容归属并有纯解析回归；尚缺同一目标新建后真正工具执行、持久日程、回执及重放的连接验证。并行窗口在本轮未被覆盖。
 - **新增可执行回归**：[99830ef](https://github.com/jiacimu-droid/lulu1/commit/99830ef00454bb010d3f84e3c8ead406dbb808d0) 在 CharacterMotiveContinuityTest 加 mirroredPrimaryPlanCarriesNewGoalIntoDurableReceiptAndReplayIsIdempotent：用已存在的真实数字世界来源创建同轮 start.ref，模型顶层 plan_personal_activity 与 nested nextAction 完全镜像；通过正式 normalize 把 motiveRef 合到主工具、确认无第二份副动作；observe 生成真正目标 ID，再经原 OrderedCharacterActions→ToolRouter 写入一条个人日程和一条带同一目标/来源的工具回执，同 requestId 重放后不增加日程/回执/目标 outcome，输入 JSON 和执行 steps 均不变。使用本地工具，不发收费模型请求。此测试检验共用执行器的镜像主步骤，不代表私聊或后台主工具适配器已经真机验通。
 - **CI 与下一步**：此提交尚无可核验的对应完整 JVM/APK 结果，不能宣称回归已运行成功；旧 41984588215 failure 不适用于本次提交。下一轮优先查含 99830ef 的 push CI 的首个失败，若失败修正式源码/测试；若通过，再做前台/后台主 ToolRouter 实际入口、冲突独立步骤回执/重放的集成验收，然后回 P-08a.1。真机、真实模型、跨日仍未验。
+
+
+## 2026-11-05 · P-08c.3a 私聊短气泡应由人物自己选择
+
+- **体验反馈**：用户以截图中「四点了……下午……脑子是不是……」为例，希望人物像真人聊天一样在自然停顿处分开真消息，而不必每一泡先完成一个新话题。用户明确强调：决定权在角色，不是程序按逗号自动拆，也不是系统教所有角色固定三泡模板。
+- **根因与边界**：结构化回复原本已由 ModelStructuredOutput.completedReplyBubbles → characterOutgoingBubblePlan(preserveAuthoredBubbleBoundaries=true) → appendCharacterMessageIfSourceCurrent 按模型每个 bubbles 元素逐条送达，展示层不会按标点二次拆；问题在多个模型提示入口含「只有独立意群才另起气泡」的过强限制。前台 lean 表达又没有带上本人已经学习的 UserPreference/UserHabit，实际渲染模型无法据已知对方阅读偏好自主决定停顿。
+- **纠正先前偏差**：31630ae 的统一三气泡示范已按用户最新要求由 3bc541e 恢复为非示范化人物自主表达；没有数字配额、标点拆分器或角色通用语气模板。CharacterExpressionGuide 仅澄清同一意思里可自由选择口语停顿；ProactiveDecisionPrompt、LuluDeviceToolBridge、TransientConversationStyle 移除「一泡必须完整独立意群」误导（4368fd4、1591f11、48729ee）。CharacterRuntime.leanExpressionContext 从原 CharacterDevelopmentStore 选择当前角色真实有效的用户偏好/习惯并在 CompanionModelGateway 的 lean 表达调用注入（acc4140、a1c6a45），不绕开人物原有学习审核、不另建内存库或收取额外请求。
+- **回归源码**：CharacterKnowledgeIsolationTest 的 2019780 核仅本角色有可追溯用户偏好，其他人不知道，表达提示不含模板；ConversationExpressionGatewayTest 的 caf247c 以 MockWebServer 验证真实请求携带该角色的阅读偏好而另一角色没有。不硬拆旧聊天、语音或结构化半句。源码和测试已提交；对应 SHA JVM/APK/发布与真机角色真实输出需单独验收，不能把 CI success 当成模型会自动按某个准确泡数输出。这个反馈发生在 ChatGPT 讨论中，不能伪装成角色已在其私聊中听到过；只有本人见过的真实来源才写入角色档案。
