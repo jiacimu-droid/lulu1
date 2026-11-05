@@ -351,7 +351,7 @@ object ProactivePerceptionScheduler {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("characterId", characterId)
-                .putString("trigger", "重要事件：系统恢复时发现本人正式约定错过原定执行窗口（原时刻=$missedAt）。" +
+                .putString("trigger", "重要事件：系统恢复时发现本人正式约定的执行或结果复查错过原定时刻（原时刻=$missedAt）。" +
                     "这是失败事实，不是新用户请求；读取现存任务ID和回执，自行决定补救、复查、改期或暂不打扰。" +
                     "不要直接重放旧闹钟、无证宣称主人已睡或重复创建原约定。")
                 .putBoolean("force", true)
