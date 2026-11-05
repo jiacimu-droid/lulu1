@@ -26,7 +26,9 @@ class PositiveExpressionGuidanceTest {
             assertTrue(prompt.contains("执行成功必须有真正回执"))
             assertFalse(prompt.contains("严禁"))
             assertFalse(prompt.contains("一到三句"))
-            assertFalse(prompt.contains("不要"))
+            assertFalse(prompt.contains("必须统一撒娇"))
+            assertTrue(prompt.contains("具体选择来自当前这个人") ||
+                prompt.contains("此处承接这一次选择的立场"))
         }
     }
 
@@ -46,7 +48,8 @@ class PositiveExpressionGuidanceTest {
             assertFalse(prompt.contains("必须温柔"))
             assertFalse(prompt.contains("必须幽默"))
             assertFalse(prompt.contains("严禁"))
-            assertFalse(prompt.contains("不要"))
+            assertFalse(prompt.contains("不要主动联系"))
+            assertFalse(prompt.contains("每泡必须完整"))
         }
         assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.GROUP_CHAT).contains("隐私"))
         assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE).contains("低延迟"))
@@ -153,7 +156,7 @@ class PositiveExpressionGuidanceTest {
         val prompt = proactiveDecisionInstruction("style-example-check", directPrivateChat = true)
         assertTrue(prompt.contains("message 可直接用 text"))
         assertTrue(prompt.contains("其元素数量由这次真实表达决定"))
-        assertTrue(prompt.contains("只有本人此刻确实想分成多个独立意群"))
+        assertTrue(prompt.contains("同一个意思可以先说半句、下一泡接着说"))
         assertFalse(prompt.contains("第三句"))
         assertFalse(prompt.contains("bubbles=[{\"text\":\"第一句\""))
         assertTrue(prompt.contains("复杂问题、多项需求"))
