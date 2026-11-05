@@ -1305,3 +1305,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 回归 5a8fa37744700d7e3418361ba342055413075dd1：顶层 web_search、显式 read_book、嵌套同参数 web_search，第二次必须保留且 motiveId 仅归第二次；原决定不变。Roadmap f7bfca9c06bd979afcbb67129aa529d67f215d1b。
 - **验证边界**：目前只确认 GitHub 提交成功，未获得本轮完整 JVM/APK、Actions 成功、真实 ToolRouter 回执/幂等、失败条件依赖及真机结果，不能称通过。GitHub commit combined status 返回空 statuses，不能据此判定 Actions 成功或失败。
 - **下一轮**：先查包含 5a8fa37 的 push Actions 和第一条实际失败，失败先修；通过后针对主工具失败/成功、requiresPreviousSuccess、嵌套与显式混排的执行器级回执和重放幂等补集成回归。继续人物因果优先，不重复修改已验项目。
+
+## 2026-11-06 · P-08d.2h.6 CI 失败测试契约修正
+
+- 复核最新 main 495b395、四份必读文档、CharacterThoughtActionHandoff.actions/withPrimaryActionOwnership 和原 JUnit 测试。Actions [42123821611](https://github.com/jiacimu-droid/lulu1/actions/runs/42123821611) 在 5a8fa37 执行 2491 tests / 1 failed；失败点 CharacterThoughtActionHandoffTest.kt:526，旧断言期待顶层 web_search → 显式 write_journal → 嵌套 web_search 只剩一个副步骤，和已修复的非相邻重复执行顺序语义冲突。
+- 测试提交 [60dbac0](https://github.com/jiacimu-droid/lulu1/commit/60dbac01382e05f3cb2b434096594c09eeb450b8)：改为明确断言两个副步骤 write_journal、web_search，避免将真实第二次工具选择误写成重复镜像。**本轮没有改生产代码**，因为失败是旧测试期待值，当前源码已保留第二次行动；不能以此宣称实际工具回执与幂等已验。
+- 新提交的 JVM/APK 和索引待 Actions 最终结果；真机、真实模型、主工具失败/条件依赖及回执幂等仍待验。下一轮先核 CI；若成功，选 P-08d.2h 的主工具失败、requiresPreviousSuccess 与真实 ToolRouter 执行器级回归，再推进 P-08a.1。
