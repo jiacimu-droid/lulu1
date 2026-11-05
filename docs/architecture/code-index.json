@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T10:25:57.624935+00:00",
-  "commit": "3bc541e0e11ea5c67eff64d4a27b4848e995de8e",
+  "generatedAt": "2026-11-05T10:27:10.126798+00:00",
+  "commit": "a1c6a45db89490b4f26019854a83bd06c01e435f",
   "branch": "main",
-  "sourceFingerprint": "f7167d3fa736e55cdfb4e0967e0e5c198456ce14cf38312829eff332c7a91588",
+  "sourceFingerprint": "a6a38253502e4cd3eec01fbdc8690629ebfbb366072803ef0545c249908f0a4e",
   "summary": {
     "files": 1137,
-    "lines": 241855,
+    "lines": 241874,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -7375,13 +7375,13 @@
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 191
+        "line": 197
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 195
+        "line": 214
       }
     ],
     "offer": [
@@ -22906,7 +22906,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1409,
-      "sha256": "cd335e6ab02cdba8e5c53068c0826c50cd55fde567595e822bbf975060e30568",
+      "sha256": "b1517239b9dc62745e28cb0164086cebc9eeccde3533c9721fbd1528c37097bd",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -25219,8 +25219,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 199,
-      "sha256": "8e77ef244afd19e6012404e8cf04cb4bed643dfa46dbfd73c5b4f2ee238f9aff",
+      "lines": 218,
+      "sha256": "d111d26476b1f76396324784347e2f7d2b358b96f6bfc06a0e3e2ad4f2f6a201",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -25268,11 +25268,11 @@
         },
         {
           "name": "leanExpressionContext",
-          "line": 191
+          "line": 197
         },
         {
           "name": "developmentContext",
-          "line": 195
+          "line": 214
         }
       ]
     },
