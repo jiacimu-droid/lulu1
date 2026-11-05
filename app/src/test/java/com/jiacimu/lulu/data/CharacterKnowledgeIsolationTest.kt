@@ -83,6 +83,36 @@ class CharacterKnowledgeIsolationTest {
             .contains("玻璃花房里的燕麦饼"))
     }
 
+    @Test fun leanPrivateRendererReceivesOnlyTheCharactersLearnedReaderPreference() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val close = MigratedDomainStores.characters.create("分泡相处甲", "自己决定怎样组织语言")
+        val stranger = MigratedDomainStores.characters.create("分泡相处乙", "有自己的表达节奏")
+        val event = "reader-preference-" + UUID.randomUUID()
+        val statement = "我更喜欢聊天时短气泡看着舒服，一句自然说话可以分几条"
+        SharedExperienceTimeline.record(event, close.characterId, "私聊", "用户",
+            statement, Instant.now().minusSeconds(30), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertTrue(CharacterDevelopmentStore.applyProposal(
+            close.characterId, "user:chat-reading-habit", DevelopmentKind.UserPreference,
+            "她更喜欢手机私聊短气泡，停顿处可以接着发，不是要求每句必须另起一个意思",
+            listOf(event), emptyList(),
+            CharacterRuntime.personaConstraintSnapshot(close.characterId)))
+        val remembered = CharacterRuntime.leanExpressionContext(
+            close.characterId, "聊天的气泡与自然停顿")
+        assertTrue(remembered.contains("她更喜欢手机私聊短气泡"))
+        assertFalse(CharacterRuntime.leanExpressionContext(
+            stranger.characterId, "聊天的气泡与自然停顿").contains("她更喜欢手机私聊短气泡"))
+        assertTrue("This is experience, not a global forced template",
+            remembered.contains("供本人自主斟酌"))
+        assertFalse(CharacterExpressionGuide.forGeneration("聊天表达渲染")
+            .contains("四点了"))
+        assertTrue(CharacterExpressionGuide.forGeneration("聊天表达渲染")
+            .contains("由本人选"))
+    }
+
     @Test fun multiRoleSceneUsesIsolatedModelContextNotAnchorPersonalKnowledge() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
