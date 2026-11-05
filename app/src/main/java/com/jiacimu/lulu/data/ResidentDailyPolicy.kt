@@ -92,6 +92,13 @@ internal object ResidentDailyPolicy {
         !role.startsWith("resident:") ||
             modelDecisionsUsed(context, role, at) < maxModelDecisions(context)
 
+    /** Local midnight when this resident's next configured daily allowance starts.
+     * This is scheduling arithmetic only, not a new decision or paid request. */
+    fun nextModelBudgetDayStart(at: java.time.Instant = java.time.Instant.now()): java.time.Instant {
+        val zone = java.time.ZoneId.systemDefault()
+        return at.atZone(zone).toLocalDate().plusDays(1).atStartOfDay(zone).toInstant()
+    }
+
     /** Atomic attempt claim before networking. Constant-sized per-resident
      * counter; retry/correction must not sidestep the owner's cost limit. */
     @Synchronized fun claimModelDecision(context: Context, role: String,
