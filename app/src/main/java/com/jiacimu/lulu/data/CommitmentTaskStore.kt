@@ -187,7 +187,7 @@ object CommitmentTaskStore {
             mutableTasks.value.filter { task ->
                 task.needsUnverifiedDailyRecovery(now)
             }.map(CommitmentTask::characterId).distinct().forEach { role ->
-                ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(it, role)
+                ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(it, role)
             }
             missedByRole.forEach { (characterId, missedAt) ->
                 runCatching {
