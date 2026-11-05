@@ -1288,3 +1288,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 测试提交 `9c684d4d923b1238ca34658e9cdaeb0535093fd4`：顶层 A / 显式镜像 A / B / A 的独立第二次执行和原模型 JSON 不变。**测试仅提交，尚未取得 JVM/APK 成功结果**，不标记完成。
 - 尚待：对应 main 的 Actions、主工具失败/条件依赖与 ToolRouter 实际回执集成测试；`withPrimaryActionOwnership` 对显式重复动作的归属收集还需进一步检查是否可能错误归到第一次回执。真机与真实模型未验。
 - 下一轮：先核对应提交 CI，失败先修；再沿 `withPrimaryActionOwnership` 的顺序归属与 `requiresPreviousSuccess` 验证，确认后补根因级测试。不要将本次局部修复标为 P-08d.2h 整体通过。
+
+## 2026-11-06 · P-08d.2h.5 主工具后非镜像重复执行与回执归属
+
+- 核对最新 main 四份必读文档、正式 `CharacterThoughtActionHandoff` 与回归；`9c684d4` 对应 APK/JVM Actions 42105819153 和索引 42105818973 已 completed/success，但只是前轮基准。
+- 根因：顶层主工具 A 后显式 B→A，旧 `suppressExplicitMirror` 只在已遇到一次镜像后才记住 B，因此第二次 A 仍被删除；`withPrimaryActionOwnership` 还会扫描全部显式步骤，将 B 之后 A 的 owner 提前归入顶层首次回执。
+- 正式源码 `76951454`：不同工具出现即标记间隔，后续相同工具保留为独立执行；主工具归属只吸收间隔之前的显式镜像，不改原模型 JSON、不增加收费模型调用。测试 `287c9305`：B→A 仍两步，后一次 motiveId 不污染顶层，原决定不变。
+- 新 JVM/APK 与真机/实际 ToolRouter 回执尚未确认；主工具失败、requiresPreviousSuccess 及嵌套后续仍待独立验收。下一轮先核最新 Actions 失败，再继续 P-08d.2h 执行器级依赖/重放，随后 P-08a.1。
