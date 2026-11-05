@@ -1149,3 +1149,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码根因**：旧 LocalMemoryRepository 遇居民额度用尽时仅刷新提示并返回；ChatMemoryAutomation.drain 据此错误地 complete 记忆提取 job，虽然未处理原文仍在 SQLite，却丢失后续自动唤醒的脏水位。仅靠页面不报错不代表下一日会继续。
 - **修复**：无额度抛非网络的 ResidentMemoryBudgetDeferred，经 ChatMemoryAutomation 分流为 MemoryExtractionJobStore.defer（不计失败/不消除队列）；保留原 id/revision 与并发新消息，存 deferredUntil 到下个本地自然日零点；到期后后台常规队列再处理。手动 flushNow 亦登记相同延期。不绕开用户总请求额度、不新增请求模型、不删原始数据。
 - **测试**：提交 f3590d3、0a4e011、263375a、a218430、0963140、1687bc3、600c340、861334e、392013a、be8a344，测试真实 resident 0 额度事件、手动 flush 持久队列、次日触发时间、入队并发改版和冷启动续接。旧输入预算修复基线 APK/JVM 41952677579 completed/success；本批仍需自身同 SHA APK/JVM 结果与真机隔日验收，旧 cancelled 不作为结果。
+
+## 2026-11-05 · P-08d.2d 主动作镜像归属续修（待 JVM/APK）
+
+- **接手基准**：main 30703d7；先读 AGENTS、CODE_INDEX、唯一路线、人物专项、统一契约/成长框架，核实际 CharacterThoughtActionHandoff、AutonomousActionWireProtocol、前台/电话与后台主动作解析。并行窗口的居民额度/持久队列改动保留。
+- **源码根因**：原 Handoff.actions 的 nested nextAction 与顶层 action=tool 相同工具/参数时提前 return，避免重复执行，但因此丢弃内层 start.ref→motiveRef 和挂心 threadId→concernId；主动作 ToolRouter 只取顶层 Decision 的归属，导致真实执行成功却不属于明确目标/挂心。单纯删除 return 会重复调用有副作用的工具。
+- **本轮代码**：[6a2a878](https://github.com/jiacimu-droid/lulu1/commit/6a2a878ed0bfc0dfc30b899b166b87f610a5a121) 增只读复制的 withPrimaryActionOwnership，按同一工具、相同规范化 args、依赖标记及兼容归属，将确实镜像的内层目标/挂心显式归属并到顶层；冲突/歧义不猜。 [c67ee0c](https://github.com/jiacimu-droid/lulu1/commit/c67ee0cb4404c9723328e48f35b01f4b5b03beb5) 在既有 AutonomousActionWireProtocol.normalize 主入口使用，供后台和前台/电话共享，不增加收费模型调用、不动角色原设定、不会派第二份镜像动作。
+- **新增回归**：[53858af](https://github.com/jiacimu-droid/lulu1/commit/53858af087e5fc06a9e1fa78a427c53fcfea26df) CharacterThoughtActionHandoffTest.mirroredPrimaryToolKeepsNestedMotiveAndConcernWithoutDuplicateEffect，覆盖 start.ref、挂心 threadId、原模型 JSON 不变、同动作 sideActions 为空、不同显式归属不覆盖且仍保留独立动作。**本轮未取得该 SHA 的 JVM/APK 通过结果**；GitHub commit combined statuses 空列表不等于 CI 通过，真机、真实模型与跨日均未验。
+- **下一轮**：先核含 53858af 的 Actions 是否成功或首个编译/断言失败，失败优先修；再检查含本次归属字段的真实主动作 ToolRouter 回执与重放幂等，必要时补全链 Robolectric 回归。P-08a.CI-01.2 静默诊断亦继续核新运行；不能用旧 success 替代新构建。
