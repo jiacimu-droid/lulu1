@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:53:47.049345+00:00",
-  "commit": "12a35fec1a388de66e594ba490ba590817db59c0",
+  "generatedAt": "2026-11-05T16:54:17.484782+00:00",
+  "commit": "0dd4e42ffedac4811ec425ee3c2fb3d933ae026a",
   "branch": "main",
-  "sourceFingerprint": "6d29b17a25dcd2bc9804bc5ce78c392cfcc68700c4845a6172aeedf2aea8ce7c",
+  "sourceFingerprint": "a07cd57e6001859eb4dfb6ff2b0443bb1bdb49dea75841373dc675638fcf15d6",
   "summary": {
     "files": 1137,
-    "lines": 242915,
+    "lines": 242962,
     "symbols": 3339
   },
   "symbolIndex": {
@@ -37136,8 +37136,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
-      "lines": 474,
-      "sha256": "bab2dbd582323604ae69dd7d8384a849e891f7518ac6022e78a2f86021a4ecdb",
+      "lines": 502,
+      "sha256": "995ffebd0276bdb50f1fa246eb26125b1cff22327fed18d186259f1e9d37768f",
       "symbols": [
         {
           "name": "CommitmentAlarmRecoveryTest",
@@ -37318,8 +37318,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
-      "lines": 166,
-      "sha256": "af0bd70875806dfda9b99d1ea66e51f5454f7e0ebab65aea083b6800592e79ca",
+      "lines": 185,
+      "sha256": "d453536ec8961e19f4381bae45da0212d597718aa4b5300e40297a6279b6bfe1",
       "symbols": [
         {
           "name": "DailyCommitmentRecurrenceTest",
