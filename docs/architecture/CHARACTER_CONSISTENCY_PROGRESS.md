@@ -1279,3 +1279,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因与正式源码**：原 06809cd6 已使 sideActions 仅合并紧邻同一动作，旧测试却仍期待「search→journal→search」被压成两步；此外 nested nextAction 的 add() 仍全列表找重复、跨中间步骤吞掉角色再次选择的工具。源码 [1beed430](https://github.com/jiacimu-droid/lulu1/commit/1beed4303f9f87d9ce2e1c5d1414c0a9705ebdae) 使嵌套动作也只与紧邻且条件/归属兼容的步骤合并。测试 [a8afe867](https://github.com/jiacimu-droid/lulu1/commit/a8afe867532070486fa5b8f2c0d1ab03a14064d9) 更新旧断言为三步，挂心归第二次搜索，并新增嵌套跨间隔再执行回归；原模型 JSON 不变。
 - **验证边界**：源码/测试已提交，未获得新 HEAD JVM/APK 结果，不能宣称通过；尚未真机验证主工具失败/成功、条件副动作、外部 ToolRouter 独立回执及重放幂等。不新增模型调用，不改角色人设或历史。
 - **下一轮**：刷新 main 与 [Actions](https://github.com/jiacimu-droid/lulu1/actions)，优先修新 push 首个实际失败；成功后继续 P-08d.2h 前台/后台主工具镜像及 requiresPreviousSuccess 执行器级验证，随后 P-08a.1 全链。
+
+
+## 2026-11-06 · P-08d.2h 顶层主工具镜像与间隔后的再次行动
+
+- 正式源码 `CharacterThoughtActionHandoff.actions` 过去对每一个显式 `steps/sideActions` 都独立判断是否与顶层主工具相同，未考虑顺序。因此顶层 A、显式镜像 A、独立 B、再次 A 中最后一个 A 也被删除，导致本人已选择的第二次执行消失。
+- 源码提交 `12b712269a09ea529d11ebb9b22df093bc1ae536`：在显式步骤解码时记录已经承接的主工具镜像以及其后不同工具的间隔；只有存在前一个镜像和中间不同工具时保留再次 A。原本冲突归属与无间隔镜像行为保持；不增加模型调用。
+- 测试提交 `9c684d4d923b1238ca34658e9cdaeb0535093fd4`：顶层 A / 显式镜像 A / B / A 的独立第二次执行和原模型 JSON 不变。**测试仅提交，尚未取得 JVM/APK 成功结果**，不标记完成。
+- 尚待：对应 main 的 Actions、主工具失败/条件依赖与 ToolRouter 实际回执集成测试；`withPrimaryActionOwnership` 对显式重复动作的归属收集还需进一步检查是否可能错误归到第一次回执。真机与真实模型未验。
+- 下一轮：先核对应提交 CI，失败先修；再沿 `withPrimaryActionOwnership` 的顺序归属与 `requiresPreviousSuccess` 验证，确认后补根因级测试。不要将本次局部修复标为 P-08d.2h 整体通过。
