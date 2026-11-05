@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T17:37:40.256229+00:00",
-  "commit": "1bcc98ada38b75c996a9adfbe1c13e3a1e0d8754",
+  "generatedAt": "2026-11-05T18:41:26.385063+00:00",
+  "commit": "a8afe867532070486fa5b8f2c0d1ab03a14064d9",
   "branch": "main",
-  "sourceFingerprint": "7f217f550c7efc4b85aa1156c47d6bb3237021d56bb67899f11cfb90963f8258",
+  "sourceFingerprint": "3239ba21128a806f0fd829311c2bb03d49df18349b8af291332ee0646efa1c10",
   "summary": {
     "files": 1137,
-    "lines": 242962,
+    "lines": 242981,
     "symbols": 3339
   },
   "symbolIndex": {
@@ -7497,7 +7497,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 145
+        "line": 148
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -7549,7 +7549,7 @@
     "withPrimaryActionOwnership": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 140
+        "line": 143
       }
     ],
     "candidates": [
@@ -25503,8 +25503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 251,
-      "sha256": "5e28e08802c0d7dacbc287b9e571772d3dbbf1b153c7aa8018c8740d8e6dfb92",
+      "lines": 254,
+      "sha256": "3863929b6bf1056dc820ac1e0d8db7ae52cc5710e029c8337941e86d66458a2f",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -25524,11 +25524,11 @@
         },
         {
           "name": "withPrimaryActionOwnership",
-          "line": 140
+          "line": 143
         },
         {
           "name": "collect",
-          "line": 145
+          "line": 148
         }
       ]
     },
@@ -37023,8 +37023,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 655,
-      "sha256": "1cc8c84fe489d2553e3c8ad654e1db50455b04f5b5cc991a8d1b80114ac9e07f",
+      "lines": 671,
+      "sha256": "ad2794e34cd0eda514ff2f70ff79a88b11baebc9a4b89ac2ed9668238acd61aa",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
