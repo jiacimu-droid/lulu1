@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T02:04:03.041068+00:00",
-  "commit": "3f8473165a1be124149d40a9fe9cd5ad750119ae",
+  "generatedAt": "2026-11-05T04:08:21.787816+00:00",
+  "commit": "0a4e011a4a20729bb851c727f6002a8ca118d458",
   "branch": "main",
-  "sourceFingerprint": "eb37118af71e080b67fd069e2ea5ad790cbba1f9692b094f81d68bec00a1accd",
+  "sourceFingerprint": "3179ac919a91e3d3ca4e5099edeb080d76d858636282694e8dbf95206d96a30e",
   "summary": {
     "files": 1137,
-    "lines": 241378,
-    "symbols": 3326
+    "lines": 241394,
+    "symbols": 3327
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -915,7 +915,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 50
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -6011,7 +6011,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 446
+        "line": 455
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6189,7 +6189,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1123
+        "line": 1132
       }
     ],
     "DevelopmentKind": [
@@ -9605,13 +9605,13 @@
     "LocalMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 39
+        "line": 44
       }
     ],
     "clearCharacterHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 100
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -9621,55 +9621,55 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 615
+        "line": 624
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 654
+        "line": 663
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 667
+        "line": 676
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 670
+        "line": 679
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 672
+        "line": 681
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 683
+        "line": 692
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 781
+        "line": 790
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1031
+        "line": 1040
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1092
+        "line": 1101
       }
     ],
     "ApiUsageSource": [
@@ -11870,6 +11870,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
         "line": 90
+      }
+    ],
+    "nextModelBudgetDayStart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 97
       }
     ],
     "plan": [
@@ -27696,64 +27702,64 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1160,
-      "sha256": "bc11a55d7711f35e923c96977efddceeb346ce979c23f4ffe7310633fa2a4854",
+      "lines": 1169,
+      "sha256": "a72f02b20cbe9b10a27b6f08a7dcfee99d445e3a66de28e38602d006844d96ed",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
-          "line": 39
+          "line": 44
         },
         {
           "name": "initialize",
-          "line": 50
+          "line": 55
         },
         {
           "name": "clearCharacterHistory",
-          "line": 100
+          "line": 105
         },
         {
           "name": "snapshot",
-          "line": 446
+          "line": 455
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 615
+          "line": 624
         },
         {
           "name": "allowsRawRecall",
-          "line": 654
+          "line": 663
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 667
+          "line": 676
         },
         {
           "name": "pendingMessageCount",
-          "line": 670
+          "line": 679
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 672
+          "line": 681
         },
         {
           "name": "contextTimelineEvents",
-          "line": 683
+          "line": 692
         },
         {
           "name": "refreshInspection",
-          "line": 781
+          "line": 790
         },
         {
           "name": "MemoryDebugState",
-          "line": 1031
+          "line": 1040
         },
         {
           "name": "grams",
-          "line": 1092
+          "line": 1101
         },
         {
           "name": "ids",
-          "line": 1123
+          "line": 1132
         }
       ]
     },
@@ -29955,8 +29961,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 111,
-      "sha256": "dfb0a044c65431532108882e8e5337e97b94d4b58c2644fb2b761dcca72927d7",
+      "lines": 118,
+      "sha256": "4e084878b1cad446d4b4743fff495467596ffc7be1bd73f7674dd3c7e3fc9287",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30009,6 +30015,10 @@
         {
           "name": "hasModelRequestAllowance",
           "line": 90
+        },
+        {
+          "name": "nextModelBudgetDayStart",
+          "line": 97
         }
       ]
     },
