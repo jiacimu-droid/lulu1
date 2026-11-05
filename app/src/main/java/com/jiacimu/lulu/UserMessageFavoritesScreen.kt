@@ -99,8 +99,17 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
                             }
                             IconButton(onClick = { selected = entry }) { Icon(Icons.Outlined.MoreHoriz, "收藏操作") }
                         }
-                        Text(qqForwardContextText(entry.content), lineHeight = 23.sp)
-                        if (decodeQqChatImage(entry.content) == null && entry.characterMessage) {
+                        val image = remember(entry.content) { decodeQqChatImage(entry.content) }
+                        if (image != null) {
+                            MomentImageAttachment(image.imageUri, Modifier.fillMaxWidth().height(205.dp))
+                            val label = image.caption.ifBlank { image.imageDescription }
+                            if (label.isNotBlank()) Text(label, lineHeight = 21.sp)
+                        } else if (entry.content.contains("⟪CHAT_IMAGE:")) {
+                            Text("收藏的图片信息不完整，无法预览", lineHeight = 23.sp)
+                        } else {
+                            Text(qqForwardContextText(entry.content), lineHeight = 23.sp)
+                        }
+                        if (image == null && !entry.content.contains("⟪CHAT_IMAGE:") && entry.characterMessage) {
                             val hasAudio = store.audioFile(entry) != null
                             OutlinedButton(onClick = { play(entry) }) {
                                 Icon(if (playingId == entry.messageId) Icons.Outlined.Stop else Icons.Outlined.PlayArrow,
@@ -127,7 +136,8 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).navigationBarsPadding()) {
                 TextButton(onClick = {
                     context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(
-                        ClipData.newPlainText("收藏消息", qqForwardContextText(entry.content)))
+                        ClipData.newPlainText("收藏消息",
+                            qqChatImageContextText(entry.content) ?: qqForwardContextText(entry.content)))
                     selected = null
                 }) { Icon(Icons.Outlined.ContentCopy, null); Spacer(Modifier.width(8.dp)); Text("复制文字") }
                 TextButton(onClick = {
