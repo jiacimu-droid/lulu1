@@ -37,6 +37,67 @@ class OnlineChatExperienceTest {
         assertTrue(CompanionOnlineStore.startsImmediateChatReply(privateMessage))
     }
 
+    @Test fun tomorrowDailyAlarmDoesNotCountAsTonightUnverifiedOutcomeFollowUp() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
+        val character = MigratedDomainStores.characters.create("隔夜复查交接回归")
+        val role = character.characterId
+        val now = java.time.Instant.now()
+        val nextDailyAt = now.plusSeconds(24 * 3600)
+        val previous = CommitmentTask(
+            characterId = role,
+            goal = "每晚监督睡前准备",
+            repeat = "daily",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = now.minusSeconds(600),
+            nextCheckAt = null,
+            completionCondition = "主人确实完成睡前准备",
+            attemptCount = 1,
+            dailyNextDueAt = nextDailyAt,
+        )
+        val dailyAlarm = com.jiacimu.lulu.system.LuluAlarmSystem.create(
+            role, character.displayName, nextDailyAt, "明晚的独立定时行动",
+            commitmentTaskId = previous.id,
+        ).getOrThrow()
+        CommitmentTaskStore.initialize(context)
+        CommitmentTaskStore.save(previous.copy(dailyNextAlarmId = dailyAlarm.id))
+        var reviewAlarmId: String? = null
+        try {
+            assertTrue("A future daily alarm cannot certify yesterday's result",
+                com.jiacimu.lulu.system.LuluAlarmSystem.list().any { it.id == dailyAlarm.id })
+            assertTrue("Tonight still needs its own chosen result check",
+                CompanionSleepHandoff.uncovered(context, role, now).any { it.id == previous.id })
+            assertTrue(OnlineContinuationPolicy.needsCommitmentRecovery(
+                keptAwake = false, superseded = false,
+                hasUncoveredCommitment = CompanionSleepHandoff.uncovered(context, role, now)
+                    .isNotEmpty()))
+
+            val reviewAt = now.plusSeconds(900)
+            val reviewAlarm = com.jiacimu.lulu.system.LuluAlarmSystem.create(
+                role, character.displayName, reviewAt, "今晚实际结果复查",
+                silentCallback = true, commitmentTaskId = previous.id,
+            ).getOrThrow()
+            reviewAlarmId = reviewAlarm.id
+            CommitmentTaskStore.update(previous.id) { current ->
+                current.copy(status = CommitmentTaskStatus.WaitingForFeedback,
+                    nextCheckAt = reviewAt, linkedAlarmId = reviewAlarm.id,
+                    followUpKind = "verification")
+            }
+            assertFalse("One real review covers the original occurrence",
+                CompanionSleepHandoff.uncovered(context, role, now).any { it.id == previous.id })
+            assertFalse(OnlineContinuationPolicy.needsCommitmentRecovery(
+                keptAwake = false, superseded = false,
+                hasUncoveredCommitment = CompanionSleepHandoff.uncovered(context, role, now)
+                    .isNotEmpty()))
+        } finally {
+            reviewAlarmId?.let(com.jiacimu.lulu.system.LuluAlarmSystem::cancel)
+            com.jiacimu.lulu.system.LuluAlarmSystem.cancel(dailyAlarm.id)
+            CommitmentTaskStore.remove(previous.id)
+        }
+    }
+
     @Test fun unfinishedSleepResponsibilityMustHaveDurableOwnFollowUpBeforeOffline() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
