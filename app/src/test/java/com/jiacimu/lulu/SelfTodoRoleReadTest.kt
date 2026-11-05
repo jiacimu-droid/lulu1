@@ -69,8 +69,23 @@ class SelfTodoRoleReadTest {
         val all = SelfTodoRoleRead.snapshot(tasks, today, now, JSONObject().put("scope", "all"))
         assertEquals(4, all.getJSONArray("pending").length())
         assertTrue(all.getJSONArray("pending").toString().contains("future"))
-        assertEquals("pending_today", all.getJSONArray("pending").getJSONObject(0).getString("state"))
-        assertEquals("overdue", all.getJSONArray("pending").getJSONObject(2).getString("state"))
+        val allPending = all.getJSONArray("pending")
+        // The owner's deliberate dated plans are prominent: today's
+        // one-off/weekly items first, then upcoming before overdue. The
+        // previous assertion expected overdue at index 2 and contradicted
+        // the shared SelfTodoCalendar ordering introduced for 所行.
+        assertEquals("today", allPending.getJSONObject(0).getString("taskId"))
+        assertEquals("pending_today", allPending.getJSONObject(0).getString("state"))
+        assertEquals("weekly", allPending.getJSONObject(1).getString("taskId"))
+        assertEquals("future", allPending.getJSONObject(2).getString("taskId"))
+        assertEquals("upcoming", allPending.getJSONObject(2).getString("state"))
+        assertEquals("old", allPending.getJSONObject(3).getString("taskId"))
+        assertEquals("overdue", allPending.getJSONObject(3).getString("state"))
+        // A today-only tool read must still include unfinished overdue tasks,
+        // even though the all-scope presentation gives future dates priority.
+        val todayPending = todayView.getJSONArray("pending")
+        assertEquals("old", todayPending.getJSONObject(2).getString("taskId"))
+        assertEquals("overdue", todayPending.getJSONObject(2).getString("state"))
     }
 
     @Test fun readOnlyRoleSeesUnmigratedOldTodoButNeverOtherPrivateNotebookPages() {
