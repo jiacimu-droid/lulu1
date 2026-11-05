@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T16:50:53.378133+00:00",
-  "commit": "7c5390ede6b693b6a49f8c9763060439440d7463",
+  "generatedAt": "2026-11-05T16:51:17.304065+00:00",
+  "commit": "c0f31a2f33482a903ea3866c0a107219b0a102d3",
   "branch": "main",
-  "sourceFingerprint": "1fa83ab2a57c9792e75f0b8119c136be2caea7d66532b83d0397a13bcddc5807",
+  "sourceFingerprint": "bfa64e07bd85e05f6f7faf855c1781262d412bb1d8702e661c27afd0f302b183",
   "summary": {
     "files": 1137,
-    "lines": 242819,
+    "lines": 242829,
     "symbols": 3339
   },
   "symbolIndex": {
@@ -22181,7 +22181,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt",
       "lines": 97,
-      "sha256": "58062e5347db6c82003501423abac4c09b407053f5392e879e246fe96cc16771",
+      "sha256": "380b8ac6f711d70fbb1d08aebab6c438251f7de26ae96f0c3f514276a0ffcd82",
       "symbols": []
     },
     {
@@ -22692,8 +22692,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
-      "lines": 144,
-      "sha256": "6b845ce6c193f7ee705f67e352b3c5bd7bd2299b8cd827e770c8c56c9edf2b3a",
+      "lines": 154,
+      "sha256": "9db81831d25b265d7fe6697bacacb1c196f85025585364c772398d54ab0e3e79",
       "symbols": [
         {
           "name": "play",
@@ -26108,7 +26108,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1852,
-      "sha256": "4fe582f6ad5ea0cd3f74418909b1762d40ed863d06649ce65883e2fd8033df6f",
+      "sha256": "129ffe170192516f76848b1a58f0d65cb11690507aa409015b7646f3f51a766e",
       "symbols": [
         {
           "name": "asJson",
