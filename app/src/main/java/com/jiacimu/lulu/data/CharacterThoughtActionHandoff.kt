@@ -161,12 +161,18 @@ internal object CharacterThoughtActionHandoff {
             collect(questions?.optJSONObject(index), inquiry = true)
         val candidates = (0 until nested.length()).mapNotNull(nested::optJSONObject)
             .filter { sameAction(primary, it) }
-        // Multiple distinct nested owners are not one primary action.
-        if (candidates.isEmpty() || candidates.any { other ->
-                candidates.any { candidate -> !sameAction(other, candidate) }
-            }) return decision
+        if (candidates.isEmpty()) return decision
+        // A primary receipt may legitimately belong to both a concern and a
+        // motive. Validate compatibility against the ACCUMULATED ownership,
+        // rather than treating different owner fields as competing actions.
+        // A conflicting explicit value still cannot be assigned to the same
+        // primary effect; preserve those nested steps for independent receipts.
         val result = JSONObject(decision.toString())
-        candidates.forEach { mergeLinks(result, it) }
+        for (candidate in candidates) {
+            if (!sameAction(AutonomousActionWireProtocol.normalizeStep(result), candidate))
+                return decision
+            mergeLinks(result, candidate)
+        }
         return result
     }
 
