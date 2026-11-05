@@ -169,8 +169,11 @@ internal object CharacterThoughtActionHandoff {
         // primary effect; preserve those nested steps for independent receipts.
         val result = JSONObject(decision.toString())
         for (candidate in candidates) {
+            // An incompatible second owner does not invalidate the first
+            // compatible owner already attached to this real primary receipt.
+            // Keep the conflicting nested step for its own execution/receipt.
             if (!sameAction(AutonomousActionWireProtocol.normalizeStep(result), candidate))
-                return decision
+                continue
             mergeLinks(result, candidate)
         }
         return result
