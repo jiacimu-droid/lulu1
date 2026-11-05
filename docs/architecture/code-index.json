@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T10:40:57.149939+00:00",
-  "commit": "c7dccae53486b35c522e3966b9ff853876402d04",
+  "generatedAt": "2026-11-05T10:41:39.007035+00:00",
+  "commit": "545e5887e2f533d8c0a88ffffcb4a7722f16ace0",
   "branch": "main",
-  "sourceFingerprint": "55f8ac5066d9bf0837cbfdbbe8d47e639728027f09ac8c64ff0e73f6be58b9e5",
+  "sourceFingerprint": "9481ba4a783cb20038ee82038221000ecc16378c7d8e15ef54598c6406ea56ef",
   "summary": {
     "files": 1137,
-    "lines": 241968,
+    "lines": 241983,
     "symbols": 3330
   },
   "symbolIndex": {
@@ -15531,7 +15531,7 @@
     "Live2DTouchAndNativeProbeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "Live2DVisualActionBusTest": [
@@ -35024,12 +35024,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt",
-      "lines": 85,
-      "sha256": "3fa62595ee50d0484917a27d0ca605eece18c2cefd1194aa4e9cf2b202db7e02",
+      "lines": 100,
+      "sha256": "0487e1cd363abbb065855f6bc949b5bb60b10f1ca3b88a8330734f4f44e6ddc7",
       "symbols": [
         {
           "name": "Live2DTouchAndNativeProbeTest",
-          "line": 15
+          "line": 17
         }
       ]
     },
