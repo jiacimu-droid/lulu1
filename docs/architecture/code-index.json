@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T02:01:54.011283+00:00",
-  "commit": "ef8e9812e71bb2cafb697d5fc9f0415a4e4fcc54",
+  "generatedAt": "2026-11-05T02:02:21.929458+00:00",
+  "commit": "73cf293a7d97c79d51338bcff3d390fe76704219",
   "branch": "main",
-  "sourceFingerprint": "96bc44239a3ff3f0195eff7fb62f21019dfb9b55baf7970f6f8ec0b2a8c94716",
+  "sourceFingerprint": "b4173c819ccbf86fa8c1fcf7f12895b204e8fa1a2ce229ba08ece75a3231fb6c",
   "summary": {
     "files": 1137,
-    "lines": 241344,
+    "lines": 241369,
     "symbols": 3326
   },
   "symbolIndex": {
@@ -38500,8 +38500,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 113,
-      "sha256": "233894dc5cad323ffff8a6190b458c522ea06d75daac3c58e138c8b76a86b4bd",
+      "lines": 138,
+      "sha256": "3efa1389df072efbe03ad3d0a2b3e43aba55aad3f466a1e11d64141dc5504a84",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
