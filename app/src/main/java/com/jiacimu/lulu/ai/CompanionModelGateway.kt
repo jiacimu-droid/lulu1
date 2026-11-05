@@ -749,7 +749,7 @@ class CompanionModelGateway(
                 // receives the same character's unfinished intention, but no
                 // broad timeline or new decision-making authority.
                 leanExpression && contextMode == CompanionContextMode.Full ->
-                    com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId)
+                    com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId, request.retrievalQuery())
                 else -> ""
             }
             val learningSection = if (fullContext)
