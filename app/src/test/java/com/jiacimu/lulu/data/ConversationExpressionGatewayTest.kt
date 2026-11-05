@@ -67,6 +67,49 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun realLeanRendererReceivesOnlyThatCharactersActualListenerPreference() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val known = MigratedDomainStores.characters.create("认识主人阅读偏好的角色", "有自己的语言节奏")
+        val other = MigratedDomainStores.characters.create("尚不了解该习惯的角色", "保持个人表达")
+        val proof = "reader-pace-" + java.util.UUID.randomUUID()
+        SharedExperienceTimeline.record(proof, known.characterId, "私聊", "用户",
+            "我更喜欢短一点的聊天气泡，看长气泡眼睛不舒服",
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        assertTrue(CharacterDevelopmentStore.applyProposal(
+            known.characterId, "user:reader-pacing", DevelopmentKind.UserPreference,
+            "她亲口说手机上长气泡不舒服，喜欢读起来轻松的短消息",
+            listOf(proof), emptyList(),
+            CharacterRuntime.personaConstraintSnapshot(known.characterId)))
+        val server = MockWebServer()
+        repeat(2) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"{\"action\":\"reply\",\"bubbles\":[{\"text\":\"嗯。\"}]}"},"finish_reason":"stop"}]}""")) }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            for (role in listOf(known.characterId, other.characterId)) {
+                LuluAiServices.gateway.generate(role,
+                    facts = "本人已选定要回应的意思",
+                    instruction = "只表达已经选中的真实意思",
+                    source = "聊天表达渲染", title = "测试角色表达",
+                    connectionOverride = connection, contextMode = CompanionContextMode.Full,
+                    memoryRequest = UnifiedMemoryRequest(
+                        currentInput = "我刚刚在读书", sceneContext = "私聊"))
+                    .getOrThrow()
+                val wire = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                    .getJSONArray("messages").toString()
+                assertEquals(role == known.characterId,
+                    wire.contains("长气泡不舒服"))
+                assertFalse(wire.contains("四点了"))
+            }
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun nativeDecisionsAndRenderingKeepRelationshipsSeparateWhileCrossWorldKeepsOnlyPersona() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
