@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T10:43:03.034528+00:00",
-  "commit": "fff39aa2408a3cb9b89bb85bb8c6d765c8b0b798",
+  "generatedAt": "2026-11-05T11:41:07.301483+00:00",
+  "commit": "fbf12b7654657dc706050f28e0c0e61d6bfce203",
   "branch": "main",
-  "sourceFingerprint": "ba1af4f1c3e423bace6bb95584fe2e419142dec2161e21a22346824eb3aa54d2",
+  "sourceFingerprint": "f83766379898e94d9b488a9d12c806d255089fbf558ddd5fc54fd791ecdea113",
   "summary": {
     "files": 1137,
-    "lines": 242038,
-    "symbols": 3331
+    "lines": 242055,
+    "symbols": 3332
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11888,16 +11888,22 @@
         "line": 78
       }
     ],
-    "hasModelRequestAllowance": [
+    "remainingModelRequests": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
         "line": 90
       }
     ],
+    "hasModelRequestAllowance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 108
+      }
+    ],
     "nextModelBudgetDayStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 97
+        "line": 114
       }
     ],
     "plan": [
@@ -29999,8 +30005,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 118,
-      "sha256": "4e084878b1cad446d4b4743fff495467596ffc7be1bd73f7674dd3c7e3fc9287",
+      "lines": 135,
+      "sha256": "2356f781e7c078ecb3a877fd67d14b9e43d2d93c143f11dbbd74885e1b24e46a",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30051,12 +30057,16 @@
           "line": 78
         },
         {
-          "name": "hasModelRequestAllowance",
+          "name": "remainingModelRequests",
           "line": 90
         },
         {
+          "name": "hasModelRequestAllowance",
+          "line": 108
+        },
+        {
           "name": "nextModelBudgetDayStart",
-          "line": 97
+          "line": 114
         }
       ]
     },
