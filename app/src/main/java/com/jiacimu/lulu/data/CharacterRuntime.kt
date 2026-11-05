@@ -187,9 +187,28 @@ object CharacterRuntime {
         listOf(CharacterLearningLedger.context(characterId, query, compact),
             CharacterLearningAgenda.prompt(characterId, query = query)).filter(String::isNotBlank).joinToString("\n")
 
-    /** Only the already-decided private wish crosses lean decision→expression. */
-    fun leanExpressionContext(characterId: String): String =
+    /**
+     * A lean text renderer must receive what THIS character has actually
+     * learned about its listener. Otherwise the planner knows their
+     * preferences but the model authoring the bubbles cannot use them.
+     * Read only existing evidence-backed UserPreference/UserHabit records;
+     * no presentation rules, bubble quotas, or new personality state.
+     */
+    fun leanExpressionContext(characterId: String, query: String = ""): String = buildString {
         CharacterRelationalInitiative.expressionHandoff(characterId)
+            .takeIf(String::isNotBlank)?.let(::appendLine)
+        val known = CharacterDevelopmentRecall.select(
+            CharacterDevelopmentStore.active(characterId).filter {
+                it.kind == DevelopmentKind.UserPreference || it.kind == DevelopmentKind.UserHabit
+            }, query, limit = 5,
+        )
+        if (known.isNotEmpty()) {
+            appendLine("【这位角色从本人原话了解到的对方偏好与习惯｜供本人自主斟酌，并非系统分泡命令】")
+            known.forEach { record ->
+                appendLine("- ${record.content.take(210)}")
+            }
+        }
+    }.trim()
 
     /** Backward-compatible entry for callers that do not have a live conversation key. */
     fun developmentContext(characterId: String, compact: Boolean = false, query: String = "", includeActiveCommitments: Boolean = true): String =
