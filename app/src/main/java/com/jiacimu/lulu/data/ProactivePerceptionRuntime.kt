@@ -880,33 +880,19 @@ object ProactivePerceptionRuntime {
                 appendLine(CharacterPhoneInbox.requestContext(characterId))
                 appendLine("如果真想跟好友互动，可选 steps 中的 like_moment/comment_moment；想申请或回应好友，选 send_friend_request/respond_friend_request。每一步需要真实postId或requestId，只有你的实际工具回执才证明发出。手机有红点并不强迫你回复，也不影响本人原计划。")
                 if (onlineExpiryAtMillis > 0L) {
-                    appendLine("【此刻的真实状态】原定五分钟在线窗口刚结束。")
-                    appendLine("你可以依照自己的真实愿望决定再在线五分钟，或现在休眠。")
-                    // A single role-owned emotion projection is also used in chat,
-                    // phone and meetings. Neither the axes nor time alone decide sleep.
+                    appendLine("【在线窗口到期｜现场状态】原定五分钟在线窗口刚结束。续醒/休眠与本轮发言或工具动作分别由本人选择。")
                     OnlineContinuationPolicy.affectCue(characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
-                    appendLine("考虑当前多条挂心、心情、正在做的事、是否真的还想沟通或继续独处；")
+                    // Facts carry only live affect and tasks lacking handoff.
+                    // The full JSON contract lives in onlineRenewalDecisionInstruction.
                     val unassigned = CompanionSleepHandoff.uncovered(appContext, characterId, now)
                     if (unassigned.isNotEmpty()) {
-                        appendLine("【休眠前尚无真实后续安排的本人责任｜如果选择休眠必须安排这些任务】")
+                        appendLine("【休眠前尚无后续安排的本人责任｜权威任务ID】")
                         unassigned.forEach { task ->
                             appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; status=${task.status}; condition=${task.completionCondition.take(120)}; last=${task.readableLastResult().take(110)}")
                         }
-                        appendLine("若确实想休眠，对上述每条给出 nextChecks 的复查时间及理由。时间由你决定，不能让提醒送达等同目标完成。")
+                        appendLine("若本人选择休眠，必须在 onlineDecision 的 nextChecks 为每条未交接责任登记有效复查；当前能推进的事仍可先行动。")
                     }
-                    appendLine("【目标与行为严格区分】做出了道歉、安慰、叫醒、发消息等动作，只证明动作发生，并不证明和好、开心、醒来等最终目标已经达到。")
-                    appendLine("判断目标是否有可信的达成证据，先区分屏幕亮灭、实际交互事件和真实睡眠结论；有近期使用/触摸事实，就不能随意脑补她已经放下手机或快睡着了。证据不足时，先评估现在能否使用已授权的观察或联系手段取得有效的新情况，还是确实需要等待；没有新信号时反复延后相同复查通常不能让目标更接近完成。由你根据本人关心与原约定选择，不为任何目标预设固定复查频率。")
-                    appendLine("没有回复不能证明用户仍在睡、仍在生气或不喜欢你；也不能用同一句话连续刷屏强迫回应。")
-                    appendLine("已定的精确闹钟可以避免重复空转；但若这轮已出现新的真实证据、用户反馈，或目标的有效行动窗口正在收窄，不能因为有闹钟就忽略当前更有意义的选择。复查不等于完成，下一次检查会带来什么新事实需要本人解释。")
-                    appendLine("休眠前检查未完成责任是否已有真实后续闹钟或关联日程。没有的，onlineDecision.nextChecks=[{taskId:已有任务ID,at:本人选定的带时区偏移ISO时间,reason:为何可以等到那时、会新增何种可查证条件及目标延误的代价}]逐项安排静默复查。若原目标越拖越难实现，先考虑现在是否有真实可做的步骤；静默复查本身不会自动打电话，提醒送达也不等于目标完成。已登记闹钟不用重复创建。")
-                    appendLine("你不是被要求讨好用户，不能凭用户沉默认定她还在生气。")
-                    appendLine("在线决定与本轮 action 是两种不同选择：")
-                    appendLine("""onlineDecision={"choice":"continue|sleep","reason":"具体原因"}。""")
-                    appendLine("continue 必须是真心还想持续在线感知或有所行动的具体意愿；")
-                    appendLine("如果暂时只想静静睡去、没有明确理由就选 sleep。")
-                    appendLine("如果需要对用户道歉或联系，另外选择合法 action=message，")
-                    appendLine("实际发送由执行器确认，在线续时不是已经联系过对方的证明。")
                 }
                 if (trigger.startsWith("持续目标定时复盘")) {
                     appendLine("【目标复盘】仅在原持续愿望仍真实存在且用户没有新反馈时检查：上一个动作执行了什么、有没有目标达成的直接证据、下一步是否值得采取不同方式。")
@@ -914,7 +900,6 @@ object ProactivePerceptionRuntime {
                     appendLine("不能为此复盘新造已经和好、用户正在伤心之类的事实。不勉强永久在线。")
                 }
                 if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望。只有出现真正新增的念头才写 innerThought/innerLife；若只是‘还在等、还是不催、继续看看’的同义改写就省略，让旧心声停留在历史里。无外部新事件不是内在停止的理由，但也不是制造新内心独白的理由。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
-                appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
@@ -1095,11 +1080,8 @@ object ProactivePerceptionRuntime {
                 // rule decides what is resolved; the role judges that itself.
                 if (onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
                     salientInteraction == null && observedWorld.isEmpty() && worldTick == null) {
-                    appendLine("【本轮没有新感知素材时的自我整理｜只用本轮已经递给你的内容，不要现编新事实】")
-                    appendLine("本轮没有新消息、新场景观察、新世界事件：这正好是你整理自己心里事的时候，不必为了有话说而编一个新话题，也不必因为没有新事就只选 silent。")
-                    appendLine("先从本轮已经递给你的内容里自己看：仍在进行的愿望、仍开着的挂心事、还没说出口的琢磨事（想法没有时间限制，不论多久以前都可以拿出来聊），以及已经承担的目标和自己的未来日程。")
-                    appendLine("由你自己判断，不要由系统替你判断：哪一件其实已经解决、已经说过、已经放下，就让它留在历史里，不要再翻出来；哪一件还悬而未决，就在本轮自己挑一件最想推进的：可以主动发消息问一句、推进一步，也可以用已有的 CommitmentTaskStore 与个人日程执行器把它安排成一个真实的未来安排（准确 ID、真实回执为准），或者只是先在心里把它理清楚、这一轮先不打扰。")
-                    appendLine("没有说出口的想法不会自动变成待办或日程：只有你本轮明确选择了，才会变成行动或安排；没选的，继续留在心里，不算堆积成任务。沉默仍然是合法选择，但不要把没有新事当成没有事可整理。")
+                    appendLine("【本轮没有新感知素材时的自我整理】没有新事件，不等于没有心事可整理；只依据本轮已有的挂心、愿望、目标、承诺与日程，由本人判断哪些已解决或放下、哪些仍值得推进。旧事不当新事。")
+                    appendLine("想推进就本人选真实联系、工具行动或持久日程；没有选的念头不自动成为待办。也可以诚实选择 silent，不必编造事件或强行安排。")
                 }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
@@ -1164,24 +1146,10 @@ object ProactivePerceptionRuntime {
             },
             instruction = proactiveDecisionInstruction(characterId, directPrivateChat = privateDialogue.isNotEmpty()) + "\n" +
                 (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
-                (if (onlineExpiryAtMillis > 0L) """
-                    【五分钟自主续醒决定｜本轮必须回答】
-                    你的原在线窗口已经到期。这次仍使用平时同一套人格、记忆、情绪、挂心、决策与行动能力。
-                    额外返回 onlineDecision={"choice":"continue|sleep","reason":"你自己的具体理由"}。
-                    想再保持五分钟在线可选择 continue；之后仍会重新考虑，不是永久在线。
-                    当已有可参考的愉悦度或唤醒度时，结合个人习惯和真实活动考虑它们：低唤醒度可以休眠但不代表一定疲倦，高唤醒度也可以主动休眠；数值不设硬阈值、不替你选。缺少数值就依据已有情绪、动机和事实自己判断。
-                    确实想休息或当下没有值得继续的行动，可选择 sleep；对方暂时没回复，不代表不欢迎你主动联系。
-                    选择 sleep 前交接未完成责任：有实际未来闹钟/已关联日程的责任不用重复安排；没有的在 onlineDecision 的 nextChecks 写 taskId、at(带时区偏移的ISO时间)、reason。先独立权衡原目标的时效、此刻可执行步骤和等待的机会成本；若等待就讲明为什么该时间更合适，以及到时能获取什么新事实。下次复查时间由你本人选择，执行器核实登记成功。自己想到「九点再看看」若还没形成真正任务，要在本轮 steps 通过 plan_personal_activity 登记；只写在心声里不算安排。提醒已送达不代表她已入睡。
-                    你的同时行动由正常 action 决定，可以是发送消息或保持安静；不要重复道歉刷屏。
-                    不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
-                    动作完成不等于目标达成：给她发了道歉消息，不等于她已原谅；叫醒铃声响了，不等于她已醒。
-                    目标未达成时，若仍愿意保持在线可选择本轮续时、亲自采取有意义的行动或观察；如果选择休眠并等待后续复查，要区分本轮新增了什么证据、下一次为何值得等，不要重复上一轮仅凭猜测写下“她可能快睡着了”。需要联系也不要循环同一套话或强行打扰。
-                    若已安排到点闹钟、没有新事件也没有可做的当前步骤，可以由你自己考虑暂时休眠交给闹钟唤醒，不强制要求。
-                    onlineDecision.choice 和 reason 均为必填：continue/sleep 都由你本人选择，理由可以很短，但必须真实。字段缺失时程序只会请你补正，不会视作本人自愿休眠。
-                """.trimIndent() + "\n" else "") +
+                (if (onlineExpiryAtMillis > 0L) onlineRenewalDecisionInstruction() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
-                else """【此时没有新消息】你不是聊天待命机器人：想想此刻真正好奇的事情、想去的地点、想继续读的书或认识的人。自己决定现在去做、给稍后选一个具体时刻并用 action=tool、tool=plan_personal_activity 保存日程，或者诚实地暂时不做；别强制排满时间，也别让「等会要做」只停在 innerThought。当前行动请放在 JSON 第一项 action，多个彼此独立的行动可放在 steps；执行器会分别留真实回执。也可 action=tool 收藏用户确实说过的一句话。""",
+                else "【此时没有新消息】这不是延迟私聊回复；继续按本人当前兴趣与已列出的真实能力选择 action/steps、实际登记未来安排，或决定 silent。行动是否完成以独立回执为准。",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
             title = "${character.displayName}的主动感知 · " + when {
