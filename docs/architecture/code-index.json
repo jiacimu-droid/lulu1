@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T12:25:58.582789+00:00",
-  "commit": "822211f1429073de286a497c863b16d464736c10",
+  "generatedAt": "2026-11-05T12:27:31.007192+00:00",
+  "commit": "479e262b7b3b3e7f6c9553c473efef42c48ae508",
   "branch": "main",
-  "sourceFingerprint": "cd6681a2b833139ecf5f25ac5158e7dfc6e31748a4a597956434bf3f71993c37",
+  "sourceFingerprint": "cb908f470e89b1cf8f1706bb4c9a54339bdc4a58acac4e6fa7740c07158302bb",
   "summary": {
     "files": 1137,
-    "lines": 242427,
-    "symbols": 3332
+    "lines": 242593,
+    "symbols": 3338
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1425,11 +1425,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 188
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 305
+        "line": 326
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
@@ -2253,7 +2253,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 132
+        "line": 148
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
@@ -4095,13 +4095,13 @@
     "opportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 99
+        "line": 107
       }
     ],
     "pending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 76
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -4116,16 +4116,32 @@
         "line": 43
       }
     ],
+    "section": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 101
+      }
+    ],
+    "order": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 109
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
+        "line": 42
+      }
+    ],
     "allPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 95
+        "line": 117
       }
     ],
     "complete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 104
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4139,13 +4155,13 @@
     "undo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 111
+        "line": 127
       }
     ],
     "loadWithLegacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 249
+        "line": 268
       }
     ],
     "create": [
@@ -5564,12 +5580,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
         "line": 17
-      }
-    ],
-    "order": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
-        "line": 42
       }
     ],
     "capabilityContext": [
@@ -15780,10 +15790,34 @@
         "line": 87
       }
     ],
-    "completedOneTimeTaskDoesNotReappearAfterDateChanges": [
+    "scheduledAppointmentTodayBeatsEverydayAndUpcomingTasks": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
         "line": 96
+      }
+    ],
+    "missedOneOffIsLastAndReschedulingMovesItBackToFuture": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 107
+      }
+    ],
+    "undatedOnceRemainsOrdinaryWithoutAccumulatedOverdue": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 120
+      }
+    ],
+    "weeklyMissNeverAccumulatesAcrossWeeks": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 131
+      }
+    ],
+    "completedOneTimeTaskDoesNotReappearAfterDateChanges": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 142
       }
     ],
     "SelfTodoRoleReadTest": [
@@ -22319,20 +22353,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt",
-      "lines": 333,
-      "sha256": "4d9ea18e1ca2c9f413b5979e5c8b62939e8a1715bee4f0813dd8d7bbc9b3d4d3",
+      "lines": 339,
+      "sha256": "bea2f7a00de44afbabf14d409a411bc5af12121de039c362e17773ba0a283843",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt",
-      "lines": 267,
-      "sha256": "210238bfb94ee8965df1b17a8af2bd3994dd933a70c0b39fbdcd72720c6d81b0",
+      "lines": 290,
+      "sha256": "80415be35b75c60b25f178f0369fc1d63b29694bb92495dcd75d5ed6905b0a79",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-      "lines": 115,
-      "sha256": "905504fa63e4e77af8c6129977ab555c3eb55378257f6705a5706ec9159a521a",
+      "lines": 123,
+      "sha256": "7221e18d750802c277099a2dded6d12dd3a0f83fefec997591ce2a1279a9190e",
       "symbols": [
         {
           "name": "execute",
@@ -22340,46 +22374,54 @@
         },
         {
           "name": "opportunity",
-          "line": 99
+          "line": 107
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-      "lines": 534,
-      "sha256": "e9cbc1d44d6a30dde0cb29bc51a9b22791a7bc8478fce1376900ef5bd651a669",
+      "lines": 597,
+      "sha256": "fba3c0cee11c4d14b11221cc72d2b40ebba7cff7b8394989d098f30ece3c09b8",
       "symbols": [
         {
           "name": "pending",
-          "line": 76
+          "line": 80
+        },
+        {
+          "name": "section",
+          "line": 101
+        },
+        {
+          "name": "order",
+          "line": 109
         },
         {
           "name": "allPending",
-          "line": 95
+          "line": 117
         },
         {
           "name": "complete",
-          "line": 104
+          "line": 120
         },
         {
           "name": "undo",
-          "line": 111
+          "line": 127
         },
         {
           "name": "read",
-          "line": 132
+          "line": 148
         },
         {
           "name": "save",
-          "line": 188
+          "line": 206
         },
         {
           "name": "loadWithLegacy",
-          "line": 249
+          "line": 268
         },
         {
           "name": "save",
-          "line": 305
+          "line": 326
         }
       ]
     },
@@ -35389,8 +35431,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
-      "lines": 102,
-      "sha256": "756cf76368b10c2e30c0389bb6a807d787ce7ad8fc61452d43a6c2a1213a6ddd",
+      "lines": 148,
+      "sha256": "4079afefa19cd2b92e233fd189cae43c6c617e2356c97043dd6cf2b12cb473d2",
       "symbols": [
         {
           "name": "SelfTodoCalendarTest",
@@ -35425,15 +35467,31 @@
           "line": 87
         },
         {
-          "name": "completedOneTimeTaskDoesNotReappearAfterDateChanges",
+          "name": "scheduledAppointmentTodayBeatsEverydayAndUpcomingTasks",
           "line": 96
+        },
+        {
+          "name": "missedOneOffIsLastAndReschedulingMovesItBackToFuture",
+          "line": 107
+        },
+        {
+          "name": "undatedOnceRemainsOrdinaryWithoutAccumulatedOverdue",
+          "line": 120
+        },
+        {
+          "name": "weeklyMissNeverAccumulatesAcrossWeeks",
+          "line": 131
+        },
+        {
+          "name": "completedOneTimeTaskDoesNotReappearAfterDateChanges",
+          "line": 142
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 140,
-      "sha256": "5b14c2901831c7accf8b2fd091a193786757269dd2bf3e0f9a81ba0caf0a7deb",
+      "lines": 160,
+      "sha256": "ce69d3d8b4c14e4d0865c08dc009667e558b3ee09fe59d23efa996c89c88d7e6",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",

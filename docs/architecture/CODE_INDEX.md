@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`822211f1429073de286a497c863b16d464736c10`
+- 基准提交：`479e262b7b3b3e7f6c9553c473efef42c48ae508`
 - 分支：`main`
 - 已索引文件：1137
-- 已索引代码/文本行：242427
-- 已发现符号：3332
+- 已索引代码/文本行：242593
+- 已发现符号：3338
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -276,10 +276,10 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 597 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 445 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 333 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 267 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 115 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 534 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 123 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 597 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 90 | 8 |
@@ -834,8 +834,8 @@
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 97 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 102 | 9 |
-| `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 140 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
+| `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 160 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 117 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
