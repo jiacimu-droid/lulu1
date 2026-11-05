@@ -80,7 +80,7 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_AGENDA_ITEMS)
                         if (count != agenda && ResidentDailyPolicy.setMaxAgendaItems(context, count)) agenda = count
                     })
-                Text("行程预算不同于 AI 请求总预算，调整后已保存的日程不会被抹除。",
+                Text("每项未来行程到点要再用一次 AI 决策；实际新排行程会随今日剩余请求额度自动减少。一次规划内的即时动作不额外调用，旧日程不会被抹除。",
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             item { HorizontalDivider() }
