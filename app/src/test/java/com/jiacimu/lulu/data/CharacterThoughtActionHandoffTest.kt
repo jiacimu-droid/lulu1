@@ -16,6 +16,27 @@ class CharacterThoughtActionHandoffTest {
     private fun concern(item: JSONObject) = JSONObject().put("action", "silent")
         .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(item)))
 
+    @Test fun topLevelToolFollowedByOtherEffectThenSameToolKeepsIndependentReceiptAndOwner() {
+        val original = JSONObject().put("action", "tool").put("tool", "web_search")
+            .put("args", JSONObject().put("query", "same"))
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "read_book")
+                    .put("args", JSONObject().put("bookId", "b")))
+                .put(JSONObject().put("tool", "web_search")
+                    .put("args", JSONObject().put("query", "same"))
+                    .put("motiveId", "second-attempt")))
+        val before = original.toString()
+        val normalized = AutonomousActionWireProtocol.normalize(original)
+        assertFalse("Later attempt must not credit the primary receipt",
+            normalized.has("motiveId"))
+        val steps = CharacterThoughtActionHandoff.actions(normalized)!!
+        assertEquals(2, steps.length())
+        assertEquals("read_book", steps.getJSONObject(0).getString("tool"))
+        assertEquals("web_search", steps.getJSONObject(1).getString("tool"))
+        assertEquals("second-attempt", steps.getJSONObject(1).getString("motiveId"))
+        assertEquals(before, original.toString())
+    }
+
     @Test fun primaryMirrorThenInterveningEffectThenSameToolIsASecondAttempt() {
         val primary = JSONObject().put("action", "tool").put("tool", "web_search")
             .put("args", JSONObject().put("query", "同一问题"))
