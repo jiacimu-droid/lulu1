@@ -44,6 +44,26 @@ class RoleDayScheduleStoreTest {
             dueAt = midnight.plusSeconds(3600)), midnight))
     }
 
+    @Test fun residentBudgetDeferralKeepsOriginalPlanAndNoSuccessReceipt() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "resident:quota-due-work"
+        val dueAt = Instant.now().plusSeconds(180)
+        val created = RoleDayScheduleStore.arrange(context, role,
+            "晚上查看自己的朋友圈", "想看看朋友有没有新的近况",
+            dueAt, activityAction = "publish_moment")
+        try {
+            assertTrue(RoleDayScheduleStore.deferResidentBudgetWake(context,
+                created, dueAt.plusSeconds(1)))
+            val stored = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
+            assertEquals(created.id, stored.id)
+            assertEquals(created.dueAt, stored.dueAt)
+            assertEquals("planned", stored.status)
+            assertTrue(stored.resultEvidenceId.isBlank())
+            assertFalse(RoleDayScheduleStore.deferResidentBudgetWake(context,
+                created.copy(dueAt = dueAt.plusSeconds(600)), dueAt.plusSeconds(1)))
+        } finally { RoleDayScheduleStore.remove(context, role, created.id) }
+    }
+
     @Test fun handoffIsDurableIdempotentAndNotAnActionReceipt() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val role = "missed-bedtime-handoff-test"
