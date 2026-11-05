@@ -47,6 +47,10 @@
 
 
 
+### P-08d.2h 显式 steps/sideActions 镜像主工具归属（2026-11-05）
+- [x] **P-08d.2h 源码与回归提交**：原 withPrimaryActionOwnership 只收集 nested nextAction 的归属，显式 steps/sideActions 若与顶层主工具完全镜像，主工具执行一次后 Ordered 还会再执行一次，或两份真实回执无法归同一明确目标。源码 c47fb4a 将显式步骤加入既有兼容归属合并，actions 仅在主回执已覆盖该步骤所有显式 owner 时去掉镜像；冲突 owner 仍作为独立步骤保留。测试 d746e9a 检验 motiveRef、concernId 累积、冲突独立保留、输入不变。无新模型调用、不改人设和持久数据。
+- [ ] **P-08d.2h JVM/APK 与入口回执验收**：上述测试提交后须核对应 push Actions 全量 JVM/APK；再补前台/后台入口主工具真实回执与重放，验证没有重复外部副作用。真机/真实模型/跨日未知。
+
 ### P-08d.2g 主工具部分归属不能被后续冲突抹除（2026-11-05）
 - [x] **P-08d.2g 源码与回归已提交，CI/真机待验**：原 withPrimaryActionOwnership 对同一主工具的多个嵌套 nextAction 依次累积兼容归属；若后面的一个 motiveRef 与主工具原 motiveRef 冲突，直接 `return decision`，连前面已确认兼容的 concernId 一起丢失。修复为跳过冲突候选、保留先前独立兼容归属，冲突候选仍交原 actions() 作为独立步骤与回执，不猜同一目标。源码 e00edd1，回归 52c914c 覆盖主工具原目标、先到挂心、后到冲突目标、原 JSON 不变。完整 JVM/APK 和真实执行尚未验证；不将此项误记为整个 P-08d 完成。
 - [ ] **P-08d.2g CI 与真实回执**：99830ef 新增主工具镜像 motiveRef→原 OrderedCharacterActions→真实 plan_personal_activity 持久日程/ToolRouter 回执→同 requestId 重放幂等的 Robolectric 集成回归；源码测试已提交，但该提交的 JVM/APK 尚无成功证据，主动作真实前台/后台 ToolRouter 入口与冲突独立步骤的端到端仍待验。先核最新 CI，失败按真实日志修，真机/真实模型/跨日待验。
