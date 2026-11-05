@@ -112,9 +112,18 @@ internal object CharacterThoughtActionHandoff {
         val primary = AutonomousActionWireProtocol.normalizeStep(decision)
         if (primary.optString("tool").isBlank()) return decision
         val nested = JSONArray()
-        fun collect(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false) {
+        fun collect(
+            owner: JSONObject?, concern: Boolean = false, motive: Boolean = false,
+            inquiry: Boolean = false,
+        ) {
             val raw = owner?.optJSONObject("nextAction") ?: return
             val step = AutonomousActionWireProtocol.normalizeStep(raw)
+            if (inquiry && !step.has("curiosity")) {
+                // The same explicit question link that actions() would attach
+                // must be visible to the PRIMARY tool's actual receipt too.
+                val question = JSONObject(owner.toString()).apply { remove("nextAction") }
+                step.put("curiosity", question)
+            }
             if (concern && step.optString("concernId").isBlank())
                 owner.optString("threadId").takeIf(String::isNotBlank)?.let { step.put("concernId", it) }
             if (motive && step.optString("motiveId").isBlank() && step.optString("motiveRef").isBlank()) {
@@ -137,6 +146,10 @@ internal object CharacterThoughtActionHandoff {
                 collect(owner, motive = key == "motives")
             }
         }
+        collect(decision.optJSONObject("curiosity"), inquiry = true)
+        val questions = decision.optJSONArray("curiosities")
+        for (index in 0 until (questions?.length() ?: 0))
+            collect(questions?.optJSONObject(index), inquiry = true)
         val candidates = (0 until nested.length()).mapNotNull(nested::optJSONObject)
             .filter { sameAction(primary, it) }
         // Multiple distinct nested owners are not one primary action.
