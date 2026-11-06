@@ -215,3 +215,5 @@
 
 - 江渡switch最新批准修订：整体偏Dom、按场景选择两面，revision2只刷新care/示例；待CI/安装/真实模型。
 - **P-08d.2h.6 CI 复核（2026-11-06）**：5a8fa37 对应 [Lulu APK 42123821611](https://github.com/jiacimu-droid/lulu1/actions/runs/42123821611) completed/failure；2491 项测试、1 项失败，旧 `duplicateDeclarationsDoNotDoubleExecuteAndCancelledWishesDoNotSpawnActions` 在第526行仍期待顶层 A→显式 B→嵌套 A 只有1个副步骤，与现有顺序契约冲突。提交 [60dbac0](https://github.com/jiacimu-droid/lulu1/commit/60dbac01382e05f3cb2b434096594c09eeb450b8) 更新为 B、A 两个独立步骤及顺序断言；仅修过期测试，不冒充生产代码改动。该提交 JVM/APK 待新 Actions 实测，执行器级失败/条件依赖与真机仍待验。
+
+- [x] **P-08d.2h.7 失败槽后主工具重试源码/回归已提交（CI 待验）**：显式 steps/sideActions 含 JSON null 非法槽时，原 actions() 保留该槽供执行器失败，但没有把它算作中断，紧随其后的主工具同参重试仍被镜像过滤；这会使失败槽后本人明确选择的重试消失。源码 e44e207 修复两个字段的中断状态，测试 5ebf6b1 覆盖两条路径及原输入不变。未取得新 JVM/APK 结果，不代表真实 ToolRouter 回执、requiresPreviousSuccess 或真机已验。
