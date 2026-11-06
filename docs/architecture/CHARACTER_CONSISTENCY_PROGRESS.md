@@ -1356,3 +1356,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复核最新 main 四份必读文档、Bridge 的 `originalUserEvidence`、`commitmentEvidenceIds` 与 `CommitmentDecisionRuntime.apply`。发现虽已按 roleId/UserStatement 从 SharedExperienceTimeline 解析真实消息，但原始 `userEvidenceIds` 非空时仍原样进入承诺记录与去重请求键；其中未被解析的跨角色、失效 ID 可能冒充本轮承诺来源。
 - 正式源码 [`ddd5e82`](https://github.com/jiacimu-droid/lulu1/commit/ddd5e82c0152a5bcac5f8b78d6f7041a25d8ddf7) 将承诺来源限制为已经由 timeline 解析的事件 ID；保留明确重考虑与电话静默观察回退。测试 [`1c2ea58`](https://github.com/jiacimu-droid/lulu1/commit/1c2ea58252fa910eba774e8ef593d303d4d1385f) 验证空、重复及不接受无效 ID 的纯函数边界。没有额外模型调用、数据删除或人物人设修改。
 - **验证边界**：本轮 GitHub 内容 API 提交成功，但尚未获得对应 SHA 的完整 JVM/APK/Actions 成功结果，也未执行本地 Gradle；纯函数回归不能代替真实 Timeline→CommitmentDecisionRuntime 的入口集成测试。下一轮先核新 main Actions，随后补混合有效/跨角色 ID 的入口级持久任务回归，检查电话静默观察的真实归属、执行结果及下轮召回。P-08a.1 不宣称整体完成。
+
+## 2026-11-07 · P-08a.1d 混合来源的真实 Bridge→承诺持久化回归
+
+- 针对 P-08a.1c 仅纯函数校验的缺口，在既有 Robolectric `CommitmentSemanticPersistenceTest` 增加真实 `SharedExperienceTimeline.record`、`LuluDeviceToolBridge.respond`、`CommitmentDecisionRuntime` 与 `CommitmentTaskStore` 联动回归：输入同文但不同角色事件、缺失 ID 和本角色有效事件混合列表，断言持久任务只保留本角色有效来源，其他角色不产生任务，且处理幂等只归有效来源。MockWebServer 返回固定两阶段模型 JSON，不触发收费外部模型。
+- 测试提交 [6818ecec](https://github.com/jiacimu-droid/lulu1/commit/6818ecec01479d4aba65366f34a8114b13719786)。**本轮仅确认提交，未取得新 JVM/APK 成功证据**；若新 CI 失败须按第一条真实日志修正，不能把测试源码视为测试通过。电话静默观察、后台回执与跨轮召回仍待核查；P-08a.1 整体未完成。
+- 下一轮：先查该提交后继 push 的 JVM/APK 与代码索引；随后按 P-08a.1 继续电话/后台来源→决定→发送→持久回执→下一轮召回，或在已有代码覆盖充分时转 P-08b.1。
