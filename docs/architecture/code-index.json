@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T23:38:20.179398+00:00",
-  "commit": "d67923cc1716c2dc31579f68db70310e17c9305a",
+  "generatedAt": "2026-11-06T00:36:29.211161+00:00",
+  "commit": "aca29253d7bed73d6457ae52c09490323c83f60b",
   "branch": "main",
-  "sourceFingerprint": "e34d24397da975d393026df6dfba9e39158ff13b97607f7a20991d35597b9103",
+  "sourceFingerprint": "76e138458a053d1184be5f7aa4cc7a90309b2bb8552c550d22b975e678bd95e8",
   "summary": {
     "files": 1137,
-    "lines": 243087,
-    "symbols": 3340
+    "lines": 243092,
+    "symbols": 3341
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -457,7 +457,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1975
+        "line": 1980
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5929,7 +5929,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1662
+        "line": 1667
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -6288,6 +6288,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
         "line": 303
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 473
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -6687,25 +6691,25 @@
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 484
+        "line": 488
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 996
+        "line": 1001
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1159
+        "line": 1164
       }
     ],
     "completed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1672
+        "line": 1677
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
@@ -6719,13 +6723,13 @@
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1799
+        "line": 1804
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1851
+        "line": 1856
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -24563,8 +24567,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2144,
-      "sha256": "36290fdebe4f0a74eb209ae66f968935a64a0e6349156b32b59162cbcfdf5b4b",
+      "lines": 2149,
+      "sha256": "de012e835f5a058a4a0f20be02a3f677df762a1a36df3b0c0e75919035b4bc18",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -24579,36 +24583,40 @@
           "line": 447
         },
         {
+          "name": "invalidateEvidence",
+          "line": 473
+        },
+        {
           "name": "backedBy",
-          "line": 484
+          "line": 488
         },
         {
           "name": "interactionContext",
-          "line": 996
+          "line": 1001
         },
         {
           "name": "groundingContext",
-          "line": 1159
+          "line": 1164
         },
         {
           "name": "eligible",
-          "line": 1662
+          "line": 1667
         },
         {
           "name": "completed",
-          "line": 1672
+          "line": 1677
         },
         {
           "name": "axis",
-          "line": 1799
+          "line": 1804
         },
         {
           "name": "compactContext",
-          "line": 1851
+          "line": 1856
         },
         {
           "name": "context",
-          "line": 1975
+          "line": 1980
         }
       ]
     },
