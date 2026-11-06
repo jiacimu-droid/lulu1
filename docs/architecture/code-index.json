@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T00:36:29.211161+00:00",
-  "commit": "aca29253d7bed73d6457ae52c09490323c83f60b",
+  "generatedAt": "2026-11-06T00:36:53.439926+00:00",
+  "commit": "0b518926304514ed2d74eecde27c448f0dabdb08",
   "branch": "main",
-  "sourceFingerprint": "76e138458a053d1184be5f7aa4cc7a90309b2bb8552c550d22b975e678bd95e8",
+  "sourceFingerprint": "3b0834a9c0f347c47f3a6f090bc86574710e9914b586c984244b171a5fd3dbf0",
   "summary": {
     "files": 1137,
-    "lines": 243092,
-    "symbols": 3341
+    "lines": 243140,
+    "symbols": 3342
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16466,22 +16466,28 @@
         "line": 16
       }
     ],
+    "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
+        "line": 19
+      }
+    ],
     "longTail": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 63
+        "line": 111
       }
     ],
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 624
+        "line": 672
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 723
+        "line": 771
       }
     ],
     "CharacterKnowledgeBoundaryTest": [
@@ -36578,24 +36584,28 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 886,
-      "sha256": "2df81204661f104c1d249c3fd07f7a0dfee6d8e8febe88e1ee9b7c2c30e90c03",
+      "lines": 934,
+      "sha256": "3f37a467087c54591025425c5a207de766fa992d7d0992514e1ae4aa5c5c736c",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
           "line": 16
         },
         {
+          "name": "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks",
+          "line": 19
+        },
+        {
           "name": "longTail",
-          "line": 63
+          "line": 111
         },
         {
           "name": "social",
-          "line": 624
+          "line": 672
         },
         {
           "name": "feeling",
-          "line": 723
+          "line": 771
         }
       ]
     },
