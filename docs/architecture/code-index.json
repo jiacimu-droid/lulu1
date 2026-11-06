@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T04:06:18.671744+00:00",
-  "commit": "0c7428b5628d8309e5afae1a46f1515841396a3f",
+  "generatedAt": "2026-11-06T15:40:06.854207+00:00",
+  "commit": "2ae52bb737342f7efd1d1edc1776d8f34eeae0d0",
   "branch": "main",
-  "sourceFingerprint": "dfc93b87224a7613986ddd3d53e93dcac92c87281e13c6b82d6d223bbfdb9d05",
+  "sourceFingerprint": "171c7731f466c561b4aee47503369c22535e6bd33d9a1d38607f5bfc0e604749",
   "summary": {
-    "files": 1137,
-    "lines": 243223,
-    "symbols": 3342
+    "files": 1138,
+    "lines": 243266,
+    "symbols": 3343
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1043,7 +1043,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 35
+        "line": 46
       }
     ],
     "suppressAutoPlay": [
@@ -14949,13 +14949,13 @@
     "ReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 47
+        "line": 58
       }
     ],
     "commitReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 60
+        "line": 71
       }
     ],
     "LuluLocationProvider": [
@@ -18616,6 +18616,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt",
         "line": 6
+      }
+    ],
+    "LuluGroundingEvidenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt",
+        "line": 5
       }
     ],
     "LuluMediaPlaybackEvidenceTest": [
@@ -34225,8 +34231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2186,
-      "sha256": "a416e020955af3b4f16ce4d60ba554fb31b02814e1706c5e60740cdeebbc0d46",
+      "lines": 2192,
+      "sha256": "837972dc912c3400e2232ad2a444374477fd63756c6e8f87c6f462349634d06a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -34234,15 +34240,15 @@
         },
         {
           "name": "initialize",
-          "line": 35
+          "line": 46
         },
         {
           "name": "ReconsideredChatReply",
-          "line": 47
+          "line": 58
         },
         {
           "name": "commitReconsideredChatReply",
-          "line": 60
+          "line": 71
         }
       ]
     },
@@ -39635,6 +39641,17 @@
         {
           "name": "TheaterWorldBookContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt",
+      "lines": 37,
+      "sha256": "e024cecf9856ce3ffdc90633f1b3057da8948fc5358e1155f84139393fd96dad",
+      "symbols": [
+        {
+          "name": "LuluGroundingEvidenceTest",
+          "line": 5
         }
       ]
     },

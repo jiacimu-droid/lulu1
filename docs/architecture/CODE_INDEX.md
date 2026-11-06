@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c7428b5628d8309e5afae1a46f1515841396a3f`
+- 基准提交：`2ae52bb737342f7efd1d1edc1776d8f34eeae0d0`
 - 分支：`main`
-- 已索引文件：1137
-- 已索引代码/文本行：243223
-- 已发现符号：3342
+- 已索引文件：1138
+- 已索引代码/文本行：243266
+- 已发现符号：3343
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -737,7 +737,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2186 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2192 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
@@ -1131,6 +1131,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
