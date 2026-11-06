@@ -1325,3 +1325,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 回归提交 `477fcc2f0adabba2fb2f8347708f02cf0f064579`：通过原 OrderedCharacterActions 与真实 ToolRouter/MomentsStore 验证失败前驱不触发依赖发布，独立发布成功，同请求重放不产生第二条发布。未修改正式执行器，尚未证明该新增测试通过；如 CI 失败先查第一条真实断言，不为绿灯削弱执行契约。
 - Roadmap 更新 `302778e463c56f9aa618c50c703e437558f17a98`。本轮没有取得新增提交的 JVM/APK 最终结论，真机、真实模型、后台主工具失败与跨日仍待验。
 - 下一轮先查包含 `477fcc2f` 的 Actions，若通过继续主工具成功/失败的条件副动作真实回执及前后台场景；若失败按真实日志修复。P-08d.2h 整体仍未验收。
+
+
+## 2026-11-06 · P-08d.2h.9 主工具失败后的条件依赖与独立恢复回归
+
+- 接手 main `e46e824748ad92180eef5499d8fa75e0ca80f75c`；复核 AGENTS、CODE_INDEX、roadmap、进度和 `OrderedCharacterActions.execute`、`AutonomousActionBoundaryIntegrationTest`。上一轮 `477fcc2` 对应 APK/JVM Actions 42145130918 与索引 42145131120 均 completed/success，不重复开发未知步骤失败的既有覆盖。
+- 仍缺的独立边界：已有回归使用 `initialCompleted=true`，未覆盖调用方主工具真实失败后传入 `initialCompleted=false` 的条件首步。新增 `failedPrimaryResultSkipsDependentStepButIndependentSuccessUnlocksItsOwnFollower`：主工具失败后依赖步骤不得发布，独立步骤成功后自己的后继依赖应恢复执行，同一 requestId 重放不能重复产生朋友圈副作用。沿原 `OrderedCharacterActions → ToolRouter → MomentsStore`，无模型调用或生产语义修改。
+- 测试提交 [1cd26c0](https://github.com/jiacimu-droid/lulu1/commit/1cd26c01a8ffa14c22638a401d9a75d2cf56268f)。**新提交 JVM/APK 尚未确认**，不得把上轮成功扩称到本轮；真机、真实模型、前后台主工具失败真实回执仍待验。
+- 下一轮先查 `1cd26c0` 对应 Actions，失败先定位第一条真实错误；通过后继续 P-08a.1 跨入口 turnTraceId/sourceMessageId/taskId 关联审计，P-08d.2h 入口真实回执与设备验收仍保留待验。
