@@ -14,6 +14,54 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterInnerLifeStoreTest {
+
+    @Test(timeout = 15_000)
+    fun evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks() {
+        start()
+        val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>(null)
+        val worker = Thread({
+            try {
+                CharacterInnerLifeStore.invalidateEvidence("lock-order-unused-evidence")
+            } catch (t: Throwable) {
+                failure.set(t)
+            }
+        }, "inner-life-invalidation").apply { isDaemon = true }
+        val reader = Thread({
+            try {
+                CharacterInnerLifeStore.snapshot("inside-test-a")
+            } catch (t: Throwable) {
+                failure.set(t)
+            }
+        }, "inner-life-reader").apply { isDaemon = true }
+
+        // Hold the *other* monitor while invalidation reaches that owner.
+        // Its pending callback must not hold the inner-life monitor, or an
+        // independently scheduled initialization/reader can form a lock cycle.
+        synchronized(CharacterRelationalInitiative) {
+            worker.start()
+            val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5)
+            var waitingForRelation = false
+            while (System.nanoTime() < deadline) {
+                if (worker.state == Thread.State.BLOCKED &&
+                    worker.stackTrace.any {
+                        it.className.contains("CharacterRelationalInitiative") &&
+                            it.methodName == "invalidateEvidence"
+                    }) {
+                    waitingForRelation = true
+                    break
+                }
+                if (!worker.isAlive) break
+                Thread.sleep(10)
+            }
+            assertTrue("invalidation did not reach the relational owner", waitingForRelation)
+            reader.start()
+            reader.join(1_500)
+            assertFalse("inner-life monitor held while awaiting another Store", reader.isAlive)
+        }
+        worker.join(5_000)
+        assertFalse("invalidation did not complete after releasing the other Store", worker.isAlive)
+        failure.get()?.let { throw AssertionError("concurrent store operation failed", it) }
+    }
     @Test fun compactAndFullScenesShareTheSameSourceBoundInterpretation() {
         start()
         val role = "inside-test-a"
