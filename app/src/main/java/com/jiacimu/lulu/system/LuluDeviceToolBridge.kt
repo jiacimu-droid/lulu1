@@ -48,6 +48,12 @@ object LuluDeviceToolBridge {
     internal fun directXhsRequestId(verifiedCauseId: String, invocationTraceId: String): String =
         "direct-xhs-" + verifiedCauseId.ifBlank { invocationTraceId }
 
+    // Only IDs resolved from the authoritative timeline may enter commitment
+    // ownership and deduplication. Caller-supplied IDs can be stale, foreign,
+    // or unrelated to this role; do not reuse them after verification fails.
+    internal fun verifiedCommitmentEvidenceIds(resolvedEventIds: List<String>): List<String> =
+        resolvedEventIds.filter { it.isNotBlank() }.distinct()
+
     private var context: Context? = null
 
     fun initialize(appContext: Context) {
@@ -284,7 +290,7 @@ object LuluDeviceToolBridge {
             if (groundingEvidenceId.isBlank()) emptyList() else
                 com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(groundingEvidenceId))
         }
-        val commitmentEvidenceIds = userEvidenceIds.ifEmpty { commitmentEvidence.map { it.id } }
+        val commitmentEvidenceIds = verifiedCommitmentEvidenceIds(commitmentEvidence.map { it.id })
         val commitmentSessionId = commitmentEvidence.lastOrNull()?.sessionId.orEmpty()
         val groundingContext = com.jiacimu.lulu.data.ConversationGroundingEngine.context(
             characterId, interactionKey,
