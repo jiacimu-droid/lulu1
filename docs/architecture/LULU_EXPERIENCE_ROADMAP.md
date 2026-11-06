@@ -86,7 +86,7 @@
 
 ### P-08a 全链追踪
 - [x] **P-08a.1a 未经验证的历史同文不得冒充本轮用户来源（源码/回归已提交，CI 待验）**：`LuluDeviceToolBridge.respond` 原来在 `userEvidenceIds` 缺失时用最近 40 条历史正文前 60 字包含关系猜测 `groundingEvidenceId`，重复原话或引用会误归旧事件，并进入心事、工具及心理因果归属。源码 [55a273b](https://github.com/jiacimu-droid/lulu1/commit/55a273bb30faea081a52b9787dcf939dc96ea55d) 改为只接受入口核验的 UserStatement ID、明确重考虑事件或电话静默观察；无权威来源时保留空归属，不虚构新事件或删历史。回归 [2ae52bb](https://github.com/jiacimu-droid/lulu1/commit/2ae52bb737342f7efd1d1edc1776d8f34eeae0d0) 覆盖同文不同 ID、缺 ID、重考虑与静默优先级。**仅确认提交，JVM/APK/真机未验**；P-08a.1 的其他入口与工具回执仍待核，直接小红书 fallback 请求 ID 的同文跨轮幂等风险尚未处理。
-- [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
+- [x] **P-08a.1b 无权威事件时小红书直读请求身份隔离（源码/回归已提交，CI 待验）**：原 direct-xhs 使用 `userText.hashCode()` 作无来源备用 requestId，相同正文跨轮会复用同一幂等键。改为已验证事件 ID 优先、否则本次调用唯一 turnTraceId；回归覆盖同文不同调用、同一调用重试及已验证事件重试。源码 `e63c9ac`、测试 `6c756b5`。仅确认提交，尚未取得本 SHA JVM/APK 成功；真实入口、重启、外部读回执仍待验，不勾 P-08a.1 整体。\n- [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
 - [ ] **P-08a.2** 若已证关联缺失，修权威链路并加跨私聊/群聊/后台的测试；无缺陷不空改。
 - [ ] **P-08a.3** 用获授权脱敏真实回合对齐输入/选择/表达 bubbles/送达/后续，未取得样本就标外部待验。
 
