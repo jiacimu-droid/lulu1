@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T00:36:53.439926+00:00",
-  "commit": "0b518926304514ed2d74eecde27c448f0dabdb08",
+  "generatedAt": "2026-11-06T00:43:24.527805+00:00",
+  "commit": "e44e20774a866356bfd8a25282b88b78e0852d80",
   "branch": "main",
-  "sourceFingerprint": "3b0834a9c0f347c47f3a6f090bc86574710e9914b586c984244b171a5fd3dbf0",
+  "sourceFingerprint": "550575d5b9840160dd4f7521e80235c6c7e0723d7bbb1e3cfaa85093872d969b",
   "summary": {
     "files": 1137,
-    "lines": 243140,
+    "lines": 243144,
     "symbols": 3342
   },
   "symbolIndex": {
@@ -6997,7 +6997,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 89
+        "line": 93
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
@@ -7501,7 +7501,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 165
+        "line": 169
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -7559,7 +7559,7 @@
     "withPrimaryActionOwnership": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 160
+        "line": 164
       }
     ],
     "candidates": [
@@ -25523,8 +25523,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 293,
-      "sha256": "bd9288c507eba9c0047e848f96ee25df751622bd3548b779793bf9192e471a64",
+      "lines": 297,
+      "sha256": "7103957bff5bba34a9a6c680209ec0b1ce8b456de89bb7e29fc1815028231b74",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -25544,15 +25544,15 @@
         },
         {
           "name": "add",
-          "line": 89
+          "line": 93
         },
         {
           "name": "withPrimaryActionOwnership",
-          "line": 160
+          "line": 164
         },
         {
           "name": "collect",
-          "line": 165
+          "line": 169
         }
       ]
     },
