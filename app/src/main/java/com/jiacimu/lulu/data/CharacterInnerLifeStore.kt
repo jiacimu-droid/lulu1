@@ -470,7 +470,7 @@ object CharacterInnerLifeStore {
     /** A revision invalidates active projections, but the old thought/choice
      * remains read-only historical evidence. Actual withdrawal removes both
      * active and cold records. Never let edited wording revive an old choice. */
-    @Synchronized fun invalidateEvidence(eventId: String,
+    fun invalidateEvidence(eventId: String,
         preserveHistoricalChoices: Boolean = false) {
         if (eventId.isBlank()) return
         PerceptionStimulusLedger.invalidate(eventId)
@@ -479,152 +479,157 @@ object CharacterInnerLifeStore {
         CharacterRelationalInitiative.invalidateEvidence(eventId)
         CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
         DigitalWorldResidentEpisodeStore.invalidateEvidence(eventId)
-        dispatchContext?.let { CharacterSelfActivityRuntime.invalidateEvidence(it, eventId) }
-        val ids = characterIds()
-        fun backedBy(value: String): Boolean =
-            value == eventId || value.contains(":$eventId:")
-        ids.forEach { characterId ->
-            val root = snapshot(characterId)
-            var changed = false
-            val retired = mutableMapOf<String, MutableList<JSONObject>>()
-            val oldSeen = root.optJSONArray("seen") ?: JSONArray()
-            val seen = JSONArray()
-            for (i in 0 until oldSeen.length()) {
-                val key = oldSeen.optString(i)
-                if (backedBy(key.substringBeforeLast(":"))) changed = true else seen.put(key)
-            }
-            root.put("seen", seen)
-            listOf("emotion").forEach { key ->
-                val record = root.optJSONObject(key)
-                if (record != null && backedBy(record.optString("evidenceId"))) {
-                    root.remove(key); changed = true
+        // Cross-store invalidation must never run while holding the inner-life monitor:
+        // relational initiative can acquire its own monitor before initializing inner life.
+        val currentContext = synchronized(this) { dispatchContext }
+        currentContext?.let { CharacterSelfActivityRuntime.invalidateEvidence(it, eventId) }
+        synchronized(this) {
+            val ids = characterIds()
+            fun backedBy(value: String): Boolean =
+                value == eventId || value.contains(":$eventId:")
+            ids.forEach { characterId ->
+                val root = snapshot(characterId)
+                var changed = false
+                val retired = mutableMapOf<String, MutableList<JSONObject>>()
+                val oldSeen = root.optJSONArray("seen") ?: JSONArray()
+                val seen = JSONArray()
+                for (i in 0 until oldSeen.length()) {
+                    val key = oldSeen.optString(i)
+                    if (backedBy(key.substringBeforeLast(":"))) changed = true else seen.put(key)
                 }
-            }
-            // A deleted event must not survive as an earlier emotional influence.
-            root.optJSONArray("emotionHistory")?.let { history ->
-                val retained = JSONArray()
-                for (i in 0 until history.length()) {
-                    val entry = history.optJSONObject(i) ?: continue
-                    if (backedBy(entry.optString("evidenceId"))) changed = true
-                    else retained.put(entry)
+                root.put("seen", seen)
+                listOf("emotion").forEach { key ->
+                    val record = root.optJSONObject(key)
+                    if (record != null && backedBy(record.optString("evidenceId"))) {
+                        root.remove(key); changed = true
+                    }
                 }
-                root.put("emotionHistory", retained)
-            }
-            listOf("activityExpectations", "motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries", "decisions").forEach { key ->
-                val values = root.optJSONArray(key) ?: return@forEach
-                val next = JSONArray()
-                for (i in 0 until values.length()) {
-                    val entry = values.optJSONObject(i) ?: continue
-                    val linked = backedBy(entry.optString("evidenceId")) ||
-                        (key == "activityExpectations" && backedBy(entry.optString("id"))) ||
-                        (key in setOf("openConcerns", "closedConcerns") &&
-                            CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
-                        (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
-                        (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
-                            backedBy(entry.optString("signature")) || backedBy(entry.optString("id")))) ||
-                        (key == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
+                // A deleted event must not survive as an earlier emotional influence.
+                root.optJSONArray("emotionHistory")?.let { history ->
+                    val retained = JSONArray()
+                    for (i in 0 until history.length()) {
+                        val entry = history.optJSONObject(i) ?: continue
+                        if (backedBy(entry.optString("evidenceId"))) changed = true
+                        else retained.put(entry)
+                    }
+                    root.put("emotionHistory", retained)
+                }
+                listOf("activityExpectations", "motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries", "decisions").forEach { key ->
+                    val values = root.optJSONArray(key) ?: return@forEach
+                    val next = JSONArray()
+                    for (i in 0 until values.length()) {
+                        val entry = values.optJSONObject(i) ?: continue
+                        val linked = backedBy(entry.optString("evidenceId")) ||
+                            (key == "activityExpectations" && backedBy(entry.optString("id"))) ||
+                            (key in setOf("openConcerns", "closedConcerns") &&
+                                CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
+                            (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
+                            (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
+                                backedBy(entry.optString("signature")) || backedBy(entry.optString("id")))) ||
+                            (key == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
+                                .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
+                        if (linked) {
+                            changed = true
+                            if (preserveHistoricalChoices && key in setOf("thoughts", "decisions"))
+                                retired.getOrPut(key) { mutableListOf() }.add(JSONObject(entry.toString()))
+                        } else {
+                            if (key == "motives") {
+                                if (CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
+                                if (entry.optString("closureEvidenceId") == eventId) {
+                                    if (entry.optString("status") == "achieved") entry.put("status", "active")
+                                    entry.remove("closureEvidenceId")
+                                    entry.remove("closedAt")
+                                    entry.remove("closedBecause")
+                                    changed = true
+                                }
+                            }
+                            next.put(entry)
+                        }
+                    }
+                    root.put(key, next)
+                }
+                val bonds = root.optJSONObject("bonds")
+                if (bonds != null) {
+                    bonds.keys().asSequence().toList().forEach { target ->
+                        val opinion = bonds.optJSONObject(target) ?: return@forEach
+                        val history = opinion.optJSONArray("encounters") ?: JSONArray()
+                        val retained = JSONArray()
+                        for (i in 0 until history.length()) {
+                            val encounter = history.optJSONObject(i) ?: continue
+                            if (backedBy(encounter.optString("source"))) changed = true
+                            else retained.put(encounter)
+                        }
+                        if (retained.length() == 0 && backedBy(opinion.optString("evidenceId"))) {
+                            bonds.remove(target); changed = true
+                        } else if (retained.length() > 0 && retained.length() != history.length()) {
+                            val last = retained.optJSONObject(retained.length() - 1)
+                            val previous = retained.optJSONObject(retained.length() - 2)
+                            // The old priorThought field must not keep quoting a
+                            // retracted encounter after source deletion. Rebuild
+                            // both current and prior subjective impressions from
+                            // the same surviving evidence, without inventing history.
+                            opinion.put("encounters", retained)
+                                .put("interpretation", last?.optString("thought"))
+                                .put("reason", last?.optString("because"))
+                                .put("priorThought", previous?.optString("thought").orEmpty())
+                                .put("evidenceId", last?.optString("source"))
+                                .put("trends", relationTrends(retained))
+                            changed = true
+                        }
+                    }
+                }
+                val interactions = root.optJSONObject("interactions")
+                if (interactions != null) {
+                    interactions.keys().asSequence().toList().forEach { key ->
+                        val state = interactions.optJSONObject(key) ?: return@forEach
+                        val history = state.optJSONArray("history") ?: JSONArray()
+                        val retained = JSONArray()
+                        for (i in 0 until history.length()) {
+                            val item = history.optJSONObject(i) ?: continue
+                            if (backedBy(item.optString("source"))) changed = true
+                            else retained.put(item)
+                        }
+                        if (retained.length() == 0 && history.length() > 0) {
+                            interactions.remove(key)
+                            changed = true
+                        } else if (retained.length() != history.length()) {
+                            val last = retained.optJSONObject(retained.length() - 1)
+                            val rebuilt = JSONObject()
+                                .put("history", retained)
+                                .put("lastMeaning", last?.optString("meaning").orEmpty())
+                                .put("lastAim", last?.optString("responseAim").orEmpty())
+                                .put("lastCommonGroundUpdate", last?.optString("commonGroundUpdate").orEmpty())
+                                .put("lastMove", last?.optString("interactionMove").orEmpty())
+                                .put("evidenceId", last?.optString("source").orEmpty())
+                                .put("updatedAt", last?.optString("at").orEmpty())
+                            var restoredUncertainty = ""
+                            for (i in retained.length() - 1 downTo 0) {
+                                val item = retained.optJSONObject(i) ?: continue
+                                if (item.has("uncertainty")) {
+                                    restoredUncertainty = item.optString("uncertainty")
+                                    break
+                                }
+                            }
+                            rebuilt.put("uncertainty", restoredUncertainty)
+                            interactions.put(key, rebuilt)
+                            changed = true
+                        }
+                    }
+                }
+                val removeArchive: (String, JSONObject) -> Boolean = { field, entry ->
+                    if (preserveHistoricalChoices && field in setOf("thoughts", "decisions")) false
+                    else backedBy(entry.optString("evidenceId")) ||
+                        backedBy(entry.optString("closureEvidenceId")) ||
+                        (field == "decisions" && (
+                            backedBy(entry.optString("causalEvidenceId")) ||
+                            backedBy(entry.optString("signature")) ||
+                            backedBy(entry.optString("id")))) ||
+                        (field == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
                             .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
-                    if (linked) {
-                        changed = true
-                        if (preserveHistoricalChoices && key in setOf("thoughts", "decisions"))
-                            retired.getOrPut(key) { mutableListOf() }.add(JSONObject(entry.toString()))
-                    } else {
-                        if (key == "motives") {
-                            if (CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
-                            if (entry.optString("closureEvidenceId") == eventId) {
-                                if (entry.optString("status") == "achieved") entry.put("status", "active")
-                                entry.remove("closureEvidenceId")
-                                entry.remove("closedAt")
-                                entry.remove("closedBecause")
-                                changed = true
-                            }
-                        }
-                        next.put(entry)
-                    }
                 }
-                root.put(key, next)
+                if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
+                    saveWithRetired(characterId, root, removeArchive, retired)
             }
-            val bonds = root.optJSONObject("bonds")
-            if (bonds != null) {
-                bonds.keys().asSequence().toList().forEach { target ->
-                    val opinion = bonds.optJSONObject(target) ?: return@forEach
-                    val history = opinion.optJSONArray("encounters") ?: JSONArray()
-                    val retained = JSONArray()
-                    for (i in 0 until history.length()) {
-                        val encounter = history.optJSONObject(i) ?: continue
-                        if (backedBy(encounter.optString("source"))) changed = true
-                        else retained.put(encounter)
-                    }
-                    if (retained.length() == 0 && backedBy(opinion.optString("evidenceId"))) {
-                        bonds.remove(target); changed = true
-                    } else if (retained.length() > 0 && retained.length() != history.length()) {
-                        val last = retained.optJSONObject(retained.length() - 1)
-                        val previous = retained.optJSONObject(retained.length() - 2)
-                        // The old priorThought field must not keep quoting a
-                        // retracted encounter after source deletion. Rebuild
-                        // both current and prior subjective impressions from
-                        // the same surviving evidence, without inventing history.
-                        opinion.put("encounters", retained)
-                            .put("interpretation", last?.optString("thought"))
-                            .put("reason", last?.optString("because"))
-                            .put("priorThought", previous?.optString("thought").orEmpty())
-                            .put("evidenceId", last?.optString("source"))
-                            .put("trends", relationTrends(retained))
-                        changed = true
-                    }
-                }
-            }
-            val interactions = root.optJSONObject("interactions")
-            if (interactions != null) {
-                interactions.keys().asSequence().toList().forEach { key ->
-                    val state = interactions.optJSONObject(key) ?: return@forEach
-                    val history = state.optJSONArray("history") ?: JSONArray()
-                    val retained = JSONArray()
-                    for (i in 0 until history.length()) {
-                        val item = history.optJSONObject(i) ?: continue
-                        if (backedBy(item.optString("source"))) changed = true
-                        else retained.put(item)
-                    }
-                    if (retained.length() == 0 && history.length() > 0) {
-                        interactions.remove(key)
-                        changed = true
-                    } else if (retained.length() != history.length()) {
-                        val last = retained.optJSONObject(retained.length() - 1)
-                        val rebuilt = JSONObject()
-                            .put("history", retained)
-                            .put("lastMeaning", last?.optString("meaning").orEmpty())
-                            .put("lastAim", last?.optString("responseAim").orEmpty())
-                            .put("lastCommonGroundUpdate", last?.optString("commonGroundUpdate").orEmpty())
-                            .put("lastMove", last?.optString("interactionMove").orEmpty())
-                            .put("evidenceId", last?.optString("source").orEmpty())
-                            .put("updatedAt", last?.optString("at").orEmpty())
-                        var restoredUncertainty = ""
-                        for (i in retained.length() - 1 downTo 0) {
-                            val item = retained.optJSONObject(i) ?: continue
-                            if (item.has("uncertainty")) {
-                                restoredUncertainty = item.optString("uncertainty")
-                                break
-                            }
-                        }
-                        rebuilt.put("uncertainty", restoredUncertainty)
-                        interactions.put(key, rebuilt)
-                        changed = true
-                    }
-                }
-            }
-            val removeArchive: (String, JSONObject) -> Boolean = { field, entry ->
-                if (preserveHistoricalChoices && field in setOf("thoughts", "decisions")) false
-                else backedBy(entry.optString("evidenceId")) ||
-                    backedBy(entry.optString("closureEvidenceId")) ||
-                    (field == "decisions" && (
-                        backedBy(entry.optString("causalEvidenceId")) ||
-                        backedBy(entry.optString("signature")) ||
-                        backedBy(entry.optString("id")))) ||
-                    (field == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
-                        .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
-            }
-            if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
-                saveWithRetired(characterId, root, removeArchive, retired)
         }
     }
 
