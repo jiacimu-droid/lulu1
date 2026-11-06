@@ -83,10 +83,18 @@ object ProactiveSendAttribution {
         val sessionByEventId = events.associateBy { it.id }
         val userStatements = events.filter { it.evidenceKind == EventEvidenceKind.UserStatement }
         return receipts.mapNotNull { receipt ->
-            val session = sessionByEventId[receipt.causalEvidenceId]?.sessionId
-                ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val delivered = sessionByEventId[receipt.causalEvidenceId]
+                ?.takeIf { it.evidenceKind == EventEvidenceKind.CharacterStatement }
+                ?: return@mapNotNull null
+            val session = delivered.sessionId.takeIf { it.isNotBlank() }
+                ?: return@mapNotNull null
+            // The timeline's delivered event is the authoritative lower bound.
+            // A stale/early receipt timestamp must not turn an earlier user
+            // statement into a reply to a message that was not yet delivered.
+            val deliveredAfter = maxOf(receipt.sentAt, delivered.occurredAt)
             val replied = userStatements.any {
-                it.sessionId == session && it.occurredAt.isAfter(receipt.sentAt)
+                it.characterId == delivered.characterId &&
+                    it.sessionId == session && it.occurredAt.isAfter(deliveredAfter)
             }
             receipt.decisionId to replied
         }.toMap()
