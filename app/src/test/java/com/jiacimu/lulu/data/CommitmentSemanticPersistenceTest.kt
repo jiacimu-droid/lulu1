@@ -426,6 +426,38 @@ class CommitmentSemanticPersistenceTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun mixedTimelineEvidencePersistsOnlyTheCurrentRolesVerifiedSource() = runBlocking {
+        val server = MockWebServer()
+        server.enqueue(response("""{"action":"reply","speechIntent":"接受这项持续责任","reason":"我愿意负责","dialogueMove":{"type":"acknowledge","target":"约定","contentIntent":"接受"},"commitmentChanges":[{"action":"create","goal":"持续关注本轮学习进展","promiseKind":"long_term_supervision","completionCondition":"依据后续真实反馈继续跟进"}]}"""))
+        server.enqueue(response("""{"action":"reply","bubbles":[{"text":"我记着这件事。"}]}"""))
+        server.start()
+        try {
+            configure(server)
+            com.jiacimu.lulu.system.LuluDeviceToolBridge.initialize(context)
+            com.jiacimu.lulu.study.StarWishStores.initialize(context)
+            val otherRole = MigratedDomainStores.characters.create("另一角色", "独立人格").characterId
+            val text = "以后请持续关注我的学习进展。"
+            SharedExperienceTimeline.record("verified-current-user", role, "私聊", "用户", text,
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            SharedExperienceTimeline.record("other-role-user", otherRole, "私聊", "用户", text,
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            // The caller can supply stale, cross-role and valid IDs together.
+            // Only the verified current-role UserStatement may become a task source.
+            com.jiacimu.lulu.system.LuluDeviceToolBridge.respond(role, "", text, "test",
+                userEvidenceIds = listOf("other-role-user", "missing-user", "verified-current-user"))
+                .getOrThrow()
+            val task = CommitmentTaskStore.active(role).single()
+            assertEquals(listOf("verified-current-user"), task.sourceEventIds)
+            assertTrue(CommitmentDecisionRuntime.handled(context, role, listOf("verified-current-user")))
+            assertFalse(CommitmentDecisionRuntime.handled(context, role, listOf("other-role-user")))
+            assertFalse(CommitmentDecisionRuntime.handled(context, role, listOf("missing-user")))
+            assertTrue(CommitmentTaskStore.snapshot(otherRole).isEmpty())
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     private fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
         .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
             JSONObject().put("content", content)).put("finish_reason", "stop"))).toString())
