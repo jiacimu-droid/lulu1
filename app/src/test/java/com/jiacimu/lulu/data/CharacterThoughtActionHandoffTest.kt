@@ -729,6 +729,23 @@ class CharacterThoughtActionHandoffTest {
         assertEquals(original, decision.toString())
     }
 
+    @Test fun malformedOrderedSlotDoesNotSuppressLaterPrimaryRetry() {
+        for (field in listOf("steps", "sideActions")) {
+            val retry = JSONObject().put("tool", "web_search")
+                .put("args", JSONObject().put("query", "same"))
+            val raw = JSONObject().put("action", "tool").put("tool", "web_search")
+                .put("args", JSONObject().put("query", "same"))
+                .put(field, JSONArray().put(JSONObject.NULL).put(retry))
+            val original = raw.toString()
+            val normalized = AutonomousActionWireProtocol.normalize(raw)
+            val steps = CharacterThoughtActionHandoff.actions(normalized)!!
+            assertEquals(field, 2, steps.length())
+            assertTrue(field, steps.isNull(0))
+            assertEquals(field, "web_search", steps.getJSONObject(1).getString("tool"))
+            assertEquals(original, raw.toString())
+        }
+    }
+
     @Test fun malformedChosenActionsReachTheExecutorAsFailuresInsteadOfBecomingImaginedSuccess() {
         val steps = CharacterThoughtActionHandoff.actions(JSONObject().put("nextAction", JSONObject()
             .put("tool", "unknown-tool")))!!
