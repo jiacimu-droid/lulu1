@@ -1333,3 +1333,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 仍缺的独立边界：已有回归使用 `initialCompleted=true`，未覆盖调用方主工具真实失败后传入 `initialCompleted=false` 的条件首步。新增 `failedPrimaryResultSkipsDependentStepButIndependentSuccessUnlocksItsOwnFollower`：主工具失败后依赖步骤不得发布，独立步骤成功后自己的后继依赖应恢复执行，同一 requestId 重放不能重复产生朋友圈副作用。沿原 `OrderedCharacterActions → ToolRouter → MomentsStore`，无模型调用或生产语义修改。
 - 测试提交 [1cd26c0](https://github.com/jiacimu-droid/lulu1/commit/1cd26c01a8ffa14c22638a401d9a75d2cf56268f)。**新提交 JVM/APK 尚未确认**，不得把上轮成功扩称到本轮；真机、真实模型、前后台主工具失败真实回执仍待验。
 - 下一轮先查 `1cd26c0` 对应 Actions，失败先定位第一条真实错误；通过后继续 P-08a.1 跨入口 turnTraceId/sourceMessageId/taskId 关联审计，P-08d.2h 入口真实回执与设备验收仍保留待验。
+
+## 2026-11-07 · P-08a.1a 缺失权威事件时不再按正文猜测因果来源
+
+- 接手前已读取 main 的 AGENTS.md、CODE_INDEX.md、Roadmap、人物进度及 LuluDeviceToolBridge/QqChatReplyEngine 正式入口。起始 main 为 372a3073c8cc4db6f0daf24341d987cc3951677b；Bridge blob SHA 3ae43aa62f19b5c892f80479d4ebe889f0aa24ba。QqChatReplyEngine 的普通前台回复已有 userEvidenceIds，故不将所有前台聊天判为缺失来源；此修复针对未携带权威事件的兼容入口。
+- 已证根因：Bridge.respond 先用最近 40 条 UserStatement 的正文包含关系猜 groundingEvidenceId，再把它传入 commitmentEvidence、心理记录和工具因果参数。相同原话、引用、截断片段都不具备消息身份，可能让旧用户事件冒充当前原因；不能用模糊内容匹配确定事实归属。
+- 正式源码提交 [55a273b](https://github.com/jiacimu-droid/lulu1/commit/55a273bb30faea081a52b9787dcf939dc96ea55d)：统一选择明确重考虑事件、电话静默观察或已按 roleId/UserStatement 过滤的入口事件 ID；否则空归属，不新造 Store、模型调用、角色决定或用户消息。回归提交 [2ae52bb](https://github.com/jiacimu-droid/lulu1/commit/2ae52bb737342f7efd1d1edc1776d8f34eeae0d0)：同文不同消息 ID、缺来源 ID、重考虑/静默优先级。
+- 路线图记录提交 [aebea38](https://github.com/jiacimu-droid/lulu1/commit/aebea388498e785e2a8056aff76086083b8c7469)。本轮 GitHub 内容 API 提交成功；运行环境无法解析 github.com 克隆仓库，未在本地执行 Gradle。新提交的 JVM/APK、Actions 最终结果、真实消息送达、真机与真实模型均**未验证**；旧 42160450440 success 只覆盖此前 0c7428b，不代表本轮通过。
+- 下一轮：先核新 main 的 push Actions，若有编译或测试失败先修第一条真实错误；随后继续 P-08a.1 的电话/后台来源与落库回执链，并检查 direct-xhs 在无事件 ID 时使用 userText.hashCode() 的跨轮 requestId 冲突，先验证真实入口再修。P-08a.1 整体不勾。
