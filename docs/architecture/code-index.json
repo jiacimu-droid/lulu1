@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T00:43:44.199198+00:00",
-  "commit": "e2a13f8d35efb585b2bf116ed5b68f9f992c3f2d",
+  "generatedAt": "2026-11-06T01:38:20.583764+00:00",
+  "commit": "c5cc59a72a6b04943a2f861c63f36e434895e64a",
   "branch": "main",
-  "sourceFingerprint": "60463357455cc28f2ee9e05b27caad2a66f8e933c033c71150367970426f1aff",
+  "sourceFingerprint": "d5c66ba7b8a4fcea98b3188922f901c61b8ad47cbff68e7a028ef0e4286bca32",
   "summary": {
     "files": 1137,
-    "lines": 243161,
+    "lines": 243189,
     "symbols": 3342
   },
   "symbolIndex": {
@@ -35893,8 +35893,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 270,
-      "sha256": "2942ad7a16556b503a20bccbd7f315fb712329104d9d8e710202daba45fea228",
+      "lines": 298,
+      "sha256": "4e0c28cdc86130da8c77fbde7174df2a7c0a24b8654f04d367731e1dc52540be",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
