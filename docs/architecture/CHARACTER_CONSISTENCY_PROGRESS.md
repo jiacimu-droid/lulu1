@@ -1318,3 +1318,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 真实断点：actions() 对 steps/sideActions 中 JSON null 保留失败槽，却没有更新主工具镜像的中断标记；后续同参主工具选择可能被当作已执行镜像删除。此时执行器失去失败槽后的独立动作机会。
 - 正式源码 e44e20774a866356bfd8a25282b88b78e0852d80 在两类非法槽上标记中断；回归 5ebf6b1737abe8c4aa882f53efff4b3e6911298f 检查 null 失败槽与后续同参工具均保留，原决定不变。Roadmap e2a13f8d35efb585b2bf116ed5b68f9f992c3f2d 记录该子步骤。没有新增模型调用、历史删除或人设修改。
 - 验证：尚未取得本提交对应的 JVM/APK 或索引成功结果；实际主工具失败、条件依赖、重放幂等与真机/真实模型仍待验。下一轮先核最新 Actions，再补执行器真实回执回归或修首个 CI 失败。
+
+## 2026-11-06 · P-08d.2h.8 失败前驱与独立重放集成回归
+
+- 复核 main 四份必读文档、OrderedCharacterActions.execute 与 AutonomousActionBoundaryIntegrationTest。已有失败主工具/独立副步骤覆盖，但尚缺未知有序步骤失败→依赖跳过→独立成功→相同 requestId 重放的完整测试。
+- 回归提交 `477fcc2f0adabba2fb2f8347708f02cf0f064579`：通过原 OrderedCharacterActions 与真实 ToolRouter/MomentsStore 验证失败前驱不触发依赖发布，独立发布成功，同请求重放不产生第二条发布。未修改正式执行器，尚未证明该新增测试通过；如 CI 失败先查第一条真实断言，不为绿灯削弱执行契约。
+- Roadmap 更新 `302778e463c56f9aa618c50c703e437558f17a98`。本轮没有取得新增提交的 JVM/APK 最终结论，真机、真实模型、后台主工具失败与跨日仍待验。
+- 下一轮先查包含 `477fcc2f` 的 Actions，若通过继续主工具成功/失败的条件副动作真实回执及前后台场景；若失败按真实日志修复。P-08d.2h 整体仍未验收。
