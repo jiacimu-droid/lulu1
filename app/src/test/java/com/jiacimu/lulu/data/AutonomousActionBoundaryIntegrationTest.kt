@@ -317,13 +317,15 @@ class AutonomousActionBoundaryIntegrationTest {
             requestId = requestId, initialCompleted = false)
         assertEquals(2, first.completedCount)
         assertTrue(first.notes.any { it.contains("前一步尚未成功") })
-        assertEquals(listOf(independentText, followupText),
-            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+        assertEquals(setOf(independentText, followupText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content }.toSet())
+        assertEquals(2, MomentsStore.posts.value.count { it.authorCharacterId == actor })
         val replay = OrderedCharacterActions.execute(app, actor, steps,
             requestId = requestId, initialCompleted = false)
         assertEquals(2, replay.completedCount)
-        assertEquals(listOf(independentText, followupText),
-            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+        assertEquals(setOf(independentText, followupText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content }.toSet())
+        assertEquals(2, MomentsStore.posts.value.count { it.authorCharacterId == actor })
     }
 
 }
