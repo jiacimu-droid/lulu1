@@ -33,6 +33,22 @@ class LuluGroundingEvidenceTest {
             "", true, "", "user-turn",
         ))
     }
+    @Test fun commitmentOwnershipUsesOnlyResolvedTimelineEvents() {
+        // Transport may supply stale/foreign IDs; only the actual role-owned
+        // timeline lookup result is allowed to reach commitment deduplication.
+        val supplied = listOf("foreign-event", "stale-event", "valid-event")
+        val resolved = listOf("valid-event")
+        assertEquals(listOf("valid-event"),
+            LuluDeviceToolBridge.verifiedCommitmentEvidenceIds(resolved))
+        assertEquals(emptyList<String>(),
+            LuluDeviceToolBridge.verifiedCommitmentEvidenceIds(emptyList()))
+        assertEquals(listOf("valid-event"),
+            LuluDeviceToolBridge.verifiedCommitmentEvidenceIds(
+                listOf("", "valid-event", "valid-event")))
+        org.junit.Assert.assertFalse(
+            LuluDeviceToolBridge.verifiedCommitmentEvidenceIds(resolved).contains(supplied[0]))
+    }
+
     @Test fun directXhsIdempotencySeparatesIdenticalTextAcrossUnverifiedTurns() {
         // Two calls with identical text but no verified event must not share
         // a cached read. Retrying the same invocation keeps its trace identity.
