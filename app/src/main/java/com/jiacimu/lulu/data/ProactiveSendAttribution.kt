@@ -56,13 +56,17 @@ object ProactiveSendAttribution {
                 val item = decisions.optJSONObject(i) ?: continue
                 val id = item.optString("id")
                 if (!id.startsWith(RECEIPT_PREFIX) || item.optBoolean("succeeded") != true) continue
+                // The runtime names this receipt after the actual delivered event.
+                // A mismatched or missing evidence id cannot prove delivery of this decision.
+                val evidenceId = item.optString("causalEvidenceId")
+                if (evidenceId.isBlank() || id.removePrefix(RECEIPT_PREFIX) != evidenceId) continue
                 val sentAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull() ?: continue
                 add(
                     ProactiveSendReceipt(
                         decisionId = id,
                         sentAt = sentAt,
                         motiveId = item.optString("motiveId"),
-                        causalEvidenceId = item.optString("causalEvidenceId"),
+                        causalEvidenceId = evidenceId,
                     )
                 )
             }
