@@ -31,6 +31,17 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object LuluDeviceToolBridge {
+    internal fun selectGroundingEvidenceId(
+        reconsiderationEvidenceId: String,
+        callSilence: Boolean,
+        silenceObservationId: String,
+        verifiedUserEvidenceId: String,
+    ): String = when {
+        reconsiderationEvidenceId.isNotBlank() -> reconsiderationEvidenceId
+        callSilence -> silenceObservationId
+        else -> verifiedUserEvidenceId
+    }
+
     private var context: Context? = null
 
     fun initialize(appContext: Context) {
@@ -256,18 +267,13 @@ object LuluDeviceToolBridge {
         val turnEconomyContext = com.jiacimu.lulu.data.ConversationTurnEconomy.context(
             userText, recentCharacterReplies,
         )
-        val groundingEvidenceId = if (reconsiderationEvidenceId.isNotBlank()) reconsiderationEvidenceId
-            else if (callSilence) silenceObservationId
-            else if (originalUserEvidence.isNotEmpty()) originalUserEvidence.last().id
-            else com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
-                .filter {
-                    userText.isNotBlank() &&
-                        it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
-                        it.content.isNotBlank() &&
-                        (userText.contains(it.content.trim().take(60)) ||
-                            it.content.contains(userText.trim().take(60)))
-                }
-                .lastOrNull()?.id.orEmpty()
+        // Only transport-verified user evidence (or explicit reconsideration/silence
+        // observations) can own this decision. Similar historical text is not identity:
+        // repeated messages and quoted fragments must not inherit another turn's cause.
+        val groundingEvidenceId = selectGroundingEvidenceId(
+            reconsiderationEvidenceId, callSilence, silenceObservationId,
+            originalUserEvidence.lastOrNull()?.id.orEmpty(),
+        )
         val commitmentEvidence = originalUserEvidence.ifEmpty {
             if (groundingEvidenceId.isBlank()) emptyList() else
                 com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(groundingEvidenceId))
