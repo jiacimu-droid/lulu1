@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T21:43:08.005553+00:00",
-  "commit": "119053b37d55bbc2aa0eaeaa06af8ce07201db9c",
+  "generatedAt": "2026-11-06T23:38:45.317765+00:00",
+  "commit": "9020a46e3db04ebac474c0feb2c8a9d315152a97",
   "branch": "main",
-  "sourceFingerprint": "55d4e0bc4506d066b8d66745c377e3d4e25cd73496f00e7554c13fb4ba4023fe",
+  "sourceFingerprint": "6130376e197d071f9108da6144676136b226b0873b84e3f34a9a013c6551357c",
   "summary": {
     "files": 1138,
-    "lines": 243384,
+    "lines": 243390,
     "symbols": 3345
   },
   "symbolIndex": {
@@ -11457,13 +11457,13 @@
     "repliedByDecisionId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-        "line": 78
+        "line": 82
       }
     ],
     "summarize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-        "line": 108
+        "line": 112
       }
     ],
     "PromptContextBudget": [
@@ -17879,25 +17879,25 @@
     "repliedOnlyByLaterUserStatementInSameSession": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 58
+        "line": 60
       }
     ],
     "userStatementAtExactlySendTimeDoesNotCount": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 82
+        "line": 84
       }
     ],
     "replyBeforeActualDeliveryIsNotCountedEvenWhenReceiptClockIsEarly": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 94
+        "line": 96
       }
     ],
     "nonDeliveredEvidenceAndOtherCharactersCannotProveReply": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 110
+        "line": 112
       }
     ],
     "PromptContextPolicyTest": [
@@ -29682,8 +29682,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-      "lines": 115,
-      "sha256": "3b24b76c77027fb7895630e1909601065b139342c073ab7a356a94b078846027",
+      "lines": 119,
+      "sha256": "316e7efab760912301887c77124dd3a88fe0bcb80daf85a58f34ab90a3c493d5",
       "symbols": [
         {
           "name": "ProactiveSendReceipt",
@@ -29703,11 +29703,11 @@
         },
         {
           "name": "repliedByDecisionId",
-          "line": 78
+          "line": 82
         },
         {
           "name": "summarize",
-          "line": 108
+          "line": 112
         }
       ]
     },
@@ -38392,8 +38392,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-      "lines": 126,
-      "sha256": "8bdee5bc8703de18c202942f718bad92564cc17ec0129901015130bfb77ae254",
+      "lines": 128,
+      "sha256": "4b54dea5510530dac3d114fc5d3bbdf6409864cae471a2596b93a8856d32969b",
       "symbols": [
         {
           "name": "ProactiveSendAttributionTest",
@@ -38405,19 +38405,19 @@
         },
         {
           "name": "repliedOnlyByLaterUserStatementInSameSession",
-          "line": 58
+          "line": 60
         },
         {
           "name": "userStatementAtExactlySendTimeDoesNotCount",
-          "line": 82
+          "line": 84
         },
         {
           "name": "replyBeforeActualDeliveryIsNotCountedEvenWhenReceiptClockIsEarly",
-          "line": 94
+          "line": 96
         },
         {
           "name": "nonDeliveredEvidenceAndOtherCharactersCannotProveReply",
-          "line": 110
+          "line": 112
         }
       ]
     },
