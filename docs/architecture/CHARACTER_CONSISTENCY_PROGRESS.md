@@ -1350,3 +1350,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 回归 [6c756b5](https://github.com/jiacimu-droid/lulu1/commit/6c756b5dc403a5da6d1ef14bf37200cb7e79f6a7) 检查同文不同调用、同调用同 trace 重试、真实事件跨 trace 重试及不同事件隔离；Roadmap [c4bcc3e](https://github.com/jiacimu-droid/lulu1/commit/c4bcc3e9716dd1b50fc541e800bbb6c59de2e771) 记录子步骤。
 - GitHub 文件提交成功；未获得本 SHA 的 JVM/APK Actions 通过证据，也未本地执行 Gradle，不能将测试已写等同测试通过。真机、真实小红书读取、持久消息回执、跨轮心理归属仍待验。
 - 下一轮刷新 main/相关 blob SHA 和 push Actions，若失败修第一条真实编译/断言；通过后继续 P-08a.1 电话/后台的权威事件→决定→实际送达/失败→持久回执→下轮召回全链，优先复用既有身份而非新建 trace。
+
+## 2026-11-07 · P-08a.1c 承诺来源校验边界
+
+- 复核最新 main 四份必读文档、Bridge 的 `originalUserEvidence`、`commitmentEvidenceIds` 与 `CommitmentDecisionRuntime.apply`。发现虽已按 roleId/UserStatement 从 SharedExperienceTimeline 解析真实消息，但原始 `userEvidenceIds` 非空时仍原样进入承诺记录与去重请求键；其中未被解析的跨角色、失效 ID 可能冒充本轮承诺来源。
+- 正式源码 [`ddd5e82`](https://github.com/jiacimu-droid/lulu1/commit/ddd5e82c0152a5bcac5f8b78d6f7041a25d8ddf7) 将承诺来源限制为已经由 timeline 解析的事件 ID；保留明确重考虑与电话静默观察回退。测试 [`1c2ea58`](https://github.com/jiacimu-droid/lulu1/commit/1c2ea58252fa910eba774e8ef593d303d4d1385f) 验证空、重复及不接受无效 ID 的纯函数边界。没有额外模型调用、数据删除或人物人设修改。
+- **验证边界**：本轮 GitHub 内容 API 提交成功，但尚未获得对应 SHA 的完整 JVM/APK/Actions 成功结果，也未执行本地 Gradle；纯函数回归不能代替真实 Timeline→CommitmentDecisionRuntime 的入口集成测试。下一轮先核新 main Actions，随后补混合有效/跨角色 ID 的入口级持久任务回归，检查电话静默观察的真实归属、执行结果及下轮召回。P-08a.1 不宣称整体完成。
