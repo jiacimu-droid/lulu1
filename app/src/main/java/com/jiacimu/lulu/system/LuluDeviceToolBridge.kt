@@ -42,6 +42,12 @@ object LuluDeviceToolBridge {
         else -> verifiedUserEvidenceId
     }
 
+    // The same verified event keeps one idempotency key across retries. When no
+    // event identity exists, a unique invocation trace prevents identical text
+    // from collapsing independent user turns into one cached tool result.
+    internal fun directXhsRequestId(verifiedCauseId: String, invocationTraceId: String): String =
+        "direct-xhs-" + verifiedCauseId.ifBlank { invocationTraceId }
+
     private var context: Context? = null
 
     fun initialize(appContext: Context) {
@@ -470,9 +476,7 @@ object LuluDeviceToolBridge {
             else actualArgs.put("keyword", request.keyword)
             com.jiacimu.lulu.data.ToolRouter.execute(
                 appContext, characterId, "read_xiaohongshu", actualArgs,
-                requestId = "direct-xhs-" + groundingEvidenceId.ifBlank {
-                    userEvidenceIds.lastOrNull() ?: userText.hashCode().toString()
-                },
+                requestId = directXhsRequestId(groundingEvidenceId, turnTraceId),
                 userRequested = true, causeEvidenceId = groundingEvidenceId,
             )
         }
