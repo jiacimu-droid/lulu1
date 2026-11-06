@@ -1311,3 +1311,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复核最新 main 495b395、四份必读文档、CharacterThoughtActionHandoff.actions/withPrimaryActionOwnership 和原 JUnit 测试。Actions [42123821611](https://github.com/jiacimu-droid/lulu1/actions/runs/42123821611) 在 5a8fa37 执行 2491 tests / 1 failed；失败点 CharacterThoughtActionHandoffTest.kt:526，旧断言期待顶层 web_search → 显式 write_journal → 嵌套 web_search 只剩一个副步骤，和已修复的非相邻重复执行顺序语义冲突。
 - 测试提交 [60dbac0](https://github.com/jiacimu-droid/lulu1/commit/60dbac01382e05f3cb2b434096594c09eeb450b8)：改为明确断言两个副步骤 write_journal、web_search，避免将真实第二次工具选择误写成重复镜像。**本轮没有改生产代码**，因为失败是旧测试期待值，当前源码已保留第二次行动；不能以此宣称实际工具回执与幂等已验。
 - 新提交的 JVM/APK 和索引待 Actions 最终结果；真机、真实模型、主工具失败/条件依赖及回执幂等仍待验。下一轮先核 CI；若成功，选 P-08d.2h 的主工具失败、requiresPreviousSuccess 与真实 ToolRouter 执行器级回归，再推进 P-08a.1。
+
+## 2026-11-06 · P-08d.2h.7 非法有序槽后的主工具重试
+
+- 接手 main 99dc60b4，复核四份入口文档、CharacterThoughtActionHandoff 正式源码及已有回归。旧 42130874590（60dbac0）completed/failure，不能视作最新 main 失败；42138079257（0b51892）查询时 pending。
+- 真实断点：actions() 对 steps/sideActions 中 JSON null 保留失败槽，却没有更新主工具镜像的中断标记；后续同参主工具选择可能被当作已执行镜像删除。此时执行器失去失败槽后的独立动作机会。
+- 正式源码 e44e20774a866356bfd8a25282b88b78e0852d80 在两类非法槽上标记中断；回归 5ebf6b1737abe8c4aa882f53efff4b3e6911298f 检查 null 失败槽与后续同参工具均保留，原决定不变。Roadmap e2a13f8d35efb585b2bf116ed5b68f9f992c3f2d 记录该子步骤。没有新增模型调用、历史删除或人设修改。
+- 验证：尚未取得本提交对应的 JVM/APK 或索引成功结果；实际主工具失败、条件依赖、重放幂等与真机/真实模型仍待验。下一轮先核最新 Actions，再补执行器真实回执回归或修首个 CI 失败。
