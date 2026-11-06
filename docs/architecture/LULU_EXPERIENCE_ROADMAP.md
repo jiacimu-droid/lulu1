@@ -56,6 +56,10 @@
 - [x] **P-08d.2g 源码与回归已提交，CI/真机待验**：原 withPrimaryActionOwnership 对同一主工具的多个嵌套 nextAction 依次累积兼容归属；若后面的一个 motiveRef 与主工具原 motiveRef 冲突，直接 `return decision`，连前面已确认兼容的 concernId 一起丢失。修复为跳过冲突候选、保留先前独立兼容归属，冲突候选仍交原 actions() 作为独立步骤与回执，不猜同一目标。源码 e00edd1，回归 52c914c 覆盖主工具原目标、先到挂心、后到冲突目标、原 JSON 不变。完整 JVM/APK 和真实执行尚未验证；不将此项误记为整个 P-08d 完成。
 - [ ] **P-08d.2g CI 与真实回执**：99830ef 新增主工具镜像 motiveRef→原 OrderedCharacterActions→真实 plan_personal_activity 持久日程/ToolRouter 回执→同 requestId 重放幂等的 Robolectric 集成回归；源码测试已提交，但该提交的 JVM/APK 尚无成功证据，主动作真实前台/后台 ToolRouter 入口与冲突独立步骤的端到端仍待验。先核最新 CI，失败按真实日志修，真机/真实模型/跨日待验。
 
+### P-08a.1e 后台发送回复归属的实际送达边界（2026-11-07）
+- [x] **P-08a.1e 正式源码和回归已提交，JVM/APK 待验**：8957421 修正 ProactiveSendAttribution 仅凭发送回执时间判定用户已回复的问题，要求用户消息晚于真实 CharacterStatement 送达事件和回执时间、且角色/session 相同；无法解析真实送达锚时保持未知。9db2a1b 新增早回执/晚送达、送达前后、非角色发送锚和跨角色事件回归。没有增加模型调用或更改角色决定。
+- [ ] **P-08a.1e CI/真实入口验收**：检查新提交的 JVM/APK Actions 与首个失败；电话静默、后台实际发送、进程重启和下一轮召回仍需真实链路证据，不能把纯函数回归当成全链验收。
+
 ### P-08a.1d 混合事件来源到承诺持久化（2026-11-07）
 - [x] **P-08a.1d 入口级回归源码已提交，JVM/APK 待验**：6818ecec 在 CommitmentSemanticPersistenceTest 通过真实 Timeline→Bridge→CommitmentDecisionRuntime→CommitmentTaskStore，覆盖本角色有效事件、跨角色同文事件和不存在的事件 ID 混合输入；验证持久任务来源只保留本角色有效 ID，其他角色不被登记，handled 幂等不认领无效来源。只增加测试，不新建数据中心、关键词判断或收费模型调用；不能将提交当作已运行通过。后续需核该 SHA 的 push Actions、电话/后台实际回执和跨轮召回，P-08a.1 整体仍待验。
 
