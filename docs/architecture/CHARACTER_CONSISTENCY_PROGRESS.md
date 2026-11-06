@@ -1362,3 +1362,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 针对 P-08a.1c 仅纯函数校验的缺口，在既有 Robolectric `CommitmentSemanticPersistenceTest` 增加真实 `SharedExperienceTimeline.record`、`LuluDeviceToolBridge.respond`、`CommitmentDecisionRuntime` 与 `CommitmentTaskStore` 联动回归：输入同文但不同角色事件、缺失 ID 和本角色有效事件混合列表，断言持久任务只保留本角色有效来源，其他角色不产生任务，且处理幂等只归有效来源。MockWebServer 返回固定两阶段模型 JSON，不触发收费外部模型。
 - 测试提交 [6818ecec](https://github.com/jiacimu-droid/lulu1/commit/6818ecec01479d4aba65366f34a8114b13719786)。**本轮仅确认提交，未取得新 JVM/APK 成功证据**；若新 CI 失败须按第一条真实日志修正，不能把测试源码视为测试通过。电话静默观察、后台回执与跨轮召回仍待核查；P-08a.1 整体未完成。
 - 下一轮：先查该提交后继 push 的 JVM/APK 与代码索引；随后按 P-08a.1 继续电话/后台来源→决定→发送→持久回执→下一轮召回，或在已有代码覆盖充分时转 P-08b.1。
+
+
+## 2026-11-07 · P-08a.1e 后台主动发送回复归属的真实送达时间边界
+
+- 核对最新 main 四份必读文档、ProactiveSendAttribution 正式源码/测试与 Actions。前轮 P-08a.1d 的 APK/JVM 42281544845、索引 42281544782 均 completed/success；这仅覆盖此前的入口承诺回归，不覆盖本轮。
+- 发现已持久的成功发送回执与实际 Timeline CharacterStatement 的时间可能不一致。原归属只判断 UserStatement 晚于 receipt.sentAt；若发送回执时间早于真实送达事件，则在两者之间的用户消息被误算作对尚未送达消息的回复。另原纯函数只按 sessionId 匹配，混合角色事件或把非角色发言 ID 当作发送锚时可能产生错误归属。
+- 正式源码提交 8957421f3e72123da603dc29bcca4464232725b0：只以真实 CharacterStatement 为送达锚；回复必须晚于 max(回执时间, 送达事件时间)，且用户事件属于同一角色和 session。无法确认送达锚则不计入可归属样本。保留原始历史、发送回执和人物自主决策。
+- 回归提交 9db2a1b921492e9aa58ab5fc7b3762766a951dd5：覆盖回执时间早于实际送达、送达前用户发言、真正送达后回复、非发送事件锚与跨角色同 session 误计。仅使用 Robolectric 本地事实，无收费模型调用。
+- **验收**：源码/测试已提交，尚未取得对应 SHA 的 JVM/APK 成功证据；真机后台发送、电话静默、进程重启与下一轮召回仍未知。下一轮先核 Actions 第一失败或成功，再继续 P-08a.1 的后台/电话完整回执和跨轮召回；不以该纯函数回归冒充端到端通过。
