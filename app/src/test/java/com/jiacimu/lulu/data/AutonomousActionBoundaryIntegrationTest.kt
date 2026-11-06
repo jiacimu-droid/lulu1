@@ -294,4 +294,36 @@ class AutonomousActionBoundaryIntegrationTest {
             MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
     }
 
+
+    @Test fun failedPrimaryResultSkipsDependentStepButIndependentSuccessUnlocksItsOwnFollower() = runBlocking {
+        val actor = role()
+        val requestId = "failed-primary-${UUID.randomUUID()}"
+        val independentText = "主动作失败后独立分享-${UUID.randomUUID()}"
+        val followupText = "独立分享成功后继续分享-${UUID.randomUUID()}"
+        val blockedText = "主动作失败不得发布-${UUID.randomUUID()}"
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", blockedText)))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("text", independentText)))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", followupText)))
+        // The primary tool's real failure has already been recorded by its caller.
+        // Ordered steps must inherit that result, not assume primary success.
+        val first = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId, initialCompleted = false)
+        assertEquals(2, first.completedCount)
+        assertTrue(first.notes.any { it.contains("前一步尚未成功") })
+        assertEquals(listOf(independentText, followupText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+        val replay = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId, initialCompleted = false)
+        assertEquals(2, replay.completedCount)
+        assertEquals(listOf(independentText, followupText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+    }
+
 }
