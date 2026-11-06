@@ -60,6 +60,9 @@ internal object CharacterThoughtActionHandoff {
         for (index in 0 until (primary?.length() ?: 0)) {
             val raw = primary?.optJSONObject(index)
             if (raw == null) {
+                // A malformed slot remains a failed executor step and breaks
+                // adjacency with the primary receipt.
+                differentEffectSinceMirror = true
                 result.put(primary?.opt(index) ?: JSONObject.NULL)
             } else {
                 val step = AutonomousActionWireProtocol.normalizeStep(raw)
@@ -72,6 +75,7 @@ internal object CharacterThoughtActionHandoff {
             if (raw == null) {
                 // Preserve the failed slot. Removing it would let the next
                 // dependent action inherit an earlier, unrelated success.
+                differentEffectSinceMirror = true
                 result.put(secondary?.opt(index) ?: JSONObject.NULL)
                 continue
             }
