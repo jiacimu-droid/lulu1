@@ -90,4 +90,36 @@ class ProactiveSendAttributionTest {
         val replied = ProactiveSendAttribution.repliedByDecisionId(receipts, events)
         assertTrue(replied["proactive-send:evt1"] == false)
     }
+    @Test
+    fun replyBeforeActualDeliveryIsNotCountedEvenWhenReceiptClockIsEarly() {
+        val receipt = ProactiveSendReceipt(
+            "proactive-send:evt-late", Instant.parse("2026-10-26T10:00:00Z"), "m1", "evt-late"
+        )
+        val events = listOf(
+            event("evt-late", "conv-a", EventEvidenceKind.CharacterStatement, "2026-10-26T10:10:00Z"),
+            event("user-before-delivery", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:05:00Z"),
+        )
+        assertEquals(false, ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), events)[receipt.decisionId])
+        val withReply = events + event(
+            "user-after-delivery", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:11:00Z"
+        )
+        assertEquals(true, ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), withReply)[receipt.decisionId])
+    }
+
+    @Test
+    fun nonDeliveredEvidenceAndOtherCharactersCannotProveReply() {
+        val receipt = ProactiveSendReceipt(
+            "proactive-send:evt", Instant.parse("2026-10-26T10:00:00Z"), "m1", "evt"
+        )
+        val wrongKind = listOf(
+            event("evt", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:00:00Z"),
+            event("later", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:01:00Z"),
+        )
+        assertFalse(ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), wrongKind).containsKey(receipt.decisionId))
+        val delivered = event("evt", "conv-a", EventEvidenceKind.CharacterStatement, "2026-10-26T10:00:00Z")
+        val otherRoleReply = event("later", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:01:00Z")
+            .copy(characterId = "role-b")
+        assertEquals(false, ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), listOf(delivered, otherRoleReply))[receipt.decisionId])
+    }
+
 }
