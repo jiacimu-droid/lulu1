@@ -47,6 +47,8 @@ class ProactiveSendAttributionTest {
             put(receipt("proactive-send:evt2", "2026-10-26T11:00:00Z", false))
             put(receipt("perception:123", "2026-10-26T12:00:00Z", true, evidenceId = ""))
             put(receipt("proactive-send:evt3", "not-a-date", true))
+            put(receipt("proactive-send:evt4", "2026-10-26T12:00:00Z", true, evidenceId = "evt1"))
+            put(receipt("proactive-send:evt5", "2026-10-26T12:00:00Z", true, evidenceId = ""))
         })
         val found = ProactiveSendAttribution.receipts(root)
         assertEquals(1, found.size)
