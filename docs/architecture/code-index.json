@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T16:43:21.331474+00:00",
-  "commit": "12f59eef149a9a47fc4528de6e3f7536a3f36689",
+  "generatedAt": "2026-11-06T17:46:54.634924+00:00",
+  "commit": "90991f22a50b3d3dd26eaef1d9c304c21d72c8e5",
   "branch": "main",
-  "sourceFingerprint": "8ca1ad6e55736d81b805d687c509d03cab60b7c89ed83cd1ac87688d79690d7b",
+  "sourceFingerprint": "7f7872f1f0fdbfb77e4498e5f45fb9876dd04a738fd5bcd0e1b640888431b670",
   "summary": {
     "files": 1138,
-    "lines": 243290,
+    "lines": 243312,
     "symbols": 3343
   },
   "symbolIndex": {
@@ -1043,7 +1043,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 52
+        "line": 58
       }
     ],
     "suppressAutoPlay": [
@@ -14949,13 +14949,13 @@
     "ReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 64
+        "line": 70
       }
     ],
     "commitReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 77
+        "line": 83
       }
     ],
     "LuluLocationProvider": [
@@ -34231,8 +34231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2196,
-      "sha256": "f6db6ab414ba241035d8dc6ab20439ca9b67d73aa5de50b1f32356492077f6b2",
+      "lines": 2202,
+      "sha256": "dc446171c57c51099e9bebd5dd4d1633cecd37523bf67706a315255a8eb6f34b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -34240,15 +34240,15 @@
         },
         {
           "name": "initialize",
-          "line": 52
+          "line": 58
         },
         {
           "name": "ReconsideredChatReply",
-          "line": 64
+          "line": 70
         },
         {
           "name": "commitReconsideredChatReply",
-          "line": 77
+          "line": 83
         }
       ]
     },
@@ -39646,8 +39646,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt",
-      "lines": 57,
-      "sha256": "c5633f0e98a625ad117eb1a8bdb398e1abec593ea27b7e89f785d01c92ff0da5",
+      "lines": 73,
+      "sha256": "d172eacaea34f9a85eaf09b383d2a4ea621cce02fecb9c7aa60eed00c7eda3d2",
       "symbols": [
         {
           "name": "LuluGroundingEvidenceTest",
