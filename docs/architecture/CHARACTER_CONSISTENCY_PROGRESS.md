@@ -1341,3 +1341,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 正式源码提交 [55a273b](https://github.com/jiacimu-droid/lulu1/commit/55a273bb30faea081a52b9787dcf939dc96ea55d)：统一选择明确重考虑事件、电话静默观察或已按 roleId/UserStatement 过滤的入口事件 ID；否则空归属，不新造 Store、模型调用、角色决定或用户消息。回归提交 [2ae52bb](https://github.com/jiacimu-droid/lulu1/commit/2ae52bb737342f7efd1d1edc1776d8f34eeae0d0)：同文不同消息 ID、缺来源 ID、重考虑/静默优先级。
 - 路线图记录提交 [aebea38](https://github.com/jiacimu-droid/lulu1/commit/aebea388498e785e2a8056aff76086083b8c7469)。本轮 GitHub 内容 API 提交成功；运行环境无法解析 github.com 克隆仓库，未在本地执行 Gradle。新提交的 JVM/APK、Actions 最终结果、真实消息送达、真机与真实模型均**未验证**；旧 42160450440 success 只覆盖此前 0c7428b，不代表本轮通过。
 - 下一轮：先核新 main 的 push Actions，若有编译或测试失败先修第一条真实错误；随后继续 P-08a.1 的电话/后台来源与落库回执链，并检查 direct-xhs 在无事件 ID 时使用 userText.hashCode() 的跨轮 requestId 冲突，先验证真实入口再修。P-08a.1 整体不勾。
+
+
+## 2026-11-07 · P-08a.1b 直接小红书读取的跨轮幂等身份
+
+- 接续 P-08a.1a，复核 AGENTS、CODE_INDEX、roadmap、人物进度与 LuluDeviceToolBridge 正式入口。原 directXhsResult 在无权威来源时将 userText.hashCode() 作为 ToolRouter requestId；相同正文的独立请求可复用上一轮的幂等身份，即使并非同一用户事件。正常前台 userEvidenceIds 传递保持原状，不把所有入口认作缺失来源。
+- 正式源码 [e63c9ac](https://github.com/jiacimu-droid/lulu1/commit/e63c9ac4f73bcb4b59058e4ef9569e051a11df59) 使用经过校验的 groundingEvidenceId，否则使用 respond 现有唯一 turnTraceId 作为本次调用身份；不按正文猜测、不新建持久 Store、不增加模型调用。相同已验证事件重试继续使用相同 requestId；无来源的独立同文调用不会互相吞并。无来源时若整个 respond 被外层重启且未传 diagnosticTurnTraceId，无法证明跨进程重试的同一逻辑身份，仍待传输层权威事件覆盖。
+- 回归 [6c756b5](https://github.com/jiacimu-droid/lulu1/commit/6c756b5dc403a5da6d1ef14bf37200cb7e79f6a7) 检查同文不同调用、同调用同 trace 重试、真实事件跨 trace 重试及不同事件隔离；Roadmap [c4bcc3e](https://github.com/jiacimu-droid/lulu1/commit/c4bcc3e9716dd1b50fc541e800bbb6c59de2e771) 记录子步骤。
+- GitHub 文件提交成功；未获得本 SHA 的 JVM/APK Actions 通过证据，也未本地执行 Gradle，不能将测试已写等同测试通过。真机、真实小红书读取、持久消息回执、跨轮心理归属仍待验。
+- 下一轮刷新 main/相关 blob SHA 和 push Actions，若失败修第一条真实编译/断言；通过后继续 P-08a.1 电话/后台的权威事件→决定→实际送达/失败→持久回执→下轮召回全链，优先复用既有身份而非新建 trace。
