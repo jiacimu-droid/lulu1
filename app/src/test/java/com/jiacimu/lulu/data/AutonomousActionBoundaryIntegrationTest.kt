@@ -266,4 +266,32 @@ class AutonomousActionBoundaryIntegrationTest {
         }
     }
 
+
+    @Test fun failedOrderedStepSkipsDependentButKeepsIndependentReceiptAndReplayIdempotent() = runBlocking {
+        val actor = role()
+        val requestId = "ordered-failure-${UUID.randomUUID()}"
+        val independentText = "失败后仍独立发布-${UUID.randomUUID()}"
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "unknown_ordered_tool")
+                .put("args", JSONObject()))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", "依赖失败动作，不能发布")))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("text", independentText)))
+        val first = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId, initialCompleted = true)
+        assertEquals(1, first.completedCount)
+        assertTrue(first.notes.any { it.contains("未知工具") })
+        assertTrue(first.notes.any { it.contains("前一步尚未成功") })
+        assertEquals(listOf(independentText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+        val second = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId, initialCompleted = true)
+        assertEquals(1, second.completedCount)
+        assertEquals("同一 requestId 的重放不得再次发布", listOf(independentText),
+            MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content })
+    }
+
 }
