@@ -1371,3 +1371,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 正式源码提交 8957421f3e72123da603dc29bcca4464232725b0：只以真实 CharacterStatement 为送达锚；回复必须晚于 max(回执时间, 送达事件时间)，且用户事件属于同一角色和 session。无法确认送达锚则不计入可归属样本。保留原始历史、发送回执和人物自主决策。
 - 回归提交 9db2a1b921492e9aa58ab5fc7b3762766a951dd5：覆盖回执时间早于实际送达、送达前用户发言、真正送达后回复、非发送事件锚与跨角色同 session 误计。仅使用 Robolectric 本地事实，无收费模型调用。
 - **验收**：源码/测试已提交，尚未取得对应 SHA 的 JVM/APK 成功证据；真机后台发送、电话静默、进程重启与下一轮召回仍未知。下一轮先核 Actions 第一失败或成功，再继续 P-08a.1 的后台/电话完整回执和跨轮召回；不以该纯函数回归冒充端到端通过。
+
+## 2026-11-07 · P-08a.1f 主动发送回执与实际送达事件身份一致性
+
+- 复核 main 四份必读文档、`ProactivePerceptionRuntime` 成功发送记录及 `ProactiveSendAttribution` 的读取路径。运行时以 `proactive-send:<actionEvidenceId>` 记录成功发送，且 `causalEvidenceId=actionEvidenceId`。此前统计只检成功状态和时间，没有验证两者一致；若保存记录错配到另一条真实送达事件，会把另一条消息的回复算在本决定上，缺失来源则不应归属。
+- 正式源码 [ea3bf370](https://github.com/jiacimu-droid/lulu1/commit/ea3bf370cac722024e7b743bef1e5df6ff4cd3db) 增加读取时的身份一致性门禁，不改变原始历史、人物决策或成功发送逻辑；测试 [ae28fa76](https://github.com/jiacimu-droid/lulu1/commit/ae28fa76d8cc1de641bc339d03c2479ac5bd3f6b) 为原 Robolectric 回归补错配/空来源负例，正常成功回执仍保留。
+- **验证**：已提交生产源码与测试，尚未取得对应新 HEAD 的 JVM/APK、Actions 成功结果；真机、真实发送失败、重启后持久回执和下一轮人物召回未知。下一轮先查新 CI；若成功继续 P-08a.1 的电话静默与后台发送结果到下一轮召回入口级回归，若失败修第一条真实错误。不能将本轮源码提交等同测试通过。
