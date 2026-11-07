@@ -20,12 +20,15 @@ internal data class RelicSnapshot(
     val discovered:Set<String> = emptySet(),
     /** 0=8 slots; 1=10; 2=12. Purchased only at camp, equipped next expedition. */
     val satchelLevel:Int=0,
+    /** First-time entries from the last settled run; the UI cannot guess this later. */
+    val newDiscoveries:Set<String> = emptySet(),
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
         .put("weapon",weapon).put("successes",successes).put("awarded",JSONArray(awarded.sorted()))
         .put("discovered",JSONArray(discovered.sorted()))
         .put("satchelLevel",satchelLevel)
+        .put("newDiscoveries",JSONArray(newDiscoveries.sorted()))
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -43,7 +46,12 @@ internal data class RelicSnapshot(
                     }.toSet()
                 } ?: j.getJSONArray("vault").lootList()
                     .map { it.name }.filter { it in RelicCollectibles.names }.toSet(),
-                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2))
+                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2),
+                newDiscoveries=j.optJSONArray("newDiscoveries")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in RelicCollectibles.names }
+                    }.toSet()
+                } ?: emptySet())
         }.getOrDefault(RelicSnapshot())
     }
 }
@@ -118,7 +126,12 @@ internal class RelicEscapeLedger(context:Context) {
             awarded=if(terminal)old.awarded+next.id else old.awarded,
             discovered=if(terminal && next.phase==RelicPhase.SUCCESS)
                 old.discovered + award.map { it.name }.filter { it in RelicCollectibles.names }
-                else old.discovered))
+                else old.discovered,
+            newDiscoveries=if(terminal && next.phase==RelicPhase.SUCCESS)
+                award.map { it.name }.filter {
+                    it in RelicCollectibles.names && it !in old.discovered
+                }.toSet()
+                else if(terminal) emptySet() else old.newDiscoveries))
     }
 
     /** A slow response may merge only into the same live run, never a new game/settlement. */
