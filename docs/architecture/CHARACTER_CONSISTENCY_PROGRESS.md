@@ -1448,3 +1448,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 核实 b64f565 的 [Lulu APK/JVM #42399152640](https://github.com/jiacimu-droid/lulu1/actions/runs/42399152640) completed/success，含 Test and build phone APK、上传与发布步骤成功；索引 [#42399152677](https://github.com/jiacimu-droid/lulu1/actions/runs/42399152677) success。后续 2b0debd 的 [#42403163778](https://github.com/jiacimu-droid/lulu1/actions/runs/42403163778) 也 success，涵盖此前测试修正；此前 9f6f1b2 的 2531 tests / 1 failed 已被后继修正与成功 CI 取代。
 - 新增 Robolectric 集成回归 [1cca29a](https://github.com/jiacimu-droid/lulu1/commit/1cca29a354f84ba18eb2b7310bc9403a68287ffc)：在真实 ChatStore→Timeline→InnerLifeStore 路径检查部分主送达 ID（先无效后有效）仍能找到实际主消息，以及只有副发送而没有主送达 ID 时不产生主成功回执。没有改生产语义或人物设定。
 - **未验**：1cca29a 新增断言尚无本 SHA 的 JVM/APK 结果；没有真正运行 ToolRouter/CompanionActionRuntime 的失败与部分执行，没有跨进程重启、下一轮角色模型召回或真机验收。下一轮先核新 CI 首错；继续补实际执行器与重启边界，P-08a.1g.3 保持未完成。
+
+## 2026-11-08 · P-08a.1g.3 主动送达跨角色归属负例
+
+- 复核 main 四份必读文档、真实 ChatStore→Timeline→InnerLifeStore 回归和 push Actions。最新基线 66e9f432 的 APK/JVM [42417989012](https://github.com/jiacimu-droid/lulu1/actions/runs/42417989012) 与代码索引 [42417989014](https://github.com/jiacimu-droid/lulu1/actions/runs/42417989014) 均 success；该成功早于本轮提交。
+- [33fac8a](https://github.com/jiacimu-droid/lulu1/commit/33fac8ae30f5b322f71db0a019a9ea476036afe1) 在真实 ChatStore 创建/投影主消息的既有 Robolectric 集成回归中补跨角色归属负例：即使 conversation 与实际送达 ID 完全一致，其他角色不得认领。未改生产决策、人设、历史或收费调用。
+- 本轮新测试尚无 Actions 成功证明；没有执行真正 ToolRouter、进程重启和下一轮模型召回。P-08a.1g.3 继续未完成；下轮先核 33fac8a 后继 JVM/APK，随后补执行器失败/部分成功与重新初始化的回归，无法安全实施则转 P-08b.1。
