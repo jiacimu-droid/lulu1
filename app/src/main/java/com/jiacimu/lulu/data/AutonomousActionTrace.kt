@@ -24,8 +24,8 @@ internal object AutonomousActionTrace {
         event.id !in previousIds && event.channel != "在线感知" && (
             event.evidenceKind == EventEvidenceKind.ToolResult ||
                 (event.evidenceKind == EventEvidenceKind.CharacterStatement &&
-                    (event.speaker == displayName || event.speaker == "角色" ||
-                        (conversationId != null && event.sessionId == conversationId)))
+                    (event.speaker == displayName || event.speaker == "角色") &&
+                    (conversationId == null || event.sessionId == conversationId))
             )
     }?.id.orEmpty()
 
