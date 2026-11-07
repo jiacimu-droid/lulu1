@@ -18,11 +18,14 @@ internal data class RelicSnapshot(
     val awarded:Set<String> = emptySet(),
     // 只在成功撤离结算后解锁，卖掉仓库实物不会抹除收藏记录。
     val discovered:Set<String> = emptySet(),
+    /** 0=8 slots; 1=10; 2=12. Purchased only at camp, equipped next expedition. */
+    val satchelLevel:Int=0,
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
         .put("weapon",weapon).put("successes",successes).put("awarded",JSONArray(awarded.sorted()))
         .put("discovered",JSONArray(discovered.sorted()))
+        .put("satchelLevel",satchelLevel)
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -39,7 +42,8 @@ internal data class RelicSnapshot(
                         a.optString(i).takeIf { it in RelicCollectibles.names }
                     }.toSet()
                 } ?: j.getJSONArray("vault").lootList()
-                    .map { it.name }.filter { it in RelicCollectibles.names }.toSet())
+                    .map { it.name }.filter { it in RelicCollectibles.names }.toSet(),
+                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2))
         }.getOrDefault(RelicSnapshot())
     }
 }
@@ -49,6 +53,11 @@ internal data class RelicSnapshot(
  * vault and settlement tombstones. No independently awarded "score" can mint another item.
  * Unknown/interrupted old v1 Expedition saves remain untouched and cannot be auto-awarded.
  */
+/** Meaningful, finite post-extraction upgrades; no random paid loot boxes. */
+internal object RelicCampUpgrades {
+    fun satchelCost(level:Int):Int?=when(level){0->260;1->620;else->null}
+}
+
 internal class RelicEscapeLedger(context:Context) {
     private val prefs=context.applicationContext.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
     @Synchronized fun read():RelicSnapshot=RelicSnapshot.read(prefs.getString("ledger",null))
@@ -64,7 +73,7 @@ internal class RelicEscapeLedger(context:Context) {
             return old
         if(medkits !in 0..3 || old.kits<medkits)return old
         val level=(old.successes+1).coerceAtMost(5)
-        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon)
+        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel)
         return write(old.copy(run=run,kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
@@ -75,6 +84,14 @@ internal class RelicEscapeLedger(context:Context) {
         val old=read()
         return if(old.weapon==1 && old.coins>=350)
             write(old.copy(weapon=2,coins=old.coins-350))else old
+    }
+    @Synchronized fun upgradeSatchel():RelicSnapshot {
+        val old=read()
+        // An ongoing expedition already captured its equipment; no mid-run capacity mint.
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
+        val price=RelicCampUpgrades.satchelCost(old.satchelLevel) ?: return old
+        return if(old.coins>=price)write(old.copy(
+            satchelLevel=old.satchelLevel+1,coins=old.coins-price)) else old
     }
     @Synchronized fun sellLoot(id:String):RelicSnapshot {
         val old=read();val item=old.vault.firstOrNull{it.id==id}?:return old
