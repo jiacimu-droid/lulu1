@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2b10fd98ccb82dd546cda41039132a09c08a12b5`
+- 基准提交：`32b7051f44cde3017ebf4bf0eab7ae45900d1b3e`
 - 分支：`main`
-- 已索引文件：1138
-- 已索引代码/文本行：243639
-- 已发现符号：3349
+- 已索引文件：1139
+- 已索引代码/文本行：243776
+- 已发现符号：3357
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -675,6 +675,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 62 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 156 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt` | 137 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 630 | 27 |

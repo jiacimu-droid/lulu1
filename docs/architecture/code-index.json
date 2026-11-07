@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T14:39:49.830168+00:00",
-  "commit": "2b10fd98ccb82dd546cda41039132a09c08a12b5",
+  "generatedAt": "2026-11-07T14:51:58.934713+00:00",
+  "commit": "32b7051f44cde3017ebf4bf0eab7ae45900d1b3e",
   "branch": "main",
-  "sourceFingerprint": "f43b9ffa208a4f260d3512a9b1e4abb9d3e04bd91c453b680ec5ca717d51b8f8",
+  "sourceFingerprint": "20de899c7bb997a7c76e3235584914401ca958738d6daa476a09a37702d12637",
   "summary": {
-    "files": 1138,
-    "lines": 243639,
-    "symbols": 3349
+    "files": 1139,
+    "lines": 243776,
+    "symbols": 3357
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2266,6 +2266,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 20
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
@@ -4710,6 +4714,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
         "line": 98
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -13666,6 +13674,10 @@
         "line": 15
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 15
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
         "line": 7
       },
@@ -13722,6 +13734,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt",
         "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 63
       }
     ],
     "remaining": [
@@ -13750,6 +13766,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
         "line": 89
+      }
+    ],
+    "name": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 37
+      }
+    ],
+    "feed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 43
+      }
+    ],
+    "canFeed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 49
+      }
+    ],
+    "canGift": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 56
       }
     ],
     "GameModelConnectionStatus": [
@@ -32749,6 +32789,45 @@
         {
           "name": "advance",
           "line": 98
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+      "lines": 137,
+      "sha256": "81a2e677cd4f8ff98b0b855220ab806798ca6d55fd64c30f146b27a0eb2e0289",
+      "symbols": [
+        {
+          "name": "json",
+          "line": 15
+        },
+        {
+          "name": "read",
+          "line": 20
+        },
+        {
+          "name": "name",
+          "line": 37
+        },
+        {
+          "name": "feed",
+          "line": 43
+        },
+        {
+          "name": "canFeed",
+          "line": 49
+        },
+        {
+          "name": "canGift",
+          "line": 56
+        },
+        {
+          "name": "generate",
+          "line": 63
+        },
+        {
+          "name": "advance",
+          "line": 105
         }
       ]
     },
