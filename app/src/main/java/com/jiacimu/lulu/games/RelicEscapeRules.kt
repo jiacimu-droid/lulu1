@@ -8,6 +8,28 @@ internal enum class RelicPhase { PREPARE, EXPLORE, DOWNED, EXTRACT, SUCCESS, FAI
 internal enum class RelicTier(val label:String,val base:Int,val weight:Int) {
     COMMON("普通",70,1), RARE("稀有",185,2), PRECIOUS("珍贵",430,3)
 }
+/** 永久收集图鉴与战利品掉落共用一个目录，避免 UI 列出实际无法获得的宝物。 */
+internal object RelicCollectibles {
+    const val CROWN_JEWEL = "晨星之核"
+    private val ordinary = linkedMapOf(
+        RelicTier.COMMON to listOf(
+            "旧王银币", "石刻铭牌", "锈蚀铜杯", "铜制罗盘", "旅人哨笛",
+            "旧日怀表", "破损星图", "石雕徽记", "银线书签",
+        ),
+        RelicTier.RARE to listOf(
+            "月银胸针", "幽蓝宝石", "古老法印", "月蚀吊坠", "猫眼胸章",
+            "琥珀音匣", "暮光戒指", "秘仪短杖", "深海珍珠",
+        ),
+        RelicTier.PRECIOUS to listOf(
+            "星穹冠冕", "永夜结晶", "遗迹王印", "黄金天球仪",
+            "王室密匣", "冰魄竖琴", "星河沙漏", "黎明权杖",
+        ),
+    )
+    val names: List<String> = ordinary.values.flatten() + listOf("封印之心", CROWN_JEWEL)
+    fun namesFor(tier: RelicTier): List<String> = ordinary.getValue(tier)
+    fun isCrownJewel(name: String): Boolean = name == CROWN_JEWEL
+}
+
 internal data class RelicLoot(val id:String,val name:String,val tier:RelicTier,val value:Int) {
     val weight get()=tier.weight
     fun json()=JSONObject().put("id",id).put("name",name).put("tier",tier.name).put("value",value)
@@ -169,13 +191,14 @@ internal object RelicEscapeRules {
             } }
 
     fun treasure(s:RelicRun,c:RelicChest):RelicLoot {
-        val names=when(c.tier) {
-            RelicTier.COMMON->listOf("旧王银币","石刻铭牌","锈蚀铜杯")
-            RelicTier.RARE->listOf("月银胸针","幽蓝宝石","古老法印")
-            RelicTier.PRECIOUS->listOf("星穹冠冕","永夜结晶","遗迹王印")
-        }
         val roll=abs((s.seed.toLong()*31+c.id*97)%1000).toInt()
-        return RelicLoot(s.id+":chest:"+c.id,names[roll%names.size],c.tier,c.tier.base+roll%63)
+        // 真实的低概率秘宝，不增加货币付费抽取。由种子与宝箱 ID 唯一决定；
+        // 重复读取同一箱子不会重新掷骰，也不能通过退出重进刷结果。
+        val crownJewel = c.tier == RelicTier.PRECIOUS && roll < 5
+        val names=RelicCollectibles.namesFor(c.tier)
+        val name=if(crownJewel)RelicCollectibles.CROWN_JEWEL else names[roll%names.size]
+        val value=if(crownJewel)6000 else c.tier.base+roll%63
+        return RelicLoot(s.id+":chest:"+c.id,name,c.tier,value)
     }
     fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet()):RelicRun {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
