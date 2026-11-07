@@ -112,6 +112,8 @@
 
 - [ ] **P-08d.2h.6**：顶层主工具 A、显式 B、嵌套 motive.nextAction A 时，原 actions() 无条件把嵌套 A 归为顶层镜像；withPrimaryActionOwnership() 又提前将后一次 A 的 motiveId 记在首次主回执。源码 [91b23e1](https://github.com/jiacimu-droid/lulu1/commit/91b23e1e09061407667efd1bccc25a722c25fd4c) 在显式异工具后保留嵌套 A，并只把异工具之前的镜像候选归主回执；回归 [5a8fa37](https://github.com/jiacimu-droid/lulu1/commit/5a8fa37744700d7e3418361ba342055413075dd1) 覆盖独立执行顺序、motiveId 不错归和输入不变。未取得该提交 JVM/APK、真实 ToolRouter 回执、失败/条件依赖或真机结果，保持待验；不勾整个 P-08d.2h。
 
+- [ ] **P-08a.1g.3 主动作送达候选被较新副动作回执遮挡（源码/回归已提交，CI待验）**：newestExecutedEvidence 原先只取最新事件，若同轮先送达主私聊、后写入副工具 ToolResult，候选被副工具占据，后续 supports(primary) 拒绝且不再检查真正的主消息。源码 baad0db/65defe6 在原事件选择时接受动作证据谓词，保持无谓词旧调用行为；测试 fe4fac1 覆盖较新无关回执不得遮挡主消息及无匹配时为空。尚未取得该提交 JVM/APK、真实 ToolRouter→Timeline→Store、重启与真机结果，P-08a.1g 不勾完成。下一轮先核 CI，再查同会话同动作副消息能否抢占主送达身份。
+
 ### P-08d 0/1/N 行动与自我整理
 - **P-08d.2h.5 主工具后非镜像重复执行与归属（源码/回归已提交，CI待验）**：`76951454` 修复顶层 A 后显式 B→A 时第二次 A 被当镜像删除，同时 `withPrimaryActionOwnership` 不再把 B 之后 A 的 owner 错归顶层首次回执；`287c9305` 补 B→A 独立回执与 motiveId 归属回归。待对应 JVM/APK、前后台实际 ToolRouter 回执与失败/条件依赖验证，不勾 P-08d.2h 整体完成。
 
