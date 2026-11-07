@@ -107,6 +107,14 @@ class AutonomousActionTraceTest {
         val receipt = event("tool-result", "执行器", EventEvidenceKind.ToolResult)
         assertEquals("tool-result", AutonomousActionTrace.newestExecutedEvidence(
             listOf(receipt), emptySet(), "江渡"))
+        val scopedOtherTool = event("other-tool", "执行器", EventEvidenceKind.ToolResult, "chat-b")
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(scopedOtherTool), emptySet(), "江渡", "chat-a"))
+        assertEquals("other-tool", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(scopedOtherTool), emptySet(), "江渡", "chat-b"))
+        // A sessionless receipt is still eligible for non-chat tools.
+        assertEquals("tool-result", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(receipt), emptySet(), "江渡", "chat-a"))
     }
 
     @Test fun newerUnrelatedReceiptCannotHideDeliveredPrimaryMessage() {
