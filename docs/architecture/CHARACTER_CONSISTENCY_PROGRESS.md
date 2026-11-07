@@ -1384,3 +1384,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 新 CI 核验：`ae28fa76` 对应 APK/JVM [42313244834](https://github.com/jiacimu-droid/lulu1/actions/runs/42313244834) 与索引 [42313244835](https://github.com/jiacimu-droid/lulu1/actions/runs/42313244835) 均 completed/success，覆盖 P-08a.1f 的测试；不能代表后续新提交。
 - 正式源码检查 `ProactivePerceptionRuntime`：`actionEvidenceId` 由真实时间线解析，可在 `primarySuccess=true` 时仍为空；此前仍持久写入 `proactive-send:` 成功回执（无真实送达锚），后续统计只能排除这种无效记录。源码提交 `06420830ca2cbf1826c9cd185441fe87de9e7866`：只有实际成功且解析到非空送达事件 ID 才写主动发送成功回执；不改变工具执行结果、不推断用户回复、不新增模型调用。已有 `ProactiveSendAttributionTest.receiptsKeepOnlyDeliveredProactiveSendsWithParsableTime` 覆盖读取时无来源过滤，但**尚缺生产入口空锚集成回归**，不能声称本次写入门禁已测试通过。
 - 新提交 JVM/APK、真实发送、重启持久回执及下一轮召回尚待验。下一轮先核新 Actions，补生产入口空锚/成功锚的真实持久化回归；再继续电话静默观察与后续召回。
+
+## 2026-11-07 · P-08a.1g.1 主动发送成功回执写入门禁回归
+
+- 刷新 main、AGENTS、CODE_INDEX、Roadmap、人物进度及 ProactivePerceptionRuntime/ProactiveSendAttribution 正式代码与测试；确认 06420830 已有非空送达锚门禁，不重复改业务规则。对应 push APK/JVM [42319463747](https://github.com/jiacimu-droid/lulu1/actions/runs/42319463747) completed/success。
+- 为避免只测读取过滤而遗漏写入门禁，将现有布尔机制抽为可测试的 `ProactiveSendAttribution.shouldPersistDeliveredSend`（63308f8），正式写入调用同一函数（e2bf9dd），新增四种门禁回归（c0601ed）：成功无锚不得写、失败有锚不得写、非私聊有锚不得写、成功且有锚可写。没有新增模型调用、修改人设或清空历史。
+- **验收边界**：这是生产门禁的单元级回归，不是实际执行器与持久 Store 的入口集成；本轮提交的 JVM/APK/索引尚需后继 Actions 证明，真机、重启、电话静默观察和下一轮召回仍未知。下一轮先核新 CI，若失败按第一错误修；再补真正 ToolRouter→Timeline→Store 的写入集成，避免将纯函数测试当作全链验收。
