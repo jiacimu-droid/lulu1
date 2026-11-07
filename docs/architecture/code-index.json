@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T08:44:39.194508+00:00",
-  "commit": "efa7f6babe73acbe72f3ac584612fdb1ffc92a01",
+  "generatedAt": "2026-11-07T13:39:05.918013+00:00",
+  "commit": "52fc4fb9a05b0dbcb4b976c103b589858a0c2087",
   "branch": "main",
-  "sourceFingerprint": "89f116e80373a56da8c12352884bb11ce463000cf8a9c8d8b328630155d4a61c",
+  "sourceFingerprint": "0d46f73bf3c70024c9982b74928ce22e3a6f47a2181c750ca6277c482d5a129b",
   "summary": {
     "files": 1138,
-    "lines": 243450,
+    "lines": 243455,
     "symbols": 3346
   },
   "symbolIndex": {
@@ -3809,7 +3809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 81
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
@@ -5423,13 +5423,13 @@
     "signature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 35
+        "line": 40
       }
     ],
     "clean": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 49
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
@@ -5443,7 +5443,7 @@
     "selectedStepsSignature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 69
+        "line": 74
       }
     ],
     "normalizeStep": [
@@ -23528,8 +23528,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-      "lines": 137,
-      "sha256": "1a9b017e5610f992ce1c93112c4296116f52cb0603a532680142adf39ec157dd",
+      "lines": 142,
+      "sha256": "2045598685af67219340aa96eacb921b2ba818687560e2a0d621a9dabf0c6e29",
       "symbols": [
         {
           "name": "newestExecutedEvidence",
@@ -23537,19 +23537,19 @@
         },
         {
           "name": "signature",
-          "line": 35
+          "line": 40
         },
         {
           "name": "clean",
-          "line": 49
+          "line": 54
         },
         {
           "name": "selectedStepsSignature",
-          "line": 69
+          "line": 74
         },
         {
           "name": "render",
-          "line": 81
+          "line": 86
         }
       ]
     },
