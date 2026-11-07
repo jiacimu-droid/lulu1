@@ -542,7 +542,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         (project.phase=="paused" && project.resumePhase=="building")) {
                         val woodStillNeeded=IslandHouseProjects.parts(world,project.left,project.top)
                             .filterNot { it.first in project.placed }
-                            .sumOf { if(it.second=="floor")1 else 2 }
+                            .fold(0) { total, part -> total + (if(part.second=="floor") 1 else 2) }
                         Text("施工还需木材 "+woodStillNeeded+" · 共享库存 "+world.wood+
                             if(woodStillNeeded>world.wood)
                                 " · 缺口 "+(woodStillNeeded-world.wood) else " · 材料足够",
