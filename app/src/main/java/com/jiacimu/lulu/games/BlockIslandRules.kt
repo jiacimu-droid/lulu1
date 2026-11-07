@@ -71,7 +71,7 @@ internal data class BlockIslandState(
                 val index = key.toIntOrNull() ?: return@runCatching null
                 val kind = obj.getString(key)
                 if (index !in world.tiles.indices ||
-                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge") ||
+                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house") ||
                     (if (kind == "bridge") world.tiles[index] != 8 else world.tiles[index] !in listOf(0, 4))
                 ) return@runCatching null
                 positions[index] = kind
@@ -227,7 +227,7 @@ internal object BlockIslandRules {
         val structure = s.structures[w.index(x, y)]
         if (w.cell(x, y) == 8) return structure == "bridge"
         if (w.cell(x, y) !in setOf(0, 4, 7)) return false
-        return structure !in setOf("workbench", "campfire", "bed")
+        return structure !in setOf("workbench", "campfire", "bed", "lantern", "pet_house")
     }
 
     private fun buildingCost(action: String): Pair<Int, Int>? = when (action) {
@@ -237,6 +237,8 @@ internal object BlockIslandRules {
         "campfire" -> 2 to 1
         "bed" -> 3 to 1
         "bridge" -> 3 to 0
+        "lantern" -> 2 to 1
+        "pet_house" -> 4 to 2
         else -> null
     }
 
@@ -335,7 +337,7 @@ internal object BlockIslandRules {
                 message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
                 else "开采矿石 +$amount"
             }
-            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge" -> {
+            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house" -> {
                 if (!canPlaceBuilding(s, action, tx, ty))
                     return reject("这里无法放置，靠近空地后再试")
                 val (woodCost, stoneCost) = checkNotNull(buildingCost(action))
@@ -347,7 +349,7 @@ internal object BlockIslandRules {
                     else -> cell
                 }
                 val updated = w.setTile(tx, ty, newTile).copy(wood = w.wood - woodCost, stone = w.stone - stoneCost)
-                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge")) s.structures + (index to action)
+                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house")) s.structures + (index to action)
                     else s.structures
                 next = s.copy(world = updated, structures = added)
                 message = "建造成功：${actionName(action)}"
@@ -364,7 +366,8 @@ internal object BlockIslandRules {
                 val structure = s.structures[index]
                 val refundWood = when (structure) {
                     "workbench" -> 2
-                    "campfire", "door", "bed" -> 1
+                    "campfire", "door", "bed", "lantern" -> 1
+                    "pet_house" -> 2
                     "bridge" -> 2
                     else -> if (cell == 3 || cell == 4) 1 else 0
                 }
@@ -752,6 +755,7 @@ internal object BlockIslandRules {
         "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"
         "wall" -> "木墙"; "floor" -> "木地板"; "door" -> "木门"
         "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
+        "lantern" -> "夜灯"; "pet_house" -> "宠物小屋"
         else -> action
     }
 }
