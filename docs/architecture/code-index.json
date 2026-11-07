@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T13:39:25.565946+00:00",
-  "commit": "8fdfe0a737e5d2445be3a1a1b3844e3993e460a8",
+  "generatedAt": "2026-11-07T14:32:25.674589+00:00",
+  "commit": "f8e9c1cdf84135268d25db4ec25eb88be1780b4b",
   "branch": "main",
-  "sourceFingerprint": "d3b8693482ea2d6f337dbbd009294fa1e4c38f29e7c039a482ddd7947d01ba4b",
+  "sourceFingerprint": "057a6bf1e7563ff55c2a64572a6cb0b0cc94ab05cb9b66537c7975423dc234b0",
   "summary": {
     "files": 1138,
-    "lines": 243463,
-    "symbols": 3346
+    "lines": 243486,
+    "symbols": 3348
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2273,7 +2273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 106
+        "line": 128
       }
     ],
     "millis": [
@@ -10005,7 +10005,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 80
+        "line": 102
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -13371,7 +13371,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 180
+        "line": 203
       }
     ],
     "near": [
@@ -13491,7 +13491,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 153
+        "line": 175
       }
     ],
     "answer": [
@@ -13537,7 +13537,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 77
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -13671,23 +13671,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 20
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 27
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 32
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 38
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13695,11 +13679,27 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 47
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 86
+        "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 60
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 69
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 108
       }
     ],
     "sites": [
@@ -14064,16 +14064,28 @@
         "line": 106
       }
     ],
+    "namesFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 29
+      }
+    ],
+    "isCrownJewel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 30
+      }
+    ],
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 78
+        "line": 100
       }
     ],
     "tile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 79
+        "line": 101
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
@@ -14083,43 +14095,43 @@
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 81
+        "line": 103
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 84
+        "line": 106
       }
     ],
     "distance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 151
+        "line": 173
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 163
+        "line": 185
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 170
+        "line": 192
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 494
+        "line": 517
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 530
+        "line": 553
       }
     ],
     "change": [
@@ -33096,28 +33108,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 533,
-      "sha256": "9733150db38db669a2858af75e5a1172df017e5cd47f0de76fcdfea3e1d97d29",
+      "lines": 556,
+      "sha256": "990fdc15c8bcc819a44df2cadbe0476fec9ef256cc61aa8c56e9a5b57e6c43dd",
       "symbols": [
         {
-          "name": "json",
-          "line": 13
+          "name": "namesFor",
+          "line": 29
+        },
+        {
+          "name": "isCrownJewel",
+          "line": 30
         },
         {
           "name": "json",
-          "line": 20
-        },
-        {
-          "name": "json",
-          "line": 27
-        },
-        {
-          "name": "json",
-          "line": 32
-        },
-        {
-          "name": "json",
-          "line": 38
+          "line": 35
         },
         {
           "name": "json",
@@ -33125,67 +33129,83 @@
         },
         {
           "name": "json",
-          "line": 47
-        },
-        {
-          "name": "index",
-          "line": 77
-        },
-        {
-          "name": "bounds",
-          "line": 78
-        },
-        {
-          "name": "tile",
-          "line": 79
-        },
-        {
-          "name": "walk",
-          "line": 80
-        },
-        {
-          "name": "visible",
-          "line": 81
-        },
-        {
-          "name": "log",
-          "line": 84
+          "line": 49
         },
         {
           "name": "json",
-          "line": 86
+          "line": 54
         },
         {
-          "name": "read",
+          "name": "json",
+          "line": 60
+        },
+        {
+          "name": "json",
+          "line": 64
+        },
+        {
+          "name": "json",
+          "line": 69
+        },
+        {
+          "name": "index",
+          "line": 99
+        },
+        {
+          "name": "bounds",
+          "line": 100
+        },
+        {
+          "name": "tile",
+          "line": 101
+        },
+        {
+          "name": "walk",
+          "line": 102
+        },
+        {
+          "name": "visible",
+          "line": 103
+        },
+        {
+          "name": "log",
           "line": 106
         },
         {
+          "name": "json",
+          "line": 108
+        },
+        {
+          "name": "read",
+          "line": 128
+        },
+        {
           "name": "distance",
-          "line": 151
+          "line": 173
         },
         {
           "name": "reveal",
-          "line": 153
+          "line": 175
         },
         {
           "name": "canSurvey",
-          "line": 163
+          "line": 185
         },
         {
           "name": "treasure",
-          "line": 170
+          "line": 192
         },
         {
           "name": "act",
-          "line": 180
+          "line": 203
         },
         {
           "name": "path",
-          "line": 494
+          "line": 517
         },
         {
           "name": "abandon",
-          "line": 530
+          "line": 553
         }
       ]
     },
