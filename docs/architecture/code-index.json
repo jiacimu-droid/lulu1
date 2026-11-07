@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:25:33.967691+00:00",
-  "commit": "21dba7a827ddaab2739c4b3aa18a6850d3451096",
+  "generatedAt": "2026-11-07T17:26:08.794437+00:00",
+  "commit": "66ab1fe72d9185c7d948773554f1d844488b9813",
   "branch": "main",
-  "sourceFingerprint": "bd4a804e802a90e6fa12105041928230145252ec92abe63f0517789b1230e81a",
+  "sourceFingerprint": "e5528371a43c6460e84f6eb2d3c246777d12077f3cf9b7e1aa468875afef36c9",
   "summary": {
     "files": 1142,
-    "lines": 245524,
+    "lines": 245503,
     "symbols": 3368
   },
   "symbolIndex": {
@@ -33179,8 +33179,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 154,
-      "sha256": "58f704520699a5a6b4a11ff56558f80c2eac70398194ae004f49f738baf43db9",
+      "lines": 146,
+      "sha256": "91f2987ef670f537b7cd2bc703b7dffe03b3aa94d96f2ca6241c57a8146a6b08",
       "symbols": []
     },
     {
@@ -33395,8 +33395,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 863,
-      "sha256": "1ed563a0373971ced347d3d0837ba7b6b1728d6f1d90f0b465ca1ee426bb104b",
+      "lines": 850,
+      "sha256": "0fdd7c6e8d8154cbf201d4281fbec14d1331d2c52369898f84dec828ed75e547",
       "symbols": [
         {
           "name": "change",
