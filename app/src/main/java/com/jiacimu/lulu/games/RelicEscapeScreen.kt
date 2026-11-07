@@ -62,6 +62,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var showBag by remember(run?.id){mutableStateOf(false)}
     var showAlbum by remember{mutableStateOf(false)}
     var revealedLoot by remember(run?.id){mutableStateOf<RelicLoot?>(null)}
+    var openingReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
     var error by remember{mutableStateOf("")}
 
     fun change(block:()->RelicSnapshot) {
@@ -73,12 +74,18 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         val tier=unopened?.tier
         val before=run?.turns
         val openingRun=run
-        if(type!="open")revealedLoot=null
+        if(type!="open"){revealedLoot=null;openingReceipt=null}
         change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
-        if(type=="open" && openingRun!=null && unopened!=null &&
-            snapshot.run?.chests?.any{it.id==unopened.id && it.opened}==true) {
-            // Reveal is a projection of the already-committed physical loot, never another roll.
-            revealedLoot=RelicEscapeRules.treasure(openingRun,unopened)
+        if(type=="open" && openingRun!=null && unopened!=null) {
+            // Draw no win animation unless the actual saved world has an opened chest
+            // and an exact corresponding item in the player's bag or on the ground.
+            val receipt=snapshot.run?.let {
+                RelicChestPresentation.committed(openingRun,it,unopened.id)
+            }
+            if(receipt!=null){
+                revealedLoot=receipt.loot
+                openingReceipt=receipt
+            }
         }
         if(before!=snapshot.run?.turns) {
             val sound=when(type) {
@@ -111,10 +118,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             "❤ ${run.hero.hp}/10   ◇ ${run.value}   第${run.turns}回合\n" +
                 if (run.allies.isEmpty()) "本局单人探索" else "同行 ${run.allies.size} 人 · 金圈是你",
         scene = {
-            if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
-                RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
-                    focus = cameraFocus ?: (run.hero.x to run.hero.y))
-            else RelicCampBackdrop()
+            Box(Modifier.fillMaxSize()) {
+                if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
+                    RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
+                        focus = cameraFocus ?: (run.hero.x to run.hero.y))
+                else RelicCampBackdrop()
+                openingReceipt?.let { receipt ->
+                    RelicChestCeremony(receipt) {
+                        if(openingReceipt==receipt)openingReceipt=null
+                    }
+                }
+            }
         },
         companionAvailable = run != null && run.allies.isNotEmpty() &&
             run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED),
