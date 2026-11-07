@@ -98,6 +98,44 @@ class IslandHouseProjectsTest {
             JSONObject(pause.houseProject!!.json().toString()),pause.world)?.phase)
     }
 
+    @Test fun pausedDemolitionResumesDemolitionAfterReloadWithoutRebuilding() {
+        var state=start()
+        repeat(70) { if(state.houseProject?.phase!="complete")state=nextTurn(state) }
+        assertEquals("complete",state.houseProject?.phase)
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","我决定拆掉这间旧屋"))!!
+        state=nextTurn(state)
+        assertEquals("demolishing",state.houseProject?.phase)
+        val woodAfterRemoval=state.world.wood
+        val removed=state.houseProject!!.placed.size
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("pause_house","先停一下"))!!
+        assertEquals("paused",state.houseProject?.phase)
+        assertEquals("demolishing",state.houseProject?.resumePhase)
+        val restored=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals("demolishing",restored.houseProject?.resumePhase)
+        val idle=nextTurn(restored)
+        assertEquals(woodAfterRemoval,idle.world.wood)
+        assertEquals(removed,idle.houseProject?.placed?.size)
+        state=IslandActorPlay.apply(idle,"alice",idle.world.turns,
+            IslandActorChoice("resume_house","继续拆旧屋"))!!
+        assertEquals("demolishing",state.houseProject?.phase)
+        repeat(70) { if(state.houseProject!=null)state=nextTurn(state) }
+        assertNull(state.houseProject)
+        assertEquals(92,state.world.wood)
+    }
+
+    @Test fun legacyPausedBuildingDefaultsToBuildingAndInvalidResumeModeIsRejected() {
+        val state=start()
+        val paused=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("pause_house","先停"))!!
+        val legacy=JSONObject(paused.houseProject!!.json().toString())
+        legacy.remove("resumePhase")
+        assertEquals("building",IslandHouseProject.read(legacy,paused.world)?.resumePhase)
+        legacy.put("resumePhase","grant_free_loot")
+        assertNull(IslandHouseProject.read(legacy,paused.world))
+    }
+
     @Test fun demolitionReclaimsMaterialsOnePieceAtATimeAndPersists() {
         var s=start()
         repeat(70) { if(s.houseProject?.phase!="complete")s=nextTurn(s) }
