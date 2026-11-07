@@ -24,7 +24,7 @@ internal object IslandActorPlay {
         val a = w.friends.firstOrNull { it.id == id && it.hp > 0 } ?: return emptyList()
         val result = mutableListOf(IslandActorOption("none", "观察、交谈或保持安静", "none"))
         if (id in s.companionTravel && !w.finished)
-            result += IslandActorOption("stop_travel", "停止自己正在执行的行程，不再继续前往原目标", "stop_travel")
+            result += IslandActorOption("stop_travel", "取消自己正在执行的行程或采木计划", "stop_travel")
         val project=s.houseProject
         if(project?.ownerId==id) {
             if(project.phase in setOf("building","demolishing"))
@@ -43,6 +43,14 @@ internal object IslandActorPlay {
                         "start_house",x,y)
                 }
             }
+        }
+        if(!w.finished && s.companionTravel[id]?.targetMobId!=-3 &&
+            (project?.ownerId!=id || project.phase !in setOf("building","demolishing")) &&
+            IslandTravel.reachableWood(s,id)!=null) {
+            for(count in listOf(3,6))
+                result += IslandActorOption("plan_harvest_wood:"+count,
+                    "自己选择连续采集"+count+"棵可达树木；每回合真实走路或砍一棵，木材进入共享库存；可随时取消，不额外逐格调用模型",
+                    "plan_harvest_wood")
         }
         if(!w.finished && s.companionTravel[id]?.targetMobId!=-2 &&
             abs(a.x-w.x)+abs(a.y-w.y)>1)
@@ -311,7 +319,7 @@ internal object IslandActorPlay {
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
 像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。你拥有可以实际执行的合作能力：保护玩家抵挡怪物攻击（自己会受伤）、遇到威胁时主动赶去支援、玩家与自己一起靠近怪物时选择合击、帮助回血、采集共享材料、建造共同家园、救起伙伴。请根据自己性格、关系、局势和玩家说的话，自主选择分工或改变打算，不要统一固定保姆动作，也不要只说要保护却没有实际行动。可以商量、调侃、邀请玩家协作，也可以沉默。
-options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不代表已采集。regroup 是你本人选择来找玩家集合，适合分开后重新一起行动。追怪会跟踪怪物的实际位置；怪物死亡或路线被堵时会真实停下。currentTravel 是当前行程；stop_travel 由你本人决定取消。plan_regroup 和 plan_support 是你在本回合已经移动以后，也能自主选用的改计划动作：立即改变下一回合的目的地，但本回合不会多移动一次。听见玩家改变主意时依照你自己的判断选择；不要假装已经赶到。
+options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不代表已采集。regroup 是你本人选择来找玩家集合，适合分开后重新一起行动。追怪会跟踪怪物的实际位置；怪物死亡或路线被堵时会真实停下。currentTravel 是当前行程；stop_travel 由你本人决定取消。plan_regroup 和 plan_support 是你在本回合已经移动以后，也能自主选用的改计划动作：立即改变下一回合的目的地，但本回合不会多移动一次。plan_harvest_wood:3/6 是你本人选择持续采木，每个真实回合只走路或砍一棵，直到选定数量完成或可达树耗尽，不需要逐格额外付费；可以 stop_travel 中断。施工或拆除期间，必须先暂停工程才能采木；采完也不会替你自动恢复施工。听见玩家改变主意时依照你自己的判断选择；不要假装已经赶到。
 start_house 是你本人决定要不要为玩家亲手盖房以及挑选 warm 暖灯原木屋/pine 松林木屋的建筑风格，不代表已经建好。已选工程会随真实游戏回合逐格施工，每一步验证木材、路线、实体占用；木材不足就暂停。houseProject 是真实持久进度；你可以结合玩家当前讲话和你的想法，选择 pause_house、resume_house 或 demolish_house 逐格拆除自己建的部分。玩家改变主意应由你理解，不靠程序关键词强行拆房。none 只交流或观察，stop_travel 停止行程；没有原计划不自动编造下一个目标。
 你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。
 只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。

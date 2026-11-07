@@ -11,14 +11,38 @@ internal data class IslandTravelPlan(
     val targetMobId: Int,
     val selectedTurn: Int,
     val lastStepTurn: Int,
+    /** Physical tree harvests remaining from one model-selected plan. */
+    val harvestRemaining: Int = 0,
 ) {
     fun json(): JSONObject = JSONObject().put("x",x).put("y",y)
         .put("targetTile",targetTile).put("targetMobId",targetMobId)
         .put("selectedTurn",selectedTurn).put("lastStepTurn",lastStepTurn)
+        .put("harvestRemaining",harvestRemaining)
 }
 
 /** Continue only the exact chosen trip, once per existing world turn. No API timer. */
 internal object IslandTravel {
+    /** A reachable physical tree, not a fabricated resource reward. */
+    fun reachableWood(s: BlockIslandState, id: String): Pair<Int,Int>? {
+        val w=s.world
+        val actor=w.friends.firstOrNull { it.id==id && it.hp>0 } ?: return null
+        return w.tiles.indices.asSequence().filter { w.tiles[it]==1 }
+            .map { it%w.width to it/w.width }
+            .filter { (x,y) ->
+                !(w.x==x && w.y==y) &&
+                w.friends.none { it.x==x && it.y==y } &&
+                w.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
+                s.animals.none { it.x==x && it.y==y }
+            }
+            .sortedWith(compareBy<Pair<Int,Int>>(
+                { abs(actor.x-it.first)+abs(actor.y-it.second) },
+                { w.index(it.first,it.second) }))
+            .firstOrNull { (x,y) ->
+                abs(actor.x-x)+abs(actor.y-y)<=1 ||
+                    BlockIslandRules.nextStep(s,actor.x,actor.y,x,y)!=null
+            }
+    }
+
     fun restore(raw: JSONObject?, world: ExpeditionState): Map<String,IslandTravelPlan> {
         if (raw == null) return emptyMap()
         val restored = mutableMapOf<String,IslandTravelPlan>()
@@ -26,12 +50,15 @@ internal object IslandTravel {
             val j = raw.optJSONObject(id) ?: continue
             val plan = runCatching {
                 IslandTravelPlan(j.getInt("x"),j.getInt("y"),j.getInt("targetTile"),
-                    j.getInt("targetMobId"),j.getInt("selectedTurn"),j.getInt("lastStepTurn"))
+                    j.getInt("targetMobId"),j.getInt("selectedTurn"),j.getInt("lastStepTurn"),
+                    j.optInt("harvestRemaining",0))
             }.getOrNull() ?: continue
             // A bad optional movement instruction must not erase the actual island save.
             if (world.inBounds(plan.x,plan.y) && plan.targetTile in 0..8 &&
-                plan.targetMobId >= -2 && plan.selectedTurn in 0..world.turns &&
-                plan.lastStepTurn in plan.selectedTurn..world.turns)
+                plan.targetMobId >= -3 && plan.selectedTurn in 0..world.turns &&
+                plan.lastStepTurn in plan.selectedTurn..world.turns &&
+                (if(plan.targetMobId==-3) plan.targetTile==1 &&
+                    plan.harvestRemaining in 1..6 else plan.harvestRemaining==0))
                 restored[id] = plan
         }
         return restored
@@ -60,6 +87,19 @@ internal object IslandTravel {
         val actor=w.friends.firstOrNull { it.id==id && it.hp>0 } ?:return null
         if(w.finished)return null
         val parts=action.split(":")
+        if(parts.firstOrNull()=="plan_harvest_wood") {
+            val count=parts.getOrNull(1)?.toIntOrNull()
+            if(parts.size!=2 || count !in setOf(3,6) ||
+                s.companionTravel[id]?.targetMobId==-3 ||
+                (s.houseProject?.ownerId==id &&
+                    s.houseProject.phase in setOf("building","demolishing")) ||
+                reachableWood(s,id)==null)return null
+            val plan=IslandTravelPlan(actor.x,actor.y,1,-3,w.turns,w.turns,count!!)
+            val event="行程["+id+"] 第"+w.turns+"回合：本人决定逐回合采木"+count+"次"+
+                if(speech.isBlank())"" else "；他说：「"+speech+"」"
+            return s.copy(companionTravel=s.companionTravel+(id to plan),
+                world=w.copy(events=(w.events+event).takeLast(150),notice=event))
+        }
         val (tx,ty,mobId)=when(parts.firstOrNull()) {
             "plan_regroup"->{
                 if(parts.size!=1 || abs(actor.x-w.x)+abs(actor.y-w.y)<=1)return null
@@ -115,6 +155,41 @@ internal object IslandTravel {
             }
             if (plan.lastStepTurn >= w.turns ||
                 w.events.any { it.startsWith(IslandActorPlay.eventPrefix(id,w.turns)) }) continue
+            if(plan.targetMobId==-3) {
+                val target=reachableWood(next,id)
+                if(target==null) {
+                    next=finish(next,id,"可达的树已经采完；剩余"+plan.harvestRemaining+"次未执行")
+                    continue
+                }
+                val (tx,ty)=target
+                if(abs(actor.x-tx)+abs(actor.y-ty)<=1) {
+                    val remaining=plan.harvestRemaining-1
+                    val event=IslandActorPlay.eventPrefix(id,w.turns)+
+                        "按自己选择的采木计划砍下一棵树，真实木材+1；"+
+                        if(remaining==0)"本次采集完成" else "还计划采木"+remaining+"次"
+                    next=next.copy(world=w.copy(
+                        tiles=w.tiles.toMutableList().also { it[w.index(tx,ty)]=0 },
+                        wood=w.wood+1,events=(w.events+event).takeLast(150),notice=event),
+                        companionTravel=if(remaining==0)next.companionTravel-id else
+                            next.companionTravel+(id to plan.copy(x=tx,y=ty,
+                                harvestRemaining=remaining,lastStepTurn=w.turns)))
+                    continue
+                }
+                val step=BlockIslandRules.nextStep(next,actor.x,actor.y,tx,ty)
+                if(step==null) {
+                    next=finish(next,id,"采木道路受阻，材料未领取")
+                    continue
+                }
+                val event=IslandActorPlay.eventPrefix(id,w.turns)+
+                    "按已选采木计划走向树木("+tx+","+ty+")，走到("+
+                    step.first+","+step.second+")"
+                next=next.copy(world=w.copy(friends=w.friends.map {
+                    if(it.id==id)it.copy(x=step.first,y=step.second)else it
+                },events=(w.events+event).takeLast(150),notice=event),
+                    companionTravel=next.companionTravel+(id to
+                        plan.copy(x=tx,y=ty,lastStepTurn=w.turns)))
+                continue
+            }
             val enemy=if(plan.targetMobId>=0)
                 w.mobs.firstOrNull { it.id==plan.targetMobId && it.hp>0 } else null
             val (tx,ty)=when {
