@@ -62,13 +62,23 @@ object ProactiveSendAttribution {
         action: String,
     ): String {
         if (conversationId.isNullOrBlank()) return ""
-        return primaryMessageIds.asSequence().filter(String::isNotBlank)
-            .mapNotNull { CharacterActionEvidence.resolve(roleId, it) }
-            .firstOrNull { event ->
-                event.sessionId == conversationId &&
-                    CharacterActionEvidence.supports(event, action)
-            }?.id.orEmpty()
+        return selectPrimaryEvidence(
+            conversationId, primaryMessageIds,
+            primaryMessageIds.filter(String::isNotBlank).mapNotNull {
+                CharacterActionEvidence.resolve(roleId, it)
+            },
+        ) { CharacterActionEvidence.supports(it, action) }
     }
+
+    internal fun selectPrimaryEvidence(
+        conversationId: String,
+        primaryMessageIds: List<String>,
+        candidates: List<SharedTimelineEvent>,
+        supportsAction: (SharedTimelineEvent) -> Boolean,
+    ): String = candidates.firstOrNull { event ->
+        event.id in primaryMessageIds && event.sessionId == conversationId &&
+            supportsAction(event)
+    }?.id.orEmpty()
 
 
     /** Executor-only gate: a model decision or tool success is not proof of delivery. */
