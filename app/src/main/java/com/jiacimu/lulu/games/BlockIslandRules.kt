@@ -108,6 +108,29 @@ internal data class BlockIslandState(
     }
 }
 
+/** Derived only from the authoritative island save, not from UI-local quest flags. */
+internal object IslandMilestones {
+    fun next(s: BlockIslandState): String {
+        val w = s.world
+        val hasTable = s.structures.values.any { it == "workbench" }
+        val hasShelter = s.structures.values.any { it in setOf("campfire", "bed") }
+        return when {
+            !hasTable -> "生存 1/5 · 收集4木2石，建造工作台"
+            "sword" !in s.tools -> "生存 2/5 · 在工作台打造石剑"
+            !hasShelter -> "生存 3/5 · 建造篝火或床铺"
+            s.defeatedMonsters == 0 -> "生存 4/5 · 击退野怪，保护家园"
+            s.nightsSurvived < 3 -> "生存 5/5 · 守住3夜（${s.nightsSurvived}/3）"
+            s.supplyCaches.any { it !in s.openedSupplies } ->
+                "探险 1/3 · 搜寻补给宝箱（${s.openedSupplies.size}/${s.supplyCaches.size}）"
+            !s.tools.containsAll(setOf("axe", "pickaxe", "sword", "rod")) ->
+                "探险 2/3 · 收集全套工具（${s.tools.size}/4）"
+            s.structures.values.none { it == "bridge" } ->
+                "探险 3/3 · 在非边界水面搭一座木桥"
+            else -> "生存与拓荒目标达成！继续建设自己的家园，探索新玩法"
+        }
+    }
+}
+
 internal object BlockIslandRules {
     const val WORLD_WIDTH = 28
     const val WORLD_HEIGHT = 22
