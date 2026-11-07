@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T15:38:33.160127+00:00",
-  "commit": "3991ba3556e8a1d52edadf03718bf2f0d8fd1ecd",
+  "generatedAt": "2026-11-07T16:58:55.602188+00:00",
+  "commit": "ea874a572ee93c03c274fdd606c78e4d61231389",
   "branch": "main",
-  "sourceFingerprint": "255e96d606f4f2c9c0eb8fbd978aa04c1a7a9dabc819c34d17ca7893f76a53a2",
+  "sourceFingerprint": "181917e0abc6cc549a6e55083ccdc42f4ce344a39c657adf15081dddd07ad16d",
   "summary": {
-    "files": 1139,
-    "lines": 244561,
-    "symbols": 3361
+    "files": 1140,
+    "lines": 244591,
+    "symbols": 3362
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14094,6 +14094,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
         "line": 57
+      }
+    ],
+    "committed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
+        "line": 15
       }
     ],
     "target": [
@@ -33132,6 +33138,17 @@
       "lines": 35,
       "sha256": "ca1ff7cfcb3750ca0921d088027c1e2cddccd74efc3d884511c5e71a96f9700b",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
+      "lines": 30,
+      "sha256": "3c21161bbb5d16337783ed605571c5377080607d7101ee5b93cb610d10569365",
+      "symbols": [
+        {
+          "name": "committed",
+          "line": 15
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
