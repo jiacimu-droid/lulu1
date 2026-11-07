@@ -94,7 +94,9 @@ internal data class RelicRun(
     val bolts:Int=5,val guarding:Boolean=false,
     val playerChestMarks:Set<Int> = emptySet(),
     val guardedBy:String = "",
-    val coopPlans:Map<String,RelicCoopPlan> = emptyMap()
+    val coopPlans:Map<String,RelicCoopPlan> = emptyMap(),
+    /** Permanent expedition satchel tier is captured at departure. Allies keep 8 slots. */
+    val satchelLevel:Int = 0,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -123,6 +125,7 @@ internal data class RelicRun(
         .put("bolts",bolts).put("guarding",guarding)
         .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
         .put("guardedBy",guardedBy)
+        .put("satchelLevel",satchelLevel)
         .put("coopPlans",JSONObject().apply { coopPlans.forEach { (id,p) -> put(id,p.json()) } })
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
@@ -162,7 +165,8 @@ internal data class RelicRun(
                         (0 until a.length()).any { a.getJSONObject(it).optString("id")==id }
                     }
                 } ?: "")
-            result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result))
+            result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result),
+                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2))
         }.getOrNull()
     }
 }
@@ -170,6 +174,7 @@ internal data class RelicRun(
 /** Pure state transitions; invalid actions do not pass time or yield rewards. */
 internal object RelicEscapeRules {
     const val CAPACITY=8
+    fun heroCapacity(s:RelicRun)=CAPACITY + 2*s.satchelLevel.coerceIn(0,2)
     fun distance(ax:Int,ay:Int,bx:Int,by:Int)=abs(ax-bx)+abs(ay-by)
     private fun near(a:RelicActor,x:Int,y:Int)=distance(a.x,a.y,x,y)<=1
     fun reveal(s:RelicRun):RelicRun {
@@ -278,7 +283,7 @@ internal object RelicEscapeRules {
                 val chest=s.chests.firstOrNull{it.x==x && it.y==y && !it.opened}
                     ?:return s.copy(notice="宝箱已经打开，或这里没有宝箱")
                 if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="先接近宝箱")
-                val loot=treasure(s,chest);val fits=hero.load+loot.weight<=CAPACITY
+                val loot=treasure(s,chest);val fits=hero.load+loot.weight<=heroCapacity(s)
                 val unlocked=RelicArsenal.chestUnlock(chest)?.takeUnless { it in s.weapons }
                 val ammo=if(chest.tier==RelicTier.COMMON)1 else 2
                 next=s.copy(chests=s.chests.map{if(it.id==chest.id)it.copy(opened=true) else it},
@@ -297,7 +302,7 @@ internal object RelicEscapeRules {
                     ?:return s.copy(notice="这里没有可唤醒的祭坛")
                 if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="需要走近祭坛")
                 val loot=RelicLoot(s.id+":altar:"+altar.id,"封印之心",RelicTier.PRECIOUS,650+s.level*65)
-                val fits=hero.load+loot.weight<=CAPACITY
+                val fits=hero.load+loot.weight<=heroCapacity(s)
                 val spawn=listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)
                     .firstOrNull{(mx,my)->s.walk(mx,my) &&
                         s.mobs.none{it.hp>0 && it.x==mx && it.y==my} &&
@@ -355,7 +360,7 @@ internal object RelicEscapeRules {
             "pickup"->{
                 val drop=s.drops.firstOrNull{it.loot.id==lootId && near(hero,it.x,it.y)}
                     ?:return s.copy(notice="找不到这件地面物品")
-                if(hero.load+drop.loot.weight>CAPACITY)return s.copy(notice="背包容量不足，先舍弃其他物品")
+                if(hero.load+drop.loot.weight>heroCapacity(s))return s.copy(notice="背包容量不足，先舍弃其他物品")
                 next=s.copy(hero=hero.copy(bag=hero.bag+drop.loot),drops=s.drops.filterNot{it.loot.id==lootId})
                     .log("player","pickup","拾起 "+drop.loot.name)
                 noise=1
