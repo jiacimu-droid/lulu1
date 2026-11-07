@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5ef9b30e8be104bd6d04d4e8832c990aebc9344e`
+- 基准提交：`b49f761dbc03e7c9c118a2a8b590251c182f6a58`
 - 分支：`main`
 - 已索引文件：1138
-- 已索引代码/文本行：243599
-- 已发现符号：3348
+- 已索引代码/文本行：243639
+- 已发现符号：3349
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -643,8 +643,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 675 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 665 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 950 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 688 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 943 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -1098,7 +1098,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 351 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 375 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
