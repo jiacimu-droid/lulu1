@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T07:47:04.555118+00:00",
-  "commit": "3e4c94977b4711be6a7df42392e7c5b2e264645a",
+  "generatedAt": "2026-11-07T08:00:11.197927+00:00",
+  "commit": "5dbaeadb1785936541d7553d37c360fee835665e",
   "branch": "main",
-  "sourceFingerprint": "6a45cc92bcb95d41c76712154c0c0b96e33feeabfaee6d74bb5b3a9fd2915242",
+  "sourceFingerprint": "bd073a7c45f7d76da81336b22ee46325ee68c6ff6aeb32980a36d84df0b29214",
   "summary": {
     "files": 1138,
-    "lines": 243417,
+    "lines": 243428,
     "symbols": 3346
   },
   "symbolIndex": {
@@ -3809,7 +3809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 77
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
@@ -5423,13 +5423,13 @@
     "signature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 31
+        "line": 34
       }
     ],
     "clean": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 45
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
@@ -5443,7 +5443,7 @@
     "selectedStepsSignature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 65
+        "line": 68
       }
     ],
     "normalizeStep": [
@@ -23528,8 +23528,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-      "lines": 133,
-      "sha256": "153c77e8c2712f6356f1eec75554ef21b921fcd2896c59b01095a711e8b348df",
+      "lines": 136,
+      "sha256": "719ca779a6c00a4a6fd54878511da20fcd8722e6d01f2adf28c6091ebf92fd7b",
       "symbols": [
         {
           "name": "newestExecutedEvidence",
@@ -23537,19 +23537,19 @@
         },
         {
           "name": "signature",
-          "line": 31
+          "line": 34
         },
         {
           "name": "clean",
-          "line": 45
+          "line": 48
         },
         {
           "name": "selectedStepsSignature",
-          "line": 65
+          "line": 68
         },
         {
           "name": "render",
-          "line": 77
+          "line": 80
         }
       ]
     },
@@ -35936,8 +35936,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 112,
-      "sha256": "827e6d9821065fe75b8d1f69fab4c8dc68a115f5b0f8e42b2ef62e45920fa241",
+      "lines": 120,
+      "sha256": "0560f30e3114f88ed0a4da5d3d137aa72a215f731694ca02a7ddf137059729c3",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
