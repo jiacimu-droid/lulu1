@@ -49,6 +49,28 @@ data class ProactiveSendSummary(
 object ProactiveSendAttribution {
     private const val RECEIPT_PREFIX = "proactive-send:"
 
+    /**
+     * The executor's primary message IDs are the authority for delivery identity.
+     * Timeline conversation events use the same original message ID (group views
+     * add a role suffix). A newer side message of the same type is not proof of
+     * this primary action. Missing primary IDs mean unproven delivery.
+     */
+    internal fun primaryDeliveryEvidence(
+        roleId: String,
+        conversationId: String?,
+        primaryMessageIds: List<String>,
+        action: String,
+    ): String {
+        if (conversationId.isNullOrBlank()) return ""
+        return primaryMessageIds.asSequence().filter(String::isNotBlank)
+            .mapNotNull { CharacterActionEvidence.resolve(roleId, it) }
+            .firstOrNull { event ->
+                event.sessionId == conversationId &&
+                    CharacterActionEvidence.supports(event, action)
+            }?.id.orEmpty()
+    }
+
+
     /** Executor-only gate: a model decision or tool success is not proof of delivery. */
     internal fun shouldPersistDeliveredSend(
         primarySuccess: Boolean,
