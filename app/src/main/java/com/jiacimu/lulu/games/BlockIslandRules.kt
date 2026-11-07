@@ -145,7 +145,11 @@ internal object IslandMilestones {
                 "探险 3/3 · 在非边界水面搭一座木桥"
             s.animals.any { !it.befriended } ->
                 "生态收集 · 结识小岛动物（${s.animals.count { it.befriended }}/${s.animals.size}）"
-            else -> "生存、拓荒与生态目标达成！继续建设自己的家园"
+            s.structures.values.none { it=="pet_house" } ->
+                "家园 1/2 · 为动物伙伴建造温暖小屋"
+            s.structures.values.none { it=="lantern" } ->
+                "家园 2/2 · 建造夜灯，点亮自己的家"
+            else -> "生存、拓荒、生态与家园目标达成！继续创造自己的世界"
         }
     }
 }
@@ -320,8 +324,9 @@ internal object BlockIslandRules {
             }
             "move" -> {
                 if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) ||
-                    mob != null || w.friends.any { it.x == tx && it.y == ty })
-                    return reject("这格不能走，队友所在的位置也需要绕开")
+                    mob != null || w.friends.any { it.x == tx && it.y == ty } ||
+                    s.animals.any { it.x==tx && it.y==ty })
+                    return reject("这里有伙伴或动物，需要绕开或进行互动")
                 next = s.copy(world = w.copy(x = tx, y = ty))
                 message = "走到了 ($tx,$ty)"
             }
@@ -717,7 +722,8 @@ internal object BlockIslandRules {
             if (x == fromX && y == fromY) return false
             return (w.x == x && w.y == y) ||
                 w.friends.any { it.x == x && it.y == y } ||
-                w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
+                w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
+                s.animals.any { it.x==x && it.y==y }
         }
         val targetOpen = isWalkable(s, toX, toY) && !occupiedByOther(toX, toY)
         val ends = if (targetOpen) setOf(w.index(toX, toY)) else
