@@ -244,6 +244,36 @@ internal object RelicEscapeRules {
                         .log("player","cancel","离开出口，撤离进度重置")
                 noise=if(action=="sneak")0 else 1
             }
+            "channel"->{
+                val chest=s.chests.firstOrNull{
+                    it.x==x && it.y==y && !it.opened && it.tier==RelicTier.RARE
+                } ?:return s.copy(notice="只有尚未打开的稀有宝箱可以破封")
+                if(!near(hero,x,y) || !s.visible(x,y))
+                    return s.copy(notice="需要靠近并确认这只稀有宝箱")
+                if(s.tools<=0)return s.copy(notice="破封需要1套拆解工具，先寻找补给")
+                // A real dangerous guardian must have a free reachable tile. Never grant
+                // an upgrade with a fabricated threat when the scene cannot fit an enemy.
+                val location=listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)
+                    .firstOrNull { (mx,my) ->
+                        s.walk(mx,my) && (hero.x!=mx || hero.y!=my) &&
+                            s.allies.none{it.hp>0 && it.x==mx && it.y==my} &&
+                            s.mobs.none{it.hp>0 && it.x==mx && it.y==my} &&
+                            s.chests.none{it.id!=chest.id && it.x==mx && it.y==my && !it.opened} &&
+                            s.sites.none{!it.spent && it.x==mx && it.y==my} &&
+                            (s.exitX!=mx || s.exitY!=my)
+                    } ?:return s.copy(notice="周围没有能容纳守卫的空间，暂时无法破封")
+                val guardian=RelicMob((s.mobs.maxOfOrNull{it.id}?:0)+1,
+                    location.first,location.second,6+s.level,2,alert=3)
+                next=s.copy(
+                    tools=s.tools-1,
+                    chests=s.chests.map {
+                        if(it.id==chest.id)it.copy(tier=RelicTier.PRECIOUS) else it
+                    },
+                    mobs=s.mobs+guardian,
+                ).log("player","channel",
+                    "破封成功！稀有箱已升为珍贵箱，但守卫被唤醒。工具-1 · 请自行决定开箱或撤离")
+                noise=3
+            }
             "open"->{
                 val chest=s.chests.firstOrNull{it.x==x && it.y==y && !it.opened}
                     ?:return s.copy(notice="宝箱已经打开，或这里没有宝箱")
@@ -257,8 +287,8 @@ internal object RelicEscapeRules {
                     weapons=if(unlocked==null)s.weapons else s.weapons+unlocked,
                     bolts=(s.bolts+ammo).coerceAtMost(12))
                     .log("player","open",chest.tier.label+"宝箱开启："+loot.name+
-                        if(fits)"（入包）" else "（背包已满，留在原地）"+
-                        if(unlocked!=null)" · 解锁"+RelicArsenal.label(unlocked) else ""+
+                        (if(fits)"（入包）" else "（背包已满，留在原地）")+
+                        (if(unlocked!=null)" · 解锁"+RelicArsenal.label(unlocked) else "")+
                         " · 弩箭+$ammo")
                 noise=2
             }
