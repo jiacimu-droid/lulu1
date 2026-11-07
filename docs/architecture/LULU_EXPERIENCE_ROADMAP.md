@@ -1,6 +1,6 @@
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
-更新：2026-11-04。本页只保留**尚需完成的子步骤**。已实现的源码、旧版设计、旧 CI 与提交历史留在 [人物专项进度](CHARACTER_CONSISTENCY_PROGRESS.md) 和本文件 Git 历史；固定任务 ID 不复用，不因完成一项代码修复就把整体体验标为完成。
+更新：2026-11-07（移除已完成的开发流水、保留实际待验）。本页只保留**尚需完成的子步骤**。已实现的源码、旧版设计、旧 CI 与提交历史留在 [人物专项进度](CHARACTER_CONSISTENCY_PROGRESS.md) 和本文件 Git 历史；固定任务 ID 不复用，不因完成一项代码修复就把整体体验标为完成。
 
 **整体顺序：人物活人感与完整因果 P → 自主社交 S → 游戏 G 与视频 V。** 有数据损坏风险/全局性能严重卡顿时 UI 可以插队。跨场景人物断链仍按人物第一优先。所有代理均从 AGENTS.md 读规范，从本页决定下一项，从专项进度查历史证据。
 
@@ -14,16 +14,16 @@
 6. **交接**：完成子步骤勾 [x]，把证据追加到专项进度；只剩外部验收的项目保留具体待验子步骤，不保留已完成开发流水。每轮报告改了什么、为何、提交和测试结果、下一编号。不重用 ID；有新根因则在原 ID 下新增子步骤。
 7. **并发与授权**：多窗口/自动任务先核 main 与同文件 SHA；有冲突时刷新或避让，不强推、不覆盖用户改动。真实模型和真机证据无法拿到时写「未知」，不能编造，也不能把私人日志提交公开仓库。
 
-**最近已核对的完整构建基线（接手须刷新）**：`3ba3281` 的 [APK/JVM/发布41927755186](https://github.com/jiacimu-droid/lulu1/actions/runs/41927755186) completed/success，job126916536623测试构建与发布步骤均通过，原索引41927754781 success。前轮ab1dac1的41916963280/41916963410也均success；旧失败与40分钟超时不扩称为当前失败。本轮新目标独立步骤交接及他窗后继trace仍须自己的CI，真机/真实模型未验。
+**最近已核对的完整构建基线（接手须刷新）**：`c0601ed` 的 [APK/JVM 42330530414](https://github.com/jiacimu-droid/lulu1/actions/runs/42330530414) 与 [索引 42330530343](https://github.com/jiacimu-droid/lulu1/actions/runs/42330530343) 均 completed/success，覆盖其之前进入 main 的源码与 JVM 回归。后续 `5164725` 的群聊昵称回归在 [#802/42352684114](https://github.com/jiacimu-droid/lulu1/actions/runs/42352684114) 实际失败（2503项1失败），已由 `03a490d` 修源码、`5dbaead` 补测试，最新提交的 JVM/APK 仍须新 CI 证明。成功构建不等于真机/真实模型通过。
 
 ## 二、跨窗口接力看板（仅列未完成项）
 
 | 顺序与 ID | 当前阶段 | 下一可执行步骤 | 完成边界 |
 |---|---|---|---|
-| 1 P-08a | CI 诊断待 JVM/APK；全链待源码复核/真实样本 | P-08a.CI-01.2 核新构建静默诊断和首个真实失败，再做 P-08a.1 | 能定位决策→表达→发送→后续哪个阶段失真 |
+| 1 P-08a | 群聊昵称回归已修源码、待新 JVM/APK；前后台发送链与真实样本待验 | P-08a.1g.3 核新 CI 与真实 ToolRouter→Timeline→Store→后续回执 | 能定位决策→表达→发送→后续哪个阶段失真 |
 | 2 P-08b | 待正式注入/真实模型 | P-08b.1 核江渡、星禾不同入口的人设注入 | 人设实际改变本人判断，且不串人格 |
 | 3 P-08c | 待回归/真实模型 | P-08c.2 验证发泡、送达锚与失败回执 | 接话与 bubbles 自然，送达真实 |
-| 4 P-08d | 待源码复核/跨日 | P-08d.1 沿 taskId 追逐步回执 | 目标、执行结果、后续能完整承接 |
+| 4 P-08d | 既有 JVM 成功基线；入口真实回执/跨日待验 | P-08d.1 沿 taskId 追逐步回执 | 目标、执行结果、后续能完整承接 |
 | 5 P-03 | 待真机/真实模型 | P-03.1 跨媒介条件/否定/副动作 | 有效模型决定不被程序偷偷改写 |
 | 6 P-05 / M1 | 待源码核查/真实召回 | P-05.1 查是否真缺按需片段展开 | 精确原话来源、修订和缺段可追溯 |
 | 7 P-06 / M2–M3 | 待源码复核/真机 | P-06.1 时间地点参与者字段贯通 | 关联完整，跨角色来源不混淆 |
@@ -48,39 +48,24 @@
 
 
 ### P-08d.2h 显式 steps/sideActions 镜像主工具归属（2026-11-05）
-- [x] **P-08d.2h 源码与回归提交**：原 withPrimaryActionOwnership 只收集 nested nextAction 的归属，显式 steps/sideActions 若与顶层主工具完全镜像，主工具执行一次后 Ordered 还会再执行一次，或两份真实回执无法归同一明确目标。源码 c47fb4a 将显式步骤加入既有兼容归属合并，actions 仅在主回执已覆盖该步骤所有显式 owner 时去掉镜像；冲突 owner 仍作为独立步骤保留。测试 d746e9a 检验 motiveRef、concernId 累积、冲突独立保留、输入不变。无新模型调用、不改人设和持久数据。
-- [x] **P-08d.2h.1 友好主动作别名的显式镜像回归已提交（CI 待验）**：0e71fea 扩展原 CharacterThoughtActionHandoffTest，对 publish_moment/send_private_message/start_call 三类正式友好动作映射，验证 steps/sideActions 兼容目标和挂心只归一份主回执；冲突目标必须保留独立步骤，原 JSON 不变。此项是新增自动回归源码，不代表已经 JVM 运行或外部发送验收。\n- [x] **P-08d.2h.2 顺序副动作去重边界源码/回归已提交，CI 待验**：发现 sideActions 原先跨所有已输出步骤搜索同效果动作，导致中间穿插不同动作后，角色再次明确选择相同工具也被吞掉，改变执行顺序及条件步骤所依赖的真实前驱。源码 06809cd6 仅对紧邻且执行条件兼容的 sideAction 合并，保留非相邻重复动作；回归 dcfb3ba 验证「搜索→阅读→再次搜索」不被压成两步、相邻完全镜像仍合并、原始决定不变。尚未取得新 SHA 的 JVM/APK 成功凭据，且不等于此前主工具镜像/条件前驱风险已全部解决。\n- [x] **P-08a.CI-01.4 编译阻断修复源码已提交（CI 待验）**：Actions 42069227302（0dd4e42）在 `:app:compilePhoneKotlin` 报 `ProactivePerceptionRuntime.kt:2537` 未解析 `scheduleUnfinishedSleepHandoff`；现有 `ProactivePerceptionScheduler` 真实入口已命名为 `scheduleUnfinishedCommitmentRecovery`，但执行回执路径仍调用旧名。源码 e12149c 将该调用改为现存有界恢复入口；不更改唤醒策略或增加收费调用。当前仅源码提交，需新 push JVM/APK 验证，不能视为通过。代码索引生成需核原 Actions 自动索引结果；本环境无法克隆仓库执行脚本。\n- [x] **P-08d.2h.3 CI 失败根因与嵌套跨间隔执行修复已提交（JVM/APK 待验）**：42076430945 在 2487 项测试中 1 项失败，`stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts` 仍期待跨 `write_journal` 的第二次 `web_search` 被合并（预期 2，实际 3）；这是 06809cd6 顺序语义修复后过期的测试预期。a8afe867 修正为三次有序动作、独立挂心归属和输入不变。进一步核查 `actions().add` 的 nested nextAction 仍跨全部已排步骤查重，源码 1beed430 统一为仅与紧邻兼容步骤合并；a8afe867 新增嵌套非相邻回归。旧 CI failure 不代表新提交通过，仍需新 push 全量测试与 APK。
-- [x] **P-08d.2h.8 失败前驱、独立步骤与同 requestId 重放回归已提交（CI 待验）**：477fcc2f 在 AutonomousActionBoundaryIntegrationTest 新增真实 OrderedCharacterActions→ToolRouter→MomentsStore 集成测试：未知工具失败、紧随其后的 requiresPreviousSuccess=true 发布跳过、独立发布仍成功；同一 requestId 重放不得重复发布。只新增回归，不把测试源码存在当成运行通过；真实主工具失败、后台入口与真机仍待验。\n- [x] **P-08d.2h.9 主工具失败后的条件步骤与独立后继回归已提交（新 CI 待验）**：1cd26c0 在原 OrderedCharacterActions→ToolRouter→MomentsStore 路径新增 initialCompleted=false 的集成测试：失败主工具后 requiresPreviousSuccess 步骤跳过，独立发布成功后其依赖后继可以执行；同 requestId 重放不产生重复朋友圈。上轮 477fcc2 的 APK/JVM 42145130918 与索引 42145131120 已 success，但不能代表 1cd26c0 的新测试通过；前后台真实主工具回执及真机仍待验。\n- [ ] **P-08d.2h JVM/APK 与入口回执验收**：上述测试提交后须核对应 push Actions 全量 JVM/APK；再补前台/后台入口主工具真实回执与重放，验证没有重复外部副作用。真机/真实模型/跨日未知。
+- [ ] **P-08d.2h 真实入口回执（JVM 基线通过）**：c0601ed 的 42330530414 已完整 success；仍缺前台/后台主工具真实 receiptId、失败条件依赖、多个独立副作用与同 requestId 重放集成。真机/真实模型/跨日未知。
 
 ### P-08d.2g 主工具部分归属不能被后续冲突抹除（2026-11-05）
-- [x] **P-08d.2g 源码与回归已提交，CI/真机待验**：原 withPrimaryActionOwnership 对同一主工具的多个嵌套 nextAction 依次累积兼容归属；若后面的一个 motiveRef 与主工具原 motiveRef 冲突，直接 `return decision`，连前面已确认兼容的 concernId 一起丢失。修复为跳过冲突候选、保留先前独立兼容归属，冲突候选仍交原 actions() 作为独立步骤与回执，不猜同一目标。源码 e00edd1，回归 52c914c 覆盖主工具原目标、先到挂心、后到冲突目标、原 JSON 不变。完整 JVM/APK 和真实执行尚未验证；不将此项误记为整个 P-08d 完成。
-- [ ] **P-08d.2g CI 与真实回执**：99830ef 新增主工具镜像 motiveRef→原 OrderedCharacterActions→真实 plan_personal_activity 持久日程/ToolRouter 回执→同 requestId 重放幂等的 Robolectric 集成回归；源码测试已提交，但该提交的 JVM/APK 尚无成功证据，主动作真实前台/后台 ToolRouter 入口与冲突独立步骤的端到端仍待验。先核最新 CI，失败按真实日志修，真机/真实模型/跨日待验。
+- [ ] **P-08d.2g 真实执行/归属验收**：主工具镜像及冲突目标已包含在 c0601ed 的成功 JVM 基线；仍需前后台真实 ToolRouter 回执、冲突独立执行与回放幂等、真机验收。
 
 
-- [x] **P-08a.1f 主动发送回执身份一致性源码与回归已提交（CI 待验）**：`ProactivePerceptionRuntime` 的成功发送记录以 `proactive-send:<实际送达事件ID>` 命名；`ProactiveSendAttribution.receipts` 原仅验证前缀、成功与时间，未核 `causalEvidenceId` 与该 ID 一致，错误/缺失来源仍可借其他送达事件计为已回复。源码 ea3bf370 拒绝缺失或不一致的事件归属；回归 ae28fa76 覆盖错配和空来源，保留原正常送达。尚无本提交 JVM/APK 通过证据，真实发送、重启与下轮召回待验。
 
 
-- [x] **P-08a.1g.1 写入门禁的可执行回归已提交（CI 待验）**：63308f8 将已有的「主工具成功＋非空真实送达锚＋私聊动作」门禁抽为纯机制函数，e2bf9dd 让正式 ProactivePerceptionRuntime 写入分支使用同一函数；c0601ed 补成功无锚、失败有锚、非私聊有锚、正常成功四种回归。此为生产写入条件的单元级覆盖，**不是**真实 ToolRouter→Timeline→持久 Store 的入口集成回归；不宣称全链验通。此前 06420830 的 APK/JVM 42319463747 已 completed/success；新提交需独立 Actions 验证。
+
+### P-08a.1g 送达事件身份与后继确认（2026-11-07）
+- [ ] **P-08a.1g.3 真实入口与 CI 验收**：此前非空真实送达锚写入门禁、读取身份/时间约束与 c0601ed 的 JVM/APK 已通过；尚无真实 ToolRouter→Timeline→CharacterInnerLifeStore 执行器级和跨重启测试。5164725 对不同会话隔离时误伤群聊昵称，#802 / 42352684114 为 2503 tests、1 failed（group 被当作空）；生产修复 03a490d 保留同 session 的群昵称，回归 5dbaead 增无 session 的未知昵称/同 session 用户发言负例。先核最新 CI，再补同会话并行主/副动作、跨会话、进程重启、幂等及下轮召回；真机/真实模型未知。
 
 ### P-08a.1e 后台发送回复归属的实际送达边界（2026-11-07）
-- [x] **P-08a.1e 正式源码和回归已提交，JVM/APK 待验**：8957421 修正 ProactiveSendAttribution 仅凭发送回执时间判定用户已回复的问题，要求用户消息晚于真实 CharacterStatement 送达事件和回执时间、且角色/session 相同；无法解析真实送达锚时保持未知。9db2a1b 新增早回执/晚送达、送达前后、非角色发送锚和跨角色事件回归。没有增加模型调用或更改角色决定。
-- [ ] **P-08a.1e CI/真实入口验收**：检查新提交的 JVM/APK Actions 与首个失败；电话静默、后台实际发送、进程重启和下一轮召回仍需真实链路证据，不能把纯函数回归当成全链验收。
+- [ ] **P-08a.1e 真实发送回复归属**：源码与回归已纳入 c0601ed/42330530414 success；仍需电话静默、后台实际发送、重启、跨角色和下一轮召回的真实入口证据。
 
-### P-08a.1d 混合事件来源到承诺持久化（2026-11-07）
-- [x] **P-08a.1d 入口级回归源码已提交，JVM/APK 待验**：6818ecec 在 CommitmentSemanticPersistenceTest 通过真实 Timeline→Bridge→CommitmentDecisionRuntime→CommitmentTaskStore，覆盖本角色有效事件、跨角色同文事件和不存在的事件 ID 混合输入；验证持久任务来源只保留本角色有效 ID，其他角色不被登记，handled 幂等不认领无效来源。只增加测试，不新建数据中心、关键词判断或收费模型调用；不能将提交当作已运行通过。后续需核该 SHA 的 push Actions、电话/后台实际回执和跨轮召回，P-08a.1 整体仍待验。
-
-### P-08a.2k 心声来源时间归因（2026-11-05）
-
-- [x] **P-08a.2k 源码与回归已提交，CI/真机待验**：只读 CharacterCausalTrace 对想法采用来源 ID/版本，却未核当前版本想法的记录时间；早于来源的想法会被错误展示成该事件触发的「仍被保留」心理。源码 80ab933 将这种时间矛盾明确显示为「因果未证实」，保留原文和历史，不冒认人物心理；测试 acb8582 覆盖早于来源、正常后续、旧无时间记录、只读和跨角色。不得将源码提交视为 JVM/APK 通过。P-08a.1 其余跨入口链路仍待审计。
 
 ### P-08a.CI-01.3 · 2026-11-05 所行排序验收阻断
-- [x] **定位并修正唯一失败断言，源码已提交**：最新 [Lulu APK 42027260248](https://github.com/jiacimu-droid/lulu1/actions/runs/42027260248)（479e262）实际完成 2481 项 JVM 测试，2480 通过、1 失败：`SelfTodoRoleReadTest.todayOverdueFutureAndCheckedTodayUseTheSameOccurrenceCalendar` 仍要求 `scope=all` 第三条为逾期事项。新的用户确认排序为“本日专门安排→每日事项→未来安排→逾期”，故第三条实际为未来安排，第四条才是逾期。提交 [84d0d2d](https://github.com/jiacimu-droid/lulu1/commit/84d0d2d81598082556c2816d08250436ed80ffff) 只更新此回归，分别断言 `all` 的四条稳定顺序及 `today` 仍包含逾期；保留 UI 与角色工具共用的 `SelfTodoCalendar` 权威排序，不反向改坏功能。
-- [ ] **同提交 JVM/APK 与真机待验**：[构建 42029112180](https://github.com/jiacimu-droid/lulu1/actions/runs/42029112180) 已触发，尚不得声明成功；还需真机核所行列表和角色 `read_self_todo` 一致、以及前述中转站慢响应修复在真实中转线路上是否恢复。不要用旧版成功 APK 或仅单测源码替代当前版本验收。
-
-### P-08a.CI-01 · 全量人物回归运行停滞的可复核诊断（2026-11-05）
-- [x] **P-08a.CI-01.1 非侵入式源码与本地脚本冒烟**：实际 [41936349268](https://github.com/jiacimu-droid/lulu1/actions/runs/41936349268) 的 Test and build phone APK 在日志已开始 57 项 ResidentDailyContinuityTest 后持续静默，40 分钟步骤超时；原日志只有 STARTED，无 PASSED 和线程栈，不足以确定是哪条用例/锁/网络/GC。新增 `scripts/ci_gradle_stall_watch.sh` 仅在 Gradle 日志静默 180 秒时采样进程 PID/内存、最多 6 个 JVM 的有界 `jcmd Thread.print -l`，每 600 秒至多一组，保存到失败日志产物；新增 `scripts/test_ci_gradle_stall_watch.sh`，本地 shell 模拟「持续输出不触发、静默触发且不重复」已通过。Actions `release.yml` 接入 watcher 并保留原 40 分钟超时、全部 JVM 测试和 APK 流程；`app/build.gradle.kts` 新增 PASSED 事件，与 STARTED/FAILED 对应。提交 63431ea、5d46f2d、00186e5、1ba310b。
-- [ ] **P-08a.CI-01.2 CI 根因收敛与修复**：核包含这些提交的下次实际 JVM/APK run：脚本测试是否运行、若再静默是否生成 `gradle-stall-diagnostics.log` 和测试完成序列；按线程栈或真实错误修同一根因并补应用/构建回归。若通过则仅记录该版本未复现，不宣称旧超时根因已解决。
-- **边界**：本轮是构建诊断链的可执行修复，不是人物功能问题根治；没有跳过居民测试、延长超时、增加模型请求或改角色状态。CI 与真实 APK、真机、真实模型尚待验。
+- [ ] **所行排序的真机和角色读取一致性**：此前源码及回归已在 c0601ed/42330530414 success 基线；仍需真机比对 UI 与角色 read_self_todo 的专门安排、每日重复、未来事项、逾期顺序，并实测慢响应中转回包。
 
 ### P-08a / S-02 · 2026-11-05 后台模型传输与居民记忆预算（源码已提交，CI/真机待验）
 - [ ] **P-08a.2 真实断流诊断与大请求投影**：真机 09:44 后台主动感知 SSE 在 12925ms 期间发送请求正文中断，bodyBytes=263226、systemChars=79179、currentChars=41428、无历史/图片。此日志仅证明 POST 写出阶段失败，不能确定上游是否收齐/生成；当前不允许盲目重发以免重复付费。既有 RelayRequestPressurePolicy 阈值 280KB 未涵盖该输入，c1fd18a 下调到 >220KB，仍以 savesEnough 且保护完整的人设/关系/核心责任/工具协议和当前事实为前提，只压旧可选段落；a731013 补 263226 与 220000 边界回归，17e982e 增真实尝试投影字节诊断。仍需同等场景测实际首包/断流、输出质量和预算费用，不宣称某次 VPN 路径为根因，也未证传输已恢复。
@@ -98,14 +83,14 @@
 
 
 ### P-08a 全链追踪
-- [x] **P-08a.1a 未经验证的历史同文不得冒充本轮用户来源（源码/回归已提交，CI 待验）**：`LuluDeviceToolBridge.respond` 原来在 `userEvidenceIds` 缺失时用最近 40 条历史正文前 60 字包含关系猜测 `groundingEvidenceId`，重复原话或引用会误归旧事件，并进入心事、工具及心理因果归属。源码 [55a273b](https://github.com/jiacimu-droid/lulu1/commit/55a273bb30faea081a52b9787dcf939dc96ea55d) 改为只接受入口核验的 UserStatement ID、明确重考虑事件或电话静默观察；无权威来源时保留空归属，不虚构新事件或删历史。回归 [2ae52bb](https://github.com/jiacimu-droid/lulu1/commit/2ae52bb737342f7efd1d1edc1776d8f34eeae0d0) 覆盖同文不同 ID、缺 ID、重考虑与静默优先级。**仅确认提交，JVM/APK/真机未验**；P-08a.1 的其他入口与工具回执仍待核，直接小红书 fallback 请求 ID 的同文跨轮幂等风险尚未处理。
-- [x] **P-08a.1b 无权威事件时小红书直读请求身份隔离（源码/回归已提交，CI 待验）**：原 direct-xhs 使用 `userText.hashCode()` 作无来源备用 requestId，相同正文跨轮会复用同一幂等键。改为已验证事件 ID 优先、否则本次调用唯一 turnTraceId；回归覆盖同文不同调用、同一调用重试及已验证事件重试。源码 `e63c9ac`、测试 `6c756b5`。仅确认提交，尚未取得本 SHA JVM/APK 成功；真实入口、重启、外部读回执仍待验，不勾 P-08a.1 整体。\n- [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
+- [ ] **P-08a.1** 检查 CharacterDecisionProtocol、CharacterCausalTrace、表达、聊天落库、工具执行/通知是否沿同一 turnTraceId、roleId、sourceMessageId、taskId；记录断开位置与真实调用点，不新建日志中心。
 - [ ] **P-08a.2** 若已证关联缺失，修权威链路并加跨私聊/群聊/后台的测试；无缺陷不空改。
 - [ ] **P-08a.3** 用获授权脱敏真实回合对齐输入/选择/表达 bubbles/送达/后续，未取得样本就标外部待验。
 
 
 
 ### P-08b 本人人格和心理
+- [ ] **P-08b.switch 本人人格的实际体验验收**：江渡最新授权修订为整体偏 Dom，依具体情境自然展现不同面向，不强制每句同时表现；需确认安装版真正注入新版 care/示例且不覆盖其他角色、后续用户修改仍有效。已有代码提交不等于真机/真实模型通过。
 - [ ] **P-08b.1c 关系标题不能覆盖本人约定（旧版CI六项失败；3ec761c/8c5bf66纠正后的JVM/APK通过）**：公共PeerRelationshipContext按标题含「闺蜜」额外注入固定非恋人/非仆人等关系脚本，与完整自定义复合关系及具体约定冲突。移除该第二解释器及网关重复入口，继续仅由CharacterRuntime→CharacterSocialRelationship读取同一权威Store。星禾原有明确闺蜜边界留在人设/关系原文，不修改任何角色资料；补完整长约定、编辑/清空、角色隔离与Full/精简表达/电话/PersonaAndScenario/Isolated真实网关请求回归。原索引已自动更新为1814b36（16b8ea5），旧 APK 41879637273 实际 failure（2441 项、6 失败；四项共享规则超长、一项旧关系模板断言、一项社交测试 ACL 前置不足），针对性修复见人物及社交专项进度；新 APK 41882293649与原索引41882293653已success，真机与真实模型仍未完成；真实模型取舍仍待对照。
 - [ ] **P-08b.2a 旧探索结果读写同源**：已证实旧记录读取仍可把排程/元数据修改当真实材料；本轮统一 lastRealStep 与 recordOutcome 的 supportsExploration，保留原始记录，仅投影回退到仍有效的材料。新增九类旧元数据、重启、两入口注入、来源及角色隔离回归；源码/测试0df8e07，原索引41859812905 success（98912e3），JVM/APK41859812891与原索引41859812905均success，真机/真实模型未验。不会把被排除的历史动作自动变成新问题或新任务。
 - [ ] **P-08b.1** 核 CharacterLifeStore 新江渡/星禾预设、用户后续编辑及私聊/电话/群聊/后台实际注入；确保隔离场景不泄露真实关系，不能通用化江渡性格。
@@ -115,9 +100,7 @@
 - **已做不重做**：v26–v29 人设、获批准完整覆盖 f6c5b42、星禾 v9、心声去重及过度时间否决修复。
 
 ### P-08c 群聊与自然气泡
-- [x] **P-08c.1 源码与回归及 CI 已通过**：QqChatReplyEngine 的单次请求注入边界及 GroupChatTurnPlannerTest 空正文/工具型结果/异常调用次数回归，提交 c7c942c、cb1bcf8。已由 cb1bcf8 的 41831351831 完整 JVM/APK/发布与 41831352008 原索引 success 核实；真实群聊发送与失败回执仍待 P-08c.2/3 验收。
 - [ ] **P-08c.2** 校验本人选 bubbles/旧 text、前一人真实送达锚、沉默/取消、不丢长答的限定和否定；有失败才修。
-- [x] **P-08c.2a 源码/回归及后继CI通过**：群电话原本即使没有实际发出气泡也可能把模型草稿交给语音队列；群聊部分送达又可能提前执行整轮 deferredActions。5145505 改用原 RoleReplyDeliveryReceipt 的真实持久消息作电话播放依据，只有完整送达才执行延后工具；bff33e9 增加完整/部分/撤回/过期矩阵回归。P-08c.2 的其他发泡、真实锚和取消场景仍待核查；此项不等于真机或真实模型通过。
 - [ ] **P-08c.2c 同轮主回复与附加发送重复（源码及回归已提交，CI/真机待验）**：真机截图 23:14 同一段私聊先分成三泡、后又按两泡重复，不能仅按长气泡/展示层修。源码证实 ProactivePerceptionRuntime 同轮主回复与 sideActions 中的 `send_private_message` 使用不同 requestId，ToolRouter 的单请求幂等无法判断两边其实是同一段文字。源码 `6520ae5`、`5ef69d5`、`fd886cc` 以主回复确实入库的消息ID与原文为依据，仅跳过 sideActions 中与本轮已送达正文完全相同（允许不同气泡分法）的镜像发送；`bd950b0`、`8e5efed` 也复用同一比较规则，避免 action=tool 的附加消息已经真实送达后，再经 `requestId:reply` 重发同一篇文字，保留同轮不同后续话、其他工具及独立下一轮。回归 `1d3eae6`、`21496a0` 涵盖重复全文/拆泡镜像/真正新发言、工具副发送与后续相同文字判定；**未取得修复后 JVM/APK、真机回合 trace 证据，截图所示双发究竟同轮镜像还是不同轮竞争尚未最终归因**。**新增根源级归口**：查实 private fresh-reply 的模型输出同时允许顶层 action=message/text/bubbles 和 steps/sideActions/nextAction 中的 send_private_message；原来多出口被当作独立 ToolRouter 请求，即使同一模型只调用一次，也会实际双发。新增 `singlePrivateInboundReply` 于执行前统一本次无条件对用户说的话，主聊天正文/追加的真正不同文字按原模型内容成为同一次气泡回复，相关私聊 send 步骤不再进入独立工具发送器；其他工具、requiresPreviousSuccess 后置发言、有真实 planId 的定时提醒及无新消息的角色自主联系仍保留。接入 `ProactivePerceptionRuntime` 与其唯一 user stimulus；支持文内多气泡、显式语音/文字选择、原自由气泡分法。代码 `bea933c`、`9c6728b`、`83bac39`、`a5bd04f`、`4b8068a`、`0a66ac8`；测试 `77c3dba`、`5979aef`、`83fb0c4`。仍待最新完整 JVM/APK、真机 trace（不把同轮重复和真正并发混为一谈）及主人安装验收。应按 turnTraceId/源消息ID/主副回执核对，若为跨轮再定位，不做全局相似话术屏蔽。
 - [ ] **P-08c.3a 私聊气泡由人物自己选择，而非系统定制分句模板（源码与回归已提交，CI/真机待验）**：用户截图希望一句自然话在真实口语停顿时分开成几条短泡，并澄清不是系统逗号分句或固定三泡示范。源码已证模型结构化 bubbles 直接决定逐泡发送，真正冲突是多个入口旧提示词强调每泡必须完整独立意群，且前台两阶段 lean 表达漏掉该角色已从真实原话学到的 UserPreference/UserHabit。删除错误示范（31630ae 已在 3bc541e 中撤回），入口统一允许本人自由以真实停顿分泡、没有数量限制或程序后切（3bc541e、4368fd4、1591f11、48729ee）；同角色来源校验的用户阅读偏好经原 CharacterRuntime→CompanionModelGateway 传给 lean 表达，不增 Store 或额外收费请求（acc4140、a1c6a45）；测试 2019780 角色隔离与无写死模板、caf247c 模拟真实网关注入。仍须最新提交完整 CI/JVM/APK、角色真实模型在前台和主动聊天的分泡与原文完整度验收；不能承诺特定模型必然输出三泡。
 - [ ] **P-08c.3** 真实模型测短接话与复杂求助，记录每人请求数、气泡、用户插话机会与长答完整度。
@@ -143,7 +126,8 @@
 - [ ] **P-08d.1** 从 concernId/taskId/sessionId 追本人意愿→安排→ToolRouter 结果→独立逐步回执→重启后的本人再次决策；重点查心事清理/改期/放下及持续目标。
 - [ ] **P-08d.2** 对失败、未知、部分成功、晚到回执、手机重启及用户改意补契约测试；只修具体断链，执行器不替角色决定。
 - [ ] **P-08d.2a 同轮多项责任与心事跨日联动（源码/回归已提交，CI/真机待验）**：用户反馈一次交代起床、学习、睡觉会压成一条任务、第二天没排期；另反馈心事页缺少这些长期责任。源头确证 CommitmentDecisionRuntime.applyModelRecovery 旧逻辑同消息已经登记任何任务就过滤其余 create；CommitmentTurnAutomation 兼容补录会丢 repeat/permanent/verification 等关键字段；CommitmentTaskApplier 以同时间加宽主题错误去重。已提交 [7be1f2b](https://github.com/jiacimu-droid/lulu1/commit/7be1f2bdae44e1673cb16359d800d302a503ed14) 修独立任务、字段保存、语义协议及回归。[心事投影关联提交待本轮确认] 新增 read-only「长期责任」分类直接列出每项 active undated/daily CommitmentTaskStore，不把接受约定伪装成主观 emotion，不建新 Store；心事和每日自主整理看得到未履行任务、已有 taskId 与回执，可从心事取消真实旧约定而非只删除显示；同轮模型可分别产生真正的 pendingConcerns。旧复合任务不会被程序关键词私自拆分；需同角色读原话后由结构化决策改建，真实模型、重启、跨日仍待验。首次查询 APK [41873935102](https://github.com/jiacimu-droid/lulu1/actions/runs/41873935102) pending，后续验证以新提交 CI 为准。
-- [ ] **P-08d.2b 每日责任跨日执行和前次核验并存（源码/回归已提交；CI/真机待验）**：旧机制一个 linkedAlarmId 被静默复查占用，且 advanceDailyAfterAttempt 只在 Completed 后滚动，所以当天仅发提醒、真实结果未知时次日每日执行会消失。已沿原 CommitmentTaskStore 增 dailyNextAlarmId/dailyNextDueAt、原日期 dailyAttempts（不设第二个责任/人格 Store）；第二天领取独立 token，将前一天未证实或完成回执按真实日期留存、重置当日尝试次数，旧结果复查仍通过自己的 token 只交回同角色感知，不覆盖新轮。重启恢复保留两分钟内仍应触发的闹钟，真正错过则记录漏次并从原锚点安排下一次，不冒充补做。取消/改期撤销关联后续，心事及日程分别显示当前待核实和下次每日时刻；长历史回放不再每次遍历全部天数。回归包含跨日双时钟、旧结果复查隔离、重复 codec、漏次恢复及当天提前达标候选与前一天证据隔离。核心 commits [f23eaf1](https://github.com/jiacimu-droid/lulu1/commit/f23eaf1f07f3e32958af96646ed130832074b700)、[8aef038](https://github.com/jiacimu-droid/lulu1/commit/8aef0388ce12a30cc9854c099acff571c312040e)、[7740d26](https://github.com/jiacimu-droid/lulu1/commit/7740d26fb7c6b5b50ed84c3b8c43ec319f037162)、[f0bde63](https://github.com/jiacimu-droid/lulu1/commit/f0bde63395f65c1230ffa87b50a72f77a517b55e)；其余修订和测试见专项进度。最新完整 APK/JVM Actions 未有通过结论；排队/并发取消不当成功，仍需真实手机跨三天、重启/熄屏/权限/时区及人物感知和收费对照。旧合并任务仍须模型根据原话自行拆分，代码不会按关键词伪造新承诺。\n- [ ] **P-08d.2b.1 前夜结果核验与一次性责任的重启续接（源码/回归已提交，CI/真机待验）**：23:35心声写23:45复查不等于真实工具已排期，必须核模型action、原taskId/nextCheckAt/linkedAlarmId与闹钟回执。新核实：恢复时原`reconcileAfterRestart`将已错过的verification闹钟清掉但不主动交回本人，且无后继补救只针对repeat=daily，遗漏一次性结果未知承诺。源码`aa6cef4`/`bbcad13`/`12a35fe`把错过的verification送入既有到期错误复核、一次性/每日未知结果候选共享原`CompanionSleepHandoff.uncovered`的真实闹钟/个人日程判断，仍由角色自行决定下一步；不自动转述心声成23:45、重拨或宣称达标。回归`585342f`/`0dd4e42`已写，真正对应的JVM/APK和夜间真机触发仍待验；旧`42066569144`为其他提交的2481项中一项动作回执测试失败，不能记成本轮通过。验证后再更新状态，避免只靠新建工单/提示词代替完成。
+- [ ] **P-08d.2b 每日责任跨日执行和前次核验并存（源码/回归已提交；CI/真机待验）**：旧机制一个 linkedAlarmId 被静默复查占用，且 advanceDailyAfterAttempt 只在 Completed 后滚动，所以当天仅发提醒、真实结果未知时次日每日执行会消失。已沿原 CommitmentTaskStore 增 dailyNextAlarmId/dailyNextDueAt、原日期 dailyAttempts（不设第二个责任/人格 Store）；第二天领取独立 token，将前一天未证实或完成回执按真实日期留存、重置当日尝试次数，旧结果复查仍通过自己的 token 只交回同角色感知，不覆盖新轮。重启恢复保留两分钟内仍应触发的闹钟，真正错过则记录漏次并从原锚点安排下一次，不冒充补做。取消/改期撤销关联后续，心事及日程分别显示当前待核实和下次每日时刻；长历史回放不再每次遍历全部天数。回归包含跨日双时钟、旧结果复查隔离、重复 codec、漏次恢复及当天提前达标候选与前一天证据隔离。核心 commits [f23eaf1](https://github.com/jiacimu-droid/lulu1/commit/f23eaf1f07f3e32958af96646ed130832074b700)、[8aef038](https://github.com/jiacimu-droid/lulu1/commit/8aef0388ce12a30cc9854c099acff571c312040e)、[7740d26](https://github.com/jiacimu-droid/lulu1/commit/7740d26fb7c6b5b50ed84c3b8c43ec319f037162)、[f0bde63](https://github.com/jiacimu-droid/lulu1/commit/f0bde63395f65c1230ffa87b50a72f77a517b55e)；其余修订和测试见专项进度。最新完整 APK/JVM Actions 未有通过结论；排队/并发取消不当成功，仍需真实手机跨三天、重启/熄屏/权限/时区及人物感知和收费对照。旧合并任务仍须模型根据原话自行拆分，代码不会按关键词伪造新承诺。
+- [ ] **P-08d.2b.1 前夜结果核验与一次性责任的重启续接（源码/回归已提交，CI/真机待验）**：23:35心声写23:45复查不等于真实工具已排期，必须核模型action、原taskId/nextCheckAt/linkedAlarmId与闹钟回执。新核实：恢复时原`reconcileAfterRestart`将已错过的verification闹钟清掉但不主动交回本人，且无后继补救只针对repeat=daily，遗漏一次性结果未知承诺。源码`aa6cef4`/`bbcad13`/`12a35fe`把错过的verification送入既有到期错误复核、一次性/每日未知结果候选共享原`CompanionSleepHandoff.uncovered`的真实闹钟/个人日程判断，仍由角色自行决定下一步；不自动转述心声成23:45、重拨或宣称达标。回归`585342f`/`0dd4e42`已写，真正对应的JVM/APK和夜间真机触发仍待验；旧`42066569144`为其他提交的2481项中一项动作回执测试失败，不能记成本轮通过。验证后再更新状态，避免只靠新建工单/提示词代替完成。
 - [ ] **P-08d.3** 跨日真机/真实模型核角色能自行改变策略，不把「已计划」「用户未回复」「电话挂断」当已完成。
 - **已做不重做**：bd0fd27 统一动作真实性及 41811001667 成功 CI；既有居民排程和回顾修复。
 
@@ -225,18 +209,3 @@
 每轮在专项进度末尾追加：**日期｜接手 main SHA｜任务 ID.步骤｜原实现和真实根因｜修改文件与提交 SHA｜测试名/CI 运行 ID 及结论｜手机/真实模型/跨日证据或明确未验｜已勾步骤及下一 ID**。同一工作流被其他提交取消不能当成功。只有全部约定层级通过才从表移除整个 ID；只完成源码则保留明确的真机/真实模型待验，不把历史修复流水复制回本页。
 
 当最优先任务只差手机证据而自动任务无法取得时，继续后面的可实做开发子步骤；不能借机大范围修改未经授权的人设/原始历史或新建第二套系统。
-
-
-- 江渡switch最新批准修订：整体偏Dom、按场景选择两面，revision2只刷新care/示例；待CI/安装/真实模型。
-- **P-08d.2h.6 CI 复核（2026-11-06）**：5a8fa37 对应 [Lulu APK 42123821611](https://github.com/jiacimu-droid/lulu1/actions/runs/42123821611) completed/failure；2491 项测试、1 项失败，旧 `duplicateDeclarationsDoNotDoubleExecuteAndCancelledWishesDoNotSpawnActions` 在第526行仍期待顶层 A→显式 B→嵌套 A 只有1个副步骤，与现有顺序契约冲突。提交 [60dbac0](https://github.com/jiacimu-droid/lulu1/commit/60dbac01382e05f3cb2b434096594c09eeb450b8) 更新为 B、A 两个独立步骤及顺序断言；仅修过期测试，不冒充生产代码改动。该提交 JVM/APK 待新 Actions 实测，执行器级失败/条件依赖与真机仍待验。
-
-- [x] **P-08d.2h.7 失败槽后主工具重试源码/回归已提交（CI 待验）**：显式 steps/sideActions 含 JSON null 非法槽时，原 actions() 保留该槽供执行器失败，但没有把它算作中断，紧随其后的主工具同参重试仍被镜像过滤；这会使失败槽后本人明确选择的重试消失。源码 e44e207 修复两个字段的中断状态，测试 5ebf6b1 覆盖两条路径及原输入不变。未取得新 JVM/APK 结果，不代表真实 ToolRouter 回执、requiresPreviousSuccess 或真机已验。
-
-- [x] **P-08a.1c 承诺来源只使用已核验事件（源码/回归已提交，CI 待验）**：Bridge 原 `commitmentEvidenceIds = userEvidenceIds.ifEmpty { ... }` 在 timeline 查不到或仅查到部分 ID 时仍直接采用原始调用方 ID，可能把过期/跨角色 ID 送入 CommitmentDecisionRuntime 的任务来源和去重键。源码 `ddd5e82` 改为只取按当前角色 timeline 查到的事件 ID（包括原明确静默/重考虑事件）；测试 `1c2ea58` 覆盖空、重复、无效来源。未跑 JVM/APK；完整电话/后台回执和真实模型仍待验，P-08a.1 整体不勾。
-
-
-### P-08a.1g 成功发送但缺少真实送达事件 ID（2026-11-07）
-- [x] **P-08a.1g 正式源码门禁已提交（CI 待验）**：`ProactivePerceptionRuntime` 在 primarySuccess 为真、但 `CharacterActionEvidence` 未解析出真实送达事件 ID 时，旧路径仍记录 `proactive-send:` 成功回执；06420830 仅允许非空权威送达锚写入该回执。已有读取层空来源负例，但不能冒充本次生产入口回归。前轮 ae28fa76 对应 APK/JVM 42313244834 和索引 42313244835 均 success，不代表本轮。
-- [ ] **P-08a.1g JVM/APK 与入口回归**：核本轮 Actions，补真实发送成功但缺失锚、成功且存在锚两种生产入口持久化测试；继续重启、电话静默与下轮召回验证。真机/真实模型未知。
-
-- [x] **P-08a.1g.2 同角色跨会话候选隔离源码/回归已提交（CI 待验）**：5164725 修复 AutonomousActionTrace 在传入 conversationId 时仍因本人 speaker 匹配而接纳其他会话 CharacterStatement 的回退缺口；fce539f 新增跨会话拒绝/同会话接受回归。此项仅证明已提交，不代表 JVM/APK 通过。真实入口同会话副动作身份、持久回执、重启与后续召回仍待验，见人物进度最新记录。
