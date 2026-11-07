@@ -74,7 +74,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         val tier=unopened?.tier
         val before=run?.turns
         val openingRun=run
-        if(type!="open"){revealedLoot=null;openingReceipt=null}
+        revealedLoot=null;openingReceipt=null
         change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
         if(type=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
@@ -178,7 +178,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
                         Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
                             loot.tier.label+"「"+loot.name+"」 · 估值"+loot.value+
-                            (if(run.hero.bag.any { it.id==loot.id }) " · 已入包，撤离后收录"
+                            (if(openingReceipt?.inBag == true) " · 已入包，撤离后收录"
                             else " · 背包已满，拾起并撤离后收录"),
                             modifier=Modifier.fillMaxWidth().padding(10.dp),
                             color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
