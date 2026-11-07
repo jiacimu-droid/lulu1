@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -50,7 +51,8 @@ internal fun RelicChestCeremony(
     }
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
     Box(
-        Modifier.fillMaxSize().background(Color(0xC909101D)),
+        Modifier.fillMaxSize().background(Color(0xC909101D))
+            .clickable(onClick = onFinished),
         contentAlignment = Alignment.Center,
     ) {
         Surface(
@@ -139,6 +141,8 @@ internal fun RelicChestCeremony(
                 } else {
                     Text("光芒里藏着什么……", color = Color(0xFFB6C4D4), fontSize = 12.sp)
                 }
+                Text("轻点画面可跳过动画，宝物不会丢失",
+                    color = Color(0xFFB6C4D4), fontSize = 10.sp)
             }
         }
     }
