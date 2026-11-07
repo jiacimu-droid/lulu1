@@ -91,6 +91,22 @@ class RelicEscapeRulesTest {
         assertTrue(dropped.drops.any { it.loot == fallen.loot })
     }
 
+    @Test fun everyTreasureHasOriginalDistinctArtSharedByChestAndMuseum() {
+        assertEquals("No blank generic icons for new collectibles",
+            RelicCollectibles.names.toSet(),RelicTreasureArt.catalogKinds.keys)
+        assertEquals(28,RelicTreasureArt.catalogKinds.size)
+        assertTrue("Different item categories should look different",
+            RelicTreasureArt.catalogKinds.values.toSet().size >= 12)
+        assertEquals(RelicArtKind.STAR,
+            RelicTreasureArt.kind(RelicCollectibles.CROWN_JEWEL))
+        assertEquals(RelicArtKind.CROWN,RelicTreasureArt.kind("星穹冠冕"))
+        assertEquals(RelicArtKind.HOURGLASS,RelicTreasureArt.kind("星河沙漏"))
+        assertEquals(RelicArtKind.RING,RelicTreasureArt.kind("暮光戒指"))
+        assertEquals(RelicArtKind.HARP,RelicTreasureArt.kind("冰魄竖琴"))
+        assertEquals("Legacy inventory names still have safe art",
+            RelicArtKind.CRYSTAL,RelicTreasureArt.kind("old_version_unknown"))
+    }
+
     @Test fun treasureCatalogIsActuallyObtainableAndSeededWithoutRerolls() {
         assertEquals(RelicCollectibles.names.size,RelicCollectibles.names.distinct().size)
         var legendaryCount=0
