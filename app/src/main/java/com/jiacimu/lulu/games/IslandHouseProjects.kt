@@ -14,10 +14,13 @@ internal data class IslandHouseProject(
     val lastStepTurn: Int = -1,
     /** The look is selected by the character, not inferred from the player's input. */
     val style: String = "warm",
+    /** Remember which physical job was paused; old saves default to building. */
+    val resumePhase: String = "building",
 ) {
     fun json(): JSONObject = JSONObject().put("ownerId",ownerId).put("left",left)
         .put("top",top).put("phase",phase).put("placed",JSONArray(placed))
         .put("lastStepTurn",lastStepTurn).put("style",style)
+        .put("resumePhase",resumePhase)
 
     companion object {
         fun read(raw: JSONObject?,world: ExpeditionState): IslandHouseProject? = runCatching {
@@ -27,13 +30,15 @@ internal data class IslandHouseProject(
             }
             val p=IslandHouseProject(j.getString("ownerId"),j.getInt("left"),j.getInt("top"),
                 j.getString("phase"),positions,j.optInt("lastStepTurn",-1),
-                j.optString("style","warm").takeIf { it in IslandHouseProjects.styles } ?: "warm")
+                j.optString("style","warm").takeIf { it in IslandHouseProjects.styles } ?: "warm",
+                j.optString("resumePhase","building"))
             val possible=IslandHouseProjects.parts(world,p.left,p.top).map { it.first }
             if(p.ownerId.isBlank() || p.left !in 1 until world.width-3 ||
                 p.top !in 1 until world.height-3 ||
                 p.phase !in setOf("building","paused","complete","demolishing") ||
                 positions.distinct().size!=positions.size ||
-                positions.any { it !in possible } || p.lastStepTurn>world.turns) null else p
+                positions.any { it !in possible } || p.lastStepTurn>world.turns ||
+                p.resumePhase !in setOf("building","demolishing")) null else p
         }.getOrNull()
     }
 }
@@ -92,15 +97,15 @@ internal object IslandHouseProjects {
             }
             old==null || old.ownerId!=id -> return null
             action=="pause_house" && old.phase in setOf("building","demolishing") ->
-                old.copy(phase="paused")
-            action=="resume_house" && old.phase=="paused" -> old.copy(phase="building")
+                old.copy(phase="paused",resumePhase=old.phase)
+            action=="resume_house" && old.phase=="paused" -> old.copy(phase=old.resumePhase)
             action=="demolish_house" && old.phase!="demolishing" -> old.copy(phase="demolishing")
             else -> return null
         }
         val description=when(action.substringBefore(":")) {
             "start_house"->"决定为玩家亲手盖一座"+styleName(next.style)+"（3×3、约17木）"
             "pause_house"->"决定暂停建房，保留已经搭好的部分"
-            "resume_house"->"决定继续之前的小屋工程"
+            "resume_house"->"决定继续之前的"+if(next.phase=="demolishing")"拆除" else "建造"+"工程"
             else->"决定逐步拆除自己建造的小屋"
         }
         val log="工程["+id+"] 第"+w.turns+"回合："+description+
