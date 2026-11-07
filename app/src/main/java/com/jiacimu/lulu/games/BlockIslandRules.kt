@@ -291,7 +291,8 @@ internal object BlockIslandRules {
             (cell in setOf(3, 4) || w.index(x, y) in s.structures) &&
             !(x == w.x && y == w.y) &&
             w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
-            w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+            w.mobs.none { it.hp > 0 && it.x == x && it.y == y } &&
+            s.animals.none { it.x == x && it.y == y }
     }
 
     fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y,
