@@ -37,6 +37,26 @@ class IslandHouseProjectsTest {
         return IslandHouseProjects.advance(advanced,setOf("alice"))
     }
 
+    @Test fun characterChoosesCottageStyleAndSaveMigrationPreservesIt() {
+        val world=clear()
+        val option=IslandActorPlay.options(world,"alice").first {
+            it.id.startsWith("start_house:") && it.id.endsWith(":pine")
+        }
+        val next=IslandActorPlay.apply(world,"alice",world.world.turns,
+            IslandActorChoice(option.id,"我给你盖松林木屋"))!!
+        assertEquals("pine",next.houseProject?.style)
+        val persisted=BlockIslandState.fromJson(next.toJson())!!
+        assertEquals("pine",persisted.houseProject?.style)
+        assertEquals("松林木屋",IslandHouseProjects.styleName(persisted.houseProject!!.style))
+        val migrated=JSONObject(next.houseProject!!.json().toString())
+        migrated.remove("style")
+        assertEquals("warm",IslandHouseProject.read(migrated,next.world)?.style)
+        migrated.put("style","rogue-asset")
+        assertEquals("warm",IslandHouseProject.read(migrated,next.world)?.style)
+        assertNull(IslandHouseProjects.choose(world,"alice",
+            "start_house:3:3:not-a-real-style",""))
+    }
+
     @Test fun modelStartsHouseAndProjectBuildsRealTilesWithoutTeleporting() {
         var state=start()
         val project=state.houseProject!!
