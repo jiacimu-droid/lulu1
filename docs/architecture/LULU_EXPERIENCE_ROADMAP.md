@@ -230,3 +230,8 @@
 - [x] **P-08d.2h.7 失败槽后主工具重试源码/回归已提交（CI 待验）**：显式 steps/sideActions 含 JSON null 非法槽时，原 actions() 保留该槽供执行器失败，但没有把它算作中断，紧随其后的主工具同参重试仍被镜像过滤；这会使失败槽后本人明确选择的重试消失。源码 e44e207 修复两个字段的中断状态，测试 5ebf6b1 覆盖两条路径及原输入不变。未取得新 JVM/APK 结果，不代表真实 ToolRouter 回执、requiresPreviousSuccess 或真机已验。
 
 - [x] **P-08a.1c 承诺来源只使用已核验事件（源码/回归已提交，CI 待验）**：Bridge 原 `commitmentEvidenceIds = userEvidenceIds.ifEmpty { ... }` 在 timeline 查不到或仅查到部分 ID 时仍直接采用原始调用方 ID，可能把过期/跨角色 ID 送入 CommitmentDecisionRuntime 的任务来源和去重键。源码 `ddd5e82` 改为只取按当前角色 timeline 查到的事件 ID（包括原明确静默/重考虑事件）；测试 `1c2ea58` 覆盖空、重复、无效来源。未跑 JVM/APK；完整电话/后台回执和真实模型仍待验，P-08a.1 整体不勾。
+
+
+### P-08a.1g 成功发送但缺少真实送达事件 ID（2026-11-07）
+- [x] **P-08a.1g 正式源码门禁已提交（CI 待验）**：`ProactivePerceptionRuntime` 在 primarySuccess 为真、但 `CharacterActionEvidence` 未解析出真实送达事件 ID 时，旧路径仍记录 `proactive-send:` 成功回执；06420830 仅允许非空权威送达锚写入该回执。已有读取层空来源负例，但不能冒充本次生产入口回归。前轮 ae28fa76 对应 APK/JVM 42313244834 和索引 42313244835 均 success，不代表本轮。
+- [ ] **P-08a.1g JVM/APK 与入口回归**：核本轮 Actions，补真实发送成功但缺失锚、成功且存在锚两种生产入口持久化测试；继续重启、电话静默与下轮召回验证。真机/真实模型未知。
