@@ -64,6 +64,54 @@ class RelicEscapeRulesTest {
         assertTrue(item.name in RelicSnapshot.read(old.toString()).discovered)
     }
 
+    @Test fun rareChestGambleConsumesToolAndAwakensRealGuardianWithoutDoubleUpgrade() {
+        val base=RelicEscapeWorld.create(992,2,emptyList(),0,1)
+        val chest=base.chests.first()
+        val rare=chest.copy(tier=RelicTier.RARE)
+        val ready=RelicEscapeRules.reveal(base.copy(
+            hero=base.hero.copy(x=chest.x,y=chest.y),
+            chests=base.chests.map{if(it.id==chest.id)rare else it},
+            mobs=emptyList(),sites=emptyList(),tools=1))
+        val risked=RelicEscapeRules.act(ready,"channel",chest.x,chest.y)
+        assertEquals(ready.turns+1,risked.turns)
+        assertEquals(0,risked.tools)
+        val upgraded=risked.chests.first{it.id==chest.id}
+        assertEquals(RelicTier.PRECIOUS,upgraded.tier)
+        assertTrue(risked.mobs.any{it.hp>0 && it.kind==2})
+        assertTrue(risked.events.any{it.action=="channel"})
+        val again=RelicEscapeRules.act(risked,"channel",chest.x,chest.y)
+        assertEquals(risked.turns,again.turns)
+        assertEquals(risked.mobs,again.mobs)
+        val restored=RelicRun.read(JSONObject(risked.json().toString()))!!
+        assertEquals(risked.tools,restored.tools)
+        assertEquals(upgraded,restored.chests.first{it.id==chest.id})
+        assertEquals(RelicEscapeRules.treasure(risked,upgraded),RelicEscapeRules.treasure(restored,upgraded))
+        val opened=RelicEscapeRules.act(restored,"open",chest.x,chest.y)
+        assertTrue(opened.hero.bag.any{it.tier==RelicTier.PRECIOUS && it.id.endsWith(":chest:"+chest.id)})
+    }
+
+    @Test fun rareChestRiskCannotBeTakenWithoutToolsOrRoomForRealGuardian() {
+        val base=RelicEscapeWorld.create(731,1,emptyList(),0,1)
+        val chest=base.chests.first()
+        val rare=chest.copy(tier=RelicTier.RARE)
+        val prepared=RelicEscapeRules.reveal(base.copy(
+            chests=base.chests.map{if(it.id==chest.id)rare else it},
+            hero=base.hero.copy(x=chest.x,y=chest.y),mobs=emptyList(),sites=emptyList(),tools=0))
+        val noTool=RelicEscapeRules.act(prepared,"channel",chest.x,chest.y)
+        assertEquals(prepared.turns,noTool.turns)
+        assertEquals(prepared.chests,noTool.chests)
+        val neighbors=listOf(chest.x+1 to chest.y,chest.x-1 to chest.y,
+            chest.x to chest.y+1,chest.x to chest.y-1)
+        val blockedTiles=prepared.tiles.mapIndexed{index,kind->
+            if((index%prepared.w to index/prepared.w) in neighbors)1 else kind
+        }
+        val enclosed=prepared.copy(tiles=blockedTiles,tools=1)
+        val noGuardian=RelicEscapeRules.act(enclosed,"channel",chest.x,chest.y)
+        assertEquals(enclosed.turns,noGuardian.turns)
+        assertEquals(enclosed.tools,noGuardian.tools)
+        assertEquals(enclosed.chests,noGuardian.chests)
+    }
+
     @Test fun generatedMapHasRealReachableChestsAndExitOnEverySeed() {
         for(seed in listOf(1,2,3,20261028,-459)) {
             val a=RelicEscapeWorld.create(seed,3,listOf("a","b","c","d"),1,1)
