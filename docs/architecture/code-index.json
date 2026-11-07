@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T08:00:11.197927+00:00",
-  "commit": "5dbaeadb1785936541d7553d37c360fee835665e",
+  "generatedAt": "2026-11-07T08:44:39.194508+00:00",
+  "commit": "efa7f6babe73acbe72f3ac584612fdb1ffc92a01",
   "branch": "main",
-  "sourceFingerprint": "bd073a7c45f7d76da81336b22ee46325ee68c6ff6aeb32980a36d84df0b29214",
+  "sourceFingerprint": "89f116e80373a56da8c12352884bb11ce463000cf8a9c8d8b328630155d4a61c",
   "summary": {
     "files": 1138,
-    "lines": 243428,
+    "lines": 243450,
     "symbols": 3346
   },
   "symbolIndex": {
@@ -3809,7 +3809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 80
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
@@ -5423,13 +5423,13 @@
     "signature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 34
+        "line": 35
       }
     ],
     "clean": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 48
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
@@ -5443,7 +5443,7 @@
     "selectedStepsSignature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 68
+        "line": 69
       }
     ],
     "normalizeStep": [
@@ -11247,7 +11247,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3312
+        "line": 3313
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -23528,8 +23528,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-      "lines": 136,
-      "sha256": "719ca779a6c00a4a6fd54878511da20fcd8722e6d01f2adf28c6091ebf92fd7b",
+      "lines": 137,
+      "sha256": "1a9b017e5610f992ce1c93112c4296116f52cb0603a532680142adf39ec157dd",
       "symbols": [
         {
           "name": "newestExecutedEvidence",
@@ -23537,19 +23537,19 @@
         },
         {
           "name": "signature",
-          "line": 34
+          "line": 35
         },
         {
           "name": "clean",
-          "line": 48
+          "line": 49
         },
         {
           "name": "selectedStepsSignature",
-          "line": 68
+          "line": 69
         },
         {
           "name": "render",
-          "line": 80
+          "line": 81
         }
       ]
     },
@@ -29518,8 +29518,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3379,
-      "sha256": "24fa5f26083f817644b8304438d4a2eed4a115014adb51f5e97e7edd94d103a9",
+      "lines": 3380,
+      "sha256": "0458d99f384d25b62fa467bfc6972c9451bd01785e465ec02c7eba1e935732a4",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29551,7 +29551,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3312
+          "line": 3313
         }
       ]
     },
@@ -35936,8 +35936,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 120,
-      "sha256": "0560f30e3114f88ed0a4da5d3d137aa72a215f731694ca02a7ddf137059729c3",
+      "lines": 140,
+      "sha256": "c1b8d1ec3299021e1b704f8fab11435a0af777371d80f6ee2ed66d66d574f68f",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
