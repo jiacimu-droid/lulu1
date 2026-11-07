@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T18:01:28.387239+00:00",
-  "commit": "b64f5655588206bda885ed5d8ac84858b6acdbf6",
+  "generatedAt": "2026-11-07T18:07:12.745128+00:00",
+  "commit": "53cd77bbc57186031af27263c2b0a54f787450b7",
   "branch": "main",
-  "sourceFingerprint": "4649ab5690133536d11942c0cfa34d21cbfd4adc1b74901c99f5f5873d51e530",
+  "sourceFingerprint": "03fd0876d5883adf9f434748da1684b0c0ac6b2f9a8cfbfec5990a15173bc21c",
   "summary": {
-    "files": 1142,
-    "lines": 245685,
-    "symbols": 3369
+    "files": 1143,
+    "lines": 245864,
+    "symbols": 3371
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -233,7 +233,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 85
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -2131,7 +2131,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 58
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -3289,7 +3289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 170
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -4713,7 +4713,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 98
+        "line": 138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
@@ -4777,7 +4777,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 22
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -5569,7 +5569,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 154
+        "line": 162
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -13623,13 +13623,13 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 261
+        "line": 269
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 267
+        "line": 275
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -13671,7 +13671,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 15
+        "line": 17
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
@@ -13758,10 +13758,16 @@
         "line": 19
       }
     ],
+    "reachableWood": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
+        "line": 26
+      }
+    ],
     "afterChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 39
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -13771,7 +13777,7 @@
     "stopAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 89
+        "line": 129
       }
     ],
     "name": [
@@ -18616,6 +18622,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt",
         "line": 5
+      }
+    ],
+    "IslandHarvestPlanTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHarvestPlanTest.kt",
+        "line": 12
       }
     ],
     "IslandHouseProjectsTest": [
@@ -32639,8 +32651,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 326,
-      "sha256": "18ebb7fdb546f9a1aa8a4429696f1aa1e308f646838c64696d821ed60a7abea3",
+      "lines": 334,
+      "sha256": "591149cc08f6ca057587a7d59630fdc7d9ae074729090a2065f0ccd98a99d38f",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -32652,19 +32664,19 @@
         },
         {
           "name": "parse",
-          "line": 154
+          "line": 162
         },
         {
           "name": "apply",
-          "line": 170
+          "line": 178
         },
         {
           "name": "applyLive",
-          "line": 261
+          "line": 269
         },
         {
           "name": "facts",
-          "line": 267
+          "line": 275
         }
       ]
     },
@@ -32833,36 +32845,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-      "lines": 156,
-      "sha256": "bb86e3362693222230091dcafd6e87e042b73463b1b24cd52d9d1f648fb94bba",
+      "lines": 231,
+      "sha256": "e9a6956bc72ded824251b5beb29c9ba428a9d9cf910d7b0da6495063ad254f83",
       "symbols": [
         {
           "name": "json",
-          "line": 15
+          "line": 17
+        },
+        {
+          "name": "reachableWood",
+          "line": 26
         },
         {
           "name": "restore",
-          "line": 22
+          "line": 45
         },
         {
           "name": "afterChoice",
-          "line": 39
+          "line": 66
         },
         {
           "name": "choose",
-          "line": 58
-        },
-        {
-          "name": "cancel",
           "line": 85
         },
         {
+          "name": "cancel",
+          "line": 125
+        },
+        {
           "name": "stopAll",
-          "line": 89
+          "line": 129
         },
         {
           "name": "advance",
-          "line": 98
+          "line": 138
         }
       ]
     },
@@ -39651,6 +39667,17 @@
         {
           "name": "IslandFollowCameraTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHarvestPlanTest.kt",
+      "lines": 96,
+      "sha256": "0d8cd59ccaf1f081e7210cdaf33076bcfe1fc96e79287ae4cec95567ac0b27e8",
+      "symbols": [
+        {
+          "name": "IslandHarvestPlanTest",
+          "line": 12
         }
       ]
     },
