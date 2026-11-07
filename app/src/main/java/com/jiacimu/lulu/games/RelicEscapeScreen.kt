@@ -60,6 +60,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var showGuide by remember(run?.id){mutableStateOf(true)}
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(false)}
+    var showAlbum by remember{mutableStateOf(false)}
+    var revealedLoot by remember(run?.id){mutableStateOf<RelicLoot?>(null)}
     var error by remember{mutableStateOf("")}
 
     fun change(block:()->RelicSnapshot) {
@@ -67,9 +69,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             .onFailure{error=it.message?:"存档失败，请重试"}
     }
     fun action(type:String,x:Int=0,y:Int=0,id:String="") {
-        val tier=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}?.tier
+        val unopened=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}
+        val tier=unopened?.tier
         val before=run?.turns
+        val openingRun=run
+        if(type!="open")revealedLoot=null
         change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
+        if(type=="open" && openingRun!=null && unopened!=null &&
+            snapshot.run?.chests?.any{it.id==unopened.id && it.opened}==true) {
+            // Reveal is a projection of the already-committed physical loot, never another roll.
+            revealedLoot=RelicEscapeRules.treasure(openingRun,unopened)
+        }
         if(before!=snapshot.run?.turns) {
             val sound=when(type) {
                 "open"->when(tier){
@@ -146,6 +156,19 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         quickActions = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero = run.hero
+                revealedLoot?.let { loot ->
+                    Surface(color=if(RelicCollectibles.isCrownJewel(loot.name))
+                        Color(0xFF60441F) else Color(0xFF24374B),
+                        shape=RoundedCornerShape(14.dp),
+                        border=BorderStroke(1.dp,if(RelicCollectibles.isCrownJewel(loot.name))
+                            Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
+                        Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
+                            loot.tier.label+"「"+loot.name+"」 · 估值"+loot.value+
+                            " · 成功撤离后入图鉴",
+                            modifier=Modifier.fillMaxWidth().padding(10.dp),
+                            color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                    }
+                }
                 Text("已探明 ${run.seen.size * 100 / (run.w * run.h)}% · 宝箱 ${run.chests.count{it.opened}}/${run.chests.size} · 动作会推进回合",
                     color = Color.White, fontSize = 10.sp, maxLines = 1)
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -314,6 +337,37 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             color=when(item.tier){RelicTier.PRECIOUS->relicGold;RelicTier.RARE->relicGreen;else->Color.White},
                             fontSize=12.sp,modifier=Modifier.weight(1f))
                         TextButton(onClick={change{ledger.sellLoot(item.id)}}){Text("兑换铜币")}
+                    }
+                }
+            }
+            RelicPanel {
+                val all=RelicCollectibles.names
+                val found=all.count{it in snapshot.discovered}
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Text("✦ 永久珍宝图鉴",color=Color.White,fontWeight=FontWeight.Bold,
+                        modifier=Modifier.weight(1f))
+                    Text("$found / ${all.size}",color=relicGold,fontWeight=FontWeight.Bold)
+                }
+                LinearProgressIndicator(
+                    progress={found.toFloat()/all.size.coerceAtLeast(1)},
+                    modifier=Modifier.fillMaxWidth(),color=relicGold,
+                    trackColor=Color(0xFF45404B))
+                Text("只有成功撤离才算收录；卖掉实物也保留图鉴记录。同名宝物重复出货可卖掉换补给。",
+                    color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+                TextButton(onClick={showAlbum=!showAlbum}) {
+                    Text(if(showAlbum)"收起完整图鉴" else "查看未收集藏品",color=relicGreen)
+                }
+                if(showAlbum) {
+                    RelicTier.values().forEach{tier->
+                        val entries=RelicCollectibles.namesFor(tier)+
+                            if(tier==RelicTier.PRECIOUS)
+                                listOf("封印之心",RelicCollectibles.CROWN_JEWEL) else emptyList()
+                        Text(tier.label+" · "+entries.count{it in snapshot.discovered}+"/"+entries.size,
+                            color=if(tier==RelicTier.PRECIOUS)relicGold else relicGreen,
+                            fontWeight=FontWeight.Bold,fontSize=12.sp)
+                        Text(entries.joinToString("  ·  "){name->
+                            if(name in snapshot.discovered)name else "？？？"
+                        },color=relicMuted,fontSize=11.sp,lineHeight=19.sp)
                     }
                 }
             }
