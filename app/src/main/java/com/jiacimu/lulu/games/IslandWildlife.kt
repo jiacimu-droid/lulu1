@@ -53,8 +53,17 @@ internal object IslandWildlife {
             "fox" -> state.fish >= 2
             else -> false
         }
+    /** Sheltered pets settle near a player-built home and become more comfortable over time. */
+    fun hasNearbyHome(state: BlockIslandState, animal: IslandAnimal): Boolean {
+        val w=state.world
+        return state.structures.any { (index, kind) ->
+            kind=="pet_house" &&
+                abs(index % w.width-animal.x)+abs(index / w.width-animal.y)<=3
+        }
+    }
     fun canGift(state: BlockIslandState, animal: IslandAnimal): Boolean =
-        animal.befriended && state.world.turns - animal.lastGiftTurn >= 24
+        animal.befriended && state.world.turns - animal.lastGiftTurn >=
+            if(hasNearbyHome(state,animal))16 else 24
 
     /**
      * A few reproducible creatures on reachable existing grass. Prior buildings and save
@@ -119,11 +128,22 @@ internal object IslandWildlife {
                         w.friends.none { it.x == x && it.y == y } &&
                         w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
                 }
-            val chosen = if (animal.befriended)
+            val chosen = if (animal.befriended) {
+                val home = state.structures.entries
+                    .filter { it.value=="pet_house" }
+                    .minByOrNull { entry ->
+                        abs(entry.key % w.width-animal.x)+
+                            abs(entry.key / w.width-animal.y)
+                    }
+                // The pet follows when you are nearby. While you are away it seeks
+                // its real shelter instead of wandering into the walls of your house.
+                val playerNearby=abs(w.x-animal.x)+abs(w.y-animal.y)<=5
+                val tx=if(playerNearby || home==null)w.x else home.key % w.width
+                val ty=if(playerNearby || home==null)w.y else home.key / w.width
                 choices.minWithOrNull(compareBy<Pair<Int, Int>>(
-                    { (x, y) -> abs(x - w.x) + abs(y - w.y) },
+                    { (x, y) -> abs(x-tx)+abs(y-ty) },
                     { (x, y) -> if (x == animal.x && y == animal.y) 0 else 1 }))
-            else if (choices.isEmpty()) null else
+            } else if (choices.isEmpty()) null else
                 choices[((w.seed.toLong() * 7 + w.turns.toLong() * 13 + animal.id * 17)
                     .and(Long.MAX_VALUE) % choices.size).toInt()]
             val newAnimal = if (chosen == null) animal else
