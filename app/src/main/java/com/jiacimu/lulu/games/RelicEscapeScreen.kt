@@ -296,7 +296,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         }
         if(error.isNotBlank())RelicPanel {Text(error,color=relicRed)}
         if(run==null || run.phase in listOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
-            if(run!=null)RelicSettlement(run)
+            if(run!=null)RelicSettlement(run,snapshot.newDiscoveries)
             RelicPanel {
                 Text("出发准备",color=Color.White,fontWeight=FontWeight.Black,fontSize=19.sp)
                 Text("出发自带2枚照明弹、1枚声响诱饵和2套机关工具。祭坛有更贵重的藏品，也会唤醒守卫。成功撤离才将宝物入库；倒地失败只丢失本局战利品。",
@@ -721,13 +721,27 @@ private fun relicDirection(dx:Int,dy:Int):String=
         (if(dx<0)"西" else if(dx>0)"东" else "")+
         if(dx==0 && dy==0)"此处" else ""
 
-@Composable private fun RelicSettlement(run:RelicRun) {
+@Composable private fun RelicSettlement(run:RelicRun,newDiscoveries:Set<String>) {
     RelicPanel {
         Text(if(run.phase==RelicPhase.SUCCESS)"✦ 平安归来" else "遗迹探险失败",
             fontWeight=FontWeight.Black,fontSize=20.sp,
             color=if(run.phase==RelicPhase.SUCCESS)relicGold else relicRed)
         Text("成功带回 "+run.secured.size+" 件 · 价值 "+run.secured.sumOf{it.value}+
             "    遗失 "+run.lost.size+" 件",color=Color.White)
+        if(run.phase==RelicPhase.SUCCESS && newDiscoveries.isNotEmpty()) {
+            Surface(shape=RoundedCornerShape(15.dp),
+                color=Color(0xFF463823),border=BorderStroke(1.dp,relicGold.copy(alpha=.65f))) {
+                Column(Modifier.fillMaxWidth().padding(12.dp),
+                    verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                    Text("✦ 首次收录 · 珍宝图鉴新增 ${newDiscoveries.size} 件",
+                        fontSize=15.sp,fontWeight=FontWeight.Black,color=Color(0xFFFFE4AA))
+                    Text(newDiscoveries.sorted().joinToString(" · "),
+                        fontSize=12.sp,color=Color.White,lineHeight=19.sp)
+                    Text("这份发现永远属于你。实物出售后，图鉴也不会遗忘。",
+                        fontSize=11.sp,color=relicGold)
+                }
+            }
+        }
         run.secured.forEach{Text("带回 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicGreen)}
         run.lost.forEach{Text("遗失 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicRed)}
         if(run.secured.isEmpty() && run.lost.isEmpty())Text("本局没有带出宝物",color=relicMuted)
