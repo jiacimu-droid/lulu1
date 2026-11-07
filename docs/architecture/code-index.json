@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T19:57:11.323555+00:00",
-  "commit": "2dc1e5b3bea72aa91602e0be8255e8ad6ca88e59",
+  "generatedAt": "2026-11-07T20:53:58.629034+00:00",
+  "commit": "2d84b592b818f41ad66f86017a20e5eab2ced234",
   "branch": "main",
-  "sourceFingerprint": "1e8c6b4296169b83a0592f043822f3a608c4f96a9621820af16150b47e174352",
+  "sourceFingerprint": "facd428501a9ee5a911144595a4fd1dcd0d2802ae5d2d9b4e31c0e532c07ecbf",
   "summary": {
-    "files": 1143,
-    "lines": 245925,
-    "symbols": 3371
+    "files": 1144,
+    "lines": 245951,
+    "symbols": 3372
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -701,7 +701,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 315
+        "line": 319
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -13307,7 +13307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 94
+        "line": 98
       }
     ],
     "actorCenter": [
@@ -13569,7 +13569,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 93
+        "line": 97
       }
     ],
     "adjacent": [
@@ -18682,6 +18682,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
         "line": 5
+      }
+    ],
+    "RelicSceneIndexTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt",
+        "line": 7
       }
     ],
     "MiniTheaterLibraryTest": [
@@ -33268,20 +33274,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 355,
-      "sha256": "3135fe9e0b7e7d960fd64467d27180ab7f0d41165abdfb1c1aa048ab554d2eb7",
+      "lines": 359,
+      "sha256": "694c13d7f7ae9cd988b12c24077b260ae19a746395165b139038ec08aae10319",
       "symbols": [
         {
           "name": "cell",
-          "line": 93
+          "line": 97
         },
         {
           "name": "center",
-          "line": 94
+          "line": 98
         },
         {
           "name": "label",
-          "line": 315
+          "line": 319
         }
       ]
     },
@@ -39781,6 +39787,17 @@
         {
           "name": "RelicQuickActionTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt",
+      "lines": 22,
+      "sha256": "7021557d6ce7b4574a410f8acf9afee4cee317fa57079d24b992a0c09028cb1c",
+      "symbols": [
+        {
+          "name": "RelicSceneIndexTest",
+          "line": 7
         }
       ]
     },
