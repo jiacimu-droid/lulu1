@@ -18,7 +18,7 @@ internal object RelicChestPresentation {
             ?: return null
         if (after.chests.none { it.id == chestId && it.opened }) return null
         if (after.events.none { it.who == "player" && it.action == "open" &&
-                it.turn > before.turns }) return null
+                it.turn == before.turns }) return null
         val expected = RelicEscapeRules.treasure(before, unopened)
         val inBag = after.hero.bag.any { it == expected }
         val onGround = after.drops.any { it.loot == expected &&
