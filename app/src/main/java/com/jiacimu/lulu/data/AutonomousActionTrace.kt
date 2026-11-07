@@ -24,8 +24,11 @@ internal object AutonomousActionTrace {
         event.id !in previousIds && event.channel != "在线感知" && (
             event.evidenceKind == EventEvidenceKind.ToolResult ||
                 (event.evidenceKind == EventEvidenceKind.CharacterStatement &&
-                    (event.speaker == displayName || event.speaker == "角色") &&
-                    (conversationId == null || event.sessionId == conversationId))
+                    // In a known session, ownership is anchored by the scoped timeline
+                    // and exact session, not by a display name (group roles have nicknames).
+                    // Without a session anchor, require a known character speaker.
+                    (if (conversationId != null) event.sessionId == conversationId
+                     else event.speaker == displayName || event.speaker == "角色"))
             )
     }?.id.orEmpty()
 
