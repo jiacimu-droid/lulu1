@@ -167,24 +167,42 @@ class ProactiveSendAttributionTest {
     fun persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery() {
         // Exercise the actual timeline and inner-life persistence, not only a
         // synthetic list of candidate events. The executor itself is not run.
+        // A timeline row alone is not a delivered chat message. Authorship is
+        // verified against the canonical sent message in the actual chat store.
+        // Build both sides through the production append path, not a synthetic
+        // "message" event that the ownership gate must reject.
+        MemoryTestEnvironment.release()
         val context = org.robolectric.RuntimeEnvironment.getApplication()
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         val role = "proactive-persist-" + java.util.UUID.randomUUID().toString()
-        val conversation = "private-" + java.util.UUID.randomUUID().toString()
-        val primaryId = "primary-" + java.util.UUID.randomUUID().toString()
-        val sideId = "side-" + java.util.UUID.randomUUID().toString()
-        val sentAt = Instant.now().minusSeconds(10)
+        val chat = MigratedDomainStores.chat
+        val conversation = chat.ensureConversation(role, "主动发送回执验证").id
         try {
-            listOf(primaryId, sideId).forEachIndexed { index, id ->
-                SharedExperienceTimeline.record(
-                    eventId = id, characterId = role, channel = "私聊",
-                    speaker = "角色", content = "独立送达的第${index + 1}条消息",
-                    occurredAt = sentAt.plusSeconds(index.toLong()),
-                    triggerExtraction = false, sessionId = conversation,
-                    source = "message", evidenceKind = EventEvidenceKind.CharacterStatement,
-                )
-            }
+            val primary = chat.appendCharacterMessage(
+                conversation, "独立送达的第1条消息", role,
+            )
+            val side = chat.appendCharacterMessage(
+                conversation, "独立送达的第2条消息", role,
+            )
+            val primaryId = primary.id
+            val sideId = side.id
+            val sentAt = primary.createdAt
+            // A forged timeline row with the correct channel/session/source
+            // cannot claim delivery without the actual sent-chat record.
+            val orphanId = "orphan-" + java.util.UUID.randomUUID().toString()
+            SharedExperienceTimeline.record(
+                eventId = orphanId, characterId = role, channel = "私聊",
+                speaker = "角色", content = "并未真实发出的消息",
+                occurredAt = sentAt, triggerExtraction = false,
+                sessionId = conversation, source = "message",
+                evidenceKind = EventEvidenceKind.CharacterStatement,
+            )
+            assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, conversation, listOf(orphanId), "message",
+            ))
             val mainEvidence = ProactiveSendAttribution.primaryDeliveryEvidence(
                 role, conversation, listOf(primaryId), "message",
             )
@@ -216,7 +234,9 @@ class ProactiveSendAttributionTest {
             assertEquals(1, persisted.unanswered)
             assertFalse(persisted.receipts.any { it.causalEvidenceId == sideId })
         } finally {
+            chat.deleteConversation(conversation)
             CharacterInnerLifeStore.clear(role)
+            MemoryTestEnvironment.release()
         }
     }
 }
