@@ -134,4 +134,32 @@ class ProactiveSendAttributionTest {
         assertTrue(ProactiveSendAttribution.shouldPersistDeliveredSend(true, "evt-delivered", true))
     }
 
+    @Test
+    fun primaryDeliveryUsesExactExecutorIdsNotNewerSameSessionSideSend() {
+        val main = event("primary", "private-a", EventEvidenceKind.CharacterStatement, "2026-10-26T10:00:00Z")
+        val side = event("side", "private-a", EventEvidenceKind.CharacterStatement, "2026-10-26T10:01:00Z")
+        val other = event("other", "private-b", EventEvidenceKind.CharacterStatement, "2026-10-26T10:02:00Z")
+        val events = listOf(main, side, other)
+        val acceptsMessage: (SharedTimelineEvent) -> Boolean = {
+            it.evidenceKind == EventEvidenceKind.CharacterStatement
+        }
+        assertEquals("primary", ProactiveSendAttribution.selectPrimaryEvidence(
+            "private-a", listOf("primary"), events, acceptsMessage,
+        ))
+        // A successful side send cannot turn a failed or unproven primary
+        // into a successful proactive-send receipt.
+        assertEquals("", ProactiveSendAttribution.selectPrimaryEvidence(
+            "private-a", emptyList(), events, acceptsMessage,
+        ))
+        assertEquals("", ProactiveSendAttribution.selectPrimaryEvidence(
+            "private-a", listOf("side"), listOf(main), acceptsMessage,
+        ))
+        assertEquals("", ProactiveSendAttribution.selectPrimaryEvidence(
+            "private-a", listOf("other"), events, acceptsMessage,
+        ))
+        assertEquals("", ProactiveSendAttribution.selectPrimaryEvidence(
+            "private-a", listOf("primary"), events,
+        ) { false })
+    }
+
 }
