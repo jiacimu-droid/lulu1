@@ -96,6 +96,8 @@ internal object BlockIslandArt {
                     "workbench" -> drawWorkbench(base, tile)
                     "bed" -> drawBed(base, tile)
                     "campfire" -> drawFire(base, tile, phase, night)
+                    "lantern" -> drawIslandLantern(base, tile, phase)
+                    "pet_house" -> drawPetHouse(base, tile)
                 }
             }
         }
@@ -106,10 +108,14 @@ internal object BlockIslandArt {
             for (y in top until (top + rows).coerceAtMost(w.height)) {
                 for (x in left until (left + cols).coerceAtMost(w.width)) {
                     val index = w.index(x, y)
-                    if (island.structures[index] == "campfire" || w.cell(x, y) == 7) {
+                    val decor = island.structures[index]
+                    if (decor == "campfire" || decor == "lantern" || w.cell(x, y) == 7) {
                         val c = center(x, y)
-                        drawCircle(Color(0xFFFFCF87).copy(alpha = .10f), tile * 1.40f, c)
-                        drawCircle(Color(0xFFFFDB9A).copy(alpha = .13f), tile * .70f, c)
+                        val bright=if(decor=="lantern")1.9f else 1.4f
+                        drawCircle(Color(0xFFFFCF87).copy(alpha = .11f), tile*bright, c)
+                        drawCircle(Color(0xFFFFDB9A).copy(alpha = .19f), tile*.85f, c)
+                        if(decor=="lantern")
+                            drawCircle(Color(0xFFFFF0C1).copy(alpha=.18f),tile*.38f,c)
                     }
                 }
             }
@@ -310,11 +316,20 @@ internal object BlockIslandArt {
                         p+Offset(tile*.19f,tile*(.24f+row*.21f)),
                         Size(tile*.63f,tile*.13f))
                 }
-                "campfire" -> {
+                "campfire", "lantern" -> {
                     drawCircle(tint.copy(alpha=.70f),tile*.20f,
                         p+Offset(tile*.50f,tile*.53f))
                     drawCircle(tint.copy(alpha=.36f),tile*.30f,
                         p+Offset(tile*.50f,tile*.53f),style=Stroke(tile*.06f))
+                }
+                "pet_house" -> {
+                    drawRoundRect(tint.copy(alpha=.52f),
+                        p+Offset(tile*.12f,tile*.36f),
+                        Size(tile*.76f,tile*.52f),CornerRadius(tile*.10f))
+                    drawLine(tint,p+Offset(tile*.12f,tile*.36f),
+                        p+Offset(tile*.5f,tile*.08f),strokeWidth=tile*.09f)
+                    drawLine(tint,p+Offset(tile*.5f,tile*.08f),
+                        p+Offset(tile*.88f,tile*.36f),strokeWidth=tile*.09f)
                 }
                 "plant" -> {
                     drawRect(tint.copy(alpha=.6f),p+Offset(tile*.47f,tile*.38f),
@@ -606,6 +621,47 @@ internal object BlockIslandArt {
         drawRect(Color(0xFF785A4B), p + Offset(t * .43f, t * .53f), Size(t * .18f, t * .30f))
         if (sin(phase * 6.28318f) > 0) drawRect(Color(0xFFFFDC9A),
             p + Offset(t * .69f, t * .40f), Size(t * .07f, t * .08f))
+    }
+
+    private fun DrawScope.drawIslandLantern(p: Offset, t: Float, phase: Float) {
+        drawOval(Color.Black.copy(alpha=.22f),p+Offset(t*.19f,t*.74f),
+            Size(t*.63f,t*.14f))
+        drawRect(Color(0xFF6D4F44),p+Offset(t*.43f,t*.46f),
+            Size(t*.14f,t*.34f))
+        drawRect(Color(0xFFB59B76),p+Offset(t*.28f,t*.28f),
+            Size(t*.44f,t*.35f))
+        drawRect(Color(0xFFFFE6A2),p+Offset(t*.34f,t*.32f),
+            Size(t*.32f,t*.27f))
+        drawCircle(Color(0xFFFFF1C9).copy(alpha=.62f+
+            .20f*sin(phase*6.28318f)),t*.17f,
+            p+Offset(t*.5f,t*.43f))
+        drawRect(Color(0xFF59453B),p+Offset(t*.27f,t*.24f),
+            Size(t*.47f,t*.09f))
+        drawRect(Color(0xFF463B3C),p+Offset(t*.43f,t*.19f),
+            Size(t*.14f,t*.09f))
+    }
+
+    private fun DrawScope.drawPetHouse(p: Offset, t: Float) {
+        drawOval(Color.Black.copy(alpha=.26f),p+Offset(t*.07f,t*.76f),
+            Size(t*.88f,t*.15f))
+        drawRoundRect(Color(0xFF9F745A),p+Offset(t*.12f,t*.38f),
+            Size(t*.76f,t*.44f),CornerRadius(t*.09f))
+        drawRect(Color(0xFFEDCAA3),p+Offset(t*.19f,t*.46f),
+            Size(t*.62f,t*.27f))
+        // A broad triangle roof gives the hut a distinct silhouette at mobile scale.
+        val roof=Path().apply{
+            moveTo(p.x+t*.06f,p.y+t*.43f)
+            lineTo(p.x+t*.50f,p.y+t*.10f)
+            lineTo(p.x+t*.96f,p.y+t*.43f)
+            close()
+        }
+        drawPath(roof,Color(0xFFB55E57))
+        drawLine(Color(0xFFE7A17D),p+Offset(t*.50f,t*.12f),
+            p+Offset(t*.84f,t*.38f),strokeWidth=t*.04f)
+        drawRoundRect(Color(0xFF6B5147),p+Offset(t*.39f,t*.57f),
+            Size(t*.24f,t*.25f),CornerRadius(t*.09f))
+        drawCircle(Color(0xFFDEC8AD),t*.035f,p+Offset(t*.40f,t*.25f))
+        drawCircle(Color(0xFFDEC8AD),t*.035f,p+Offset(t*.55f,t*.22f))
     }
 
     private fun DrawScope.drawFire(p: Offset, t: Float, phase: Float, night: Boolean) {
