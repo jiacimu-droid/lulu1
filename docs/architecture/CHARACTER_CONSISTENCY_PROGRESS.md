@@ -1428,3 +1428,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 生产提交 d7b57ee（主消息 ID 证据选择器）、fa7dba0（后台主私聊改用精确 ID，不再回退猜同类副发送）、28eccc6（提取可单测的候选过滤）；测试 771ebd1（同会话主副消息、主消息 ID 缺失、跨会话与拒绝动作）。保留非私聊动作原回退，未改人设、历史或模型调用。
 - GitHub 内容 API 提交成功；771ebd1 的 commit workflow runs 与 combined statuses 查询均为空。前者接口只覆盖部分 PR 运行，不能认定 push CI 成败。本轮未运行本地 Gradle，JVM/APK、真实执行器→Timeline→持久 Store、重启、下一轮召回、真机和真实模型均未验证。
 - 下一轮先核新 main 的 push Actions 与首条失败；随后补实际 ToolRouter→Timeline→CharacterInnerLifeStore 入口持久化及重启回归，特别是主动作失败但副发送成功、同 requestId 重放、部分送达。P-08a.1g 保持待验，不提前勾完成。
+
+## 2026-11-08 · P-08a.1g.3 真实 Timeline→InnerLifeStore 持久回执回归（局部）
+
+- 已刷新 main 四份必读文档及 ProactivePerceptionRuntime、ProactiveSendAttribution、SharedExperienceTimeline、CharacterInnerLifeStore、现有 Robolectric 回归。确认 P-08a.1g.5 的精确主送达 ID 门禁已存在，不重复改生产逻辑。
+- 新增测试提交 [9f6f1b2](https://github.com/jiacimu-droid/lulu1/commit/9f6f1b255a7f72c644fd9cb0eefdb65280eaa752)：在真实 SharedExperienceTimeline 写入同会话主/副 CharacterStatement，以生产 primaryDeliveryEvidence 解析本次主 ID，经过 shouldPersistDeliveredSend 写入真实 CharacterInnerLifeStore，检查 summarize 从持久快照及时间线重新读取、同 ID 重放不重复、无主 ID/跨会话不认领、未把副消息登记为主回执。测试使用 Robolectric 本地数据，不调用收费模型；隔离角色 ID 并清理测试内心 Store。
+- **验收边界**：这是 Timeline→Store 的本地集成回归源码，未运行 Gradle/JVM/APK，也未取得该 SHA 的 Actions 结果；未模拟真正 ToolRouter/CompanionActionRuntime 的失败和部分发送、未证明进程重启后持久 SQLite/SharedPreferences 恢复，更不代表真机或真实模型通过。不得将本测试勾为 P-08a.1g 整体完成。
+- 下一轮先查 9f6f1b2 后继 push CI 的第一条真实失败；若测试失败按日志修。随后补真实执行器入口主失败/副成功、部分送达及跨进程重新初始化的回归；若只能依赖真机，转向 P-08a 其他可实施子项。
