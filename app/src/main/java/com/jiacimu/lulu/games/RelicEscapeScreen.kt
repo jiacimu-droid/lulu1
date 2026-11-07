@@ -301,7 +301,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text("出发准备",color=Color.White,fontWeight=FontWeight.Black,fontSize=19.sp)
                 Text("出发自带2枚照明弹、1枚声响诱饵和2套机关工具。祭坛有更贵重的藏品，也会唤醒守卫。成功撤离才将宝物入库；倒地失败只丢失本局战利品。",
                     color=relicMuted,fontSize=12.sp)
-                Text("本层目标：摸宝撤离。仓库宝物可换铜币：70买药剂、350升级武器。",
+                Text("本层目标：摸宝撤离。重复珍宝可换铜币，准备更多药剂、升级武器或扩大永久探险背包。",
                     color=relicGold,fontSize=12.sp)
                 Text("本次同行："+(if(game.playWithCharacter)game.selectedCharacterIds.distinct().take(3).size else 0)+
                     "位伙伴（每人自带1份救援药剂）",color=relicGreen,fontSize=12.sp)
@@ -312,6 +312,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
                 Text("武器："+if(snapshot.weapon==2)"锋刃长枪（伤害4）" else "旧式短剑（伤害2）",
                     color=relicGold,fontSize=12.sp)
+                Text("探险背包："+(8+snapshot.satchelLevel*2)+"格 · 升级后每局都能多带出战利品",
+                    color=relicGreen,fontSize=12.sp)
                 Button(onClick={
                     change{ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits.coerceAtMost(snapshot.kits))}
                 },modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=relicGold,
@@ -330,6 +332,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         enabled=snapshot.weapon==1 && snapshot.coins>=350) {
                         Text("升级武器 · 350")
                     }
+                }
+                RelicCampUpgrades.satchelCost(snapshot.satchelLevel)?.let { price ->
+                    val slots=8+(snapshot.satchelLevel+1)*2
+                    OutlinedButton(onClick={change{ledger.upgradeSatchel()}},
+                        enabled=snapshot.coins>=price,
+                        modifier=Modifier.fillMaxWidth()) {
+                        Text("扩容背包至${slots}格 · ${price}铜币",
+                            color=if(snapshot.coins>=price)relicGold else relicMuted)
+                    }
+                    Text("背包升级属于永久装备，但只对下一次进入遗迹的探险生效。",
+                        color=relicMuted,fontSize=11.sp)
                 }
                 if(snapshot.vault.isEmpty())Text("尚未有成功带回的实物",color=relicMuted)
                 snapshot.vault.takeLast(30).reversed().forEach{item->
@@ -377,7 +390,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             RelicPanel {
                 Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                     RelicValue("生命",hero.hp.toString()+"/10",relicRed)
-                    RelicValue("负重",hero.load.toString()+"/"+RelicEscapeRules.CAPACITY,relicGold)
+                    RelicValue("负重",hero.load.toString()+"/"+RelicEscapeRules.heroCapacity(run),relicGold)
                     RelicValue("药剂",hero.kits.toString(),relicGreen)
                     RelicValue("估值",run.value.toString(),relicGold)
                     RelicValue("回合",run.turns.toString(),Color.White)
@@ -585,7 +598,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
             RelicPanel {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("战利品 · ${hero.bag.size} 件 · ${hero.load}/${RelicEscapeRules.CAPACITY} 格",
+                    Text("战利品 · ${hero.bag.size} 件 · ${hero.load}/${RelicEscapeRules.heroCapacity(run)} 格",
                         modifier = Modifier.weight(1f), color = Color.White, fontWeight = FontWeight.Bold)
                     TextButton(onClick = { showBag = !showBag }) {
                         Text(if (showBag) "收起背包" else "打开背包", color = relicGold)
