@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:20:53.182911+00:00",
-  "commit": "e2c329170fa9e055b90bc5c12661462488473083",
+  "generatedAt": "2026-11-07T17:21:25.112143+00:00",
+  "commit": "1be4b3c9eb4f4e714d9674e3cc511df098973e62",
   "branch": "main",
-  "sourceFingerprint": "095c44061260202b5b2d96c8530e4bc7171e6f66154fff5e4d7bc614b7ce232c",
+  "sourceFingerprint": "69fa103a07201f6748588d19d77a7db216353a3fffbcb9ae40e5a96db6c77e69",
   "summary": {
     "files": 1141,
-    "lines": 245198,
+    "lines": 245231,
     "symbols": 3363
   },
   "symbolIndex": {
@@ -36038,8 +36038,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
-      "lines": 75,
-      "sha256": "93d9ed074d100151b6684da50b3976ae206686ab2542dfffec109d000eb5c47f",
+      "lines": 108,
+      "sha256": "a21b7204df64d9f5da981419b7bdbec2271ae7b3c0e27cd76536a39b736d0a1b",
       "symbols": [
         {
           "name": "PromptInputAuditTest",
