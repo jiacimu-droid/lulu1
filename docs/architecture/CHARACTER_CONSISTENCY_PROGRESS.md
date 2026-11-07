@@ -1435,3 +1435,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 新增测试提交 [9f6f1b2](https://github.com/jiacimu-droid/lulu1/commit/9f6f1b255a7f72c644fd9cb0eefdb65280eaa752)：在真实 SharedExperienceTimeline 写入同会话主/副 CharacterStatement，以生产 primaryDeliveryEvidence 解析本次主 ID，经过 shouldPersistDeliveredSend 写入真实 CharacterInnerLifeStore，检查 summarize 从持久快照及时间线重新读取、同 ID 重放不重复、无主 ID/跨会话不认领、未把副消息登记为主回执。测试使用 Robolectric 本地数据，不调用收费模型；隔离角色 ID 并清理测试内心 Store。
 - **验收边界**：这是 Timeline→Store 的本地集成回归源码，未运行 Gradle/JVM/APK，也未取得该 SHA 的 Actions 结果；未模拟真正 ToolRouter/CompanionActionRuntime 的失败和部分发送、未证明进程重启后持久 SQLite/SharedPreferences 恢复，更不代表真机或真实模型通过。不得将本测试勾为 P-08a.1g 整体完成。
 - 下一轮先查 9f6f1b2 后继 push CI 的第一条真实失败；若测试失败按日志修。随后补真实执行器入口主失败/副成功、部分送达及跨进程重新初始化的回归；若只能依赖真机，转向 P-08a 其他可实施子项。
+
+## 2026-11-08 · #806 主动私聊送达归属测试环境修正（待 CI/真机）
+
+- [Issue #806](https://github.com/jiacimu-droid/lulu1/issues/806) 对应 9f6f1b2 的 [APK/JVM run 42397397265](https://github.com/jiacimu-droid/lulu1/actions/runs/42397397265)：`:app:testPhoneUnitTest` 共 2531 tests、1 failed，首个失败为 `ProactiveSendAttributionTest.persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery` 第 191 行（期望主消息 ID，实际空字符串），APK 后续步骤未执行。
+- 实查根因：此新增测试只用 `SharedExperienceTimeline.record(source="message")` 人工制造角色发言，没有往唯一权威 `MigratedDomainStores.chat` 写入 `Sent` 消息。现行 `TimelineStatementOwnership.original` 正确要求会话、原消息 ID、作者、送达状态、内容与时间匹配，故 `CharacterActionEvidence.supports(message)` 必然拒绝这条孤立伪事件；**不是生产送达门禁坏了**，不可放松该门禁或只修改断言。
+- 已直接提交 main [b64f565](https://github.com/jiacimu-droid/lulu1/commit/b64f5655588206bda885ed5d8ac84858b6acdbf6)：集成回归改走现有真实私聊创建/appendCharacterMessage→自动时间线投影→主 ID 选择→InnerLifeStore 决策持久化→summarize；额外断言仅伪造时间线而无聊天送达的行绝不可以冒领。沿用原主/副消息、跨会话、幂等、清理检查；未改生产逻辑和其他测试。
+- **验证边界**：本轮已核对失败日志、真实代码路由、GitHub 文件更新提交；新提交对应的 push Actions 尚未拿到实际成功结果（GitHub commit status / PR-run 查询为空，不可推断未触发），没有运行本地 Gradle/APK 或真机。#806 与 P-08a.1g.3 须待新 JVM/APK success、真机以及实际执行器/跨重启/下一轮召回验收再考虑完成。
