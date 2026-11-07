@@ -141,7 +141,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement=Arrangement.spacedBy(5.dp)) {
                     listOf(if(run.phase==RelicPhase.DOWNED)"你能来救救我吗？"
-                        else "宝箱留给我开，好不好？","我们一起打怪！","你能保护我吗？").forEach { line ->
+                        else "宝箱留给我开，好不好？","你能把宝物送给我吗？","我们一起打怪！","你能保护我吗？").forEach { line ->
                         AssistChip(onClick={send(line)},
                             label={Text(line,fontSize=10.sp)},
                             colors=AssistChipDefaults.assistChipColors(
