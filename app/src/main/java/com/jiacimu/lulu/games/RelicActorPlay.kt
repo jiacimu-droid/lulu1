@@ -51,6 +51,16 @@ internal object RelicActorPlay {
             RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1)
             result += IslandActorOption("plan_rescue",
                 "玩家倒地，你决定下回合开始赶去救援，但本回合不会多移动","plan_rescue")
+        // A single character-owned decision can specify a complete delivery goal.
+        // Continuing it later uses legal game turns, not an AI call per tile.
+        if(s.hero.hp>0)for(item in a.bag.take(6)) {
+            if(s.coopPlans[id]?.kind!="deliver" ||
+                s.coopPlans[id]?.itemId!=item.id) {
+                result += IslandActorOption("plan_deliver:"+item.id,
+                    "主动把自己背包的"+item.name+"带到玩家身边交给她；沿真实路线行动，玩家背包满了就暂时自己保管",
+                    "plan_deliver")
+            }
+        }
         if (acted(s, id)) return result
         if (s.hero.hp>0 && RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=2 &&
             s.guardedBy!=id)
@@ -260,8 +270,8 @@ internal object RelicActorPlay {
 
     suspend fun decide(s: RelicRun,id: String,heard: String): Result<IslandActorChoice> =
         LuluAiServices.gateway.generate(characterId=id,facts=facts(s,id,heard),
-            instruction="""你是角色本人，正在陪玩家合作探索遗迹。按自己的性格、关系与现场自主选择操作，可以分头搜宝、战斗、救援、撤退或观察；不必等玩家命令或固定跟随。
-只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。你可以自主和玩家一起围攻敌人、主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
+            instruction="""你是角色本人，正在陪玩家合作探索遗迹。按自己的性格、关系与现场自主选择操作，可以分头搜宝、战斗、救援、撤退或观察；不必等玩家命令或固定跟随。自己找到的实物宝物可以选择 plan_deliver 亲自带到玩家身边交给她，或者在附近用 share 即刻交付。是否送、送哪件由你决定，不是脚本自动赠送；背包满了会如实暂存。
+只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；plan_deliver 是你亲自选定的跨回合送宝目标，移动与交付都扣真实回合，行动失败保留宝物并给回执；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。你可以自主和玩家一起围攻敌人、主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
 只输出JSON：{"actionId":"options中的id","speech":"愿意说出口的话；沉默则为空字符串"}。实际执行结果由游戏返回。""",
             source="游戏 · 迷雾摸金自主同行",title="摸金伙伴自主决策",usage=ModelUsage.Game,
             contextMode=CompanionContextMode.CharacterAndScenario,maxTokens=260)
