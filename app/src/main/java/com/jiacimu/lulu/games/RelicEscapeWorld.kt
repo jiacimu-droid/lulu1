@@ -6,7 +6,7 @@ import java.util.UUID
 
 /** Every run builds a new, connected physical board, not a narrated map. */
 internal object RelicEscapeWorld {
-    fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int):RelicRun {
+    fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int,satchelLevel:Int=0):RelicRun {
         val rng=Random(seed)
         val w=18;val h=15
         val cells=MutableList(w*h){i->
@@ -109,7 +109,7 @@ internal object RelicEscapeWorld {
         }
         val run=RelicRun(UUID.randomUUID().toString(),seed,level,w,h,cells,RelicPhase.EXPLORE,
             RelicActor("player",2,2,kits=kits),allies,chests,mobs,emptyList(),
-            exit.first,exit.second,weapon=weapon,sites=sites,
+            exit.first,exit.second,weapon=weapon,sites=sites,satchelLevel=satchelLevel.coerceIn(0,2),
             notice="深入遗迹。远处有一处绿色撤离信标。")
         return RelicEscapeRules.reveal(run).log("player","enter","进入第"+level+"层遗迹，同行"+allies.size+"人")
     }
