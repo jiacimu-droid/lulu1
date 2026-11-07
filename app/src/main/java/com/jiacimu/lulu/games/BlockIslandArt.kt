@@ -119,6 +119,11 @@ internal object BlockIslandArt {
             if (!w.inBounds(x, y)) continue
             val actionable = when {
                 w.mobs.any { it.hp > 0 && it.x == x && it.y == y } -> Color(0xFFFFA78C)
+                island.animals.any { animal ->
+                    animal.x==x && animal.y==y &&
+                        (if(animal.befriended)IslandWildlife.canGift(island,animal)
+                        else IslandWildlife.canFeed(island,animal))
+                } -> Color(0xFFFFDCAC)
                 w.friends.any { it.hp <= 0 && it.x == x && it.y == y } &&
                     island.fruit >= 2 -> Color(0xFFA9F4E8)
                 w.cell(x, y) in 1..2 -> Color(0xFFA9EDAD)
@@ -145,6 +150,11 @@ internal object BlockIslandArt {
                     it.targetMobId==mob.id && impactProgress<1f }
                 drawSlime(actorCenter(mobVisuals[mob.id],mob.x,mob.y),tile,mob.hp,phase,mob.id,
                     hit?.let { 1f-impactProgress } ?: 0f)
+            }
+        // Every living creature is rendered from real saved entities, not decorative sprites.
+        island.animals.filter { it.x in left until left+cols && it.y in top until top+rows }
+            .forEach { animal ->
+                drawIslandAnimal(center(animal.x,animal.y),tile,animal,phase)
             }
         val companionOutfits = listOf(
             Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
@@ -662,6 +672,71 @@ internal object BlockIslandArt {
         if (user) {
             drawRect(Color(0xFFFFF4BB), p + Offset(-t * .23f, -t * .51f), Size(t * .46f, t * .07f))
             drawRect(Color(0xFFFCE4A3), p + Offset(-t * .10f, t * .01f), Size(t * .20f, t * .07f))
+        }
+    }
+
+    private fun DrawScope.drawIslandAnimal(
+        center: Offset, t: Float, animal: IslandAnimal, phase: Float,
+    ) {
+        val bob = sin(phase * 6.28318f + animal.id.toFloat()) * t * .028f
+        val p = center + Offset(0f,bob)
+        drawOval(Color(0x660E332E),p+Offset(-t*.32f,t*.20f),
+            Size(t*.64f,t*.14f))
+        when(animal.species) {
+            "hare" -> {
+                val fur=Color(0xFFE6D7BA)
+                drawRoundRect(fur,p+Offset(-t*.24f,-t*.44f),
+                    Size(t*.16f,t*.32f),CornerRadius(t*.08f))
+                drawRoundRect(fur,p+Offset(t*.08f,-t*.45f),
+                    Size(t*.16f,t*.33f),CornerRadius(t*.08f))
+                drawRect(Color(0xFFEBA7A7),p+Offset(-t*.18f,-t*.39f),
+                    Size(t*.055f,t*.20f))
+                drawRect(Color(0xFFEBA7A7),p+Offset(t*.14f,-t*.39f),
+                    Size(t*.055f,t*.20f))
+                drawOval(fur,p+Offset(-t*.30f,-t*.18f),Size(t*.60f,t*.47f))
+                drawOval(Color(0xFFFFF5DE),p+Offset(-t*.15f,-t*.03f),
+                    Size(t*.30f,t*.22f))
+                drawCircle(Color(0xFF303941),t*.039f,p+Offset(-t*.13f,-t*.08f))
+                drawCircle(Color(0xFF303941),t*.039f,p+Offset(t*.13f,-t*.08f))
+                drawCircle(Color(0xFFD88E94),t*.045f,p+Offset(0f,t*.03f))
+            }
+            "duck" -> {
+                drawOval(Color(0xFFF3E8CB),p+Offset(-t*.34f,-t*.19f),
+                    Size(t*.68f,t*.50f))
+                drawOval(Color(0xFFD8CCB1),p+Offset(-t*.29f,-t*.04f),
+                    Size(t*.30f,t*.26f))
+                drawCircle(Color(0xFFF9F4DB),t*.21f,p+Offset(t*.06f,-t*.19f))
+                drawOval(Color(0xFFE8AA52),p+Offset(t*.15f,-t*.16f),
+                    Size(t*.28f,t*.13f))
+                drawCircle(Color(0xFF353A3A),t*.039f,p+Offset(t*.12f,-t*.25f))
+                drawRect(Color(0xFFCD8B44),p+Offset(-t*.20f,t*.23f),
+                    Size(t*.11f,t*.055f))
+                drawRect(Color(0xFFCD8B44),p+Offset(t*.12f,t*.23f),
+                    Size(t*.11f,t*.055f))
+            }
+            "fox" -> {
+                drawOval(Color(0xFFBF6B42),p+Offset(-t*.43f,-t*.08f),
+                    Size(t*.44f,t*.28f))
+                drawOval(Color(0xFFF2DEC1),p+Offset(-t*.47f,-t*.07f),
+                    Size(t*.18f,t*.17f))
+                drawOval(Color(0xFFD98047),p+Offset(-t*.23f,-t*.19f),
+                    Size(t*.56f,t*.47f))
+                drawRoundRect(Color(0xFF7B4C44),p+Offset(-t*.18f,-t*.42f),
+                    Size(t*.17f,t*.25f),CornerRadius(t*.035f))
+                drawRoundRect(Color(0xFF7B4C44),p+Offset(t*.14f,-t*.42f),
+                    Size(t*.17f,t*.25f),CornerRadius(t*.035f))
+                drawOval(Color(0xFFF7E8CD),p+Offset(-t*.18f,-t*.02f),
+                    Size(t*.38f,t*.25f))
+                drawCircle(Color(0xFF30363A),t*.047f,p+Offset(-t*.10f,-t*.09f))
+                drawCircle(Color(0xFF30363A),t*.047f,p+Offset(t*.14f,-t*.09f))
+                drawCircle(Color(0xFF44393B),t*.042f,p+Offset(t*.01f,t*.045f))
+            }
+        }
+        if(animal.befriended) {
+            // Golden companion marker is tied to saved friendship.
+            val sparkle=p+Offset(t*.27f,-t*.36f)
+            drawCircle(Color(0xDFF9DA87),t*.15f,sparkle)
+            drawCircle(Color(0xFFFFF7D4),t*.07f,sparkle)
         }
     }
 
