@@ -763,22 +763,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 drawCircle(color.copy(alpha=.10f),scale*.43f,center)
                 drawCircle(color.copy(alpha=.24f),scale*.30f,center,
                     style=Stroke(scale*.035f))
-                val gem=androidx.compose.ui.graphics.Path().apply {
-                    moveTo(center.x,center.y-scale*.33f)
-                    lineTo(center.x+scale*.25f,center.y-scale*.03f)
-                    lineTo(center.x+scale*.18f,center.y+scale*.31f)
-                    lineTo(center.x-scale*.18f,center.y+scale*.31f)
-                    lineTo(center.x-scale*.25f,center.y-scale*.03f)
-                    close()
+                with(RelicTreasureArt) {
+                    drawTreasure(name,center,scale*.78f,color)
                 }
-                drawPath(gem,color)
-                drawLine(Color.White.copy(alpha=.52f),
-                    center+Offset(-scale*.19f,-scale*.03f),
-                    center+Offset(scale*.19f,-scale*.03f),
-                    strokeWidth=scale*.025f)
-                drawLine(Color.White.copy(alpha=.35f),
-                    center+Offset(-scale*.18f,-scale*.03f),
-                    center+Offset(0f,scale*.28f),strokeWidth=scale*.021f)
                 drawCircle(Color.White.copy(alpha=.73f),scale*.045f,
                     center+Offset(scale*.35f,-scale*.26f))
             }
