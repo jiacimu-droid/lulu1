@@ -105,7 +105,7 @@ internal object IslandHouseProjects {
         val description=when(action.substringBefore(":")) {
             "start_house"->"决定为玩家亲手盖一座"+styleName(next.style)+"（3×3、约17木）"
             "pause_house"->"决定暂停建房，保留已经搭好的部分"
-            "resume_house"->"决定继续之前的"+if(next.phase=="demolishing")"拆除" else "建造"+"工程"
+            "resume_house"->"决定继续之前的"+(if(next.phase=="demolishing")"拆除" else "建造")+"工程"
             else->"决定逐步拆除自己建造的小屋"
         }
         val log="工程["+id+"] 第"+w.turns+"回合："+description+
