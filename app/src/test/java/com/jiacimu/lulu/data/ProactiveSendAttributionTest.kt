@@ -124,4 +124,14 @@ class ProactiveSendAttributionTest {
         assertEquals(false, ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), listOf(delivered, otherRoleReply))[receipt.decisionId])
     }
 
+    @Test
+    fun successfulToolWithoutResolvedDeliveryNeverPersistsSuccessReceipt() {
+        // The production runtime calls this gate before writing CharacterInnerLifeStore.
+        // Tool success alone, or a model's selected action, is not a delivered event.
+        assertFalse(ProactiveSendAttribution.shouldPersistDeliveredSend(true, "", true))
+        assertFalse(ProactiveSendAttribution.shouldPersistDeliveredSend(false, "evt-delivered", true))
+        assertFalse(ProactiveSendAttribution.shouldPersistDeliveredSend(true, "evt-group", false))
+        assertTrue(ProactiveSendAttribution.shouldPersistDeliveredSend(true, "evt-delivered", true))
+    }
+
 }
