@@ -15,6 +15,8 @@ internal object IslandBuildingControls {
         IslandBuildRecipe("workbench", "⚒ 工作台", "4木2石"),
         IslandBuildRecipe("campfire", "♨ 篝火", "2木1石"),
         IslandBuildRecipe("bed", "▱ 木床", "3木1石"),
+        IslandBuildRecipe("lantern", "✦ 夜灯", "2木1石"),
+        IslandBuildRecipe("pet_house", "⌂ 宠物小屋", "4木2石"),
         IslandBuildRecipe("bridge", "▦ 木桥", "3木"),
         IslandBuildRecipe("wall", "▥ 木墙", "2木"),
         IslandBuildRecipe("floor", "▤ 地板", "1木"),
