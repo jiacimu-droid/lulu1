@@ -56,7 +56,8 @@ internal object IslandHouseProjects {
                     w.tiles[index]!=0 || index in s.structures || index in s.supplyCaches ||
                     index==w.index(w.x,w.y) ||
                     w.friends.any { w.index(it.x,it.y)==index } ||
-                    w.mobs.any { it.hp>0 && w.index(it.x,it.y)==index }
+                    w.mobs.any { it.hp>0 && w.index(it.x,it.y)==index } ||
+                    s.animals.any { w.index(it.x,it.y)==index }
                 }) null else Triple(left,top,d)
             }
         }.sortedWith(compareBy<Triple<Int,Int,Int>> { it.third }
@@ -159,7 +160,8 @@ internal object IslandHouseProjects {
         if(p.phase=="building") {
             val occupied=(w.x==tx && w.y==ty) ||
                 w.friends.any { it.x==tx && it.y==ty } ||
-                w.mobs.any { it.hp>0 && it.x==tx && it.y==ty }
+                w.mobs.any { it.hp>0 && it.x==tx && it.y==ty } ||
+                s.animals.any { it.x==tx && it.y==ty }
             if(occupied || w.cell(tx,ty)!=0 || index in s.structures ||
                 index in s.supplyCaches)
                 return log(s.copy(houseProject=pNext.copy(phase="paused")),
