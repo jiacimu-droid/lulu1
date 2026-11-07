@@ -149,7 +149,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(hpGain>0) "+$hpGain ❤" else "已休息"
                 }
                 "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
-                "bridge", "remove" -> "✓"
+                "bridge", "lantern", "pet_house", "remove" -> "✓"
                 else -> ""
             }
             val targetMobId = if(action=="fight") island.world.mobs.firstOrNull {
@@ -291,7 +291,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         movement = {
             val center = islandNearbyAction(island, facing)
             // Workbench interaction should remain discoverable near resources.
-            val workstationAction = workbenchNear && center?.action !in setOf("fight", "revive")
+            val workstationAction = workbenchNear && center?.action !in setOf(
+                "fight", "revive", "tame", "care", "salvage", "gather", "fish")
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
                 interactLabel = if (buildMode != null) "确认建造" else
@@ -322,7 +323,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     perform(front.action, x, y)
                 } else if (BlockIslandRules.isWalkable(island,x,y) &&
                     world.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
-                    world.friends.none { it.x==x && it.y==y }) {
+                    world.friends.none { it.x==x && it.y==y } &&
+                    island.animals.none { it.x==x && it.y==y }) {
                     perform("move",x,y)
                 }
             }
@@ -638,7 +640,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         if(menuSection=="生态") {
             Text("小岛生态图鉴",color=Color(0xFFF0FCF4),fontSize=17.sp,
                 fontWeight=FontWeight.Black)
-            Text("遇见野生动物后会记入发现记录。把喜欢的动物带回家，陪伴24回合可领取真实礼物；伙伴会慢慢跟上你的脚步。",
+            Text("遇见动物后会记入发现记录。结识后它们会陪伴你；修建宠物小屋可以让动物归家休息，小屋附近领取礼物的间隔可由24回合缩短至16回合。",
                 color=Color(0xFFBEE3D3),fontSize=12.sp,lineHeight=18.sp)
             Text("已发现 ${island.discoveredSpecies.size}/${IslandWildlife.species.size} · 已结识 ${island.animals.count{it.befriended}}/${island.animals.size}",
                 color=Color(0xFFFFE0A2),fontWeight=FontWeight.Bold,fontSize=13.sp)
@@ -659,6 +661,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             Text(if(!spotted) "探索草地，寻找新的小生命"
                                 else if(!animal.befriended) "喜欢 ${IslandWildlife.feed(animal.species)} · 坐标(${animal.x},${animal.y})"
                                 else if(ready) "已经带回小礼物啦"
+                                else if(IslandWildlife.hasNearbyHome(island,animal)) "在宠物小屋旁休息 · 礼物更快"
                                 else "跟随中 · 还在准备礼物",
                                 color=Color(0xFFB6D8D0),fontSize=11.sp)
                         }
@@ -805,7 +808,7 @@ private fun IslandMiniMap(island: BlockIslandState) {
                     }
                     val structure=island.structures[w.index(x,y)]
                     val tint=when(structure) {
-                        "wall","door","workbench","campfire","bed" -> Color(0xFFE0BB80)
+                        "wall","door","workbench","campfire","bed","lantern","pet_house" -> Color(0xFFE0BB80)
                         "bridge" -> Color(0xFFC69B74)
                         else -> shade
                     }
@@ -882,6 +885,7 @@ private fun IslandBuildChip(
 private fun islandCellTitle(tile: Int, structure: String?): String =
     when (structure) {
         "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
+        "lantern" -> "夜灯"; "pet_house" -> "宠物小屋"
         else -> when (tile) {
             0 -> "草地"; 1 -> "树木"; 2 -> "石矿"; 3 -> "木墙"
             4 -> "地板"; 7 -> "营地"; 8 -> "水域"; else -> "空地"
