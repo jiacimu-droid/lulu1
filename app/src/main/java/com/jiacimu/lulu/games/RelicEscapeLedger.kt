@@ -16,10 +16,13 @@ internal data class RelicSnapshot(
     val weapon:Int=1,
     val successes:Int=0,
     val awarded:Set<String> = emptySet(),
+    // 只在成功撤离结算后解锁，卖掉仓库实物不会抹除收藏记录。
+    val discovered:Set<String> = emptySet(),
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
         .put("weapon",weapon).put("successes",successes).put("awarded",JSONArray(awarded.sorted()))
+        .put("discovered",JSONArray(discovered.sorted()))
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -30,7 +33,13 @@ internal data class RelicSnapshot(
                 run=j.optJSONObject("run")?.let{RelicRun.read(it)},
                 vault=j.getJSONArray("vault").lootList(),
                 coins=j.optInt("coins"),kits=j.optInt("kits",3),weapon=j.optInt("weapon",1),
-                successes=j.optInt("successes"),awarded=ids)
+                successes=j.optInt("successes"),awarded=ids,
+                discovered=j.optJSONArray("discovered")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in RelicCollectibles.names }
+                    }.toSet()
+                } ?: j.getJSONArray("vault").lootList()
+                    .map { it.name }.filter { it in RelicCollectibles.names }.toSet())
         }.getOrDefault(RelicSnapshot())
     }
 }
@@ -89,7 +98,10 @@ internal class RelicEscapeLedger(context:Context) {
             vault=old.vault+award.filter{candidate->old.vault.none{it.id==candidate.id}},
             coins=old.coins+if(terminal)award.sumOf{it.value}/4 else 0,
             successes=old.successes+if(terminal && next.phase==RelicPhase.SUCCESS)1 else 0,
-            awarded=if(terminal)old.awarded+next.id else old.awarded))
+            awarded=if(terminal)old.awarded+next.id else old.awarded,
+            discovered=if(terminal && next.phase==RelicPhase.SUCCESS)
+                old.discovered + award.map { it.name }.filter { it in RelicCollectibles.names }
+                else old.discovered))
     }
 
     /** A slow response may merge only into the same live run, never a new game/settlement. */
