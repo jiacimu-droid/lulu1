@@ -368,6 +368,27 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     trackColor=Color(0xFF45404B))
                 Text("只有成功撤离才算收录；卖掉实物也保留图鉴记录。同名宝物重复出货可卖掉换补给。",
                     color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+                val featured=snapshot.discovered.sortedWith(
+                    compareByDescending<String> { name ->
+                        when {
+                            RelicCollectibles.isCrownJewel(name)->4
+                            name=="封印之心"->3
+                            name in RelicCollectibles.namesFor(RelicTier.PRECIOUS)->3
+                            name in RelicCollectibles.namesFor(RelicTier.RARE)->2
+                            else->1
+                        }
+                    }.thenBy { it }
+                ).take(4)
+                if(featured.isNotEmpty()) {
+                    Text("✧ 我的珍宝陈列",color=relicGold,fontSize=13.sp,
+                        fontWeight=FontWeight.Bold)
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement=Arrangement.spacedBy(9.dp)) {
+                        featured.forEach { RelicMuseumPiece(it) }
+                    }
+                    Text("陈列是永久的发现纪念，不等于仍持有仓库中的实物。",
+                        color=relicMuted,fontSize=10.sp)
+                }
                 TextButton(onClick={showAlbum=!showAlbum}) {
                     Text(if(showAlbum)"收起完整图鉴" else "查看未收集藏品",color=relicGreen)
                 }
@@ -703,6 +724,53 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             content=content)
     }
 }
+/** Simple original gemstone illustration; it visualizes only verified album entries. */
+@Composable private fun RelicMuseumPiece(name:String) {
+    val precious=name=="封印之心" || RelicCollectibles.isCrownJewel(name) ||
+        name in RelicCollectibles.namesFor(RelicTier.PRECIOUS)
+    val rare=name in RelicCollectibles.namesFor(RelicTier.RARE)
+    val color=if(precious)Color(0xFFFFD58B) else if(rare)
+        Color(0xFF90DDF8) else Color(0xFFDCB99C)
+    Surface(modifier=Modifier.width(144.dp),
+        color=Color(0xFF192837),shape=RoundedCornerShape(16.dp),
+        border=BorderStroke(1.dp,color.copy(alpha=.55f))) {
+        Column(Modifier.padding(10.dp),
+            horizontalAlignment=Alignment.CenterHorizontally,
+            verticalArrangement=Arrangement.spacedBy(5.dp)) {
+            Canvas(Modifier.fillMaxWidth().height(65.dp)) {
+                val center=Offset(size.width*.5f,size.height*.5f)
+                val scale=size.height
+                drawCircle(color.copy(alpha=.10f),scale*.43f,center)
+                drawCircle(color.copy(alpha=.24f),scale*.30f,center,
+                    style=Stroke(scale*.035f))
+                val gem=androidx.compose.ui.graphics.Path().apply {
+                    moveTo(center.x,center.y-scale*.33f)
+                    lineTo(center.x+scale*.25f,center.y-scale*.03f)
+                    lineTo(center.x+scale*.18f,center.y+scale*.31f)
+                    lineTo(center.x-scale*.18f,center.y+scale*.31f)
+                    lineTo(center.x-scale*.25f,center.y-scale*.03f)
+                    close()
+                }
+                drawPath(gem,color)
+                drawLine(Color.White.copy(alpha=.52f),
+                    center+Offset(-scale*.19f,-scale*.03f),
+                    center+Offset(scale*.19f,-scale*.03f),
+                    strokeWidth=scale*.025f)
+                drawLine(Color.White.copy(alpha=.35f),
+                    center+Offset(-scale*.18f,-scale*.03f),
+                    center+Offset(0f,scale*.28f),strokeWidth=scale*.021f)
+                drawCircle(Color.White.copy(alpha=.73f),scale*.045f,
+                    center+Offset(scale*.35f,-scale*.26f))
+            }
+            Text(name,color=Color.White,fontSize=12.sp,
+                fontWeight=FontWeight.Bold,maxLines=1)
+            Text(if(RelicCollectibles.isCrownJewel(name))"✦ 隐世奇珍"
+                else if(precious)"珍贵藏品" else if(rare)"稀有藏品" else "普通藏品",
+                color=color,fontSize=10.sp)
+        }
+    }
+}
+
 @Composable private fun RelicValue(title:String,detail:String,color:Color) {
     Column {
         Text(title,fontSize=10.sp,color=relicMuted)
