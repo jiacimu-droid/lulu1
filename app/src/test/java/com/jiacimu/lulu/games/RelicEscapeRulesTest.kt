@@ -62,6 +62,35 @@ class RelicEscapeRulesTest {
         assertEquals(expanded.hero.bag,restored.hero.bag)
     }
 
+    @Test fun openingCeremonyOnlyRevealsLootThatWasPhysicallyCommitted() {
+        val generated=RelicEscapeWorld.create(612,2,emptyList(),0,1)
+        val chest=generated.chests.first()
+        val prepared=RelicEscapeRules.reveal(generated.copy(
+            hero=generated.hero.copy(x=chest.x,y=chest.y),
+            mobs=emptyList(),sites=emptyList()))
+        assertNull(RelicChestPresentation.committed(prepared,prepared,chest.id))
+        val opened=RelicEscapeRules.act(prepared,"open",chest.x,chest.y)
+        val result=RelicChestPresentation.committed(prepared,opened,chest.id)
+        assertNotNull(result)
+        assertEquals(prepared.id,result!!.runId)
+        assertEquals(RelicEscapeRules.treasure(prepared,chest),result.loot)
+        assertTrue(result.inBag)
+        assertNull("重复触发不能再次演出",RelicChestPresentation.committed(opened,opened,chest.id))
+        assertNull("不存在实物不能假出货",RelicChestPresentation.committed(prepared,
+            opened.copy(hero=opened.hero.copy(bag=emptyList()),drops=emptyList()),chest.id))
+        assertNull("跨局结果不允许冒领",RelicChestPresentation.committed(prepared,
+            opened.copy(id="unrelated-run"),chest.id))
+
+        val fullBag=prepared.copy(hero=prepared.hero.copy(bag=(0 until 8).map {
+            RelicLoot("old-item-"+it,"旧王银币",RelicTier.COMMON,70)
+        }))
+        val dropped=RelicEscapeRules.act(fullBag,"open",chest.x,chest.y)
+        val fallen=RelicChestPresentation.committed(fullBag,dropped,chest.id)
+        assertNotNull(fallen)
+        assertFalse("包满必须说明物品掉在地上",fallen!!.inBag)
+        assertTrue(dropped.drops.any { it.loot == fallen.loot })
+    }
+
     @Test fun treasureCatalogIsActuallyObtainableAndSeededWithoutRerolls() {
         assertEquals(RelicCollectibles.names.size,RelicCollectibles.names.distinct().size)
         var legendaryCount=0
