@@ -211,6 +211,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     val work=when(plan.kind) {
                         "support" -> "正在赶去支援"
                         "chest" -> "正在寻找宝箱"
+                        "deliver" -> {
+                            val item=run.allies.firstOrNull { it.id==id }?.bag
+                                ?.firstOrNull { it.id==plan.itemId }
+                            if(item==null)"正在核对送达物品"
+                            else "正带着「"+item.name+"」来送给你"
+                        }
                         else -> "正在与你集合"
                     }
                     Text(name+" · "+work,color=relicGreen,fontSize=11.sp,maxLines=1)
