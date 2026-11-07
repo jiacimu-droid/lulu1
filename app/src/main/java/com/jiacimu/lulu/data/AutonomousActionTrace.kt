@@ -23,7 +23,12 @@ internal object AutonomousActionTrace {
         supportsAction: (SharedTimelineEvent) -> Boolean = { true },
     ): String = events.asReversed().firstOrNull { event ->
         event.id !in previousIds && event.channel != "在线感知" && supportsAction(event) && (
-            event.evidenceKind == EventEvidenceKind.ToolResult ||
+            (event.evidenceKind == EventEvidenceKind.ToolResult &&
+                // A receipt explicitly scoped to another conversation cannot
+                // prove this conversation's action. Sessionless tool receipts
+                // remain valid for non-chat tools and legacy executors.
+                (conversationId == null || event.sessionId.isBlank() ||
+                    event.sessionId == conversationId)) ||
                 (event.evidenceKind == EventEvidenceKind.CharacterStatement &&
                     // In a known session, ownership is anchored by the scoped timeline
                     // and exact session, not by a display name (group roles have nicknames).
