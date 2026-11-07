@@ -96,6 +96,14 @@ class AutonomousActionTraceTest {
             listOf(nicknameEvent), emptySet(), "江渡", "group-b"))
         assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
             listOf(nicknameEvent), emptySet(), "江渡", "other-group"))
+        // Without a trustworthy session id, arbitrary group nicknames cannot
+        // be promoted into this character's own completed action.
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(nicknameEvent), emptySet(), "江渡"))
+        // A matching session must never turn incoming user speech into delivery.
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(event("same-session-user", "用户", EventEvidenceKind.UserStatement, "group-b")),
+            emptySet(), "江渡", "group-b"))
         val receipt = event("tool-result", "执行器", EventEvidenceKind.ToolResult)
         assertEquals("tool-result", AutonomousActionTrace.newestExecutedEvidence(
             listOf(receipt), emptySet(), "江渡"))
