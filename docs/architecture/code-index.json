@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T14:57:28.329191+00:00",
-  "commit": "d02f943b78c548615a6b168fabf1e2a652fc1f35",
+  "generatedAt": "2026-11-07T14:59:40.715336+00:00",
+  "commit": "67dbda3bbdcbb45be8cd67d3a6107fc1cb4d4968",
   "branch": "main",
-  "sourceFingerprint": "151eb5d7a9138c2fc1b5fb6cb0b60fb8090e629d661ec4ca5bb63cdec0b14374",
+  "sourceFingerprint": "96ddcd59f5c46ed36e92a59baf602137f5b13a4b6bfe972e97786a87d977813d",
   "summary": {
     "files": 1139,
-    "lines": 244147,
+    "lines": 244152,
     "symbols": 3357
   },
   "symbolIndex": {
@@ -2127,7 +2127,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 73
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -4709,7 +4709,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 132
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -11835,7 +11835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 292
+        "line": 294
       }
     ],
     "allowedLeisureLocation": [
@@ -13359,25 +13359,25 @@
     "canBuild": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 261
+        "line": 262
       }
     ],
     "canPlantAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 267
+        "line": 268
       }
     ],
     "canRemoveAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 277
+        "line": 279
       }
     ],
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 288
+        "line": 290
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -13395,25 +13395,25 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 293
+        "line": 295
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 704
+        "line": 707
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 710
+        "line": 713
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 748
+        "line": 751
       }
     ],
     "playSound": [
@@ -13727,7 +13727,7 @@
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 69
+        "line": 70
       }
     ],
     "generate": [
@@ -32110,8 +32110,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 755,
-      "sha256": "f87475c398e519f03448d5777212fb3dbe8f41258872466d21d69e8a62e430a7",
+      "lines": 758,
+      "sha256": "a538e919ca2178401d5096b423534f4deb39484b7d67dd831799fb4cb443e5b2",
       "symbols": [
         {
           "name": "toJson",
@@ -32151,39 +32151,39 @@
         },
         {
           "name": "canBuild",
-          "line": 261
+          "line": 262
         },
         {
           "name": "canPlantAt",
-          "line": 267
+          "line": 268
         },
         {
           "name": "canRemoveAt",
-          "line": 277
+          "line": 279
         },
         {
           "name": "act",
-          "line": 288
+          "line": 290
         },
         {
           "name": "reject",
-          "line": 292
+          "line": 294
         },
         {
           "name": "near",
-          "line": 293
+          "line": 295
         },
         {
           "name": "nextStep",
-          "line": 704
+          "line": 707
         },
         {
           "name": "occupiedByOther",
-          "line": 710
+          "line": 713
         },
         {
           "name": "actionName",
-          "line": 748
+          "line": 751
         }
       ]
     },
@@ -32668,8 +32668,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 198,
-      "sha256": "63c44a3ed77221ba4726da0e898b0944ef8343777501f071e22be616002dc306",
+      "lines": 200,
+      "sha256": "5a7b35e0d31768a1ee9b98a3eaad32755280b33c547e50f5791ca13298dc4b98",
       "symbols": [
         {
           "name": "json",
@@ -32689,15 +32689,15 @@
         },
         {
           "name": "isChangeAction",
-          "line": 69
+          "line": 70
         },
         {
           "name": "choose",
-          "line": 73
+          "line": 74
         },
         {
           "name": "advance",
-          "line": 132
+          "line": 133
         }
       ]
     },

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d02f943b78c548615a6b168fabf1e2a652fc1f35`
+- 基准提交：`67dbda3bbdcbb45be8cd67d3a6107fc1cb4d4968`
 - 分支：`main`
 - 已索引文件：1139
-- 已索引代码/文本行：244147
+- 已索引代码/文本行：244152
 - 已发现符号：3357
 
 | 文件 | 行数 | 符号数 |
@@ -643,7 +643,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 750 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 755 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 758 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 995 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
@@ -670,7 +670,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 303 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 198 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 200 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 72 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
