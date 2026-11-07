@@ -14,7 +14,11 @@ class BlockIslandRulesTest {
         val base=BlockIslandRules.newWorld(311,emptyList())
         val table=base.world.index(5,5)
         val fire=base.world.index(5,6)
-        val bridge=base.world.index(6,6)
+        val bridge=base.world.tiles.indices.first { index ->
+            val x=index%base.world.width;val y=index/base.world.width
+            base.world.tiles[index]==8 && x in 1 until base.world.width-1 &&
+                y in 1 until base.world.height-1
+        }
         val settled=base.copy(
             structures=mapOf(table to "workbench",fire to "campfire"),
             tools=setOf("sword"),nightsSurvived=3,defeatedMonsters=1,
