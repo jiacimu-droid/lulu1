@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T15:24:16.777174+00:00",
-  "commit": "f99a235e82eec2a07f11535bf2fd4650d9c1fc43",
+  "generatedAt": "2026-11-07T15:25:51.633339+00:00",
+  "commit": "93d2ac6f8dcb34964e902fec4a0eccbf2376e101",
   "branch": "main",
-  "sourceFingerprint": "9aa506539d64bdf7e3abd3c9205c7486271110aa22bfe254229035815208cb28",
+  "sourceFingerprint": "b1c34e8455b56a5b85b40b4050592becc4e92582e8f3279534b2746783a0883b",
   "summary": {
     "files": 1139,
-    "lines": 244424,
+    "lines": 244425,
     "symbols": 3360
   },
   "symbolIndex": {
@@ -11835,7 +11835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 300
+        "line": 301
       }
     ],
     "allowedLeisureLocation": [
@@ -13377,7 +13377,7 @@
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 296
+        "line": 297
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -13395,25 +13395,25 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 301
+        "line": 302
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 715
+        "line": 716
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 721
+        "line": 722
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 760
+        "line": 761
       }
     ],
     "playSound": [
@@ -32128,8 +32128,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 768,
-      "sha256": "bf929803dcd57b12c30cdd07cee0c26a5288fcbc0998edb8897453e1c5fbd3f7",
+      "lines": 769,
+      "sha256": "73de3964b0d9d71340b857b29d355cb4d980bb611e1dbcc0bb55fd97bdb84d98",
       "symbols": [
         {
           "name": "toJson",
@@ -32181,27 +32181,27 @@
         },
         {
           "name": "act",
-          "line": 296
+          "line": 297
         },
         {
           "name": "reject",
-          "line": 300
-        },
-        {
-          "name": "near",
           "line": 301
         },
         {
+          "name": "near",
+          "line": 302
+        },
+        {
           "name": "nextStep",
-          "line": 715
+          "line": 716
         },
         {
           "name": "occupiedByOther",
-          "line": 721
+          "line": 722
         },
         {
           "name": "actionName",
-          "line": 760
+          "line": 761
         }
       ]
     },
