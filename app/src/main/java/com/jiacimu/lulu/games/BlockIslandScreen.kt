@@ -226,15 +226,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
     val workbenchNear = workbench != null &&
         abs(world.x - workbench.key % world.width) + abs(world.y - workbench.key / world.width) <= 2
-    val hasShelter = island.structures.values.any { it == "campfire" || it == "bed" }
-    val survivalGoal = when {
-        workbench == null -> "目标1/5：收集4木2石，建工作台"
-        "sword" !in island.tools -> "目标2/5：在工作台做一把石剑"
-        !hasShelter -> "目标3/5：建造篝火或床铺"
-        island.defeatedMonsters == 0 -> "目标4/5：击退野怪，收集食物"
-        island.nightsSurvived < 3 -> "目标5/5：守住3夜（${island.nightsSurvived}/3）"
-        else -> "守岛挑战完成！继续自由建造、捕鱼、探索"
-    }
+    // Later collection objectives are derived from the saved island, not reset by closing UI.
+    val survivalGoal = IslandMilestones.next(island)
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
