@@ -100,6 +100,27 @@ class BlockIslandRulesTest {
         assertTrue(refused.animals.none{it.befriended})
     }
 
+    @Test fun wildlifeCannotBeBuriedByBuildingPlantingOrCompanionActions() {
+        val base=BlockIslandRules.newWorld(101,listOf("friend"))
+        val target=5 to 5
+        val animal=base.animals.first().copy(x=target.first,y=target.second)
+        val occupied=base.copy(animals=listOf(animal),
+            world=base.world.copy(wood=20,stone=20,mobs=emptyList()))
+        assertFalse(BlockIslandRules.canPlaceBuilding(occupied,"wall",target.first,target.second))
+        assertFalse(BlockIslandRules.canPlantAt(occupied,target.first,target.second))
+        assertEquals(occupied.world.turns,
+            BlockIslandRules.act(occupied,"wall",target.first,target.second).world.turns)
+        assertEquals(occupied.world.turns,
+            BlockIslandRules.act(occupied,"plant",target.first,target.second).world.turns)
+        val choices=IslandActorPlay.options(occupied,"friend")
+        assertFalse(choices.any {
+            it.kind in setOf("plant","floor","wall") &&
+                it.x==target.first && it.y==target.second
+        })
+        val stored=BlockIslandState.fromJson(occupied.toJson())!!
+        assertEquals(occupied.animals,stored.animals)
+    }
+
     @Test fun mapIsConnectedAtSpawnAndCreationIsRepeatable() {
         val a = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
         val b = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
