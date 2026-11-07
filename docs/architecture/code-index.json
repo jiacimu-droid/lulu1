@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:12:01.297491+00:00",
-  "commit": "fb1e96bff825a0ce68b3e9563bcf2d7898ff9dfc",
+  "generatedAt": "2026-11-07T17:12:46.597363+00:00",
+  "commit": "2f66011ea0f9b6776f516bb6e06a6d1e746f5a6c",
   "branch": "main",
-  "sourceFingerprint": "36ee90aae9287ef4da9065811de8086d1611a7a518d768d16d995a499e519ceb",
+  "sourceFingerprint": "f57f9cdb81c58968bff07140722336426b1604773cfa8f5be08d4de600cbc350",
   "summary": {
     "files": 1141,
-    "lines": 245052,
+    "lines": 245109,
     "symbols": 3363
   },
   "symbolIndex": {
@@ -16063,7 +16063,7 @@
     "ModelPostTransportTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-        "line": 10
+        "line": 22
       }
     ],
     "ModelResponsePayloadTest": [
@@ -35971,12 +35971,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 103,
-      "sha256": "41c8ca1a66ac94deb3cdf51f8244f69eabaf0d2df356c089101c3fdc43b56e37",
+      "lines": 160,
+      "sha256": "866ddd90417c7ff8a672db50350c1d7f37092e709721316bf8dcf54e391f638e",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
-          "line": 10
+          "line": 22
         }
       ]
     },
