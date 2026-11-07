@@ -1377,3 +1377,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复核 main 四份必读文档、`ProactivePerceptionRuntime` 成功发送记录及 `ProactiveSendAttribution` 的读取路径。运行时以 `proactive-send:<actionEvidenceId>` 记录成功发送，且 `causalEvidenceId=actionEvidenceId`。此前统计只检成功状态和时间，没有验证两者一致；若保存记录错配到另一条真实送达事件，会把另一条消息的回复算在本决定上，缺失来源则不应归属。
 - 正式源码 [ea3bf370](https://github.com/jiacimu-droid/lulu1/commit/ea3bf370cac722024e7b743bef1e5df6ff4cd3db) 增加读取时的身份一致性门禁，不改变原始历史、人物决策或成功发送逻辑；测试 [ae28fa76](https://github.com/jiacimu-droid/lulu1/commit/ae28fa76d8cc1de641bc339d03c2479ac5bd3f6b) 为原 Robolectric 回归补错配/空来源负例，正常成功回执仍保留。
 - **验证**：已提交生产源码与测试，尚未取得对应新 HEAD 的 JVM/APK、Actions 成功结果；真机、真实发送失败、重启后持久回执和下一轮人物召回未知。下一轮先查新 CI；若成功继续 P-08a.1 的电话静默与后台发送结果到下一轮召回入口级回归，若失败修第一条真实错误。不能将本轮源码提交等同测试通过。
+
+
+## 2026-11-07 · P-08a.1g 成功发送但缺真实送达锚的回执门禁
+
+- 新 CI 核验：`ae28fa76` 对应 APK/JVM [42313244834](https://github.com/jiacimu-droid/lulu1/actions/runs/42313244834) 与索引 [42313244835](https://github.com/jiacimu-droid/lulu1/actions/runs/42313244835) 均 completed/success，覆盖 P-08a.1f 的测试；不能代表后续新提交。
+- 正式源码检查 `ProactivePerceptionRuntime`：`actionEvidenceId` 由真实时间线解析，可在 `primarySuccess=true` 时仍为空；此前仍持久写入 `proactive-send:` 成功回执（无真实送达锚），后续统计只能排除这种无效记录。源码提交 `06420830ca2cbf1826c9cd185441fe87de9e7866`：只有实际成功且解析到非空送达事件 ID 才写主动发送成功回执；不改变工具执行结果、不推断用户回复、不新增模型调用。已有 `ProactiveSendAttributionTest.receiptsKeepOnlyDeliveredProactiveSendsWithParsableTime` 覆盖读取时无来源过滤，但**尚缺生产入口空锚集成回归**，不能声称本次写入门禁已测试通过。
+- 新提交 JVM/APK、真实发送、重启持久回执及下一轮召回尚待验。下一轮先核新 Actions，补生产入口空锚/成功锚的真实持久化回归；再继续电话静默观察与后续召回。
