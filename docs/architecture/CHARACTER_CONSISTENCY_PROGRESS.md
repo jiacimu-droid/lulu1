@@ -1405,3 +1405,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **看板收敛**：此前路线图累计 23 条勾选的工程阶段记录混入活动清单（其中 4 条被字面量 `\\n` 嵌在其他清单行内，现已恢复正常换行），部分标注“CI 待验”实际上已经有后继 `c0601ed` 成功基线。现将这 23 条“已提交/已运行”的**工程阶段记录**退出活跃待办；清理后按清单行统计 20 个仍待完整验收的主项目、84 个待办子步骤，保留在此专项日志、此前文档 Git 历史和源码提交；P-08d.2h / P-08d.2g、P-08a.1d/e/f/g、P-08a.CI-01、P-08c.1/2a 等**未完成的真机、模型、执行器入口与跨日验收仍在唯一看板**。绝不因为有 [x] 或 CI 成功就注销 20 项主项目。
 - **仍需评估的潜在回退边界**：`AutonomousActionTrace` 的 ToolResult 后备候选尚未使用会话 ID 过滤；但是工具执行器可能合法地产生不含 session 的回执，不能无证据一刀切禁用。后续应以主工具真实 evidenceId 为优先并在同会话并发、群聊昵称与跨角色工具混排时验证“事件属主、实际消息送达、幂等回放”，确认缺陷再改。屏幕/电话跨场景的活人感、额外模型费用、传输与性能尚缺同版本真实测量。
 - **接力**：核最新 commit 的 APK/JVM 和索引第一错误；如失败优先修。继续 P-08a.1g 生产 ToolRouter→Timeline→Store 持久回执与下一轮召回集成，再推 P-08d.1 真实心事/承诺后续。不得用过期旧 CI 状态重复做已经完成的实现。
+
+## 2026-11-07 · P-08a.1g.3 同轮副工具回执遮挡主消息送达证据
+
+- 接力读取 main 四份必读文档及 AutonomousActionTrace、CharacterActionEvidence、ProactivePerceptionRuntime 与原 Robolectric 测试。已知旧 P-08a.1g.2 群昵称回归曾失败，后继 03a490d/5dbaead 修复；本轮未重复更改会话 speaker 规则。
+- 证实源码选择顺序缺口：主私聊 CharacterStatement 已产生，后续同轮副工具 ToolResult 较新；newestExecutedEvidence 只返回最新副工具 ID，随后 CharacterActionEvidence.supports(primary message) 拒绝，却不再检查此前真正送达的主消息，导致成功发送回执可能缺锚。此处是可构造的源代码因果缺口，不声称已在真机复现。
+- 生产源码 baad0dba00a895a22c58571b471eef3d2cec1b45 在原候选选择器添加可选动作证据谓词；65defe65af1fe0cb278de407ba188b3e676ce416 让后台主动作回退使用同一 CharacterActionEvidence.supports 规则。保留直接 evidenceId 优先、旧通用调用默认行为及原始时间线，不新增模型调用或状态 Store。
+- 回归 fe4fac14a4ef38803ac6517d5d59abe495c7701c 覆盖先送达主消息后出现无关工具回执、无匹配候选；Roadmap efa7f6babe73acbe72f3ac584612fdb1ffc92a01。尚未运行本地 Gradle，也尚未取得新提交 JVM/APK Actions 成功证据，不能宣称测试已通过。未验真实 ToolRouter→Timeline→Store 持久回执、重启/下一轮召回、同会话同动作并发和真机/真实模型。
+- 下一轮先核包含 fe4fac1 的 JVM/APK 与索引 CI；失败按首条日志修复。再补同会话同类副消息与主消息的精确身份归属入口回归；不能把只按 action 匹配当作已验证主副隔离。P-08a.1g 继续待验。
