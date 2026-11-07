@@ -207,6 +207,17 @@ class ProactiveSendAttributionTest {
                 role, conversation, listOf(primaryId), "message",
             )
             assertEquals(primaryId, mainEvidence)
+            // Partial executor delivery: a failed first message ID must not
+            // hide a later independently verified primary message.
+            assertEquals(primaryId, ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, conversation, listOf("missing-primary-id", primaryId), "message",
+            ))
+            // The side message is real, but never evidence when the executor
+            // reports no primary delivery (even though a side action succeeded).
+            assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, conversation, emptyList(), "message",
+            ))
+            assertTrue(ProactiveSendAttribution.summarize(role).receipts.isEmpty())
             assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
                 role, conversation, emptyList(), "message",
             ))
