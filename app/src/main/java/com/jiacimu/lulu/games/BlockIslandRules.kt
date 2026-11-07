@@ -26,6 +26,8 @@ internal data class BlockIslandState(
     val nightsSurvived: Int = 0,
     val defeatedMonsters: Int = 0,
     val lastKnockoutTurn: Int = -100,
+    val animals: List<IslandAnimal> = emptyList(),
+    val discoveredSpecies: Set<String> = emptySet(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -47,6 +49,8 @@ internal data class BlockIslandState(
         .put("hunger",hunger).put("nightsSurvived",nightsSurvived)
         .put("defeatedMonsters",defeatedMonsters)
         .put("lastKnockoutTurn",lastKnockoutTurn)
+        .put("animals",JSONArray(animals.map { it.json() }))
+        .put("discoveredSpecies",JSONArray(discoveredSpecies.sorted()))
         .toString()
 
     companion object {
@@ -88,7 +92,7 @@ internal data class BlockIslandState(
                     a.optInt(i, -1).takeIf { it in caches }
                 }.toSet()
             } ?: emptySet()
-            base.copy(supplyCaches=caches, openedSupplies=opened,
+            val restored=base.copy(supplyCaches=caches, openedSupplies=opened,
                 houseProject=IslandHouseProject.read(json.optJSONObject("houseProject"),world),
                 guardedBy=json.optString("guardedBy","").takeIf { id ->
                     world.friends.any { it.id==id }
@@ -97,12 +101,25 @@ internal data class BlockIslandState(
                 nightsSurvived=json.optInt("nightsSurvived",0).coerceAtLeast(0),
                 defeatedMonsters=json.optInt("defeatedMonsters",0).coerceAtLeast(0),
                 lastKnockoutTurn=json.optInt("lastKnockoutTurn",-100))
+            val savedAnimals=json.optJSONArray("animals")
+            val animals=if(savedAnimals == null && !json.has("animals"))
+                IslandWildlife.generate(restored)
+                else (0 until (savedAnimals?.length() ?: 0)).mapNotNull { i ->
+                    savedAnimals?.optJSONObject(i)?.let { IslandAnimal.read(it,restored) }
+                }.distinctBy { it.id }
+            restored.copy(animals=animals,
+                discoveredSpecies=json.optJSONArray("discoveredSpecies")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in IslandWildlife.species }
+                    }.toSet()
+                } ?: animals.filter { it.befriended }.map { it.species }.toSet())
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
             legacy.takeIf { it.mode == ExpeditionMode.HOMESTEAD }?.let {
                 BlockIslandState(it).let { base ->
-                    base.copy(supplyCaches=IslandSupplyCaches.generate(base))
+                    val withCaches=base.copy(supplyCaches=IslandSupplyCaches.generate(base))
+                    withCaches.copy(animals=IslandWildlife.generate(withCaches))
                 }
             }
     }
@@ -126,7 +143,9 @@ internal object IslandMilestones {
                 "探险 2/3 · 收集全套工具（${s.tools.size}/4）"
             s.structures.values.none { it == "bridge" } ->
                 "探险 3/3 · 在非边界水面搭一座木桥"
-            else -> "生存与拓荒目标达成！继续建设自己的家园，探索新玩法"
+            s.animals.any { !it.befriended } ->
+                "生态收集 · 结识小岛动物（${s.animals.count { it.befriended }}/${s.animals.size}）"
+            else -> "生存、拓荒与生态目标达成！继续建设自己的家园"
         }
     }
 }
@@ -176,8 +195,10 @@ internal object BlockIslandRules {
                 events = listOf("来到方块小岛，新的家园从这里开始"),
             ),
         ).let { base ->
-            base.copy(supplyCaches=IslandSupplyCaches.generate(base))
-        }.withPartners(partners)
+            val withCaches=base.copy(supplyCaches=IslandSupplyCaches.generate(base))
+            val residents=withCaches.withPartners(partners)
+            residents.copy(animals=IslandWildlife.generate(residents))
+        }
     }
 
     fun BlockIslandState.withPartners(ids: List<String>): BlockIslandState {
@@ -382,6 +403,39 @@ internal object BlockIslandRules {
                 ))
                 message = "救起了队友[${companion.id}]，恢复生命至4"
             }
+            "tame" -> {
+                val animal=s.animals.firstOrNull { it.x==tx && it.y==ty && !it.befriended }
+                    ?:return reject("这里没有等待结识的动物")
+                if (!near()) return reject("靠近小动物再送食物")
+                if (!IslandWildlife.canFeed(s,animal))
+                    return reject("结识${IslandWildlife.name(animal.species)}需要${IslandWildlife.feed(animal.species)}")
+                next=s.copy(
+                    fruit=s.fruit-if(animal.species=="hare")1 else 0,
+                    fish=s.fish-when(animal.species){"duck"->1;"fox"->2;else->0},
+                    animals=s.animals.map { if(it.id==animal.id)
+                        it.copy(befriended=true,lastGiftTurn=w.turns) else it },
+                    discoveredSpecies=s.discoveredSpecies+animal.species,
+                )
+                message="✦ ${IslandWildlife.name(animal.species)}成为家园伙伴！以后会跟随你，陪伴一段时间可带来小礼物"
+            }
+            "care" -> {
+                val animal=s.animals.firstOrNull { it.x==tx && it.y==ty && it.befriended }
+                    ?:return reject("这里没有可互动的家园伙伴")
+                if (!near()) return reject("靠近小动物再互动")
+                if (!IslandWildlife.canGift(s,animal))
+                    return reject("${IslandWildlife.name(animal.species)}还在寻找礼物，晚一点再来")
+                val fruitGift=if(animal.species=="hare")1 else 0
+                val fishGift=if(animal.species=="duck")1 else 0
+                val stoneGift=if(animal.species=="fox")2 else 0
+                next=s.copy(
+                    fruit=s.fruit+fruitGift, fish=s.fish+fishGift,
+                    world=w.copy(stone=w.stone+stoneGift),
+                    animals=s.animals.map { if(it.id==animal.id)
+                        it.copy(lastGiftTurn=w.turns) else it },
+                )
+                message="${IslandWildlife.name(animal.species)}带来礼物："+
+                    when(animal.species){"hare"->"野果+1";"duck"->"小鱼+1";else->"石料+2"}
+            }
             "fish" -> {
                 if (!near() || cell != 8) return reject("靠近水边才能钓鱼")
                 if ("rod" !in s.tools) return reject("先在工作台制作鱼竿")
@@ -483,6 +537,19 @@ internal object BlockIslandRules {
         }
         result = respawnMonsters(result)
         result = replenishResources(result)
+        result = IslandWildlife.advance(result)
+        val newSpecies=result.animals.filter { animal ->
+            animal.species !in result.discoveredSpecies &&
+                distance(result.world.x,result.world.y,animal.x,animal.y)<=2
+        }.map { it.species }.toSet()
+        if(newSpecies.isNotEmpty()) {
+            val discovered=newSpecies.joinToString("、") { IslandWildlife.name(it) }
+            result=result.copy(
+                discoveredSpecies=result.discoveredSpecies+newSpecies,
+                world=result.world.copy(
+                    notice=result.world.notice+" · ✦ 初次发现"+discovered,
+                    events=(result.world.events+"初次发现"+discovered).takeLast(150)))
+        }
         return result
     }
 
