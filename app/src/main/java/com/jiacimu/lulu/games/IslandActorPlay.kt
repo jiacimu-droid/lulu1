@@ -95,7 +95,8 @@ internal object IslandActorPlay {
                 result += IslandActorOption("gather:$x:$y",
                     "采集($x,$y)的" + if (w.cell(x,y)==1) "树" else "矿", "gather", x, y)
             val occupied = w.friends.any { it.x == x && it.y == y } ||
-                w.x == x && w.y == y
+                w.x == x && w.y == y ||
+                s.animals.any { it.x == x && it.y == y }
             if (BlockIslandRules.isWalkable(s,x,y) && !occupied)
                 result += IslandActorOption("move:$x:$y", "走到($x,$y)", "move", x, y)
             if (w.cell(x,y)==0 && !occupied && w.index(x,y) !in s.structures) {
