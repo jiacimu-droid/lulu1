@@ -140,6 +140,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         if(fruitGain>0) " · +$fruitGain 果" else ""
                 }
                 "revive" -> "队友已救起"
+                "tame" -> "❤ 新伙伴"
+                "care" -> when(island.animals.firstOrNull { it.x==x && it.y==y }?.species) {
+                    "hare" -> "+1 果"; "duck" -> "+1 鱼"; "fox" -> "+2 石"; else -> "❤"
+                }
                 "eat", "eat_fish", "rest" -> {
                     val hpGain=(result.world.hp-island.world.hp).coerceAtLeast(0)
                     if(hpGain>0) "+$hpGain ❤" else "已休息"
@@ -156,7 +160,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 if(action=="fight") HapticFeedbackType.LongPress else HapticFeedbackType.TextHandleMove)
             playSound(when (action) {
                 "move" -> GameSoundEffect.Move
-                "gather", "salvage", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
+                "gather", "salvage", "eat", "eat_fish", "fish", "revive", "tame", "care" -> GameSoundEffect.Collect
                 "fight" -> GameSoundEffect.Objective
                 else -> GameSoundEffect.Interact
             })
@@ -210,13 +214,21 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == aimedCell.first && it.y == aimedCell.second }
     val primaryAction = islandTargetAction(island,aimedCell)
     val supplySelected = IslandSupplyCaches.available(island,aimedCell.first,aimedCell.second)
-    val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell,selectedStructure)
+    val animalSelected = island.animals.firstOrNull {
+        it.x==aimedCell.first && it.y==aimedCell.second
+    }
+    val targetTitle = when {
+        supplySelected -> "漂流补给箱"
+        animalSelected!=null -> IslandWildlife.name(animalSelected.species)
+        else -> islandCellTitle(selectedCell,selectedStructure)
+    }
     val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
     val buildReady = buildPreview?.allowed == true
     val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish"))
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
     val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
-    val nearbyPrimary = nearbyFight ?: nearbyRescue ?: nearbyGather
+    val nearbyWildlife = islandNearbyAction(island,facing,setOf("tame","care"))
+    val nearbyPrimary = nearbyFight ?: nearbyRescue ?: nearbyWildlife ?: nearbyGather
     val directionLabel = when(facing) {
         0 to -1 -> "↑"; 1 to 0 -> "→"; -1 to 0 -> "←"; else -> "↓"
     }
@@ -244,7 +256,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         notice = worldNotice,
         status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
-            " · 守夜 ${island.nightsSurvived}/3",
+            " · 守夜 ${island.nightsSurvived}/3" +
+            " · 宠物 ${island.animals.count { it.befriended }}/${island.animals.size}",
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -430,7 +443,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         Column(verticalArrangement=Arrangement.spacedBy(2.dp)) {
-            listOf("探索","建造","制作","行囊","伙伴","设置").chunked(3).forEach { sections ->
+            listOf("探索","建造","制作","行囊","伙伴","生态","设置").chunked(3).forEach { sections ->
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                     sections.forEach { section ->
                         FilterChip(selected=menuSection==section,onClick={menuSection=section},
@@ -622,6 +635,43 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         }
+        if(menuSection=="生态") {
+            Text("小岛生态图鉴",color=Color(0xFFF0FCF4),fontSize=17.sp,
+                fontWeight=FontWeight.Black)
+            Text("遇见野生动物后会记入发现记录。把喜欢的动物带回家，陪伴24回合可领取真实礼物；伙伴会慢慢跟上你的脚步。",
+                color=Color(0xFFBEE3D3),fontSize=12.sp,lineHeight=18.sp)
+            Text("已发现 ${island.discoveredSpecies.size}/${IslandWildlife.species.size} · 已结识 ${island.animals.count{it.befriended}}/${island.animals.size}",
+                color=Color(0xFFFFE0A2),fontWeight=FontWeight.Bold,fontSize=13.sp)
+            island.animals.forEach { animal ->
+                val spotted=animal.species in island.discoveredSpecies || animal.befriended
+                val near=abs(world.x-animal.x)+abs(world.y-animal.y)<=1
+                val ready=if(animal.befriended)IslandWildlife.canGift(island,animal)
+                    else IslandWildlife.canFeed(island,animal)
+                Surface(color=Color(0xFF244B49),shape=RoundedCornerShape(14.dp),
+                    border=BorderStroke(1.dp,if(animal.befriended)
+                        Color(0xFFEACB93).copy(alpha=.6f) else Color(0xFF92D6B7).copy(alpha=.25f))) {
+                    Row(Modifier.fillMaxWidth().padding(10.dp),
+                        verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text(if(spotted) IslandWildlife.name(animal.species) else "？？？ 未发现",
+                                color=Color.White,fontWeight=FontWeight.Bold,fontSize=13.sp)
+                            Text(if(!spotted) "探索草地，寻找新的小生命"
+                                else if(!animal.befriended) "喜欢 ${IslandWildlife.feed(animal.species)} · 坐标(${animal.x},${animal.y})"
+                                else if(ready) "已经带回小礼物啦"
+                                else "跟随中 · 还在准备礼物",
+                                color=Color(0xFFB6D8D0),fontSize=11.sp)
+                        }
+                        if(spotted) {
+                            IslandAction(if(animal.befriended)"领礼物" else "结识",
+                                enabled=near && ready) {
+                                perform(if(animal.befriended)"care" else "tame",animal.x,animal.y)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if(menuSection=="设置") {
         Text("自动存档已开启 · 建筑和道具不会在退出时消失",color=Color(0xFFD0E8DB),fontSize=12.sp)
         Row(verticalAlignment=Alignment.CenterVertically) {
@@ -774,10 +824,12 @@ private fun IslandMiniMap(island: BlockIslandState) {
                     dot(it%w.width,it/w.width,Color(0xFFFFD992))
                 }
                 w.mobs.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFFFF918B)) }
+                island.animals.forEach { dot(it.x,it.y,
+                    if(it.befriended)Color(0xFFFFD693) else Color(0xFFD6F4C2)) }
                 w.friends.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFF8BDAF3)) }
                 dot(w.x,w.y,Color(0xFFFFF0B1),1.35f)
             }
-            Text("黄：你／补给　蓝：伙伴　红：怪物　浅褐：已建建筑",
+            Text("黄：你／补给　蓝：伙伴　红：怪物　浅绿：动物　浅褐：已建建筑",
                 color=Color(0xFFC5E0D3),fontSize=10.sp,maxLines=2)
         }
     }
