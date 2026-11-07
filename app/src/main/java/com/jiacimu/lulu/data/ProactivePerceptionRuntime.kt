@@ -2359,9 +2359,16 @@ object ProactivePerceptionRuntime {
                 "evidence=${execution.evidenceId};messageCount=${execution.deliveredMessageIds.size + execution.sideDeliveredMessages.size}")
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.primarySuccess) {
-            // ToolRouter provides the exact authored bubble/post/diary ID where
-            // possible. Its separate ToolResult is newer but cannot substitute
-            // for the message that was actually delivered to the user.
+            // Private primary sends must be proven by this execution's own
+            // delivered message IDs. Timeline scans can select a same-type
+            // side send, even when conversation and action type both match.
+            if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER)) {
+                ProactiveSendAttribution.primaryDeliveryEvidence(
+                    characterId, execution.conversationId, execution.deliveredMessageIds,
+                    decision.action.name.lowercase(),
+                )
+            } else {
+            // Other actions retain their existing evidence fallback.
             val fallback = AutonomousActionTrace.newestExecutedEvidence(
                 SharedExperienceTimeline.all(characterId), priorEvidence,
                 character.displayName, execution.conversationId,
@@ -2371,6 +2378,7 @@ object ProactivePerceptionRuntime {
                 .mapNotNull { CharacterActionEvidence.resolve(characterId, it) }
                 .firstOrNull { CharacterActionEvidence.supports(it, decision.action.name.lowercase()) }
                 ?.id.orEmpty()
+            }
         } else ""
         CharacterLearningLedger.recordApplication(characterId, decision.learningApplication,
             actionEvidenceId, decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary)
