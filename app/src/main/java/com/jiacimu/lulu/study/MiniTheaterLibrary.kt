@@ -104,7 +104,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
         if (fresh.isEmpty()) return 0
         val all = previous + fresh
         val encoded = JSONArray()
-        all.forEach { encoded.put(JSONObject().put("id", it.id).put("title", it.title).put("premise", it.premise)) }
+        all.forEach { encoded.put(JSONObject().put("id", it.id).put("title", it.title)
+            .put("premise", it.premise).put("worldMode", it.recommendedWorldMode)) }
         check(prefs.edit().putString("creative_ideas", encoded.toString()).commit()) {
             "灵感保存失败"
         }
@@ -119,7 +120,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
             val title = obj.optString("title").trim()
             val premise = obj.optString("premise").trim()
             if (title.isBlank() || premise.isBlank()) null
-            else PersonalMiniTheater.Idea(obj.optString("id", "ai-$i"), title, premise)
+            else PersonalMiniTheater.Idea(obj.optString("id", "ai-$i"), title, premise,
+                obj.optString("worldMode").takeIf { it == "original" || it == "alternate" } ?: "original")
         }
     }.getOrDefault(emptyList())
 

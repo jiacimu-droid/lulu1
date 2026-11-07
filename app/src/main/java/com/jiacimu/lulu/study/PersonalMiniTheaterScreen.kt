@@ -47,7 +47,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var offset by rememberSaveable(characterId) { mutableIntStateOf(
         Math.floorMod(LocalDate.now().toEpochDay(), PersonalMiniTheater.ideas.size.toLong()).toInt()) }
     var guidance by rememberSaveable(characterId) { mutableStateOf("") }
-    var worldMode by rememberSaveable(characterId) { mutableStateOf("original") }
+    var worldMode by rememberSaveable(characterId) {
+        mutableStateOf(availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)].recommendedWorldMode)
+    }
     var chosenWorldBookIds by rememberSaveable(characterId) { mutableStateOf(listOf<String>()) }
     var showWorldBookPicker by remember { mutableStateOf(false) }
     var worldBookSearch by remember { mutableStateOf("") }
@@ -81,6 +83,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
         if (inspirationLoading) return
         if (offset + 1 < availableIdeas.size) {
             offset++
+            worldMode = availableIdeas[offset].recommendedWorldMode
             return
         }
         inspirationLoading = true
@@ -105,6 +108,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 val added = library.addCreativeIdeas(PersonalMiniTheater.parseGeneratedIdeas(response.text))
                 check(added > 0) { "这一批脑洞与旧题材重复啦，可以再试一次" }
                 offset = before
+                worldMode = library.creativeIdeas.value
+                    .getOrNull(before - PersonalMiniTheater.ideas.size)?.recommendedWorldMode ?: worldMode
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (e: Exception) {
@@ -188,6 +193,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                             "只继承人物的性格，不带入原世界身份或与你的既定关系。"
                         else "保留原本的世界、身份和关系，展开另一种可能。",
                         style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("灵感会推荐世界模式，也可以自己切换。",
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween) {

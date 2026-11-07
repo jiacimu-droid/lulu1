@@ -11,7 +11,8 @@ import com.jiacimu.lulu.data.ResidentCharacterBridge
 
 /** Fiction-only inputs. Never read memory, current goals or another person's private state. */
 internal object PersonalMiniTheater {
-    data class Idea(val id: String, val title: String, val premise: String)
+    data class Idea(val id: String, val title: String, val premise: String,
+        val recommendedWorldMode: String = "original")
     data class Variation(val id: String, val label: String, val direction: String)
     data class Cast(val characterId: String, val name: String, val material: String, val worldMode: String = "original")
     data class WritingRequest(val facts: String, val instructions: String)
@@ -23,11 +24,11 @@ internal object PersonalMiniTheater {
         Idea("truth", "藏不住心声的魔法", "一场只持续一夜的魔法，让角色某些原本藏着的心里话变得可听见。写出原有气质与暴露的真实心意之间的反差，安排一个完整的情节而非连续告白清单。"),
         Idea("cat", "多出来的耳朵和尾巴", "角色突然长出会泄露情绪的耳朵和尾巴，本人仍是原来的成年人。让身体的意外反应与他努力维持的神气碰撞，发展成有趣的相处事件。"),
         Idea("dream", "闯进对方的奇幻梦境", "用户与角色一起落入一个会把情绪具象化的梦境，需要面对一个由彼此性格引发的小挑战。场景可以大胆奇幻，人物选择仍有本人特点。"),
-        Idea("reverse", "一夜颠倒的童话身份", "用户和角色进入童话世界，原本预期的身份与处境完全颠倒。选择意外而具体的童话身份，让两人用原有性格应对，不照搬原作或只改称呼。"),
+        Idea("reverse", "兽世王城的最后一夜", "在兽人王城，你是被误认作预言祭司的外乡人，他是奉命看守你的禁卫。城里每个人都能听懂兽语，唯独一头逃走的幼兽只肯与你交流。天亮前，你们得决定要救它，还是揭开预言的骗局。", "alternate"),
         Idea("echo", "碰一下就会共感", "奇幻设定中，两人接触时会短暂感受到彼此的某一种感官或情绪。围绕一次误会与发现推进情节，让相处出现新的理解与心动。"),
         Idea("tender-spell", "今天温柔得有点犯规", "一场只持续一天的魔法，把角色原本温柔体贴的一面放大。其他性格仍然存在。围绕一个具体情景展开用户与角色的相处，不写成温柔表现清单。"),
-        Idea("fox-spell", "藏不住的狡黠与玩心", "角色原有的玩心与狡黠被奇幻设定暂时放大。用户发现平常熟悉的人突然更会逗人、更敢表达，双方有来有往地发展出一件完整的事。"),
-        Idea("clingy-spell", "突然特别想黏着用户", "一种神奇的小意外，让角色今天格外坦率地想靠近用户、讨偏爱。保留本人其他性格，让这种变化推动一个有趣的完整情节。")
+        Idea("fox-spell", "女尊朝堂的假婚约", "女尊王朝里，你是手握兵权的年轻女侯，他是被迫与你订下婚约的朝臣。宫宴上，你们都知道有人设了局，却各自藏着不同的证据。要不要联手，得看彼此能不能在众目睽睽之下递出第一句暗号。", "alternate"),
+        Idea("clingy-spell", "魔法学院的心声考试", "平行世界的魔法学院里，你与那位素来高冷的成年学长被分到同一场毕业试炼。考试让两人的魔力共享，也会在施法时听见彼此的念头。最难的一关偏偏要求你们互相说谎，才能走出迷宫。", "alternate"),
     )
     val variations = listOf(
         Variation("original", "原本的他／她", "保持本人原有性格比例，由本篇奇幻处境自然激发不同反应。"),
@@ -144,14 +145,18 @@ internal object PersonalMiniTheater {
                 }
             },
             instructions = """
-                你是幻想短篇灵感企划。只构思，不写正文。一次给出10个真正不同的独立故事提案。
-                两种都需要：保留原本世界与关系的原世界番外；彻底换身份、职业、关系、时空的平行世界番外。
-                可以有直播、悬疑、竞技、生活喜剧、童话、秘密、反转等，但只是可能性，不必照抄。
-                每个提案给出具体、有趣、可展开的变故和互动，避免泛泛“逐渐亲密”；
-                不同提案的核心机制和关系结构彼此不同，不能复刻历史题材。
-                不从真实聊天、记忆或私人资料获取灵感。
-                每个 premise 用40—75个汉字讲清关键变故、互动和可展开的矛盾，十条总量务必控制在输出预算内。
-                严格只输出 JSON 对象：{"ideas":[{"title":"简短中文题名","premise":"40—75字的具体独立剧情设定"}]}。
+                你是一位擅长制造惊喜、情绪体验与戏剧转折的番外创意主编。只构思故事，不写正文。一次提出10个值得点开阅读的、真正不同的独立短篇提案。
+                目标不是“生成十种设定”，而是让人看见每个题目就想知道：这两个人接下来会怎样？每条都要有可发生的事，而不只是世界标签、性格标签或角色扮演简介。
+                【放开想象力】可彻底更换时代、宇宙、世界规则、物种、阶层、职业、权力结构和初识方式；也可以只改变一项能力、身体特征、身份秘密、一场具体事件或一段互动。
+                例如魔法世界、兽人社会、女尊秩序、兽耳、读心术、冷淡的成年学长、童话、科幻、神怪、悬疑、赛博都市、日常喜剧，都只是开放可能性，绝不是十条要逐项打卡的菜单。尽管发明未列出的新玩法。
+                【读者先于设定】先想本篇想带来的鲜明体验：心动、狡黠拉扯、甜蜜、好笑、惊险、反转、被照顾、并肩冒险、意外理解、怅然或满足。十条不必都恋爱升温，也不必都加魔法；一个没有超能力但互动精彩的故事同样合格。
+                【让设定真正起作用】每条至少有一个抓人的开场状况、一个因世界规则／人物身份／事件造成的具体麻烦，以及你和角色必须参与的有趣互动或选择。身份差异、能力代价或反转要改变行动路径，不能只是把普通聊天搬到王宫或魔法学院。
+                世界观、人物身份、特殊规则、关系处境、事件类型、情感节奏至少在多个维度拉开差异，避免十条都变成“被困—合作—发现秘密—逐渐亲近”；可以由冲突、误会、竞技、共同任务、愿望、救援、礼物、日常小事或一个戏剧场景直接驱动，不需要堆背景设定。
+                【世界模式】为每条给出推荐 worldMode：original＝沿用原世界里的原身份和既定关系，只在本篇发生幻想事件；alternate＝完全架空，允许新的初识、身份、社会、关系和世界。尤其明确改了原身份或既定关系的提案，选 alternate。两种模式都欢迎，不设固定配额。
+                人物可以在架空世界有全新身份，但稳定性格与独立判断仍需能在互动中辨认；不预设对方永远温柔、强势、撒娇或服从。用户与角色都能主动影响故事，不只等着一个人拯救另一个人。
+                参考下面的已用提案和旧作品，不换皮重复旧核心机制、关键变故或关系结构。灵感完全虚构，不读取或编造真实聊天、记忆与私人资料。
+                每条 premise 用65—105个汉字写出画面感、具体互动与迫近的抉择／意外；让人期待正文，不用把结局提前讲完。题名有辨识度，不要一律“某某的秘密”。十条总量控制在输出预算内。
+                严格只输出 JSON 对象：{"ideas":[{"title":"简短而有画面感的中文题名","premise":"65—105字的具体故事提案","worldMode":"original 或 alternate"}]}。
                 不要 markdown 代码块或解释。
             """.trimIndent()
         )
@@ -227,7 +232,8 @@ internal object PersonalMiniTheater {
             val title = row.optString("title").trim().take(70)
             val premise = row.optString("premise").trim().take(500)
             if (title.length < 2 || premise.length < 20) null
-            else Idea("ai-" + UUID.randomUUID(), title, premise)
+            else Idea("ai-" + UUID.randomUUID(), title, premise,
+                row.optString("worldMode").takeIf { it == "original" || it == "alternate" } ?: "original")
         }.distinctBy { it.title.lowercase() }
 
         if (ideas.isEmpty()) throw IllegalArgumentException("这一批没有可用的新灵感")

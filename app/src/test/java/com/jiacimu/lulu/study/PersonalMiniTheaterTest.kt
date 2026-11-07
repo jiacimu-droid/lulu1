@@ -394,7 +394,33 @@ class PersonalMiniTheaterTest {
             PersonalMiniTheater.parseGeneratedIdeas("Unauthenticated provider error")
         }
         assertTrue(PersonalMiniTheater.inspirationRequest(emptyList(), emptyList())
-            .instructions.contains("40—75个汉字"))
+            .instructions.contains("65—105个汉字"))
+    }
+
+    @Test fun imaginativeBatchExplainsReaderExperienceAndPersistsWorldRecommendation() {
+        val instruction = PersonalMiniTheater.inspirationRequest(emptyList(), emptyList()).instructions
+        assertTrue(instruction.contains("读者先于设定"))
+        assertTrue(instruction.contains("具体互动"))
+        assertTrue(instruction.contains("不设固定配额"))
+        assertTrue(instruction.contains("女尊"))
+        assertTrue(instruction.contains("读心术"))
+        assertTrue(instruction.contains("worldMode"))
+
+        val ideas = PersonalMiniTheater.parseGeneratedIdeas(
+            """{"ideas":[
+              {"title":"女侯的婚约","premise":"女尊王朝里你握着兵权，对方必须与尚不相识的你合作查案，却在宫宴上发现所有证人都指向你。","worldMode":"alternate"},
+              {"title":"只能说出真心的雨夜","premise":"熟悉的城市里下起奇怪的雨，两人每说一句谎都会让路灯熄灭，必须想办法走过那条长街。","worldMode":"original"},
+              {"title":"旧模型没有模式","premise":"一个不依赖世界模式元数据的旧作品提案也必须仍能保存，以免升级后丢失已生成内容。"}
+            ]}""")
+        assertEquals(listOf("alternate", "original", "original"),
+            ideas.map { it.recommendedWorldMode })
+        val library = MiniTheaterLibrary(context, emptyList())
+        assertEquals(3, library.addCreativeIdeas(ideas))
+        val restored = MiniTheaterLibrary(context, emptyList()).creativeIdeas.value
+        assertEquals(listOf("alternate", "original", "original"),
+            restored.map { it.recommendedWorldMode })
+        assertEquals("alternate",
+            PersonalMiniTheater.ideas.first { it.id == "reverse" }.recommendedWorldMode)
     }
 
     @Test fun rejectedDuplicatePremiseDoesNotConsumeAnOtherwiseNewTitle() {
