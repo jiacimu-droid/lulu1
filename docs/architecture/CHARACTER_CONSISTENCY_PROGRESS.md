@@ -1420,3 +1420,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 接手 main b4b2a75，读取 AGENTS、CODE_INDEX、Roadmap、人物进度及 AutonomousActionTrace/CharacterActionEvidence/ProactivePerceptionRuntime 与回归。原 newestExecutedEvidence 在有 conversationId 时对 ToolResult 不检查 sessionId：另一会话明确归属的较新工具成功事件可被当作当前会话候选；当主动作也是 tool 时支持谓词可能接受它。与此前已修的 CharacterStatement 跨会话问题不同。
 - 生产修复 [52fc4fb](https://github.com/jiacimu-droid/lulu1/commit/52fc4fb9a05b0dbcb4b976c103b589858a0c2087)：显式标记另一 session 的 ToolResult 不再作为当前会话候选；sessionless 工具回执仍保留，避免误伤合法无会话工具。回归 [4b76293](https://github.com/jiacimu-droid/lulu1/commit/4b7629362d3f54b33edcfc0674f8965f3c4cf9b1) 覆盖跨会话拒绝、同会话接受、无 session 保持。
 - 本轮 GitHub 内容 API 已提交，**未运行本地 Gradle，未取得这些新 SHA 的 JVM/APK 成功证据**。这只是候选筛选边界，不是同会话主副同类消息精确身份映射、ToolRouter→Timeline→Store 重启及下一轮召回的端到端验收；真机与真实模型仍未知。下一轮先查后继 push CI，再补同会话主副消息身份映射集成回归。P-08a.1g.3 整体保持未完成。
+
+
+## 2026-11-08 · P-08a.1g.5 主动私聊主/副同类送达身份
+
+- 复核 main 的 AGENTS、CODE_INDEX、路线图、专项进度及 ProactivePerceptionRuntime、CompanionActionRuntime、SharedExperienceTimeline、CharacterActionEvidence 与回归。Timeline 的私聊事件以原聊天消息 ID 记录，执行器返回本次主动作实际送达的 deliveredMessageIds；原后台 fallback 只按角色/会话/动作类型选最近事件，同轮副动作发送同类消息时可冒充主发送。
+- 生产提交 d7b57ee（主消息 ID 证据选择器）、fa7dba0（后台主私聊改用精确 ID，不再回退猜同类副发送）、28eccc6（提取可单测的候选过滤）；测试 771ebd1（同会话主副消息、主消息 ID 缺失、跨会话与拒绝动作）。保留非私聊动作原回退，未改人设、历史或模型调用。
+- GitHub 内容 API 提交成功；771ebd1 的 commit workflow runs 与 combined statuses 查询均为空。前者接口只覆盖部分 PR 运行，不能认定 push CI 成败。本轮未运行本地 Gradle，JVM/APK、真实执行器→Timeline→持久 Store、重启、下一轮召回、真机和真实模型均未验证。
+- 下一轮先核新 main 的 push Actions 与首条失败；随后补实际 ToolRouter→Timeline→CharacterInnerLifeStore 入口持久化及重启回归，特别是主动作失败但副发送成功、同 requestId 重放、部分送达。P-08a.1g 保持待验，不提前勾完成。
