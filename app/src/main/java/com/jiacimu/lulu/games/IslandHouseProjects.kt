@@ -12,10 +12,12 @@ internal data class IslandHouseProject(
     val phase: String = "building",
     val placed: List<Int> = emptyList(),
     val lastStepTurn: Int = -1,
+    /** The look is selected by the character, not inferred from the player's input. */
+    val style: String = "warm",
 ) {
     fun json(): JSONObject = JSONObject().put("ownerId",ownerId).put("left",left)
         .put("top",top).put("phase",phase).put("placed",JSONArray(placed))
-        .put("lastStepTurn",lastStepTurn)
+        .put("lastStepTurn",lastStepTurn).put("style",style)
 
     companion object {
         fun read(raw: JSONObject?,world: ExpeditionState): IslandHouseProject? = runCatching {
@@ -24,7 +26,8 @@ internal data class IslandHouseProject(
                 (0 until a.length()).map { a.getInt(it) }
             }
             val p=IslandHouseProject(j.getString("ownerId"),j.getInt("left"),j.getInt("top"),
-                j.getString("phase"),positions,j.optInt("lastStepTurn",-1))
+                j.getString("phase"),positions,j.optInt("lastStepTurn",-1),
+                j.optString("style","warm").takeIf { it in IslandHouseProjects.styles } ?: "warm")
             val possible=IslandHouseProjects.parts(world,p.left,p.top).map { it.first }
             if(p.ownerId.isBlank() || p.left !in 1 until world.width-3 ||
                 p.top !in 1 until world.height-3 ||
@@ -36,6 +39,8 @@ internal data class IslandHouseProject(
 }
 
 internal object IslandHouseProjects {
+    val styles=linkedMapOf("warm" to "暖灯原木屋", "pine" to "松林木屋")
+    fun styleName(style:String)=styles[style] ?: styles.getValue("warm")
     fun parts(w: ExpeditionState,left: Int,top: Int): List<Pair<Int,String>> =
         listOf(
             Triple(left+1,top+1,"floor"),
@@ -78,11 +83,12 @@ internal object IslandHouseProjects {
         val next=when {
             action.startsWith("start_house:") && old==null -> {
                 val tokens=action.split(":")
-                if(tokens.size!=3)return null
+                if(tokens.size !in setOf(3,4))return null
                 val x=tokens[1].toIntOrNull() ?: return null
                 val y=tokens[2].toIntOrNull() ?: return null
-                if((x to y) !in sites(s,id))return null
-                IslandHouseProject(id,x,y)
+                val style=if(tokens.size==4)tokens[3] else "warm"
+                if(style !in styles || (x to y) !in sites(s,id))return null
+                IslandHouseProject(id,x,y,style=style)
             }
             old==null || old.ownerId!=id -> return null
             action=="pause_house" && old.phase in setOf("building","demolishing") ->
@@ -92,7 +98,7 @@ internal object IslandHouseProjects {
             else -> return null
         }
         val description=when(action.substringBefore(":")) {
-            "start_house"->"决定开始一座3×3小屋工程"
+            "start_house"->"决定为玩家亲手盖一座"+styleName(next.style)+"（3×3、约17木）"
             "pause_house"->"决定暂停建房，保留已经搭好的部分"
             "resume_house"->"决定继续之前的小屋工程"
             else->"决定逐步拆除自己建造的小屋"
