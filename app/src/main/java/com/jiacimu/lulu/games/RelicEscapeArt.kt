@@ -44,6 +44,10 @@ internal fun RelicEscapeWorldMap(
     run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false,
     focus: Pair<Int, Int> = run.hero.x to run.hero.y,
 ) {
+    // Index physical entities once per authoritative snapshot, not once per drawn tile.
+    val chestByCell = remember(run.chests,run.w) { run.chests.associateBy { it.y*run.w+it.x } }
+    val siteByCell = remember(run.sites,run.w) { run.sites.associateBy { it.y*run.w+it.x } }
+    val dropsByCell = remember(run.drops,run.w) { run.drops.groupBy { it.y*run.w+it.x } }
     val names = run.allies.associate { ally ->
         ally.id to MigratedDomainStores.characters.get(ally.id).displayName
     }
@@ -155,7 +159,7 @@ internal fun RelicEscapeWorldMap(
                     drawLine(Color(0xFFD0C5B1).copy(alpha=.35f),
                         p+Offset(t*.19f,t*.33f),p+Offset(t*.66f,t*.33f),strokeWidth=t*.045f)
                 }
-                val site=run.sites.firstOrNull{it.x==x && it.y==y}
+                val site=siteByCell[y*run.w+x]
                 if(site!=null) {
                     if(site.kind=="supply") {
                         val tint=if(site.spent)Color(0xFF6B8382) else Color(0xFF83E6CB)
@@ -193,7 +197,7 @@ internal fun RelicEscapeWorldMap(
                             c+Offset(-t*.19f,t*.18f),strokeWidth=t*.045f)
                     }
                 }
-                val chest=run.chests.firstOrNull{it.x==x && it.y==y}
+                val chest=chestByCell[y*run.w+x]
                 if(chest!=null) {
                     if(!chest.opened && chest.id in run.playerChestMarks) {
                         drawCircle(Color(0xFFFFE4A8).copy(alpha=.18f+shimmer*.25f),
@@ -223,7 +227,7 @@ internal fun RelicEscapeWorldMap(
                             p+Offset(t*.78f,t*.32f),strokeWidth=t*.07f)
                     }
                 }
-                run.drops.filter{it.x==x && it.y==y}.forEach{drop->
+                dropsByCell[y*run.w+x].orEmpty().forEach{drop->
                     val tint=if(drop.loot.tier==RelicTier.PRECIOUS)Color(0xFFFFDC84)
                         else Color(0xFFB9E8DD)
                     drawCircle(tint.copy(alpha=.2f+shimmer*.22f),t*.27f,c+Offset(t*.23f,t*.20f))
