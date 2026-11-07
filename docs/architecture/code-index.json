@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:22:18.439706+00:00",
-  "commit": "f1fe5ed1762af52eb0f9bcbaf44380c5fb9f8f36",
+  "generatedAt": "2026-11-07T17:22:52.011751+00:00",
+  "commit": "6b53a0d893e6976980adf279246faaaaea7c4e24",
   "branch": "main",
-  "sourceFingerprint": "7fa3404b67f3011a042db85668b6108d268e415ee1081fdcb283eee61d909853",
+  "sourceFingerprint": "f86f2c6d4fb7597949906b389d7f96f4e0150c68d0f9bfdf97fc64c29b6375d0",
   "summary": {
     "files": 1141,
-    "lines": 245254,
+    "lines": 245291,
     "symbols": 3364
   },
   "symbolIndex": {
@@ -4721,7 +4721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 142
+        "line": 179
       }
     ],
     "watchedThrough": [
@@ -33185,8 +33185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 220,
-      "sha256": "1bb8b495a9a8620bc93a447df65e3bf26bb707535f4658721ba803b9cb6e32e4",
+      "lines": 257,
+      "sha256": "799e99c206db37c5bd341df9f5810eaa9e2d56bba3f0a0a8e1d0702cf5a11844",
       "symbols": [
         {
           "name": "json",
@@ -33218,7 +33218,7 @@
         },
         {
           "name": "advance",
-          "line": 142
+          "line": 179
         }
       ]
     },
