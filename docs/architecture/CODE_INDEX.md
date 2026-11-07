@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e1a40494a849787292d90af2a8f813ac8ecad4fa`
+- 基准提交：`0d4103f939972d620e91d48a610a7a8fe188d686`
 - 分支：`main`
 - 已索引文件：1142
-- 已索引代码/文本行：245519
+- 已索引代码/文本行：245561
 - 已发现符号：3368
 
 | 文件 | 行数 | 符号数 |
@@ -704,10 +704,10 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 326 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 328 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 197 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 238 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 600 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 244 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 608 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
@@ -1122,7 +1122,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 432 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 458 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |

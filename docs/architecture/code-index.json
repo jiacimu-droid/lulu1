@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:26:35.318323+00:00",
-  "commit": "e1a40494a849787292d90af2a8f813ac8ecad4fa",
+  "generatedAt": "2026-11-07T17:27:18.497695+00:00",
+  "commit": "0d4103f939972d620e91d48a610a7a8fe188d686",
   "branch": "main",
-  "sourceFingerprint": "d8dcdf2f3bdd294efea29eb1844b635801f5e77840b4160d027da2479d5e88b0",
+  "sourceFingerprint": "bcd5bc91c38945c5fff35050b9af6f55f83462a6481aeacb59e009edb08a15cf",
   "summary": {
     "files": 1142,
-    "lines": 245519,
+    "lines": 245561,
     "symbols": 3368
   },
   "symbolIndex": {
@@ -203,7 +203,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 95
+        "line": 96
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -1085,7 +1085,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 231
+        "line": 233
       }
     ],
     "prepareVoiceNote": [
@@ -5573,7 +5573,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 210
+        "line": 212
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6575,7 +6575,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 199
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -11053,7 +11053,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 49
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
@@ -14401,91 +14401,91 @@
     "Variation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "Cast": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "WritingRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "suggestions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "customIdea": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "inspirationRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "parseGeneratedIdeas": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 164
+        "line": 169
       }
     ],
     "nextInspiration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 80
+        "line": 82
       }
     ],
     "Kind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 484
+        "line": 492
       }
     ],
     "Section": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 485
+        "line": 493
       }
     ],
     "sections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 497
+        "line": 505
       }
     ],
     "flushNarration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 504
+        "line": 512
       }
     ],
     "addNarration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 510
+        "line": 518
       }
     ],
     "readingSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 556
+        "line": 564
       }
     ],
     "leadingTitle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 596
+        "line": 604
       }
     ],
     "PomodoroTimerMode": [
@@ -33647,20 +33647,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 326,
-      "sha256": "b5ddc185433d11741ba928b176f58e1de9d8a97ae1e8bd69140b1b11ed3c07dc",
+      "lines": 328,
+      "sha256": "7a59dec78fb8a656bf6dcdca3ee9a7e50addb05f71af3f9360a1f3d45922dad0",
       "symbols": [
         {
           "name": "get",
-          "line": 199
+          "line": 201
         },
         {
           "name": "parse",
-          "line": 210
+          "line": 212
         },
         {
           "name": "enqueue",
-          "line": 231
+          "line": 233
         }
       ]
     },
@@ -33672,8 +33672,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-      "lines": 238,
-      "sha256": "9ee60fc16ce938c2e8e8d80fe3fa59c31298f0959008e30dad8c38b3840c7b9e",
+      "lines": 244,
+      "sha256": "66d5450084f7e7d7a13d736a2a7154919d3b70635986d3e0e3e7891db53dacea",
       "symbols": [
         {
           "name": "Idea",
@@ -33681,78 +33681,78 @@
         },
         {
           "name": "Variation",
-          "line": 15
-        },
-        {
-          "name": "Cast",
           "line": 16
         },
         {
-          "name": "WritingRequest",
+          "name": "Cast",
           "line": 17
         },
         {
+          "name": "WritingRequest",
+          "line": 18
+        },
+        {
           "name": "suggestions",
-          "line": 39
+          "line": 40
         },
         {
           "name": "customIdea",
-          "line": 43
+          "line": 44
         },
         {
           "name": "capture",
-          "line": 49
+          "line": 50
         },
         {
           "name": "request",
-          "line": 95
+          "line": 96
         },
         {
           "name": "inspirationRequest",
-          "line": 136
+          "line": 137
         },
         {
           "name": "parseGeneratedIdeas",
-          "line": 164
+          "line": 169
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-      "lines": 600,
-      "sha256": "85562420508b7255014882363167f500ac354ffc1b9938bc424b8db978c7e59f",
+      "lines": 608,
+      "sha256": "77c9832446ead9b738e326b43a0756a28530ca746136433a56742e1999e879f5",
       "symbols": [
         {
           "name": "nextInspiration",
-          "line": 80
+          "line": 82
         },
         {
           "name": "Kind",
-          "line": 484
+          "line": 492
         },
         {
           "name": "Section",
-          "line": 485
+          "line": 493
         },
         {
           "name": "sections",
-          "line": 497
+          "line": 505
         },
         {
           "name": "flushNarration",
-          "line": 504
+          "line": 512
         },
         {
           "name": "addNarration",
-          "line": 510
+          "line": 518
         },
         {
           "name": "readingSections",
-          "line": 556
+          "line": 564
         },
         {
           "name": "leadingTitle",
-          "line": 596
+          "line": 604
         }
       ]
     },
@@ -39760,8 +39760,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 432,
-      "sha256": "a69460f9a923551fa57a47fbb70179e6444768b6888a9d9f1b89b826ce1d8d38",
+      "lines": 458,
+      "sha256": "68d8a83f3fdcba198966b2354618f84227f946680f41cefc9cce1b364731b10b",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
