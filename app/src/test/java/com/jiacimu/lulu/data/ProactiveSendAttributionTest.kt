@@ -162,4 +162,61 @@ class ProactiveSendAttributionTest {
         ) { false })
     }
 
+
+    @Test
+    fun persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery() {
+        // Exercise the actual timeline and inner-life persistence, not only a
+        // synthetic list of candidate events. The executor itself is not run.
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val role = "proactive-persist-" + java.util.UUID.randomUUID().toString()
+        val conversation = "private-" + java.util.UUID.randomUUID().toString()
+        val primaryId = "primary-" + java.util.UUID.randomUUID().toString()
+        val sideId = "side-" + java.util.UUID.randomUUID().toString()
+        val sentAt = Instant.now().minusSeconds(10)
+        try {
+            listOf(primaryId, sideId).forEachIndexed { index, id ->
+                SharedExperienceTimeline.record(
+                    eventId = id, characterId = role, channel = "私聊",
+                    speaker = "角色", content = "独立送达的第${index + 1}条消息",
+                    occurredAt = sentAt.plusSeconds(index.toLong()),
+                    triggerExtraction = false, sessionId = conversation,
+                    source = "message", evidenceKind = EventEvidenceKind.CharacterStatement,
+                )
+            }
+            val mainEvidence = ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, conversation, listOf(primaryId), "message",
+            )
+            assertEquals(primaryId, mainEvidence)
+            assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, conversation, emptyList(), "message",
+            ))
+            assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
+                role, "another-conversation", listOf(primaryId), "message",
+            ))
+            if (ProactiveSendAttribution.shouldPersistDeliveredSend(true, mainEvidence, true)) {
+                CharacterInnerLifeStore.recordDecision(
+                    role, "proactive-send:$mainEvidence", "send_private_message",
+                    "真实送达", "", null, "已送达", true, sentAt,
+                    causalEvidenceId = mainEvidence,
+                )
+            }
+            // Same request replay cannot manufacture a second receipt.
+            CharacterInnerLifeStore.recordDecision(
+                role, "proactive-send:$mainEvidence", "send_private_message",
+                "重放", "", null, "重复回执", true, sentAt,
+                causalEvidenceId = mainEvidence,
+            )
+            val persisted = ProactiveSendAttribution.summarize(role)
+            assertEquals(1, persisted.receipts.size)
+            assertEquals(primaryId, persisted.receipts.single().causalEvidenceId)
+            assertEquals(1, persisted.attributable)
+            assertEquals(0, persisted.replied)
+            assertEquals(1, persisted.unanswered)
+            assertFalse(persisted.receipts.any { it.causalEvidenceId == sideId })
+        } finally {
+            CharacterInnerLifeStore.clear(role)
+        }
+    }
 }
