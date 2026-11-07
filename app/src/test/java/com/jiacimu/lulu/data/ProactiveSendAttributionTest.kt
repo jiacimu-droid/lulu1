@@ -224,6 +224,10 @@ class ProactiveSendAttributionTest {
             assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
                 role, "another-conversation", listOf(primaryId), "message",
             ))
+            // The same physical chat delivery cannot be attributed to another character.
+            assertEquals("", ProactiveSendAttribution.primaryDeliveryEvidence(
+                "different-role-" + role, conversation, listOf(primaryId), "message",
+            ))
             if (ProactiveSendAttribution.shouldPersistDeliveredSend(true, mainEvidence, true)) {
                 CharacterInnerLifeStore.recordDecision(
                     role, "proactive-send:$mainEvidence", "send_private_message",
