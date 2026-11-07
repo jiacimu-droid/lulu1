@@ -49,6 +49,14 @@ data class ProactiveSendSummary(
 object ProactiveSendAttribution {
     private const val RECEIPT_PREFIX = "proactive-send:"
 
+    /** Executor-only gate: a model decision or tool success is not proof of delivery. */
+    internal fun shouldPersistDeliveredSend(
+        primarySuccess: Boolean,
+        deliveredEvidenceId: String,
+        isPrivateMessageAction: Boolean,
+    ): Boolean = primarySuccess && deliveredEvidenceId.isNotBlank() && isPrivateMessageAction
+
+
     fun receipts(root: JSONObject): List<ProactiveSendReceipt> {
         val decisions = root.optJSONArray("decisions") ?: return emptyList()
         return buildList {
