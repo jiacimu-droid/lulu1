@@ -138,6 +138,43 @@ internal object RelicCoopTravel {
                 if(it.id==trap.id)it.copy(spent=true)else it
             })
     }
+    /**
+     * Reach a free square beside the character's chosen target, recalculating
+     * around other actors each turn. A terrain-only path can lead directly into
+     * a stationary teammate and incorrectly cancel an otherwise valid delivery.
+     */
+    private fun routeStep(s:RelicRun,a:RelicActor,goal:Pair<Int,Int>):Pair<Int,Int>? {
+        if(!s.bounds(a.x,a.y) || !s.bounds(goal.first,goal.second))return null
+        val start=s.index(a.x,a.y)
+        val parent=IntArray(s.w*s.h){-1}
+        val queue=java.util.ArrayDeque<Int>()
+        queue.add(start)
+        parent[start]=start
+        var arrival=-1
+        while(queue.isNotEmpty()) {
+            val current=queue.removeFirst()
+            val x=current%s.w
+            val y=current/s.w
+            if(RelicEscapeRules.distance(x,y,goal.first,goal.second)<=1) {
+                arrival=current
+                break
+            }
+            for((nx,ny) in listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)) {
+                if(!s.bounds(nx,ny) || !s.walk(nx,ny) ||
+                    s.hero.x==nx && s.hero.y==ny ||
+                    s.allies.any { it.id!=a.id && it.hp>0 && it.x==nx && it.y==ny } ||
+                    s.mobs.any { it.hp>0 && it.x==nx && it.y==ny })continue
+                val next=s.index(nx,ny)
+                if(parent[next]!=-1)continue
+                parent[next]=current
+                queue.add(next)
+            }
+        }
+        if(arrival<0 || arrival==start)return null
+        var step=arrival
+        while(parent[step]!=start)step=parent[step]
+        return step%s.w to step/s.w
+    }
     /** Advance once using the actual board, not a free teleport or new AI decision. */
     fun advance(original:RelicRun,autonomousIds:Set<String>):RelicRun {
         var s=original
@@ -185,7 +222,7 @@ internal object RelicCoopTravel {
                 }
                 continue
             }
-            val step=RelicEscapeRules.path(s,a.x,a.y,goal.first,goal.second)
+            val step=routeStep(s,a,goal)
             if(step==null || !s.walk(step.first,step.second) ||
                 s.hero.x==step.first && s.hero.y==step.second ||
                 s.allies.any { it.id!=id && it.hp>0 &&
