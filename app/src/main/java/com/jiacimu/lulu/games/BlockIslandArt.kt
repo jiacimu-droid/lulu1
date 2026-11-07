@@ -102,6 +102,11 @@ internal object BlockIslandArt {
                 }
             }
         }
+        island.houseProject?.takeIf { it.phase=="complete" }?.let { house ->
+            if(house.left+3>=left && house.left<left+cols &&
+                house.top+3>=top && house.top<top+rows)
+                drawFinishedCompanionHouse(origin(house.left,house.top),tile,house.style,phase)
+        }
         if (night) {
             // Small translucent veil allows genuine color changes, rather than an opaque black map.
             drawRect(Color(0xFF0D234C).copy(alpha = .27f))
@@ -118,6 +123,15 @@ internal object BlockIslandArt {
                         if(decor=="lantern")
                             drawCircle(Color(0xFFFFF0C1).copy(alpha=.18f),tile*.38f,c)
                     }
+                }
+            }
+            island.houseProject?.takeIf { it.phase=="complete" }?.let { house ->
+                val base=origin(house.left,house.top)
+                val glow=Color(0xFFFFDBA5)
+                for(dx in listOf(.55f,2.44f)) {
+                    val center=base+Offset(tile*dx,tile*2.20f)
+                    drawCircle(glow.copy(alpha=.18f),tile*.74f,center)
+                    drawCircle(glow.copy(alpha=.38f),tile*.24f,center)
                 }
             }
         }
@@ -594,6 +608,74 @@ internal object BlockIslandArt {
         drawRect(Color(0xFF6B4F43), p + Offset(t * .29f, t * .37f), Size(t * .40f, t * .045f))
         drawRect(Color(0xFFFFDF87), p + Offset(t * .61f, t * .51f), Size(t * .08f, t * .09f))
         drawRect(Color(0xFF4F443C), p + Offset(t * .11f, t * .85f), Size(t * .77f, t * .05f))
+    }
+
+    /** The same nine saved construction cells gain one cohesive hand-painted roof at completion. */
+    private fun DrawScope.drawFinishedCompanionHouse(
+        p:Offset,t:Float,style:String,phase:Float,
+    ) {
+        val pine=style=="pine"
+        val roof=if(pine)Color(0xFF466F64) else Color(0xFFAC5C4E)
+        val roofLight=if(pine)Color(0xFF7AA58B) else Color(0xFFD99A75)
+        val roofShade=if(pine)Color(0xFF294C49) else Color(0xFF78473F)
+        drawRoundRect(Color(0xFF302F2F).copy(alpha=.22f),
+            p+Offset(t*.03f,t*.65f),Size(t*2.94f,t*2.31f),CornerRadius(t*.11f))
+        // Broad gabled roof with overhang; the foreground door stays visible.
+        val shape=Path().apply {
+            moveTo(p.x-t*.04f,p.y+t*.95f)
+            lineTo(p.x+t*1.50f,p.y+t*.18f)
+            lineTo(p.x+t*3.04f,p.y+t*.95f)
+            lineTo(p.x+t*2.86f,p.y+t*1.80f)
+            lineTo(p.x+t*.14f,p.y+t*1.80f)
+            close()
+        }
+        drawPath(shape,roof)
+        val ridge=Path().apply {
+            moveTo(p.x+t*.10f,p.y+t*.94f)
+            lineTo(p.x+t*1.50f,p.y+t*.32f)
+            lineTo(p.x+t*2.90f,p.y+t*.94f)
+        }
+        drawPath(ridge,roofLight,style=Stroke(t*.075f))
+        drawLine(roofShade,p+Offset(t*.14f,t*1.70f),
+            p+Offset(t*2.86f,t*1.70f),strokeWidth=t*.12f)
+        repeat(4){i->
+            val y=.96f+i*.19f
+            drawLine(roofLight.copy(alpha=.35f),
+                p+Offset(t*(.42f-i*.065f),t*y),
+                p+Offset(t*(2.58f+i*.065f),t*y),
+                strokeWidth=t*.032f)
+        }
+        // A protruding little chimney and a bright dormer.
+        drawRect(Color(0xFF7D6057),
+            p+Offset(t*2.25f,-t*.02f),Size(t*.36f,t*.60f))
+        drawRect(roofLight,p+Offset(t*2.21f,-t*.08f),Size(t*.44f,t*.13f))
+        drawRoundRect(Color(0xFF3D3F42),p+Offset(t*1.26f,t*.82f),
+            Size(t*.50f,t*.48f),CornerRadius(t*.09f))
+        drawRect(Color(0xFFFFE7B0),p+Offset(t*1.32f,t*.87f),
+            Size(t*.38f,t*.31f))
+        drawLine(Color(0xFF84664B),p+Offset(t*1.51f,t*.88f),
+            p+Offset(t*1.51f,t*1.19f),strokeWidth=t*.055f)
+        // Front-facing windows with planter boxes make this visibly lived in.
+        for(x in listOf(.33f,2.37f)){
+            drawRoundRect(Color(0xFF60473B),p+Offset(t*x,t*2.02f),
+                Size(t*.32f,t*.40f),CornerRadius(t*.04f))
+            drawRect(Color(0xFFF7D7A0),p+Offset(t*(x+.05f),t*2.07f),
+                Size(t*.22f,t*.28f))
+            drawLine(Color(0xFF856649),
+                p+Offset(t*(x+.16f),t*2.07f),
+                p+Offset(t*(x+.16f),t*2.35f),strokeWidth=t*.03f)
+            drawRect(Color(0xFF805C43),p+Offset(t*(x-.05f),t*2.37f),
+                Size(t*.43f,t*.13f))
+            drawCircle(Color(0xFFDBB2AF),t*.055f,
+                p+Offset(t*(x+.11f),t*2.38f))
+            drawCircle(Color(0xFFBFE2A0),t*.06f,
+                p+Offset(t*(x+.25f),t*2.38f))
+        }
+        drawRoundRect(roofLight,p+Offset(t*1.02f,t*2.00f),
+            Size(t*.96f,t*.13f),CornerRadius(t*.04f))
+        val gleam=(.55f+.45f*sin(phase*6.28318f))
+        drawCircle(Color(0xFFFFE3AE).copy(alpha=.15f*gleam),
+            t*.45f,p+Offset(t*1.49f,t*1.03f))
     }
 
     private fun DrawScope.drawWorkbench(p: Offset, t: Float) {
