@@ -10,6 +10,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BlockIslandRulesTest {
+    @Test fun explorationMilestonesReadPhysicalSaveInsteadOfResettingAfterThreeNights() {
+        val base=BlockIslandRules.newWorld(311,emptyList())
+        val table=base.world.index(5,5)
+        val fire=base.world.index(5,6)
+        val bridge=base.world.index(6,6)
+        val settled=base.copy(
+            structures=mapOf(table to "workbench",fire to "campfire"),
+            tools=setOf("sword"),nightsSurvived=3,defeatedMonsters=1,
+        )
+        assertTrue(IslandMilestones.next(settled).contains("探险 1/3"))
+        val caches=settled.copy(openedSupplies=settled.supplyCaches.toSet())
+        assertTrue(IslandMilestones.next(caches).contains("探险 2/3"))
+        val crafted=caches.copy(tools=setOf("axe","pickaxe","sword","rod"))
+        assertTrue(IslandMilestones.next(crafted).contains("探险 3/3"))
+        val bridged=crafted.copy(structures=crafted.structures+(bridge to "bridge"))
+        assertTrue(IslandMilestones.next(bridged).contains("拓荒目标达成"))
+        val restored=BlockIslandState.fromJson(bridged.toJson())!!
+        assertEquals(IslandMilestones.next(bridged),IslandMilestones.next(restored))
+    }
+
     @Test fun mapIsConnectedAtSpawnAndCreationIsRepeatable() {
         val a = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
         val b = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
