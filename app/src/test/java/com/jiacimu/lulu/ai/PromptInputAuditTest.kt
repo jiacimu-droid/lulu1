@@ -89,7 +89,7 @@ class PromptInputAuditTest {
         assertTrue(labels.contains("本轮背景依据 / 【自己手机的聊天软件 · 朋友圈小红点】"))
         assertTrue(labels.any { it.contains("标题不记录") })
         assertFalse(labels.any { it.contains("私人记录") || it.contains("敏感地址") || it.contains("私密原文") })
-        assertEquals(background.length, audit.coveredCharacters)
+        assertEquals(background.length.toLong(), audit.coveredCharacters)
     }
 
     @Test fun fixedLongHeadingsAreSeparatelyAttributedWithoutLeakingUnknownLongHeadings() {
