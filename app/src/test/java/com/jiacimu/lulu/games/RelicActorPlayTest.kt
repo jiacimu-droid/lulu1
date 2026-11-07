@@ -47,6 +47,57 @@ class RelicActorPlayTest {
         assertTrue(RelicActorPlay.acted(RelicRun.read(acted.json())!!,"alice"))
     }
 
+    @Test fun characterChoosesToCarryRealTreasureToPlayerAcrossSeveralTurns() {
+        val treasure=RelicLoot("from-companion","幽蓝宝石",RelicTier.RARE,220)
+        val base=run().copy(allies=run().allies.map { if(it.id=="alice")
+            it.copy(x=8,y=8,bag=listOf(treasure)) else it })
+        val option=RelicActorPlay.options(base,"alice")
+            .first { it.id=="plan_deliver:from-companion" }
+        val chosen=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice(option.id,"我找到好东西啦，给你送过去"))!!
+        assertTrue(chosen.hero.bag.isEmpty())
+        assertEquals("deliver",chosen.coopPlans["alice"]?.kind)
+        assertEquals("from-companion",chosen.coopPlans["alice"]?.itemId)
+        val restored=RelicRun.read(chosen.json())!!
+        assertEquals(chosen.coopPlans,restored.coopPlans)
+        var s=restored
+        repeat(20) {
+            s=RelicEscapeRules.act(s,"wait",autonomousIds=setOf("alice","bob"))
+        }
+        assertEquals(listOf(treasure),s.hero.bag)
+        assertTrue(s.allies.first { it.id=="alice" }.bag.isEmpty())
+        assertTrue("对方真正走到身边交付",s.events.any {
+            it.who=="alice" && it.action=="share" && it.text.contains(treasure.name) })
+        assertEquals(1,s.events.count { it.who=="alice" && it.action=="share" })
+        assertFalse("送达后自动结束本次目标",s.coopPlans.containsKey("alice"))
+    }
+
+    @Test fun treasureDeliveryRespectsFullBagAndExplicitCancellation() {
+        val gift=RelicLoot("gift","月银胸针",RelicTier.RARE,180)
+        val full=(0 until 8).map {
+            RelicLoot("owned-"+it,"旧王银币",RelicTier.COMMON,60)
+        }
+        val base=run().copy(hero=run().hero.copy(bag=full),
+            allies=run().allies.map { if(it.id=="alice")
+                it.copy(bag=listOf(gift)) else it })
+        val plan=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("plan_deliver:gift","拿给你"))!!
+        assertTrue("选择路程不会凭空送宝",plan.hero.bag.none { it.id==gift.id })
+        val next=RelicEscapeRules.act(plan,"wait",autonomousIds=setOf("alice","bob"))
+        assertEquals(full,next.hero.bag)
+        assertEquals(listOf(gift),next.allies.first().bag)
+        assertTrue(next.events.any { it.who=="alice" && it.text.contains("背包满") })
+        assertFalse(next.coopPlans.containsKey("alice"))
+
+        val cancelled=RelicActorPlay.apply(plan,"alice",
+            IslandActorChoice("stop_travel","先不送"))!!
+        assertTrue(cancelled.coopPlans.isEmpty())
+        val waited=RelicEscapeRules.act(cancelled,"wait",
+            autonomousIds=setOf("alice","bob"))
+        assertTrue(waited.hero.bag.none { it.id==gift.id })
+        assertEquals(listOf(gift),waited.allies.first().bag)
+    }
+
     @Test fun chestGoesToActualCompanionsBagOnceAndRespectsCapacity() {
         val s=run().copy(chests=listOf(RelicChest(4,4,2,RelicTier.RARE)))
         val choice=IslandActorChoice("open:4:2","")
