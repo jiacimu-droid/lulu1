@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:22:52.011751+00:00",
-  "commit": "6b53a0d893e6976980adf279246faaaaea7c4e24",
+  "generatedAt": "2026-11-07T17:23:18.022212+00:00",
+  "commit": "94adfebc98465ed32c2b47f6a731848d28171f92",
   "branch": "main",
-  "sourceFingerprint": "f86f2c6d4fb7597949906b389d7f96f4e0150c68d0f9bfdf97fc64c29b6375d0",
+  "sourceFingerprint": "6080a6b443c5381433bb5a9ee9f71a5610df6335bac64bb60d67bdfa354eb56d",
   "summary": {
     "files": 1141,
-    "lines": 245291,
+    "lines": 245319,
     "symbols": 3364
   },
   "symbolIndex": {
@@ -39660,8 +39660,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt",
-      "lines": 150,
-      "sha256": "f5d83cbff5c4dde5ac82bc02af57c11f4e2bdd80dc6939af2e2ec363b67ff758",
+      "lines": 178,
+      "sha256": "cd622679d1f7b4ad516ba3d88b5500b37bf29ed0ff437ab1faf78712bb6ff252",
       "symbols": [
         {
           "name": "RelicActorPlayTest",
