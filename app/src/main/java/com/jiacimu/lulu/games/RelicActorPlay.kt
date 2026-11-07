@@ -75,7 +75,7 @@ internal object RelicActorPlay {
         }
         if (RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=1) {
             for (item in a.bag.filter { item ->
-                s.hero.load+item.weight<=RelicEscapeRules.CAPACITY }.take(4))
+                s.hero.load+item.weight<=RelicEscapeRules.heroCapacity(s) }.take(4))
                 result += IslandActorOption("share:"+item.id,
                     "将自己背包的"+item.name+"交给玩家，真实转移背包物品","share")
         }
@@ -148,7 +148,7 @@ internal object RelicActorPlay {
             "share" -> {
                 val item=a.bag.firstOrNull { "share:"+it.id==option.id } ?:return null
                 if(RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1 ||
-                    s.hero.load+item.weight>RelicEscapeRules.CAPACITY)return null
+                    s.hero.load+item.weight>RelicEscapeRules.heroCapacity(s))return null
                 actor=a.copy(bag=a.bag.filterNot { it.id==item.id })
                 next=s.copy(hero=s.hero.copy(bag=s.hero.bag+item))
                 "亲手将"+item.name+"交给玩家背包"
