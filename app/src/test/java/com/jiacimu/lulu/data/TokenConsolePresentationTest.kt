@@ -72,4 +72,27 @@ class TokenConsolePresentationTest {
         assertNull(TokenConsolePresentation.calibratedEstimate(
             current, earlier.map { it.copy(imageCount = 1) } + current))
     }
+    @Test fun verifiedBackgroundHeadingsAppearUnderRealSourcesNotOther() {
+        val parts = listOf(
+            TokenBreakdownItem("当前人物关系", 3000, 1667),
+            TokenBreakdownItem("本轮背景依据 / 【自己的近期行动过程｜真实执行回执，而非任务配额】", 2000, 1111),
+            TokenBreakdownItem("本轮背景依据 / 【自己的数字世界来往｜真实事件与可选的下一步】", 900, 500),
+            TokenBreakdownItem("本轮背景依据 / 【本人已有的未竟事 → 本轮可选行动】", 600, 333),
+            TokenBreakdownItem("本轮背景依据 / 【自主行动机会｜角色本人拥有选择权】", 450, 250),
+            TokenBreakdownItem("本轮背景依据 / 【设备观察边界】", 300, 167),
+            TokenBreakdownItem("本轮背景依据 / 第7块（标题不记录）", 100, 56),
+        )
+        val groups = TokenConsolePresentation.groups(parts)
+        fun groupFor(label: String) = groups.first { group -> group.items.any { it.label == label } }.title
+        assertEquals("身份、人设与表达", groupFor("当前人物关系"))
+        assertEquals("近期证据与回忆", groupFor(parts[1].label))
+        assertEquals("世界书与世界状态", groupFor(parts[2].label))
+        assertEquals("核心记忆与长期目标", groupFor(parts[3].label))
+        assertEquals("行动与工具协议", groupFor(parts[4].label))
+        assertEquals("现实设备与感知", groupFor(parts[5].label))
+        assertEquals("其他背景材料", groupFor(parts[6].label))
+        assertEquals(parts.sumOf { it.chars.toLong() }, groups.sumOf { it.chars })
+        assertEquals(parts.sumOf { it.estimatedTokens.toLong() }, groups.sumOf { it.estimatedTokens })
+    }
+
 }
