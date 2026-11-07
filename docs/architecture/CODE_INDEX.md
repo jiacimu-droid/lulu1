@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`67dbda3bbdcbb45be8cd67d3a6107fc1cb4d4968`
+- 基准提交：`8aebdbd20b91ced3db121d28902d247764abbdac`
 - 分支：`main`
 - 已索引文件：1139
-- 已索引代码/文本行：244152
+- 已索引代码/文本行：244153
 - 已发现符号：3357
 
 | 文件 | 行数 | 符号数 |
@@ -665,7 +665,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 321 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 322 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 64 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 303 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |

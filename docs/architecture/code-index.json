@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T14:59:40.715336+00:00",
-  "commit": "67dbda3bbdcbb45be8cd67d3a6107fc1cb4d4968",
+  "generatedAt": "2026-11-07T15:00:17.534733+00:00",
+  "commit": "8aebdbd20b91ced3db121d28902d247764abbdac",
   "branch": "main",
-  "sourceFingerprint": "96ddcd59f5c46ed36e92a59baf602137f5b13a4b6bfe972e97786a87d977813d",
+  "sourceFingerprint": "a5f075bccf41305e02a7a089aee56b32a742f16597b61fd0343f91b3699ca50d",
   "summary": {
     "files": 1139,
-    "lines": 244152,
+    "lines": 244153,
     "symbols": 3357
   },
   "symbolIndex": {
@@ -3289,7 +3289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 165
+        "line": 166
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -5569,7 +5569,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 149
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -13623,13 +13623,13 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 256
+        "line": 257
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 262
+        "line": 263
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -32569,8 +32569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 321,
-      "sha256": "5cab05c65fd6e2457d751c42c756658fcc28b81a19ca185552cdce1b7ffd6801",
+      "lines": 322,
+      "sha256": "4bc7ba964a645f5a19d05314eeb82e39fed232c3c708e068525862be343401a2",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -32582,19 +32582,19 @@
         },
         {
           "name": "parse",
-          "line": 149
+          "line": 150
         },
         {
           "name": "apply",
-          "line": 165
+          "line": 166
         },
         {
           "name": "applyLive",
-          "line": 256
+          "line": 257
         },
         {
           "name": "facts",
-          "line": 262
+          "line": 263
         }
       ]
     },
