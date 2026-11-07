@@ -109,6 +109,26 @@ class AutonomousActionTraceTest {
             listOf(receipt), emptySet(), "江渡"))
     }
 
+    @Test fun newerUnrelatedReceiptCannotHideDeliveredPrimaryMessage() {
+        val at = Instant.parse("2026-10-11T09:00:00Z")
+        val delivered = SharedTimelineEvent("primary-message", "role-a", "私聊", "角色",
+            "已送达", at, sessionId = "chat-a",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val unrelated = SharedTimelineEvent("side-tool", "role-a", "工具", "执行器",
+            "副动作完成", at.plusSeconds(1), evidenceKind = EventEvidenceKind.ToolResult)
+        val events = listOf(delivered, unrelated)
+        // The generic legacy candidate is the newer unrelated tool receipt.
+        assertEquals("side-tool", AutonomousActionTrace.newestExecutedEvidence(
+            events, emptySet(), "江渡", "chat-a"))
+        // The proactive primary action must select its own compatible delivery.
+        assertEquals("primary-message", AutonomousActionTrace.newestExecutedEvidence(
+            events, emptySet(), "江渡", "chat-a",
+            supportsAction = { it.evidenceKind == EventEvidenceKind.CharacterStatement }))
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(unrelated), emptySet(), "江渡", "chat-a",
+            supportsAction = { it.evidenceKind == EventEvidenceKind.CharacterStatement }))
+    }
+
     @Test fun oldHistoryDoesNotCreateArtificialPressureToAct() {
         val history = JSONArray().put(JSONObject().put("at", "2026-09-01T00:00:00Z")
             .put("selected", "reading").put("signature", "reading/book-1")
