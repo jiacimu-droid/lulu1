@@ -72,6 +72,34 @@ class RelicActorPlayTest {
         assertFalse("送达后自动结束本次目标",s.coopPlans.containsKey("alice"))
     }
 
+    @Test fun deliveryDetoursAroundStationaryTeammateWithoutInventingRewards() {
+        val gift=RelicLoot("detour-gift","月银胸针",RelicTier.RARE,180)
+        val start=run()
+        val occupied=start.copy(hero=start.hero.copy(x=2,y=4),
+            allies=start.allies.map { actor -> when(actor.id) {
+                "alice"->actor.copy(x=4,y=4,bag=listOf(gift))
+                "bob"->actor.copy(x=3,y=4)
+                else->actor
+            } })
+        val chosen=RelicActorPlay.apply(occupied,"alice",
+            IslandActorChoice("plan_deliver:detour-gift","亲自送过去"))!!
+        val first=RelicEscapeRules.act(chosen,"wait",autonomousIds=setOf("alice","bob"))
+        val moved=first.allies.first { it.id=="alice" }
+        assertNotEquals("不能踏进队友占据的格子",3 to 4,moved.x to moved.y)
+        assertEquals(listOf(gift),moved.bag)
+        assertTrue(first.hero.bag.isEmpty())
+        assertEquals("deliver",first.coopPlans["alice"]?.kind)
+        var s=first
+        repeat(8) {
+            s=RelicEscapeRules.act(s,"wait",autonomousIds=setOf("alice","bob"))
+        }
+        assertEquals(listOf(gift),s.hero.bag)
+        assertTrue(s.allies.first { it.id=="alice" }.bag.isEmpty())
+        assertEquals(1,s.events.count { it.who=="alice" && it.action=="share" })
+        assertFalse(s.coopPlans.containsKey("alice"))
+        assertEquals(3 to 4,s.allies.first { it.id=="bob" }.let { it.x to it.y })
+    }
+
     @Test fun treasureDeliveryRespectsFullBagAndExplicitCancellation() {
         val gift=RelicLoot("gift","月银胸针",RelicTier.RARE,180)
         val full=(0 until 8).map {
