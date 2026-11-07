@@ -17,6 +17,53 @@ class RelicEscapeRulesTest {
         context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit().clear().commit()
         return RelicEscapeLedger(context)
     }
+    @Test fun treasureCatalogIsActuallyObtainableAndSeededWithoutRerolls() {
+        assertEquals(RelicCollectibles.names.size,RelicCollectibles.names.distinct().size)
+        var legendaryCount=0
+        for(seed in -400..400) {
+            val run=RelicEscapeWorld.create(seed,4,emptyList(),0,1)
+            for(chest in run.chests) {
+                val first=RelicEscapeRules.treasure(run,chest)
+                assertEquals(first,RelicEscapeRules.treasure(run,chest))
+                assertTrue(first.name in RelicCollectibles.names)
+                if(RelicCollectibles.isCrownJewel(first.name)) {
+                    assertEquals(RelicTier.PRECIOUS,first.tier)
+                    legendaryCount++
+                }
+            }
+        }
+        assertTrue("稀有物品必须真的能掉落",legendaryCount>0)
+    }
+
+    @Test fun successfulLootEntersPermanentAlbumButSalesAndFailedRunsNeverEraseIt() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val base=RelicEscapeWorld.create(831,3,emptyList(),0,1).copy(mobs=emptyList())
+        val item=RelicEscapeRules.treasure(base,base.chests.first())
+        val prepared=base.copy(hero=base.hero.copy(x=base.exitX,y=base.exitY,bag=listOf(item)))
+        prefs.edit().putString("ledger",ledger.read().copy(run=prepared).json().toString()).commit()
+        assertEquals(RelicPhase.EXTRACT,ledger.perform("extract").run!!.phase)
+        repeat(3){ledger.perform("wait")}
+        val earned=ledger.read()
+        assertEquals(RelicPhase.SUCCESS,earned.run!!.phase)
+        assertTrue(item.name in earned.discovered)
+        assertEquals(1,earned.vault.size)
+        val sold=ledger.sellLoot(item.id)
+        assertTrue(sold.vault.isEmpty())
+        assertTrue(item.name in sold.discovered)
+        val restored=RelicEscapeLedger(context).read()
+        assertEquals(sold.discovered,restored.discovered)
+        val next=ledger.begin(emptyList(),0)
+        assertNotEquals(base.id,next.run?.id)
+        ledger.perform("abandon")
+        assertEquals(restored.discovered,ledger.read().discovered)
+        // Pre-album saves keep a best-effort record of the unsold physical collection.
+        val old=JSONObject(earned.json().toString())
+        old.remove("discovered")
+        assertTrue(item.name in RelicSnapshot.read(old.toString()).discovered)
+    }
+
     @Test fun generatedMapHasRealReachableChestsAndExitOnEverySeed() {
         for(seed in listOf(1,2,3,20261028,-459)) {
             val a=RelicEscapeWorld.create(seed,3,listOf("a","b","c","d"),1,1)
