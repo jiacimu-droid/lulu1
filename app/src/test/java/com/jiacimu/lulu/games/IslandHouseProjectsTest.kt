@@ -170,6 +170,11 @@ class IslandHouseProjectsTest {
             IslandActorChoice("demolish_house","拆房"))!!
         val result=nextTurn(demolish)
         assertEquals("paused",result.houseProject?.phase)
+        assertEquals("demolishing",result.houseProject?.resumePhase)
+        val reloaded=BlockIslandState.fromJson(result.toJson())!!
+        val resumed=IslandHouseProjects.choose(reloaded,"alice","resume_house","继续拆")!!
+        assertEquals("demolishing",resumed.houseProject?.phase)
+        assertEquals(reloaded.world.wood,resumed.world.wood)
         assertEquals(0,result.world.tiles[door])
         assertEquals(demolish.world.wood,result.world.wood)
     }

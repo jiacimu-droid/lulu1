@@ -528,7 +528,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     val owner = MigratedDomainStores.characters.get(project.ownerId).displayName
                     val phase = when(project.phase) {
-                        "building" -> "施工中"; "paused" -> "暂停中"
+                        "building" -> "施工中"; "paused" ->
+                            if(project.resumePhase=="demolishing")"暂停拆除" else "暂停施工"
                         "complete" -> "已完成"; else -> "拆除中"
                     }
                     Text("⌂ "+owner+"的"+IslandHouseProjects.styleName(project.style)+" · "+phase,
@@ -537,6 +538,17 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Text("进度 "+project.placed.size+"/9 · 位置("+
                         project.left+","+project.top+") · 每个真实回合施工一步",
                         color = Color(0xFFBEE8D2), fontSize = 11.sp)
+                    if(project.phase=="building" ||
+                        (project.phase=="paused" && project.resumePhase=="building")) {
+                        val woodStillNeeded=IslandHouseProjects.parts(world,project.left,project.top)
+                            .filterNot { it.first in project.placed }
+                            .sumOf { if(it.second=="floor")1 else 2 }
+                        Text("施工还需木材 "+woodStillNeeded+" · 共享库存 "+world.wood+
+                            if(woodStillNeeded>world.wood)
+                                " · 缺口 "+(woodStillNeeded-world.wood) else " · 材料足够",
+                            color=if(woodStillNeeded>world.wood)Color(0xFFFFD5AD)
+                                else Color(0xFFBEE8D2),fontSize=11.sp)
+                    }
                     LinearProgressIndicator(progress = { project.placed.size/9f },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))

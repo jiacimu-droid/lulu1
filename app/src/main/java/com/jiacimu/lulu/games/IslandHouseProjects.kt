@@ -99,12 +99,14 @@ internal object IslandHouseProjects {
             action=="pause_house" && old.phase in setOf("building","demolishing") ->
                 old.copy(phase="paused",resumePhase=old.phase)
             action=="resume_house" && old.phase=="paused" -> old.copy(phase=old.resumePhase)
-            action=="demolish_house" && old.phase!="demolishing" -> old.copy(phase="demolishing")
+            action=="demolish_house" && old.phase!="demolishing" ->
+                old.copy(phase="demolishing",resumePhase="demolishing")
             else -> return null
         }
         val description=when(action.substringBefore(":")) {
             "start_house"->"决定为玩家亲手盖一座"+styleName(next.style)+"（3×3、约17木）"
-            "pause_house"->"决定暂停建房，保留已经搭好的部分"
+            "pause_house"->if(next.resumePhase=="demolishing")
+                "决定暂停拆除，保留现场" else "决定暂停建房，保留已经搭好的部分"
             "resume_house"->"决定继续之前的"+(if(next.phase=="demolishing")"拆除" else "建造")+"工程"
             else->"决定逐步拆除自己建造的小屋"
         }
@@ -163,7 +165,7 @@ internal object IslandHouseProjects {
         val pNext=p.copy(lastStepTurn=w.turns)
         if(abs(actor.x-tx)+abs(actor.y-ty)!=1) {
             val moved=walkCloser(s,id,tx,ty)
-            if(moved==null)return log(s.copy(houseProject=pNext.copy(phase="paused")),
+            if(moved==null)return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                 id,"施工道路受阻，工程暂停")
             return log(moved.copy(houseProject=pNext),id,
                 "沿实际道路走向下一处施工位置("+tx+","+ty+")")
@@ -175,11 +177,11 @@ internal object IslandHouseProjects {
                 s.animals.any { it.x==tx && it.y==ty }
             if(occupied || w.cell(tx,ty)!=0 || index in s.structures ||
                 index in s.supplyCaches)
-                return log(s.copy(houseProject=pNext.copy(phase="paused")),
+                return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                     id,"施工格已被占用或改动，暂停以保护现有建筑")
             val cost=if(kind=="floor")1 else 2
             if(w.wood<cost)
-                return log(s.copy(houseProject=pNext.copy(phase="paused")),
+                return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                     id,"木材不足，已经停工；可先采集再决定续建")
             val cells=w.tiles.toMutableList().also { it[index]=if(kind=="wall")3 else 4 }
             val count=p.placed.size+1
@@ -193,12 +195,12 @@ internal object IslandHouseProjects {
         val expected=if(kind=="wall")3 else 4
         if(w.cell(tx,ty)!=expected ||
             (if(kind=="door")s.structures[index]!="door" else index in s.structures))
-            return log(s.copy(houseProject=pNext.copy(phase="paused")),id,
+            return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),id,
                 "这处建筑已经被修改，暂停拆除，避免破坏别人的作品")
         if((w.x==tx && w.y==ty) ||
             w.friends.any { it.x==tx && it.y==ty } ||
             w.mobs.any { it.hp>0 && it.x==tx && it.y==ty })
-            return log(s.copy(houseProject=pNext.copy(phase="paused")),id,
+            return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),id,
                 "待拆位置有人或怪物，暂停拆除")
         val cells=w.tiles.toMutableList().also { it[index]=0 }
         val remaining=p.placed-index

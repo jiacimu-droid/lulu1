@@ -30,7 +30,9 @@ internal object IslandActorPlay {
             if(project.phase in setOf("building","demolishing"))
                 result += IslandActorOption("pause_house","暂时停下当前建造或拆除工程","pause_house")
             if(project.phase=="paused")
-                result += IslandActorOption("resume_house","继续已暂停的建房工程","resume_house")
+                result += IslandActorOption("resume_house",
+                    if(project.resumePhase=="demolishing")"继续已暂停的拆除工程"
+                    else "继续已暂停的建房工程","resume_house")
             if(project.phase!="demolishing")
                 result += IslandActorOption("demolish_house","逐步拆除自己建造的小屋","demolish_house")
         }
