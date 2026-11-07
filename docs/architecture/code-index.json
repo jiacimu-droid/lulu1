@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:23:18.022212+00:00",
-  "commit": "94adfebc98465ed32c2b47f6a731848d28171f92",
+  "generatedAt": "2026-11-07T17:25:33.967691+00:00",
+  "commit": "21dba7a827ddaab2739c4b3aa18a6850d3451096",
   "branch": "main",
-  "sourceFingerprint": "6080a6b443c5381433bb5a9ee9f71a5610df6335bac64bb60d67bdfa354eb56d",
+  "sourceFingerprint": "bd4a804e802a90e6fa12105041928230145252ec92abe63f0517789b1230e81a",
   "summary": {
-    "files": 1141,
-    "lines": 245319,
-    "symbols": 3364
+    "files": 1142,
+    "lines": 245524,
+    "symbols": 3368
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14226,6 +14226,34 @@
         "line": 17
       }
     ],
+    "kind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+        "line": 53
+      }
+    ],
+    "DrawScope": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+        "line": 57
+      }
+    ],
+    "line": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+        "line": 67
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 113
+      }
+    ],
+    "poly": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+        "line": 69
+      }
+    ],
     "walkable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
@@ -15254,12 +15282,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
         "line": 45
-      }
-    ],
-    "line": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 113
       }
     ],
     "canObserve": [
@@ -33417,6 +33439,29 @@
       "lines": 126,
       "sha256": "c7a4816ab1d0245cd28860219a74c01937d30d40c8e4a1c8b272973ea93ecff3",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+      "lines": 205,
+      "sha256": "08c0ec4591fd69e50ab1dab00ba027c2c08bc553abef40da21d6fae15010c1c9",
+      "symbols": [
+        {
+          "name": "kind",
+          "line": 53
+        },
+        {
+          "name": "DrawScope",
+          "line": 57
+        },
+        {
+          "name": "line",
+          "line": 67
+        },
+        {
+          "name": "poly",
+          "line": 69
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
