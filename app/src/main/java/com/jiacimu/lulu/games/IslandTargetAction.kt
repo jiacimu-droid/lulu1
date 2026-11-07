@@ -24,6 +24,16 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
         near && mob -> IslandTargetAction("fight", "攻击", true, distance)
         near && IslandSupplyCaches.available(state, x, y) ->
             IslandTargetAction("salvage", "打开补给", true, distance)
+        near && state.animals.any { it.x == x && it.y == y } -> {
+            val resident=state.animals.first { it.x == x && it.y == y }
+            if (!resident.befriended) IslandTargetAction("tame",
+                if (IslandWildlife.canFeed(state,resident)) "结识"+IslandWildlife.name(resident.species)
+                else "需要"+IslandWildlife.feed(resident.species),
+                IslandWildlife.canFeed(state,resident),distance)
+            else IslandTargetAction("care",
+                if(IslandWildlife.canGift(state,resident)) "收取伙伴礼物" else "轻抚"+IslandWildlife.name(resident.species),
+                IslandWildlife.canGift(state,resident),distance)
+        }
         near && w.cell(x, y) in setOf(1, 2) -> IslandTargetAction("gather", "采集", true, distance)
         near && w.cell(x, y) == 8 -> IslandTargetAction(
             "fish", if ("rod" in state.tools) "钓鱼" else "需要鱼竿",
@@ -42,7 +52,7 @@ internal data class IslandNearbyAction(val action: String, val label: String, va
 internal fun islandNearbyAction(
     state: BlockIslandState,
     facing: Pair<Int, Int>,
-    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish"),
+    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish", "tame", "care"),
 ): IslandNearbyAction? {
     val w = state.world
     if (w.finished) return null
