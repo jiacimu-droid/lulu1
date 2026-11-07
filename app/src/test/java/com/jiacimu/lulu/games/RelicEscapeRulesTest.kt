@@ -93,20 +93,26 @@ class RelicEscapeRulesTest {
         val earned=ledger.read()
         assertEquals(RelicPhase.SUCCESS,earned.run!!.phase)
         assertTrue(item.name in earned.discovered)
+        assertTrue(item.name in earned.newDiscoveries)
+        assertEquals(earned.newDiscoveries,RelicSnapshot.read(earned.json().toString()).newDiscoveries)
         assertEquals(1,earned.vault.size)
         val sold=ledger.sellLoot(item.id)
         assertTrue(sold.vault.isEmpty())
         assertTrue(item.name in sold.discovered)
         val restored=RelicEscapeLedger(context).read()
         assertEquals(sold.discovered,restored.discovered)
+        assertEquals(earned.newDiscoveries,restored.newDiscoveries)
         val next=ledger.begin(emptyList(),0)
         assertNotEquals(base.id,next.run?.id)
         ledger.perform("abandon")
         assertEquals(restored.discovered,ledger.read().discovered)
+        assertTrue(ledger.read().newDiscoveries.isEmpty())
         // Pre-album saves keep a best-effort record of the unsold physical collection.
         val old=JSONObject(earned.json().toString())
         old.remove("discovered")
+        old.remove("newDiscoveries")
         assertTrue(item.name in RelicSnapshot.read(old.toString()).discovered)
+        assertTrue(RelicSnapshot.read(old.toString()).newDiscoveries.isEmpty())
     }
 
     @Test fun rareChestGambleConsumesToolAndAwakensRealGuardianWithoutDoubleUpgrade() {
