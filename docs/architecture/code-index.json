@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T14:32:25.674589+00:00",
-  "commit": "f8e9c1cdf84135268d25db4ec25eb88be1780b4b",
+  "generatedAt": "2026-11-07T14:32:46.151751+00:00",
+  "commit": "9b517642a2e4127e79686c86476019aa6e9aaa2f",
   "branch": "main",
-  "sourceFingerprint": "057a6bf1e7563ff55c2a64572a6cb0b0cc94ab05cb9b66537c7975423dc234b0",
+  "sourceFingerprint": "a34dd6c9420c84076c7c98a1df8d68a393fd34f2cb949e4de2ddb39f34a01eb3",
   "summary": {
     "files": 1138,
-    "lines": 243486,
+    "lines": 243498,
     "symbols": 3348
   },
   "symbolIndex": {
@@ -2269,7 +2269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 24
+        "line": 27
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13667,7 +13667,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 20
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -14061,7 +14061,7 @@
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 106
+        "line": 118
       }
     ],
     "namesFor": [
@@ -33089,20 +33089,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 150,
-      "sha256": "8765523bda23a8b4915a487ef9ec7d6e1ee7a70888d40e72937bcae16494ad74",
+      "lines": 162,
+      "sha256": "4e7f4321c417f00f837c720edc80aebd8fb8bda68757118e49ec810f69d38886",
       "symbols": [
         {
           "name": "json",
-          "line": 20
+          "line": 22
         },
         {
           "name": "read",
-          "line": 24
+          "line": 27
         },
         {
           "name": "syncExperiences",
-          "line": 106
+          "line": 118
         }
       ]
     },
