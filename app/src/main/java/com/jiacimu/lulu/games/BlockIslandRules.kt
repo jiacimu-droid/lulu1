@@ -251,6 +251,7 @@ internal object BlockIslandRules {
             (action == "floor" && cell == 4) ||
             w.friends.any { it.hp > 0 && it.x == x && it.y == y } ||
             w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
+            s.animals.any { it.x == x && it.y == y } ||
             (if (action == "bridge") cell != 8 ||
                 x == 0 || y == 0 || x == w.width - 1 || y == w.height - 1
             else cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
@@ -272,7 +273,8 @@ internal object BlockIslandRules {
             w.index(x, y) !in s.structures &&
             !IslandSupplyCaches.available(s, x, y) && !(x == w.x && y == w.y) &&
             w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
-            w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+            w.mobs.none { it.hp > 0 && it.x == x && it.y == y } &&
+            s.animals.none { it.x == x && it.y == y }
     }
 
     fun canRemoveAt(s: BlockIslandState, x: Int, y: Int): Boolean {
@@ -689,7 +691,8 @@ internal object BlockIslandRules {
                 !IslandSupplyCaches.available(s, x, y) &&
                 distance(x, y, w.x, w.y) > 5 &&
                 w.friends.none { it.x == x && it.y == y } &&
-                w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+                w.mobs.none { it.hp > 0 && it.x == x && it.y == y } &&
+                s.animals.none { it.x == x && it.y == y }
         } ?: return s
         val material = if (rng.nextInt(3) == 0) 2 else 1
         return s.copy(world = w.setTile(place.first, place.second, material).copy(
