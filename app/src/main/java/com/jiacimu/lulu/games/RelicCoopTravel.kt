@@ -3,9 +3,13 @@ package com.jiacimu.lulu.games
 import org.json.JSONObject
 
 /** A saved, character-chosen route, not an automated choice of what to do next. */
-internal data class RelicCoopPlan(val kind:String,val targetId:Int=-1,val lastStepTurn:Int=-1) {
+internal data class RelicCoopPlan(
+    val kind:String,val targetId:Int=-1,val lastStepTurn:Int=-1,
+    /** Stable physical inventory ID, only for an explicit partner-selected delivery. */
+    val itemId:String=""
+) {
     fun json():JSONObject=JSONObject().put("kind",kind).put("targetId",targetId)
-        .put("lastStepTurn",lastStepTurn)
+        .put("lastStepTurn",lastStepTurn).put("itemId",itemId)
 }
 
 internal object RelicCoopTravel {
@@ -15,11 +19,13 @@ internal object RelicCoopTravel {
             val j=raw.optJSONObject(actor.id) ?:return@mapNotNull null
             val plan=runCatching {
                 RelicCoopPlan(j.getString("kind"),j.optInt("targetId",-1),
-                    j.optInt("lastStepTurn",-1))
+                    j.optInt("lastStepTurn",-1),j.optString("itemId"))
             }.getOrNull() ?:return@mapNotNull null
-            if(plan.kind !in setOf("support","regroup","chest","rescue") ||
+            if(plan.kind !in setOf("support","regroup","chest","rescue","deliver") ||
                 plan.lastStepTurn !in -1..s.turns ||
-                (plan.kind in setOf("support","chest") && plan.targetId<0))null
+                (plan.kind in setOf("support","chest") && plan.targetId<0) ||
+                (plan.kind=="deliver" &&
+                    (plan.itemId.isBlank() || actor.bag.none { it.id==plan.itemId })))null
             else actor.id to plan
         }.toMap()
     }
@@ -29,6 +35,9 @@ internal object RelicCoopTravel {
         "chest"->s.chests.firstOrNull { it.id==p.targetId && !it.opened &&
             it.id !in s.playerChestMarks }?.let { it.x to it.y }
         "regroup"->s.hero.takeIf { it.hp>0 }?.let { it.x to it.y }
+        "deliver"->s.hero.takeIf { it.hp>0 &&
+            s.allies.any { a -> a.hp>0 && a.bag.any { it.id==p.itemId } }
+        }?.let { it.x to it.y }
         "rescue"->s.hero.takeIf { it.hp<=0 }?.let { it.x to it.y }
         else->null
     }
@@ -85,14 +94,22 @@ internal object RelicCoopTravel {
                 } ?:return null
                 RelicCoopPlan("chest",chest.id,s.turns)
             }
+            "plan_deliver" -> {
+                val itemId=action.removePrefix("plan_deliver:")
+                if(!action.startsWith("plan_deliver:") ||
+                    itemId.isBlank() || s.hero.hp<=0 ||
+                    actor.bag.none { it.id==itemId })return null
+                RelicCoopPlan("deliver",lastStepTurn=s.turns,itemId=itemId)
+            }
             else -> return null
         }
         val existing=s.coopPlans[id]
-        if(existing!=null && existing.kind==plan.kind && existing.targetId==plan.targetId)
+        if(existing!=null && existing.kind==plan.kind &&
+            existing.targetId==plan.targetId && existing.itemId==plan.itemId)
             return null
         val label=when(plan.kind) {
             "support"->"支援战斗";"chest"->"探查宝箱"
-            "rescue"->"赶来救你";else->"与你集合"
+            "rescue"->"赶来救你";"deliver"->"把找到的宝物送给你";else->"与你集合"
         }
         return s.copy(coopPlans=s.coopPlans+(id to plan))
             .log(id,"travel","重新决定下一步目标："+label+
@@ -145,8 +162,27 @@ internal object RelicCoopTravel {
                 continue
             }
             if(RelicEscapeRules.distance(a.x,a.y,goal.first,goal.second)<=1) {
-                s=s.copy(coopPlans=s.coopPlans-id)
-                    .log(id,"travel","已到达自己选择的目标附近，下一步由本人判断")
+                if(plan.kind=="deliver") {
+                    val gift=a.bag.firstOrNull { it.id==plan.itemId }
+                    s=when {
+                        gift==null->s.copy(coopPlans=s.coopPlans-id)
+                            .log(id,"travel","想送的宝物已不在背包，行程结束")
+                        s.hero.load+gift.weight>RelicEscapeRules.heroCapacity(s)->
+                            s.copy(coopPlans=s.coopPlans-id)
+                                .log(id,"travel","带着"+gift.name+"来到你身旁，但你背包满了；宝物仍由我保管，等待下一次决定")
+                        else->s.copy(
+                            hero=s.hero.copy(bag=s.hero.bag+gift),
+                            allies=s.allies.map { ally ->
+                                if(ally.id==id)ally.copy(bag=ally.bag.filterNot { it.id==gift.id })
+                                else ally
+                            },
+                            coopPlans=s.coopPlans-id,
+                        ).log(id,"share","来到你身边，亲手把"+gift.name+"送进你的背包")
+                    }
+                } else {
+                    s=s.copy(coopPlans=s.coopPlans-id)
+                        .log(id,"travel","已到达自己选择的目标附近，下一步由本人判断")
+                }
                 continue
             }
             val step=RelicEscapeRules.path(s,a.x,a.y,goal.first,goal.second)
@@ -167,14 +203,14 @@ internal object RelicCoopTravel {
             }
             val actor=stepState.allies.first { it.id==id }
             val hurt=(a.hp-actor.hp).coerceAtLeast(0)
-            val remaining=RelicEscapeRules.distance(actor.x,actor.y,
-                goal.first,goal.second)>1 && actor.hp>0
+            val remaining=actor.hp>0 && (plan.kind=="deliver" ||
+                RelicEscapeRules.distance(actor.x,actor.y,goal.first,goal.second)>1)
             s=stepState.copy(coopPlans=if(remaining)stepState.coopPlans+
                 (id to plan.copy(lastStepTurn=stepState.turns))
                 else stepState.coopPlans-id)
                 .log(id,"decision","沿自己决定的"+when(plan.kind) {
                     "support"->"支援";"chest"->"找宝箱"
-                    "rescue"->"救援";else->"集合"
+                    "rescue"->"救援";"deliver"->"送宝物给玩家";else->"集合"
                 }+"目标前进一步，到("+actor.x+","+actor.y+")"+
                     if(hurt>0)"；碰到危险地形，受伤"+hurt else "")
         }
