@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fa458ebf8cad1f5707bfa445ce6dc196c600f47b`
+- 基准提交：`48036bd46cc925777e1d78ae43f2a1acef4db754`
 - 分支：`main`
 - 已索引文件：1139
-- 已索引代码/文本行：244254
+- 已索引代码/文本行：244260
 - 已发现符号：3359
 
 | 文件 | 行数 | 符号数 |
@@ -643,7 +643,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 750 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 758 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 762 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 995 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
@@ -666,7 +666,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 322 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 64 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 303 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
