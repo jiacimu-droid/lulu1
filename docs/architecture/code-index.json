@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T15:19:47.057524+00:00",
-  "commit": "48036bd46cc925777e1d78ae43f2a1acef4db754",
+  "generatedAt": "2026-11-07T15:20:03.627889+00:00",
+  "commit": "a18798dc0016f040146387e79b509afb27f9a3bf",
   "branch": "main",
-  "sourceFingerprint": "29f60fdf4c33c22263824b1620f9bf25f5cd6f371da953b9c64ecc0e80e0c8dd",
+  "sourceFingerprint": "5a5c6a983286396d0be8fc133b88744b818144bce62f879a99d9cdd845680a31",
   "summary": {
     "files": 1139,
-    "lines": 244260,
-    "symbols": 3359
+    "lines": 244280,
+    "symbols": 3360
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4717,7 +4717,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 105
+        "line": 114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -13737,7 +13737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 63
+        "line": 72
       }
     ],
     "remaining": [
@@ -13786,10 +13786,16 @@
         "line": 49
       }
     ],
+    "hasNearbyHome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 57
+      }
+    ],
     "canGift": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 56
+        "line": 64
       }
     ],
     "GameModelConnectionStatus": [
@@ -32806,8 +32812,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-      "lines": 137,
-      "sha256": "81a2e677cd4f8ff98b0b855220ab806798ca6d55fd64c30f146b27a0eb2e0289",
+      "lines": 157,
+      "sha256": "288de4a5aa82a377d023b27640a272d0495d7061f8637b7cf8c5075e1707bd69",
       "symbols": [
         {
           "name": "json",
@@ -32830,16 +32836,20 @@
           "line": 49
         },
         {
+          "name": "hasNearbyHome",
+          "line": 57
+        },
+        {
           "name": "canGift",
-          "line": 56
+          "line": 64
         },
         {
           "name": "generate",
-          "line": 63
+          "line": 72
         },
         {
           "name": "advance",
-          "line": 105
+          "line": 114
         }
       ]
     },
