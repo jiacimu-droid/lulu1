@@ -17,6 +17,51 @@ class RelicEscapeRulesTest {
         context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit().clear().commit()
         return RelicEscapeLedger(context)
     }
+    @Test fun satchelPurchaseIsAtomicPermanentAndCannotMintCapacityMidRun() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        val saved=RelicSnapshot(coins=1000,discovered=setOf("旧王银币"))
+        context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit()
+            .putString("ledger",saved.json().toString()).commit()
+        assertEquals(0,ledger.read().satchelLevel)
+        val first=ledger.upgradeSatchel()
+        assertEquals(1,first.satchelLevel)
+        assertEquals(740,first.coins)
+        val second=ledger.upgradeSatchel()
+        assertEquals(2,second.satchelLevel)
+        assertEquals(120,second.coins)
+        assertEquals(second,ledger.upgradeSatchel())
+        assertTrue("旧王银币" in RelicEscapeLedger(context).read().discovered)
+        val begun=ledger.begin(emptyList(),0)
+        assertEquals(2,begun.run!!.satchelLevel)
+        assertEquals(12,RelicEscapeRules.heroCapacity(begun.run!!))
+        assertEquals(begun,ledger.upgradeSatchel())
+        val old=JSONObject(saved.json().toString()).apply{remove("satchelLevel")}
+        assertEquals(0,RelicSnapshot.read(old.toString()).satchelLevel)
+    }
+
+    @Test fun extraSatchelSlotsOnlyApplyToPlayerLootAndSurviveSave() {
+        val original=RelicEscapeWorld.create(672,3,emptyList(),0,1,2)
+        val chest=original.chests.first()
+        val stuffed=(0 until 8).map{idx->
+            RelicLoot("cached$idx","旧王银币",RelicTier.COMMON,70)
+        }
+        val base=RelicEscapeRules.reveal(original.copy(
+            hero=original.hero.copy(x=chest.x,y=chest.y,bag=stuffed),
+            chests=original.chests.map {
+                if(it.id==chest.id)it.copy(tier=RelicTier.RARE)else it
+            },mobs=emptyList(),sites=emptyList()))
+        val unexpanded=RelicEscapeRules.act(base.copy(satchelLevel=0),"open",chest.x,chest.y)
+        assertEquals(8,unexpanded.hero.load)
+        assertTrue(unexpanded.drops.any{it.loot.id.endsWith(":chest:"+chest.id)})
+        val expanded=RelicEscapeRules.act(base,"open",chest.x,chest.y)
+        assertEquals(10,expanded.hero.load)
+        assertFalse(expanded.drops.any{it.loot.id.endsWith(":chest:"+chest.id)})
+        val restored=RelicRun.read(JSONObject(expanded.json().toString()))!!
+        assertEquals(12,RelicEscapeRules.heroCapacity(restored))
+        assertEquals(expanded.hero.bag,restored.hero.bag)
+    }
+
     @Test fun treasureCatalogIsActuallyObtainableAndSeededWithoutRerolls() {
         assertEquals(RelicCollectibles.names.size,RelicCollectibles.names.distinct().size)
         var legendaryCount=0
