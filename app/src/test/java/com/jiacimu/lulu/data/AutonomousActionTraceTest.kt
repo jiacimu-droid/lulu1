@@ -85,6 +85,12 @@ class AutonomousActionTraceTest {
             events, setOf("old"), "江渡", "chat-a"))
         assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
             events, setOf("old", "private"), "江渡", "chat-a"))
+        // A different private conversation of the same role is not this send's receipt.
+        val otherChat = event("other-chat", "角色", EventEvidenceKind.CharacterStatement, "chat-b")
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(otherChat), emptySet(), "江渡", "chat-a"))
+        assertEquals("other-chat", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(otherChat), emptySet(), "江渡", "chat-b"))
         val nicknameEvent = event("group", "群里昵称", EventEvidenceKind.CharacterStatement, "group-b")
         assertEquals("group", AutonomousActionTrace.newestExecutedEvidence(
             listOf(nicknameEvent), emptySet(), "江渡", "group-b"))
