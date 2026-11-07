@@ -88,7 +88,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     RelicTier.PRECIOUS->GameSoundEffect.Objective
                     null->GameSoundEffect.Bump
                 }
-                "attack","extract","invoke","flare"->GameSoundEffect.Objective
+                "attack","extract","invoke","channel","flare"->GameSoundEffect.Objective
                 "pickup","heal","revive","disarm"->GameSoundEffect.Collect
                 "move","sneak"->GameSoundEffect.Move
                 "lure"->GameSoundEffect.Interact
@@ -164,7 +164,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
                         Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
                             loot.tier.label+"「"+loot.name+"」 · 估值"+loot.value+
-                            " · 成功撤离后入图鉴",
+                            (if(run.hero.bag.any { it.id==loot.id }) " · 已入包，撤离后收录"
+                            else " · 背包已满，拾起并撤离后收录"),
                             modifier=Modifier.fillMaxWidth().padding(10.dp),
                             color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
                     }
@@ -417,7 +418,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     if (showGuide) {
                         Text("① 方向键探索  ② 靠近宝箱按方向或✦  ③ 带宝物回出口",
                             color = Color.White, fontSize = 12.sp, lineHeight = 19.sp)
-                        Text("怪物用攻击键打，格挡可以防御蓄力攻击。宝物撤离后入库，可兑换铜币买药剂和升级武器。",
+                        Text("怪物用攻击键打，格挡可以防御蓄力攻击。靠近稀有箱可选择稳妥开箱或危险破封。宝物必须成功撤离才会进入永久图鉴。",
                             color = relicMuted, fontSize = 11.sp, lineHeight = 17.sp)
                     }
                 }
@@ -461,6 +462,28 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
                 if (quick != null) {
                     Text(quick.hint, color = relicMuted, fontSize = 11.sp, lineHeight = 16.sp)
+                }
+                if(chest?.tier==RelicTier.RARE && visible) {
+                    Surface(color=Color(0xFF33273A),shape=RoundedCornerShape(15.dp),
+                        border=BorderStroke(1.dp,Color(0xFFD7AEED).copy(alpha=.47f))) {
+                        Column(Modifier.fillMaxWidth().padding(10.dp),
+                            verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                            Text("✦ 稀有箱 · 要不要赌一把？",color=Color(0xFFF6D7FE),
+                                fontWeight=FontWeight.Bold,fontSize=13.sp)
+                            Text("稳妥：直接开箱拿稀有宝物。冒险：消耗1套拆解工具，必升珍贵箱，但会惊醒额外守卫。开了封也可以放弃，是否撤离由你决定。",
+                                color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+                            OutlinedButton(onClick={action("channel",sx,sy)},
+                                modifier=Modifier.fillMaxWidth(),
+                                enabled=run.tools>0 &&
+                                    RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=1) {
+                                Text(if(run.tools<=0)"缺少拆解工具 · 不能破封"
+                                    else if(RelicEscapeRules.distance(hero.x,hero.y,sx,sy)>1)
+                                        "先靠近宝箱再破封"
+                                    else "冒险破封 · 升级珍贵箱 / 唤醒守卫",
+                                    color=Color(0xFFF6D7FE),fontSize=12.sp)
+                            }
+                        }
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("高级操作", color = relicGold, fontWeight = FontWeight.Bold,
