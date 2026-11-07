@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T00:38:50.618974+00:00",
-  "commit": "2e243ba3f774dccc1ac3eb4e45b77b4c393a4e48",
+  "generatedAt": "2026-11-07T02:42:18.703428+00:00",
+  "commit": "462758d07df1b356fdd8fe95d51a6a69e9c0b7b8",
   "branch": "main",
-  "sourceFingerprint": "92e953e36883fab642896495f8b0f8115ce200591fa3532e50ff919c5bcefc80",
+  "sourceFingerprint": "4ba85c4d6f123d6ddcb232990fad3441763de717e46268a4f7d5edd9c0dcadf3",
   "summary": {
     "files": 1138,
-    "lines": 243391,
-    "symbols": 3345
+    "lines": 243411,
+    "symbols": 3346
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11247,7 +11247,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3310
+        "line": 3312
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11451,19 +11451,19 @@
     "receipts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-        "line": 51
+        "line": 58
       }
     ],
     "repliedByDecisionId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-        "line": 82
+        "line": 90
       }
     ],
     "summarize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-        "line": 112
+        "line": 120
       }
     ],
     "PromptContextBudget": [
@@ -17898,6 +17898,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
         "line": 112
+      }
+    ],
+    "successfulToolWithoutResolvedDeliveryNeverPersistsSuccessReceipt": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
+        "line": 128
       }
     ],
     "PromptContextPolicyTest": [
@@ -29512,8 +29518,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3377,
-      "sha256": "ffb52c9743afc0f39db0d0e050fd9969595e8b024315d7d48d19fe1918798a7e",
+      "lines": 3379,
+      "sha256": "24fa5f26083f817644b8304438d4a2eed4a115014adb51f5e97e7edd94d103a9",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29545,7 +29551,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3310
+          "line": 3312
         }
       ]
     },
@@ -29682,8 +29688,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt",
-      "lines": 119,
-      "sha256": "316e7efab760912301887c77124dd3a88fe0bcb80daf85a58f34ab90a3c493d5",
+      "lines": 127,
+      "sha256": "d181875134583b258c46441e2ac8bbbe3636965cb1e20eb2f01d375cccb843ab",
       "symbols": [
         {
           "name": "ProactiveSendReceipt",
@@ -29699,15 +29705,15 @@
         },
         {
           "name": "receipts",
-          "line": 51
+          "line": 58
         },
         {
           "name": "repliedByDecisionId",
-          "line": 82
+          "line": 90
         },
         {
           "name": "summarize",
-          "line": 112
+          "line": 120
         }
       ]
     },
@@ -38392,8 +38398,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-      "lines": 128,
-      "sha256": "4b54dea5510530dac3d114fc5d3bbdf6409864cae471a2596b93a8856d32969b",
+      "lines": 138,
+      "sha256": "75e31a0cceaa4f98b00b9b19adb08a6365dfcdbdb410be475cdeb92dc7169160",
       "symbols": [
         {
           "name": "ProactiveSendAttributionTest",
@@ -38418,6 +38424,10 @@
         {
           "name": "nonDeliveredEvidenceAndOtherCharactersCannotProveReply",
           "line": 112
+        },
+        {
+          "name": "successfulToolWithoutResolvedDeliveryNeverPersistsSuccessReceipt",
+          "line": 128
         }
       ]
     },
