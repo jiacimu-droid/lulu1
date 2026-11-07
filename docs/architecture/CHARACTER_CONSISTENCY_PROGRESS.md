@@ -1413,3 +1413,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 生产源码 baad0dba00a895a22c58571b471eef3d2cec1b45 在原候选选择器添加可选动作证据谓词；65defe65af1fe0cb278de407ba188b3e676ce416 让后台主动作回退使用同一 CharacterActionEvidence.supports 规则。保留直接 evidenceId 优先、旧通用调用默认行为及原始时间线，不新增模型调用或状态 Store。
 - 回归 fe4fac14a4ef38803ac6517d5d59abe495c7701c 覆盖先送达主消息后出现无关工具回执、无匹配候选；Roadmap efa7f6babe73acbe72f3ac584612fdb1ffc92a01。尚未运行本地 Gradle，也尚未取得新提交 JVM/APK Actions 成功证据，不能宣称测试已通过。未验真实 ToolRouter→Timeline→Store 持久回执、重启/下一轮召回、同会话同动作并发和真机/真实模型。
 - 下一轮先核包含 fe4fac1 的 JVM/APK 与索引 CI；失败按首条日志修复。再补同会话同类副消息与主消息的精确身份归属入口回归；不能把只按 action 匹配当作已验证主副隔离。P-08a.1g 继续待验。
+
+
+## 2026-11-07 · P-08a.1g.4 显式跨会话 ToolResult 不能冒充当前回执
+
+- 接手 main b4b2a75，读取 AGENTS、CODE_INDEX、Roadmap、人物进度及 AutonomousActionTrace/CharacterActionEvidence/ProactivePerceptionRuntime 与回归。原 newestExecutedEvidence 在有 conversationId 时对 ToolResult 不检查 sessionId：另一会话明确归属的较新工具成功事件可被当作当前会话候选；当主动作也是 tool 时支持谓词可能接受它。与此前已修的 CharacterStatement 跨会话问题不同。
+- 生产修复 [52fc4fb](https://github.com/jiacimu-droid/lulu1/commit/52fc4fb9a05b0dbcb4b976c103b589858a0c2087)：显式标记另一 session 的 ToolResult 不再作为当前会话候选；sessionless 工具回执仍保留，避免误伤合法无会话工具。回归 [4b76293](https://github.com/jiacimu-droid/lulu1/commit/4b7629362d3f54b33edcfc0674f8965f3c4cf9b1) 覆盖跨会话拒绝、同会话接受、无 session 保持。
+- 本轮 GitHub 内容 API 已提交，**未运行本地 Gradle，未取得这些新 SHA 的 JVM/APK 成功证据**。这只是候选筛选边界，不是同会话主副同类消息精确身份映射、ToolRouter→Timeline→Store 重启及下一轮召回的端到端验收；真机与真实模型仍未知。下一轮先查后继 push CI，再补同会话主副消息身份映射集成回归。P-08a.1g.3 整体保持未完成。
