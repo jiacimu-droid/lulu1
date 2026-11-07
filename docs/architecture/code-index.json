@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T15:22:43.460196+00:00",
-  "commit": "72b9429b778eca6f47438d0bb562b5900d2fdd62",
+  "generatedAt": "2026-11-07T15:23:49.430929+00:00",
+  "commit": "3c89cb98465c59d6abc1af037cd17c81bb65428e",
   "branch": "main",
-  "sourceFingerprint": "fc466dcc93dc3bf948012bce207634bedbeb30a8e7b452b045beeb95baba1478",
+  "sourceFingerprint": "e70e9ced2872604686ac83d945f0fb3c61cd771dd90ae85475ee017239d38375",
   "summary": {
     "files": 1139,
-    "lines": 244391,
+    "lines": 244418,
     "symbols": 3360
   },
   "symbolIndex": {
@@ -2273,7 +2273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 30
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13683,7 +13683,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 24
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -14111,13 +14111,13 @@
     "satchelCost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 58
+        "line": 66
       }
     ],
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 135
+        "line": 148
       }
     ],
     "namesFor": [
@@ -33198,24 +33198,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 179,
-      "sha256": "3b3d7479a433317585488fd886182157b9cc5f10febe8bf4f6a7117bd87ce25b",
+      "lines": 192,
+      "sha256": "27bae06c54f31fd797642e60f7f9fd3cd4747fcc9fb5d7db8e028aefba51c12b",
       "symbols": [
         {
           "name": "json",
-          "line": 24
+          "line": 26
         },
         {
           "name": "read",
-          "line": 30
+          "line": 33
         },
         {
           "name": "satchelCost",
-          "line": 58
+          "line": 66
         },
         {
           "name": "syncExperiences",
-          "line": 135
+          "line": 148
         }
       ]
     },
@@ -33328,8 +33328,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 761,
-      "sha256": "e059f2c05f7e32bc387489de7754d91240feefb947b9f4e5dd73dbf609006100",
+      "lines": 775,
+      "sha256": "06f4f90be51408e5071887d80a96709dfdf88035c56052d0bf78aaa5700d185f",
       "symbols": [
         {
           "name": "change",
