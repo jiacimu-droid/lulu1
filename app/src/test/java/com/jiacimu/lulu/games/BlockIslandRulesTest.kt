@@ -29,9 +29,75 @@ class BlockIslandRulesTest {
         val crafted=caches.copy(tools=setOf("axe","pickaxe","sword","rod"))
         assertTrue(IslandMilestones.next(crafted).contains("探险 3/3"))
         val bridged=crafted.copy(structures=crafted.structures+(bridge to "bridge"))
-        assertTrue(IslandMilestones.next(bridged).contains("拓荒目标达成"))
+        assertTrue(IslandMilestones.next(bridged).contains("生态收集"))
         val restored=BlockIslandState.fromJson(bridged.toJson())!!
         assertEquals(IslandMilestones.next(bridged),IslandMilestones.next(restored))
+    }
+
+    @Test fun generatedWildlifeIsStableReachableAndDoesNotReplaceBuildingsOnMigration() {
+        val first=BlockIslandRules.newWorld(99,emptyList())
+        val again=BlockIslandRules.newWorld(99,emptyList())
+        assertEquals(first.animals,again.animals)
+        assertEquals(IslandWildlife.species.toSet(),first.animals.map{it.species}.toSet())
+        first.animals.forEach { animal ->
+            assertTrue(BlockIslandRules.isWalkable(first,animal.x,animal.y))
+            assertNotNull(BlockIslandRules.nextStep(first,first.world.x,first.world.y,animal.x,animal.y))
+        }
+        val constructed=first.copy(structures=mapOf(first.world.index(5,5) to "bed"))
+        val oldJson=org.json.JSONObject(constructed.toJson()).apply {
+            remove("animals");remove("discoveredSpecies")
+        }
+        val upgraded=BlockIslandState.fromJson(oldJson.toString())!!
+        assertEquals(constructed.structures,upgraded.structures)
+        assertTrue(upgraded.animals.none {
+            upgraded.world.index(it.x,it.y) in constructed.structures
+        })
+        assertEquals(upgraded.animals,BlockIslandState.fromJson(upgraded.toJson())!!.animals)
+    }
+
+    @Test fun friendshipCostsRealFoodAndGiftsRequireTurnsWithNoRepeatedMint() {
+        val island=BlockIslandRules.newWorld(123,emptyList())
+        val species=listOf("hare" to (1 to 0), "duck" to (0 to 1), "fox" to (0 to 2))
+        for((name,payment) in species) {
+            val animal=island.animals.first{it.species==name}
+            val start=island.copy(
+                world=island.world.copy(x=animal.x,y=animal.y,mobs=emptyList()),
+                fruit=payment.first,fish=payment.second,
+            )
+            val friendship=BlockIslandRules.act(start,"tame",animal.x,animal.y)
+            assertTrue(friendship.animals.first{it.id==animal.id}.befriended)
+            assertEquals(payment.first-if(name=="hare")1 else 0,friendship.fruit)
+            assertEquals(payment.second-if(name=="duck")1 else if(name=="fox")2 else 0,friendship.fish)
+            val noDouble=BlockIslandRules.act(friendship,"tame",animal.x,animal.y)
+            assertEquals(friendship.world.turns,noDouble.world.turns)
+            val current=friendship.animals.first{it.id==animal.id}
+            val due=friendship.copy(
+                world=friendship.world.copy(x=current.x,y=current.y,turns=current.lastGiftTurn+25))
+            val gifted=BlockIslandRules.act(due,"care",current.x,current.y)
+            assertEquals(due.world.turns+1,gifted.world.turns)
+            assertEquals(1,when(name) {
+                "hare"->gifted.fruit-due.fruit
+                "duck"->gifted.fish-due.fish
+                else->(gifted.world.stone-due.world.stone)/2
+            })
+            val giftState=gifted.animals.first{it.id==animal.id}
+            val repeat=BlockIslandRules.act(
+                gifted.copy(world=gifted.world.copy(x=giftState.x,y=giftState.y)),
+                "care",giftState.x,giftState.y)
+            assertEquals(gifted.world.turns,repeat.world.turns)
+            assertEquals(gifted.animals,BlockIslandState.fromJson(gifted.toJson())!!.animals)
+        }
+    }
+
+    @Test fun wildAnimalDoesNotProvideFreeFoodBeforeFriendship() {
+        val island=BlockIslandRules.newWorld(311,emptyList())
+        val animal=island.animals.first()
+        val nearby=island.copy(world=island.world.copy(x=animal.x,y=animal.y,mobs=emptyList()))
+        assertFalse(IslandWildlife.canGift(nearby,animal))
+        val refused=BlockIslandRules.act(nearby,"tame",animal.x,animal.y)
+        assertEquals(nearby.world.turns,refused.world.turns)
+        assertEquals(nearby.fruit,refused.fruit)
+        assertTrue(refused.animals.none{it.befriended})
     }
 
     @Test fun mapIsConnectedAtSpawnAndCreationIsRepeatable() {
