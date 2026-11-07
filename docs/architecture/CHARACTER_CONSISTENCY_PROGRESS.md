@@ -1442,3 +1442,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 实查根因：此新增测试只用 `SharedExperienceTimeline.record(source="message")` 人工制造角色发言，没有往唯一权威 `MigratedDomainStores.chat` 写入 `Sent` 消息。现行 `TimelineStatementOwnership.original` 正确要求会话、原消息 ID、作者、送达状态、内容与时间匹配，故 `CharacterActionEvidence.supports(message)` 必然拒绝这条孤立伪事件；**不是生产送达门禁坏了**，不可放松该门禁或只修改断言。
 - 已直接提交 main [b64f565](https://github.com/jiacimu-droid/lulu1/commit/b64f5655588206bda885ed5d8ac84858b6acdbf6)：集成回归改走现有真实私聊创建/appendCharacterMessage→自动时间线投影→主 ID 选择→InnerLifeStore 决策持久化→summarize；额外断言仅伪造时间线而无聊天送达的行绝不可以冒领。沿用原主/副消息、跨会话、幂等、清理检查；未改生产逻辑和其他测试。
 - **验证边界**：本轮已核对失败日志、真实代码路由、GitHub 文件更新提交；新提交对应的 push Actions 尚未拿到实际成功结果（GitHub commit status / PR-run 查询为空，不可推断未触发），没有运行本地 Gradle/APK 或真机。#806 与 P-08a.1g.3 须待新 JVM/APK success、真机以及实际执行器/跨重启/下一轮召回验收再考虑完成。
+
+## 2026-11-08 · P-08a.1g.3 CI 复核与部分送达回归补强
+
+- 核实 b64f565 的 [Lulu APK/JVM #42399152640](https://github.com/jiacimu-droid/lulu1/actions/runs/42399152640) completed/success，含 Test and build phone APK、上传与发布步骤成功；索引 [#42399152677](https://github.com/jiacimu-droid/lulu1/actions/runs/42399152677) success。后续 2b0debd 的 [#42403163778](https://github.com/jiacimu-droid/lulu1/actions/runs/42403163778) 也 success，涵盖此前测试修正；此前 9f6f1b2 的 2531 tests / 1 failed 已被后继修正与成功 CI 取代。
+- 新增 Robolectric 集成回归 [1cca29a](https://github.com/jiacimu-droid/lulu1/commit/1cca29a354f84ba18eb2b7310bc9403a68287ffc)：在真实 ChatStore→Timeline→InnerLifeStore 路径检查部分主送达 ID（先无效后有效）仍能找到实际主消息，以及只有副发送而没有主送达 ID 时不产生主成功回执。没有改生产语义或人物设定。
+- **未验**：1cca29a 新增断言尚无本 SHA 的 JVM/APK 结果；没有真正运行 ToolRouter/CompanionActionRuntime 的失败与部分执行，没有跨进程重启、下一轮角色模型召回或真机验收。下一轮先核新 CI 首错；继续补实际执行器与重启边界，P-08a.1g.3 保持未完成。
