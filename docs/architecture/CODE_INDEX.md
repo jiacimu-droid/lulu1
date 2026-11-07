@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`66ab1fe72d9185c7d948773554f1d844488b9813`
+- 基准提交：`e1a40494a849787292d90af2a8f813ac8ecad4fa`
 - 分支：`main`
 - 已索引文件：1142
-- 已索引代码/文本行：245503
+- 已索引代码/文本行：245519
 - 已发现符号：3368
 
 | 文件 | 行数 | 符号数 |
@@ -1118,7 +1118,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 178 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 440 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 456 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
