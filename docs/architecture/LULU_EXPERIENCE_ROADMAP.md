@@ -238,3 +238,5 @@
 ### P-08a.1g 成功发送但缺少真实送达事件 ID（2026-11-07）
 - [x] **P-08a.1g 正式源码门禁已提交（CI 待验）**：`ProactivePerceptionRuntime` 在 primarySuccess 为真、但 `CharacterActionEvidence` 未解析出真实送达事件 ID 时，旧路径仍记录 `proactive-send:` 成功回执；06420830 仅允许非空权威送达锚写入该回执。已有读取层空来源负例，但不能冒充本次生产入口回归。前轮 ae28fa76 对应 APK/JVM 42313244834 和索引 42313244835 均 success，不代表本轮。
 - [ ] **P-08a.1g JVM/APK 与入口回归**：核本轮 Actions，补真实发送成功但缺失锚、成功且存在锚两种生产入口持久化测试；继续重启、电话静默与下轮召回验证。真机/真实模型未知。
+
+- [x] **P-08a.1g.2 同角色跨会话候选隔离源码/回归已提交（CI 待验）**：5164725 修复 AutonomousActionTrace 在传入 conversationId 时仍因本人 speaker 匹配而接纳其他会话 CharacterStatement 的回退缺口；fce539f 新增跨会话拒绝/同会话接受回归。此项仅证明已提交，不代表 JVM/APK 通过。真实入口同会话副动作身份、持久回执、重启与后续召回仍待验，见人物进度最新记录。
