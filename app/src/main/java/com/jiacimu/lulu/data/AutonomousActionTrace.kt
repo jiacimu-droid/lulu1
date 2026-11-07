@@ -20,8 +20,9 @@ internal object AutonomousActionTrace {
         previousIds: Set<String>,
         displayName: String,
         conversationId: String? = null,
+        supportsAction: (SharedTimelineEvent) -> Boolean = { true },
     ): String = events.asReversed().firstOrNull { event ->
-        event.id !in previousIds && event.channel != "在线感知" && (
+        event.id !in previousIds && event.channel != "在线感知" && supportsAction(event) && (
             event.evidenceKind == EventEvidenceKind.ToolResult ||
                 (event.evidenceKind == EventEvidenceKind.CharacterStatement &&
                     // In a known session, ownership is anchored by the scoped timeline
