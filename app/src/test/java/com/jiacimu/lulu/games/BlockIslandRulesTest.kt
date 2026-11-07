@@ -121,6 +121,50 @@ class BlockIslandRulesTest {
         assertEquals(occupied.animals,stored.animals)
     }
 
+    @Test fun builtPetHomeAndLanternAreRealDecorWithPersistentProgress() {
+        val old=BlockIslandRules.newWorld(218,emptyList()).let{base->
+            base.copy(world=base.world.copy(wood=20,stone=20,mobs=emptyList()))
+        }
+        assertTrue(BlockIslandRules.canBuild(old,"pet_house",5,5))
+        val home=BlockIslandRules.act(old,"pet_house",5,5)
+        assertEquals("pet_house",home.structures[home.world.index(5,5)])
+        assertEquals(old.world.wood-4,home.world.wood)
+        assertEquals(old.world.stone-2,home.world.stone)
+        assertFalse(BlockIslandRules.isWalkable(home,5,5))
+        assertTrue(BlockIslandRules.canBuild(home,"lantern",3,5))
+        val lit=BlockIslandRules.act(home,"lantern",3,5)
+        assertEquals("lantern",lit.structures[lit.world.index(3,5)])
+        assertEquals(home.world.wood-2,lit.world.wood)
+        assertEquals(home.world.stone-1,lit.world.stone)
+        val saved=BlockIslandState.fromJson(lit.toJson())!!
+        assertEquals(lit.structures,saved.structures)
+        val oldPet=lit.animals.first().copy(
+            x=6,y=5,befriended=true,lastGiftTurn=0)
+        val due=lit.copy(animals=listOf(oldPet),
+            world=lit.world.copy(turns=20))
+        assertTrue(IslandWildlife.hasNearbyHome(due,oldPet))
+        assertTrue(IslandWildlife.canGift(due,oldPet))
+        assertFalse(IslandWildlife.canGift(due.copy(
+            structures=due.structures.filterValues{it!="pet_house"}),oldPet))
+        val rebuilt=BlockIslandRules.act(lit,"pet_house",5,5)
+        assertEquals(lit.world.turns,rebuilt.world.turns)
+        val removed=BlockIslandRules.act(lit,"remove",5,5)
+        assertFalse("pet_house" in removed.structures.values)
+        assertEquals(lit.world.wood+2,removed.world.wood)
+    }
+
+    @Test fun walkingAndPathfindingRespectAnimalOccupiedCell() {
+        val base=BlockIslandRules.newWorld(219,emptyList())
+        val neighbor=5 to 5
+        val wildlife=base.copy(animals=listOf(base.animals.first().copy(
+            x=neighbor.first,y=neighbor.second)))
+        val refused=BlockIslandRules.act(wildlife,"move",neighbor.first,neighbor.second)
+        assertEquals(wildlife.world.turns,refused.world.turns)
+        val step=BlockIslandRules.nextStep(wildlife,wildlife.world.x,wildlife.world.y,
+            neighbor.first,neighbor.second)
+        assertTrue(step==null || step!=neighbor)
+    }
+
     @Test fun mapIsConnectedAtSpawnAndCreationIsRepeatable() {
         val a = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
         val b = BlockIslandRules.newWorld(101, listOf("roleA", "roleB"))
