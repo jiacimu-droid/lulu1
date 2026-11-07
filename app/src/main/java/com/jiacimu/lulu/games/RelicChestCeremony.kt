@@ -108,18 +108,10 @@ internal fun RelicChestCeremony(
                     if (reveal > 0f) {
                         val jewelCenter = center + Offset(0f, -scale * (.27f + reveal * .30f))
                         val radius = scale * (.11f + reveal * .14f)
-                        val gem = Path().apply {
-                            moveTo(jewelCenter.x, jewelCenter.y - radius * 1.25f)
-                            lineTo(jewelCenter.x + radius, jewelCenter.y)
-                            lineTo(jewelCenter.x, jewelCenter.y + radius * 1.24f)
-                            lineTo(jewelCenter.x - radius, jewelCenter.y)
-                            close()
+                        with(RelicTreasureArt) {
+                            drawTreasure(receipt.loot.name,jewelCenter,radius*2f,
+                                tint,reveal)
                         }
-                        drawPath(gem, tint.copy(alpha = reveal))
-                        drawLine(Color.White.copy(alpha = reveal * .8f),
-                            jewelCenter + Offset(-radius * .5f, -radius * .11f),
-                            jewelCenter + Offset(0f, -radius * .85f),
-                            strokeWidth = scale * .025f)
                         for (i in 0 until 12) {
                             val a = (i * 6.2831853f / 12f)
                             val distance = radius * (1.5f + reveal * 1.5f)
