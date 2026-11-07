@@ -91,6 +91,28 @@ class RelicEscapeRulesTest {
         assertTrue(dropped.drops.any { it.loot == fallen.loot })
     }
 
+    @Test fun chestCeremonyUsesNewPhysicalCopyNotAnOldIdenticalLoot() {
+        val generated=RelicEscapeWorld.create(613,2,emptyList(),0,1)
+        val chest=generated.chests.first()
+        val expected=RelicEscapeRules.treasure(generated,chest)
+        val oldBag=(0 until 7).map {
+            RelicLoot("older-"+it,"旧王银币",RelicTier.COMMON,70)
+        } + expected
+        val prepared=RelicEscapeRules.reveal(generated.copy(
+            hero=generated.hero.copy(x=chest.x,y=chest.y,bag=oldBag),
+            mobs=emptyList(),sites=emptyList()))
+        val opened=RelicEscapeRules.act(prepared,"open",chest.x,chest.y)
+        val receipt=RelicChestPresentation.committed(prepared,opened,chest.id)
+        assertNotNull(receipt)
+        assertFalse("New reward is on ground even if an old identical item is in bag",
+            receipt!!.inBag)
+        assertEquals(oldBag,opened.hero.bag)
+        assertTrue(opened.drops.any { it.loot==expected })
+        val forged=opened.copy(drops=prepared.drops)
+        assertNull("Old inventory alone must not trigger a ceremony",
+            RelicChestPresentation.committed(prepared,forged,chest.id))
+    }
+
     @Test fun everyTreasureHasOriginalDistinctArtSharedByChestAndMuseum() {
         assertEquals("No blank generic icons for new collectibles",
             RelicCollectibles.names.toSet(),RelicTreasureArt.catalogKinds.keys)

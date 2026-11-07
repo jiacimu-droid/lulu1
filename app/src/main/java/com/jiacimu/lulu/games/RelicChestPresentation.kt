@@ -20,10 +20,16 @@ internal object RelicChestPresentation {
         if (after.events.none { it.who == "player" && it.action == "open" &&
                 it.turn == before.turns }) return null
         val expected = RelicEscapeRules.treasure(before, unopened)
-        val inBag = after.hero.bag.any { it == expected }
-        val onGround = after.drops.any { it.loot == expected &&
-            it.x == unopened.x && it.y == unopened.y }
-        if (!inBag && !onGround) return null
-        return RelicChestReceipt(before.id, chestId, expected, inBag)
+        // A previously owned identical item is not evidence of this opening.
+        // Compare the before/after physical inventories; the ceremony cannot
+        // claim "in bag" when the new copy actually fell to the floor.
+        val bagGain = after.hero.bag.count { it == expected } -
+            before.hero.bag.count { it == expected }
+        val groundGain = after.drops.count { it.loot == expected &&
+            it.x == unopened.x && it.y == unopened.y } -
+            before.drops.count { it.loot == expected &&
+                it.x == unopened.x && it.y == unopened.y }
+        if (bagGain <= 0 && groundGain <= 0) return null
+        return RelicChestReceipt(before.id, chestId, expected, bagGain > 0)
     }
 }
