@@ -114,7 +114,7 @@ internal object IslandWildlife {
                     w.inBounds(x, y) && w.cell(x, y) == 0 &&
                         w.index(x, y) !in state.structures &&
                         !IslandSupplyCaches.available(state, x, y) &&
-                        x to y !in occupied &&
+                        (x to y) !in occupied &&
                         (w.x != x || w.y != y) &&
                         w.friends.none { it.x == x && it.y == y } &&
                         w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
