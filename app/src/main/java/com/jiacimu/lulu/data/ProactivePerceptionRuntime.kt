@@ -2365,6 +2365,7 @@ object ProactivePerceptionRuntime {
             val fallback = AutonomousActionTrace.newestExecutedEvidence(
                 SharedExperienceTimeline.all(characterId), priorEvidence,
                 character.displayName, execution.conversationId,
+                supportsAction = { CharacterActionEvidence.supports(it, decision.action.name.lowercase()) },
             )
             sequenceOf(execution.evidenceId, fallback).filter(String::isNotBlank)
                 .mapNotNull { CharacterActionEvidence.resolve(characterId, it) }
