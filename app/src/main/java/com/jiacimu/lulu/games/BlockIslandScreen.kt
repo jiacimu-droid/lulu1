@@ -356,7 +356,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     "building" -> "正在盖"; "paused" -> "暂时停工"
                     "complete" -> "小屋完成"; else -> "正在拆"
                 }
-                Text("⌂ "+owner+" "+progress+" · "+project.placed.size+"/9",
+                Text("⌂ "+owner+" "+progress+" "+IslandHouseProjects.styleName(project.style)+
+                    " · "+project.placed.size+"/9",
                     color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
@@ -530,7 +531,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         "building" -> "施工中"; "paused" -> "暂停中"
                         "complete" -> "已完成"; else -> "拆除中"
                     }
-                    Text("⌂ "+owner+"的小屋 · "+phase, color = Color.White,
+                    Text("⌂ "+owner+"的"+IslandHouseProjects.styleName(project.style)+" · "+phase,
+                        color = Color.White,
                         fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Text("进度 "+project.placed.size+"/9 · 位置("+
                         project.left+","+project.top+") · 每个真实回合施工一步",
@@ -538,7 +540,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     LinearProgressIndicator(progress = { project.placed.size/9f },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))
-                    Text("想改变计划？在队伍聊天里直接告诉角色，由他决定暂停、继续或拆除。",
+                    Text("房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
                         color = Color(0xFFB5D5CD), fontSize = 11.sp)
                 }
             }
