@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2f66011ea0f9b6776f516bb6e06a6d1e746f5a6c`
+- 基准提交：`eebf4027891e617b4e231555323dfa772e02d464`
 - 分支：`main`
 - 已索引文件：1141
-- 已索引代码/文本行：245109
+- 已索引代码/文本行：245164
 - 已发现符号：3363
 
 | 文件 | 行数 | 符号数 |
@@ -312,7 +312,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 79 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 161 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 216 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 147 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 180 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 408 | 6 |
