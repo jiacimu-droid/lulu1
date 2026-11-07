@@ -1390,3 +1390,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 刷新 main、AGENTS、CODE_INDEX、Roadmap、人物进度及 ProactivePerceptionRuntime/ProactiveSendAttribution 正式代码与测试；确认 06420830 已有非空送达锚门禁，不重复改业务规则。对应 push APK/JVM [42319463747](https://github.com/jiacimu-droid/lulu1/actions/runs/42319463747) completed/success。
 - 为避免只测读取过滤而遗漏写入门禁，将现有布尔机制抽为可测试的 `ProactiveSendAttribution.shouldPersistDeliveredSend`（63308f8），正式写入调用同一函数（e2bf9dd），新增四种门禁回归（c0601ed）：成功无锚不得写、失败有锚不得写、非私聊有锚不得写、成功且有锚可写。没有新增模型调用、修改人设或清空历史。
 - **验收边界**：这是生产门禁的单元级回归，不是实际执行器与持久 Store 的入口集成；本轮提交的 JVM/APK/索引尚需后继 Actions 证明，真机、重启、电话静默观察和下一轮召回仍未知。下一轮先核新 CI，若失败按第一错误修；再补真正 ToolRouter→Timeline→Store 的写入集成，避免将纯函数测试当作全链验收。
+
+
+## 2026-11-07 · P-08a.1g.2 后台送达候选的会话隔离
+
+- 复核四份必读文档及 AutonomousActionTrace、CharacterActionEvidence、ProactivePerceptionRuntime 和现有回归。确认 `newestExecutedEvidence` 在传入 conversationId 时仍因 `speaker == "角色"` 直接接受另一私聊会话的同角色 CharacterStatement，可能在主动作无直接证据时被当作当前会话的送达候选。此前同轮主副动作归属风险仍未全部排除。
+- 正式源码 [5164725](https://github.com/jiacimu-droid/lulu1/commit/5164725b8ac75240654ca764ac7edeaa174a22ac) 将本人 speaker 校验与会话 ID 校验同时要求；无 conversationId 的既有其他动作回退保持原样。回归 [fce539f](https://github.com/jiacimu-droid/lulu1/commit/fce539f49e7bbcf5e59e6fbc8ccdd10b54204436) 新增同角色跨会话拒绝与同会话接受。未更改人设、历史、收费模型调用。
+- 本轮仅取得 GitHub 提交证据；JVM/APK、真实 ToolRouter→Timeline→Store、重启与下一轮召回未验，不能标记完整入口通过。下一轮核新 Actions；继续检查同会话并行副动作的送达身份，补真实入口持久回执测试。固定 P-08a.1g 仍待集成验收。
