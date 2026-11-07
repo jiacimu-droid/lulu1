@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-07T17:01:05.910002+00:00",
-  "commit": "1f3afd29687321c6c7010a832af224deb50287fb",
+  "generatedAt": "2026-11-07T17:02:36.299938+00:00",
+  "commit": "7cae2aba76d7a9b663d97183f4e80852ccf45f32",
   "branch": "main",
-  "sourceFingerprint": "9265585c7984b71fc8d935e4bc0a17e0bf0db527c9f84b4b0bbacbd9f04d9a90",
+  "sourceFingerprint": "3833d9293e523585eaa4ca755c1130242b351b5ca29816933efb5a4a8c1e0418",
   "summary": {
     "files": 1141,
-    "lines": 244788,
+    "lines": 244824,
     "symbols": 3362
   },
   "symbolIndex": {
@@ -237,7 +237,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 101
+        "line": 118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -2135,7 +2135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 55
+        "line": 64
       }
     ],
     "prepare": [
@@ -4721,7 +4721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 125
+        "line": 142
       }
     ],
     "watchedThrough": [
@@ -4781,7 +4781,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 12
+        "line": 16
       }
     ],
     "stamp": [
@@ -13679,7 +13679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 7
+        "line": 11
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
@@ -13759,7 +13759,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 35
+        "line": 44
       }
     ],
     "stopAll": [
@@ -14105,13 +14105,13 @@
     "target": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 26
+        "line": 32
       }
     ],
     "moveStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 108
+        "line": 125
       }
     ],
     "satchelCost": [
@@ -33169,40 +33169,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 184,
-      "sha256": "c9a77790f2094f348a0b2252874c73ae75d7fd2372c5aaaf0a4ac25bada865c0",
+      "lines": 220,
+      "sha256": "1bb8b495a9a8620bc93a447df65e3bf26bb707535f4658721ba803b9cb6e32e4",
       "symbols": [
         {
           "name": "json",
-          "line": 7
+          "line": 11
         },
         {
           "name": "restore",
-          "line": 12
+          "line": 16
         },
         {
           "name": "target",
-          "line": 26
+          "line": 32
         },
         {
           "name": "afterChoice",
-          "line": 35
+          "line": 44
         },
         {
           "name": "choose",
-          "line": 55
+          "line": 64
         },
         {
           "name": "cancel",
-          "line": 101
+          "line": 118
         },
         {
           "name": "moveStep",
-          "line": 108
+          "line": 125
         },
         {
           "name": "advance",
-          "line": 125
+          "line": 142
         }
       ]
     },
