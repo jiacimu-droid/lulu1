@@ -251,10 +251,10 @@ internal fun RelicEscapeWorldMap(
                         drawLine(Color(0xFF4B3430),
                             lidTop+Offset(t*.08f,t*.14f),
                             lidTop+Offset(t*.60f,t*.14f),strokeWidth=t*.025f)
-                        for (rivetX in listOf(.10f,.59f)) {
-                            drawCircle(Color(0xFFF5D18C),t*.023f,
-                                lidTop+Offset(t*rivetX,t*.082f))
-                        }
+                        drawCircle(Color(0xFFF5D18C),t*.023f,
+                            lidTop+Offset(t*.10f,t*.082f))
+                        drawCircle(Color(0xFFF5D18C),t*.023f,
+                            lidTop+Offset(t*.59f,t*.082f))
                         // The latch remains attached to the lid as it opens.
                         drawRoundRect(Color(0xFFE4B86D),
                             lidTop+Offset(t*.305f,t*.105f),
