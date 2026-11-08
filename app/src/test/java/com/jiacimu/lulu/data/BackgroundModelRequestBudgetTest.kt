@@ -18,65 +18,44 @@ class BackgroundModelRequestBudgetTest {
     }
 
     private val now = Instant.parse("2026-11-08T12:00:00Z")
-    private val role = "budget-test"
 
-    @Test fun userChatAndPrimaryPerceptionDoNotConsumeBackgroundBudget() {
+    @Test fun userChatAndPrimaryPerceptionNeverHaveABackgroundQuota() {
         val ctx = fresh()
-        repeat(40) {
-            assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-                "后台主动感知", "本人真正的决定", now))
-            assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-                "电话回复", "本人接电话", now))
+        repeat(100) {
+            assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+                "后台主动感知", "本人决定", now, evidence = "turn:$it"))
         }
-        assertTrue(BackgroundModelRequestBudget.allowed(ctx, role,
-            "记忆", "连续记忆提取", now))
     }
 
-    @Test fun repeatedFailuresAreChargedAtMostFourBatchMemoryHandoffsAndNeverResetOnReload() {
+    @Test fun oneHundredDifferentOwnerEvidencePayloadsAreNeverDroppedByDailyLimit() {
         val ctx = fresh()
-        repeat(4) {
-            assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-                "记忆", "连续记忆提取", now))
+        repeat(100) { index ->
+            assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+                "记忆", "重要信息即时记忆", now,
+                evidence = "owner-message-id:$index"))
         }
-        assertFalse(BackgroundModelRequestBudget.allowed(ctx, role,
-            "记忆", "连续记忆提取", now))
-        assertFalse(BackgroundModelRequestBudget.claim(ctx.applicationContext, role,
-            "记忆", "连续记忆提取", now.plusSeconds(60)))
-        // An immediate important user fact retains a separate bounded lane.
-        assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "记忆", "重要信息即时记忆", now.plusSeconds(61)))
     }
 
-    @Test fun allHousekeepingCategoriesShareEightPaidAttemptsPerRoleAndDay() {
+    @Test fun exactSameEvidenceRetryIsDelayedEvenAfterRepositoryReload() {
         val ctx = fresh()
-        repeat(3) { assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "记忆", "重要信息即时记忆", now)) }
-        repeat(4) { assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "记忆", "连续记忆提取", now)) }
-        assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "增量成长反思", "角色成长", now))
-        assertFalse(BackgroundModelRequestBudget.claim(ctx, role,
-            "生活记录", "生活近况提取", now))
-        assertFalse(BackgroundModelRequestBudget.claim(ctx, role,
-            "承诺任务", "承诺任务提取", now))
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "记忆", "连续记忆提取", now, evidence = "original-event:42"))
+        assertFalse(BackgroundModelRequestBudget.claim(ctx.applicationContext, "jiangdu",
+            "记忆", "连续记忆提取", now.plusSeconds(2), evidence = "original-event:42"))
+        val later = now.plusMillis(BackgroundModelRequestBudget.SAME_EVIDENCE_RETRY_MS)
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "记忆", "连续记忆提取", later, evidence = "original-event:42"))
     }
 
-    @Test fun localMidnightRenewsAllowanceWithoutClearingOldMessages() {
+    @Test fun distinctTurnsAndRolesDoNotBlockEachOther() {
         val ctx = fresh()
-        repeat(4) { assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "记忆", "连续记忆提取", now)) }
-        val next = BackgroundModelRequestBudget.nextDay(now).plusSeconds(60)
-        assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "记忆", "连续记忆提取", next))
-    }
-
-    @Test fun roleBudgetsAreIndependent() {
-        val ctx = fresh()
-        repeat(2) { assertTrue(BackgroundModelRequestBudget.claim(ctx, role,
-            "承诺任务", "承诺任务提取", now)) }
-        assertFalse(BackgroundModelRequestBudget.allowed(ctx, role,
-            "承诺任务", "承诺任务提取", now))
-        assertTrue(BackgroundModelRequestBudget.claim(ctx, "another-person",
-            "承诺任务", "承诺任务提取", now))
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "生活记录", "生活近况整理", now, evidence = "one-exact-turn"))
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "生活记录", "生活近况整理", now, evidence = "another-exact-turn"))
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "resident:a",
+            "生活记录", "生活近况整理", now, evidence = "one-exact-turn"))
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "承诺任务", "承诺任务提取", now, evidence = "one-exact-turn"))
     }
 }
