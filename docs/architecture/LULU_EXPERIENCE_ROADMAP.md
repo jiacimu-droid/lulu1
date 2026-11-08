@@ -67,6 +67,8 @@
 | 19 G-04 | 待真机/真实模型 | G-04.1 邀请→加入→结算回执 | 自主邀约不伪造玩家响应 |
 | 20 V-01 | 待真机/测量 | V-01.1 长句动作和音频时间线 | 口型、居中、回正和中断自然 |
 
+**2026-11-09 S-02.1 接力**：`608fbfd` 的 [APK/JVM #42521395829](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395829) 为 2591 tests / 1 failed；四居民预算新增测试 PASSED，唯一失败为 `OnlineChatExperienceTest.interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending`（expected 12000 but null）。根因是夹具用被动 `next` 假装正在读取期间新用户气泡，正式 `next` 按契约保留原 revision；`77aca0e` 已将该测试改为真实 `onUserBubble`，后继 JVM/APK 与索引待验。索引 [#42521395832](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395832) success。**下一轮固定 S-02.1**：先核 `77aca0e` Actions head SHA，失败修首错；通过后沿 `CompanionModelGateway`/`LocalPerformanceRepository` 补 MockWebServer HTTP handoff 失败重试计数。不得把请求尝试等同计费。
+
 ## 三、逐项施工清单
 
 
