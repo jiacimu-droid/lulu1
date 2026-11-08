@@ -1546,3 +1546,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 根因：测试在旧读取仍 claimed 时用 `OnlineChatBatchStore.next` 代表新消息，正式实现正确保留旧 revision；只有真正 `onUserBubble` 才会新建 revision。修复测试提交 [`77aca0e`](https://github.com/jiacimu-droid/lulu1/commit/77aca0ed802d7ebd40bbaefd2f7cd8532592b10e) 将假输入改为真实用户气泡事件；未改生产代码、预算、人物或历史。
 - 同时核 `bf111c58` 的 [APK #42516202886](https://github.com/jiacimu-droid/lulu1/actions/runs/42516202886) 为 Kotlin compile failure，不能当作 P-08c.2 通过；该方向待后续专门处理。
 - **未验**：`77aca0e` 新 SHA 的 JVM/APK、索引与真机；未做中转站账单归因。下轮 S-02.1 先核 `77aca0e` 后继 Actions，再补真实 HTTP handoff 失败/重试 MockWebServer 回归，不能把请求尝试等同成功或计费。
+
+## 2026-11-09 · S-02.1 中转站 503 单次真实 POST 回归
+
+- 测试提交 [`8d8389a30f9241d8a72f43ed5eb3932505d2cdd3`](https://github.com/jiacimu-droid/lulu1/commit/8d8389a30f9241d8a72f43ed5eb3932505d2cdd3)：仅 `ModelPostTransportTest.kt` 新增 `ambiguous503DoesNotRetryOrCountAsSuccessfulGeneration`，MockWebServer 首次返回 503、预排第二响应；断言第一响应状态/错误正文保持、实际只收到一个 POST，body 未被更改。现有 401、连接前重试、正文送达后断线测试不重复。
+- 正式 `ModelPostTransport` 已关闭 OkHttp 自动失败重试/重定向；本轮没有证实此路径生产缺陷，因此没有凑生产补丁。新测试尚无 JVM/APK CI 成功证据，不能勾工程通过；容器访问 github.com DNS 失败，连接器 commit workflow 仅检索 PR 触发，不能据此推断 main push 无 CI。
+- **下一轮固定 S-02.1**：核 `77aca0e` 和 `8d8389a` 对应 Actions 的 head SHA、build/refresh；然后沿 `CompanionModelGateway.openAiCompatible` 的 stream 400/422 协议回退检查第二次 POST 是否遗漏 `recordModelHandoff` 和背景/居民额度，先写真实 MockWebServer 失败复现，再修改生产代码。未读取中转站账单，400 次费用无法精确归因；尝试、成功、计费分开。
