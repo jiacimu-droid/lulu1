@@ -267,6 +267,21 @@ class ProactiveSendAttributionTest {
             assertEquals(0, persisted.replied)
             assertEquals(1, persisted.unanswered)
             assertFalse(persisted.receipts.any { it.causalEvidenceId == sideId })
+
+            // Exercise the canonical chat mutation path rather than injecting
+            // a synthetic validity predicate. A real reply counts only while
+            // its original sent row remains valid.
+            val reply = chat.sendUserMessage(conversation, "我收到啦")
+            assertEquals(1, ProactiveSendAttribution.summarize(role).replied)
+            assertTrue(chat.editMessage(reply.id, "这条回复后来被修改"))
+            assertEquals(0, ProactiveSendAttribution.summarize(role).replied)
+            assertTrue(chat.deleteMessage(reply.id))
+            assertEquals(0, ProactiveSendAttribution.summarize(role).replied)
+            // The original delivery is no longer proof after a canonical
+            // edit, even if a stale projection survives elsewhere.
+            assertTrue(chat.editMessage(primaryId, "已修改的角色消息"))
+            assertEquals(0, ProactiveSendAttribution.summarize(role).attributable)
+
         } finally {
             chat.deleteConversation(conversation)
             CharacterInnerLifeStore.clear(role)
