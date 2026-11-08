@@ -37,6 +37,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.ZoneId
@@ -232,6 +234,21 @@ fun QqStyleChatDetailScreen(
 
     // Keep draft writes in the composer snapshot: editing must not invalidate the entire chat screen.
     val inputState = rememberSaveable(conversationId) { mutableStateOf("") }
+    // Slow owner typing is not another role decision. Sample the draft off
+    // the composition path (at most ~1 lightweight, local update/second)
+    // so the real last-keystroke silence can extend the existing eight-second
+    // message batch. No API call and no storage write if no turn is pending.
+    LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible) {
+        if (groupChat == null && routeVisible) {
+            snapshotFlow { inputState.value }
+                .sample(900L)
+                .collect { draft ->
+                    if (draft.isNotBlank()) {
+                        OnlineChatBatchStore.onComposerEdit(context, characterId)
+                    }
+                }
+        }
+    }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
     var replyingToId by rememberSaveable(conversationId) { mutableStateOf<String?>(null) }
     val replyingTo = replyingToId?.let(messageById::get)
