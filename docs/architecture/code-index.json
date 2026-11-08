@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:33:08.773127+00:00",
-  "commit": "2b206ea46fd595a05d962c0d245ef05c90006f36",
+  "generatedAt": "2026-11-08T16:34:04.059752+00:00",
+  "commit": "3e3a6f120fd8cc5058401206e455dea7100f0d37",
   "branch": "main",
-  "sourceFingerprint": "7c173ffce7b68f73fd6cb21056f4b99f0ef82e399d433cd646516da530a6ba04",
+  "sourceFingerprint": "6783080753183ae225e291cb9b60ce06459dd9dee59cc39e66786cb6017a4df1",
   "summary": {
     "files": 1148,
-    "lines": 247056,
+    "lines": 247095,
     "symbols": 3386
   },
   "symbolIndex": {
@@ -10815,43 +10815,43 @@
     "bubbleDeliveryModes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 171
+        "line": 228
       }
     ],
     "bubbleSpeechTracks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 183
+        "line": 234
       }
     ],
     "voiceBubbleTexts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 196
+        "line": 240
       }
     ],
     "authoredReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 211
+        "line": 252
       }
     ],
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 227
+        "line": 264
       }
     ],
     "replyBubblesWithPartialState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 261
+        "line": 289
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 305
+        "line": 329
       }
     ],
     "MomentFriendAccess": [
@@ -29266,8 +29266,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 322,
-      "sha256": "edfce9a0bbaf984288d0088b989c98c275eb63a26438276eb880df3ab85e7b06",
+      "lines": 346,
+      "sha256": "15351962b2c2cb5d71aa14f0deafe599da5fb171a1837e5f2af2f27000363782",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -29287,31 +29287,31 @@
         },
         {
           "name": "bubbleDeliveryModes",
-          "line": 171
+          "line": 228
         },
         {
           "name": "bubbleSpeechTracks",
-          "line": 183
+          "line": 234
         },
         {
           "name": "voiceBubbleTexts",
-          "line": 196
+          "line": 240
         },
         {
           "name": "authoredReplyBubbles",
-          "line": 211
+          "line": 252
         },
         {
           "name": "completedReplyBubbles",
-          "line": 227
+          "line": 264
         },
         {
           "name": "replyBubblesWithPartialState",
-          "line": 261
+          "line": 289
         },
         {
           "name": "completedReplyText",
-          "line": 305
+          "line": 329
         }
       ]
     },
@@ -34626,7 +34626,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2202,
-      "sha256": "dc446171c57c51099e9bebd5dd4d1633cecd37523bf67706a315255a8eb6f34b",
+      "sha256": "17be01bcf26010165f5a428586b04ac4187fdca400d1a4261b8616a3b42571fc",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -38290,8 +38290,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt",
-      "lines": 202,
-      "sha256": "b646b95c2b78ccbc0e7d1ebaf9ed6816a2f495288151a76883993f536c53439c",
+      "lines": 217,
+      "sha256": "d7dd02d6eabbe5b2a381f673fdc26c48275cc65325988764fa1b8d9e57875a74",
       "symbols": [
         {
           "name": "MemoryLifecycleIntegrationTest",
