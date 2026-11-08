@@ -2126,7 +2126,7 @@ internal object ResidentDailyDecision {
             // Leave the real unread event for the next authorized daily
             // decision instead of logging a zero-duration gateway rejection.
             if (saved == null &&
-                !ResidentDailyPolicy.hasModelRequestAllowance(app, characterId, now))
+                !ResidentDailyPolicy.hasOptionalResidentWakeAllowance(app, characterId, now))
                 return@withLock false
             val pending = ResidentSocialMailbox.pendingIncoming(characterId)
             val unread = CharacterPhoneInbox.unreadMoments(characterId)
