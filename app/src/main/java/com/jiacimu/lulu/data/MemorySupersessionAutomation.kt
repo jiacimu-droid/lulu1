@@ -136,6 +136,8 @@ internal object MemorySupersessionAutomation {
         // No memory-specific connection means no paid fact-comparison call.
         // In particular, null must not silently fall through to the chat model.
         val extraction = MemoryModelRuntime.extractionConnection() ?: return false
+        if (appContext?.let { BackgroundModelRequestBudget.allowed(it, characterId,
+                "记忆有效性", "事实替代判断") } != true) return false
         val storage = prefs ?: return false
         val now = Instant.now()
         val residentContext = appContext
