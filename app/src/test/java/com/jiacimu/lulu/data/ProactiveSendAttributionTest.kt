@@ -182,6 +182,34 @@ class ProactiveSendAttributionTest {
     }
 
 
+
+    @Test
+    fun canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive() {
+        // A second store instance must decode the on-disk chat authority, not
+        // reuse the first instance's StateFlow. This is a storage reload test,
+        // not a claim of full process-death or ToolRouter recovery.
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val first = InMemoryLuluChatStore()
+        first.initialize(context)
+        val role = "reload-evidence-" + java.util.UUID.randomUUID()
+        val conversation = first.ensureConversation(role, "送达重载").id
+        try {
+            val delivered = first.appendCharacterMessage(conversation, "确实发送", role)
+            val reply = first.sendUserMessage(conversation, "我看到了")
+            first.markFailed(reply.id)
+
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(context)
+            val rows = reopened.messages(conversation).value
+            assertEquals(LuluChatMessage.Status.Sent, rows.single { it.id == delivered.id }.status)
+            assertEquals(role, rows.single { it.id == delivered.id }.authorCharacterId)
+            assertEquals(LuluChatMessage.Status.Failed, rows.single { it.id == reply.id }.status)
+            assertEquals(LuluChatMessage.Sender.User, rows.single { it.id == reply.id }.sender)
+        } finally {
+            first.deleteConversation(conversation)
+        }
+    }
+
     @Test
     fun persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery() {
         // Exercise the actual timeline and inner-life persistence, not only a
