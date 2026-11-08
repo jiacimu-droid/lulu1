@@ -61,9 +61,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(false)}
     var showAlbum by remember{mutableStateOf(false)}
-    var openingReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
-    // Persist the committed loot result after the presentation overlay is dismissed.
-    var lastChestReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
+    var chestHud by remember(run?.id){mutableStateOf(RelicChestHudState())}
+    val openingReceipt = chestHud.opening
+    val lastChestReceipt = chestHud.lastCommitted
     val openingClock = remember(run?.id) { androidx.compose.animation.core.Animatable(0f) }
     LaunchedEffect(openingReceipt?.runId, openingReceipt?.chestId) {
         if (openingReceipt == null) { openingClock.snapTo(0f); return@LaunchedEffect }
@@ -72,7 +72,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         openingClock.animateTo(1f, androidx.compose.animation.core.tween(1750,
             easing = androidx.compose.animation.core.FastOutSlowInEasing))
         kotlinx.coroutines.delay(1150)
-        if (openingReceipt == receipt) openingReceipt = null
+        chestHud = chestHud.dismiss(receipt)
     }
     var error by remember{mutableStateOf("")}
 
@@ -85,7 +85,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         val tier=unopened?.tier
         val before=run?.turns
         val openingRun=run
-        openingReceipt=null;lastChestReceipt=null
+        chestHud=chestHud.nextAction()
         change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
         if(type=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
@@ -94,8 +94,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 RelicChestPresentation.committed(openingRun,it,unopened.id)
             }
             if(receipt!=null){
-                openingReceipt=receipt
-                lastChestReceipt=receipt
+                chestHud=chestHud.committed(receipt)
             }
         }
         if(before!=snapshot.run?.turns) {
@@ -137,7 +136,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 else RelicCampBackdrop()
                 openingReceipt?.let { receipt ->
                     RelicChestCeremony(receipt, openingClock.value) {
-                        if(openingReceipt==receipt)openingReceipt=null
+                        chestHud=chestHud.dismiss(receipt)
                     }
                 }
             }
