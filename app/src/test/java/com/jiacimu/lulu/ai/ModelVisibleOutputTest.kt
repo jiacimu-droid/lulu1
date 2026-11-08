@@ -2,6 +2,7 @@ package com.jiacimu.lulu.ai
 
 import com.jiacimu.lulu.LuluRepositories
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -45,6 +46,9 @@ class ModelVisibleOutputTest {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
         val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val before = LuluRepositories.performance.dailyRequestCounts.first()
+            .filter { it.source == "stream protocol test" || it.source == "流式协议回退" }
+            .sumOf { it.attempts }
         val server = MockWebServer()
         server.enqueue(MockResponse().setResponseCode(400)
             .setBody("""{"error":{"message":"stream option is not supported by this relay"}}"""))
@@ -60,6 +64,10 @@ class ModelVisibleOutputTest {
             ).getOrThrow()
             assertEquals("确实收到。", response.text)
             assertEquals(2, server.requestCount)
+            val after = LuluRepositories.performance.dailyRequestCounts.first()
+                .filter { it.source == "stream protocol test" || it.source == "流式协议回退" }
+                .sumOf { it.attempts }
+            assertEquals("Both physical POST attempts must be audited", 2, after - before)
             assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
             assertFalse(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
         } finally { server.shutdown() }
