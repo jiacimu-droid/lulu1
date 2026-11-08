@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:15:49.392072+00:00",
-  "commit": "f7f76ae0bec44c8b04a86024441db8a514acb3ec",
+  "generatedAt": "2026-11-08T16:16:18.830232+00:00",
+  "commit": "d3679d92d32203a67f47d47bdb37ebc688d2c925",
   "branch": "main",
-  "sourceFingerprint": "1b255d4514b539a142bcfa509c04da447a12eee5663d1fd3a1ed82678e1d3d47",
+  "sourceFingerprint": "57094bce87655e0f1a46a579ad80d4c90f3dea5ff6d2e1b8efd0de7e3183a6e5",
   "summary": {
     "files": 1148,
-    "lines": 246720,
+    "lines": 246713,
     "symbols": 3385
   },
   "symbolIndex": {
@@ -959,7 +959,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
-        "line": 56
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
@@ -28942,12 +28942,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
-      "lines": 241,
-      "sha256": "16f36444d4ab06f1476748f1fbfb84571a283489484db8fef1be8a53581783ff",
+      "lines": 235,
+      "sha256": "d0731195208ac99deada4008a5f17d9a259da57d1b6bb9138557a85e8feac3b4",
       "symbols": [
         {
           "name": "initialize",
-          "line": 56
+          "line": 52
         }
       ]
     },
@@ -38407,8 +38407,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemorySupersessionRequestPolicyTest.kt",
-      "lines": 30,
-      "sha256": "7b83639027c0dabaf46449e5b66dced643ebd2987b6da63101812c0b5c8cd697",
+      "lines": 29,
+      "sha256": "832e5e8c7a89ea997688a74105cbdbb38960b16abc1791dbc6df98eafb396e69",
       "symbols": [
         {
           "name": "MemorySupersessionRequestPolicyTest",
