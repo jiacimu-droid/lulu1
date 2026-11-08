@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:36:02.559115+00:00",
-  "commit": "47942727d7fccb942d7a09addb7ee27139e2bfbb",
+  "generatedAt": "2026-11-08T16:37:27.539743+00:00",
+  "commit": "024ba1045ae02e280a7d381963eb042b2443f1d7",
   "branch": "main",
-  "sourceFingerprint": "b26f5885e5c0133cb682881bad553ef91422a110be7d38c84b349904d67efea9",
+  "sourceFingerprint": "2e3982a2380597b0dd5fff7cc3fc7580e29ffd79f3f93c80c3d5a391b0a9a765",
   "summary": {
     "files": 1148,
-    "lines": 247160,
-    "symbols": 3387
+    "lines": 247163,
+    "symbols": 3388
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10818,46 +10818,52 @@
         "line": 108
       }
     ],
+    "chatMessageBubbles": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
+        "line": 232
+      }
+    ],
     "bubbleDeliveryModes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 228
+        "line": 237
       }
     ],
     "bubbleSpeechTracks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 234
+        "line": 243
       }
     ],
     "voiceBubbleTexts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 240
+        "line": 249
       }
     ],
     "authoredReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 252
+        "line": 261
       }
     ],
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 264
+        "line": 273
       }
     ],
     "replyBubblesWithPartialState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 289
+        "line": 298
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 329
+        "line": 338
       }
     ],
     "MomentFriendAccess": [
@@ -11303,7 +11309,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3195
+        "line": 3189
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -29276,8 +29282,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 346,
-      "sha256": "15351962b2c2cb5d71aa14f0deafe599da5fb171a1837e5f2af2f27000363782",
+      "lines": 355,
+      "sha256": "1af510d8cda17c0439d169035c514e3347f0ea3752a63614608f9705b17e795e",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -29296,32 +29302,36 @@
           "line": 108
         },
         {
+          "name": "chatMessageBubbles",
+          "line": 232
+        },
+        {
           "name": "bubbleDeliveryModes",
-          "line": 228
+          "line": 237
         },
         {
           "name": "bubbleSpeechTracks",
-          "line": 234
+          "line": 243
         },
         {
           "name": "voiceBubbleTexts",
-          "line": 240
+          "line": 249
         },
         {
           "name": "authoredReplyBubbles",
-          "line": 252
+          "line": 261
         },
         {
           "name": "completedReplyBubbles",
-          "line": 264
+          "line": 273
         },
         {
           "name": "replyBubblesWithPartialState",
-          "line": 289
+          "line": 298
         },
         {
           "name": "completedReplyText",
-          "line": 329
+          "line": 338
         }
       ]
     },
@@ -29785,8 +29795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3262,
-      "sha256": "365372af8433b606a5ec2b0d3617005095873874d90ffcc8a0854d4acc4aaf5b",
+      "lines": 3256,
+      "sha256": "95f464119fd112b9b37b365fc2691e734574efb45ec111f0010747505a38131c",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29818,7 +29828,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3195
+          "line": 3189
         }
       ]
     },
