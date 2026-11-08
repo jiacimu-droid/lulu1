@@ -43,6 +43,7 @@ import kotlin.math.sin
 internal fun RelicEscapeWorldMap(
     run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false,
     focus: Pair<Int, Int> = run.hero.x to run.hero.y,
+    openingReceipt: RelicChestReceipt? = null,
 ) {
     // Index physical entities once per authoritative snapshot, not once per drawn tile.
     val chestByCell = remember(run.chests,run.w) { run.chests.associateBy { it.y*run.w+it.x } }
@@ -221,6 +222,12 @@ internal fun RelicEscapeWorldMap(
                         drawCircle(Color.White.copy(alpha=.55f+shimmer*.4f),t*.068f,
                             c+Offset(t*.02f,t*.04f))
                     } else {
+                        // The map's opening glow is driven by the exact committed
+                        // receipt shown in the ceremony, never by an invented drop.
+                        if (RelicChestPresentation.isCurrentOpening(run, chest.id, openingReceipt)) {
+                            drawCircle(glow.copy(alpha=.18f+shimmer*.25f),t*.70f,c)
+                            drawCircle(glow.copy(alpha=.72f),t*.11f,c+Offset(0f,-t*.30f))
+                        }
                         drawRoundRect(Color(0xFF705B50),p+Offset(t*.17f,t*.52f),
                             Size(t*.66f,t*.21f),CornerRadius(t*.06f))
                         drawLine(Color(0xFFB29B85),p+Offset(t*.21f,t*.43f),
