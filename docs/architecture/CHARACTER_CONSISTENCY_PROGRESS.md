@@ -1497,3 +1497,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 接手 `main`：`827b5196b1819ddd1e44ac185df43e9361787393`；复核 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`、`CompanionActionRuntime.execute` 和 `QqChatReplyEngine.appendRoleReplyWithPacingReceipt` 的已提交执行器/ChatStore 路径，未重复增加同类断言。
 - **实测 CI**：测试提交 [`19bc51e`](https://github.com/jiacimu-droid/lulu1/commit/19bc51ef7c630e12a218045e243377c4b26ea441) 对应 [Lulu APK/JVM #42476629762](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629762) `build` job 128719326366 与 [Refresh code index #42476629754](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629754) `refresh` job 128719326340，均 completed/success。测试覆盖真实首泡入库、用户纠正、后续停止和 `deliveredMessageIds` 与实际存储一致；不能外推至进程死亡或模型效果。
 - 本轮无新生产代码或测试提交；仅回填成功证据，不把文档改动冒充修复。下一工程工作包仍为 P-08c.2：先核重启后部分发送回执消费与取消结果；若已覆盖则切 P-08a.1g.3 的真实 ToolRouter 主失败/副成功。真机/真实模型/跨日均未验。
+
+## 2026-11-08 · P-08c.2 群聊部分发泡取消执行器回归
+
+- 在 `main` 读取四份必读文档、最近 10 提交，复核 `CompanionActionRuntime.send_group_message`、`QqChatReplyEngine.appendRoleReplyWithPacingReceipt` 与 `QqReplySourceWatermarkTest`；私聊部分送达已有 `19bc51e` / APK/JVM #42476629762 success，群聊原有纠正测试仅覆盖首泡前取消，不能代替首泡后回执。
+- [cffcd760](https://github.com/jiacimu-droid/lulu1/commit/cffcd7608a576d0da64f15943a0784728ce36d22) 新增 `groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts`：真实群聊入口执行多泡，等待首泡真实入库，再发用户纠正；检查 `success=false`、实际存储 ID 与 `deliveredMessageIds` 一致、末泡 `evidenceId` 一致、后续旧泡停止。仅新增测试，未更改生产代码/人设/历史/收费调用。
+- 验证：提交后尚未取得 `cffcd760` 对应完整 JVM/APK 与代码索引成功证据，本地 Gradle/真机/真实模型均未运行。下一轮优先查该 SHA Actions 及测试首错；通过后继续 P-08c.2 的部分送达回执消费/重新实例化，不能将群聊部分发泡误算整轮成功；若执行器证据足够则转 P-08a.1g.3 主失败副成功。整体 P-08c.2 不勾。
