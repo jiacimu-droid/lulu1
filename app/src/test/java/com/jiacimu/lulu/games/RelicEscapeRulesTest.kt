@@ -130,7 +130,6 @@ class RelicEscapeRulesTest {
         assertEquals(0f, relicChestLidLift(after, chest.id, null, 1f))
         assertEquals(0f, relicChestLidLift(after, chest.id + "-other", receipt, 1f))
         assertEquals(0f, relicChestLidLift(after.copy(id = "different"), chest.id, receipt, 1f))
-        assertEquals(after.hero.bag, after.hero.bag)
         assertTrue(after.hero.bag.any { it == receipt!!.loot } ||
             after.drops.any { it.loot == receipt!!.loot })
     }
