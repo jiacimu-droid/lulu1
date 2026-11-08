@@ -24,6 +24,31 @@ class MemoryContextPolicyTest {
         assertFalse(memory("strong", "普通喜好").copy(strength = 10).isCoreMemory())
     }
 
+    @Test fun casualPreferencesUseSingleBatchedExtractorButExplicitRequestsStayUrgent() {
+        assertFalse(requestsImmediateMemory("今天发现自己特别爱吃火锅"))
+        assertFalse(requestsImmediateMemory("我喜欢鸭子，也喜欢小兔子"))
+        assertFalse(requestsImmediateMemory("不是很喜欢这个口味"))
+        assertTrue(requestsImmediateMemory("记住我过敏，千万别忘"))
+        assertTrue(requestsImmediateMemory("以后不要再这样称呼我"))
+    }
+
+    @Test fun eachCharactersAuthoredMemoryLensIsBriefAndNotAnEventSource() {
+        val first = renderMemorySelectionPerspective(
+            "喜欢观星的角色", listOf("兴趣" to "星星、夜空", "珍视的事" to "自由"), "朋友关系",
+        )
+        val second = renderMemorySelectionPerspective(
+            "喜欢做饭的角色", listOf("兴趣" to "热汤、料理"), "闺蜜关系",
+        )
+        assertTrue(first.contains("星星、夜空"))
+        assertTrue(first.contains("朋友关系"))
+        assertFalse(first.contains("热汤、料理"))
+        assertTrue(second.contains("热汤、料理"))
+        assertFalse(second.contains("观星"))
+        assertTrue(first.contains("不是事件证据"))
+        assertTrue(first.contains("不把上面的人设或关系描述当作某件事发生过"))
+        assertFalse(first.contains("sourceEventIds"))
+    }
+
     @Test fun idleFlushUsesElapsedTimeAndNeverFlushesAFutureTimestamp() {
         val now = Instant.parse("2026-10-08T12:00:00Z")
         assertTrue(shouldFlushMemoryTail(now.minusSeconds(600), now))
