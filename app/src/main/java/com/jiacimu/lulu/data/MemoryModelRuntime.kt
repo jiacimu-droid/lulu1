@@ -13,7 +13,7 @@ internal object MemoryModelRuntime {
         MemoryVectorCalibrationStore.initialize(application)
         MemoryValidityStore.initialize(application)
         MemorySupersessionAutomation.initialize(application)
-        MemoryEmbeddingLifecycle.initialize()
+        MemoryEmbeddingLifecycle.initialize(application)
     }
 
     fun vectorEnabled(): Boolean = prefs?.getBoolean("memory_vector_enabled", false) == true
