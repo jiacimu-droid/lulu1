@@ -271,6 +271,22 @@ class QqReplySourceWatermarkTest {
         assertEquals(persisted.map { it.id }, result.deliveredMessageIds)
         assertEquals(persisted.last().id, result.evidenceId)
         assertTrue("Stale group bubbles must stop after correction", persisted.size < 3)
+        // The next decision must use the new source, not resume the cancelled batch.
+        val correction = MigratedDomainStores.chat.messages(group.id).value
+            .last { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User }
+        val followUp = CompanionActionRuntime.execute(app, role, "send_group_message",
+            JSONObject().put("groupId", group.id)
+                .put("text", "收到纠正，我重新回答。")
+                .put("_replyEvidenceIds", JSONArray().put(correction.id)))
+        assertTrue("A fresh turn after correction must remain deliverable: ${followUp.summary}", followUp.success)
+        val after = MigratedDomainStores.chat.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals("Old delivered bubbles must remain unchanged", persisted.map { it.id },
+            after.take(persisted.size).map { it.id })
+        assertEquals(1, followUp.deliveredMessageIds.size)
+        assertEquals(after.last().id, followUp.evidenceId)
+        assertEquals(followUp.deliveredMessageIds, listOf(after.last().id))
+        assertEquals("收到纠正，我重新回答。", after.last().content)
     }
 
     @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
