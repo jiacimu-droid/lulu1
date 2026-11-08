@@ -30,12 +30,12 @@ internal fun residentMemoryBudgetDepleted(
     context: Context, characterId: String,
     now: Instant = Instant.now(),
 ): Boolean = characterId.startsWith("resident:") &&
-    !ResidentDailyPolicy.hasModelRequestAllowance(context, characterId, now)
+    !ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(context, characterId, now)
 
 /** A normal, non-failure outcome for automatic memory extraction. The queue
  * must keep its watermark and reawaken only after the next budget window. */
 internal class ResidentMemoryBudgetDeferred(val resumeAt: Instant) :
-    IllegalStateException("居民每日 AI 请求额度已满，未整理的记忆等待新预算日继续")
+    IllegalStateException("居民今日请求额度已预留给日计划或已用尽，未整理的记忆等待新预算日继续")
 
 /**
  * Persistent memory store with retry-safe extraction checkpoints.
@@ -168,7 +168,7 @@ class LocalMemoryRepository : MemoryRepository {
         if (!residentMemoryBudgetDepleted(context, characterId, now)) return
         val resume = ResidentDailyPolicy.nextModelBudgetDayStart(now)
         refreshDebug(
-            "居民今日模型请求额度已满；本次没有发送记忆请求。仍有 $pendingCount 条待整理消息，保留原文与处理进度；新预算日再继续。",
+            "居民今日模型额度优先留给生活规划（或已用完）；本次没有发送记忆请求。仍有 $pendingCount 条待整理消息，保留原文与处理进度；新预算日再继续。",
             characterId = characterId, pendingCount = pendingCount, extracting = false,
         )
         // Do not return a successful Unit: ChatMemoryAutomation would then
