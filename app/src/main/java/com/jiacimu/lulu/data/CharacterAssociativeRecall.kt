@@ -251,7 +251,7 @@ internal object CharacterAssociativeRecall {
             if (memories.isNotEmpty()) {
                 appendLine("从原记忆筛选的联想线索（情绪属于当时，不是现在）：")
                 memories.forEach {
-                    appendLine("- [" + memoryLane(it).label + "；memoryId=" + it.id +
+                    appendLine("- [" + it.perspective.label + "；" + memoryLane(it).label + "；memoryId=" + it.id +
                         "] " + it.content.replace("\n", " ").take(200))
                 }
             }
