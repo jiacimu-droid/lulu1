@@ -94,7 +94,7 @@ object CommitmentTurnAutomation {
         if (isProcessed(signature)) return@withLock active.firstOrNull { task ->
             task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
         }
-        if (!permitAttempt(signature)) return@withLock null
+        if (!permitAttempt(signature, characterId)) return@withLock null
         val earlier = MigratedDomainStores.chat.messages(conversation.id).value
             .filter { msg ->
                 msg.status == LuluChatMessage.Status.Sent &&
@@ -275,7 +275,7 @@ object CommitmentTurnAutomation {
                     appContext ?: return@forEach, characterId, evidenceIds
                 )) return@forEach
             val signature = "commitment-turn-v2:$sourceTurnId"
-            if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
+            if (isProcessed(signature) || !permitAttempt(signature, characterId)) return@forEach
 
             val active = CommitmentTaskStore.active(characterId)
             val drafts = extractCommitmentTaskDrafts(
@@ -323,8 +323,11 @@ object CommitmentTurnAutomation {
             .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源消息已删除，约定同步取消") }
     }
 
-    private fun permitAttempt(signature: String): Boolean {
+    private fun permitAttempt(signature: String, characterId: String): Boolean {
         val p = prefs ?: return false
+        val app = appContext ?: return false
+        if (!BackgroundModelRequestBudget.allowed(app, characterId, "承诺任务", "承诺任务提取"))
+            return false
         val key = "attempt:${signature.hashCode()}"
         val last = p.getLong("$key:at", 0L)
         val count = p.getInt("$key:count", 0)
