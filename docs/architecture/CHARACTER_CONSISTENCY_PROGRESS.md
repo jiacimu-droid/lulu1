@@ -1485,3 +1485,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - 新增测试 [`804b1b2`](https://github.com/jiacimu-droid/lulu1/commit/804b1b22fe82032208cc9c9a48b9e3a5a89f476e) `ProactiveSendAttributionTest.canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive`：真实 Store 发送角色消息与用户回复、将回复标 Failed，再新建 `InMemoryLuluChatStore` 读取 SharedPreferences，核实角色 Sent/authorCharacterId 与用户 Failed/sender 不会因新实例丢失。未使用模型或伪造 Timeline。
 - 仅为真实存储重新打开的最小回归；尚未取得该提交 JVM/APK/索引成功证据，未执行真实 ToolRouter、进程死亡、InnerLifeStore 重建或下一轮角色召回。下轮直接打开 `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` 和 `ToolRouter.kt`，核 `804b1b2` 对应 push CI，再补主失败/副成功的执行器级回归；若不能接入，转 P-08c.2。P-08a.1g.3 不勾完成。
+
+## 2026-11-08 · P-08c.2 实际执行器部分发泡取消回执
+
+- 复核 main `849716a`、四份入口文档、`CompanionActionRuntime.send_private_message` 与 `QqReplySourceWatermarkTest`；原测试只覆盖首泡前取消，缺少已发送部分气泡后的独立回执核验。
+- 新测试 [`19bc51e`](https://github.com/jiacimu-droid/lulu1/commit/19bc51ef7c630e12a218045e243377c4b26ea441) 使用真实执行器与 ChatStore，首泡真实入库后发送新用户纠正，核对 `success=false`、`deliveredMessageIds` 与实际存储 ID 相等、`evidenceId` 指向最后已发送泡、旧回复不继续。未改生产代码、人设或收费模型调用。
+- 提交时该 SHA 的 APK/JVM 与 Refresh code index 尚未返回成功证据；取消时序可能暴露测试竞争，须先看 CI 首错，不得提前勾完成。下一轮直接打开 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection` 和 `appendRoleReplyWithPacingReceipt`，核 Actions 后按失败事实修复。真机、真实模型未验。
