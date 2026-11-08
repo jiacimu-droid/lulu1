@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:20:19.131925+00:00",
-  "commit": "3a942c2d0de45570c386bde8c4c7c98d670a1ba4",
+  "generatedAt": "2026-11-08T16:20:53.040112+00:00",
+  "commit": "9a7c002e8872a8b8712c9d342f5101b0b3032feb",
   "branch": "main",
-  "sourceFingerprint": "e450623e85de71f4f9504e0eef284731bca89423c48bb3e9305420ddf5231a3e",
+  "sourceFingerprint": "920d3b9158f24f0b4b0f023c416d5ed71a54c2d326c055f66547b69a6bf1b2bf",
   "summary": {
     "files": 1148,
-    "lines": 246735,
-    "symbols": 3385
+    "lines": 246775,
+    "symbols": 3386
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9734,6 +9734,16 @@
         "line": 1113
       }
     ],
+    "valid": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 1173
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 42
+      }
+    ],
     "ApiUsageSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
@@ -12286,12 +12296,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
         "line": 36
-      }
-    ],
-    "valid": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
-        "line": 42
       }
     ],
     "DiscoveryPage": [
@@ -28073,8 +28077,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1181,
-      "sha256": "149d06f10a65eef75330c9def1b9320db3db24dc05985d387f2397c844f0a2e2",
+      "lines": 1221,
+      "sha256": "9e47378f0c22684ed8b475ca9518da039eb324eb531d74a8deb58ab903886a5a",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -28131,6 +28135,10 @@
         {
           "name": "ids",
           "line": 1144
+        },
+        {
+          "name": "valid",
+          "line": 1173
         }
       ]
     },
