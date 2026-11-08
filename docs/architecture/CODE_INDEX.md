@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5fc9ae02699e400d7b0ef7b3cf6ceadbc33b1d85`
+- 基准提交：`ee72e50cbc0042dcbb51fe62b7f967bce0ac8be0`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：247824
+- 已索引代码/文本行：247835
 - 已发现符号：3394
 
 | 文件 | 行数 | 符号数 |
@@ -303,7 +303,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 271 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1469 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1472 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -864,7 +864,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 179 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 254 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 108 | 1 |
