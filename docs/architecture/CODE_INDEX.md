@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`58a4a0ec8f87d02023775c7a88ddda36cbe5d0b5`
+- 基准提交：`d13c7019b2ad296a4ff62e5ab02bc139d35c29f5`
 - 分支：`main`
 - 已索引文件：1148
-- 已索引代码/文本行：247551
+- 已索引代码/文本行：247564
 - 已发现符号：3389
 
 | 文件 | 行数 | 符号数 |
@@ -520,7 +520,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1128 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 141 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 205 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 218 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
