@@ -324,6 +324,10 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 }
             }
             Text("每日小整理 · 每周大整理", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text("开启后自动提取长期事实、情绪和真实日常经历；每天检查本地重复项，每周按需使用后台记忆模型核对语义重复。偏好与习惯由已有成长系统学习，不需要手动按整理。应用停止运行时不会准点调用，下次启动会补查；无变化的批次不重复付费。",
+                fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
+            Text("当前记忆：长期事实 ${memories.count { it.kind == MemoryKind.Fact }} · 情绪印象 ${memories.count { it.kind == MemoryKind.Emotion }} · 重要经历 ${memories.count { it.kind == MemoryKind.Timeline }}",
+                fontSize = 12.sp, color = FeatureBlueGray)
             val habitRevision by CharacterDevelopmentRuntime.revisions.collectAsState()
             val latestHabits = remember(characterId, habitRevision) {
                 CharacterDevelopmentRuntime.lastStatus(characterId)
@@ -336,7 +340,28 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
             OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit) }, singleLine = true,
                 label = { Text("每 N 条总结一次") }, modifier = Modifier.fillMaxWidth())
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("自动整理", Modifier.weight(1f)); Switch(automatic, { automatic = it })
+                Text("自动提取 + 每日／每周维护", Modifier.weight(1f))
+                Switch(checked = automatic, onCheckedChange = { enabled ->
+                    automatic = enabled
+                    // One tap saves the policy. The button below remains for changing
+                    // the numeric thresholds without touching the automation switch.
+                    scope.launch {
+                        try {
+                            val saved = MemoryPolicy(
+                                excluded.toIntOrNull()?.coerceAtLeast(0) ?: policy.excludedRecentMessages,
+                                threshold.toIntOrNull()?.coerceAtLeast(1) ?: policy.readableThreshold,
+                                enabled,
+                            )
+                            if (personal) repository.updatePersonalPolicy(characterId, saved)
+                            else repository.updatePolicy(characterId, saved)
+                            onNotice(if (enabled) "自动记忆已开启；下次应用调度将检查待提取消息和每日／每周维护"
+                                else "自动记忆已暂停；已保存的记忆和原始记录不会删除")
+                        } catch (error: Exception) {
+                            automatic = policy.autoSummarize
+                            onNotice(error.message ?: "自动记忆设置保存失败")
+                        }
+                    }
+                })
             }
             Button(onClick = { scope.launch {
                 val saved = MemoryPolicy(excluded.toIntOrNull()?.coerceAtLeast(0) ?: policy.excludedRecentMessages,
