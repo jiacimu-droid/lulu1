@@ -135,9 +135,17 @@ fun QqStyleChatDetailScreen(
         mutableStateOf(lastBubbleDeadline == null || System.currentTimeMillis() >= lastBubbleDeadline)
     }
     LaunchedEffect(conversationId, lastPendingUserBubble?.id) {
-        lastBubbleDeadline?.let { deadline ->
-            val remaining = deadline - System.currentTimeMillis()
-            if (remaining > 0) kotlinx.coroutines.delay(remaining)
+        if (lastBubbleDeadline != null) {
+            while (true) {
+                // The composer may extend AND shorten this deadline after the
+                // bubble was rendered. Read the real local batch deadline,
+                // never rely on a stale UI timer or trigger a model to check.
+                val deadline = OnlineChatBatchStore.pendingDueAt(context, characterId)
+                    ?: lastBubbleDeadline
+                val remaining = deadline - System.currentTimeMillis()
+                if (remaining <= 0L) break
+                kotlinx.coroutines.delay(remaining.coerceAtMost(500L))
+            }
         }
         messageWindowElapsed = true
     }
