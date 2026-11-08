@@ -95,6 +95,12 @@ internal object MemorySemanticConsolidation {
 
     fun eligibleCount(characterId: String): Int = candidates(characterId).size
 
+    /** Display the last successfully persisted daily check, not a guessed clock time. */
+    fun lastDailyMaintenanceAt(characterId: String): Instant? =
+        prefs?.getString("daily:$characterId", null)?.let { value ->
+            runCatching { Instant.parse(value) }.getOrNull()
+        }
+
     /** The application scope survives closing the bottom sheet. One manual request per role. */
     @Synchronized
     fun startManual(characterId: String): Boolean {
