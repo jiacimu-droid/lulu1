@@ -477,7 +477,7 @@ internal fun lexiconRetryDelayMillis(attempts: Int): Long? = when (attempts) {
     2 -> 60L * 60_000L     // Repeated invalid/provider responses are not a hot loop.
     3 -> 6L * 60 * 60_000L
     4 -> 24L * 60 * 60_000L
-    else -> null // Five total attempts; original timeline evidence remains inspectable.
+    else -> 24L * 60 * 60_000L // Persist unresolved evidence; one slow revisit, never permanently discard.
 }
 
 internal fun looksLikeCommitmentRequest(text: String): Boolean {
