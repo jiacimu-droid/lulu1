@@ -241,6 +241,40 @@ class ResidentDailyPolicyTest {
         } finally { prefs.edit().clear().commit() }
     }
 
+    @Test fun fourResidentsIndependentlyFundOnePlanAndTwoDueDecisions() {
+        val ctx = context()
+        val prefs = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        val at = Instant.parse("2026-11-08T08:00:00Z")
+        val roles = (1..4).map { "resident:four-role-budget-$it" }
+        prefs.edit().clear().commit()
+        try {
+            // The owner explicitly selected three calls: one daily decision
+            // and two future appointment decisions for EACH resident.
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 3))
+            assertEquals(2, ResidentDailyPolicy.affordableNewAgendaItems(
+                configured = 2, remainingCalls = 3))
+            roles.forEach { role ->
+                assertEquals(3, ResidentDailyPolicy.remainingModelRequests(ctx, role, at))
+                assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+                assertEquals(2, ResidentDailyPolicy.remainingModelRequests(ctx, role, at))
+            }
+            roles.forEach { role ->
+                repeat(2) { assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at)) }
+                assertFalse(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+                assertEquals(3, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
+            }
+            assertEquals(12, roles.sumOf { ResidentDailyPolicy.modelDecisionsUsed(ctx, it, at) })
+            // A failed extra attempt must not consume tomorrow's allowance,
+            // and no resident's claims can spend another resident's credits.
+            roles.forEach { role ->
+                assertEquals(3, ResidentDailyPolicy.remainingModelRequests(
+                    ctx, role, ResidentDailyPolicy.nextModelBudgetDayStart(at)))
+            }
+        } finally {
+            prefs.edit().clear().commit()
+        }
+    }
+
     @Test fun nextResidentBudgetWindowUsesRealLocalMidnightNotRolling24Hours() {
         val zone = ZoneId.systemDefault()
         val original = java.time.LocalDate.of(2026, 11, 5)
