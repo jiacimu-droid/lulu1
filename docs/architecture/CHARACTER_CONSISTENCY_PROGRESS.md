@@ -1454,3 +1454,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复核 main 四份必读文档、真实 ChatStore→Timeline→InnerLifeStore 回归和 push Actions。最新基线 66e9f432 的 APK/JVM [42417989012](https://github.com/jiacimu-droid/lulu1/actions/runs/42417989012) 与代码索引 [42417989014](https://github.com/jiacimu-droid/lulu1/actions/runs/42417989014) 均 success；该成功早于本轮提交。
 - [33fac8a](https://github.com/jiacimu-droid/lulu1/commit/33fac8ae30f5b322f71db0a019a9ea476036afe1) 在真实 ChatStore 创建/投影主消息的既有 Robolectric 集成回归中补跨角色归属负例：即使 conversation 与实际送达 ID 完全一致，其他角色不得认领。未改生产决策、人设、历史或收费调用。
 - 本轮新测试尚无 Actions 成功证明；没有执行真正 ToolRouter、进程重启和下一轮模型召回。P-08a.1g.3 继续未完成；下轮先核 33fac8a 后继 JVM/APK，随后补执行器失败/部分成功与重新初始化的回归，无法安全实施则转 P-08b.1。
+
+
+## 2026-11-08 · P-08a.1g.3 撤回/删除原件后不得沿旧时间线误算回复
+
+- 核 main 12e809f、四份必读文档、ProactiveSendAttribution、TimelineStatementOwnership、CharacterActionEvidence 与 Robolectric 测试；33fac8a 对应 push APK/JVM [42421953256](https://github.com/jiacimu-droid/lulu1/actions/runs/42421953256) 和索引 [42421953257](https://github.com/jiacimu-droid/lulu1/actions/runs/42421953257) 均 completed/success，旧跨角色回归已验通。
+- 已证根因：统计入口 summarize 从 InnerLifeStore 回执与 Timeline 快照直接调用 repliedByDecisionId，仅校验事件种类、角色、session 和时间；而正式聊天原件可能被删除、改写或变为非 Sent，旧投影不能继续证明送达/回复。现有 TimelineStatementOwnership 已具备基于原 ChatStore 的状态、内容、时间、作者校验，不应新增状态源。
+- 正式源码 [69840a1](https://github.com/jiacimu-droid/lulu1/commit/69840a1f626a05f7dca228ec3f6d6e10a8eeb3c8) 让 summarize 对角色送达与用户回复均通过现有原件归属门禁；纯函数保留默认调用兼容，新增可注入有效性谓词。回归 [d07a594](https://github.com/jiacimu-droid/lulu1/commit/d07a594108de88e75eb4662f7179ac1dc923e069) 覆盖送达原件失效不得归属、用户回复原件失效不得算已回复。未更改角色决定、原始历史或收费调用。
+- **验收**：源码/回归已提交；新 SHA 的 JVM/APK 尚待 push Actions，未本地编译，未真实删除后重新启动、ToolRouter 失败/部分执行或下一轮模型召回；P-08a.1g.3 不勾完成。下一轮先核新 CI 第一错误，再补真实 Store 原件删除/修改与跨进程恢复的入口回归。
