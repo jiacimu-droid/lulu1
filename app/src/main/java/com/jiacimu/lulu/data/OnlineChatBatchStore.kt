@@ -94,6 +94,10 @@ internal object OnlineChatBatchStore {
             !p.contains("due:$characterId") || (characterId to revision) in reading)
             return false
         val existing = p.getLong("due:$characterId", 0L)
+        // Refresh at most about every 30 seconds during uninterrupted typing;
+        // checking keyboard state is free, writing SharedPreferences for every
+        // keypress is unnecessary and would worsen the old keyboard lag.
+        if (existing - atMillis > 30_000L) return false
         val next = maxOf(existing, atMillis + DRAFT_IDLE_FALLBACK_MILLIS)
         if (next <= existing) return false
         p.edit().putLong("due:$characterId", next).apply()
