@@ -1552,3 +1552,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 测试提交 [`8d8389a30f9241d8a72f43ed5eb3932505d2cdd3`](https://github.com/jiacimu-droid/lulu1/commit/8d8389a30f9241d8a72f43ed5eb3932505d2cdd3)：仅 `ModelPostTransportTest.kt` 新增 `ambiguous503DoesNotRetryOrCountAsSuccessfulGeneration`，MockWebServer 首次返回 503、预排第二响应；断言第一响应状态/错误正文保持、实际只收到一个 POST，body 未被更改。现有 401、连接前重试、正文送达后断线测试不重复。
 - 正式 `ModelPostTransport` 已关闭 OkHttp 自动失败重试/重定向；本轮没有证实此路径生产缺陷，因此没有凑生产补丁。新测试尚无 JVM/APK CI 成功证据，不能勾工程通过；容器访问 github.com DNS 失败，连接器 commit workflow 仅检索 PR 触发，不能据此推断 main push 无 CI。
 - **下一轮固定 S-02.1**：核 `77aca0e` 和 `8d8389a` 对应 Actions 的 head SHA、build/refresh；然后沿 `CompanionModelGateway.openAiCompatible` 的 stream 400/422 协议回退检查第二次 POST 是否遗漏 `recordModelHandoff` 和背景/居民额度，先写真实 MockWebServer 失败复现，再修改生产代码。未读取中转站账单，400 次费用无法精确归因；尝试、成功、计费分开。
+
+## 2026-11-09 · S-02.1 Stream fallback POST audit
+- Production f4321104242117e75223b88ffc5934722d999bbf: explicit stream protocol rejection now records a separate handoff before the second non-streaming HTTP POST. No persona or resident quota changes.
+- Test 66cc31a61886b8e3375473e018d3c43a57f07e60: ModelVisibleOutputTest.explicitUnsupportedStreamOptionMayFallbackOnceToNonStreaming uses MockWebServer to assert two POSTs and a +2 attempted-request delta.
+- Engineering CI for this new SHA, Android device, real model and provider billing remain unverified. Attempted requests are not successful or billed requests. Next S-02.1: inspect main push APK/JVM and code-index runs, fix first failure, then audit other AI HTTP routes and whether stream fallback requires resident budget accounting. Do not increase quotas.
