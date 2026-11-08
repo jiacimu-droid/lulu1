@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T17:18:59.105194+00:00",
-  "commit": "7613f83f84d8239633943c897efbe325b4e60da7",
+  "generatedAt": "2026-11-08T17:19:22.348404+00:00",
+  "commit": "f1960afe2eae0c220e02f7a9ed67812d9712342c",
   "branch": "main",
-  "sourceFingerprint": "6075a6713e1483bf328cade0c9d1a53ab38c490174143b281802b21895a94841",
+  "sourceFingerprint": "5ec1c5dd8dec680d036c99709ca395ff92986839d158bc7a76f4b19cf5e012dd",
   "summary": {
     "files": 1148,
-    "lines": 247450,
+    "lines": 247454,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -6583,7 +6583,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 49
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -8451,7 +8451,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 37
+        "line": 41
       }
     ],
     "DevelopmentMaturity": [
@@ -10383,13 +10383,13 @@
     "put": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 67
+        "line": 71
       }
     ],
     "removeMemory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 94
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
@@ -28736,8 +28736,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-      "lines": 125,
-      "sha256": "7a121b9318456b538de1485f15ad613db69a7ca52a14c438808bb7493e44de05",
+      "lines": 129,
+      "sha256": "9d328dac28dd4688533994ed0ddb3ea5c2a72affdbd4fb5cbd5a00ec054f88b7",
       "symbols": [
         {
           "name": "initialize",
@@ -28745,19 +28745,19 @@
         },
         {
           "name": "key",
-          "line": 37
+          "line": 41
         },
         {
           "name": "get",
-          "line": 49
+          "line": 53
         },
         {
           "name": "put",
-          "line": 67
+          "line": 71
         },
         {
           "name": "removeMemory",
-          "line": 94
+          "line": 98
         }
       ]
     },
