@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1411a9409ea0c742b09d7454d7c163ed8f3c4fdc`
+- 基准提交：`7613f83f84d8239633943c897efbe325b4e60da7`
 - 分支：`main`
 - 已索引文件：1148
-- 已索引代码/文本行：247445
+- 已索引代码/文本行：247450
 - 已发现符号：3389
 
 | 文件 | 行数 | 符号数 |
@@ -927,7 +927,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 934 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeBoundaryTest.kt` | 93 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt` | 271 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt` | 273 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 248 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 351 | 1 |
@@ -1013,7 +1013,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 217 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt` | 59 | 4 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 140 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt` | 113 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySupersessionRequestPolicyTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T17:18:22.706725+00:00",
-  "commit": "1411a9409ea0c742b09d7454d7c163ed8f3c4fdc",
+  "generatedAt": "2026-11-08T17:18:59.105194+00:00",
+  "commit": "7613f83f84d8239633943c897efbe325b4e60da7",
   "branch": "main",
-  "sourceFingerprint": "2f1da6964180a091f343977193801057112d3344476aa62b00a8e68f88d55453",
+  "sourceFingerprint": "6075a6713e1483bf328cade0c9d1a53ab38c490174143b281802b21895a94841",
   "summary": {
     "files": 1148,
-    "lines": 247445,
+    "lines": 247450,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -37063,8 +37063,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt",
-      "lines": 271,
-      "sha256": "715589c0e411656a65ab5406e7246ab4bba0d6006e1099f7fcf81530d2763bd3",
+      "lines": 273,
+      "sha256": "b3daf6a9c920e63ab88139e4b34722bf918ebc2cb327e151e6bd0a4ea516370a",
       "symbols": [
         {
           "name": "CharacterKnowledgeIsolationTest",
@@ -38425,8 +38425,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
-      "lines": 140,
-      "sha256": "4ebe045b4f4346d3585759f5d966d783c79c9c3ad94d075d026e7d99340064dc",
+      "lines": 143,
+      "sha256": "90690d24c3eb6d4cdbc62900dde780d84ac3e7aa0cb75c1a045d50c5b6d43b8d",
       "symbols": [
         {
           "name": "MemoryRecallIntegrationTest",
