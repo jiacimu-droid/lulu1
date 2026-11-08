@@ -234,8 +234,31 @@ internal fun RelicEscapeWorldMap(
                         val lidLift = relicChestLidLift(run, chest.id, openingReceipt, openingProgress)
                         // The lid stays on the actual chest tile and follows the same
                         // committed-receipt clock as the reward ceremony.
-                        drawLine(Color(0xFFB29B85),p+Offset(t*.21f,t*(.43f-.23f*lidLift)),
-                            p+Offset(t*.78f,t*(.32f-.24f*lidLift)),strokeWidth=t*.07f)
+                        // Layered hinged lid: shadow, wooden face, brass rim and rivets.
+                        // All offsets use the existing committed-event clock; no loot state is touched.
+                        val lidRise = t * .23f * lidLift
+                        val lidTop = p + Offset(t*.16f, t*.29f - lidRise)
+                        drawRoundRect(Color(0xFF231B22).copy(alpha=.50f),
+                            lidTop + Offset(t*.035f,t*.075f),
+                            Size(t*.72f,t*.21f),CornerRadius(t*.045f))
+                        drawRoundRect(Color(0xFF493128),lidTop,
+                            Size(t*.69f,t*.19f),CornerRadius(t*.045f))
+                        drawRoundRect(Color(0xFF9B7245),lidTop+Offset(t*.025f,t*.018f),
+                            Size(t*.64f,t*.12f),CornerRadius(t*.025f))
+                        drawLine(Color(0xFFE8BF76),
+                            lidTop+Offset(t*.05f,t*.045f),
+                            lidTop+Offset(t*.63f,t*.045f),strokeWidth=t*.022f)
+                        drawLine(Color(0xFF4B3430),
+                            lidTop+Offset(t*.08f,t*.14f),
+                            lidTop+Offset(t*.60f,t*.14f),strokeWidth=t*.025f)
+                        for (rivetX in listOf(.10f,.59f)) {
+                            drawCircle(Color(0xFFF5D18C),t*.023f,
+                                lidTop+Offset(t*rivetX,t*.082f))
+                        }
+                        // The latch remains attached to the lid as it opens.
+                        drawRoundRect(Color(0xFFE4B86D),
+                            lidTop+Offset(t*.305f,t*.105f),
+                            Size(t*.085f,t*.09f),CornerRadius(t*.015f))
                     }
                 }
                 dropsByCell[y*run.w+x].orEmpty().forEach{drop->
