@@ -37,7 +37,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -234,19 +233,30 @@ fun QqStyleChatDetailScreen(
 
     // Keep draft writes in the composer snapshot: editing must not invalidate the entire chat screen.
     val inputState = rememberSaveable(conversationId) { mutableStateOf("") }
-    // Slow owner typing is not another role decision. Sample the draft off
-    // the composition path (at most ~1 lightweight, local update/second)
-    // so the real last-keystroke silence can extend the existing eight-second
-    // message batch. No API call and no storage write if no turn is pending.
+    var composerFocused by remember(conversationId) { mutableStateOf(false) }
+    // Purely LOCAL input observation: no AI, no token usage, no extra worker.
+    // While a next bubble is being typed, extend the same pending user turn.
+    // After the editor is empty or loses focus, shorten that turn to a four-
+    // second grace. 60s inactivity is the safe fallback for abandoned drafts.
     LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible) {
         if (groupChat == null && routeVisible) {
-            snapshotFlow { inputState.value }
-                .sample(900L)
-                .collect { draft ->
-                    if (draft.isNotBlank()) {
-                        OnlineChatBatchStore.onComposerEdit(context, characterId)
+            try {
+                snapshotFlow { inputState.value to composerFocused }
+                    .debounce(120L)
+                    .collect { (draft, focused) ->
+                        if (draft.isNotBlank() && focused) {
+                            OnlineChatBatchStore.onComposerEdit(context, characterId)
+                        } else {
+                            OnlineChatBatchStore.onComposerIdle(context, characterId)
+                        }
                     }
-                }
+            } finally {
+                // Leaving the page must not hold a background pending reply
+                // behind an editing deadline the owner can no longer see.
+                OnlineChatBatchStore.onComposerIdle(context, characterId)
+            }
+        } else if (groupChat == null) {
+            OnlineChatBatchStore.onComposerIdle(context, characterId)
         }
     }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
@@ -773,6 +783,7 @@ fun QqStyleChatDetailScreen(
                             groupMode = groupChat != null,
                             characterId = characterId,
                             receiving = receiving,
+                            onInputFocusChanged = { composerFocused = it },
                             onMention = { mentionExpanded = true },
                             onCall = {
                                 focusManager.clearFocus(force = true)
