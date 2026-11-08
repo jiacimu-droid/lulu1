@@ -270,3 +270,5 @@
 
 
 **2026-11-08 P-08c.2 CI 后继验收**：`19bc51e` 的 [Lulu APK/JVM #42476629762](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629762) `build` job（128719326366）和 [Refresh code index #42476629754](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629754) `refresh` job（128719326340）均已 completed/success。此成功仅验上轮真实执行器→ChatStore 的部分气泡取消回归；**P-08c.2 工程子项该回归已验**，整体仍缺其他发送入口、真机/真实模型及重启后回执消费，不勾整体。下一轮直接打开 `QqReplySourceWatermarkTest.kt` 的 `privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`、`QqChatReplyEngine.kt` 的 `appendRoleReplyWithPacingReceipt`，针对已发送部分气泡后取消再重启/消费回执做最小纵向回归；如已有覆盖则转 P-08a.1g.3 的 ToolRouter 主失败副成功。
+
+**2026-11-08 P-08c.2 群聊部分发泡取消回归（待 CI）**：[`cffcd760`](https://github.com/jiacimu-droid/lulu1/commit/cffcd7608a576d0da64f15943a0784728ce36d22) 新增 `QqReplySourceWatermarkTest.groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts`，经真实 `CompanionActionRuntime.execute(send_group_message)`→ChatStore，第一泡入库后用户纠正，核整轮失败、真实送达 ID/末泡 evidenceId 和旧泡停止。与已验私聊测试不同，此次验证群聊执行入口；尚未取得该 SHA JVM/APK 成功结果，不勾整体。下一轮先查 `cffcd760` 的 Actions；若通过，继续 P-08c.2 重启后部分送达回执消费，若失败先修测试/根因；真机/真实模型仍待验。
