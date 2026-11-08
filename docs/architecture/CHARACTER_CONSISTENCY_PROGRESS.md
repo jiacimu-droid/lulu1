@@ -1527,3 +1527,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **前序 CI 真实结果**：`9527f181e25aedc512c1447587c502966474d3f3` 对应 [Lulu APK/JVM #42501020762](https://github.com/jiacimu-droid/lulu1/actions/runs/42501020762) `build=completed/success`，及 [Refresh code index #42501020685](https://github.com/jiacimu-droid/lulu1/actions/runs/42501020685) `refresh=completed/success`（通过 Actions jobs 读取）。仅证明该 SHA 的工程验收，不等于真机/模型验收。
 - **本轮代码提交**：[`60c2243df180448dcb1c75bd2e144160cbd2cde3`](https://github.com/jiacimu-droid/lulu1/commit/60c2243df180448dcb1c75bd2e144160cbd2cde3)，仅修改 `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt`。在既有真实 `CompanionActionRuntime.execute(send_group_message)` 首泡→用户纠正→新批→重建 ChatStore 回归中保存旧 source watermark，重建后验证旧 watermark 失效，旧批不能通过 `appendCharacterMessageIfSourceCurrent` 写入，权威存储消息 ID 不变。不是重复测试单纯的消息列表重载，也没有改变正式发送逻辑。
 - **未验**：新 SHA 的 main push JVM/APK 与代码索引尚无本轮成功证据；没有本地 Gradle、真机、真实模型或真正进程死亡验收。P-08c.2 整体不勾。下一轮直接检查 `60c2243` 的 Actions head SHA/首错，再审部分回执消费者重建/幂等；若已覆盖转 P-08a.1g.3 ToolRouter 主失败副成功。API 400 次问题尚无服务商账单与旧 HTTP 逐次记录，不能据此归因；请求尝试、成功响应、计费请求是三种不同计数。
+
+## 2026-11-09 · P-08c.2 ToolRouter 群聊回执重放/Store 重建
+
+- 接手 main `ab5b2e7f588f645fb8d29769d2aac40e5fcac906`，核 `QqReplySourceWatermarkTest` 已覆盖部分发泡、纠正、下一轮和 Store 重新实例化，避免重复这些断言。
+- 新测试 [`bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df`](https://github.com/jiacimu-droid/lulu1/commit/bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df) `completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`：真实 `ToolRouter.execute(send_group_message)` 首次成功→使用同一 SharedPreferences 重建 `InMemoryLuluChatStore`→相同 requestId/不同 `_turnTraceId` 重放，核回执一致、真实气泡仅一条、live/reopened Store ID/正文一致。生产源码未改，不调用付费模型。
+- 本轮无对应 SHA 的 JVM/APK 与 Refresh code index 成功证据，**测试尚未验通**；不把 Store 重新实例化称为真实进程死亡，也不把 ToolRouter 幂等误称为所有下游回执消费幂等。下一轮先核 `bf111c58` 的 main push Actions，失败修首错；成功后沿回执消费方补独立副作用幂等回归或转 P-08a.1g.3 主失败/副成功。真机与真实模型未验。
