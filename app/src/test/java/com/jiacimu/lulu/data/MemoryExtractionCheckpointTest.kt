@@ -97,7 +97,17 @@ class MemoryExtractionCheckpointTest {
         val restored = MemoryExtractionJobStore.pending().single()
         assertEquals(1, restored.attempts)
         assertFalse(memoryExtractionRetryDue(restored, restored.updatedAt.plusSeconds(30)))
-        assertTrue(memoryExtractionRetryDue(restored, restored.updatedAt.plusSeconds(61)))
+        assertFalse(memoryExtractionRetryDue(restored, restored.updatedAt.plusSeconds(61)))
+        assertTrue(memoryExtractionRetryDue(restored, restored.updatedAt.plusSeconds(15L * 60)))
+    }
+
+    @Test fun unchangedFailedBatchNeverRetriesEveryHalfHourForeverAndIsNotLost() {
+        val now = Instant.parse("2026-11-08T10:00:00Z")
+        val job = MemoryExtractionJob(id = "memory:slow-retry",
+            characterId = "slow-retry", attempts = 8, updatedAt = now)
+        assertFalse(memoryExtractionRetryDue(job, now.plusSeconds(60L * 60)))
+        assertFalse(memoryExtractionRetryDue(job, now.plusSeconds(23L * 60 * 60)))
+        assertTrue(memoryExtractionRetryDue(job, now.plusSeconds(24L * 60 * 60)))
     }
 
     @Test fun persistenceDoesNotSilentlyEvictAnOlderRoleBeyondThreeHundredJobs() {
