@@ -130,6 +130,29 @@ class MemoryLifecycleIntegrationTest {
         } finally { release.countDown(); server.shutdown() }
     }
 
+    @Test fun ordinaryTasteIsRememberedInOneBatchWithEvidenceAndCharacterLens() = runBlocking {
+        val server = MockWebServer()
+        server.enqueue(reply("""[{"kind":"Fact","content":"用户喜欢吃火锅","sourceEventIds":["source"],"tier":"Stable","strength":4,"slot":"饮食喜好"}]"""))
+        server.start()
+        try {
+            initialize(server)
+            LuluRepositories.memory.updatePolicy("lifecycle", MemoryPolicy(0, 1))
+            event("我爱吃火锅")
+            LuluRepositories.memory.summarizeNow("lifecycle")
+            val request = server.takeRequest(5, TimeUnit.SECONDS)
+            assertNotNull(request)
+            val input = request!!.body.readUtf8()
+            assertTrue(input.contains("当前角色的记忆注意视角"))
+            assertTrue(input.contains("只有这里的事件ID可用于记忆来源"))
+            assertTrue(input.contains("我爱吃火锅"))
+            assertEquals(1, server.requestCount)
+            val stored = LuluRepositories.memory.snapshot("lifecycle")
+            assertEquals(1, stored.size)
+            assertEquals("用户喜欢吃火锅", stored.single().content)
+            assertEquals(listOf("source"), stored.single().sourceIds())
+        } finally { server.shutdown() }
+    }
+
     @Test fun sameExtractionUpdatesCurrentUnderstandingAndArchivesTheOldFact() = runBlocking {
         val server = MockWebServer()
         server.enqueue(reply("""[{"kind":"Fact","content":"用户现在喜欢清茶","sourceEventIds":["source"],"tier":"Core","supersedes":["prior"]}]"""))
