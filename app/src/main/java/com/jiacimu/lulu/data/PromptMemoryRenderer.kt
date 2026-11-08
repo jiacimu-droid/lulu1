@@ -22,7 +22,7 @@ internal object PromptMemoryRenderer {
             // the night-to-morning reasoning. Render local readable time.
             val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
                 .format((memory.occurredAt ?: memory.createdAt).atZone(java.time.ZoneId.of("Asia/Shanghai")))
-            val prefix = "- （$at）"
+            val prefix = "- （$at）[${memory.perspective.label}] "
             val space = (remaining - prefix.length - 1).coerceAtLeast(0)
             if (space < 65) break
             val clean = memory.content.trim().replace(Regex("\\s+"), " ")
