@@ -253,6 +253,18 @@ object ProactivePerceptionRuntime {
             LuluRepositories.performance.recordTiming("角色执行队列",
                 (System.nanoTime() - queuedAtNanos) / 1_000_000L,
                 "角色=$targetCharacterId；批次=${onlineRevision ?: "自主"}")
+            // The unread user batch is the primary owner of this immediate
+            // situation. A separate expiry/life/goal wake must NOT buy a
+            // second appraisal while the owner is still typing or the role is
+            // already generating. Preserve evidence for the next normal turn.
+            // Check BEFORE claiming an expiry ticket; otherwise skipping its
+            // model would falsely acknowledge the last online decision.
+            if (onlineRevision == null && targetCharacterId != null &&
+                requiredInteractionEvidenceId.isNullOrBlank() &&
+                !trigger.contains("用户手动唤醒") &&
+                OnlineChatBatchStore.shouldDeferBackgroundWake(context, targetCharacterId)) {
+                return@withLock 0
+            }
             // The live expiry coroutine and the durable worker race safely:
             // exactly one owns the *actual* online deadline. New chat wakes win.
             if (onlineExpiryAtMillis > 0L &&
@@ -280,6 +292,13 @@ object ProactivePerceptionRuntime {
                 var evaluated = 0
                 for (conversation in targets) {
                     val characterId = conversation.characterId.ifBlank { "lulu" }
+                    // The global watchdog can evaluate other characters while
+                    // one of them is in a user-input quiet window. Never make
+                    // that one role pay for a competing passive appraisal.
+                    if (onlineRevision == null &&
+                        requiredInteractionEvidenceId.isNullOrBlank() &&
+                        !trigger.contains("用户手动唤醒") &&
+                        OnlineChatBatchStore.shouldDeferBackgroundWake(context, characterId)) continue
                     // The connected call owns perception and expression, including quiet pulses.
                     // General background decisions must not start a second call or send competing chat.
                     if (CompanionPresenceStore.isInCall(characterId)) continue
