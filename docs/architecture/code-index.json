@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:03:19.706949+00:00",
-  "commit": "29504279af937c4d44b98750c8b78306a0c2119b",
+  "generatedAt": "2026-11-08T16:04:20.465064+00:00",
+  "commit": "1108cd480c2b19ca685d3dcfa4cb66098aa1b444",
   "branch": "main",
-  "sourceFingerprint": "6e669f4b06b062d3ec33e89762891b2f5974f6e7987e36bfed8cefc40735683d",
+  "sourceFingerprint": "97291e0f5e6133b4df2d4f7cde8e4ba9474b26ae8b9c82397dcf71c4bcb4687b",
   "summary": {
     "files": 1147,
-    "lines": 246564,
+    "lines": 246588,
     "symbols": 3383
   },
   "symbolIndex": {
@@ -6217,7 +6217,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 233
+        "line": 239
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -10479,7 +10479,7 @@
     "pendingBatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 183
+        "line": 186
       }
     ],
     "replacementId": [
@@ -24414,8 +24414,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 276,
-      "sha256": "01d2f9bf584e7c9b607e0fdde3b6dc3bed9f5471e65c9d127381d621f0cc9e7e",
+      "lines": 282,
+      "sha256": "fe27eda7b53f583eece2f8fd7d472d098d295c4e6b4b1e2cd00cfcd8a5820596",
       "symbols": [
         {
           "name": "snapshot",
@@ -24443,7 +24443,7 @@
         },
         {
           "name": "ids",
-          "line": 233
+          "line": 239
         }
       ]
     },
@@ -25943,8 +25943,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 557,
-      "sha256": "39a66f6731dff803225285392c91dc522c782b534bfbe47bd7ac3d86aac7d1ba",
+      "lines": 562,
+      "sha256": "be05bb03e6e501b010605fcc926ed504898c6512e10fdf6d8adb41d7e95b85d6",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
@@ -25958,8 +25958,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 106,
-      "sha256": "82962407ce8f772a8edfa8a92feb375e1ff8665622f91b5986bb4ef7bbed7e97",
+      "lines": 111,
+      "sha256": "c2c3979f51fbe63c57562cede03f996aec2f067956af3329c4b98f7676380aed",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
@@ -26357,8 +26357,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 397,
-      "sha256": "1d97b7869983a9773057ef98e7d0789f08a90e48741fa5bbdcb393705d25274c",
+      "lines": 400,
+      "sha256": "50d50e6db990cb29532c0f07af1992edbc6eaae6adcde1a6290f5eb2bcbb4f5f",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -28886,8 +28886,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 409,
-      "sha256": "1e6cdf06f6c98ca151a4c4f5f0eb08fe4f692bc425ef925f264d7e4b998152da",
+      "lines": 412,
+      "sha256": "c2ab6f3ec65de3dccc83254cd5983f5be1ea1eb0821823ec496c0d176a585d73",
       "symbols": [
         {
           "name": "report",
@@ -28911,7 +28911,7 @@
         },
         {
           "name": "pendingBatches",
-          "line": 183
+          "line": 186
         }
       ]
     },
@@ -28928,8 +28928,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
-      "lines": 239,
-      "sha256": "64081b7b3d7422e380122f713fcbb0db7b95608d3660c24aa18a990ed9a62c91",
+      "lines": 241,
+      "sha256": "16f36444d4ab06f1476748f1fbfb84571a283489484db8fef1be8a53581783ff",
       "symbols": [
         {
           "name": "initialize",
