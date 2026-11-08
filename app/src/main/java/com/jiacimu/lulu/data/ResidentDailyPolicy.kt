@@ -109,6 +109,18 @@ internal object ResidentDailyPolicy {
         at: java.time.Instant = java.time.Instant.now()): Boolean =
         remainingModelRequests(context, role, at) > 0
 
+    /** Low-priority memory review / growth must not spend the resident's
+     * FIRST daily model allowance before their own scheduled day decision.
+     * The original plan and all real social/due-time calls retain their
+     * existing shared atomic budget. This is only a read-only preflight. */
+    fun hasBackgroundMaintenanceAllowance(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Boolean {
+        if (!role.startsWith("resident:")) return true
+        if (!hasModelRequestAllowance(context, role, at)) return false
+        val nativeId = role.removePrefix("resident:")
+        return ResidentDailyDecision.attemptedToday(context, nativeId, at)
+    }
+
     /** Local midnight when this resident's next configured daily allowance starts.
      * This is scheduling arithmetic only, not a new decision or paid request. */
     fun nextModelBudgetDayStart(at: java.time.Instant = java.time.Instant.now()): java.time.Instant {
