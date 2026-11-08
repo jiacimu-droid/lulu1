@@ -45,6 +45,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         mutableIntStateOf(if (startInTimeline) 2 else if (startInCore) 1 else 0)
     }
     var search by rememberSaveable(characterId) { mutableStateOf("") }
+    var perspectiveFilter by rememberSaveable(characterId) { mutableStateOf("all") }
     var characterMenu by remember { mutableStateOf(false) }
     var management by remember { mutableStateOf(false) }
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
@@ -119,6 +120,13 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val remembered = if (rememberedState.first == characterId) rememberedState.second.filter {
         search.isBlank() || (it.title + it.content).contains(search.trim(), true)
     } else emptyList()
+    val visibleRemembered = remembered.filter { row ->
+        when (perspectiveFilter) {
+            "record" -> row.memory?.perspective == MemoryPerspective.Record
+            "subjective" -> row.memory?.perspective == MemoryPerspective.Subjective
+            else -> true
+        }
+    }
     val coreRemembered = remembered.filter { it.memory?.isCoreMemory() == true }
     val activeCoreCount = memories.count { it.isCoreMemory() &&
         MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId) }
@@ -165,6 +173,15 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
+            if (area == 0) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("all" to "全部", "record" to "客观记录", "subjective" to "角色主观").forEach { (key, label) ->
+                        FilterChip(selected = perspectiveFilter == key,
+                            onClick = { perspectiveFilter = key }, label = { Text(label) })
+                    }
+                }
+            }
             if (area == 2) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -256,7 +273,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                     }
                     }
                 } else if (area != 2) {
-                    val rows = if (area == 1) coreRemembered else remembered
+                    val rows = if (area == 1) coreRemembered else visibleRemembered
                     if (area == 1) item(key = "core-intro") {
                         Surface(color = Color(0xFFE8F3EF),
                             shape = RoundedCornerShape(17.dp)) {
@@ -308,7 +325,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         }
                     }
                 }
-                val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
+                val total = when (area) { 0 -> visibleRemembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
                 if (total > count) item { TextButton(onClick = { count += 40 }, modifier = Modifier.fillMaxWidth()) {
                     Text("继续加载 · 还有 ${total - count} 条")
                 } }
