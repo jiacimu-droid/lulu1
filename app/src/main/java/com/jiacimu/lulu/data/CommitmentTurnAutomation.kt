@@ -339,9 +339,8 @@ object CommitmentTurnAutomation {
 
     private fun permitAttempt(signature: String, characterId: String): Boolean {
         val p = prefs ?: return false
-        val app = appContext ?: return false
-        if (!BackgroundModelRequestBudget.allowed(app, characterId, "承诺任务", "承诺任务提取"))
-            return false
+        // This source turn is independent of other owner requests; there is
+        // no aggregate paid-call quota for promises.
         val key = "attempt:${signature.hashCode()}"
         val last = p.getLong("$key:at", 0L)
         val count = p.getInt("$key:count", 0)
