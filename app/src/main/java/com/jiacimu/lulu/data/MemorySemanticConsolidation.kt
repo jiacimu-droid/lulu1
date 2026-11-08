@@ -372,7 +372,7 @@ internal object MemorySemanticConsolidation {
         return windows.distinct()
     }
 
-    private fun reviewWindows(items: List<MemoryEntry>): List<List<MemoryEntry>> =
+    internal fun reviewWindows(items: List<MemoryEntry>): List<List<MemoryEntry>> =
         items.groupBy { it.kind to it.perspective }.values.flatMap { overlappingReviewWindows(it) }
 
     private fun fingerprint(memories: List<MemoryEntry>): String {
