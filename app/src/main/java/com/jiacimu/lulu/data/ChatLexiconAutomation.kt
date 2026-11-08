@@ -426,11 +426,8 @@ object ChatLexiconAutomation {
 
     private fun permitAttempt(signature: String, characterId: String): Boolean {
         val p = prefs ?: return false
-        val app = appContext ?: return false
-        // Do not count a locally budget-deferred extraction as one of this
-        // source turn's five paid attempts. Keep the persisted pending turn.
-        if (!BackgroundModelRequestBudget.allowed(app, characterId, "生活记录", "生活近况提取"))
-            return false
+        // Only the exact source turn's own retry checkpoint controls this
+        // fallback; a separate user's new fact never consumes a shared quota.
         val key = "attempt:${signature.hashCode()}"
         val last = p.getLong("$key:at", 0L)
         val count = p.getInt("$key:count", 0)
