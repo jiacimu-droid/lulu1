@@ -99,19 +99,23 @@ class OnlineChatBatchStoreTest {
         // pending deadline; no new role decision or revision is purchased.
         assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 105_000L))
         assertEquals(165_000L, OnlineChatBatchStore.pendingDueAt(app, role))
-        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 110_000L))
-        assertEquals(170_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        // Continuous keyboard activity reads locally; it needn't write the
+        // shared preferences every 350ms while >30s of hold is left.
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 110_000L))
+        assertEquals(165_000L, OnlineChatBatchStore.pendingDueAt(app, role))
         assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 120_000L))
-        val secondBubble = OnlineChatBatchStore.onUserBubble(app, role, 112_000L)
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 140_000L))
+        assertEquals(200_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        val secondBubble = OnlineChatBatchStore.onUserBubble(app, role, 142_000L)
         assertEquals(first.revision, secondBubble.revision)
-        assertEquals(170_000L, secondBubble.dueAtMillis)
+        assertEquals(200_000L, secondBubble.dueAtMillis)
         // Sending empties the composer. Four seconds of local observation
         // replaces the draft's long idle fallback.
-        assertTrue(OnlineChatBatchStore.onComposerIdle(app, role, 112_000L))
-        assertEquals(116_000L, OnlineChatBatchStore.pendingDueAt(app, role))
-        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 115_999L))
-        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 116_000L))
-        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 117_000L))
+        assertTrue(OnlineChatBatchStore.onComposerIdle(app, role, 142_000L))
+        assertEquals(146_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 145_999L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 146_000L))
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 147_000L))
         OnlineChatBatchStore.finish(app, role, first.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
     }
