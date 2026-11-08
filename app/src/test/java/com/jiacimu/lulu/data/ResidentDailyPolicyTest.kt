@@ -35,6 +35,38 @@ class ResidentDailyPolicyTest {
             ResidentDailyPolicy.MAX_AGENDA_ITEMS))
     }
 
+
+    @Test fun optionalResidentMaintenanceWaitsForOwnDailyPlanningWithoutSpendingQuota() {
+        val ctx = context()
+        val policy = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        val daily = ctx.getSharedPreferences("lulu_resident_daily_decisions_v1", Context.MODE_PRIVATE)
+        val role = "resident:maintenance-reservation"
+        val nativeId = "maintenance-reservation"
+        val at = Instant.parse("2026-11-08T11:00:00Z")
+        policy.edit().clear().commit()
+        daily.edit().remove("attempt:$nativeId").commit()
+        try {
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 2))
+            assertEquals(2, ResidentDailyPolicy.remainingModelRequests(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, at))
+            // Optional review cannot starve the ordinary daily planning call.
+            assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            assertEquals(0, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
+            daily.edit().putString("attempt:$nativeId", ResidentDailyDecision.date(at)).commit()
+            assertTrue(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx,
+                role, at.plusSeconds(86_400)))
+            assertTrue(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, at.plusSeconds(86_400)))
+        } finally {
+            policy.edit().clear().commit()
+            daily.edit().remove("attempt:$nativeId").commit()
+        }
+    }
+
     @Test fun ownerPopulationCapAndSpawnSwitchUseOnePersistentAuthority() {
         val ctx = context()
         val pref = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
