@@ -40,6 +40,24 @@ class CommitmentDecisionProtocolTest {
             """[{"action":"create","goal":"叫醒","dueAt":"明天九点"}]"""), emptyList()) }.isFailure)
     }
 
+    @Test fun backgroundRecoveryKeepsValidCommitmentsWhenAnotherDateIsMalformed() {
+        val drafts = parseCommitmentTaskDrafts(
+            """{"changes":[
+              {"action":"create","goal":"今夜叫醒","dueAt":"明天九点","deliveryAction":"alarm_only"},
+              {"action":"create","goal":"记住继续监督学习","promiseKind":"long_term_supervision","needsClarification":false}
+            ]}""")
+        assertEquals(2, drafts.size)
+        assertNull(drafts[0].dueAt)
+        assertTrue(drafts[0].needsClarification)
+        assertFalse(drafts[1].needsClarification)
+        assertEquals("记住继续监督学习", drafts[1].goal)
+        // Foreground must still reject an invalid actionable calendar value.
+        assertTrue(runCatching {
+            CommitmentDecisionProtocol.drafts(JSONArray(
+                """[{"action":"create","goal":"今夜叫醒","dueAt":"明天九点"}]"""), emptyList())
+        }.isFailure)
+    }
+
     @Test fun mixedRoutineSupervisionIsNotManufacturedIntoAFailedWakeAlarm() {
         val draft = parseCommitmentTaskDrafts(
             """[{"action":"create","goal":"督促学习、睡觉、起床、按时吃饭",
