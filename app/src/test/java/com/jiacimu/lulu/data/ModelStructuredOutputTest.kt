@@ -319,6 +319,29 @@ class ModelStructuredOutputTest {
         assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
     }
 
+    @Test fun punctuationFreePhraseBubblesStayDistinctThroughTheActualSender() {
+        val spoken = listOf("耳根子总算清净了", "快过来抱抱", "没被坏了心情吧宝宝")
+        val json = org.json.JSONObject().put("action", "reply").put(
+            "bubbles", org.json.JSONArray().apply {
+                spoken.forEach { put(org.json.JSONObject().put("text", it)) }
+            })
+        assertEquals(spoken, ModelStructuredOutput.completedReplyBubbles(json.toString()))
+        val outgoing = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = spoken.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+                preserveAuthoredBubbleBoundaries = true,
+            )
+        )
+        assertEquals(spoken, outgoing.map { it.text })
+        assertEquals(3, outgoing.size)
+        // A single authored bubble remains a single send: model-selected
+        // conversational pauses, not commas, own the message boundaries.
+        val unbroken = org.json.JSONObject().put("action", "reply").put(
+            "bubbles", org.json.JSONArray().put(spoken.joinToString("，")))
+        assertEquals(listOf(spoken.joinToString("，")),
+            ModelStructuredOutput.completedReplyBubbles(unbroken.toString()))
+    }
+
     @Test fun hesitantIncompletePhraseCanBeAnIntentionalStructuredBubble() {
         val response = """{"action":"reply","bubbles":[{"text":"原来一直在用功，是我"},{"text":"猜错了"}]}"""
         assertEquals(
