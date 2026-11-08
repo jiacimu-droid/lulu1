@@ -33,11 +33,6 @@ internal object BackgroundModelRequestBudget {
         return PREFIX + digest.joinToString("") { "%02x".format(it) }
     }
 
-    /** Legacy source-only preflight cannot distinguish separate user facts.
-     * It must never reject a legitimate new message based on aggregate calls. */
-    fun allowed(context: Context, role: String, source: String, title: String,
-        now: Instant = Instant.now()): Boolean = true
-
     @Synchronized
     fun claim(context: Context, role: String, source: String, title: String,
         now: Instant = Instant.now(), evidence: String = ""): Boolean {
