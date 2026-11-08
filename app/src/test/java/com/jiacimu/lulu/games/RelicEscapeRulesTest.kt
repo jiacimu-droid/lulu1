@@ -113,6 +113,28 @@ class RelicEscapeRulesTest {
             opened.drops.any { it.loot == receipt!!.loot })
     }
 
+    @Test fun mapChestLidSharesCommittedCeremonyTimelineWithoutMintingLoot() {
+        val initial = RelicEscapeWorld.create(619, 2, emptyList(), 0, 1)
+        val chest = initial.chests.first()
+        val before = RelicEscapeRules.reveal(initial.copy(
+            hero = initial.hero.copy(x = chest.x, y = chest.y),
+            mobs = emptyList(), sites = emptyList()))
+        val after = RelicEscapeRules.act(before, "open", chest.x, chest.y)
+        val receipt = RelicChestPresentation.committed(before, after, chest.id)
+        assertNotNull(receipt)
+        assertEquals(0f, relicChestLidLift(before, chest.id, receipt, 1f))
+        assertEquals(0f, relicChestLidLift(after, chest.id, receipt, 0f))
+        assertEquals(0f, relicChestLidLift(after, chest.id, receipt, .10f))
+        assertEquals(1f, relicChestLidLift(after, chest.id, receipt, .57f))
+        assertEquals(1f, relicChestLidLift(after, chest.id, receipt, 1f))
+        assertEquals(0f, relicChestLidLift(after, chest.id, null, 1f))
+        assertEquals(0f, relicChestLidLift(after, chest.id + "-other", receipt, 1f))
+        assertEquals(0f, relicChestLidLift(after.copy(id = "different"), chest.id, receipt, 1f))
+        assertEquals(after.hero.bag, after.hero.bag)
+        assertTrue(after.hero.bag.any { it == receipt!!.loot } ||
+            after.drops.any { it.loot == receipt!!.loot })
+    }
+
     @Test fun chestCeremonyUsesNewPhysicalCopyNotAnOldIdenticalLoot() {
         val generated=RelicEscapeWorld.create(613,2,emptyList(),0,1)
         val chest=generated.chests.first()
