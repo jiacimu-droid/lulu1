@@ -36,6 +36,7 @@ import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -241,8 +242,10 @@ fun QqStyleChatDetailScreen(
     LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible) {
         if (groupChat == null && routeVisible) {
             try {
+                // sample, not debounce: uninterrupted fast typing MUST
+                // keep renewing the local gate rather than waiting for a pause.
                 snapshotFlow { inputState.value to composerFocused }
-                    .debounce(120L)
+                    .sample(350L)
                     .collect { (draft, focused) ->
                         if (draft.isNotBlank() && focused) {
                             OnlineChatBatchStore.onComposerEdit(context, characterId)
