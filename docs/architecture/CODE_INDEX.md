@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5bf661262a75ee43428a59f27dc0ee7db295459d`
+- 基准提交：`58b23a496678e540ab33a8d2c418f3e6b3098341`
 - 分支：`main`
 - 已索引文件：1144
-- 已索引代码/文本行：245996
+- 已索引代码/文本行：245999
 - 已发现符号：3373
 
 | 文件 | 行数 | 符号数 |
@@ -691,7 +691,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 359 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 192 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 591 | 25 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 850 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 853 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 117 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 126 | 0 |
