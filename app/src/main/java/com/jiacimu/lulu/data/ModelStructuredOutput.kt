@@ -224,6 +224,15 @@ internal object ModelStructuredOutput {
         }
     }
 
+    /**
+     * Shared structured speech projection for foreground and autonomous chat.
+     * Keeping it here guarantees that text boundaries and per-bubble delivery
+     * choices are derived from the same authored JSON entries.
+     */
+    fun chatMessageBubbles(json: JSONObject): List<String> =
+        json.optJSONArray("bubbles")?.let { authoredChatParts(it).map(AuthoredChatPart::text) }
+            .orEmpty()
+
     /** Position-aligned delivery decisions; the model may voice none, some, or all bubbles. */
     fun bubbleDeliveryModes(json: JSONObject): List<String> {
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
