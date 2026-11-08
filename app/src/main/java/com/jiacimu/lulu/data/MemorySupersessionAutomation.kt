@@ -19,16 +19,15 @@ import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
-import java.time.ZoneId
 
-/** Paid validation is low-priority housekeeping: keep a durable per-role daily
- * ceiling and a per-fact retry delay even when the provider keeps failing. */
+/** Keep the same ambiguous fact from triggering another possibly-billed
+ * comparison every passive tick. Never suppress *different* new facts. */
 internal fun memorySupersessionAttemptAllowed(
-    usedToday: Int, lastAttemptMillis: Long, nowMillis: Long,
-    dailyLimit: Int = 2, retryDelayMillis: Long = 60L * 60_000L,
-): Boolean = usedToday < dailyLimit &&
-    (lastAttemptMillis <= 0L ||
-        (nowMillis >= lastAttemptMillis && nowMillis - lastAttemptMillis >= retryDelayMillis))
+    lastAttemptMillis: Long, nowMillis: Long,
+    retryDelayMillis: Long = 60L * 60_000L,
+): Boolean = lastAttemptMillis <= 0L ||
+    (nowMillis >= lastAttemptMillis &&
+        nowMillis - lastAttemptMillis >= retryDelayMillis)
 
 /**
  * Detects explicit corrections/updates between stable Fact memories.
@@ -41,9 +40,6 @@ internal object MemorySupersessionAutomation {
     private const val KEY_BASELINED = "baselined_characters"
     private const val KEY_PROCESSED = "processed_fact_ids"
     private const val MAX_PROCESSED = 2_000
-    // At most two automatic fact-comparison calls per character per local day.
-    // Backlog stays eligible on a future day; there is no retry storm.
-    private const val MAX_AUTO_CHECKS_PER_DAY = 2
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val jobs = mutableMapOf<String, Job>()
@@ -111,10 +107,18 @@ internal object MemorySupersessionAutomation {
             .filterNot { it.id in processed }
             .sortedBy(MemoryEntry::createdAt)
         for (newFact in pending) {
+            // The original extractor already proposes explicit supersedes.
+            // A second paid review is warranted only when TWO currently
+            // active facts claim the same author-supplied semantic slot.
+            // Generic lexical overlap is NOT proof of a correction and used
+            // to generate many redundant validation calls.
             val older = facts.filter { old ->
-                old.id != newFact.id &&
-                    old.createdAt <= newFact.createdAt &&
-                    MemoryValidityStore.isActive(old.id)
+                old.id != newFact.id && old.createdAt <= newFact.createdAt &&
+                    MemoryValidityStore.isActive(old.id) &&
+                    newFact.slot.isNotBlank() &&
+                    old.slot == newFact.slot &&
+                    newFact.subject.isNotBlank() &&
+                    old.subject == newFact.subject
             }
             val candidates = older
                 .map { old -> old to semanticOverlap(old.content, newFact.content) }
@@ -136,27 +140,17 @@ internal object MemorySupersessionAutomation {
         // No memory-specific connection means no paid fact-comparison call.
         // In particular, null must not silently fall through to the chat model.
         val extraction = MemoryModelRuntime.extractionConnection() ?: return false
-        if (appContext?.let { BackgroundModelRequestBudget.allowed(it, characterId,
-                "记忆有效性", "事实替代判断") } != true) return false
         val storage = prefs ?: return false
         val now = Instant.now()
         val residentContext = appContext
         if (characterId.startsWith("resident:") && residentContext != null &&
             residentMemoryBudgetDepleted(residentContext, characterId, now)) return false
-        val today = now.atZone(ZoneId.systemDefault()).toLocalDate().toString()
-        val dayKey = "auto-day:$characterId"
-        val countKey = "auto-count:$characterId"
         val lastKey = "auto-last:${newFact.id}"
-        val used = if (storage.getString(dayKey, "") == today)
-            storage.getInt(countKey, 0).coerceAtLeast(0) else 0
         val atMillis = now.toEpochMilli()
         if (!memorySupersessionAttemptAllowed(
-                used, storage.getLong(lastKey, 0L), atMillis,
-                dailyLimit = MAX_AUTO_CHECKS_PER_DAY)) return false
-        // Claim BEFORE the provider handoff. Even an ambiguous timeout can
-        // have been billed, so it is never safe to try again next minute.
-        if (!storage.edit().putString(dayKey, today)
-                .putInt(countKey, used + 1).putLong(lastKey, atMillis).commit()) return false
+                storage.getLong(lastKey, 0L), atMillis)) return false
+        // The same fact may wait after a failure; no aggregate per-day cap.
+        if (!storage.edit().putLong(lastKey, atMillis).commit()) return false
         val facts = buildString {
             appendLine("新事实：")
             appendLine("memoryId=${newFact.id}｜${newFact.content}")
