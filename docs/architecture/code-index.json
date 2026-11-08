@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T03:05:49.720401+00:00",
-  "commit": "98c2e782abdf53d100836a62caa835c2e7076897",
+  "generatedAt": "2026-11-08T07:40:22.822634+00:00",
+  "commit": "db5c8effeab5db46ab32286bef02d5f011f82588",
   "branch": "main",
-  "sourceFingerprint": "9f9862f16a51148542c60a3742b9215aac12430686f5c29ef932bdc7715ea606",
+  "sourceFingerprint": "08e986e8b4da9d1e8a259cec977eb05dd79383b2e06442ec9171c0935487f834",
   "summary": {
     "files": 1144,
-    "lines": 246006,
-    "symbols": 3373
+    "lines": 246034,
+    "symbols": 3374
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18032,10 +18032,16 @@
         "line": 157
       }
     ],
+    "canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
+        "line": 187
+      }
+    ],
     "persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 186
+        "line": 214
       }
     ],
     "PromptContextPolicyTest": [
@@ -38659,8 +38665,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-      "lines": 299,
-      "sha256": "d91a22746914d4c5bad5854e37bbac732a527fde7f0350544fa9b0dd0b90abe0",
+      "lines": 327,
+      "sha256": "200d7209ba0e06a5244f80b859aa34231e37dc2228e3b3d284accba5d10374ae",
       "symbols": [
         {
           "name": "ProactiveSendAttributionTest",
@@ -38699,8 +38705,12 @@
           "line": 157
         },
         {
+          "name": "canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive",
+          "line": 187
+        },
+        {
           "name": "persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery",
-          "line": 186
+          "line": 214
         }
       ]
     },
