@@ -199,4 +199,36 @@ class IslandHouseProjectsTest {
         val duplicated=IslandHouseProjects.advance(after,setOf("alice"))
         assertEquals(after,duplicated)
     }
+    @Test fun exhaustedWoodPausesWithoutPhantomProgressAndResumesOnlyAfterCharacterChoice() {
+        var state=start()
+        // Walk/build through the same turn advancement used by the real game.
+        repeat(35) {
+            if(state.houseProject!!.placed.isEmpty()) state=nextTurn(state)
+        }
+        assertTrue(state.houseProject!!.placed.isNotEmpty())
+        val completedBefore=state.houseProject!!.placed.toList()
+        val builtTiles=state.world.tiles
+        state=state.copy(world=state.world.copy(wood=0))
+        repeat(35) {
+            if(state.houseProject?.phase=="building")state=nextTurn(state)
+        }
+        assertEquals("paused",state.houseProject?.phase)
+        assertEquals(completedBefore,state.houseProject!!.placed)
+        assertEquals(builtTiles,state.world.tiles)
+        val saved=BlockIslandState.fromJson(state.toJson())!!
+        val stillPaused=nextTurn(saved.copy(world=saved.world.copy(wood=20)))
+        assertEquals("paused",stillPaused.houseProject?.phase)
+        assertEquals(completedBefore,stillPaused.houseProject!!.placed)
+        assertEquals(20,stillPaused.world.wood)
+        val chosen=IslandActorPlay.apply(stillPaused,"alice",stillPaused.world.turns,
+            IslandActorChoice("resume_house","木头够了，我接着盖"))!!
+        assertEquals("building",chosen.houseProject?.phase)
+        var resumed=chosen
+        repeat(35) {
+            if(resumed.houseProject?.placed?.size==completedBefore.size)resumed=nextTurn(resumed)
+        }
+        assertTrue(resumed.houseProject!!.placed.size>completedBefore.size)
+        assertTrue(resumed.world.wood<20)
+    }
+
 }
