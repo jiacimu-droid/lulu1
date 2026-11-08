@@ -144,6 +144,21 @@ class OnlineChatBatchStoreTest {
         OnlineChatBatchStore.cancel(app, role)
         assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 1_000_000L))
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+        // The first unsent draft still shields against a competing passive
+        // online perception. This is an in-memory local observation only.
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 1_030_000L))
+        assertFalse(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 1_060_001L))
+        assertFalse(OnlineChatBatchStore.onComposerIdle(app, role, 1_060_002L))
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
+    @Test fun clearingFirstUnsentDraftImmediatelyReleasesPassiveWake() {
+        OnlineChatBatchStore.cancel(app, role)
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 400_000L))
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 400_001L))
+        assertFalse(OnlineChatBatchStore.onComposerIdle(app, role, 401_000L))
+        assertFalse(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 401_001L))
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
     }
 
     @Test fun backgroundWakesYieldToPendingChatButAbandonedWindowsDoNotBlockForever() {
