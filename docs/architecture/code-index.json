@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T02:53:22.164346+00:00",
-  "commit": "58b23a496678e540ab33a8d2c418f3e6b3098341",
+  "generatedAt": "2026-11-08T03:05:49.720401+00:00",
+  "commit": "98c2e782abdf53d100836a62caa835c2e7076897",
   "branch": "main",
-  "sourceFingerprint": "610097b623c6aab2c6c8e69f2f7fb0ae8a0f343deef2d73eb3269ece7a5918fc",
+  "sourceFingerprint": "9f9862f16a51148542c60a3742b9215aac12430686f5c29ef932bdc7715ea606",
   "summary": {
     "files": 1144,
-    "lines": 245999,
+    "lines": 246006,
     "symbols": 3373
   },
   "symbolIndex": {
@@ -38659,8 +38659,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-      "lines": 292,
-      "sha256": "4465bf78e1834a218915a39afee7caf75d8d98c66b65b9ca93e7269794066e34",
+      "lines": 299,
+      "sha256": "d91a22746914d4c5bad5854e37bbac732a527fde7f0350544fa9b0dd0b90abe0",
       "symbols": [
         {
           "name": "ProactiveSendAttributionTest",
