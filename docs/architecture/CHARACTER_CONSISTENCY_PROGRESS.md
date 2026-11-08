@@ -1533,3 +1533,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 接手 main `ab5b2e7f588f645fb8d29769d2aac40e5fcac906`，核 `QqReplySourceWatermarkTest` 已覆盖部分发泡、纠正、下一轮和 Store 重新实例化，避免重复这些断言。
 - 新测试 [`bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df`](https://github.com/jiacimu-droid/lulu1/commit/bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df) `completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`：真实 `ToolRouter.execute(send_group_message)` 首次成功→使用同一 SharedPreferences 重建 `InMemoryLuluChatStore`→相同 requestId/不同 `_turnTraceId` 重放，核回执一致、真实气泡仅一条、live/reopened Store ID/正文一致。生产源码未改，不调用付费模型。
 - 本轮无对应 SHA 的 JVM/APK 与 Refresh code index 成功证据，**测试尚未验通**；不把 Store 重新实例化称为真实进程死亡，也不把 ToolRouter 幂等误称为所有下游回执消费幂等。下一轮先核 `bf111c58` 的 main push Actions，失败修首错；成功后沿回执消费方补独立副作用幂等回归或转 P-08a.1g.3 主失败/副成功。真机与真实模型未验。
+
+## 2026-11-09 · S-02.1 四居民独立 1+2 请求预算回归
+
+- 新增 [`608fbfdef8f1a6e5cfe42931ecf379eb6843a92c`](https://github.com/jiacimu-droid/lulu1/commit/608fbfdef8f1a6e5cfe42931ecf379eb6843a92c)：`ResidentDailyPolicyTest.fourResidentsIndependentlyFundOnePlanAndTwoDueDecisions`。四角色各自 3 次请求额度，测试各自一次计划与两次到点决策的原子领取、额外领取拒绝、12 次总计和次日独立恢复。复用已有 `claimModelDecision` 正式实现，不改用户额度或角色自主性；该测试验证预算账本，不证明四位居民实际生成日程或执行工具。
+- **CI**：当前连接仅提供 PR 触发筛选的 commit runs，不能确认 main push JVM/APK/索引；容器访问 GitHub DNS 失败，本轮未本地编译。新 SHA 尚无成功证据，不勾工程完成。
+- **下轮 S-02.1**：先按 `608fbfd` 查询 main push Actions 与测试首错；若通过，沿 `CompanionModelGateway`、`LocalPerformanceRepository` 的 HTTP handoff 统计补 MockWebServer 失败/重试请求数回归。400 次账单归因仍缺服务商原始记录，不能混同尝试、成功与计费。
