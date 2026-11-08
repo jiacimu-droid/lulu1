@@ -100,7 +100,8 @@ class MemoryRecallIntegrationTest {
                 assertArrayEquals("Seeded vector must be readable from the active app's index",
                     values[i], MemoryEmbeddingIndex.get(key, item.id), 0.00001f)
             }
-            assertEquals(entries.size, LuluRepositories.memory.snapshot("recall-integration").size)
+            assertTrue("All seeded memories must be available for retrieval",
+                LuluRepositories.memory.snapshot("recall-integration").map { it.id }.containsAll(entries.map { it.id }))
             prefs.edit().putBoolean("memory_vector_enabled", true)
                 .putString("memory_embedding_url", server.url("/").toString())
                 .putString("memory_embedding_key", "test-key")
