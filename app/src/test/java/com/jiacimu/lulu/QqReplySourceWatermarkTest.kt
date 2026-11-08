@@ -287,6 +287,28 @@ class QqReplySourceWatermarkTest {
         assertEquals(after.last().id, followUp.evidenceId)
         assertEquals(followUp.deliveredMessageIds, listOf(after.last().id))
         assertEquals("收到纠正，我重新回答。", after.last().content)
+        // Reopen the actual persisted backing store rather than trusting the live Flow.
+        // A cancelled partial batch must not be resurrected or merged into the
+        // next turn's delivery after the store is reconstructed.
+        val prefsField = com.jiacimu.lulu.data.InMemoryLuluChatStore::class.java
+            .getDeclaredField("prefs").apply { isAccessible = true }
+        val savedPrefs = prefsField.get(MigratedDomainStores.chat)
+            as android.content.SharedPreferences
+        val backingContext = object : android.content.ContextWrapper(app) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getSharedPreferences(name: String, mode: Int):
+                android.content.SharedPreferences =
+                if (name == "lulu_chat_store") savedPrefs
+                else app.getSharedPreferences(name, mode)
+        }
+        val reopened = InMemoryLuluChatStore().also { it.initialize(backingContext) }
+        val recovered = reopened.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals("Reopened store must retain only genuinely delivered bubbles",
+            after.map { it.id }, recovered.map { it.id })
+        assertEquals(after.map { it.content }, recovered.map { it.content })
+        assertEquals(persisted.map { it.id }, recovered.take(persisted.size).map { it.id })
+        assertEquals(listOf(recovered.last().id), followUp.deliveredMessageIds)
     }
 
     @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
