@@ -67,6 +67,24 @@ internal fun renderMemorySelectionPerspective(
     appendLine("仅以本人的真实可见事件为依据；不把上面的人设或关系描述当作某件事发生过，也不代替本人事后的主观选择。")
 }
 
+/**
+ * A timeline belongs to a witness. It does NOT establish that every speaker
+ * at a group meeting was the witness or that a private opinion was theirs.
+ * Only verified own chat statements or own named self records may substantiate
+ * a Subjective memory. Background summarization never invents that reaction.
+ */
+internal fun SharedTimelineEvent.isOwnSubjectiveMemorySource(): Boolean {
+    val authoredName = MigratedDomainStores.characters.get(characterId).displayName
+    val ownSpeaker = speaker == "角色" || speaker == "本人" || speaker == authoredName
+    return when (evidenceKind) {
+        EventEvidenceKind.CharacterStatement ->
+            TimelineStatementOwnership.isOwnCharacterStatement(this) &&
+                (source == "message" || ownSpeaker)
+        EventEvidenceKind.Inference -> source == "presence" && ownSpeaker
+        else -> false
+    }
+}
+
 internal fun SharedTimelineEvent.isUserMemoryStatement(): Boolean =
     evidenceKind == EventEvidenceKind.UserStatement ||
         (evidenceKind == EventEvidenceKind.Legacy && speaker in setOf("主人", "用户", UserProfileContext.displayLabel()))
