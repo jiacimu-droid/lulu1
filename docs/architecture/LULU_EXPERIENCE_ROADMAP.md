@@ -90,7 +90,10 @@
 
 **P-08a.1g.3 最新接力（2026-11-08）**：此前 `1cca29a` 的 push APK/JVM #42407489027 与索引 #42407488992 均 success；后继 `66e9f43` 的 APK/JVM #42417989012 与索引 #42417989014 均 success。新测试 `33fac8a` 为真实 ChatStore→Timeline 送达补跨角色冒领负例，**新 CI 待验**。真正 ToolRouter 失败/部分执行、重启恢复、下一轮召回及真机仍未验，不勾 P-08a.1g.3。下一轮先查新 CI，再进入执行器级回归；若仅剩外部证据，转 P-08b.1。 **#809/#810 新 CI 回归（2026-11-08）**：ac7c628 / 3fcdde3 对应 [42440002599](https://github.com/jiacimu-droid/lulu1/actions/runs/42440002599) 与 [42440383322](https://github.com/jiacimu-droid/lulu1/actions/runs/42440383322)，均 2540 tests、1 failed：测试错误假定用户编辑已送达私聊便应撤销 `replied`，实际 ChatStore 会保持 Sent/ID/时间并原子修订时间线。测试修复 [98c2e78](https://github.com/jiacimu-droid/lulu1/commit/98c2e782abdf53d100836a62caa835c2e7076897) 保留编辑后已回复，补 `markFailed` 后回复失效的负例；生产门禁未放宽。**后继 [APK/JVM #42441234402](https://github.com/jiacimu-droid/lulu1/actions/runs/42441234402) 已 completed/success（head 98c2e782，2026-11-08 03:17 UTC），覆盖测试修正；#809/#810 旧失败已被成功后继替代。真正 ToolRouter、进程死亡恢复、下一轮召回和真机/模型仍未知，P-08a.1g.3 不勾。**
 
-**P-08a.1g.3 原件生命周期门禁（2026-11-08）**：33fac8a 的 push APK/JVM #42421953256 与索引 #42421953257 均 success。发现统计只按 Timeline 快照计回复、未复核已删除/修改/非 Sent 的真实聊天原件；69840a1 在 summarize 接入既有原件校验，d07a594 补失效送达/失效回复负例。新提交 JVM/APK 待验，真实 ChatStore 删除重启、ToolRouter 及下一轮召回未验；不勾 P-08a.1g.3。下一轮先核新 CI，再补原件生命周期真实存储集成。\n\n### P-08a.1e 后台发送回复归属的实际送达边界（2026-11-07）
+**P-08a.1g.3 原件生命周期门禁（2026-11-08）**：33fac8a 的 push APK/JVM #42421953256 与索引 #42421953257 均 success。发现统计只按 Timeline 快照计回复、未复核已删除/修改/非 Sent 的真实聊天原件；69840a1 在 summarize 接入既有原件校验，d07a594 补失效送达/失效回复负例。新提交 JVM/APK 待验，真实 ChatStore 删除重启、ToolRouter 及下一轮召回未验；不勾 P-08a.1g.3。下一轮先核新 CI，再补原件生命周期真实存储集成。\n\n
+**P-08a.1g.3 续接（2026-11-08）**：新增 `804b1b2` 的 Robolectric 测试 `canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive`，使用真实 ChatStore 写入后创建第二个 Store 实例从 SharedPreferences 重新解码，断言角色 Sent 原件与用户 Failed 回复状态仍正确；这只是 ChatStore 存储重载边界，**未证明真正进程死亡、ToolRouter 主失败/副成功或下一轮召回**。新 JVM/APK CI 待验，子项保持 [ ]。下一轮先查 `804b1b2` 的 push Actions；再在执行器入口构造主失败、副成功的独立回执，若环境不可接入则转 P-08c.2。
+
+### P-08a.1e 后台发送回复归属的实际送达边界（2026-11-07）
 - [ ] **P-08a.1e 真实发送回复归属**：源码与回归已纳入 c0601ed/42330530414 success；仍需电话静默、后台实际发送、重启、跨角色和下一轮召回的真实入口证据。
 
 
