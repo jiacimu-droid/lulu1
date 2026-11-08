@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:29:47.945503+00:00",
-  "commit": "10a4f1287506945900c194805fd9482fe1aebac6",
+  "generatedAt": "2026-11-08T16:30:21.519284+00:00",
+  "commit": "604c1bf7d1ef4c2afaaac3eb50a571ca31c9db6e",
   "branch": "main",
-  "sourceFingerprint": "8d805c26faac27570efbf73eb2c33d2f3309829a69b2873d646358067b1a05a3",
+  "sourceFingerprint": "4589019e136b04a8dc32029c4049a734bd2c117ef479ae283c2f5f36a050308c",
   "summary": {
     "files": 1148,
-    "lines": 246991,
+    "lines": 247021,
     "symbols": 3386
   },
   "symbolIndex": {
@@ -38224,8 +38224,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt",
-      "lines": 62,
-      "sha256": "59d0802cbfa4eddff4355f5302ed82941cf9beaee307bd99429ee25f36c82dc6",
+      "lines": 82,
+      "sha256": "3b0e797d188ac5207e9b4c9c91fe01f25bd8402d5c04ca82804ba01c13f52065",
       "symbols": [
         {
           "name": "MemoryAssociationPolicyTest",
@@ -38279,8 +38279,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt",
-      "lines": 112,
-      "sha256": "f250691e80113d3f6ea12bd44fcecf18dedacb07f946b68187bdf29662e46406",
+      "lines": 122,
+      "sha256": "ddfc2ee9f12f017cf776ef73d43f897ea90ba26db3d426ae1cff6435c7ce23f4",
       "symbols": [
         {
           "name": "MemoryExtractionCheckpointTest",
