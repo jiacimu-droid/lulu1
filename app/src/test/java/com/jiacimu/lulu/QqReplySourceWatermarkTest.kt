@@ -246,6 +246,33 @@ class QqReplySourceWatermarkTest {
         assertTrue("No stale bubble may follow the correction", persisted.size < 3)
     }
 
+    @Test fun groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("群聊部分送达角色").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("群聊部分送达", listOf(role))
+        val source = MigratedDomainStores.chat.sendUserMessage(group.id, "先说说你的想法")
+        val args = JSONObject().put("groupId", group.id)
+            .put("text", "第一泡。⟪BUBBLE⟫第二泡。⟪BUBBLE⟫第三泡。")
+            .put("_replyEvidenceIds", JSONArray().put(source.id))
+        val pending = async {
+            CompanionActionRuntime.execute(app, role, "send_group_message", args)
+        }
+        withTimeout(8_000) {
+            while (MigratedDomainStores.chat.messages(group.id).value.none {
+                it.authorCharacterId == role
+            }) delay(10)
+        }
+        MigratedDomainStores.chat.sendUserMessage(group.id, "纠正：先不要继续")
+        val result = pending.await()
+        val persisted = MigratedDomainStores.chat.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        assertTrue("First bubble must be persisted before correction", persisted.isNotEmpty())
+        assertFalse("Partial group delivery cannot claim whole-turn success", result.success)
+        assertEquals(persisted.map { it.id }, result.deliveredMessageIds)
+        assertEquals(persisted.last().id, result.evidenceId)
+        assertTrue("Stale group bubbles must stop after correction", persisted.size < 3)
+    }
+
     @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val a = MigratedDomainStores.characters.create("群聊先发言成员").characterId
