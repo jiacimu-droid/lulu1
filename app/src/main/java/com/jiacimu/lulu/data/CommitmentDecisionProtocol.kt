@@ -55,6 +55,15 @@ internal object CommitmentDecisionProtocol {
     }
 
     fun drafts(changes: JSONArray, active: List<CommitmentTask>): List<CommitmentTaskDraft> {
+        // Foreground actions require exact model-authored executable clock
+        // values. The compatibility BACKGROUND recovery may preserve an
+        // invalid date as NeedsClarification; this active executor may not.
+        for (index in 0 until changes.length()) {
+            val due = changes.optJSONObject(index)?.optString("dueAt")?.trim().orEmpty()
+            require(due.isBlank() || runCatching { Instant.parse(due) }.isSuccess) {
+                "约定 dueAt 无效，不能把错误的时刻自动当作未安排"
+            }
+        }
         val drafts = parseCommitmentTaskDrafts(changes.toString())
         require(drafts.size == changes.length()) { "约定变更格式不完整，未执行" }
         drafts.forEach { draft ->
