@@ -7,7 +7,11 @@ internal object OnlineChatBatchStore {
     // One quiet window per text bubble. Eight seconds gives slower typing time
     // to finish a follow-up bubble; calls use a separate speech turn path.
     // Never grow the wait with message count or trigger the paid API mid-burst.
-    const val QUIET_MILLIS = 8_000L
+    // After a sent bubble, observe locally for a short new-draft grace.
+    // A genuinely focused, nonempty next draft takes priority over the clock.
+    const val QUIET_MILLIS = 8_000L // process-death / no composer-state fallback
+    const val POST_SEND_OBSERVE_MILLIS = 4_000L
+    const val DRAFT_IDLE_FALLBACK_MILLIS = 60_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
@@ -76,11 +80,10 @@ internal object OnlineChatBatchStore {
     }
 
     /**
-     * Foreground composer activity is NOT a new message or a paid request.
-     * Slow typing of a follow-up bubble extends the existing message window
-     * while the user is really editing. Do not restart a claimed model turn,
-     * and do not create any window when no unread owner message exists.
-     * This path deliberately uses apply() to avoid keyboard-frame disk I/O.
+     * ONLY a local, focused composer edit: never calls the model and never
+     * changes a queued revision. A slow owner can compose for as long as they
+     * keep actually editing, while 60 seconds of inactivity is an intentional
+     * escape hatch for abandoned drafts (including after a process death).
      */
     @Synchronized fun onComposerEdit(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
@@ -91,9 +94,28 @@ internal object OnlineChatBatchStore {
             !p.contains("due:$characterId") || (characterId to revision) in reading)
             return false
         val existing = p.getLong("due:$characterId", 0L)
-        val next = maxOf(existing, atMillis + QUIET_MILLIS)
+        val next = maxOf(existing, atMillis + DRAFT_IDLE_FALLBACK_MILLIS)
         if (next <= existing) return false
         p.edit().putLong("due:$characterId", next).apply()
+        return true
+    }
+
+    /** The composer is empty, unfocused or no longer being edited.
+     * Shorten a not-yet-claimed chat's wait to a few seconds, rather than
+     * forcing an extra eight seconds after a message was already sent.
+     * Does NOT cancel or start any paid model request. */
+    @Synchronized fun onComposerIdle(
+        context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
+    ): Boolean {
+        val p = prefs(context)
+        val revision = p.getLong("revision:$characterId", 0L)
+        if (!p.getBoolean("messageWindow:$characterId", false) ||
+            !p.contains("due:$characterId") || (characterId to revision) in reading)
+            return false
+        val old = p.getLong("due:$characterId", 0L)
+        val shortened = minOf(old, atMillis + POST_SEND_OBSERVE_MILLIS)
+        if (shortened >= old) return false
+        p.edit().putLong("due:$characterId", shortened).apply()
         return true
     }
 
