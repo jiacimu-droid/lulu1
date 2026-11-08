@@ -7,6 +7,7 @@ import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
 import com.jiacimu.lulu.core.MemoryTier
+import com.jiacimu.lulu.core.MemoryPerspective
 import com.jiacimu.lulu.core.MemoryPolicy
 import com.jiacimu.lulu.core.MemoryRepository
 import kotlinx.coroutines.flow.Flow
@@ -296,7 +297,7 @@ class LocalMemoryRepository : MemoryRepository {
                 instruction = """
                     从给定真实对话与原始事件中提取日后值得回忆的记忆。根据当前角色本人的稳定价值、兴趣、真实关系和实际见闻判断哪些零碎细节对他有意义；不需要每件小事都高分，但不要把不起眼等同于不值得记。只返回 JSON 数组，不要代码块。
                     每项只强制三字段：{"kind":"Fact|Emotion|Timeline","content":"包含人物、事件和必要语境的真实记忆","sourceEventIds":["真实事件ID"]}。
-                    其他字段 tier(Core|Stable|Episode)、strength(1-10)、subject、slot、supersedes、occurredAt、
+                    其他字段 perspective(Record|Subjective)、tier(Core|Stable|Episode)、strength(1-10)、subject、slot、supersedes、occurredAt、
                     sceneKey、measureKind、measureValue、measureUnit 均可选；确有依据时填写，
                     不要用空字符串、null 或凑满所有字段增加输出体积。
                     同一事实的更新优先沿用 subject+slot，并仅在明确纠正时用 supersedes 指向真实旧记忆ID。
@@ -316,7 +317,10 @@ class LocalMemoryRepository : MemoryRepository {
                     11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
                     12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
                     12a. 对整批来源逐项检查：①已明确说出的喜恶、兴趣、习惯自述及相处边界，②有明确原因的情绪，③有可辨识细节的普通日常与共同经历。零碎不等于不值得记：用户一次明确表达某种喜好便可以保存为可修订的 Stable 偏好，不必等第二次确认；与现有理解同义的表达要合并来源，不要造两条。某晚睡觉时间只是带日期的一次记录，不得归纳成长期作息；多日规律由已有习惯学习负责。不得强行凑数量、猜测偏好或把系统执行计划写作用户记忆。
-                    12b. 把“发生或说过什么”和“角色自己如何在意”严格分开：真实原话、已发生的操作或可证实经历才能写为事实；角色的真实发言/已记录心理可以写成带时刻的主观情绪记录，但不能从人设猜测他此刻喜欢、心疼、吃醋或曾经做过什么。角色本人的关注只影响同一条有来源记忆是否保存及 strength，不强制伪造额外主观记忆，更不自动把高强度普通生活琐事升为 Core。
+                    12b. 按同一批原始来源分别考虑两种记忆视角，但仍沿用 Fact/Emotion/Timeline 原有分类：
+                    - perspective=Record：客观记录“谁说过什么、哪次实际做了什么、结果是什么”，不把一方陈述当成已经核实的客观事实。按事件细节补足普通小事，而非只摘录高价值事项；优先补没有记录的生活事实/事件，不要重复同义内容。
+                    - perspective=Subjective：只有本角色自己真实说出过的感受、喜好、感想，或自己已留下的“此刻”心理原始记录，才用它描述“我当时在意什么”。必须引用当前角色亲自产出的 CharacterStatement 或 source=presence 的 Inference 事件；引用主人/其他人的话只能作为附加背景，不能当作自己心声。没有本人的真实主观来源就不要产出 Subjective，更不能让提取模型模拟角色制造一段内心独白。它仍可以记 Fact/Emotion/Timeline，并保留过去时间，不能把过去心情冒充当下。
+                    - 主人细节可以因为本角色的人格而提高 strength，但这只是回忆显著度，不等于角色曾作出某种主观反应；普通零碎经历不可自动升级 Core。
                     13. 场景与可量数字只有原话明确给才填：sceneKey 写“活动|地点|参与人|时段”的短串（如睡觉|卧室|自己|夜里），原话没给地点或时段就留空；measureKind 只用于原话明确说出的可量数字（睡多久填 sleep_hours、几点睡填 bedtime），measureValue 填数字（bedtime 用 24 小时制小数，如 23.5 表示 23:30），measureUnit 填“小时”或“时”；没有就留空或 null，绝不换算、绝不猜测。
                     ${understandingUpdateInstruction()}
                 """.trimIndent(),
@@ -764,6 +768,16 @@ class LocalMemoryRepository : MemoryRepository {
                     "记忆包含不存在或跨批次来源，批次保留"
                 }
                 val evidence = evidenceSnapshot.filter { it.id in sourceIds }
+                val perspective = when (item.optString("perspective").trim().lowercase()) {
+                    "subjective" -> MemoryPerspective.Subjective
+                    else -> MemoryPerspective.Record // Legacy model output remains compatible.
+                }
+                // The timeline owner may merely be a group-chat witness. A different
+                // speaker's words cannot become this character's own remembered feeling.
+                if (perspective == MemoryPerspective.Subjective && evidence.none { event ->
+                        TimelineStatementOwnership.isOwnCharacterStatement(event) ||
+                            (event.evidenceKind == EventEvidenceKind.Inference && event.source == "presence")
+                    }) continue
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
                     it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
                 }) "[表达记录的摘要，非独立执行事实] $content" else content
@@ -788,6 +802,7 @@ class LocalMemoryRepository : MemoryRepository {
                             item.optDouble("measureValue")
                         } else null,
                         measureUnit = item.optString("measureUnit").trim().take(20),
+                        perspective = perspective,
                     ),
                     item.optJSONArray("supersedes")?.let { ids ->
                         (0 until ids.length()).map { ids.optString(it) }.filter(String::isNotBlank).distinct()
@@ -1026,6 +1041,7 @@ class LocalMemoryRepository : MemoryRepository {
         .put("measureValue", entry.measureValue ?: JSONObject.NULL)
         .put("measureUnit", entry.measureUnit)
         .put("sourceRevisions", JSONObject(entry.sourceRevisions))
+        .put("perspective", entry.perspective.name)
 
     private fun decodeEntry(item: JSONObject): MemoryEntry = MemoryEntry(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -1045,6 +1061,8 @@ class LocalMemoryRepository : MemoryRepository {
         measureKind = item.optString("measureKind"),
         measureValue = if (item.has("measureValue") && !item.isNull("measureValue")) item.optDouble("measureValue") else null,
         measureUnit = item.optString("measureUnit"),
+        perspective = runCatching { MemoryPerspective.valueOf(item.optString("perspective")) }
+            .getOrDefault(MemoryPerspective.Record),
         sourceRevisions = item.optJSONObject("sourceRevisions")?.let { revisions ->
             revisions.keys().asSequence().associateWith { revisions.optLong(it) }
         }.orEmpty(),
@@ -1084,7 +1102,7 @@ private data class MemoryStoreState(
 private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =
     personalPolicies[characterId] ?: globalPolicy ?: policies[characterId] ?: MemoryPolicy()
 
-private fun MemoryEntry.dedupeKey(): String = kind.name + ":" + memoryIdentityKey()
+private fun MemoryEntry.dedupeKey(): String = kind.name + ":" + perspective.name + ":" + memoryIdentityKey()
 
 private fun MemoryEntry.scopedMemoryKey(): String = characterId + ":" + memoryIdentityKey()
 
@@ -1101,7 +1119,7 @@ private fun MemoryEntry.memoryIdentityKey(): String = content
     .take(320)
 
 private fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEntry): Boolean {
-    if (left.kind != right.kind || left.characterId != right.characterId) return false
+    if (left.kind != right.kind || left.perspective != right.perspective || left.characterId != right.characterId) return false
     // Manual corrections and memories in different episodes must never disappear in a daily sweep.
     if (!left.source.startsWith("timeline-events:") || !right.source.startsWith("timeline-events:")) return false
     val sameEvent = left.sourceIds().intersect(right.sourceIds().toSet()).isNotEmpty()
