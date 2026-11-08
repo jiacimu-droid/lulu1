@@ -299,44 +299,32 @@ object RelevantMemoryRecall {
         lexicalPositiveIds: Set<String>,
     ): EmbeddingRankResult {
         if (cleanQuery.isBlank() || memories.isEmpty()) return EmbeddingRankResult()
-        val queryResult = com.jiacimu.lulu.ai.LuluAiServices.gateway.embed(connection, listOf(cleanQuery))
-        val queryVector = queryResult.getOrNull()
-            ?.singleOrNull()
-            ?: return EmbeddingRankResult(notes = listOf("查询向量获取失败，保留关键词与原始证据回退：" + queryResult.exceptionOrNull()?.message.orEmpty().take(160)))
-
+        // An explicit vector option does not authorize hundreds of surprise
+        // memory backfill POSTs inside a SINGLE live perception. The durable
+        // indexer owns missing vectors; the reply may use cached vectors and
+        // local lexical recall immediately without waiting for backfill.
         val vectors = arrayOfNulls<FloatArray>(memories.size)
-        val missingIndices = mutableListOf<Int>()
+        var missingCount = 0
         memories.forEachIndexed { index, memory ->
             val key = MemoryEmbeddingIndex.key(connection, memory)
             val hot = synchronized(embeddingCache) { embeddingCache[key] }
             val persisted = hot ?: MemoryEmbeddingIndex.get(key, memory.id)
-            if (persisted == null) {
-                missingIndices += index
-            } else {
+            if (persisted == null) missingCount++
+            else {
                 vectors[index] = persisted
                 synchronized(embeddingCache) { embeddingCache[key] = persisted }
             }
         }
-
-        // Lifecycle indexing normally fills these ahead of time. This bounded fallback keeps recall
-        // functional after model-setting changes or a transient pre-index failure.
+        if (vectors.none { it != null }) return EmbeddingRankResult(
+            notes = listOf("向量索引尚未生成，本次使用本地关键词与来源召回"))
         val notes = mutableListOf<String>()
-        missingIndices.chunked(EMBEDDING_BATCH_SIZE).forEach { batch ->
-            val inputs = batch.map { memoryIndex -> memories[memoryIndex].content }
-            val embedded = com.jiacimu.lulu.ai.LuluAiServices.gateway
-                .embed(connection, inputs)
-                .getOrNull()
-                ?.takeIf { result -> result.size == inputs.size }
-                ?: run { notes += "部分记忆向量未取得，仍保留本地/已有向量检索"; return@forEach }
-            batch.forEachIndexed { position, memoryIndex ->
-                val vector = embedded[position]
-                val memory = memories[memoryIndex]
-                val key = MemoryEmbeddingIndex.key(connection, memory)
-                vectors[memoryIndex] = vector
-                synchronized(embeddingCache) { embeddingCache[key] = vector }
-                MemoryEmbeddingIndex.put(key, memory.id, vector)
-            }
-        }
+        if (missingCount > 0) notes += "剩余 $missingCount 条向量由后台索引处理，不在聊天感知中另行收费回填"
+        val queryResult = com.jiacimu.lulu.ai.LuluAiServices.gateway.embed(
+            connection, listOf(cleanQuery))
+        val queryVector = queryResult.getOrNull()?.singleOrNull()
+            ?: return EmbeddingRankResult(notes = notes + listOf(
+                "查询向量获取失败，保留本地召回：" +
+                    queryResult.exceptionOrNull()?.javaClass?.simpleName.orEmpty()))
 
         val similarities = memories.mapIndexedNotNull { index, memory ->
             vectors[index]?.let { vector -> memory.id to cosine(queryVector, vector) }
