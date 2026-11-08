@@ -219,6 +219,33 @@ class QqReplySourceWatermarkTest {
         })
     }
 
+    @Test fun privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("部分气泡回执角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "部分送达")
+        val source = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先回答这个")
+        val args = JSONObject().put("text", "第一泡。⟪BUBBLE⟫第二泡。⟪BUBBLE⟫第三泡。")
+            .put("_replyEvidenceIds", JSONArray().put(source.id))
+        val pending = async {
+            CompanionActionRuntime.execute(app, role, "send_private_message", args)
+        }
+        // Wait for the actual first persisted bubble, not merely the typing lease.
+        withTimeout(8_000) {
+            while (MigratedDomainStores.chat.messages(conversation.id).value.none {
+                it.authorCharacterId == role
+            }) delay(10)
+        }
+        MigratedDomainStores.chat.sendUserMessage(conversation.id, "纠正：旧回复不要继续")
+        val result = pending.await()
+        val persisted = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { it.authorCharacterId == role }
+        assertTrue("At least one bubble must have reached the real store", persisted.isNotEmpty())
+        assertFalse("A corrected partial turn must not report whole-turn success", result.success)
+        assertEquals(persisted.map { it.id }, result.deliveredMessageIds)
+        assertEquals(persisted.last().id, result.evidenceId)
+        assertTrue("No stale bubble may follow the correction", persisted.size < 3)
+    }
+
     @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val a = MigratedDomainStores.characters.create("群聊先发言成员").characterId
