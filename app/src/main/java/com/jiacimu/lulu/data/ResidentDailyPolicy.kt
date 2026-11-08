@@ -131,9 +131,11 @@ internal object ResidentDailyPolicy {
         if (!role.startsWith("resident:")) return true
         val remaining = remainingModelRequests(context, role, at)
         val nativeId = role.removePrefix("resident:")
-        val needsPlan = ResidentDailyDecision.planFor(context, nativeId, at) == null
-        val reserved = (if (needsPlan) 1 else 0) +
-            remainingTodayAgendaDecisions(context, role, at)
+        // Until the resident has chosen today's plan, optional paid work
+        // cannot know which future appointments to protect. Do not steal
+        // the planning call or any of its still-undecided appointment slots.
+        if (ResidentDailyDecision.planFor(context, nativeId, at) == null) return false
+        val reserved = remainingTodayAgendaDecisions(context, role, at)
         return remaining > reserved
     }
 
