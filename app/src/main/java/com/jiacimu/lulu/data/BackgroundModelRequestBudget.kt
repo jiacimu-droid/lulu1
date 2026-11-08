@@ -23,7 +23,7 @@ internal object BackgroundModelRequestBudget {
         (source == "记忆" && title in setOf("重要信息即时记忆",
             "连续记忆提取", "语义召回核验")) ||
         source in setOf("生活记录", "承诺任务", "增量成长反思",
-            "记忆有效性", "记忆维护")
+            "记忆有效性", "记忆维护", "向量索引")
 
     private fun key(role: String, source: String, title: String,
         evidence: String): String {
