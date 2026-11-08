@@ -61,7 +61,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(false)}
     var showAlbum by remember{mutableStateOf(false)}
-    var revealedLoot by remember(run?.id){mutableStateOf<RelicLoot?>(null)}
     var openingReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
     // Persist the committed loot result after the presentation overlay is dismissed.
     var lastChestReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
@@ -86,7 +85,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         val tier=unopened?.tier
         val before=run?.turns
         val openingRun=run
-        revealedLoot=null;openingReceipt=null;lastChestReceipt=null
+        openingReceipt=null;lastChestReceipt=null
         change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
         if(type=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
@@ -95,7 +94,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 RelicChestPresentation.committed(openingRun,it,unopened.id)
             }
             if(receipt!=null){
-                revealedLoot=receipt.loot
                 openingReceipt=receipt
                 lastChestReceipt=receipt
             }
@@ -184,7 +182,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         quickActions = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero = run.hero
-                revealedLoot?.let { loot ->
+                lastChestReceipt?.let { receipt ->
+                    val loot = receipt.loot
                     Surface(color=if(RelicCollectibles.isCrownJewel(loot.name))
                         Color(0xFF60441F) else Color(0xFF24374B),
                         shape=RoundedCornerShape(14.dp),
@@ -192,7 +191,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
                         Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
                             loot.tier.label+"「"+loot.name+"」 · 估值"+loot.value+
-                            (if(lastChestReceipt?.inBag == true) " · 已入包，撤离后收录"
+                            (if(receipt.inBag) " · 已入包，撤离后收录"
                             else " · 背包已满，拾起并撤离后收录"),
                             modifier=Modifier.fillMaxWidth().padding(10.dp),
                             color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
