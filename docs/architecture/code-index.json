@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T11:38:33.752947+00:00",
-  "commit": "4109ec8b314529680fc00229c3ff3309ac28b2c2",
+  "generatedAt": "2026-11-08T12:48:50.528256+00:00",
+  "commit": "0746596616aac9fc040173c2af3a2929a42a198a",
   "branch": "main",
-  "sourceFingerprint": "1d3064d691f37fe112f75407cac410ea62c608c7a8451c6b4bce8a368b0a6645",
+  "sourceFingerprint": "7577bae8fdcf74f80d2b810abce7701b71d71ae22d4560bc159b42ef8dbfd7cb",
   "summary": {
-    "files": 1144,
-    "lines": 246093,
-    "symbols": 3374
+    "files": 1145,
+    "lines": 246134,
+    "symbols": 3375
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18639,6 +18639,12 @@
     "IslandHarvestPlanTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHarvestPlanTest.kt",
+        "line": 12
+      }
+    ],
+    "IslandHouseActorInterruptionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseActorInterruptionTest.kt",
         "line": 12
       }
     ],
@@ -39703,6 +39709,17 @@
       "symbols": [
         {
           "name": "IslandHarvestPlanTest",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseActorInterruptionTest.kt",
+      "lines": 41,
+      "sha256": "dd3d07e65807d88dd0f3a8c591b5b44fdd6c88704ea0c52db3953146a0cfcc46",
+      "symbols": [
+        {
+          "name": "IslandHouseActorInterruptionTest",
           "line": 12
         }
       ]
