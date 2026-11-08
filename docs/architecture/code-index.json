@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:37:10.194702+00:00",
-  "commit": "31557d65b168361586d809e2f974af05e77699d1",
+  "generatedAt": "2026-11-08T15:38:14.529957+00:00",
+  "commit": "20d79b33f25155713d64a93f01b2862ee727306c",
   "branch": "main",
-  "sourceFingerprint": "dfafa632d1f4578a087d48f8b4db7b63b9cbea0b23041152f58af4ed94413e03",
+  "sourceFingerprint": "a92cc1508432adc8a9effe45861ac84cab6d5d74e78a96db17d8c4f5c15b7745",
   "summary": {
     "files": 1145,
-    "lines": 246227,
+    "lines": 246237,
     "symbols": 3376
   },
   "symbolIndex": {
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 76
+        "line": 78
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
@@ -807,7 +807,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 65
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -6191,19 +6191,19 @@
     "lastStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "resumePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 59
+        "line": 60
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 223
+        "line": 233
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -24361,8 +24361,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 266,
-      "sha256": "c3ebbd9660665d0e3ecf10aef28233daddcc0c70a702c1f9c1fc898bd106bf08",
+      "lines": 276,
+      "sha256": "01d2f9bf584e7c9b607e0fdde3b6dc3bed9f5471e65c9d127381d621f0cc9e7e",
       "symbols": [
         {
           "name": "snapshot",
@@ -24374,23 +24374,23 @@
         },
         {
           "name": "lastStatus",
-          "line": 47
+          "line": 48
         },
         {
           "name": "resumePending",
-          "line": 59
+          "line": 60
         },
         {
           "name": "initialize",
-          "line": 65
+          "line": 66
         },
         {
           "name": "request",
-          "line": 76
+          "line": 78
         },
         {
           "name": "ids",
-          "line": 223
+          "line": 233
         }
       ]
     },
