@@ -1491,3 +1491,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复核 main `849716a`、四份入口文档、`CompanionActionRuntime.send_private_message` 与 `QqReplySourceWatermarkTest`；原测试只覆盖首泡前取消，缺少已发送部分气泡后的独立回执核验。
 - 新测试 [`19bc51e`](https://github.com/jiacimu-droid/lulu1/commit/19bc51ef7c630e12a218045e243377c4b26ea441) 使用真实执行器与 ChatStore，首泡真实入库后发送新用户纠正，核对 `success=false`、`deliveredMessageIds` 与实际存储 ID 相等、`evidenceId` 指向最后已发送泡、旧回复不继续。未改生产代码、人设或收费模型调用。
 - 提交时该 SHA 的 APK/JVM 与 Refresh code index 尚未返回成功证据；取消时序可能暴露测试竞争，须先看 CI 首错，不得提前勾完成。下一轮直接打开 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection` 和 `appendRoleReplyWithPacingReceipt`，核 Actions 后按失败事实修复。真机、真实模型未验。
+
+## 2026-11-08 · P-08c.2 部分发泡取消回归后继 CI
+
+- 接手 `main`：`827b5196b1819ddd1e44ac185df43e9361787393`；复核 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`、`CompanionActionRuntime.execute` 和 `QqChatReplyEngine.appendRoleReplyWithPacingReceipt` 的已提交执行器/ChatStore 路径，未重复增加同类断言。
+- **实测 CI**：测试提交 [`19bc51e`](https://github.com/jiacimu-droid/lulu1/commit/19bc51ef7c630e12a218045e243377c4b26ea441) 对应 [Lulu APK/JVM #42476629762](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629762) `build` job 128719326366 与 [Refresh code index #42476629754](https://github.com/jiacimu-droid/lulu1/actions/runs/42476629754) `refresh` job 128719326340，均 completed/success。测试覆盖真实首泡入库、用户纠正、后续停止和 `deliveredMessageIds` 与实际存储一致；不能外推至进程死亡或模型效果。
+- 本轮无新生产代码或测试提交；仅回填成功证据，不把文档改动冒充修复。下一工程工作包仍为 P-08c.2：先核重启后部分发送回执消费与取消结果；若已覆盖则切 P-08a.1g.3 的真实 ToolRouter 主失败/副成功。真机/真实模型/跨日均未验。
