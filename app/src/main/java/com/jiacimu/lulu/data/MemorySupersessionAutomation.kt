@@ -59,7 +59,9 @@ internal object MemorySupersessionAutomation {
         appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         scope.launch {
-            while (true) { delay(60_000); runCatching { retryPending() } }
+            // New memory emissions are handled immediately; an unfinished paid
+            // validation needs only occasional catch-up, not a 60-second audit.
+            while (true) { delay(15L * 60_000L); runCatching { retryPending() } }
         }
         scope.launch {
             MigratedDomainStores.characters.settings.collect { characters ->
