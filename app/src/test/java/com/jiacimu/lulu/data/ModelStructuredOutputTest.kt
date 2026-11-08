@@ -278,6 +278,23 @@ class ModelStructuredOutputTest {
         assertEquals(listOf(longBubble), ModelStructuredOutput.authoredReplyBubbles(whole.toString()))
     }
 
+    @Test fun proactiveMessageParsesTheSameSendPausesAndVoicePositions() {
+        val source = org.json.JSONObject().put("action", "message").put("bubbles",
+            org.json.JSONArray()
+                .put(org.json.JSONObject().put("text", "喂？\n有件事想说。")
+                    .put("delivery", "voice"))
+                .put(org.json.JSONObject().put("text", "先听我讲完。\n然后你再决定。")
+                    .put("delivery", "text")))
+        val spoken = ModelStructuredOutput.chatMessageBubbles(source)
+        assertEquals(listOf("喂？", "有件事想说。", "先听我讲完。", "然后你再决定。"),
+            spoken)
+        assertEquals(listOf("voice", "voice", "text", "text"),
+            ModelStructuredOutput.bubbleDeliveryModes(source))
+        assertEquals(listOf("喂？", "有件事想说。"),
+            ModelStructuredOutput.voiceBubbleTexts(source.toString()))
+        assertEquals(spoken.size, ModelStructuredOutput.bubbleSpeechTracks(source).size)
+    }
+
     @Test fun recoveredVoiceBeatsKeepModalityAndDoNotRepeatWholePerformanceTrack() {
         val source = org.json.JSONObject().put("action", "reply").put("bubbles",
             org.json.JSONArray()
