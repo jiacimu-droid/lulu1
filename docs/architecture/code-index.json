@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T17:23:30.456905+00:00",
-  "commit": "c113502be862a0cf2cfd1ceda9818d2bde7b264e",
+  "generatedAt": "2026-11-08T17:24:19.952833+00:00",
+  "commit": "ad76b477dd807f9b64a368b78f9762897b6a2c5a",
   "branch": "main",
-  "sourceFingerprint": "fa1064028464d1e805b9d780885e443668f9c924648980f00425bfde7e4f63a4",
+  "sourceFingerprint": "12f10a795bf4b0982649183df164da2b57683a2e929f0f4e05d6e3ac1bfd44f0",
   "summary": {
     "files": 1148,
-    "lines": 247527,
+    "lines": 247532,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -11399,97 +11399,97 @@
     "scheduleOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 512
+        "line": 515
       }
     ],
     "scheduleCoalescedLifeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 537
+        "line": 540
       }
     ],
     "scheduleOnlineExpiryDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 565
+        "line": 568
       }
     ],
     "scheduleEmotionalAftercare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 588
+        "line": 591
       }
     ],
     "scheduleResidentEpisodeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 616
+        "line": 619
       }
     ],
     "scheduleLifeFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 638
+        "line": 641
       }
     ],
     "scheduleSocialNoticeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 668
+        "line": 671
       }
     ],
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 695
+        "line": 698
       }
     ],
     "scheduleUnfinishedCommitmentRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 723
+        "line": 726
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 824
+        "line": 827
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 851
+        "line": 854
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 878
+        "line": 881
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 895
+        "line": 898
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 909
+        "line": 912
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1156
+        "line": 1161
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1164
+        "line": 1169
       }
     ],
     "ProactiveSendReceipt": [
@@ -29840,8 +29840,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1220,
-      "sha256": "53c9264829f34d6c4b2d5900a699d97ef8140ab24753d3958a8e908b39090bad",
+      "lines": 1225,
+      "sha256": "1e21acd805e0a00e57c747cc86fe431315bcbc3443f4825404cda88072903f4b",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -29905,67 +29905,67 @@
         },
         {
           "name": "scheduleOnlineReflection",
-          "line": 512
+          "line": 515
         },
         {
           "name": "scheduleCoalescedLifeReview",
-          "line": 537
+          "line": 540
         },
         {
           "name": "scheduleOnlineExpiryDecision",
-          "line": 565
+          "line": 568
         },
         {
           "name": "scheduleEmotionalAftercare",
-          "line": 588
+          "line": 591
         },
         {
           "name": "scheduleResidentEpisodeReview",
-          "line": 616
+          "line": 619
         },
         {
           "name": "scheduleLifeFollowThrough",
-          "line": 638
+          "line": 641
         },
         {
           "name": "scheduleSocialNoticeReview",
-          "line": 668
+          "line": 671
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 695
+          "line": 698
         },
         {
           "name": "scheduleUnfinishedCommitmentRecovery",
-          "line": 723
+          "line": 726
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 824
+          "line": 827
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 851
+          "line": 854
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 878
+          "line": 881
         },
         {
           "name": "cancelOnline",
-          "line": 895
+          "line": 898
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 909
+          "line": 912
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1156
+          "line": 1161
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1164
+          "line": 1169
         }
       ]
     },
