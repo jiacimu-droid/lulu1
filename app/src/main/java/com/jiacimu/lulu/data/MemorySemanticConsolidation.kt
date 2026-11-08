@@ -127,7 +127,8 @@ internal object MemorySemanticConsolidation {
     @Synchronized
     fun initialize(context: Context) {
         appContext = context.applicationContext
-        if (prefs != null) return
+        // Initialization is idempotent for one application, but also supports
+        // a recreated application context without retaining its old storage.
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
