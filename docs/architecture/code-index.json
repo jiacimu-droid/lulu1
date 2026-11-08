@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:05:08.200291+00:00",
-  "commit": "4e26b3902d73d99b630d4701f7d339c75f574413",
+  "generatedAt": "2026-11-08T16:07:20.766031+00:00",
+  "commit": "ffd5ac267202f9ddb1e77f32c5ff62f7694b5647",
   "branch": "main",
-  "sourceFingerprint": "38ab070064155b5d12e692eb0439dbec2bcd07def9ca7ff20f377fbd765d13f6",
+  "sourceFingerprint": "c4d1af6f94847d11f70829d87e1b14ff7fbd598290f63187cb35b7409e595911",
   "summary": {
     "files": 1148,
     "lines": 246671,
@@ -25950,7 +25950,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
       "lines": 562,
-      "sha256": "be05bb03e6e501b010605fcc926ed504898c6512e10fdf6d8adb41d7e95b85d6",
+      "sha256": "4bbcff4e9cf49225055aa9fa649f9b3a978cd50a93d953cc821777659ca59b2d",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
@@ -37547,7 +37547,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt",
       "lines": 21,
-      "sha256": "121a012fb1e1117db41f010fe6ff48657cca659c46833418e0f67517ebaef070",
+      "sha256": "7f0e932a9309ad94f22ea93336868d8da15a65c11eb5cb6de861be2fc24dffec",
       "symbols": [
         {
           "name": "ChatLexiconRetryPolicyTest",
