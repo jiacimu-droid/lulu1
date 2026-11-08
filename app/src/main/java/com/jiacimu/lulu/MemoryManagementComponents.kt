@@ -326,7 +326,9 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
             Text("每日小整理 · 每周大整理", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             Text("开启后自动提取长期事实、情绪和真实日常经历；每天检查本地重复项，每周按需使用后台记忆模型核对语义重复。偏好与习惯由已有成长系统学习，不需要手动按整理。应用停止运行时不会准点调用，下次启动会补查；无变化的批次不重复付费。",
                 fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
-            Text("当前记忆：长期事实 ${memories.count { it.kind == MemoryKind.Fact }} · 情绪印象 ${memories.count { it.kind == MemoryKind.Emotion }} · 重要经历 ${memories.count { it.kind == MemoryKind.Timeline }}",
+            Text("两种视角：客观记录 ${memories.count { it.perspective == com.jiacimu.lulu.core.MemoryPerspective.Record }} · 角色主观 ${memories.count { it.perspective == com.jiacimu.lulu.core.MemoryPerspective.Subjective }}（分别整理，不互相合并）",
+                fontSize = 12.sp, color = FeatureBlueGray)
+            Text("原有分类：长期事实 ${memories.count { it.kind == MemoryKind.Fact }} · 情绪印象 ${memories.count { it.kind == MemoryKind.Emotion }} · 重要经历 ${memories.count { it.kind == MemoryKind.Timeline }}",
                 fontSize = 12.sp, color = FeatureBlueGray)
             val dailyCheckedAt = MemorySemanticConsolidation.lastDailyMaintenanceAt(characterId)
             Text("上次每日本地维护：${dailyCheckedAt?.atZone(ZoneId.systemDefault())?.format(MemoryDateTimeFormatter) ?: "暂无成功记录"}",
