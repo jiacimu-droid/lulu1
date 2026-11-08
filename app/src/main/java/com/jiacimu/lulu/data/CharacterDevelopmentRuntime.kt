@@ -42,6 +42,7 @@ object CharacterDevelopmentRuntime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: android.content.Context? = null
     private val statusChanges = kotlinx.coroutines.flow.MutableStateFlow(0L)
     val revisions: kotlinx.coroutines.flow.StateFlow<Long> = statusChanges
 
@@ -64,6 +65,7 @@ object CharacterDevelopmentRuntime {
     }
 
     fun initialize(context: android.content.Context) {
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences("lulu_development_reflection", android.content.Context.MODE_PRIVATE)
     }
 
@@ -175,6 +177,14 @@ object CharacterDevelopmentRuntime {
         if (fingerprint == p.getString("batch:$characterId", "")) {
             DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
             note(characterId, "暂无新经历")
+            return
+        }
+        // Resident learning is optional paid housekeeping; it must not take
+        // the first call reserved for the native citizen's own daily plan.
+        if (characterId.startsWith("resident:") && appContext?.let {
+                residentMemoryBudgetDepleted(it, characterId, Instant.ofEpochMilli(now))
+            } != false) {
+            note(characterId, "居民日计划额度优先；成长证据保留待后续整理")
             return
         }
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
