@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:22:26.762095+00:00",
-  "commit": "05d0496238347f1b556cec9d3cb5687f69545f8a",
+  "generatedAt": "2026-11-08T16:23:57.767401+00:00",
+  "commit": "404879dcb5afaf7642097de50aa9090fa0d81225",
   "branch": "main",
-  "sourceFingerprint": "81ccca15e7f06bf0db4431759ef65b8686add3b02e65a8ef2e86b4a0f5213a74",
+  "sourceFingerprint": "5c1f3b2edf5220b9516725912aada2f0d4d6a0db4530b8ceaffef517d7462ec0",
   "summary": {
     "files": 1148,
-    "lines": 246803,
-    "symbols": 3386
+    "lines": 246826,
+    "symbols": 3387
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -939,7 +939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt",
-        "line": 31
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -5294,130 +5294,136 @@
         "line": 44
       }
     ],
+    "MemoryPerspective": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 48
+      }
+    ],
     "MemoryEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 46
+        "line": 49
       }
     ],
     "MemoryPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 72
+        "line": 77
       }
     ],
     "MemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 87
+        "line": 92
       }
     ],
     "observeMemories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 89
+        "line": 94
       }
     ],
     "observePolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 90
+        "line": 95
       }
     ],
     "LexiconSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 94
+        "line": 99
       }
     ],
     "PromiseKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 96
+        "line": 101
       }
     ],
     "LexiconStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 97
+        "line": 102
       }
     ],
     "LexiconEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 99
+        "line": 104
       }
     ],
     "LexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 114
+        "line": 119
       }
     ],
     "observeEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 116
+        "line": 121
       }
     ],
     "WorldBookPromptPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 122
+        "line": 127
       }
     ],
     "WorldBookEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 123
+        "line": 128
       }
     ],
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 137
+        "line": 142
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 139
+        "line": 144
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 143
+        "line": 148
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 150
+        "line": 155
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 156
+        "line": 161
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 158
+        "line": 163
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 159
+        "line": 164
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 160
+        "line": 165
       }
     ],
     "Reading": [
@@ -23602,8 +23608,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 164,
-      "sha256": "bf275d069fab1b8b19a84e3e4eb6af209c4939bd54db9769033f1980f4d070b4",
+      "lines": 169,
+      "sha256": "af9f8fc2e403a5622a1e37691e15e812f7f7b278a68b6fdea9aa73ddf4332bc8",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -23646,88 +23652,92 @@
           "line": 44
         },
         {
+          "name": "MemoryPerspective",
+          "line": 48
+        },
+        {
           "name": "MemoryEntry",
-          "line": 46
+          "line": 49
         },
         {
           "name": "MemoryPolicy",
-          "line": 72
+          "line": 77
         },
         {
           "name": "MemoryRepository",
-          "line": 87
+          "line": 92
         },
         {
           "name": "observeMemories",
-          "line": 89
-        },
-        {
-          "name": "observePolicy",
-          "line": 90
-        },
-        {
-          "name": "LexiconSection",
           "line": 94
         },
         {
-          "name": "PromiseKind",
-          "line": 96
+          "name": "observePolicy",
+          "line": 95
         },
         {
-          "name": "LexiconStatus",
-          "line": 97
-        },
-        {
-          "name": "LexiconEntry",
+          "name": "LexiconSection",
           "line": 99
         },
         {
+          "name": "PromiseKind",
+          "line": 101
+        },
+        {
+          "name": "LexiconStatus",
+          "line": 102
+        },
+        {
+          "name": "LexiconEntry",
+          "line": 104
+        },
+        {
           "name": "LexiconRepository",
-          "line": 114
+          "line": 119
         },
         {
           "name": "observeEntries",
-          "line": 116
+          "line": 121
         },
         {
           "name": "WorldBookPromptPosition",
-          "line": 122
+          "line": 127
         },
         {
           "name": "WorldBookEntry",
-          "line": 123
+          "line": 128
         },
         {
           "name": "WorldBookRepository",
-          "line": 137
+          "line": 142
         },
         {
           "name": "observeWorldBooks",
-          "line": 139
+          "line": 144
         },
         {
           "name": "TokenUsage",
-          "line": 143
+          "line": 148
         },
         {
           "name": "DurationSummary",
-          "line": 150
+          "line": 155
         },
         {
           "name": "PerformanceRepository",
-          "line": 156
+          "line": 161
         },
         {
           "name": "observeErrors",
-          "line": 158
+          "line": 163
         },
         {
           "name": "observeTokenUsage",
-          "line": 159
+          "line": 164
         },
         {
           "name": "observeDurations",
-          "line": 160
+          "line": 165
         }
       ]
     },
@@ -23960,7 +23970,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
       "lines": 76,
-      "sha256": "15bdddc26d31770eb4fb2131b3e7d30adc81e5124818ff9b16ee0981fb4d3ccb",
+      "sha256": "a7c5034fcbd7a677116a8267084661a97a0fd019b6b818a020f6f4c9b1dec0a5",
       "symbols": [
         {
           "name": "allowed",
@@ -28739,12 +28749,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt",
-      "lines": 111,
-      "sha256": "a41f5938fef2e4a8a1ad882f0ee516f270537e44232f904040bfc2dff92c925c",
+      "lines": 129,
+      "sha256": "45d54c7f216424edbb2c8a371dc1cd814a40438d8ef343be2a78c8b466723f2d",
       "symbols": [
         {
           "name": "initialize",
-          "line": 31
+          "line": 33
         }
       ]
     },
@@ -28852,7 +28862,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
       "lines": 33,
-      "sha256": "694c6ceaea66ffda6fe0806ca9c095da2cc387b751bdc9a0d95484d878d98062",
+      "sha256": "c522fe60a0886050933baee94bfec0c5861d9fa458d04fffa39f8e036654a25b",
       "symbols": [
         {
           "name": "initialize",
