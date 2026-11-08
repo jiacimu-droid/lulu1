@@ -8,6 +8,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -36,6 +37,7 @@ internal fun QqChatComposer(
     groupMode: Boolean,
     characterId: String,
     receiving: Boolean,
+    onInputFocusChanged: (Boolean) -> Unit = {},
     onMention: () -> Unit,
     onCall: () -> Unit,
     onVideoCall: (() -> Unit)? = null,
@@ -244,7 +246,8 @@ internal fun QqChatComposer(
             TextField(
                 value = inputState.value,
                 onValueChange = { inputState.value = it },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
+                    .onFocusChanged { state -> onInputFocusChanged(state.isFocused) },
                 minLines = 1,
                 maxLines = 5,
                 placeholder = { Text("发消息", color = QqMuted, maxLines = 1) },
