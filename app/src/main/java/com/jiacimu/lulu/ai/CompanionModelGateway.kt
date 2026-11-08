@@ -1117,6 +1117,9 @@ class CompanionModelGateway(
                 // resending without stream. Provider content rejection is NOT
                 // a protocol negotiation failure; repeating it just bills again.
                 if (!shouldRetryWithoutStreaming(error)) throw error
+                // The fallback is a second physical POST, not part of the first handoff.
+                // Keep attempted requests distinct from successful replies/provider billing.
+                LuluRepositories.performance.recordModelHandoff("流式协议回退", connection.model)
                 body.remove("stream")
                 onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             }
