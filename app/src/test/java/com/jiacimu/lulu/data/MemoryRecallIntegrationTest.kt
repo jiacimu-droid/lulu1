@@ -31,6 +31,9 @@ class MemoryRecallIntegrationTest {
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
         LuluAiServices.initialize(context)
+        // Match production startup: the vector feature flag and connection
+        // live in MemoryModelRuntime, not in the chat model gateway.
+        MemoryModelRuntime.initialize(context)
     }
     private fun memory(id: String, text: String) = MemoryEntry(id, "recall-integration", text,
         MemoryKind.Fact, "manual", null, Instant.now(), 5, false, true)
