@@ -72,6 +72,11 @@ object ChatMemoryAutomation {
                 }
                 // Events arriving during an API call increment revision and remain queued.
                 MemoryExtractionJobStore.complete(job.id, job.revision)
+            } catch (deferred: BackgroundModelBudgetDeferred) {
+                // Optional paid extraction is deferred without failing or
+                // clearing its original source-event watermark.
+                MemoryExtractionJobStore.defer(job, deferred.resumeAt)
+                return
             } catch (deferred: ResidentMemoryBudgetDeferred) {
                 // A budget-deferred summarizer has NOT processed its batch.
                 // Keep the dirty watermark; resume after local midnight rather
