@@ -14,6 +14,9 @@ internal object OnlineChatBatchStore {
     const val DRAFT_IDLE_FALLBACK_MILLIS = 60_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
+    // Pure foreground signal, never durable content. A draft with no sent
+    // bubble still shields its character from unrelated passive inferences.
+    private val composingUntil = mutableMapOf<String, Long>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
@@ -88,6 +91,10 @@ internal object OnlineChatBatchStore {
     @Synchronized fun onComposerEdit(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Boolean {
+        // The owner may be composing the FIRST message, before any chat
+        // batch exists. This signal suppresses PASSIVE background perception,
+        // and expires locally if the keyboard is abandoned.
+        composingUntil[characterId] = atMillis + DRAFT_IDLE_FALLBACK_MILLIS
         val p = prefs(context)
         val revision = p.getLong("revision:$characterId", 0L)
         if (!p.getBoolean("messageWindow:$characterId", false) ||
@@ -111,6 +118,7 @@ internal object OnlineChatBatchStore {
     @Synchronized fun onComposerIdle(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Boolean {
+        composingUntil.remove(characterId)
         val p = prefs(context)
         val revision = p.getLong("revision:$characterId", 0L)
         if (!p.getBoolean("messageWindow:$characterId", false) ||
@@ -129,6 +137,10 @@ internal object OnlineChatBatchStore {
     @Synchronized fun shouldDeferBackgroundWake(
         context: Context, characterId: String, nowMillis: Long = System.currentTimeMillis(),
     ): Boolean {
+        composingUntil[characterId]?.let { until ->
+            if (nowMillis <= until) return true
+            composingUntil.remove(characterId)
+        }
         val p = prefs(context)
         if (!p.getBoolean("messageWindow:$characterId", false)) return false
         val due = p.getLong("due:$characterId", 0L)
@@ -195,6 +207,7 @@ internal object OnlineChatBatchStore {
         else null
 
     @Synchronized fun cancel(context: Context, characterId: String) {
+        composingUntil.remove(characterId)
         val p = prefs(context)
         reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
