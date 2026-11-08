@@ -277,7 +277,7 @@ internal object MemorySemanticConsolidation {
                 return archived
             }
             val evidence = window.joinToString("\n") { memory ->
-                "id=${memory.id} | 类型=${memory.kind} | 来源=${memory.sourceIds().joinToString(",")} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
+                "id=${memory.id} | 视角=${memory.perspective} | 类型=${memory.kind} | 来源=${memory.sourceIds().joinToString(",")} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
             }
             val reply = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -286,7 +286,7 @@ internal object MemorySemanticConsolidation {
                     对当前列表中有真实来源的记忆做严格语义去重，不修改、不推测任何事实。
                     输出完整 JSON 对象 {"groups":[["idA","idB"]]}，没有可确证的重复返回 {"groups":[]}。
                     每组至少两个真实 id，同一 id 不得出现在两组。
-                    只把同一人物、类型、含义、适用条件和时间完全一致的记录归为一组。
+                    只把同一人物、记忆视角（客观记录/本人主观）、类型、含义、适用条件和时间完全一致的记录归为一组。主观感受不可当成客观事件合并。
                     经历与情绪必须指向同一个原始事件；不同时间的重复经历与不同情绪不合并。
                     相似主题、相反偏好、纠正和事实过期、主观印象、互相补充的细节都不是重复。
                     不确定就不合并。无需输出说明。
@@ -376,7 +376,7 @@ internal object MemorySemanticConsolidation {
     }
 
     private fun reviewWindows(items: List<MemoryEntry>): List<List<MemoryEntry>> =
-        items.groupBy(MemoryEntry::kind).values.flatMap { overlappingReviewWindows(it) }
+        items.groupBy { it.kind to it.perspective }.values.flatMap { overlappingReviewWindows(it) }
 
     private fun fingerprint(memories: List<MemoryEntry>): String {
         val bytes = memories.joinToString("|") { "${it.id}:${it.content}:${it.sourceRevisions}" }.toByteArray(Charsets.UTF_8)
@@ -385,6 +385,7 @@ internal object MemorySemanticConsolidation {
 
     private fun equivalentScope(memories: List<MemoryEntry>): Boolean =
         memories.map { it.characterId }.distinct().size == 1 &&
+            memories.map { it.perspective }.distinct().size == 1 &&
             memories.map { it.kind }.distinct().size == 1 &&
             (memories.first().kind == MemoryKind.Fact ||
                 memories.map { it.sourceIds().toSet() }.reduce { left, right -> left.intersect(right) }.isNotEmpty()) &&
