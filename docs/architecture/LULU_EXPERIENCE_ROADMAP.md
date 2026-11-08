@@ -69,6 +69,8 @@
 
 **2026-11-09 S-02.1 接力**：`608fbfd` 的 [APK/JVM #42521395829](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395829) 为 2591 tests / 1 failed；四居民预算新增测试 PASSED，唯一失败为 `OnlineChatExperienceTest.interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending`（expected 12000 but null）。根因是夹具用被动 `next` 假装正在读取期间新用户气泡，正式 `next` 按契约保留原 revision；`77aca0e` 已将该测试改为真实 `onUserBubble`，后继 JVM/APK 与索引待验。索引 [#42521395832](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395832) success。**下一轮固定 S-02.1**：先核 `77aca0e` Actions head SHA，失败修首错；通过后沿 `CompanionModelGateway`/`LocalPerformanceRepository` 补 MockWebServer HTTP handoff 失败重试计数。不得把请求尝试等同计费。
 
+**2026-11-09 S-02.1 续接**：新增 [`8d8389a`](https://github.com/jiacimu-droid/lulu1/commit/8d8389a30f9241d8a72f43ed5eb3932505d2cdd3) 的 `ModelPostTransportTest.ambiguous503DoesNotRetryOrCountAsSuccessfulGeneration`，用 MockWebServer 真实返回 503，核原始错误与唯一 POST 正文，不允许不确定收费状态下隐式重发；本次只新增测试，未修生产代码，JVM/APK 与索引尚待对应 head SHA 验证。当前 GitHub 连接的 commit workflow 查询仅含 PR 触发、容器 github.com DNS 失败，故 `77aca0e` 和新 SHA 的 main push CI 未能核实，不能标已验。**下轮固定 S-02.1**：先查 `77aca0e` / `8d8389a` 的 main push APK/JVM 与索引；再补 `CompanionModelGateway` 中 stream 400/422 协议回退的第二次真实 HTTP handoff 计数及额度归属回归（目前上层仅在进入 `openAiCompatible` 前计一次，内部回退可能另发一次 POST），先用 MockWebServer 复现再修；请求尝试≠成功≠服务商计费。
+
 ## 三、逐项施工清单
 
 
