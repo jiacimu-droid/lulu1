@@ -353,11 +353,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             island.houseProject?.let { project ->
                 val owner=MigratedDomainStores.characters.get(project.ownerId).displayName
                 val progress=when(project.phase) {
-                    "building" -> "正在盖"; "paused" -> "暂时停工"
-                    "complete" -> "小屋完成"; else -> "正在拆"
+                    "building" -> "正在盖"
+                    "paused" -> if(project.resumePhase=="demolishing") "暂停拆除" else "暂停建造"
+                    "complete" -> "小屋完成"
+                    else -> "正在拆"
                 }
+                val progressCount=if(project.phase=="demolishing" ||
+                    project.phase=="paused" && project.resumePhase=="demolishing")
+                    9-project.placed.size else project.placed.size
                 Text("⌂ "+owner+" "+progress+" "+IslandHouseProjects.styleName(project.style)+
-                    " · "+project.placed.size+"/9",
+                    " · "+progressCount+"/9",
                     color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
