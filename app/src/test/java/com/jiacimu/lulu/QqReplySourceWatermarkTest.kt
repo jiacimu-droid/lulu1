@@ -249,7 +249,8 @@ class QqReplySourceWatermarkTest {
     @Test fun groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val role = MigratedDomainStores.characters.create("群聊部分送达角色").characterId
-        val group = MigratedDomainStores.chat.createGroupConversation("群聊部分送达", listOf(role))
+        val peer = MigratedDomainStores.characters.create("群聊部分送达同伴").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("群聊部分送达", listOf(role, peer))
         val source = MigratedDomainStores.chat.sendUserMessage(group.id, "先说说你的想法")
         val args = JSONObject().put("groupId", group.id)
             .put("text", "第一泡。⟪BUBBLE⟫第二泡。⟪BUBBLE⟫第三泡。")
