@@ -418,7 +418,7 @@ class LocalMemoryRepository : MemoryRepository {
 
     private fun renderPriorUnderstanding(prior: List<MemoryEntry>): String = if (prior.isEmpty()) "" else
         "\n已有当前理解（不是新的原始依据）：\n" + prior.joinToString("\n") {
-            "memoryId=${it.id}；subject=${it.subject}；slot=${it.slot}；${it.content}"
+            "memoryId=${it.id}；perspective=${it.perspective}；subject=${it.subject}；slot=${it.slot}；${it.content}"
         }
 
     private fun understandingUpdateInstruction(): String =
@@ -438,6 +438,7 @@ class LocalMemoryRepository : MemoryRepository {
                 val oldIds = proposed.filter { id ->
                     val before = priorById[id]
                     before != null && before.kind == MemoryKind.Fact && memory.kind == MemoryKind.Fact &&
+                        before.perspective == memory.perspective &&
                         before.id != memory.id && current.any { it == before } && memoryHasLiveSources(before, characterId)
                 }
                 MemoryValidityStore.markSuperseded(oldIds, memory.id)
