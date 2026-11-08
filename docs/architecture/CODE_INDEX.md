@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6646a597ec4a2ffc3e7d129abec6b8112dc9cff2`
+- 基准提交：`76ac404b2efb68b2206919547d0dc3553afbafe8`
 - 分支：`main`
 - 已索引文件：1145
-- 已索引代码/文本行：246177
-- 已发现符号：3375
+- 已索引代码/文本行：246227
+- 已发现符号：3376
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -508,7 +508,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 403 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 199 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 237 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 115 | 2 |
@@ -551,7 +551,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 602 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2377 | 20 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 135 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 147 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 166 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 239 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 942 | 23 |

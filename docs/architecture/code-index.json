@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T14:46:08.627688+00:00",
-  "commit": "6646a597ec4a2ffc3e7d129abec6b8112dc9cff2",
+  "generatedAt": "2026-11-08T15:36:41.668899+00:00",
+  "commit": "76ac404b2efb68b2206919547d0dc3553afbafe8",
   "branch": "main",
-  "sourceFingerprint": "6e4ad224c92862381125a3e20e65658f8b90c39ecb62b518cc8fb09186bb1796",
+  "sourceFingerprint": "230bbd34bbc2996840cf97b43a77443f4e2e3859502041072f77d771ddd5a642",
   "summary": {
     "files": 1145,
-    "lines": 246177,
-    "symbols": 3375
+    "lines": 246227,
+    "symbols": 3376
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -955,7 +955,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
-        "line": 41
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
@@ -11934,10 +11934,16 @@
         "line": 108
       }
     ],
+    "hasBackgroundMaintenanceAllowance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 116
+      }
+    ],
     "nextModelBudgetDayStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 114
+        "line": 126
       }
     ],
     "plan": [
@@ -28857,12 +28863,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
-      "lines": 199,
-      "sha256": "5b391f300a040865c8614a80e4e23177baff69c7949bf0ac9bc2377172287f93",
+      "lines": 237,
+      "sha256": "321b2a717a610344e4f6a0169ff9b51bf214197148f24ac02aa74043efe9bcb0",
       "symbols": [
         {
           "name": "initialize",
-          "line": 41
+          "line": 56
         }
       ]
     },
@@ -30267,8 +30273,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 135,
-      "sha256": "2356f781e7c078ecb3a877fd67d14b9e43d2d93c143f11dbbd74885e1b24e46a",
+      "lines": 147,
+      "sha256": "dc1b7cc06d13b5c2d5a9c5b9b16915f946d337f815ca3199d4b97a01b0d0a7fe",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30327,8 +30333,12 @@
           "line": 108
         },
         {
+          "name": "hasBackgroundMaintenanceAllowance",
+          "line": 116
+        },
+        {
           "name": "nextModelBudgetDayStart",
-          "line": 114
+          "line": 126
         }
       ]
     },
