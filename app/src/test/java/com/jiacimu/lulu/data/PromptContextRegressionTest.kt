@@ -46,6 +46,28 @@ class PromptContextRegressionTest {
         assertEquals(0, decodeMemoryResponseArray("[]").length())
     }
 
+    @Test fun memoryExtractionAcceptsConventionalObjectWrapperWithoutAnotherPaidRequest() {
+        val array = decodeMemoryResponseArray(
+            """{"memories":[{"kind":"Fact","content":"明天喜欢去公园",
+                "sourceEventIds":["source-7"]}]}""")
+        assertEquals(1, array.length())
+        assertEquals("source-7",
+            array.getJSONObject(0).getJSONArray("sourceEventIds").getString(0))
+    }
+
+    @Test fun memoryExtractionIgnoresBracketsInProseAndStringContents() {
+        val json = """说明中的 [not json] 不属于结果
+            ```json
+            [{"kind":"Timeline","content":"今天记住了[重要]的事",
+              "sourceEventIds":["event-9"]}]
+            ```
+            数组之后的附言[无关]"""
+        val array = decodeMemoryResponseArray(json)
+        assertEquals(1, array.length())
+        assertEquals("今天记住了[重要]的事",
+            array.getJSONObject(0).getString("content"))
+    }
+
     @Test fun truncatedMemoryArrayFailsRatherThanAdvancingCheckpoint() {
         assertTrue(runCatching { decodeMemoryResponseArray("[{\"content\":\"长记忆\",\"sourceEventIds\":[\"one\"]") }.isFailure)
         assertTrue(runCatching { decodeMemoryResponseArray("没有返回数组") }.isFailure)
