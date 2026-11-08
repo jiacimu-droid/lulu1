@@ -248,7 +248,7 @@ internal object ModelStructuredOutput {
     /** Optional per-bubble voice decision. The text is the authoritative transcript. */
     fun voiceBubbleTexts(raw: String): List<String> {
         val json = objectOrNull(raw) ?: return emptyList()
-        if (json.optString("action", "reply").lowercase() !in setOf("reply", "message", "chat", "group_message")) return emptyList()
+        if (json.optString("action", "reply").lowercase() !in setOf("reply", "message", "chat", "private_message", "send_private_message", "group_message", "groupmessage", "消息", "回复", "群聊消息", "群聊发言")) return emptyList()
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
         return authoredChatParts(bubbles).filter(AuthoredChatPart::voice).map(AuthoredChatPart::text)
     }
