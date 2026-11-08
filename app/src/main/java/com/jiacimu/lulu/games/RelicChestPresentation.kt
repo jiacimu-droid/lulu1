@@ -12,6 +12,10 @@ internal data class RelicChestReceipt(
 )
 
 internal object RelicChestPresentation {
+    fun isCurrentOpening(run: RelicRun, chestId: Int, receipt: RelicChestReceipt?): Boolean =
+        receipt != null && receipt.runId == run.id && receipt.chestId == chestId &&
+            run.chests.any { it.id == chestId && it.opened }
+
     fun committed(before: RelicRun, after: RelicRun, chestId: Int): RelicChestReceipt? {
         if (before.id != after.id) return null
         val unopened = before.chests.firstOrNull { it.id == chestId && !it.opened }
