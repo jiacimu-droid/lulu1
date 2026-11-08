@@ -67,8 +67,8 @@ internal object MemoryWorkingSet {
             addAll(MemoryWorkingSetPolicy.auxiliaryCandidates(auxiliary))
             context.ownedMemories.forEach { memory ->
                 add(MemoryPromptCandidate("memory:${memory.id}", SUMMARY,
-                    "- [${memory.occurredAt ?: memory.createdAt}] [${CharacterAssociativeRecall.memoryLane(memory).label}] memoryId=${memory.id} ${memory.content}" +
-                        if (memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（当时的情绪印象，不代表此刻状态）" else "",
+                    "- [${memory.occurredAt ?: memory.createdAt}] [${memory.perspective.label}；${CharacterAssociativeRecall.memoryLane(memory).label}] memoryId=${memory.id} ${memory.content}" +
+                        if (memory.perspective == com.jiacimu.lulu.core.MemoryPerspective.Subjective || memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（过去当时的个人表达／情绪，不代表此刻状态或已执行结果）" else "",
                     650, payload = memory.content, sources = memory.sourceIds().toSet(),
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
