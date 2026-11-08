@@ -441,11 +441,11 @@ internal data class LexiconPendingTurn(
 /** Task-level retry only; transport must not silently replay chargeable POSTs. */
 internal fun lexiconRetryDelayMillis(attempts: Int): Long? = when (attempts) {
     0 -> 0L
-    1 -> 2_000L    // First failure: retry almost immediately.
-    2 -> 30_000L   // Repeated failure: brief cooldown.
-    3 -> 2 * 60_000L
-    4 -> 10 * 60_000L
-    else -> null // Five total paid attempts; retain checkpoint for diagnosis.
+    1 -> 15L * 60_000L     // A timeout may have been billed; never replay in 2 seconds.
+    2 -> 60L * 60_000L     // Repeated invalid/provider responses are not a hot loop.
+    3 -> 6L * 60 * 60_000L
+    4 -> 24L * 60 * 60_000L
+    else -> null // Five total attempts; original timeline evidence remains inspectable.
 }
 
 internal fun looksLikeCommitmentRequest(text: String): Boolean {
