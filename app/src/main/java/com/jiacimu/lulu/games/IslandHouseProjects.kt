@@ -46,6 +46,13 @@ internal data class IslandHouseProject(
 internal object IslandHouseProjects {
     val styles=linkedMapOf("warm" to "暖灯原木屋", "pine" to "松林木屋")
     fun styleName(style:String)=styles[style] ?: styles.getValue("warm")
+    /** A single presentation truth for HUD and project panel; no inventory mutation. */
+    fun progress(project: IslandHouseProject): Int =
+        if(project.phase=="demolishing" ||
+            project.phase=="paused" && project.resumePhase=="demolishing")
+            (9-project.placed.size).coerceIn(0,9)
+        else project.placed.size.coerceIn(0,9)
+
     fun parts(w: ExpeditionState,left: Int,top: Int): List<Pair<Int,String>> =
         listOf(
             Triple(left+1,top+1,"floor"),
