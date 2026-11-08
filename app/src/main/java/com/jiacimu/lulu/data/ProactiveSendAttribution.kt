@@ -122,13 +122,14 @@ object ProactiveSendAttribution {
     fun repliedByDecisionId(
         receipts: List<ProactiveSendReceipt>,
         events: List<SharedTimelineEvent>,
+        isCurrentStatement: (SharedTimelineEvent) -> Boolean = { true },
     ): Map<String, Boolean> {
         if (receipts.isEmpty() || events.isEmpty()) return emptyMap()
         val sessionByEventId = events.associateBy { it.id }
         val userStatements = events.filter { it.evidenceKind == EventEvidenceKind.UserStatement }
         return receipts.mapNotNull { receipt ->
             val delivered = sessionByEventId[receipt.causalEvidenceId]
-                ?.takeIf { it.evidenceKind == EventEvidenceKind.CharacterStatement }
+                ?.takeIf { it.evidenceKind == EventEvidenceKind.CharacterStatement && isCurrentStatement(it) }
                 ?: return@mapNotNull null
             val session = delivered.sessionId.takeIf { it.isNotBlank() }
                 ?: return@mapNotNull null
@@ -137,7 +138,7 @@ object ProactiveSendAttribution {
             // statement into a reply to a message that was not yet delivered.
             val deliveredAfter = maxOf(receipt.sentAt, delivered.occurredAt)
             val replied = userStatements.any {
-                it.characterId == delivered.characterId &&
+                it.characterId == delivered.characterId && isCurrentStatement(it) &&
                     it.sessionId == session && it.occurredAt.isAfter(deliveredAfter)
             }
             receipt.decisionId to replied
@@ -153,6 +154,12 @@ object ProactiveSendAttribution {
         val found = receipts(CharacterInnerLifeStore.snapshot(characterId))
         if (found.isEmpty()) return ProactiveSendSummary(emptyList(), emptyMap())
         val events = runCatching { SharedExperienceTimeline.all(characterId) }.getOrDefault(emptyList())
-        return ProactiveSendSummary(found, repliedByDecisionId(found, events))
+        return ProactiveSendSummary(found, repliedByDecisionId(found, events) { event ->
+            when (event.evidenceKind) {
+                EventEvidenceKind.CharacterStatement -> CharacterActionEvidence.supports(event, "message")
+                EventEvidenceKind.UserStatement -> TimelineStatementOwnership.involvesUser(event)
+                else -> false
+            }
+        })
     }
 }
