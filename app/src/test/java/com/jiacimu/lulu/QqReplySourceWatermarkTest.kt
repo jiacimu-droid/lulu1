@@ -259,6 +259,7 @@ class QqReplySourceWatermarkTest {
         )
         val group = MigratedDomainStores.chat.createGroupConversation("群聊部分送达", listOf(role, peer))
         val source = MigratedDomainStores.chat.sendUserMessage(group.id, "先说说你的想法")
+        val oldSourceWatermark = captureReplySourceWatermark(group.id, role, setOf(source.id), MigratedDomainStores.chat)!!
         val args = JSONObject().put("groupId", group.id)
             .put("text", "第一泡。⟪BUBBLE⟫第二泡。⟪BUBBLE⟫第三泡。")
             .put("_replyEvidenceIds", JSONArray().put(source.id))
@@ -317,6 +318,19 @@ class QqReplySourceWatermarkTest {
         assertEquals(after.map { it.content }, recovered.map { it.content })
         assertEquals(persisted.map { it.id }, recovered.take(persisted.size).map { it.id })
         assertEquals(listOf(recovered.last().id), followUp.deliveredMessageIds)
+        // A reconstructed store must reject the old decision source, not only
+        // restore the right message list. Otherwise a delayed old action could
+        // append a stale bubble after process/store reconstruction.
+        assertFalse(isReplySourceWatermarkCurrent(oldSourceWatermark, reopened))
+        val staleAppend = reopened.appendCharacterMessageIfSourceCurrent(
+            group.id, "旧批次重启后不应复活", role, null, "stale-after-reopen",
+            false, "", sourceStillCurrent = {
+                isReplySourceWatermarkCurrent(oldSourceWatermark, reopened)
+            },
+        )
+        assertNull(staleAppend)
+        assertEquals(after.map { it.id }, reopened.messages(group.id).value
+            .filter { it.authorCharacterId == role }.map { it.id })
     }
 
     @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
