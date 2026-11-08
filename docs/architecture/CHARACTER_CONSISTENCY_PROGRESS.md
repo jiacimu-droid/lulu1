@@ -1474,3 +1474,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 检查真实 `InMemoryLuluChatStore.editMessage`：原 `Sent` 消息编辑时保持消息身份/时间/送达状态，并同步以同 ID 修订 `SharedExperienceTimeline`；`TimelineStatementOwnership.original` 正确按原聊天与实时投影核实。一次编辑不会撤回过去的发送或用户已经回复的事实。测试原来把“内容修改”误当“消息不再送达”，与正式契约矛盾；**不应修改生产代码让实际已送达回复被误报未回复**。
 - 代码提交 [98c2e782](https://github.com/jiacimu-droid/lulu1/commit/98c2e782abdf53d100836a62caa835c2e7076897)：对应回归更正为用户真实回复后编辑仍 `replied=1`；同时增加真实 `markFailed` 状态转移后的 `replied=0` 断言，保留删除消息后仍 0、角色发送原件失效和跨角色/跨会话门禁；无额外模型调用，未删除测试或放宽其他断言。
 - 验证边界：已获取两次失败日志与准确源代码路径，提交及 diff 经 GitHub 核验；`98c2e782` 本轮未有完整新 JVM/APK CI 通过证明（GitHub status 和 PR-only workflow 查询为空不代表 push Actions 结果），未做真机/模型复测。#809/#810 保持待成功后继构建确认；P-08a.1g.3 的 ToolRouter 真实主副动作、跨进程重启、下一轮模型召回及真机仍未验。
+
+## 2026-11-08 · P-08a.1g.3 #809/#810 后继 CI 验收
+
+- 复查 main `46ebffe73f154bf905bb3bf6a926894b252adfae` 的四份入口文档、`ProactiveSendAttribution.kt` 与 Robolectric 集成回归；#809/#810 的测试编辑语义错误已由 `98c2e782abdf53d100836a62caa835c2e7076897` 修正，未重复开发。
+- 核实 [Lulu APK/JVM #42441234402](https://github.com/jiacimu-droid/lulu1/actions/runs/42441234402) 为 `completed/success`，head SHA 正是 `98c2e782`，2026-11-08 03:17 UTC 更新；这是旧 2540 项/1 失败的后继成功验证，不代表真机、真实模型或进程死亡恢复通过。
+- 本轮没有证实额外生产缺口，不为凑提交增加重复测试；仅将已确认 CI 结果回填 roadmap。后续优先 P-08a.1g.3 真正 ToolRouter 主失败/副成功→Timeline→Store 的入口级回归和重新打开持久 Store；若测试环境无法重建进程，则转 P-08b.1 跨入口人物注入可执行回归。仍不得勾 P-08a.1g.3 整体验收。
