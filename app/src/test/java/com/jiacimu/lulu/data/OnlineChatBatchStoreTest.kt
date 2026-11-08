@@ -91,6 +91,59 @@ class OnlineChatBatchStoreTest {
         OnlineChatBatchStore.finish(app, role, third.revision)
     }
 
+    @Test fun slowComposerTypingExtendsOneUnpaidEightSecondWindowWithoutStartingNewRevision() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
+        assertEquals(108_000L, first.dueAtMillis)
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 105_000L))
+        assertEquals(113_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 110_000L))
+        assertEquals(118_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 117_999L))
+        val finalBubble = OnlineChatBatchStore.onUserBubble(app, role, 112_000L)
+        assertEquals(first.revision, finalBubble.revision)
+        assertEquals(120_000L, finalBubble.dueAtMillis)
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 120_000L))
+        // Once the paid model owns the turn, draft edits cannot restart it.
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 121_000L))
+        OnlineChatBatchStore.finish(app, role, first.revision)
+    }
+
+    @Test fun composerOnlyEditingDoesNotInventModelWork() {
+        OnlineChatBatchStore.cancel(app, role)
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 1_000_000L))
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
+    @Test fun backgroundWakesYieldToPendingChatButAbandonedWindowsDoNotBlockForever() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 200_000L)
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 202_000L))
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 208_000L))
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 298_000L))
+        assertFalse(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 298_001L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 300_000L))
+        assertTrue(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 700_000L))
+        OnlineChatBatchStore.finish(app, role, first.revision)
+        assertFalse(OnlineChatBatchStore.shouldDeferBackgroundWake(app, role, 700_000L))
+    }
+
+    @Test fun unrelatedWakeDuringPaidReadCannotSupersedeTheUserBatch() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, first.dueAtMillis))
+        val passive = OnlineChatBatchStore.next(app, role, collectMessages = true, now = 109_000L)
+        assertEquals(first, passive)
+        assertTrue(OnlineChatBatchStore.isCurrent(app, role, first.revision))
+        val realMessage = OnlineChatBatchStore.onUserBubble(app, role, 110_000L)
+        assertNotEquals(first.revision, realMessage.revision)
+        assertEquals(118_000L, realMessage.dueAtMillis)
+        OnlineChatBatchStore.finish(app, role, first.revision)
+        assertEquals(118_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertTrue(OnlineChatBatchStore.claim(app, role, realMessage.revision, 118_000L))
+        OnlineChatBatchStore.finish(app, role, realMessage.revision)
+    }
+
     @Test fun independentNonMessageWakeCannotAdvanceAnUnfinishedBubbleWindow() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 200_000L)
