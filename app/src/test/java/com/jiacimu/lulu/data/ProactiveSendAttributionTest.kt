@@ -273,7 +273,14 @@ class ProactiveSendAttributionTest {
             // its original sent row remains valid.
             val reply = chat.sendUserMessage(conversation, "我收到啦")
             assertEquals(1, ProactiveSendAttribution.summarize(role).replied)
+            // Editing the original sent row is a real revision, not a retraction.
+            // ChatStore updates the matching timeline revision atomically, so
+            // the user's reply still exists with the same session and send time.
             assertTrue(chat.editMessage(reply.id, "这条回复后来被修改"))
+            assertEquals(1, ProactiveSendAttribution.summarize(role).replied)
+            // Unlike an edit, losing Sent status makes the old projected row
+            // insufficient evidence of delivery, even before deletion.
+            chat.markFailed(reply.id)
             assertEquals(0, ProactiveSendAttribution.summarize(role).replied)
             assertTrue(chat.deleteMessage(reply.id))
             assertEquals(0, ProactiveSendAttribution.summarize(role).replied)
