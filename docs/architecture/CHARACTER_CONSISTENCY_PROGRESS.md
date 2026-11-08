@@ -1467,3 +1467,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - [ac7c628](https://github.com/jiacimu-droid/lulu1/commit/ac7c6286d09207a3b05f033d27bd589e5961353f) 在现有 Robolectric 集成测试中追加真实 sendUserMessage → editMessage/deleteMessage 以及角色原发送 editMessage，检查 summarize 不沿失效原件计回复或有效送达；复用原有 ChatStore/Timeline/InnerLifeStore，不更改生产人格与决策。
 - **验证**：仅测试源码提交；本提交的 JVM/APK/索引 Actions 尚未获得完成结果，本地 Android 编译未运行。仍缺 ToolRouter 实际失败/部分成功、真正进程死亡后的重新加载、下一轮召回与真机模型验收。下一轮先核本提交 CI 首错，失败则修测试或生产真实缺口；通过后优先执行器入口回归。P-08a.1g.3 不勾完成。
+
+## 2026-11-08 · #809/#810 主动消息回复归属的编辑语义回归
+
+- 两个 CI 故障工单：[ #809 / 42440002599](https://github.com/jiacimu-droid/lulu1/actions/runs/42440002599)（ac7c628）及 [#810 / 42440383322](https://github.com/jiacimu-droid/lulu1/actions/runs/42440383322)（3fcdde3）均在 `:app:testPhoneUnitTest` 运行 2540 项、仅 1 项失败，失败测试 `ProactiveSendAttributionTest.persistedPrimaryReceiptSurvivesStoreReadAndNeverClaimsSideOnlyDelivery` 第 277 行：期望 `replied=0`、实际 `1`。前序 APK 构建步骤尚未执行。
+- 检查真实 `InMemoryLuluChatStore.editMessage`：原 `Sent` 消息编辑时保持消息身份/时间/送达状态，并同步以同 ID 修订 `SharedExperienceTimeline`；`TimelineStatementOwnership.original` 正确按原聊天与实时投影核实。一次编辑不会撤回过去的发送或用户已经回复的事实。测试原来把“内容修改”误当“消息不再送达”，与正式契约矛盾；**不应修改生产代码让实际已送达回复被误报未回复**。
+- 代码提交 [98c2e782](https://github.com/jiacimu-droid/lulu1/commit/98c2e782abdf53d100836a62caa835c2e7076897)：对应回归更正为用户真实回复后编辑仍 `replied=1`；同时增加真实 `markFailed` 状态转移后的 `replied=0` 断言，保留删除消息后仍 0、角色发送原件失效和跨角色/跨会话门禁；无额外模型调用，未删除测试或放宽其他断言。
+- 验证边界：已获取两次失败日志与准确源代码路径，提交及 diff 经 GitHub 核验；`98c2e782` 本轮未有完整新 JVM/APK CI 通过证明（GitHub status 和 PR-only workflow 查询为空不代表 push Actions 结果），未做真机/模型复测。#809/#810 保持待成功后继构建确认；P-08a.1g.3 的 ToolRouter 真实主副动作、跨进程重启、下一轮模型召回及真机仍未验。
