@@ -284,12 +284,11 @@ object CommitmentTurnAutomation {
             // already supplies typed commitmentChanges. Only a plausible
             // *missed* commitment (including owner correction or a continuing
             // existing duty) warrants a separate model interpretation.
-            val relevantActive = CommitmentTaskStore.active(characterId).any { task ->
-                task.status.isActive() &&
-                    looksLikeTaskTurn(combinedUserText, characterText)
-            }
-            if (!looksLikeTaskTurn(combinedUserText, characterText) && !relevantActive)
-                return@forEach
+            val relevantActiveCorrection =
+                CommitmentTaskStore.active(characterId).any { it.status.isActive() } &&
+                    looksLikeImmediateTaskUpdate(combinedUserText)
+            if (!looksLikeTaskTurn(combinedUserText, characterText) &&
+                !relevantActiveCorrection) return@forEach
             if (!permitAttempt(signature, characterId)) return@forEach
 
             val active = CommitmentTaskStore.active(characterId)
