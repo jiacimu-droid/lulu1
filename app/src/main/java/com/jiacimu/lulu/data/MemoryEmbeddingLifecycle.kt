@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.MemoryEntry
 import kotlinx.coroutines.CoroutineScope
@@ -26,14 +27,16 @@ internal object MemoryEmbeddingLifecycle {
     private val signatures = mutableMapOf<String, Map<String, Int>>()
     private val indexMutex = Mutex()
     private var started = false
+    private var appContext: Context? = null
 
     @Synchronized
-    fun initialize() {
+    fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (started) return
         started = true
         scope.launch {
             while (true) {
-                delay(60_000)
+                delay(15L * 60_000L)
                 MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
                     runCatching { sync(characterId, LuluRepositories.memory.observeMemories(characterId).first()) }
                 }
@@ -77,6 +80,10 @@ internal object MemoryEmbeddingLifecycle {
             return@withLock
         }
         val connection = MemoryModelRuntime.embeddingConnection() ?: return@withLock
+        val app = appContext ?: return@withLock
+        // Residents retain full local evidence search; this optional indexing
+        // must not secretly consume their owner-selected daily model slots.
+        if (characterId.startsWith("resident:")) return@withLock
         val changed = active.filter { memory -> previous[memory.id] != current[memory.id] }
         changed.chunked(BATCH_SIZE).forEach { batch ->
             val missing = batch.filter { memory ->
@@ -84,11 +91,22 @@ internal object MemoryEmbeddingLifecycle {
                 MemoryEmbeddingIndex.get(key, memory.id) == null
             }
             if (missing.isEmpty()) return@forEach
+            val evidence = buildString {
+                append(connection.baseUrl).append('|').append(connection.model)
+                missing.forEach { memory ->
+                    append('|').append(memory.id).append(':').append(signature(memory))
+                }
+            }
+            // One failed upstream batch must not be replayed every minute,
+            // nor should it cause all the other missing batches to be sent to
+            // the same failing endpoint. There is NO daily item/call ceiling.
+            if (!BackgroundModelRequestBudget.claim(app, characterId,
+                    "向量索引", "缺失记忆向量", evidence = evidence)) return@withLock
             val vectors = com.jiacimu.lulu.ai.LuluAiServices.gateway
                 .embed(connection, missing.map(MemoryEntry::content))
                 .getOrNull()
                 ?.takeIf { it.size == missing.size }
-                ?: return@forEach
+                ?: return@withLock
             missing.forEachIndexed { index, memory ->
                 synchronized(SharedExperienceTimeline) {
                     if (memoryHasLiveSources(memory, characterId) && MemoryValidityStore.isActive(memory.id) &&
