@@ -427,7 +427,10 @@ object ProactivePerceptionScheduler {
                         ?: return@launch
                     val remaining = due - System.currentTimeMillis()
                     if (remaining <= 0L) break
-                    delay(remaining)
+                    // Composer may finish EARLIER than its 60-second idle
+                    // fallback. Re-read the latest durable local deadline;
+                    // never hold a paid reply until a stale long sleep ends.
+                    delay(remaining.coerceAtMost(500L))
                 }
                 if (CompanionOnlineStore.isOnline(characterId) &&
                     OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
@@ -1052,7 +1055,9 @@ class ProactivePerceptionWorker(
                     ?: return@runCatching Result.success()
                 val remaining = due - System.currentTimeMillis()
                 if (remaining <= 0L) break
-                kotlinx.coroutines.delay(remaining)
+                // Pure local timer polling while typing, NEVER a model/API
+                // request. Both foreground and OS worker see earlier release.
+                kotlinx.coroutines.delay(remaining.coerceAtMost(500L))
             }
         }
         // A separate reflection should not race with the current chat batch:
