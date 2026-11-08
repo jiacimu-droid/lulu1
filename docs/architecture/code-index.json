@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:07:20.766031+00:00",
-  "commit": "ffd5ac267202f9ddb1e77f32c5ff62f7694b5647",
+  "generatedAt": "2026-11-08T16:10:21.817511+00:00",
+  "commit": "b3e97147a1999f383833a5a6965f5420708bd209",
   "branch": "main",
-  "sourceFingerprint": "c4d1af6f94847d11f70829d87e1b14ff7fbd598290f63187cb35b7409e595911",
+  "sourceFingerprint": "9fa45541a954a57a689ccbd0950d4d1b4d92775ce558c16f40b33b8fe6686f7a",
   "summary": {
     "files": 1148,
-    "lines": 246671,
+    "lines": 246709,
     "symbols": 3384
   },
   "symbolIndex": {
@@ -28690,8 +28690,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt",
-      "lines": 50,
-      "sha256": "ba1f5886f85c685874c57359f8c1263b8cd91afb8bc86fa1b0ed974304db79f9",
+      "lines": 87,
+      "sha256": "a36f47964fd62c9c9c76adbe5dafa35fe5b6f8b66f3c9c20a77ff6b9b728ecd4",
       "symbols": []
     },
     {
@@ -35755,8 +35755,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 708,
-      "sha256": "ef6f2d89b28c5720eb8caea011a7eee25cacd99574bec95a8eb1b8b28b2c9f90",
+      "lines": 709,
+      "sha256": "7967cda4be8b1522cf6adb7ee78524eadd88a6bc9cb941d59412c65554b63290",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",

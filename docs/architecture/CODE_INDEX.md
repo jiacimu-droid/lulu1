@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ffd5ac267202f9ddb1e77f32c5ff62f7694b5647`
+- 基准提交：`b3e97147a1999f383833a5a6965f5420708bd209`
 - 分支：`main`
 - 已索引文件：1148
-- 已索引代码/文本行：246671
+- 已索引代码/文本行：246709
 - 已发现符号：3384
 
 | 文件 | 行数 | 符号数 |
@@ -498,7 +498,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 571 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 613 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 78 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 50 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 125 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 71 | 2 |
@@ -831,7 +831,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 164 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 708 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 709 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 52 | 1 |
