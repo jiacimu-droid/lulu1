@@ -198,8 +198,11 @@ class LocalMemoryRepository : MemoryRepository {
                 instruction = """
                     判断目标用户事件 ${targetIds.joinToString("|")} 是否包含应立即保存的稳定事实、明确偏好、边界或重要长期安排。
                     信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
-                    只返回 JSON 数组；没有则返回 []。每项：
-                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位","supersedes":[],"sceneKey":"活动|地点|参与人|时段的短串或空","measureKind":"sleep_hours/bedtime等或空","measureValue":数字或null,"measureUnit":"小时/时或空"}
+                    只返回可直接 JSON 解析的数组；没有就返回 []，不用 Markdown 或解释。
+                    每项必填 {"kind":"Fact","content":"有主体和语境的一两句真实事实","sourceEventIds":["输入中真实事件ID"]}。
+                    可选 tier(Core|Stable)、strength(1-10)、subject、slot、supersedes(旧事实ID数组)、occurredAt、
+                    sceneKey、measureKind、measureValue、measureUnit；没有真实依据就省略这些可选字段，
+                    绝不为凑齐长表格补虚构字段。用户明确说要长期记住的重要事实应标 tier=Core。
                     每条来源必须包含至少一个目标用户事件。Core 用于用户郑重要求持续遵守或长期牢记的稳定事实，包括重要边界、关系、安排及明确要求始终记住的偏好；普通喜好用 Stable。
                     相处中的条件约定要保留完整触发条件和表达要求，例如“做某种互动时要带上指定拟声”；不能摘要成笼统的“喜欢亲密”而丢掉具体要求。用户反复强调、明确拒绝的相处方式与稳定称呼应进入 Core。
                     ‘今天不吃辣’不是‘以后不喜欢辣’；‘记住’后面的临时提醒交给责任系统，不保存为长期核心事实。
@@ -292,8 +295,12 @@ class LocalMemoryRepository : MemoryRepository {
                     facts + renderPriorUnderstanding(prior),
                 instruction = """
                     从给定真实对话与原始事件中提取日后值得回忆的记忆。根据当前角色本人的稳定价值、兴趣、真实关系和实际见闻判断哪些零碎细节对他有意义；不需要每件小事都高分，但不要把不起眼等同于不值得记。只返回 JSON 数组，不要代码块。
-                    每项格式：
-                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空","supersedes":[],"sceneKey":"活动|地点|参与人|时段的短串或空","measureKind":"sleep_hours/bedtime等或空","measureValue":数字或null,"measureUnit":"小时/时或空"}
+                    每项只强制三字段：{"kind":"Fact|Emotion|Timeline","content":"包含人物、事件和必要语境的真实记忆","sourceEventIds":["真实事件ID"]}。
+                    其他字段 tier(Core|Stable|Episode)、strength(1-10)、subject、slot、supersedes、occurredAt、
+                    sceneKey、measureKind、measureValue、measureUnit 均可选；确有依据时填写，
+                    不要用空字符串、null 或凑满所有字段增加输出体积。
+                    同一事实的更新优先沿用 subject+slot，并仅在明确纠正时用 supersedes 指向真实旧记忆ID。
+                    严格输出完整的 JSON 数组（没有返回 []），禁止前言、Markdown、未闭合括号。
                     规则：
                     0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
