@@ -91,6 +91,28 @@ class RelicEscapeRulesTest {
         assertTrue(dropped.drops.any { it.loot == fallen.loot })
     }
 
+    @Test fun mapOpeningGlowRequiresSameCommittedChestAndStopsOnDismiss() {
+        val initial = RelicEscapeWorld.create(618,2,emptyList(),0,1)
+        val chest = initial.chests.first()
+        val prepared = RelicEscapeRules.reveal(initial.copy(
+            hero=initial.hero.copy(x=chest.x,y=chest.y),
+            mobs=emptyList(),sites=emptyList()))
+        val opened = RelicEscapeRules.act(prepared,"open",chest.x,chest.y)
+        val receipt = RelicChestPresentation.committed(prepared,opened,chest.id)
+        assertNotNull(receipt)
+        assertTrue(RelicChestPresentation.isCurrentOpening(opened,chest.id,receipt))
+        assertFalse("No pre-commit map celebration",
+            RelicChestPresentation.isCurrentOpening(prepared,chest.id,receipt))
+        assertFalse("Other chest must not light up",
+            RelicChestPresentation.isCurrentOpening(opened,chest.id+999,receipt))
+        assertFalse("Other run must not reuse a prior opening",
+            RelicChestPresentation.isCurrentOpening(opened.copy(id="other"),chest.id,receipt))
+        assertFalse("Dismissed overlay ends the map glow, not the actual loot",
+            RelicChestPresentation.isCurrentOpening(opened,chest.id,null))
+        assertTrue(opened.hero.bag.any { it == receipt!!.loot } ||
+            opened.drops.any { it.loot == receipt!!.loot })
+    }
+
     @Test fun chestCeremonyUsesNewPhysicalCopyNotAnOldIdenticalLoot() {
         val generated=RelicEscapeWorld.create(613,2,emptyList(),0,1)
         val chest=generated.chests.first()
