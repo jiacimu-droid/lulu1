@@ -1,7 +1,8 @@
 package com.jiacimu.lulu.data
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class ChatLexiconRetryPolicyTest {
@@ -13,8 +14,14 @@ class ChatLexiconRetryPolicyTest {
         assertEquals(24L * 60 * 60_000L, lexiconRetryDelayMillis(4))
     }
 
-    @Test fun repeatedProviderOutageDoesNotCauseUnlimitedPaidCalls() {
-        assertNull(lexiconRetryDelayMillis(5))
-        assertNull(lexiconRetryDelayMillis(200))
+    @Test fun repeatedProviderOutageKeepsUnresolvedWorkButOnlyRetriesDaily() {
+        assertEquals(24L * 60 * 60_000L, lexiconRetryDelayMillis(5))
+        assertEquals(24L * 60 * 60_000L, lexiconRetryDelayMillis(200))
+    }
+
+    @Test fun plainResolutionTurnCanBeCoalescedWithDeliveredChat() {
+        assertTrue(looksLikeImmediateLifeUpdate("好了，我已经解决了"))
+        assertTrue(looksLikeImmediateLifeUpdate("取消了原安排"))
+        assertFalse(looksLikeImmediateLifeUpdate("今天吃什么"))
     }
 }
