@@ -1480,3 +1480,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 复查 main `46ebffe73f154bf905bb3bf6a926894b252adfae` 的四份入口文档、`ProactiveSendAttribution.kt` 与 Robolectric 集成回归；#809/#810 的测试编辑语义错误已由 `98c2e782abdf53d100836a62caa835c2e7076897` 修正，未重复开发。
 - 核实 [Lulu APK/JVM #42441234402](https://github.com/jiacimu-droid/lulu1/actions/runs/42441234402) 为 `completed/success`，head SHA 正是 `98c2e782`，2026-11-08 03:17 UTC 更新；这是旧 2540 项/1 失败的后继成功验证，不代表真机、真实模型或进程死亡恢复通过。
 - 本轮没有证实额外生产缺口，不为凑提交增加重复测试；仅将已确认 CI 结果回填 roadmap。后续优先 P-08a.1g.3 真正 ToolRouter 主失败/副成功→Timeline→Store 的入口级回归和重新打开持久 Store；若测试环境无法重建进程，则转 P-08b.1 跨入口人物注入可执行回归。仍不得勾 P-08a.1g.3 整体验收。
+
+## 2026-11-08 · P-08a.1g.3 ChatStore 重新实例化存储回归
+
+- 新增测试 [`804b1b2`](https://github.com/jiacimu-droid/lulu1/commit/804b1b22fe82032208cc9c9a48b9e3a5a89f476e) `ProactiveSendAttributionTest.canonicalChatDeliverySurvivesFreshStoreInstanceAndFailedReplyDoesNotRevive`：真实 Store 发送角色消息与用户回复、将回复标 Failed，再新建 `InMemoryLuluChatStore` 读取 SharedPreferences，核实角色 Sent/authorCharacterId 与用户 Failed/sender 不会因新实例丢失。未使用模型或伪造 Timeline。
+- 仅为真实存储重新打开的最小回归；尚未取得该提交 JVM/APK/索引成功证据，未执行真实 ToolRouter、进程死亡、InnerLifeStore 重建或下一轮角色召回。下轮直接打开 `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` 和 `ToolRouter.kt`，核 `804b1b2` 对应 push CI，再补主失败/副成功的执行器级回归；若不能接入，转 P-08c.2。P-08a.1g.3 不勾完成。
