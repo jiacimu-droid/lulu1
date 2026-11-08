@@ -109,17 +109,38 @@ internal object ResidentDailyPolicy {
         at: java.time.Instant = java.time.Instant.now()): Boolean =
         remainingModelRequests(context, role, at) > 0
 
-    /** Low-priority memory review / growth must not spend the resident's
-     * FIRST daily model allowance before their own scheduled day decision.
-     * The original plan and all real social/due-time calls retain their
-     * existing shared atomic budget. This is only a read-only preflight. */
-    fun hasBackgroundMaintenanceAllowance(context: Context, role: String,
+    /** Existing planned appointments own their next choice; optional
+     * housekeeping and spontaneous social wakes must not evict them. */
+    internal fun remainingTodayAgendaDecisions(
+        context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now(),
+    ): Int {
+        if (!role.startsWith("resident:")) return 0
+        val day = at.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        return RoleDayScheduleStore.plans(context, role).count { plan ->
+            plan.status in setOf("planned", "due") &&
+                plan.dueAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate() == day
+        }
+    }
+
+    /** The first personal plan and accepted future appointments reserve
+     * their minimum model turns. Unread social events are preserved and shown
+     * to the resident at the next real daily or due-time decision. */
+    fun hasOptionalResidentWakeAllowance(context: Context, role: String,
         at: java.time.Instant = java.time.Instant.now()): Boolean {
         if (!role.startsWith("resident:")) return true
-        if (!hasModelRequestAllowance(context, role, at)) return false
+        val remaining = remainingModelRequests(context, role, at)
         val nativeId = role.removePrefix("resident:")
-        return ResidentDailyDecision.attemptedToday(context, nativeId, at)
+        val needsPlan = ResidentDailyDecision.planFor(context, nativeId, at) == null
+        val reserved = (if (needsPlan) 1 else 0) +
+            remainingTodayAgendaDecisions(context, role, at)
+        return remaining > reserved
     }
+
+    /** Memory extraction, semantic review and growth are paid but optional. */
+    fun hasBackgroundMaintenanceAllowance(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Boolean =
+        hasOptionalResidentWakeAllowance(context, role, at)
 
     /** Local midnight when this resident's next configured daily allowance starts.
      * This is scheduling arithmetic only, not a new decision or paid request. */
