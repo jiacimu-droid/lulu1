@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:12:11.625614+00:00",
-  "commit": "4f9a30de9da77bb7d88a12ab59b9f0814b409d23",
+  "generatedAt": "2026-11-08T16:15:29.630472+00:00",
+  "commit": "8cb1e75181cd9ccb11b40e669a2ca38edc4a84a9",
   "branch": "main",
-  "sourceFingerprint": "3fc8eeef76fe9be0f6659ebb5459bcacd64873adf18270b6d9d29d69b03095ad",
+  "sourceFingerprint": "1b255d4514b539a142bcfa509c04da447a12eee5663d1fd3a1ed82678e1d3d47",
   "summary": {
     "files": 1148,
-    "lines": 246774,
-    "symbols": 3384
+    "lines": 246720,
+    "symbols": 3385
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -275,7 +275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
-        "line": 83
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -803,7 +803,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1459
+        "line": 1461
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4993,19 +4993,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1214
+        "line": 1216
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1226
+        "line": 1228
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1449
+        "line": 1451
       }
     ],
     "configured": [
@@ -5631,11 +5631,21 @@
     "allowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
-        "line": 68
+        "line": 38
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
         "line": 54
+      }
+    ],
+    "retryAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
+        "line": 68
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+        "line": 8
       }
     ],
     "musicChoice": [
@@ -9540,12 +9550,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
         "line": 279
-      }
-    ],
-    "retryAt": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
-        "line": 8
       }
     ],
     "reviewAt": [
@@ -23217,8 +23221,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1467,
-      "sha256": "06b4fa4dfe646cd5349b0e264c09b8d073ed47945b746f55fc25908f3f59cbbc",
+      "lines": 1469,
+      "sha256": "9f73832fab6db1e0a273821ff3b4ada4bd4028ebeaf1a53ded01a635317fd739",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23318,19 +23322,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1214
+          "line": 1216
         },
         {
           "name": "consumeEvent",
-          "line": 1226
+          "line": 1228
         },
         {
           "name": "LuluAiServices",
-          "line": 1449
+          "line": 1451
         },
         {
           "name": "initialize",
-          "line": 1459
+          "line": 1461
         }
       ]
     },
@@ -23951,16 +23955,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
-      "lines": 111,
-      "sha256": "728035fbbfd6c67b34ee9d3f826df9259dd11118973ff67a8984ca9aa1be6e68",
+      "lines": 76,
+      "sha256": "15bdddc26d31770eb4fb2131b3e7d30adc81e5124818ff9b16ee0981fb4d3ccb",
       "symbols": [
         {
           "name": "allowed",
-          "line": 68
+          "line": 38
         },
         {
           "name": "claim",
-          "line": 83
+          "line": 42
+        },
+        {
+          "name": "retryAt",
+          "line": 68
         }
       ]
     },
@@ -36471,8 +36479,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt",
-      "lines": 83,
-      "sha256": "71375308b26ac1c49602c029bbae4f0b2b86ffdc2b634b1ad5335bcc1552ba5b",
+      "lines": 62,
+      "sha256": "b4d6e6e53158f481049b55a9004d52f4b8eb7992638700f17eef5aea73950a4f",
       "symbols": [
         {
           "name": "BackgroundModelRequestBudgetTest",
