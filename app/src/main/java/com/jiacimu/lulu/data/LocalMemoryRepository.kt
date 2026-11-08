@@ -1164,12 +1164,52 @@ private fun JSONObject.nullableString(key: String): String? =
     takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf(String::isNotBlank)
 
 /** Tolerate prose/fences around a complete array, but never salvage truncated JSON. */
+/** Decode a model-authored JSON array without paying for a second request
+ * simply because the relay wrapped it in prose, fences, or a conventional
+ * object envelope. Only accept complete arrays of objects (or genuine []).
+ * Individual factual/source validity is still checked by the caller. */
 internal fun decodeMemoryResponseArray(raw: String): JSONArray {
     val clean = raw.trim()
-    val start = clean.indexOf('[')
-    val end = clean.lastIndexOf(']')
-    require(start >= 0 && end >= start) { "模型未返回完整记忆数组" }
-    return JSONArray(clean.substring(start, end + 1))
+    fun valid(rows: JSONArray): Boolean = (0 until rows.length())
+        .all { index -> rows.optJSONObject(index) != null }
+    runCatching { JSONArray(clean) }.getOrNull()?.takeIf(::valid)?.let { return it }
+    val objectText = clean.removePrefix("```json").removePrefix("```")
+        .removeSuffix("```").trim()
+    runCatching { JSONObject(objectText) }.getOrNull()?.let { envelope ->
+        for (name in listOf("memories", "entries", "items", "result", "data",
+            "updates", "changes")) {
+            envelope.optJSONArray(name)?.takeIf(::valid)?.let { return it }
+        }
+    }
+    // Scan balanced brackets, respecting strings and escapes. indexOf('[')
+    // through lastIndexOf(']') incorrectly swallowed extra display text and
+    // misclassified valid JSON as a failed paid extraction.
+    for (start in clean.indices) {
+        if (clean[start] != '[') continue
+        var depth = 0
+        var quoted = false
+        var escaped = false
+        for (i in start until clean.length) {
+            val ch = clean[i]
+            if (quoted) {
+                if (escaped) escaped = false
+                else if (ch == '\\') escaped = true
+                else if (ch == '"') quoted = false
+                continue
+            }
+            if (ch == '"') { quoted = true; continue }
+            if (ch == '[') depth++
+            if (ch == ']') {
+                depth--
+                if (depth == 0) {
+                    runCatching { JSONArray(clean.substring(start, i + 1)) }
+                        .getOrNull()?.takeIf(::valid)?.let { return it }
+                    break
+                }
+            }
+        }
+    }
+    throw IllegalArgumentException("模型未返回完整且有效的记忆 JSON 数组")
 }
 
 
