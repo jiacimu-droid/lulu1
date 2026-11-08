@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:18:02.004995+00:00",
-  "commit": "6ea3876bf5e19917c92da7b207c7eb7edbb33f32",
+  "generatedAt": "2026-11-08T16:20:19.131925+00:00",
+  "commit": "3a942c2d0de45570c386bde8c4c7c98d670a1ba4",
   "branch": "main",
-  "sourceFingerprint": "a02310f732c343c4849ed3bed660babf94d4461b7caa6d3bac3e47c0b909b5d8",
+  "sourceFingerprint": "e450623e85de71f4f9504e0eef284731bca89423c48bb3e9305420ddf5231a3e",
   "summary": {
     "files": 1148,
-    "lines": 246728,
+    "lines": 246735,
     "symbols": 3385
   },
   "symbolIndex": {
@@ -6227,7 +6227,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 239
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -24428,8 +24428,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 282,
-      "sha256": "fe27eda7b53f583eece2f8fd7d472d098d295c4e6b4b1e2cd00cfcd8a5820596",
+      "lines": 289,
+      "sha256": "bb6c73bb79aef1452812a26a5078e447ec2ee60752c64577ae628d10cff3e9aa",
       "symbols": [
         {
           "name": "snapshot",
@@ -24457,7 +24457,7 @@
         },
         {
           "name": "ids",
-          "line": 239
+          "line": 246
         }
       ]
     },
