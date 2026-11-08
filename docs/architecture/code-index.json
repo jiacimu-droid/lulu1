@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:39:59.389253+00:00",
-  "commit": "b88b6eae85ef302b67c5295e3fd1830cacdcf3a3",
+  "generatedAt": "2026-11-08T15:43:12.917128+00:00",
+  "commit": "e177c32167564f3bb1b8397560d6b3c6df84524b",
   "branch": "main",
-  "sourceFingerprint": "9e291db1ced8d7575e67332b00d1f996b9726b382aff0c9faf7d750caf30f835",
+  "sourceFingerprint": "1ac71efc211c073f3fd2c7fb77639cf13ea183aba63b92b9f48434d7bc9a26cc",
   "summary": {
     "files": 1146,
-    "lines": 246301,
-    "symbols": 3377
+    "lines": 246380,
+    "symbols": 3379
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -799,7 +799,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1444
+        "line": 1448
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4977,31 +4977,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 684
+        "line": 686
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 690
+        "line": 692
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1199
+        "line": 1203
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1211
+        "line": 1215
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1434
+        "line": 1438
       }
     ],
     "configured": [
@@ -9734,52 +9734,64 @@
         "line": 30
       }
     ],
-    "ApiUsageSummary": [
+    "ApiDailyRequestCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
         "line": 43
       }
     ],
+    "ApiUsageSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 50
+      }
+    ],
     "TokenBreakdownItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 54
+        "line": 61
       }
     ],
     "TokenConsoleRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 60
+        "line": 67
       }
     ],
     "PerformanceTimingRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 90
+        "line": 97
       }
     ],
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 98
+        "line": 105
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 108
+        "line": 115
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 121
+        "line": 128
+      }
+    ],
+    "recordModelHandoff": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 224
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 324
+        "line": 352
       }
     ],
     "Key": [
@@ -21954,8 +21966,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 412,
-      "sha256": "350a84ca4cb5b4468df1e12c3c0af0f730d8417bc7f2c7f9abc25f66d41ce1ab",
+      "lines": 428,
+      "sha256": "ff21d7ae4c8774f2b08946daeae9d48fdfe447ce9b2f78e85085739ab322fc22",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
@@ -23179,8 +23191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1452,
-      "sha256": "25c81705b030f9588f20cf76097cc101e5b58371608ddc81fd14993dca7619a1",
+      "lines": 1456,
+      "sha256": "051db38fe308845d89a4e8e28473536ebc695ed03d5afab7caf3955208b78fce",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23272,27 +23284,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 684
+          "line": 686
         },
         {
           "name": "positionedBooks",
-          "line": 690
+          "line": 692
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1199
+          "line": 1203
         },
         {
           "name": "consumeEvent",
-          "line": 1211
+          "line": 1215
         },
         {
           "name": "LuluAiServices",
-          "line": 1434
+          "line": 1438
         },
         {
           "name": "initialize",
-          "line": 1444
+          "line": 1448
         }
       ]
     },
@@ -28075,8 +28087,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 554,
-      "sha256": "7cd5fc1158ea1e67cc99cdd3c4ab5da8773f2644f0d4a8cba6caecf37d185a68",
+      "lines": 591,
+      "sha256": "40afda718b6c8f8702438c3dfeae8221935d9251988804f13ac9e8be5f8cbf34",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -28091,36 +28103,44 @@
           "line": 30
         },
         {
-          "name": "ApiUsageSummary",
+          "name": "ApiDailyRequestCount",
           "line": 43
         },
         {
+          "name": "ApiUsageSummary",
+          "line": 50
+        },
+        {
           "name": "TokenBreakdownItem",
-          "line": 54
+          "line": 61
         },
         {
           "name": "TokenConsoleRecord",
-          "line": 60
+          "line": 67
         },
         {
           "name": "PerformanceTimingRecord",
-          "line": 90
+          "line": 97
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 98
+          "line": 105
         },
         {
           "name": "List",
-          "line": 108
+          "line": 115
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 121
+          "line": 128
+        },
+        {
+          "name": "recordModelHandoff",
+          "line": 224
         },
         {
           "name": "updateDurations",
-          "line": 324
+          "line": 352
         }
       ]
     },
@@ -38503,8 +38523,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 105,
-      "sha256": "c7dd1990fac88140bc63edd21805bf65b37b382a8f9247bb2848a5a4c9d6cd12",
+      "lines": 127,
+      "sha256": "52d8ac5d0f972a205a7a5100817730912940390e542fd9d6fb625fc4d2d46e8f",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",
