@@ -1462,3 +1462,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 已证根因：统计入口 summarize 从 InnerLifeStore 回执与 Timeline 快照直接调用 repliedByDecisionId，仅校验事件种类、角色、session 和时间；而正式聊天原件可能被删除、改写或变为非 Sent，旧投影不能继续证明送达/回复。现有 TimelineStatementOwnership 已具备基于原 ChatStore 的状态、内容、时间、作者校验，不应新增状态源。
 - 正式源码 [69840a1](https://github.com/jiacimu-droid/lulu1/commit/69840a1f626a05f7dca228ec3f6d6e10a8eeb3c8) 让 summarize 对角色送达与用户回复均通过现有原件归属门禁；纯函数保留默认调用兼容，新增可注入有效性谓词。回归 [d07a594](https://github.com/jiacimu-droid/lulu1/commit/d07a594108de88e75eb4662f7179ac1dc923e069) 覆盖送达原件失效不得归属、用户回复原件失效不得算已回复。未更改角色决定、原始历史或收费调用。
 - **验收**：源码/回归已提交；新 SHA 的 JVM/APK 尚待 push Actions，未本地编译，未真实删除后重新启动、ToolRouter 失败/部分执行或下一轮模型召回；P-08a.1g.3 不勾完成。下一轮先核新 CI 第一错误，再补真实 Store 原件删除/修改与跨进程恢复的入口回归。
+
+## 2026-11-08 · P-08a.1g.3 真实 ChatStore 原件变更回归
+
+- [ac7c628](https://github.com/jiacimu-droid/lulu1/commit/ac7c6286d09207a3b05f033d27bd589e5961353f) 在现有 Robolectric 集成测试中追加真实 sendUserMessage → editMessage/deleteMessage 以及角色原发送 editMessage，检查 summarize 不沿失效原件计回复或有效送达；复用原有 ChatStore/Timeline/InnerLifeStore，不更改生产人格与决策。
+- **验证**：仅测试源码提交；本提交的 JVM/APK/索引 Actions 尚未获得完成结果，本地 Android 编译未运行。仍缺 ToolRouter 实际失败/部分成功、真正进程死亡后的重新加载、下一轮召回与真机模型验收。下一轮先核本提交 CI 首错，失败则修测试或生产真实缺口；通过后优先执行器入口回归。P-08a.1g.3 不勾完成。
