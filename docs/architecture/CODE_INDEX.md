@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a8dca60778e753be225d12a7917647f6368f5d88`
+- 基准提交：`67ee2dcabdc8e7c94ff787d2a6f1d78ca594c32c`
 - 分支：`main`
 - 已索引文件：1146
-- 已索引代码/文本行：246546
-- 已发现符号：3380
+- 已索引代码/文本行：246555
+- 已发现符号：3381
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -214,7 +214,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 391 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 394 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 696 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
@@ -506,7 +506,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 72 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 403 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 409 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 239 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |

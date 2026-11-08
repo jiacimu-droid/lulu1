@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:51:20.632748+00:00",
-  "commit": "a8dca60778e753be225d12a7917647f6368f5d88",
+  "generatedAt": "2026-11-08T15:52:26.503445+00:00",
+  "commit": "67ee2dcabdc8e7c94ff787d2a6f1d78ca594c32c",
   "branch": "main",
-  "sourceFingerprint": "dfcf0a123a961a3685d9d34a03227caba25e33b0fa28779a038b9269867f0561",
+  "sourceFingerprint": "02ad8d18032e31f86a9913e7d5bfc6f2d2731b2dd17f195fc685e9d04996c1e6",
   "summary": {
     "files": 1146,
-    "lines": 246546,
-    "symbols": 3380
+    "lines": 246555,
+    "symbols": 3381
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -947,7 +947,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 122
+        "line": 128
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
@@ -10450,16 +10450,22 @@
         "line": 95
       }
     ],
+    "lastDailyMaintenanceAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
+        "line": 99
+      }
+    ],
     "startManual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 100
+        "line": 106
       }
     ],
     "pendingBatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 177
+        "line": 183
       }
     ],
     "replacementId": [
@@ -21745,8 +21751,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 391,
-      "sha256": "e4e0a8899b64fd43c073ec9e23f11c5fc9bb9213b554c3c943171f91e37e2ed5",
+      "lines": 394,
+      "sha256": "4c2c2f4d073fe144f44fbc9e15384dd5b8ec7cf8f7c1093ecfa7d5d31e0c3a51",
       "symbols": []
     },
     {
@@ -28857,8 +28863,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 403,
-      "sha256": "10ebd3bc3297f377bdec1c4be37465d72eee5e5eff034ca90b239f1393cc899d",
+      "lines": 409,
+      "sha256": "1e6cdf06f6c98ca151a4c4f5f0eb08fe4f692bc425ef925f264d7e4b998152da",
       "symbols": [
         {
           "name": "report",
@@ -28869,16 +28875,20 @@
           "line": 95
         },
         {
+          "name": "lastDailyMaintenanceAt",
+          "line": 99
+        },
+        {
           "name": "startManual",
-          "line": 100
+          "line": 106
         },
         {
           "name": "initialize",
-          "line": 122
+          "line": 128
         },
         {
           "name": "pendingBatches",
-          "line": 177
+          "line": 183
         }
       ]
     },
