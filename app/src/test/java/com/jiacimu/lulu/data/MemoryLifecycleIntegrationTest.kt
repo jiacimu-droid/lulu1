@@ -153,6 +153,21 @@ class MemoryLifecycleIntegrationTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun dailyLocalMaintenanceDoesNotEraseDistinctMemoryPerspectives() = runBlocking {
+        initialize()
+        event("我们今天一起分享了食物")
+        val record = memory("objective", "提到今天一起分享食物").copy(kind = MemoryKind.Timeline)
+        val felt = record.copy(id = "subjective", perspective = MemoryPerspective.Subjective)
+        LuluRepositories.memory.upsert(record)
+        LuluRepositories.memory.upsert(felt)
+        assertEquals(2, LuluRepositories.memory.snapshot("lifecycle").size)
+        assertEquals(0, LuluRepositories.memory.maintain("lifecycle"))
+        assertEquals(setOf(MemoryPerspective.Record, MemoryPerspective.Subjective),
+            LuluRepositories.memory.snapshot("lifecycle").map { it.perspective }.toSet())
+        LuluRepositories.memory.delete("objective")
+        assertEquals(listOf("subjective"), LuluRepositories.memory.snapshot("lifecycle").map { it.id })
+    }
+
     @Test fun objectiveAndSelfAuthoredSubjectiveMemoriesShareOneExtractionBatch() = runBlocking {
         val server = MockWebServer()
         server.enqueue(reply("""[
