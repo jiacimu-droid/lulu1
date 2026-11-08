@@ -105,6 +105,15 @@ internal fun memoryExtractionRetryDue(job: MemoryExtractionJob, now: Instant = I
     // Quota deferral is a normal state, independent of network failure backoff.
     if (job.deferredUntil?.isAfter(now) == true) return false
     if (job.attempts == 0) return true
-    val seconds = (30L * (1L shl job.attempts.coerceIn(1, 6))).coerceAtMost(1_800L)
+    // A malformed JSON batch or an ambiguous relay timeout can be billed.
+    // After the first failure, never submit the unchanged batch every
+    // 30 minutes forever. Slow down progressively, without EVER dropping it.
+    val seconds = when (job.attempts) {
+        1 -> 15L * 60
+        2 -> 60L * 60
+        3 -> 4L * 60 * 60
+        4 -> 12L * 60 * 60
+        else -> 24L * 60 * 60
+    }
     return !job.updatedAt.isAfter(now) && Duration.between(job.updatedAt, now).seconds >= seconds
 }
