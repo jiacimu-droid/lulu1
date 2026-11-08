@@ -157,6 +157,9 @@ internal object MemorySemanticConsolidation {
                 // A quota pause is NOT an unsuccessful weekly paid attempt.
                 // Keep its existing cursor and check again when budget returns.
                 if (residentBudgetSpent(characterId)) return@withLock
+                if (appContext?.let { BackgroundModelRequestBudget.allowed(it,
+                        characterId, "记忆维护", "记忆语义去重") } != true)
+                    return@withLock
                 val retryKey = "weeklyAttempt:$characterId"
                 if (!due(storage.getString(retryKey, null), now, Duration.ofHours(12))) return@withLock
                 // Record attempts BEFORE the paid call to avoid hourly retry storms after crashes.
