@@ -270,6 +270,9 @@
 - [ ] **V-01.3** 测真机帧率/CPU/GPU、电话/视频输入中与打断、取消后资源释放/未播回执，不谎称已经演完。
 - [ ] **V-01.3a 视频触摸与电话发言的费用/话轮验收（源码与回归已提交）**：触摸是视觉反射及真实时间线事件，不能再经 onExternalToolResult 排队等角色说完、抢在主人下一句话前触发额外付费模型/TTS。c7dccae 已移除触摸独立语音触发，触摸批次仍保留；真人讲话/同电话打字进入已有一次模型决策前先落下未满 950ms 的触摸证据，后继自然感知统一读取。545e588 补触摸证据待处理→本轮感知→认领后不重复的 Robolectric 回归。**待核完整 JVM/APK Actions，以及真机「先触摸、角色在说话、主人接话」不会出现多余模型/TTS 和触摸事实仍被下一轮理解**；不因此关闭既有明确约定的主动提醒或电话沉默感知。
 
+
+**2026-11-09 P-08c.2 群聊回执重建幂等回归（待 CI）**：新增 [`bf111c58`](https://github.com/jiacimu-droid/lulu1/commit/bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df) `QqReplySourceWatermarkTest.completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`，用真实 `ToolRouter.execute(send_group_message)`、原 ChatStore SharedPreferences 重建及相同 requestId/不同诊断 trace 的重放，核对原始回执完全一致、群聊消息不重复、重新打开的 Store 与 live Store 的消息 ID/正文一致。仅测试提交，未改生产源码；本轮没有 JVM/APK/Refresh code index 对应 head SHA 成功证据，不能勾工程完成。此为 Store 实例重建，不是进程死亡或回执下游消费者的全部验证。下一轮直接核 `bf111c58` 的 main push Actions，失败修首错；成功后追踪回执下游消费者是否跨重启重复应用副作用，若已有覆盖转 P-08a.1g.3。真机/真实模型未验。
+
 ## 四、交接记录与完成定义
 
 每轮在专项进度末尾追加：**日期｜接手 main SHA｜任务 ID.步骤｜原实现和真实根因｜修改文件与提交 SHA｜测试名/CI 运行 ID 及结论｜手机/真实模型/跨日证据或明确未验｜已勾步骤及下一 ID**。同一工作流被其他提交取消不能当成功。只有全部约定层级通过才从表移除整个 ID；只完成源码则保留明确的真机/真实模型待验，不把历史修复流水复制回本页。
