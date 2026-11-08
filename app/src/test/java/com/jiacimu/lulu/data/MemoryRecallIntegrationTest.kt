@@ -77,13 +77,16 @@ class MemoryRecallIntegrationTest {
         server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
             .setBody("""{"data":[{"index":0,"embedding":[1.0,0.0]}]}"""))
         server.start()
+        // Stable memory IDs from unrelated tests can remain in validity stores
+        // across recreated Robolectric apps. This retrieval owns unique evidence.
+        val roleId = "embedding-recall-" + java.util.UUID.randomUUID()
         val entries = listOf(
             memory("night-stars", "她喜欢夜晚看星星"),
             memory("morning-tea", "她喜欢喝茶"),
             memory("garden-trip", "她去过公园"),
             memory("music-song", "她喜欢轻音乐"),
             memory("shopping", "她买了一件外套"),
-        )
+        ).map { it.copy(id = "$roleId:${it.id}", characterId = roleId) }
         try {
             // Populate the durable local vector index while vector retrieval
             // is still off, so this test measures ONLY this query's HTTP calls.
@@ -101,7 +104,7 @@ class MemoryRecallIntegrationTest {
                     values[i], MemoryEmbeddingIndex.get(key, item.id), 0.00001f)
             }
             assertTrue("All seeded memories must be available for retrieval",
-                LuluRepositories.memory.snapshot("recall-integration").map { it.id }.containsAll(entries.map { it.id }))
+                LuluRepositories.memory.snapshot(roleId).map { it.id }.containsAll(entries.map { it.id }))
             prefs.edit().putBoolean("memory_vector_enabled", true)
                 .putString("memory_embedding_url", server.url("/").toString())
                 .putString("memory_embedding_key", "test-key")
@@ -110,7 +113,7 @@ class MemoryRecallIntegrationTest {
                 MemoryModelRuntime.vectorEnabled())
             assertEquals("embed-only", MemoryModelRuntime.embeddingConnection()?.model)
             RelevantMemoryRecall.recallDetailed(
-                "recall-integration", "想看星空", limit = 8, localOnly = false)
+                roleId, "想看星空", limit = 8, localOnly = false)
             assertEquals("one embedding POST; zero isolated LLM verifier POST", 1, server.requestCount)
             assertTrue(server.takeRequest(5, TimeUnit.SECONDS)!!.path!!.contains("/embeddings"))
         } finally {
