@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:34:04.059752+00:00",
-  "commit": "3e3a6f120fd8cc5058401206e455dea7100f0d37",
+  "generatedAt": "2026-11-08T16:35:07.647994+00:00",
+  "commit": "1077cae3f314346044cbcc6ad05b0fabf86af74c",
   "branch": "main",
-  "sourceFingerprint": "6783080753183ae225e291cb9b60ce06459dd9dee59cc39e66786cb6017a4df1",
+  "sourceFingerprint": "a8f51f2c1bcca7c1ed3a1c936302c9b90c47a5ada8fff817ab93b79265077bf2",
   "summary": {
     "files": 1148,
-    "lines": 247095,
-    "symbols": 3386
+    "lines": 247159,
+    "symbols": 3387
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10362,16 +10362,22 @@
         "line": 339
       }
     ],
-    "priority": [
+    "associationWeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
         "line": 64
       }
     ],
+    "priority": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
+        "line": 72
+      }
+    ],
     "localRelevant": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
-        "line": 71
+        "line": 79
       }
     ],
     "put": [
@@ -28689,20 +28695,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
-      "lines": 93,
-      "sha256": "41f58277085e318041bbbc2e049aaa5adc5a709fc8d446f8df0abb6532e9a89b",
+      "lines": 96,
+      "sha256": "227688c25c700447236ece2f10394646fb4aaf62aea270c6afb29ea8ca3f7ca8",
       "symbols": [
         {
           "name": "expand",
           "line": 27
         },
         {
-          "name": "priority",
+          "name": "associationWeight",
           "line": 64
         },
         {
+          "name": "priority",
+          "line": 72
+        },
+        {
           "name": "localRelevant",
-          "line": 71
+          "line": 79
         }
       ]
     },
@@ -30218,7 +30228,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
       "lines": 590,
-      "sha256": "1cf85c74c762202ef82a19f1ea5ef295cb4fe7799a9990896e8a0082f2da0fcb",
+      "sha256": "fa4b23a2396dbec3139d896145bd47cf6846718e8e15a1ee3da94bff08eb9491",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -38224,8 +38234,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt",
-      "lines": 82,
-      "sha256": "3b0e797d188ac5207e9b4c9c91fe01f25bd8402d5c04ca82804ba01c13f52065",
+      "lines": 95,
+      "sha256": "8cb31709aa07530fa97170844637cc1c9afe157a4793637424485a40f6c48cea",
       "symbols": [
         {
           "name": "MemoryAssociationPolicyTest",
@@ -38450,8 +38460,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 423,
-      "sha256": "ca9fc43161ce75294e00b40111980c1328ed7715956ab158daf96d1554b9584f",
+      "lines": 471,
+      "sha256": "f8f9422d275fe2e634b9762f75fce92f64c48befcf421e9bcc5c94c6d348d869",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
