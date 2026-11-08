@@ -266,3 +266,5 @@
 当最优先任务只差手机证据而自动任务无法取得时，继续后面的可实做开发子步骤；不能借机大范围修改未经授权的人设/原始历史或新建第二套系统。
 
 **P-08a.1g.3 真实原件变更补测（2026-11-08）**：新增 [ac7c628](https://github.com/jiacimu-droid/lulu1/commit/ac7c6286d09207a3b05f033d27bd589e5961353f)，在已有真实 ChatStore→Timeline→InnerLifeStore Robolectric 集成回归中执行用户消息编辑/删除和角色发送编辑，断言失效原件不再计有效回复或送达。新 JVM/APK 尚待 CI，ToolRouter 失败/部分执行、真正进程重启与下轮召回仍未验，故 P-08a.1g.3 保持 [ ]。下一轮先查新 CI，再继续执行器入口。
+**2026-11-08 P-08c.2 本轮工程增量（待 CI）**：[`19bc51e`](https://github.com/jiacimu-droid/lulu1/commit/19bc51ef7c630e12a218045e243377c4b26ea441) 在 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection` 增加真实 `CompanionActionRuntime.execute`→ChatStore 多气泡中途用户纠正回归，断言部分已发送消息 ID 与执行回执完全一致、整轮失败、后续气泡停止；测试提交时未取得对应 SHA 的 APK/JVM/索引结果，尚不能打勾。下一轮先查 `19bc51e` 的 Actions 首错，再核 `appendRoleReplyWithPacingReceipt` 的取消窗口；真机/模型未验。
+
