@@ -1509,3 +1509,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - [`6c84878`](https://github.com/jiacimu-droid/lulu1/commit/6c84878c66e778046747c0f10fe21738fd1c07a9)：沿 `cffcd760` 已有真实 `CompanionActionRuntime.execute(send_group_message)`→ChatStore 回归，增加用户纠正后以新来源发起下一轮的验证。断言旧批已送达泡不被改写/续发、新批可成功送达且独立 `deliveredMessageIds/evidenceId` 与权威消息一致；不是另造语义规则或角色台词机制。
 - 仅测试改动；没有运行本地 Gradle、真机、收费模型。新提交对应 JVM/APK 与 Refresh code index 待核，不可提前勾选。下轮打开 `QqReplySourceWatermarkTest.groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts`，先查 `cffcd760`、`6c84878` 的 Actions head SHA/首错；通过后推进 P-08c.2 跨实例部分回执消费，未验进程死亡/真实模型。
+
+## 2026-11-09 · P-08c.2 群聊部分发送取消后的 Store 重载
+
+- **真实提交**：[`ad2817f5c589298882e962515a5f5b86bd788a4d`](https://github.com/jiacimu-droid/lulu1/commit/ad2817f5c589298882e962515a5f5b86bd788a4d)，仅修改 `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt`。原真实 `CompanionActionRuntime.execute(send_group_message)` 测试继续验证首泡入库、用户纠正、旧批取消及新来源独立送达；新增从同一 SharedPreferences 重建 `InMemoryLuluChatStore`，核持久化消息 ID/正文、旧泡不复活、下一批回执只指向新泡。
+- **限制**：未修改生产源码；本地环境无法解析 github.com，未运行 Gradle；PR-only commit workflow 查询为空，不代表 push CI 无构建。提交后 JVM/APK、Refresh code index 尚未取得 `head_sha=ad2817f5...` 的完整成功证据；真正进程死亡、下一轮人物模型召回、真机和真实模型均未知。
+- **下一轮固定入口**：P-08c.2，先核 `ad2817f` 的 main push Actions（Lulu APK/JVM build 与 Refresh code index）首错；若通过，检查部分送达回执的消费者重建/重复消费边界，已有覆盖则切 P-08a.1g.3 `ToolRouter` 主失败、副成功的真实入口测试。直接打开 `QqReplySourceWatermarkTest.groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts`，不要重复建立同类断言。
