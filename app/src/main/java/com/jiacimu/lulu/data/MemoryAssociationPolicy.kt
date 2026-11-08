@@ -17,6 +17,10 @@ internal object MemoryAssociationPolicy {
         val subject = normalized(memory.subject)
         val slot = normalized(memory.slot)
         if (subject.isNotBlank() && slot.length >= 2 && slot !in generic) add("slot:$subject:$slot")
+        // Different details about the SAME specifically named person/object can
+        // connect an objective episode to a personal reaction. Broad "user"/"role"
+        // labels intentionally create no such edges.
+        if (subject.length >= 2 && subject !in generic) add("subject:$subject")
         val scene = normalized(memory.sceneKey)
         if (scene.isNotBlank()) add("scene:$scene")
     }
@@ -34,12 +38,18 @@ internal object MemoryAssociationPolicy {
                 keys(seed).forEach keyLoop@ { key ->
                     // Frequent broad slots are weak associations, not permission to flood context.
                     val linked = index[key].orEmpty()
+                    if (key.startsWith("subject:") && linked.size > 6) return@keyLoop
                     if ((key.startsWith("slot:") || key.startsWith("scene:")) && linked.size > 12) return@keyLoop
                     linked.filter { it.characterId == seed.characterId }.sortedWith(compareByDescending<MemoryEntry> { it.strength }
                         .thenByDescending { it.occurredAt ?: it.createdAt }).forEach { memory ->
                         if (hits.size < limit && seen.add(memory.id)) {
                             hits += MemoryAssociationHit(memory, seed.id,
-                                if (key.startsWith("evidence:")) "同一原始事件" else if (key.startsWith("scene:")) "同一场景" else "同一对象的具体事实槽位", depth)
+                                when {
+                                    key.startsWith("evidence:") -> "同一原始事件"
+                                    key.startsWith("scene:") -> "同一场景"
+                                    key.startsWith("subject:") -> "同一具体对象"
+                                    else -> "同一对象的具体事实槽位"
+                                }, depth)
                             next += memory
                         }
                     }
@@ -70,7 +80,12 @@ internal object MemoryAssociationPolicy {
         val graph = expand(memories, direct.map { it.first }, limit = 12)
         val scores = direct.associate { it.first.id to it.second }.toMutableMap()
         graph.forEach { hit -> scores[hit.memory.id] = maxOf(scores[hit.memory.id] ?: 0.0,
-            priority(hit.memory, 0.10, 0.5 / hit.depth, now)) }
+            priority(hit.memory, 0.10, when (hit.reason) {
+                "同一原始事件" -> 0.95
+                "同一场景" -> 0.70
+                "同一具体对象" -> 0.60
+                else -> 0.50
+            } / hit.depth, now)) }
         return (direct.map { it.first } + graph.map { it.memory }).distinctBy(MemoryEntry::id)
             .sortedByDescending { scores[it.id] }.take(limit.coerceAtLeast(0))
     }
