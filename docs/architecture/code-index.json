@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T17:17:44.133767+00:00",
-  "commit": "d7e72a04a3e1b3fba85b675ba24a9a5ee1c6bf57",
+  "generatedAt": "2026-11-08T17:18:22.706725+00:00",
+  "commit": "1411a9409ea0c742b09d7454d7c163ed8f3c4fdc",
   "branch": "main",
-  "sourceFingerprint": "00f65aeadd55bc3ce089c324a2ba27f2e9562c40f98c6637d0835fb49e201de7",
+  "sourceFingerprint": "2f1da6964180a091f343977193801057112d3344476aa62b00a8e68f88d55453",
   "summary": {
     "files": 1148,
-    "lines": 247392,
+    "lines": 247445,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -38561,8 +38561,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt",
-      "lines": 104,
-      "sha256": "36e0eeaf438a04123d61afbbd79245a2218fe1e73a815abc2f3ea833b378c71f",
+      "lines": 157,
+      "sha256": "5d54d597abcdc60a2c3aed88c84846dd4397e30b3c53f55ce98a3a69533437cd",
       "symbols": [
         {
           "name": "OnlineChatBatchStoreTest",
