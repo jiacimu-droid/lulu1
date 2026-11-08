@@ -54,8 +54,7 @@ internal suspend fun extractCommitmentTaskDrafts(
 }
 
 internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> = runCatching {
-    val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-    val array = JSONArray(clean)
+    val array = decodeMemoryResponseArray(raw)
     buildList {
         for (index in 0 until array.length()) {
             val item = array.optJSONObject(index) ?: continue
@@ -63,8 +62,13 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
             if (action !in setOf("create", "reschedule", "cancel", "complete", "review")) continue
             val goal = item.optString("goal").trim()
             if (goal.isBlank() && action == "create") continue
-            val dueAt = item.optString("dueAt").trim().takeIf(String::isNotBlank)
-                ?.let { Instant.parse(it) }
+            val dueText = item.optString("dueAt").trim()
+            // One malformed date must not discard other independent, valid
+            // commitments from the very same paid interpretation. Preserve
+            // this obligation as pending clarification, NEVER invent a time.
+            val dueAt = dueText.takeIf(String::isNotBlank)
+                ?.let { runCatching { Instant.parse(it) }.getOrNull() }
+            val invalidDueAt = dueText.isNotBlank() && dueAt == null
             val proposedRoute = item.optString("deliveryAction").trim()
             // Wake delivery validation is only relevant to a concrete timed alarm.
             // A general long-term supervision goal may include "起床" without
@@ -99,7 +103,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     promiseKind = item.optString("promiseKind").trim().takeIf(String::isNotBlank),
                     repeat = item.optString("repeat").takeIf { it in setOf("once", "daily") },
                     permanent = item.optBoolean("permanent", false),
-                    needsClarification = wakeMethodMissing ||
+                    needsClarification = invalidDueAt || wakeMethodMissing ||
                         item.optBoolean("needsClarification",
                             dueAt == null && action == "create" &&
                                 item.optString("promiseKind") !in setOf("long_term_supervision", "responsibility")),
