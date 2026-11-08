@@ -245,6 +245,54 @@ class ModelStructuredOutputTest {
         ))
     }
 
+    @Test fun completedLineBreaksInsideTwoAuthoredElementsBecomeFourRealSends() {
+        val source = org.json.JSONObject().put("action", "reply").put("bubbles",
+            org.json.JSONArray()
+                .put(org.json.JSONObject().put("text", "你说的是这个？\n我刚才还在想呢。"))
+                .put(org.json.JSONObject().put("text", "这次我懂了。\n下一句想单独发。")))
+        val expected = listOf("你说的是这个？", "我刚才还在想呢。",
+            "这次我懂了。", "下一句想单独发。")
+        assertEquals(expected, ModelStructuredOutput.completedReplyBubbles(source.toString()))
+        assertEquals(expected, ModelStructuredOutput.authoredReplyBubbles(source.toString()))
+        assertEquals(expected, com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = expected.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+                preserveAuthoredBubbleBoundaries = true,
+            )).map(com.jiacimu.lulu.CharacterOutgoingBubble::text))
+        // A recoverable closed bubbles array must have the same send boundaries.
+        assertEquals(expected, ModelStructuredOutput.replyBubblesWithPartialState(
+            source.toString().dropLast(1) + ",\"innerLife\":{\"thoughts\":["
+        ))
+    }
+
+    @Test fun aSoftWrapInsideAnUnfinishedPhraseIsNotAnotherSend() {
+        val source = org.json.JSONObject().put("action", "reply").put("bubbles",
+            org.json.JSONArray().put(org.json.JSONObject()
+                .put("text", "我\n脑子还在想这件事。\n不过我有个新问题。")))
+        assertEquals(listOf("我\n脑子还在想这件事。", "不过我有个新问题。"),
+            ModelStructuredOutput.authoredReplyBubbles(source.toString()))
+        // No newline means no new bubble, regardless of sentence count/length.
+        val longBubble = "我认真讲一讲。然后接着说。最后才说完。"
+        val whole = org.json.JSONObject().put("action", "reply").put("bubbles",
+            org.json.JSONArray().put(org.json.JSONObject().put("text", longBubble)))
+        assertEquals(listOf(longBubble), ModelStructuredOutput.authoredReplyBubbles(whole.toString()))
+    }
+
+    @Test fun recoveredVoiceBeatsKeepModalityAndDoNotRepeatWholePerformanceTrack() {
+        val source = org.json.JSONObject().put("action", "reply").put("bubbles",
+            org.json.JSONArray()
+                .put(org.json.JSONObject().put("text", "知道了。\n我这就来。")
+                    .put("delivery", "voice")
+                    .put("speechText", "[softly] 知道了。\n我这就来。"))
+                .put(org.json.JSONObject().put("text", "等我一下。").put("delivery", "text")))
+        val raw = source.toString()
+        assertEquals(listOf("知道了。", "我这就来。", "等我一下。"),
+            ModelStructuredOutput.authoredReplyBubbles(raw))
+        assertEquals(listOf("voice", "voice", "text"), ModelStructuredOutput.bubbleDeliveryModes(source))
+        assertEquals(listOf("知道了。", "我这就来。"), ModelStructuredOutput.voiceBubbleTexts(raw))
+        assertEquals(listOf("", "", ""), ModelStructuredOutput.bubbleSpeechTracks(source))
+    }
+
     @Test fun structuredObjectBubblesPreserveInteractionBoundaries() {
         val response = """{"action":"reply","bubbles":[{"text":"啊？我会错意了？"},{"text":"那你说的超时是指什么？"}]}"""
         assertEquals(
