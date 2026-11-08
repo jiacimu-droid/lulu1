@@ -114,12 +114,28 @@ private fun FastUsageTab(onClear: () -> Unit) {
 @Composable
 private fun FastConsoleTab(onClear: () -> Unit) {
     val records by LuluRepositories.performance.consoleRecords.collectAsState(initial = emptyList())
+    val dailyCounts by LuluRepositories.performance.dailyRequestCounts.collectAsState(initial = emptyList())
+    val today = java.time.LocalDate.now(java.time.ZoneId.systemDefault()).toString()
+    val todayCounts = dailyCounts.filter { it.localDate == today }
     PaginatedPerformanceList(
         title = "Token 控制台",
         subtitle = "默认显示最近50条；输入来源按需展开。",
         records = records,
         keyOf = TokenConsoleRecord::id,
         onClear = onClear,
+        summary = {
+            FastPerformanceCard {
+                Text("今日模型请求次数 · 本机发送尝试", fontWeight = FontWeight.Bold)
+                FastMetric("总计", todayCounts.sumOf { it.attempts }.toString() + " 次")
+                todayCounts.groupBy { it.source }
+                    .map { (source, rows) -> source to rows.sumOf { it.attempts } }
+                    .sortedByDescending { it.second }
+                    .forEach { (source, count) -> FastMetric(source, "$count 次") }
+                Text("从安装包含本功能的版本起统计：请求交给网络前计一次，失败/超时仍计入；" +
+                    "不是服务商最终计费量，也不涵盖中转站独立追加的请求。只保存日期、功能来源、模型和次数；旧记录不能补算。",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
+            }
+        },
     ) { record ->
         var expanded by rememberSaveable(record.id) { mutableStateOf(false) }
         FastPerformanceCard(

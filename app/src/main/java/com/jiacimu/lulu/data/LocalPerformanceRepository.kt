@@ -41,6 +41,13 @@ data class ApiUsageRecord(
     val estimated: Boolean,
 )
 
+data class ApiDailyRequestCount(
+    val localDate: String,
+    val source: String,
+    val model: String,
+    val attempts: Int,
+)
+
 data class ApiUsageSummary(
     val source: ApiUsageSource,
     val promptTokens: Long,
@@ -133,6 +140,9 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
     val consoleRecords: Flow<List<TokenConsoleRecord>> = state
         .map { snapshot -> snapshot.consoleRecords }
         .distinctUntilChanged()
+    val dailyRequestCounts: Flow<List<ApiDailyRequestCount>> = state
+        .map { snapshot -> snapshot.dailyRequestCounts }
+        .distinctUntilChanged()
     val timingRecords: Flow<List<PerformanceTimingRecord>> = state
         .map { snapshot -> snapshot.timings }
         .distinctUntilChanged()
@@ -206,6 +216,24 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             durationMillis = durationMillis.coerceAtLeast(0L), detail = detail)
         update { current -> current.copy(timings =
             (listOf(timing) + current.timings).take(TIMING_RECORD_LIMIT)) }
+    }
+
+    /** One count per outbound model HTTP handoff, including failed/ambiguous ones.
+     * No message text, auth headers, URL or person IDs are stored. Provider
+     * billing is not observable: attempted does not mean charged/succeeded. */
+    fun recordModelHandoff(source: String, model: String) {
+        val today = java.time.LocalDate.now(java.time.ZoneId.systemDefault())
+        val day = today.toString()
+        val minDay = today.minusDays(13).toString()
+        val name = source.trim().ifBlank { "未标记请求" }.take(80)
+        val modelName = model.trim().take(90)
+        update { current ->
+            val recent = current.dailyRequestCounts.filter { it.localDate >= minDay }
+            val same = recent.firstOrNull { it.localDate == day && it.source == name && it.model == modelName }
+            val next = ApiDailyRequestCount(day, name, modelName, (same?.attempts ?: 0) + 1)
+            current.copy(dailyRequestCounts =
+                (listOf(next) + recent.filterNot { it.localDate == day && it.source == name && it.model == modelName }).take(500))
+        }
     }
 
     suspend fun recordGeneration(
@@ -355,6 +383,10 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("errors", JSONArray().apply { value.errors.forEach { item -> put(encodeError(item)) } })
         .put("usageRecords", JSONArray().apply { value.usageRecords.forEach { item -> put(encodeUsage(item)) } })
         .put("consoleRecords", JSONArray().apply { value.consoleRecords.forEach { item -> put(encodeConsole(item)) } })
+        .put("dailyRequestCounts", JSONArray().apply { value.dailyRequestCounts.forEach { item ->
+            put(JSONObject().put("localDate", item.localDate).put("source", item.source)
+                .put("model", item.model).put("attempts", item.attempts))
+        } })
         .put("timings", JSONArray().apply { value.timings.forEach { item -> put(encodeTiming(item)) } })
         .put(
             "durations",
@@ -371,6 +403,10 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             .take(API_USAGE_RECORD_LIMIT),
         consoleRecords = root.optJSONArray("consoleRecords").decodeObjects { item -> decodeConsole(item) }
             .take(CONSOLE_RECORD_LIMIT),
+        dailyRequestCounts = root.optJSONArray("dailyRequestCounts").decodeObjects { item ->
+            ApiDailyRequestCount(item.optString("localDate"), item.optString("source"),
+                item.optString("model"), item.optInt("attempts").coerceAtLeast(0))
+        }.take(500),
         timings = root.optJSONArray("timings").decodeObjects { item -> decodeTiming(item) }
             .take(TIMING_RECORD_LIMIT),
         durations = root.optJSONObject("durations")?.let { item ->
@@ -530,6 +566,7 @@ private data class PerformanceState(
     val errors: List<PerformanceErrorRecord> = emptyList(),
     val usageRecords: List<ApiUsageRecord> = emptyList(),
     val consoleRecords: List<TokenConsoleRecord> = emptyList(),
+    val dailyRequestCounts: List<ApiDailyRequestCount> = emptyList(),
     val timings: List<PerformanceTimingRecord> = emptyList(),
     val durations: DurationSummary = DurationSummary(0, 0, 0),
 )

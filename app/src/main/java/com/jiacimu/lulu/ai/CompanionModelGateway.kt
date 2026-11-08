@@ -403,6 +403,7 @@ class CompanionModelGateway(
     suspend fun embed(connection: ModelConnection, inputs: List<String>): Result<List<FloatArray>> = withContext(Dispatchers.IO) {
         runCatching {
             check(inputs.isNotEmpty()) { "Embedding 输入不能为空" }
+            LuluRepositories.performance.recordModelHandoff("向量嵌入", connection.model)
             val json = requestPostJson(
                 url = "${connection.baseUrl.trimEnd('/')}/embeddings",
                 headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
@@ -424,6 +425,7 @@ class CompanionModelGateway(
     suspend fun rerank(connection: ModelConnection, query: String, documents: List<String>): Result<List<Int>> = withContext(Dispatchers.IO) {
         runCatching {
             check(documents.isNotEmpty()) { "Rerank 文档不能为空" }
+            LuluRepositories.performance.recordModelHandoff("记忆重排", connection.model)
             val json = requestPostJson(
                 url = "${connection.baseUrl.trimEnd('/')}/rerank",
                 headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
@@ -848,6 +850,7 @@ class CompanionModelGateway(
             if (characterId.startsWith("resident:") &&
                 !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
                 error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
+            LuluRepositories.performance.recordModelHandoff(source, connection.model)
             val reply = try {
                 openAiCompatible(
                     connection = connection,
@@ -882,6 +885,7 @@ class CompanionModelGateway(
                     "Relay 请求体内存保护（HTTP 503）· 已保留未读消息，正以精简的同一角色上下文重试" +
                         "（约${originalBytes / 1024}KB → ${reducedBytes / 1024}KB）")
                 sentReduced = true
+                LuluRepositories.performance.recordModelHandoff(source, connection.model)
                 openAiCompatible(
                     connection = connection,
                     system = reducedSystem,

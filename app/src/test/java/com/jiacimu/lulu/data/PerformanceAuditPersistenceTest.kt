@@ -60,6 +60,28 @@ class PerformanceAuditPersistenceTest {
         assertEquals(1, saved.breakdown.size)
     }
 
+    @Test fun requestHandoffsCountFailedAndRepeatedAttemptsWithoutConversationText() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val pref = app.getSharedPreferences("lulu_performance_monitor", android.content.Context.MODE_PRIVATE)
+        val before = pref.getString("state_v1", null)
+        try {
+            pref.edit().remove("state_v1").commit()
+            val first = LocalPerformanceRepository(app)
+            first.recordModelHandoff("记忆有效性", "memory-mini")
+            first.recordModelHandoff("记忆有效性", "memory-mini")
+            first.recordModelHandoff("数字世界原住民每日规划", "resident-mini")
+            val saved = LocalPerformanceRepository(app).dailyRequestCounts.first()
+            assertEquals(3, saved.sumOf { it.attempts })
+            assertEquals(2, saved.single { it.source == "记忆有效性" }.attempts)
+            assertEquals(1, saved.single { it.source == "数字世界原住民每日规划" }.attempts)
+            assertTrue(LocalPerformanceRepository(app).consoleRecords.first().isEmpty())
+            assertFalse(pref.getString("state_v1", "").orEmpty().contains("聊天正文机密"))
+        } finally {
+            if (before == null) pref.edit().remove("state_v1").commit()
+            else pref.edit().putString("state_v1", before).commit()
+        }
+    }
+
     @Test fun conversationStagesPersistWithoutBeingCountedAsAnotherModelCall() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val first = LocalPerformanceRepository(app)
