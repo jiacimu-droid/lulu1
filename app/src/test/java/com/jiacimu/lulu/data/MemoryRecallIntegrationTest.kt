@@ -95,13 +95,19 @@ class MemoryRecallIntegrationTest {
                 floatArrayOf(-1f, 0f), floatArrayOf(0f, -1f), floatArrayOf(0.3f, 0.95f),
             )
             entries.forEachIndexed { i, item ->
-                MemoryEmbeddingIndex.put(MemoryEmbeddingIndex.key(connection, item),
-                    item.id, values[i])
+                val key = MemoryEmbeddingIndex.key(connection, item)
+                MemoryEmbeddingIndex.put(key, item.id, values[i])
+                assertArrayEquals("Seeded vector must be readable from the active app's index",
+                    values[i], MemoryEmbeddingIndex.get(key, item.id), 0.00001f)
             }
+            assertEquals(entries.size, LuluRepositories.memory.snapshot("recall-integration").size)
             prefs.edit().putBoolean("memory_vector_enabled", true)
                 .putString("memory_embedding_url", server.url("/").toString())
                 .putString("memory_embedding_key", "test-key")
                 .putString("memory_embedding_model", "embed-only").commit()
+            assertTrue("Test must initialize the production memory runtime",
+                MemoryModelRuntime.vectorEnabled())
+            assertEquals("embed-only", MemoryModelRuntime.embeddingConnection()?.model)
             RelevantMemoryRecall.recallDetailed(
                 "recall-integration", "想看星空", limit = 8, localOnly = false)
             assertEquals("one embedding POST; zero isolated LLM verifier POST", 1, server.requestCount)
