@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T20:41:44.584207+00:00",
-  "commit": "dafca5accdf60863ddde702234830b7e3aa0bcae",
+  "generatedAt": "2026-11-08T20:55:28.363917+00:00",
+  "commit": "1d9140b864e79c3f1f3ae66564acda59d843ab7e",
   "branch": "main",
-  "sourceFingerprint": "59235c118809590be2e6e11183ed904fbf2894f961036a35a5f43d800f97c8ce",
+  "sourceFingerprint": "214e245131eb867c8fce282e36cec9286052b51525d30317c4103650241a0d30",
   "summary": {
-    "files": 1148,
-    "lines": 247746,
-    "symbols": 3390
+    "files": 1150,
+    "lines": 247804,
+    "symbols": 3394
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14174,16 +14174,40 @@
         "line": 57
       }
     ],
+    "committed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
+        "line": 18
+      }
+    ],
+    "dismiss": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 45
+      }
+    ],
+    "nextAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 16
+      }
+    ],
     "isCurrentOpening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
         "line": 15
-      }
-    ],
-    "committed": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 18
       }
     ],
     "target": [
@@ -15350,16 +15374,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
         "line": 69
-      }
-    ],
-    "dismiss": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 45
       }
     ],
     "canObserve": [
@@ -18766,6 +18780,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt",
         "line": 11
+      }
+    ],
+    "RelicChestHudStateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
+        "line": 5
       }
     ],
     "RelicEscapeRulesTest": [
@@ -33369,6 +33389,25 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+      "lines": 19,
+      "sha256": "6718bfb7fbfc2764531ea2e21b779ada09ed3e4ba08a04a6078350622beba06f",
+      "symbols": [
+        {
+          "name": "committed",
+          "line": 11
+        },
+        {
+          "name": "dismiss",
+          "line": 13
+        },
+        {
+          "name": "nextAction",
+          "line": 16
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
       "lines": 40,
       "sha256": "20301a802843f076843985198ab23904324c2522f8ae07dcdb224b3b436bf0bb",
@@ -33584,8 +33623,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 863,
-      "sha256": "181fc63befdef0e706a99e931c95e6af9232525389a0310d32e88c472a5f593f",
+      "lines": 862,
+      "sha256": "ae923c3b568d227f2e0ee607d95dbc0dcbd2f87962ac00209a0ce2e1fe354b3f",
       "symbols": [
         {
           "name": "change",
@@ -39956,6 +39995,17 @@
         {
           "name": "RelicActorPlayTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
+      "lines": 40,
+      "sha256": "053475406994849e67f57e59f5c94720b64441cb80c98f84444c3b2dcd7eaa3a",
+      "symbols": [
+        {
+          "name": "RelicChestHudStateTest",
+          "line": 5
         }
       ]
     },
