@@ -53,6 +53,10 @@ class ResidentDailyPolicyTest {
             assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
             assertEquals(0, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
             daily.edit().putString("attempt:$nativeId", ResidentDailyDecision.date(at)).commit()
+            // An attempt without a saved plan is not a completed daily choice.
+            assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            daily.edit().putString("plan:$nativeId",
+                JSONObject().put("date", ResidentDailyDecision.date(at)).toString()).commit()
             assertTrue(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
             assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
             assertTrue(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
@@ -63,7 +67,53 @@ class ResidentDailyPolicyTest {
             assertTrue(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, at.plusSeconds(86_400)))
         } finally {
             policy.edit().clear().commit()
-            daily.edit().remove("attempt:$nativeId").commit()
+            daily.edit().remove("attempt:$nativeId").remove("plan:$nativeId").commit()
+        }
+    }
+
+    @Test fun ordinaryResidentSocialWakePreservesTwoPaidAppointmentSlots() {
+        val ctx = context()
+        val policy = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        val daily = ctx.getSharedPreferences("lulu_resident_daily_decisions_v1", Context.MODE_PRIVATE)
+        val agendaPrefs = ctx.getSharedPreferences("lulu_role_day_plans_v1", Context.MODE_PRIVATE)
+        val previousPlans = agendaPrefs.getString("plans", null)
+        val residentId = "reserve-two-appointments-test"
+        val role = "resident:$residentId"
+        val at = Instant.parse("2026-11-08T09:00:00Z")
+        try {
+            policy.edit().clear().commit()
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 3))
+            val day = at.atZone(ZoneId.systemDefault()).toLocalDate()
+            val slots = listOf(18, 20).map { hour ->
+                day.atTime(hour, 0).atZone(ZoneId.systemDefault()).toInstant()
+            }
+            val twoPlans = JSONArray().apply {
+                slots.forEachIndexed { index, due ->
+                    put(JSONObject().put("id", "reserved-$index")
+                        .put("characterId", role).put("title", "个人计划")
+                        .put("intent", "本人选择").put("dueAt", due.toString())
+                        .put("createdAt", at.toString()).put("status", "planned"))
+                }
+            }
+            agendaPrefs.edit().putString("plans", twoPlans.toString()).commit()
+            assertEquals(2, ResidentDailyPolicy.remainingTodayAgendaDecisions(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasOptionalResidentWakeAllowance(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            daily.edit().putString("plan:$residentId",
+                JSONObject().put("date", ResidentDailyDecision.date(at)).toString()).commit()
+            // One planning call has been spent: neither housekeeping nor
+            // ordinary mail may consume the two remaining due-time calls.
+            assertEquals(2, ResidentDailyPolicy.remainingModelRequests(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasOptionalResidentWakeAllowance(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            assertFalse(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, at))
+        } finally {
+            if (previousPlans == null) agendaPrefs.edit().remove("plans").commit()
+            else agendaPrefs.edit().putString("plans", previousPlans).commit()
+            daily.edit().remove("plan:$residentId").commit()
+            policy.edit().clear().commit()
         }
     }
 
