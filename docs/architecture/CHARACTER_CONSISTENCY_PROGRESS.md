@@ -1539,3 +1539,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 新增 [`608fbfdef8f1a6e5cfe42931ecf379eb6843a92c`](https://github.com/jiacimu-droid/lulu1/commit/608fbfdef8f1a6e5cfe42931ecf379eb6843a92c)：`ResidentDailyPolicyTest.fourResidentsIndependentlyFundOnePlanAndTwoDueDecisions`。四角色各自 3 次请求额度，测试各自一次计划与两次到点决策的原子领取、额外领取拒绝、12 次总计和次日独立恢复。复用已有 `claimModelDecision` 正式实现，不改用户额度或角色自主性；该测试验证预算账本，不证明四位居民实际生成日程或执行工具。
 - **CI**：当前连接仅提供 PR 触发筛选的 commit runs，不能确认 main push JVM/APK/索引；容器访问 GitHub DNS 失败，本轮未本地编译。新 SHA 尚无成功证据，不勾工程完成。
 - **下轮 S-02.1**：先按 `608fbfd` 查询 main push Actions 与测试首错；若通过，沿 `CompanionModelGateway`、`LocalPerformanceRepository` 的 HTTP handoff 统计补 MockWebServer 失败/重试请求数回归。400 次账单归因仍缺服务商原始记录，不能混同尝试、成功与计费。
+
+## 2026-11-09 · S-02.1 预算回归 CI 首错修复
+
+- `608fbfdef8f1a6e5cfe42931ecf379eb6843a92c` 对应 [Lulu APK/JVM #42521395829](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395829)：2591 tests、1 failed；新增 `ResidentDailyPolicyTest.fourResidentsIndependentlyFundOnePlanAndTwoDueDecisions` **PASSED**，失败是另一条 `OnlineChatExperienceTest.interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending`，expected 12000 but null。代码索引 [#42521395832](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395832) success。
+- 根因：测试在旧读取仍 claimed 时用 `OnlineChatBatchStore.next` 代表新消息，正式实现正确保留旧 revision；只有真正 `onUserBubble` 才会新建 revision。修复测试提交 [`77aca0e`](https://github.com/jiacimu-droid/lulu1/commit/77aca0ed802d7ebd40bbaefd2f7cd8532592b10e) 将假输入改为真实用户气泡事件；未改生产代码、预算、人物或历史。
+- 同时核 `bf111c58` 的 [APK #42516202886](https://github.com/jiacimu-droid/lulu1/actions/runs/42516202886) 为 Kotlin compile failure，不能当作 P-08c.2 通过；该方向待后续专门处理。
+- **未验**：`77aca0e` 新 SHA 的 JVM/APK、索引与真机；未做中转站账单归因。下轮 S-02.1 先核 `77aca0e` 后继 Actions，再补真实 HTTP handoff 失败/重试 MockWebServer 回归，不能把请求尝试等同成功或计费。
