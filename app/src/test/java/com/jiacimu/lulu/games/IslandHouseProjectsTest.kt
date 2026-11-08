@@ -38,8 +38,9 @@ class IslandHouseProjectsTest {
     }
 
     @Test fun hudAndProjectPanelProgressTrackActualDemolitionAcrossPauseAndReload() {
+        val world=clear().world
         val built=IslandHouseProject("alice",3,3,phase="complete",
-            placed=(0 until 9).toList())
+            placed=IslandHouseProjects.parts(world,3,3).map { it.first })
         assertEquals(9,IslandHouseProjects.progress(built))
         val demolishing=built.copy(phase="demolishing")
         assertEquals(0,IslandHouseProjects.progress(demolishing))
@@ -47,7 +48,7 @@ class IslandHouseProjectsTest {
         assertEquals(3,IslandHouseProjects.progress(partiallyRemoved))
         val paused=partiallyRemoved.copy(phase="paused",resumePhase="demolishing")
         assertEquals(3,IslandHouseProjects.progress(paused))
-        val restored=IslandHouseProject.read(paused.json(),clear().world)!!
+        val restored=IslandHouseProject.read(paused.json(),world)!!
         assertEquals(3,IslandHouseProjects.progress(restored))
         assertEquals(3,IslandHouseProjects.progress(restored.copy(phase="demolishing")))
         assertEquals(9,IslandHouseProjects.progress(restored.copy(
