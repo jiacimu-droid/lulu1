@@ -57,6 +57,25 @@ class ModelPostTransportTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun ambiguous503DoesNotRetryOrCountAsSuccessfulGeneration() {
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(503)
+            .setBody("{\"error\":\"relay temporarily unavailable\"}"))
+        server.enqueue(MockResponse().setBody("must not replay"))
+        server.start()
+        try {
+            val body = "{\"model\":\"test\",\"messages\":[]}"
+            val statusAndBody = ModelPostTransport.execute(
+                server.url("/chat/completions").toString(),
+                emptyMap(), body, 30_000,
+            ) { response -> response.code to response.body!!.string() }
+            assertEquals(503, statusAndBody.first)
+            assertTrue(statusAndBody.second.contains("relay temporarily unavailable"))
+            assertEquals(1, server.requestCount)
+            assertEquals(body, server.takeRequest().body.readUtf8())
+        } finally { server.shutdown() }
+    }
+
     @Test fun redirectDoesNotReplayThePaidBodyAtAnotherEndpoint() {
         val server = MockWebServer()
         server.start()
