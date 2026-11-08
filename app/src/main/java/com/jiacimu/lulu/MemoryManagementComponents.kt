@@ -328,6 +328,9 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
             Text("当前记忆：长期事实 ${memories.count { it.kind == MemoryKind.Fact }} · 情绪印象 ${memories.count { it.kind == MemoryKind.Emotion }} · 重要经历 ${memories.count { it.kind == MemoryKind.Timeline }}",
                 fontSize = 12.sp, color = FeatureBlueGray)
+            val dailyCheckedAt = MemorySemanticConsolidation.lastDailyMaintenanceAt(characterId)
+            Text("上次每日本地维护：${dailyCheckedAt?.atZone(ZoneId.systemDefault())?.format(MemoryDateTimeFormatter) ?: "暂无成功记录"}",
+                fontSize = 12.sp, color = FeatureBlueGray)
             val habitRevision by CharacterDevelopmentRuntime.revisions.collectAsState()
             val latestHabits = remember(characterId, habitRevision) {
                 CharacterDevelopmentRuntime.lastStatus(characterId)
