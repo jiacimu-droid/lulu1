@@ -110,7 +110,9 @@ class CharacterKnowledgeIsolationTest {
         assertFalse(CharacterExpressionGuide.forGeneration("聊天表达渲染")
             .contains("四点了"))
         assertTrue(CharacterExpressionGuide.forGeneration("聊天表达渲染")
-            .contains("由本人选"))
+            .contains("在哪一拍拆由本人根据个性、关系和真实心意选择"))
+        assertTrue(CharacterExpressionGuide.forGeneration("聊天表达渲染")
+            .contains("不是逢逗号就拆、固定三条或按字数截断"))
     }
 
     @Test fun multiRoleSceneUsesIsolatedModelContextNotAnchorPersonalKnowledge() = runBlocking {
