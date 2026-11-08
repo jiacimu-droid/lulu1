@@ -12,6 +12,19 @@ class MemoryAssociationPolicyTest {
         MemoryEntry(id, "role", content, MemoryKind.Fact, source, now, now, 5, false, true,
             subject = subject, slot = slot)
 
+    @Test fun strongerEvidenceEdgesGetPriorityOverBroadAssociations() {
+        val m = memory("m", "同一段回忆")
+        val event = MemoryAssociationHit(m, "seed", "同一原始事件", 1)
+        val place = event.copy(reason = "同一场景")
+        val subject = event.copy(reason = "同一具体对象")
+        assertTrue(MemoryAssociationPolicy.associationWeight(event) >
+            MemoryAssociationPolicy.associationWeight(place))
+        assertTrue(MemoryAssociationPolicy.associationWeight(place) >
+            MemoryAssociationPolicy.associationWeight(subject))
+        assertTrue(MemoryAssociationPolicy.associationWeight(event) >
+            MemoryAssociationPolicy.associationWeight(event.copy(depth = 2)))
+    }
+
     @Test fun equallyRelevantRecentAndImportantEventsReceivePriorityWithoutErasingOlderOnes() {
         val old = memory("old", "共同经历").copy(occurredAt = now.minusSeconds(60 * 86_400))
         val recent = old.copy(id = "recent", occurredAt = now.minusSeconds(60))
