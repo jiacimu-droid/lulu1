@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:55:16.368965+00:00",
-  "commit": "a3b324a46fcf9b0d7155b269d4479bf761da3257",
+  "generatedAt": "2026-11-08T16:59:50.457606+00:00",
+  "commit": "5edfcff790deb432ec3bfa9392e02e9ee02c58aa",
   "branch": "main",
-  "sourceFingerprint": "7d5618c7facd148acca2c10ba8d1e87e602d231aa23bec58c1230e4eb5e31700",
+  "sourceFingerprint": "e2875f57e5c627bbd530d78b832f7cc1b2b8b7adb8bff369dcc18ebedf37c4ff",
   "summary": {
     "files": 1148,
-    "lines": 247240,
+    "lines": 247219,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -25981,8 +25981,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 598,
-      "sha256": "0a61593200c2e7bbb95a2a1a65740fed8ce5f06bb809dfb4f70d1360efa0b243",
+      "lines": 583,
+      "sha256": "a1888e39a291f5a99524c39926b9bc7b3cef259621db67ab229e209c621c4de5",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
@@ -30243,8 +30243,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 590,
-      "sha256": "fa4b23a2396dbec3139d896145bd47cf6846718e8e15a1ee3da94bff08eb9491",
+      "lines": 576,
+      "sha256": "d5e5f0030fc96b13f8b9143b9af9c5dcde1b8c692d8e43a266388fbaa8406a09",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -37594,8 +37594,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt",
-      "lines": 28,
-      "sha256": "cbed504a3504ecd5ef492b3ec63f8c73bb0175ea1ee9b5c72bc7355d0e86afcd",
+      "lines": 36,
+      "sha256": "1a042a5494ee1351bcbe5f54e1af2382e69d5581fd54aae7095810dea4438dbe",
       "symbols": [
         {
           "name": "ChatLexiconRetryPolicyTest",
