@@ -18,6 +18,12 @@ internal object OnlineChatBatchStore {
         // Waking or autonomous ticks must NOT shorten/reset a user's deadline.
         // A message during a claimed batch belongs to a NEW reply revision.
         val pendingRevision = p.getLong("revision:$characterId", 0)
+        if (p.contains("due:$characterId") && (characterId to pendingRevision) in reading) {
+            // An unrelated online-life/manual wake must NEVER supersede an
+            // already-paid message generation. Only an actual new user bubble
+            // may open the next revision (onUserBubble owns that transition).
+            return Batch(pendingRevision, p.getLong("due:$characterId", now))
+        }
         if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
             val hasUserBubbles = p.getBoolean("messageWindow:$characterId", false)
             if (collectMessages && !hasUserBubbles) {
@@ -67,6 +73,43 @@ internal object OnlineChatBatchStore {
             return Batch(nextRevision, due)
         }
         return next(context, characterId, collectMessages = true, now = atMillis)
+    }
+
+    /**
+     * Foreground composer activity is NOT a new message or a paid request.
+     * Slow typing of a follow-up bubble extends the existing message window
+     * while the user is really editing. Do not restart a claimed model turn,
+     * and do not create any window when no unread owner message exists.
+     * This path deliberately uses apply() to avoid keyboard-frame disk I/O.
+     */
+    @Synchronized fun onComposerEdit(
+        context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
+    ): Boolean {
+        val p = prefs(context)
+        val revision = p.getLong("revision:$characterId", 0L)
+        if (!p.getBoolean("messageWindow:$characterId", false) ||
+            !p.contains("due:$characterId") || (characterId to revision) in reading)
+            return false
+        val existing = p.getLong("due:$characterId", 0L)
+        val next = maxOf(existing, atMillis + QUIET_MILLIS)
+        if (next <= existing) return false
+        p.edit().putLong("due:$characterId", next).apply()
+        return true
+    }
+
+    /** A passive wake is already represented by the pending user-message
+     * observation. Do not buy a second perception before that chat is read.
+     * Expired, abandoned windows stop blocking after a bounded recovery span. */
+    @Synchronized fun shouldDeferBackgroundWake(
+        context: Context, characterId: String, nowMillis: Long = System.currentTimeMillis(),
+    ): Boolean {
+        val p = prefs(context)
+        if (!p.getBoolean("messageWindow:$characterId", false)) return false
+        val due = p.getLong("due:$characterId", 0L)
+        if (due <= 0L) return false
+        val revision = p.getLong("revision:$characterId", 0L)
+        if ((characterId to revision) in reading) return true
+        return nowMillis <= due + 90_000L
     }
 
     /**
