@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:11:18.753330+00:00",
-  "commit": "a94b5438f26464fc1231baf812e9132242ac54b5",
+  "generatedAt": "2026-11-08T16:12:11.625614+00:00",
+  "commit": "4f9a30de9da77bb7d88a12ab59b9f0814b409d23",
   "branch": "main",
-  "sourceFingerprint": "2f935aee5ee1383049186474922cdd05bb2ba5d094b60482cc59dc0ed407d530",
+  "sourceFingerprint": "3fc8eeef76fe9be0f6659ebb5459bcacd64873adf18270b6d9d29d69b03095ad",
   "summary": {
     "files": 1148,
-    "lines": 246751,
+    "lines": 246774,
     "symbols": 3384
   },
   "symbolIndex": {
@@ -38272,8 +38272,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt",
-      "lines": 152,
-      "sha256": "80f2f0cb502204056de4f1fc1c0655e968f7a5f8b1f5f71b7695e252001ec4cf",
+      "lines": 175,
+      "sha256": "d9256264fced667feb5441541ff9e9f8a5206cf5df6663bc726b3fb56b189e7f",
       "symbols": [
         {
           "name": "MemoryLifecycleIntegrationTest",
