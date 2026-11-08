@@ -56,7 +56,7 @@ object ChatLexiconAutomation {
             while (true) {
                 delay(60_000)
                 MigratedDomainStores.chat.conversations.value.forEach { conversation ->
-                    runCatching { inspectImmediateUpdate(conversation); inspectLatestTurn(conversation) }
+                    runCatching { inspectLatestTurn(conversation) }
                 }
             }
         }
@@ -88,7 +88,6 @@ object ChatLexiconAutomation {
                         MigratedDomainStores.chat.messages(conversation.id)
                             .debounce(QUIET_WINDOW_MS)
                             .collect {
-                                inspectImmediateUpdate(conversation)
                                 inspectLatestTurn(conversation)
                             }
                     }
@@ -111,6 +110,15 @@ object ChatLexiconAutomation {
         }
         if (userIndex < 0) return
         val userMessage = messages[userIndex]
+        val previousCharacterIndex = messages.subList(0, userIndex).indexOfLast {
+            it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent
+        }
+        // A user may correct an earlier bubble before the companion replies;
+        // none of those statements may vanish during request coalescing.
+        val userBatch = messages.subList(previousCharacterIndex + 1, userIndex + 1)
+            .filter { it.sender == LuluChatMessage.Sender.User &&
+                it.status == LuluChatMessage.Status.Sent }.takeLast(16)
+        val userText = userBatch.joinToString("\n", transform = LuluChatMessage::content)
         val replies = messages.drop(userIndex + 1).filter {
             it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent
         }
@@ -120,17 +128,10 @@ object ChatLexiconAutomation {
             .forEach { (characterId, roleReplies) ->
                 if (characterId.isBlank()) return@forEach
                 val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
-                val fullTurn = "${userMessage.content}\n$characterText"
-                // Existing concerns are NOT a reason to charge a new model
-                // request on every unrelated ordinary greeting.
                 val unresolvedLife = LuluRepositories.lexicon.snapshot(characterId).any {
                     it.status == LexiconStatus.Active && it.section == LexiconSection.Life
                 }
-                // A plain "好了/取消/解决" may close a known life record even
-                // without a new life keyword. Handle it in THIS completed
-                // conversation extraction, not an earlier extra paid request.
-                if (!looksLikeLexiconCandidate(fullTurn) &&
-                    !(unresolvedLife && looksLikeImmediateLifeUpdate(userMessage.content)))
+                if (!lifeTurnNeedsExtraction(userText, characterText, unresolvedLife))
                     return@forEach
 
                 val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
@@ -145,10 +146,10 @@ object ChatLexiconAutomation {
                     if (!permitAttempt(signature, characterId)) return@withLock
                     val saved = extractAndSave(
                         characterId = characterId,
-                        userText = userMessage.content,
+                        userText = userText,
                         characterText = characterText,
                         groupName = conversation.groupChat?.name,
-                        sourceEventIds = (listOf(userMessage.id) + roleReplies.map { it.id }).map {
+                        sourceEventIds = (userBatch.map { it.id } + roleReplies.map { it.id }).map {
                             if (conversation.groupChat == null) it else "$it:group:$characterId"
                         },
                     )
@@ -157,33 +158,10 @@ object ChatLexiconAutomation {
             }
     }
 
-    private suspend fun inspectImmediateUpdate(conversation: LuluConversation) {
-        // Let the main role decision finish. Otherwise a single "好了" user
-        // message causes one paid pre-reply life extraction AND a second paid
-        // post-reply extraction of the same update. Silent turns still get
-        // handled after their actual chat generation ends.
-        if (ChatGenerationActivity.isRunning(conversation.id) ||
-            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) return
-        val message = MigratedDomainStores.chat.messages(conversation.id).value.lastOrNull()?.takeIf {
-            it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
-        } ?: return
-        if (!looksLikeImmediateLifeUpdate(message.content)) return
-        val ids = conversation.groupChat?.members?.map { it.characterId } ?: listOf(conversation.characterId)
-        ids.distinct().forEach { characterId ->
-            if (LuluRepositories.lexicon.snapshot(characterId).none { it.status == LexiconStatus.Active && it.section == LexiconSection.Life }) return@forEach
-            val signature = "lexicon-update:${message.id}:$characterId"
-            if (isProcessed(signature)) return@forEach
-            val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
-            lock.withLock {
-                val sourceId = if (conversation.groupChat == null) message.id else "${message.id}:group:$characterId"
-                rememberPending(LexiconPendingTurn(signature, conversation.id, message.id, characterId, true))
-                if (!permitAttempt(signature, characterId)) return@withLock
-                if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
-                    markProcessed(signature)
-                } else schedulePromptRetry(signature)
-            }
-        }
-    }
+    // Prior-version immediate checkpoints remain readable by retryPendingTurns.
+    // New incoming turns no longer buy a user-only extraction before the role
+    // has interpreted the same evidence. A true silent turn stays in original
+    // timeline evidence and can be consolidated by ordinary memory maintenance.
 
     private suspend fun extractAndSave(
         characterId: String,
@@ -489,6 +467,13 @@ internal fun looksLikeCommitmentRequest(text: String): Boolean {
 internal fun looksLikeImmediateLifeUpdate(text: String): Boolean =
     listOf("好了", "解决", "结束", "不用", "取消", "不再", "已经")
         .any(text::contains)
+
+/** Single paid life interpretation for one delivered user/role exchange.
+ * A short resolution statement still updates an ACTIVE life record. */
+internal fun lifeTurnNeedsExtraction(
+    userText: String, roleText: String, hasActiveLife: Boolean,
+): Boolean = looksLikeLexiconCandidate("$userText\n$roleText") ||
+    (hasActiveLife && looksLikeImmediateLifeUpdate(userText))
 
 internal fun looksLikeLexiconCandidate(text: String): Boolean {
     val clean = text.trim()

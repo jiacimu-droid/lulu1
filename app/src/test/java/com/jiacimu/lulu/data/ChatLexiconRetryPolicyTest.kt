@@ -19,6 +19,14 @@ class ChatLexiconRetryPolicyTest {
         assertEquals(24L * 60 * 60_000L, lexiconRetryDelayMillis(200))
     }
 
+    @Test fun oneDeliveredTurnCanUpdateExistingLifeWithoutSeparateImmediateRequest() {
+        assertTrue(lifeTurnNeedsExtraction("好了，这件事取消了", "嗯，知道了", hasActiveLife = true))
+        assertFalse(lifeTurnNeedsExtraction("好了，这件事取消了", "嗯，知道了", hasActiveLife = false))
+        assertTrue(lifeTurnNeedsExtraction("我最近有新计划", "那就按照计划来", hasActiveLife = false))
+        assertTrue(lifeTurnNeedsExtraction("先说一件事\n我今天起得早", "听到了", hasActiveLife = false))
+        assertFalse(lifeTurnNeedsExtraction("嗨", "你好", hasActiveLife = true))
+    }
+
     @Test fun plainResolutionTurnCanBeCoalescedWithDeliveredChat() {
         assertTrue(looksLikeImmediateLifeUpdate("好了，我已经解决了"))
         assertTrue(looksLikeImmediateLifeUpdate("取消了原安排"))
