@@ -167,29 +167,73 @@ internal object ModelStructuredOutput {
         return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
     }
 
+    /**
+     * A line break after an already completed spoken beat is an authored send
+     * pause, even when a model accidentally places it INSIDE one JSON text field.
+     * This is a protocol compatibility rule, not a length/semantic sentence splitter:
+     * ordinary soft wraps inside an unfinished phrase stay in the SAME bubble.
+     * The UI never guesses new send events from saved messages.
+     */
+    private fun authoredLineBeats(value: String): List<String> {
+        val normalized = value.replace("\r\n", "\n").trim()
+        if (normalized.isBlank()) return emptyList()
+        if (!normalized.contains('\n') || normalized.startsWith("[") ||
+            normalized.startsWith("⟪")) return listOf(normalized)
+        val completedBeat = Regex("""[。！？!?；;…][”"』」）)]*$""")
+        val result = mutableListOf<String>()
+        var current = ""
+        for (line in normalized.split('\n')) {
+            val next = line.trim()
+            if (next.isBlank()) {
+                current.takeIf(String::isNotBlank)?.let { result += it }
+                current = ""
+                continue
+            }
+            if (current.isNotBlank() && completedBeat.containsMatchIn(current.trimEnd())) {
+                result += current
+                current = next
+            } else {
+                current = if (current.isBlank()) next else current + "\n" + next
+            }
+        }
+        current.takeIf(String::isNotBlank)?.let { result += it }
+        return result
+    }
+
+    private data class AuthoredChatPart(
+        val text: String,
+        val voice: Boolean,
+        val speechText: String,
+    )
+
+    private fun authoredChatParts(bubbles: org.json.JSONArray): List<AuthoredChatPart> = buildList {
+        for (index in 0 until bubbles.length()) {
+            val entry = bubbles.opt(index)
+            val original = if (entry is JSONObject) entry.optString("text") else bubbles.optString(index)
+            val beats = authoredLineBeats(original)
+            val voice = entry is JSONObject && entry.optString("delivery").equals("voice", true)
+            val originalTrack = if (voice && entry is JSONObject)
+                entry.optString("speechText").trim().take(4_000) else ""
+            beats.forEach { beat ->
+                // Never replay the entire original speechText for every
+                // recovered voice segment. Each segment remains voice; the
+                // ordinary TTS path can read its own exact text without tags.
+                add(AuthoredChatPart(beat, voice,
+                    if (beats.size == 1) originalTrack else ""))
+            }
+        }
+    }
+
     /** Position-aligned delivery decisions; the model may voice none, some, or all bubbles. */
     fun bubbleDeliveryModes(json: JSONObject): List<String> {
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
-        return (0 until bubbles.length()).mapNotNull { index ->
-            val entry = bubbles.opt(index)
-            val text = (if (entry is JSONObject) entry.optString("text") else bubbles.optString(index)).trim()
-            if (text.isBlank()) null
-            else if (entry is JSONObject && entry.optString("delivery").equals("voice", true)) "voice"
-            else "text"
-        }
+        return authoredChatParts(bubbles).map { if (it.voice) "voice" else "text" }
     }
 
     /** The model-authored audio-only tracks are position-aligned with nonblank bubbles. */
     fun bubbleSpeechTracks(json: JSONObject): List<String> {
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
-        return (0 until bubbles.length()).mapNotNull { index ->
-            val entry = bubbles.opt(index)
-            val text = (if (entry is JSONObject) entry.optString("text") else bubbles.optString(index)).trim()
-            if (text.isBlank()) null
-            else if (entry is JSONObject && entry.optString("delivery").equals("voice", true))
-                entry.optString("speechText").trim().take(4_000)
-            else ""
-        }
+        return authoredChatParts(bubbles).map(AuthoredChatPart::speechText)
     }
 
     /** Optional per-bubble voice decision. The text is the authoritative transcript. */
@@ -197,10 +241,7 @@ internal object ModelStructuredOutput {
         val json = objectOrNull(raw) ?: return emptyList()
         if (json.optString("action", "reply").lowercase() !in setOf("reply", "message", "chat", "group_message")) return emptyList()
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
-        return (0 until bubbles.length()).mapNotNull { index ->
-            bubbles.optJSONObject(index)?.takeIf { it.optString("delivery").equals("voice", true) }
-                ?.optString("text")?.trim()?.takeIf(String::isNotBlank)
-        }
+        return authoredChatParts(bubbles).filter(AuthoredChatPart::voice).map(AuthoredChatPart::text)
     }
 
     /**
@@ -212,12 +253,8 @@ internal object ModelStructuredOutput {
         val json = objectOrNull(raw) ?: return null
         if (json.optString("action", "reply").lowercase() != "reply") return null
         val bubbles = json.optJSONArray("bubbles") ?: return null
-        return (0 until bubbles.length()).mapNotNull { index ->
-            val entry = bubbles.opt(index)
-            val text = (if (entry is JSONObject) entry.optString("text")
-                else bubbles.optString(index)).trim()
-            text.takeIf(String::isNotBlank)
-        }.takeIf { it.isNotEmpty() }
+        return authoredChatParts(bubbles).map(AuthoredChatPart::text)
+            .takeIf { it.isNotEmpty() }
     }
 
     /**
@@ -233,19 +270,10 @@ internal object ModelStructuredOutput {
 
         val bubbles = json.optJSONArray("bubbles")
         if (bubbles != null) {
-            val values = buildList {
-                for (i in 0 until bubbles.length()) {
-                    val item = bubbles.opt(i)
-                    val text = when (item) {
-                        is JSONObject -> item.optString("text")
-                        else -> bubbles.optString(i)
-                    }.replace("\r\n", "\n").trim()
-                    if (text.isNotBlank()) add(text)
-                }
-            }
-            // Authored JSON bubble boundaries are intentional speech decisions:
-            // a hesitant phrase, repetition or self-correction can be a full beat.
-            // Legacy unstructured output alone uses grammatical stabilization.
+            val values = authoredChatParts(bubbles).map(AuthoredChatPart::text)
+            // Structured message boundaries belong to the model. A single
+            // escaped newline after a completed beat is a legacy spelling of
+            // that same boundary, not a second semantic decision by the UI.
             if (values.isNotEmpty()) return values
         }
 
@@ -282,12 +310,8 @@ internal object ModelStructuredOutput {
                             val array = runCatching {
                                 org.json.JSONArray(raw.substring(start, i + 1))
                             }.getOrNull() ?: return null
-                            return (0 until array.length()).mapNotNull { index ->
-                                val value = array.opt(index)
-                                val bubble = if (value is JSONObject) value.optString("text")
-                                    else array.optString(index)
-                                bubble.trim().takeIf(String::isNotBlank)
-                            }.takeIf { it.isNotEmpty() }
+                            return authoredChatParts(array).map(AuthoredChatPart::text)
+                                .takeIf { it.isNotEmpty() }
                         }
                     }
                 }
