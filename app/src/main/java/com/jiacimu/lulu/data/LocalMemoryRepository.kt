@@ -774,10 +774,8 @@ class LocalMemoryRepository : MemoryRepository {
                 }
                 // The timeline owner may merely be a group-chat witness. A different
                 // speaker's words cannot become this character's own remembered feeling.
-                if (perspective == MemoryPerspective.Subjective && evidence.none { event ->
-                        TimelineStatementOwnership.isOwnCharacterStatement(event) ||
-                            (event.evidenceKind == EventEvidenceKind.Inference && event.source == "presence")
-                    }) continue
+                if (perspective == MemoryPerspective.Subjective &&
+                    evidence.none(SharedTimelineEvent::isOwnSubjectiveMemorySource)) continue
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
                     it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
                 }) "[表达记录的摘要，非独立执行事实] $content" else content
