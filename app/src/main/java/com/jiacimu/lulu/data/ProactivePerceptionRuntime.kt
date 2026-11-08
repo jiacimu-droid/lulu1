@@ -1493,123 +1493,11 @@ object ProactivePerceptionRuntime {
                 }
             }
         }
-        // The main appraisal may repeatedly answer "nobody wrote to me, so nothing to do".
-        // One bounded second look during an online window challenges *that reason*,
-        // not the character's freedom to choose real solitude.
-        val lastAgencyReview = prefs.getLong("last_independent_life_review_$characterId", 0L)
-        val immediateChoices = CharacterActionFollowThroughPolicy.pendingChoices(
-            parsed.innerLife, parsed.intention, parsed.afterglow, parsed.innerThought,
-            parsed.appraisal?.optJSONObject("ownActivity") ?:
-                CharacterSelfActivityRuntime.latestConsideration(appContext, characterId),
-        )
-        // Reuse the very same evidence-backed attention worklist the first
-        // decision actually saw. Previously this optional review rebuilt its
-        // own priority order from motive/share/curiosity stores and clipped it,
-        // causing a single perception to reason over conflicting shortlists.
-        // Only newly authored impulses and a still-active legacy intention
-        // are additional; no second goal store, action choice or model call.
-        val legacyIntention = CharacterIntentionContinuation.cue(
-            CharacterLifeStore.state(characterId).optJSONObject("intention")
-                ?.takeUnless { it.optString("disposition") in setOf("pause", "release") },
-        )
-        val pendingChoices = CharacterActionFollowThroughPolicy.unifiedReviewChoices(
-            immediate = immediateChoices,
-            visibleUnfinished = unfinishedChoices.map { it.render() },
-            legacyIntention = legacyIntention,
-        )
-        val ownActivityAlreadyExecutable = CharacterSelfActivityRuntime.parse(
-            parsed.appraisal?.optJSONObject("ownActivity"), readingBooks.mapTo(hashSetOf()) { it.id }, digital,
-        ) { incidentId, approach -> DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach) } != null
-        val scheduledActivity = CharacterSelfActivityRuntime.latest(appContext, characterId)
-        val activityInFlight = scheduledActivity?.optString("status") in setOf("pending", "running") &&
-            now.toEpochMilli() - (scheduledActivity?.optLong("createdAt") ?: 0L) in 0L..(60 * 60_000L)
-        val followThroughKey = pendingChoices.joinToString("|").hashCode().toString()
-        // A SILENT speech choice can *also* carry real selected steps. Never
-        // replace such a decision with a second one and accidentally drop them.
-        val alreadyChoseSteps = (parsed.sideActions?.length() ?: 0) > 0
-        val followThroughReview = CharacterActionFollowThroughPolicy.shouldReview(
-            silent = parsed.action == Action.SILENT &&
-                !ownActivityAlreadyExecutable && !activityInFlight,
-            choices = pendingChoices,
-            key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
-            nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
-            alreadyChoseSteps = alreadyChoseSteps,
-        )
-        // Routine awareness is a legitimate opportunity to revisit a real
-        // unfinished wish; it must NOT be blanket-ineligible just because its
-        // wake trigger has no unread chat. The existing keyed/cooldown policy
-        // bounds this optional same-role review, with no new scheduler.
-        val routineHeartbeat = listOf(
-            "在线持续感知", "合并后的自主生活回顾", "真实生活后续回想",
-            "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
-            "居民小事到了",
-        ).any { trigger.startsWith(it) }
-        // A live user's unread turn takes priority over optional independent
-        // life reflection. That extra paid model call used to happen BEFORE
-        // sending the already completed answer, making chat appear stuck even
-        // after the relay finished. Existing independent-life opportunities
-        // remain available on later, message-free perceptions.
-        val hasPendingUserTurn = onlineUnread.text.isNotBlank() || onlineUnread.messageIds.isNotEmpty() ||
-            privateDialogue.isNotEmpty()
-        val shouldReview = !hasPendingUserTurn && (followThroughReview ||
-            (!routineHeartbeat && !alreadyChoseSteps &&
-                !ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
-                now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
-                AutonomousDecisionRecovery.needsIndependentLifeReview(
-                    silent = parsed.action == Action.SILENT,
-                    reason = parsed.reason,
-                    recentActions = recentAutonomousActions,
-                    hasPendingUserMessage = onlineUnread.text.isNotBlank(),
-                )))
-        val independentChoice = if (shouldReview) {
-            prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli())
-                .putString("last_impulse_review_key_$characterId", followThroughKey)
-                .putLong("last_impulse_review_at_$characterId", now.toEpochMilli()).apply()
-            LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = buildString {
-                    appendLine("这是同一次感知中尚未行动的愿望的后续选择，不是又一个用户消息。")
-                    appendLine("尚未取得行动回执的私人想法：${pendingChoices.joinToString("；")}")
-                    appendLine("原先完整选择理由：${parsed.reason}")
-                    appendLine("需要回应的用户消息：${onlineUnread.text.take(800)}")
-                    appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
-                    appendLine("此次判断自己真正感兴趣的生活行为：此刻就做、为稍后定一个真实时间，或决定暂不做；不是要求必须聊天、排日程或发朋友圈。")
-                    RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
-                        .takeIf(String::isNotBlank)?.let(::appendLine)
-                    appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
-                    appendLine(affordances)
-                    RoleDayScheduleStore.plannedContext(appContext, characterId, now)
-                        .takeIf(String::isNotBlank)?.let { plans ->
-                            appendLine("【已经真正安排的本人日程｜不要重复创建】")
-                            appendLine(plans)
-                        }
-                    CharacterLifeFollowThroughStore.context(characterId, now)
-                        .takeIf(String::isNotBlank)?.let(::appendLine)
-                    if (CapabilityRegistry.allows(appContext, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
-                    appendLine("可选 action=tool,tool=read_xiaohongshu,args={\"keyword\":\"真实感兴趣的话题\"}，经过阅读才算外部经历，不需要先发给用户。")
-                }
-                appendLine("近期实际行动：${AutonomousActionTrace.render(CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now)}")
-                },
-                instruction = """
-                    你先前产生了想法却没有选择行动，或者因没人来找你而把自己的生活搁置。
-                    现在只为这些已有愿望作一个具体决定，不重新编造感受或事后倒写动机。
-                    请从本人性格、兴趣、真实经历和上面列出的执行器能力判断：
-                    现在有没有一件你自己真的想做或真正想安排稍后去做的事？可以去真实公共区、找在场居民、
-                    读实际可读的书、发表自己想分享的朋友圈或自然联系朋友；若想等会再做，可通过 action=tool、tool=plan_personal_activity 真实保存本人日程，args 使用本人选定的将来 dueAt 与动机。
-                    不存在的地点、居民、书籍不能编造；工具成功前不能说已经做过。
-                    如果确实想做，直接给出 action 和合法参数。若真的想休息/独处，
-                    仍选择 silent，并说出暂缓/放下这个愿望的具体原因；不是任务考核，不强制行动。
-                    若想继续阅读，请从书目中选真实 readingBookId 并给 action=reading；
-                    不要用心声、动作描写或“我去读了”替代工具执行。
-                    仅输出兼容的简洁 JSON：action、reason 和动作参数，可保留真实 motiveId、experienceId。
-                    不输出 innerLife、innerThought、mood、intention；已有私人感受由原先阶段保存。
-                """.trimIndent(),
-                source = "在线自主生活再判断",
-                title = "${character.displayName}重新考虑自己的生活",
-                maxTokens = 1_300,
-                connectionOverride = connection,
-            ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
-        } else null
+        // The first perception already received motives, unfinished goals,
+        // pending social stimuli and executable action choices. Buying another
+        // independent-life decision on this SAME snapshot adds no evidence,
+        // often overrides genuine silence and multiplies paid model requests.
+        // The next normal awake observation can revisit pending intentions.
         currentCoroutineContext().ensureActive()
         // A phone call, user wake or replaced online window may take ownership
         // while optional follow-through is in flight. Never send a stale apology.
@@ -1624,22 +1512,8 @@ object ProactivePerceptionRuntime {
             )
             return null
         }
-        // The review owns ONLY the action. Preserve the original appraisal,
-        // heart voice and motive proposal instead of silently discarding them.
-        val resolved = independentChoice?.copy(
-            innerThought = parsed.innerThought, innerThoughtBasis = parsed.innerThoughtBasis,
-            innerLife = parsed.innerLife, appraisal = parsed.appraisal,
-            intention = parsed.intention, afterglow = parsed.afterglow,
-            mood = parsed.mood, curiosity = independentChoice.curiosity ?: parsed.curiosity,
-            curiosities = parsed.curiosities,
-            motiveId = independentChoice.motiveId.ifBlank { parsed.motiveId },
-            motiveRef = independentChoice.motiveRef.ifBlank { parsed.motiveRef },
-            intentionId = independentChoice.intentionId.ifBlank { parsed.intentionId },
-            experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
-            relationshipInitiative = parsed.relationshipInitiative,
-            onlineChoice = parsed.onlineChoice,
-            onlineChoiceReason = parsed.onlineChoiceReason,
-        ) ?: parsed
+        // One authoritative character decision per perceived situation.
+        val resolved = parsed
         val fallbackDecision = resolved.withPresenceFallback(character)
         // Last-resort continuity safeguard, never a chat-text rewrite:
         // a previously settled disagreement must not be re-opened by an idle
