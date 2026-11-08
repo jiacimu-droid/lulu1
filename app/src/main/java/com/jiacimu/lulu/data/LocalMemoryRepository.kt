@@ -453,7 +453,7 @@ class LocalMemoryRepository : MemoryRepository {
     private fun mergeExtractedEntries(current: MemoryStoreState, incoming: List<MemoryEntry>): List<MemoryEntry> {
         val entries = current.entries.toMutableList()
         incoming.forEach { entry ->
-            if (entry.scopedMemoryKey() in current.deletedMemoryKeys ||
+            if (entry.isOwnerDeleted(current.deletedMemoryKeys) ||
                 entry.sourceIds().any { it in current.forgottenSourceIds[entry.characterId].orEmpty() }) return@forEach
             val index = entries.indexOfFirst { existing ->
                 existing.characterId == entry.characterId && existing.dedupeKey() == entry.dedupeKey() &&
@@ -510,14 +510,14 @@ class LocalMemoryRepository : MemoryRepository {
         synchronized(SharedExperienceTimeline) {
         if (!memoryHasLiveSources(clean, clean.characterId)) return
         mutate { current ->
-            if (!allowRestore && (scopedKey in current.deletedMemoryKeys || clean.id in current.deletedMemoryIds[clean.characterId].orEmpty())) return@mutate current
+            if (!allowRestore && (clean.isOwnerDeleted(current.deletedMemoryKeys) || clean.id in current.deletedMemoryIds[clean.characterId].orEmpty())) return@mutate current
             if (current.entries.any { it.id == clean.id && it.characterId != clean.characterId }) return@mutate current
             val index = current.entries.indexOfFirst { item -> item.id == clean.id }
             val nextEntries = if (index < 0) current.entries + clean
             else current.entries.toMutableList().apply { set(index, clean) }
             current.copy(
                 entries = nextEntries,
-                deletedMemoryKeys = if (allowRestore) current.deletedMemoryKeys - scopedKey else current.deletedMemoryKeys,
+                deletedMemoryKeys = if (allowRestore) current.deletedMemoryKeys - scopedKey - clean.legacyScopedMemoryKey() else current.deletedMemoryKeys,
                 deletedMemoryIds = if (allowRestore) current.deletedMemoryIds +
                     (clean.characterId to (current.deletedMemoryIds[clean.characterId].orEmpty() - clean.id)) else current.deletedMemoryIds,
             )
@@ -558,13 +558,15 @@ class LocalMemoryRepository : MemoryRepository {
         var removedEntries = emptyList<MemoryEntry>()
         mutate { current ->
             val victims = current.entries.filter { entry ->
-                entry.characterId == target.characterId && entry.memoryIdentityKey() == targetKey
+                entry.characterId == target.characterId && entry.kind == target.kind &&
+                    entry.perspective == target.perspective && entry.memoryIdentityKey() == targetKey
             }
             removedEntries = victims
             removed = victims.size
             current.copy(
                 entries = current.entries.filterNot { entry ->
-                    entry.characterId == target.characterId && entry.memoryIdentityKey() == targetKey
+                    entry.characterId == target.characterId && entry.kind == target.kind &&
+                        entry.perspective == target.perspective && entry.memoryIdentityKey() == targetKey
                 },
                 deletedMemoryKeys = current.deletedMemoryKeys + victims.map(MemoryEntry::scopedMemoryKey),
                 deletedMemoryIds = current.deletedMemoryIds + victims.groupBy(MemoryEntry::characterId).mapValues { (role, entries) ->
@@ -1102,7 +1104,13 @@ private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =
 
 private fun MemoryEntry.dedupeKey(): String = kind.name + ":" + perspective.name + ":" + memoryIdentityKey()
 
-private fun MemoryEntry.scopedMemoryKey(): String = characterId + ":" + memoryIdentityKey()
+private fun MemoryEntry.legacyScopedMemoryKey(): String = characterId + ":" + memoryIdentityKey()
+private fun MemoryEntry.scopedMemoryKey(): String =
+    characterId + ":" + kind.name + ":" + perspective.name + ":" + memoryIdentityKey()
+
+/** Existing users' old unscoped tombstones remain effective after this migration. */
+private fun MemoryEntry.isOwnerDeleted(deletedKeys: Set<String>): Boolean =
+    scopedMemoryKey() in deletedKeys || legacyScopedMemoryKey() in deletedKeys
 
 private fun MemoryEntry.memorySourceEventIds(): List<String> = when {
     source.startsWith("timeline-events:") -> source.removePrefix("timeline-events:").split('|')
