@@ -153,6 +153,33 @@ class MemoryLifecycleIntegrationTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun objectiveAndSelfAuthoredSubjectiveMemoriesShareOneExtractionBatch() = runBlocking {
+        val server = MockWebServer()
+        server.enqueue(reply("""[
+            {"kind":"Timeline","perspective":"Record","content":"用户说今晚想吃火锅","sourceEventIds":["source"],"strength":3},
+            {"kind":"Emotion","perspective":"Subjective","content":"角色当时觉得这件小事很温暖","sourceEventIds":["self"],"strength":4},
+            {"kind":"Emotion","perspective":"Subjective","content":"角色认为主人已经答应了约会","sourceEventIds":["source"],"strength":6}
+        ]""".trimIndent()))
+        server.start()
+        try {
+            val context = initialize(server)
+            LuluRepositories.memory.updatePolicy("lifecycle", MemoryPolicy(0, 2))
+            event("今晚想吃火锅")
+            SharedExperienceTimeline.record("self", "lifecycle", "此刻", "角色",
+                "觉得这件小事很温暖", triggerExtraction = false,
+                source = "presence", evidenceKind = EventEvidenceKind.Inference)
+            LuluRepositories.memory.summarizeNow("lifecycle")
+            assertEquals(1, server.requestCount)
+            val stored = LuluRepositories.memory.snapshot("lifecycle")
+            assertEquals(2, stored.size)
+            assertEquals(1, stored.count { it.perspective == MemoryPerspective.Record })
+            assertEquals(1, stored.count { it.perspective == MemoryPerspective.Subjective })
+            assertEquals(listOf("self"), stored.single { it.perspective == MemoryPerspective.Subjective }.sourceIds())
+            val restored = LocalMemoryRepository().apply { initialize(context) }.snapshot("lifecycle")
+            assertEquals(stored.map { it.perspective }.toSet(), restored.map { it.perspective }.toSet())
+        } finally { server.shutdown() }
+    }
+
     @Test fun sameExtractionUpdatesCurrentUnderstandingAndArchivesTheOldFact() = runBlocking {
         val server = MockWebServer()
         server.enqueue(reply("""[{"kind":"Fact","content":"用户现在喜欢清茶","sourceEventIds":["source"],"tier":"Core","supersedes":["prior"]}]"""))
