@@ -38,6 +38,26 @@ class MemoryAssociationPolicyTest {
         assertTrue(MemoryAssociationPolicy.localRelevant(listOf(unrelated), "咖啡", now = now).isEmpty())
     }
 
+    @Test fun specificallyNamedSubjectConnectsObjectiveAndSubjectiveMemoryWithoutCrossingOwners() {
+        val objective = memory("objective", "在公园喂过一只橘猫",
+            "timeline-events:cat-event", "橘猫", "见面")
+        val subjective = memory("subjective", "我很喜欢那只橘猫",
+            "timeline-events:own-thought", "橘猫", "感想")
+            .copy(perspective = com.jiacimu.lulu.core.MemoryPerspective.Subjective)
+        val otherPerson = memory("other", "另一位居民在照顾橘猫",
+            subject = "橘猫", slot = "日常").copy(characterId = "different-role")
+        val hits = MemoryAssociationPolicy.expand(listOf(objective, subjective, otherPerson), listOf(objective))
+        assertEquals(listOf("subjective"), hits.map { it.memory.id })
+        assertEquals("同一具体对象", hits.single().reason)
+    }
+
+    @Test fun oversizedGenericNamedSubjectDoesNotConnectUnrelatedEpisodes() {
+        val broad = (1..9).map { i ->
+            memory("m$i", "不同经历$i", subject = "咖啡馆", slot = "细节$i")
+        }
+        assertTrue(MemoryAssociationPolicy.expand(broad, listOf(broad.first())).isEmpty())
+    }
+
     @Test fun deletingABridgeRemovesItsAssociationsAndExpansionHonorsTheLimit() {
         val a = memory("a", "起因", "timeline-events:1")
         val b = memory("b", "经过", "timeline-events:1|2")
