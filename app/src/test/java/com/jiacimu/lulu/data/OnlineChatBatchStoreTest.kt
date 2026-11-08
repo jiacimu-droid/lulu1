@@ -91,21 +91,48 @@ class OnlineChatBatchStoreTest {
         OnlineChatBatchStore.finish(app, role, third.revision)
     }
 
-    @Test fun slowComposerTypingExtendsOneUnpaidEightSecondWindowWithoutStartingNewRevision() {
+    @Test fun localTypingHoldsPaidTurnAndIdleDraftReleasesItAfterFourSeconds() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
         assertEquals(108_000L, first.dueAtMillis)
+        // Owner writes the next bubble slowly. The SYSTEM extends the same
+        // pending deadline; no new role decision or revision is purchased.
         assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 105_000L))
-        assertEquals(113_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertEquals(165_000L, OnlineChatBatchStore.pendingDueAt(app, role))
         assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 110_000L))
-        assertEquals(118_000L, OnlineChatBatchStore.pendingDueAt(app, role))
-        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 117_999L))
-        val finalBubble = OnlineChatBatchStore.onUserBubble(app, role, 112_000L)
-        assertEquals(first.revision, finalBubble.revision)
-        assertEquals(120_000L, finalBubble.dueAtMillis)
-        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 120_000L))
-        // Once the paid model owns the turn, draft edits cannot restart it.
-        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 121_000L))
+        assertEquals(170_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 120_000L))
+        val secondBubble = OnlineChatBatchStore.onUserBubble(app, role, 112_000L)
+        assertEquals(first.revision, secondBubble.revision)
+        assertEquals(170_000L, secondBubble.dueAtMillis)
+        // Sending empties the composer. Four seconds of local observation
+        // replaces the draft's long idle fallback.
+        assertTrue(OnlineChatBatchStore.onComposerIdle(app, role, 112_000L))
+        assertEquals(116_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 115_999L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 116_000L))
+        assertFalse(OnlineChatBatchStore.onComposerEdit(app, role, 117_000L))
+        OnlineChatBatchStore.finish(app, role, first.revision)
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
+    @Test fun abandonedDraftCannotHoldOnePendingReplyForever() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 300_000L)
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 305_000L))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 364_999L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 365_000L))
+        OnlineChatBatchStore.finish(app, role, first.revision)
+    }
+
+    @Test fun keyboardDismissalCanReleaseDraftWithoutCreatingNewModelWork() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 500_000L)
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 502_000L))
+        assertTrue(OnlineChatBatchStore.onComposerIdle(app, role, 507_000L))
+        assertEquals(511_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 510_999L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 511_000L))
         OnlineChatBatchStore.finish(app, role, first.revision)
     }
 
