@@ -852,8 +852,9 @@ class CompanionModelGateway(
             if (characterId.startsWith("resident:") &&
                 !ResidentDailyPolicy.hasModelRequestAllowance(connectionStore.appContext, characterId))
                 error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
-            if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId, source, title))
-                throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.nextDay(java.time.Instant.now()))
+            if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
+                    source, title, evidence = facts + "\\n" + instruction))
+                throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
             if (characterId.startsWith("resident:") &&
                 !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
                 error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
@@ -894,8 +895,9 @@ class CompanionModelGateway(
                 sentReduced = true
                 // A 503 fallback is another real HTTP attempt and consumes
                 // one additional optional background-request allowance.
-                if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId, source, title))
-                    throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.nextDay(java.time.Instant.now()))
+                if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
+                        source, title, evidence = facts + "\\n" + instruction))
+                    throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
                 LuluRepositories.performance.recordModelHandoff(source, connection.model)
                 openAiCompatible(
                     connection = connection,
