@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:52:54.257863+00:00",
-  "commit": "e5b138ab74712c510e985772b51064e47941943a",
+  "generatedAt": "2026-11-08T16:02:03.229985+00:00",
+  "commit": "3b21f492daf92c494c17093b56ee2062ac75c80d",
   "branch": "main",
-  "sourceFingerprint": "43e5425cf7860d59630e7a3bb9378ea6513d615970643322f15e33dfee7d8327",
+  "sourceFingerprint": "a43926e775f1202a356af266c87f21158ba9480192e80101d5453916da6ce142",
   "summary": {
-    "files": 1146,
-    "lines": 246568,
-    "symbols": 3381
+    "files": 1147,
+    "lines": 246679,
+    "symbols": 3383
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -272,6 +272,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
         "line": 6
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -5622,6 +5626,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
         "line": 69
+      }
+    ],
+    "allowed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
+        "line": 68
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
+        "line": 54
       }
     ],
     "musicChoice": [
@@ -16004,12 +16018,6 @@
         "line": 5
       }
     ],
-    "allowed": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 54
-      }
-    ],
     "SleepGuidanceGuideTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
@@ -23932,6 +23940,21 @@
         {
           "name": "BackgroundCompanionService",
           "line": 69
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt",
+      "lines": 111,
+      "sha256": "728035fbbfd6c67b34ee9d3f826df9259dd11118973ff67a8984ca9aa1be6e68",
+      "symbols": [
+        {
+          "name": "allowed",
+          "line": 68
+        },
+        {
+          "name": "claim",
+          "line": 83
         }
       ]
     },
