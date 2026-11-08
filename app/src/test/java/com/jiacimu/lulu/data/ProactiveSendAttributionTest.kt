@@ -125,6 +125,25 @@ class ProactiveSendAttributionTest {
     }
 
     @Test
+    fun invalidatedOriginalStatementsCannotProveDeliveryOrReply() {
+        val receipt = ProactiveSendReceipt(
+            "proactive-send:evt", Instant.parse("2026-10-26T10:00:00Z"), "m1", "evt"
+        )
+        val delivered = event("evt", "conv-a", EventEvidenceKind.CharacterStatement, "2026-10-26T10:00:00Z")
+        val user = event("reply", "conv-a", EventEvidenceKind.UserStatement, "2026-10-26T10:01:00Z")
+        val events = listOf(delivered, user)
+        assertEquals(true, ProactiveSendAttribution.repliedByDecisionId(listOf(receipt), events)[receipt.decisionId])
+        // Simulate canonical chat rows being deleted, unsent or revised while
+        // their old timeline projections still exist.
+        assertFalse(ProactiveSendAttribution.repliedByDecisionId(
+            listOf(receipt), events
+        ) { it.id != "evt" }.containsKey(receipt.decisionId))
+        assertEquals(false, ProactiveSendAttribution.repliedByDecisionId(
+            listOf(receipt), events
+        ) { it.id != "reply" }[receipt.decisionId])
+    }
+
+    @Test
     fun successfulToolWithoutResolvedDeliveryNeverPersistsSuccessReceipt() {
         // The production runtime calls this gate before writing CharacterInnerLifeStore.
         // Tool success alone, or a model's selected action, is not a delivered event.
