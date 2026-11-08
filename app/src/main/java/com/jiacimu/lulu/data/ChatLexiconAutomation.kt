@@ -123,7 +123,15 @@ object ChatLexiconAutomation {
                 val fullTurn = "${userMessage.content}\n$characterText"
                 // Existing concerns are NOT a reason to charge a new model
                 // request on every unrelated ordinary greeting.
-                if (!looksLikeLexiconCandidate(fullTurn)) return@forEach
+                val unresolvedLife = LuluRepositories.lexicon.snapshot(characterId).any {
+                    it.status == LexiconStatus.Active && it.section == LexiconSection.Life
+                }
+                // A plain "好了/取消/解决" may close a known life record even
+                // without a new life keyword. Handle it in THIS completed
+                // conversation extraction, not an earlier extra paid request.
+                if (!looksLikeLexiconCandidate(fullTurn) &&
+                    !(unresolvedLife && looksLikeImmediateLifeUpdate(userMessage.content)))
+                    return@forEach
 
                 val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
                 // Stable across additional bubbles of the SAME actual turn.
@@ -150,10 +158,16 @@ object ChatLexiconAutomation {
     }
 
     private suspend fun inspectImmediateUpdate(conversation: LuluConversation) {
+        // Let the main role decision finish. Otherwise a single "好了" user
+        // message causes one paid pre-reply life extraction AND a second paid
+        // post-reply extraction of the same update. Silent turns still get
+        // handled after their actual chat generation ends.
+        if (ChatGenerationActivity.isRunning(conversation.id) ||
+            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) return
         val message = MigratedDomainStores.chat.messages(conversation.id).value.lastOrNull()?.takeIf {
             it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
         } ?: return
-        if (!listOf("好了", "解决", "结束", "不用", "取消", "不再", "已经").any(message.content::contains)) return
+        if (!looksLikeImmediateLifeUpdate(message.content)) return
         val ids = conversation.groupChat?.members?.map { it.characterId } ?: listOf(conversation.characterId)
         ids.distinct().forEach { characterId ->
             if (LuluRepositories.lexicon.snapshot(characterId).none { it.status == LexiconStatus.Active && it.section == LexiconSection.Life }) return@forEach
@@ -471,6 +485,10 @@ internal fun looksLikeCommitmentRequest(text: String): Boolean {
     if (clean.isBlank()) return false
     return CommitmentSignals.any { signal -> signal in clean }
 }
+
+internal fun looksLikeImmediateLifeUpdate(text: String): Boolean =
+    listOf("好了", "解决", "结束", "不用", "取消", "不再", "已经")
+        .any(text::contains)
 
 internal fun looksLikeLexiconCandidate(text: String): Boolean {
     val clean = text.trim()
