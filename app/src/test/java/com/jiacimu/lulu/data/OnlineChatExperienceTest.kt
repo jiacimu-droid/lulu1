@@ -744,7 +744,8 @@ class OnlineChatExperienceTest {
         assertEquals(100L + OnlineChatBatchStore.QUIET_MILLIS,
             OnlineChatBatchStore.dueAt(context, role, first.revision))
         assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
-        val next = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
+        // A genuinely NEW user bubble, not a passive wake, supersedes the claimed read.
+        val next = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 4_000L)
         OnlineChatBatchStore.finish(context, role, first.revision)
         assertEquals(4_000L + OnlineChatBatchStore.QUIET_MILLIS,
             OnlineChatBatchStore.dueAt(context, role, next.revision))
