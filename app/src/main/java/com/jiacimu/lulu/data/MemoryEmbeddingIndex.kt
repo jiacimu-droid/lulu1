@@ -26,12 +26,16 @@ internal object MemoryEmbeddingIndex {
 
     fun initialize(context: Context) {
         synchronized(lock) {
-            if (directory != null) return
             val root = context.applicationContext.filesDir
+            val target = File(root, DIRECTORY)
+            // App/test contexts may be recreated while this singleton survives.
+            // Do not keep writing to a stale (or deleted) cache directory.
+            if (directory == target && target.isDirectory) return
             // V1 filenames did not retain any reversible memory identity, so they could not be
             // removed when a source memory was deleted. Drop that cache once during V2 migration.
             runCatching { File(root, LEGACY_DIRECTORY).deleteRecursively() }
-            directory = File(root, DIRECTORY).apply { mkdirs() }
+            target.mkdirs()
+            directory = target
         }
     }
 
