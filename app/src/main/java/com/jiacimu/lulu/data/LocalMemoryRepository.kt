@@ -287,9 +287,11 @@ class LocalMemoryRepository : MemoryRepository {
             val prior = currentUnderstandingCandidates(characterId, facts)
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
-                facts = facts + renderPriorUnderstanding(prior),
+                facts = memorySelectionPerspective(characterId) +
+                    "\n【待提取的真实事件｜只有这里的事件ID可用于记忆来源】\n" +
+                    facts + renderPriorUnderstanding(prior),
                 instruction = """
-                    从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
+                    从给定真实对话与原始事件中提取日后值得回忆的记忆。根据当前角色本人的稳定价值、兴趣、真实关系和实际见闻判断哪些零碎细节对他有意义；不需要每件小事都高分，但不要把不起眼等同于不值得记。只返回 JSON 数组，不要代码块。
                     每项格式：
                     {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空","supersedes":[],"sceneKey":"活动|地点|参与人|时段的短串或空","measureKind":"sleep_hours/bedtime等或空","measureValue":数字或null,"measureUnit":"小时/时或空"}
                     规则：
@@ -307,6 +309,7 @@ class LocalMemoryRepository : MemoryRepository {
                     11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
                     12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
                     12a. 对整批来源逐项检查：①已明确说出的喜恶、兴趣、习惯自述及相处边界，②有明确原因的情绪，③有可辨识细节的普通日常与共同经历。零碎不等于不值得记：用户一次明确表达某种喜好便可以保存为可修订的 Stable 偏好，不必等第二次确认；与现有理解同义的表达要合并来源，不要造两条。某晚睡觉时间只是带日期的一次记录，不得归纳成长期作息；多日规律由已有习惯学习负责。不得强行凑数量、猜测偏好或把系统执行计划写作用户记忆。
+                    12b. 把“发生或说过什么”和“角色自己如何在意”严格分开：真实原话、已发生的操作或可证实经历才能写为事实；角色的真实发言/已记录心理可以写成带时刻的主观情绪记录，但不能从人设猜测他此刻喜欢、心疼、吃醋或曾经做过什么。角色本人的关注只影响同一条有来源记忆是否保存及 strength，不强制伪造额外主观记忆，更不自动把高强度普通生活琐事升为 Core。
                     13. 场景与可量数字只有原话明确给才填：sceneKey 写“活动|地点|参与人|时段”的短串（如睡觉|卧室|自己|夜里），原话没给地点或时段就留空；measureKind 只用于原话明确说出的可量数字（睡多久填 sleep_hours、几点睡填 bedtime），measureValue 填数字（bedtime 用 24 小时制小数，如 23.5 表示 23:30），measureUnit 填“小时”或“时”；没有就留空或 null，绝不换算、绝不猜测。
                     ${understandingUpdateInstruction()}
                 """.trimIndent(),
