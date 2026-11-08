@@ -44,6 +44,7 @@ internal fun RelicEscapeWorldMap(
     run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false,
     focus: Pair<Int, Int> = run.hero.x to run.hero.y,
     openingReceipt: RelicChestReceipt? = null,
+    openingProgress: Float = 0f,
 ) {
     // Index physical entities once per authoritative snapshot, not once per drawn tile.
     val chestByCell = remember(run.chests,run.w) { run.chests.associateBy { it.y*run.w+it.x } }
@@ -230,8 +231,11 @@ internal fun RelicEscapeWorldMap(
                         }
                         drawRoundRect(Color(0xFF705B50),p+Offset(t*.17f,t*.52f),
                             Size(t*.66f,t*.21f),CornerRadius(t*.06f))
-                        drawLine(Color(0xFFB29B85),p+Offset(t*.21f,t*.43f),
-                            p+Offset(t*.78f,t*.32f),strokeWidth=t*.07f)
+                        val lidLift = relicChestLidLift(run, chest.id, openingReceipt, openingProgress)
+                        // The lid stays on the actual chest tile and follows the same
+                        // committed-receipt clock as the reward ceremony.
+                        drawLine(Color(0xFFB29B85),p+Offset(t*.21f,t*(.43f-.23f*lidLift)),
+                            p+Offset(t*.78f,t*(.32f-.24f*lidLift)),strokeWidth=t*.07f)
                     }
                 }
                 dropsByCell[y*run.w+x].orEmpty().forEach{drop->
@@ -363,3 +367,10 @@ internal fun RelicEscapeWorldMap(
         }
     }
 }
+
+/** Pure display projection: never creates or transfers loot. */
+internal fun relicChestLidLift(run: RelicRun, chestId: String,
+    receipt: RelicChestReceipt?, progress: Float): Float =
+    if (RelicChestPresentation.isCurrentOpening(run, chestId, receipt))
+        ((progress - .10f) / .47f).coerceIn(0f, 1f)
+    else 0f
