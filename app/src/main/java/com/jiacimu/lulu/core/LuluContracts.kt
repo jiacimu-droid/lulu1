@@ -45,7 +45,10 @@ enum class MemoryKind { Fact, Emotion, Timeline }
 enum class MemoryTier { Core, Stable, Episode }
 
 /** A provenance perspective, independent of existing Fact/Emotion/Timeline categories. */
-enum class MemoryPerspective { Record, Subjective }
+enum class MemoryPerspective(val label: String) {
+    Record("客观记录／真实陈述"),
+    Subjective("角色本人当时的主观记忆"),
+}
 
 data class MemoryEntry(
     val id: String,
