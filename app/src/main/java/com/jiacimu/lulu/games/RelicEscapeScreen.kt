@@ -65,6 +65,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var openingReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
     // Persist the committed loot result after the presentation overlay is dismissed.
     var lastChestReceipt by remember(run?.id){mutableStateOf<RelicChestReceipt?>(null)}
+    val openingClock = remember(run?.id) { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(openingReceipt?.runId, openingReceipt?.chestId) {
+        if (openingReceipt == null) { openingClock.snapTo(0f); return@LaunchedEffect }
+        val receipt = openingReceipt ?: return@LaunchedEffect
+        openingClock.snapTo(0f)
+        openingClock.animateTo(1f, androidx.compose.animation.core.tween(1750,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing))
+        kotlinx.coroutines.delay(1150)
+        if (openingReceipt == receipt) openingReceipt = null
+    }
     var error by remember{mutableStateOf("")}
 
     fun change(block:()->RelicSnapshot) {
@@ -125,10 +135,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
                     RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
                         focus = cameraFocus ?: (run.hero.x to run.hero.y),
-                         openingReceipt = openingReceipt)
+                         openingReceipt = openingReceipt, openingProgress = openingClock.value)
                 else RelicCampBackdrop()
                 openingReceipt?.let { receipt ->
-                    RelicChestCeremony(receipt) {
+                    RelicChestCeremony(receipt, openingClock.value) {
                         if(openingReceipt==receipt)openingReceipt=null
                     }
                 }
