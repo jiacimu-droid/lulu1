@@ -124,7 +124,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             Box(Modifier.fillMaxSize()) {
                 if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
                     RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
-                        focus = cameraFocus ?: (run.hero.x to run.hero.y))
+                        focus = cameraFocus ?: (run.hero.x to run.hero.y),
+                         openingReceipt = openingReceipt)
                 else RelicCampBackdrop()
                 openingReceipt?.let { receipt ->
                     RelicChestCeremony(receipt) {
