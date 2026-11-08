@@ -369,7 +369,7 @@ internal fun RelicEscapeWorldMap(
 }
 
 /** Pure display projection: never creates or transfers loot. */
-internal fun relicChestLidLift(run: RelicRun, chestId: String,
+internal fun relicChestLidLift(run: RelicRun, chestId: Int,
     receipt: RelicChestReceipt?, progress: Float): Float =
     if (RelicChestPresentation.isCurrentOpening(run, chestId, receipt))
         ((progress - .10f) / .47f).coerceIn(0f, 1f)
