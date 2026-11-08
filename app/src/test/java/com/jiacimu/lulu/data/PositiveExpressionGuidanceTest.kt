@@ -18,6 +18,18 @@ class PositiveExpressionGuidanceTest {
         }
     }
 
+    @Test fun privateChatCanSendPhraseSizedMessagesWithoutMandatoryPunctuation() {
+        // The same character-owned guidance reaches one-call online chat and
+        // the separate foreground expression renderer; no hard comma splitter.
+        for (source in listOf("普通聊天", "聊天表达渲染")) {
+            val prompt = CharacterExpressionGuide.forGeneration(source)
+            assertTrue(prompt.contains("不必等到整句、完整语法或句号才发送"))
+            assertTrue(prompt.contains("末尾不必特意补逗号、句号"))
+            assertTrue(prompt.contains("不是逢逗号就拆、固定三条或按字数截断"))
+            assertTrue(prompt.contains("已经选择分别发送的片段"))
+        }
+    }
+
     @Test fun everyGatewayModeHasOneCommonPersonalityGuide() {
         listOf("普通聊天", "聊天表达渲染", "聊天表达自然度修复", "电话回复").forEach { source ->
             val prompt = CharacterExpressionGuide.forGeneration(source)
