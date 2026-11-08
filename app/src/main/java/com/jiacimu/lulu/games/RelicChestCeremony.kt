@@ -1,8 +1,5 @@
 package com.jiacimu.lulu.games
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,7 +20,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,17 +27,10 @@ import kotlin.math.sin
 @Composable
 internal fun RelicChestCeremony(
     receipt: RelicChestReceipt,
+    progress: Float,
     onFinished: () -> Unit,
 ) {
-    val progress = remember(receipt.runId, receipt.chestId) { Animatable(0f) }
-    val finish by rememberUpdatedState(onFinished)
-    LaunchedEffect(receipt.runId, receipt.chestId) {
-        progress.snapTo(0f)
-        progress.animateTo(1f, tween(1750, easing = FastOutSlowInEasing))
-        delay(1150)
-        finish()
-    }
-    val p = progress.value
+    val p = progress.coerceIn(0f, 1f)
     val unlocked = ((p - .10f) / .47f).coerceIn(0f, 1f)
     val reveal = ((p - .55f) / .32f).coerceIn(0f, 1f)
     val tint = when (receipt.loot.tier) {
