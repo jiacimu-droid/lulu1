@@ -49,6 +49,23 @@ class MemoryContextPolicyTest {
         assertFalse(first.contains("sourceEventIds"))
     }
 
+    @Test fun subjectiveMemoriesRequireRoleAuthoredStatementNotOtherMeetingGuest() {
+        val at = Instant.parse("2026-11-09T10:00:00Z")
+        val self = SharedTimelineEvent("self", "role", "独自日常", "角色",
+            "我觉得很开心", at, source = "own",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val other = self.copy(id = "other", speaker = "另一位居民", source = "meeting")
+        val user = self.copy(id = "user", speaker = "主人",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val presence = self.copy(id = "present", source = "presence",
+            evidenceKind = EventEvidenceKind.Inference)
+        assertTrue(self.isOwnSubjectiveMemorySource())
+        assertFalse(other.isOwnSubjectiveMemorySource())
+        assertFalse(user.isOwnSubjectiveMemorySource())
+        assertTrue(presence.isOwnSubjectiveMemorySource())
+        assertFalse(presence.copy(source = "unverified-guess").isOwnSubjectiveMemorySource())
+    }
+
     @Test fun idleFlushUsesElapsedTimeAndNeverFlushesAFutureTimestamp() {
         val now = Instant.parse("2026-10-08T12:00:00Z")
         assertTrue(shouldFlushMemoryTail(now.minusSeconds(600), now))
