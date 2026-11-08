@@ -60,6 +60,14 @@ internal object MemoryAssociationPolicy {
         return hits
     }
 
+    /** Rank only provenance-backed edges; close evidence is stronger than a broad shared subject. */
+    fun associationWeight(hit: MemoryAssociationHit): Double = (when (hit.reason) {
+        "同一原始事件" -> 0.95
+        "同一场景" -> 0.70
+        "同一具体对象" -> 0.60
+        else -> 0.50
+    } / hit.depth.coerceAtLeast(1)).coerceIn(0.0, 1.0)
+
     /** Importance and recency compete only among relevant/associated candidates. */
     fun priority(memory: MemoryEntry, relevance: Double, association: Double = 0.0,
                  now: Instant = Instant.now()): Double {
@@ -80,12 +88,7 @@ internal object MemoryAssociationPolicy {
         val graph = expand(memories, direct.map { it.first }, limit = 12)
         val scores = direct.associate { it.first.id to it.second }.toMutableMap()
         graph.forEach { hit -> scores[hit.memory.id] = maxOf(scores[hit.memory.id] ?: 0.0,
-            priority(hit.memory, 0.10, when (hit.reason) {
-                "同一原始事件" -> 0.95
-                "同一场景" -> 0.70
-                "同一具体对象" -> 0.60
-                else -> 0.50
-            } / hit.depth, now)) }
+            priority(hit.memory, 0.10, associationWeight(hit), now)) }
         return (direct.map { it.first } + graph.map { it.memory }).distinctBy(MemoryEntry::id)
             .sortedByDescending { scores[it.id] }.take(limit.coerceAtLeast(0))
     }
