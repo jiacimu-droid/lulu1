@@ -44,6 +44,9 @@ enum class MemoryKind { Fact, Emotion, Timeline }
 
 enum class MemoryTier { Core, Stable, Episode }
 
+/** A provenance perspective, independent of existing Fact/Emotion/Timeline categories. */
+enum class MemoryPerspective { Record, Subjective }
+
 data class MemoryEntry(
     val id: String,
     val characterId: String,
@@ -68,6 +71,8 @@ data class MemoryEntry(
     val measureUnit: String = "",
     /** Revisions of the exact evidence read by the extractor; empty for legacy/manual entries. */
     val sourceRevisions: Map<String, Long> = emptyMap(),
+    /** Record = witnessed/reported event; Subjective = the owner's evidenced personal reaction. */
+    val perspective: MemoryPerspective = MemoryPerspective.Record,
 )
 
 data class MemoryPolicy(
