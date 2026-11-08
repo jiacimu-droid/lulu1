@@ -176,24 +176,35 @@ class ResidentDailyPolicyTest {
     @Test fun residentMemoryWaitsAtQuotaWithoutBuyingAnotherRequest() {
         val ctx = context()
         val prefs = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        val daily = ctx.getSharedPreferences("lulu_resident_daily_decisions_v1", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
+        val nativeId = "memory-quota"
         try {
             val at = Instant.parse("2026-11-05T04:00:00Z")
-            val role = "resident:memory-quota"
+            val role = "resident:$nativeId"
             assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 1))
-            assertFalse(residentMemoryBudgetDepleted(ctx, role, at))
+            // No daily plan yet: memory must leave the only paid call for planning.
+            assertTrue(residentMemoryBudgetDepleted(ctx, role, at))
             assertTrue(ResidentDailyPolicy.hasModelRequestAllowance(ctx, role, at))
+            daily.edit().putString("plan:$nativeId",
+                JSONObject().put("date", ResidentDailyDecision.date(at)).toString()).commit()
+            assertFalse(residentMemoryBudgetDepleted(ctx, role, at))
             assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
             assertTrue(residentMemoryBudgetDepleted(ctx, role, at))
             assertEquals(1, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
             assertFalse(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
             // The local deferral is a view on quota, not a new paid claim.
             assertEquals(1, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
-            assertFalse(residentMemoryBudgetDepleted(ctx, role, at.plusSeconds(86400)))
+            val tomorrow = at.plusSeconds(86400)
+            assertTrue(residentMemoryBudgetDepleted(ctx, role, tomorrow))
+            daily.edit().putString("plan:$nativeId",
+                JSONObject().put("date", ResidentDailyDecision.date(tomorrow)).toString()).commit()
+            assertFalse(residentMemoryBudgetDepleted(ctx, role, tomorrow))
             assertFalse(residentMemoryBudgetDepleted(ctx, "protagonist", at))
             assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 0))
-            assertTrue(residentMemoryBudgetDepleted(ctx, role, at.plusSeconds(86400)))
+            assertTrue(residentMemoryBudgetDepleted(ctx, role, tomorrow))
         } finally {
+            daily.edit().remove("plan:$nativeId").commit()
             prefs.edit().clear().commit()
         }
     }
