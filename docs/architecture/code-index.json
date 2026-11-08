@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:47:03.447088+00:00",
-  "commit": "29332d2a660cf0fe7562f32f7cb05f08bab09124",
+  "generatedAt": "2026-11-08T15:49:42.136093+00:00",
+  "commit": "6f46ce1a3e3e55b216a844a999a4508deef2ea43",
   "branch": "main",
-  "sourceFingerprint": "9a5e14856431c33b0ed623524088e18b2de8a7e37aed5482ea8f7443e59fc3b3",
+  "sourceFingerprint": "93b48833015deefd40bd4888042b4ec902ac663914698b14749953f021cc29fc",
   "summary": {
     "files": 1146,
-    "lines": 246402,
-    "symbols": 3379
+    "lines": 246423,
+    "symbols": 3380
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11946,16 +11946,22 @@
         "line": 108
       }
     ],
+    "hasOptionalResidentWakeAllowance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 129
+      }
+    ],
     "hasBackgroundMaintenanceAllowance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 116
+        "line": 141
       }
     ],
     "nextModelBudgetDayStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 126
+        "line": 147
       }
     ],
     "plan": [
@@ -30213,7 +30219,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2377,
-      "sha256": "0ed9375424c1e3e9c680cb59e3e2b0736138a5efdaca3327c625fdd0a8bc6e5e",
+      "sha256": "5104670dbadbc38dba2d5bcf4f8614615d601ca84309b656e5d9e6c41f0d99a9",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -30299,8 +30305,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 147,
-      "sha256": "dc1b7cc06d13b5c2d5a9c5b9b16915f946d337f815ca3199d4b97a01b0d0a7fe",
+      "lines": 168,
+      "sha256": "35c6ce1134658c1de0ea531f0a28edac705e35c10bab878a29b522dffe747bc4",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30359,12 +30365,16 @@
           "line": 108
         },
         {
+          "name": "hasOptionalResidentWakeAllowance",
+          "line": 129
+        },
+        {
           "name": "hasBackgroundMaintenanceAllowance",
-          "line": 116
+          "line": 141
         },
         {
           "name": "nextModelBudgetDayStart",
-          "line": 126
+          "line": 147
         }
       ]
     },
