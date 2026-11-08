@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:04:20.465064+00:00",
-  "commit": "1108cd480c2b19ca685d3dcfa4cb66098aa1b444",
+  "generatedAt": "2026-11-08T16:05:08.200291+00:00",
+  "commit": "4e26b3902d73d99b630d4701f7d339c75f574413",
   "branch": "main",
-  "sourceFingerprint": "97291e0f5e6133b4df2d4f7cde8e4ba9474b26ae8b9c82397dcf71c4bcb4687b",
+  "sourceFingerprint": "38ab070064155b5d12e692eb0439dbec2bcd07def9ca7ff20f377fbd765d13f6",
   "summary": {
-    "files": 1147,
-    "lines": 246588,
-    "symbols": 3383
+    "files": 1148,
+    "lines": 246671,
+    "symbols": 3384
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16304,6 +16304,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt",
         "line": 22
+      }
+    ],
+    "BackgroundModelRequestBudgetTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt",
+        "line": 14
       }
     ],
     "BackgroundPerceptionRecoveryTest": [
@@ -36460,6 +36466,17 @@
         {
           "name": "BackgroundMessageDeliveryTest",
           "line": 22
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt",
+      "lines": 83,
+      "sha256": "71375308b26ac1c49602c029bbae4f0b2b86ffdc2b634b1ad5335bcc1552ba5b",
+      "symbols": [
+        {
+          "name": "BackgroundModelRequestBudgetTest",
+          "line": 14
         }
       ]
     },

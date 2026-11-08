@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1108cd480c2b19ca685d3dcfa4cb66098aa1b444`
+- 基准提交：`4e26b3902d73d99b630d4701f7d339c75f574413`
 - 分支：`main`
-- 已索引文件：1147
-- 已索引代码/文本行：246588
-- 已发现符号：3383
+- 已索引文件：1148
+- 已索引代码/文本行：246671
+- 已发现符号：3384
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -887,6 +887,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousSocialWakeAnchorsTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 146 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 83 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 978 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
