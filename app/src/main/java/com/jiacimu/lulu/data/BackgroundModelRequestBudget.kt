@@ -1,110 +1,75 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import java.security.MessageDigest
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
- * Single paid-request authority for low-priority autonomous maintenance.
+ * Causal idempotence gate for OPTIONAL background model POST attempts.
  *
- * The main character decision, genuine user turn, resident's own planning
- * and appointments are NOT background housekeeping and are never throttled
- * here. A deferred extraction must retain its original source/checkpoint.
- *
- * Limits count HTTP *attempts*, not successful generations: ambiguous timeouts
- * may already be charged by a relay. No user text, prompts, or API keys persist.
+ * This is deliberately NOT a daily user/memory/call quota. Every different
+ * evidence payload remains eligible, including dozens of important owner
+ * requests in one day. Only a near-identical paid request is deferred briefly
+ * after an ambiguous timeout or invalid reply to avoid a provider retry storm.
+ * A successful decision's normal source checkpoint is owned by its caller.
  */
 internal object BackgroundModelRequestBudget {
+    internal const val SAME_EVIDENCE_RETRY_MS = 15L * 60_000L
+    private const val KEEP_ATTEMPTS_MS = 2L * 24L * 60 * 60_000L
     private const val PREFS = "lulu_background_model_requests_v1"
-    internal const val DAILY_TOTAL_LIMIT = 8
-    private const val COUNT = "count:"
-    private const val DAY = "day:"
+    private const val PREFIX = "evidence-attempt:"
 
-    /** Only sources with a durable recovery route or optional semantic
-     * housekeeping belong here. An ordinary chat/phone/world decision does not. */
-    internal fun category(source: String, title: String): String? = when {
-        source == "记忆" && title == "重要信息即时记忆" -> "priority_memory"
-        source == "记忆" && title == "连续记忆提取" -> "batch_memory"
-        source == "生活记录" -> "life_records"
-        source == "承诺任务" -> "commitments"
-        source == "增量成长反思" -> "growth"
-        source == "记忆有效性" -> "supersession"
-        source == "记忆维护" -> "weekly_memory"
-        source == "记忆" && title == "语义召回核验" -> "semantic_check"
-        else -> null
+    private fun optionalSource(source: String, title: String): Boolean =
+        (source == "记忆" && title in setOf("重要信息即时记忆",
+            "连续记忆提取", "语义召回核验")) ||
+        source in setOf("生活记录", "承诺任务", "增量成长反思",
+            "记忆有效性", "记忆维护")
+
+    private fun key(role: String, source: String, title: String,
+        evidence: String): String {
+        val bytes = "$role\u0000$source\u0000$title\u0000$evidence"
+            .toByteArray(Charsets.UTF_8)
+        val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
+        return PREFIX + digest.joinToString("") { "%02x".format(it) }
     }
 
-    internal fun categoryLimit(category: String): Int = when (category) {
-        "priority_memory" -> 3
-        "batch_memory" -> 4
-        "life_records" -> 2
-        "commitments" -> 2
-        "growth" -> 1
-        "supersession" -> 2
-        "weekly_memory" -> 2
-        "semantic_check" -> 2
-        else -> 0
-    }
-
-    private fun localDay(now: Instant): String =
-        now.atZone(ZoneId.systemDefault()).toLocalDate().toString()
-
-    internal fun nextDay(now: Instant): Instant =
-        now.atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1)
-            .atStartOfDay(ZoneId.systemDefault()).toInstant()
-
-    private fun prefs(context: Context) =
-        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-    private fun used(context: Context, role: String, category: String, now: Instant): Int {
-        val storage = prefs(context)
-        val date = localDay(now)
-        if (storage.getString(DAY + role, "") != date) return 0
-        return storage.getInt(COUNT + role + ":" + category, 0).coerceAtLeast(0)
-    }
-
-    @Synchronized
+    /** Legacy source-only preflight cannot distinguish separate user facts.
+     * It must never reject a legitimate new message based on aggregate calls. */
     fun allowed(context: Context, role: String, source: String, title: String,
-        now: Instant = Instant.now()): Boolean {
-        val category = category(source, title) ?: return true
-        if (role.isBlank()) return false
-        val storage = prefs(context)
-        val date = localDay(now)
-        if (storage.getString(DAY + role, "") != date) return true
-        val total = storage.getInt(COUNT + role + ":total", 0).coerceAtLeast(0)
-        return total < DAILY_TOTAL_LIMIT &&
-            used(context, role, category, now) < categoryLimit(category)
-    }
+        now: Instant = Instant.now()): Boolean = true
 
-    /** Atomic claim immediately before the first HTTP handoff. No reset of
-     * pending work or semantic decision is implied if this returns false. */
     @Synchronized
     fun claim(context: Context, role: String, source: String, title: String,
-        now: Instant = Instant.now()): Boolean {
-        val category = category(source, title) ?: return true
-        if (!allowed(context, role, source, title, now)) return false
-        val storage = prefs(context)
-        val date = localDay(now)
-        val freshDay = storage.getString(DAY + role, "") != date
-        val total = if (freshDay) 0 else storage.getInt(COUNT + role + ":total", 0)
-        val categoryCount = if (freshDay) 0 else
-            storage.getInt(COUNT + role + ":" + category, 0)
-        val editor = storage.edit()
-        if (freshDay) {
-            // Last-day counts must not leak into a new day. Store only bounded
-            // category keys, never enumerate user content or conversation IDs.
-            for (old in listOf("priority_memory", "batch_memory", "life_records",
-                "commitments", "growth", "supersession", "weekly_memory", "semantic_check")) {
-                editor.remove(COUNT + role + ":" + old)
+        now: Instant = Instant.now(), evidence: String = ""): Boolean {
+        if (!optionalSource(source, title) || role.isBlank() || evidence.isBlank())
+            return true
+        val preferences = context.applicationContext.getSharedPreferences(
+            PREFS, Context.MODE_PRIVATE)
+        val nowMs = now.toEpochMilli()
+        val k = key(role, source, title, evidence)
+        val last = preferences.getLong(k, 0L)
+        if (last > 0 && nowMs >= last && nowMs - last < SAME_EVIDENCE_RETRY_MS)
+            return false
+        val editor = preferences.edit()
+        val lastCleanup = preferences.getLong("last-evidence-cleanup", 0L)
+        if (lastCleanup <= 0 || nowMs < lastCleanup ||
+            nowMs - lastCleanup > 24L * 60 * 60_000L) {
+            preferences.all.forEach { (savedKey, value) ->
+                if (savedKey.startsWith(PREFIX) && value is Long &&
+                    (value > nowMs || nowMs - value >= KEEP_ATTEMPTS_MS))
+                    editor.remove(savedKey)
             }
+            editor.putLong("last-evidence-cleanup", nowMs)
         }
-        return editor.putString(DAY + role, date)
-            .putInt(COUNT + role + ":total", total + 1)
-            .putInt(COUNT + role + ":" + category, categoryCount + 1)
-            .commit()
+        // Claim BEFORE a possibly billed network handoff, not after success.
+        // No body, prompt text, credential or character identity is persisted.
+        return editor.putLong(k, nowMs).commit()
     }
+
+    fun retryAt(now: Instant = Instant.now()): Instant =
+        now.plusMillis(SAME_EVIDENCE_RETRY_MS)
 }
 
 internal class BackgroundModelBudgetDeferred(val resumeAt: Instant) :
-    IllegalStateException("后台模型额外请求达到当日限额，原始证据与任务保留，下一预算日继续")
+    IllegalStateException(
+        "相同来源的后台模型请求刚刚尝试，暂停重复收费；原始证据与任务仍保留")
