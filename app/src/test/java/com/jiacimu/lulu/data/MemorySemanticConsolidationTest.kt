@@ -25,6 +25,20 @@ class MemorySemanticConsolidationTest {
         assertTrue(windows.all { it.size in 2..70 })
     }
 
+    @Test fun objectiveAndSubjectiveMemoriesAreNeverPlacedInTheSameReviewBatch() {
+        val at = Instant.parse("2026-11-09T08:00:00Z")
+        val objective = com.jiacimu.lulu.core.MemoryEntry("o", "role", "这次说了什么",
+            com.jiacimu.lulu.core.MemoryKind.Timeline, "timeline-events:event", at, at,
+            4, false, true)
+        val subjective = objective.copy(id = "s", content = "我对此很在意",
+            perspective = com.jiacimu.lulu.core.MemoryPerspective.Subjective)
+        assertTrue(MemorySemanticConsolidation.reviewWindows(listOf(objective, subjective)).isEmpty())
+        val secondObjective = objective.copy(id = "o2")
+        val windows = MemorySemanticConsolidation.reviewWindows(listOf(objective, secondObjective, subjective))
+        assertEquals(1, windows.size)
+        assertEquals(setOf("o", "o2"), windows.single().map { it.id }.toSet())
+    }
+
     @Test fun singleRecordNeverCreatesPaidReviewBatch() {
         assertTrue(MemorySemanticConsolidation.overlappingReviewWindows(listOf("only")).isEmpty())
     }
