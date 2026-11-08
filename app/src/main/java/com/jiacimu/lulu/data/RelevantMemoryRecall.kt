@@ -191,7 +191,7 @@ object RelevantMemoryRecall {
                 val hit = graphById[memory.id]
                 MemoryAssociationPolicy.priority(memory,
                     if (directRank != null) 1.0 / (1.0 + directRank * 0.12) else 0.12,
-                    if (hit != null) 0.6 / hit.depth else 0.0, now) +
+                    if (hit != null) MemoryAssociationPolicy.associationWeight(hit) else 0.0, now) +
                     MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence)
             }
         val reasons = ranked.associate { memory -> memory.id to buildString {
