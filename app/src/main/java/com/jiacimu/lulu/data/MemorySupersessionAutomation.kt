@@ -18,6 +18,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Instant
+import java.time.ZoneId
+
+/** Paid validation is low-priority housekeeping: keep a durable per-role daily
+ * ceiling and a per-fact retry delay even when the provider keeps failing. */
+internal fun memorySupersessionAttemptAllowed(
+    usedToday: Int, lastAttemptMillis: Long, nowMillis: Long,
+    dailyLimit: Int = 2, retryDelayMillis: Long = 60L * 60_000L,
+): Boolean = usedToday < dailyLimit &&
+    (lastAttemptMillis <= 0L ||
+        (nowMillis >= lastAttemptMillis && nowMillis - lastAttemptMillis >= retryDelayMillis))
 
 /**
  * Detects explicit corrections/updates between stable Fact memories.
@@ -30,10 +41,14 @@ internal object MemorySupersessionAutomation {
     private const val KEY_BASELINED = "baselined_characters"
     private const val KEY_PROCESSED = "processed_fact_ids"
     private const val MAX_PROCESSED = 2_000
+    // At most two automatic fact-comparison calls per character per local day.
+    // Backlog stays eligible on a future day; there is no retry storm.
+    private const val MAX_AUTO_CHECKS_PER_DAY = 2
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val jobs = mutableMapOf<String, Job>()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private var started = false
     private val inspectionLock = Mutex()
 
@@ -41,6 +56,7 @@ internal object MemorySupersessionAutomation {
     fun initialize(context: Context) {
         if (started) return
         started = true
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         scope.launch {
             while (true) { delay(60_000); runCatching { retryPending() } }
@@ -115,6 +131,28 @@ internal object MemorySupersessionAutomation {
         newFact: MemoryEntry,
         candidates: List<MemoryEntry>,
     ): Boolean {
+        // No memory-specific connection means no paid fact-comparison call.
+        // In particular, null must not silently fall through to the chat model.
+        val extraction = MemoryModelRuntime.extractionConnection() ?: return false
+        val storage = prefs ?: return false
+        val now = Instant.now()
+        val residentContext = appContext
+        if (characterId.startsWith("resident:") && residentContext != null &&
+            residentMemoryBudgetDepleted(residentContext, characterId, now)) return false
+        val today = now.atZone(ZoneId.systemDefault()).toLocalDate().toString()
+        val dayKey = "auto-day:$characterId"
+        val countKey = "auto-count:$characterId"
+        val lastKey = "auto-last:${newFact.id}"
+        val used = if (storage.getString(dayKey, "") == today)
+            storage.getInt(countKey, 0).coerceAtLeast(0) else 0
+        val atMillis = now.toEpochMilli()
+        if (!memorySupersessionAttemptAllowed(
+                used, storage.getLong(lastKey, 0L), atMillis,
+                dailyLimit = MAX_AUTO_CHECKS_PER_DAY)) return false
+        // Claim BEFORE the provider handoff. Even an ambiguous timeout can
+        // have been billed, so it is never safe to try again next minute.
+        if (!storage.edit().putString(dayKey, today)
+                .putInt(countKey, used + 1).putLong(lastKey, atMillis).commit()) return false
         val facts = buildString {
             appendLine("新事实：")
             appendLine("memoryId=${newFact.id}｜${newFact.content}")
@@ -137,7 +175,7 @@ internal object MemorySupersessionAutomation {
             source = "记忆有效性",
             title = "事实替代判断",
             maxTokens = 260,
-            connectionOverride = MemoryModelRuntime.extractionConnection(),
+            connectionOverride = extraction,
             contextMode = CompanionContextMode.Isolated,
         ).getOrNull() ?: return false
         val allowed = candidates.mapTo(mutableSetOf(), MemoryEntry::id)
