@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T15:50:38.408073+00:00",
-  "commit": "95b6b5ae46076010fd20f1d5baf6d927ea7b9501",
+  "generatedAt": "2026-11-08T15:51:20.632748+00:00",
+  "commit": "a8dca60778e753be225d12a7917647f6368f5d88",
   "branch": "main",
-  "sourceFingerprint": "865c065efd3e6a085243366faa21ba2b1affa94dd7d82308e5dc7edebe600d70",
+  "sourceFingerprint": "dfcf0a123a961a3685d9d34a03227caba25e33b0fa28779a038b9269867f0561",
   "summary": {
     "files": 1146,
-    "lines": 246515,
+    "lines": 246546,
     "symbols": 3380
   },
   "symbolIndex": {
@@ -6029,7 +6029,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 463
+        "line": 464
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6207,7 +6207,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1140
+        "line": 1141
       }
     ],
     "DevelopmentKind": [
@@ -9665,55 +9665,55 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 632
+        "line": 633
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 671
+        "line": 672
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 684
+        "line": 685
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 687
+        "line": 688
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 689
+        "line": 690
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 700
+        "line": 701
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 798
+        "line": 799
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1048
+        "line": 1049
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1109
+        "line": 1110
       }
     ],
     "ApiUsageSource": [
@@ -13463,13 +13463,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 832
+        "line": 837
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 969
+        "line": 974
       }
     ],
     "saveTurn": [
@@ -21745,8 +21745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 366,
-      "sha256": "deb9eb577386a74dc706cf4a0d9d9ce4b092ffc6539eb33e47c9e9f13f6a5a8c",
+      "lines": 391,
+      "sha256": "e4e0a8899b64fd43c073ec9e23f11c5fc9bb9213b554c3c943171f91e37e2ed5",
       "symbols": []
     },
     {
@@ -28030,8 +28030,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1177,
-      "sha256": "807a453e7dbb778e798dfcc672a1745f9d05f657f8736f8266e2ab9344b18e43",
+      "lines": 1178,
+      "sha256": "d1b778a9feee156dc95d25dbf7bb88483cf8ed2e8061dbb72ef84cb3451b6424",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -28047,47 +28047,47 @@
         },
         {
           "name": "snapshot",
-          "line": 463
+          "line": 464
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 632
+          "line": 633
         },
         {
           "name": "allowsRawRecall",
-          "line": 671
+          "line": 672
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 684
+          "line": 685
         },
         {
           "name": "pendingMessageCount",
-          "line": 687
+          "line": 688
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 689
+          "line": 690
         },
         {
           "name": "contextTimelineEvents",
-          "line": 700
+          "line": 701
         },
         {
           "name": "refreshInspection",
-          "line": 798
+          "line": 799
         },
         {
           "name": "MemoryDebugState",
-          "line": 1048
+          "line": 1049
         },
         {
           "name": "grams",
-          "line": 1109
+          "line": 1110
         },
         {
           "name": "ids",
-          "line": 1140
+          "line": 1141
         }
       ]
     },
@@ -32341,8 +32341,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1013,
-      "sha256": "be68124e53c4d7bacca51c06b45ca3bceda2d6438dbfebeb0c32bda672003c6a",
+      "lines": 1018,
+      "sha256": "8599b09b741aa0ab6d205e27ffd0210aeeee17d1d7e500254a15eaa57b9503e3",
       "symbols": [
         {
           "name": "playSound",
@@ -32358,11 +32358,11 @@
         },
         {
           "name": "dot",
-          "line": 832
+          "line": 837
         },
         {
           "name": "targetFor",
-          "line": 969
+          "line": 974
         }
       ]
     },
