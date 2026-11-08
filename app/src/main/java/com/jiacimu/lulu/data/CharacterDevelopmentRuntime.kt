@@ -187,6 +187,12 @@ object CharacterDevelopmentRuntime {
             note(characterId, "居民日计划额度优先；成长证据保留待后续整理")
             return
         }
+        val appForBudget = appContext ?: return
+        if (!BackgroundModelRequestBudget.allowed(appForBudget, characterId,
+                "增量成长反思", "角色成长", Instant.ofEpochMilli(now))) {
+            note(characterId, "本日后台成长模型预算已满，原始经历保留")
+            return
+        }
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
