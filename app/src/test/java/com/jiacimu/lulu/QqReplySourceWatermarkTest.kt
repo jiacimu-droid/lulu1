@@ -675,6 +675,61 @@ class QqReplySourceWatermarkTest {
         assertEquals(actual.single().id, replayed.getString("evidenceId"))
     }
 
+    @Test fun completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("群聊回执重建幂等角色").characterId
+        val peer = "$role-replay-peer"
+        MigratedDomainStores.characters.update(
+            com.jiacimu.lulu.data.CharacterSettings(
+                characterId = peer, displayName = "群聊回执重建同伴",
+            ),
+        )
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "群聊回执重建", listOf(role, peer))
+        val source = MigratedDomainStores.chat.sendUserMessage(group.id, "发一条群消息")
+        val requestId = "group-receipt-replay-" + java.util.UUID.randomUUID().toString()
+        val args = JSONObject().put("groupId", group.id)
+            .put("text", "已确认送达的群聊消息")
+            .put("_replyEvidenceIds", JSONArray().put(source.id))
+            .put("_turnTraceId", "before-reopen")
+        val original = JSONObject(ToolRouter.execute(app, role, "send_group_message",
+            args, requestId = requestId))
+        assertTrue(original.toString(), original.optBoolean("success"))
+        val delivered = original.getJSONArray("deliveredMessageIds")
+        assertEquals(1, delivered.length())
+
+        // Reopen the persisted chat backing store, then replay the same
+        // execution request with only a different diagnostic trace.
+        val prefsField = InMemoryLuluChatStore::class.java
+            .getDeclaredField("prefs").apply { isAccessible = true }
+        val savedPrefs = prefsField.get(MigratedDomainStores.chat)
+            as android.content.SharedPreferences
+        val backingContext = object : android.content.ContextWrapper(app) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getSharedPreferences(name: String, mode: Int):
+                android.content.SharedPreferences =
+                if (name == "lulu_chat_store") savedPrefs
+                else app.getSharedPreferences(name, mode)
+        }
+        val reopened = InMemoryLuluChatStore().also { it.initialize(backingContext) }
+        val beforeReplay = reopened.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals(listOf(delivered.getString(0)), beforeReplay.map { it.id })
+
+        val replayed = JSONObject(ToolRouter.execute(app, role, "send_group_message",
+            JSONObject(args.toString()).put("_turnTraceId", "after-reopen"),
+            requestId = requestId))
+        assertEquals(original.toString(), replayed.toString())
+        val persisted = reopened.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        val live = MigratedDomainStores.chat.messages(group.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals(beforeReplay.map { it.id }, persisted.map { it.id })
+        assertEquals(beforeReplay.map { it.content }, persisted.map { it.content })
+        assertEquals(persisted.map { it.id }, live.map { it.id })
+        assertEquals(delivered.getString(0), replayed.getString("evidenceId"))
+    }
+
     @Test fun oldPersistedFingerprintWithTraceIsStillRecognizedAsSameRequest() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val role = MigratedDomainStores.characters.create("旧请求兼容角色").characterId
