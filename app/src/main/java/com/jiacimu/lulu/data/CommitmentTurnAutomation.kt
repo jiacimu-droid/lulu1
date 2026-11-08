@@ -119,9 +119,12 @@ object CommitmentTurnAutomation {
         val changed = CommitmentDecisionRuntime.applyModelRecovery(
             context, characterId, sourceTurnId, evidenceIds, drafts,
         )
-        // Empty extraction is not proof that a spoken commitment was saved.
-        // Preserve the existing bounded recovery opportunity.
-        if (changed.isNotEmpty()) markProcessed(signature)
+        // The focused recovery has already interpreted this *entire* delivered
+        // turn, not only the wake request. Its valid empty result means no
+        // changes, not permission to purchase another identical general scan.
+        // Failed requests throw before reaching this checkpoint.
+        markProcessed(signature)
+        markProcessed("commitment-turn-v2:$sourceTurnId")
         changed.firstOrNull { it.isWakeResponsibility() } ?:
             CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
                 task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
@@ -275,7 +278,19 @@ object CommitmentTurnAutomation {
                     appContext ?: return@forEach, characterId, evidenceIds
                 )) return@forEach
             val signature = "commitment-turn-v2:$sourceTurnId"
-            if (isProcessed(signature) || !permitAttempt(signature, characterId)) return@forEach
+            if (isProcessed(signature)) return@forEach
+            // This is a compatibility RECOVERY route, not the normal way to
+            // understand every delivered reply. The primary role decision
+            // already supplies typed commitmentChanges. Only a plausible
+            // *missed* commitment (including owner correction or a continuing
+            // existing duty) warrants a separate model interpretation.
+            val relevantActive = CommitmentTaskStore.active(characterId).any { task ->
+                task.status.isActive() &&
+                    looksLikeTaskTurn(combinedUserText, characterText)
+            }
+            if (!looksLikeTaskTurn(combinedUserText, characterText) && !relevantActive)
+                return@forEach
+            if (!permitAttempt(signature, characterId)) return@forEach
 
             val active = CommitmentTaskStore.active(characterId)
             val drafts = extractCommitmentTaskDrafts(
