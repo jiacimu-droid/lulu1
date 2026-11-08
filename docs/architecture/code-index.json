@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T17:03:54.209357+00:00",
-  "commit": "60711526cdd0cd9c1081a52a6ca9f53f87e8973e",
+  "generatedAt": "2026-11-08T17:04:21.695100+00:00",
+  "commit": "339fe6ab8791f9ef7199c4b2fb741c595abed449",
   "branch": "main",
-  "sourceFingerprint": "7036f9e074ce9ba58f224c6407432824627c236ab7df360288cb1f2678d37a09",
+  "sourceFingerprint": "86756ff6006986cd63fccaefcd2c7936978d9c7a8c0bb5dd8c148bf868ddd567",
   "summary": {
     "files": 1148,
-    "lines": 247234,
+    "lines": 247313,
     "symbols": 3389
   },
   "symbolIndex": {
@@ -38425,8 +38425,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
-      "lines": 84,
-      "sha256": "9af81c25cd23073913c7f2a8fdbc71d6f1115c9524bb4656646e21077fbdee8f",
+      "lines": 140,
+      "sha256": "4ebe045b4f4346d3585759f5d966d783c79c9c3ad94d075d026e7d99340064dc",
       "symbols": [
         {
           "name": "MemoryRecallIntegrationTest",
@@ -38480,8 +38480,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 488,
-      "sha256": "1c08418c0809d169fb47170cc967a4ad67418d8b4f0692882389305fd2b4c88f",
+      "lines": 511,
+      "sha256": "e37af9ee4228dc2fd8475f4d973d95a057c25b4e4b774e62c09d48d3c0151d2e",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
