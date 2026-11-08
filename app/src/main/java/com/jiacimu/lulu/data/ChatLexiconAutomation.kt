@@ -227,9 +227,24 @@ object ChatLexiconAutomation {
             contextMode = CompanionContextMode.Isolated,
             connectionOverride = MemoryModelRuntime.extractionConnection(),
         )
-        if (result.isFailure) return false
+        if (result.isFailure) {
+            // A provider/network failure is not a semantic "no update".
+            // The original turn remains queued. Record the category without
+            // persisting actual personal conversation or provider credentials.
+            val failure = result.exceptionOrNull()
+            LuluRepositories.performance.recordError(
+                source = "生活记录", title = "独立提取请求失败",
+                message = "类=${failure?.javaClass?.simpleName}; 来源数=${sourceEventIds.size}; 原始证据待恢复")
+            return false
+        }
 
-        val rows = runCatching { decodeMemoryResponseArray(result.getOrThrow().text) }.getOrElse { return false }
+        val rows = runCatching { decodeMemoryResponseArray(result.getOrThrow().text) }
+            .getOrElse { failure ->
+                LuluRepositories.performance.recordError(
+                    source = "生活记录", title = "模型输出格式无效",
+                    message = "类=${failure.javaClass.simpleName}; 返回长度=${result.getOrThrow().text.length}; 证据待重试")
+                return false
+            }
         val allowed = existing.associateBy(LexiconEntry::id)
         val existingKeys = LuluRepositories.lexicon.snapshot(characterId).mapTo(mutableSetOf(), LexiconEntry::automationDedupeKey)
         val liveSources = SharedExperienceTimeline.eventsByIds(characterId, sourceEventIds)
@@ -256,7 +271,13 @@ object ChatLexiconAutomation {
                 )
             } else {
                 if (characterText.isBlank()) continue
-                val parsed = runCatching { parseLexiconEntries(JSONArray().put(item).toString(), characterId) }.getOrElse { return false }
+                val parsed = runCatching { parseLexiconEntries(JSONArray().put(item).toString(), characterId) }
+                    .getOrElse { failure ->
+                        LuluRepositories.performance.recordError(
+                            source = "生活记录", title = "生活记录条目结构不合法",
+                            message = "条目序号=$index; 类=${failure.javaClass.simpleName}; 原始证据保留")
+                        return false
+                    }
                 val new = parsed.singleOrNull()?.takeIf { it.section == LexiconSection.Life } ?: continue
                 if (!existingKeys.add(new.automationDedupeKey())) continue
                 new.copy(sourceEventIds = sourceEventIds)
