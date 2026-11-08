@@ -3065,19 +3065,13 @@ object ProactivePerceptionRuntime {
             // The shared personality protocol can reply with normal chat
             // bubbles even when invoked by the online perception executor.
             // Treat those as actual user-visible content, not Action.SILENT.
-            text = json.optJSONArray("bubbles")?.let { bubbles ->
-                (0 until bubbles.length()).mapNotNull { i ->
-                    (bubbles.optJSONObject(i)?.optString("text")
-                        ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
-                }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
-            }.orEmpty().ifBlank { json.optString("text").trim() },
-            voiceBubbleTexts = json.optJSONArray("bubbles")?.let { bubbles ->
-                (0 until bubbles.length()).mapNotNull { index ->
-                    bubbles.optJSONObject(index)?.takeIf {
-                        it.optString("delivery").equals("voice", true)
-                    }?.optString("text")?.trim()?.takeIf(String::isNotBlank)
-                }
-            }.orEmpty(),
+            // Use the exact same model-authored send boundaries as foreground
+            // chat. An explicit completed-beat newline inside a JSON text
+            // becomes a send pause BEFORE delivery modes/tracks are aligned.
+            text = ModelStructuredOutput.chatMessageBubbles(json)
+                .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
+                .ifBlank { json.optString("text").trim() },
+            voiceBubbleTexts = ModelStructuredOutput.voiceBubbleTexts(json.toString()),
             bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
             bubbleSpeechTracks = ModelStructuredOutput.bubbleSpeechTracks(json),
             reason = json.optString("reason").trim(),
