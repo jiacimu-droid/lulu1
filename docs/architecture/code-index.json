@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-08T16:10:53.530283+00:00",
-  "commit": "7dbbd4c6e1c5bf12c5a50b6659782623aec22f80",
+  "generatedAt": "2026-11-08T16:11:18.753330+00:00",
+  "commit": "a94b5438f26464fc1231baf812e9132242ac54b5",
   "branch": "main",
-  "sourceFingerprint": "5e2a421c309da8da624ba3af27065999a4bda43f297a37474a0265d9d24c08bc",
+  "sourceFingerprint": "2f935aee5ee1383049186474922cdd05bb2ba5d094b60482cc59dc0ed407d530",
   "summary": {
     "files": 1148,
-    "lines": 246713,
+    "lines": 246751,
     "symbols": 3384
   },
   "symbolIndex": {
@@ -11975,13 +11975,13 @@
     "hasBackgroundMaintenanceAllowance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 141
+        "line": 143
       }
     ],
     "nextModelBudgetDayStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "plan": [
@@ -30344,8 +30344,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 168,
-      "sha256": "35c6ce1134658c1de0ea531f0a28edac705e35c10bab878a29b522dffe747bc4",
+      "lines": 170,
+      "sha256": "679bcdc356ecaf0592a30708cc765607533bdf6232f9a52bee5fbafd5092ac6b",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30409,11 +30409,11 @@
         },
         {
           "name": "hasBackgroundMaintenanceAllowance",
-          "line": 141
+          "line": 143
         },
         {
           "name": "nextModelBudgetDayStart",
-          "line": 147
+          "line": 149
         }
       ]
     },
@@ -38217,8 +38217,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt",
-      "lines": 64,
-      "sha256": "17a53441a057bb50ae019fad3f43ea0d74cbc42028220d11f756952285efa5ce",
+      "lines": 89,
+      "sha256": "5ba51014f48385f64e4c5c150d3704b6b6f44bb6a4d31290baeb8d9283207440",
       "symbols": [
         {
           "name": "MemoryContextPolicyTest",
@@ -39086,8 +39086,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 264,
-      "sha256": "dcfa3263e4a8642563634dcf353f1e8246c50929908415e507a27d7603022ec5",
+      "lines": 275,
+      "sha256": "c9daa70a81733b864ec501108b9408b9416b660c438371a96ca984c86577e3e3",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
