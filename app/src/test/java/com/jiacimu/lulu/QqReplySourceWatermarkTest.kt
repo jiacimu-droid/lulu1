@@ -249,7 +249,14 @@ class QqReplySourceWatermarkTest {
     @Test fun groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val role = MigratedDomainStores.characters.create("群聊部分送达角色").characterId
-        val peer = MigratedDomainStores.characters.create("群聊部分送达同伴").characterId
+        // Use an explicit distinct member ID: Robolectric can return the same UUID for
+        // two adjacent character creations, which invalidates the group fixture.
+        val peer = "$role-group-peer"
+        MigratedDomainStores.characters.update(
+            com.jiacimu.lulu.data.CharacterSettings(
+                characterId = peer, displayName = "群聊部分送达同伴",
+            ),
+        )
         val group = MigratedDomainStores.chat.createGroupConversation("群聊部分送达", listOf(role, peer))
         val source = MigratedDomainStores.chat.sendUserMessage(group.id, "先说说你的想法")
         val args = JSONObject().put("groupId", group.id)
