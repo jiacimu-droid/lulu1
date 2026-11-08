@@ -134,7 +134,7 @@ object ChatLexiconAutomation {
                 lock.withLock {
                     if (isProcessed(signature)) return@withLock
                     rememberPending(LexiconPendingTurn(signature, conversation.id, userMessage.id, characterId, false))
-                    if (!permitAttempt(signature)) return@withLock
+                    if (!permitAttempt(signature, characterId)) return@withLock
                     val saved = extractAndSave(
                         characterId = characterId,
                         userText = userMessage.content,
@@ -163,7 +163,7 @@ object ChatLexiconAutomation {
             lock.withLock {
                 val sourceId = if (conversation.groupChat == null) message.id else "${message.id}:group:$characterId"
                 rememberPending(LexiconPendingTurn(signature, conversation.id, message.id, characterId, true))
-                if (!permitAttempt(signature)) return@withLock
+                if (!permitAttempt(signature, characterId)) return@withLock
                 if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
                     markProcessed(signature)
                 } else schedulePromptRetry(signature)
@@ -319,7 +319,7 @@ object ChatLexiconAutomation {
                 characterLocks.getOrPut(pending.characterId) { Mutex() }
             }
             lock.withLock {
-                if (isProcessed(pending.signature) || !permitAttempt(pending.signature)) return@withLock
+                if (isProcessed(pending.signature) || !permitAttempt(pending.signature, pending.characterId)) return@withLock
                 val saved = extractAndSave(
                     characterId = pending.characterId,
                     userText = user.content,
@@ -403,8 +403,13 @@ object ChatLexiconAutomation {
         }
     }
 
-    private fun permitAttempt(signature: String): Boolean {
+    private fun permitAttempt(signature: String, characterId: String): Boolean {
         val p = prefs ?: return false
+        val app = appContext ?: return false
+        // Do not count a locally budget-deferred extraction as one of this
+        // source turn's five paid attempts. Keep the persisted pending turn.
+        if (!BackgroundModelRequestBudget.allowed(app, characterId, "生活记录", "生活近况提取"))
+            return false
         val key = "attempt:${signature.hashCode()}"
         val last = p.getLong("$key:at", 0L)
         val count = p.getInt("$key:count", 0)
