@@ -25,6 +25,9 @@ class ChatLexiconRetryPolicyTest {
         assertTrue(lifeTurnNeedsExtraction("我最近有新计划", "那就按照计划来", hasActiveLife = false))
         assertTrue(lifeTurnNeedsExtraction("先说一件事\n我今天起得早", "听到了", hasActiveLife = false))
         assertFalse(lifeTurnNeedsExtraction("嗨", "你好", hasActiveLife = true))
+        // The role's own "我今天..." must not create a paid user-life
+        // extraction just because the speaker used first-person language.
+        assertFalse(lifeTurnNeedsExtraction("嗨", "我今天读了书", hasActiveLife = false))
     }
 
     @Test fun plainResolutionTurnCanBeCoalescedWithDeliveredChat() {

@@ -472,7 +472,7 @@ internal fun looksLikeImmediateLifeUpdate(text: String): Boolean =
  * A short resolution statement still updates an ACTIVE life record. */
 internal fun lifeTurnNeedsExtraction(
     userText: String, roleText: String, hasActiveLife: Boolean,
-): Boolean = looksLikeLexiconCandidate("$userText\n$roleText") ||
+): Boolean = looksLikeLexiconCandidate(userText) ||
     (hasActiveLife && looksLikeImmediateLifeUpdate(userText))
 
 internal fun looksLikeLexiconCandidate(text: String): Boolean {
