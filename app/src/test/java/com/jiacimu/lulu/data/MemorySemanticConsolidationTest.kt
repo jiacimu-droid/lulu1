@@ -71,6 +71,19 @@ class MemorySemanticConsolidationTest {
         assertNotEquals(MemoryReviewPhase.Completed, restored.phase)
     }
 
+    @Test fun dailyMaintenanceStatusOnlyReportsPersistedSuccess() {
+        val context = RuntimeEnvironment.getApplication()
+        MemorySemanticConsolidation.initialize(context)
+        val role = "daily-status-" + UUID.randomUUID()
+        val prefs = context.getSharedPreferences("lulu_memory_maintenance_schedule_v1", Context.MODE_PRIVATE)
+        assertEquals(null, MemorySemanticConsolidation.lastDailyMaintenanceAt(role))
+        val finishedAt = Instant.parse("2026-11-08T03:00:00Z")
+        prefs.edit().putString("daily:$role", finishedAt.toString()).commit()
+        assertEquals(finishedAt, MemorySemanticConsolidation.lastDailyMaintenanceAt(role))
+        prefs.edit().putString("daily:$role", "broken").commit()
+        assertEquals(null, MemorySemanticConsolidation.lastDailyMaintenanceAt(role))
+    }
+
     @Test fun semanticAliasDoesNotBecomeHistoricalFactCorrection() {
         MemoryValidityStore.initialize(org.robolectric.RuntimeEnvironment.getApplication())
         val oldId = "test-equivalent-old"
