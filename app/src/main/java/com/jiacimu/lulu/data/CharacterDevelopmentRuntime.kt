@@ -174,10 +174,23 @@ object CharacterDevelopmentRuntime {
             return
         }
         val fingerprint = persona + "\n" + events.joinToString("|") { "${it.id}:${it.revision}" }
-        if (fingerprint == p.getString("batch:$characterId", "")) {
+        val lastReviewed = p.getString("batch:$characterId", "").orEmpty()
+        if (fingerprint == lastReviewed) {
             DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
             note(characterId, "暂无新经历")
             return
+        }
+        // The normal character turn has already interpreted each individual
+        // message. Long-term trait formation needs a meaningful NEW group of
+        // experiences, not another model request after every single chat.
+        // This is a batch threshold, never a daily quota: all evidence remains.
+        if (lastReviewed.isNotBlank()) {
+            val seen = lastReviewed.substringAfter('\n', "").split('|').toSet()
+            val newEvidence = events.count { "${it.id}:${it.revision}" !in seen }
+            if (newEvidence < 6) {
+                note(characterId, "已累积 $newEvidence 项新经历，待合并更多真实经历再做成长反思")
+                return
+            }
         }
         // Resident learning is optional paid housekeeping; it must not take
         // the first call reserved for the native citizen's own daily plan.
@@ -185,12 +198,6 @@ object CharacterDevelopmentRuntime {
                 residentMemoryBudgetDepleted(it, characterId, Instant.ofEpochMilli(now))
             } != false) {
             note(characterId, "居民日计划额度优先；成长证据保留待后续整理")
-            return
-        }
-        val appForBudget = appContext ?: return
-        if (!BackgroundModelRequestBudget.allowed(appForBudget, characterId,
-                "增量成长反思", "角色成长", Instant.ofEpochMilli(now))) {
-            note(characterId, "本日后台成长模型预算已满，原始经历保留")
             return
         }
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
