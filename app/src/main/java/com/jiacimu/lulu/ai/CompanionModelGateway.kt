@@ -3,6 +3,8 @@ package com.jiacimu.lulu.ai
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.ResidentDailyPolicy
+import com.jiacimu.lulu.data.BackgroundModelRequestBudget
+import com.jiacimu.lulu.data.BackgroundModelBudgetDeferred
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldStore
 import com.jiacimu.lulu.data.DigitalWorldLifeEventStore
@@ -848,6 +850,11 @@ class CompanionModelGateway(
             // validation. A local failure cannot consume a paid-call allowance.
             // The atomic owner-controlled claim remains mandatory.
             if (characterId.startsWith("resident:") &&
+                !ResidentDailyPolicy.hasModelRequestAllowance(connectionStore.appContext, characterId))
+                error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
+            if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId, source, title))
+                throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.nextDay(java.time.Instant.now()))
+            if (characterId.startsWith("resident:") &&
                 !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
                 error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
             LuluRepositories.performance.recordModelHandoff(source, connection.model)
@@ -885,6 +892,10 @@ class CompanionModelGateway(
                     "Relay 请求体内存保护（HTTP 503）· 已保留未读消息，正以精简的同一角色上下文重试" +
                         "（约${originalBytes / 1024}KB → ${reducedBytes / 1024}KB）")
                 sentReduced = true
+                // A 503 fallback is another real HTTP attempt and consumes
+                // one additional optional background-request allowance.
+                if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId, source, title))
+                    throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.nextDay(java.time.Instant.now()))
                 LuluRepositories.performance.recordModelHandoff(source, connection.model)
                 openAiCompatible(
                     connection = connection,
