@@ -23,6 +23,23 @@ internal fun selectMemoryWithinBudget(
 internal fun shouldFlushMemoryTail(lastEventAt: Instant?, now: Instant = Instant.now()): Boolean =
     lastEventAt != null && Duration.between(lastEventAt, now).seconds >= 600
 
+/** Preserve quick extraction for user's own words and actual action outcomes.
+ * Routine character-only chatter/inner-life snapshots can accumulate into the
+ * existing batch for one hour before a partial paid request. No raw record is
+ * lost; full batches and explicit remember requests are unchanged. */
+internal fun shouldFlushPendingMemoryTail(
+    events: List<SharedTimelineEvent>, processedIds: Set<String>,
+    now: Instant = Instant.now(),
+): Boolean {
+    val pending = events.filterNot { it.id in processedIds }
+    if (pending.isEmpty()) return false
+    val fast = pending.any { it.isUserMemoryStatement() ||
+        it.evidenceKind == EventEvidenceKind.ToolResult }
+    val seconds = if (fast) 600L else 3_600L
+    val lastEventAt = events.lastOrNull()?.occurredAt ?: return false
+    return !lastEventAt.isAfter(now) && Duration.between(lastEventAt, now).seconds >= seconds
+}
+
 /**
  * Generic tastes are remembered by the normal coalesced extractor, not a second
  * paid "urgent memory" call followed by the very same batch extractor.
