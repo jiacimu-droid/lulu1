@@ -110,6 +110,33 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun sceneRhythmIsNotInjectedTwiceInTheActualExpressionRequest() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = MigratedDomainStores.characters.create("自然打字节拍", "有自己的说话习惯")
+        val scene = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"{\"action\":\"reply\",\"bubbles\":[{\"text\":\"收到\"},{\"text\":\"我看见了\"}]}"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            LuluAiServices.gateway.generate(role.characterId,
+                facts = "用户说刚在做题，已经由人物决定接话",
+                instruction = scene, source = "聊天表达渲染", title = "私聊表达节拍回归",
+                connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test"),
+                contextMode = CompanionContextMode.CharacterAndScenario).getOrThrow()
+            val wire = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val system = wire.getJSONArray("messages").getJSONObject(0).getString("content")
+            assertEquals("Exactly one authored turn-taking contract in the actual model request",
+                1, system.split(CharacterExpressionGuide.casualChatRhythm).size - 1)
+            assertTrue(system.contains(CharacterExpressionGuide.livingLanguagePrinciples))
+            assertTrue(system.contains("本人已设定、平时自然使用的语言习惯").not() ||
+                system.contains("自然说出口"))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun nativeDecisionsAndRenderingKeepRelationshipsSeparateWhileCrossWorldKeepsOnlyPersona() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
