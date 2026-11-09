@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.games
 
+import android.content.Context
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -9,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -48,6 +51,15 @@ internal fun RelicEscapeLobby(
     onSellLoot:(String)->Unit,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    // Use the same avatar profile as chat and Moments rather than a placeholder pawn.
+    val context=LocalContext.current
+    val playerProfile=remember(context) {
+        context.getSharedPreferences("lulu_user_profile",Context.MODE_PRIVATE)
+    }
+    val playerAvatarUri=remember(playerProfile) { playerProfile.getString("avatar_uri",null) }
+    val playerAvatarText=remember(playerProfile) {
+        playerProfile.getString("avatar_text","我").orEmpty().ifBlank{"我"}.take(2)
+    }
     val live=snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
@@ -91,7 +103,7 @@ internal fun RelicEscapeLobby(
                         verticalAlignment=Alignment.CenterVertically,
                         horizontalArrangement=Arrangement.spacedBy(15.dp)) {
                         Column(horizontalAlignment=Alignment.CenterHorizontally) {
-                            GameCharacterPawn(avatarUri=null,fallback="你",moving=false,facingX=1f,
+                            GameCharacterPawn(avatarUri=playerAvatarUri,fallback=playerAvatarText,moving=false,facingX=1f,
                                 player=true,coat=Color(0xFF5E7D91))
                             Text("你 · 队长",color=campGold,fontSize=11.sp,fontWeight=FontWeight.Bold)
                         }
