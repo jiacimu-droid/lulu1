@@ -242,6 +242,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
     val workbenchNear = workbench != null &&
         abs(world.x - workbench.key % world.width) + abs(world.y - workbench.key / world.width) <= 2
+    val campRestAvailable = islandCampRestAvailable(island)
     // Later collection objectives are derived from the saved island, not reset by closing UI.
     val survivalGoal = IslandMilestones.next(island)
 
@@ -296,12 +297,15 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             // Workbench interaction should remain discoverable near resources.
             val workstationAction = workbenchNear && center?.action !in setOf(
                 "fight", "revive", "tame", "care", "salvage", "gather", "fish")
+            val restingAction = campRestAvailable && !workstationAction && center == null
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
                 interactLabel = if (buildMode != null) "确认建造" else
-                    if (workstationAction) "使用工作台制作" else center?.label ?: "附近互动",
+                    if (workstationAction) "使用工作台制作"
+                    else if (restingAction) "在营地休息"
+                    else center?.label ?: "附近互动",
                 interactEnabled = if (buildMode != null) buildReady
-                    else center != null || workbenchNear,
+                    else center != null || workbenchNear || restingAction,
                 onHoldChange = { joystickHeld = it },
                 onInteract = {
                     when {
@@ -310,6 +314,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         workstationAction -> {
                             workbenchOpen = true
                         }
+                        restingAction -> perform("rest", world.x, world.y)
                         center != null -> perform(center.action, center.x, center.y)
                     }
                 }) { dx, dy ->
@@ -405,8 +410,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         actions = {
-            val mainAction = nearbyRescue ?: nearbyPrimary ?: if(island.fruit>0 && (world.hp<12 || island.hunger<8))
-                IslandNearbyAction("eat","吃野果",world.x,world.y) else null
+            val mainAction = nearbyRescue ?: nearbyPrimary
+                ?: if (campRestAvailable) IslandNearbyAction("rest", "在营地休息", world.x, world.y)
+                else if (island.fruit > 0 && (world.hp < 12 || island.hunger < 8))
+                    IslandNearbyAction("eat", "吃野果", world.x, world.y)
+                else null
             Button(onClick = {
                 if(navigateTo!=null) navigateTo=null
                 else if(buildMode!=null) {
