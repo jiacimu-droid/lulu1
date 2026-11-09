@@ -151,7 +151,7 @@ class ModelVisibleOutputTest {
                     )
                     val result = gateway.generate(
                         resident, "", "respond once", "后台主动感知", "test",
-                        contextMode = CompanionContextMode.Isolated,
+                        contextMode = CompanionContextMode.Full,
                         connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
                         conversation = history,
                     )
