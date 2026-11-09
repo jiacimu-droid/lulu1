@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`93e21743e3107293b85df77ae68efacae67a8ef3`
+- 基准提交：`bac172411f948fc2eaac3c3395a47483895fd3db`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：247893
-- 已发现符号：3394
+- 已索引代码/文本行：247913
+- 已发现符号：3395
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -686,14 +686,14 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 139 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 19 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 23 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 40 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 176 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 257 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 400 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 192 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 591 | 25 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 862 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 865 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 117 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 126 | 0 |
@@ -1124,7 +1124,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 178 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 521 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
