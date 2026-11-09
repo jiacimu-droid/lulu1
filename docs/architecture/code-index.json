@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T16:45:51.267986+00:00",
-  "commit": "8a3446d0d82cc734d26a30db13d1bca80610c441",
+  "generatedAt": "2026-11-09T16:53:32.794857+00:00",
+  "commit": "c757e498cc3e046fb0fac8301e005ae32598d128",
   "branch": "main",
-  "sourceFingerprint": "6e4ba1575bb6ca07d194c643c9087d02b535785683ac86a510a050896bcd96f7",
+  "sourceFingerprint": "7ea98cc4f0292e47cc72b8b5fbeb263f085aa9b56661060637db76de1206aa32",
   "summary": {
     "files": 1162,
-    "lines": 250357,
-    "symbols": 3413
+    "lines": 250373,
+    "symbols": 3414
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14260,10 +14260,16 @@
         "line": 18
       }
     ],
+    "afterWorldTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 22
+      }
+    ],
     "nextAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
-        "line": 20
+        "line": 24
       }
     ],
     "isCurrentOpening": [
@@ -33554,8 +33560,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
-      "lines": 23,
-      "sha256": "233d94de38a9841bcbac33771c194ed48f1859b69c54925ca74e37f0dc86f28b",
+      "lines": 27,
+      "sha256": "2e64811de87079619aaf5f55fb03308dc0f55e41f8145a27a8c018e2a8bbabcb",
       "symbols": [
         {
           "name": "committed",
@@ -33570,8 +33576,12 @@
           "line": 18
         },
         {
+          "name": "afterWorldTurn",
+          "line": 22
+        },
+        {
           "name": "nextAction",
-          "line": 20
+          "line": 24
         }
       ]
     },
@@ -33797,8 +33807,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 971,
-      "sha256": "59d5fc22276e27af4e629f2e3f8b725b8ec4b38e4ead4ed2d184fd45ce8fb8b6",
+      "lines": 972,
+      "sha256": "651e36abbeb85f58d33b7e4070c918a6274207ebaee92bcbed7ba77a8c576e23",
       "symbols": [
         {
           "name": "change",
@@ -40251,8 +40261,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
-      "lines": 70,
-      "sha256": "fb3ab99a5b660ae2cfe146cf591aa518d351334164a7feb29cd93fcc81b68faa",
+      "lines": 81,
+      "sha256": "6d2bcf6e34717eedf5a5994d7b7b56b020933ee77963260d3497adbba65266e3",
       "symbols": [
         {
           "name": "RelicChestHudStateTest",
