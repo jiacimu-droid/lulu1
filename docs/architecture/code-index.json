@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:18:34.745151+00:00",
-  "commit": "a4c3b3ebfdbf3d4e46d06bd583899f056ce8c86c",
+  "generatedAt": "2026-11-09T01:19:07.402379+00:00",
+  "commit": "7f6e8c6ddba3197e499d88a0a09e9d6f86b91da6",
   "branch": "main",
-  "sourceFingerprint": "9aee8bbb843c7ae2ab2e240f01b2278554c9c26b967edd2e82b52d82dc51936a",
+  "sourceFingerprint": "bb796066e40a1c539f4e81a4aa03d2cf3e1faec2208b1bce53a5e3687ffa008e",
   "summary": {
     "files": 1150,
-    "lines": 247988,
+    "lines": 247994,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -38504,8 +38504,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
-      "lines": 153,
-      "sha256": "1b56af7aa4d1f8c949ba8012efda54f82c4c440e3c2b4802237feca43c253708",
+      "lines": 159,
+      "sha256": "d0edb729d0eb0b4082e199a733780a19b4d4208409091b1a20579f412d7e92a4",
       "symbols": [
         {
           "name": "MemoryRecallIntegrationTest",
