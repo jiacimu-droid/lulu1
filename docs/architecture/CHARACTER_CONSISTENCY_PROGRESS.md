@@ -1633,3 +1633,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 测试提交 [ed111f4](https://github.com/jiacimu-droid/lulu1/commit/ed111f4f2191dddb12719e6c9f65b49e07e3c263)：`AutonomousActionBoundaryIntegrationTest.newerUserBubbleDefersOnlyUnstartedActionsAndReplayDoesNotDuplicateDeliveredSteps` 使用正式 `OrderedCharacterActions.execute` 与 `ToolRouter`，第一步真实发布动态后由 `shouldDeferRemaining` 模拟收到更新用户气泡，第二步必须暂缓、无工具回执；由调用方明确恢复同 requestId 后，已送达第一步不得重复，第二步真实执行且两条独立回执可查询。该恢复调用是测试显式模拟，不等于运行时会自动重放旧轮。
 - 本轮生产代码未改，测试未本地执行；`ed111f4` 的 main push APK/JVM、Refresh code index 尚未取得 head SHA 成功证据，不能勾工程验收。连接器 commit workflow 仅 PR 触发筛选，容器访问 GitHub DNS 失败；此前 `06c5271` 的 JVM/APK 也尚未得到可信通过证据。
 - **下一固定 P-08a.1g.3**：先核 `ed111f4` 的 main push APK/JVM 与 Refresh code index，失败修首错；通过后检查正式 `ProactivePerceptionRuntime` 如何将新用户输入打断与下轮重新决策衔接，避免把测试显式重放当作产品自动行为。真机/真实模型待验；不新增收费调用或修改人设。
+
+## 2026-11-10 · P-08a.1g.3 新输入触发的新决策与旧动作隔离
+
+- 旧 ed111f4 对应 APK/JVM #42657981675 和索引 #42657981490 均 completed/success；旧 06c5271 对应 #42647784263/#42647784174 也 success，已排除前轮“CI 未知”的阻碍。
+- 新增 [f5307df](https://github.com/jiacimu-droid/lulu1/commit/f5307dfe1fb323a827f884b5a9e370d5cac09710)：在 AutonomousActionBoundaryIntegrationTest 中模拟真实聊天新消息、旧轮第一动作送达/第二动作暂缓、不同 requestId 的新决定执行，验证旧未执行动作不会被自动重放、已完成旧回执仍在、新动作重放幂等。没有更改生产代码、人设、额度或模型调用。
+- 本测试只证明执行器和 Store 的显式新决定路径；不证明 ProactivePerceptionRuntime 自动启动新轮或真实模型语义决定。f5307df 对应 APK/JVM 与 Refresh code index 尚待验，真机、跨进程、账单亦未验。下一轮固定 P-08a.1g.3：先核本 SHA 的 CI 首错，随后从 ProactivePerceptionRuntime 新消息批次调度入口补真正下一轮衔接测试，或转 P-08c.2。
