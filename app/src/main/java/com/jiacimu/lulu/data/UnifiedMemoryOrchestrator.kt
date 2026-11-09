@@ -139,6 +139,7 @@ object UnifiedMemoryOrchestrator {
         recentCharacterBudget: Int = 7_000,
         memoryCharacterBudget: Int = 9_000,
         localOnly: Boolean = false,
+        paidRanking: Boolean = true,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
         val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
@@ -153,7 +154,7 @@ object UnifiedMemoryOrchestrator {
         val query = request.retrievalQuery()
         val core = CoreMemoryDelivery.active(characterId)
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
-        val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly)
+        val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly, paidRanking = paidRanking)
         val recalled = recall.memories
             .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory -> memoryHasLiveSources(memory, characterId) }
