@@ -46,12 +46,18 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val candidates = characters.values.sortedBy { it.displayName }
-    var selected by rememberSaveable { mutableStateOf(emptyList<String>()) }
-    var choosing by rememberSaveable { mutableStateOf(false) }
-    val existingIsland = remember(context) {
-        context.getSharedPreferences("lulu_block_island_v2", 0)
-            .getString("world", "").orEmpty().isNotBlank()
+    val savedIsland = remember(context) {
+        BlockIslandState.fromJson(
+            context.getSharedPreferences("lulu_block_island_v2", 0)
+                .getString("world", "").orEmpty()
+        )
     }
+    // Returning to a saved home should not silently dismiss its previous companions.
+    var selected by rememberSaveable {
+        mutableStateOf(savedIsland?.world?.friends?.map { it.id } ?: emptyList())
+    }
+    var choosing by rememberSaveable { mutableStateOf(false) }
+    val existingIsland = savedIsland != null
     val mint = Color(0xFFB7F2CE)
     val dim = Color(0xFFB6CDBF)
     val panel = Color(0xED183C3E)
@@ -129,7 +135,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         Text("＋ 邀请", color = mint)
                     }
                 }
-                Text("可独自玩，也可选择最多3位角色一起进入。角色在队伍频道中自主决定说什么、做什么。",
+                Text("可独自玩，也可选择最多3位角色一起进入。游戏中点队伍栏🎙说话，点🔊开启角色有声回应；角色会根据局势选择自己的行动。",
                     color = dim, fontSize = 11.sp, lineHeight = 16.sp)
                 if (choosing) {
                     if (candidates.isEmpty()) {
