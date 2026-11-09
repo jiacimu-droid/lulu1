@@ -153,6 +153,47 @@ class MemoryExtractionCheckpointTest {
         assertTrue(MemoryExtractionJobStore.pending().isEmpty())
     }
 
+    @Test fun realDrainNetworkFailureRetainsNewEvidenceAndWaitsThroughRestart() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "memory:drain-network-failure"
+        val first = MemoryExtractionJobStore.enqueue(role, sourceReplyId = "before-network")
+        var attempts = 0
+        ChatMemoryAutomation.drain(
+            role,
+            autoSummarize = { true },
+            summarize = {
+                attempts++
+                MemoryExtractionJobStore.enqueue(role, sourceReplyId = "during-network")
+                throw java.io.IOException("ambiguous relay disconnect")
+            },
+        )
+        val failed = MemoryExtractionJobStore.pending().single()
+        assertEquals(1, attempts)
+        assertEquals(first.id, failed.id)
+        assertEquals(2L, failed.revision)
+        assertEquals("during-network", failed.sourceReplyId)
+        assertEquals(1, failed.attempts)
+        val retryAt = failed.updatedAt.plusSeconds(15L * 60)
+
+        MemoryTestEnvironment.release()
+        MemoryExtractionJobStore.initialize(context)
+        ChatMemoryAutomation.drain(
+            role, autoSummarize = { true },
+            summarize = { attempts++ },
+            now = { retryAt.minusNanos(1) },
+        )
+        assertEquals("An ambiguous HTTP failure must not buy an immediate repeat", 1, attempts)
+        assertEquals("during-network", MemoryExtractionJobStore.pending().single().sourceReplyId)
+
+        ChatMemoryAutomation.drain(
+            role, autoSummarize = { true },
+            summarize = { attempts++ },
+            now = { retryAt },
+        )
+        assertEquals(2, attempts)
+        assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+    }
+
     @Test fun dirtyRoleSurvivesSourceDeletionAndRestartWithBackoff() {
         val context = RuntimeEnvironment.getApplication() as Context
         MemoryExtractionJobStore.enqueue("role", sourceReplyId = "older")
