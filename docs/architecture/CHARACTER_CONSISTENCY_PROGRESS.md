@@ -2,6 +2,14 @@
 
 完整跨窗口体验路线与优先级见 [LULU_EXPERIENCE_ROADMAP.md](LULU_EXPERIENCE_ROADMAP.md)：人物活人感第一，角色社交第二，再推进游戏与视频。本文件记录人物专项的真实证据与待验状态。
 
+
+## 2026-11-09 S-02.1 物理回退 POST 的居民额度归属
+
+- **确证根因**：网关首个模型 POST 已领取居民每日额度；流式协议拒绝后的第二次非流式 POST 在 `f432110` 仅补了请求尝试统计，未再领取额度；同一网关的 503 负载保护回退也存在相同漏领。居民每日硬上限可能被单次 `generate` 的多次物理 POST 绕过。
+- **正式修复**：[`23aa1c9`](https://github.com/jiacimu-droid/lulu1/commit/23aa1c9104b84957db22d5f740b358996f161a42) 为流式回退引入仅在真正再次发送前触发的额度领取回调，503 第二次 POST 同样领取居民额度；不足时拒绝第二次发送，不替角色增加总预算，不修改人物内容或既有第一请求。
+- **测试**：[`8244036`](https://github.com/jiacimu-droid/lulu1/commit/8244036ea58d2750a3b4a5d2b6ee24522551ebaf) 的 `ResidentDailyPolicyTest.oneResidentCannotSpendAnUnclaimedFallbackRequest` 检验额度 1 的第一次成功领取与第二次拒绝。此测试未走真实网关网络链，不能声称已证明 MockWebServer 实际 POST 次数。
+- **验收**：源码已提交，未取得新 head SHA 的 APK/JVM、Refresh code index 或真机证据。GitHub REST Actions 在本轮不可访问，GitHub 连接的 commit runs 仅查 PR，不能凭空列表推断成功。下轮 S-02.1 先核 CI，补真实网关 MockWebServer 流式协议拒绝后额度 1/2 的 POST 数、无额拒绝、回执归属；进一步核 BackgroundModelRequestBudget 与居民额度协调。请求尝试、成功生成、实际服务商计费独立，400 次旧账仍无法准确分摊。
+
 ## 当前整链状态（2026-11-03；历史轮次详见后文）
 
 | 环节 | 当前权威入口与已修边界 | 验证/真实缺口 |
