@@ -100,7 +100,11 @@ object ChatLexiconAutomation {
         // Character messages arrive in paced bubbles. Starting extraction
         // during delivery caused a fresh charge for every interim bubble.
         while (ChatGenerationActivity.isRunning(conversation.id) ||
-            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) {
+            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running ||
+            OnlineChatBatchStore.isReadingRole(conversation.characterId)) {
+            // The paid primary decision can still be committing its lifeChanges
+            // AFTER the first visible speech bubble. Waiting for the batch to
+            // finish is a local check (zero API), unlike a racing extraction.
             delay(750L)
         }
         delay(1_200L)
