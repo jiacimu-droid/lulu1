@@ -52,6 +52,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var lobbyOpen by rememberSaveable { mutableStateOf(true) }
     var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
+    var startingWeapon by rememberSaveable { mutableStateOf("blade") }
     var invitingId by remember { mutableStateOf<String?>(null) }
     var invitationStatus by remember { mutableStateOf("") }
     val invitationScope=rememberCoroutineScope()
@@ -134,7 +135,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         RelicEscapeLobby(
             snapshot=snapshot, accepted=acceptedInvites, inviting=invitingId,
             inviteStatus=invitationStatus,error=error,kits=kits,difficulty=difficulty,
-            onKits={kits=it},onDifficulty={difficulty=it},
+            startingWeapon=startingWeapon,
+            onKits={kits=it},onDifficulty={difficulty=it},onStartingWeapon={startingWeapon=it},
             onInvite={ id ->
                 if(invitingId==null && id !in acceptedInvites && acceptedInvites.size<3) {
                     invitingId=id
@@ -162,7 +164,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             onRemove={id->acceptedInvites=acceptedInvites.filterNot{it==id}},
             onStart={
                 store.selectCharacters(acceptedInvites)
-                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty) }) {
+                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon) }) {
                     if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) lobbyOpen=false
                 }
             },
@@ -173,6 +175,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             },
             onBuyKit={change{ledger.buyKit()}},
             onUpgradeWeapon={change{ledger.upgradeWeapon()}},
+            onBuyBow={change{ledger.buyBow()}},
             onUpgradeSatchel={change{ledger.upgradeSatchel()}},
             onSellLoot={id->change{ledger.sellLoot(id)}},
         )
@@ -840,7 +843,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val ended=ledger.perform("abandon")
                 ledger.syncExperiences(ended,store)
                 ledger.begin(previous.allies.map{it.id},kits.coerceAtMost(ended.kits),
-                    previous.difficulty)
+                    previous.difficulty,startingWeapon)
             }
             if(restarted && snapshot.run?.id!=previous.id) lobbyOpen=false
             confirmRestart=false
