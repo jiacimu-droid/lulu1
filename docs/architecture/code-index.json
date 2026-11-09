@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T08:05:26.942486+00:00",
-  "commit": "5a3cbead66991581e792a89011a33e76fe15a05e",
+  "generatedAt": "2026-11-09T08:24:01.790815+00:00",
+  "commit": "4d7c5f9e2174f5201cae83a47c6566b02569c781",
   "branch": "main",
-  "sourceFingerprint": "3eeec1e0d0ab69b864820bb2d241e8e04a553299c8076b1a3d23ad6fec2a88ac",
+  "sourceFingerprint": "50fdbfbc0371e73a6237d98f29003b21643f4b1fc2c9082b8133abc9ba6a9430",
   "summary": {
     "files": 1153,
     "lines": 248960,
@@ -24786,7 +24786,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 97,
-      "sha256": "2979ee78a9b539ac6b6e5ac9e59a7934dda6e64df748ae1fb317625e42befafb",
+      "sha256": "a51f235e969da7baebc8117aa271cbc45f2d9055707ed7e70efbe8b256f9985d",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -29753,7 +29753,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 208,
-      "sha256": "fd08ef41a8a83a6255bbcb84a1a5783cf67866d4a2135351c1c32e4527b3597e",
+      "sha256": "2e88a66c9eaf21373b83f94f74dc0dd0c17eb622480528d18b79a41afe5f4e82",
       "symbols": []
     },
     {
