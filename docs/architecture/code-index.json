@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:09:25.252305+00:00",
-  "commit": "695fbe9bebef608aa3b7f2dddb3ad6f5f533819f",
+  "generatedAt": "2026-11-09T05:12:25.718782+00:00",
+  "commit": "3a1b7db81a6fcf7ad553c6738f47f03a378c07d5",
   "branch": "main",
-  "sourceFingerprint": "8a7fcc9d8495a0f04dbd3eb1b2462d79025a7c8c3067ca07dd53f1a789f09ed1",
+  "sourceFingerprint": "771f21825512f70a993ad300e20c53350e88a33a0aab32d4a552ab0d9e367da0",
   "summary": {
     "files": 1150,
-    "lines": 248459,
-    "symbols": 3401
+    "lines": 248485,
+    "symbols": 3402
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 152
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
@@ -811,7 +811,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 140
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -4005,7 +4005,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 52
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
@@ -6212,10 +6212,16 @@
         "line": 46
       }
     ],
+    "shouldConsolidate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 56
+      }
+    ],
     "evidenceText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 70
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
@@ -6225,31 +6231,31 @@
     "currentSlots": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 82
+        "line": 109
       }
     ],
     "CharacterDevelopmentRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 115
+        "line": 142
       }
     ],
     "lastStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 122
+        "line": 149
       }
     ],
     "resumePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 134
+        "line": 161
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 315
+        "line": 341
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -24516,8 +24522,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 358,
-      "sha256": "213f2a73a675e8beeaf9e56c4a511bba196781a1e37d65d3031e2916ec6be053",
+      "lines": 384,
+      "sha256": "ae63e12ac0b2fb352710d41b785535b844dcc146596b159f4db4c00ddbd6025f",
       "symbols": [
         {
           "name": "snapshot",
@@ -24528,40 +24534,44 @@
           "line": 46
         },
         {
+          "name": "shouldConsolidate",
+          "line": 56
+        },
+        {
           "name": "select",
-          "line": 52
+          "line": 79
         },
         {
           "name": "evidenceText",
-          "line": 70
+          "line": 97
         },
         {
           "name": "currentSlots",
-          "line": 82
+          "line": 109
         },
         {
           "name": "CharacterDevelopmentRuntime",
-          "line": 115
+          "line": 142
         },
         {
           "name": "lastStatus",
-          "line": 122
+          "line": 149
         },
         {
           "name": "resumePending",
-          "line": 134
+          "line": 161
         },
         {
           "name": "initialize",
-          "line": 140
+          "line": 167
         },
         {
           "name": "request",
-          "line": 152
+          "line": 179
         },
         {
           "name": "ids",
-          "line": 315
+          "line": 341
         }
       ]
     },
