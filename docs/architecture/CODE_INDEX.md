@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3311e7af7e4c4c5dbbb61a7ccd1dd9d2571f3781`
+- 基准提交：`6d46bcd106007eafb638b98885217640cf3c32cf`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：248133
+- 已索引代码/文本行：248192
 - 已发现符号：3397
 
 | 文件 | 行数 | 符号数 |
@@ -864,7 +864,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 179 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 315 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 374 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 108 | 1 |

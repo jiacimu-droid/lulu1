@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T02:28:43.672032+00:00",
-  "commit": "3311e7af7e4c4c5dbbb61a7ccd1dd9d2571f3781",
+  "generatedAt": "2026-11-09T02:42:21.101854+00:00",
+  "commit": "6d46bcd106007eafb638b98885217640cf3c32cf",
   "branch": "main",
-  "sourceFingerprint": "6551e842f1ea4e28d6c8bb028a80e514a01884123894bb779f2a774fa33a23c9",
+  "sourceFingerprint": "1c08b90aef931809e240a4aec68fdc509dc6fbec1f1e21a84fcde11e9e6960b9",
   "summary": {
     "files": 1150,
-    "lines": 248133,
+    "lines": 248192,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -36302,8 +36302,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt",
-      "lines": 315,
-      "sha256": "30a3c750bee0d7c4322439d3d813b6e8874b62e679a10adea63135c4b3285b60",
+      "lines": 374,
+      "sha256": "1b281889ac32f6761cc00bff371af424b31675bc8b2d83092bcd424741972d5f",
       "symbols": [
         {
           "name": "ModelVisibleOutputTest",
