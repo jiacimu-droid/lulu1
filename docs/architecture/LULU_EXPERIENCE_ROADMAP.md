@@ -16,6 +16,8 @@
 
 **最近已核对的完整构建基线（接手须刷新）**：后继 [APK/JVM #42441234402](https://github.com/jiacimu-droid/lulu1/actions/runs/42441234402) 在 2026-11-08 completed/success，head `98c2e782`，覆盖其祖先源码及对应 JVM 回归；早先 #809/#810 的单测失败已由该后继修正。当前 main `7750c22` 之后只有文档/索引更新（核查时），没有新的 APK 产物；已通过的代码测试不等于真机、真实模型或跨日验收。
 
+> **2026-11-09 S-02.1 修复交接（新 CI 待验）**：main push APK/JVM [#42603366215](https://github.com/jiacimu-droid/lulu1/actions/runs/42603366215) 与 [#42610569928](https://github.com/jiacimu-droid/lulu1/actions/runs/42610569928) 的 Gateway 503→drain 回归均失败：在飞行期间追加事件时，`ModelHttpException(503)` 未按网络异常跨 revision 写入退避，导致 attempts=0、可能立即重复收费。生产修复 [f3a9ec5](https://github.com/jiacimu-droid/lulu1/commit/f3a9ec5237838f5f45054f583da360f110662f24) + 503/400 对照回归 [29c251a](https://github.com/jiacimu-droid/lulu1/commit/29c251aebc6642d30055774fe3d6ca7ad6e85c81) 已提交。旧索引成功，新 JVM/APK/索引未验。**下一固定 S-02.1**：核 `29c251a` 的 main push JVM/APK、索引；绿后归档工程证据并转 P-08a.1g.3，真机/模型/计费独立待验。
+
 ### 2026-11-09 S-02.1 本轮接力（真实队列回归，工程 CI 待验）
 
 - [测试 253e9d4](https://github.com/jiacimu-droid/lulu1/commit/253e9d446803c7be6cb34e0763e0e6fae793ea99)：`MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart` 验证旧提取在飞行中遇预算延期、后到事件不丢、旧完成不清除新 revision、冷启动后截止前不重试/到期可恢复。仅测试代码，未修改生产逻辑或人物配置。
