@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.ai.ModelHttpException
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -100,10 +101,11 @@ internal object MemoryExtractionJobStore {
     fun complete(expected: MemoryExtractionJob) = complete(expected.id, expected.revision)
     fun failed(expected: MemoryExtractionJob, error: Throwable) = failed(
         expected.id, error,
-        // A new event cannot repair a broken socket. Preserve network backoff
+        // A new event cannot repair a broken socket or an ambiguous HTTP 5xx. Preserve network backoff
         // for this queue identity even if its dirty watermark advanced in flight.
         // Content/validation errors still belong to their exact input revision.
-        if (error is java.io.IOException) null else expected.revision,
+        if (error is java.io.IOException ||
+            (error is ModelHttpException && error.status >= 500)) null else expected.revision,
     )
 
     @Synchronized
