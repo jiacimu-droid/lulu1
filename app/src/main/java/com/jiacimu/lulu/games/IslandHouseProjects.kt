@@ -206,9 +206,10 @@ internal object IslandHouseProjects {
                 "这处建筑已经被修改，暂停拆除，避免破坏别人的作品")
         if((w.x==tx && w.y==ty) ||
             w.friends.any { it.x==tx && it.y==ty } ||
-            w.mobs.any { it.hp>0 && it.x==tx && it.y==ty })
+            w.mobs.any { it.hp>0 && it.x==tx && it.y==ty } ||
+            s.animals.any { it.x==tx && it.y==ty })
             return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),id,
-                "待拆位置有人或怪物，暂停拆除")
+                "待拆位置有人、动物或怪物，暂停拆除")
         val cells=w.tiles.toMutableList().also { it[index]=0 }
         val remaining=p.placed-index
         val next=s.copy(world=w.copy(tiles=cells,wood=w.wood+1),
