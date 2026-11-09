@@ -282,4 +282,32 @@ class IslandHouseProjectsTest {
         assertEquals(later.houseProject!!.placed,reloaded.houseProject!!.placed)
     }
 
+    @Test fun demolitionSaveReloadAndDuplicateTurnNeverRefundTwice() {
+        var state=start()
+        repeat(70) { if(state.houseProject?.phase!="complete")state=nextTurn(state) }
+        assertEquals("complete",state.houseProject?.phase)
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","拆掉旧屋，材料留着重新盖"))!!
+        val before=state.houseProject!!.placed.size
+        repeat(50) {
+            if(state.houseProject?.placed?.size==before)state=nextTurn(state)
+        }
+        assertTrue(state.houseProject!!.placed.size<before)
+        val saved=BlockIslandState.fromJson(state.toJson())!!
+        val wood=saved.world.wood
+        val placed=saved.houseProject!!.placed
+        val tiles=saved.world.tiles
+        val replay=IslandHouseProjects.advance(saved,setOf("alice"))
+        assertEquals(saved,replay)
+        assertEquals(wood,replay.world.wood)
+        assertEquals(placed,replay.houseProject?.placed)
+        assertEquals(tiles,replay.world.tiles)
+        val later=nextTurn(replay)
+        assertTrue(later.world.wood>=wood)
+        assertTrue((later.houseProject?.placed?.size ?: 0)<=placed.size)
+        val restored=BlockIslandState.fromJson(later.toJson())!!
+        assertEquals(later.world.wood,restored.world.wood)
+        assertEquals(later.houseProject?.placed,restored.houseProject?.placed)
+    }
+
 }
