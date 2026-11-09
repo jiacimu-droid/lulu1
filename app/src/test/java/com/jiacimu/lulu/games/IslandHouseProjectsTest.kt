@@ -338,4 +338,38 @@ class IslandHouseProjectsTest {
         assertEquals("paused",restored.houseProject?.phase)
         assertEquals("hare",restored.animals.single().species)
     }
+
+    @Test fun animalLeavesPausedDemolitionOnlyCharacterResumeCanRefundOnce() {
+        var state=start()
+        repeat(70) { if(state.houseProject?.phase!="complete")state=nextTurn(state) }
+        assertEquals("complete",state.houseProject?.phase)
+        val p=state.houseProject!!
+        val door=IslandHouseProjects.parts(state.world,p.left,p.top).last().first
+        val x=door%state.world.width
+        val y=door/state.world.width
+        state=state.copy(animals=listOf(IslandAnimal(901,"hare",x,y)))
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","拆掉旧屋"))!!
+        val blocked=nextTurn(state)
+        assertEquals("paused",blocked.houseProject?.phase)
+        val saved=BlockIslandState.fromJson(blocked.toJson())!!
+        // Moving the animal does not silently turn a safety pause into permission.
+        val cleared=saved.copy(animals=emptyList())
+        val idle=nextTurn(cleared)
+        assertEquals("paused",idle.houseProject?.phase)
+        assertEquals(saved.world.wood,idle.world.wood)
+        assertEquals(4,idle.world.tiles[door])
+        val resumed=IslandActorPlay.apply(idle,"alice",idle.world.turns,
+            IslandActorChoice("resume_house","小动物走开了，我继续拆"))!!
+        assertEquals("demolishing",resumed.houseProject?.phase)
+        var progress=resumed
+        repeat(30) {
+            if(progress.houseProject?.placed?.size==p.placed.size)progress=nextTurn(progress)
+        }
+        assertEquals(p.placed.size-1,progress.houseProject?.placed?.size)
+        assertEquals(saved.world.wood+1,progress.world.wood)
+        assertEquals(0,progress.world.tiles[door])
+        val persisted=BlockIslandState.fromJson(progress.toJson())!!
+        assertEquals(persisted,IslandHouseProjects.advance(persisted,setOf("alice")))
+    }
 }
