@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:40:09.274331+00:00",
-  "commit": "4709b2139bbdedf209e9a5d16c8550671ccd29ff",
+  "generatedAt": "2026-11-09T09:41:40.659546+00:00",
+  "commit": "c2846feaad9f894c7693617f3e925c485f00d4e1",
   "branch": "main",
-  "sourceFingerprint": "dcc2ce20f324a552c0789257a13a0049e822782621f79620e964d4bf34f83ed6",
+  "sourceFingerprint": "deb4acf171450fd6084d5b544eb25cac4236e20a00f81be14cba5212d85098a6",
   "summary": {
-    "files": 1156,
-    "lines": 249693,
-    "symbols": 3406
+    "files": 1157,
+    "lines": 249744,
+    "symbols": 3407
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13541,13 +13541,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 869
+        "line": 860
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1006
+        "line": 997
       }
     ],
     "saveTurn": [
@@ -18858,6 +18858,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
         "line": 14
+      }
+    ],
+    "RelicLobbyInvitationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt",
+        "line": 5
       }
     ],
     "RelicMapCameraTest": [
@@ -32550,8 +32556,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1050,
-      "sha256": "b9fddab0aa4dc67f323aa24639ebc8760db942294a7815cbddb086c8e09cff8c",
+      "lines": 1041,
+      "sha256": "51ea3ed3bba270a336307706a2da7212e58af704de8cc6929a20a7a666604bc4",
       "symbols": [
         {
           "name": "playSound",
@@ -32567,11 +32573,11 @@
         },
         {
           "name": "dot",
-          "line": 869
+          "line": 860
         },
         {
           "name": "targetFor",
-          "line": 1006
+          "line": 997
         }
       ]
     },
@@ -40165,12 +40171,23 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 521,
-      "sha256": "a2eeb337cf58a2732357a6b200bd47da4f103b1ca7961c6de6b6f33319488892",
+      "lines": 557,
+      "sha256": "9aeab66e0c1064e6c04ecacbb09c978bb0a4bf8d8ede5ad493bb06b925f581a4",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt",
+      "lines": 24,
+      "sha256": "48076f2555447a70632193a40faa4fa386f2201688974ceca3aeee7ff4de762c",
+      "symbols": [
+        {
+          "name": "RelicLobbyInvitationTest",
+          "line": 5
         }
       ]
     },
