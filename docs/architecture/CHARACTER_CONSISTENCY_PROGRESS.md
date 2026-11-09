@@ -1565,3 +1565,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - Production f4321104242117e75223b88ffc5934722d999bbf: explicit stream protocol rejection now records a separate handoff before the second non-streaming HTTP POST. No persona or resident quota changes.
 - Test 66cc31a61886b8e3375473e018d3c43a57f07e60: ModelVisibleOutputTest.explicitUnsupportedStreamOptionMayFallbackOnceToNonStreaming uses MockWebServer to assert two POSTs and a +2 attempted-request delta.
 - Engineering CI for this new SHA, Android device, real model and provider billing remain unverified. Attempted requests are not successful or billed requests. Next S-02.1: inspect main push APK/JVM and code-index runs, fix first failure, then audit other AI HTTP routes and whether stream fallback requires resident budget accounting. Do not increase quotas.
+
+## 2026-11-09 · S-02.1 居民流式回退真实网络额度回归（本轮）
+
+- [测试提交 `47ab990`](https://github.com/jiacimu-droid/lulu1/commit/47ab9906671ff49ad6dd2110518adf9774c954a3)：`ModelVisibleOutputTest.residentStreamFallbackCannotSendAnUnclaimedSecondPost` 使用真实 `CompanionModelGateway.generate` + MockWebServer，分别设置单居民每日额度 1/2；模拟流式协议明确拒绝并预排成功的非流式响应，要求实际 POST 数与领取额度一致。额度 1 必须在第二次物理发送前失败；额度 2 可收到回复且仅第二次无 stream 字段。测试还检查已用额度，恢复测试前的政策偏好。无额外真实模型调用，不提高应用默认额度。
+- 本轮只补真实网络回归，生产网关额度修复仍为先前 `23aa1c9`；**未取得本测试 SHA 的 JVM/APK 或代码索引成功证据**，不得勾工程验收。本地 GitHub DNS 失败，连接器按 commit 查询只覆盖 PR 触发，不能把空结果当作无 CI。
+- 下一轮固定 **S-02.1**：直接打开 `ModelVisibleOutputTest.residentStreamFallbackCannotSendAnUnclaimedSecondPost`，按 main push Actions 的 head SHA 核 JVM/APK/Refresh code index 首错；若通过，审查 503 负载保护回退在同样额度 1/2 下的真实 POST 与后台去重门禁。中转站旧账/真机/真实模型仍待验，请求尝试≠成功生成≠服务商计费。
