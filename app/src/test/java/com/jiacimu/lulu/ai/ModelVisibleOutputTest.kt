@@ -73,6 +73,59 @@ class ModelVisibleOutputTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun residentStreamFallbackCannotSendAnUnclaimedSecondPost() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val policy = app.getSharedPreferences("lulu_resident_activity_policy_v1", android.content.Context.MODE_PRIVATE)
+        val prior = policy.all.toMap()
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        try {
+            for (limit in listOf(1, 2)) {
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxModelDecisions(app, limit))
+                val resident = "resident:stream-quota-network-$limit"
+                val server = MockWebServer()
+                server.enqueue(MockResponse().setResponseCode(400)
+                    .setBody("""{"error":{"message":"stream option is not supported by this relay"}}"""))
+                server.enqueue(MockResponse().setResponseCode(200)
+                    .setBody("""{"choices":[{"message":{"content":"已收到。"}}]}"""))
+                server.start()
+                try {
+                    val result = gateway.generate(
+                        resident, "", "reply once", "stream quota network test", "test",
+                        contextMode = CompanionContextMode.Isolated,
+                        connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                        streamResponse = true,
+                    )
+                    assertEquals("Physical POST count must equal available resident claims",
+                        limit, server.requestCount)
+                    assertEquals(limit, com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
+                    if (limit == 1) {
+                        assertTrue("Second POST must be rejected before transport", result.isFailure)
+                        assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("额度已满"))
+                    } else {
+                        assertEquals("已收到。", result.getOrThrow().text)
+                        assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+                        assertFalse(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+                    }
+                } finally {
+                    server.shutdown()
+                }
+            }
+        } finally {
+            policy.edit().clear().apply {
+                prior.forEach { (key, value) ->
+                    when (value) {
+                        is Int -> putInt(key, value)
+                        is Long -> putLong(key, value)
+                        is Boolean -> putBoolean(key, value)
+                        is Float -> putFloat(key, value)
+                        is String -> putString(key, value)
+                    }
+                }
+            }.commit()
+        }
+    }
+
     @Test fun terminalSseChoiceCompletesWithoutDoneOrSocketEof() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
