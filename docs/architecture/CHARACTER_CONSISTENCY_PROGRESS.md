@@ -1639,3 +1639,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 旧 ed111f4 对应 APK/JVM #42657981675 和索引 #42657981490 均 completed/success；旧 06c5271 对应 #42647784263/#42647784174 也 success，已排除前轮“CI 未知”的阻碍。
 - 新增 [f5307df](https://github.com/jiacimu-droid/lulu1/commit/f5307dfe1fb323a827f884b5a9e370d5cac09710)：在 AutonomousActionBoundaryIntegrationTest 中模拟真实聊天新消息、旧轮第一动作送达/第二动作暂缓、不同 requestId 的新决定执行，验证旧未执行动作不会被自动重放、已完成旧回执仍在、新动作重放幂等。没有更改生产代码、人设、额度或模型调用。
 - 本测试只证明执行器和 Store 的显式新决定路径；不证明 ProactivePerceptionRuntime 自动启动新轮或真实模型语义决定。f5307df 对应 APK/JVM 与 Refresh code index 尚待验，真机、跨进程、账单亦未验。下一轮固定 P-08a.1g.3：先核本 SHA 的 CI 首错，随后从 ProactivePerceptionRuntime 新消息批次调度入口补真正下一轮衔接测试，或转 P-08c.2。
+
+
+## 2026-11-10 · P-08a.1g.3 正式在线批次的两轮模型网关回归（待 CI）
+
+- [68b9973](https://github.com/jiacimu-droid/lulu1/commit/68b997322cc21fe9843b88242163bcfb08a4eee0) 新增 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`：真实聊天用户输入 → OnlineChatBatchStore 新 revision → ProactivePerceptionRuntime.runDueCycle → MockWebServer 本地模型选择 → 真实 publish_moment → MomentsStore；第二次用户输入触发不同 revision，旧 revision 重放不得重复 HTTP 请求或旧动态。只新增测试，没有改生产代码或人设；不增加远端收费请求。
+- 当前 GitHub 连接器的按提交 workflow 接口仅检索 PR runs，不能据空结果宣称 main push CI 通过/失败。本 SHA 的 APK/JVM、Refresh code index、真机、真实模型及服务商计费均待验。下一轮直接打开该测试，查 `68b9973` push Actions 首错，失败修测试或正式根因；成功后测试执行中取消与下一轮上下文回执，而非继续只验证显式新决定。
