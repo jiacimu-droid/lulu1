@@ -317,6 +317,9 @@
 
 **2026-11-09 S-02.1 可选记忆 503 网关边界回归（待 CI）**：[`2f14bb75`](https://github.com/jiacimu-droid/lulu1/commit/2f14bb75f6efb536d3d24922c7887c0d647e06dc) 新增 `ModelVisibleOutputTest.optionalMemory503NeverBuysFallbackOrImmediateDuplicate`，真实 Gateway + MockWebServer 验证 `记忆/连续记忆提取` 首次 503 不做第二次 POST、同证据即时重试被持久后台预算门禁拒绝。查证 `RelayRequestPressurePolicy.canRecover` 只允许 `后台主动感知`，上轮怀疑可选记忆 503 二次 claim 冲突不可达，故不改生产策略、不放宽防重复计费。新 SHA 的 JVM/APK 与 Refresh code index 尚待核，真机/计费未验。**下一轮固定 S-02.1**：先核 `2f14bb75` 的 Actions 首错；成功后沿记忆提取队列验证 503 失败后的持久任务延期与重启恢复，若已有测试则转 P-08a.1g.3。测试文件索引由现有 Refresh code index 工作流生成，当前容器 GitHub DNS 不可用，未在本地运行索引脚本。
 
+
+**2026-11-09 S-02.1 Gateway 503→drain 回归（待 CI）**：[`c3ed58b`](https://github.com/jiacimu-droid/lulu1/commit/c3ed58b148c25ff5dc47cc1cf8a5e9b5dc38758c) 新增 `MemoryExtractionCheckpointTest.realGateway503FailurePersistsDirtyMemoryWithoutImmediateSecondPost`，正式 Gateway+MockWebServer 503→drain→持久 Store：单 POST、并发新来源保留、失败退避、重建、到期由模拟成功提取器恢复。未验证真实第二次 HTTP/服务商计费；新测试 CI 待验，不勾工程完成。下轮先核本 SHA main push JVM/APK/索引首错；若通过且真实 summarizer 无安全本地网关注入路径，则转 P-08a.1g.3。
+
 ## 四、交接记录与完成定义
 
 每轮在专项进度末尾追加：**日期｜接手 main SHA｜任务 ID.步骤｜原实现和真实根因｜修改文件与提交 SHA｜测试名/CI 运行 ID 及结论｜手机/真实模型/跨日证据或明确未验｜已勾步骤及下一 ID**。同一工作流被其他提交取消不能当成功。只有全部约定层级通过才从表移除整个 ID；只完成源码则保留明确的真机/真实模型待验，不把历史修复流水复制回本页。
