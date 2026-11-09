@@ -16,6 +16,12 @@ data class PromptContextBudget(
 )
 
 internal object PromptContextPolicy {
+    /** Quiet autonomous wakeups can recall locally without two additional
+     * billed vector/rerank calls. A genuinely new user input keeps the owner's
+     * selected semantic-ranking capability. This never disables core memory,
+     * source retrieval, evidence, tasks or the autonomous decision itself. */
+    fun paidRankingFor(source: String, request: UnifiedMemoryRequest): Boolean =
+        !(source == "后台主动感知" && request.currentInput.isBlank())
     private val evidenceSignals = listOf(
         "原话", "原文", "证据", "当时说", "之前说", "上次说", "你说过", "我说过", "谁说",
         "答应", "承诺", "失约", "约定", "提醒", "叫醒", "闹钟", "兑现",
