@@ -70,8 +70,9 @@ object CharacterRuntime {
         characterId: String,
         request: UnifiedMemoryRequest,
         budget: PromptContextBudget? = null,
+        paidRanking: Boolean = true,
     ): UnifiedMemoryContext = if (budget == null) {
-        UnifiedMemoryOrchestrator.assemble(characterId, request)
+        UnifiedMemoryOrchestrator.assemble(characterId, request, paidRanking = paidRanking)
     } else {
         UnifiedMemoryOrchestrator.assemble(
             characterId, request,
@@ -80,6 +81,7 @@ object CharacterRuntime {
             evidenceCharacterBudget = budget.evidenceCharacters,
             recentCharacterBudget = budget.recentCharacters,
             memoryCharacterBudget = budget.memoryCharacters,
+            paidRanking = paidRanking,
         )
     }
 
