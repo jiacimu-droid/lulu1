@@ -111,6 +111,48 @@ class MemoryExtractionCheckpointTest {
         assertTrue(MemoryExtractionJobStore.pending().isEmpty())
     }
 
+    @Test fun realDrainDefersAnInFlightExtractionAndResumesNewRevisionAfterReopen() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "memory:drain-restart"
+        val first = MemoryExtractionJobStore.enqueue(role, sourceReplyId = "source-before-post")
+        val resumeAt = Instant.now().plusSeconds(3_600)
+        var calls = 0
+        ChatMemoryAutomation.drain(
+            role,
+            autoSummarize = { true },
+            summarize = {
+                calls++
+                MemoryExtractionJobStore.enqueue(role, sourceReplyId = "arrived-during-post")
+                throw BackgroundModelBudgetDeferred(resumeAt)
+            },
+        )
+        val deferred = MemoryExtractionJobStore.pending().single()
+        assertEquals(1, calls)
+        assertEquals(first.id, deferred.id)
+        assertEquals(2L, deferred.revision)
+        assertEquals("arrived-during-post", deferred.sourceReplyId)
+        assertEquals(resumeAt, deferred.deferredUntil)
+        assertEquals(0, deferred.attempts)
+
+        MemoryTestEnvironment.release()
+        MemoryExtractionJobStore.initialize(context)
+        ChatMemoryAutomation.drain(
+            role, autoSummarize = { true },
+            summarize = { calls++ },
+            now = { resumeAt.minusNanos(1) },
+        )
+        assertEquals("Before the persisted deadline there must be no paid attempt", 1, calls)
+        assertEquals(1, MemoryExtractionJobStore.pending().size)
+
+        ChatMemoryAutomation.drain(
+            role, autoSummarize = { true },
+            summarize = { calls++ },
+            now = { resumeAt },
+        )
+        assertEquals(2, calls)
+        assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+    }
+
     @Test fun dirtyRoleSurvivesSourceDeletionAndRestartWithBackoff() {
         val context = RuntimeEnvironment.getApplication() as Context
         MemoryExtractionJobStore.enqueue("role", sourceReplyId = "older")
