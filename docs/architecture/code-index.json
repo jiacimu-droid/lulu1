@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:07:03.278921+00:00",
-  "commit": "a58ffbac6410ed153eae329f579523c0298dc7bc",
+  "generatedAt": "2026-11-09T05:08:58.206953+00:00",
+  "commit": "edf5264b6c6ea6ad7709ab577c71373d7f8f054e",
   "branch": "main",
-  "sourceFingerprint": "66502e734dd770af2dfbf460e705283b70ff25cbee2cdffe2eb95165e397f5b2",
+  "sourceFingerprint": "1db954b621250fca278e90d4b7d208da8972c620d56472e094ebeb2058c4eea5",
   "summary": {
     "files": 1150,
-    "lines": 248392,
+    "lines": 248458,
     "symbols": 3401
   },
   "symbolIndex": {
@@ -999,7 +999,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 172
+        "line": 173
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -8055,7 +8055,7 @@
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 142
+        "line": 146
       }
     ],
     "asJson": [
@@ -11305,37 +11305,37 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 180
+        "line": 181
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 188
+        "line": 189
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 197
+        "line": 198
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 704
+        "line": 705
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 706
+        "line": 707
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3208
+        "line": 3250
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -26475,8 +26475,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 413,
-      "sha256": "a57726a0a09052828971efaa254fc9b5f68373dfc45eebd443d4c73ed8e30a46",
+      "lines": 417,
+      "sha256": "7aa2fc06562a6cdbf32eaf7c5a54f4c4e0d4930c3b9e79cd27b9f6a5a90e583e",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -26488,7 +26488,7 @@
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 142
+          "line": 146
         }
       ]
     },
@@ -29724,8 +29724,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 172,
-      "sha256": "ad779c8e36dc870ccac69eee850722fb454b8e79f4e76bca4510b0bdc861dd74",
+      "lines": 192,
+      "sha256": "5fcd5322aa246040ccdf10d674aad388095ba7e7043178480ddbae8b6d047bba",
       "symbols": []
     },
     {
@@ -29885,8 +29885,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3275,
-      "sha256": "425cd8de7c76e63cc3e9133736aee7090bde1df8d98ae37baf6515859ae84588",
+      "lines": 3317,
+      "sha256": "67dade2eb08c6bb2ca9fda08686df6333f1149548ffb358f58f127af897064fd",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29894,31 +29894,31 @@
         },
         {
           "name": "initialize",
-          "line": 172
+          "line": 173
         },
         {
           "name": "markConcernPromisePending",
-          "line": 180
+          "line": 181
         },
         {
           "name": "wakePlanFor",
-          "line": 188
+          "line": 189
         },
         {
           "name": "nextDueAt",
-          "line": 197
+          "line": 198
         },
         {
           "name": "batchSuperseded",
-          "line": 704
+          "line": 705
         },
         {
           "name": "deferSupersededDecision",
-          "line": 706
+          "line": 707
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3208
+          "line": 3250
         }
       ]
     },

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a58ffbac6410ed153eae329f579523c0298dc7bc`
+- 基准提交：`edf5264b6c6ea6ad7709ab577c71373d7f8f054e`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：248392
+- 已索引代码/文本行：248458
 - 已发现符号：3401
 
 | 文件 | 行数 | 符号数 |
@@ -427,7 +427,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 155 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 578 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 413 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 417 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1852 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 988 | 22 |
@@ -529,13 +529,13 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 75 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 172 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 192 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 140 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3275 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3317 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1225 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
