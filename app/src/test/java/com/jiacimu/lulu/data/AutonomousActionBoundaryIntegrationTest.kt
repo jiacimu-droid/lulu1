@@ -356,7 +356,7 @@ class AutonomousActionBoundaryIntegrationTest {
         assertEquals(2, first.completedCount)
         assertTrue(first.notes.any { it.contains("前一步尚未成功") })
         val delivered = MigratedDomainStores.chat.messages(chat.id).value
-            .count { it.text == replyText }
+            .count { it.content == replyText }
         assertEquals(1, delivered)
         assertEquals(1, MomentsStore.posts.value.count {
             it.authorCharacterId == actor && it.content == postText
@@ -367,7 +367,7 @@ class AutonomousActionBoundaryIntegrationTest {
         val second = executeSteps()
         assertEquals(2, second.completedCount)
         assertEquals(delivered, MigratedDomainStores.chat.messages(chat.id).value
-            .count { it.text == replyText })
+            .count { it.content == replyText })
         assertEquals(1, MomentsStore.posts.value.count {
             it.authorCharacterId == actor && it.content == postText
         })
