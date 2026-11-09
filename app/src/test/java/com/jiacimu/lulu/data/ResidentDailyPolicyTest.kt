@@ -305,4 +305,24 @@ class ResidentDailyPolicyTest {
             JSONObject().put("lunch", "home").put("evening", "games")
                 .put("agenda", JSONArray()), at, maxAgendaItems = 0))
     }
+
+    @Test fun oneResidentCannotSpendAnUnclaimedFallbackRequest() {
+        val ctx = context()
+        val prefs = ctx.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        val role = "resident:fallback-physical-post-budget"
+        val at = Instant.now()
+        prefs.edit().clear().commit()
+        try {
+            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 1))
+            // The first transport handoff consumes the only owner-approved POST.
+            assertTrue(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            // A protocol or payload fallback is a SECOND physical POST and
+            // must not be allowed to bypass the same authoritative quota.
+            assertFalse(ResidentDailyPolicy.claimModelDecision(ctx, role, at))
+            assertEquals(1, ResidentDailyPolicy.modelDecisionsUsed(ctx, role, at))
+            assertEquals(0, ResidentDailyPolicy.remainingModelRequests(ctx, role, at))
+        } finally {
+            prefs.edit().clear().commit()
+        }
+    }
 }
