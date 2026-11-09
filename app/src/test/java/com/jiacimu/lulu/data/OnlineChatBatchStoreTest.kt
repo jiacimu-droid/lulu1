@@ -190,6 +190,19 @@ class OnlineChatBatchStoreTest {
         OnlineChatBatchStore.finish(app, role, realMessage.revision)
     }
 
+    @Test fun postDeliveryExtractorsCanWaitForPaidPrimaryTurnWithoutCallingAnyApi() {
+        OnlineChatBatchStore.cancel(app, role)
+        assertFalse(OnlineChatBatchStore.isReadingRole(role))
+        val turn = OnlineChatBatchStore.onUserBubble(app, role, 1_000_000L)
+        assertFalse(OnlineChatBatchStore.isReadingRole(role))
+        assertTrue(OnlineChatBatchStore.claim(app, role, turn.revision, turn.dueAtMillis))
+        // The first sent bubble can appear here; ancillary scanners must not
+        // charge before the primary's commitments and life are persisted.
+        assertTrue(OnlineChatBatchStore.isReadingRole(role))
+        OnlineChatBatchStore.finish(app, role, turn.revision)
+        assertFalse(OnlineChatBatchStore.isReadingRole(role))
+    }
+
     @Test fun independentNonMessageWakeCannotAdvanceAnUnfinishedBubbleWindow() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 200_000L)
