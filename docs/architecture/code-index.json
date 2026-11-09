@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:18:18.143722+00:00",
-  "commit": "0430c40f3731f60445f446d6118c10b641608569",
+  "generatedAt": "2026-11-09T05:23:53.732347+00:00",
+  "commit": "e347e906fe4792aec3250e2dd5206c6102ec7331",
   "branch": "main",
-  "sourceFingerprint": "60becc2fbc4e92a6d7d8d8c1dca1d3ed9ecf5b758c3191c2d7330391c598151d",
+  "sourceFingerprint": "ace3d517d88adffeaa497b6469eecfaf138f79626a7ce8c8ca54933ca1657bd0",
   "summary": {
     "files": 1153,
-    "lines": 248798,
+    "lines": 248806,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -8061,7 +8061,7 @@
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 146
+        "line": 154
       }
     ],
     "asJson": [
@@ -26503,8 +26503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 417,
-      "sha256": "7aa2fc06562a6cdbf32eaf7c5a54f4c4e0d4930c3b9e79cd27b9f6a5a90e583e",
+      "lines": 425,
+      "sha256": "b8af74498d27468447cb140889fc40a4a18040362831724819d21a3e211fdf63",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -26516,7 +26516,7 @@
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 146
+          "line": 154
         }
       ]
     },
