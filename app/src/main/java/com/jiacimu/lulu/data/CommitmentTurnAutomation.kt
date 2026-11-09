@@ -162,7 +162,8 @@ object CommitmentTurnAutomation {
                 // is not consent if a later bubble says "我做不到".
                 val finished = kotlinx.coroutines.withTimeoutOrNull(20_000L) {
                     while (ChatGenerationActivity.isRunning(conversationId) ||
-                        com.jiacimu.lulu.ChatReplyTaskManager.state(conversationId).running) {
+                        com.jiacimu.lulu.ChatReplyTaskManager.state(conversationId).running ||
+                        OnlineChatBatchStore.isReadingRole(characterId)) {
                         delay(250L)
                     }
                     true
@@ -241,7 +242,11 @@ object CommitmentTurnAutomation {
 
     private suspend fun inspectLatestTurn(conversation: LuluConversation) {
         while (ChatGenerationActivity.isRunning(conversation.id) ||
-            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) {
+            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running ||
+            OnlineChatBatchStore.isReadingRole(conversation.characterId)) {
+            // A sent first bubble does not mean the expensive primary turn
+            // finished saving model-authored commitmentChanges. Wait locally;
+            // otherwise the recovery extractor can beat the original model.
             delay(750L)
         }
         delay(1_200L)
