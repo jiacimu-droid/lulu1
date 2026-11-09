@@ -51,7 +51,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         BlockIslandState.fromJson(
             context.getSharedPreferences("lulu_block_island_v2", 0)
                 .getString("world", "").orEmpty()
-        )
+        ) ?: ExpeditionState.fromJson(
+            context.getSharedPreferences("lulu_expedition_homestead_v1", 0)
+                .getString("world", "").orEmpty(),
+            ExpeditionMode.HOMESTEAD,
+        )?.let(BlockIslandState::fromLegacy)
     }
     // Returning to a saved home should not silently dismiss its previous companions.
     var selected by rememberSaveable {
@@ -203,7 +207,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 Text("小岛会自动存档；再次进入可继续，不必重做家园。", color = dim, fontSize = 10.sp)
             }
         }
-        Button(onClick = { onStart(selected.filter { it in characters }.take(3)) },
+        Button(onClick = { onStart(selected.take(3)) },
             enabled = inviting == null, modifier = Modifier.fillMaxWidth().height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = Color(0xFF183B32))) {
             Text(if (existingIsland) "继续我的小岛" else "开始建岛",
