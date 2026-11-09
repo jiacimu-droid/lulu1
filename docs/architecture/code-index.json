@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:50:20.385365+00:00",
-  "commit": "ad5c5cc0220ad94ac1ef644718da8970818a3a6c",
+  "generatedAt": "2026-11-09T05:51:51.373913+00:00",
+  "commit": "2f403a58c4e1b5a30c4c926afb0d39f57a86275c",
   "branch": "main",
-  "sourceFingerprint": "ed22729a18d11a411dc07274f2e181e846b0d7d8b8795fbb938a6452b70e83d2",
+  "sourceFingerprint": "aae812d05214fd80287d0244b9a101e2a11915117b2141564c3b3cad00818d06",
   "summary": {
     "files": 1153,
-    "lines": 248872,
+    "lines": 248878,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -17255,29 +17255,29 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 184
+        "line": 185
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 413
+        "line": 414
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 477
+        "line": 478
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 515
+        "line": 516
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 546
+        "line": 547
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 416
+        "line": 417
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -35935,8 +35935,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 192,
-      "sha256": "6e8fe7d80d1bbffe3a10c2dc0bbb58bca3ed7961b7a55d58ad0cdbe3caa72928",
+      "lines": 196,
+      "sha256": "85cea53ec4f8eaea83ac215e2966bed7ded27dd3d7afcd507a9c481768563b19",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
@@ -36729,8 +36729,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 116,
-      "sha256": "39f1ed98c6ea27d800d3ec01cdd8b1742f9158c7755cb125761ff056e4683e20",
+      "lines": 117,
+      "sha256": "b2f5f242b582dbfb7378ea4ba9e9fa10773b5b4678ee2143de87a23c3c7d9459",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -37840,8 +37840,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 682,
-      "sha256": "f51cb6dfa0eca41b9f9a7e61fef14b266db1d585eb1487d8c336f0f4d9256709",
+      "lines": 683,
+      "sha256": "a8133263f7803d28393637ac2dbfc40c03cac5f5f11b67f78cce98873c03a5df",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -37849,27 +37849,27 @@
         },
         {
           "name": "response",
-          "line": 184
+          "line": 185
         },
         {
           "name": "response",
-          "line": 413
+          "line": 414
         },
         {
           "name": "bubbles",
-          "line": 416
+          "line": 417
         },
         {
           "name": "response",
-          "line": 477
+          "line": 478
         },
         {
           "name": "response",
-          "line": 515
+          "line": 516
         },
         {
           "name": "response",
-          "line": 546
+          "line": 547
         }
       ]
     },
