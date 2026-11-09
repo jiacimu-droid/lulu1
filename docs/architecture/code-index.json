@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:17:45.890959+00:00",
-  "commit": "30878ab98196582da63d3c89697a0709ceec531c",
+  "generatedAt": "2026-11-09T01:18:06.913435+00:00",
+  "commit": "e71a14538a0ed5ae5e5278183f77f9cfd698f995",
   "branch": "main",
-  "sourceFingerprint": "c6ab32d99b7ac6948f6bf3e1ce8903a93aee9abf7400b46ba19ff0b33ec53ae2",
+  "sourceFingerprint": "863345755b3aab6a16bc917cac41b6f12cbd2b4d18d41aba32b9383f46010cc5",
   "summary": {
     "files": 1150,
-    "lines": 247961,
+    "lines": 247971,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -38956,8 +38956,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
-      "lines": 80,
-      "sha256": "bd23c49eb605419b9d920a8d26695077c0486edc8f2a04f40f336515bf401710",
+      "lines": 90,
+      "sha256": "1e55923b36325c48059aa89e9504ac7f6ef855688678b19cfbcbb078dd34adbc",
       "symbols": [
         {
           "name": "PromptContextPolicyTest",
