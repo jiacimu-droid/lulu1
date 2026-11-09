@@ -1576,3 +1576,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - 测试 [`3022fdc`](https://github.com/jiacimu-droid/lulu1/commit/3022fdceb81cfdc52f414fbf4f55aaac4b957081) 在 `ModelVisibleOutputTest.residentMemoryGuard503FallbackCannotExceedPhysicalPostQuota` 使用正式网关 + MockWebServer：503 Relay request-body memory protection 后，对居民额度 1/2 验证物理 POST 数、领取次数、错误或回复；额度 2 额外验证精简请求体仍包含本轮原话。生产代码未改，原额度不提高。
 - 本轮未取得新 SHA 的 Android/JVM/APK 或 Refresh code index 成功结果，测试**已提交但未证实通过**。下一轮直接打开该测试并核 Actions 首错；若测试失败按真实错误修同一工作包，若通过再审后台请求去重/重启门禁。真机、真实模型与中转站账单仍待外部验证；HTTP 尝试≠成功≠实际计费。
+
+
+## 2026-11-09 · S-02.1 可选记忆 503 不重复付费网关回归
+
+- [测试 `2f14bb75`](https://github.com/jiacimu-droid/lulu1/commit/2f14bb75f6efb536d3d24922c7887c0d647e06dc)：`ModelVisibleOutputTest.optionalMemory503NeverBuysFallbackOrImmediateDuplicate` 使用真实 `CompanionModelGateway.generate` + MockWebServer。对可选记忆来源 `记忆/连续记忆提取`，第一 POST 收到 Relay memory-protection 503，断言不发送压缩回退 POST；相同原始证据立即重试必须得到 `BackgroundModelBudgetDeferred`，物理 POST 仍只有一次。与此前仅覆盖 `后台主动感知` 的 503 回退测试不同，验证两个来源政策边界；没有改动居民额度或人物。
+- **根因复核**：`RelayRequestPressurePolicy.canRecover(source)` 当前仅允许 `后台主动感知`；因此上轮怀疑“可选记忆 503 第二次 claim 被自身去重拒绝”在当前源码下不可达，不应为此放宽 15 分钟防重。此次补正式网关回归锁定边界，不伪称已发现生产缺陷。
+- **验收**：本轮新提交的 JVM/APK、Refresh code index 尚须以 Actions head SHA 复核；真机/真实模型/服务商计费未知。下一轮固定 S-02.1：检查本测试 CI 首错；通过后检查网关不同来源 503 的失败回执与延期队列重启恢复，避免重复付费但不丢来源。修改测试后本环境无法运行 `scripts/generate_code_index.py`（GitHub 容器 DNS 不可用），需核 Refresh code index 自动生成的真实产物。
