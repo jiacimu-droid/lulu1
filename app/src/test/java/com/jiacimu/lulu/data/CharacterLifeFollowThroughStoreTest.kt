@@ -145,7 +145,7 @@ class CharacterLifeFollowThroughStoreTest {
         assertTrue("A full sharing gauge should offer a concrete thought impulse",
             highNeed.contains("鲜明的分享冲动") && highNeed.contains("appraisal.privateIdeas"))
         assertTrue("Sharing while replying is a selectable parallel action, not an automatic post",
-            highNeed.contains("并行选择其他独立动作") && highNeed.contains("真实回执"))
+            highNeed.contains("并行选择其他独立动作") && highNeed.contains("只凭冲动不能写已发送回执"))
         // Context/urge is never itself evidence of an actual outgoing message.
         assertTrue(CharacterLifeFollowThroughStore.sharingCandidates(role, now)
             .all { it.optString("shareStatus") == "open" })
