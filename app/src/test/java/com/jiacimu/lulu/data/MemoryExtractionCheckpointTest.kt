@@ -84,6 +84,33 @@ class MemoryExtractionCheckpointTest {
         assertTrue(MemoryExtractionJobStore.pending().isEmpty())
     }
 
+    @Test fun deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val inFlight = MemoryExtractionJobStore.enqueue("memory:relay-deferred", sourceReplyId = "first-evidence")
+        val later = MemoryExtractionJobStore.enqueue("memory:relay-deferred", sourceReplyId = "second-evidence")
+        val resumeAt = Instant.now().plusSeconds(15L * 60)
+        // The network request was based on the older revision; a relay budget
+        // deferral must not erase the event that arrived while it was running.
+        MemoryExtractionJobStore.defer(inFlight, resumeAt)
+        val pending = MemoryExtractionJobStore.pending().single()
+        assertEquals(later.id, pending.id)
+        assertEquals(later.revision, pending.revision)
+        assertEquals("second-evidence", pending.sourceReplyId)
+        assertEquals(0, pending.attempts)
+        assertEquals(resumeAt, pending.deferredUntil)
+        MemoryExtractionJobStore.complete(inFlight)
+        assertEquals(pending, MemoryExtractionJobStore.pending().single())
+        MemoryTestEnvironment.release()
+        MemoryExtractionJobStore.initialize(context)
+        val restored = MemoryExtractionJobStore.pending().single()
+        assertEquals("second-evidence", restored.sourceReplyId)
+        assertEquals(later.revision, restored.revision)
+        assertFalse(memoryExtractionRetryDue(restored, resumeAt.minusNanos(1)))
+        assertTrue(memoryExtractionRetryDue(restored, resumeAt))
+        MemoryExtractionJobStore.complete(restored)
+        assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+    }
+
     @Test fun dirtyRoleSurvivesSourceDeletionAndRestartWithBackoff() {
         val context = RuntimeEnvironment.getApplication() as Context
         MemoryExtractionJobStore.enqueue("role", sourceReplyId = "older")
