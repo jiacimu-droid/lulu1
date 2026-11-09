@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:51:51.373913+00:00",
-  "commit": "2f403a58c4e1b5a30c4c926afb0d39f57a86275c",
+  "generatedAt": "2026-11-09T05:52:21.256986+00:00",
+  "commit": "478586c4ee754a8ba152fb4844a678b1d21cc31f",
   "branch": "main",
-  "sourceFingerprint": "aae812d05214fd80287d0244b9a101e2a11915117b2141564c3b3cad00818d06",
+  "sourceFingerprint": "03e1ddcca25dd696da4b616fc481d1a120324b13d370e5e94d0401269ae1c7e4",
   "summary": {
     "files": 1153,
-    "lines": 248878,
+    "lines": 248881,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -17259,25 +17259,25 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 414
+        "line": 415
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 478
+        "line": 479
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 516
+        "line": 517
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 547
+        "line": 548
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 417
+        "line": 418
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -37113,8 +37113,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 537,
-      "sha256": "05673fc2de9271c0cc9a651daf411d146a2220953f0f4bfe66043d108dcd4c3c",
+      "lines": 539,
+      "sha256": "a384787de3e13d06c7c0c3559ac40f4a1c9d210db36fddf7fdcd4c177a21f68d",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -37840,8 +37840,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 683,
-      "sha256": "a8133263f7803d28393637ac2dbfc40c03cac5f5f11b67f78cce98873c03a5df",
+      "lines": 684,
+      "sha256": "de968b0f981c3b2db9a3e4ea393add96546113c2dc4bbe22e5928140ccc14ac7",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -37853,23 +37853,23 @@
         },
         {
           "name": "response",
-          "line": 414
+          "line": 415
         },
         {
           "name": "bubbles",
-          "line": 417
+          "line": 418
         },
         {
           "name": "response",
-          "line": 478
+          "line": 479
         },
         {
           "name": "response",
-          "line": 516
+          "line": 517
         },
         {
           "name": "response",
-          "line": 547
+          "line": 548
         }
       ]
     },
