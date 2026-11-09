@@ -185,6 +185,33 @@ class ModelVisibleOutputTest {
         }
     }
 
+    @Test fun optionalMemory503NeverBuysFallbackOrImmediateDuplicate() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(503)
+            .setBody("""{"error":{"message":"Relay request body memory protection"}}"""))
+        server.enqueue(MockResponse().setResponseCode(200)
+            .setBody("""{"choices":[{"message":{"content":"不应被消费"}}]}"""))
+        server.start()
+        try {
+            val role = "memory-503-guard-" + java.util.UUID.randomUUID().toString()
+            suspend fun attempt() = gateway.generate(
+                role, "记忆来源原件", "整理这条事实", "记忆", "连续记忆提取",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+            )
+            val first = attempt()
+            assertTrue(first.isFailure)
+            assertEquals("Optional memory 503 must not trigger an extra paid POST", 1, server.requestCount)
+            val second = attempt()
+            assertTrue(second.isFailure)
+            assertTrue(second.exceptionOrNull() is com.jiacimu.lulu.data.BackgroundModelBudgetDeferred)
+            assertEquals("Same evidence must remain deferred after ambiguous failure", 1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun terminalSseChoiceCompletesWithoutDoneOrSocketEof() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
