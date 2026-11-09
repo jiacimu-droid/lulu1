@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T10:00:58.463966+00:00",
-  "commit": "54aa57ab1ea507e75d0d2871715624d058cb285a",
+  "generatedAt": "2026-11-09T10:45:25.136059+00:00",
+  "commit": "2128ad58d2851a8d53f8e1b3f6b76422daa27e36",
   "branch": "main",
-  "sourceFingerprint": "07aa89fa20215b1cc89cf5c50d61dc58f13872a73a9359a934c19ce86974ecba",
+  "sourceFingerprint": "525e31477b89c9f2a19485911c985a0784fdb94ee9b6344f7e724b7e47edd759",
   "summary": {
     "files": 1162,
-    "lines": 250147,
+    "lines": 250203,
     "symbols": 3413
   },
   "symbolIndex": {
@@ -38554,8 +38554,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt",
-      "lines": 232,
-      "sha256": "b3ce92626e48dc4013f6211ee1166437385dd951028020489c68a4f85a2c4c3b",
+      "lines": 288,
+      "sha256": "7b769dff34d9191b5c6181bee9868662700dab60d7386b8bd67513d552270b40",
       "symbols": [
         {
           "name": "MemoryExtractionCheckpointTest",
