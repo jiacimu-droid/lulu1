@@ -77,7 +77,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var facing by remember(world.seed) { mutableStateOf(0 to 1) }
     var joystickHeld by remember(world.seed) { mutableStateOf(false) }
     var mapAim by remember(world.seed) { mutableStateOf(false) }
-    var menuSection by rememberSaveable { mutableStateOf("探索") }
+    var menuSection by rememberSaveable { mutableStateOf("行囊") }
     var buildMode by remember(world.seed) { mutableStateOf<String?>(null) }
     var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
     // A recipe may be tapped again; an integer event always dismisses the tools panel.
@@ -251,7 +251,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
 
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
-        toolsLabel = "☰ 游戏菜单",
+        toolsLabel = "☰ 行囊 / 更多",
         closeToolsSignal = dismissToolsVersion,
         notice = worldNotice,
         status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
@@ -451,7 +451,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         Column(verticalArrangement=Arrangement.spacedBy(2.dp)) {
-            listOf("探索","行囊","伙伴","生态","设置").chunked(3).forEach { sections ->
+            listOf("地图","行囊","伙伴","图鉴","设置").chunked(3).forEach { sections ->
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                     sections.forEach { section ->
                         FilterChip(selected=menuSection==section,onClick={menuSection=section},
@@ -465,7 +465,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
             }
         }
-        if (menuSection=="探索" || menuSection=="行囊") {
+        if (menuSection=="地图" || menuSection=="行囊") {
         Surface(shape = RoundedCornerShape(16.dp),
             color = Color(0xFF1C4445),
             border = BorderStroke(1.dp, Color(0xFF8FD9BE).copy(alpha = .35f))) {
@@ -501,31 +501,22 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
         }
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                IslandAction(nearbyGather?.label ?: "周围暂无资源",
-                    enabled = nearbyGather != null, Modifier.fillMaxWidth()) {
-                    nearbyGather?.let { perform(it.action,it.x,it.y) }
-                }
-                IslandAction("攻击附近怪物",enabled=nearbyFight!=null,
-                    Modifier.fillMaxWidth()) {
-                    nearbyFight?.let { perform(it.action,it.x,it.y) }
-                }
-                if(nearbyRescue!=null) IslandAction("救援队友 · 2果",
-                    enabled=true,Modifier.fillMaxWidth()) {
-                    nearbyRescue.let { perform(it.action,it.x,it.y) }
-                }
-                IslandAction("吃野果 · 回血", enabled = island.fruit > 0 && world.hp < 12,
-                    Modifier.fillMaxWidth()) { perform("eat", world.x, world.y) }
-                if (island.fish > 0) IslandAction("篝火烤鱼 · +5❤",
-                    enabled = world.hp < 12, Modifier.fillMaxWidth()) {
-                    perform("eat_fish", world.x, world.y)
-                }
+        if(menuSection=="行囊") Column(Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            IslandAction("食用野果 · 回血/饱食", enabled=island.fruit>0 &&
+                (world.hp<12 || island.hunger<10),Modifier.fillMaxWidth()) {
+                perform("eat",world.x,world.y)
+            }
+            if(island.fish>0) IslandAction("篝火烤鱼 · 恢复体力",
+                enabled=world.hp<12,Modifier.fillMaxWidth()) {
+                perform("eat_fish",world.x,world.y)
+            }
         }
         }
-        if(menuSection=="探索") {
+        if(menuSection=="地图") {
             IslandMiniMap(island)
         }
-        if(menuSection=="探索") {
+        if(menuSection=="地图") {
         island.houseProject?.let { project ->
             Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFF244950),
                 border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .4f))) {
@@ -598,7 +589,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         }
-        if(menuSection=="生态") {
+        if(menuSection=="图鉴") {
             Text("小岛生态图鉴",color=Color(0xFFF0FCF4),fontSize=17.sp,
                 fontWeight=FontWeight.Black)
             Text("遇见动物后会记入发现记录。结识后它们会陪伴你；修建宠物小屋可以让动物归家休息，小屋附近领取礼物的间隔可由24回合缩短至16回合。",
