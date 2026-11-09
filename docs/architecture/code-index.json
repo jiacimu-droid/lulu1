@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:14:45.829262+00:00",
-  "commit": "663c40edc8913375c9cd9438d35dd2f58d91584a",
+  "generatedAt": "2026-11-09T05:16:12.493696+00:00",
+  "commit": "1775659445260677308f7661e47e3957b4e94c06",
   "branch": "main",
-  "sourceFingerprint": "9cf5ba54e9d67c3b1cbe3b0a907571028deb78d5fce863e6714a347b21c34369",
+  "sourceFingerprint": "3790fcac3a223a09ee9cdf5a4f1250a4494eddd2b51b9cfc911ab730b7bd3aca",
   "summary": {
-    "files": 1150,
-    "lines": 248610,
-    "symbols": 3402
+    "files": 1153,
+    "lines": 248797,
+    "symbols": 3405
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17478,6 +17478,12 @@
         "line": 18
       }
     ],
+    "GrowthReflectionInputTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
+        "line": 6
+      }
+    ],
     "ImageSearchProviderTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt",
@@ -17950,6 +17956,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
         "line": 7
+      }
+    ],
+    "PrimaryTurnCommitmentWireTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt",
+        "line": 7
+      }
+    ],
+    "PrimaryTurnLifeHandoffTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt",
+        "line": 21
       }
     ],
     "PrivateChatExpressionContextTest": [
@@ -38167,6 +38185,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
+      "lines": 72,
+      "sha256": "08d732cc28e83679d4081be8761e77a5b9af9d12f7b4664e7f033b4fc6da535e",
+      "symbols": [
+        {
+          "name": "GrowthReflectionInputTest",
+          "line": 6
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt",
       "lines": 66,
       "sha256": "44cb8bbc32fd8c1233a6dff0bb972cdd52cbf5bf0920b19580ea28f89d032200",
@@ -38806,6 +38835,28 @@
         {
           "name": "PositiveExpressionGuidanceTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt",
+      "lines": 25,
+      "sha256": "01bf378221dd2a9e52f337be13951a8b4bb686f353bce500a599e4a1d5259fe7",
+      "symbols": [
+        {
+          "name": "PrimaryTurnCommitmentWireTest",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt",
+      "lines": 90,
+      "sha256": "2bab19f670247e309da8b428aad6605a852d64236edf23d21d4e461fca7d4ad1",
+      "symbols": [
+        {
+          "name": "PrimaryTurnLifeHandoffTest",
+          "line": 21
         }
       ]
     },
