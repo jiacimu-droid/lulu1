@@ -22,11 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluProfileAvatar
 import com.jiacimu.lulu.data.MigratedDomainStores
+import kotlinx.coroutines.launch
 
 /**
  * Entry room belongs to the game, not to the generic arcade character picker.
  * Selecting companions changes only the party; it never resets an existing island.
- * This screen does not impersonate an AI invitation/acceptance decision.
+ * New party members join only after their own model explicitly accepts the invitation.
  */
 @Composable
 internal fun BlockIslandEntry(store: LuluGameStore) {
@@ -57,6 +58,9 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         mutableStateOf(savedIsland?.world?.friends?.map { it.id } ?: emptyList())
     }
     var choosing by rememberSaveable { mutableStateOf(false) }
+    var inviting by remember { mutableStateOf<String?>(null) }
+    var invitationResult by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     val existingIsland = savedIsland != null
     val mint = Color(0xFFB7F2CE)
     val dim = Color(0xFFB6CDBF)
@@ -135,7 +139,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         Text("＋ 邀请", color = mint)
                     }
                 }
-                Text("可独自玩，也可选择最多3位角色一起进入。游戏中点队伍栏🎙说话，点🔊开启角色有声回应；角色会根据局势选择自己的行动。",
+                Text("邀请角色会调用一次游戏模型，由本人决定是否加入；可独自出发。进入后点🎙说话、点🔊开启角色有声回应，角色会根据局势自行行动。",
                     color = dim, fontSize = 11.sp, lineHeight = 16.sp)
                 if (choosing) {
                     if (candidates.isEmpty()) {
@@ -144,8 +148,33 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         candidates.forEach { c ->
                             val checked = c.characterId in selected
                             Surface(onClick = {
-                                selected = if (checked) selected - c.characterId
-                                    else if (selected.size < 3) selected + c.characterId else selected
+                                when {
+                                    inviting != null -> Unit
+                                    checked -> selected = selected - c.characterId
+                                    selected.size >= 3 -> invitationResult = "队伍最多3位同行角色"
+                                    else -> {
+                                        val id = c.characterId
+                                        inviting = id
+                                        invitationResult = "正在邀请 " + c.displayName + "…"
+                                        scope.launch {
+                                            val result = IslandInvitation.ask(id, selected)
+                                            if (inviting == id) {
+                                                result.onSuccess { answer ->
+                                                    invitationResult = c.displayName + "：" +
+                                                        answer.speech.ifBlank {
+                                                            if (answer.accepted) "我来啦" else "这次先不去了"
+                                                        }
+                                                    if (answer.accepted && id !in selected && selected.size < 3)
+                                                        selected = selected + id
+                                                }.onFailure { error ->
+                                                    invitationResult = c.displayName + "还没有给出有效答复：" +
+                                                        (error.message ?: "请检查游戏模型后重试")
+                                                }
+                                                inviting = null
+                                            }
+                                        }
+                                    }
+                                }
                             }, color = if (checked) Color(0xFF315E51) else Color(0xFF204346),
                                 shape = RoundedCornerShape(11.dp)) {
                                 Row(Modifier.fillMaxWidth().padding(9.dp),
@@ -154,12 +183,15 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                                     Spacer(Modifier.width(10.dp))
                                     Text(c.displayName, color = Color.White,
                                         modifier = Modifier.weight(1f), fontSize = 12.sp)
-                                    Text(if (checked) "✓ 同行" else if (selected.size >= 3) "队伍已满" else "＋",
+                                    Text(if (checked) "✓ 同行" else if (inviting == c.characterId) "邀请中…" else if (selected.size >= 3) "队伍已满" else "＋ 邀请",
                                         color = mint, fontSize = 12.sp)
                                 }
                             }
                         }
                     }
+                }
+                if (invitationResult.isNotBlank()) {
+                    Text(invitationResult, color = mint, fontSize = 11.sp, lineHeight = 16.sp)
                 }
             }
         }
@@ -172,7 +204,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
             }
         }
         Button(onClick = { onStart(selected.filter { it in characters }.take(3)) },
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            enabled = inviting == null, modifier = Modifier.fillMaxWidth().height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = Color(0xFF183B32))) {
             Text(if (existingIsland) "继续我的小岛" else "开始建岛",
                 fontWeight = FontWeight.Black, fontSize = 16.sp)
