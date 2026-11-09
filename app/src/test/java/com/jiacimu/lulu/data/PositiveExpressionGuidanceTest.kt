@@ -18,6 +18,25 @@ class PositiveExpressionGuidanceTest {
         }
     }
 
+    @Test fun nativeAcknowledgmentAndSingleTurnRhythmRemainModelAuthored() {
+        val guide = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val scene = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val noDuplicate = CharacterExpressionGuide.forGeneration(
+            "聊天表达渲染", includeTurnTaking = false)
+        assertTrue("A one-beat acknowledgment can naturally be sent before a longer continuation",
+            guide.contains("一个短回应（如收到）"))
+        assertTrue("Keep model-selected independent bubbles, not a forced comma splitter",
+            guide.contains("各是一个 bubbles 元素") && guide.contains("不是逢逗号就拆"))
+        assertTrue("The character has a native style, not an imposed self-reprimand",
+            guide.contains("不是先想写长篇，再提醒自己压住"))
+        assertTrue("Removing a duplicate scene rule must not remove the character-owned bubble contract",
+            noDuplicate.contains(CharacterExpressionGuide.livingLanguagePrinciples))
+        assertFalse(noDuplicate.contains(CharacterExpressionGuide.casualChatRhythm))
+        assertEquals(1, (scene + "\n" + noDuplicate)
+            .split(CharacterExpressionGuide.casualChatRhythm).size - 1)
+        assertTrue(noDuplicate.contains("必要答案、条件、否定与不确定性完整保留"))
+    }
+
     @Test fun privateChatCanSendPhraseSizedMessagesWithoutMandatoryPunctuation() {
         // The same character-owned guidance reaches one-call online chat and
         // the separate foreground expression renderer; no hard comma splitter.
