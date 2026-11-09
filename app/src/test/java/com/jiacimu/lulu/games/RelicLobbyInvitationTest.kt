@@ -2,7 +2,12 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest=Config.NONE,sdk=[28])
 class RelicLobbyInvitationTest {
     @Test fun acceptingAndDecliningAreDistinctRealDecisions() {
         val accepted=RelicLobbyInvitation.parse("""{"accept":true,"speech":"走，算我一个"}""")
