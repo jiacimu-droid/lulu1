@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:35:20.369622+00:00",
-  "commit": "3912119950c66d758846d8196d05c52c185e1f9b",
+  "generatedAt": "2026-11-09T09:36:18.547673+00:00",
+  "commit": "bf31c3d734a37af36af9f315292c41cd4377e694",
   "branch": "main",
-  "sourceFingerprint": "192bb0bacaf0f33671f9e1521ff42448417796e442eb004a1775d097635ef0f7",
+  "sourceFingerprint": "afd75281820b0619a1d14f4c6d59bb61d48ecb048916d7e413d9cc62ce948002",
   "summary": {
-    "files": 1153,
-    "lines": 248991,
-    "symbols": 3405
+    "files": 1154,
+    "lines": 249036,
+    "symbols": 3406
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5584,6 +5584,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
         "line": 164
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
+        "line": 13
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -33742,6 +33746,17 @@
         {
           "name": "carve",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
+      "lines": 45,
+      "sha256": "1286ce1d085cc1ddbd824018659619291b9974b915090b5ce5f859887f4b33a3",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 13
         }
       ]
     },
