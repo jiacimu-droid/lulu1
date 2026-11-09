@@ -66,6 +66,23 @@ class MemoryContextPolicyTest {
         assertFalse(presence.copy(source = "unverified-guess").isOwnSubjectiveMemorySource())
     }
 
+    @Test fun routineSelfOnlyTailBatchesForAnHourButOwnerAndToolFactsStayFast() {
+        val now = Instant.parse("2026-11-09T08:00:00Z")
+        val role = SharedTimelineEvent("self", "role", "此刻", "角色",
+            "今天随手看了窗外", now.minusSeconds(900),
+            source = "presence", evidenceKind = EventEvidenceKind.Inference)
+        val user = role.copy(id = "user", content = "我喜欢吃火锅",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val tool = role.copy(id = "tool", content = "游戏实际结算完成",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        assertFalse(shouldFlushPendingMemoryTail(listOf(role), emptySet(), now))
+        assertTrue(shouldFlushPendingMemoryTail(listOf(role), emptySet(), now.plusSeconds(2_701)))
+        assertTrue(shouldFlushPendingMemoryTail(listOf(user), emptySet(), now))
+        assertTrue(shouldFlushPendingMemoryTail(listOf(tool), emptySet(), now))
+        assertFalse(shouldFlushPendingMemoryTail(listOf(user), setOf("user"), now))
+        assertFalse(shouldFlushPendingMemoryTail(listOf(role.copy(occurredAt = now.plusSeconds(60))), emptySet(), now))
+    }
+
     @Test fun idleFlushUsesElapsedTimeAndNeverFlushesAFutureTimestamp() {
         val now = Instant.parse("2026-10-08T12:00:00Z")
         assertTrue(shouldFlushMemoryTail(now.minusSeconds(600), now))
