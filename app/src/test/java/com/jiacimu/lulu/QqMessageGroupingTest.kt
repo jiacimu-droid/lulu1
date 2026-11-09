@@ -13,6 +13,16 @@ class QqMessageGroupingTest {
         replyBatchId = batch,
     )
 
+    @Test fun fullAndLeanRoleSpeechBothAskForModelAuthoredSendBeats() {
+        val normal = com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration("后台主动感知")
+        val lean = com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        listOf(normal, lean).forEach { guidance ->
+            assertTrue(guidance.contains("输出前再检查"))
+            assertTrue(guidance.contains("不要求固定条数"))
+            assertTrue(guidance.contains("优先按本人实际想发送的节拍拆成多个元素"))
+        }
+    }
+
     @Test fun nextBubbleLengthControlsTypingIntervalWithoutSplittingRoleAuthoredText() {
         val role = "pacing-test-character"
         val tiny = roleBubbleDelayMillis(role, "诶嘿", 0)
