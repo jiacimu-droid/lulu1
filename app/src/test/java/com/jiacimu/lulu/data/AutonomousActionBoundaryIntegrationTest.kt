@@ -329,6 +329,51 @@ class AutonomousActionBoundaryIntegrationTest {
     }
 
 
+
+    @Test fun newerUserBubbleDefersOnlyUnstartedActionsAndReplayDoesNotDuplicateDeliveredSteps() = runBlocking {
+        val actor = role()
+        val requestId = "stale-turn-${UUID.randomUUID()}"
+        val deliveredText = "旧轮已经真实送达-${UUID.randomUUID()}"
+        val deferredText = "新消息后必须重新判断-${UUID.randomUUID()}"
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", deliveredText)))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", deferredText)))
+        var checks = 0
+        val interrupted = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId, shouldDeferRemaining = { ++checks > 1 })
+        assertEquals(1, interrupted.completedCount)
+        assertTrue(interrupted.notes.any { it.contains("暂缓") })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == deliveredText
+        })
+        assertEquals(0, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == deferredText
+        })
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$requestId:step:0")).isNotEmpty())
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$requestId:step:1")).isEmpty())
+
+        // This is an explicit resumption by the caller, not automatic execution
+        // after a new user bubble. The already delivered step must be replay-safe.
+        val resumed = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = requestId)
+        assertEquals(2, resumed.completedCount)
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == deliveredText
+        })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == deferredText
+        })
+        assertEquals(2, SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$requestId:step:0",
+                "tool-$actor-$requestId:step:1")).size)
+    }
+
+
     @Test fun realPrimaryRejectionDoesNotEraseIndependentReplyOrItsDurableReceipts() = runBlocking {
         val actor = role()
         val turnId = "primary-and-reply-${UUID.randomUUID()}"
