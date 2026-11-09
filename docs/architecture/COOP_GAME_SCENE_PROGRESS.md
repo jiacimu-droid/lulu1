@@ -99,3 +99,13 @@
 - 该 Job 原始日志约 2296 条单元测试 `STARTED` 事件、约 370 个测试类；`:app:testDebugUnitTest` 从 08:04:25Z 到最后一条 `STARTED` 08:06:41Z，约 2 分 16 秒；Gradle `BUILD SUCCESSFUL in 12m 12s`。同一工作流先编译 `:app:compileDebugKotlin`（08:01:50Z），后编译 `:app:compilePhoneKotlin`（08:07:14Z），测试只占完整发布耗时一小部分；直接删除大量测试难有对应大幅收益，反而损失覆盖。
 - 2026-11-03 在现有 `.github/workflows/release.yml` 原工作流中将 `:app:verifyArtSafeVariants :app:testDebugUnitTest :app:assemblePhone` 改为 `:app:verifyArtSafeVariants :app:testPhoneUnitTest :app:assemblePhone`；仍运行**同一份完整 JVM/Robolectric 测试源码，不删测试、不缩短断言**，使测试与最终安装包共享 `phone` 编译任务，避免先 Debug 后 Phone 两套编译图。
 - 优化提交 `33016229328e7128a819ea83280432d7f8f709e1`，触发 [Lulu APK #7464](https://github.com/jiacimu-droid/lulu1/actions/runs/41602005363)；检查时 #7464 仍 pending，前一次 #7462 正运行。**这一优化尚无完整 Android 运行验证，也没有可证实的节省分钟数**。必须以 #7464 或包含上述优化提交的后续成功构建确认 Gradle 确实执行 `testPhoneUnitTest`、单测数、APK 产物与发布一致性；若测试变体不兼容，应依据真实日志修正规则而不是跳过测试。
+
+
+## 2026-11-09：方块小岛入口／工作台职责调整（G-02；源码已提交，CI、真机、语音待验）
+
+- 主人实玩指出：直接进大地图、菜单里混入制作和建造、工作台需打开通用菜单、缺少可感知的目标、角色语音和自主游玩的入口不明显。根因是 `BlockIslandScreen` 的 `GameSceneDeck.tools` 同时承载工作台、建造、地图/库存/设置；通用游戏馆又提前弹出选人页，世界没有自己的启程阶段。
+- 新增 `BlockIslandEntry / BlockIslandLobby`：从游戏馆直接进入小岛专用大厅，玩家队伍槽和“＋邀请（选择同行）”、真实旧档继续、冒险目标预览、进入游玩。入场从已有 Store 选择角色，世界在 `BlockIslandScreen` 初始化，旧存档不因大厅重建而清空；恢复存档的已选同伴先显示。**当前是玩家选择同行，不是模型独立接受/拒绝邀请**；后者须另接角色本人决定与成功回执，不能冒充已完成。
+- 工作台互动改为游戏内就地配方面板，需距离≤2格，配方由 `IslandWorkbenchRecipes` 同时提供给真实执行规则与显示层；建造从右手快捷栏直接进入建筑列表，选择后回地图定位。通用菜单仅保留地图、行囊、伙伴、图鉴、设置；吃野果/烤鱼归行囊，采集、战斗、建造在 HUD。点击任务条能查看生存→探险→家园的目标顺序与存档实际进度。
+- 仍沿用既有 `IslandCompanionPanel` 的按麦克风识别成文字→角色本人 `IslandActorPlay.decide`→校验与物理执行→回执，以及 `IslandCompanionVoice` 的可开关音色朗读；**未实现常开免按键双向通话或角色自行接受邀请**。游戏操作仍可在模型等待时进行，原真实行动与旧存档格式未换中心。
+- 源码提交：大厅 `9e3f579` / `443136b` / `b83427d`；就地交互、任务、菜单 `e971b49` / `c2846fe` / `e1330b3`；配方单源 `7ab6d50` / `ffea168` / `363c0e3`。新增 `IslandWorkbenchRecipesTest`（`f79f4ea`）校验材料、工作台距离、拒绝重复扣费，**目前仅提交测试源码，未取得对应 JVM/APK 运行通过证据**。
+- **下轮 G-02 固定入口**：先核本轮最新 push SHA 的 `compilePhoneKotlin`、`testPhoneUnitTest` 与 APK；失败修首错，成功后实测横屏大厅、弹窗遮挡、旧档同伴续接、真实 ASR/音色权限与收费、角色决策与真机帧率。随后继续真实邀请接受/拒绝、目标奖励和协作建造玩法，不得把本轮界面结构调整宣称为完整游戏改造。
