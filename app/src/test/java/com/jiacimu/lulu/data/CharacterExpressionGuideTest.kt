@@ -58,8 +58,10 @@ class CharacterExpressionGuideTest {
         assertTrue(prompt.contains("心声可以生动"))
         assertTrue(prompt.contains("spontaneousTurn"))
         assertTrue(prompt.contains("不是系统执行说明、优化报告或模型推理记录"))
-        assertTrue(prompt.contains("旧反馈不是正在发生的新争执"))
-        assertTrue(prompt.contains("已熟悉的聊天节奏直接体现在 text/bubbles 中"))
+        assertTrue(prompt.contains("以往交流中形成的默契属于相处背景，不是本轮新发生的争执或待办"))
+        assertTrue(prompt.contains("已经熟悉的聊天节奏直接体现在 text/bubbles 中"))
+        assertTrue(prompt.contains("无须把语言风格当成一件需要反复琢磨的心理任务"))
+        assertFalse(prompt.contains("不要发长篇大论"))
         assertTrue("Do not turn the learned texting style into recurring self-criticism",
             prompt.contains("直接体现在 text/bubbles 里"))
         assertTrue("The inner-life module must be substantially smaller than the old repeated checklist",
