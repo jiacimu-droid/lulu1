@@ -468,10 +468,12 @@ class AutonomousActionBoundaryIntegrationTest {
         val firstPost = "第一轮已送达-${UUID.randomUUID()}"
         val secondPost = "新消息后重新选择-${UUID.randomUUID()}"
         val requests = java.util.concurrent.atomic.AtomicInteger()
+        val modelInputs = java.util.concurrent.CopyOnWriteArrayList<String>()
         val server = okhttp3.mockwebserver.MockWebServer()
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
                 val index = requests.incrementAndGet()
+                modelInputs.add(request.body.readUtf8())
                 val choice = JSONObject().put("action", "tool")
                     .put("tool", "publish_moment")
                     .put("args", JSONObject().put("text", if (index == 1) firstPost else secondPost))
@@ -507,6 +509,8 @@ class AutonomousActionBoundaryIntegrationTest {
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = second.revision, requiresUnread = true)
             assertEquals("每个有效新批次应有自己的本人决策", 2, requests.get())
+            assertTrue("新批次模型输入应承接旧轮已送达动作的真实回执",
+                modelInputs[1].contains(firstPost))
             assertEquals(1, MomentsStore.posts.value.count {
                 it.authorCharacterId == actor && it.content == firstPost
             })
