@@ -288,6 +288,8 @@
 
 **2026-11-09 P-08c.2 群聊回执重建幂等回归（待 CI）**：新增 [`bf111c58`](https://github.com/jiacimu-droid/lulu1/commit/bf111c58d06a5f6cc402f4b241ebb56f1c6ad5df) `QqReplySourceWatermarkTest.completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`，用真实 `ToolRouter.execute(send_group_message)`、原 ChatStore SharedPreferences 重建及相同 requestId/不同诊断 trace 的重放，核对原始回执完全一致、群聊消息不重复、重新打开的 Store 与 live Store 的消息 ID/正文一致。仅测试提交，未改生产源码；本轮没有 JVM/APK/Refresh code index 对应 head SHA 成功证据，不能勾工程完成。此为 Store 实例重建，不是进程死亡或回执下游消费者的全部验证。下一轮直接核 `bf111c58` 的 main push Actions，失败修首错；成功后追踪回执下游消费者是否跨重启重复应用副作用，若已有覆盖转 P-08a.1g.3。真机/真实模型未验。
 
+**2026-11-09 S-02.1 可选记忆 503 网关边界回归（待 CI）**：[`2f14bb75`](https://github.com/jiacimu-droid/lulu1/commit/2f14bb75f6efb536d3d24922c7887c0d647e06dc) 新增 `ModelVisibleOutputTest.optionalMemory503NeverBuysFallbackOrImmediateDuplicate`，真实 Gateway + MockWebServer 验证 `记忆/连续记忆提取` 首次 503 不做第二次 POST、同证据即时重试被持久后台预算门禁拒绝。查证 `RelayRequestPressurePolicy.canRecover` 只允许 `后台主动感知`，上轮怀疑可选记忆 503 二次 claim 冲突不可达，故不改生产策略、不放宽防重复计费。新 SHA 的 JVM/APK 与 Refresh code index 尚待核，真机/计费未验。**下一轮固定 S-02.1**：先核 `2f14bb75` 的 Actions 首错；成功后沿记忆提取队列验证 503 失败后的持久任务延期与重启恢复，若已有测试则转 P-08a.1g.3。测试文件索引由现有 Refresh code index 工作流生成，当前容器 GitHub DNS 不可用，未在本地运行索引脚本。
+
 ## 四、交接记录与完成定义
 
 每轮在专项进度末尾追加：**日期｜接手 main SHA｜任务 ID.步骤｜原实现和真实根因｜修改文件与提交 SHA｜测试名/CI 运行 ID 及结论｜手机/真实模型/跨日证据或明确未验｜已勾步骤及下一 ID**。同一工作流被其他提交取消不能当成功。只有全部约定层级通过才从表移除整个 ID；只完成源码则保留明确的真机/真实模型待验，不把历史修复流水复制回本页。
