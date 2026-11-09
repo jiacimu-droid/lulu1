@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:36:18.547673+00:00",
-  "commit": "bf31c3d734a37af36af9f315292c41cd4377e694",
+  "generatedAt": "2026-11-09T09:38:15.857596+00:00",
+  "commit": "7450581e4fdd31886cc9b0c38e2d4848c99f3650",
   "branch": "main",
-  "sourceFingerprint": "afd75281820b0619a1d14f4c6d59bb61d48ecb048916d7e413d9cc62ce948002",
+  "sourceFingerprint": "ac9b1a72a0251d9835d9f2bfcdd3f1706cde0e3145c1a683ca6981e8b8f90be6",
   "summary": {
-    "files": 1154,
-    "lines": 249036,
+    "files": 1156,
+    "lines": 249557,
     "symbols": 3406
   },
   "symbolIndex": {
@@ -32464,6 +32464,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
+      "lines": 176,
+      "sha256": "9e688ed0cd77cdb0e577a7e8d0ba81bacbb12688a9439ca02d19a37030489717",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
       "lines": 769,
       "sha256": "73de3964b0d9d71340b857b29d355cb4d980bb611e1dbcc0bb55fd97bdb84d98",
@@ -33336,8 +33342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 873,
-      "sha256": "ca341fae354a3a41a7decb9c158dfe281ad1fb374750ba30064a174e1fd5a7c0",
+      "lines": 875,
+      "sha256": "a5cc8749e97fe966486817a6e989d009f1b61d6161b47fe7806e51bea6a283ef",
       "symbols": [
         {
           "name": "Home",
@@ -33611,6 +33617,12 @@
           "line": 149
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
+      "lines": 302,
+      "sha256": "ce7e50b64ec9177ca0a19f94c519d23b0be9700f855a401a75e46c66d595b80d",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -38478,8 +38490,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt",
-      "lines": 191,
-      "sha256": "1b56a9c9b77721ca46ac1d823292ecfd03c9b32d76246fde91accc812ca5795c",
+      "lines": 232,
+      "sha256": "b3ce92626e48dc4013f6211ee1166437385dd951028020489c68a4f85a2c4c3b",
       "symbols": [
         {
           "name": "MemoryExtractionCheckpointTest",
