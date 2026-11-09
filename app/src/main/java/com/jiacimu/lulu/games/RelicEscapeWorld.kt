@@ -6,7 +6,8 @@ import java.util.UUID
 
 /** Every run builds a new, connected physical board, not a narrated map. */
 internal object RelicEscapeWorld {
-    fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int,satchelLevel:Int=0):RelicRun {
+    fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int,satchelLevel:Int=0,
+        difficulty:RelicDifficulty=RelicDifficulty.NORMAL):RelicRun {
         val rng=Random(seed)
         val w=18;val h=15
         val cells=MutableList(w*h){i->
@@ -69,16 +70,16 @@ internal object RelicEscapeWorld {
         }
         val occupied=(chestPositions+exit+(2 to 2)).toMutableSet()
         val mobs=mutableListOf<RelicMob>()
-        for(index in 0 until (2+level.coerceIn(1,5))) {
+        for(index in 0 until (2+level.coerceIn(1,5)+difficulty.extraMobs)) {
             val candidates=(1 until w-1).flatMap{x->(1 until h-1).map{y->x to y}}
                 .filter{(x,y)->x to y in reachable && x to y !in occupied &&
                     abs(x-2)+abs(y-2)>4}
             if(candidates.isEmpty())break
             val (x,y)=candidates[rng.nextInt(candidates.size)]
             occupied+=x to y
-            val kind=if(level>=2 && index==(2+level.coerceIn(1,5))-1)3
+            val kind=if(level>=2 && index==(2+level.coerceIn(1,5)+difficulty.extraMobs)-1)3
                 else if(level<=1)index%2 else rng.nextInt(3)
-            mobs+=RelicMob(index,x,y,if(kind==3)9+level else 2+kind*2+level/2,kind)
+            mobs+=RelicMob(index,x,y,(if(kind==3)9+level else 2+kind*2+level/2)+difficulty.monsterHp,kind)
         }
         // Optional danger rooms and one-use traps are world entities, not narrative rewards.
         val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
@@ -110,7 +111,7 @@ internal object RelicEscapeWorld {
         val run=RelicRun(UUID.randomUUID().toString(),seed,level,w,h,cells,RelicPhase.EXPLORE,
             RelicActor("player",2,2,kits=kits),allies,chests,mobs,emptyList(),
             exit.first,exit.second,weapon=weapon,sites=sites,satchelLevel=satchelLevel.coerceIn(0,2),
-            notice="深入遗迹。远处有一处绿色撤离信标。")
+            notice="深入遗迹。远处有一处绿色撤离信标。",difficulty=difficulty)
         return RelicEscapeRules.reveal(run).log("player","enter","进入第"+level+"层遗迹，同行"+allies.size+"人")
     }
 }
