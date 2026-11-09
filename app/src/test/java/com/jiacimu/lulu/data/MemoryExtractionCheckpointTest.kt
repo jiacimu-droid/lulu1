@@ -228,6 +228,44 @@ class MemoryExtractionCheckpointTest {
         assertEquals(305, MemoryExtractionJobStore.pending().size)
         assertTrue(MemoryExtractionJobStore.pending().any { it.characterId == "role-0" })
     }
+    @Test fun cancelledDrainKeepsInFlightEvidenceWithoutChargingASecondAttempt() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "memory:cancelled-drain"
+        val first = MemoryExtractionJobStore.enqueue(role, sourceReplyId = "before-cancel")
+        var attempts = 0
+        try {
+            ChatMemoryAutomation.drain(
+                role, autoSummarize = { true },
+                summarize = {
+                    attempts++
+                    MemoryExtractionJobStore.enqueue(role, sourceReplyId = "arrived-before-cancel")
+                    throw kotlinx.coroutines.CancellationException("worker stopped")
+                },
+            )
+            fail("Cancellation must propagate to the worker")
+        } catch (_: kotlinx.coroutines.CancellationException) {
+            // Cancellation is not an extraction failure or a successful checkpoint.
+        }
+        val pending = MemoryExtractionJobStore.pending().single()
+        assertEquals(first.id, pending.id)
+        assertEquals(2L, pending.revision)
+        assertEquals("arrived-before-cancel", pending.sourceReplyId)
+        assertEquals(0, pending.attempts)
+        assertEquals(1, attempts)
+        MemoryTestEnvironment.release()
+        MemoryExtractionJobStore.initialize(context)
+        val restored = MemoryExtractionJobStore.pending().single()
+        assertEquals(pending.id, restored.id)
+        assertEquals(pending.revision, restored.revision)
+        assertEquals("arrived-before-cancel", restored.sourceReplyId)
+        ChatMemoryAutomation.drain(
+            role, autoSummarize = { true },
+            summarize = { attempts++ },
+        )
+        assertEquals(2, attempts)
+        assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+    }
+
     @Test fun realGateway503FailurePersistsDirtyMemoryWithoutImmediateSecondPost() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
