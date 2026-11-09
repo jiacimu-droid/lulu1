@@ -1598,3 +1598,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 测试 [6861bc38](https://github.com/jiacimu-droid/lulu1/commit/6861bc381999a6b0e044b1da8475b94376ff05dc)：真实 drain 接到持久 MemoryExtractionJobStore，预算异常延期，飞行中新事件 revision 保留，Store 重建后截止前不执行、到期恢复清队列。假 summarizer 非真实 HTTP/进程死亡。
 - 新提交对应 APK/JVM、Refresh code index 尚未得到 completed/success，工程验收不勾；真机/真实模型/服务商账单未知。请求尝试、成功与计费分别核对。
 - 下一轮固定 S-02.1：查 6861bc38 的 main push Actions head SHA，失败修首错；成功后补 Gateway MockWebServer→drain→持久队列的网络纵向回归。若已由其他窗口覆盖则转 P-08a.1g.3。
+
+## 2026-11-09 · S-02.1 drain 网络失败与持久重试回归
+
+- 提交 [2dbe6bf](https://github.com/jiacimu-droid/lulu1/commit/2dbe6bf22c04d29aa2ccbdfa72ed27243d655fd5)：`MemoryExtractionCheckpointTest.realDrainNetworkFailureRetainsNewEvidenceAndWaitsThroughRestart` 使用真实 `ChatMemoryAutomation.drain`，注入模拟 IOException，期间入队新来源；断言旧请求失败计一次、修订与来源不丢、重建 Store 后 15 分钟内不重试、到期恢复且队列清空。仅测试改动，未发现可证实生产缺陷，不动正式逻辑。
+- CI：本次容器访问 GitHub REST DNS 失败，PR-only workflow 查询不代表 push；未取得本测试 SHA 的 APK/JVM 或索引 success。真实 MockWebServer→summarizer→drain 及服务商计费/真机未验。下一轮固定 S-02.1：核 2dbe6bf 后继 Actions 首错；通过后补 Gateway 503 与持久队列的纵向网络回归，无法安全实现则转 P-08a.1g.3。
