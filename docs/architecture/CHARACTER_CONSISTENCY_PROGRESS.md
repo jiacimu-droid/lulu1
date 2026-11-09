@@ -1621,3 +1621,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 根因：`MemoryExtractionJobStore.failed(expected,error)` 原先只将 `IOException` 视为跨 revision 仍须退避的网络异常；`CompanionModelGateway` 对 503 抛出 `ModelHttpException : IllegalStateException`。在飞行期间追加新事件后，`failed` 的旧 revision 校验拒绝写入失败次数，导致下一轮立刻重试，可能重复计费。
 - 正式修复 [f3a9ec5](https://github.com/jiacimu-droid/lulu1/commit/f3a9ec5237838f5f45054f583da360f110662f24)：HTTP 5xx 和 IOException 均保留跨 revision 退避；HTTP 4xx 仍只作用于原 revision，避免旧输入错误污染新证据。回归 [29c251a](https://github.com/jiacimu-droid/lulu1/commit/29c251aebc6642d30055774fe3d6ca7ad6e85c81)：503/400 对照及既有 MockWebServer→Gateway→drain→Store 重启纵向用例。
 - **本轮修复提交的 APK/JVM 与 Refresh code index 尚未验通，不能打 [x]**。下一固定 S-02.1：按 `29c251a` head SHA 查 main push Actions 的 JVM 首错，失败继续修同一根因；成功后更新 Roadmap 工程验收证据，真机/真实模型/中转站账单仍独立待验。请求尝试≠成功回复≠服务商计费。
+
+## 2026-11-10 S-02.1 工程 CI 核实与 P-08a.1g.3 最小纵向回归
+
+- `29c251aebc6642d30055774fe3d6ca7ad6e85c81` 对应 main push [Lulu APK #42619476897](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476897) 和 [Refresh code index #42619476889](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476889) 均 completed/success。证明 503/400 对照回归与构建在该提交通过，不代表真实供应商计费或设备验收。
+- P-08a.1g.3 在 `AutonomousActionBoundaryIntegrationTest.kt` 新增 `realPrimaryRejectionDoesNotEraseIndependentReplyOrItsDurableReceipts`：真实 ToolRouter 未知主工具拒绝，依赖副步骤跳过，独立私聊回复和动态经真实执行器发送；检查 ChatStore、MomentsStore、Timeline 独立回执，再以相同 requestId 重放防二次送达。提交 `c0a9913`、修正实际消息字段 `06c5271`；测试未取得 CI 通过证据，不称已验。
+- 下一轮固定 P-08a.1g.3：按 `06c5271` 查询 APK/JVM 和索引；若失败先修测试首错，若通过再覆盖回复取消/重启后的持久因果，避免与 P-08b/P-03、G-02/G-03 重叠。真机/真实模型与中转站账单仍未验。
