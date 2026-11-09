@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:52:53.586269+00:00",
-  "commit": "aca3907e9fa9826d7dfd99963226d549f77c1028",
+  "generatedAt": "2026-11-09T05:54:20.303819+00:00",
+  "commit": "dce064e91ca5201cd59bc861eb6601449f7dccaa",
   "branch": "main",
-  "sourceFingerprint": "82e239324ffc69424c7d0fa98f841287ab3ee02045316d30d8337381378e15fe",
+  "sourceFingerprint": "c39ee3bd59df31784b0f46049c759a8d2c00d5e404a67e2d0d1702ff683ae16d",
   "summary": {
     "files": 1153,
     "lines": 248881,
@@ -36730,7 +36730,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 117,
-      "sha256": "b2f5f242b582dbfb7378ea4ba9e9fa10773b5b4678ee2143de87a23c3c7d9459",
+      "sha256": "c5010cf387754353074a69aa4e4d9607dc8a36db7d6e9101ff85a203af23f30d",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -37114,7 +37114,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
       "lines": 539,
-      "sha256": "a384787de3e13d06c7c0c3559ac40f4a1c9d210db36fddf7fdcd4c177a21f68d",
+      "sha256": "e98eb1947df2e9a231e972a37e2ace47e8385cc70d62d7094f5c9c5774488d9b",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
