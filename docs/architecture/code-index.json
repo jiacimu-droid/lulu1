@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T02:18:28.901247+00:00",
-  "commit": "b45b74336e6e2c529040c9d11e43964bb8214b61",
+  "generatedAt": "2026-11-09T02:27:47.992757+00:00",
+  "commit": "607e458413b4153b586710871f79262bb988eb6c",
   "branch": "main",
-  "sourceFingerprint": "1db095bcb9ebc67ad6da0b26f0ced93049d98cbf1b099557e1f2a5a3aabe84f2",
+  "sourceFingerprint": "1f05ab418756056cd0ff1c85a339cca4f1ee349d2f0f3d5772bcd542ecb917f4",
   "summary": {
     "files": 1150,
-    "lines": 248101,
+    "lines": 248105,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -6869,13 +6869,13 @@
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 254
+        "line": 255
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 299
+        "line": 300
       }
     ],
     "localDay": [
@@ -25039,8 +25039,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 331,
-      "sha256": "6d72a1878d1d61d867fc16ffee25765639c24863dd10316d3632066814d2fe40",
+      "lines": 332,
+      "sha256": "9750478be9b1ee8be7a1a5eec2350bdafb10c33446c2470c45f8b3428465a84d",
       "symbols": [
         {
           "name": "initialize",
@@ -25084,11 +25084,11 @@
         },
         {
           "name": "recordShareWish",
-          "line": 254
+          "line": 255
         },
         {
           "name": "recordAction",
-          "line": 299
+          "line": 300
         }
       ]
     },
@@ -27654,7 +27654,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
       "lines": 364,
-      "sha256": "b0f565afe2f95d87d508dc9753d944f18cc5890ecbb1eb8630cfa8268402a685",
+      "sha256": "7b567d27e2492c7cdfcfc598f4ee7b27cc67804be7e8c089c0062465394f1652",
       "symbols": [
         {
           "name": "toJson",
@@ -30852,8 +30852,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 35,
-      "sha256": "f7afae6e28d5af619231df8a8dbf8d608e833e1de21724dbc61ba03fa55b0da2",
+      "lines": 38,
+      "sha256": "9e170fcd9b3f66dd57c47e8e00c406a470c0043e72b0e3c611dc1f8e29ef702e",
       "symbols": []
     },
     {
