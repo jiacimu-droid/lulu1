@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bac172411f948fc2eaac3c3395a47483895fd3db`
+- 基准提交：`fc26ac2c9f8554ff694fcc34ad0f8f352caab892`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：247913
+- 已索引代码/文本行：247931
 - 已发现符号：3395
 
 | 文件 | 行数 | 符号数 |
@@ -549,7 +549,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 576 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 594 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2377 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 170 | 17 |
