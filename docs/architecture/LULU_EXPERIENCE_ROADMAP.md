@@ -42,6 +42,12 @@
 - [f5307df](https://github.com/jiacimu-droid/lulu1/commit/f5307dfe1fb323a827f884b5a9e370d5cac09710) 在现有真实 ChatStore / OrderedCharacterActions / MomentsStore / Timeline 回归补新消息、新 requestId、新决定路径：旧轮第一步已送达，第二步暂缓；用户实际发新消息后只执行新决定，不自动恢复旧未执行动作，已送达回执不丢，新决定重放不重复。测试显式模拟下一轮决定，**不证明 ProactivePerceptionRuntime 自动触发或真实模型重新决策**。
 - 旧 [ed111f4 APK/JVM #42657981675](https://github.com/jiacimu-droid/lulu1/actions/runs/42657981675) 与 [索引 #42657981490](https://github.com/jiacimu-droid/lulu1/actions/runs/42657981490) 已核 completed/success；本轮 f5307df JVM/APK/索引待验。下一轮固定 P-08a.1g.3：核 f5307df 的 Actions 首错，随后调查 ProactivePerceptionRuntime 新输入到下一轮决策的真实调度入口；若无法可测，转 P-08c.2。真机/真实模型/跨进程待验。
 
+
+### 2026-11-10 P-08a.1g.3 两次正式在线批次纵向回归（待 CI）
+
+- 测试提交 [68b9973](https://github.com/jiacimu-droid/lulu1/commit/68b997322cc21fe9843b88242163bcfb08a4eee0)：`AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost` 通过 MockWebServer 两次回复接正式 `ProactivePerceptionRuntime.runDueCycle`、`OnlineChatBatchStore` 与真实 MomentsStore；核对新用户气泡产生不同 revision、两次本人选择分别送达、旧 revision 再调度不额外 POST。测试尚未取得 JVM/APK 通过证据，**不勾工程验收**；没有模拟执行中取消，也不证明真实模型自主语义或进程死亡。
+- **下一轮固定 P-08a.1g.3**：先核 `68b9973` main push APK/JVM 和 Refresh code index 的 head SHA、首错；若失败修同一测试夹具/真实缺陷；若成功补执行中插入新气泡的取消与下一轮真实回执上下文。无法在现有测试环境证明则转 P-08c.2。请求尝试不等于成功/计费。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
