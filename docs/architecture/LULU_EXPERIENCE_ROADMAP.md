@@ -216,6 +216,7 @@
 
 ### S-02 居民管理与身份
 - [ ] **S-02.1** 从「居民管理」设置追每日规划/行动预算至 Worker 及实际 API 消耗；多居民/重启/失败回执回归。
+  - 2026-11-09 工程增量：[`47ab990`](https://github.com/jiacimu-droid/lulu1/commit/47ab9906671ff49ad6dd2110518adf9774c954a3) 新增真实网关+MockWebServer 流式协议拒绝时居民额度 1/2 的 POST 数与领取数回归；**仅已提交、JVM/APK/索引待验，不勾 S-02.1**。下一轮直接检查 `ModelVisibleOutputTest.residentStreamFallbackCannotSendAnUnclaimedSecondPost` 对应 CI，失败修首错；通过后补 503 回退真实网络/后台门禁。
 - [ ] **S-02.2** 删居民后查仍运行的任务、孤儿私聊、群聊历史、朋友圈/通知；保留历史，不生成幽灵居民。
 - [ ] **S-02.3** 验性别/身份/详细本人设定在相遇导演、双方提示词和实际称谓中一致；不能根据职业/姓名推断。旧 cc03dadd 私聊过滤不重做。
 
