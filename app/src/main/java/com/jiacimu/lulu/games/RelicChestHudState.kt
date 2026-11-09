@@ -18,5 +18,9 @@ internal data class RelicChestHudState(
     fun afterWorldAction(committed: Boolean): RelicChestHudState =
         if (committed) RelicChestHudState() else this
 
+    /** A successful save can still contain a rejected/no-op tap with no world turn. */
+    fun afterWorldTurn(before: Int?, after: Int?): RelicChestHudState =
+        afterWorldAction(committed = before != null && after != null && after != before)
+
     fun nextAction(): RelicChestHudState = afterWorldAction(committed = true)
 }
