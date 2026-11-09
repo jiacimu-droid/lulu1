@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9013714e498fe8ebefa7c5c6d3526513ab19eafd`
+- 基准提交：`f993eeabd98334514f9a3c31384c24910024055e`
 - 分支：`main`
-- 已索引文件：1160
-- 已索引代码/文本行：249966
-- 已发现符号：3411
+- 已索引文件：1161
+- 已索引代码/文本行：250025
+- 已发现符号：3412
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -644,7 +644,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 889 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 182 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 214 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 764 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1036 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
@@ -1127,6 +1127,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHarvestPlanTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHouseActorInterruptionTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt` | 342 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
