@@ -140,7 +140,12 @@ class CharacterLifeFollowThroughStoreTest {
         assertFalse("a full gauge must not leave real choices empty", choices.isEmpty())
         assertTrue(choices.first().contains("experienceId="))
         assertTrue(choices.first().contains("message/moment/group_message"))
-        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("尚未分享"))
+        val highNeed = CharacterLifeFollowThroughStore.context(role, now)
+        assertTrue(highNeed.contains("尚未分享"))
+        assertTrue("A full sharing gauge should offer a concrete thought impulse",
+            highNeed.contains("鲜明的分享冲动") && highNeed.contains("appraisal.privateIdeas"))
+        assertTrue("Sharing while replying is a selectable parallel action, not an automatic post",
+            highNeed.contains("并行选择其他独立动作") && highNeed.contains("真实回执"))
         // Context/urge is never itself evidence of an actual outgoing message.
         assertTrue(CharacterLifeFollowThroughStore.sharingCandidates(role, now)
             .all { it.optString("shareStatus") == "open" })
