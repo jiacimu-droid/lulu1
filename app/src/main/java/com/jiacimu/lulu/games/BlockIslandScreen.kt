@@ -82,11 +82,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
     // A recipe may be tapped again; an integer event always dismisses the tools panel.
     var dismissToolsVersion by remember { mutableIntStateOf(0) }
-    var craftMenuSignal by remember { mutableStateOf<Int?>(null) }
+    var workbenchOpen by remember { mutableStateOf(false) }
+    var buildCatalogOpen by remember { mutableStateOf(false) }
+    var goalsOpen by remember { mutableStateOf(false) }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
-    var showRecipes by remember { mutableStateOf(true) }
     var showIslandGuideDialog by remember { mutableStateOf(false) }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
@@ -252,7 +253,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         accent = Color(0xFFA9E5BD),
         toolsLabel = "☰ 游戏菜单",
         closeToolsSignal = dismissToolsVersion,
-        openToolsSignal = craftMenuSignal,
         notice = worldNotice,
         status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
@@ -305,8 +305,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         buildMode != null -> if (buildReady)
                             buildMode?.let { perform(it, aimedCell.first, aimedCell.second) }
                         workstationAction -> {
-                            menuSection = "制作"
-                            craftMenuSignal = (craftMenuSignal ?: 0) + 1
+                            workbenchOpen = true
                         }
                         center != null -> perform(center.action, center.x, center.y)
                     }
@@ -339,8 +338,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"
                 "朝向 $directionLabel · " + interaction
             }
-            Text(survivalGoal, color=Color(0xFFFFE3A7),
-                fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
+            Surface(onClick = { goalsOpen = true },
+                color = Color(0xD82B4441), shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, Color(0xFFEDCF8E).copy(alpha = .6f))) {
+                Text("☑ " + survivalGoal + " · 查看目标", color=Color(0xFFFFE3A7),
+                    modifier=Modifier.padding(horizontal=8.dp,vertical=5.dp),
+                    fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
+            }
             Text(statusHint,
                 color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
                     else Color(0xFFBDF4D3),fontSize=11.sp,maxLines=2)
@@ -391,11 +395,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         nearbyFight?.let { perform(it.action,it.x,it.y) }
                     }
                     GameHudQuickAction("建造", Color(0xFFE7D59C),
-                        modifier=Modifier.weight(1f)) {
-                        buildMode=lastBuildMode
-                        mapAim=false
-                        navigateTo=null
-                    }
+                        modifier=Modifier.weight(1f)) { buildCatalogOpen = true }
+                    GameHudQuickAction("制作", Color(0xFFA9E5BD),
+                        enabled=workbenchNear, modifier=Modifier.weight(1f)) { workbenchOpen = true }
                 }
             }
         },
@@ -449,7 +451,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         Column(verticalArrangement=Arrangement.spacedBy(2.dp)) {
-            listOf("探索","建造","制作","行囊","伙伴","生态","设置").chunked(3).forEach { sections ->
+            listOf("探索","行囊","伙伴","生态","设置").chunked(3).forEach { sections ->
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                     sections.forEach { section ->
                         FilterChip(selected=menuSection==section,onClick={menuSection=section},
@@ -523,7 +525,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         if(menuSection=="探索") {
             IslandMiniMap(island)
         }
-        if(menuSection=="探索" || menuSection=="建造") {
+        if(menuSection=="探索") {
         island.houseProject?.let { project ->
             Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFF244950),
                 border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .4f))) {
@@ -559,66 +561,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         trackColor = Color(0xFF42636A))
                     Text("房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
                         color = Color(0xFFB5D5CD), fontSize = 11.sp)
-                }
-            }
-        }
-        }
-        if(menuSection=="建造") {
-        Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text("选好建材会直接回到地图。绿色可建、红色不能建；右手快捷栏可换建材，长按地图只选位置、不自动走路。",
-            color = Color(0xFFAAC7C5), fontSize = 11.sp)
-        Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
-            IslandBuildingControls.recipes.chunked(2).forEach { line ->
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    line.forEach { recipe ->
-                        IslandBuildChip(recipe.name,recipe.cost,true,
-                            selected=buildMode==recipe.action,
-                            modifier=Modifier.weight(1f)) {
-                            buildMode=recipe.action
-                            lastBuildMode=recipe.action
-                            mapAim=false
-                            navigateTo=null
-                            dismissToolsVersion++
-                        }
-                    }
-                }
-            }
-        }
-        }
-        if(menuSection=="制作") {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("工作台 · 工具制作", color = Color(0xFFF0FCF4), fontWeight = FontWeight.Bold,
-                fontSize = 16.sp, modifier = Modifier.weight(1f))
-            TextButton(onClick = { showRecipes = !showRecipes }) {
-                Text(if (showRecipes) "收起配方" else "查看配方", color = Color(0xFFB9EACB), fontSize = 12.sp)
-            }
-        }
-        if (showRecipes) {
-            Surface(color = Color(0xFF213D41), shape = RoundedCornerShape(17.dp)) {
-                Column(Modifier.fillMaxWidth().padding(11.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(if (workbench == null) "没有工作台：先在空地建造，消耗4木2石"
-                        else if (!workbenchNear) "离工作台太远：靠近到2格内才能制作"
-                        else "已靠近工作台 · 制作工具后存入本岛背包", fontSize = 11.sp,
-                        color = if(workbenchNear) Color(0xFFB8F0D4) else Color(0xFFFFD2A8))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        IslandAction(if ("axe" in island.tools) "✓ 木斧" else "制作木斧", enabled = workbenchNear && "axe" !in island.tools && world.wood >= 2 && world.stone >= 1,
-                            Modifier.weight(1f)) { perform("craft_axe", world.x, world.y) }
-                        IslandAction(if ("pickaxe" in island.tools) "✓ 石镐" else "制作石镐", enabled = workbenchNear && "pickaxe" !in island.tools && world.wood >= 2 && world.stone >= 2,
-                            Modifier.weight(1f)) { perform("craft_pickaxe", world.x, world.y) }
-                        IslandAction(if ("sword" in island.tools) "✓ 石剑" else "制作石剑", enabled = workbenchNear && "sword" !in island.tools && world.wood >= 1 && world.stone >= 3,
-                            Modifier.weight(1f)) { perform("craft_sword", world.x, world.y) }
-                        IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = workbenchNear && "rod" !in island.tools && world.wood >= 2 && world.stone >= 1,
-                            Modifier.weight(1f)) { perform("craft_rod", world.x, world.y) }
-                    }
-                    Text("木斧2木1石（伐木+2） · 石镐2木2石（采矿+2）\n石剑1木3石（伤害4） · 鱼竿2木1石（可钓鱼）",
-                        color = Color(0xFFB8D0C9), fontSize = 11.sp)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("篝火或木床旁可以恢复体力", modifier = Modifier.weight(1f),
-                            color = Color(0xFFB8D0C9), fontSize = 11.sp)
-                        TextButton(onClick = { perform("rest", world.x, world.y) }) {
-                            Text("就地休息", color = Color(0xFFBCE9CB), fontSize = 12.sp)
-                        }
-                    }
                 }
             }
         }
@@ -755,14 +697,104 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         },
     )
 
+    // Contextual in-world interaction: the general game menu never owns crafting.
+    if (workbenchOpen) AlertDialog(
+        onDismissRequest = { workbenchOpen = false },
+        title = { Text("工作台 · 制作工具") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                Text(if (workbenchNear) "正在使用附近的工作台 · 制作后立即存入本岛工具栏"
+                    else "先靠近已放置的工作台（2格内）",
+                    color = if (workbenchNear) Color(0xFFB7F3D2) else Color(0xFFFFD4B5),
+                    fontSize = 12.sp)
+                listOf(
+                    Triple("axe", "木斧 · 2木1石 · 伐木+2", "craft_axe"),
+                    Triple("pickaxe", "石镐 · 2木2石 · 采矿+2", "craft_pickaxe"),
+                    Triple("sword", "石剑 · 1木3石 · 伤害4", "craft_sword"),
+                    Triple("rod", "鱼竿 · 2木1石 · 钓鱼", "craft_rod"),
+                ).forEach { (tool, label, action) ->
+                    val canCraft = when(tool) {
+                        "axe" -> world.wood >= 2 && world.stone >= 1
+                        "pickaxe" -> world.wood >= 2 && world.stone >= 2
+                        "sword" -> world.wood >= 1 && world.stone >= 3
+                        else -> world.wood >= 2 && world.stone >= 1
+                    }
+                    IslandAction(if (tool in island.tools) "✓ " + label else "制作 " + label,
+                        enabled = workbenchNear && tool !in island.tools && canCraft,
+                        modifier = Modifier.fillMaxWidth()) {
+                        perform(action, world.x, world.y)
+                        workbenchOpen = false
+                    }
+                }
+                Text("材料不足时，到树木与矿石旁采集。制作不会创建新背包或改变原存档规则。",
+                    color = Color(0xFFB5CAC3), fontSize = 11.sp)
+            }
+        },
+        containerColor=Color(0xFF17363B), titleContentColor=Color.White,
+        textContentColor=Color.White,
+        confirmButton={ TextButton(onClick={workbenchOpen=false}) { Text("离开工作台") } },
+    )
+    if (buildCatalogOpen) AlertDialog(
+        onDismissRequest = { buildCatalogOpen = false },
+        title = { Text("建造 · 选择建筑") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("选择后在地图上定位，绿色可建、红色不能建；每次放置都真实消耗材料。",
+                    color=Color(0xFFC7DDD2),fontSize=11.sp)
+                IslandBuildingControls.recipes.forEach { recipe ->
+                    IslandAction(recipe.name+" · "+recipe.cost,
+                        enabled=true, modifier=Modifier.fillMaxWidth()) {
+                        buildMode=recipe.action
+                        lastBuildMode=recipe.action
+                        mapAim=false
+                        navigateTo=null
+                        buildCatalogOpen=false
+                    }
+                }
+            }
+        },
+        containerColor=Color(0xFF17363B), titleContentColor=Color.White,
+        textContentColor=Color.White,
+        confirmButton={ TextButton(onClick={buildCatalogOpen=false}) { Text("取消") } },
+    )
+    if (goalsOpen) AlertDialog(
+        onDismissRequest = { goalsOpen = false },
+        title = { Text("小岛冒险 · 任务手册") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("当前任务：" + survivalGoal,
+                    color=Color(0xFFFFE3A7),fontWeight=FontWeight.Bold)
+                Text("生存篇  ·  工作台 → 石剑 → 篝火/床铺 → 击退怪物 → 守住3夜",
+                    color=Color.White,fontSize=12.sp)
+                Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
+                    color=Color.White,fontSize=12.sp)
+                Text("家园篇  ·  结识动物 → 建宠物小屋 → 点亮夜灯",
+                    color=Color.White,fontSize=12.sp)
+                Text("实际进度：守夜 " + island.nightsSurvived + "/3 · 补给 " +
+                    island.openedSupplies.size + "/" + island.supplyCaches.size +
+                    " · 工具 " + island.tools.size + "/4 · 已结识动物 " +
+                    island.animals.count { it.befriended } + "/" + island.animals.size,
+                    color=Color(0xFFAEE7CF),fontSize=11.sp)
+                Text("目标按当前真实存档自动推进，不会因为关闭任务手册而丢失。达成后依然可以自由建房。",
+                    color=Color(0xFFB5CAC3),fontSize=11.sp)
+            }
+        },
+        containerColor=Color(0xFF17363B), titleContentColor=Color.White,
+        textContentColor=Color.White,
+        confirmButton={ TextButton(onClick={goalsOpen=false}) { Text("继续冒险") } },
+    )
+
     if (showIslandGuideDialog) AlertDialog(
         onDismissRequest = { showIslandGuideDialog = false },
         title = { Text("方块小岛 · 怎么玩") },
         text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
             Text("开局只是一片可建设的空地，不是已经拥有房子。")
             Text("① 方向键移动并决定朝向，走到树、矿或怪物旁，直接用右手采集或攻击，不必点地图。")
-            Text("② 收集4木2石，从「游戏菜单 → 建造」选工作台。地图绿色表示可放，红色表示位置或材料不满足。")
-            Text("③ 站在工作台2格内，打开「游戏菜单 → 制作」制造斧、镐、剑或鱼竿。")
+            Text("② 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
+            Text("③ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
             Text("④ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
             Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
