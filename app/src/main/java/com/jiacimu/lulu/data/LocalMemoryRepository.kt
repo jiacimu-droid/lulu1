@@ -129,7 +129,7 @@ class LocalMemoryRepository : MemoryRepository {
         require(characterId.isNotBlank()) { "角色不能为空" }
         withCharacterMemoryLock(characterId) {
             extractImmediateMemories(characterId)
-            summarizeContinuously(characterId, flushTail = shouldFlushMemoryTail(memoryEligibleTimelineEvents(characterId).lastOrNull()?.occurredAt))
+            summarizeContinuously(characterId, flushTail = shouldFlushPendingTail(characterId))
         }
     }
 
@@ -699,6 +699,10 @@ class LocalMemoryRepository : MemoryRepository {
                 (!memory.canRecallProactively || !MemoryValidityStore.isActive(memory.id)) && event.id in memory.sourceIds()
         }
     }
+
+    fun shouldFlushPendingTail(characterId: String, now: Instant = Instant.now()): Boolean =
+        shouldFlushPendingMemoryTail(memoryEligibleTimelineEvents(characterId),
+            state.value.processedMessageIds[characterId].orEmpty(), now)
 
     fun hasUnprocessedEvents(characterId: String): Boolean = memoryEligibleTimelineEvents(characterId)
         .any { it.id !in state.value.processedMessageIds[characterId].orEmpty() }
