@@ -99,7 +99,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         // A rejected action must not erase the last committed physical loot receipt.
         if (!change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
         // A persisted no-op (for example, an invalid tap) is not a committed world action.
-        chestHud=chestHud.afterWorldAction(committed = before != snapshot.run?.turns)
+        chestHud=chestHud.afterWorldTurn(before, snapshot.run?.turns)
         if(type=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
             // and an exact corresponding item in the player's bag or on the ground.
