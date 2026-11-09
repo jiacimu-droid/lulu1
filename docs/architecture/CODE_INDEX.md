@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b5af0aceb1d4579991cd79136b18bb1846e08601`
+- 基准提交：`b798c6a90e3b7dcb6739724cc29c29133f993285`
 - 分支：`main`
-- 已索引文件：1158
-- 已索引代码/文本行：249812
-- 已发现符号：3409
+- 已索引文件：1159
+- 已索引代码/文本行：249900
+- 已发现符号：3410
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1129,10 +1129,11 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 70 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 557 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 580 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
