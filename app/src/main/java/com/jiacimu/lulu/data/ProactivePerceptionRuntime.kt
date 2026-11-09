@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import org.json.JSONObject
+import org.json.JSONArray
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalTime
@@ -2245,7 +2246,7 @@ object ProactivePerceptionRuntime {
         // No fresh owner message: nothing to apply; no new standalone API.
         val changes = decision.commitmentChanges
         if (changes != null && onlineUnread.messageIds.isNotEmpty() &&
-            execution.success && !batchSuperseded()) {
+            (execution.success || execution.deliveredReply) && !batchSuperseded()) {
             val validSources = SharedExperienceTimeline.eventsByIds(
                 characterId, onlineUnread.messageIds)
                 .filter { it.evidenceKind == EventEvidenceKind.UserStatement }
