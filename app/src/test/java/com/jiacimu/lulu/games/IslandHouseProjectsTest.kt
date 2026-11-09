@@ -251,4 +251,35 @@ class IslandHouseProjectsTest {
         assertTrue(resumed.world.wood<20)
     }
 
+    @Test fun constructionSaveReloadAndDuplicateTurnNeverChargeTwice() {
+        var state=start()
+        // The character has already chosen this project; advancing turns is physical execution,
+        // not a new model decision or a fresh authorization to spend materials.
+        repeat(50) {
+            if (state.houseProject?.placed?.isEmpty() == true) state=nextTurn(state)
+        }
+        val project=state.houseProject!!
+        assertTrue(project.placed.isNotEmpty())
+        val wood=state.world.wood
+        val tiles=state.world.tiles
+        val saved=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(project.placed,saved.houseProject?.placed)
+        assertEquals(wood,saved.world.wood)
+        assertEquals(tiles,saved.world.tiles)
+
+        // Replaying the same committed turn after a save must not mint another wall
+        // or spend the same piece of wood again.
+        val replay=IslandHouseProjects.advance(saved,setOf("alice"))
+        assertEquals(saved,replay)
+        assertEquals(wood,replay.world.wood)
+
+        // A genuinely later turn may resume the same character-chosen plan.
+        val later=nextTurn(replay)
+        assertTrue(later.world.wood<=wood)
+        assertTrue(later.houseProject!!.placed.size>=project.placed.size)
+        val reloaded=BlockIslandState.fromJson(later.toJson())!!
+        assertEquals(later.world.wood,reloaded.world.wood)
+        assertEquals(later.houseProject!!.placed,reloaded.houseProject!!.placed)
+    }
+
 }
