@@ -185,6 +185,13 @@ internal object OnlineChatBatchStore {
         return reading.add(characterId to revision)
     }
 
+    /** Read-only local ownership of the paid primary chat turn. Ancillary
+     * commitment/life scanners wait for THIS batch to finish persisting its
+     * results; visible first bubbles do not mean the decision is finished.
+     * This never starts any network or model request. */
+    @Synchronized fun isReadingRole(characterId: String): Boolean =
+        reading.any { (role, _) -> role == characterId }
+
     /** A cancelled worker retains its durable deadline so WorkManager can resume the unread batch. */
     @Synchronized fun finish(context: Context, characterId: String, revision: Long, completed: Boolean = true) {
         reading.remove(characterId to revision)
