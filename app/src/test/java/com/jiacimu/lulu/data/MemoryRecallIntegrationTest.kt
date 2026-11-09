@@ -112,9 +112,15 @@ class MemoryRecallIntegrationTest {
             assertTrue("Test must initialize the production memory runtime",
                 MemoryModelRuntime.vectorEnabled())
             assertEquals("embed-only", MemoryModelRuntime.embeddingConnection()?.model)
+            val local = RelevantMemoryRecall.recallDetailed(
+                roleId, "她喜欢喝茶", limit = 8, localOnly = false, paidRanking = false)
+            assertTrue("Cheap recall must keep lexical memories", local.memories.any { it.content.contains("喝茶") })
+            assertEquals("zero paid embedding/rerank calls for quiet recall", 0, server.requestCount)
             RelevantMemoryRecall.recallDetailed(
                 roleId, "想看星空", limit = 8, localOnly = false)
-            assertEquals("one embedding POST; zero isolated LLM verifier POST", 1, server.requestCount)
+            RelevantMemoryRecall.recallDetailed(
+                roleId, "想看星空", limit = 8, localOnly = false)
+            assertEquals("identical search reuses one embedding POST", 1, server.requestCount)
             assertTrue(server.takeRequest(5, TimeUnit.SECONDS)!!.path!!.contains("/embeddings"))
         } finally {
             val reset = prefs.edit()
