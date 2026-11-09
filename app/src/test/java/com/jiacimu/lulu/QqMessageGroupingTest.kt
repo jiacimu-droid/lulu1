@@ -17,9 +17,13 @@ class QqMessageGroupingTest {
         val normal = com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration("后台主动感知")
         val lean = com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration("聊天表达渲染")
         listOf(normal, lean).forEach { guidance ->
-            assertTrue(guidance.contains("输出前再检查"))
-            assertTrue(guidance.contains("不要求固定条数"))
-            assertTrue(guidance.contains("优先按本人实际想发送的节拍拆成多个元素"))
+            // Check role-authored send-beat semantics, not obsolete
+            // self-critique wording that the user deliberately removed.
+            assertTrue(guidance.contains("文字聊天像边想边打字"))
+            assertTrue(guidance.contains("不是逢逗号就拆、固定三条"))
+            assertTrue(guidance.contains("各是一个 bubbles 元素"))
+            assertTrue(guidance.contains("历史反馈让彼此逐渐熟悉"))
+            assertFalse(guidance.contains("输出前再检查"))
         }
     }
 
