@@ -76,17 +76,20 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     }
     var error by remember{mutableStateOf("")}
 
-    fun change(block:()->RelicSnapshot) {
-        runCatching{block()}.onSuccess{snapshot=it;error=""}
-            .onFailure{error=it.message?:"存档失败，请重试"}
+    fun change(block:()->RelicSnapshot): Boolean {
+        return runCatching { block() }.fold(
+            onSuccess = { snapshot = it; error = ""; true },
+            onFailure = { error = it.message ?: "存档失败，请重试"; false },
+        )
     }
     fun action(type:String,x:Int=0,y:Int=0,id:String="") {
         val unopened=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}
         val tier=unopened?.tier
         val before=run?.turns
         val openingRun=run
+        // A rejected action must not erase the last committed physical loot receipt.
+        if (!change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
         chestHud=chestHud.nextAction()
-        change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
         if(type=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
             // and an exact corresponding item in the player's bag or on the ground.
