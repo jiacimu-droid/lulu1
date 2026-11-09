@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T02:42:44.724432+00:00",
-  "commit": "b15873d83d4e69d2513a275e8bbfabcef0bc877c",
+  "generatedAt": "2026-11-09T03:53:22.397899+00:00",
+  "commit": "e59f1cd7379f3d13f8a089fcebbbf3716715ad9e",
   "branch": "main",
-  "sourceFingerprint": "5dab4105d2a7aefbc6d5841f0a267e261df8efb111e4ae937ae1356b88d7bb2c",
+  "sourceFingerprint": "211eca0a67bc743240cfa53f4f8873da5993a11fc651ffcb7c1e8a0260603bf4",
   "summary": {
     "files": 1150,
-    "lines": 248192,
+    "lines": 248223,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -39960,8 +39960,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt",
-      "lines": 255,
-      "sha256": "de1c13ede8562220e8f49ccbccb1028bcdd27957f04e6ef29efde23dfcc92ee9",
+      "lines": 286,
+      "sha256": "70e8137046b19c4d8cd5427e9b4b05a36451c96e91173b7c75875929764ff18f",
       "symbols": [
         {
           "name": "IslandHouseProjectsTest",
