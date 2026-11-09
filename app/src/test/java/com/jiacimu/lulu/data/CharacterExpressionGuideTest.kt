@@ -43,7 +43,7 @@ class CharacterExpressionGuideTest {
             assertTrue(prompt.contains("尚未说出口的私人变化"))
             assertTrue(prompt.contains("日记、朋友圈与故事各有听众和体裁"))
             assertTrue(prompt.contains("执行成功必须有真正回执"))
-            assertEquals(1, prompt.split("【语言与句段：").size - 1)
+            assertEquals(1, prompt.split("【本人自然的语言与发送节拍】").size - 1)
             assertFalse(prompt.contains("首个输出字符必须是"))
         }
     }
@@ -52,12 +52,18 @@ class CharacterExpressionGuideTest {
         val prompt = spontaneousInnerVoiceGuide
         assertTrue(prompt.contains("心声是没有说出口、留在心里的想法"))
         assertTrue(prompt.contains("已经写进 text"))
-        assertTrue(prompt.contains("不能将发言换种措辞复述一遍"))
-        assertTrue(prompt.contains("如果没有，就返回空字符串"))
-        assertTrue(prompt.contains("同一件事有不同的外在表达和内在想法"))
-        assertTrue(prompt.contains("活着的内心语感"))
+        assertTrue(prompt.contains("不再复制为 innerThought"))
+        assertTrue(prompt.contains("没有新变化就留空"))
+        assertTrue(prompt.contains("私人感受与联想"))
+        assertTrue(prompt.contains("心声可以生动"))
         assertTrue(prompt.contains("spontaneousTurn"))
-        assertTrue(prompt.contains("不是模型工作推理的展示"))
+        assertTrue(prompt.contains("不是系统执行说明、优化报告或模型推理记录"))
+        assertTrue(prompt.contains("旧反馈不是正在发生的新争执"))
+        assertTrue(prompt.contains("不是「本来想写长篇，但有人规定不能写」的自我压制"))
+        assertTrue("Do not turn the learned texting style into recurring self-criticism",
+            prompt.contains("直接体现在 text/bubbles 里"))
+        assertTrue("The inner-life module must be substantially smaller than the old repeated checklist",
+            prompt.length < 2300)
     }
 
     @Test fun decisionHandoffDoesNotPreWriteTheCharactersStyle() {
