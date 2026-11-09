@@ -37,6 +37,80 @@ internal object DevelopmentReflectionGeneration {
     }
 }
 
+/** A paid growth review is NOT another full chat/perception prompt.
+ * Select independent witnessed evidence across source kinds; the complete
+ * timeline and full owner-authored persona stay in their authoritative stores.
+ * Truncation here limits ONLY the optional model's working copy, not facts,
+ * memories or the permanent persona. */
+internal object GrowthReflectionInput {
+    fun personaBrief(full: String): String {
+        if (full.length <= 6_000) return full
+        return full.take(3_900) +
+            "\n【以下为较长原始设定的省流摘录；所有未展示的稳定人设仍有效，不可修改】\n" +
+            full.takeLast(1_900)
+    }
+
+    fun select(events: List<SharedTimelineEvent>): List<SharedTimelineEvent> {
+        val zone = java.time.ZoneId.systemDefault()
+        val owner = events.filter { it.evidenceKind == EventEvidenceKind.UserStatement }
+        val distinctOldDates = owner.asReversed()
+            .distinctBy { it.occurredAt.atZone(zone).toLocalDate() }.take(4)
+        val tool = events.filter { it.evidenceKind == EventEvidenceKind.ToolResult }.takeLast(6)
+        val observed = events.filter { it.evidenceKind == EventEvidenceKind.Observation }.takeLast(6)
+        val spoken = events.filter {
+            it.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                TimelineStatementOwnership.isOwnCharacterStatement(it)
+        }.takeLast(4)
+        val culture = events.filter { it.channel.contains("阅读") || it.channel.contains("游戏") }
+            .takeLast(4)
+        val core = (events.takeLast(7) + owner.takeLast(7) + distinctOldDates +
+            tool + observed + spoken + culture).distinctBy { it.id }
+        return core.sortedBy { it.occurredAt }
+    }
+
+    fun evidenceText(events: List<SharedTimelineEvent>): String =
+        events.joinToString("\n") { event ->
+            "eventId=${event.id} revision=${event.revision} atLocal=" +
+                event.occurredAt.atZone(java.time.ZoneId.systemDefault()).toString() +
+                " kind=${event.evidenceKind} source=${event.source} channel=${event.channel} " +
+                "ownStatement=${TimelineStatementOwnership.isOwnCharacterStatement(event)} " +
+                CharacterExperienceLearning.evidenceText(event).take(280)
+        }
+
+    /** Existing dispositions are a *reference index*, not an invitation to
+     * resend the character's whole inner life, responsibilities and world. */
+    fun currentSlots(characterId: String): String =
+        CharacterDevelopmentStore.active(characterId).takeLast(16)
+            .joinToString("\n") { record ->
+                "${record.kind}/${record.slot}: ${record.content.take(130)}"
+            }
+}
+
+private val focusedGrowthReflectionInstruction = """
+    这是低频、跨经历的长期成长合并，不是一次新的聊天/心理决策。普通本轮情绪、自我修正、
+    想法与行动已经在主感知中记录，不需要在这里重新决定或逐句总结。
+    仅依据给定的可核验原始 eventId、类型、时间和真实经历。没有跨经历的新变化返回 []。
+    返回纯 JSON 数组，最多3项，禁止多余解释。普通项：
+    {"disposition":"upsert|retire","slot":"稳定主题键",
+    "kind":"Interest|Preference|Habit|UserPreference|UserHabit|UserFact|UserImpression|ExpressionHabit|Judgment|SituationalPattern|NarrativeMeaning|RelationshipRoutine|VerifiedMethod",
+    "content":"可以被后来经历修订的具体认识","evidenceIds":["真实ID"],"counterIds":[]}
+    工具经验可用 kind=ToolExperience，带真实 situationEvidenceId、actionEvidenceId、
+    understanding、applicableWhen、avoidWhen、uncertainty，后来明确用户评价才可附 feedbackEvidenceId。
+    稳定人设不可改写；新增的兴趣、表达习惯、判断方式只能是从真实经验逐渐形成的可变倾向。
+    UserFact/Preference/Habit 只能来自本角色亲见的用户原话；近似照片、他人的私聊、角色猜测、
+    书中人物、网页材料都不是用户事实。UserImpression 必须有至少两条独立可见依据，
+    标记为尚未证实的主观印象。客观操作规律须跨至少三个不同自然日才能写成 UserHabit。
+    Interest 初步萌芽须至少两次独立真实接触，稳定兴趣须更多证据；情境习惯和表达习惯
+    须至少三次独立经历，不因一句自述或偶发模仿升级为固定人格。
+    NarrativeMeaning 至少来自两个不同原始经历；角色发言证明说过或感受过什么，
+    不能代替实际阅读、游戏、见面、授权工具完成或用户满意的执行回执。
+    VerifiedMethod 必须同时有实际角色行动和后来用户明确正面评价的来源，
+    工具调用成功、发消息、用户沉默不等于对方已好转。新反例优先更新原 slot；
+    retire 需真实 counterIds，不能凭一次不同表现撤销稳定倾向。
+    用户身份、事实、更正与拒绝按来源验证；不得推断敏感个人特征或编造经历。
+    保持现在的角色本人性格，不强迫每个分类都产生结果。所有证据 ID 必须确实在输入中。
+""".trimIndent()
+
 /** Incremental reflection is detached from real-time response and limited to one batch per hour. */
 object CharacterDevelopmentRuntime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -184,13 +258,15 @@ object CharacterDevelopmentRuntime {
         // message. Long-term trait formation needs a meaningful NEW group of
         // experiences, not another model request after every single chat.
         // This is a batch threshold, never a daily quota: all evidence remains.
-        if (lastReviewed.isNotBlank()) {
-            val seen = lastReviewed.substringAfter('\n', "").split('|').toSet()
-            val newEvidence = events.count { "${it.id}:${it.revision}" !in seen }
-            if (newEvidence < 6) {
-                note(characterId, "已累积 $newEvidence 项新经历，待合并更多真实经历再做成长反思")
-                return
-            }
+        val seen = lastReviewed.substringAfter('\n', "").split('|').toSet()
+        val newEvidence = events.count { "${it.id}:${it.revision}" !in seen }
+        // A new installation or a first owner sentence must NOT buy a whole
+        // 40k-context growth review. The primary decision records immediate
+        // feelings and the memory system keeps the original owner facts.
+        // Keep the growth mailbox pending until there is a genuine batch.
+        if (newEvidence < 6) {
+            note(characterId, "已累积 $newEvidence 项真实经历，长期成长待合并；本轮主决策已处理即时反应")
+            return
         }
         // Resident learning is optional paid housekeeping; it must not take
         // the first call reserved for the native citizen's own daily plan.
@@ -200,34 +276,27 @@ object CharacterDevelopmentRuntime {
             note(characterId, "居民日计划额度优先；成长证据保留待后续整理")
             return
         }
+        val growthEvidence = GrowthReflectionInput.select(events)
+        val growthFacts = buildString {
+            appendLine("【不可改写的人格原始设定摘录；完整版本由原 Store 保留并核验】")
+            appendLine(GrowthReflectionInput.personaBrief(persona))
+            appendLine("【当前可修订长期成长目录，仅用于避免重复】")
+            appendLine(GrowthReflectionInput.currentSlots(characterId))
+            appendLine("【本人已有的相关方法与来源】")
+            appendLine(CharacterLearningLedger.context(characterId,
+                growthEvidence.takeLast(5).joinToString(" ") { it.content.take(70) },
+                compact = true))
+            appendLine(UserRoutinePatterns.reflectionContext(routinePatterns.take(3)))
+            appendLine("【本轮选取的可核验原始经历；完整版仍在时间线】")
+            appendLine(GrowthReflectionInput.evidenceText(growthEvidence))
+        }
+        LuluRepositories.performance.recordTiming("成长反思输入规划", 0,
+            "角色=${characterId.take(36)};候选=${events.size};投入=${growthEvidence.size};" +
+                "factsChars=${growthFacts.length};rulesChars=${focusedGrowthReflectionInstruction.length}")
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
         val reply = LuluAiServices.gateway.generate(characterId,
-            facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
-                CharacterLearningLedger.context(characterId, events.takeLast(12).joinToString(" ") { CharacterExperienceLearning.evidenceText(it) }, compact = false) + "\n" +
-                UserRoutinePatterns.reflectionContext(routinePatterns) + "\n" +
-                events.joinToString("\n") {
-                    "eventId=${it.id} revision=${it.revision} atLocal=${it.occurredAt.atZone(java.time.ZoneId.systemDefault())} source=${it.source} channel=${it.channel} " +
-                        "kind=${it.evidenceKind} ownStatement=${TimelineStatementOwnership.isOwnCharacterStatement(it)} " +
-                        CharacterExperienceLearning.evidenceText(it).take(700)
-                },
-            instruction = """
-                ${CharacterExperienceLearning.reflectionInstruction}
-                从角色真实经历中反思可改变的兴趣、偏好、习惯、判断，以及多次经历逐渐形成的叙事意义；绝不改写用户明确限定的人设字段。
-                返回 JSON 数组，最多3项；没有可信变化就返回[]。普通成长项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/UserFact/UserImpression/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
-                【了解当前角色确实接触过的用户，不把别人获知的偏好据为己有】UserPreference 只记录当前角色从原话确实了解到的用户喜恶与相处边界：真实的一句“我不喜欢你总反问”“我更喜欢你主动试”就足够成为可修订的偏好。evidenceIds 必须包含对应 UserStatement 原话；不能把角色猜测、网页或小说当成她的偏好。UserHabit 记录用户自述的常态（如“我通常午睡后学习”）；也允许同一种已实际完成操作的 Observation（source=user-activity:<活动>:start）在至少3个不同自然日重复出现作为候选。结合输入里实际发生的时间、情境，自主决定是否形成可修订的认识，并使用对应真实 eventId；不能把通话、搜索、日记、角色猜测或者不同活动凑成同一个习惯。观察发生不等于用户每天都会这样、正在睡着、主动要求你来电。一天的零散对话不能冒充长期规律。描述保留情境与不确定性，不能把“昨晚四点还醒着”记成“每天四点睡”。两者都用稳定 user: 主题 slot 更新，新的反例高于旧印象。记住偏好后应自然尝试合适的相处方式，不靠反复追问用户获取答案；但不能据此擅自替她设闹钟、操作设备、获取私密数据。
-                【渐渐认识主人，不只保存喜恶】UserFact 是本角色亲自听到主人明确说出的真实个人信息：外貌和身体特征、性格自述、生活状态、个人经历、能力特点及重要关系。例如主人说“我的手肉嘟嘟的”，可记录“主人告诉我她的手肉嘟嘟的”，不是推断她的真实照片或目前画面。只引用本角色实际听到的 UserStatement 的 eventId，禁止从小说、朋友圈转述、自己想象、群外人的私聊或图片模型没有确认的内容生成事实。不强求主人填档案，也不要每句话都记成长期信息。
-                UserFact 使用稳定的 user:<领域>:<主题> slot，领域可选 appearance(外貌与身体)、personality(性格与心理)、life(生活日常)、experience(个人经历)、ability(能力与特点)、relationship(重要关系)；同一细节变化时复用原 slot 更新，不要因为措辞不同堆重复项。发型、身体状态和住处等可能随时间变化，应保留“当时说过/当时的状况”以及变化线索，近期明确更正优先。UserPreference/UserHabit 仍用于偏好和规律，不能因为事实不包含“喜欢”就漏掉。
-                UserImpression 是本角色从至少两件真实且独立、本人可见的对话或观察中形成的主观印象，尚未证实；内容必须明确写成“我觉得/似乎/可能”，不得伪装成用户自述，更不得推断照片没展示的外貌、心理诊断或敏感身份。与 UserFact 使用不同 slot (user:impression:<主题>)，反证出现时修订或撤回。说出口与否、是否自然询问未知细节都由角色自己的好奇和当下关系决定，不要像问卷，也不要为了补全栏目强制打扰主人。
-                【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
-                【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
-                【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
-                【情境反应倾向，不是硬规则】若至少3个彼此独立的真实事件反复显示“在某类情境下，这个角色更容易出现某种理解/应对方式”，可提出 SituationalPattern。content 写成“当……时，通常更倾向……；但会受当时情绪、关系、目标和新事实影响”，不能写“遇到X必须Y”。不同情境可以表现出相反状态，这不叫人设崩坏；真正稳定的是跨时间可重复的条件性模式。一次吵架、一次撒娇、一次模型生成失误绝不能形成该模式。
-                【个人表达与真实经历】CharacterStatement 只表示某角色的发言；只有 ownStatement=true 才是当前本人确实写过或说过的话，包括私人日记(journal:own)、自己朋友圈(moment:self)。ownStatement=false 的角色发言属于见证他人或作者来源未核实，不能当成本人的感受、兴趣或口癖。本人表达可以证明当时有某种感受、判断或表达倾向，却绝不能单凭文字证明读了书、去了地点、玩了游戏或完成了补救。对成长的事实次数要求只能由 UserStatement/Observation/ToolResult/明确可核验的阅读及世界事件满足；日记和动态只是补充主观证据。即使作者写了十篇相同的心情，也不是十次实际经历。
-                ExpressionHabit 是角色逐渐形成的个人语言习惯，而不是要求所有人模仿网感、统一说话风格。至少需要三段不同、可核实的实际交流/接触或执行经历，并有该角色在聊天/私人日记/朋友圈中真实表达的具体体现，且内容符合其原始人设；可以学会适合自己的语气词、标点节奏、幽默手法或熟悉的真实社交梗，也可以随着环境改变。不能因为用户使用了某个梗就默认角色会用，不从无来源的互联网杜撰当下热词。已存在相同主题的成长应沿用同一 slot。
-                Interest 是角色自己的兴趣，不是用户的爱好：从真实阅读、游戏、探索、见面等实际接触，加上角色确实表达的感受，判断是否开始喜欢、加深、改变方向或逐渐失去兴趣。至少两次有独立原始依据的真实接触后，可以暂定为 Emerging（兴趣萌芽，尚非固定性格）；单次经历只保留当下的好奇，不写入长期人格。五次以上独立经验才可能升级为 Established；不要因为角色说了一句喜欢就凭空创建兴趣，不假装体验过正文里的虚构情节。好奇心记录中的单个问题、暂缓的探究和失败的尝试不是成熟兴趣，不能因为后台多次询问相同问题就凑齐成长证据；应以独立可核验行动和后续真实反应为依据。
-                同一兴趣的变化沿用同一个slot。新的反复体验足以说明方向改变时，可以更新或淡化旧兴趣，counterIds保留旧依据；最新反例晚于支持证据时不更新。兴趣内容写清当前倾向与变化原因，不靠随机数或固定轮换。\n                NarrativeMeaning 是“这些真实经历逐渐对我意味着什么”的主观解释，不是新事实也不是人设改写。至少引用2个不同真实事件，最好跨不同时间点；可以形成对自己、关系、选择或未来的理解，但不能凭空补童年、职业履历、共同回忆或未发生的转折。单句漂亮话、一次情绪、一本小说角色的经历都不能直接成为叙事身份；有新反例时应更新原 slot 或暂不形成。
-                【学会相处，不是完成作业】当真实交流显示自己没安慰好、没讲清或让对方失望，先根据真实关系与现场情况理解她的情绪，再本人决定要不要查资料、试不同方式、回想过去的成功经验；不必每次都问用户该怎么办，也不要每次都联网。资料上的技巧只是候选，不能当她的喜好。VerifiedMethod 应指向实际已经发出去的一种具体做法，和随后主人明确表示“好多了”“这招有用”“我喜欢你这样”等的原始 UserStatement，evidenceIds 必须同时含该次实际发送的 CharacterStatement 及用户本人的正面反馈。不要拿泛泛的“谢谢”、仅成功执行工具或自己主观感觉推导出哄好了；一次具体正面反馈只是初步适用，多次不同情境的反馈才更稳定。尝试三个办法，只能归功于对应得到明确反馈的具体一个，其他方法仍未知或无效；新的负面反馈要修正。用相同 slot 复盘，不要堆重复条目。形成后的倾向也不是永久标签：当后续出现反复、独立且更晚的反例时，对已有 slot 使用 disposition=retire，让程序按成熟度阈值决定是否撤回；不要因为一次反常表现就退役稳定倾向。所有ID必须来自输入；主观表达只证明感受，不证明行动成功。不强求每轮成长，经历不足时保持原状。
-            """.trimIndent(),
+            facts = growthFacts,
+            instruction = focusedGrowthReflectionInstruction,
             source = "增量成长反思", title = "角色成长", maxTokens = 1400,
             contextMode = CompanionContextMode.Isolated,
             connectionOverride = MemoryModelRuntime.extractionConnection()).getOrNull() ?: run {
