@@ -7,7 +7,8 @@ import java.util.UUID
 /** Every run builds a new, connected physical board, not a narrated map. */
 internal object RelicEscapeWorld {
     fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int,satchelLevel:Int=0,
-        difficulty:RelicDifficulty=RelicDifficulty.NORMAL):RelicRun {
+        difficulty:RelicDifficulty=RelicDifficulty.NORMAL,
+        purchasedWeapons:Set<String> = setOf("blade"),startingWeapon:String="blade"):RelicRun {
         val rng=Random(seed)
         val w=18;val h=15
         val cells=MutableList(w*h){i->
@@ -108,9 +109,12 @@ internal object RelicEscapeWorld {
             val (x,y)=positions[index]
             RelicActor(id,x,y,kits=1)
         }
+        val loadout=(purchasedWeapons+"blade"+if(weapon>=2)setOf("spear") else emptySet())
+            .filter{it in RelicArsenal.weapons}.toSet()
         val run=RelicRun(UUID.randomUUID().toString(),seed,level,w,h,cells,RelicPhase.EXPLORE,
             RelicActor("player",2,2,kits=kits),allies,chests,mobs,emptyList(),
             exit.first,exit.second,weapon=weapon,sites=sites,satchelLevel=satchelLevel.coerceIn(0,2),
+            weapons=loadout,equipped=startingWeapon.takeIf{it in loadout} ?: "blade",
             notice="深入遗迹。远处有一处绿色撤离信标。",difficulty=difficulty)
         return RelicEscapeRules.reveal(run).log("player","enter","进入第"+level+"层遗迹，同行"+allies.size+"人")
     }
