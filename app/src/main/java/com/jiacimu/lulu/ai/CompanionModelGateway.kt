@@ -577,7 +577,8 @@ class CompanionModelGateway(
                 effectiveMode == CompanionContextMode.CharacterAndScenario
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val unifiedMemory = if (fullContext) {
-                com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget)
+                com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget,
+                    paidRanking = com.jiacimu.lulu.data.PromptContextPolicy.paidRankingFor(source, request))
             } else if (leanExpression && request.actionContext.isNotBlank() && contextMode == CompanionContextMode.Full) {
                 com.jiacimu.lulu.data.CharacterRuntime.actionMemory(characterId, request)
             } else {
