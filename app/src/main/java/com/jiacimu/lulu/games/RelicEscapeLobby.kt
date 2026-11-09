@@ -32,7 +32,9 @@ internal fun RelicEscapeLobby(
     error:String,
     kits:Int,
     difficulty:RelicDifficulty,
+    startingWeapon:String,
     onKits:(Int)->Unit,
+    onStartingWeapon:(String)->Unit,
     onDifficulty:(RelicDifficulty)->Unit,
     onInvite:(String)->Unit,
     onRemove:(String)->Unit,
@@ -41,6 +43,7 @@ internal fun RelicEscapeLobby(
     onAbandon:()->Unit,
     onBuyKit:()->Unit,
     onUpgradeWeapon:()->Unit,
+    onBuyBow:()->Unit,
     onUpgradeSatchel:()->Unit,
     onSellLoot:(String)->Unit,
 ) {
@@ -177,8 +180,22 @@ internal fun RelicEscapeLobby(
                     RelicLobbyPanel {
                         Text("我的出发装备",color=Color.White,fontSize=17.sp,
                             fontWeight=FontWeight.Black)
-                        Text("武器 · "+(if(snapshot.weapon==2)"强化长枪（伤害4）" else "旧式短剑（伤害2）"),
+                        Text("武器强化 · "+(if(snapshot.weapon==2)"已强化（短剑伤害4）" else "未强化（短剑伤害2）"),
                             color=campGold,fontSize=12.sp)
+                        Text("选择本局出发武器",color=campMuted,fontSize=12.sp)
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                            snapshot.purchasedWeapons.sorted().forEach { id ->
+                                FilterChip(
+                                    selected=startingWeapon==id,
+                                    onClick={onStartingWeapon(id)},
+                                    label={Text(RelicArsenal.label(id)+" · "+RelicArsenal.description(id))},
+                                    colors=FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor=campGold,selectedLabelColor=campInk,
+                                        labelColor=campMuted),
+                                )
+                            }
+                        }
                         Text("背包 · "+(8+snapshot.satchelLevel*2)+"格（永久升级）",
                             color=campMint,fontSize=12.sp)
                         Row(verticalAlignment=Alignment.CenterVertically,
@@ -217,7 +234,12 @@ internal fun RelicEscapeLobby(
                         }
                         OutlinedButton(onClick=onUpgradeWeapon,
                             enabled=!live && snapshot.weapon==1 && snapshot.coins>=350) {
-                            Text("强化武器 · 350",color=campGold)
+                            Text("武器强化 + 长矛 · 350",color=campGold)
+                        }
+                        OutlinedButton(onClick=onBuyBow,
+                            enabled=!live && "bow" !in snapshot.purchasedWeapons &&
+                                snapshot.coins>=650) {
+                            Text("购买弩弓 · 650",color=campGold)
                         }
                         RelicCampUpgrades.satchelCost(snapshot.satchelLevel)?.let { cost ->
                             OutlinedButton(onClick=onUpgradeSatchel,
