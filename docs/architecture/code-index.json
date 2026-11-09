@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:26:56.531451+00:00",
-  "commit": "da55bb6d2a2515f391f33dee58adbd3d84af85f6",
+  "generatedAt": "2026-11-09T05:30:26.021435+00:00",
+  "commit": "944cc5ecd8d8c2d6b2aaa2b80cabc8bdbf41ef91",
   "branch": "main",
-  "sourceFingerprint": "10150072bb44a0af50d25a33803dffdc0863127180519a150990d12212984547",
+  "sourceFingerprint": "26c0674d59e13c28fa96c62b8a456fdaed22a2f0d82a4a1deeb007bb46760839",
   "summary": {
     "files": 1153,
-    "lines": 248816,
+    "lines": 248828,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -11069,13 +11069,13 @@
     "isCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 197
+        "line": 204
       }
     ],
     "dueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 204
+        "line": 211
       }
     ],
     "signed": [
@@ -26503,8 +26503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 425,
-      "sha256": "b8af74498d27468447cb140889fc40a4a18040362831724819d21a3e211fdf63",
+      "lines": 430,
+      "sha256": "daa7802fbb5d6cfe91b298aab6576aa01aaa0870b4e4adf6fab5bb60baed8a2c",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -29607,8 +29607,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-      "lines": 218,
-      "sha256": "0e3ab28116971af8e1560436588c57bea5a62169f8a0cb710408e37f26020387",
+      "lines": 225,
+      "sha256": "64505d793de286e680dd986f208a5533f80d77e17c90d58f87967d3eb8cedc1b",
       "symbols": [
         {
           "name": "Batch",
@@ -29616,11 +29616,11 @@
         },
         {
           "name": "isCurrent",
-          "line": 197
+          "line": 204
         },
         {
           "name": "dueAt",
-          "line": 204
+          "line": 211
         }
       ]
     },
