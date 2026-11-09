@@ -418,4 +418,47 @@ class AutonomousActionBoundaryIntegrationTest {
         })
         assertEquals(3, SharedExperienceTimeline.eventsByIds(actor, receiptIds).size)
     }
+
+    @Test fun newUserMessageStartsFreshDecisionWithoutRevivingDeferredOldStep() = runBlocking {
+        val actor = role()
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "新输入后重新决策")
+        val oldRequest = "old-decision-${UUID.randomUUID()}"
+        val freshRequest = "fresh-decision-${UUID.randomUUID()}"
+        val alreadySent = "旧决定已执行-${UUID.randomUUID()}"
+        val staleUnsent = "旧决定不应复活-${UUID.randomUUID()}"
+        val newlyChosen = "新决定本人重新选择-${UUID.randomUUID()}"
+        val oldSteps = JSONArray()
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", alreadySent)))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", staleUnsent)))
+        var checked = 0
+        val partial = OrderedCharacterActions.execute(app, actor, oldSteps,
+            requestId = oldRequest, shouldDeferRemaining = { ++checked > 1 })
+        assertEquals(1, partial.completedCount)
+        assertTrue(partial.notes.any { it.contains("暂缓") })
+
+        // A real new chat input changes the decision boundary. The caller must
+        // use a new request id and only execute the role's new decision.
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "我刚刚改变主意了")
+        val newSteps = JSONArray().put(JSONObject().put("tool", "publish_moment")
+            .put("args", JSONObject().put("text", newlyChosen)))
+        val fresh = OrderedCharacterActions.execute(app, actor, newSteps,
+            requestId = freshRequest)
+        assertEquals(1, fresh.completedCount)
+        val posts = MomentsStore.posts.value.filter { it.authorCharacterId == actor }
+        assertEquals(1, posts.count { it.content == alreadySent })
+        assertEquals(0, posts.count { it.content == staleUnsent })
+        assertEquals(1, posts.count { it.content == newlyChosen })
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$oldRequest:step:0")).size)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$oldRequest:step:1")).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$freshRequest:step:0")).size)
+        OrderedCharacterActions.execute(app, actor, newSteps, requestId = freshRequest)
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == newlyChosen
+        })
+    }
 }
