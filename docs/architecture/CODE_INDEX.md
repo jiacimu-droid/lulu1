@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e347e906fe4792aec3250e2dd5206c6102ec7331`
+- 基准提交：`da55bb6d2a2515f391f33dee58adbd3d84af85f6`
 - 分支：`main`
 - 已索引文件：1153
-- 已索引代码/文本行：248806
+- 已索引代码/文本行：248816
 - 已发现符号：3405
 
 | 文件 | 行数 | 符号数 |
@@ -992,7 +992,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 228 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt` | 41 | 1 |
@@ -1038,7 +1038,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 197 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 25 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |

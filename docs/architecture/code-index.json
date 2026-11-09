@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:23:53.732347+00:00",
-  "commit": "e347e906fe4792aec3250e2dd5206c6102ec7331",
+  "generatedAt": "2026-11-09T05:26:56.531451+00:00",
+  "commit": "da55bb6d2a2515f391f33dee58adbd3d84af85f6",
   "branch": "main",
-  "sourceFingerprint": "ace3d517d88adffeaa497b6469eecfaf138f79626a7ce8c8ca54933ca1657bd0",
+  "sourceFingerprint": "10150072bb44a0af50d25a33803dffdc0863127180519a150990d12212984547",
   "summary": {
     "files": 1153,
-    "lines": 248806,
+    "lines": 248816,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -17481,7 +17481,7 @@
     "GrowthReflectionInputTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "ImageSearchProviderTest": [
@@ -17961,7 +17961,7 @@
     "PrimaryTurnCommitmentWireTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "PrimaryTurnLifeHandoffTest": [
@@ -38186,12 +38186,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
-      "lines": 72,
-      "sha256": "08d732cc28e83679d4081be8761e77a5b9af9d12f7b4664e7f033b4fc6da535e",
+      "lines": 77,
+      "sha256": "aee5e5b6749ad5e4a7f70793eeb4a812799c72b478d5d26a5219d10cdca76249",
       "symbols": [
         {
           "name": "GrowthReflectionInputTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
@@ -38840,12 +38840,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt",
-      "lines": 25,
-      "sha256": "01bf378221dd2a9e52f337be13951a8b4bb686f353bce500a599e4a1d5259fe7",
+      "lines": 30,
+      "sha256": "a7a1589887ccd9eb011653795b53f3ec54091927a8874234417eb4857de357a7",
       "symbols": [
         {
           "name": "PrimaryTurnCommitmentWireTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
