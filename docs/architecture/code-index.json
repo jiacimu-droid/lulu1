@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:52:40.065994+00:00",
-  "commit": "cb30df82bb50dbd203d14856b6e76fafbb3c414a",
+  "generatedAt": "2026-11-09T09:53:36.995252+00:00",
+  "commit": "827bf647b5718689ce2a25a50f1124e33928fe80",
   "branch": "main",
-  "sourceFingerprint": "28963f5281089a765282432044b07892d2c812d854c8ab9d3e4d8c0eb4a970e8",
+  "sourceFingerprint": "e48dd5d4f4fff994fc6fc89094185ad395311278bdf6fd115502299c28f87b7c",
   "summary": {
     "files": 1161,
-    "lines": 250071,
+    "lines": 250076,
     "symbols": 3412
   },
   "symbolIndex": {
@@ -18835,7 +18835,7 @@
     "IslandInvitationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "IslandTargetActionTest": [
@@ -33105,7 +33105,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
       "lines": 45,
-      "sha256": "da17e8ab1a413d697e6a7482bba6037a97a003b66fc56811610069f378338157",
+      "sha256": "642375c135faf2de636905316648fe72e74bbef1304a64fc5545050c1e33d172",
       "symbols": [
         {
           "name": "parse",
@@ -40153,12 +40153,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt",
-      "lines": 27,
-      "sha256": "f7485ed31d9466d257b1a65e7907e2f7954878407b78ee635dd9f3cad0e87fb4",
+      "lines": 32,
+      "sha256": "3c7460f4f738782cd03f72ac0797e2401ec82f789e2cabc4a6ab54f13be9872e",
       "symbols": [
         {
           "name": "IslandInvitationTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
