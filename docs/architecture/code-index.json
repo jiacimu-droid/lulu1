@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:19:07.402379+00:00",
-  "commit": "7f6e8c6ddba3197e499d88a0a09e9d6f86b91da6",
+  "generatedAt": "2026-11-09T01:19:37.620039+00:00",
+  "commit": "18f9af9e53e77ca6b5d84a8c59b5f4f000a1b625",
   "branch": "main",
-  "sourceFingerprint": "bb796066e40a1c539f4e81a4aa03d2cf3e1faec2208b1bce53a5e3687ffa008e",
+  "sourceFingerprint": "4f20af2ddf9be9f50be39fa6c03458428d31257909fdb1c0bbf213eab6a41f04",
   "summary": {
     "files": 1150,
     "lines": 247994,
@@ -21160,7 +21160,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
       "lines": 631,
-      "sha256": "88ef1a6c60a5295589105bb0d1a643bcdaadfa6270f380f0c17a0412897c3764",
+      "sha256": "ca5e9b669674ff8fc45926f431c297f98d6cafa127c92048bb719de8ea1e1dd6",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
