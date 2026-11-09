@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T02:27:47.992757+00:00",
-  "commit": "607e458413b4153b586710871f79262bb988eb6c",
+  "generatedAt": "2026-11-09T02:28:43.672032+00:00",
+  "commit": "3311e7af7e4c4c5dbbb61a7ccd1dd9d2571f3781",
   "branch": "main",
-  "sourceFingerprint": "1f05ab418756056cd0ff1c85a339cca4f1ee349d2f0f3d5772bcd542ecb917f4",
+  "sourceFingerprint": "6551e842f1ea4e28d6c8bb028a80e514a01884123894bb779f2a774fa33a23c9",
   "summary": {
     "files": 1150,
-    "lines": 248105,
+    "lines": 248133,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -37179,8 +37179,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 351,
-      "sha256": "06b5aa921382f4f65dcd76bd6e3980c926066bb7e1322d0d22f20c841121a6ac",
+      "lines": 356,
+      "sha256": "d52b2a4d4c955242590a6e39580a8e4b41e2621904dbbef5ade46c88c34e7360",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
@@ -38074,8 +38074,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 337,
-      "sha256": "83e3a7369cefca33525cdeb17274a7a6cda14203215745e4cd9c7f28a5edf074",
+      "lines": 344,
+      "sha256": "89a15ad07811bde4db1e26e656bf0b66f6578cba8a2ae19ce6992ba6e6bb37a2",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
@@ -38894,8 +38894,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 237,
-      "sha256": "8b6370138495268baa8b368b92de7650ac1d4a1eeae87dd707027f4501d95a97",
+      "lines": 253,
+      "sha256": "ebd168de5349d87bc69d223517c61a504f162d1a5ba003c95bc800b173934e5f",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
