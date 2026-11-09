@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:18:06.913435+00:00",
-  "commit": "e71a14538a0ed5ae5e5278183f77f9cfd698f995",
+  "generatedAt": "2026-11-09T01:18:34.745151+00:00",
+  "commit": "a4c3b3ebfdbf3d4e46d06bd583899f056ce8c86c",
   "branch": "main",
-  "sourceFingerprint": "863345755b3aab6a16bc917cac41b6f12cbd2b4d18d41aba32b9383f46010cc5",
+  "sourceFingerprint": "9aee8bbb843c7ae2ab2e240f01b2278554c9c26b967edd2e82b52d82dc51936a",
   "summary": {
     "files": 1150,
-    "lines": 247971,
+    "lines": 247988,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -38344,8 +38344,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt",
-      "lines": 106,
-      "sha256": "883f6e6a6ff743326aa48d6e699d893877c1d54367159f1ca203eb140a108ae9",
+      "lines": 123,
+      "sha256": "0ce7710edea36517c1a1bf5bd2122978342b19156073d47e737f1845bd6ea263",
       "symbols": [
         {
           "name": "MemoryContextPolicyTest",
