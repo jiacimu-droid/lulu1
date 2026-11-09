@@ -317,7 +317,8 @@ class ConversationExpressionGatewayTest {
                 assertFalse(system.contains("别人的私有规则丙"))
                 if (CharacterExpressionGuide.isExpressionOnly(source)) {
                     assertTrue(system.contains("【本人已经作出选择，现在对她说话】"))
-                    assertTrue(system.contains("正文只说本人这一刻真正愿意让对方听见的内容"))
+                    assertTrue(system.contains("承接本轮已选的交流意图、事实、立场与感受"))
+                    assertTrue(system.contains("必要答案、条件、否定与不确定性完整保留"))
                     assertFalse(system.contains(CharacterExpressionGuide.personalityOrigin))
                     assertTrue(system.contains("熟悉时说话干脆，会接冷笑话"))
                     assertFalse(system.contains("【统一角色决策协议】"))
@@ -327,7 +328,7 @@ class ConversationExpressionGatewayTest {
                     assertFalse(system.contains("【本人已经作出选择，现在对她说话】"))
                 }
                 assertTrue(system.contains("【情绪潜台词：让感受进入说话方式】"))
-                assertTrue(system.contains("哄睡连续故事按实际需要充分表达"))
+                assertTrue(system.contains("长解释或故事依其内容自然展开"))
             }
             assertEquals(sources.size, server.requestCount)
         } finally { server.shutdown() }
@@ -451,7 +452,7 @@ class ConversationExpressionGatewayTest {
             val planner = requests[0].getJSONArray("messages").toString()
             val expression = requests[1].getJSONArray("messages").toString()
             assertTrue(planner.contains("她在说现实困难时，担忧本身可以成立"))
-            assertTrue(expression.contains("所有气泡合起来才是本轮回复"))
+            assertTrue(expression.contains("所有气泡合起来是本轮回复"))
             (1..1).forEach { index ->
                 val messages = requests[index].getJSONArray("messages")
                 assertEquals(4, messages.length())
