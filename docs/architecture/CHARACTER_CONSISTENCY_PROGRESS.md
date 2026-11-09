@@ -1627,3 +1627,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `29c251aebc6642d30055774fe3d6ca7ad6e85c81` 对应 main push [Lulu APK #42619476897](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476897) 和 [Refresh code index #42619476889](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476889) 均 completed/success。证明 503/400 对照回归与构建在该提交通过，不代表真实供应商计费或设备验收。
 - P-08a.1g.3 在 `AutonomousActionBoundaryIntegrationTest.kt` 新增 `realPrimaryRejectionDoesNotEraseIndependentReplyOrItsDurableReceipts`：真实 ToolRouter 未知主工具拒绝，依赖副步骤跳过，独立私聊回复和动态经真实执行器发送；检查 ChatStore、MomentsStore、Timeline 独立回执，再以相同 requestId 重放防二次送达。提交 `c0a9913`、修正实际消息字段 `06c5271`；测试未取得 CI 通过证据，不称已验。
 - 下一轮固定 P-08a.1g.3：按 `06c5271` 查询 APK/JVM 和索引；若失败先修测试首错，若通过再覆盖回复取消/重启后的持久因果，避免与 P-08b/P-03、G-02/G-03 重叠。真机/真实模型与中转站账单仍未验。
+
+## 2026-11-10 · P-08a.1g.3 新用户输入打断副动作的持久回执回归
+
+- 测试提交 [ed111f4](https://github.com/jiacimu-droid/lulu1/commit/ed111f4f2191dddb12719e6c9f65b49e07e3c263)：`AutonomousActionBoundaryIntegrationTest.newerUserBubbleDefersOnlyUnstartedActionsAndReplayDoesNotDuplicateDeliveredSteps` 使用正式 `OrderedCharacterActions.execute` 与 `ToolRouter`，第一步真实发布动态后由 `shouldDeferRemaining` 模拟收到更新用户气泡，第二步必须暂缓、无工具回执；由调用方明确恢复同 requestId 后，已送达第一步不得重复，第二步真实执行且两条独立回执可查询。该恢复调用是测试显式模拟，不等于运行时会自动重放旧轮。
+- 本轮生产代码未改，测试未本地执行；`ed111f4` 的 main push APK/JVM、Refresh code index 尚未取得 head SHA 成功证据，不能勾工程验收。连接器 commit workflow 仅 PR 触发筛选，容器访问 GitHub DNS 失败；此前 `06c5271` 的 JVM/APK 也尚未得到可信通过证据。
+- **下一固定 P-08a.1g.3**：先核 `ed111f4` 的 main push APK/JVM 与 Refresh code index，失败修首错；通过后检查正式 `ProactivePerceptionRuntime` 如何将新用户输入打断与下轮重新决策衔接，避免把测试显式重放当作产品自动行为。真机/真实模型待验；不新增收费调用或修改人设。
