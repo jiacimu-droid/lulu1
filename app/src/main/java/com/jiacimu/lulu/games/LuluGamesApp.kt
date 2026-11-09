@@ -217,7 +217,8 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             Box(Modifier.fillMaxSize().padding(top = if (immersivePlay) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
-                    if (target == GameRoute.BlockIsland) route = target else pendingRoute = target
+                    if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape) route = target
+                    else pendingRoute = target
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.BlockIsland -> BlockIslandEntry(store)
