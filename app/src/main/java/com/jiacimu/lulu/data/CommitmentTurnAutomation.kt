@@ -84,6 +84,10 @@ object CommitmentTurnAutomation {
     ): CommitmentTask? = wakeChoiceMutex.withLock {
         if (userMessages.isEmpty()) return@withLock null
         val active = CommitmentTaskStore.active(characterId)
+        if (CommitmentDecisionRuntime.handled(context, characterId, evidenceIds))
+            return@withLock active.firstOrNull { task ->
+                task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
+            }
         val possibleCorrection = active.any { it.dueAt != null } &&
             listOf("点", "时", "日期", "时间", "不对", "更正", "改", "明天", "今天", "之后", "提醒")
                 .any(userText::contains)

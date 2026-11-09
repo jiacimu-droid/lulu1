@@ -1,6 +1,26 @@
 package com.jiacimu.lulu.data
 
 /** Single static online-lease decision contract. Live facts are separate. */
+/** One inexpensive typed handoff within the already-paid private/chat
+ * decision, rather than another commitment-extraction request afterwards. */
+internal fun onlineTurnCommitmentInstruction(): String = """
+    【本轮约定同轮保存】你自己理解用户这一轮全部消息及旧任务，而不是程序按关键词判断。
+    请在同一个 JSON 中加 commitmentChanges 数组；没有实际新增、修改、取消或核实的约定就返回 []。
+    只有你确实接受的责任、本人选择承担的长期义务或用户明确更正，才填任务。
+    一项独立完成条件对应一条变化，不把起床、学习、睡觉等不同责任合并。
+    create: {"action":"create","goal":"完整义务","promiseKind":"promise|responsibility|reminder|long_term_supervision",
+    "dueAt":"你明确决定的带时区ISO时间或空字符串","repeat":"once|daily",
+    "deliveryAction":"send_private_message|start_call|alarm_only","completionCondition":"如何验证成功",
+    "verificationMode":"outcome|delivery|subjective_report","needsClarification":false}。
+    修改已有义务使用 action=reschedule|cancel|complete|review 和真实 targetTaskId；
+    完成必须附真实 completionEvidenceIds、verificationReason。暂时不知道的结果不能标完成。
+    用户说正在考虑、拒绝、开玩笑或希望别人做并不等于你已承诺；
+    空泛口头同意不等于程序安排成功。固定时刻提醒/来电只走这一组任务，
+    同一事情不要另用闹钟或个人日程建第二份；没有具体时刻的长期关心可保留为未排期责任。
+    口头确认和 dueAt 必须一致；时间不明确不能由系统猜。
+    原承诺的取消、更正优先沿同一 ID。普通聊天只输出 []，不为此增加模型调用。
+""".trimIndent()
+
 internal fun onlineRenewalDecisionInstruction(): String = """
                     【五分钟自主续醒决定｜本轮必须回答】
                     你的原在线窗口已经到期。这次仍使用平时同一套人格、记忆、情绪、挂心、决策与行动能力。

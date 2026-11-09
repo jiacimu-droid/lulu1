@@ -124,6 +124,7 @@ object ProactivePerceptionRuntime {
         val learningFeedback: JSONObject? = null,
         val learningChallenge: JSONObject? = null,
         val experienceLearning: JSONObject? = null,
+        val commitmentChanges: JSONArray? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
         val onlineChoice: String = "",
@@ -1165,6 +1166,7 @@ object ProactivePerceptionRuntime {
             },
             instruction = proactiveDecisionInstruction(characterId, directPrivateChat = privateDialogue.isNotEmpty()) + "\n" +
                 (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
+                (if (onlineUnread.messageIds.isNotEmpty()) onlineTurnCommitmentInstruction() + "\n" else "") +
                 (if (onlineExpiryAtMillis > 0L) onlineRenewalDecisionInstruction() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
@@ -2236,6 +2238,45 @@ object ProactivePerceptionRuntime {
                 groupNoticeFollowUp = trigger == GroupSocialOpportunity.WAKE_TRIGGER,
             )
         }
+        // The SAME paid role decision already interpreted the fresh user's
+        // commitments. Only model-authored, typed, source-grounded changes
+        // reach the existing commitment executor. Empty [] is a meaningful
+        // "no changes" decision, not permission to buy a second extraction.
+        // No fresh owner message: nothing to apply; no new standalone API.
+        val changes = decision.commitmentChanges
+        if (changes != null && onlineUnread.messageIds.isNotEmpty() &&
+            execution.success && !batchSuperseded()) {
+            val validSources = SharedExperienceTimeline.eventsByIds(
+                characterId, onlineUnread.messageIds)
+                .filter { it.evidenceKind == EventEvidenceKind.UserStatement }
+                .map(SharedTimelineEvent::id)
+            if (validSources.isNotEmpty()) {
+                try {
+                    val receipt = CommitmentDecisionRuntime.apply(
+                        appContext, characterId,
+                        "${conversation.id}:${validSources.last()}:$characterId",
+                        validSources, changes,
+                    )
+                    LuluRepositories.performance.recordTiming(
+                        "承诺同轮处理", 0,
+                        "角色=${characterId.take(32)};变更=${changes.length()};" +
+                            "用户证据数=${validSources.size};新模型调用=0")
+                    if (changes.length() > 0)
+                        CompanionPresenceStore.recordPerceptionAttempt(
+                            characterId, "同轮承诺处理：${receipt.take(95)}", Instant.now())
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    // A real invalid date/unknown target is NOT handled.
+                    // The existing durable fallback may correct it without
+                    // the executor inventing a Chinese time or relationship.
+                    CompanionPresenceStore.recordPerceptionAttempt(
+                        characterId,
+                        "同轮承诺参数未落地：${failure.javaClass.simpleName}，保留来源待补正",
+                        Instant.now())
+                }
+            }
+        }
         // A normal decision alone does not prove the daily review happened.
         // Keep the opportunity pending when a chosen primary/side action failed.
         if (selfReviewDue && pendingUserContext.isBlank() &&
@@ -3141,6 +3182,7 @@ object ProactivePerceptionRuntime {
             learningFeedback = json.optJSONObject("learningFeedback"),
             learningChallenge = json.optJSONObject("learningChallenge"),
             experienceLearning = json.optJSONObject("experienceLearning"),
+            commitmentChanges = json.optJSONArray("commitmentChanges"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
             onlineChoice = json.optJSONObject("onlineDecision")?.optString("choice")
