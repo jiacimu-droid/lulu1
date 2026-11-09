@@ -699,22 +699,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else "先靠近已放置的工作台（2格内）",
                     color = if (workbenchNear) Color(0xFFB7F3D2) else Color(0xFFFFD4B5),
                     fontSize = 12.sp)
-                listOf(
-                    Triple("axe", "木斧 · 2木1石 · 伐木+2", "craft_axe"),
-                    Triple("pickaxe", "石镐 · 2木2石 · 采矿+2", "craft_pickaxe"),
-                    Triple("sword", "石剑 · 1木3石 · 伤害4", "craft_sword"),
-                    Triple("rod", "鱼竿 · 2木1石 · 钓鱼", "craft_rod"),
-                ).forEach { (tool, label, action) ->
-                    val canCraft = when(tool) {
-                        "axe" -> world.wood >= 2 && world.stone >= 1
-                        "pickaxe" -> world.wood >= 2 && world.stone >= 2
-                        "sword" -> world.wood >= 1 && world.stone >= 3
-                        else -> world.wood >= 2 && world.stone >= 1
-                    }
-                    IslandAction(if (tool in island.tools) "✓ " + label else "制作 " + label,
-                        enabled = workbenchNear && tool !in island.tools && canCraft,
-                        modifier = Modifier.fillMaxWidth()) {
-                        perform(action, world.x, world.y)
+                IslandWorkbenchRecipes.all.forEach { recipe ->
+                    IslandAction(
+                        if (recipe.tool in island.tools) "✓ " + recipe.description
+                        else "制作 " + recipe.description,
+                        enabled = IslandWorkbenchRecipes.canCraft(island, recipe),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        perform(recipe.action, world.x, world.y)
                         workbenchOpen = false
                     }
                 }
