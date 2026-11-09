@@ -16,6 +16,12 @@
 
 **最近已核对的完整构建基线（接手须刷新）**：后继 [APK/JVM #42441234402](https://github.com/jiacimu-droid/lulu1/actions/runs/42441234402) 在 2026-11-08 completed/success，head `98c2e782`，覆盖其祖先源码及对应 JVM 回归；早先 #809/#810 的单测失败已由该后继修正。当前 main `7750c22` 之后只有文档/索引更新（核查时），没有新的 APK 产物；已通过的代码测试不等于真机、真实模型或跨日验收。
 
+### 2026-11-09 S-02.1 本轮接力（真实队列回归，工程 CI 待验）
+
+- [测试 253e9d4](https://github.com/jiacimu-droid/lulu1/commit/253e9d446803c7be6cb34e0763e0e6fae793ea99)：`MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart` 验证旧提取在飞行中遇预算延期、后到事件不丢、旧完成不清除新 revision、冷启动后截止前不重试/到期可恢复。仅测试代码，未修改生产逻辑或人物配置。
+- 上轮 [APK/JVM #42563238412](https://github.com/jiacimu-droid/lulu1/actions/runs/42563238412) build job 查询 completed/success；本轮新测试及索引的对应 head SHA CI 仍待验，不能勾工程通过。未验证真实 HTTP→延期队列完整入口、真机、真实模型、服务商账单。
+- **下一固定 ID S-02.1**：直接打开上述测试，查 `253e9d4` main push APK/JVM 与 Refresh code index；通过后验证 `ChatMemoryAutomation.drain` 的失败/延期→持久队列→重启恢复纵向链。若已有测试覆盖则切 P-08a.1g.3。请求尝试≠成功≠计费。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
