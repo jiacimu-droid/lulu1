@@ -216,9 +216,11 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             ArcadeAtmosphere(Modifier.matchParentSize())
             Box(Modifier.fillMaxSize().padding(top = if (immersivePlay) 54.dp else 0.dp)) {
             when (val current = route) {
-                GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
+                GameRoute.Home -> GameHome(onOpen = { target ->
+                    if (target == GameRoute.BlockIsland) route = target else pendingRoute = target
+                })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
-                GameRoute.BlockIsland -> BlockIslandScreen(store)
+                GameRoute.BlockIsland -> BlockIslandEntry(store)
                 GameRoute.RelicEscape -> RelicEscapeScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
