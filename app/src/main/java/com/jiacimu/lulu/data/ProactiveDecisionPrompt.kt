@@ -3,6 +3,22 @@ package com.jiacimu.lulu.data
 /** Single static online-lease decision contract. Live facts are separate. */
 /** One inexpensive typed handoff within the already-paid private/chat
  * decision, rather than another commitment-extraction request afterwards. */
+/** An optional factual handoff, not a second planner or a new memory
+ * engine. The main turn sees source IDs and the actual user's words already. */
+internal fun onlineTurnLifeInstruction(): String = """
+    【生活近况同轮登记】本轮 JSON 同时可写 lifeChanges 数组；没有值得保存或更新的
+    近期用户生活状态/作息/学习安排就写 []。只整理当前用户的真实生活，
+    不是你的私人心事、正式承诺、心理分析或用户的永久人格资料。
+    有真实新进展可填：
+    {"section":"life","title":"简短主题","content":"用户当前真实情况",
+    "sourceEventId":"本轮用户原话的真实消息ID","evidenceQuote":"用户消息中的逐字片段",
+    "existingId":"修订旧记录时填写真实ID，否则空","status":"Active|Resolved"}。
+    不能虚构消息 ID 或逐字引用；找不到真实原话时本轮不提议，原始事件仍可留待记忆整理。
+    同一事情更新旧记录，不重复新建。只有用户明确说结束/解决才 Resolved；
+    用户沉默、你发出关心、工具完成并不能代表对方已经变好。
+    这只是已有主决策的可选字段，不需要也不许可为每条聊天另发 API。
+""".trimIndent()
+
 internal fun onlineTurnCommitmentInstruction(): String = """
     【本轮约定同轮保存】你自己理解用户这一轮全部消息及旧任务，而不是程序按关键词判断。
     请在同一个 JSON 中加 commitmentChanges 数组；没有实际新增、修改、取消或核实的约定就返回 []。

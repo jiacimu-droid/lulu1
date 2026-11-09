@@ -163,6 +163,83 @@ object ChatLexiconAutomation {
     // has interpreted the same evidence. A true silent turn stays in original
     // timeline evidence and can be consolidated by ordinary memory maintenance.
 
+
+    /**
+     * Primary paid perception already understood this exact user turn.
+     * Its optional lifeChanges are cheap typed candidates, NOT permission
+     * to copy inner thought into the owner's real-world facts.
+     * Every nonempty item must cite a verbatim fragment from a current
+     * UserStatement in this role's own actual timeline. No extra model.
+     */
+    suspend fun acceptMainTurn(
+        characterId: String, conversationId: String,
+        userEventIds: List<String>, changes: JSONArray,
+        replyActuallyDelivered: Boolean,
+    ): Boolean {
+        if (userEventIds.isEmpty()) return false
+        val sourceId = userEventIds.last()
+        val signature = "lexicon-turn-v4:$conversationId:$sourceId:$characterId"
+        val lock = synchronized(characterLocks) {
+            characterLocks.getOrPut(characterId) { Mutex() }
+        }
+        return lock.withLock {
+            if (isProcessed(signature)) return@withLock true
+            val events = SharedExperienceTimeline.eventsByIds(characterId, userEventIds)
+                .filter { it.evidenceKind == EventEvidenceKind.UserStatement }
+            if (events.size != userEventIds.distinct().size) return@withLock false
+            if (changes.length() > 0 && !replyActuallyDelivered) return@withLock false
+            val known = events.associateBy(SharedTimelineEvent::id)
+            val originalLife = LuluRepositories.lexicon.snapshot(characterId)
+            val present = originalLife.filter { it.section == LexiconSection.Life }
+                .associateBy(LexiconEntry::id)
+            val existingKeys = originalLife.mapTo(mutableSetOf(), LexiconEntry::automationDedupeKey)
+            val batch = mutableListOf<Pair<LexiconEntry, LexiconEntry?>>()
+            for (i in 0 until changes.length()) {
+                val item = changes.optJSONObject(i) ?: return@withLock false
+                if (item.optString("section").lowercase() != "life") return@withLock false
+                val cited = known[item.optString("sourceEventId")] ?: return@withLock false
+                val quote = item.optString("evidenceQuote").trim()
+                if (quote.length < 2 || !cited.content.contains(quote))
+                    return@withLock false
+                val existingId = item.optString("existingId").trim()
+                val previous = if (existingId.isNotBlank()) {
+                    present[existingId] ?: return@withLock false
+                } else null
+                val status = item.optString("status", "Active")
+                if (status !in listOf("Active", "Resolved")) return@withLock false
+                val proposed = if (previous != null) {
+                    previous.copy(
+                        content = item.optString("content").trim().ifBlank { previous.content },
+                        status = if (status == "Resolved") LexiconStatus.Resolved else LexiconStatus.Active,
+                        updatedAt = Instant.now(),
+                        sourceEventIds = (previous.sourceEventIds + cited.id).distinct(),
+                        sourceRevisions = previous.sourceRevisions + (cited.id to cited.revision),
+                    )
+                } else {
+                    if (status != "Active") return@withLock false
+                    val parsed = runCatching {
+                        parseLexiconEntries(JSONArray().put(item).toString(), characterId)
+                    }.getOrNull()?.singleOrNull()?.takeIf { it.section == LexiconSection.Life }
+                        ?: return@withLock false
+                    if (!existingKeys.add(parsed.automationDedupeKey())) continue
+                    parsed.copy(sourceEventIds = listOf(cited.id),
+                        sourceRevisions = mapOf(cited.id to cited.revision))
+                }
+                batch += proposed to previous
+            }
+            // Validate the entire result before changing persistent rows.
+            for ((entry, previous) in batch) {
+                if (previous != null &&
+                    LuluRepositories.lexicon.snapshot(characterId).none { it == previous })
+                    return@withLock false
+                if (!LuluRepositories.lexicon.saveDerived(entry, previous))
+                    return@withLock false
+            }
+            markProcessed(signature)
+            true
+        }
+    }
+
     private suspend fun extractAndSave(
         characterId: String,
         userText: String,

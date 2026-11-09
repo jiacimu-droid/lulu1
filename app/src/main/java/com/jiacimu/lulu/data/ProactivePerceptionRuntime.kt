@@ -126,6 +126,7 @@ object ProactivePerceptionRuntime {
         val learningChallenge: JSONObject? = null,
         val experienceLearning: JSONObject? = null,
         val commitmentChanges: JSONArray? = null,
+        val lifeChanges: JSONArray? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
         val onlineChoice: String = "",
@@ -1167,7 +1168,9 @@ object ProactivePerceptionRuntime {
             },
             instruction = proactiveDecisionInstruction(characterId, directPrivateChat = privateDialogue.isNotEmpty()) + "\n" +
                 (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
-                (if (onlineUnread.messageIds.isNotEmpty()) onlineTurnCommitmentInstruction() + "\n" else "") +
+                (if (onlineUnread.messageIds.isNotEmpty()) {
+                    onlineTurnCommitmentInstruction() + "\n" + onlineTurnLifeInstruction() + "\n"
+                } else "") +
                 (if (onlineExpiryAtMillis > 0L) onlineRenewalDecisionInstruction() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
@@ -2278,6 +2281,34 @@ object ProactivePerceptionRuntime {
                 }
             }
         }
+        // Reuse the SAME role decision for grounded life updates. The old
+        // post-delivery scanner sees this exact turn marked as already
+        // interpreted, so normal messages cost zero extra extraction calls.
+        val lifeChanges = decision.lifeChanges
+        if (lifeChanges != null && execution.deliveredReply &&
+            !batchSuperseded() && onlineUnread.messageIds.isNotEmpty()) {
+            val sourceIds = MigratedDomainStores.chat.messages(conversation.id).value
+                .filter { it.sender == LuluChatMessage.Sender.User &&
+                    it.status == LuluChatMessage.Status.Sent &&
+                    it.id in onlineUnread.messageIds }
+                .map(LuluChatMessage::id)
+            if (sourceIds.isNotEmpty()) {
+                val accepted = ChatLexiconAutomation.acceptMainTurn(
+                    characterId, conversation.id, sourceIds, lifeChanges,
+                    replyActuallyDelivered = true,
+                )
+                if (!accepted) {
+                    CompanionPresenceStore.recordPerceptionAttempt(
+                        characterId,
+                        "同轮生活记录来源校验未通过，保留原话供旧恢复入口处理",
+                        Instant.now())
+                } else {
+                    LuluRepositories.performance.recordTiming(
+                        "生活记录同轮处理", 0,
+                        "角色=${characterId.take(32)};候选=${lifeChanges.length()};新模型调用=0")
+                }
+            }
+        }
         // A normal decision alone does not prove the daily review happened.
         // Keep the opportunity pending when a chosen primary/side action failed.
         if (selfReviewDue && pendingUserContext.isBlank() &&
@@ -3184,6 +3215,7 @@ object ProactivePerceptionRuntime {
             learningChallenge = json.optJSONObject("learningChallenge"),
             experienceLearning = json.optJSONObject("experienceLearning"),
             commitmentChanges = json.optJSONArray("commitmentChanges"),
+            lifeChanges = json.optJSONArray("lifeChanges"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
             onlineChoice = json.optJSONObject("onlineDecision")?.optString("choice")
