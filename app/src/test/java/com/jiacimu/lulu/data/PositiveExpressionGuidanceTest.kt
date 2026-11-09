@@ -37,6 +37,26 @@ class PositiveExpressionGuidanceTest {
         assertTrue(noDuplicate.contains("必要答案、条件、否定与不确定性完整保留"))
     }
 
+    @Test fun aLongerLaterReplyKeepsTheSameCharacterAuthoredSendBeats() {
+        val full = CharacterExpressionGuide.forGeneration("后台主动感知")
+        val lean = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        for (prompt in listOf(full, lean)) {
+            assertTrue("Send rhythm also belongs to the second half of a reply",
+                prompt.contains("一轮的后半段也沿用这个节奏"))
+            assertTrue("Naturally separate a new reaction from a next-step proposal",
+                prompt.contains("说出一句评价就能先发"))
+            assertTrue("This remains authored speaking rhythm, not a hard punctuation splitter",
+                prompt.contains("不是逢逗号就拆、固定三条或按字数截断"))
+            assertTrue("Explanations and stories still have room to breathe",
+                prompt.contains("认真答疑、完整创作和连续故事"))
+        }
+        val oneCall = proactiveDecisionInstruction("native-longer-chat", directPrivateChat = true)
+        assertTrue(oneCall.contains("依次写每次会按发送的内容"))
+        assertTrue(oneCall.contains("其元素数量由这次真实表达决定"))
+        assertFalse("Bubble pacing is speech, not a private thought",
+            spontaneousInnerVoiceGuide.contains("一轮的后半段也沿用这个节奏"))
+    }
+
     @Test fun privateChatCanSendPhraseSizedMessagesWithoutMandatoryPunctuation() {
         // The same character-owned guidance reaches one-call online chat and
         // the separate foreground expression renderer; no hard comma splitter.
