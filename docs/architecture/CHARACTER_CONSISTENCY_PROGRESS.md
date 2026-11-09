@@ -1590,3 +1590,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [测试 253e9d4](https://github.com/jiacimu-droid/lulu1/commit/253e9d446803c7be6cb34e0763e0e6fae793ea99)：新增 `MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart`。旧 revision 的后台请求尚在飞行时，新事件写入同一角色队列；旧请求随后被预算延期。测试要求新 revision/sourceReplyId 不丢、旧完成回执不能删新工作、延期截止前不重试、冷启动后仍保留并可在到期时领取。复用正式持久 Store，不购买模型请求。
 - 本轮生产代码未改；该测试只验证队列状态机与重建，不冒充真实 HTTP 503 到队列完整集成。前轮 [APK/JVM #42563238412](https://github.com/jiacimu-droid/lulu1/actions/runs/42563238412) 的 build job 已查询为 completed/success；新测试提交的 JVM/APK、Refresh code index 仍待独立 head SHA 验收，真机/真实模型/服务商计费仍未验。
 - **下一固定 S-02.1**：打开 `MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart` 并查询 `253e9d4` 的 main push Actions；若通过，补 `ChatMemoryAutomation` 实际失败/延期到 Store 的纵向回归，或在已覆盖时转 P-08a.1g.3。
+
+## 2026-11-09 · S-02.1 真实 ChatMemoryAutomation.drain 延期/重建回归
+
+- 接手 main 7d424c141af7987b8588fef88c11682f68abbbc1；读 AGENTS、CODE_INDEX、ROADMAP、此进度、ChatMemoryAutomation、MemoryExtractionJobStore 与 MemoryExtractionCheckpointTest。此前 253e9d4 Store 状态机测试已有后继 [APK/JVM #42570057063](https://github.com/jiacimu-droid/lulu1/actions/runs/42570057063) 成功基线，避免重复同一层测试。
+- 生产边界提交 [171ff517](https://github.com/jiacimu-droid/lulu1/commit/171ff5172b9b7bccc48028b4195d1497a5b35861)、[70d51ce](https://github.com/jiacimu-droid/lulu1/commit/70d51ce32961342e59eefc855c63f13434b4908e)：只使 drain 的策略、summarize 和 now 可注入，线上默认仍走原 LuluRepositories.memory，不新增收费调用。
+- 测试 [6861bc38](https://github.com/jiacimu-droid/lulu1/commit/6861bc381999a6b0e044b1da8475b94376ff05dc)：真实 drain 接到持久 MemoryExtractionJobStore，预算异常延期，飞行中新事件 revision 保留，Store 重建后截止前不执行、到期恢复清队列。假 summarizer 非真实 HTTP/进程死亡。
+- 新提交对应 APK/JVM、Refresh code index 尚未得到 completed/success，工程验收不勾；真机/真实模型/服务商账单未知。请求尝试、成功与计费分别核对。
+- 下一轮固定 S-02.1：查 6861bc38 的 main push Actions head SHA，失败修首错；成功后补 Gateway MockWebServer→drain→持久队列的网络纵向回归。若已由其他窗口覆盖则转 P-08a.1g.3。
