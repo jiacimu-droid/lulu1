@@ -1571,3 +1571,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [测试提交 `47ab990`](https://github.com/jiacimu-droid/lulu1/commit/47ab9906671ff49ad6dd2110518adf9774c954a3)：`ModelVisibleOutputTest.residentStreamFallbackCannotSendAnUnclaimedSecondPost` 使用真实 `CompanionModelGateway.generate` + MockWebServer，分别设置单居民每日额度 1/2；模拟流式协议明确拒绝并预排成功的非流式响应，要求实际 POST 数与领取额度一致。额度 1 必须在第二次物理发送前失败；额度 2 可收到回复且仅第二次无 stream 字段。测试还检查已用额度，恢复测试前的政策偏好。无额外真实模型调用，不提高应用默认额度。
 - 本轮只补真实网络回归，生产网关额度修复仍为先前 `23aa1c9`；**未取得本测试 SHA 的 JVM/APK 或代码索引成功证据**，不得勾工程验收。本地 GitHub DNS 失败，连接器按 commit 查询只覆盖 PR 触发，不能把空结果当作无 CI。
 - 下一轮固定 **S-02.1**：直接打开 `ModelVisibleOutputTest.residentStreamFallbackCannotSendAnUnclaimedSecondPost`，按 main push Actions 的 head SHA 核 JVM/APK/Refresh code index 首错；若通过，审查 503 负载保护回退在同样额度 1/2 下的真实 POST 与后台去重门禁。中转站旧账/真机/真实模型仍待验，请求尝试≠成功生成≠服务商计费。
+
+## 2026-11-09 · S-02.1 503 memory guard 居民额度网络回归
+
+- 测试 [`3022fdc`](https://github.com/jiacimu-droid/lulu1/commit/3022fdceb81cfdc52f414fbf4f55aaac4b957081) 在 `ModelVisibleOutputTest.residentMemoryGuard503FallbackCannotExceedPhysicalPostQuota` 使用正式网关 + MockWebServer：503 Relay request-body memory protection 后，对居民额度 1/2 验证物理 POST 数、领取次数、错误或回复；额度 2 额外验证精简请求体仍包含本轮原话。生产代码未改，原额度不提高。
+- 本轮未取得新 SHA 的 Android/JVM/APK 或 Refresh code index 成功结果，测试**已提交但未证实通过**。下一轮直接打开该测试并核 Actions 首错；若测试失败按真实错误修同一工作包，若通过再审后台请求去重/重启门禁。真机、真实模型与中转站账单仍待外部验证；HTTP 尝试≠成功≠实际计费。
