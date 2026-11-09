@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -47,6 +49,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var snapshot by remember{mutableStateOf(ledger.read())}
     val run=snapshot.run
     var kits by remember{mutableIntStateOf(1)}
+    var lobbyOpen by rememberSaveable { mutableStateOf(true) }
+    var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
+    var invitingId by remember { mutableStateOf<String?>(null) }
+    var invitationStatus by remember { mutableStateOf("") }
+    val invitationScope=rememberCoroutineScope()
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
     var facing by remember(run?.id){mutableStateOf(0 to 1)}
     var joystickHeld by remember(run?.id){mutableStateOf(false)}
@@ -121,6 +129,57 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         if(run!=null && run.id in snapshot.awarded)ledger.syncExperiences(snapshot,store)
     }
 
+    if(lobbyOpen || run==null || run.phase in setOf(
+        RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT,RelicPhase.PREPARE)) {
+        RelicEscapeLobby(
+            snapshot=snapshot, accepted=acceptedInvites, inviting=invitingId,
+            inviteStatus=invitationStatus,error=error,kits=kits,difficulty=difficulty,
+            onKits={kits=it},onDifficulty={difficulty=it},
+            onInvite={ id ->
+                if(invitingId==null && id !in acceptedInvites && acceptedInvites.size<3) {
+                    invitingId=id
+                    invitationStatus=""
+                    val party=acceptedInvites.toList()
+                    invitationScope.launch {
+                        val result=runCatching { RelicLobbyInvitation.ask(id,party) }
+                            .getOrElse { Result.failure(it) }
+                        if(invitingId==id) {
+                            invitingId=null
+                            val choice=result.getOrNull()
+                            val name=MigratedDomainStores.characters.get(id).displayName
+                            invitationStatus=when {
+                                choice==null -> name+"的邀请尚未完成："+(result.exceptionOrNull()?.message ?: "请重试")
+                                choice.accepted -> {
+                                    acceptedInvites=(acceptedInvites+id).distinct().take(3)
+                                    name+"接受了邀请"+if(choice.speech.isBlank())"" else " · "+choice.speech
+                                }
+                                else -> name+"这次没有加入"+if(choice.speech.isBlank())"" else " · "+choice.speech
+                            }
+                        }
+                    }
+                }
+            },
+            onRemove={id->acceptedInvites=acceptedInvites.filterNot{it==id}},
+            onStart={
+                store.selectCharacters(acceptedInvites)
+                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty) }) {
+                    if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) lobbyOpen=false
+                }
+            },
+            onContinue={lobbyOpen=false},
+            onAbandon={
+                if(change { ledger.perform("abandon") }) ledger.syncExperiences(snapshot,store)
+                lobbyOpen=true
+            },
+            onBuyKit={change{ledger.buyKit()}},
+            onUpgradeWeapon={change{ledger.upgradeWeapon()}},
+            onUpgradeSatchel={change{ledger.upgradeSatchel()}},
+            onSellLoot={id->change{ledger.sellLoot(id)}},
+        )
+        return
+    }
+
+    Box(Modifier.fillMaxSize()) {
     GameSceneDeck(
         accent = relicGold,
         toolsLabel = "背包 / 战术",
@@ -208,6 +267,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                     TextButton(onClick = { showRulesDialog = true }) {
                         Text("玩法", color = relicGreen, fontSize = 11.sp)
+                    }
+                    TextButton(onClick = { lobbyOpen = true }) {
+                        Text("回营地", color = relicGold, fontSize = 11.sp)
                     }
                     TextButton(onClick = { action("survey") },
                         enabled = RelicEscapeRules.canSurvey(run)) {
@@ -714,6 +776,46 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     }
         },
     )
+    if(run.phase==RelicPhase.DOWNED) {
+        Box(Modifier.fillMaxSize().background(Color(0x9C07111A)),
+            contentAlignment=Alignment.Center) {
+            Surface(
+                modifier=Modifier.widthIn(max=390.dp).padding(horizontal=16.dp),
+                color=Color(0xFF172738),
+                shape=RoundedCornerShape(22.dp),
+                border=BorderStroke(1.dp,relicRed.copy(alpha=.7f)),
+                shadowElevation=14.dp,
+            ) {
+                Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(9.dp),
+                    horizontalAlignment=Alignment.CenterHorizontally) {
+                    Text("❤ 你倒地了",color=relicRed,fontSize=23.sp,
+                        fontWeight=FontWeight.Black)
+                    Text(
+                        if(run.allies.any{it.hp>0 && it.kits>0})
+                            "还能等待队友来救你 · 剩余"+
+                                (4-run.downTurns).coerceAtLeast(0)+"回合"
+                        else "目前没有能救援的队友。不用卡在这里，可以立即重开或返回营地。",
+                        color=Color.White,fontSize=12.sp,lineHeight=18.sp)
+                    if(run.allies.any{it.hp>0 && it.kits>0}) {
+                        OutlinedButton(onClick={action("wait")},modifier=Modifier.fillMaxWidth()) {
+                            Text("等待队友救援",color=relicGreen)
+                        }
+                    }
+                    Button(onClick={confirmRestart=true},modifier=Modifier.fillMaxWidth(),
+                        colors=ButtonDefaults.buttonColors(
+                            containerColor=relicGold,contentColor=relicInk)) {
+                        Text("↻ 放弃并重新开局",fontWeight=FontWeight.Bold)
+                    }
+                    TextButton(onClick={lobbyOpen=true},modifier=Modifier.fillMaxWidth()) {
+                        Text("返回营地 / 退出本局画面",color=Color.White)
+                    }
+                    Text("回营地不会偷偷扣除战利品；可在营地选择继续或明确放弃。",
+                        color=relicMuted,fontSize=10.sp)
+                }
+            }
+        }
+    }
+    }
     if(showRulesDialog)AlertDialog(
         onDismissRequest={showRulesDialog=false}, containerColor=relicInk,
         titleContentColor=Color.White, textContentColor=relicMuted,
@@ -733,13 +835,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         title={Text("重新开始这局摸金？")},
         text={Text("当前局将按中途撤离失败结算，失去未带出的战利品和已消耗补给；永久仓库与铜币保留。新局将随机生成地图。")},
         confirmButton={TextButton(onClick={
-            change {
+            val previous=run
+            val restarted=change {
                 val ended=ledger.perform("abandon")
-                snapshot=ended
                 ledger.syncExperiences(ended,store)
-                ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),
-                    kits.coerceAtMost(ended.kits))
+                ledger.begin(previous.allies.map{it.id},kits.coerceAtMost(ended.kits),
+                    previous.difficulty)
             }
+            if(restarted && snapshot.run?.id!=previous.id) lobbyOpen=false
             confirmRestart=false
         }){Text("放弃并重开",color=relicGold)}},
         dismissButton={TextButton(onClick={confirmRestart=false}){Text("继续本局",color=relicMuted)}},
