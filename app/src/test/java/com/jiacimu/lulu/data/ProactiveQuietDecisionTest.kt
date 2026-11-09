@@ -48,6 +48,22 @@ class ProactiveQuietDecisionTest {
         assertEquals(prompt.indexOf(causal), prompt.lastIndexOf(causal))
     }
 
+    @Test fun realBodyAndSharingNeedsCanGenerateThoughtsAlongsideMultipleChosenActions() {
+        val guidance = spontaneousInnerVoiceGuide
+        assertTrue(guidance.contains("高强度生活需求会先牵动念头"))
+        assertTrue(guidance.contains("appraisal.privateIdeas"))
+        assertTrue(guidance.contains("同一次 JSON 决策"))
+        assertTrue(guidance.contains("模型没有选择的动作不可由程序按数值替做"))
+        val proactive = proactiveDecisionInstruction("drive-aware-autonomous")
+        val livePrivate = proactiveDecisionInstruction("drive-aware-private", directPrivateChat = true)
+        for (prompt in listOf(proactive, livePrivate)) {
+            assertTrue("Both decision entrances need the same drive-aware inner-life protocol",
+                prompt.contains("高强度生活需求会先牵动念头"))
+            assertTrue("Both decision entrances must preserve model-authored parallel steps",
+                prompt.contains("steps") && prompt.contains("appraisal"))
+        }
+    }
+
     @Test fun autonomousChoiceKeepsUnansweredOwnerActivityUncertainAndOffersRealConsentTools() {
         val independent = proactiveDecisionInstruction("uncertainty-test-role")
         val privateChat = proactiveDecisionInstruction("uncertainty-test-role", directPrivateChat = true)
