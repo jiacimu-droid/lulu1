@@ -84,10 +84,18 @@ object CommitmentTurnAutomation {
     ): CommitmentTask? = wakeChoiceMutex.withLock {
         if (userMessages.isEmpty()) return@withLock null
         val active = CommitmentTaskStore.active(characterId)
-        if (CommitmentDecisionRuntime.handled(context, characterId, evidenceIds))
-            return@withLock active.firstOrNull { task ->
-                task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
-            }
+        val alreadyHandled = CommitmentDecisionRuntime.handled(context, characterId, evidenceIds)
+        val acceptedWake = WakeCommitmentParser.acceptedRequest(userText, roleText)
+        val coveredWake = active.firstOrNull { task ->
+            task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
+        }
+        // A completed primary decision is final for normal chatting,
+        // including []: NO repeated generic extraction. The sole exception
+        // here is an explicitly accepted wake-up request with no corresponding
+        // real schedule/receipt. It is a proven semantic-vs-execution gap and
+        // may ask the model to fix the missing typed commitment once.
+        if (alreadyHandled && (!acceptedWake || coveredWake != null))
+            return@withLock coveredWake
         val possibleCorrection = active.any { it.dueAt != null } &&
             listOf("点", "时", "日期", "时间", "不对", "更正", "改", "明天", "今天", "之后", "提醒")
                 .any(userText::contains)
