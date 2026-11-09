@@ -645,7 +645,7 @@ class CompanionModelGateway(
                         // already supplied the unified compact contract.
                         appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples)
                     }
-                    appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration(source))
+                    // The scene instruction may already contain the shared turn-taking guide.\n                    // Keep one authoritative copy; never deduplicate user history or evidence.\n                    appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration(\n                        source, includeTurnTaking = !instruction.contains(\n                            com.jiacimu.lulu.data.CharacterExpressionGuide.casualChatRhythm),\n                    ))
                     if (effectiveMode != CompanionContextMode.Ensemble) appendLine(
                         com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,
