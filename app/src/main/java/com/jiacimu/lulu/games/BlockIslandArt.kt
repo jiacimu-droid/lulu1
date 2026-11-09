@@ -163,8 +163,8 @@ internal object BlockIslandArt {
             drawCircle(Color(0xFFCDFFEA).copy(alpha = .6f + .2f * sin(phase * 6.28318f)),
                 radius = tile * .18f, center = next)
         }
-        w.mobs.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
-            .forEach { mob ->
+        w.mobs.forEach { mob ->
+                if (mob.hp <= 0 || mob.x !in left until left + cols || mob.y !in top until top + rows) return@forEach
                 // Monsters can move after the player's real attack in the same turn.
                 // Identify the hit by stable mob ID, not by its old target coordinate.
                 val hit = impact?.takeIf { it.action=="fight" &&
@@ -173,8 +173,8 @@ internal object BlockIslandArt {
                     hit?.let { 1f-impactProgress } ?: 0f)
             }
         // Every living creature is rendered from real saved entities, not decorative sprites.
-        island.animals.filter { it.x in left until left+cols && it.y in top until top+rows }
-            .forEach { animal ->
+        island.animals.forEach { animal ->
+                if (animal.x !in left until left + cols || animal.y !in top until top + rows) return@forEach
                 drawIslandAnimal(center(animal.x,animal.y),tile,animal,phase)
             }
         val companionOutfits = listOf(
@@ -183,8 +183,8 @@ internal object BlockIslandArt {
         val companionHair = listOf(
             Color(0xFF3F627F), Color(0xFF594D4B), Color(0xFF574D73), Color(0xFF6F5D46),
         )
-        w.friends.filter { it.x in left until left + cols && it.y in top until top + rows }
-            .forEach { friend ->
+        w.friends.forEach { friend ->
+                if (friend.x !in left until left + cols || friend.y !in top until top + rows) return@forEach
                 val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
                 val visual = companionVisuals[friend.id]
                 val walking = visual != null &&
