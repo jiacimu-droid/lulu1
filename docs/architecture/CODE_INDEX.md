@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6f31a506b05a6125778b545f008a636c9d6fe786`
+- 基准提交：`2506eaf857c2f31ab7a57b05165f5acfd48cb28e`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：248262
+- 已索引代码/文本行：248263
 - 已发现符号：3397
 
 | 文件 | 行数 | 符号数 |
@@ -359,7 +359,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 155 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 129 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 93 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 94 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt` | 150 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
