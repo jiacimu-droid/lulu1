@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.CompanionContextMode
 import kotlinx.coroutines.CoroutineScope
