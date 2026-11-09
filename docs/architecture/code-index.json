@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:51:49.186902+00:00",
-  "commit": "820f743077d75ea3cfb1e6b04f3bc7f3bedbff3c",
+  "generatedAt": "2026-11-09T09:52:40.065994+00:00",
+  "commit": "cb30df82bb50dbd203d14856b6e76fafbb3c414a",
   "branch": "main",
-  "sourceFingerprint": "251ba28851b91ed1b530277a6df462b8e132995504cb2186dfd14b4c59594ded",
+  "sourceFingerprint": "28963f5281089a765282432044b07892d2c812d854c8ab9d3e4d8c0eb4a970e8",
   "summary": {
     "files": 1161,
-    "lines": 250032,
+    "lines": 250071,
     "symbols": 3412
   },
   "symbolIndex": {
@@ -18889,7 +18889,7 @@
     "RelicLobbyInvitationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "RelicMapCameraTest": [
@@ -40142,8 +40142,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt",
-      "lines": 342,
-      "sha256": "9616f23507286589303cbecb0aba329db1ff6868c05b6e9d2d88de386bfe8f3f",
+      "lines": 376,
+      "sha256": "267fa55bb77115e8da3de8c7cb06638a96a1ac7d67ba295687ab69e139b1e687",
       "symbols": [
         {
           "name": "IslandHouseProjectsTest",
@@ -40256,12 +40256,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt",
-      "lines": 24,
-      "sha256": "48076f2555447a70632193a40faa4fa386f2201688974ceca3aeee7ff4de762c",
+      "lines": 29,
+      "sha256": "02f09be071bbb5bc536019345ad667a525f971051cc7df15b89061c568231752",
       "symbols": [
         {
           "name": "RelicLobbyInvitationTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
