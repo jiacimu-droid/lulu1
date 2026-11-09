@@ -69,10 +69,11 @@ object ChatMemoryAutomation {
             LuluRepositories.memory.observePolicy(id).first().autoSummarize
         },
         summarize: suspend (String) -> Unit = { id -> LuluRepositories.memory.summarizeNow(id) },
+        now: () -> Instant = Instant::now,
     ) {
         while (true) {
             val job = MemoryExtractionJobStore.pending().firstOrNull { it.characterId == characterId } ?: return
-            if (!memoryExtractionRetryDue(job)) return
+            if (!memoryExtractionRetryDue(job, now())) return
             try {
                 if (autoSummarize(characterId)) {
                     summarize(characterId)
