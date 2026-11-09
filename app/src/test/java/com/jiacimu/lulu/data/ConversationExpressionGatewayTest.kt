@@ -131,8 +131,9 @@ class ConversationExpressionGatewayTest {
             assertEquals("Exactly one authored turn-taking contract in the actual model request",
                 1, system.split(CharacterExpressionGuide.casualChatRhythm).size - 1)
             assertTrue(system.contains(CharacterExpressionGuide.livingLanguagePrinciples))
-            assertTrue(system.contains("本人已设定、平时自然使用的语言习惯").not() ||
-                system.contains("自然说出口"))
+            assertTrue(system.contains("【本人的语言习惯｜随交流自然表现】"))
+            assertFalse("No forbidden example should be quoted into the model system prompt",
+                system.contains("不能写长篇大论"))
             assertEquals(1, server.requestCount)
         } finally { server.shutdown() }
     }
