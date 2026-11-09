@@ -328,4 +328,49 @@ class AutonomousActionBoundaryIntegrationTest {
         assertEquals(2, MomentsStore.posts.value.count { it.authorCharacterId == actor })
     }
 
+
+    @Test fun realPrimaryRejectionDoesNotEraseIndependentReplyOrItsDurableReceipts() = runBlocking {
+        val actor = role()
+        val turnId = "primary-and-reply-${UUID.randomUUID()}"
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "主副回执持久归属")
+        val primary = JSONObject(ToolRouter.execute(app, actor, "unknown_primary_for_receipt_test",
+            JSONObject(), requestId = turnId, autonomousLifeTurn = true))
+        assertFalse(primary.optBoolean("success"))
+        val replyText = "独立发送的回复-${UUID.randomUUID()}"
+        val postText = "独立发布的动态-${UUID.randomUUID()}"
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", "失败主动作的依赖项")))
+            .put(JSONObject().put("tool", "send_private_message")
+                .put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("text", replyText)))
+            .put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("text", postText)))
+        suspend fun executeSteps() = OrderedCharacterActions.execute(app, actor, steps,
+            requestId = turnId,
+            initialCompleted = ToolExecutionStatus.primaryAllowsDependentSteps(
+                "unknown_primary_for_receipt_test", primary))
+        val first = executeSteps()
+        assertEquals(2, first.completedCount)
+        assertTrue(first.notes.any { it.contains("前一步尚未成功") })
+        val delivered = MigratedDomainStores.chat.messages(chat.id).value
+            .count { it.text == replyText }
+        assertEquals(1, delivered)
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == postText
+        })
+        val receiptIds = listOf("tool-rejected-$actor-$turnId",
+            "tool-$actor-$turnId:step:1", "tool-$actor-$turnId:step:2")
+        assertEquals(3, SharedExperienceTimeline.eventsByIds(actor, receiptIds).size)
+        val second = executeSteps()
+        assertEquals(2, second.completedCount)
+        assertEquals(delivered, MigratedDomainStores.chat.messages(chat.id).value
+            .count { it.text == replyText })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == postText
+        })
+        assertEquals(3, SharedExperienceTimeline.eventsByIds(actor, receiptIds).size)
+    }
 }
