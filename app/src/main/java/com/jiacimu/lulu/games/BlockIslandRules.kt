@@ -392,16 +392,11 @@ internal object BlockIslandRules {
                     kind == "workbench" && distance(w.x, w.y, location % w.width, location / w.width) <= 2
                 }
                 if (!tableNear) return reject("靠近工作台才能制作工具")
-                val cost = when (tool) {
-                    "axe" -> 2 to 1
-                    "pickaxe" -> 2 to 2
-                    "rod" -> 2 to 1
-                    else -> 1 to 3
-                }
-                if (w.wood < cost.first || w.stone < cost.second)
-                    return reject("需要木材${cost.first}、石料${cost.second}")
-                next = s.copy(world = w.copy(wood = w.wood - cost.first, stone = w.stone - cost.second),
-                    tools = s.tools + tool)
+                val recipe = IslandWorkbenchRecipes.find(tool) ?: return reject("未知的工具配方")
+                if (w.wood < recipe.wood || w.stone < recipe.stone)
+                    return reject("需要木材${recipe.wood}、石料${recipe.stone}")
+                next = s.copy(world = w.copy(wood = w.wood - recipe.wood,
+                    stone = w.stone - recipe.stone), tools = s.tools + tool)
                 message = "制作成功：${actionName(tool)}"
             }
             "revive" -> {
