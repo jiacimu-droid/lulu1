@@ -22,6 +22,13 @@
 - 上轮 [APK/JVM #42563238412](https://github.com/jiacimu-droid/lulu1/actions/runs/42563238412) build job 查询 completed/success；本轮新测试及索引的对应 head SHA CI 仍待验，不能勾工程通过。未验证真实 HTTP→延期队列完整入口、真机、真实模型、服务商账单。
 - **下一固定 ID S-02.1**：直接打开上述测试，查 `253e9d4` main push APK/JVM 与 Refresh code index；通过后验证 `ChatMemoryAutomation.drain` 的失败/延期→持久队列→重启恢复纵向链。若已有测试覆盖则切 P-08a.1g.3。请求尝试≠成功≠计费。
 
+### 2026-11-09 S-02.1 本轮接力（真实 drain 纵向回归，CI 待验）
+
+- 正式 ChatMemoryAutomation.drain 增加可注入的 summarizer、策略和时钟边界，默认仍调用原 LuluRepositories.memory；不改线上调度/费用/人物。提交 [171ff517](https://github.com/jiacimu-droid/lulu1/commit/171ff5172b9b7bccc48028b4195d1497a5b35861)、[70d51ce](https://github.com/jiacimu-droid/lulu1/commit/70d51ce32961342e59eefc855c63f13434b4908e)。
+- 测试 [6861bc38](https://github.com/jiacimu-droid/lulu1/commit/6861bc381999a6b0e044b1da8475b94376ff05dc) MemoryExtractionCheckpointTest.realDrainDefersAnInFlightExtractionAndResumesNewRevisionAfterReopen：真实 drain catch/defer/complete，模拟在飞行中新增事件→预算延期→Store 重建→截止前不购买→到期恢复并清队列。确定性假 summarizer，不是 HTTP/模型/进程死亡验收。
+- 前一条 253e9d4 的单测在后继 [APK/JVM #42570057063](https://github.com/jiacimu-droid/lulu1/actions/runs/42570057063) 成功基线中已覆盖；新 6861bc38 的 APK/JVM 和 Refresh code index 尚待按 head SHA 查验，不能勾工程通过。
+- **下一固定 S-02.1**：查 6861bc38 的 Actions/JVM 首错；通过后用 MockWebServer 将 Gateway 的 503/预算延期接到真实 drain，验证物理 POST、队列保留与恢复。若其他窗口已覆盖，转 P-08a.1g.3。账单/真机/真实模型待验。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
