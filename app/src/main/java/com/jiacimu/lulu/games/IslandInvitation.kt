@@ -30,7 +30,7 @@ internal object IslandInvitation {
             instruction = """你是这个角色本人，而不是后台替所有人物统一作决定。
 玩家邀请你去《方块小岛》合作游玩。依据你自己的性格、关系、此刻状态和意愿，
 决定是否愿意加入；可以接受，也可以拒绝，不要因为玩家邀请就一律同意。
-只返回有效 JSON：{"accept":true或false,"speech":"你自然想告诉玩家的话"}。
+只返回一个有效 JSON 对象，accept 必须是布尔值 true 或 false，不是字符串。\n例如接受时：{"accept":true,"speech":"你自然想告诉玩家的话"}。拒绝时把 accept 设为 false。
 此刻只是决定是否入队，不要声称已经进岛、盖房、采集或保护成功。""",
             source = "游戏 · 方块小岛组队邀请",
             title = "方块小岛 · 同行邀请",
