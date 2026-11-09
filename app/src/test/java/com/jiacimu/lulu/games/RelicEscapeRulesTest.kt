@@ -17,6 +17,42 @@ class RelicEscapeRulesTest {
         context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit().clear().commit()
         return RelicEscapeLedger(context)
     }
+    @Test fun difficultyChangesRealThreatsSurvivesSaveAndDefaultsOnOldRuns() {
+        val easy=RelicEscapeWorld.create(341,1,emptyList(),0,1,
+            difficulty=RelicDifficulty.EASY)
+        val normal=RelicEscapeWorld.create(341,1,emptyList(),0,1,
+            difficulty=RelicDifficulty.NORMAL)
+        val hard=RelicEscapeWorld.create(341,1,emptyList(),0,1,
+            difficulty=RelicDifficulty.HARD)
+        assertEquals(normal.mobs.size-1,easy.mobs.size)
+        assertEquals(normal.mobs.size+2,hard.mobs.size)
+        assertTrue(hard.mobs.first().hp>normal.mobs.first().hp)
+        assertEquals(RelicDifficulty.HARD,
+            RelicRun.read(JSONObject(hard.json().toString()))!!.difficulty)
+        assertEquals(RelicDifficulty.NORMAL,RelicRun.read(
+            JSONObject(normal.json().toString()).apply { remove("difficulty") })!!.difficulty)
+        val easyDamage=(1+easy.difficulty.incomingDamage).coerceAtLeast(1)
+        val hardDamage=(1+hard.difficulty.incomingDamage).coerceAtLeast(1)
+        assertTrue(hardDamage>easyDamage)
+    }
+
+    @Test fun downedPlayerMayAbandonAndStartFreshRunWithoutLosingVault() {
+        val ledger=cleared()
+        val old=ledger.begin(listOf("friend"),0,RelicDifficulty.HARD)
+        val first=old.run!!
+        val down=first.copy(phase=RelicPhase.DOWNED,hero=first.hero.copy(hp=0))
+        val blocked=RelicEscapeRules.act(down,"attack",down.hero.x,down.hero.y)
+        assertEquals(RelicPhase.DOWNED,blocked.phase)
+        assertEquals(RelicPhase.FAILURE,RelicEscapeRules.abandon(down).phase)
+        val ended=ledger.perform("abandon")
+        assertEquals(RelicPhase.FAILURE,ended.run!!.phase)
+        val restarted=ledger.begin(listOf("friend"),0,first.difficulty)
+        assertNotEquals(first.id,restarted.run!!.id)
+        assertEquals(RelicDifficulty.HARD,restarted.run!!.difficulty)
+        assertEquals(listOf("friend"),restarted.run!!.allies.map { it.id })
+        assertEquals(old.vault,restarted.vault)
+    }
+
     @Test fun satchelPurchaseIsAtomicPermanentAndCannotMintCapacityMidRun() {
         val ledger=cleared()
         val context=RuntimeEnvironment.getApplication()
