@@ -392,7 +392,7 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "向量记忆",
-                subtitle = "使用 Embedding 做语义检索",
+                subtitle = "可增强语义搜索，但每次新查询及新增记忆的向量索引都可能额外请求 API；关闭后仍保留本地记忆与关联召回",
                 checked = vectorEnabled,
                 onCheckedChange = { vectorEnabled = it },
             )
@@ -413,7 +413,7 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "Rerank 重排",
-                subtitle = "对向量召回结果进行二次相关性排序",
+                subtitle = "仅对需要比较的向量候选额外调用重排服务；静默后台感知不单独付费重排。优先省钱可关闭",
                 checked = rerankEnabled,
                 onCheckedChange = { rerankEnabled = it },
             )
