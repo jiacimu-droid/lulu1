@@ -328,7 +328,7 @@ class ConversationExpressionGatewayTest {
                     assertFalse(system.contains("【本人已经作出选择，现在对她说话】"))
                 }
                 assertTrue(system.contains("【情绪潜台词：让感受进入说话方式】"))
-                assertTrue(system.contains("长解释或故事依其内容自然展开"))
+                assertTrue(system.contains("认真答疑、完整创作和连续故事照实际需要展开"))
             }
             assertEquals(sources.size, server.requestCount)
         } finally { server.shutdown() }
