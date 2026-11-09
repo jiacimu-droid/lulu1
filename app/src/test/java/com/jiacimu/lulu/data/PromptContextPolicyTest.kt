@@ -9,6 +9,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class PromptContextPolicyTest {
+    @Test fun quietAutonomousPulseAvoidsPaidRerankWithoutDisablingNewMessageRecall() {
+        assertFalse(PromptContextPolicy.paidRankingFor("后台主动感知", UnifiedMemoryRequest(
+            sceneContext = "本轮实际世界状态", taskIntent = "观察并自主决定")))
+        assertTrue(PromptContextPolicy.paidRankingFor("后台主动感知", UnifiedMemoryRequest(
+            currentInput = "你还记得昨天的事吗？")))
+        assertTrue(PromptContextPolicy.paidRankingFor("电话回复", UnifiedMemoryRequest()))
+        assertTrue(PromptContextPolicy.paidRankingFor("聊天工具规划",
+            UnifiedMemoryRequest(currentInput = "随便聊聊")))
+    }
+
     @Test fun normalChatKeepsASmallBoundedEvidenceWindowWithoutBecomingHeavyweight() {
         val b = PromptContextPolicy.forRequest("聊天工具规划",
             UnifiedMemoryRequest(currentInput = "今天看见小猫啦", sceneContext = "私聊"))
