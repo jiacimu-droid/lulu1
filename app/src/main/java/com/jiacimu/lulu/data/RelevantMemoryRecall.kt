@@ -49,6 +49,13 @@ object RelevantMemoryRecall {
         val notes: List<String> = emptyList(),
     )
 
+    /** Request-side vectors are invariant for an exact model + query.
+     * Cache only successful embeddings; never persist conversation wording. */
+    private val queryEmbeddingCache = object : LinkedHashMap<String, FloatArray>(64, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, FloatArray>?): Boolean =
+            size > 64
+    }
+
     private val embeddingCache = object : LinkedHashMap<String, FloatArray>(128, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, FloatArray>?): Boolean =
             size > MAX_EMBEDDING_CACHE
@@ -64,6 +71,7 @@ object RelevantMemoryRecall {
     suspend fun recallDetailed(
         characterId: String, query: String, limit: Int = 96,
         now: Instant = Instant.now(), localOnly: Boolean = false,
+        paidRanking: Boolean = true,
     ): MemoryRecallResult {
         val cleanQuery = focusQuery(query)
         if (cleanQuery.isBlank()) return MemoryRecallResult()
@@ -122,7 +130,7 @@ object RelevantMemoryRecall {
             .toSet()
 
         val notes = mutableListOf<String>()
-        val embeddingResult = if (!localOnly && MemoryModelRuntime.vectorEnabled()) {
+        val embeddingResult = if (!localOnly && paidRanking && MemoryModelRuntime.vectorEnabled()) {
             val connection = MemoryModelRuntime.embeddingConnection()
             if (connection == null) EmbeddingRankResult(notes = listOf("向量召回未配置连接，已使用本地检索")) else {
                 rankByEmbedding(characterId, connection, cleanQuery, memories, lexicalPositiveIds)
@@ -154,7 +162,11 @@ object RelevantMemoryRecall {
         ).take(RERANK_POOL)
         if (candidates.isEmpty()) return MemoryRecallResult(notes = notes, excluded = excluded)
 
-        if (!localOnly && MemoryModelRuntime.rerankEnabled() && candidates.size > 1) {
+        // Reranking every proactive pulse is not a memory requirement. A
+        // vector-free shortlist already has lexical and source-graph ordering;
+        // paying to rerank it also contradicts the UI's "vector rerank" label.
+        if (!localOnly && paidRanking && vectorRanked.isNotEmpty() &&
+            MemoryModelRuntime.rerankEnabled() && candidates.size > 2) {
             val connection = MemoryModelRuntime.rerankConnection()
             if (connection != null) {
                 val rerankResult = com.jiacimu.lulu.ai.LuluAiServices.gateway
@@ -319,12 +331,18 @@ object RelevantMemoryRecall {
             notes = listOf("向量索引尚未生成，本次使用本地关键词与来源召回"))
         val notes = mutableListOf<String>()
         if (missingCount > 0) notes += "剩余 $missingCount 条向量由后台索引处理，不在聊天感知中另行收费回填"
-        val queryResult = com.jiacimu.lulu.ai.LuluAiServices.gateway.embed(
-            connection, listOf(cleanQuery))
-        val queryVector = queryResult.getOrNull()?.singleOrNull()
+        val queryKey = connection.baseUrl.trimEnd('/') + "|" + connection.model + "|" + cleanQuery
+        val cachedQuery = synchronized(queryEmbeddingCache) { queryEmbeddingCache[queryKey] }
+        val queryResult = if (cachedQuery == null) {
+            com.jiacimu.lulu.ai.LuluAiServices.gateway.embed(connection, listOf(cleanQuery))
+        } else null
+        val queryVector = cachedQuery ?: queryResult?.getOrNull()?.singleOrNull()
             ?: return EmbeddingRankResult(notes = notes + listOf(
                 "查询向量获取失败，保留本地召回：" +
-                    queryResult.exceptionOrNull()?.javaClass?.simpleName.orEmpty()))
+                    queryResult?.exceptionOrNull()?.javaClass?.simpleName.orEmpty()))
+        if (cachedQuery == null) synchronized(queryEmbeddingCache) {
+            queryEmbeddingCache[queryKey] = queryVector
+        }
 
         val similarities = memories.mapIndexedNotNull { index, memory ->
             vectors[index]?.let { vector -> memory.id to cosine(queryVector, vector) }
