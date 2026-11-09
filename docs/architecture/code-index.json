@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:44:57.445468+00:00",
-  "commit": "b83427dba8139660cee4fc7b5b6ea0fa7c7c6f3d",
+  "generatedAt": "2026-11-09T09:45:58.091769+00:00",
+  "commit": "e1330b3fb2244d21cfce169379ef98aacde7168c",
   "branch": "main",
-  "sourceFingerprint": "92db4fa11a7d9f5985071c9f7d6a111c9c03ac271c3338f7fb86bee260d468b4",
+  "sourceFingerprint": "150f4e25d3e919e8495d5b666311929342fba1e82234dc090bafc23e3986a23b",
   "summary": {
     "files": 1159,
-    "lines": 249906,
+    "lines": 249909,
     "symbols": 3410
   },
   "symbolIndex": {
@@ -1481,7 +1481,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 114
+        "line": 117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13531,7 +13531,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 119
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13545,13 +13545,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 852
+        "line": 855
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 989
+        "line": 992
       }
     ],
     "saveTurn": [
@@ -32572,8 +32572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1033,
-      "sha256": "80442b40365e9d01cb4ff629032647ae4c3cecdd05d6de7b3b02e5c9766607b3",
+      "lines": 1036,
+      "sha256": "0b3e2fa07ea3282e39eb51a64352ad6b7ea0b8c7141fc0f8f44f4cb49e60fa2f",
       "symbols": [
         {
           "name": "playSound",
@@ -32581,19 +32581,19 @@
         },
         {
           "name": "save",
-          "line": 114
+          "line": 117
         },
         {
           "name": "perform",
-          "line": 119
+          "line": 122
         },
         {
           "name": "dot",
-          "line": 852
+          "line": 855
         },
         {
           "name": "targetFor",
-          "line": 989
+          "line": 992
         }
       ]
     },
