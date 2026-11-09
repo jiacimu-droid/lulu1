@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T04:58:29.623556+00:00",
-  "commit": "2506eaf857c2f31ab7a57b05165f5acfd48cb28e",
+  "generatedAt": "2026-11-09T04:59:12.040900+00:00",
+  "commit": "1ebb8c5b9c874ea8ce3d552fe6503bfa5d69d543",
   "branch": "main",
-  "sourceFingerprint": "138fb0496a1049168cc80e857dfacbe6a7a0801fbf331e20748087a45797aa4a",
+  "sourceFingerprint": "c39590d4aeee45cd1074263c124b91e7f8d3394dad3c034b77035b4446952414",
   "summary": {
     "files": 1150,
-    "lines": 248263,
+    "lines": 248266,
     "symbols": 3397
   },
   "symbolIndex": {
@@ -6505,13 +6505,13 @@
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 75
+        "line": 78
       }
     ],
     "relationships": [
@@ -23290,7 +23290,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1488,
-      "sha256": "bbe254892840bfbcb131b428ab27d072d8b2cdcf183859be14729387e928ce83",
+      "sha256": "b8bc00279f2610112118ee890ebebb955ef56b5ef6b2276c47392c8d72f5fa9c",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -24721,8 +24721,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 94,
-      "sha256": "a642f70384936ee4bf95f56590eada8a2bf05c895ef1489b987ac600f9ada02b",
+      "lines": 97,
+      "sha256": "ef5f1a647aecf520a281423c8760cfe5c9fb70037ae5a4058477f5076ca5bece",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -24734,11 +24734,11 @@
         },
         {
           "name": "forGeneration",
-          "line": 61
+          "line": 63
         },
         {
           "name": "channelNote",
-          "line": 75
+          "line": 78
         }
       ]
     },
