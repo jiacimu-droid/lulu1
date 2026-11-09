@@ -94,7 +94,7 @@ class CharacterAccountabilityContextTest {
         assertTrue(guide.contains("让情绪自然落在选词、语气、停顿"))
         assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS).contains("朋友圈面向熟人分享"))
         assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS).contains("日记是自我整理"))
-        assertTrue(guide.contains("历史反馈让彼此逐渐熟悉"))
+        assertTrue(guide.contains("过去相处形成的阅读默契，自然体现在此刻的措辞与发送停顿里"))
     }
 
     @Test fun sleepingSupervisionDisputeIsNotMisreadAsUserAttackingTheRole() {
