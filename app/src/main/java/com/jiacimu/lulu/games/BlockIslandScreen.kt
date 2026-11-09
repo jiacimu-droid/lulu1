@@ -78,6 +78,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var joystickHeld by remember(world.seed) { mutableStateOf(false) }
     var mapAim by remember(world.seed) { mutableStateOf(false) }
     var menuSection by rememberSaveable { mutableStateOf("行囊") }
+    LaunchedEffect(menuSection) {
+        if (menuSection !in setOf("地图","行囊","伙伴","图鉴","设置")) menuSection = "行囊"
+    }
     var buildMode by remember(world.seed) { mutableStateOf<String?>(null) }
     var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
     // A recipe may be tapped again; an integer event always dismisses the tools panel.
@@ -466,7 +469,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         if (menuSection=="地图" || menuSection=="行囊") {
-        Surface(shape = RoundedCornerShape(16.dp),
+        if (menuSection == "地图") Surface(shape = RoundedCornerShape(16.dp),
             color = Color(0xFF1C4445),
             border = BorderStroke(1.dp, Color(0xFF8FD9BE).copy(alpha = .35f))) {
             Column(Modifier.fillMaxWidth().padding(12.dp),
