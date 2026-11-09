@@ -5,6 +5,12 @@ import org.json.JSONObject
 import kotlin.math.abs
 
 internal enum class RelicPhase { PREPARE, EXPLORE, DOWNED, EXTRACT, SUCCESS, FAILURE, SETTLEMENT }
+/** The lobby selection is persisted in the same authoritative run as all combat facts. */
+internal enum class RelicDifficulty(val label:String,val extraMobs:Int,val monsterHp:Int,val incomingDamage:Int) {
+    EASY("轻松", -1, -1, -1),
+    NORMAL("标准", 0, 0, 0),
+    HARD("险境", 2, 2, 1),
+}
 internal enum class RelicTier(val label:String,val base:Int,val weight:Int) {
     COMMON("普通",70,1), RARE("稀有",185,2), PRECIOUS("珍贵",430,3)
 }
@@ -97,6 +103,7 @@ internal data class RelicRun(
     val coopPlans:Map<String,RelicCoopPlan> = emptyMap(),
     /** Permanent expedition satchel tier is captured at departure. Allies keep 8 slots. */
     val satchelLevel:Int = 0,
+    val difficulty:RelicDifficulty = RelicDifficulty.NORMAL,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -125,7 +132,7 @@ internal data class RelicRun(
         .put("bolts",bolts).put("guarding",guarding)
         .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
         .put("guardedBy",guardedBy)
-        .put("satchelLevel",satchelLevel)
+        .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
         .put("coopPlans",JSONObject().apply { coopPlans.forEach { (id,p) -> put(id,p.json()) } })
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
@@ -166,7 +173,9 @@ internal data class RelicRun(
                     }
                 } ?: "")
             result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result),
-                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2))
+                satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2),
+                difficulty=runCatching { RelicDifficulty.valueOf(j.optString("difficulty","NORMAL")) }
+                    .getOrDefault(RelicDifficulty.NORMAL))
         }.getOrNull()
     }
 }
@@ -503,7 +512,7 @@ internal object RelicEscapeRules {
                     continue
                 }
                 if(d<=1) {
-                    val rawDamage=m.kind+1
+                    val rawDamage=(m.kind+1+s.difficulty.incomingDamage).coerceAtLeast(1)
                     val protector=if(target.id=="player")s.allies.firstOrNull { ally ->
                         ally.id==s.guardedBy && ally.hp>0 &&
                             distance(ally.x,ally.y,s.hero.x,s.hero.y)<=2
