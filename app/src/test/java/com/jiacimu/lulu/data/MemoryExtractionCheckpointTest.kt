@@ -228,4 +228,60 @@ class MemoryExtractionCheckpointTest {
         assertEquals(305, MemoryExtractionJobStore.pending().size)
         assertTrue(MemoryExtractionJobStore.pending().any { it.characterId == "role-0" })
     }
+    @Test fun realGateway503FailurePersistsDirtyMemoryWithoutImmediateSecondPost() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        val role = "memory:gateway-503-drain-" + java.util.UUID.randomUUID()
+        val server = okhttp3.mockwebserver.MockWebServer()
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(503)
+            .setBody("""{"error":{"message":"Relay request body memory protection"}}"""))
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(200)
+            .setBody("""{"choices":[{"message":{"content":"unexpected duplicate"}}]}"""))
+        server.start()
+        try {
+            val gateway = com.jiacimu.lulu.ai.CompanionModelGateway(
+                com.jiacimu.lulu.ai.ModelConnectionStore.create(context))
+            val connection = com.jiacimu.lulu.ai.ModelConnection(
+                server.url("/").toString(), "key", "test")
+            val original = MemoryExtractionJobStore.enqueue(role, sourceReplyId = "original-evidence")
+            ChatMemoryAutomation.drain(
+                role, autoSummarize = { true },
+                summarize = {
+                    MemoryExtractionJobStore.enqueue(role, sourceReplyId = "arrived-during-503")
+                    gateway.generate(
+                        role, "verifiable original evidence", "summarize", "记忆", "连续记忆提取",
+                        contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
+                        connectionOverride = connection,
+                    ).getOrThrow()
+                },
+            )
+            assertEquals("Ambiguous relay failure must send exactly one POST", 1, server.requestCount)
+            val failed = MemoryExtractionJobStore.pending().single()
+            assertEquals(original.id, failed.id)
+            assertEquals(2L, failed.revision)
+            assertEquals("arrived-during-503", failed.sourceReplyId)
+            assertEquals(1, failed.attempts)
+            val retryAt = failed.updatedAt.plusSeconds(15L * 60)
+            MemoryTestEnvironment.release()
+            MemoryExtractionJobStore.initialize(context)
+            ChatMemoryAutomation.drain(
+                role, autoSummarize = { true },
+                summarize = { error("Must not retry before persisted deadline") },
+                now = { retryAt.minusNanos(1) },
+            )
+            assertEquals(1, server.requestCount)
+            assertEquals("arrived-during-503", MemoryExtractionJobStore.pending().single().sourceReplyId)
+            // A later permitted successful extraction consumes the surviving revision.
+            ChatMemoryAutomation.drain(
+                role, autoSummarize = { true },
+                summarize = { },
+                now = { retryAt },
+            )
+            assertTrue(MemoryExtractionJobStore.pending().isEmpty())
+            assertEquals("No hidden network replay during recovery", 1, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
 }
