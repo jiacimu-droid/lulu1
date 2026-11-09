@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:16:12.493696+00:00",
-  "commit": "1775659445260677308f7661e47e3957b4e94c06",
+  "generatedAt": "2026-11-09T05:18:18.143722+00:00",
+  "commit": "0430c40f3731f60445f446d6118c10b641608569",
   "branch": "main",
-  "sourceFingerprint": "3790fcac3a223a09ee9cdf5a4f1250a4494eddd2b51b9cfc911ab730b7bd3aca",
+  "sourceFingerprint": "60becc2fbc4e92a6d7d8d8c1dca1d3ed9ecf5b758c3191c2d7330391c598151d",
   "summary": {
     "files": 1153,
-    "lines": 248797,
+    "lines": 248798,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 179
+        "line": 180
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
@@ -811,7 +811,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 167
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -4005,7 +4005,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 79
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
@@ -6017,7 +6017,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 26
+        "line": 27
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
@@ -6209,19 +6209,19 @@
     "personaBrief": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "shouldConsolidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "evidenceText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 97
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
@@ -6231,31 +6231,31 @@
     "currentSlots": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 109
+        "line": 110
       }
     ],
     "CharacterDevelopmentRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 142
+        "line": 143
       }
     ],
     "lastStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 149
+        "line": 150
       }
     ],
     "resumePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 161
+        "line": 162
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 341
+        "line": 342
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -24540,56 +24540,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 384,
-      "sha256": "ae63e12ac0b2fb352710d41b785535b844dcc146596b159f4db4c00ddbd6025f",
+      "lines": 385,
+      "sha256": "2b803a6c41bd633987a1ea853626011e7fccc9b888c88caa3c4588a5b6d55889",
       "symbols": [
         {
           "name": "snapshot",
-          "line": 26
+          "line": 27
         },
         {
           "name": "personaBrief",
-          "line": 46
+          "line": 47
         },
         {
           "name": "shouldConsolidate",
-          "line": 56
+          "line": 57
         },
         {
           "name": "select",
-          "line": 79
+          "line": 80
         },
         {
           "name": "evidenceText",
-          "line": 97
+          "line": 98
         },
         {
           "name": "currentSlots",
-          "line": 109
+          "line": 110
         },
         {
           "name": "CharacterDevelopmentRuntime",
-          "line": 142
+          "line": 143
         },
         {
           "name": "lastStatus",
-          "line": 149
+          "line": 150
         },
         {
           "name": "resumePending",
-          "line": 161
+          "line": 162
         },
         {
           "name": "initialize",
-          "line": 167
+          "line": 168
         },
         {
           "name": "request",
-          "line": 179
+          "line": 180
         },
         {
           "name": "ids",
-          "line": 341
+          "line": 342
         }
       ]
     },
