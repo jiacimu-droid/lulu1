@@ -62,13 +62,20 @@ object ChatMemoryAutomation {
         MemoryExtractionJobStore.enqueue(characterId, sourceReplyId = sourceEventId)
     }
 
-    private suspend fun drain(characterId: String) {
+    /** Durable drain; injectable boundaries keep failure and restart tests on the production loop. */
+    internal suspend fun drain(
+        characterId: String,
+        autoSummarize: suspend (String) -> Boolean = { id ->
+            LuluRepositories.memory.observePolicy(id).first().autoSummarize
+        },
+        summarize: suspend (String) -> Unit = { id -> LuluRepositories.memory.summarizeNow(id) },
+    ) {
         while (true) {
             val job = MemoryExtractionJobStore.pending().firstOrNull { it.characterId == characterId } ?: return
             if (!memoryExtractionRetryDue(job)) return
             try {
-                if (LuluRepositories.memory.observePolicy(characterId).first().autoSummarize) {
-                    LuluRepositories.memory.summarizeNow(characterId)
+                if (autoSummarize(characterId)) {
+                    summarize(characterId)
                 }
                 // Events arriving during an API call increment revision and remain queued.
                 MemoryExtractionJobStore.complete(job.id, job.revision)
