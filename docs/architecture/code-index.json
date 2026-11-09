@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T05:30:26.021435+00:00",
-  "commit": "944cc5ecd8d8c2d6b2aaa2b80cabc8bdbf41ef91",
+  "generatedAt": "2026-11-09T05:30:58.564909+00:00",
+  "commit": "267c70331051d652f34d0e5cfe3222c9fd248f12",
   "branch": "main",
-  "sourceFingerprint": "26c0674d59e13c28fa96c62b8a456fdaed22a2f0d82a4a1deeb007bb46760839",
+  "sourceFingerprint": "7f005f021dd0f538ce397d5b3b4de6723411b04cb7ec020995868c5675355e1f",
   "summary": {
     "files": 1153,
-    "lines": 248828,
+    "lines": 248845,
     "symbols": 3405
   },
   "symbolIndex": {
@@ -26089,8 +26089,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 660,
-      "sha256": "9a18c9da6fec53e50065b2e7406d894ad31ac2349adb071ceabb78544cd159ff",
+      "lines": 664,
+      "sha256": "32418f57b2d202b5af4867a551d15752b1d3638224a1c33d4c86d24060197645",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
@@ -38715,8 +38715,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt",
-      "lines": 203,
-      "sha256": "dcf834e0f9a58be39163a2748030b3ffd2d49455d3b140e1befb4d5b470c5bd5",
+      "lines": 216,
+      "sha256": "7a57e4254f16f0f61f491b833dcefd5ca8b539b703ed5fd65958b65916f1dc24",
       "symbols": [
         {
           "name": "OnlineChatBatchStoreTest",
