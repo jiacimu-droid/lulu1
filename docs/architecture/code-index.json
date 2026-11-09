@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:14:06.114066+00:00",
-  "commit": "fc26ac2c9f8554ff694fcc34ad0f8f352caab892",
+  "generatedAt": "2026-11-09T01:14:52.122232+00:00",
+  "commit": "1d4c1a49af5c271cb889df669bca42b9e7e99a67",
   "branch": "main",
-  "sourceFingerprint": "16f926e783aa6e3269e246c0f89773e2f2e9bbe0a9e408f27755ac06f0e6ab77",
+  "sourceFingerprint": "5ef02a55c474410c13280c277ecba1417e3304e8cc58f2b8158654271a1901c3",
   "summary": {
     "files": 1150,
-    "lines": 247931,
-    "symbols": 3395
+    "lines": 247940,
+    "symbols": 3396
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7399,31 +7399,31 @@
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 91
+        "line": 93
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 101
+        "line": 103
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 186
+        "line": 188
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 197
+        "line": 199
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 214
+        "line": 216
       }
     ],
     "offer": [
@@ -11534,16 +11534,22 @@
         "line": 6
       }
     ],
+    "paidRankingFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
+        "line": 23
+      }
+    ],
     "forRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-        "line": 38
+        "line": 44
       }
     ],
     "compactWorld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-        "line": 68
+        "line": 74
       }
     ],
     "renderWithTrace": [
@@ -25614,8 +25620,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 218,
-      "sha256": "d111d26476b1f76396324784347e2f7d2b358b96f6bfc06a0e3e2ad4f2f6a201",
+      "lines": 220,
+      "sha256": "2aed98f5d09f3a7d63ea5b802a192b398deccb3cf6bbfe8b2ca95a1cb7a996ed",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -25651,23 +25657,23 @@
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 91
+          "line": 93
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 101
+          "line": 103
         },
         {
           "name": "learningContext",
-          "line": 186
+          "line": 188
         },
         {
           "name": "leanExpressionContext",
-          "line": 197
+          "line": 199
         },
         {
           "name": "developmentContext",
-          "line": 214
+          "line": 216
         }
       ]
     },
@@ -30034,20 +30040,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-      "lines": 101,
-      "sha256": "b3c6e8bc3e92cf54efb0475fa4d63fd5f38a3728a0dcf68c1dfd17c3792aca37",
+      "lines": 107,
+      "sha256": "9dec7981105b2d7fc22daeae0d19df00c6647ee49e02fefaec41f0aaa9633833",
       "symbols": [
         {
           "name": "PromptContextBudget",
           "line": 6
         },
         {
+          "name": "paidRankingFor",
+          "line": 23
+        },
+        {
           "name": "forRequest",
-          "line": 38
+          "line": 44
         },
         {
           "name": "compactWorld",
-          "line": 68
+          "line": 74
         }
       ]
     },
@@ -30952,8 +30962,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 312,
-      "sha256": "a55ceec81206582f2304e0b0580d428e701cc57cb0a25a2d40ee77bdb9fa3586",
+      "lines": 313,
+      "sha256": "5b813c6bedefc51556fa06be044195b25771fb3f8c5622525b69d284cc0ba551",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
