@@ -1583,3 +1583,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [测试 `2f14bb75`](https://github.com/jiacimu-droid/lulu1/commit/2f14bb75f6efb536d3d24922c7887c0d647e06dc)：`ModelVisibleOutputTest.optionalMemory503NeverBuysFallbackOrImmediateDuplicate` 使用真实 `CompanionModelGateway.generate` + MockWebServer。对可选记忆来源 `记忆/连续记忆提取`，第一 POST 收到 Relay memory-protection 503，断言不发送压缩回退 POST；相同原始证据立即重试必须得到 `BackgroundModelBudgetDeferred`，物理 POST 仍只有一次。与此前仅覆盖 `后台主动感知` 的 503 回退测试不同，验证两个来源政策边界；没有改动居民额度或人物。
 - **根因复核**：`RelayRequestPressurePolicy.canRecover(source)` 当前仅允许 `后台主动感知`；因此上轮怀疑“可选记忆 503 第二次 claim 被自身去重拒绝”在当前源码下不可达，不应为此放宽 15 分钟防重。此次补正式网关回归锁定边界，不伪称已发现生产缺陷。
 - **验收**：本轮新提交的 JVM/APK、Refresh code index 尚须以 Actions head SHA 复核；真机/真实模型/服务商计费未知。下一轮固定 S-02.1：检查本测试 CI 首错；通过后检查网关不同来源 503 的失败回执与延期队列重启恢复，避免重复付费但不丢来源。修改测试后本环境无法运行 `scripts/generate_code_index.py`（GitHub 容器 DNS 不可用），需核 Refresh code index 自动生成的真实产物。
+
+
+## 2026-11-09 · S-02.1 记忆延期队列在飞行中追加事件与冷启动回归
+
+- [测试 253e9d4](https://github.com/jiacimu-droid/lulu1/commit/253e9d446803c7be6cb34e0763e0e6fae793ea99)：新增 `MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart`。旧 revision 的后台请求尚在飞行时，新事件写入同一角色队列；旧请求随后被预算延期。测试要求新 revision/sourceReplyId 不丢、旧完成回执不能删新工作、延期截止前不重试、冷启动后仍保留并可在到期时领取。复用正式持久 Store，不购买模型请求。
+- 本轮生产代码未改；该测试只验证队列状态机与重建，不冒充真实 HTTP 503 到队列完整集成。前轮 [APK/JVM #42563238412](https://github.com/jiacimu-droid/lulu1/actions/runs/42563238412) 的 build job 已查询为 completed/success；新测试提交的 JVM/APK、Refresh code index 仍待独立 head SHA 验收，真机/真实模型/服务商计费仍未验。
+- **下一固定 S-02.1**：打开 `MemoryExtractionCheckpointTest.deferredInFlightMemoryFailureKeepsLaterEventsAcrossRestart` 并查询 `253e9d4` 的 main push Actions；若通过，补 `ChatMemoryAutomation` 实际失败/延期到 Store 的纵向回归，或在已覆盖时转 P-08a.1g.3。
