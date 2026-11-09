@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T10:00:42.867576+00:00",
-  "commit": "fa6e7f32472d53022c8fd10220b191195737c997",
+  "generatedAt": "2026-11-09T10:00:58.463966+00:00",
+  "commit": "54aa57ab1ea507e75d0d2871715624d058cb285a",
   "branch": "main",
-  "sourceFingerprint": "7c81029113fdb7c62ea8eec59992175851172f5cf5388cb35732f14143a55e07",
+  "sourceFingerprint": "07aa89fa20215b1cc89cf5c50d61dc58f13872a73a9359a934c19ce86974ecba",
   "summary": {
-    "files": 1161,
-    "lines": 250100,
-    "symbols": 3412
+    "files": 1162,
+    "lines": 250147,
+    "symbols": 3413
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18805,6 +18805,12 @@
     "IslandActorPlayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
+        "line": 12
+      }
+    ],
+    "IslandCampRestTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandCampRestTest.kt",
         "line": 12
       }
     ],
@@ -40103,6 +40109,17 @@
       "symbols": [
         {
           "name": "IslandActorPlayTest",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandCampRestTest.kt",
+      "lines": 47,
+      "sha256": "859e406212a1bee7cc63dad855bb8c696fd7ad71f78f9eecea80338d1fc3ff53",
+      "symbols": [
+        {
+          "name": "IslandCampRestTest",
           "line": 12
         }
       ]
