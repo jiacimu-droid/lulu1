@@ -66,4 +66,15 @@ class RelicChestHudStateTest {
         assertEquals(next, newlyOpened.lastCommitted)
     }
 
+    @Test fun persistedNoOpKeepsChestEvidenceButRealTurnClearsIt() {
+        for (inBag in listOf(true, false)) {
+            val opened = RelicChestHudState().committed(receipt(inBag = inBag))
+            assertEquals(opened, opened.afterWorldTurn(12, 12))
+            assertEquals(opened, opened.afterWorldTurn(12, null))
+            assertEquals(opened, opened.afterWorldTurn(null, 13))
+            assertEquals(RelicChestHudState(), opened.afterWorldTurn(12, 13))
+        }
+    }
+
+
 }
