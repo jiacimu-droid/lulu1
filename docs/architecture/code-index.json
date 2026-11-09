@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:49:31.357275+00:00",
-  "commit": "5bb3461baf3e4c7faab587673678f824fd2413ee",
+  "generatedAt": "2026-11-09T09:49:53.709256+00:00",
+  "commit": "9013714e498fe8ebefa7c5c6d3526513ab19eafd",
   "branch": "main",
-  "sourceFingerprint": "f66f972282b0d4c888ae19edb27f07a3368786d2be827786419ca154ef16fc1c",
+  "sourceFingerprint": "c7c2da44f2efd269148e5b30a070458a4537192dae1777d4cb11a52d10604b38",
   "summary": {
-    "files": 1159,
-    "lines": 249921,
-    "symbols": 3410
+    "files": 1160,
+    "lines": 249966,
+    "symbols": 3411
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5584,6 +5584,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
         "line": 164
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
+        "line": 12
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
@@ -33089,6 +33093,17 @@
         {
           "name": "advance",
           "line": 153
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
+      "lines": 45,
+      "sha256": "da17e8ab1a413d697e6a7482bba6037a97a003b66fc56811610069f378338157",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 12
         }
       ]
     },
