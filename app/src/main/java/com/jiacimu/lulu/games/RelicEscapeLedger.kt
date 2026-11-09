@@ -75,13 +75,14 @@ internal class RelicEscapeLedger(context:Context) {
         }
         return snapshot
     }
-    @Synchronized fun begin(participants:List<String>,medkits:Int):RelicSnapshot {
+    @Synchronized fun begin(participants:List<String>,medkits:Int,
+        difficulty:RelicDifficulty=RelicDifficulty.NORMAL):RelicSnapshot {
         val old=read()
         if(old.run?.phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return old
         if(medkits !in 0..3 || old.kits<medkits)return old
         val level=(old.successes+1).coerceAtMost(5)
-        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel)
+        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,difficulty)
         return write(old.copy(run=run,kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
