@@ -146,8 +146,8 @@ class ModelVisibleOutputTest {
                     // Below the preflight compaction threshold, but long enough
                     // that the server-side 503 can trigger a meaningful reduction.
                     val history = listOf(
-                        ModelConversationMessage(ModelConversationRole.USER, "历史资料" + "甲".repeat(12_000)),
-                        ModelConversationMessage(ModelConversationRole.USER, "本轮问题"),
+                        ModelConversationMessage(ModelConversationMessage.Role.USER, "历史资料" + "甲".repeat(12_000)),
+                        ModelConversationMessage(ModelConversationMessage.Role.USER, "本轮问题"),
                     )
                     val result = gateway.generate(
                         resident, "", "respond once", "后台主动感知", "test",
