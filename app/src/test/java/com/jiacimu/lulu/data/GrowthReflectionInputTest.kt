@@ -2,8 +2,13 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class GrowthReflectionInputTest {
     private val start = Instant.parse("2026-11-01T08:00:00Z")
     private fun event(index: Int, kind: EventEvidenceKind, dayOffset: Long = 0L,
@@ -58,7 +63,7 @@ class GrowthReflectionInputTest {
     }
 
     @Test fun personaIsNeverChangedWhenSelectingACompactWorkingCopy() {
-        val persona = "不变的核心人设；" + "本人长期稳定价值观".repeat(600) +
+        val persona = "不变的核心人设；" + "本人长期稳定价值观".repeat(1_200) +
             "末尾真实人格约束"
         val compact = GrowthReflectionInput.personaBrief(persona)
         assertTrue(compact.length < persona.length)
