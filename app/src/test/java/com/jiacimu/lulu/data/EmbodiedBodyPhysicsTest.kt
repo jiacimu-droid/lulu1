@@ -107,6 +107,13 @@ class EmbodiedBodyPhysicsTest {
         assertEquals(awake.hunger, explored.hunger, 0.001)
         assertEquals(awake.thirst, explored.thirst, 0.001)
         assertTrue(EmbodiedBodyPhysics.prompt(explored).contains("单调感"))
+        val saturated = explored.copy(boredom = 100.0)
+        val highNeed = EmbodiedBodyPhysics.prompt(saturated)
+        assertTrue("Saturated novelty need should influence the next subjective choice",
+            highNeed.contains("想换点花样") && highNeed.contains("具体内容"))
+        assertTrue("A strong drive cannot itself mandate a tool call",
+            highNeed.contains("仍由本人决定"))
+        assertEquals(100.0, saturated.boredom, 0.001)
         val slept = advance(explored.copy(
             recoveryMode = "offline_sleep"), start.plusSeconds(8 * 3600))
         assertTrue("Rest should not erase the desire for a new experience", slept.boredom >= explored.boredom)
