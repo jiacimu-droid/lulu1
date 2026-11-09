@@ -266,6 +266,30 @@ class MemoryExtractionCheckpointTest {
         assertTrue(MemoryExtractionJobStore.pending().isEmpty())
     }
 
+    @Test fun ambiguousHttpFailureBacksOffNewRevisionButInputRejectionDoesNotPoisonIt() {
+        val serverFailure = MemoryExtractionJobStore.enqueue(
+            "memory:http-503-revision", sourceReplyId = "first")
+        MemoryExtractionJobStore.enqueue("memory:http-503-revision", sourceReplyId = "newer")
+        MemoryExtractionJobStore.failed(serverFailure,
+            com.jiacimu.lulu.ai.ModelHttpException(503, "relay unavailable"))
+        val retained = MemoryExtractionJobStore.pending().single()
+        assertEquals(2L, retained.revision)
+        assertEquals("newer", retained.sourceReplyId)
+        assertEquals(1, retained.attempts)
+        assertFalse(memoryExtractionRetryDue(retained, retained.updatedAt.plusSeconds(60)))
+
+        MemoryExtractionJobStore.complete(retained)
+        val rejected = MemoryExtractionJobStore.enqueue(
+            "memory:http-400-revision", sourceReplyId = "old")
+        MemoryExtractionJobStore.enqueue("memory:http-400-revision", sourceReplyId = "new")
+        MemoryExtractionJobStore.failed(rejected,
+            com.jiacimu.lulu.ai.ModelHttpException(400, "invalid old payload"))
+        val newer = MemoryExtractionJobStore.pending().single()
+        assertEquals(2L, newer.revision)
+        assertEquals(0, newer.attempts)
+        assertEquals("new", newer.sourceReplyId)
+    }
+
     @Test fun realGateway503FailurePersistsDirtyMemoryWithoutImmediateSecondPost() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
