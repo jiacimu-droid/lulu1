@@ -14,5 +14,9 @@ internal data class RelicChestHudState(
     fun dismiss(receipt: RelicChestReceipt): RelicChestHudState =
         if (opening == receipt) copy(opening = null) else this
 
-    fun nextAction(): RelicChestHudState = RelicChestHudState()
+    /** Failed world actions do not invalidate evidence of the last committed chest. */
+    fun afterWorldAction(committed: Boolean): RelicChestHudState =
+        if (committed) RelicChestHudState() else this
+
+    fun nextAction(): RelicChestHudState = afterWorldAction(committed = true)
 }
