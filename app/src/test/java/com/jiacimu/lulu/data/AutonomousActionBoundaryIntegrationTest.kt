@@ -461,4 +461,63 @@ class AutonomousActionBoundaryIntegrationTest {
             it.authorCharacterId == actor && it.content == newlyChosen
         })
     }
+
+    @Test(timeout = 90_000) fun freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost() = runBlocking {
+        val actor = role()
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "跨批次本人决策")
+        val firstPost = "第一轮已送达-${UUID.randomUUID()}"
+        val secondPost = "新消息后重新选择-${UUID.randomUUID()}"
+        val requests = java.util.concurrent.atomic.AtomicInteger()
+        val server = okhttp3.mockwebserver.MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
+                val index = requests.incrementAndGet()
+                val choice = JSONObject().put("action", "tool")
+                    .put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", if (index == 1) firstPost else secondPost))
+                    .put("reason", "本人按当前消息选择")
+                    .put("replyChoice", "silent")
+                return okhttp3.mockwebserver.MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                        .put("message", JSONObject().put("content", choice.toString()))
+                        .put("finish_reason", "stop"))).toString())
+            }
+        }
+        server.start()
+        try {
+            val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "two-real-batches-${UUID.randomUUID()}",
+                server.url("/").toString(), "test")
+            store.addArchive(config.id, "test")
+            MigratedDomainStores.chat.sendUserMessage(chat.id, "先看看今天的事情")
+            OnlineChatBatchStore.cancel(app, actor)
+            val first = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = first.revision, requiresUnread = true)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == firstPost
+            })
+
+            MigratedDomainStores.chat.sendUserMessage(chat.id, "我有新的想法，重新看看")
+            val second = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            assertTrue(second.revision > first.revision)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = second.revision, requiresUnread = true)
+            assertEquals("每个有效新批次应有自己的本人决策", 2, requests.get())
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == firstPost
+            })
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == secondPost
+            })
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = first.revision, requiresUnread = true)
+            assertEquals("过期批次不能再次购买模型请求", 2, requests.get())
+        } finally {
+            server.shutdown()
+        }
+    }
 }
