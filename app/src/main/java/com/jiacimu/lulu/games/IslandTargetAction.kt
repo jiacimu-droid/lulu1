@@ -69,3 +69,19 @@ internal fun islandNearbyAction(
     }
     return null
 }
+
+
+/** Campsite is a physical interaction, not a recipe or inventory menu option. */
+internal fun islandCampNearby(state: BlockIslandState): Boolean {
+    val w = state.world
+    return state.structures.any { (location, kind) ->
+        kind in setOf("campfire", "bed") &&
+            abs(w.x - location % w.width) + abs(w.y - location / w.width) <= 1
+    }
+}
+
+internal fun islandCampRestAvailable(state: BlockIslandState): Boolean {
+    val w = state.world
+    return !w.finished && w.hp in 1..11 &&
+        w.turns - state.lastRestTurn >= 8 && islandCampNearby(state)
+}
