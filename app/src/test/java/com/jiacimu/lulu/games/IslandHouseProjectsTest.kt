@@ -310,4 +310,32 @@ class IslandHouseProjectsTest {
         assertEquals(later.houseProject?.placed,restored.houseProject?.placed)
     }
 
+
+    @Test fun demolitionPausesForAnimalOnDoorWithoutRefundOrDestroyingItsTile() {
+        var state=start()
+        repeat(70) { if(state.houseProject?.phase!="complete")state=nextTurn(state) }
+        assertEquals("complete",state.houseProject?.phase)
+        val p=state.houseProject!!
+        val door=IslandHouseProjects.parts(state.world,p.left,p.top).last().first
+        val x=door%state.world.width
+        val y=door/state.world.width
+        // An animal may legitimately stand on a doorway tile (value 4).
+        state=state.copy(animals=listOf(IslandAnimal(901,"hare",x,y)))
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","我来拆旧屋"))!!
+        val beforeWood=state.world.wood
+        val beforeTiles=state.world.tiles
+        val beforePlaced=state.houseProject!!.placed
+        val blocked=nextTurn(state)
+        assertEquals("paused",blocked.houseProject?.phase)
+        assertEquals("demolishing",blocked.houseProject?.resumePhase)
+        assertEquals(beforeWood,blocked.world.wood)
+        assertEquals(beforeTiles,blocked.world.tiles)
+        assertEquals(beforePlaced,blocked.houseProject?.placed)
+        val restored=BlockIslandState.fromJson(blocked.toJson())!!
+        assertEquals(beforeWood,restored.world.wood)
+        assertEquals(4,restored.world.tiles[door])
+        assertEquals("paused",restored.houseProject?.phase)
+        assertEquals("hare",restored.animals.single().species)
+    }
 }
