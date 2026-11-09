@@ -22,7 +22,7 @@ class QqMessageGroupingTest {
             assertTrue(guidance.contains("文字聊天像边想边打字"))
             assertTrue(guidance.contains("不是逢逗号就拆、固定三条"))
             assertTrue(guidance.contains("各是一个 bubbles 元素"))
-            assertTrue(guidance.contains("历史反馈让彼此逐渐熟悉"))
+            assertTrue(guidance.contains("自然体现在此刻的措辞与发送停顿里"))
             assertFalse(guidance.contains("输出前再检查"))
         }
     }
