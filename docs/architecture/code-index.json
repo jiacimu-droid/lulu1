@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:41:40.659546+00:00",
-  "commit": "c2846feaad9f894c7693617f3e925c485f00d4e1",
+  "generatedAt": "2026-11-09T09:43:34.250053+00:00",
+  "commit": "a25c7c5fe3aca39072465913bcae4035ed699a7c",
   "branch": "main",
-  "sourceFingerprint": "deb4acf171450fd6084d5b544eb25cac4236e20a00f81be14cba5212d85098a6",
+  "sourceFingerprint": "784aeefd61164be1f8225355ecdf68767f2ecda1501989a659929a13cdab322d",
   "summary": {
-    "files": 1157,
-    "lines": 249744,
-    "symbols": 3407
+    "files": 1158,
+    "lines": 249809,
+    "symbols": 3409
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2277,7 +2277,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 33
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -5692,6 +5692,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
         "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -13503,19 +13507,19 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 716
+        "line": 711
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 722
+        "line": 717
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 761
+        "line": 756
       }
     ],
     "playSound": [
@@ -13541,13 +13545,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 860
+        "line": 852
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 997
+        "line": 989
       }
     ],
     "saveTurn": [
@@ -13785,7 +13789,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 26
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13916,6 +13920,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 64
+      }
+    ],
+    "canCraft": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
+        "line": 23
       }
     ],
     "GameModelConnectionStatus": [
@@ -14273,13 +14283,13 @@
     "satchelCost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 66
+        "line": 74
       }
     ],
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 149
+        "line": 167
       }
     ],
     "namesFor": [
@@ -14373,7 +14383,7 @@
     "carve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "kind": [
@@ -32477,8 +32487,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 769,
-      "sha256": "73de3964b0d9d71340b857b29d355cb4d980bb611e1dbcc0bb55fd97bdb84d98",
+      "lines": 764,
+      "sha256": "2409b56997c5cb1c779b51f0d31f1ca4e6dd511d1f2b2eb7b3ab50da03d87f1e",
       "symbols": [
         {
           "name": "toJson",
@@ -32542,22 +32552,22 @@
         },
         {
           "name": "nextStep",
-          "line": 716
+          "line": 711
         },
         {
           "name": "occupiedByOther",
-          "line": 722
+          "line": 717
         },
         {
           "name": "actionName",
-          "line": 761
+          "line": 756
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1041,
-      "sha256": "51ea3ed3bba270a336307706a2da7212e58af704de8cc6929a20a7a666604bc4",
+      "lines": 1033,
+      "sha256": "80442b40365e9d01cb4ff629032647ae4c3cecdd05d6de7b3b02e5c9766607b3",
       "symbols": [
         {
           "name": "playSound",
@@ -32573,11 +32583,11 @@
         },
         {
           "name": "dot",
-          "line": 860
+          "line": 852
         },
         {
           "name": "targetFor",
-          "line": 997
+          "line": 989
         }
       ]
     },
@@ -33215,6 +33225,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
+      "lines": 34,
+      "sha256": "a510c52dd28fc74d6b6ac3bd5f65353bcbb4a171c24c27a2115f2531c8f26a6b",
+      "symbols": [
+        {
+          "name": "find",
+          "line": 22
+        },
+        {
+          "name": "canCraft",
+          "line": 23
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
       "lines": 52,
       "sha256": "af9cc18e0df9b086cd1fdcb9b8d7e7db67fe32481fb5b77358746ca5e61137af",
@@ -33603,31 +33628,31 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 193,
-      "sha256": "b182c2c6eaa0b5c0a1bf3566cc8d733d7c10e4d4b30014bdce00a29edb58b818",
+      "lines": 211,
+      "sha256": "09b1dbbbfd520c09031d7dae14705d32ef2ff47fd6a3ac3b1759f869750423e2",
       "symbols": [
         {
           "name": "json",
-          "line": 26
+          "line": 28
         },
         {
           "name": "read",
-          "line": 33
+          "line": 36
         },
         {
           "name": "satchelCost",
-          "line": 66
+          "line": 74
         },
         {
           "name": "syncExperiences",
-          "line": 149
+          "line": 167
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
-      "lines": 302,
-      "sha256": "ce7e50b64ec9177ca0a19f94c519d23b0be9700f855a401a75e46c66d595b80d",
+      "lines": 324,
+      "sha256": "b89002bdee77a7518f475687c5b32732ed855b0b049af2b615aab18ca1bda63e",
       "symbols": []
     },
     {
@@ -33754,8 +33779,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 118,
-      "sha256": "f73ad46e01db70cb7617a0778dd2c657abdb9be1efd2155e25f083681e35b037",
+      "lines": 122,
+      "sha256": "77edaa2bfdc87a585eb26d6c48e275460e8ad9588334f533fcdde72633023bb8",
       "symbols": [
         {
           "name": "create",
@@ -33763,7 +33788,7 @@
         },
         {
           "name": "carve",
-          "line": 18
+          "line": 19
         }
       ]
     },
