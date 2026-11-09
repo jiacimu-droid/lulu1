@@ -2,7 +2,12 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class IslandInvitationTest {
     @Test fun acceptsOnlyARealBooleanDecisionAndKeepsItsSpokenReply() {
         val yes = IslandInvitation.parse("""{"accept":true,"speech":"好呀，出发"}""")
