@@ -36,4 +36,17 @@ class RelicChestHudStateTest {
         assertEquals(RelicChestHudState(), state.nextAction())
         assertEquals(evidence.loot, evidence.loot)
     }
+    @Test fun rejectedWorldActionKeepsBothOpeningAndPhysicalReceipt() {
+        for (inBag in listOf(true, false)) {
+            val actual = receipt(inBag = inBag)
+            val before = RelicChestHudState().committed(actual)
+            val rejected = before.afterWorldAction(committed = false)
+            assertEquals(before, rejected)
+            assertEquals(actual, rejected.opening)
+            assertEquals(actual, rejected.lastCommitted)
+            // A later successful world action clears only the presentation.
+            assertEquals(RelicChestHudState(), rejected.afterWorldAction(committed = true))
+        }
+    }
+
 }
