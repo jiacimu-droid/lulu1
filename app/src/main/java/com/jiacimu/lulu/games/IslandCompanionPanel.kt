@@ -193,6 +193,9 @@ internal fun IslandCompanionPanel(
                     Text(if(expanded)"收起" else "聊天",color=Color(0xFFBDE4D5),fontSize=11.sp)
                 }
             }
+            Text(if (voice) "🎙 轻点麦克风说话；角色会按本人的音色回应"
+                else "🎙 点麦克风对角色说话 · 点扬声器开启角色有声回应",
+                fontSize=10.sp, color=Color(0xFFADCFBF), maxLines=2)
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 island.world.friends.forEach { friend ->
