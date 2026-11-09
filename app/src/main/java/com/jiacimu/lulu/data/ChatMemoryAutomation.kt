@@ -95,8 +95,7 @@ object ChatMemoryAutomation {
     private fun enqueueIdleTails() {
         val queued = MemoryExtractionJobStore.pending().mapTo(mutableSetOf()) { it.characterId }
         MigratedDomainStores.characters.settings.value.keys.filterNot(queued::contains).forEach { characterId ->
-            val latest = SharedExperienceTimeline.all(characterId).lastOrNull()?.occurredAt
-            if (shouldFlushMemoryTail(latest) && LuluRepositories.memory.hasUnprocessedEvents(characterId)) request(characterId)
+            if (LuluRepositories.memory.shouldFlushPendingTail(characterId)) request(characterId)
         }
     }
 }
