@@ -36,6 +36,29 @@ class RelicEscapeRulesTest {
         assertTrue(hardDamage>easyDamage)
     }
 
+    @Test fun campEquipmentPurchasesGiveRealSelectableStartingWeapons() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit()
+            .putString("ledger",RelicSnapshot(coins=1100).json().toString()).commit()
+        val upgraded=ledger.upgradeWeapon()
+        assertTrue("spear" in upgraded.purchasedWeapons)
+        assertEquals(750,upgraded.coins)
+        val bought=ledger.buyBow()
+        assertEquals(100,bought.coins)
+        assertTrue("bow" in bought.purchasedWeapons)
+        assertEquals(bought,ledger.buyBow())
+        val started=ledger.begin(emptyList(),0,RelicDifficulty.NORMAL,"bow")
+        assertEquals("bow",started.run!!.equipped)
+        assertTrue("spear" in started.run!!.weapons)
+        assertEquals(started,ledger.buyBow())
+        val legacy=JSONObject(RelicSnapshot(weapon=2).json().toString()).apply {
+            remove("purchasedWeapons")
+        }
+        assertTrue("spear" in RelicSnapshot.read(legacy.toString()).purchasedWeapons)
+        assertTrue("blade" in RelicSnapshot.read(legacy.toString()).purchasedWeapons)
+    }
+
     @Test fun downedPlayerMayAbandonAndStartFreshRunWithoutLosingVault() {
         val ledger=cleared()
         val old=ledger.begin(listOf("friend"),0,RelicDifficulty.HARD)
