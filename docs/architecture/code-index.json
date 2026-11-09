@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T01:14:52.122232+00:00",
-  "commit": "1d4c1a49af5c271cb889df669bca42b9e7e99a67",
+  "generatedAt": "2026-11-09T01:15:22.664916+00:00",
+  "commit": "56f8843aa91fc8a04c49cb6da43944ee5f2c40b2",
   "branch": "main",
-  "sourceFingerprint": "5ef02a55c474410c13280c277ecba1417e3304e8cc58f2b8158654271a1901c3",
+  "sourceFingerprint": "9ef5eaa23e9560e54bbdc1f546ecd8279b0b3f365d30cc15f75f29c6c53991a6",
   "summary": {
     "files": 1150,
-    "lines": 247940,
+    "lines": 247941,
     "symbols": 3396
   },
   "symbolIndex": {
@@ -803,7 +803,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1479
+        "line": 1480
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4981,31 +4981,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 688
+        "line": 689
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 694
+        "line": 695
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1234
+        "line": 1235
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1246
+        "line": 1247
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1469
+        "line": 1470
       }
     ],
     "configured": [
@@ -23283,8 +23283,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1487,
-      "sha256": "9ae0b49b71555712ba6ee4a5b92727dfab322316b05455995c60f3e36da66be1",
+      "lines": 1488,
+      "sha256": "bbe254892840bfbcb131b428ab27d072d8b2cdcf183859be14729387e928ce83",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23376,27 +23376,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 688
+          "line": 689
         },
         {
           "name": "positionedBooks",
-          "line": 694
+          "line": 695
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1234
+          "line": 1235
         },
         {
           "name": "consumeEvent",
-          "line": 1246
+          "line": 1247
         },
         {
           "name": "LuluAiServices",
-          "line": 1469
+          "line": 1470
         },
         {
           "name": "initialize",
-          "line": 1479
+          "line": 1480
         }
       ]
     },
