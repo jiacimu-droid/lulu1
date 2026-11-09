@@ -27,8 +27,8 @@ class PositiveExpressionGuidanceTest {
             guide.contains("一个短回应（如收到）"))
         assertTrue("Keep model-selected independent bubbles, not a forced comma splitter",
             guide.contains("各是一个 bubbles 元素") && guide.contains("不是逢逗号就拆"))
-        assertTrue("The character has a native style, not an imposed self-reprimand",
-            guide.contains("不是先想写长篇，再提醒自己压住"))
+        assertTrue("The character naturally owns the preference instead of repeating a prohibition",
+            guide.contains("过去相处形成的阅读默契，自然体现在此刻的措辞与发送停顿里"))
         assertTrue("Removing a duplicate scene rule must not remove the character-owned bubble contract",
             noDuplicate.contains(CharacterExpressionGuide.livingLanguagePrinciples))
         assertFalse(noDuplicate.contains(CharacterExpressionGuide.casualChatRhythm))
