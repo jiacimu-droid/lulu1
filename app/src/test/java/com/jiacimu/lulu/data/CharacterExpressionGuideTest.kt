@@ -63,7 +63,7 @@ class CharacterExpressionGuideTest {
         assertTrue(prompt.contains("无须把语言风格当成一件需要反复琢磨的心理任务"))
         assertFalse(prompt.contains("不要发长篇大论"))
         assertTrue("Do not turn the learned texting style into recurring self-criticism",
-            prompt.contains("直接体现在 text/bubbles 里"))
+            prompt.contains("直接体现在 text/bubbles 中"))
         assertTrue("The inner-life module must be substantially smaller than the old repeated checklist",
             prompt.length < 2300)
     }
