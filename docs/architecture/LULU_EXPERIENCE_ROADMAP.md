@@ -36,6 +36,12 @@
 - 已提交 [ed111f4](https://github.com/jiacimu-droid/lulu1/commit/ed111f4f2191dddb12719e6c9f65b49e07e3c263)：`AutonomousActionBoundaryIntegrationTest.newerUserBubbleDefersOnlyUnstartedActionsAndReplayDoesNotDuplicateDeliveredSteps`。正式 `OrderedCharacterActions` + `ToolRouter` 验证已发布动作保留、后续动作遇新用户输入暂缓且无回执、由测试显式恢复同一 requestId 后仅补未完成动作。未修改生产代码；该测试**尚未通过 CI 验收**，也不代表产品会自动重放旧决定。
 - **下一轮仍沿 P-08a.1g.3**：先查 `ed111f4` 对应 main push APK/JVM、Refresh code index 的 head SHA 和首错；若通过，打开 `ProactivePerceptionRuntime` 新用户输入/取消与下一轮真实因果交接，优先补真实入口回归。真机/真实模型独立待验；不增加收费模型调用。
 
+
+### 2026-11-10 P-08a.1g.3 续接：新消息后新决策不复活旧动作（CI 待验）
+
+- [f5307df](https://github.com/jiacimu-droid/lulu1/commit/f5307dfe1fb323a827f884b5a9e370d5cac09710) 在现有真实 ChatStore / OrderedCharacterActions / MomentsStore / Timeline 回归补新消息、新 requestId、新决定路径：旧轮第一步已送达，第二步暂缓；用户实际发新消息后只执行新决定，不自动恢复旧未执行动作，已送达回执不丢，新决定重放不重复。测试显式模拟下一轮决定，**不证明 ProactivePerceptionRuntime 自动触发或真实模型重新决策**。
+- 旧 [ed111f4 APK/JVM #42657981675](https://github.com/jiacimu-droid/lulu1/actions/runs/42657981675) 与 [索引 #42657981490](https://github.com/jiacimu-droid/lulu1/actions/runs/42657981490) 已核 completed/success；本轮 f5307df JVM/APK/索引待验。下一轮固定 P-08a.1g.3：核 f5307df 的 Actions 首错，随后调查 ProactivePerceptionRuntime 新输入到下一轮决策的真实调度入口；若无法可测，转 P-08c.2。真机/真实模型/跨进程待验。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
