@@ -148,6 +148,8 @@
 - **已做不重做**：v26–v29 人设、获批准完整覆盖 f6c5b42、星禾 v9、心声去重及过度时间否决修复。
 
 ### P-08c 群聊与自然气泡
+- **2026-11-09 P-08c.2 逐气泡真实输入节奏（源码/回归提交，待 CI/真机）**：用户确认希望按本人在自然停顿处形成约 5 个左右的聊天气泡，而非开发者以固定数量或逗号切分；已有模型结构化 `bubbles` 及独立入库/水位/输入中 lease 可复用。此前 `roleBubbleDelayMillis` 用**上一条**字数和固定逐条 `index*90ms`，短泡大多最低 850ms，难以呈现短句快发、长句慢发。`a6b2cec` 改为按**下一条** Unicode code point 长度计算 280～2450ms 内有界等待，加入稳定的小幅抖动，不改本人选择的气泡边界、语音模式、水位失效取消和 API 数量；`31ae7a9` 增测试验证短泡更快/长泡更慢、同参数稳定，以及结构化原泡不变。已有 `ChatGenerationActivity` 和聊天 UI input indicator 覆盖发送 lease，未新建第二个 typing 状态。**尚无对应提交 JVM/Android CI success，也未真机验证气泡间隔、输入中可见性、用户插话取消和模型实际分泡质量。**
+
 **2026-11-09 P-08c.2 文字私聊按发送拍子分泡（源码/回归已提交，待 CI/真机）**：用户提供江渡真机聊天截图，提出普通聊天应能在口语半句已经可发送时按下发送，不必等整句完结；类似连续三小段可由角色自主发三泡，独立消息末尾无需强行补逗号句号。现有 `ModelStructuredOutput.authoredChatParts` 与 `characterOutgoingBubblePlan(preserveAuthoredBubbleBoundaries=true)` 已可保留显式 JSON `bubbles`，不因无标点自动合并；本轮问题先收敛到共用表达指导，而非编造“逗号强切”修复。`b9eb06e` 只在 `CharacterExpressionGuide.livingLanguagePrinciples` 明示“打字到能按发送就可成为一泡”“没有末尾标点也可独立成泡”，由本人决定何处停，不规定泡数/字数；`6071152` 验前台表达和普通场景共用提示词；`8489e63` 验三条无标点 model-authored bubbles 一直保持三条发送，并验同文本仅在一个 bubbles 元素时不可被程序按逗号擅自拆开。前台/后台均经原网关共用表达指导；没有额外 API、无改人设、无数据迁移。**这只是提示词与结构化消息回归提交，尚无对应新 JVM/APK success，更无 Gemini 真机实际自然度验收；后继应检查前台和后台各 10 轮轻聊天的 authored bubbles 与真实发送数量/停顿/标点，不应把截图用旧安装包误算新版本失败。**
 
 - [ ] **P-08c.2** 校验本人选 bubbles/旧 text、前一人真实送达锚、沉默/取消、不丢长答的限定和否定；有失败才修。
