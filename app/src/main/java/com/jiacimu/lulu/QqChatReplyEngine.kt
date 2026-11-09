@@ -273,8 +273,16 @@ internal fun isReplySourceWatermarkCurrent(
 
 private fun rolePacingSeed(characterId: String): Long = abs(characterId.hashCode().toLong())
 internal fun roleTypingLeadDelayMillis(characterId: String): Long = 900L + rolePacingSeed(characterId) % 1_100L
-private fun roleBubbleDelayMillis(characterId: String, bubble: String, index: Int): Long =
-    (620L + rolePacingSeed(characterId) % 520L + (bubble.length * 18L).coerceIn(180L, 1_050L) + index * 90L).coerceIn(850L, 2_500L)
+/** The gap represents typing the NEXT bubble, not rereading the previous one.
+ * Keep this display-only: no model call, no changes to authored boundaries.
+ * Small replies appear quickly; longer upcoming replies take proportionally longer.
+ * Bounded deterministic variation avoids identical pauses without test flakiness. */
+internal fun roleBubbleDelayMillis(characterId: String, nextBubble: String, index: Int): Long {
+    val chars = nextBubble.codePointCount(0, nextBubble.length).coerceAtLeast(1)
+    val seed = rolePacingSeed(characterId) + abs(nextBubble.hashCode().toLong()) + index.toLong() * 131L
+    val jitter = seed % 181L - 90L
+    return (230L + chars * 42L + jitter).coerceIn(280L, 2_450L)
+}
 private fun roleRecallDelayMillis(characterId: String): Long = 900L + rolePacingSeed(characterId) % 650L
 
 /** Preserve the role's per-bubble choices by POSITION, never by comparing repeated wording. */
@@ -451,7 +459,8 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
                     "index=${index + 1};planned=${bubbles.size};message=${created.id};" +
                     "retained=${presentation.recallBubbleNumber != index + 1};voice=${created.voiceNote}")
         }
-        if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
+        if (index < bubbles.lastIndex)
+            delay(roleBubbleDelayMillis(characterId, bubbles[index + 1], index))
     }
     // A newer correction may arrive between paced bubbles. Already sent
     // bubbles remain real history; do not claim the whole turn was delivered
