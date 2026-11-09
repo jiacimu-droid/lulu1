@@ -31,6 +31,11 @@
 - 前一条 253e9d4 的单测在后继 [APK/JVM #42570057063](https://github.com/jiacimu-droid/lulu1/actions/runs/42570057063) 成功基线中已覆盖；新 6861bc38 的 APK/JVM 和 Refresh code index 尚待按 head SHA 查验，不能勾工程通过。
 - **下一固定 S-02.1**：查 6861bc38 的 Actions/JVM 首错；通过后用 MockWebServer 将 Gateway 的 503/预算延期接到真实 drain，验证物理 POST、队列保留与恢复。若其他窗口已覆盖，转 P-08a.1g.3。账单/真机/真实模型待验。
 
+### 2026-11-10 P-08a.1g.3 接力：新输入打断后独立回执保留（工程 CI 待验）
+
+- 已提交 [ed111f4](https://github.com/jiacimu-droid/lulu1/commit/ed111f4f2191dddb12719e6c9f65b49e07e3c263)：`AutonomousActionBoundaryIntegrationTest.newerUserBubbleDefersOnlyUnstartedActionsAndReplayDoesNotDuplicateDeliveredSteps`。正式 `OrderedCharacterActions` + `ToolRouter` 验证已发布动作保留、后续动作遇新用户输入暂缓且无回执、由测试显式恢复同一 requestId 后仅补未完成动作。未修改生产代码；该测试**尚未通过 CI 验收**，也不代表产品会自动重放旧决定。
+- **下一轮仍沿 P-08a.1g.3**：先查 `ed111f4` 对应 main push APK/JVM、Refresh code index 的 head SHA 和首错；若通过，打开 `ProactivePerceptionRuntime` 新用户输入/取消与下一轮真实因果交接，优先补真实入口回归。真机/真实模型独立待验；不增加收费模型调用。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
