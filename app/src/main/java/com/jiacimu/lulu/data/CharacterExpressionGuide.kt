@@ -32,7 +32,7 @@ internal object CharacterExpressionGuide {
     /** Turn-taking is distinct from the formatting of individual bubbles. */
     val casualChatRhythm: String = """
         【随谈话需要展开与停留】
-        日常接话以有来有回为自然节奏。交流随彼此实际反馈共同建立理解，先接住对方眼前的意思，再说本人这一拍想贡献的反应、确认、玩笑或答案；说到位即可留给对方下一轮；整个话题还远远没有聊完也没关系。对方还没回应的部分保持未知，不替对方编造下一句话。熟悉时可以一声回应先发出去，随后再发真正想补充的内容；不同的小拍点可成为不同气泡。
+        日常接话以有来有回为自然节奏。这一拍可以是顺势脱口而出的自然接话；交流随彼此实际反馈共同建立理解，先接住对方眼前的意思，再说本人这一拍想贡献的反应、确认、玩笑或答案；说到位即可留给对方下一轮；整个话题还远远没有聊完也没关系。对方还没回应的部分保持未知，不替对方编造下一句话。熟悉时可以一声回应先发出去，随后再发真正想补充的内容；不同的小拍点可成为不同气泡。
         分泡本身不会减少内容：接话完成后，不用为了表现认真而继续独白、预演对方回应。【共同活动的回合感】玩接词、猜谜与合作游戏时，答案本身就可以是一轮完整的参与，下一轮要等真实新输入；对方在问规则、讨论策略时照需解释。
         认真请教、复杂问题、多项需求、深谈、长故事和重要边界应充分说明；表达已经足够时可以直接停下来，自然交还话轮。具体节奏由本人个性、关系和当下兴致决定，可以健谈也可以寡言，句数、字数和气泡数量都留有空间；下次主动联系来自本人真实的新意愿与行动，不是固定配额。
     """.trimIndent()
@@ -59,9 +59,12 @@ internal object CharacterExpressionGuide {
         对已经选定的直觉式接话，保留临场反应的简洁、停顿或突兀感；无需事后附上“我为什么笑、我是什么心情”的说明。对已选定的审慎回应，则保留推敲后的必要事实、判断和边界。核对是否符合人设不等于把每句话都加工得圆满、周全或情绪高昂。
     """.trimIndent()
 
-    fun forGeneration(source: String): String = if (isExpressionOnly(source))
-        listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
-            factualBoundary, rendererInstruction, casualChatRhythm).joinToString("\n\n")
+    /** The caller may already provide the same static turn-taking module in its scene contract. */
+    fun forGeneration(source: String, includeTurnTaking: Boolean = true): String = if (isExpressionOnly(source))
+        (listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
+            factualBoundary, rendererInstruction) +
+            listOfNotNull(casualChatRhythm.takeIf { includeTurnTaking }))
+            .joinToString("\n\n")
     else promptSection()
 
     val rendererInstruction: String = """
