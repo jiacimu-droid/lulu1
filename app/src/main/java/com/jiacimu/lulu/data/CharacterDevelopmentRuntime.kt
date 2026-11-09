@@ -50,6 +50,33 @@ internal object GrowthReflectionInput {
             full.takeLast(1_900)
     }
 
+    /** Immediate speech is already integrated in the normal role decision.
+     * Long-term trait consolidation waits for independent *real* experience
+     * across time, not several bubbles or automated online-awareness ticks. */
+    fun shouldConsolidate(
+        newEvents: List<SharedTimelineEvent>,
+    ): Boolean {
+        val meaningful = newEvents.filter { event ->
+            event.evidenceKind == EventEvidenceKind.UserStatement ||
+                event.evidenceKind == EventEvidenceKind.ToolResult ||
+                (event.evidenceKind == EventEvidenceKind.Observation &&
+                    !event.source.startsWith("online-awareness") &&
+                    !event.source.startsWith("background-awareness"))
+        }.distinctBy { it.id }
+        if (meaningful.size < 6) return false
+        val oldest = meaningful.minOf(SharedTimelineEvent::occurredAt)
+        val newest = meaningful.maxOf(SharedTimelineEvent::occurredAt)
+        val differentDays = meaningful.map {
+            it.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        }.distinct().size >= 2
+        val independentToolResults = meaningful.count {
+            it.evidenceKind == EventEvidenceKind.ToolResult
+        }
+        return differentDays ||
+            java.time.Duration.between(oldest, newest).toHours() >= 4 ||
+            independentToolResults >= 3
+    }
+
     fun select(events: List<SharedTimelineEvent>): List<SharedTimelineEvent> {
         val zone = java.time.ZoneId.systemDefault()
         val owner = events.filter { it.evidenceKind == EventEvidenceKind.UserStatement }
@@ -259,13 +286,12 @@ object CharacterDevelopmentRuntime {
         // experiences, not another model request after every single chat.
         // This is a batch threshold, never a daily quota: all evidence remains.
         val seen = lastReviewed.substringAfter('\n', "").split('|').toSet()
-        val newEvidence = events.count { "${it.id}:${it.revision}" !in seen }
-        // A new installation or a first owner sentence must NOT buy a whole
-        // 40k-context growth review. The primary decision records immediate
-        // feelings and the memory system keeps the original owner facts.
-        // Keep the growth mailbox pending until there is a genuine batch.
-        if (newEvidence < 6) {
-            note(characterId, "已累积 $newEvidence 项真实经历，长期成长待合并；本轮主决策已处理即时反应")
+        val newSignals = events.filter { "${it.id}:${it.revision}" !in seen }
+        // Chat bubbles, passive presence observations and identical provider
+        // retries must not count as several independent long-term experiences.
+        // Real owner facts remain available in the memory system immediately.
+        if (!GrowthReflectionInput.shouldConsolidate(newSignals)) {
+            note(characterId, "长期成长证据尚需跨经历合并；本轮主决策已处理即时反应")
             return
         }
         // Resident learning is optional paid housekeeping; it must not take
