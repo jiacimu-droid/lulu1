@@ -22,6 +22,8 @@ internal data class RelicSnapshot(
     val satchelLevel:Int=0,
     /** First-time entries from the last settled run; the UI cannot guess this later. */
     val newDiscoveries:Set<String> = emptySet(),
+    /** Only purchased weapons travel between runs; in-run chest unlocks do not. */
+    val purchasedWeapons:Set<String> = setOf("blade"),
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
@@ -29,6 +31,7 @@ internal data class RelicSnapshot(
         .put("discovered",JSONArray(discovered.sorted()))
         .put("satchelLevel",satchelLevel)
         .put("newDiscoveries",JSONArray(newDiscoveries.sorted()))
+        .put("purchasedWeapons",JSONArray(purchasedWeapons.sorted()))
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -51,7 +54,12 @@ internal data class RelicSnapshot(
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in RelicCollectibles.names }
                     }.toSet()
-                } ?: emptySet())
+                } ?: emptySet(),
+                purchasedWeapons=(j.optJSONArray("purchasedWeapons")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in RelicArsenal.weapons }
+                    }.toSet()
+                } ?: emptySet()) + "blade" + if(j.optInt("weapon",1)>=2) setOf("spear") else emptySet())
         }.getOrDefault(RelicSnapshot())
     }
 }
@@ -76,13 +84,15 @@ internal class RelicEscapeLedger(context:Context) {
         return snapshot
     }
     @Synchronized fun begin(participants:List<String>,medkits:Int,
-        difficulty:RelicDifficulty=RelicDifficulty.NORMAL):RelicSnapshot {
+        difficulty:RelicDifficulty=RelicDifficulty.NORMAL,
+        startingWeapon:String="blade"):RelicSnapshot {
         val old=read()
         if(old.run?.phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return old
         if(medkits !in 0..3 || old.kits<medkits)return old
         val level=(old.successes+1).coerceAtMost(5)
-        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,difficulty)
+        val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,
+            difficulty,old.purchasedWeapons,startingWeapon)
         return write(old.copy(run=run,kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
@@ -92,7 +102,15 @@ internal class RelicEscapeLedger(context:Context) {
     @Synchronized fun upgradeWeapon():RelicSnapshot {
         val old=read()
         return if(old.weapon==1 && old.coins>=350)
-            write(old.copy(weapon=2,coins=old.coins-350))else old
+            write(old.copy(weapon=2,coins=old.coins-350,
+                purchasedWeapons=old.purchasedWeapons+"spear"))else old
+    }
+    @Synchronized fun buyBow():RelicSnapshot {
+        val old=read()
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
+            return old
+        return if(old.coins>=650 && "bow" !in old.purchasedWeapons)
+            write(old.copy(coins=old.coins-650,purchasedWeapons=old.purchasedWeapons+"bow")) else old
     }
     @Synchronized fun upgradeSatchel():RelicSnapshot {
         val old=read()
