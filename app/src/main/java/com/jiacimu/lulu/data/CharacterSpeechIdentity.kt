@@ -24,7 +24,7 @@ internal object CharacterSpeechIdentity {
             query, limit = 5) else emptyList()
 
         return buildString {
-            appendLine("【这个角色自己的表达倾向，不是必须照着说的台词】")
+            appendLine("【本人的语言习惯｜自然说出口，不是心里的自我训话】")
             appendLine(CharacterExpressionPreferences.promptSection(characterId))
             if (includeRelationship) {
                 appendLine(CharacterAddressPreference.promptSection(characterId))
@@ -32,7 +32,7 @@ internal object CharacterSpeechIdentity {
                     .takeIf(String::isNotBlank)?.let(::appendLine)
             }
             // Full-context calls already include this setting in the character profile.
-            if (includeConfigured && initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
+            if (includeConfigured && initial.isNotBlank()) appendLine("本人已设定、平时自然使用的语言习惯：$initial")
             if (illustrativeDialogues.isNotBlank()) {
                 appendLine("【只属于本人的假设对话示范｜给表达层看节奏，不是过去真实发生的聊天】")
                 // User-authored examples are complete exchanges. Cutting by character
@@ -43,11 +43,11 @@ internal object CharacterSpeechIdentity {
                 appendLine("真实用户原话、最近关系变化和本人已经选定的行动优先；绝不把示例中的虚构对象、道具、经历带入当前现实。")
             }
             if (acquired.isNotEmpty()) {
-                appendLine("从多次可核验交流中形成的习惯（结合当前反馈判断是否适用）：")
+                appendLine("已在真实交流中逐渐熟悉的个人表达习惯（顺手用出来，不必在心声里复述旧反馈）：")
                 acquired.forEach { appendLine("- ${it.content}") }
             }
             appendLine("没有明确设定或可靠证据时，不编造固定口头禅；也不把旧消息中偶然出现的华丽修辞当作一贯语气。最近消息用来理解上下文，不是语言模仿范本。")
-            appendLine("表达习惯是倾向而不是任务，当前对象、话题和情绪可以让同一个人健谈、随意、安静或认真。临时模仿与真正养成习惯不同，对方明确表示不喜欢的说法不要继续强化。")
+            appendLine("表达习惯已融入本人语感，不需要先想一大段、再用旧反馈逼自己删短；当前话题和情绪仍允许健谈或寡言。旧反馈不是正在发生的新争执，只有真实新情况才值得另起心声。")
         }
     }
 }
