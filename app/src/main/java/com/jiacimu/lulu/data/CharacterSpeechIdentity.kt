@@ -24,7 +24,7 @@ internal object CharacterSpeechIdentity {
             query, limit = 5) else emptyList()
 
         return buildString {
-            appendLine("【本人的语言习惯｜自然说出口，不是心里的自我训话】")
+            appendLine("【本人的语言习惯｜随交流自然表现】")
             appendLine(CharacterExpressionPreferences.promptSection(characterId))
             if (includeRelationship) {
                 appendLine(CharacterAddressPreference.promptSection(characterId))
@@ -47,7 +47,7 @@ internal object CharacterSpeechIdentity {
                 acquired.forEach { appendLine("- ${it.content}") }
             }
             appendLine("没有明确设定或可靠证据时，不编造固定口头禅；也不把旧消息中偶然出现的华丽修辞当作一贯语气。最近消息用来理解上下文，不是语言模仿范本。")
-            appendLine("表达习惯已融入本人语感，不需要先想一大段、再用旧反馈逼自己删短；当前话题和情绪仍允许健谈或寡言。旧反馈不是正在发生的新争执，只有真实新情况才值得另起心声。")
+            appendLine("表达习惯已融入本人语感，当前话题和情绪允许健谈或寡言。已熟悉的偏好自然体现在说话方式里，真正新发生的体验和感受才进入当轮心声。")
         }
     }
 }
