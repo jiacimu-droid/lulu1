@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T09:39:23.676129+00:00",
-  "commit": "0b0164475793f8fc7bd0867170b4b3fa0d77b808",
+  "generatedAt": "2026-11-09T09:39:53.434535+00:00",
+  "commit": "f6d1c1f0c709897eac528011d9f40e7909008ecc",
   "branch": "main",
-  "sourceFingerprint": "66c763bb8f08ee88d1fa26551558a997593039f03de7cdcde8863a3121e79d46",
+  "sourceFingerprint": "dcc2ce20f324a552c0789257a13a0049e822782621f79620e964d4bf34f83ed6",
   "summary": {
     "files": 1156,
-    "lines": 249660,
+    "lines": 249693,
     "symbols": 3406
   },
   "symbolIndex": {
@@ -1481,7 +1481,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 113
+        "line": 114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13527,7 +13527,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 118
+        "line": 119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13541,13 +13541,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 837
+        "line": 869
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 974
+        "line": 1006
       }
     ],
     "saveTurn": [
@@ -32550,8 +32550,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1018,
-      "sha256": "16a7b9349b65766feb51526f5a3879524b31e2a610fe6bc33def18962438d235",
+      "lines": 1050,
+      "sha256": "b9fddab0aa4dc67f323aa24639ebc8760db942294a7815cbddb086c8e09cff8c",
       "symbols": [
         {
           "name": "playSound",
@@ -32559,19 +32559,19 @@
         },
         {
           "name": "save",
-          "line": 113
+          "line": 114
         },
         {
           "name": "perform",
-          "line": 118
+          "line": 119
         },
         {
           "name": "dot",
-          "line": 837
+          "line": 869
         },
         {
           "name": "targetFor",
-          "line": 974
+          "line": 1006
         }
       ]
     },
@@ -33342,8 +33342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 875,
-      "sha256": "a5cc8749e97fe966486817a6e989d009f1b61d6161b47fe7806e51bea6a283ef",
+      "lines": 876,
+      "sha256": "c06d1f510bc64b5dc5d63c763a12d4066bd2a87b51bdcb6e6d1c8d37fe0c1991",
       "symbols": [
         {
           "name": "Home",

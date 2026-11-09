@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0b0164475793f8fc7bd0867170b4b3fa0d77b808`
+- 基准提交：`f6d1c1f0c709897eac528011d9f40e7909008ecc`
 - 分支：`main`
 - 已索引文件：1156
-- 已索引代码/文本行：249660
+- 已索引代码/文本行：249693
 - 已发现符号：3406
 
 | 文件 | 行数 | 符号数 |
@@ -646,7 +646,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 889 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 176 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 769 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1018 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1050 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -681,7 +681,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 630 | 27 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 875 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 876 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 280 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
