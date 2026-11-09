@@ -38,6 +38,13 @@ internal object BlockIslandArt {
     private val dirt = Color(0xFF88694B)
     private val wood = Color(0xFFAD865B)
     private val cream = Color(0xFFF1D2A4)
+    // Stable palette: a frame must not allocate two new lists just to paint companions.
+    private val companionOutfits = listOf(
+        Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
+    )
+    private val companionHair = listOf(
+        Color(0xFF3F627F), Color(0xFF594D4B), Color(0xFF574D73), Color(0xFF6F5D46),
+    )
 
     internal fun DrawScope.paint(
         island: BlockIslandState,
@@ -177,12 +184,6 @@ internal object BlockIslandArt {
                 if (animal.x !in left until left + cols || animal.y !in top until top + rows) return@forEach
                 drawIslandAnimal(center(animal.x,animal.y),tile,animal,phase)
             }
-        val companionOutfits = listOf(
-            Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
-        )
-        val companionHair = listOf(
-            Color(0xFF3F627F), Color(0xFF594D4B), Color(0xFF574D73), Color(0xFF6F5D46),
-        )
         w.friends.forEach { friend ->
                 if (friend.x !in left until left + cols || friend.y !in top until top + rows) return@forEach
                 val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
