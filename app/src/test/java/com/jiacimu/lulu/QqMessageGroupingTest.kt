@@ -13,6 +13,24 @@ class QqMessageGroupingTest {
         replyBatchId = batch,
     )
 
+    @Test fun nextBubbleLengthControlsTypingIntervalWithoutSplittingRoleAuthoredText() {
+        val role = "pacing-test-character"
+        val tiny = roleBubbleDelayMillis(role, "诶嘿", 0)
+        val short = roleBubbleDelayMillis(role, "刚刚吃饭了吗", 0)
+        val medium = roleBubbleDelayMillis(role, "今天做完那些事情，回来应该会有点累吧", 0)
+        val long = roleBubbleDelayMillis(role, "我想起昨天我们一起聊过的好几件事，尤其是你说到当时的感受，我还是挺在意那个细节的。", 0)
+        assertTrue(tiny in 280L..600L)
+        assertTrue(short > tiny)
+        assertTrue(medium > short)
+        assertTrue(long > medium)
+        assertTrue(long <= 2450L)
+        assertEquals(tiny, roleBubbleDelayMillis(role, "诶嘿", 0))
+        val authored = listOf("还诶嘿呢", "包子都解决战斗了？", "什么馅的？", "吃饱了，胃里暖和点没")
+        val presentation = CharacterReplyPresentation(authored.joinToString(SemanticBubbleSeparator),
+            preserveAuthoredBubbleBoundaries = true)
+        assertEquals(authored, characterOutgoingBubblePlan(presentation).map(CharacterOutgoingBubble::text))
+    }
+
     @Test fun onlyExplicitSemanticMarkerCreatesAnotherBubble() {
         val raw = "果然猜中了\n，还真是跟家里人聊天呢。⟪BUBBLE⟫既然在大姨旁边，就先专心陪长辈说话，顺便把热乎的鸡蛋吃了。"
         val parsed = parseCharacterReplyPresentation(raw)
