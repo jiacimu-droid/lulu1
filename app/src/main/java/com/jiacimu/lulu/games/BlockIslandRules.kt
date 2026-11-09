@@ -471,11 +471,7 @@ internal object BlockIslandRules {
                 message = "吃下野果，恢复生命和饱食度"
             }
             "rest" -> {
-                val campNear = s.structures.any { (location, kind) ->
-                    kind in setOf("campfire", "bed") &&
-                        distance(w.x, w.y, location % w.width, location / w.width) <= 1
-                }
-                if (!campNear) return reject("需要站在篝火或床铺旁边")
+                if (!islandCampNearby(s)) return reject("需要站在篝火或床铺旁边")
                 if (w.hp == 12) return reject("生命已满")
                 if (w.turns - s.lastRestTurn < 8) return reject("刚休息过，探索几步后再休息")
                 next = s.copy(world = w.copy(hp = (w.hp + 4).coerceAtMost(12)), lastRestTurn = w.turns)
