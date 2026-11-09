@@ -49,4 +49,21 @@ class RelicChestHudStateTest {
         }
     }
 
+    @Test fun dismissedDropReceiptSurvivesRejectedActionAndLateAnimationCallback() {
+        val dropped = receipt(inBag = false)
+        val closed = RelicChestHudState().committed(dropped).dismiss(dropped)
+        val rejected = closed.afterWorldAction(committed = false)
+        assertNull(rejected.opening)
+        assertEquals(dropped, rejected.lastCommitted)
+        assertFalse(rejected.lastCommitted!!.inBag)
+
+        // A delayed animation callback must not erase an already committed HUD receipt.
+        assertEquals(rejected, rejected.dismiss(dropped))
+        val next = receipt(chest = 8, inBag = true)
+        val newlyOpened = rejected.afterWorldAction(committed = true).committed(next)
+        assertEquals(newlyOpened, newlyOpened.dismiss(dropped))
+        assertEquals(next, newlyOpened.opening)
+        assertEquals(next, newlyOpened.lastCommitted)
+    }
+
 }
