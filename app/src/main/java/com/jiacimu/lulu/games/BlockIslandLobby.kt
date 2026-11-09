@@ -58,8 +58,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         )?.let(BlockIslandState::fromLegacy)
     }
     // Returning to a saved home should not silently dismiss its previous companions.
-    var selected by rememberSaveable {
-        mutableStateOf(savedIsland?.world?.friends?.map { it.id } ?: emptyList())
+    // Compose/Kotlin needs a single invariant state type: mixed inferred List implementations
+    // made the delegate a projected MutableState and broke all subsequent list operations.
+    var selected: List<String> by rememberSaveable {
+        mutableStateOf<List<String>>(
+            savedIsland?.world?.friends?.map { it.id } ?: emptyList()
+        )
     }
     var choosing by rememberSaveable { mutableStateOf(false) }
     var inviting by remember { mutableStateOf<String?>(null) }
