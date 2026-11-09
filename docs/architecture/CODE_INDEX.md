@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`56f8843aa91fc8a04c49cb6da43944ee5f2c40b2`
+- 基准提交：`8339a92ca2df511e62beb1ad041f976a6caeb695`
 - 分支：`main`
 - 已索引文件：1150
-- 已索引代码/文本行：247941
-- 已发现符号：3396
+- 已索引代码/文本行：247962
+- 已发现符号：3397
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -484,7 +484,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1253 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1257 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 591 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
@@ -498,7 +498,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 571 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 613 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 96 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 105 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 122 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 129 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 71 | 2 |
