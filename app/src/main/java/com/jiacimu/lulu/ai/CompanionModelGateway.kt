@@ -871,6 +871,11 @@ class CompanionModelGateway(
                     imageDataUrls = imagesForThisTurn,
                     conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
+                    onAdditionalHttpAttempt = {
+                        if (characterId.startsWith("resident:") &&
+                            !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
+                            error("居民今天的 AI 请求总额度已满；流式回退未发送第二次请求")
+                    },
                 )
             } catch (error: ModelHttpException) {
                 if (error.status == 413) {
@@ -898,6 +903,9 @@ class CompanionModelGateway(
                 if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
                         source, title, evidence = facts + "\\n" + instruction))
                     throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
+                if (characterId.startsWith("resident:") &&
+                    !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
+                    error("居民今天的 AI 请求总额度已满；负载保护回退未发送第二次请求")
                 LuluRepositories.performance.recordModelHandoff(source, connection.model)
                 openAiCompatible(
                     connection = connection,
@@ -910,6 +918,11 @@ class CompanionModelGateway(
                     imageDataUrls = imagesForThisTurn, // never quietly pretend to have seen omitted photos
                     conversationHistory = reducedHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
+                    onAdditionalHttpAttempt = {
+                        if (characterId.startsWith("resident:") &&
+                            !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
+                            error("居民今天的 AI 请求总额度已满；流式回退未发送第二次请求")
+                    },
                 )
             }
             if (sentReduced) {
@@ -1051,6 +1064,7 @@ class CompanionModelGateway(
         imageDataUrls: List<String> = emptyList(),
         conversationHistory: List<ModelConversationMessage> = emptyList(),
         onRequestBodyBytes: ((Long) -> Unit)? = null,
+        onAdditionalHttpAttempt: (() -> Unit)? = null,
     ): ModelReply {
         val nativeClaude = isNativeClaude(connection.baseUrl)
         val userContent = MultimodalContent.user(user, imageDataUrls, nativeClaude)
@@ -1117,8 +1131,9 @@ class CompanionModelGateway(
                 // resending without stream. Provider content rejection is NOT
                 // a protocol negotiation failure; repeating it just bills again.
                 if (!shouldRetryWithoutStreaming(error)) throw error
-                // The fallback is a second physical POST, not part of the first handoff.
-                // Keep attempted requests distinct from successful replies/provider billing.
+                // The fallback is a second physical POST: reserve its own allowance
+                // before sending, even when the first request was already claimed.
+                onAdditionalHttpAttempt?.invoke()
                 LuluRepositories.performance.recordModelHandoff("流式协议回退", connection.model)
                 body.remove("stream")
                 onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
