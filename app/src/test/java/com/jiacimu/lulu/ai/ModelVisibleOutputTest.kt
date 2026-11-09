@@ -126,6 +126,65 @@ class ModelVisibleOutputTest {
         }
     }
 
+    @Test fun residentMemoryGuard503FallbackCannotExceedPhysicalPostQuota() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val policy = app.getSharedPreferences("lulu_resident_activity_policy_v1", android.content.Context.MODE_PRIVATE)
+        val prior = policy.all.toMap()
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        try {
+            for (limit in listOf(1, 2)) {
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxModelDecisions(app, limit))
+                val resident = "resident:memory-guard-network-$limit"
+                val server = MockWebServer()
+                server.enqueue(MockResponse().setResponseCode(503)
+                    .setBody("""{"error":{"message":"Relay request body memory protection"}}"""))
+                server.enqueue(MockResponse().setResponseCode(200)
+                    .setBody("""{"choices":[{"message":{"content":"缩减后收到。"}}]}"""))
+                server.start()
+                try {
+                    // Below the preflight compaction threshold, but long enough
+                    // that the server-side 503 can trigger a meaningful reduction.
+                    val history = listOf(
+                        ModelConversationMessage(ModelConversationRole.USER, "历史资料" + "甲".repeat(12_000)),
+                        ModelConversationMessage(ModelConversationRole.USER, "本轮问题"),
+                    )
+                    val result = gateway.generate(
+                        resident, "", "respond once", "后台主动感知", "test",
+                        contextMode = CompanionContextMode.Isolated,
+                        connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                        conversation = history,
+                    )
+                    assertEquals("No retry POST without a second resident claim", limit, server.requestCount)
+                    assertEquals(limit,
+                        com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
+                    if (limit == 1) {
+                        assertTrue(result.isFailure)
+                        assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("额度已满"))
+                    } else {
+                        assertEquals("缩减后收到。", result.getOrThrow().text)
+                        val original = server.takeRequest().body.readUtf8()
+                        val reduced = server.takeRequest().body.readUtf8()
+                        assertTrue("The second POST must actually be smaller", reduced.length < original.length)
+                        assertTrue("Current user turn must survive compaction", reduced.contains("本轮问题"))
+                    }
+                } finally { server.shutdown() }
+            }
+        } finally {
+            policy.edit().clear().apply {
+                prior.forEach { (key, value) ->
+                    when (value) {
+                        is Int -> putInt(key, value)
+                        is Long -> putLong(key, value)
+                        is Boolean -> putBoolean(key, value)
+                        is Float -> putFloat(key, value)
+                        is String -> putString(key, value)
+                    }
+                }
+            }.commit()
+        }
+    }
+
     @Test fun terminalSseChoiceCompletesWithoutDoneOrSocketEof() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
