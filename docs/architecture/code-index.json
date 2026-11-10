@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:10:26.280558+00:00",
-  "commit": "6ae14c5966b6d527adf816f36dc2b4de25c27a91",
+  "generatedAt": "2026-11-10T06:30:28.940028+00:00",
+  "commit": "eb711b605a1c6238efa50284206557aa2ec0164d",
   "branch": "main",
-  "sourceFingerprint": "37071abbef420b6e750d935a6f3260e35fd77cd386aacd37f7e278a16ee858d6",
+  "sourceFingerprint": "e2c2c5af51bb5b0a61ed5f334db9ab4874f970faadc39f4e24b7ef6f031d3ca8",
   "summary": {
     "files": 1167,
-    "lines": 251796,
-    "symbols": 3428
+    "lines": 251813,
+    "symbols": 3429
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13465,7 +13465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-        "line": 52
+        "line": 68
       }
     ],
     "newWorld": [
@@ -13581,13 +13581,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 910
+        "line": 911
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1052
+        "line": 1054
       }
     ],
     "saveTurn": [
@@ -13802,10 +13802,16 @@
         "line": 49
       }
     ],
+    "position": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 50
+      }
+    ],
     "distance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-        "line": 44
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13815,13 +13821,13 @@
     "reached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-        "line": 50
+        "line": 66
       }
     ],
     "completedCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-        "line": 55
+        "line": 71
       }
     ],
     "tileAt": [
@@ -32570,8 +32576,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 1009,
-      "sha256": "9e770b9dfdba762e0ac435ad9db5e9a8e1ca43b54909650f841ae2474232e93b",
+      "lines": 1008,
+      "sha256": "96a293b5d696b4aa92e07aba7dbb13210cca0427a78487121015c5fc4568bb0d",
       "symbols": [
         {
           "name": "origin",
@@ -32674,8 +32680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1096,
-      "sha256": "e744407e6ec18274642fffb365c3dc067b9df931a81af9164bd7fbadf9dc98fa",
+      "lines": 1098,
+      "sha256": "44f53efa338aa9820e3c8f5eb058717a79aa1cc7f6de38687fe6f2f24edd4a61",
       "symbols": [
         {
           "name": "playSound",
@@ -32691,11 +32697,11 @@
         },
         {
           "name": "dot",
-          "line": 910
+          "line": 911
         },
         {
           "name": "targetFor",
-          "line": 1052
+          "line": 1054
         }
       ]
     },
@@ -33159,24 +33165,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-      "lines": 59,
-      "sha256": "83d9b8df81a304e3178339b1589e87f16a1f811eed929a6c6289a851cd0a7ab2",
+      "lines": 75,
+      "sha256": "0e694e3570a4ef2f416d680e8811e910bc39093cd4d8db9bec45e241fe0338b0",
       "symbols": [
         {
-          "name": "distance",
-          "line": 44
-        },
-        {
-          "name": "reached",
+          "name": "position",
           "line": 50
         },
         {
+          "name": "distance",
+          "line": 58
+        },
+        {
+          "name": "reached",
+          "line": 66
+        },
+        {
           "name": "next",
-          "line": 52
+          "line": 68
         },
         {
           "name": "completedCount",
-          "line": 55
+          "line": 71
         }
       ]
     },

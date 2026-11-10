@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6ae14c5966b6d527adf816f36dc2b4de25c27a91`
+- 基准提交：`eb711b605a1c6238efa50284206557aa2ec0164d`
 - 分支：`main`
 - 已索引文件：1167
-- 已索引代码/文本行：251796
-- 已发现符号：3428
+- 已索引代码/文本行：251813
+- 已发现符号：3429
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -643,10 +643,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1009 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1008 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 254 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 771 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1096 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1098 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -673,7 +673,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 66 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 59 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 221 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
