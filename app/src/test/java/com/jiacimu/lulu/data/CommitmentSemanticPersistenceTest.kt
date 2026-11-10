@@ -253,6 +253,45 @@ class CommitmentSemanticPersistenceTest {
         assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
     }
 
+    @Test fun acceptedWakeRecoveryRemainsIdempotentAfterStoreReloadAndCancellation() = runBlocking {
+        val due = Instant.now().plusSeconds(20 * 60L)
+        val source = "wake-recovery-cold-reload"
+        val turn = "chat:$source:$role"
+        val modelDecision = CommitmentTaskDraft(
+            action = "create", goal = "二十分钟后叫醒用户",
+            dueAt = due, timezone = zone.id, deliveryAction = "alarm_only",
+        )
+        val first = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, turn, listOf(source), listOf(modelDecision))
+        assertEquals(1, first.size)
+        val original = CommitmentTaskStore.active(role).single()
+        val alarmId = requireNotNull(original.linkedAlarmId)
+        assertEquals(due, LuluAlarmSystem.list().single { it.id == alarmId }.triggerAt)
+
+        // Rebuild the authoritative task store, not just the returned snapshot.
+        resetTaskPreferences()
+        CommitmentTaskStore.initialize(context)
+        assertEquals(original.id, CommitmentTaskStore.active(role).single().id)
+        assertTrue(CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, turn, listOf(source), listOf(modelDecision)).isEmpty())
+        assertEquals(1, CommitmentTaskStore.snapshot(role).size)
+        assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == original.id })
+
+        // A later explicit cancellation must not be undone by replaying the
+        // already-handled recovery output, including after another reload.
+        val cancel = JSONArray().put(JSONObject().put("action", "cancel")
+            .put("targetTaskId", original.id).put("goal", original.goal))
+        CommitmentDecisionRuntime.apply(context, role, "chat:cancel:$role",
+            listOf("wake-cancel-user"), cancel)
+        assertTrue(CommitmentTaskStore.active(role).none { it.id == original.id })
+        resetTaskPreferences()
+        CommitmentTaskStore.initialize(context)
+        assertTrue(CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, turn, listOf(source), listOf(modelDecision)).isEmpty())
+        assertTrue(CommitmentTaskStore.active(role).none { it.id == original.id })
+        assertFalse(LuluAlarmSystem.list().any { it.commitmentTaskId == original.id })
+    }
+
     @Test fun sameUserTurnCanRecoverSeveralIndependentRecurringPromises() = runBlocking {
         val evidence = "multi-duty-user"
         val turn = "chat:multi-duty:$role"
