@@ -71,6 +71,23 @@ class RelicEscapeRulesTest {
             carrying.copy(phase=RelicPhase.FAILURE)))
     }
 
+    @Test fun discoveredRouteHintNeverInventsPathOrRevealsFog() {
+        val base=RelicEscapeWorld.create(437,2,emptyList(),0,1)
+        val exit=RelicObjectiveTarget(base.exitX,base.exitY,"已发现的撤离门")
+        val hidden=base.copy(seen=emptySet())
+        assertNull(RelicObjectiveGuide.knownRouteTiles(hidden,exit))
+        // A visible destination is not enough: every intermediate step must
+        // be discovered and physically traversable.
+        val exitOnly=base.copy(seen=setOf(base.index(base.exitX,base.exitY)))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(exitOnly,exit))
+        val atExit=exitOnly.copy(hero=exitOnly.hero.copy(
+            x=base.exitX,y=base.exitY))
+        assertEquals(listOf(base.exitX to base.exitY),
+            RelicObjectiveGuide.knownRouteTiles(atExit,exit))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(
+            atExit.copy(phase=RelicPhase.FAILURE),exit))
+    }
+
     @Test fun liveContractsShowRealBagProgressButDoNotPayBeforeEscape() {
         val base=RelicEscapeWorld.create(817,1,emptyList(),0,1)
         val common=RelicLoot("common-progress","旧王银币",RelicTier.COMMON,80)
