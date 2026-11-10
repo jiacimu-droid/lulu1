@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:36:20.109557+00:00",
-  "commit": "fdd7f77ed4128f406b9664ef6e4cda94d4854942",
+  "generatedAt": "2026-11-10T06:37:29.357989+00:00",
+  "commit": "69f63e2cae4974d66492133c23875f9ea30c99a5",
   "branch": "main",
-  "sourceFingerprint": "1f9bee58f26ad9d8f8cb639db66e7dbff7c6b7bd9d817fcc61b773eaa8e7237c",
+  "sourceFingerprint": "994eba1a1fd12fb2f67e9059c654cbde2aaaa13216e3e48bf5c748c81cbc23ab",
   "summary": {
-    "files": 1168,
-    "lines": 252090,
-    "symbols": 3435
+    "files": 1169,
+    "lines": 252126,
+    "symbols": 3437
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -322,6 +322,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
         "line": 227
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 28
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -14492,6 +14496,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
         "line": 19
+      }
+    ],
+    "nextVisible": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 10
       }
     ],
     "kind": [
@@ -34066,6 +34076,21 @@
         {
           "name": "tileAt",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+      "lines": 36,
+      "sha256": "fc3dc1078b4b6dab55918903320a3a186017276220325ddbbd05ccc353efaacc",
+      "symbols": [
+        {
+          "name": "nextVisible",
+          "line": 10
+        },
+        {
+          "name": "prompt",
+          "line": 28
         }
       ]
     },
