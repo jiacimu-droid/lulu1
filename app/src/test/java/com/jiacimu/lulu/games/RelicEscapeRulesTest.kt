@@ -12,6 +12,40 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun treasureOrExitStaysARealPlayerChoiceAfterFindingLoot() {
+        val base=RelicEscapeWorld.create(912,2,emptyList(),0,1)
+        val chest=base.chests.first()
+        val loot=RelicLoot("risk-choice","旧王银币",RelicTier.COMMON,90)
+        val seen=setOf(base.index(chest.x,chest.y),
+            base.index(base.exitX,base.exitY))
+        val carrying=base.copy(seen=seen,
+            hero=base.hero.copy(bag=listOf(loot)))
+        val greed=RelicObjectiveGuide.visibleChest(carrying)!!
+        val safety=RelicObjectiveGuide.visibleExit(carrying)!!
+        assertEquals(chest.x to chest.y,greed.x to greed.y)
+        assertEquals(base.exitX to base.exitY,safety.x to safety.y)
+        // The legacy default recommendation may prefer safety, but both
+        // deliberate options remain available for the player's choice.
+        assertEquals(safety,RelicObjectiveGuide.nextVisible(carrying))
+        assertEquals("路径未探明",RelicObjectiveGuide.optionLabel(
+            carrying.copy(seen=emptySet()),greed))
+        val concealed=carrying.copy(seen=setOf(base.index(chest.x,chest.y)))
+        assertNull(RelicObjectiveGuide.visibleExit(concealed))
+        assertNotNull(RelicObjectiveGuide.visibleChest(concealed))
+        val cleared=carrying.copy(chests=carrying.chests.map {
+            if(it.id==chest.id)it.copy(opened=true) else it
+        })
+        assertNull(RelicObjectiveGuide.visibleChest(cleared))
+        assertNotNull(RelicObjectiveGuide.visibleExit(cleared))
+        val failed=carrying.copy(phase=RelicPhase.FAILURE)
+        assertNull(RelicObjectiveGuide.visibleChest(failed))
+        assertNull(RelicObjectiveGuide.visibleExit(failed))
+        // Projection does not modify seen, carried, inventory, or turns.
+        assertEquals(seen,carrying.seen)
+        assertEquals(loot,carrying.hero.bag.first())
+        assertEquals(base.turns,carrying.turns)
+    }
+
     @Test fun objectiveGuideNeverRevealsUnseenChestsAndOnlyFocusesKnownPlaces() {
         val base=RelicEscapeWorld.create(437,2,emptyList(),0,1)
         val unknown=base.copy(seen=emptySet())
