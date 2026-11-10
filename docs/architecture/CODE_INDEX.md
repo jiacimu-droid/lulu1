@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8f42bd2913d8b46006222cf88ed265473f28db31`
+- 基准提交：`637f3c58ec6312b7a49e2e0fa5297cee1062e01f`
 - 分支：`main`
 - 已索引文件：1172
-- 已索引代码/文本行：253392
+- 已索引代码/文本行：253433
 - 已发现符号：3452
 
 | 文件 | 行数 | 符号数 |
@@ -402,7 +402,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 443 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 297 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 119 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 126 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
@@ -883,7 +883,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 528 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 562 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 358 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 158 | 1 |

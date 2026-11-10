@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T14:56:48.601496+00:00",
-  "commit": "8f42bd2913d8b46006222cf88ed265473f28db31",
+  "generatedAt": "2026-11-10T15:33:13.420320+00:00",
+  "commit": "637f3c58ec6312b7a49e2e0fa5297cee1062e01f",
   "branch": "main",
-  "sourceFingerprint": "829d0af7c1b865611804f442c2754e02e70b0201082d72931d478bb71880d464",
+  "sourceFingerprint": "1e5ff395508ebfc6f9c9e35358213122a69bd4acf9aa7f381c7f62ca3e82a7a2",
   "summary": {
     "files": 1172,
-    "lines": 253392,
+    "lines": 253433,
     "symbols": 3452
   },
   "symbolIndex": {
@@ -503,7 +503,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 115
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -3865,7 +3865,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 94
+        "line": 101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
@@ -26212,8 +26212,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-      "lines": 119,
-      "sha256": "0b4248addd61b4b81a11b469c272838ec71764d864d73543a6314267f246354a",
+      "lines": 126,
+      "sha256": "5e80c43b7e4c002821ad19a4779edf3591ac1711d9f102860ef6bcb2c8796020",
       "symbols": [
         {
           "name": "Cue",
@@ -26233,11 +26233,11 @@
         },
         {
           "name": "render",
-          "line": 94
+          "line": 101
         },
         {
           "name": "context",
-          "line": 115
+          "line": 122
         }
       ]
     },
@@ -36884,8 +36884,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 528,
-      "sha256": "c038d8c249a4f2b79fe29c1504f5bfa820f2e62617b65edc38decfe991e79e70",
+      "lines": 562,
+      "sha256": "3d23d627bd5b4497092cc3e87b2721bdc961c9c364c194c0eba0908e4a61b3ea",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
