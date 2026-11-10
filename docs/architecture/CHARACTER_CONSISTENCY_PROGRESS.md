@@ -1694,3 +1694,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 上下文修复 [512d996](https://github.com/jiacimu-droid/lulu1/commit/512d9969448e3a6f47b75196e6f47e5f9bebb185)、[4d6912a](https://github.com/jiacimu-droid/lulu1/commit/4d6912ade2fc2ceb191bf04cc1d09f6fa70c1368)、[8cdec95](https://github.com/jiacimu-droid/lulu1/commit/8cdec952930d3fc4c24242714d676e9bb539eee5)：只把“上一轮角色问睡多久＋主人给明确时长＋本轮角色确实答应到点叫醒”作为一次廉价语义补救资格提示，模型而非关键词负责截止时间与来电/闹钟决定；未真正注册响铃的文本待定任务不能误被当作已覆盖。一般午睡闲聊、角色拒绝、模糊时长不能自动建闹钟。同步完善 `CommitmentDecisionProtocol` 的问答承接：[9569a5d](https://github.com/jiacimu-droid/lulu1/commit/9569a5db24b7a493a97f38df7225406596c268be)。
 - 回归已提交、**未宣称运行成功**：[29650c6](https://github.com/jiacimu-droid/lulu1/commit/29650c6866374ab9385711b1212dbe8b86129430) 的 `CommitmentSemanticPersistenceTest` 验证前台非法文本叫醒不能成功排期、旧响铃改期不可降级/无效条件不毁旧闹钟；[aef4470](https://github.com/jiacimu-droid/lulu1/commit/aef4470e067fd1c7d82947d6bae21b758b21c44e) 的 `ChatAutomationRoutingTest` 验证时长问答、无承诺、拒绝、模糊时长的区别。
 - 此连接器 commit workflow 返回的 PR runs 为空、combined-status 为空，**不代表 main push APK/JVM 成功或失败**；本地没有完整 Android 工程。下一轮先核最后生产 SHA `8cdec95` 及后继 main push Actions 的 JVM/APK 与索引首错，失败修根因；通过后做真机两次对照：“你睡多久→20分钟→角色答应叫醒”的可听见来电/闹钟/权限/时刻/反馈，以及只是询问睡眠时长不设闹钟。未核实当次设备真实送达、模型选择与中转站费用，不勾整体 P 项。
+
+
+## 2026-11-10 · P-03.1 电话与私聊的独立日程步骤归属
+
+- 上一轮 [bb1d54b APK/JVM #42775719430](https://github.com/jiacimu-droid/lulu1/actions/runs/42775719430) 和[原索引 #42775719412](https://github.com/jiacimu-droid/lulu1/actions/runs/42775719412) 均成功。已确认测试、构建和发布步骤通过。真实电话设备打断与真实模型仍待验。
+- 对照 `LuluDeviceToolBridge.respond` 的同一结构化回复与独立副动作。私聊的 OrderedCharacterActions 将显式 `steps[].concernId` 填入缺少该值的日程参数。电话原来只把同一值交给 ToolRouter 的回执元数据。实际 `RoleDayScheduleStore.arrange` 只按工具参数校验所属本人及活跃状态，因此电话可能留下写着心事 ID 的回执，却另建一条无关联的日程。
+- [66f1600](https://github.com/jiacimu-droid/lulu1/commit/66f1600bed184760c57300e6b14401143c21c353) 在现有电话副动作交接补齐显式链接，已有的参数优先，沿用当前权限、真实日程校验及独立回执。保留既有请求 ID 与模型决定，未添加模型调用或改动共享执行器。历史无关联日程不会被猜测补绑。
+- `ConversationExpressionGatewayTest.phoneAndPrivateChatBothRejectAnUnownedConcernInAScheduleStep` 用同一模型 JSON 走电话及私聊 Bridge，私聊延后步骤交现有 OrderedCharacterActions。验证表达可交付且私聊表达收到完整否定条件，两边都以真实失败回执拒绝无归属心事且不创建日程。该用例不启动手机 UI、播放音频或测试真实模型语义。
+- 本轮静态核对源码、文件 SHA 与作用范围。CI [Refresh code index #42791608402](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608402) completed/success，[Lulu APK #42791608418](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608418) in_progress。下一轮保持 P-03.1，先查本 SHA 对应的新回归。若成功，直接在同一测试文件补本人有效心事的正向绑定及同请求重放对照，再视证据进入其他媒介，勿把本次拒绝用例当作全入口已验收。
