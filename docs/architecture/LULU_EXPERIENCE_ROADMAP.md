@@ -66,6 +66,9 @@
 - 新增 [233af13](https://github.com/jiacimu-droid/lulu1/commit/233af13f6b7df160632f5b9c3c12c84395f15fe7)：原 Robolectric 基线由一次元数据置顶写入扩展为 true→false→true 三次独立计时，每次验证 Store 状态，最终继续验证两会话 JSON 与重启恢复；区分首次/重复写入的运行时成本。此提交的 CI、耗时、100k、真机均待验；生产存储格式未改。
 - **下一固定 UI-02.1**：按 `233af13` head SHA 查 APK/JVM 和索引，取得 1k/10k 三次写入 stdout；若 stdout 无法读取则明确无量化结果，进入 UI-02.2 的无损迁移测试准备，不虚报性能收益。P-08a.1g.3 真实模型/真机仍独立待验。
 
+
+**2026-11-11 P-08d.2b.2 本轮接力（有声失败回执冷恢复，CI 待验）**：已核 `15ef0a9` 的 main push [APK/JVM #42898573257](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573257) 与 [索引 #42898573526](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573526) 均 completed/success。新增 [6d64e6b](https://github.com/jiacimu-droid/lulu1/commit/6d64e6bd42715c58fe2907782628ba6537ca672b) 回归 `CommitmentAlarmRecoveryTest.failedWakeVoiceReceiptSurvivesColdReloadAndRemainsVisibleToNextDecision`，从正式有声失败反馈到任务 Store 冷重载，再查 `ActiveCommitmentAttention` 下轮输入投影保留失败事实、不虚报醒来；仅测试，尚未取得本 SHA JVM/APK/索引成功结果，不勾整链或真机。下一轮先查此测试的 JVM 首错；通过后接真实模型输入组装和有声失败后的本人下一次决定，真机 TTS/锁屏/权限独立待验。
+
 ## 一点五、下一轮可领用的最小工程工作包
 
 > 此表是固定 ID 的当前执行入口。先核实 main、对应源码、已有测试和别的任务正在做的范围；有缺口才改生产代码。若当前环境无法拉取全仓或运行 Gradle，优先用连接器读取实际文件、提交可审的最小工作包、由现有 main push CI 执行；没有可验证改动就记阻塞及替代 ID。
