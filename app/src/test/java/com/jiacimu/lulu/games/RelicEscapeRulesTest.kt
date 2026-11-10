@@ -12,6 +12,31 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun objectiveGuideNeverRevealsUnseenChestsAndOnlyFocusesKnownPlaces() {
+        val base=RelicEscapeWorld.create(437,2,emptyList(),0,1)
+        val unknown=base.copy(seen=emptySet())
+        assertNull(RelicObjectiveGuide.nextVisible(unknown))
+        assertTrue(RelicObjectiveGuide.prompt(unknown).contains("尚未发现宝箱"))
+        val first=base.chests.first()
+        val known=unknown.copy(seen=setOf(base.index(first.x,first.y)))
+        assertEquals(first.x to first.y,
+            RelicObjectiveGuide.nextVisible(known)?.let { it.x to it.y })
+        val opened=known.copy(chests=known.chests.map {
+            if(it.id==first.id)it.copy(opened=true)else it
+        })
+        assertNull(RelicObjectiveGuide.nextVisible(opened))
+        val exitKnown=known.copy(seen=known.seen+base.index(base.exitX,base.exitY))
+        val loot=RelicLoot("objective-guide","旧王银币",RelicTier.COMMON,70)
+        val carrying=exitKnown.copy(hero=exitKnown.hero.copy(bag=listOf(loot)))
+        assertEquals(base.exitX to base.exitY,
+            RelicObjectiveGuide.nextVisible(carrying)?.let { it.x to it.y })
+        val exitHidden=carrying.copy(seen=carrying.seen-base.index(base.exitX,base.exitY))
+        assertNull(RelicObjectiveGuide.nextVisible(exitHidden))
+        assertTrue(RelicObjectiveGuide.prompt(exitHidden).contains("尚未发现出口"))
+        assertNull(RelicObjectiveGuide.nextVisible(
+            carrying.copy(phase=RelicPhase.FAILURE)))
+    }
+
     @Test fun liveContractsShowRealBagProgressButDoNotPayBeforeEscape() {
         val base=RelicEscapeWorld.create(817,1,emptyList(),0,1)
         val common=RelicLoot("common-progress","旧王银币",RelicTier.COMMON,80)
