@@ -46,6 +46,15 @@ internal fun RelicEscapeWorldMap(
     openingReceipt: RelicChestReceipt? = null,
     openingProgress: Float = 0f,
 ) {
+    // Only the player's selected, already-visible objective gets a route hint.
+    // The path is a read-only projection of discovered traversable cells.
+    val knownRoute = remember(run, selected) {
+        val target = listOfNotNull(
+            RelicObjectiveGuide.visibleChest(run),
+            RelicObjectiveGuide.visibleExit(run),
+        ).firstOrNull { it.x == selected.first && it.y == selected.second }
+        target?.let { RelicObjectiveGuide.knownRouteTiles(run, it) }
+    }
     // Index physical entities once per authoritative snapshot, not once per drawn tile.
     val chestByCell = remember(run.chests,run.w) { run.chests.associateBy { it.y*run.w+it.x } }
     val siteByCell = remember(run.sites,run.w) { run.sites.associateBy { it.y*run.w+it.x } }
@@ -311,6 +320,19 @@ internal fun RelicEscapeWorldMap(
                     drawRect(Color(0xFFF9DC99).copy(alpha=.96f),
                         p+Offset(t*.03f,t*.03f),
                         Size(t*.94f,t*.94f),style=Stroke(t*.055f))
+                }
+            }
+            // Draw the discovered route over the terrain, below actors and effects.
+            // Never invent a route through fog, enemies, traps or corrosive tiles.
+            knownRoute?.takeIf { it.size > 1 }?.let { route ->
+                val ink = Color(0xFFB8E2D9).copy(alpha=.48f)
+                route.zipWithNext().forEach { (from, to) ->
+                    drawLine(ink, center(from.first, from.second),
+                        center(to.first, to.second), strokeWidth=t*.085f)
+                }
+                route.drop(1).forEach { (x,y) ->
+                    drawCircle(Color(0xFFE1F7E9).copy(alpha=.62f),
+                        t*.065f,center(x,y))
                 }
             }
             if(run.flareTurns>0) {
