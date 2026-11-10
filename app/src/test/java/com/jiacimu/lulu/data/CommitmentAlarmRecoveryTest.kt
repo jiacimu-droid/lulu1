@@ -348,6 +348,30 @@ class CommitmentAlarmRecoveryTest {
         assertFalse(current(task).lastActionResult.contains("已确认醒来"))
     }
 
+    @Test fun failedWakeVoiceReceiptSurvivesColdReloadAndRemainsVisibleToNextDecision() {
+        val task = saveTask(Instant.now().minusSeconds(2))
+        CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
+        CommitmentCallFeedback.onResponse(task.id, true)
+        CommitmentCallFeedback.onVoiceFailed(task.id, "session-failed-reload", "tts offline")
+        val failure = current(task)
+        assertEquals(CommitmentTaskStatus.Blocked, failure.status)
+        assertTrue(failure.lastActionResult.contains("播放失败"))
+        assertFalse(failure.lastActionResult.contains("已确认醒来"))
+
+        // A fresh runtime must receive the actual failed delivery, not a
+        // fabricated wake acknowledgement or a silently completed promise.
+        detach(CommitmentTaskStore, "prefs")
+        CommitmentTaskStore.initialize(context)
+        val restored = current(task)
+        assertEquals(CommitmentTaskStatus.Blocked, restored.status)
+        assertEquals(failure.lastActionResult, restored.lastActionResult)
+        assertEquals(failure.attemptCount, restored.attemptCount)
+        val nextDecisionContext = ActiveCommitmentAttention.render(listOf(restored), Instant.now())
+        assertTrue(nextDecisionContext.contains(task.id))
+        assertTrue(nextDecisionContext.contains("播放失败"))
+        assertFalse(nextDecisionContext.contains("已确认醒来"))
+    }
+
     @Test fun dailyAttemptWithoutReviewCannotEraseTonightsUnverifiedResponsibility() {
         val now = Instant.now()
         for (status in listOf(CommitmentTaskStatus.WaitingForFeedback, CommitmentTaskStatus.Blocked)) {
