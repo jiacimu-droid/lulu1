@@ -188,6 +188,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     Box(Modifier.fillMaxSize()) {
     GameSceneDeck(
         accent = relicGold,
+        healthFraction = run?.hero?.hp?.div(10f),
+        secondaryFraction = run?.let { state ->
+            state.chests.count { it.opened }.toFloat() /
+                state.chests.size.coerceAtLeast(1)
+        },
+        secondaryLabel = "开箱",
         toolsLabel = "背包 / 战术",
         notice = error.ifBlank { if(run?.phase == RelicPhase.SUCCESS)
             "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
