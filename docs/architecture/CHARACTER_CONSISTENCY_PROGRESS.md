@@ -1651,3 +1651,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [测试 0cac523](https://github.com/jiacimu-droid/lulu1/commit/0cac5231b351ffd62ce0b67510ac36c28d3491e3) 在 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost` 捕获 MockWebServer 实际第二次 HTTP 请求体，新增断言：第二次本人模型决策必须看到第一轮已真实发布的 `firstPost`。这验证跨批次因果上下文，而不只是两次模型调用和两条动态；若断言失败，优先检查正式 `ProactivePerceptionRuntime` 时间线召回/提示词组装，不靠关键词补丁。生产代码未改。
 - 本提交尚无按 head SHA 核实的 JVM/APK 或 Refresh code index 成功结果，断言是否通过未知；真机/真实模型与供应商账单仍外部待验。容器 GitHub DNS 不可用，连接器仅能查询 PR 触发的 commit workflow runs，不能将空结果当成 push CI 结果。
 - **下一轮固定 P-08a.1g.3**：先核 `0cac523` 的 main push APK/JVM 首错，若第二次模型请求体缺旧回执，追查 `ProactivePerceptionRuntime.evaluateCharacterWithActivity` 及 `SharedExperienceTimeline` 的实际上下文来源，补正式修复和反例；若通过再覆盖执行途中取消与新消息接管。
+
+## 2026-11-10 · UI-02.1 真实 ChatStore 长历史写入测量夹具
+- 提交 [`cd170a5`](https://github.com/jiacimu-droid/lulu1/commit/cd170a5ea0706debff009e63bfb6305cf2f48831)：新增 `ChatHistoryPersistenceBaselineTest.kt`。按正式 `state_v1` JSON 播种 1k/10k 消息，真实 Store 初始化→置顶元数据更新→再次初始化，断言消息不丢、置顶持久化并输出字节数和阶段耗时；100k 为 opt-in heavy。测的是端到端操作，**不能单独归因 JSON 编码、磁盘 fsync 或锁等待**。
+- 正式 `MigratedDomainStores.kt` blob `5c52404f561c5c164f55a9c1aa112da5d3eb8e94` 的 `persistLocked` 仍全量 encode 后 `apply/commit`；本轮不改变生产格式、不删历史。CI 尚未取得 `cd170a5` 的 head SHA 对应 APK/JVM/索引结果；容器访问 `api.github.com` DNS 失败，未运行本地 Gradle。**不勾工程回归**，没有真实耗时数据。
+- 下一固定 UI-02.1：先核 `cd170a5` main push JVM/APK 和 Refresh code index 首错，收集 1k/10k 计时，100k 在资源足够环境单独跑；再按证据决定 UI-02.2 的增量存储/无损迁移。P-08a.1g.3 与真机/真实模型仍待验；服务商计费数未知。
