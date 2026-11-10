@@ -813,6 +813,94 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun phoneScheduleReplayKeepsTheNewerPrivateChatOutcomeOnTheSameConcern() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val actor = MigratedDomainStores.characters.create("心事续接样本", "在意自己查到的事实").characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "test")
+        val source = MigratedDomainStores.chat.sendUserMessage(chat.id, "我们可以之后再看看这份材料")
+        val heard = MigratedDomainStores.chat.sendUserMessage(chat.id, "电话里先说一下你的安排")
+        val typed = MigratedDomainStores.chat.sendUserMessage(chat.id, "再确认一下下一步")
+        CharacterInnerLifeStore.recordCausalTransition(
+            actor, source.id,
+            appraisal = JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
+                .put("status", "open").put("topicKey", "compare-material")
+                .put("focus", "材料里的说法是否可靠").put("whyItMatters", "想弄清真实依据"))),
+            innerLife = null, innerThoughtBasis = null, selectedAction = "reply",
+            innerThought = "", reason = "",
+        )
+        fun concern() = CharacterInnerLifeStore.snapshot(actor).getJSONArray("openConcerns").getJSONObject(0)
+        val concernId = concern().getString("id")
+        val now = java.time.Instant.now()
+        val intent = "条件还没核实，不能说已经查完。"
+        fun decision(title: String, delay: Long): String {
+            val step = JSONObject().put("tool", "plan_personal_activity").put("concernId", concernId)
+                .put("args", JSONObject().put("title", title).put("intent", "继续核实原来的材料")
+                    .put("dueAt", now.plusSeconds(delay).toString()))
+            return JSONObject().put("action", "reply").put("speechIntent", intent)
+                .put("text", "我还要确认一下。").put("steps", JSONArray().put(step)).toString()
+        }
+        val phoneDecision = decision("稍后复核原文", 3600)
+        val chatDecision = decision("晚些对照第二份资料", 7200)
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", content))
+                .put("finish_reason", "stop"))).toString())
+        val server = MockWebServer()
+        server.enqueue(response(phoneDecision))
+        server.enqueue(response(chatDecision))
+        server.enqueue(response("""{"action":"reply","bubbles":[{"text":"我还要确认一下。"}]}"""))
+        server.enqueue(response(phoneDecision))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            suspend fun phone() = LuluDeviceToolBridge.respond(actor, "", heard.content, "test",
+                archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = "concern-replay-call",
+                userEvidenceIds = listOf(heard.id)).getOrThrow()
+            val phoneReceiptId = "tool-$actor-reply-side-${heard.id}-0"
+            assertEquals("我还要确认一下。", phone().text)
+            val firstPlan = RoleDayScheduleStore.plans(context, actor).single()
+            assertEquals(concernId, firstPlan.concernId)
+            assertEquals(phoneReceiptId, concern().getJSONObject("lastOutcome").getString("id"))
+
+            val chatReply = LuluDeviceToolBridge.respond(actor, "", typed.content, "test",
+                archiveId = archive.id, userEvidenceIds = listOf(typed.id)).getOrThrow()
+            assertEquals("我还要确认一下。", chatReply.text)
+            val requestId = "chat-concern-replay-${typed.id}"
+            val deferred = JSONArray(checkNotNull(chatReply.deferredActions))
+            val report = OrderedCharacterActions.execute(context, actor, deferred,
+                requestId = requestId, userEvidenceIds = setOf(typed.id))
+            assertEquals(report.notes.toString(), 1, report.completedCount)
+            val chatReceiptId = "tool-$actor-$requestId:step:0"
+            val latest = concern().getJSONObject("lastOutcome")
+            assertEquals(chatReceiptId, latest.getString("id"))
+            assertTrue(latest.getBoolean("success"))
+            val plans = RoleDayScheduleStore.plans(context, actor)
+            assertEquals(2, plans.size)
+            assertTrue(plans.all { it.concernId == concernId })
+
+            assertEquals("我还要确认一下。", phone().text)
+            assertEquals(plans, RoleDayScheduleStore.plans(context, actor))
+            assertEquals(latest.toString(), concern().getJSONObject("lastOutcome").toString())
+            val receipts = SharedExperienceTimeline.eventsByIds(actor, listOf(phoneReceiptId, chatReceiptId))
+            assertEquals(setOf(phoneReceiptId, chatReceiptId), receipts.map { it.id }.toSet())
+            assertTrue(receipts.all {
+                val payload = JSONObject(it.content)
+                payload.optString("concernId") == concernId &&
+                    ToolExecutionStatus.completed(JSONObject(payload.getString("result")))
+            })
+            assertEquals(4, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

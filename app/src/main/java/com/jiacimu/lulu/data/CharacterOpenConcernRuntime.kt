@@ -164,6 +164,7 @@ internal object CharacterOpenConcernRuntime {
         previous: JSONArray?, threadId: String, receiptId: String,
         action: String, success: Boolean, summary: String,
         now: Instant = Instant.now(),
+        receiptOccurredAt: (String) -> Instant? = { null },
     ): JSONArray {
         val items = retained(previous)
         return JSONArray().apply {
@@ -172,12 +173,23 @@ internal object CharacterOpenConcernRuntime {
                     put(original)
                 } else {
                     val previousReceipt = original.optJSONObject("lastOutcome")
-                    if (previousReceipt?.optString("id") == receiptId) {
+                    val previousId = previousReceipt?.optString("id").orEmpty()
+                    if (previousId == receiptId) {
                         put(original)
-                    } else put(JSONObject(original.toString()).put("lastOutcome", JSONObject()
+                        return@forEach
+                    }
+                    val occurredAt = receiptOccurredAt(receiptId) ?: now
+                    val previousAt = previousReceipt?.let {
+                        receiptOccurredAt(previousId)
+                            ?: runCatching { Instant.parse(it.optString("at")) }.getOrNull()
+                    }
+                    // A request replay may restore a receipt after a newer action.
+                    // Keep the latest actual attempt in the person's working context.
+                    if (previousAt != null && occurredAt.isBefore(previousAt)) put(original)
+                    else put(JSONObject(original.toString()).put("lastOutcome", JSONObject()
                         .put("id", receiptId).put("action", action)
                         .put("success", success).put("summary", summary)
-                        .put("at", now.toString())))
+                        .put("at", occurredAt.toString())))
                 }
             }
         }

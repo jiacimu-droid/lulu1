@@ -1722,6 +1722,16 @@ object CharacterInnerLifeStore {
         val before = root.optJSONArray("openConcerns") ?: return
         val updated = CharacterOpenConcernRuntime.recordOutcome(
             before, concernId, receiptId, action, success, outcome, now,
+            receiptOccurredAt = { id ->
+                CharacterActionEvidence.resolve(characterId, id)?.let { event ->
+                    // ToolRouter can restore its timeline row later from the
+                    // original persisted result. Its completion time wins.
+                    val finishedAt = if (event.source == "tool-router") runCatching {
+                        Instant.parse(JSONObject(event.content).getString("finishedAt"))
+                    }.getOrNull() else null
+                    finishedAt ?: event.occurredAt
+                }
+            },
         )
         if (updated.toString() != before.toString()) {
             root.put("openConcerns", updated)
