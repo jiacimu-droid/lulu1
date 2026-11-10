@@ -1710,3 +1710,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [4b2be0c](https://github.com/jiacimu-droid/lulu1/commit/4b2be0cf6f1391ebb0a7120fb6773140c53fffcf) 新增 `ChatHistoryLegacyCompatibilityTest.legacyEditAndDeleteRemainDurableAcrossReopen`：真实旧双会话快照 → Store 初始化 → 编辑与删除 → SharedPreferences 落盘核对 → 新 Store 冷恢复；重复删除不应复活，另一会话及否定条件保持。未修改生产存储、历史或人物设定。
 - UI-02.1 三次写入 run #42769855635 对应 `233af13` 为 completed/cancelled，无可用计时结果；此前 1k/10k 双会话回归 #42763652639 success，不等于性能验收。
 - **下一轮固定 UI-02.2**：先查 `4b2be0c` 的 main push Lulu APK/JVM、Refresh code index 首错；通过后补真实增量迁移失败/中断/回退夹具，再按证据修改正式 Store。100k、真机 ANR、真实模型和中转账单独立待验；不可勾整体 UI-02。
+
+
+## 2026-11-10 · P-03.1 本人心事跨媒介正向绑定与回执重放
+
+- 上一轮 [66f1600 APK/JVM #42791608418](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608418) 的测试、构建和发布均通过，[原索引 #42791608402](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608402) 成功。电话与私聊拒绝无效心事 ID 的对照已纳入该版本。
+- 路径：本人原话与挂心 → 同一 Store 中的有效 concernId → 电话或私聊本人明确选择的日程步骤 → 原 RoleDayScheduleStore → ToolRouter 独立持久回执 → 本人心事的上次实际尝试。ToolRouter 重放已完成请求会重新投影已有回执。原心事只在当前回执 ID 完全相同才跳过，旧电话回执 A 经过更新的私聊回执 B 后再次投影，可能把 B 覆盖回 A，虽然不会重新建日程。
+- [e7dfa47](https://github.com/jiacimu-droid/lulu1/commit/e7dfa472aa91503aaa242d03aab94b3f08b575ed) 在原心事投影比较同角色的真实回执时刻。工具持久回执优先使用原执行结束时间，普通证据用原事件时间，旧字段缺失时保留现有兼容时间。迟到的旧投影不会覆盖较新的实际尝试，两个原始回执都仍可查询。沿用原 Store 与执行器，未改写模型选择、权限或调用次数。
+- `ConversationExpressionGatewayTest.phoneScheduleReplayKeepsTheNewerPrivateChatOutcomeOnTheSameConcern` 从真实心事状态出发，分别经电话和私聊交接有效链接，创建两个不同时间的日程及独立回执，再重放电话决定。断言保留两条原日程与原回执，心事仍指向更新的私聊回执。重放由测试显式触发，用来验证执行器收到同请求时的行为。
+- 静态核查文件 SHA 和改动范围。CI [Lulu APK #42808715035](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715035) in_progress，[Refresh code index #42808715132](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715132) completed/success。下一轮先按 `e7dfa472aa91503aaa242d03aab94b3f08b575ed` 核该测试及索引，失败修同一工作包。若通过，P-03.1 继续对照群聊或后台的条件步骤与真实回执，优先查看 `GroupChatTurnPlannerTest` 及 `AutonomousActionBoundaryIntegrationTest` 的既有覆盖；整个 P-03.1 仍待跨媒介与真实样本验证。
