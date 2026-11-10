@@ -1783,3 +1783,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [6186744](https://github.com/jiacimu-droid/lulu1/commit/618674423d95d09f02806d5c04f820a8c38da7e8) 在原心事运行时统一可见回执投影，同角色时间线可验证才给动作、成败、ID 和摘要，原回执缺失则只标不可用。后台复用现有批量证据，完整/精简心事上下文和电话/私聊补正也走同一规则。原心事、其他实际行为、原 Store 和模型调用次数不变。这一修复限定心事的上次尝试字段，独立历史行动摘要不在本工作包内。
 - 续接 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，实际完成独立发布、产生收藏失败回执、在下一轮看到回执，然后撤回该回执并捕获第三轮请求。核心事仍在、不可用提示出现、两种心事投影均无原成败及 ID、独立发布仍可召回；并补纯投影正反例。
 - 静态核对文件 SHA 与改动范围。CI [Lulu APK #42865903439](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903439) pending，[Refresh code index #42865903302](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903302) in_progress。下一轮先按 `618674423d95d09f02806d5c04f820a8c38da7e8` 核第三轮输入回归及索引。通过后此撤回子步骤可归并到大纲，再沿 P-08b.1 检查正式入口的最新人物设置与隔离关系，优先打开 `RelationshipPreferenceGatewayTest`，找仍缺的编辑后跨轮反例。真机与真实模型待验。
+
+## 2026-11-11 · P-08d.2b.2 有声失败事实跨重载与下一轮输入
+- `15ef0a99dfb972566980e6e8334d70608394e2e0` 的 main push [Lulu APK/JVM #42898573257](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573257) 和 [Refresh code index #42898573526](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573526) 已核 completed/success；此前重载闹钟测试工程验收通过，真机/模型仍未知。
+- 新增回归 [6d64e6b](https://github.com/jiacimu-droid/lulu1/commit/6d64e6bd42715c58fe2907782628ba6537ca672b)：`CommitmentAlarmRecoveryTest.failedWakeVoiceReceiptSurvivesColdReloadAndRemainsVisibleToNextDecision`。使用真实 `CommitmentCallFeedback.onVoiceFailed` 写入播放失败，重建 `CommitmentTaskStore`，检查 Blocked、原失败回执、尝试次数及 `ActiveCommitmentAttention.render` 下轮投影；禁止把连接/播放失败等同已醒。测试待本 SHA 的 main push JVM/APK/索引，未修改生产逻辑。
+- 下一轮固定 P-08d.2b.2：核新回归 CI 首错，若通过继续验证正式角色模型输入包含失败事实以及新决定/取消的实际执行；真机 TTS/权限、真实模型与跨日独立待验。
