@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:33:06.869387+00:00",
-  "commit": "66f1600bed184760c57300e6b14401143c21c353",
+  "generatedAt": "2026-11-10T09:39:18.711081+00:00",
+  "commit": "d0cbccabb605b9e4eeae02850ae8c56ef5eee438",
   "branch": "main",
-  "sourceFingerprint": "510bb7fdb1d42a89b002fcbc925f761d8babed1972e4688b52f989cfc4eaaa43",
+  "sourceFingerprint": "5749d366173292a1870b55c746dfd463b70e0934e8f0777fdbbad29294a06430",
   "summary": {
-    "files": 1171,
-    "lines": 252927,
-    "symbols": 3444
+    "files": 1172,
+    "lines": 252992,
+    "symbols": 3447
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11210,6 +11210,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
+        "line": 23
       }
     ],
     "rendered": [
@@ -17328,6 +17332,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
         "line": 5
+      }
+    ],
+    "ChatHistoryLegacyCompatibilityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
+        "line": 16
+      }
+    ],
+    "message": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
+        "line": 26
       }
     ],
     "ChatHistoryPersistenceBaselineTest": [
@@ -38112,6 +38128,25 @@
         {
           "name": "ChatAutomationRoutingTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
+      "lines": 65,
+      "sha256": "d24daf786053d21e4d44042eef37d225507f7e14bead7467d43ac70f2eb4b2ee",
+      "symbols": [
+        {
+          "name": "ChatHistoryLegacyCompatibilityTest",
+          "line": 16
+        },
+        {
+          "name": "conversation",
+          "line": 23
+        },
+        {
+          "name": "message",
+          "line": 26
         }
       ]
     },
