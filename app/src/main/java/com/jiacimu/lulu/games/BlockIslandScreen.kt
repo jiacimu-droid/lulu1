@@ -265,7 +265,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         secondaryLabel = "饱食",
         toolsLabel = "☰ 行囊 / 更多",
         closeToolsSignal = dismissToolsVersion,
-        notice = worldNotice,
+        // A telegraphed guardian strike belongs in the always-visible HUD,
+        // not inside the optional scrolling tactics/quest text.
+        notice = if (activeGuardian!=null &&
+            abs(activeGuardian.x-world.x)+abs(activeGuardian.y-world.y)<=2 &&
+            IslandGuardianEncounter.impendingHeavyAttack(island))
+            "⚠ 巨岩守卫即将重击 · 先躲开或补给" else worldNotice,
         status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
             " · 守夜 ${island.nightsSurvived}/3" +
