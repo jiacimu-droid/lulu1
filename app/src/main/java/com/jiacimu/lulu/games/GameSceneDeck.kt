@@ -95,13 +95,7 @@ internal fun GameSceneDeck(
         // Capture BoxWithConstraints height in its own receiver scope. Inside
         // the bottom-right Column, ColumnScope shadows the constraint receiver
         // and Kotlin cannot implicitly resolve maxHeight (CI #857 / #858).
-        val quickInfoMaxHeight = minOf(
-            if (wide) minOf(maxHeight * .39f, 195.dp)
-                else minOf(maxHeight * .30f, 260.dp),
-            // A narrow phone still reserves a real thumb zone for up to two
-            // gameplay hotkey rows, the contextual action and the tools key.
-            (maxHeight - 225.dp).coerceAtLeast(0.dp)
-        )
+        val quickInfoMaxHeight = gameHudInfoMaxHeightDp(maxHeight.value, wide).dp
         // Measure the HUD naturally: on narrow screens and with large fonts,
         // status can wrap to two lines. A fixed 44dp notice offset overlapped it.
         Column(
@@ -289,6 +283,18 @@ private fun GameHudConditionTrack(label:String,fraction:Float,accent:Color) {
                     RoundedCornerShape(10.dp)))
         }
     }
+}
+
+/** Reserve real thumb controls before assigning space to scrollable tactical text.
+ * Keeping this arithmetic independent of Compose makes small-landscape and
+ * split-screen safety testable without opening the actual game scene.
+ */
+internal fun gameHudInfoMaxHeightDp(availableHeightDp:Float, landscape:Boolean):Float {
+    val height=availableHeightDp.coerceAtLeast(0f)
+    val ratio=if(landscape) .39f else .30f
+    val softLimit=if(landscape) 195f else 260f
+    val controlsReserve=225f
+    return minOf(height*ratio,softLimit,(height-controlsReserve).coerceAtLeast(0f))
 }
 
 /**
