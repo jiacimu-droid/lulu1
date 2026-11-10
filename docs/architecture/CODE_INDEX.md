@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`dee473e1c89210e2bcedc2077ca63702c93e052e`
+- 基准提交：`59b7ea195c82ca8e3c3c346c6a04ffcc2f7e7a79`
 - 分支：`main`
 - 已索引文件：1173
-- 已索引代码/文本行：253786
+- 已索引代码/文本行：253805
 - 已发现符号：3458
 
 | 文件 | 行数 | 符号数 |
@@ -646,7 +646,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 297 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 783 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1151 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1162 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -676,7 +676,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 221 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 227 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 88 | 0 |
@@ -1137,7 +1137,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHarvestPlanTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHouseActorInterruptionTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt` | 470 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt` | 472 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
