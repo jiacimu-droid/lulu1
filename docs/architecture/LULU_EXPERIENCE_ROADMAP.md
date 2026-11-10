@@ -442,3 +442,10 @@
 **2026-11-09 S-02.1 取消路径续接（待 CI）**：新增 [`a50b5dc`](https://github.com/jiacimu-droid/lulu1/commit/a50b5dc17d72b00d350b9a94472254302d038b99) 的 `MemoryExtractionCheckpointTest.cancelledDrainKeepsInFlightEvidenceWithoutChargingASecondAttempt`：真实 drain 取消时不清除在飞行期间新增的来源、不记失败次数，重开 Store 后继续提取。仅测试提交；未获得该 SHA 的 APK/JVM 与索引成功证据，不勾工程验收。前轮 `c3ed58b` Gateway 503 网络纵向回归也仍需按 main push head SHA 核验。**下一固定 S-02.1**：先查两个 SHA 的 CI 首错，失败修测试；成功后审 `LocalMemoryRepository.summarizeNow` 的安全本地网关注入，若已覆盖或需真实模型则转 P-08a.1g.3。
 
 > **2026-11-10 接力**：S-02.1 的 HTTP 503 修复测试 head `29c251a` 已核对 [APK/JVM #42619476897](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476897) 与 [Refresh code index #42619476889](https://github.com/jiacimu-droid/lulu1/actions/runs/42619476889) 均 completed/success；工程回归已验，真机/真实模型/中转站账单仍独立待验。切换 **P-08a.1g.3**：新增真实 ToolRouter 主拒绝→独立私聊回复/朋友圈→持久回执→同 ID 重放测试，提交 `c0a9913`、`06c5271`；对应 APK/JVM/索引尚待按 head SHA 查验。下一轮先修 CI 首错，再检查真实回复消息与 timeline 归属，不能把测试已提交冒充测试已通过。
+
+
+### 2026-11-11 · UI-02.2 会话 updatedAt 权威时间保护（待 CI）
+
+- 回归 `9a2e88b84e1d9c96db50751c49320364e5856c7c`：`ChatHistoryLegacyCompatibilityTest.malformedConversationTimestampMustNotReplaceOriginalSnapshot` 以旧 `state_v1` 会话无效 `updatedAt` + 合法消息复现，覆盖置顶写入、重建及再次写入，要求原快照字节文本不被替换。
+- 正式修复 `6639d80a293b541f967e80947ffd545b9f4986a9`：权威 `decode()` 在 `decodeConversation()` 的宽容 `toInstantOrNow()` 之前严格 `Instant.parse(updatedAt)`，无效则沿既有不可覆盖状态保护原文。未改普通导入、人物、预算、存储格式或收费模型调用。
+- 本轮 GitHub main push Actions 查询未取得可用结果；**未运行本地 JVM/APK，不勾工程通过**。下一轮固定 UI-02.2：先核 `6639d80` 对应 APK/JVM 和 Refresh code index 的 head SHA/首错；通过后优先覆盖 SharedPreferences 写入失败与重启回退，再决定事务性增量存储。真机强杀、10万条性能与供应商计费独立待验。
