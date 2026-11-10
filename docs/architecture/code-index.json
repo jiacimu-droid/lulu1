@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:07:11.725394+00:00",
-  "commit": "6ee177426c2bfe673ab57909c00f76bc1425ac59",
+  "generatedAt": "2026-11-10T09:09:13.219378+00:00",
+  "commit": "f253db4488efd89e2bba6fcef10feac5093717ab",
   "branch": "main",
-  "sourceFingerprint": "41063e1e65832dc849fc708272c7a6dba73ba1d1dcf2277059b0ca7a9fb89713",
+  "sourceFingerprint": "2d04239fc8783706496afc5049f8e0a18a1729d0779c37fc722db029a9b134ce",
   "summary": {
     "files": 1170,
-    "lines": 252741,
-    "symbols": 3441
+    "lines": 252773,
+    "symbols": 3442
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -325,7 +325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 28
+        "line": 60
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -14502,6 +14502,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
         "line": 10
+      }
+    ],
+    "knownRouteSteps": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 34
       }
     ],
     "kind": [
@@ -34103,16 +34109,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 36,
-      "sha256": "fc3dc1078b4b6dab55918903320a3a186017276220325ddbbd05ccc353efaacc",
+      "lines": 68,
+      "sha256": "d585df38a4a33d05ce404941dc53ea89ec63d9cb5315c490a1a06beb7586a5fc",
       "symbols": [
         {
           "name": "nextVisible",
           "line": 10
         },
         {
+          "name": "knownRouteSteps",
+          "line": 34
+        },
+        {
           "name": "prompt",
-          "line": 28
+          "line": 60
         }
       ]
     },
