@@ -1752,3 +1752,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [测试 d67228d](https://github.com/jiacimu-droid/lulu1/commit/d67228d4ac67928123e0814ea2c874db1672dfc4)：`ChatHistoryLegacyCompatibilityTest.malformedMessageTimestampMustNotBeRewrittenAsCurrentTime`，损坏原始时间→真实 Store 初始化→置顶→重开→再次置顶，断言原始 `state_v1` 字节不变。
 - [正式修复 3a01b80](https://github.com/jiacimu-droid/lulu1/commit/3a01b8070d0f699395f6fb291cde3fb10f011814)：仅在权威快照读取时要求 `Instant.parse(createdAt)` 成功，避免宽容解码自动补时间；复用既有不可覆盖保护，不更改非权威导入、人设、居民预算或收费模型调用。
 - **CI 未验**：本轮没有得到 `3a01b80` 对应 main push APK/JVM、Refresh code index 的 completed/success，亦未运行本地 Gradle；真机、强杀、事务迁移仍未知。不能勾 UI-02.2。下一轮直接核本 SHA 的 Actions 首错，随后调查会话 `updatedAt` 的时间回退与写入失败的持久回滚，只有测试揭示缺口才继续修改生产代码。
+
+
+## 2026-11-10 · P-03.1 后台新批次承接本人实际失败回执
+
+- 上一轮 [d79cc50 APK/JVM #42826571378](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571378) 与[原索引 #42826571444](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571444) 均成功。群聊副动作的成员专属证据对照已随 CI 运行。
+- 原链路：后台本人决策 → 原工具与有条件步骤 → ToolRouter 真实回执 → CharacterInnerLifeStore 心事 lastOutcome → CharacterUnfinishedActionContext → 下次实际模型输入。工作集之前只投影 lastOutcome.summary，缺动作、成败及证据 ID，且不核验回执是否仍可追溯。成功的独立动作与同轮失败容易在下一轮被混读。
+- [637f3c5](https://github.com/jiacimu-droid/lulu1/commit/637f3c58ec6312b7a49e2e0fa5297cee1062e01f) 复用已有同角色时间线查询，在心事工作集中交接上次真实尝试的动作、成败、原回执 ID 与摘要。查不到原回执时明确说不可用。已保存事实、注意力预算、共享执行器、人物选择及请求次数沿用原实现。
+- 扩展 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，由同一后台决定选择发布、失败的收藏、仅在收藏成功后发布的依赖步骤。核真实失败回执、依赖发布未发生，以及下一次同角色 HTTP 请求同时收到真实发布和带来源的失败；原过期批次不得重复调用的断言保留。该测试覆盖契约及实际本地工具链，真实模型与设备体验待验。
+- 本轮静态核查文件 SHA 与改动范围。CI [Refresh code index #42845477645](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477645) in_progress，[Lulu APK #42845477728](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477728) in_progress。下一轮沿 P-03.1 先查本 SHA 的首错或通过结果。通过后先验来源撤回导致回执不可用时的输入边界，优先打开上述测试及 `CharacterUnfinishedActionContext`。工程子项的完成证据交总大纲归并。
