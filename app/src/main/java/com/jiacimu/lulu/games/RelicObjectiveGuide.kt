@@ -26,37 +26,56 @@ internal object RelicObjectiveGuide {
         else null
     }
 
-    /** Shortest route over tiles already discovered by the player.
-     * This is only a visual estimate: it never spends turns, enters fog,
-     * assumes unknown enemies are harmless or awards treasure.
-     * An undiscovered corridor is reported as unknown, not as an easy route.
+    /** Shortest route over already-discovered safe tiles.
+     *
+     * The returned path includes the hero's tile and stops next to the
+     * interactive object, not inside its occupied cell. It is a *drawing
+     * hint*, not a turn-spending movement plan. Never reveal hidden map
+     * cells or assume dangerous/occupied tiles are traversable.
      */
-    fun knownRouteSteps(run:RelicRun,target:RelicObjectiveTarget):Int? {
-        if(!run.visible(target.x,target.y) ||
-            !run.bounds(run.hero.x,run.hero.y))return null
+    fun knownRouteTiles(run:RelicRun,target:RelicObjectiveTarget):List<Pair<Int,Int>>? {
+        if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
+            !run.visible(target.x,target.y) ||
+            !run.bounds(run.hero.x,run.hero.y)) return null
         val start=run.index(run.hero.x,run.hero.y)
-        val visited=IntArray(run.w*run.h){-1}
+        val previous=IntArray(run.w*run.h){-1}
+        val visited=BooleanArray(run.w*run.h)
         val frontier=java.util.ArrayDeque<Pair<Int,Int>>()
-        visited[start]=0
+        visited[start]=true
         frontier.add(run.hero.x to run.hero.y)
         while(frontier.isNotEmpty()) {
             val (x,y)=frontier.removeFirst()
-            val step=visited[run.index(x,y)]
-            if(RelicEscapeRules.distance(x,y,target.x,target.y)<=1) return step
+            if(RelicEscapeRules.distance(x,y,target.x,target.y)<=1) {
+                val path=mutableListOf<Pair<Int,Int>>()
+                var index=run.index(x,y)
+                while(index!=start) {
+                    path.add(index%run.w to index/run.w)
+                    index=previous[index]
+                    if(index<0)return null
+                }
+                path.add(run.hero.x to run.hero.y)
+                path.reverse()
+                return path
+            }
             for((nx,ny) in listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)) {
                 if(!run.visible(nx,ny) || !run.walk(nx,ny))continue
-                if(run.tile(nx,ny)==2)continue // corrosive ground is not a safe shortcut
-                if(run.mobs.any{it.hp>0 && it.x==nx && it.y==ny})continue
-                if(run.sites.any{!it.spent && it.kind=="trap" &&
-                        it.x==nx && it.y==ny})continue
+                if(run.tile(nx,ny)==2)continue // corrosive ground is not a shortcut
+                if(run.mobs.any { it.hp>0 && it.x==nx && it.y==ny })continue
+                if(run.sites.any { !it.spent && it.kind=="trap" &&
+                        it.x==nx && it.y==ny })continue
                 val index=run.index(nx,ny)
-                if(visited[index]>=0)continue
-                visited[index]=step+1
+                if(visited[index])continue
+                visited[index]=true
+                previous[index]=run.index(x,y)
                 frontier.add(nx to ny)
             }
         }
         return null
     }
+
+    /** Steps use the *same* route as the on-map guide. No two path models. */
+    fun knownRouteSteps(run:RelicRun,target:RelicObjectiveTarget):Int? =
+        knownRouteTiles(run,target)?.size?.minus(1)
 
     fun prompt(run:RelicRun):String {
         val target=nextVisible(run)
