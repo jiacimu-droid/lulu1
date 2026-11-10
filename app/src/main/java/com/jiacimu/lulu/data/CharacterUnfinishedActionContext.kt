@@ -30,14 +30,21 @@ internal object CharacterUnfinishedActionContext {
                     100 else 0) + (m.optInt("priority", 2) - 2).coerceAtLeast(0))
         }
         val concerns = CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now)
-        val sources = SharedExperienceTimeline.eventsByIds(role, concerns.map { it.optString("evidenceId") })
-            .mapTo(hashSetOf()) { it.id }
-        concerns.filter { it.optString("evidenceId") in sources }.forEach { c ->
+        val concernEvidence = SharedExperienceTimeline.eventsByIds(role, concerns.flatMap { concern ->
+            listOf(concern.optString("evidenceId"),
+                concern.optJSONObject("lastOutcome")?.optString("id").orEmpty())
+        }.filter(String::isNotBlank).distinct()).mapTo(hashSetOf()) { it.id }
+        concerns.filter { it.optString("evidenceId") in concernEvidence }.forEach { c ->
             val last = c.optJSONObject("lastOutcome")
+            val lastAttempt = if (last != null && last.optString("id") in concernEvidence) {
+                "上次实际尝试=${if (last.optBoolean("success")) "执行成功" else "执行失败"}；" +
+                    "动作=${last.optString("action")}；回执ID=${last.optString("id")}；" +
+                    "结果=${last.optString("summary")}；"
+            } else if (last != null) "上次尝试的原回执不可用；" else ""
             cues += Cue("挂心", c.optString("id"), c.optString("focus"),
                 "concernId=${c.optString("id")}；在意原因=${c.optString("whyItMatters")}；" +
                     "以前考虑的下一步=${c.optString("possibleNextStep")}；犹豫=${c.optString("hesitation")}；" +
-                    "上次实际尝试=${last?.optString("summary").orEmpty()}；" +
+                    lastAttempt +
                     "旧情绪可以淡化，问题仍未解决；也可用已有threadId更新或放下",
                 at(c, "updatedAt", "createdAt"),
                 attentionPriority = (c.optInt("priority", 2) - 2).coerceAtLeast(0))

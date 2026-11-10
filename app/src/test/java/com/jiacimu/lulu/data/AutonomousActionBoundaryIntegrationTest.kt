@@ -467,8 +467,19 @@ class AutonomousActionBoundaryIntegrationTest {
         val chat = MigratedDomainStores.chat.ensureConversation(actor, "跨批次本人决策")
         val firstPost = "第一轮已送达-${UUID.randomUUID()}"
         val secondPost = "新消息后重新选择-${UUID.randomUUID()}"
+        val dependentPost = "失败后不应执行-${UUID.randomUUID()}"
         val requests = java.util.concurrent.atomic.AtomicInteger()
         val modelInputs = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val source = MigratedDomainStores.chat.sendUserMessage(chat.id, "先看看今天的事情")
+        CharacterInnerLifeStore.recordCausalTransition(
+            actor, source.id, appraisal = JSONObject().put("pendingConcern", JSONObject()
+                .put("status", "open").put("focus", "想核对最初那条材料")
+                .put("whyItMatters", "不想把未经核对的事当事实")),
+            innerLife = null, innerThoughtBasis = null, selectedAction = "reply",
+            innerThought = "", reason = "",
+        )
+        val concernId = CharacterInnerLifeStore.snapshot(actor).getJSONArray("openConcerns")
+            .getJSONObject(0).getString("id")
         val server = okhttp3.mockwebserver.MockWebServer()
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
@@ -479,6 +490,14 @@ class AutonomousActionBoundaryIntegrationTest {
                     .put("args", JSONObject().put("text", if (index == 1) firstPost else secondPost))
                     .put("reason", "本人按当前消息选择")
                     .put("replyChoice", "silent")
+                if (index == 1) {
+                    choice.put("steps", JSONArray().put(JSONObject()
+                        .put("tool", "favorite_user_message").put("concernId", concernId)
+                        .put("args", JSONObject().put("messageId", "missing-source-for-favorite")))
+                        .put(JSONObject().put("tool", "publish_moment")
+                            .put("requiresPreviousSuccess", true)
+                            .put("args", JSONObject().put("text", dependentPost))))
+                }
                 return okhttp3.mockwebserver.MockResponse()
                     .setHeader("Content-Type", "application/json")
                     .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
@@ -492,7 +511,6 @@ class AutonomousActionBoundaryIntegrationTest {
             val config = store.saveConfiguration(null, "two-real-batches-${UUID.randomUUID()}",
                 server.url("/").toString(), "test")
             store.addArchive(config.id, "test")
-            MigratedDomainStores.chat.sendUserMessage(chat.id, "先看看今天的事情")
             OnlineChatBatchStore.cancel(app, actor)
             val first = OnlineChatBatchStore.onUserBubble(app, actor,
                 atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
@@ -500,6 +518,20 @@ class AutonomousActionBoundaryIntegrationTest {
                 onlineRevision = first.revision, requiresUnread = true)
             assertEquals(1, MomentsStore.posts.value.count {
                 it.authorCharacterId == actor && it.content == firstPost
+            })
+
+            val attempt = CharacterInnerLifeStore.snapshot(actor).getJSONArray("openConcerns")
+                .getJSONObject(0).getJSONObject("lastOutcome")
+            val failureId = attempt.getString("id")
+            assertFalse(attempt.getBoolean("success"))
+            val failure = SharedExperienceTimeline.eventsByIds(actor, listOf(failureId)).single()
+            assertEquals("tool-router", failure.source)
+            assertEquals(EventEvidenceKind.ToolResult, failure.evidenceKind)
+            val receipt = JSONObject(failure.content)
+            assertEquals(concernId, receipt.getString("concernId"))
+            assertFalse(JSONObject(receipt.getString("result")).optBoolean("success"))
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == dependentPost
             })
 
             MigratedDomainStores.chat.sendUserMessage(chat.id, "我有新的想法，重新看看")
@@ -511,6 +543,8 @@ class AutonomousActionBoundaryIntegrationTest {
             assertEquals("每个有效新批次应有自己的本人决策", 2, requests.get())
             assertTrue("新批次模型输入应承接旧轮已送达动作的真实回执",
                 modelInputs[1].contains(firstPost))
+            assertTrue("下一轮须看见该心事的真实失败状态及可追溯回执",
+                modelInputs[1].contains("上次实际尝试=执行失败；动作=favorite_user_message；回执ID=$failureId"))
             assertEquals(1, MomentsStore.posts.value.count {
                 it.authorCharacterId == actor && it.content == firstPost
             })
