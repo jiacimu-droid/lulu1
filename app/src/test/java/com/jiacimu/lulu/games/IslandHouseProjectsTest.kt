@@ -439,6 +439,31 @@ class IslandHouseProjectsTest {
         assertEquals(saved,IslandHouseProjects.advance(saved,setOf("alice")))
     }
 
+    @Test fun actualFirstDemolitionStepUpdatesHudAndSurvivesReloadWithoutDoubleRefund() {
+        var state=start()
+        repeat(70) { if(state.houseProject?.phase!="complete") state=nextTurn(state) }
+        assertEquals("complete",state.houseProject?.phase)
+        val originalCount=state.houseProject!!.placed.size
+        assertEquals(9,originalCount)
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","我想慢慢拆掉旧屋"))!!
+        assertEquals(0,IslandHouseProjects.progress(state.houseProject!!))
+        assertEquals(originalCount,state.houseProject!!.demolitionStartCount)
+        val woodBefore=state.world.wood
+        repeat(50) {
+            if(state.houseProject?.placed?.size==originalCount) state=nextTurn(state)
+        }
+        assertEquals(originalCount-1,state.houseProject?.placed?.size)
+        assertEquals(1,IslandHouseProjects.progress(state.houseProject!!))
+        assertEquals(woodBefore+1,state.world.wood)
+        val saved=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(originalCount,saved.houseProject?.demolitionStartCount)
+        assertEquals(1,IslandHouseProjects.progress(saved.houseProject!!))
+        assertEquals(state.world.tiles,saved.world.tiles)
+        assertEquals(state.world.wood,saved.world.wood)
+        assertEquals(saved,IslandHouseProjects.advance(saved,setOf("alice")))
+    }
+
     @Test fun progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction() {
         val started=start()
         val p=started.houseProject!!
