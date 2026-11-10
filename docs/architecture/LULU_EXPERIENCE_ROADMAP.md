@@ -292,6 +292,8 @@
 - [ ] **UI-01.3** 真机测输入不丢、浏览器暂停后能读、通知与历史不退化。已有草稿/IME/桌面状态隔离等修复不重做。
 
 ### UI-02 长历史聊天写入
+- **2026-11-10 UI-02.2 损坏快照防覆盖**：失败复现 [`65e3029`](https://github.com/jiacimu-droid/lulu1/commit/65e3029d92a47f318eb131f310c1adf0840d223a)；正式修复 [`6e5bd7d`](https://github.com/jiacimu-droid/lulu1/commit/6e5bd7deb9eebcc11b62267b74a96fd63cd524b4)。旧 `state_v1` JSON 无法解析或缺核心结构时标记不可写，拒绝后续默认会话写回覆盖原始快照；有效旧格式照常读取。**新提交 JVM/APK/索引、真机尚未验；UI-02.2 不勾完成。** 下一轮直接查 `ChatHistoryLegacyCompatibilityTest.malformedLegacySnapshotMustNotBeSilentlyOverwritten` 的 CI 首错，再补格式局部损坏/重启恢复反例；后续事务迁移仍待做。
+
 - [ ] **UI-02.1** 对 MigratedDomainStores.kt 的 InMemoryLuluChatStore.persistLocked 测 1千/1万/10万消息的锁、完整 JSON 编码、apply/commit、恢复耗时与 ANR。
 - [ ] **UI-02.2** 设计可恢复事务/增量存储：旧 SharedPreferences JSON 迁移、失败回退、旧数据/导出/编辑/删除/回执和备份兼容，不截断历史。
 - [ ] **UI-02.3** 接通正式写入并测突发并发/重启/强杀/升级，单次新消息写入不再随无关会话历史线性增长。
