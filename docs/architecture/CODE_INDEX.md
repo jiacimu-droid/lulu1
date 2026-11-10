@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`53201eda98aa873925dd5238b9e65b5a452b56ed`
+- 基准提交：`de6442e889b2fdb05d8016ca24147ba88a602042`
 - 分支：`main`
-- 已索引文件：1166
-- 已索引代码/文本行：251387
-- 已发现符号：3423
+- 已索引文件：1167
+- 已索引代码/文本行：251455
+- 已发现符号：3427
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -670,9 +670,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 336 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 66 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 57 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 66 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 59 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 221 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T05:41:18.735778+00:00",
-  "commit": "53201eda98aa873925dd5238b9e65b5a452b56ed",
+  "generatedAt": "2026-11-10T05:55:41.735594+00:00",
+  "commit": "de6442e889b2fdb05d8016ca24147ba88a602042",
   "branch": "main",
-  "sourceFingerprint": "6a99f3a51d760965545bff4dd77f24fed42369768baa039cfceeac6b3cf44d03",
+  "sourceFingerprint": "da74f1e36e2d68bb985368c183c9af047776892dea8d212cb90861599922e07e",
   "summary": {
-    "files": 1166,
-    "lines": 251387,
-    "symbols": 3423
+    "files": 1167,
+    "lines": 251455,
+    "symbols": 3427
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13462,6 +13462,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
         "line": 693
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 52
       }
     ],
     "newWorld": [
@@ -13783,7 +13787,7 @@
     "awardCompleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt",
-        "line": 39
+        "line": 48
       }
     ],
     "submitPlayerMessage": [
@@ -13796,6 +13800,28 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
         "line": 49
+      }
+    ],
+    "distance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 191
+      }
+    ],
+    "reached": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 50
+      }
+    ],
+    "completedCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 55
       }
     ],
     "tileAt": [
@@ -14380,12 +14406,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 190
-      }
-    ],
-    "distance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 191
       }
     ],
     "canSurvey": [
@@ -33084,12 +33104,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt",
-      "lines": 57,
-      "sha256": "5228c62d7536a92199eca4bcf5fb860b9bf4140d863180e535538607ddb7b7ca",
+      "lines": 66,
+      "sha256": "d7e74665df10fdf1db599b7e8f61c05a5b06d697f1b44418ab089c6450ed7d2d",
       "symbols": [
         {
           "name": "awardCompleted",
-          "line": 39
+          "line": 48
         }
       ]
     },
@@ -33128,6 +33148,29 @@
         {
           "name": "close",
           "line": 106
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+      "lines": 59,
+      "sha256": "83d9b8df81a304e3178339b1589e87f16a1f811eed929a6c6289a851cd0a7ab2",
+      "symbols": [
+        {
+          "name": "distance",
+          "line": 44
+        },
+        {
+          "name": "reached",
+          "line": 50
+        },
+        {
+          "name": "next",
+          "line": 52
+        },
+        {
+          "name": "completedCount",
+          "line": 55
         }
       ]
     },
