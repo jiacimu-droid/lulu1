@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:37:29.357989+00:00",
-  "commit": "69f63e2cae4974d66492133c23875f9ea30c99a5",
+  "generatedAt": "2026-11-10T06:38:22.868427+00:00",
+  "commit": "233af13f6b7df160632f5b9c3c12c84395f15fe7",
   "branch": "main",
-  "sourceFingerprint": "994eba1a1fd12fb2f67e9059c654cbde2aaaa13216e3e48bf5c748c81cbc23ab",
+  "sourceFingerprint": "6fb3bef5ca9b8878468990f67782ffc42db250abf4ec42ff433ada121d0ee5a0",
   "summary": {
     "files": 1169,
-    "lines": 252126,
+    "lines": 252153,
     "symbols": 3437
   },
   "symbolIndex": {
@@ -34029,8 +34029,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 988,
-      "sha256": "f99539028e1103a9ca6f8e975de35540e0c879e2ce8522dac8d29bf65a79b77f",
+      "lines": 1009,
+      "sha256": "505ede6f5ea5569cbdf94f643d4d23d26ca6d62333f3648552023b8f82a85fd8",
       "symbols": [
         {
           "name": "change",
@@ -38075,8 +38075,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
-      "lines": 112,
-      "sha256": "9dab92135807b704c2607004bb94054a9ffda522ca18b565e69f4aef9b354a7a",
+      "lines": 118,
+      "sha256": "2770b3471cee1c588e8be9385039609b5059a25c02e7ef16255d0c665348ef3e",
       "symbols": [
         {
           "name": "ChatHistoryPersistenceBaselineTest",
