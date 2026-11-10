@@ -34,7 +34,16 @@ internal object IslandChallengeBoard {
             "木材 +4、石料 +2",wood=4,stone=2) { s ->
             s.structures.values.containsAll(listOf("pet_house","lantern"))
         },
-    )
+    ) + IslandExpeditionTrail.landmarks.map { place ->
+        IslandChallenge(
+            id=place.id,
+            title=place.title,
+            detail=place.description,
+            rewardText=place.rewardText,
+            wood=place.wood,stone=place.stone,
+            fruit=place.fruit,fish=place.fish,
+        ) { s -> IslandExpeditionTrail.reached(s,place) }
+    }
     val ids=challenges.map{it.id}.toSet()
 
     fun awardCompleted(s:BlockIslandState):BlockIslandState {
