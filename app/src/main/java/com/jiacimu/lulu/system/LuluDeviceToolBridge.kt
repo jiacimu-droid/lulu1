@@ -1206,7 +1206,14 @@ object LuluDeviceToolBridge {
                     phoneSideAllCompleted = false
                     continue
                 }
-                val effectArgs = effect.optJSONObject("args") ?: JSONObject()
+                val effectArgs = effect.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()
+                // Scheduling validates ownership through args. Keep the explicit
+                // step link that the private-chat executor already forwards.
+                if (tool == "plan_personal_activity" && effectArgs.optString("concernId").isBlank()) {
+                    effect.optString("concernId").takeIf(String::isNotBlank)?.let {
+                        effectArgs.put("concernId", it)
+                    }
+                }
                 if (tool == "control_volume" &&
                     effectArgs.optString("action") == "adjust" &&
                     effectArgs.optInt("deltaPercent") > 0) {

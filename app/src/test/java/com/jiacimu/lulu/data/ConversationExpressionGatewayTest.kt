@@ -744,6 +744,75 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun phoneAndPrivateChatBothRejectAnUnownedConcernInAScheduleStep() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("日程归属交接样本", "按自己确认的事实说话")
+        val actor = role.characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "test")
+        val heard = MigratedDomainStores.chat.sendUserMessage(chat.id, "后来有进展吗？")
+        val typed = MigratedDomainStores.chat.sendUserMessage(chat.id, "能在这里也说一下吗？")
+        val unknownConcern = "unowned-concern"
+        val condition = "如果无法关联原心事，就不要说已经安排。"
+        val step = JSONObject().put("tool", "plan_personal_activity")
+            .put("concernId", unknownConcern)
+            .put("args", JSONObject().put("title", "稍后核对进展").put("intent", "继续查清原来的问题")
+                .put("dueAt", java.time.Instant.now().plusSeconds(3600).toString()))
+        val decision = JSONObject().put("action", "reply").put("speechIntent", condition)
+            .put("text", "我先核对一下。")
+            .put("steps", JSONArray().put(step)).toString()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", content))
+                .put("finish_reason", "stop"))).toString())
+        val server = MockWebServer()
+        server.enqueue(response(decision))
+        server.enqueue(response(decision))
+        server.enqueue(response("""{"action":"reply","bubbles":[{"text":"我先核对一下。"}]}"""))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val phone = LuluDeviceToolBridge.respond(actor, "", heard.content, "test",
+                archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = "concern-step-call",
+                userEvidenceIds = listOf(heard.id)).getOrThrow()
+            assertEquals("我先核对一下。", phone.text)
+
+            val privateReply = LuluDeviceToolBridge.respond(actor, "", typed.content, "test",
+                archiveId = archive.id, userEvidenceIds = listOf(typed.id)).getOrThrow()
+            assertEquals("我先核对一下。", privateReply.text)
+            val deferred = JSONArray(checkNotNull(privateReply.deferredActions))
+            val privateRequest = "private-concern-step-${typed.id}"
+            val report = OrderedCharacterActions.execute(context, actor, deferred,
+                requestId = privateRequest, userEvidenceIds = setOf(typed.id))
+            assertEquals(0, report.completedCount)
+            assertTrue(RoleDayScheduleStore.plans(context, actor).isEmpty())
+
+            repeat(2) { checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)) }
+            val renderingRequest = checkNotNull(server.takeRequest(5, TimeUnit.SECONDS))
+            assertTrue(renderingRequest.body.readUtf8().contains(condition))
+            val receipts = SharedExperienceTimeline.all(actor).filter { it.source == "tool-router" }
+                .map { JSONObject(it.content) }.filter {
+                    it.optString("requestId") == "reply-side-${heard.id}-0" ||
+                        it.optString("requestId").startsWith(privateRequest)
+                }
+            assertEquals(2, receipts.size)
+            for (receipt in receipts) {
+                assertEquals(unknownConcern, receipt.optString("concernId"))
+                val outcome = JSONObject(receipt.getString("result"))
+                assertFalse(outcome.optBoolean("success"))
+                assertTrue(outcome.toString(), outcome.toString().contains("关联心事必须是本人"))
+            }
+            assertEquals(3, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
