@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:19:56.930086+00:00",
-  "commit": "95e60f3d38edf98210c37648afc18202adccc201",
+  "generatedAt": "2026-11-10T16:23:09.756921+00:00",
+  "commit": "064c965ce7276059d4acdb39d2fd3eb67ad1d848",
   "branch": "main",
-  "sourceFingerprint": "f090030c65c40680bda14297e64988198af6cc37ed672d606e63fcfb3d618765",
+  "sourceFingerprint": "62501e519fed3be5e35ef38e5580bb4d29d2fc8dbef00e1456a0bc3980ba0e75",
   "summary": {
     "files": 1172,
-    "lines": 253581,
+    "lines": 253594,
     "symbols": 3456
   },
   "symbolIndex": {
@@ -2301,7 +2301,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 36
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -13903,7 +13903,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 28
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -14409,13 +14409,13 @@
     "satchelCost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 74
+        "line": 81
       }
     ],
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 167
+        "line": 180
       }
     ],
     "namesFor": [
@@ -33993,24 +33993,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 211,
-      "sha256": "c563a7723ad17e2329a3b724ac9db24c813c866e01f0c2571497d56b1eac3774",
+      "lines": 224,
+      "sha256": "2d37367e47d421a35b65a4f6ac6b2318092fd8f4694ff409b36bb22fa7ad039a",
       "symbols": [
         {
           "name": "json",
-          "line": 28
+          "line": 30
         },
         {
           "name": "read",
-          "line": 36
+          "line": 39
         },
         {
           "name": "satchelCost",
-          "line": 74
+          "line": 81
         },
         {
           "name": "syncExperiences",
-          "line": 167
+          "line": 180
         }
       ]
     },
