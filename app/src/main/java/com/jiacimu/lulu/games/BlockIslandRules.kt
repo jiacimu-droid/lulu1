@@ -30,6 +30,8 @@ internal data class BlockIslandState(
     val discoveredSpecies: Set<String> = emptySet(),
     /** Completed one-shot challenges are part of the same authoritative island save. */
     val awardedChallenges: Set<String> = emptySet(),
+    /** Defeat is permanent even after the dead boss is cleaned from world.mobs. */
+    val guardianCleared: Boolean = false,
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -54,6 +56,7 @@ internal data class BlockIslandState(
         .put("animals",JSONArray(animals.map { it.json() }))
         .put("discoveredSpecies",JSONArray(discoveredSpecies.sorted()))
         .put("awardedChallenges",JSONArray(awardedChallenges.sorted()))
+        .put("guardianCleared",guardianCleared)
         .toString()
 
     companion object {
@@ -120,7 +123,8 @@ internal data class BlockIslandState(
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in IslandChallengeBoard.ids }
                     }.toSet()
-                } ?: emptySet())
+                } ?: emptySet(),
+                guardianCleared=json.optBoolean("guardianCleared",false))
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -148,6 +152,9 @@ internal object IslandMilestones {
             s.nightsSurvived < 3 -> "生存 5/5 · 守住3夜（${s.nightsSurvived}/3）"
             nextLandmark != null ->
                 "远航 ${IslandExpeditionTrail.completedCount(s)+1}/${IslandExpeditionTrail.landmarks.size} · 前往${nextLandmark.title}（距离${IslandExpeditionTrail.distance(s,nextLandmark)}格）"
+            IslandGuardianEncounter.ready(s) ->
+                "终章 · ${IslandGuardianEncounter.title} · "+
+                (IslandGuardianEncounter.active(s)?.let { "生命${it.hp}/${IslandGuardianEncounter.hp}" } ?: "守卫将在南岭现身")
             s.supplyCaches.any { it !in s.openedSupplies } ->
                 "探险 1/3 · 搜寻补给宝箱（${s.openedSupplies.size}/${s.supplyCaches.size}）"
             !s.tools.containsAll(setOf("axe", "pickaxe", "sword", "rod")) ->
@@ -516,6 +523,7 @@ internal object BlockIslandRules {
         result = companionTurn(result, autonomousIds)
         result = IslandTravel.advance(result, autonomousIds)
         result = IslandHouseProjects.advance(result, autonomousIds)
+        result = IslandGuardianEncounter.recordVictory(result)
         // Hunger creates a real renewable food loop; old saves start fully fed.
         if (result.world.turns % 12 == 0) {
             val fed = (result.hunger - 1).coerceAtLeast(0)
@@ -550,6 +558,7 @@ internal object BlockIslandRules {
         }
         result = respawnMonsters(result)
         result = replenishResources(result)
+        result = IslandGuardianEncounter.spawnIfReady(result)
         result = IslandWildlife.advance(result)
         val newSpecies=result.animals.filter { animal ->
             animal.species !in result.discoveredSpecies &&
@@ -634,9 +643,12 @@ internal object BlockIslandRules {
             val targets = listOf(world.x to world.y) + world.friends.filter { it.hp > 0 }.map { it.x to it.y }
             val target = targets.minByOrNull { distance(mob.x, mob.y, it.first, it.second) } ?: return@map mob
             if (distance(mob.x, mob.y, target.first, target.second) <= 1) {
-                if (target.first == world.x && target.second == world.y) playerHurt++
+                // The guardian's telegraphed third-turn strike does real damage,
+                // not a random invisible critical hit.
+                val strike=if(mob.id==IslandGuardianEncounter.id && world.turns%3==0)2 else 1
+                if (target.first == world.x && target.second == world.y) playerHurt+=strike
                 else world.friends.firstOrNull { it.x == target.first && it.y == target.second }?.let {
-                    hurtFriends[it.id] = (hurtFriends[it.id] ?: 0) + 1
+                    hurtFriends[it.id] = (hurtFriends[it.id] ?: 0) + strike
                 }
                 return@map mob
             }
