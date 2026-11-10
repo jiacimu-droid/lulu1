@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4f70904f3443d5ea1450e7ca7454841e8f1b8a2c`
+- 基准提交：`9793812d232eef5616005be6c309c381d93a0d6b`
 - 分支：`main`
 - 已索引文件：1169
-- 已索引代码/文本行：252524
+- 已索引代码/文本行：252562
 - 已发现符号：3440
 
 | 文件 | 行数 | 符号数 |
@@ -646,7 +646,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1081 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 297 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 783 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1134 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1137 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -662,7 +662,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 265 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 425 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 460 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
