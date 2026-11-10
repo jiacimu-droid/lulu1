@@ -257,6 +257,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
 
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
+        healthFraction = world.hp / 12f,
+        secondaryFraction = island.hunger / 10f,
+        secondaryLabel = "饱食",
         toolsLabel = "☰ 行囊 / 更多",
         closeToolsSignal = dismissToolsVersion,
         notice = worldNotice,
