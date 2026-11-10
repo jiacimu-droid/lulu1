@@ -163,10 +163,17 @@ class BlockIslandRulesTest {
         assertTrue(BlockIslandRules.canBuild(home,"lantern",3,5))
         val lit=BlockIslandRules.act(home,"lantern",3,5)
         assertEquals("lantern",lit.structures[lit.world.index(3,5)])
-        assertEquals(home.world.wood-2,lit.world.wood)
-        assertEquals(home.world.stone-1,lit.world.stone)
+        // Building really costs 2 wood / 1 stone; finishing both facilities also
+        // completes the one-off home challenge and deposits its 4 wood / 2 stone.
+        assertEquals(home.world.wood-2+4,lit.world.wood)
+        assertEquals(home.world.stone-1+2,lit.world.stone)
+        assertTrue("home" in lit.awardedChallenges)
+        assertEquals(lit,IslandChallengeBoard.awardCompleted(lit))
         val saved=BlockIslandState.fromJson(lit.toJson())!!
         assertEquals(lit.structures,saved.structures)
+        assertEquals(lit.awardedChallenges,saved.awardedChallenges)
+        assertEquals(lit.world.wood,saved.world.wood)
+        assertEquals(lit.world.stone,saved.world.stone)
         val oldPet=lit.animals.first().copy(
             x=6,y=5,befriended=true,lastGiftTurn=0)
         val due=lit.copy(animals=listOf(oldPet),
