@@ -161,14 +161,18 @@ internal fun GameLobbyStage(
  * Its shading layers are decorative and never block button hit-testing. */
 @Composable
 internal fun GameLobbyBackdrop(island:Boolean, modifier:Modifier=Modifier) {
-    Box(modifier) {
+    BoxWithConstraints(modifier) {
+        val landscape=maxWidth>maxHeight
         if(island) {
             // The scene is a real, bundled export of an editable layered Figma
             // illustration. Actual players, quests and controls remain native
             // Compose overlays with live saved state — not baked into the PNG.
             Image(painter=painterResource(R.drawable.game_island_lobby_art),
                 contentDescription=null,modifier=Modifier.matchParentSize(),
-                contentScale=ContentScale.Crop)
+                contentScale=ContentScale.Crop,
+                // Tall phones must show the actual cottage, not crop away the
+                // whole story scene and leave only a generic ocean rectangle.
+                alignment=if(landscape) Alignment.Center else Alignment.CenterStart)
         } else {
             // Preserve the high-resolution authored relic camp already bundled
             // with the project instead of regressing to debug Canvas scenery.
