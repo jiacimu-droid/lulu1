@@ -332,22 +332,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     else -> if (run.carried.isEmpty()) "目标：找到一件宝物，再去绿色撤离门"
                         else "已带${run.carried.size}件宝物（估值${run.value}）→ 去绿色撤离门"
                 }
-                val guide=RelicObjectiveGuide.nextVisible(run)
+                val chestTarget=RelicObjectiveGuide.visibleChest(run)
+                val exitTarget=RelicObjectiveGuide.visibleExit(run)
                 Surface(
-                    onClick={
-                        guide?.let {
-                            // Only camera focus changes: no walking, no fog
-                            // reveal, no free survey or loot transfer.
-                            cameraFocus=it.x to it.y
-                            selected=it.x to it.y
-                        }
-                    },
-                    enabled=guide!=null,
                     color=Color(0xE31B3340),shape=RoundedCornerShape(12.dp),
                     border=BorderStroke(1.dp,relicGold.copy(alpha=.48f)),
                 ) {
                     Column(Modifier.fillMaxWidth().padding(horizontal=10.dp,vertical=8.dp),
-                        verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                        verticalArrangement=Arrangement.spacedBy(5.dp)) {
                         Text(objective,color=relicGold,fontWeight=FontWeight.Bold,
                             fontSize=11.sp,maxLines=2)
                         if(run.contract!=RelicContract.NONE) {
@@ -358,9 +350,48 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                 color=relicGreen,fontSize=10.sp,
                                 fontWeight=FontWeight.Bold,maxLines=2)
                         }
-                        Text(RelicObjectiveGuide.prompt(run),
-                            color=if(guide!=null)Color(0xFFFFE2AC) else relicMuted,
-                            fontSize=10.sp,maxLines=2)
+                        // Present both real options simultaneously. A player with
+                        // loot may keep searching; the system must not force
+                        // extraction just because the bag has one item.
+                        Row(Modifier.fillMaxWidth(),
+                            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                            OutlinedButton(
+                                onClick={
+                                    chestTarget?.let {
+                                        cameraFocus=it.x to it.y
+                                        selected=it.x to it.y
+                                    }
+                                },
+                                enabled=chestTarget!=null,
+                                modifier=Modifier.weight(1f),
+                                contentPadding=PaddingValues(horizontal=6.dp,vertical=4.dp),
+                                border=BorderStroke(1.dp,relicGold.copy(alpha=.55f)),
+                            ) { Text("◇ 再搜一箱",fontSize=10.sp,maxLines=1,color=relicGold) }
+                            OutlinedButton(
+                                onClick={
+                                    exitTarget?.let {
+                                        cameraFocus=it.x to it.y
+                                        selected=it.x to it.y
+                                    }
+                                },
+                                enabled=exitTarget!=null,
+                                modifier=Modifier.weight(1f),
+                                contentPadding=PaddingValues(horizontal=6.dp,vertical=4.dp),
+                                border=BorderStroke(1.dp,relicGreen.copy(alpha=.55f)),
+                            ) { Text("↗ 去撤离门",fontSize=10.sp,maxLines=1,color=relicGreen) }
+                        }
+                        Text(when {
+                            chestTarget!=null && exitTarget!=null ->
+                                "宝箱："+RelicObjectiveGuide.optionLabel(run,chestTarget)+
+                                    " · 撤离："+RelicObjectiveGuide.optionLabel(run,exitTarget)
+                            chestTarget!=null ->
+                                "宝箱："+RelicObjectiveGuide.optionLabel(run,chestTarget)+
+                                    " · 撤离门尚未发现"
+                            exitTarget!=null ->
+                                "撤离："+RelicObjectiveGuide.optionLabel(run,exitTarget)+
+                                    " · 尚无已知未开宝箱"
+                            else -> RelicObjectiveGuide.prompt(run)
+                        },color=relicMuted,fontSize=10.sp,maxLines=2)
                     }
                 }
                 val attackTarget = relicAttackTarget(run, selected)
