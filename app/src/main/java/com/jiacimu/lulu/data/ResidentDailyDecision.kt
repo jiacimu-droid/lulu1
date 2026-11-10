@@ -1265,7 +1265,8 @@ internal object ResidentDailyDecision {
         val unread = if (savedChoice == null) CharacterPhoneInbox.unreadMoments(plan.characterId) else emptyList()
         val proposedArgs = runCatching { JSONObject(plan.activityArgs) }.getOrDefault(JSONObject())
         val now = Instant.now()
-        val dueFacts = if (savedChoice == null) decisionFacts(native, now, pending, unread) + "\n" +
+        val explorationInput = if (savedChoice == null) residentEvidence(plan.characterId, pending, now) else emptyList()
+        val dueFacts = if (savedChoice == null) decisionFacts(native, now, pending, unread, explorationInput) + "\n" +
             "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
             "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
             "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
@@ -1275,6 +1276,7 @@ internal object ResidentDailyDecision {
             facts = dueFacts,
             instruction = """
                 你是${native.name}。此刻你从休眠中醒来，先感知自己的地点、身体、到期活动和手机里的未读动态、聊天消息、好友申请，再选择行为。
+                $EXPLORATION_GUIDE
                 当前到期计划只能通过主 choice 执行/改期/取消/等待，steps 的日程管理只可针对其他本人计划，不能改同一 planId。
                 你本人预先安排的一项真实生活活动已经到点，它是当前优先要复议的原计划；看手机不等于完成、撤销或放弃它。
                 根据本人意愿可以执行、改期、取消或等待，也可以在同一次决定额外选多个真实生活行动，形成独立回执。
@@ -1372,6 +1374,7 @@ internal object ResidentDailyDecision {
         // Persist the exact model-selected choice before any original or side
         // action. Replays recover the same request IDs, not a fresh decision.
         if (savedChoice == null) {
+            attachExplorationInput(choice, explorationInput)
             val editor = p.edit().putString(decisionKey, choice.toString())
                 .putString(phaseKey, "decided")
             if (chosenReviewAt != null) editor.putString(waitClockKey, chosenReviewAt.toString())
@@ -1393,6 +1396,7 @@ internal object ResidentDailyDecision {
             markSourceUnavailable(p, phaseKey, "due-last-error:$key")
             return false
         }
+        rememberExploration(app, plan.characterId, choice, now)
         // Reschedule, cancel and wait are NOT successes of the original
         // activity. Perform independently selected side actions while the
         // original due slot still exists, so an interruption can replay them
@@ -1619,12 +1623,53 @@ internal object ResidentDailyDecision {
         return "${event.occurredAt} | ${event.channel} | ${event.speaker}：${event.content.take(180)}"
     }
 
-    private fun recentOwnExperience(characterId: String): String =
-        recentOwnEvents(characterId).map(::lifeEvidenceLine)
-            .filter(String::isNotBlank).joinToString("\n")
+    private const val EXPLORATION_INPUT = "_residentExplorationInput"
+    private const val EXPLORATION_GUIDE =
+        "如果本人真想延续一个具体问题，可以返回可选 curiosity 或 curiosities，字段为 " +
+            "topic、question、why、nextStep、sourceEvidenceId、threadId、status。只选下文真实 evidenceId 或既有问题的 threadId；" +
+            "观察、探索、参与游戏等仍由本人在现有工具中选择，也可以保留问题等待下次。排程、说起或发圈不等于已经探索。"
+
+    private fun residentEvidence(role: String, pending: List<ResidentDirectMessage>,
+        at: Instant): List<SharedTimelineEvent> =
+        (recentOwnEvents(role) + SharedExperienceTimeline.eventsByIds(role,
+            pending.map { ResidentSocialMailbox.evidenceId(it, role) }))
+            .distinctBy { it.id }.filter { !it.occurredAt.isAfter(at) }
+
+    /** Keep exact source revisions with the existing saved model choice. */
+    private fun attachExplorationInput(choice: JSONObject, evidence: List<SharedTimelineEvent>) {
+        val references = JSONObject()
+        evidence.filter(CharacterExplorationContinuity::canGroundQuestion).forEach {
+            references.put(it.id, it.revision)
+        }
+        choice.put(EXPLORATION_INPUT, references)
+    }
+
+    private fun rememberExploration(app: Context, role: String, choice: JSONObject, at: Instant) {
+        val steps = choice.optJSONArray("steps")
+        val questions = JSONArray().apply {
+            val selected = choice.optJSONArray("curiosities")
+            for (i in 0 until (selected?.length() ?: 0)) selected?.optJSONObject(i)?.let { put(it) }
+            for (i in 0 until (steps?.length() ?: 0))
+                steps?.optJSONObject(i)?.optJSONObject("curiosity")?.let { put(it) }
+        }
+        val question = choice.optJSONObject("curiosity")
+        if (question == null && questions.length() == 0) return
+        val references = choice.optJSONObject(EXPLORATION_INPUT)
+        val events = references?.let { saved ->
+            SharedExperienceTimeline.eventsByIds(role, saved.keys().asSequence().toList())
+                .filter { saved.optLong(it.id, -1L) == it.revision }
+        }.orEmpty()
+        if (events.isEmpty()) {
+            CharacterExplorationContinuity.remember(app, role, question, questions, emptyList(), at)
+        } else {
+            SharedExperienceTimeline.commitIfEvidenceUnchanged(role, events) {
+                CharacterExplorationContinuity.remember(app, role, question, questions, events.map { it.id }, at)
+            }
+        }
+    }
 
     private fun context(native: DigitalWorldResident, at: Instant,
-        pending: List<ResidentDirectMessage>): String {
+        pending: List<ResidentDirectMessage>, evidence: List<SharedTimelineEvent>): String {
         val characterId = ResidentCharacterBridge.characterId(native.id)
         val body = EmbodiedBodyRuntime.context(characterId).take(750)
         val contacts = ResidentSocialMailbox.visibleContacts(characterId).map { target ->
@@ -1687,7 +1732,7 @@ internal object ResidentDailyDecision {
             ${lastByContact.ifBlank { "暂无通信" }}
             ${CharacterEverydaySocialContext.render(characterId, at, pending)}
             自己确实经历过的事情与工具结果（失败也是真实经历；计划未执行不算）：
-            ${recentOwnExperience(characterId).ifBlank { "暂未积累" }}
+            ${evidence.joinToString("\n") { "evidenceId=${it.id}；${lifeEvidenceLine(it)}" }.ifBlank { "暂未积累" }}
             自己对熟人的真实个人印象（对方未必这么想）：
             ${relations.ifBlank { "暂无" }}
             自己的身体：
@@ -1703,7 +1748,9 @@ internal object ResidentDailyDecision {
         pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(
             ResidentCharacterBridge.characterId(native.id)),
         unread: List<MomentPost> = CharacterPhoneInbox.unreadMoments(
-            ResidentCharacterBridge.characterId(native.id))): String {
+            ResidentCharacterBridge.characterId(native.id)),
+        evidence: List<SharedTimelineEvent> = residentEvidence(
+            ResidentCharacterBridge.characterId(native.id), pending, at)): String {
         val id = ResidentCharacterBridge.characterId(native.id)
         // The native resident location and the character's home-item ledger
         // are already shared authoritative world state. Surface the *current*
@@ -1718,7 +1765,7 @@ internal object ResidentDailyDecision {
             if (possessions.isNotBlank()) appendLine(possessions)
             appendLine("想回家整理可选 digital_world_action，args.worldAction=go_home；确实在自己家且有空位时可选 worldAction=build_home_item，填写自己想要的 itemType/name/appearance/position。调整已有家具用 move_home_item 与真实 itemId/position；无法在咖啡厅凭空布置家中。执行结果才是家具已存在的依据。")
         }
-        val facts = context(native, at, pending) + "\n" + homeOptions + "\n" +
+        val facts = context(native, at, pending, evidence) + "\n" + homeOptions + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
             CharacterPhoneInbox.requestContext(id) + "\n" +
             appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty()
@@ -1805,12 +1852,15 @@ internal object ResidentDailyDecision {
         }
         val pending = if (savedDecision == null) ResidentSocialMailbox.pendingIncoming(id) else emptyList()
         val unread = if (savedDecision == null) CharacterPhoneInbox.unreadMoments(id) else emptyList()
-        val dailyFacts = if (savedDecision == null) decisionFacts(native, now, pending, unread) else ""
+        val explorationInput = if (savedDecision == null) residentEvidence(id, pending, now) else emptyList()
+        val dailyFacts = if (savedDecision == null)
+            decisionFacts(native, now, pending, unread, explorationInput) else ""
         val replyResult = if (savedDecision == null && !resumeInvalidOnly) LuluAiServices.gateway.generate(
             characterId = id,
             facts = dailyFacts,
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
+                $EXPLORATION_GUIDE
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
                 你也可以选择当天真正已经开放的扩展公共地点，地点码必须是下面合法选项中存在的值。想去哪里是你的决定，营业和休息仍以现实执行结果为准。
                 这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
@@ -1915,6 +1965,7 @@ internal object ResidentDailyDecision {
         // The exact model decision is durable before any calendar, inner-life,
         // inbox or messaging side effects. Replays retain original request IDs.
         if (savedDecision == null) {
+            attachExplorationInput(json, explorationInput)
             check(p.edit().putString(decisionKey, json.toString())
                 .putString("decision-at:${native.id}:$today", now.toString())
                 .putInt("agenda-budget:${native.id}:$today", agendaLimit)
@@ -2001,6 +2052,7 @@ internal object ResidentDailyDecision {
             appraisal = null, innerLife = scopedInnerLife, innerThoughtBasis = null,
             selectedAction = "plan_day", innerThought = plan.optString("thought"),
             reason = "本人作出的当天安排；尚未执行的活动不能算亲历", now = now)
+        rememberExploration(app, id, json, now)
         val post = json.optString("post").trim()
         val postComplete = if (post.isNotBlank()) {
             MomentsStore.initialize(app)
@@ -2142,12 +2194,14 @@ internal object ResidentDailyDecision {
                 check(p.edit().putString(phaseKey, "requesting").commit()) {
                     "居民社交通知的模型请求状态未保存"
                 }
-                val facts = decisionFacts(native, now, pending, unread) +
+                val explorationInput = residentEvidence(characterId, pending, now)
+                val facts = decisionFacts(native, now, pending, unread, explorationInput) +
                     "\n【本轮真实送达的社交通知】evidenceId=$evidenceId；" +
                     (stimulus?.let { "${it.occurredAt}；${it.content.take(400)}" }
                         ?: "本轮有一条可见的朋友圈更新，postId=${visiblePost?.id}，正文见本人未读。")
                 val instruction = """
                     你是${native.name}，这是你本人数字手机新送达的真实社交通知。
+                    $EXPLORATION_GUIDE
                     只根据你的性格、关系、最近真实经历、未读私信和好友申请决定怎么做。
                     你可以回信、继续旧话题、发朋友圈、回应好友申请、点赞评论、
                     与真实熟人群聊、安排活动，也可以选择暂时不做任何事。
@@ -2203,6 +2257,7 @@ internal object ResidentDailyDecision {
                         .putString("$key:error", error ?: "模型请求未完成").commit()
                     return@withLock false
                 }
+                attachExplorationInput(choice, explorationInput)
                 check(p.edit().putString(choiceKey, choice.toString())
                     .putString(phaseKey, "decided").commit()) {
                     "居民社交决定尚未保存，不得执行"
@@ -2253,6 +2308,7 @@ internal object ResidentDailyDecision {
                     characterId, checkNotNull(stimulus).id, witnessed.description, innerLife,
                     witnessed.socialIds, now)
             }
+            rememberExploration(app, characterId, decided, now)
             val report = executeWakeStepsReport(app, characterId, decided, decisionId,
                 causeEvidenceId = decisionSource.id, groupNoticeFollowUp = true)
             check(CharacterPhoneInbox.acknowledgeObserved(characterId, unread)) {

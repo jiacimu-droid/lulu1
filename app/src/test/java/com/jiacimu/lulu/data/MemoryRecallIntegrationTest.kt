@@ -68,6 +68,29 @@ class MemoryRecallIntegrationTest {
         assertTrue(assembled.sourceEvidence.contains("今天推迟到九点，明天照旧八点"))
         assertFalse(assembled.sourceEvidence.contains("约定：每天八点练琴"))
         assertEquals(source, assembled.sourceEvents.single { it.id == source }.id)
+
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"今天九点，明天八点。"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            val request = UnifiedMemoryRequest(currentInput = "练琴是什么时间",
+                actionContext = "按练琴的最新约定自然接话")
+            LuluAiServices.gateway.generate(role, "", "按约定接话", "聊天表达渲染", "test",
+                connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test"),
+                memoryRequest = request).getOrThrow()
+            val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val messages = body.getJSONArray("messages")
+            val prompt = (0 until messages.length()).joinToString("\n") {
+                messages.getJSONObject(it).optString("content")
+            }
+            assertTrue(prompt.contains("今天推迟到九点，明天照旧八点"))
+            assertFalse(prompt.contains("约定：每天八点练琴"))
+            val trace = checkNotNull(MemoryInspectionStore.snapshot(role))
+            assertTrue(trace.promptRecorded)
+            assertTrue(trace.injected.any { it == "event:$source" || it == "recent:$source" })
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
     }
 
     @Test fun ordinaryMemoryBudgetIsHonoredAndTheTraceExplainsTheOmission() = runBlocking {

@@ -85,7 +85,7 @@ internal object CharacterExplorationContinuity {
         }
         // Reuse the existing coalesced, budgeted follow-through. No new scheduler,
         // no call during a conversation, and no automatic chosen tool or contact.
-        if (changed && CompanionOnlineStore.isOnline(role))
+        if (changed && !role.startsWith("resident:") && CompanionOnlineStore.isOnline(role))
             ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, role, requireOnline = true)
     }
 

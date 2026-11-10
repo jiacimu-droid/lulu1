@@ -1059,18 +1059,31 @@ class ResidentDailyContinuityTest {
         val previousLimit = ResidentDailyPolicy.maxAgendaItems(app)
         assertTrue(ResidentDailyPolicy.setMaxAgendaItems(app, 0))
         val server = MockWebServer()
-        server.enqueue(answer(JSONObject().put("agenda", JSONArray())
-            .put("lunch", "home").put("evening", "home").put("thought", "想看看庭院的花").toString()))
-        server.enqueue(answer(JSONObject().put("steps", JSONArray().put(JSONObject()
-            .put("tool", "send_character_message").put("args", JSONObject()
-                .put("targetCharacterId", b).put("text", "我晚点去庭院找你")))).toString()))
         server.start()
+        val selectionPrefs = app.getSharedPreferences("lulu_scoped_model_selections_v1", 0)
+        val selectedKeys = listOf("archive_${ResidentDailyDecision.SCOPE}",
+            "archive_${ScopedModelSelections.RESIDENT_SOCIAL}")
+        val previousSelections = selectedKeys.associateWith { selectionPrefs.getString(it, null) }
         try {
             val config = LuluAiServices.connectionStore.saveConfiguration(null,
                 "resident-window-${UUID.randomUUID()}", server.url("/").toString(), "test")
             val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
             ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            ScopedModelSelections.select(ScopedModelSelections.RESIDENT_SOCIAL, archive.id)
             val sleepingMail = ResidentSocialMailbox.send(companion.characterId, a, "今天想去看花吗？")
+            val originalSource = ResidentSocialMailbox.evidenceId(sleepingMail, a)
+            val question = "庭院新开的花是什么颜色？"
+            val ownPost = "今天想看看庭院的新花"
+            server.enqueue(answer(JSONObject().put("agenda", JSONArray())
+                .put("lunch", "home").put("evening", "home").put("thought", "想看看庭院的花")
+                .put("curiosity", JSONObject().put("topic", "庭院的花")
+                    .put("question", question).put("why", "朋友提起了庭院的花")
+                    .put("nextStep", "去庭院观察").put("sourceEvidenceId", originalSource)).toString()))
+            server.enqueue(answer(JSONObject().put("steps", JSONArray()
+                .put(JSONObject().put("tool", "send_character_message").put("args", JSONObject()
+                    .put("targetCharacterId", b).put("text", "我晚点去庭院找你")))
+                .put(JSONObject().put("tool", "publish_moment").put("args", JSONObject()
+                    .put("text", ownPost)))).toString()))
             assertFalse(ResidentDailyDecision.runSocialWake(app, a, ResidentSocialMailbox.evidenceId(sleepingMail, a)))
             assertEquals(0, server.requestCount)
             assertTrue(ResidentDailyDecision.runOnce(app, first))
@@ -1088,8 +1101,22 @@ class ResidentDailyContinuityTest {
                 it.fromId == a && it.content == "我晚点去庭院找你"
             })
             assertTrue(CharacterEverydaySocialContext.render(a).contains("是否已读与对方近况未知"))
+            val requests = (1..2).map { server.takeRequest(2, TimeUnit.SECONDS)!!.body.readUtf8() }
+            assertTrue(requests[0].contains(originalSource))
+            assertTrue(requests[1].contains(question))
+            assertTrue(CharacterCuriosityRuntime.briefContext(a).contains(question))
+            val post = MomentsStore.posts.value.single { it.authorCharacterId == a && it.content == ownPost }
+            assertTrue(CharacterPhoneInbox.unreadMoments(b).any { it.id == post.id })
+            assertTrue(SharedExperienceTimeline.eventsByIds(b, listOf("moment-${post.id}-$b")).isEmpty())
+            SharedExperienceTimeline.deleteEvent(originalSource)
+            assertFalse(CharacterCuriosityRuntime.briefContext(a).contains(question))
         } finally {
             ResidentDailyPolicy.setMaxAgendaItems(app, previousLimit)
+            val restore = selectionPrefs.edit()
+            previousSelections.forEach { (key, value) ->
+                if (value == null) restore.remove(key) else restore.putString(key, value)
+            }
+            restore.commit()
             server.shutdown()
         }
     }
