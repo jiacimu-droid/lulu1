@@ -85,7 +85,21 @@ object CommitmentTurnAutomation {
         if (userMessages.isEmpty()) return@withLock null
         val active = CommitmentTaskStore.active(characterId)
         val alreadyHandled = CommitmentDecisionRuntime.handled(context, characterId, evidenceIds)
-        val acceptedWake = WakeCommitmentParser.acceptedRequest(userText, roleText)
+        val priorMessages = MigratedDomainStores.chat.messages(conversation.id).value
+        val firstUserPosition = priorMessages.indexOfFirst { it.id == userMessages.first().id }
+        val priorRoleQuestion = if (firstUserPosition < 0) "" else priorMessages
+            .take(firstUserPosition).takeLastWhile {
+                it.sender == LuluChatMessage.Sender.Character &&
+                    it.status == LuluChatMessage.Status.Sent &&
+                    (it.authorCharacterId ?: conversation.characterId) == characterId
+            }.takeLast(6).joinToString(" ") { it.content }
+        // An answer like "20分钟" may complete the role's own "睡多久？"
+        // question. Only a genuinely accepted wake-up promise can enter
+        // this recovery lane; the clock and channel still come from the model.
+        val contextualWake = acceptedWakeAfterSleepDurationQuestion(
+            priorRoleQuestion, userText, roleText)
+        val acceptedWake = WakeCommitmentParser.acceptedRequest(userText, roleText) ||
+            contextualWake
         val coveredWake = active.firstOrNull { task ->
             task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
         }
@@ -99,7 +113,7 @@ object CommitmentTurnAutomation {
         val possibleCorrection = active.any { it.dueAt != null } &&
             listOf("点", "时", "日期", "时间", "不对", "更正", "改", "明天", "今天", "之后", "提醒")
                 .any(userText::contains)
-        if (!looksLikeTaskTurn(userText, roleText) && !possibleCorrection)
+        if (!looksLikeTaskTurn(userText, roleText) && !possibleCorrection && !contextualWake)
             return@withLock null
 
         val signature = "commitment-model-recovery:$sourceTurnId"
@@ -374,6 +388,28 @@ object CommitmentTurnAutomation {
         current += signature
         prefs?.edit()?.putStringSet(KEY_SIGNATURES, current.takeLast(500).toSet())?.apply()
     }
+}
+
+/**
+ * A user may answer a prior wake-arrangement question with only the duration.
+ * This is a narrow HINT to run the existing semantic recovery once, not a
+ * parser that chooses a date, creates a task, or forces every nap into an alarm.
+ */
+internal fun acceptedWakeAfterSleepDurationQuestion(
+    previousCharacterText: String, userText: String, deliveredRoleText: String,
+): Boolean {
+    val prior = previousCharacterText.replace(Regex("\\s+"), "")
+    val answer = userText.replace(Regex("\\s+"), "")
+    val reply = deliveredRoleText.replace(Regex("\\s+"), "")
+    val offeredTime = Regex("睡.{0,8}(?:多久|多长|几分钟)|(?:多久|几分钟).{0,8}(?:叫你|叫醒|喊醒|睡)")
+        .containsMatchIn(prior)
+    val suppliedDuration = Regex("""(?:\\d{1,4}|[零〇一二两三四五六七八九十百]{1,5})(?:个)?分钟|半(?:个)?小时""")
+        .containsMatchIn(answer)
+    val acceptedAction = Regex("叫醒|叫你|喊你|喊醒|起床|闹钟|响铃|来电")
+        .containsMatchIn(reply)
+    val declined = Regex("不(?:能|会|要|想|敢|负责).{0,10}(?:叫醒|叫你|喊你|起床|闹钟)|(?:做不到|没办法)")
+        .containsMatchIn(reply)
+    return offeredTime && suppliedDuration && acceptedAction && !declined
 }
 
 /** Legacy routing hint; no longer gates model interpretation or creates tasks. */
