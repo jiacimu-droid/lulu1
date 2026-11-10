@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:23:59.814999+00:00",
-  "commit": "f91f1f4e17d2b7911a463404c325a0077f66552f",
+  "generatedAt": "2026-11-10T16:24:50.896929+00:00",
+  "commit": "db809081a96246f735543a15727be1996062e6a0",
   "branch": "main",
-  "sourceFingerprint": "138aecb55e7ecad1b23b85293266062f20f17372eab2eb163e1a1291e03e4246",
+  "sourceFingerprint": "22e11f3b9f419e7f92dc24f23fd44f05f813f3ead188d6701c2e14167b0fb6fe",
   "summary": {
     "files": 1173,
-    "lines": 253695,
-    "symbols": 3459
+    "lines": 253825,
+    "symbols": 3460
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -321,7 +321,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 227
+        "line": 234
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
@@ -531,7 +531,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 322
+        "line": 342
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -2599,11 +2599,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 99
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 176
+        "line": 183
       }
     ],
     "boundedBody": [
@@ -4737,7 +4737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 79
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -9261,7 +9261,7 @@
     "toJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 25
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -9279,7 +9279,7 @@
     "fromJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 38
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -9297,73 +9297,79 @@
     "stat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 41
+        "line": 46
       }
     ],
     "fresh": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 74
+        "line": 79
       }
     ],
     "approach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 100
+        "line": 105
       }
     ],
     "applyWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 169
+        "line": 176
       }
     ],
     "afterExploration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 219
+        "line": 226
       }
     ],
     "endWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 223
+        "line": 230
       }
     ],
     "number": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 229
+        "line": 236
+      }
+    ],
+    "storedOrFresh": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 266
       }
     ],
     "sensorySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 256
+        "line": 279
       }
     ],
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 276
+        "line": 298
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 289
+        "line": 310
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 345
+        "line": 367
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 356
+        "line": 377
       }
     ],
     "qualifies": [
@@ -20147,7 +20153,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 632,
-      "sha256": "e19bac4d731229da16bd4dde1b21ed6633ed65280e266db03d3a279cd3eb9633",
+      "sha256": "a5acf663df54209ea1f2e8ff40b7dede8982637a796e01c4587bcb07f9adb6ba",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -20336,8 +20342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 843,
-      "sha256": "aaeab2e9c529f1f5d9ab6d0cf93c6783c522ff4637f730bb1aa934ff07344743",
+      "lines": 846,
+      "sha256": "a013ec0f68dcbeaba61233f195bd08ca43f65e84d8ea7f9c84613b3bdc507493",
       "symbols": []
     },
     {
@@ -28009,84 +28015,88 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 364,
-      "sha256": "7b567d27e2492c7cdfcfc598f4ee7b27cc67804be7e8c089c0062465394f1652",
+      "lines": 385,
+      "sha256": "f8275f4c8d3aa8c3715d4bd05bcb1f1afa43fa978b1e2cc49fed4d8bde66d831",
       "symbols": [
         {
           "name": "toJson",
-          "line": 25
+          "line": 26
         },
         {
           "name": "fromJson",
-          "line": 38
+          "line": 43
         },
         {
           "name": "stat",
-          "line": 41
+          "line": 46
         },
         {
           "name": "fresh",
-          "line": 74
-        },
-        {
-          "name": "advance",
           "line": 79
         },
         {
+          "name": "advance",
+          "line": 84
+        },
+        {
           "name": "bounded",
-          "line": 99
+          "line": 104
         },
         {
           "name": "approach",
-          "line": 100
+          "line": 105
         },
         {
           "name": "applyWorldActivity",
-          "line": 169
-        },
-        {
-          "name": "bounded",
           "line": 176
         },
         {
+          "name": "bounded",
+          "line": 183
+        },
+        {
           "name": "afterExploration",
-          "line": 219
+          "line": 226
         },
         {
           "name": "endWorldActivity",
-          "line": 223
+          "line": 230
         },
         {
           "name": "prompt",
-          "line": 227
+          "line": 234
         },
         {
           "name": "number",
-          "line": 229
+          "line": 236
+        },
+        {
+          "name": "storedOrFresh",
+          "line": 266
         },
         {
           "name": "sensorySnapshot",
-          "line": 256
+          "line": 279
         },
         {
           "name": "onPresenceSleep",
-          "line": 276
+          "line": 298
         },
         {
           "name": "onPresenceWake",
-          "line": 289
+          "line": 310
         },
         {
           "name": "context",
-          "line": 322
+          "line": 342
         },
         {
           "name": "onWorldActivity",
-          "line": 345
+          "line": 367
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 356
+          "line": 377
         }
       ]
     },
@@ -30683,7 +30693,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
       "lines": 95,
-      "sha256": "b3a237604e232098cff2c8eb588bcdecd3c8547e199188ec51069a1935551c88",
+      "sha256": "63c84b850ab1d510f4af7c0bee6f2cdc833839e584b8da0183bd8a7b1d509287",
       "symbols": [
         {
           "name": "characterId",
@@ -30710,7 +30720,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2377,
-      "sha256": "5104670dbadbc38dba2d5bcf4f8614615d601ca84309b656e5d9e6c41f0d99a9",
+      "sha256": "f3d6a5041ad78607b7d54311baded8753266bd0d110ae5f34b0b27cae82cad26",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -30871,8 +30881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 166,
-      "sha256": "a057412069872b65dcedbb12af6c685d13e20aa560b6ca0739767769913ff3dc",
+      "lines": 164,
+      "sha256": "651bbb7c0eae046f7ac7730d5e3b8ed68ac132ec700ee1e40beb2b6cd525a2a2",
       "symbols": [
         {
           "name": "plan",
@@ -34032,8 +34042,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
-      "lines": 408,
-      "sha256": "2ceb7e6b807b6cc5b259c6bb9ed3f578c00656d2ffece59824c883cfc2b3bf7e",
+      "lines": 459,
+      "sha256": "aaca7f0d7d3b2c214dd8b83a1615a41ef24f052dcad0a8326ee789dc61cfdd0f",
       "symbols": []
     },
     {
@@ -34145,8 +34155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1063,
-      "sha256": "52414ee507079e3233635d3658f9ad417a2aa1f17756c09885284f31ad0266a2",
+      "lines": 1064,
+      "sha256": "cd750423d89cd508733dd7be3568fe09ef343dbc850aaf84714a4cbe17bb94f2",
       "symbols": [
         {
           "name": "change",
@@ -38709,8 +38719,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 344,
-      "sha256": "89a15ad07811bde4db1e26e656bf0b66f6578cba8a2ae19ce6992ba6e6bb37a2",
+      "lines": 367,
+      "sha256": "f90c6c75409e50155a8cab6c4b757ce9aad09f77c87db43e16ae03770d0fef35",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
@@ -40753,8 +40763,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 690,
-      "sha256": "4d83463a6aeed2e83f7086560970a546cdb10b7f4edfdcb4339ee1f034f88377",
+      "lines": 723,
+      "sha256": "9dae9a6bffdb4fa1a8258d63b8b06780a6b4bcdbcac4963a725a2cec745deebc",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
