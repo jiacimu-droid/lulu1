@@ -1774,3 +1774,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 回归 `9a2e88b84e1d9c96db50751c49320364e5856c7c`：`ChatHistoryLegacyCompatibilityTest.malformedConversationTimestampMustNotReplaceOriginalSnapshot` 以旧 `state_v1` 会话无效 `updatedAt` + 合法消息复现，覆盖置顶写入、重建及再次写入，要求原快照字节文本不被替换。
 - 正式修复 `6639d80a293b541f967e80947ffd545b9f4986a9`：权威 `decode()` 在 `decodeConversation()` 的宽容 `toInstantOrNow()` 之前严格 `Instant.parse(updatedAt)`，无效则沿既有不可覆盖状态保护原文。未改普通导入、人物、预算、存储格式或收费模型调用。
 - 本轮 GitHub main push Actions 查询未取得可用结果；**未运行本地 JVM/APK，不勾工程通过**。下一轮固定 UI-02.2：先核 `6639d80` 对应 APK/JVM 和 Refresh code index 的 head SHA/首错；通过后优先覆盖 SharedPreferences 写入失败与重启回退，再决定事务性增量存储。真机强杀、10万条性能与供应商计费独立待验。
+
+
+## 2026-11-11 · P-03.1 撤回后统一心事回执投影
+
+- 上一轮 [637f3c5 APK/JVM #42845477728](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477728) 与[原索引 #42845477645](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477645) 均 completed/success。路线图已划掉后台带回真实成败和 ID 的子步骤，撤回边界继续待验。
+- P-03.1 根因：`CharacterUnfinishedActionContext` 已验证回执仍存在，但共享完整/精简心理上下文与电话/私聊的已有心事输入仍直接读 `lastOutcome` 旧副本。工具回执撤回后，原心事与其用户来源可以继续有效，旧尝试却可从另一段提示被重新当成已证实的成败。
+- [6186744](https://github.com/jiacimu-droid/lulu1/commit/618674423d95d09f02806d5c04f820a8c38da7e8) 在原心事运行时统一可见回执投影，同角色时间线可验证才给动作、成败、ID 和摘要，原回执缺失则只标不可用。后台复用现有批量证据，完整/精简心事上下文和电话/私聊补正也走同一规则。原心事、其他实际行为、原 Store 和模型调用次数不变。这一修复限定心事的上次尝试字段，独立历史行动摘要不在本工作包内。
+- 续接 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，实际完成独立发布、产生收藏失败回执、在下一轮看到回执，然后撤回该回执并捕获第三轮请求。核心事仍在、不可用提示出现、两种心事投影均无原成败及 ID、独立发布仍可召回；并补纯投影正反例。
+- 静态核对文件 SHA 与改动范围。CI [Lulu APK #42865903439](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903439) pending，[Refresh code index #42865903302](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903302) in_progress。下一轮先按 `618674423d95d09f02806d5c04f820a8c38da7e8` 核第三轮输入回归及索引。通过后此撤回子步骤可归并到大纲，再沿 P-08b.1 检查正式入口的最新人物设置与隔离关系，优先打开 `RelationshipPreferenceGatewayTest`，找仍缺的编辑后跨轮反例。真机与真实模型待验。
