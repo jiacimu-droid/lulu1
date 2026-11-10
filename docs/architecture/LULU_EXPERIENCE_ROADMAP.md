@@ -478,3 +478,5 @@
 - 回归 `9a2e88b84e1d9c96db50751c49320364e5856c7c`：`ChatHistoryLegacyCompatibilityTest.malformedConversationTimestampMustNotReplaceOriginalSnapshot` 以旧 `state_v1` 会话无效 `updatedAt` + 合法消息复现，覆盖置顶写入、重建及再次写入，要求原快照字节文本不被替换。
 - 正式修复 `6639d80a293b541f967e80947ffd545b9f4986a9`：权威 `decode()` 在 `decodeConversation()` 的宽容 `toInstantOrNow()` 之前严格 `Instant.parse(updatedAt)`，无效则沿既有不可覆盖状态保护原文。未改普通导入、人物、预算、存储格式或收费模型调用。
 - `6639d80` 对应 APK/JVM 和索引已通过（见 §一），本条工程回归已归档。UI-02.2 下一可执行项是覆盖 SharedPreferences 写入失败与重启回退，再决定事务性增量存储。真机强杀与 10 万条历史性能仍待验。
+
+**2026-11-11 P-08d.2b.2 接力（JVM 待验）**：新增 `CommitmentSemanticPersistenceTest.acceptedWakeRecoveryRemainsIdempotentAfterStoreReloadAndCancellation`（[b9babae](https://github.com/jiacimu-droid/lulu1/commit/b9babaed863bff59a7f50602f1526a0c7c1b7498)）。验证同一模型已接受的20分钟有声叫醒恢复→任务/闹钟保存→Store重载→同源重放不再购买/注册第二次闹钟→新来源明确取消→再次重载→旧恢复输出不得复活已取消责任。仅测试，无生产逻辑变更；当前无法取得该 SHA 的 main push JVM/APK/Refresh 成功结果，不能勾工程验收；真实响铃、权限和模型语义仍待真机。下一轮直接核本测试的 JVM 首错，若失败沿原 P-08d.2b.2 修根因；若通过继续真实到点声音失败与独立回执到下轮的纵向链。
