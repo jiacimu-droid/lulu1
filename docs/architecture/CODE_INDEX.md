@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae2ec94a7039ea64be4aac2a387602a8021b5d83`
+- 基准提交：`c9379d2c8d5af61a186855a830d256403f28917a`
 - 分支：`main`
 - 已索引文件：1167
-- 已索引代码/文本行：251693
-- 已发现符号：3427
+- 已索引代码/文本行：251708
+- 已发现符号：3428
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -695,7 +695,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 27 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 40 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 176 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt` | 25 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt` | 40 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 257 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 499 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 211 | 4 |

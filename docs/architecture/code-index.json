@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:01:28.824221+00:00",
-  "commit": "ae2ec94a7039ea64be4aac2a387602a8021b5d83",
+  "generatedAt": "2026-11-10T06:01:56.491622+00:00",
+  "commit": "c9379d2c8d5af61a186855a830d256403f28917a",
   "branch": "main",
-  "sourceFingerprint": "d05fe1c7fa4ea7e7983308be653a89b0ee8d3172b94415d58d0aed1286ec64d2",
+  "sourceFingerprint": "5ef48e86eefba8dd4829a56d87e170f60b3e4e041d24a26475cca1825fd6b29c",
   "summary": {
     "files": 1167,
-    "lines": 251693,
-    "symbols": 3427
+    "lines": 251708,
+    "symbols": 3428
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11807,7 +11807,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-        "line": 23
+        "line": 38
       }
     ],
     "RelevantMemoryRecall": [
@@ -14336,6 +14336,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
         "line": 15
+      }
+    ],
+    "bagProgress": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
+        "line": 25
       }
     ],
     "target": [
@@ -33727,16 +33733,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-      "lines": 25,
-      "sha256": "4cc09309f6e17fa1b5152c28e631aa13ae2b6419f1af398de7a17409c169602b",
+      "lines": 40,
+      "sha256": "d3bf178db781f8e2cacbe19a75c096e1848aac74a483303c660644a06e9d7c5a",
       "symbols": [
         {
           "name": "completed",
           "line": 14
         },
         {
+          "name": "bagProgress",
+          "line": 25
+        },
+        {
           "name": "bonus",
-          "line": 23
+          "line": 38
         }
       ]
     },
