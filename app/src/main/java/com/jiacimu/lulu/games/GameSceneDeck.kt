@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -452,8 +453,10 @@ internal fun GameHudQuickAction(
             if(enabled)listOf(Color(0xF0425359),Color(0xF01A303B))
             else listOf(Color(0xBB24313A),Color(0xBB192832)))),
             contentAlignment=Alignment.Center) {
-            Text(label,color=if(enabled)Color.White else Color(0xFF7D9298),
-                fontWeight=FontWeight.Bold,fontSize=13.sp,maxLines=1)
+            Text(label,color=if(enabled)Color.White else Color(0xFF9DADB0),
+                fontWeight=FontWeight.Bold,fontSize=if(label.length>4)10.sp else 12.sp,
+                lineHeight=13.sp,maxLines=2,textAlign=TextAlign.Center,
+                modifier=Modifier.padding(horizontal=3.dp))
         }
     }
 }
