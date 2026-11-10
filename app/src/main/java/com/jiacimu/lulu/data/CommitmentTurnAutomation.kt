@@ -412,10 +412,13 @@ internal fun acceptedWakeAfterSleepDurationQuestion(
         .containsMatchIn(prior)
     val suppliedDuration = Regex("""(?:\d{1,4}|[零〇一二两三四五六七八九十百]{1,5})(?:个)?分钟|半(?:个)?小时""")
         .containsMatchIn(answer)
-    val acceptedAction = Regex("叫醒|叫你|喊你|喊醒|起床|闹钟|响铃|来电")
+    // Merely discussing waking up, or offering "shall I call?", is not
+    // an accepted commitment. Requiring the role to own the action also
+    // avoids another paid recovery call for ordinary nap conversation.
+    val acceptedAction = Regex("我.{0,16}(?:叫醒你|叫你|喊你|喊醒你|设闹钟|打电话)|(?:到时|时间到了).{0,8}(?:叫你|叫醒你|喊你|闹钟)")
         .containsMatchIn(reply)
-    val declined = Regex("不(?:能|会|要|想|敢|负责).{0,10}(?:叫醒|叫你|喊你|起床|闹钟)|(?:做不到|没办法)")
-        .containsMatchIn(reply)
+    val declined = Regex("不(?:能|会|要|想|敢|负责).{0,12}(?:叫醒|叫你|喊你|起床|闹钟)|(?:做不到|没办法)|(?:要不要|可不可以|我能不能|需要我).{0,24}(?:叫你|叫醒你|喊你|闹钟)")
+        .containsMatchIn(reply) || reply.endsWith("?") || reply.endsWith("？")
     return offeredTime && suppliedDuration && acceptedAction && !declined
 }
 
