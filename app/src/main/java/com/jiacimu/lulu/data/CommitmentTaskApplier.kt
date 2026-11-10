@@ -101,11 +101,14 @@ private suspend fun createCommitmentTask(
         )
     }
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
-    val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
+    // All entry points meet here: model output, primary decisions and recovery.
+    // A sleeping person's wake-up duty must never schedule plain chat as its only channel.
     val wakeChoiceMissing = draft.dueAt != null &&
-        listOf("叫醒", "起床", "喊醒", "醒来", "wake").any {
+        listOf("叫醒", "起床", "喊醒", "醒来", "睡醒", "wake").any {
             (draft.goal + draft.completionCondition).contains(it, ignoreCase = true)
         } && draft.deliveryAction !in setOf("start_call", "alarm_only")
+    val needsClarification = draft.needsClarification || wakeChoiceMissing ||
+        (draft.dueAt == null && !ongoing)
     var task = CommitmentTask(
         characterId = characterId,
         lexiconEntryId = lexiconId,
@@ -154,6 +157,29 @@ private suspend fun updateCommitmentTask(
         )
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
+    // An uncertain correction must not invalidate a previously registered alarm.
+    // Retaining its ID while changing status to NeedsClarification stops its callback.
+    if (reschedule && needsClarification) return CommitmentDraftOutcome(
+        draft.action, draft.goal, null,
+        "新的执行时间或必要条件尚未确认，原约定与真实闹钟保持不变；不可声称改期成功",
+    )
+    val requestedGoal = draft.goal.ifBlank { target.goal }
+    val requestedCondition = draft.completionCondition.ifBlank { target.completionCondition }
+    val timedWake = reschedule && draft.dueAt != null &&
+        listOf("叫醒", "起床", "喊醒", "醒来", "睡醒", "wake").any {
+            (requestedGoal + requestedCondition).contains(it, ignoreCase = true)
+        }
+    // A correction cannot quietly downgrade an existing alarm to a text message.
+    // This preserves a previously chosen channel; it does not invent a new call.
+    val resolvedDelivery = when {
+        timedWake && draft.deliveryAction !in setOf("start_call", "alarm_only") &&
+            target.deliveryAction in setOf("start_call", "alarm_only") -> target.deliveryAction
+        draft.deliveryAction.isBlank() -> target.deliveryAction
+        else -> draft.deliveryAction
+    }
+    if (timedWake && resolvedDelivery !in setOf("start_call", "alarm_only"))
+        return CommitmentDraftOutcome(draft.action, draft.goal, null,
+            "定时叫醒不能改为普通文字；没有可保留的真实来电或本机铃声渠道，原约定保持不变")
     // One-time versus permanent: a daily task's anchor is its usual time.
     // A plain postponement moves only this occurrence; only an explicit
     // permanent change moves the anchor, so tomorrow rolls back to usual.
@@ -202,7 +228,7 @@ private suspend fun updateCommitmentTask(
                 // Rescheduling does not silently downgrade the original proof standard.
                 verificationMode = current.verificationMode,
                 steps = draft.steps.ifEmpty { current.steps },
-                deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
+                deliveryAction = resolvedDelivery,
                 repeat = draft.repeat ?: current.repeat,
                 dailyBaseDueAt = newDailyBaseDueAt,
                 dailyNextDueAt = if (needsClarification) current.dailyNextDueAt else null,
