@@ -64,6 +64,12 @@ internal class ElevenLabsRealtimeStt(
     fun sentAudioMillis(): Long = sentPcmBytes.get() / 32L
     fun sentKeepaliveMillis(): Long = sentKeepaliveBytes.get() / 32L
 
+    /** A committed server fragment remains a real, unfinished human turn until
+     * the continuation window expires. Call opening and STT hot-swap must not
+     * treat this quiet interval as a free microphone. */
+    val hasPendingUtterance: Boolean
+        get() = synchronized(lock) { transcript.pendingCommittedText().isNotBlank() }
+
     fun start() {
         check(apiKey.isNotBlank()) { "请先配置 ElevenLabs API Key" }
         val request = Request.Builder()

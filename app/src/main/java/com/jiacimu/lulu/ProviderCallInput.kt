@@ -54,7 +54,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
     // delivery after Android's voice activity flag has gone idle.
     @Volatile private var finalTranscriptPending = false
     val hasPendingUtterance: Boolean get() =
-        capturingVoice || queuedChunks.get() > 0 || finalTranscriptPending || currentPhrase.isNotBlank()
+        capturingVoice || queuedChunks.get() > 0 || finalTranscriptPending ||
+            currentPhrase.isNotBlank() || realtime?.hasPendingUtterance == true
 
     /** Realtime streams live PCM; ordinary Scribe v2 automatically uploads
      * finished PCM segments through the existing ordered cloud-ASR queue. */

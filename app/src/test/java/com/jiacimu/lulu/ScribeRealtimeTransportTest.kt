@@ -76,6 +76,8 @@ class ScribeRealtimeTransportTest {
             recognizer.start()
             wire.receive("committed_transcript", "我刚刚想起来还有一件事情")
             pumpUntil { partials.any { it.contains("还有一件事情") } }
+            assertTrue("Waiting for continuation still belongs to the human turn",
+                recognizer.hasPendingUtterance)
             // The old fixed 500ms delay would already have billed one LLM
             // request here; the speaker is only taking a short breath.
             shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
@@ -85,6 +87,7 @@ class ScribeRealtimeTransportTest {
             wire.receive("committed_transcript", "然后我想再说两句")
             pumpUntil { turns.isNotEmpty() }
             assertEquals(listOf("我刚刚想起来还有一件事情然后我想再说两句"), turns)
+            assertFalse("Submitted turn no longer blocks a new opening", recognizer.hasPendingUtterance)
         } finally {
             recognizer.stop()
             scope.cancel()
