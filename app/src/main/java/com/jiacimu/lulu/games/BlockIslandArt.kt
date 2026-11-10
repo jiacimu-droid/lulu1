@@ -604,35 +604,88 @@ internal object BlockIslandArt {
     }
 
     private fun DrawScope.drawTree(p: Offset, t: Float, x: Int, y: Int, phase: Float) {
-        val sway = sin(phase * 6.28318f + x * .58f + y * .73f) * t * .035f
-        drawOval(Color.Black.copy(alpha = .24f),
-            topLeft = p + Offset(t * .16f, t * .72f),
-            size = Size(t * .76f, t * .24f))
-        drawRect(Color(0xFF5D493C), p + Offset(t * .42f, t * .43f),
-            Size(t * .19f, t * .44f))
-        drawRect(Color(0xFF98714A), p + Offset(t * .45f, t * .45f),
-            Size(t * .07f, t * .36f))
-        drawRect(pine, p + Offset(t * .12f + sway, t * .19f),
-            Size(t * .76f, t * .45f))
-        drawRect(leaf, p + Offset(t * .20f + sway, t * .10f),
-            Size(t * .62f, t * .49f))
-        drawRect(leafTop, p + Offset(t * .25f + sway, t * .09f),
-            Size(t * .49f, t * .17f))
-        drawRect(Color(0xFF4D9569), p + Offset(t * .11f + sway, t * .39f),
-            Size(t * .22f, t * .15f))
-        drawRect(Color(0xFF93BE7B), p + Offset(t * .33f + sway, t * .19f),
-            Size(t * .11f, t * .10f))
+        val sway=sin(phase*6.28318f+x*.58f+y*.73f)*t*.035f
+        val variant=((x*23+y*17) and Int.MAX_VALUE)%3
+        val dark=if(variant==0)Color(0xFF235A48) else Color(0xFF285B47)
+        val leaf=if(variant==1)Color(0xFF4A9967) else Color(0xFF438F65)
+        // Broad soft canopy shadow and a visible trunk anchor each tree to its tile.
+        drawOval(Color.Black.copy(alpha=.24f),p+Offset(t*.09f,t*.77f),
+            Size(t*.87f,t*.18f))
+        drawRoundRect(Color(0xFF503E35),p+Offset(t*.43f,t*.43f),
+            Size(t*.18f,t*.42f),CornerRadius(t*.055f))
+        drawRect(Color(0xFF9D7652),p+Offset(t*.47f,t*.49f),
+            Size(t*.052f,t*.31f))
+        drawLine(Color(0xFF6C513D),p+Offset(t*.48f,t*.53f),
+            p+Offset(t*.27f,t*.38f),strokeWidth=t*.072f)
+        drawLine(Color(0xFF6C513D),p+Offset(t*.54f,t*.48f),
+            p+Offset(t*.77f,t*.34f),strokeWidth=t*.065f)
+        // Multiple offset clumps, warm highlights and light gaps create a
+        // hand-painted silhouette while keeping the actual terrain one tile.
+        drawOval(dark,p+Offset(t*.10f+sway,t*.19f),
+            Size(t*.55f,t*.47f))
+        drawOval(dark,p+Offset(t*.42f+sway,t*.17f),
+            Size(t*.53f,t*.45f))
+        drawOval(leaf,p+Offset(t*.15f+sway,t*.09f),
+            Size(t*.62f,t*.45f))
+        drawOval(leafTop,p+Offset(t*.30f+sway,t*.08f),
+            Size(t*.51f,t*.32f))
+        drawOval(Color(0xFF83B57A),p+Offset(t*.26f+sway,t*.13f),
+            Size(t*.23f,t*.10f))
+        drawOval(Color(0xFF9ACC8A).copy(alpha=.78f),
+            p+Offset(t*.55f+sway,t*.18f),Size(t*.17f,t*.08f))
+        drawOval(Color(0xFF2E7454),p+Offset(t*.21f+sway,t*.43f),
+            Size(t*.25f,t*.11f))
+        if(variant==2) {
+            drawCircle(Color(0xFFD6B979),t*.045f,
+                p+Offset(t*.66f+sway,t*.40f))
+            drawCircle(Color(0xFFE7CA8C),t*.035f,
+                p+Offset(t*.36f+sway,t*.36f))
+        }
     }
 
     private fun DrawScope.drawBoulder(p: Offset, t: Float, x: Int, y: Int) {
-        drawOval(Color.Black.copy(alpha = .25f), p + Offset(t * .10f, t * .69f),
-            Size(t * .8f, t * .22f))
-        drawRect(outline, p + Offset(t * .16f, t * .38f), Size(t * .72f, t * .43f))
-        drawRect(Color(0xFF9CA9AB), p + Offset(t * .22f, t * .24f), Size(t * .60f, t * .48f))
-        drawRect(Color(0xFFC4D0C6), p + Offset(t * .31f, t * .19f), Size(t * .42f, t * .18f))
-        drawRect(Color(0xFF687D83), p + Offset(t * .51f, t * .52f), Size(t * .29f, t * .14f))
-        if ((x + y) % 4 == 0) drawRect(Color(0xFF72A69C),
-            p + Offset(t * .22f, t * .48f), Size(t * .16f, t * .06f))
+        drawOval(Color.Black.copy(alpha=.26f),p+Offset(t*.08f,t*.74f),
+            Size(t*.88f,t*.17f))
+        val outline=Path().apply {
+            moveTo(p.x+t*.12f,p.y+t*.72f)
+            lineTo(p.x+t*.17f,p.y+t*.38f)
+            lineTo(p.x+t*.37f,p.y+t*.21f)
+            lineTo(p.x+t*.69f,p.y+t*.26f)
+            lineTo(p.x+t*.87f,p.y+t*.47f)
+            lineTo(p.x+t*.82f,p.y+t*.79f)
+            close()
+        }
+        drawPath(outline,Color(0xFF3E5960))
+        val facets=Path().apply {
+            moveTo(p.x+t*.20f,p.y+t*.42f)
+            lineTo(p.x+t*.39f,p.y+t*.25f)
+            lineTo(p.x+t*.66f,p.y+t*.31f)
+            lineTo(p.x+t*.52f,p.y+t*.55f)
+            close()
+        }
+        drawPath(facets,Color(0xFFC4D1C5))
+        val shade=Path().apply {
+            moveTo(p.x+t*.52f,p.y+t*.55f)
+            lineTo(p.x+t*.66f,p.y+t*.31f)
+            lineTo(p.x+t*.81f,p.y+t*.48f)
+            lineTo(p.x+t*.77f,p.y+t*.72f)
+            close()
+        }
+        drawPath(shade,Color(0xFF748A88))
+        drawPath(Path().apply {
+            moveTo(p.x+t*.20f,p.y+t*.42f)
+            lineTo(p.x+t*.52f,p.y+t*.55f)
+            lineTo(p.x+t*.28f,p.y+t*.75f)
+            close()
+        },Color(0xFF97AAA4))
+        drawLine(Color(0xFF5F7978),p+Offset(t*.52f,t*.55f),
+            p+Offset(t*.48f,t*.73f),strokeWidth=t*.032f)
+        if((x+y)%4==0) {
+            drawOval(Color(0xFF6CA38D),p+Offset(t*.20f,t*.55f),
+                Size(t*.18f,t*.06f))
+            drawOval(Color(0xFFD6DBCC),p+Offset(t*.35f,t*.30f),
+                Size(t*.16f,t*.05f))
+        }
     }
 
     private fun DrawScope.drawWall(p: Offset, t: Float) {
