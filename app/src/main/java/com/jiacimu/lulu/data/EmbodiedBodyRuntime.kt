@@ -284,10 +284,12 @@ internal object EmbodiedBodyRuntime {
 
     /** Physical sleep follows the one authoritative online lease, not a second timer. */
     private fun alignedToPresence(characterId: String, before: EmbodiedBodySnapshot, now: Instant): EmbodiedBodySnapshot {
-        // Native citizens can be offline in chat while actively living their
-        // verified duties. A phone-chat lease is not physical sleep for them.
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) return before
-        val presence = CompanionOnlineStore.states.value[characterId] ?: return before
+        val presence = CompanionOnlineStore.states.value[characterId]
+        if (presence == null) {
+            return if (characterId.startsWith("resident:"))
+                before.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
+            else before
+        }
         if (presence.isOnline(now) || before.recoveryMode == "offline_sleep") return before
         val sleepAt = maxOf(presence.onlineUntil, before.lastAt)
         return EmbodiedBodyPhysics.advance(before, sleepAt).copy(
@@ -296,7 +298,6 @@ internal object EmbodiedBodyRuntime {
 
     @Synchronized
     fun onPresenceSleep(characterId: String, at: Instant) {
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) return
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
         val before = storedOrFresh(characterId, at)
         if (before.recoveryMode == "offline_sleep") return
@@ -308,7 +309,6 @@ internal object EmbodiedBodyRuntime {
 
     @Synchronized
     fun onPresenceWake(characterId: String, previous: CompanionOnlineState?, at: Instant) {
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) return
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
         val before = storedOrFresh(characterId, at)
         if (previous?.isOnline(at) == true && before.recoveryMode != "offline_sleep") return
@@ -317,6 +317,8 @@ internal object EmbodiedBodyRuntime {
             if (before.recoveryMode == "offline_sleep") before
             else EmbodiedBodyPhysics.advance(before, started).copy(
                 recoveryMode = "offline_sleep", recoveryUntil = null)
+        } else if (previous == null && characterId.startsWith("resident:")) {
+            before.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
         } else before
         val awake = EmbodiedBodyPhysics.advance(sleeping, at).copy(
             recoveryMode = "", recoveryUntil = null)

@@ -145,9 +145,10 @@ internal object CharacterEverydaySocialContext {
                     val last = latestByContact[id]
                     appendLine("- targetCharacterId=$id；$name；" +
                         (if (last == null) "当前保留的真实私信里没有这两人的记录"
-                        else "最近通信=${last.createdAt}；发送者=${last.fromId}；mailId=${last.id}：${last.content.take(105)}"))
+                        else "最近通信=${last.createdAt}；发送者=${last.fromId}；mailId=${last.id}：${last.content.take(105)}" +
+                            if (last.fromId == characterId) "；此后没有可见的回信，是否已读与对方近况未知" else ""))
                 }
-                appendLine("如果此刻想向某个熟人分享见闻、问一句近况、继续旧话题、开个玩笑或提出邀约，可从这些实际可联系对象中自己选 targetCharacterId，用 send_character_message 真正发送；不是必须先收到对方来信，也不是必须给主人发。")
+                appendLine("若一段真实的共同话题、错过的会面或未获回复的联系让你想起某个人，可以沿用本人已有的挂心或印象，选择关心、继续话题、改期或先等等。只能用亲历事实，近况不明就保留未知。若想分享见闻或打个招呼，从实际可联系对象中自己选 targetCharacterId，用 send_character_message 真正发送。")
             }
             if (groups.isNotEmpty()) {
                 appendLine("【自己已经加入的聊天群｜只看本人确实收到的群消息】")

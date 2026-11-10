@@ -853,19 +853,14 @@ class CompanionModelGateway(
                 "reductionAvailable=$reductionAvailable;projectedBytes=$reducedBytes;" +
                 "precompact=$sentReduced"
             var sentRequestBodyBytes = 0L
-            // Charge a resident request only at the first actual transport
-            // handoff, never before model selection, prompt assembly or
-            // validation. A local failure cannot consume a paid-call allowance.
-            // The atomic owner-controlled claim remains mandatory.
-            if (characterId.startsWith("resident:") &&
-                !ResidentDailyPolicy.hasModelRequestAllowance(connectionStore.appContext, characterId))
-                error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
+            if (!ResidentDailyPolicy.activityEnabled(connectionStore.appContext, characterId))
+                error("居民活动已暂停；本次没有发送模型请求")
             if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
-                    source, title, evidence = facts + "\\n" + instruction))
+                    source, title, evidence = facts + "\n" + instruction))
                 throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
-            if (characterId.startsWith("resident:") &&
-                !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
-                error("居民今天的 AI 请求总额度已满；本次没有发送模型请求")
+            check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
+                "居民活动已暂停或无法记录请求；本次没有发送模型请求"
+            }
             LuluRepositories.performance.recordModelHandoff(source, connection.model)
             val reply = try {
                 openAiCompatible(
@@ -880,9 +875,9 @@ class CompanionModelGateway(
                     conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
                     onAdditionalHttpAttempt = {
-                        if (characterId.startsWith("resident:") &&
-                            !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
-                            error("居民今天的 AI 请求总额度已满；流式回退未发送第二次请求")
+                        check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
+                            "居民活动已暂停或无法记录请求；本次没有发送回退请求"
+                        }
                     },
                 )
             } catch (error: ModelHttpException) {
@@ -911,9 +906,9 @@ class CompanionModelGateway(
                 if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
                         source, title, evidence = facts + "\\n" + instruction))
                     throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
-                if (characterId.startsWith("resident:") &&
-                    !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
-                    error("居民今天的 AI 请求总额度已满；负载保护回退未发送第二次请求")
+                check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
+                    "居民活动已暂停或无法记录请求；本次没有发送回退请求"
+                }
                 LuluRepositories.performance.recordModelHandoff(source, connection.model)
                 openAiCompatible(
                     connection = connection,
@@ -927,9 +922,9 @@ class CompanionModelGateway(
                     conversationHistory = reducedHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
                     onAdditionalHttpAttempt = {
-                        if (characterId.startsWith("resident:") &&
-                            !ResidentDailyPolicy.claimModelDecision(connectionStore.appContext, characterId))
-                            error("居民今天的 AI 请求总额度已满；流式回退未发送第二次请求")
+                        check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
+                            "居民活动已暂停或无法记录请求；本次没有发送回退请求"
+                        }
                     },
                 )
             }

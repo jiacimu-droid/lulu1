@@ -29,7 +29,7 @@ class ResidentDailyContinuityTest {
     private lateinit var ownerPolicyPrefs: android.content.SharedPreferences
     private var originalAutoSpawn: Boolean? = null
     private var originalCap: Int? = null
-    private var originalModelLimit: Int? = null
+    private var originalResidentActivity: Boolean? = null
 
     private fun residentField() = DigitalWorldExpansionStore::class.java
         .getDeclaredField("residents").apply { isAccessible = true }
@@ -51,11 +51,11 @@ class ResidentDailyContinuityTest {
             ownerPolicyPrefs.getBoolean("resident_auto_generation", false) else null
         originalCap = if (ownerPolicyPrefs.contains("resident_population_cap"))
             ownerPolicyPrefs.getInt("resident_population_cap", 12) else null
-        originalModelLimit = if (ownerPolicyPrefs.contains("daily_model_decision_limit"))
-            ownerPolicyPrefs.getInt("daily_model_decision_limit", 2) else null
+        originalResidentActivity = if (ownerPolicyPrefs.contains("resident_activity_enabled"))
+            ownerPolicyPrefs.getBoolean("resident_activity_enabled", true) else null
         check(ResidentDailyPolicy.setAutoGenerationEnabled(app, true))
         check(ResidentDailyPolicy.setMaxResidents(app, ResidentDailyPolicy.MAX_RESIDENTS))
-        check(ResidentDailyPolicy.setMaxModelDecisions(app, ResidentDailyPolicy.MAX_MODEL_DECISIONS))
+        check(ResidentDailyPolicy.setActivityEnabled(app, true))
         val prefsField = DigitalWorldExpansionStore::class.java
             .getDeclaredField("prefs").apply { isAccessible = true }
         residentPrefs = prefsField.get(DigitalWorldExpansionStore) as android.content.SharedPreferences
@@ -77,8 +77,8 @@ class ResidentDailyContinuityTest {
         else settings.putBoolean("resident_auto_generation", originalAutoSpawn!!)
         if (originalCap == null) settings.remove("resident_population_cap")
         else settings.putInt("resident_population_cap", originalCap!!)
-        if (originalModelLimit == null) settings.remove("daily_model_decision_limit")
-        else settings.putInt("daily_model_decision_limit", originalModelLimit!!)
+        if (originalResidentActivity == null) settings.remove("resident_activity_enabled")
+        else settings.putBoolean("resident_activity_enabled", originalResidentActivity!!)
         assertTrue(settings.commit())
         MemoryTestEnvironment.release()
     }
@@ -1036,6 +1036,62 @@ class ResidentDailyContinuityTest {
             assertNull(CharacterSocialRelationship.perspective(id, peer.characterId))
             assertFalse(CharacterInnerLifeStore.snapshot(id).toString().contains("还想接着聊河流的事"))
         } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun awakeResidentsCanReadAndReplyAfterZeroAgendaSlots() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        fun resident(label: String) = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "$label-${UUID.randomUUID()}", identity = "庭院居民",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD, createdAt = now.minusSeconds(3600)))
+        val first = resident("阿枝")
+        val second = resident("小禾")
+        ResidentCharacterBridge.sync(app, now)
+        val a = ResidentCharacterBridge.characterId(first.id)
+        val b = ResidentCharacterBridge.characterId(second.id)
+        val companion = MigratedDomainStores.characters.create("认识居民的同伴")
+        DigitalLifeProfileStore.registerNewLife(companion.characterId, companion.displayName,
+            "数字生命", now.minusSeconds(3600))
+        assertTrue(MomentFriendAccess.setFriends(companion.characterId, a, true))
+        assertTrue(MomentFriendAccess.setFriends(a, b, true))
+        val previousLimit = ResidentDailyPolicy.maxAgendaItems(app)
+        assertTrue(ResidentDailyPolicy.setMaxAgendaItems(app, 0))
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("agenda", JSONArray())
+            .put("lunch", "home").put("evening", "home").put("thought", "想看看庭院的花").toString()))
+        server.enqueue(answer(JSONObject().put("steps", JSONArray().put(JSONObject()
+            .put("tool", "send_character_message").put("args", JSONObject()
+                .put("targetCharacterId", b).put("text", "我晚点去庭院找你")))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "resident-window-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            val sleepingMail = ResidentSocialMailbox.send(companion.characterId, a, "今天想去看花吗？")
+            assertFalse(ResidentDailyDecision.runSocialWake(app, a, ResidentSocialMailbox.evidenceId(sleepingMail, a)))
+            assertEquals(0, server.requestCount)
+            assertTrue(ResidentDailyDecision.runOnce(app, first))
+            assertTrue(CompanionOnlineStore.residentIsAwake(app, a))
+            assertEquals(0, ResidentDailyPolicy.remainingAgendaSlots(app, a))
+            assertFalse(ResidentDailyDecision.runSocialWake(app, a, ResidentSocialMailbox.evidenceId(sleepingMail, a)))
+            CompanionOnlineStore.openResidentWindow(app, b, Instant.now())
+            val mail = ResidentSocialMailbox.send(b, a, "庭院有朵新开的花，要来看看吗？")
+            val cue = ResidentSocialMailbox.evidenceId(mail, a)
+            assertTrue(ResidentDailyDecision.runSocialWake(app, a, cue))
+            assertFalse(ResidentDailyDecision.runSocialWake(app, a, cue))
+            assertEquals(2, server.requestCount)
+            assertEquals(0, ResidentDailyPolicy.remainingAgendaSlots(app, a))
+            assertTrue(ResidentSocialMailbox.pendingIncoming(b).any {
+                it.fromId == a && it.content == "我晚点去庭院找你"
+            })
+            assertTrue(CharacterEverydaySocialContext.render(a).contains("是否已读与对方近况未知"))
+        } finally {
+            ResidentDailyPolicy.setMaxAgendaItems(app, previousLimit)
+            server.shutdown()
+        }
     }
 
     private fun answer(json: String): MockResponse = MockResponse().setBody(
@@ -2170,8 +2226,6 @@ class ResidentDailyContinuityTest {
             assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == actor &&
                 (it.content == original || it.content == post) })
             val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
-            assertEquals("explicitly opted-in resident fixture budget", 8,
-                ResidentDailyPolicy.maxModelDecisions(app))
             assertEquals("initial response plus one correction charged separately", 2,
                 ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
             assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
@@ -2224,8 +2278,6 @@ class ResidentDailyContinuityTest {
             // flight. The durable original response remains the authority.
             assertTrue(prefs.edit().putString(phaseKey, "repair_requesting").commit())
             val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
-            assertEquals("explicitly opted-in resident fixture budget", 8,
-                ResidentDailyPolicy.maxModelDecisions(app))
             assertEquals("initial response plus one correction charged separately", 2,
                 ResidentDailyPolicy.modelDecisionsUsed(app, ResidentCharacterBridge.characterId(native.id), now))
             assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
@@ -2364,8 +2416,6 @@ class ResidentDailyContinuityTest {
                     "重新考虑$kind", now.minusSeconds(120L + index),
                     now.minusSeconds(600), activityAction = "publish_moment",
                     activityArgs = JSONObject().put("text", "主活动不能重放$kind"))
-                assertEquals("fixture must allow three genuine model requests", 8,
-                    ResidentDailyPolicy.maxModelDecisions(app))
                 assertEquals("no other role may consume this resident's quota", index,
                     ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
                 assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
@@ -2542,8 +2592,6 @@ class ResidentDailyContinuityTest {
             assertFalse(ResidentDailyDecision.runOnce(app, native, now))
             assertEquals(2, server.requestCount)
             val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
-            assertEquals("explicitly opted-in resident fixture budget", 8,
-                ResidentDailyPolicy.maxModelDecisions(app))
             assertEquals("initial response plus one correction charged separately", 2,
                 ResidentDailyPolicy.modelDecisionsUsed(app, ResidentCharacterBridge.characterId(native.id), now))
             assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
@@ -2606,8 +2654,6 @@ class ResidentDailyContinuityTest {
             assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
             assertEquals(2, server.requestCount)
             val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
-            assertEquals("explicitly opted-in resident fixture budget", 8,
-                ResidentDailyPolicy.maxModelDecisions(app))
             assertEquals("initial response plus one correction charged separately", 2,
                 ResidentDailyPolicy.modelDecisionsUsed(app, actor, now))
             assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })

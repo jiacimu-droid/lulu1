@@ -59,7 +59,8 @@ internal object DigitalWorldActivityStateStore {
     @Synchronized
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
-        settleTimedActivity(characterId, Instant.now())
+        val now = Instant.now()
+        settleTimedActivity(characterId, now)
         // World growth is tied to persisted real-time slots, not to prompt/model call count.
         DigitalWorldEvolutionRuntime.maybeEvolve(characterId)
         val current = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
@@ -95,9 +96,10 @@ internal object DigitalWorldActivityStateStore {
             if (cafeInventory.isNotEmpty()) appendLine("咖啡角随身物品：${cafeInventory.joinToString("；")}。")
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
                 val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.isCafeBarista }
+                    .firstOrNull { it.isCafeBarista && CompanionOnlineStore.isOnline(
+                        ResidentCharacterBridge.characterId(it.id), now) }
                 if (server != null) appendLine("店员${server.name}在岗，可点=${DigitalCafeMenu.names()}。")
-                else appendLine("店员暂不在岗，现有免费温水、饼干仍可领取。")
+                else appendLine("店员暂时无法接待，自助台仍有温水和饼干。")
                 appendLine("点单只入库；实际喝完或吃完才结算身体。")
             }
             val expansionContext = DigitalWorldExpansionStore.contextFor()
@@ -153,8 +155,9 @@ internal object DigitalWorldActivityStateStore {
                 require(DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) { "需要先到浮光咖啡角点单" }
                 val item = checkNotNull(DigitalCafeMenu.byOrder(activityId))
                 val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.isCafeBarista }
-                    ?: error("咖啡角店员不在岗，暂时无法点这份餐")
+                    .firstOrNull { it.isCafeBarista && CompanionOnlineStore.isOnline(
+                        ResidentCharacterBridge.characterId(it.id), now) }
+                    ?: error("咖啡角店员暂时无法接待；可使用自助台")
                 val key = item.inventoryPrefix + characterId
                 val count = p.getInt(key, 0)
                 require(count < Int.MAX_VALUE) { "已超过数字物品数量上限" }

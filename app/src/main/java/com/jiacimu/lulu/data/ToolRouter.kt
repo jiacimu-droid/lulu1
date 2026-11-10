@@ -381,7 +381,8 @@ object ToolRouter {
                     } else if (activeCap.domain == "phone") {
                         LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
                     } else CompanionActionRuntime.execute(context, characterId, name, args,
-                        selfInitiatedLifeTurn = autonomousLifeTurn && !userRequested).asJson()
+                        selfInitiatedLifeTurn = autonomousLifeTurn && !userRequested,
+                        requestPeerReview = verifiedCause?.source != "resident-social-decision").asJson()
                 }.getOrElse { failure(it.message.orEmpty()) }
                 val parsed = runCatching { JSONObject(result) }.getOrElse {
                     JSONObject().put("success", false).put("error", result.take(400))
@@ -465,9 +466,12 @@ object ToolRouter {
                 // An autonomous tool that finished while the role explicitly
                 // chose offline cannot implicitly wake it for another five minutes.
                 // During a real online window, activities may still refresh it.
-                if (outcome.optBoolean("success") && !chatDelivery &&
-                    CompanionOnlineStore.isOnline(characterId))
-                    CompanionOnlineStore.recordActivity(characterId)
+                if (outcome.optBoolean("success") && !chatDelivery) {
+                    if (characterId.startsWith("resident:"))
+                        CompanionOnlineStore.renewResidentWindow(context, characterId, Instant.now())
+                    else if (CompanionOnlineStore.isOnline(characterId))
+                        CompanionOnlineStore.recordActivity(characterId)
+                }
                 confirmedResult
             }
         }

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:25:10.162190+00:00",
-  "commit": "01ceafd723111fa61cbb122cd213553422210cc2",
+  "generatedAt": "2026-11-10T16:44:16.864025+00:00",
+  "commit": "130caca22ec7729d45ab86af7eba12ad8c78adc2",
   "branch": "main",
-  "sourceFingerprint": "22e11f3b9f419e7f92dc24f23fd44f05f813f3ead188d6701c2e14167b0fb6fe",
+  "sourceFingerprint": "933849e1bb2205716e8a994398e227f3e85d8eb0cf27c004525cee3490db27c4",
   "summary": {
     "files": 1173,
-    "lines": 253825,
-    "symbols": 3460
+    "lines": 253712,
+    "symbols": 3457
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -229,7 +229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 468
+        "line": 454
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -531,7 +531,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 342
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -817,7 +817,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1487
+        "line": 1482
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -933,7 +933,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 56
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -1159,7 +1159,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 518
+        "line": 504
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -1771,7 +1771,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2311
+        "line": 2323
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -1969,7 +1969,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 174
+        "line": 175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
@@ -2049,7 +2049,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1408
+        "line": 1464
       }
     ],
     "part": [
@@ -2659,7 +2659,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1388
+        "line": 1391
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -3305,7 +3305,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 122
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
@@ -4057,15 +4057,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1724
+        "line": 1780
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1776
+        "line": 1832
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1823
+        "line": 1879
       }
     ],
     "todoId": [
@@ -5025,19 +5025,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1242
+        "line": 1237
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1254
+        "line": 1249
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1477
+        "line": 1472
       }
     ],
     "configured": [
@@ -6093,7 +6093,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 479
+        "line": 453
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6295,11 +6295,11 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 342
+        "line": 341
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1180
+        "line": 1154
       }
     ],
     "DevelopmentKind": [
@@ -6431,7 +6431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 307
+        "line": 310
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6451,7 +6451,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 788
+        "line": 774
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -6705,7 +6705,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 809
+        "line": 831
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -8027,7 +8027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 864
+        "line": 922
       }
     ],
     "DailyCommitmentAttempt": [
@@ -8131,43 +8131,43 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1286
+        "line": 1289
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1350
+        "line": 1353
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1357
+        "line": 1360
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1371
+        "line": 1374
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1381
+        "line": 1384
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1435
+        "line": 1438
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1804
+        "line": 1807
       }
     ],
     "age": [
@@ -8199,7 +8199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 258
+        "line": 259
       }
     ],
     "CompanionUnreadSnapshot": [
@@ -8217,43 +8217,43 @@
     "wakeCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 261
+        "line": 312
       }
     ],
     "goOfflineByChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 289
+        "line": 340
       }
     ],
     "recordActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 322
+        "line": 373
       }
     ],
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 339
+        "line": 394
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 394
+        "line": 449
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 561
+        "line": 616
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 617
+        "line": 672
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -8263,43 +8263,43 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 631
+        "line": 686
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 661
+        "line": 716
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 678
+        "line": 733
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 693
+        "line": 748
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 865
+        "line": 923
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 886
+        "line": 944
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 907
+        "line": 965
       }
     ],
     "repeatsConfirmedAction": [
@@ -8781,25 +8781,25 @@
     "beginReading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 229
+        "line": 232
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 241
+        "line": 244
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 252
+        "line": 255
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 266
+        "line": 269
       }
     ],
     "recipients": [
@@ -9351,25 +9351,25 @@
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 298
+        "line": 300
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 310
+        "line": 311
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 367
+        "line": 369
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 377
+        "line": 379
       }
     ],
     "qualifies": [
@@ -9747,13 +9747,13 @@
     "LocalMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 45
+        "line": 33
       }
     ],
     "clearCharacterHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 106
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -9763,67 +9763,67 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 650
+        "line": 624
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 689
+        "line": 663
       }
     ],
     "shouldFlushPendingTail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 702
+        "line": 676
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 706
+        "line": 680
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 709
+        "line": 683
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 711
+        "line": 685
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 722
+        "line": 696
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 829
+        "line": 803
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1082
+        "line": 1056
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1149
+        "line": 1123
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1209
+        "line": 1183
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -11055,61 +11055,61 @@
     "publishCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 158
+        "line": 157
       }
     ],
     "requestCharactersReact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 188
+        "line": 202
       }
     ],
     "retryImageUnderstanding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 194
+        "line": 208
       }
     ],
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 512
+        "line": 526
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 521
+        "line": 535
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 569
+        "line": 587
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 589
+        "line": 607
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 613
+        "line": 631
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 829
+        "line": 851
       }
     ],
     "refreshOwnerUnreadVisibility": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 966
+        "line": 988
       }
     ],
     "annotations": [
@@ -11445,13 +11445,13 @@
     "scheduleResidentMail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 265
+        "line": 264
       }
     ],
     "scheduleGroupMessageReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 287
+        "line": 288
       }
     ],
     "scheduleSoon": [
@@ -11535,55 +11535,55 @@
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 698
+        "line": 700
       }
     ],
     "scheduleUnfinishedCommitmentRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 726
+        "line": 728
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 827
+        "line": 829
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 854
+        "line": 856
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 881
+        "line": 883
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 898
+        "line": 900
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 912
+        "line": 914
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1161
+        "line": 1163
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1169
+        "line": 1171
       }
     ],
     "ProactiveSendReceipt": [
@@ -11897,103 +11897,103 @@
     "DayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 55
+        "line": 54
       }
     ],
     "dayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "HistoricalAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 79
+        "line": 78
       }
     ],
     "historicalAttempts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 104
+        "line": 103
       }
     ],
     "SavedDayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 217
+        "line": 216
       }
     ],
     "hasPartialDayActions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 221
+        "line": 220
       }
     ],
     "savedDayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 229
+        "line": 228
       }
     ],
     "DueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 266
+        "line": 263
       }
     ],
     "dueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 268
+        "line": 266
       }
     ],
     "SavedDueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 283
+        "line": 281
       }
     ],
     "savedDueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 285
+        "line": 283
       }
     ],
     "SavedIndependentSideRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 332
+        "line": 330
       }
     ],
     "savedIndependentSideRecoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 337
+        "line": 335
       }
     ],
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 632
+        "line": 630
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 641
+        "line": 639
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 644
+        "line": 642
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 722
+        "line": 720
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -12003,13 +12003,19 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1566
+        "line": 1563
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2177
+        "line": 2179
+      }
+    ],
+    "refreshAfterActivityChange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 2317
       }
     ],
     "maxResidents": [
@@ -12066,52 +12072,22 @@
         "line": 56
       }
     ],
-    "maxModelDecisions": [
+    "activityEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 66
+        "line": 62
       }
     ],
-    "setMaxModelDecisions": [
+    "isIndividuallyPaused": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 70
+        "line": 77
       }
     ],
     "modelDecisionsUsed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 78
-      }
-    ],
-    "remainingModelRequests": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 90
-      }
-    ],
-    "hasModelRequestAllowance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 108
-      }
-    ],
-    "hasOptionalResidentWakeAllowance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 129
-      }
-    ],
-    "hasBackgroundMaintenanceAllowance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 143
-      }
-    ],
-    "nextModelBudgetDayStart": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 149
+        "line": 84
       }
     ],
     "plan": [
@@ -12145,13 +12121,13 @@
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 139
+        "line": 142
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 157
+        "line": 160
       }
     ],
     "RoleDayPlan": [
@@ -12205,37 +12181,37 @@
     "restorePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 319
+        "line": 302
       }
     ],
     "arrange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 334
+        "line": 320
       }
     ],
     "cancelPendingLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 495
+        "line": 481
       }
     ],
     "removeLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 529
+        "line": 515
       }
     ],
     "mergeMatchingDailyCallPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 548
+        "line": 534
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 567
+        "line": 553
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -12245,37 +12221,37 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 656
+        "line": 642
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 674
+        "line": 660
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 722
+        "line": 708
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 757
+        "line": 743
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 795
+        "line": 781
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 811
+        "line": 797
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -12549,7 +12525,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 485
+        "line": 489
       }
     ],
     "allowsExpansion": [
@@ -16981,7 +16957,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2913
+        "line": 2959
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17537,7 +17513,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1448
+        "line": 1504
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -18567,7 +18543,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2687
+        "line": 2733
       }
     ],
     "modelAnswer": [
@@ -18576,80 +18552,84 @@
         "line": 182
       }
     ],
-    "row": [
+    "resident": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1175
+        "line": 1045
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1261
+        "line": 1304
+      }
+    ],
+    "row": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 1231
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 1317
       }
     ],
     "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1242
-      }
-    ],
-    "resident": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1248
+        "line": 1298
       }
     ],
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1502
+        "line": 1558
       }
     ],
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2289
+        "line": 2341
       }
     ],
     "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2331
+        "line": 2383
       }
     ],
     "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2395
+        "line": 2445
       }
     ],
     "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2460
+        "line": 2510
       }
     ],
     "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2626
+        "line": 2672
       }
     ],
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2808
+        "line": 2854
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2890
+        "line": 2936
       }
     ],
     "ResidentDailyPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-        "line": 17
+        "line": 16
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -21785,8 +21765,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt",
-      "lines": 176,
-      "sha256": "9780008f3b02e38f168c4303034e1299420da84f92e0dea13285dd3830326535",
+      "lines": 186,
+      "sha256": "2c2f278e0b42ac3c3c1d12a02d797a6fb3abfc05826e2a8fa09f3d8a532ed90c",
       "symbols": []
     },
     {
@@ -23631,8 +23611,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1495,
-      "sha256": "9a56a859f3a4e8144282df16c4a61a631c0dbeb3d9cc6b903cda0785c54951eb",
+      "lines": 1490,
+      "sha256": "0e65ad72a904c8a8a83c4dfaa8918b30fceefc2e758d0f1c656ed38e7f997099",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23732,19 +23712,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1242
+          "line": 1237
         },
         {
           "name": "consumeEvent",
-          "line": 1254
+          "line": 1249
         },
         {
           "name": "LuluAiServices",
-          "line": 1477
+          "line": 1472
         },
         {
           "name": "initialize",
-          "line": 1487
+          "line": 1482
         }
       ]
     },
@@ -24838,8 +24818,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 385,
-      "sha256": "2b803a6c41bd633987a1ea853626011e7fccc9b888c88caa3c4588a5b6d55889",
+      "lines": 384,
+      "sha256": "0bf8d93f221a1517e7f965a98cb13c5c0a0657aff7a6f8ef254de37227befbaa",
       "symbols": [
         {
           "name": "snapshot",
@@ -24887,7 +24867,7 @@
         },
         {
           "name": "ids",
-          "line": 342
+          "line": 341
         }
       ]
     },
@@ -24975,8 +24955,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 204,
-      "sha256": "07b4697a1f3fe229fee0c2fc34c6d0e302e5195933c9dd17dca650c0ed51b351",
+      "lines": 205,
+      "sha256": "b07a30cfa8565f2090439e691128e038d4623042c04a684fce101daba25f3f58",
       "symbols": [
         {
           "name": "render",
@@ -26402,8 +26382,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 127,
-      "sha256": "1bc48e27408d25a91115a1e2faa657f6de4e5040f5cf8e980f8a5f071c92e26d",
+      "lines": 125,
+      "sha256": "a04be396dea7d6db6d24c66ebaca1818f9a48aaa9349d52575b5144640901a7d",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
@@ -26820,8 +26800,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1852,
-      "sha256": "129ffe170192516f76848b1a58f0d65cb11690507aa409015b7646f3f51a766e",
+      "lines": 1855,
+      "sha256": "00030d141512c354ae9b352736fb3156fd2b99a9adc401836e878b27d3332933",
       "symbols": [
         {
           "name": "asJson",
@@ -26837,35 +26817,35 @@
         },
         {
           "name": "world",
-          "line": 1286
+          "line": 1289
         },
         {
           "name": "recordedReceiptId",
-          "line": 1350
+          "line": 1353
         },
         {
           "name": "completedEvidence",
-          "line": 1357
+          "line": 1360
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1371
+          "line": 1374
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1381
+          "line": 1384
         },
         {
           "name": "from",
-          "line": 1388
+          "line": 1391
         },
         {
           "name": "requiresCompletion",
-          "line": 1435
+          "line": 1438
         },
         {
           "name": "availableContext",
-          "line": 1804
+          "line": 1807
         }
       ]
     },
@@ -26890,8 +26870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 988,
-      "sha256": "9f6dc13f305317ef38baad1659dffff077fd741e741c627b82fa18f69792c836",
+      "lines": 1046,
+      "sha256": "306714063ee0436a5ae75cc8af3b4b1a6238079a0758ade9cd2305120a57ff96",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -26919,67 +26899,67 @@
         },
         {
           "name": "isOnline",
-          "line": 258
+          "line": 259
         },
         {
           "name": "wakeCharacter",
-          "line": 261
+          "line": 312
         },
         {
           "name": "goOfflineByChoice",
-          "line": 289
+          "line": 340
         },
         {
           "name": "recordActivity",
-          "line": 322
+          "line": 373
         },
         {
           "name": "wakeGroup",
-          "line": 339
-        },
-        {
-          "name": "onConversationMessage",
           "line": 394
         },
         {
+          "name": "onConversationMessage",
+          "line": 449
+        },
+        {
           "name": "unreadChatSnapshot",
-          "line": 561
+          "line": 616
         },
         {
           "name": "markSeen",
-          "line": 617
+          "line": 672
         },
         {
           "name": "resetCharacter",
-          "line": 631
+          "line": 686
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 661
+          "line": 716
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 678
+          "line": 733
         },
         {
           "name": "extendByOwnChoice",
-          "line": 693
+          "line": 748
         },
         {
           "name": "Result",
-          "line": 864
+          "line": 922
         },
         {
           "name": "uncovered",
-          "line": 865
+          "line": 923
         },
         {
           "name": "proposalIssue",
-          "line": 886
+          "line": 944
         },
         {
           "name": "ensure",
-          "line": 907
+          "line": 965
         }
       ]
     },
@@ -27479,8 +27459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 316,
-      "sha256": "deb564bbdd6dbeb870ad74a57e67facc0c9153a6dba66a26379c4da97b5507ed",
+      "lines": 319,
+      "sha256": "dedd9bfa8401e74386647f27f9ad5e251b2eff48e9a4bd02cf01e5beac882496",
       "symbols": [
         {
           "name": "initialize",
@@ -27496,27 +27476,27 @@
         },
         {
           "name": "apply",
-          "line": 122
+          "line": 124
         },
         {
           "name": "beginReading",
-          "line": 229
+          "line": 232
         },
         {
           "name": "ongoingActivity",
-          "line": 241
+          "line": 244
         },
         {
           "name": "pauseActivity",
-          "line": 252
+          "line": 255
         },
         {
           "name": "endActivity",
-          "line": 266
+          "line": 269
         },
         {
           "name": "clearCharacter",
-          "line": 307
+          "line": 310
         }
       ]
     },
@@ -27835,8 +27815,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 240,
-      "sha256": "bb4d2cbe445a859e0c9560c681144b6793b173c395625fc790f4949cc702b5aa",
+      "lines": 243,
+      "sha256": "841582fd05c314af61cb0ab4e0ccf51b87ad2af5fda791c1769fa342e2976f2a",
       "symbols": []
     },
     {
@@ -28015,8 +27995,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 385,
-      "sha256": "f8275f4c8d3aa8c3715d4bd05bcb1f1afa43fa978b1e2cc49fed4d8bde66d831",
+      "lines": 387,
+      "sha256": "f17bb157a1d738ad26127efa30e8ed397ebc7a3d80009e359fa28d7e5a4419c8",
       "symbols": [
         {
           "name": "toJson",
@@ -28080,23 +28060,23 @@
         },
         {
           "name": "onPresenceSleep",
-          "line": 298
+          "line": 300
         },
         {
           "name": "onPresenceWake",
-          "line": 310
+          "line": 311
         },
         {
           "name": "context",
-          "line": 342
+          "line": 344
         },
         {
           "name": "onWorldActivity",
-          "line": 367
+          "line": 369
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 377
+          "line": 379
         }
       ]
     },
@@ -28507,72 +28487,72 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1257,
-      "sha256": "5c01f21d5d7d06e46d0557cc8626f0c07df5b19d02f10e59a6334bd64540a7a7",
+      "lines": 1231,
+      "sha256": "635aabe5d2fc69b96d859337546f91e03abbef61f5878af57e79346910712b15",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
-          "line": 45
+          "line": 33
         },
         {
           "name": "initialize",
-          "line": 56
+          "line": 44
         },
         {
           "name": "clearCharacterHistory",
-          "line": 106
+          "line": 94
         },
         {
           "name": "snapshot",
-          "line": 479
+          "line": 453
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 650
+          "line": 624
         },
         {
           "name": "allowsRawRecall",
-          "line": 689
+          "line": 663
         },
         {
           "name": "shouldFlushPendingTail",
-          "line": 702
+          "line": 676
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 706
+          "line": 680
         },
         {
           "name": "pendingMessageCount",
-          "line": 709
+          "line": 683
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 711
+          "line": 685
         },
         {
           "name": "contextTimelineEvents",
-          "line": 722
+          "line": 696
         },
         {
           "name": "refreshInspection",
-          "line": 829
+          "line": 803
         },
         {
           "name": "MemoryDebugState",
-          "line": 1082
+          "line": 1056
         },
         {
           "name": "grams",
-          "line": 1149
+          "line": 1123
         },
         {
           "name": "ids",
-          "line": 1180
+          "line": 1154
         },
         {
           "name": "valid",
-          "line": 1209
+          "line": 1183
         }
       ]
     },
@@ -29347,7 +29327,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
       "lines": 411,
-      "sha256": "0df5bac51762ddcb325bf614136e7f5558efda5907d3ca062abc07f0bb4d6e36",
+      "sha256": "96169b1c3c7909c4965a49bc3ea58d092494d1de05c60c8d56a75fd4f2174ed1",
       "symbols": [
         {
           "name": "report",
@@ -29389,7 +29369,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
       "lines": 235,
-      "sha256": "d0731195208ac99deada4008a5f17d9a259da57d1b6bb9138557a85e8feac3b4",
+      "sha256": "868fc7077f2ca7931e4e856f355fa60f9cd3af12d12c3e8a9e62197b112958d1",
       "symbols": [
         {
           "name": "initialize",
@@ -29803,8 +29783,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1128,
-      "sha256": "9e4ca96ccad8c1404d4ebc9cca82180c37b459a9b1c190ea9bda1fe717d60a1f",
+      "lines": 1150,
+      "sha256": "4548a7094297c4d37bc586a5fbd26e12a5f5530cffd59194c37dcb55e53cab79",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -29844,47 +29824,47 @@
         },
         {
           "name": "publishCharacter",
-          "line": 158
+          "line": 157
         },
         {
           "name": "requestCharactersReact",
-          "line": 188
+          "line": 202
         },
         {
           "name": "retryImageUnderstanding",
-          "line": 194
+          "line": 208
         },
         {
           "name": "likeAsCharacter",
-          "line": 512
+          "line": 526
         },
         {
           "name": "commentAsCharacter",
-          "line": 521
+          "line": 535
         },
         {
           "name": "toggleUserLike",
-          "line": 569
+          "line": 587
         },
         {
           "name": "addUserComment",
-          "line": 589
+          "line": 607
         },
         {
           "name": "addUserReply",
-          "line": 613
+          "line": 631
         },
         {
           "name": "delete",
-          "line": 809
+          "line": 831
         },
         {
           "name": "clearCharacterData",
-          "line": 829
+          "line": 851
         },
         {
           "name": "refreshOwnerUnreadVisibility",
-          "line": 966
+          "line": 988
         }
       ]
     },
@@ -30254,8 +30234,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1225,
-      "sha256": "1e21acd805e0a00e57c747cc86fe431315bcbc3443f4825404cda88072903f4b",
+      "lines": 1227,
+      "sha256": "b71ebaa8a756fa4185895e47a6d87c58b4f6186f0e4e73bd99b5a5dc0b6adad7",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -30287,11 +30267,11 @@
         },
         {
           "name": "scheduleResidentMail",
-          "line": 265
+          "line": 264
         },
         {
           "name": "scheduleGroupMessageReview",
-          "line": 287
+          "line": 288
         },
         {
           "name": "scheduleSoon",
@@ -30347,39 +30327,39 @@
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 698
+          "line": 700
         },
         {
           "name": "scheduleUnfinishedCommitmentRecovery",
-          "line": 726
+          "line": 728
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 827
+          "line": 829
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 854
+          "line": 856
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 881
+          "line": 883
         },
         {
           "name": "cancelOnline",
-          "line": 898
+          "line": 900
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 912
+          "line": 914
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1161
+          "line": 1163
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1169
+          "line": 1171
         }
       ]
     },
@@ -30719,95 +30699,99 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2377,
-      "sha256": "f3d6a5041ad78607b7d54311baded8753266bd0d110ae5f34b0b27cae82cad26",
+      "lines": 2389,
+      "sha256": "568ea2045961c805438b509ed7f38ffdba99096fe75e3a7b26b24212a910e0f8",
       "symbols": [
         {
           "name": "DayRecovery",
-          "line": 55
+          "line": 54
         },
         {
           "name": "dayRecovery",
-          "line": 65
+          "line": 64
         },
         {
           "name": "HistoricalAttempt",
-          "line": 79
+          "line": 78
         },
         {
           "name": "historicalAttempts",
-          "line": 104
+          "line": 103
         },
         {
           "name": "SavedDayRecovery",
-          "line": 217
+          "line": 216
         },
         {
           "name": "hasPartialDayActions",
-          "line": 221
+          "line": 220
         },
         {
           "name": "savedDayRecovery",
-          "line": 229
+          "line": 228
         },
         {
           "name": "DueRecovery",
-          "line": 266
+          "line": 263
         },
         {
           "name": "dueRecovery",
-          "line": 268
+          "line": 266
         },
         {
           "name": "SavedDueRecovery",
-          "line": 283
+          "line": 281
         },
         {
           "name": "savedDueRecovery",
-          "line": 285
+          "line": 283
         },
         {
           "name": "SavedIndependentSideRecovery",
-          "line": 332
+          "line": 330
         },
         {
           "name": "savedIndependentSideRecoveries",
-          "line": 337
+          "line": 335
         },
         {
           "name": "planForApp",
-          "line": 632
+          "line": 630
         },
         {
           "name": "attemptedToday",
-          "line": 641
+          "line": 639
         },
         {
           "name": "planFor",
-          "line": 644
+          "line": 642
         },
         {
           "name": "reject",
-          "line": 722
+          "line": 720
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1566
+          "line": 1563
         },
         {
           "name": "errorOf",
-          "line": 2177
+          "line": 2179
+        },
+        {
+          "name": "refreshAfterActivityChange",
+          "line": 2317
         },
         {
           "name": "schedule",
-          "line": 2311
+          "line": 2323
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 170,
-      "sha256": "679bcdc356ecaf0592a30708cc765607533bdf6232f9a52bee5fbafd5092ac6b",
+      "lines": 127,
+      "sha256": "c9126319de5af86de571febf57e2e460f20381465ab0f4247e292d7f6af303f2",
       "symbols": [
         {
           "name": "maxResidents",
@@ -30846,43 +30830,23 @@
           "line": 56
         },
         {
-          "name": "maxModelDecisions",
-          "line": 66
+          "name": "activityEnabled",
+          "line": 62
         },
         {
-          "name": "setMaxModelDecisions",
-          "line": 70
+          "name": "isIndividuallyPaused",
+          "line": 77
         },
         {
           "name": "modelDecisionsUsed",
-          "line": 78
-        },
-        {
-          "name": "remainingModelRequests",
-          "line": 90
-        },
-        {
-          "name": "hasModelRequestAllowance",
-          "line": 108
-        },
-        {
-          "name": "hasOptionalResidentWakeAllowance",
-          "line": 129
-        },
-        {
-          "name": "hasBackgroundMaintenanceAllowance",
-          "line": 143
-        },
-        {
-          "name": "nextModelBudgetDayStart",
-          "line": 149
+          "line": 84
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 164,
-      "sha256": "651bbb7c0eae046f7ac7730d5e3b8ed68ac132ec700ee1e40beb2b6cd525a2a2",
+      "lines": 165,
+      "sha256": "11a9a4e1125e4e65da1669b362d708cb41ab36f975b73c55f04138adb0b1b5fe",
       "symbols": [
         {
           "name": "plan",
@@ -30896,8 +30860,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 239,
-      "sha256": "3a16f5805dae679479d74aeb3a200d1c0c7641c7379c538fa25d8d4a9b1e082d",
+      "lines": 236,
+      "sha256": "40dbbee484fcd942a2d7fc94d01d7d151cdb34f8101e8d5edc7f372e04c6141c",
       "symbols": [
         {
           "name": "contactsOf",
@@ -30913,22 +30877,22 @@
         },
         {
           "name": "canContact",
-          "line": 139
+          "line": 142
         },
         {
           "name": "visibleContacts",
-          "line": 157
+          "line": 160
         },
         {
           "name": "send",
-          "line": 174
+          "line": 175
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 942,
-      "sha256": "67614e9dded1490658b0fd65b33864888f05a6266397e6027c603fcda9963899",
+      "lines": 922,
+      "sha256": "9002e6060a9215a1ff7ff7777d35b06f975dc64245acd11136719afa1010c679",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -30964,63 +30928,63 @@
         },
         {
           "name": "restorePending",
-          "line": 319
+          "line": 302
         },
         {
           "name": "arrange",
-          "line": 334
+          "line": 320
         },
         {
           "name": "cancel",
-          "line": 468
+          "line": 454
         },
         {
           "name": "cancelPendingLinkedCommitmentPlans",
-          "line": 495
+          "line": 481
         },
         {
           "name": "remove",
-          "line": 518
+          "line": 504
         },
         {
           "name": "removeLinkedCommitmentPlans",
-          "line": 529
+          "line": 515
         },
         {
           "name": "mergeMatchingDailyCallPlans",
-          "line": 548
+          "line": 534
         },
         {
           "name": "reschedule",
-          "line": 567
+          "line": 553
         },
         {
           "name": "canBegin",
-          "line": 656
+          "line": 642
         },
         {
           "name": "completeFromReceipt",
-          "line": 674
+          "line": 660
         },
         {
           "name": "markDue",
-          "line": 722
+          "line": 708
         },
         {
           "name": "dueContext",
-          "line": 757
+          "line": 743
         },
         {
           "name": "clearCharacter",
-          "line": 788
+          "line": 774
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 795
+          "line": 781
         },
         {
           "name": "canResume",
-          "line": 811
+          "line": 797
         }
       ]
     },
@@ -31284,8 +31248,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 599,
-      "sha256": "d04b6786d38a348c3cd5ad99a2ad00e6740fd6477252e7cf3ca88b61f65ae9e1",
+      "lines": 603,
+      "sha256": "aed8901e66fec52795f507eda9ef4330fe0ba47cccfc531261e1deedc82250d6",
       "symbols": [
         {
           "name": "completed",
@@ -31313,7 +31277,7 @@
         },
         {
           "name": "project",
-          "line": 485
+          "line": 489
         }
       ]
     },
@@ -36869,8 +36833,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt",
-      "lines": 401,
-      "sha256": "112bfec50d991923826cd409b31c47da0976606c3077f484c43c17efc26704d3",
+      "lines": 391,
+      "sha256": "b1981f9f91e2531944998d7cf1a3c940213af7669a999936d91138eaa0343dd4",
       "symbols": [
         {
           "name": "ModelVisibleOutputTest",
@@ -38790,7 +38754,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
       "lines": 122,
-      "sha256": "0ed3783a3839159016d947453d5208338e7d21ff138bb8645c9a073726fd8a94",
+      "sha256": "5363a49ea2f6f1fc5cba15053c6ca785b58b0cb2ecd21920f676aaeaf8acc4c5",
       "symbols": [
         {
           "name": "ImmediateMemoryExtractionTest",
@@ -39160,8 +39124,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
-      "lines": 159,
-      "sha256": "d0edb729d0eb0b4082e199a733780a19b4d4208409091b1a20579f412d7e92a4",
+      "lines": 177,
+      "sha256": "76463f3af6c4967bd2672a86b713778f46cb32310f745b5e44b360324b23208f",
       "symbols": [
         {
           "name": "MemoryRecallIntegrationTest",
@@ -39792,8 +39756,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2965,
-      "sha256": "1dade5c52be20ddddfc91566381073de9cec162d4b76268e70103111fd474daa",
+      "lines": 3011,
+      "sha256": "fcd90f70f154c8f7a1bdc4f0998ff10df91f11bf9ae31a79300d2987ecd4581e",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -39812,91 +39776,95 @@
           "line": 892
         },
         {
+          "name": "resident",
+          "line": 1045
+        },
+        {
           "name": "row",
-          "line": 1175
+          "line": 1231
         },
         {
           "name": "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn",
-          "line": 1242
+          "line": 1298
         },
         {
           "name": "resident",
-          "line": 1248
+          "line": 1304
         },
         {
           "name": "row",
-          "line": 1261
+          "line": 1317
         },
         {
           "name": "choice",
-          "line": 1408
+          "line": 1464
         },
         {
           "name": "decision",
-          "line": 1448
+          "line": 1504
         },
         {
           "name": "invalid",
-          "line": 1502
+          "line": 1558
         },
         {
           "name": "select",
-          "line": 1724
+          "line": 1780
         },
         {
           "name": "select",
-          "line": 1776
+          "line": 1832
         },
         {
           "name": "select",
-          "line": 1823
+          "line": 1879
         },
         {
           "name": "posts",
-          "line": 2289
+          "line": 2341
         },
         {
           "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
-          "line": 2331
+          "line": 2383
         },
         {
           "name": "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance",
-          "line": 2395
+          "line": 2445
         },
         {
           "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
-          "line": 2460
+          "line": 2510
         },
         {
           "name": "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay",
-          "line": 2626
+          "line": 2672
         },
         {
           "name": "citizen",
-          "line": 2687
+          "line": 2733
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 2808
+          "line": 2854
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 2890
+          "line": 2936
         },
         {
           "name": "proposal",
-          "line": 2913
+          "line": 2959
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 329,
-      "sha256": "cc11edf37ffbb9503a61d25c5c6e291f26298d1d65203857b17e03c92583fd92",
+      "lines": 141,
+      "sha256": "c42153a4d5442c05812facbabe07ed971790c41889214050084a629456bc7698",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
-          "line": 17
+          "line": 16
         }
       ]
     },
@@ -39969,7 +39937,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
       "lines": 486,
-      "sha256": "05245ceede6054a0cf813286dd5f420e557d2eabe8b8698a85576f7fef2adfc4",
+      "sha256": "73929cc32c5a3212a704254768fbaedc9f407acaefd2b3583c3259f10e7f79b8",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",

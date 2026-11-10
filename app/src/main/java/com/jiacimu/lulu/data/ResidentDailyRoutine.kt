@@ -112,7 +112,7 @@ internal object ResidentDailyRoutine {
             var body = EmbodiedBodyPhysics.advance(before, at)
                 .copy(recoveryMode = "", recoveryUntil = null)
             var activity = plan.activity
-            if (plan.slot in setOf("home", "night")) {
+            if (!CompanionOnlineStore.residentIsAwake(app, characterId, at)) {
                 body = body.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
             } else if (plan.slot in setOf("morning", "afternoon", "shift", "late_shift")) {
                 body = body.copy(energy = (body.energy - 3.0).coerceAtLeast(0.0),
@@ -120,7 +120,8 @@ internal object ResidentDailyRoutine {
             }
             CharacterLifeStore.saveBodyState(characterId, body.toJson(),
                 cause = "原住民真实日程：" + activity)
-            if (plan.slot in setOf("lunch", "evening") &&
+            if (CompanionOnlineStore.residentIsAwake(app, characterId, at) &&
+                plan.slot in setOf("lunch", "evening") &&
                 canonical.currentLocationCode == DigitalWorldPublicPlaces.CAFE &&
                 residents.any { it.isCafeBarista && plan(it, at, context = app).location == DigitalWorldPublicPlaces.CAFE }) {
                 // The resident already chose; the world clock can only verify

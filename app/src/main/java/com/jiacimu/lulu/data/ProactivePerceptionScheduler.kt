@@ -259,9 +259,8 @@ object ProactivePerceptionScheduler {
             "lulu-arrival-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
-    /** Genuine delivered digital mail can wake its recipient once. Later
-     * letters replace the queued cue; the durable inbox preserves all content.
-     * Respect the recipient's autonomy switch and quiet hours at execution. */
+    /** Preserve each new resident cue without cancelling an in-flight decision.
+     * The per-resident runner consumes a snapshot and skips already-read cues. */
     fun scheduleResidentMail(context: Context, characterId: String, evidenceId: String) {
         if (characterId.isBlank() || evidenceId.isBlank()) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
@@ -274,8 +273,10 @@ object ProactivePerceptionScheduler {
                 .putBoolean("force", true)
                 .build())
             .build()
+        val resident = characterId.startsWith("resident:")
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-            "lulu-native-mail-$characterId", ExistingWorkPolicy.REPLACE, request)
+            if (resident) "lulu-native-mail-$characterId-$evidenceId" else "lulu-native-mail-$characterId",
+            if (resident) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.REPLACE, request)
     }
 
     /**
@@ -303,11 +304,10 @@ object ProactivePerceptionScheduler {
         members.forEach { memberId ->
             val policy = ProactivePerceptionPolicyStore.get(memberId)
             if (!memberId.startsWith("resident:") && !policy.enabled) return@forEach
-            if (memberId.startsWith("resident:") &&
-                ResidentDailyPolicy.modelDecisionsUsed(app, memberId) >=
-                    ResidentDailyPolicy.maxModelDecisions(app)) return@forEach
             val evidenceId = "${messageId}:group:$memberId"
             if (!GroupSocialOpportunity.witnessed(memberId, evidenceId)) return@forEach
+            if (memberId.startsWith("resident:") &&
+                !CompanionOnlineStore.renewResidentWindow(app, memberId, sent.createdAt)) return@forEach
             val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
                 .setConstraints(Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -677,6 +677,8 @@ object ProactivePerceptionScheduler {
             .singleOrNull() ?: return
         if (witnessed.source != "phone:friend" ||
             witnessed.evidenceKind != EventEvidenceKind.Observation) return
+        if (characterId.startsWith("resident:") &&
+            !CompanionOnlineStore.renewResidentWindow(context, characterId, witnessed.occurredAt)) return
         val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setInitialDelay(12_000L, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())

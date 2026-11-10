@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.ResidentDailyPolicy
 import com.jiacimu.lulu.data.ResidentDailyDecision
 import com.jiacimu.lulu.ai.ScopedModelSelections
@@ -33,7 +34,7 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
     val residents = remember(revision) { DigitalWorldExpansionStore.residents() }
     var allowNew by remember(context) { mutableStateOf(ResidentDailyPolicy.allowNewResidents(context)) }
     var maximum by remember(context) { mutableIntStateOf(ResidentDailyPolicy.maxResidents(context)) }
-    var calls by remember(context) { mutableIntStateOf(ResidentDailyPolicy.maxModelDecisions(context)) }
+    var activityEnabled by remember(context) { mutableStateOf(ResidentDailyPolicy.activityEnabled(context)) }
     var agenda by remember(context) { mutableIntStateOf(ResidentDailyPolicy.maxAgendaItems(context)) }
     var editingId by remember { mutableStateOf<String?>(null) }
     var deletingId by remember { mutableStateOf<String?>(null) }
@@ -69,45 +70,30 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                     })
             }
             item {
-                Text("每位居民每日 AI 请求总上限：" + calls + " 次")
-                Slider(value = calls.toFloat(), valueRange = 0f..ResidentDailyPolicy.MAX_MODEL_DECISIONS.toFloat(),
-                    steps = ResidentDailyPolicy.MAX_MODEL_DECISIONS - 1,
-                    onValueChange = { next ->
-                        val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_MODEL_DECISIONS)
-                        if (count != calls && ResidentDailyPolicy.setMaxModelDecisions(context, count)) calls = count
-                    },
-                    onValueChangeFinished = {
-                        // A raised cap after 08:00 may make today's previously
-                        // skipped plan affordable. Reuse the existing catch-up
-                        // scheduler; never auto-create a new paid decision.
-                        ResidentDailyDecision.schedule(context.applicationContext)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("居民活动", fontWeight = FontWeight.SemiBold)
+                        Text("暂停时保留日程和未读，停止新的居民决策。",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                    }
+                    Switch(checked = activityEnabled, onCheckedChange = { next ->
+                        if (ResidentDailyPolicy.setActivityEnabled(context, next)) {
+                            activityEnabled = next
+                            ResidentDailyDecision.refreshAfterActivityChange(context)
+                        }
                     })
-                Text("这是新模型请求的硬上限：规划、到点决策、临时社交、记忆及格式补正均计入；0 会停止新请求。已排定行程优先占用预算，普通社交通知可在到点决定中顺便处理。",
-                    fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             item {
-                Text("每位居民每日新排行程：" + agenda + " 项")
+                Text("每位居民每日可排行程：$agenda 项")
                 Slider(value = agenda.toFloat(), valueRange = 0f..ResidentDailyPolicy.MAX_AGENDA_ITEMS.toFloat(),
                     steps = ResidentDailyPolicy.MAX_AGENDA_ITEMS - 1,
                     onValueChange = { next ->
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_AGENDA_ITEMS)
                         if (count != agenda && ResidentDailyPolicy.setMaxAgendaItems(context, count)) agenda = count
                     })
-                val minimum = agenda + 1
-                Text("基础模型次数＝1 次本人规划＋每个到点行程 1 次决策。当前选择 ${agenda} 项，若希望全部排入，通常至少要 ${minimum} 次每日额度。私聊、群聊、世界行动可在已有一次决定中作为独立步骤同时执行。",
+                Text("只限制新建行程。清醒时的私信、发圈和评论不占行程数；模型请求仍按实际调用记录。",
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (agenda > 0 && calls < minimum) {
-                    Text("目前每日额度仅 ${calls} 次，不足以保证 ${agenda} 个到点行程；不自动增加收费调用。遇到额外格式补正/临时来信，还需另外预留额度。",
-                        fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
-                    if (minimum <= ResidentDailyPolicy.MAX_MODEL_DECISIONS) {
-                        TextButton(onClick = {
-                            if (ResidentDailyPolicy.setMaxModelDecisions(context, minimum)) {
-                                calls = minimum
-                                ResidentDailyDecision.schedule(context.applicationContext)
-                            }
-                        }) { Text("明确调整：每天每位居民最多 ${minimum} 次") }
-                    }
-                }
             }
             item {
                 if (ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY) == null) {
@@ -125,6 +111,19 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                         Text(person.temperament.ifBlank { "尚未补充性格" }, maxLines = 2, fontSize = 12.sp)
                         val roleId = "resident:${person.id}"
                         val today = Instant.now()
+                        var paused by remember(roleId) {
+                            mutableStateOf(ResidentDailyPolicy.isIndividuallyPaused(context, roleId))
+                        }
+                        val onlineStates by CompanionOnlineStore.states.collectAsState()
+                        val until = onlineStates[roleId]?.onlineUntil
+                        val online by produceState(false, activityEnabled, paused, until) {
+                            val millis = until?.let { java.time.Duration.between(Instant.now(), it).toMillis() } ?: 0L
+                            value = activityEnabled && !paused && millis > 0
+                            if (value) {
+                                kotlinx.coroutines.delay(millis)
+                                value = false
+                            }
+                        }
                         val used = ResidentDailyPolicy.modelDecisionsUsed(context, roleId, today)
                         val plan = ResidentDailyDecision.planFor(context, person.id, today)
                         val attempted = ResidentDailyDecision.attemptedToday(context, person.id, today)
@@ -135,12 +134,23 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                             attempted -> "今日规划已尝试，但未保存有效计划"
                             else -> "今天尚未开始规划"
                         }
-                        Text("今日模型额度：${used} / ${calls} 次 · ${progress}",
+                        val presence = when {
+                            !activityEnabled || paused -> "已暂停"
+                            online -> "清醒"
+                            else -> "休眠"
+                        }
+                        Text("$presence · 今日已发出 $used 次模型请求 · $progress",
                             fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         val dueLeft = ResidentDailyPolicy.remainingTodayAgendaDecisions(context, roleId, today)
                         Text("今天仍待决定的已排定行程：${dueLeft} 项",
                             fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Row {
+                            TextButton(onClick = {
+                                if (ResidentDailyPolicy.setActivityEnabled(context, paused, roleId)) {
+                                    paused = !paused
+                                    ResidentDailyDecision.refreshAfterActivityChange(context)
+                                }
+                            }) { Text(if (paused) "恢复活动" else "暂停活动") }
                             TextButton(onClick = { editingId = person.id }) { Text("编辑档案") }
                             TextButton(onClick = { deletingId = person.id; error = "" }) {
                                 Text("删除", color = MaterialTheme.colorScheme.error)

@@ -30,7 +30,7 @@ class ImmediateMemoryExtractionTest {
             "lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
         settings.edit().clear().commit()
         try {
-            assertTrue(ResidentDailyPolicy.setMaxModelDecisions(ctx, 0))
+            assertTrue(ResidentDailyPolicy.setActivityEnabled(ctx, false))
             LuluRepositories.initialize(ctx)
             SharedExperienceTimeline.initialize(ctx)
             val residentId = "resident:memory-at-quota"
@@ -42,8 +42,8 @@ class ImmediateMemoryExtractionTest {
             val result = runCatching { LuluRepositories.memory.summarizeNow(residentId) }
             val paused = result.exceptionOrNull()
             assertTrue("Budget deferral is a distinct pending outcome, not a successful summary",
-                paused is ResidentMemoryBudgetDeferred)
-            assertTrue((paused as ResidentMemoryBudgetDeferred).resumeAt.isAfter(java.time.Instant.now()))
+                paused is ResidentMemoryPaused)
+            assertTrue((paused as ResidentMemoryPaused).resumeAt.isAfter(java.time.Instant.now()))
             assertTrue(LuluRepositories.memory.hasUnprocessedEvents(residentId))
             assertTrue(LuluRepositories.memory.snapshot(residentId).isEmpty())
             assertEquals(0, ResidentDailyPolicy.modelDecisionsUsed(ctx, residentId))

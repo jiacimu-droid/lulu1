@@ -52,6 +52,24 @@ class MemoryRecallIntegrationTest {
             UnifiedMemoryRequest(currentInput = "橘猫"), localOnly = true).sourceEvents.isEmpty())
     }
 
+    @Test fun revisedRawChatKeepsBothTimeConditionsBeforeLongTermExtraction() = runBlocking {
+        initialize()
+        val role = "recall-correction-${java.util.UUID.randomUUID()}"
+        val source = "$role-source"
+        SharedExperienceTimeline.record(source, role, "私聊", "用户",
+            "约定：每天八点练琴", triggerExtraction = false, sessionId = "piano",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record(source, role, "私聊", "用户",
+            "练琴改一下：今天推迟到九点，明天照旧八点", triggerExtraction = false,
+            sessionId = "piano", evidenceKind = EventEvidenceKind.UserStatement)
+        val assembled = UnifiedMemoryOrchestrator.assemble(role,
+            UnifiedMemoryRequest(currentInput = "练琴是什么时间"), localOnly = true)
+        assertTrue(LuluRepositories.memory.snapshot(role).isEmpty())
+        assertTrue(assembled.sourceEvidence.contains("今天推迟到九点，明天照旧八点"))
+        assertFalse(assembled.sourceEvidence.contains("约定：每天八点练琴"))
+        assertEquals(source, assembled.sourceEvents.single { it.id == source }.id)
+    }
+
     @Test fun ordinaryMemoryBudgetIsHonoredAndTheTraceExplainsTheOmission() = runBlocking {
         initialize()
         LuluRepositories.memory.save(memory("coffee", "用户喜欢喝咖啡"))

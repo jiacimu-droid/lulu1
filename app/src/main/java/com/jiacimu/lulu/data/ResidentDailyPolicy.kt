@@ -57,21 +57,27 @@ internal object ResidentDailyPolicy {
     fun setAllowNewResidents(context: Context, allowed: Boolean): Boolean =
         setAutoGenerationEnabled(context, allowed)
 
-    private const val MODEL_REQUEST_LIMIT = "daily_model_decision_limit"
-    const val MAX_MODEL_DECISIONS = 8
-    const val DEFAULT_MODEL_DECISIONS = 2
+    private const val LEGACY_MODEL_REQUEST_LIMIT = "daily_model_decision_limit"
+    private const val ACTIVITY_ENABLED = "resident_activity_enabled"
 
-    /** Different from the number of scheduled agenda rows: this bounds
-     * actual resident model requests, including mail and format correction. */
-    fun maxModelDecisions(context: Context): Int =
+    fun activityEnabled(context: Context, role: String = ""): Boolean {
+        if (role.isNotBlank() && !role.startsWith("resident:")) return true
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val enabled = prefs.getBoolean(ACTIVITY_ENABLED, prefs.getInt(LEGACY_MODEL_REQUEST_LIMIT, 2) != 0)
+        return enabled && !prefs.getBoolean("paused:$role", false)
+    }
+
+    @Synchronized fun setActivityEnabled(context: Context, enabled: Boolean, role: String = ""): Boolean {
+        require(role.isBlank() || role.startsWith("resident:"))
+        val editor = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+        if (role.isBlank()) editor.putBoolean(ACTIVITY_ENABLED, enabled)
+        else if (enabled) editor.remove("paused:$role") else editor.putBoolean("paused:$role", true)
+        return editor.commit()
+    }
+
+    fun isIndividuallyPaused(context: Context, role: String): Boolean =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getInt(MODEL_REQUEST_LIMIT, DEFAULT_MODEL_DECISIONS)
-            .coerceIn(0, MAX_MODEL_DECISIONS)
-
-    fun setMaxModelDecisions(context: Context, limit: Int): Boolean =
-        limit in 0..MAX_MODEL_DECISIONS &&
-            context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putInt(MODEL_REQUEST_LIMIT, limit).commit()
+            .getBoolean("paused:$role", false)
 
     private fun modelDay(at: java.time.Instant): String =
         at.atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
@@ -84,33 +90,16 @@ internal object ResidentDailyPolicy {
         else 0
     }
 
-    /** Actual remaining paid calls, not the independent number of agenda rows.
-     * Called before a resident plans or wakes; the gateway remains the atomic
-     * spending authority when several resident events compete. */
-    fun remainingModelRequests(context: Context, role: String,
-        at: java.time.Instant = java.time.Instant.now()): Int =
-        if (!role.startsWith("resident:")) Int.MAX_VALUE
-        else (maxModelDecisions(context) - modelDecisionsUsed(context, role, at))
-            .coerceAtLeast(0)
+    internal fun remainingAgendaSlots(context: Context, role: String,
+        at: java.time.Instant = java.time.Instant.now()): Int {
+        val zone = java.time.ZoneId.systemDefault()
+        val day = at.atZone(zone).toLocalDate()
+        val created = RoleDayScheduleStore.plans(context, role).count {
+            it.createdAt.atZone(zone).toLocalDate() == day
+        }
+        return (maxAgendaItems(context) - created).coerceAtLeast(0)
+    }
 
-    /** A daily plan itself costs one request. Each future resident agenda wake
-     * costs another fresh decision; existing due plans also require a slot.
-     * Local duty changes and immediate steps in the SAME decision cost no
-     * additional model call. Never reserve imaginary credits or delete plans. */
-    internal fun affordableNewAgendaItems(configured: Int, remainingCalls: Int,
-        pendingDueDecisions: Int = 0): Int =
-        minOf(configured.coerceIn(0, MAX_AGENDA_ITEMS),
-            (remainingCalls - 1 - pendingDueDecisions.coerceAtLeast(0)).coerceAtLeast(0))
-
-    /** Read-only preflight for optional resident maintenance tasks.
-     * This is NOT a reservation: the gateway still owns the atomic claim,
-     * so races cannot evade the owner's total paid-request limit. */
-    fun hasModelRequestAllowance(context: Context, role: String,
-        at: java.time.Instant = java.time.Instant.now()): Boolean =
-        remainingModelRequests(context, role, at) > 0
-
-    /** Existing planned appointments own their next choice; optional
-     * housekeeping and spontaneous social wakes must not evict them. */
     internal fun remainingTodayAgendaDecisions(
         context: Context, role: String,
         at: java.time.Instant = java.time.Instant.now(),
@@ -123,47 +112,15 @@ internal object ResidentDailyPolicy {
         }
     }
 
-    /** The first personal plan and accepted future appointments reserve
-     * their minimum model turns. Unread social events are preserved and shown
-     * to the resident at the next real daily or due-time decision. */
-    fun hasOptionalResidentWakeAllowance(context: Context, role: String,
+    /** Count real transport handoffs for diagnostics. Only an explicit pause can block them. */
+    @Synchronized fun recordModelAttemptIfEnabled(context: Context, role: String,
         at: java.time.Instant = java.time.Instant.now()): Boolean {
         if (!role.startsWith("resident:")) return true
-        val remaining = remainingModelRequests(context, role, at)
-        val nativeId = role.removePrefix("resident:")
-        // Until the resident has chosen today's plan, optional paid work
-        // cannot know which future appointments to protect. Do not steal
-        // the planning call or any of its still-undecided appointment slots.
-        if (ResidentDailyDecision.planFor(context, nativeId, at) == null) return false
-        val reserved = remainingTodayAgendaDecisions(context, role, at)
-        return remaining > reserved
-    }
-
-    /** Memory extraction, semantic review and growth are paid but optional. */
-    fun hasBackgroundMaintenanceAllowance(context: Context, role: String,
-        at: java.time.Instant = java.time.Instant.now()): Boolean =
-        hasOptionalResidentWakeAllowance(context, role, at)
-
-    /** Local midnight when this resident's next configured daily allowance starts.
-     * This is scheduling arithmetic only, not a new decision or paid request. */
-    fun nextModelBudgetDayStart(at: java.time.Instant = java.time.Instant.now()): java.time.Instant {
-        val zone = java.time.ZoneId.systemDefault()
-        return at.atZone(zone).toLocalDate().plusDays(1).atStartOfDay(zone).toInstant()
-    }
-
-    /** Atomic attempt claim before networking. Constant-sized per-resident
-     * counter; retry/correction must not sidestep the owner's cost limit. */
-    @Synchronized fun claimModelDecision(context: Context, role: String,
-        at: java.time.Instant = java.time.Instant.now()): Boolean {
-        if (!role.startsWith("resident:")) return true
+        if (!activityEnabled(context, role)) return false
         val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val day = modelDay(at)
-        val used = if (p.getString("model-day:$role", "") == day)
-            p.getInt("model-count:$role", 0).coerceAtLeast(0)
-        else 0
-        if (used >= maxModelDecisions(context)) return false
-        return p.edit().putString("model-day:$role", day)
-            .putInt("model-count:$role", used + 1).commit()
+        val used = modelDecisionsUsed(context, role, at)
+        return p.edit().putString("model-day:$role", modelDay(at))
+            .putInt("model-count:$role", (used.toLong() + 1).coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+            .commit()
     }
-
 }

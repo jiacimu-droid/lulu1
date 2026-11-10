@@ -22,21 +22,9 @@ import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
-/**
- * Resident memory maintenance cannot spend past the same user-selected AI
- * request allowance. This read-only check is advisory; the model gateway still
- * atomically claims the quota. An empty quota must never mark pending events done.
- */
-internal fun residentMemoryBudgetDepleted(
-    context: Context, characterId: String,
-    now: Instant = Instant.now(),
-): Boolean = characterId.startsWith("resident:") &&
-    !ResidentDailyPolicy.hasBackgroundMaintenanceAllowance(context, characterId, now)
-
-/** A normal, non-failure outcome for automatic memory extraction. The queue
- * must keep its watermark and reawaken only after the next budget window. */
-internal class ResidentMemoryBudgetDeferred(val resumeAt: Instant) :
-    IllegalStateException("居民今日请求额度已预留给日计划或已用尽，未整理的记忆等待新预算日继续")
+/** Preserve the original memory batch while a resident's activity is explicitly paused. */
+internal class ResidentMemoryPaused(val resumeAt: Instant) :
+    IllegalStateException("居民活动已暂停，未整理的记忆保留")
 
 /**
  * Persistent memory store with retry-safe extraction checkpoints.
@@ -141,13 +129,12 @@ class LocalMemoryRepository : MemoryRepository {
             try {
                 extractImmediateMemories(characterId)
                 summarizeContinuously(characterId, flushTail = true)
-            } catch (deferred: ResidentMemoryBudgetDeferred) {
-                // A manual check at zero quota also needs a durable next-day
-                // queue entry. Do not report success/failure or lose the tail.
+            } catch (deferred: ResidentMemoryPaused) {
+                // Keep a durable queue entry for the original, unprocessed tail.
                 appContext?.let { MemoryExtractionJobStore.initialize(it) }
                 val queued = MemoryExtractionJobStore.enqueue(characterId)
                 MemoryExtractionJobStore.defer(queued, deferred.resumeAt)
-                refreshDebug("居民的记忆整理已延期至下一个预算日；待处理原文和进度完整保留",
+                refreshDebug("居民活动已暂停；待处理原文和进度完整保留",
                     characterId, extracting = false)
             } catch (error: Exception) {
                 refreshDebug("记忆整理失败，记录保留等待重试", characterId, lastError = error.message)
@@ -156,25 +143,12 @@ class LocalMemoryRepository : MemoryRepository {
         }
     }
 
-    /**
-     * Resident memory extraction is maintenance, not an emergency override of
-     * the owner's paid-request cap. Defer instead of calling the model only to
-     * obtain a zero-duration quota exception in performance diagnostics.
-     * Checkpoints remain unmodified and ordinary resident plans keep priority.
-     * The gateway still claims atomically against concurrent requests.
-     */
-    private fun deferResidentMemoryIfBudgetSpent(characterId: String, pendingCount: Int) {
+    private fun deferPausedResidentMemory(characterId: String, pendingCount: Int) {
         val context = appContext ?: return
-        val now = Instant.now()
-        if (!residentMemoryBudgetDepleted(context, characterId, now)) return
-        val resume = ResidentDailyPolicy.nextModelBudgetDayStart(now)
-        refreshDebug(
-            "居民今日模型额度优先留给生活规划（或已用完）；本次没有发送记忆请求。仍有 $pendingCount 条待整理消息，保留原文与处理进度；新预算日再继续。",
-            characterId = characterId, pendingCount = pendingCount, extracting = false,
-        )
-        // Do not return a successful Unit: ChatMemoryAutomation would then
-        // permanently complete the pending job, losing next-day scheduling.
-        throw ResidentMemoryBudgetDeferred(resume)
+        if (ResidentDailyPolicy.activityEnabled(context, characterId)) return
+        refreshDebug("居民活动已暂停，待整理的 $pendingCount 条原文与进度保留。",
+            characterId = characterId, pendingCount = pendingCount, extracting = false)
+        throw ResidentMemoryPaused(BackgroundModelRequestBudget.retryAt())
     }
 
     private suspend fun extractImmediateMemories(characterId: String) {
@@ -185,7 +159,7 @@ class LocalMemoryRepository : MemoryRepository {
                 state.value.processedMessageIds[characterId].orEmpty()
             val targets = events.filter { it.id !in done && it.isUserMemoryStatement() && requestsImmediateMemory(it.content) }.take(8)
             if (targets.isEmpty()) return
-            deferResidentMemoryIfBudgetSpent(characterId, targets.size)
+            deferPausedResidentMemory(characterId, targets.size)
             val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             // Include neighbours of each target, not an unrelated newest conversation.
             val contextIds = events.indices.filter { events[it].id in targetIds }.flatMap { index ->
@@ -269,7 +243,7 @@ class LocalMemoryRepository : MemoryRepository {
                 return
             }
 
-            deferResidentMemoryIfBudgetSpent(characterId, pending.size)
+            deferPausedResidentMemory(characterId, pending.size)
             val batchStart = processed.size + 1
             val batchEnd = processed.size + batch.size
             refreshDebug(

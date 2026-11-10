@@ -144,7 +144,7 @@ internal object MemorySupersessionAutomation {
         val now = Instant.now()
         val residentContext = appContext
         if (characterId.startsWith("resident:") && residentContext != null &&
-            residentMemoryBudgetDepleted(residentContext, characterId, now)) return false
+            !ResidentDailyPolicy.activityEnabled(residentContext, characterId)) return false
         val lastKey = "auto-last:${newFact.id}"
         val atMillis = now.toEpochMilli()
         if (!memorySupersessionAttemptAllowed(

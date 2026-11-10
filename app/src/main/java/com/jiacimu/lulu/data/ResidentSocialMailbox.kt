@@ -122,6 +122,9 @@ internal object ResidentSocialMailbox {
             prefs?.getString(cursorKey(role), "").orEmpty(), Int.MAX_VALUE)).take(max.coerceAtLeast(1))
     }
 
+    @Synchronized fun hasPendingEvidence(role: String, id: String): Boolean =
+        pendingIncoming(role, Int.MAX_VALUE).any { evidenceId(it, role) == id }
+
     @Synchronized fun acknowledgeIncoming(role: String, messageId: String): Boolean {
         if (role.isBlank()) return false
         val incoming = messages.filter { it.toId == role }
@@ -159,11 +162,9 @@ internal object ResidentSocialMailbox {
         MigratedDomainStores.characters.settings.value.keys.filter { it != characterId &&
             DigitalLifeProfileStore.isEnabled(it) && canContact(characterId, it) }.take(16)
 
+    /** Ordinary recipients need a resolved digital life; native recipients
+     * additionally need an open window before mail can trigger a decision. */
     @Synchronized
-    /** Mail wake gate: protagonist recipients need a resolved DIGITAL life form.
-     *  Native citizens (resident:) are already proven to exist by canContact in
-     *  send(), and the mail worker itself respects autonomy and quiet hours at
-     *  execution, so they are not gated on the life-form store. */
     internal fun mailWakeEnabled(to: String): Boolean =
         if (to.startsWith("resident:")) true else DigitalLifeProfileStore.isEnabled(to)
 
@@ -172,7 +173,8 @@ internal object ResidentSocialMailbox {
     // message while an earlier append has not yet become a delivered event.
     @Synchronized
     fun send(from: String, to: String, content: String,
-        author: String = "character", at: Instant = Instant.now()): ResidentDirectMessage {
+        author: String = "character", at: Instant = Instant.now(),
+        requestPeerReview: Boolean = true): ResidentDirectMessage {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
         // This is the delivered, durable letter. Prompt previews may be
         // budgeted, but they must not rewrite what the sender actually sent.
@@ -216,19 +218,14 @@ internal object ResidentSocialMailbox {
                 evidenceKind = EventEvidenceKind.Observation,
             )
         }
-        // An actual delivered letter, including one explicitly sent by the
-        // owner while inspecting a phone, is a real incoming stimulus.
-        // The recipient must be able to react through its OWN next perception,
-        // but this does not imply the sender voluntarily chose those words.
-        // Native citizens get the same prompt 12-second mail wake as the
-        // protagonist now: later letters replace the queued cue, so at most
-        // one wake is pending per recipient, and the worker still respects
-        // the recipient's autonomy switch and quiet hours at execution.
-        if (mailWakeEnabled(to)) {
-            appContext?.let { context ->
+        appContext?.let { context ->
+            val resident = to.startsWith("resident:")
+            val mayReview = if (resident)
+                CompanionOnlineStore.renewResidentWindow(context, to, at)
+            else mailWakeEnabled(to)
+            if (mayReview && requestPeerReview) {
                 runCatching {
-                    ProactivePerceptionScheduler.scheduleResidentMail(
-                        context, to, "native-mail-${item.id}-viewer-$to")
+                    ProactivePerceptionScheduler.scheduleResidentMail(context, to, evidenceId(item, to))
                 }.onFailure { android.util.Log.w("ResidentMail", "Mail wake scheduling failed", it) }
             }
         }

@@ -44,8 +44,7 @@ internal object ResidentDailyDecision {
     private const val WORK_FIXED = "lulu-resident-daily-at-local-time-v2"
     /** Shared local planning hour. WorkManager is durable but Android may defer its exact delivery. */
     internal val DAILY_PLANNING_TIME: LocalTime = LocalTime.of(8, 0)
-    private val dayRequests = KeyedWorkMutex()
-    private val socialRequests = KeyedWorkMutex()
+    private val residentTurns = KeyedWorkMutex()
 
     /** Phone stimuli must not be routed through the owner's private-chat conversation list:
      * native residents have a real characterId and phone, but no owner chat thread. */
@@ -180,7 +179,7 @@ internal object ResidentDailyDecision {
      * Same lock as the ordinary daily worker, so an in-flight response wins
      * before this exact displayed recovery snapshot is compared again. */
     suspend fun retryDayDecision(context: Context, nativeId: String, expected: DayRecovery,
-        clock: () -> Instant = Instant::now): Boolean = dayRequests.withLock("$nativeId:${expected.day}") {
+        clock: () -> Instant = Instant::now): Boolean = residentTurns.withLock(ResidentCharacterBridge.characterId(nativeId)) {
         val now = clock() // Re-read after the lock: confirmation may have crossed midnight.
         if (date(now) != expected.day || dayRecovery(context, nativeId, now) != expected) return@withLock false
         val native = DigitalWorldExpansionStore.residents().firstOrNull { it.id == nativeId }
@@ -245,7 +244,7 @@ internal object ResidentDailyDecision {
      * An unknown-charge model request is never reissued by this route. */
     suspend fun resumeSavedDayDecision(context: Context, expected: SavedDayRecovery,
         clock: () -> Instant = Instant::now): Boolean =
-        dayRequests.withLock("${expected.nativeId}:${expected.day}") {
+        residentTurns.withLock(ResidentCharacterBridge.characterId(expected.nativeId)) {
             val now = clock()
             if (date(now) != expected.day ||
                 savedDayRecovery(context, expected.nativeId, now) != expected)
@@ -262,7 +261,6 @@ internal object ResidentDailyDecision {
             runOnceLocked(context, native, now)
         }
 
-    private val dueRequests = KeyedWorkMutex()
     data class DueRecovery(val planId: String, val characterId: String, val dueAt: Instant,
         val phase: String, val revision: Int)
 
@@ -309,7 +307,7 @@ internal object ResidentDailyDecision {
     suspend fun resumeSavedDueDecision(context: Context, expected: SavedDueRecovery,
         clock: () -> Instant = Instant::now): Boolean {
         val key = "execute:${expected.planId}:${expected.dueAt}"
-        return dueRequests.withLock(key) {
+        return residentTurns.withLock(expected.characterId) {
             val now = clock()
             val plan = RoleDayScheduleStore.plans(context, expected.characterId)
                 .firstOrNull { it.id == expected.planId } ?: return@withLock false
@@ -407,7 +405,7 @@ internal object ResidentDailyDecision {
     suspend fun resumeSavedIndependentSideSteps(context: Context,
         expected: SavedIndependentSideRecovery): Boolean {
         val key = "execute:${expected.planId}:${expected.originalDueAt}"
-        return dueRequests.withLock(key) {
+        return residentTurns.withLock(expected.characterId) {
             val live = RoleDayScheduleStore.plans(context, expected.characterId)
                 .firstOrNull { it.id == expected.planId } ?: return@withLock false
             if (savedIndependentSideRecoveries(context, live).none { it == expected })
@@ -437,7 +435,7 @@ internal object ResidentDailyDecision {
     suspend fun retryDueDecision(context: Context, expected: DueRecovery,
         clock: () -> Instant = Instant::now): Boolean {
         val key = "execute:${expected.planId}:${expected.dueAt}"
-        return dueRequests.withLock(key) {
+        return residentTurns.withLock(expected.characterId) {
             val now = clock()
             val plan = RoleDayScheduleStore.plans(context, expected.characterId)
                 .firstOrNull { it.id == expected.planId } ?: return@withLock false
@@ -1210,13 +1208,14 @@ internal object ResidentDailyDecision {
     /** Each due item receives one role decision on the normal path.
      * Only a confirmed malformed reply permits one same-role correction. */
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean =
-        dueRequests.withLock(dueAttemptKey(plan)) { runDuePlanLocked(context, plan, at) }
+        residentTurns.withLock(plan.characterId) { runDuePlanLocked(context, plan, at) }
 
     private suspend fun runDuePlanLocked(context: Context, plan: RoleDayPlan, at: Instant,
         resumeInvalidOnly: Boolean = false): Boolean {
         val app = context.applicationContext
         appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
+        if (!ResidentDailyPolicy.activityEnabled(app, plan.characterId)) return false
         // Reject an obsolete scheduled snapshot, even when a caller still
         // passes the old "planned" object after cancel/reschedule/wait.
         val live = RoleDayScheduleStore.plans(app, plan.characterId).firstOrNull {
@@ -1255,18 +1254,15 @@ internal object ResidentDailyDecision {
             if (p.getString("due-invalid:$key", "").isNullOrBlank() ||
                 p.getString("due-invalid-reason:$key", "").isNullOrBlank()) return false
         } else {
-            // No budget must never mark a fresh appointment as "requesting".
-            // The durable wake worker will defer this same plan to the next
-            // budget window without pretending that its action was completed.
-            if (!ResidentDailyPolicy.hasModelRequestAllowance(app, plan.characterId, at))
-                return false
+            if (!ResidentDailyPolicy.activityEnabled(app, plan.characterId)) return false
             // A crash/timeout before receiving an answer is uncertain: never
             // silently buy a second model request for this appointment.
             if (!claimDueRequest(p, live, connectionFingerprint(checkNotNull(selected)))) return false
+            CompanionOnlineStore.openResidentWindow(app, plan.characterId, at)
         }
         CharacterPhoneInbox.initialize(app)
-        val pending = ResidentSocialMailbox.pendingIncoming(plan.characterId)
-        val unread = CharacterPhoneInbox.unreadMoments(plan.characterId)
+        val pending = if (savedChoice == null) ResidentSocialMailbox.pendingIncoming(plan.characterId) else emptyList()
+        val unread = if (savedChoice == null) CharacterPhoneInbox.unreadMoments(plan.characterId) else emptyList()
         val proposedArgs = runCatching { JSONObject(plan.activityArgs) }.getOrDefault(JSONObject())
         val now = Instant.now()
         val dueFacts = if (savedChoice == null) decisionFacts(native, now, pending, unread) + "\n" +
@@ -1387,6 +1383,7 @@ internal object ResidentDailyDecision {
                 "旧版等待复议的原定时刻未保存，禁止继续改期"
             }
         }
+        if (!ResidentDailyPolicy.activityEnabled(app, plan.characterId)) return false
         val turnId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
         val decisionEvidenceId = dueDecisionEvidence(plan, choice, at)
         // A withdrawn/edited decision card cannot authorize remaining side
@@ -1738,6 +1735,7 @@ internal object ResidentDailyDecision {
                 "确实放下可用 cancel_personal_activity，args={planId,expectedDueAt,reason}。没有变化可保留原安排。普通社交/活动步骤仍不得携带 planId。",
             CharacterRuntime.personalityRuntimeContext(id, compact = true,
                 query = facts, includeActiveCommitments = false),
+            CharacterExplorationContinuity.context(id),
             // CharacterAndScenario delivers core memories through its central
             // channel; do not inject the same core a second time in facts.
             memory.copy(coreMemories = emptyList()).compactPromptSection())
@@ -1747,7 +1745,7 @@ internal object ResidentDailyDecision {
     /** Called by the scheduled worker; each citizen chooses using exactly one
      * invocation, from the shared inexpensive model archive selected in settings. */
     suspend fun runOnce(context: Context, native: DigitalWorldResident,
-        now: Instant = Instant.now()): Boolean = dayRequests.withLock("${native.id}:${date(now)}") {
+        now: Instant = Instant.now()): Boolean = residentTurns.withLock(ResidentCharacterBridge.characterId(native.id)) {
         runOnceLocked(context, native, now)
     }
 
@@ -1763,25 +1761,12 @@ internal object ResidentDailyDecision {
         // A daily worker can keep a snapshot after the owner removes a resident.
         // Never request another model decision for a retired native actor.
         if (ResidentCharacterBridge.nativeResident(id) == null ||
-            !DigitalLifeProfileStore.isEnabled(id)) return false
+            !DigitalLifeProfileStore.isEnabled(id) ||
+            !ResidentDailyPolicy.activityEnabled(app, id)) return false
         ScopedModelSelections.initialize(app)
         val today = date(now)
         val p = prefs(app)
-        // One call plans the day; every future agenda wake buys another decision.
-        // Do not propose five future paid wakes when the owner allows two calls.
-        // Already-scheduled due work is real and must not be erased by a new
-        // plan; account for its remaining cost before offering new slots.
-        val alreadyPending = RoleDayScheduleStore.plans(app, id).count {
-            it.status in setOf("planned", "due") &&
-                !it.dueAt.isBefore(now) &&
-                it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() ==
-                    now.atZone(ZoneId.systemDefault()).toLocalDate()
-        }
-        val agendaLimit = ResidentDailyPolicy.affordableNewAgendaItems(
-            ResidentDailyPolicy.maxAgendaItems(app),
-            ResidentDailyPolicy.remainingModelRequests(app, id, now),
-            alreadyPending,
-        )
+        val agendaLimit = ResidentDailyPolicy.remainingAgendaSlots(app, id, now)
         val decisionKey = dayDecisionKey(native.id, today)
         val phaseKey = dayPhaseKey(native.id, today)
         val recoveriesKey = dayRecoveriesKey(native.id, today)
@@ -1813,14 +1798,13 @@ internal object ResidentDailyDecision {
                 p.getString("invalid-reason:${native.id}:$today", "").isNullOrBlank() ||
                 p.getString("attempt:${native.id}", "") != today) return false
         } else {
-            // An empty allowance is a normal scheduling state, not a failed
-            // remote call. Preserve today's unattempted decision opportunity.
-            if (!ResidentDailyPolicy.hasModelRequestAllowance(app, id, now)) return false
+            if (!ResidentDailyPolicy.activityEnabled(app, id)) return false
             if (!claimDayRequest(app, native.id, now,
                     connectionFingerprint(checkNotNull(selected)))) return false
+            CompanionOnlineStore.openResidentWindow(app, id, now)
         }
-        val pending = ResidentSocialMailbox.pendingIncoming(id)
-        val unread = CharacterPhoneInbox.unreadMoments(id)
+        val pending = if (savedDecision == null) ResidentSocialMailbox.pendingIncoming(id) else emptyList()
+        val unread = if (savedDecision == null) CharacterPhoneInbox.unreadMoments(id) else emptyList()
         val dailyFacts = if (savedDecision == null) decisionFacts(native, now, pending, unread) else ""
         val replyResult = if (savedDecision == null && !resumeInvalidOnly) LuluAiServices.gateway.generate(
             characterId = id,
@@ -1945,6 +1929,7 @@ internal object ResidentDailyDecision {
         // The source MUST exist before any calendar mutation. In older builds
         // agenda rows could be saved first, leaving an unowned side effect if
         // the process died or the owner withdrew the decision in between.
+        if (!ResidentDailyPolicy.activityEnabled(app, id)) return false
         val decisionSource = synchronized(SharedExperienceTimeline) {
             val previous = SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).firstOrNull()
             if (previous == null && !SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(eventId)) {
@@ -2087,7 +2072,7 @@ internal object ResidentDailyDecision {
     internal suspend fun runSocialWake(context: Context, characterId: String,
         evidenceId: String, now: Instant = Instant.now()): Boolean {
         if (!characterId.startsWith("resident:") || evidenceId.isBlank()) return false
-        return socialRequests.withLock("$characterId:$evidenceId") {
+        return residentTurns.withLock(characterId) {
             val app = context.applicationContext
             initializeBackgroundRuntime(app)
             ResidentCharacterBridge.sync(app, now)
@@ -2096,19 +2081,32 @@ internal object ResidentDailyDecision {
             CharacterInnerLifeStore.initialize(app)
             val native = ResidentCharacterBridge.nativeResident(characterId)
                 ?: return@withLock false
+            if (!ResidentDailyPolicy.activityEnabled(app, characterId)) return@withLock false
             val groupNotice = GroupSocialOpportunity.witnessed(characterId, evidenceId)
-            val stimulus = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
-                .singleOrNull { event ->
+            val momentRef = evidenceId.takeIf { it.startsWith("resident-moment:") }
+                ?.removePrefix("resident-moment:")
+            val visiblePost = momentRef?.let { ref ->
+                val postId = ref.substringBefore(':')
+                val observedAt = runCatching { Instant.parse(ref.substringAfter(':')) }.getOrNull()
+                MomentsStore.posts.value.firstOrNull { post ->
+                    post.id == postId && observedAt != null &&
+                        !post.lastActivityAt.isBefore(observedAt) &&
+                        MomentFriendAccess.canView(post, characterId)
+                } ?: return@withLock false
+            }
+            val stimulus = if (visiblePost == null) {
+                SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+                    .singleOrNull { event ->
                     event.revision == 1L &&
                         ((event.evidenceKind == EventEvidenceKind.Observation &&
                             event.source in setOf("character-message", "owner-on-behalf", "phone:friend")) ||
                             (groupNotice && event.source == "message" &&
                                 event.evidenceKind == EventEvidenceKind.CharacterStatement))
-                } ?: return@withLock false
+                    } ?: return@withLock false
+            } else null
             // Native digital-to-digital phone messages are not user-device
             // interruptions. Like existing private mail, a real group witness
-            // may reach this decision regardless of the generic quiet-hour
-            // setting; the owner's daily model budget still applies.
+            // is considered only within the same resident's open window.
             val p = prefs(app)
             val key = "resident-social:$characterId:$evidenceId"
             val choiceKey = "$key:choice"
@@ -2123,13 +2121,16 @@ internal object ResidentDailyDecision {
             // Leave unread mail/request available to the next real daily wake
             // instead of automatically buying a duplicate inference.
             if (saved == null && phase.isNotBlank()) return@withLock false
-            // Leave the real unread event for the next authorized daily
-            // decision instead of logging a zero-duration gateway rejection.
             if (saved == null &&
-                !ResidentDailyPolicy.hasOptionalResidentWakeAllowance(app, characterId, now))
+                !CompanionOnlineStore.residentIsAwake(app, characterId, maxOf(now, Instant.now())))
                 return@withLock false
-            val pending = ResidentSocialMailbox.pendingIncoming(characterId)
-            val unread = CharacterPhoneInbox.unreadMoments(characterId)
+            // Only a fresh decision can acknowledge the particular snapshots it receives.
+            val pending = if (saved == null) ResidentSocialMailbox.pendingIncoming(characterId) else emptyList()
+            val unread = if (saved == null) CharacterPhoneInbox.unreadMoments(characterId) else emptyList()
+            if (saved == null && evidenceId.startsWith("native-mail-") &&
+                !ResidentSocialMailbox.hasPendingEvidence(characterId, evidenceId)) return@withLock false
+            if (saved == null && visiblePost != null && unread.none { it.id == visiblePost.id })
+                return@withLock false
             val decided = if (saved != null) saved else {
                 val connection = runCatching {
                     ScopedModelSelections.residentSocialConnection()
@@ -2143,7 +2144,8 @@ internal object ResidentDailyDecision {
                 }
                 val facts = decisionFacts(native, now, pending, unread) +
                     "\n【本轮真实送达的社交通知】evidenceId=$evidenceId；" +
-                    "${stimulus.occurredAt}；${stimulus.content.take(400)}"
+                    (stimulus?.let { "${it.occurredAt}；${it.content.take(400)}" }
+                        ?: "本轮有一条可见的朋友圈更新，postId=${visiblePost?.id}，正文见本人未读。")
                 val instruction = """
                     你是${native.name}，这是你本人数字手机新送达的真实社交通知。
                     只根据你的性格、关系、最近真实经历、未读私信和好友申请决定怎么做。
@@ -2207,6 +2209,7 @@ internal object ResidentDailyDecision {
                 }
                 choice
             }
+            if (!ResidentDailyPolicy.activityEnabled(app, characterId)) return@withLock false
             val decisionId = "resident-social-choice-$evidenceId"
             val decisionSource = synchronized(SharedExperienceTimeline) {
                 val previous = SharedExperienceTimeline.eventsByIds(
@@ -2233,7 +2236,10 @@ internal object ResidentDailyDecision {
             }
             if (decisionSource == null ||
                 !SharedExperienceTimeline.commitIfEvidenceUnchanged(
-                    characterId, listOf(stimulus, decisionSource)) {}) {
+                    characterId, listOfNotNull(stimulus, decisionSource)) {} ||
+                (visiblePost != null && MomentsStore.posts.value.none {
+                    it.id == visiblePost.id && MomentFriendAccess.canView(it, characterId)
+                })) {
                 p.edit().putString(phaseKey, "source_unavailable").commit()
                 return@withLock false
             }
@@ -2241,14 +2247,14 @@ internal object ResidentDailyDecision {
             // Reuse the exact inner-life authority used by daily decisions;
             // a social-notice decision must not become an action-only dead end.
             // Only a witnessed counterpart can own a new subjective impression.
-            decided.optJSONObject("innerLife")?.let { innerLife ->
-                val witnessed = CharacterPerceptionContext.stimulus(stimulus)
+            decided.optJSONObject("innerLife")?.takeIf { stimulus != null }?.let { innerLife ->
+                val witnessed = CharacterPerceptionContext.stimulus(checkNotNull(stimulus))
                 CharacterInnerLifeStore.observe(
-                    characterId, stimulus.id, witnessed.description, innerLife,
+                    characterId, checkNotNull(stimulus).id, witnessed.description, innerLife,
                     witnessed.socialIds, now)
             }
             val report = executeWakeStepsReport(app, characterId, decided, decisionId,
-                causeEvidenceId = decisionSource.id, groupNoticeFollowUp = groupNotice)
+                causeEvidenceId = decisionSource.id, groupNoticeFollowUp = true)
             check(CharacterPhoneInbox.acknowledgeObserved(characterId, unread)) {
                 "居民真实看过的朋友圈未读回执没有保存"
             }
@@ -2309,6 +2315,12 @@ internal object ResidentDailyDecision {
         return succeeded
     }
 
+    fun refreshAfterActivityChange(context: Context) {
+        CompanionOnlineStore.closePausedResidentWindows(context)
+        RoleDayScheduleStore.restorePending(context)
+        schedule(context)
+    }
+
     fun schedule(context: Context) {
         val app = context.applicationContext
         appContext = app
@@ -2338,7 +2350,7 @@ internal object ResidentDailyDecision {
             }.minOrNull()
             val needsCatchup = savedRecovery != null || residents.any {
                 val role = ResidentCharacterBridge.characterId(it.id)
-                ResidentDailyPolicy.hasModelRequestAllowance(app, role, now) &&
+                ResidentDailyPolicy.activityEnabled(app, role) &&
                     (prefs(app).getString("attempt:${it.id}", "") != date(now) ||
                         hasSafeDayRequestToRetry(app, it.id, now))
             }

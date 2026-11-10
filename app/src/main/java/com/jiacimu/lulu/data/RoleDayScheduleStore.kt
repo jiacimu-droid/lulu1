@@ -270,8 +270,8 @@ object RoleDayScheduleStore {
 
     private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant,
         replace: Boolean = true, appendToCurrentWork: Boolean = false,
-        notBefore: Instant = plan.dueAt) {
-        val wakeAt = if (notBefore.isAfter(plan.dueAt)) notBefore else plan.dueAt
+    ) {
+        val wakeAt = plan.dueAt
         val delay = Duration.between(now, wakeAt).toMillis().coerceAtLeast(1_000L)
         val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
             .setInputData(Data.Builder().putString("roleId", plan.characterId)
@@ -286,23 +286,6 @@ object RoleDayScheduleStore {
                 replace -> ExistingWorkPolicy.REPLACE
                 else -> ExistingWorkPolicy.KEEP
             }, request)
-    }
-
-    /** The resident has no paid requests left today. The unchanged plan and
-     * original dueAt remain authoritative; append ONE next-budget wake after
-     * the running worker rather than consuming retries or marking success.
-     * The gateway still performs the atomic paid claim on the next attempt. */
-    internal fun deferResidentBudgetWake(context: Context, plan: RoleDayPlan,
-        now: Instant = Instant.now()): Boolean {
-        if (!plan.characterId.startsWith("resident:")) return false
-        val live = plans(context, plan.characterId).firstOrNull {
-            it.id == plan.id && it.dueAt == plan.dueAt &&
-                it.status in setOf("planned", "due")
-        } ?: return false
-        val next = ResidentDailyPolicy.nextModelBudgetDayStart(now).plusSeconds(60)
-        scheduleWake(context, live, now, replace = false,
-            appendToCurrentWork = true, notBefore = next)
-        return true
     }
 
     /** A missed WorkManager delivery must remain a real due opportunity after process
@@ -320,6 +303,9 @@ object RoleDayScheduleStore {
     fun restorePending(context: Context, now: Instant = Instant.now()) {
         all(context).filter { plan ->
             needsWakeRestoration(plan, now) ||
+                (plan.characterId.startsWith("resident:") &&
+                    ResidentDailyPolicy.activityEnabled(context, plan.characterId) &&
+                    plan.status == "planned" && !plan.dueAt.isAfter(now)) ||
                 (plan.status in setOf("due", "completed") &&
                     plan.characterId.startsWith("resident:") &&
                     (ResidentDailyDecision.hasSavedDueToResume(context, plan) ||
@@ -842,17 +828,11 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             return Result.success()
         }
         if (Instant.now().isBefore(latest.dueAt)) return Result.retry()
-        // A quota gate belongs BEFORE marking a fresh resident plan "due".
-        // Saved choices are free to resume without a new paid model request.
-        // Preserve the original appointment and defer the same wake until the
-        // next configured budget window instead of swallowing it on success.
+        // Leave a paused appointment unclaimed. On resume or app startup,
+        // restorePending can hand off the original slot without inventing a result.
         if (role.startsWith("resident:") &&
             !ResidentDailyDecision.hasSavedDueToResume(applicationContext, latest) &&
-            !ResidentDailyPolicy.hasModelRequestAllowance(applicationContext, role)) {
-            return if (RoleDayScheduleStore.deferResidentBudgetWake(
-                    applicationContext, latest)) Result.success()
-                else Result.retry()
-        }
+            !ResidentDailyPolicy.activityEnabled(applicationContext, role)) return Result.success()
         val plan = if (latest.status == "completed") latest
             else RoleDayScheduleStore.markDue(applicationContext, role, planId,
                 expectedDueAt = expectedDueAt)

@@ -350,6 +350,7 @@ internal object CompanionActionRuntime {
         args: JSONObject,
         now: Instant = Instant.now(),
         selfInitiatedLifeTurn: Boolean = false,
+        requestPeerReview: Boolean = true,
     ): CompanionActionResult = runCatching {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
@@ -512,7 +513,8 @@ internal object CompanionActionRuntime {
                 val text = args.optString("text").trim()
                 require(postId.isNotBlank() && text.isNotBlank()) { "评论需要真实帖子ID与本人正文" }
                 val comment = MomentsStore.commentAsCharacter(postId, characterId, text,
-                    args.optString("replyToCommentId").takeIf(String::isNotBlank))
+                    args.optString("replyToCommentId").takeIf(String::isNotBlank),
+                    requestPeerReview = requestPeerReview)
                 requireNotNull(comment) {
                     "评论未发送：帖子不可见、引用评论不存在或正文无效"
                 }
@@ -568,7 +570,8 @@ internal object CompanionActionRuntime {
                 ResidentSocialMailbox.initialize(context)
                 val target = args.optString("targetCharacterId").trim()
                 val words = args.optString("text").trim()
-                val sent = ResidentSocialMailbox.send(characterId, target, words)
+                val sent = ResidentSocialMailbox.send(characterId, target, words, at = now,
+                    requestPeerReview = requestPeerReview)
                 CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
                     evidenceId = "native-mail-${sent.id}-viewer-$characterId")
             }
@@ -793,7 +796,7 @@ internal object CompanionActionRuntime {
             "publish_moment" -> {
                 val text = args.optString("text").trim()
                 require(text.isNotBlank()) { "朋友圈正文不能为空" }
-                val post = MomentsStore.publishCharacter(characterId, text)
+                val post = MomentsStore.publishCharacter(characterId, text, requestPeerReview = requestPeerReview)
                     ?: error("朋友圈发布失败")
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚发了一条朋友圈。")
                 CompanionActionResult(true, "已发布朋友圈", evidenceId = "moment-${post.id}-$characterId")

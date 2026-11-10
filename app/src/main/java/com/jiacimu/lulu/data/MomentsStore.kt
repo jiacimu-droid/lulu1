@@ -150,8 +150,7 @@ object MomentsStore {
         )
         savePost(post)
         recordForAllCharacters(post, UserProfileContext.displayLabel())
-        // Posting only changes the shared feed/red dots. A friend considers it
-        // on THEIR next legitimate wake, inside their existing action decision.
+        offerResidentFeedActivity(post, MomentFriendAccess.OWNER, requestReview = true)
         socialScope.launch { processImageUnderstanding(post.id) }
         return post
     }
@@ -161,6 +160,7 @@ object MomentsStore {
         content: String,
         imageUri: String? = null,
         imageDescription: String = "",
+        requestPeerReview: Boolean = true,
     ): MomentPost? {
         val clean = content.trim()
         val cleanImage = imageUri.normalizedMomentImageUri()
@@ -178,10 +178,24 @@ object MomentsStore {
         savePost(post)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
-        // Do not spin up a separate paid social reaction for every friend.
-        // Residents will see this new post when their phone is perceived at wake.
+        offerResidentFeedActivity(post, characterId, requestReview = requestPeerReview)
         socialScope.launch { processImageUnderstanding(post.id) }
         return post
+    }
+
+    /** Only awake, authorized friends receive an immediate phone notification. */
+    private fun offerResidentFeedActivity(post: MomentPost, actorId: String, requestReview: Boolean) {
+        val context = appContext ?: return
+        CompanionOnlineStore.states.value.keys.forEach { viewer ->
+            if (!viewer.startsWith("resident:") || viewer == actorId ||
+                !MomentFriendAccess.canView(post, viewer) ||
+                !CompanionOnlineStore.renewResidentWindow(context, viewer, post.lastActivityAt))
+                return@forEach
+            if (requestReview) runCatching {
+                ProactivePerceptionScheduler.scheduleResidentMail(context, viewer,
+                    "resident-moment:${post.id}:${post.lastActivityAt}")
+            }.onFailure { android.util.Log.w("Moments", "Resident feed notification remains unread", it) }
+        }
     }
 
     /** An explicit owner request reaches only genuine friends, never unrelated characters. */
@@ -520,13 +534,17 @@ object MomentsStore {
     }
 
     fun commentAsCharacter(postId: String, actorId: String, content: String,
-        replyToCommentId: String? = null): MomentComment? {
+        replyToCommentId: String? = null, requestPeerReview: Boolean = true): MomentComment? {
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
         if (actorId == USER_COMMENTER_ID || actorId == MomentFriendAccess.OWNER ||
             !MomentFriendAccess.canView(post, actorId)) return null
         val actor = MigratedDomainStores.characters.settings.value[actorId] ?: return null
-        return addCharacterComment(post, actor, postAuthorName(post), content,
-            replyToCommentId?.trim()?.takeIf(String::isNotBlank))
+        val comment = addCharacterComment(post, actor, postAuthorName(post), content,
+            replyToCommentId?.trim()?.takeIf(String::isNotBlank)) ?: return null
+        mutablePosts.value.firstOrNull { it.id == postId }?.let {
+            offerResidentFeedActivity(it, actorId, requestReview = requestPeerReview)
+        }
+        return comment
     }
 
     /**
@@ -631,7 +649,11 @@ object MomentsStore {
             characterId = targetCharacterId,
             timelineText = "【定向回复】回复了你在朋友圈的评论“${target.content.take(180)}”：$clean",
         )
-        socialScope.launch { replyToUserComment(postId, comment.id, targetCharacterId) }
+        mutablePosts.value.firstOrNull { it.id == postId }?.let {
+            offerResidentFeedActivity(it, MomentFriendAccess.OWNER, requestReview = true)
+        }
+        if (!targetCharacterId.startsWith("resident:"))
+            socialScope.launch { replyToUserComment(postId, comment.id, targetCharacterId) }
         return comment
     }
 

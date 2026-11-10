@@ -24,6 +24,10 @@ internal object DigitalWorldResidentInteractionRuntime {
             val location = DigitalWorldStore.locationOf(characterId)
             val resident = DigitalWorldExpansionStore.residentsAt(location).firstOrNull { it.id == residentId }
                 ?: error("居民不在当前地点，不能隔空交流")
+            val nativeId = ResidentCharacterBridge.characterId(resident.id)
+            require(CompanionOnlineStore.residentIsAwake(context, nativeId, now)) {
+                "${resident.name}现在在这里，但暂时无法交谈；可以晚些再联系"
+            }
             val normalized = interaction.trim().lowercase()
             require(normalized in allowedInteractions) { "不支持的居民互动" }
             val episodeStep = if (normalized in DigitalWorldResidentEpisodeStore.interactions)
@@ -37,7 +41,6 @@ internal object DigitalWorldResidentInteractionRuntime {
             // Each participant now reasons through their OWN role, identity,
             // memory and inner life. The initiating role is not allowed to
             // impersonate the native citizen's entire side of the conversation.
-            val nativeId = ResidentCharacterBridge.characterId(resident.id)
             ResidentCharacterBridge.sync(context, now)
             if (episodeStep == null) {
                 AutonomousSocialRuntime.directedResidentInteraction(

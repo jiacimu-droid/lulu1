@@ -247,6 +247,7 @@ object CompanionOnlineStore {
                 )
             }
             mutableStates.value = loaded
+            closePausedResidentWindows(context, now)
             migrateDeliveredRepliesLocked()
             loaded.values.filter { it.isOnline(now) }.forEach { scheduleLifePulseLocked(it.characterId) }
             groupFocusUntil = decodeGroupFocus(prefs?.getString(KEY_GROUP_FOCUS, null))
@@ -259,6 +260,56 @@ object CompanionOnlineStore {
     fun isOnline(characterId: String, now: Instant = Instant.now()): Boolean =
         mutableStates.value[characterId]?.isOnline(now) == true
 
+    internal fun residentIsAwake(context: Context, characterId: String,
+        now: Instant = Instant.now()): Boolean =
+        ResidentDailyPolicy.activityEnabled(context, characterId) && isOnline(characterId, now)
+
+    internal fun openResidentWindow(context: Context, characterId: String, at: Instant) {
+        initialize(context)
+        synchronized(lock) {
+            if (!ResidentDailyPolicy.activityEnabled(context, characterId)) return
+            val previous = mutableStates.value[characterId]
+            EmbodiedBodyRuntime.onPresenceWake(characterId, previous, at)
+            val prior = previous
+                ?: CompanionOnlineState(characterId, at, CompanionOnlineReason.ScheduledCommitment)
+            mutableStates.value = mutableStates.value + (characterId to prior.copy(
+                onlineUntil = maxOf(prior.onlineUntil, at.plus(onlineDuration)),
+                reason = CompanionOnlineReason.ScheduledCommitment))
+            persistLocked()
+        }
+    }
+
+    /** An actual event can extend an open resident window, never start one. */
+    internal fun renewResidentWindow(context: Context, characterId: String, at: Instant): Boolean {
+        synchronized(lock) {
+            val current = mutableStates.value[characterId] ?: return false
+            if (!residentIsAwake(context, characterId, at) ||
+                at.isBefore(current.onlineUntil.minus(onlineDuration))) return false
+            val until = at.plus(onlineDuration)
+            if (until.isAfter(current.onlineUntil)) {
+                mutableStates.value = mutableStates.value + (characterId to current.copy(
+                    onlineUntil = until, reason = CompanionOnlineReason.NewActivity))
+                persistLocked()
+            }
+            return true
+        }
+    }
+
+    internal fun closePausedResidentWindows(context: Context, at: Instant = Instant.now()) {
+        synchronized(lock) {
+            val paused = mutableStates.value.filter { (id, state) ->
+                id.startsWith("resident:") && state.onlineUntil.isAfter(at) &&
+                    !ResidentDailyPolicy.activityEnabled(context, id)
+            }
+            if (paused.isEmpty()) return
+            mutableStates.value = mutableStates.value + paused.mapValues { (id, state) ->
+                EmbodiedBodyRuntime.onPresenceSleep(id, at)
+                state.copy(onlineUntil = at)
+            }
+            persistLocked()
+        }
+    }
+
     fun wakeCharacter(
         characterId: String,
         reason: CompanionOnlineReason,
@@ -266,7 +317,7 @@ object CompanionOnlineStore {
         perceiveNow: Boolean = true,
         now: Instant = Instant.now(),
     ) {
-        if (characterId.isBlank()) return
+        if (characterId.isBlank() || characterId.startsWith("resident:")) return
         synchronized(lock) {
             val previous = mutableStates.value[characterId]
             EmbodiedBodyRuntime.onPresenceWake(characterId, previous, now)
@@ -322,6 +373,10 @@ object CompanionOnlineStore {
 
     fun recordActivity(characterId: String, now: Instant = Instant.now()) {
         if (characterId.isBlank()) return
+        if (characterId.startsWith("resident:")) {
+            appContext?.let { renewResidentWindow(it, characterId, now) }
+            return
+        }
         synchronized(lock) {
             val previous = mutableStates.value[characterId]
                 ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)
@@ -726,6 +781,9 @@ object CompanionOnlineStore {
 
     private fun scheduleExpiryLocked(characterId: String) {
         expiryJobs.remove(characterId)?.cancel()
+        // Resident windows expire by timestamp; planning and scheduled activity
+        // are their only autonomous wake sources.
+        if (characterId.startsWith("resident:")) return
         val until = mutableStates.value[characterId]?.onlineUntil ?: return
         // On cold start all existing expired windows (including the original
         // default offline state) are NOT fresh five-minute sessions. Their

@@ -73,15 +73,16 @@ class ModelVisibleOutputTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun residentStreamFallbackCannotSendAnUnclaimedSecondPost() = runBlocking {
+    @Test fun residentStreamFallbackIsCountedButIgnoresAgendaLimit() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
         val policy = app.getSharedPreferences("lulu_resident_activity_policy_v1", android.content.Context.MODE_PRIVATE)
         val prior = policy.all.toMap()
         val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
         try {
-            for (limit in listOf(1, 2)) {
-                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxModelDecisions(app, limit))
+            for (limit in listOf(0, 2)) {
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setActivityEnabled(app, true))
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxAgendaItems(app, limit))
                 val resident = "resident:stream-quota-network-$limit"
                 val server = MockWebServer()
                 server.enqueue(MockResponse().setResponseCode(400)
@@ -96,17 +97,11 @@ class ModelVisibleOutputTest {
                         connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
                         streamResponse = true,
                     )
-                    assertEquals("Physical POST count must equal available resident claims",
-                        limit, server.requestCount)
-                    assertEquals(limit, com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
-                    if (limit == 1) {
-                        assertTrue("Second POST must be rejected before transport", result.isFailure)
-                        assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("额度已满"))
-                    } else {
-                        assertEquals("已收到。", result.getOrThrow().text)
-                        assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
-                        assertFalse(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
-                    }
+                    assertEquals(2, server.requestCount)
+                    assertEquals(2, com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
+                    assertEquals("已收到。", result.getOrThrow().text)
+                    assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+                    assertFalse(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
                 } finally {
                     server.shutdown()
                 }
@@ -126,15 +121,16 @@ class ModelVisibleOutputTest {
         }
     }
 
-    @Test fun residentMemoryGuard503FallbackCannotExceedPhysicalPostQuota() = runBlocking {
+    @Test fun residentMemoryGuard503FallbackIsCountedButIgnoresAgendaLimit() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
         val policy = app.getSharedPreferences("lulu_resident_activity_policy_v1", android.content.Context.MODE_PRIVATE)
         val prior = policy.all.toMap()
         val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
         try {
-            for (limit in listOf(1, 2)) {
-                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxModelDecisions(app, limit))
+            for (limit in listOf(0, 2)) {
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setActivityEnabled(app, true))
+                assertTrue(com.jiacimu.lulu.data.ResidentDailyPolicy.setMaxAgendaItems(app, limit))
                 val resident = "resident:memory-guard-network-$limit"
                 val server = MockWebServer()
                 server.enqueue(MockResponse().setResponseCode(503)
@@ -155,19 +151,13 @@ class ModelVisibleOutputTest {
                         connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
                         conversation = history,
                     )
-                    assertEquals("No retry POST without a second resident claim", limit, server.requestCount)
-                    assertEquals(limit,
-                        com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
-                    if (limit == 1) {
-                        assertTrue(result.isFailure)
-                        assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("额度已满"))
-                    } else {
-                        assertEquals("缩减后收到。", result.getOrThrow().text)
-                        val original = server.takeRequest().body.readUtf8()
-                        val reduced = server.takeRequest().body.readUtf8()
-                        assertTrue("The second POST must actually be smaller", reduced.length < original.length)
-                        assertTrue("Current user turn must survive compaction", reduced.contains("本轮问题"))
-                    }
+                    assertEquals(2, server.requestCount)
+                    assertEquals(2, com.jiacimu.lulu.data.ResidentDailyPolicy.modelDecisionsUsed(app, resident))
+                    assertEquals("缩减后收到。", result.getOrThrow().text)
+                    val original = server.takeRequest().body.readUtf8()
+                    val reduced = server.takeRequest().body.readUtf8()
+                    assertTrue("The second POST must actually be smaller", reduced.length < original.length)
+                    assertTrue("Current user turn must survive compaction", reduced.contains("本轮问题"))
                 } finally { server.shutdown() }
             }
         } finally {

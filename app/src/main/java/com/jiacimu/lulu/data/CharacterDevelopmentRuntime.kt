@@ -295,12 +295,11 @@ object CharacterDevelopmentRuntime {
             note(characterId, "长期成长证据尚需跨经历合并；本轮主决策已处理即时反应")
             return
         }
-        // Resident learning is optional paid housekeeping; it must not take
-        // the first call reserved for the native citizen's own daily plan.
+        // Explicitly paused residents keep their growth evidence for later.
         if (characterId.startsWith("resident:") && appContext?.let {
-                residentMemoryBudgetDepleted(it, characterId, Instant.ofEpochMilli(now))
+                !ResidentDailyPolicy.activityEnabled(it, characterId)
             } != false) {
-            note(characterId, "居民日计划额度优先；成长证据保留待后续整理")
+            note(characterId, "居民活动已暂停；成长证据保留待后续整理")
             return
         }
         val growthEvidence = GrowthReflectionInput.select(events)

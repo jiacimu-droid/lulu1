@@ -85,10 +85,8 @@ object ChatMemoryAutomation {
                 // clearing its original source-event watermark.
                 MemoryExtractionJobStore.defer(job, deferred.resumeAt)
                 return
-            } catch (deferred: ResidentMemoryBudgetDeferred) {
-                // A budget-deferred summarizer has NOT processed its batch.
-                // Keep the dirty watermark; resume after local midnight rather
-                // than spin every 1.5s, flood logs or spend past owner's cap.
+            } catch (deferred: ResidentMemoryPaused) {
+                // Preserve the original watermark while resident activity is paused.
                 MemoryExtractionJobStore.defer(job, deferred.resumeAt)
                 return
             } catch (cancelled: CancellationException) {
