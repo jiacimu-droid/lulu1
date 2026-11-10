@@ -68,43 +68,10 @@ internal fun RelicEscapeLobby(
     var shopExpanded by remember { mutableStateOf(false) }
     var vaultExpanded by remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize().background(campInk)) {
-        RelicCampBackdrop()
-        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(
-            Color(0xE609101C),Color(0xDF111925),Color(0xF109111D),
-        ))))
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal=18.dp, vertical=14.dp),
-            horizontalAlignment=Alignment.CenterHorizontally,
-        ) {
-            Column(Modifier.widthIn(max=1040.dp).fillMaxWidth(),
-                verticalArrangement=Arrangement.spacedBy(13.dp)) {
-                Row(verticalAlignment=Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("✦ 迷雾摸金",color=Color.White,fontSize=27.sp,
-                            fontWeight=FontWeight.Black)
-                        Text("探险营地 · 找伙伴、整备装备，再一起出发",
-                            color=campMuted,fontSize=12.sp)
-                    }
-                    Surface(color=Color(0xCE1B2E3B),
-                        shape=RoundedCornerShape(14.dp),
-                        border=BorderStroke(1.dp,campGold.copy(alpha=.36f))) {
-                        Column(Modifier.padding(horizontal=13.dp,vertical=8.dp)) {
-                            Text("◇ "+snapshot.coins+" 铜币",color=campGold,fontWeight=FontWeight.Bold)
-                            Text("珍藏 "+snapshot.vault.size+" 件",color=campMuted,fontSize=11.sp)
-                        }
-                    }
-                }
-                GameLobbyStage(
-                    island = false,
-                    eyebrow = "EXPEDITION BASE CAMP",
-                    title = if(live) "遗迹正在等你归队" else "下一件传说珍宝，就在迷雾深处",
-                    subtitle = "组建队伍 · 战术探索 · 带着真正的宝藏归来",
-                    modifier = Modifier.fillMaxWidth().height(218.dp),
-                )
-                if(error.isNotBlank())Text(error,color=Color(0xFFFFB5B5),fontSize=12.sp)
-                RelicLobbyPanel {
+
+    var prepExpanded by remember { mutableStateOf(false) }
+    val partyPanel: @Composable () -> Unit = {
+        RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("冒险者集结",color=Color.White,modifier=Modifier.weight(1f),
                             fontSize=18.sp,fontWeight=FontWeight.Black)
@@ -133,17 +100,88 @@ internal fun RelicEscapeLobby(
                     Text("队友有自己的选择与行动。邀请需要一次模型调用，拒绝不会强行入队。",
                         color=campMuted,fontSize=10.sp)
                 }
-
-                if(!live) {
-                    Button(onClick=onStart,modifier=Modifier.fillMaxWidth().height(56.dp),
-                        shape=RoundedCornerShape(15.dp),enabled=inviting==null,
-                        colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk)) {
-                        Text("▶ 整备出发 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层遗迹",
-                            fontWeight=FontWeight.Black,fontSize=17.sp)
+    }
+    val launchButton: @Composable () -> Unit = {
+        Button(onClick=onStart,modifier=Modifier.fillMaxWidth().height(62.dp),
+            enabled=inviting==null,shape=RoundedCornerShape(15.dp),
+            colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk)) {
+            Text("⚔ 出发摸金 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层",
+                fontSize=19.sp,fontWeight=FontWeight.Black)
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize().background(campInk)) {
+        val landscape=maxWidth>maxHeight
+        GameLobbyBackdrop(island=false,modifier=Modifier.matchParentSize())
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal=18.dp,vertical=14.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+            Column(Modifier.widthIn(max=1040.dp).fillMaxWidth(),
+                verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("✦ 迷雾摸金",color=Color.White,fontSize=31.sp,
+                            fontWeight=FontWeight.Black)
+                        Text("遗迹探索 · 寻回珍宝 · 带着队友安全撤离",
+                            color=campMuted,fontSize=13.sp)
                     }
-                    Text("装备、难度、药剂在下方选择；返回营地可继续未结束的对局。",
-                        color=campMuted,fontSize=11.sp)
+                    Surface(color=Color(0xD71B2E3B),shape=RoundedCornerShape(14.dp),
+                        border=BorderStroke(1.dp,campGold.copy(alpha=.42f))) {
+                        Column(Modifier.padding(horizontal=14.dp,vertical=9.dp)) {
+                            Text("◇ "+snapshot.coins+" 铜币",color=campGold,
+                                fontSize=15.sp,fontWeight=FontWeight.Bold)
+                            Text("永久珍藏 "+snapshot.vault.size+" 件",
+                                color=campMuted,fontSize=11.sp)
+                        }
+                    }
                 }
+                if(error.isNotBlank())Text(error,color=Color(0xFFFFB5B5),fontSize=12.sp)
+                if(landscape) {
+                    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(16.dp),
+                        verticalAlignment=Alignment.Top) {
+                        Column(Modifier.weight(1.40f),
+                            verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                            Spacer(Modifier.height(108.dp))
+                            partyPanel()
+                        }
+                        Column(Modifier.weight(1f),
+                            verticalArrangement=Arrangement.spacedBy(10.dp)) {
+                            RelicLobbyPanel {
+                                Text("✦ 本次出发简报",color=campGold,fontSize=20.sp,
+                                    fontWeight=FontWeight.Black)
+                                Text(if(live)"尚有未结束的探索，可返回营地续玩"
+                                    else "前往第"+(snapshot.successes+1).coerceAtMost(5)+"层遗迹",
+                                    color=Color.White,fontSize=13.sp)
+                                Text("难度 · "+difficulty.label+"    治疗药剂 · "+
+                                    kits.coerceIn(0,snapshot.kits),
+                                    color=campMuted,fontSize=12.sp)
+                                Text("本次委托 · "+contract.label,
+                                    color=campGold,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                                Text(contract.condition,color=campMuted,fontSize=11.sp)
+                                Text("武器 · "+RelicArsenal.label(startingWeapon),
+                                    color=campMuted,fontSize=11.sp)
+                                if(!live) TextButton(onClick={prepExpanded=!prepExpanded}) {
+                                    Text(if(prepExpanded)"收起战前整备 −" else "配置装备 / 委托 / 难度 ＋",
+                                        color=campMint,fontSize=12.sp)
+                                }
+                            }
+                            if(!live) launchButton()
+                            else Button(onClick=onContinue,modifier=Modifier.fillMaxWidth().height(55.dp),
+                                colors=ButtonDefaults.buttonColors(containerColor=campGold,
+                                    contentColor=campInk)) { Text("▶ 继续上次探险",fontWeight=FontWeight.Bold) }
+                        }
+                    }
+                } else {
+                    GameLobbyStage(island=false,eyebrow="EXPEDITION BASE CAMP",
+                        title=if(live)"遗迹正在等你归队" else "下一件传说珍宝，就在迷雾深处",
+                        subtitle="组建队伍 · 战术探索 · 带着真正的宝藏归来",
+                        modifier=Modifier.fillMaxWidth().height(202.dp))
+                    partyPanel()
+                    if(!live)launchButton()
+                    if(!live)TextButton(onClick={prepExpanded=!prepExpanded}) {
+                        Text(if(prepExpanded)"收起战前整备 −" else "装备 / 难度 / 委托整备 ＋",
+                            color=campMint,fontSize=12.sp)
+                    }
+                }
+
                 if(live) {
                     RelicLobbyPanel {
                         Text("有一局探险尚未结束",color=campGold,fontSize=18.sp,
@@ -174,6 +212,7 @@ internal fun RelicEscapeLobby(
                             }
                         }
                     }
+                    if(prepExpanded) {
                     RelicLobbyPanel {
                         Text("选择难度",color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black)
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -248,6 +287,7 @@ internal fun RelicEscapeLobby(
                         }
                         Text("每位接受邀请的伙伴自带1份救援药剂。背包装备与药剂会在出发时锁定。",
                             color=campMuted,fontSize=11.sp)
+                    }
                     }
                 }
 
