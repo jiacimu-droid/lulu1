@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:44:21.554948+00:00",
-  "commit": "530d33cec845b69b3982d4a58f1a75476b1f7c07",
+  "generatedAt": "2026-11-10T07:30:28.267402+00:00",
+  "commit": "bb1d54ba3dd416fdb3e9eb1252aa719c80f3ce23",
   "branch": "main",
-  "sourceFingerprint": "e90cd7beff8b5d29c4f954afba570e0741c4a935b13abe919121ee851d0ec78a",
+  "sourceFingerprint": "1ed224ac1c00a0e198f18ced016f7c3c31ec691c36f0a0fde13577f1d62dc801",
   "summary": {
     "files": 1169,
-    "lines": 252256,
-    "symbols": 3437
+    "lines": 252339,
+    "symbols": 3440
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -329,7 +329,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 616
+        "line": 624
       }
     ],
     "update": [
@@ -1107,7 +1107,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 596
+        "line": 604
       }
     ],
     "prepareVoiceNote": [
@@ -17387,41 +17387,57 @@
     "ConversationExpressionGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 30
+        "line": 38
       }
     ],
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 185
+        "line": 193
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 415
+        "line": 423
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 479
+        "line": 487
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 517
+        "line": 525
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 548
+        "line": 556
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 689
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 418
+        "line": 426
       }
     ],
     "requestBody": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 615
+        "line": 623
+      }
+    ],
+    "mediaReply": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 693
+      }
+    ],
+    "hasMediaReceipt": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 710
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -35136,8 +35152,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2207,
-      "sha256": "2e49fc06258d4760f7f46a4eb7bfc88a5f2e41a48949a9be99ebc0e623773658",
+      "lines": 2210,
+      "sha256": "e5d1f65d323e9d9639dfde53e6509ce7f592528b69dc53715f61cba3851ecba0",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -38189,48 +38205,60 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 774,
-      "sha256": "693da955d0c371df3d73979f4deefbbeb580f6379b50ceabf4a5b0258b07b2eb",
+      "lines": 854,
+      "sha256": "1321a7f961e1bcd6f2914e117e1fefff444b6cddfd66b6ac3991443653fd6b17",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
-          "line": 30
+          "line": 38
         },
         {
           "name": "response",
-          "line": 185
+          "line": 193
         },
         {
           "name": "response",
-          "line": 415
+          "line": 423
         },
         {
           "name": "bubbles",
-          "line": 418
+          "line": 426
         },
         {
           "name": "response",
-          "line": 479
+          "line": 487
         },
         {
           "name": "response",
-          "line": 517
+          "line": 525
         },
         {
           "name": "response",
-          "line": 548
+          "line": 556
         },
         {
           "name": "enqueue",
-          "line": 596
+          "line": 604
         },
         {
           "name": "requestBody",
-          "line": 615
+          "line": 623
         },
         {
           "name": "prompt",
-          "line": 616
+          "line": 624
+        },
+        {
+          "name": "response",
+          "line": 689
+        },
+        {
+          "name": "mediaReply",
+          "line": 693
+        },
+        {
+          "name": "hasMediaReceipt",
+          "line": 710
         }
       ]
     },
