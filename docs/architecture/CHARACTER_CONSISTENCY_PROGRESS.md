@@ -1703,3 +1703,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [66f1600](https://github.com/jiacimu-droid/lulu1/commit/66f1600bed184760c57300e6b14401143c21c353) 在现有电话副动作交接补齐显式链接，已有的参数优先，沿用当前权限、真实日程校验及独立回执。保留既有请求 ID 与模型决定，未添加模型调用或改动共享执行器。历史无关联日程不会被猜测补绑。
 - `ConversationExpressionGatewayTest.phoneAndPrivateChatBothRejectAnUnownedConcernInAScheduleStep` 用同一模型 JSON 走电话及私聊 Bridge，私聊延后步骤交现有 OrderedCharacterActions。验证表达可交付且私聊表达收到完整否定条件，两边都以真实失败回执拒绝无归属心事且不创建日程。该用例不启动手机 UI、播放音频或测试真实模型语义。
 - 本轮静态核对源码、文件 SHA 与作用范围。CI [Refresh code index #42791608402](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608402) completed/success，[Lulu APK #42791608418](https://github.com/jiacimu-droid/lulu1/actions/runs/42791608418) in_progress。下一轮保持 P-03.1，先查本 SHA 对应的新回归。若成功，直接在同一测试文件补本人有效心事的正向绑定及同请求重放对照，再视证据进入其他媒介，勿把本次拒绝用例当作全入口已验收。
+
+
+## 2026-11-10 · UI-02.2 旧 state_v1 编辑/删除冷恢复夹具
+
+- [4b2be0c](https://github.com/jiacimu-droid/lulu1/commit/4b2be0cf6f1391ebb0a7120fb6773140c53fffcf) 新增 `ChatHistoryLegacyCompatibilityTest.legacyEditAndDeleteRemainDurableAcrossReopen`：真实旧双会话快照 → Store 初始化 → 编辑与删除 → SharedPreferences 落盘核对 → 新 Store 冷恢复；重复删除不应复活，另一会话及否定条件保持。未修改生产存储、历史或人物设定。
+- UI-02.1 三次写入 run #42769855635 对应 `233af13` 为 completed/cancelled，无可用计时结果；此前 1k/10k 双会话回归 #42763652639 success，不等于性能验收。
+- **下一轮固定 UI-02.2**：先查 `4b2be0c` 的 main push Lulu APK/JVM、Refresh code index 首错；通过后补真实增量迁移失败/中断/回退夹具，再按证据修改正式 Store。100k、真机 ANR、真实模型和中转账单独立待验；不可勾整体 UI-02。
