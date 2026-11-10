@@ -194,7 +194,9 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         color=Color(0xFFFFE3A9),fontSize=12.sp)
                 }
                 nextChallenges.forEach { challenge ->
-                    val achieved=false
+                    // Migrated saves may satisfy a challenge before its next
+                    // valid turn awards it. Show truth, not a forced empty box.
+                    val achieved=savedIsland?.let(challenge.completed) ?: false
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text(if(achieved)"✓" else "□",color=if(achieved)mint else dim,
                             fontSize=17.sp,modifier=Modifier.width(26.dp))
