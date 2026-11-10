@@ -450,17 +450,14 @@ class IslandHouseProjectsTest {
         val count=built.houseProject!!.placed.size
         assertTrue(count>0)
         assertEquals(count,IslandHouseProjects.progress(built.houseProject!!))
-        val paused=IslandHouseProjects.choose(built,"alice",
-            IslandActorChoice("pause_house","先停一下"))!!
+        val paused=IslandHouseProjects.choose(built,"alice","pause_house","先停一下")!!
         assertEquals("paused",paused.houseProject?.phase)
         val restored=BlockIslandState.fromJson(paused.toJson())!!
         assertEquals(count,IslandHouseProjects.progress(restored.houseProject!!))
         assertEquals(count,IslandHouseProjects.progress(nextTurn(restored).houseProject!!))
-        val demolishing=IslandHouseProjects.choose(restored,"alice",
-            IslandActorChoice("demolish_house","我决定拆除"))!!
+        val demolishing=IslandHouseProjects.choose(restored,"alice","demolish_house","我决定拆除")!!
         assertEquals(9-count,IslandHouseProjects.progress(demolishing.houseProject!!))
-        val pausedDemolition=IslandHouseProjects.choose(demolishing,"alice",
-            IslandActorChoice("pause_house","先暂停拆除"))!!
+        val pausedDemolition=IslandHouseProjects.choose(demolishing,"alice","pause_house","先暂停拆除")!!
         assertEquals("paused",pausedDemolition.houseProject?.phase)
         assertEquals("demolishing",pausedDemolition.houseProject?.resumePhase)
         val saved=BlockIslandState.fromJson(pausedDemolition.toJson())!!
