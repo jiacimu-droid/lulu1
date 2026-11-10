@@ -62,7 +62,13 @@ class BlockIslandRulesTest {
         assertEquals(ready.fruit+cape.fruit,visitedCape.fruit)
         val restored=BlockIslandState.fromJson(visitedCape.toJson())!!
         assertEquals(visitedCape.awardedChallenges,restored.awardedChallenges)
-        assertEquals(visitedCape,IslandChallengeBoard.awardCompleted(restored))
+        assertEquals(visitedCape.world.wood,restored.world.wood)
+        assertEquals(visitedCape.world.stone,restored.world.stone)
+        assertEquals(visitedCape.fruit,restored.fruit)
+        assertEquals(visitedCape.world.events,restored.world.events)
+        // The world loader deliberately replaces the transient notice with
+        // "存档已恢复"; compare persisted facts and prove no second reward.
+        assertEquals(restored,IslandChallengeBoard.awardCompleted(restored))
         val repeated=BlockIslandRules.act(restored,"move",19,5)
         assertEquals(visitedCape.world.wood,repeated.world.wood)
         assertEquals(visitedCape.fruit,repeated.fruit)
