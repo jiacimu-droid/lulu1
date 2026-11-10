@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`064c965ce7276059d4acdb39d2fd3eb67ad1d848`
+- 基准提交：`f91f1f4e17d2b7911a463404c325a0077f66552f`
 - 分支：`main`
-- 已索引文件：1172
-- 已索引代码/文本行：253594
-- 已发现符号：3456
+- 已索引文件：1173
+- 已索引代码/文本行：253695
+- 已发现符号：3459
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -709,6 +709,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt` | 120 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 126 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 205 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
