@@ -96,6 +96,39 @@ class RelicEscapeRulesTest {
             secured.copy(contract=RelicContract.COLLECTOR)))
     }
 
+    @Test fun permanentTreasureGalleryOnlyDisplaysActuallyOwnedLoot() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        val owned=RelicLoot("museum-owned","月银胸针",RelicTier.RARE,210)
+        val other=RelicLoot("museum-other","星穹冠冕",RelicTier.PRECIOUS,490)
+        val original=RelicSnapshot(vault=listOf(owned,other),coins=15)
+        context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+            .edit().putString("ledger",original.json().toString()).commit()
+        assertEquals(null,ledger.featureLoot("not-owned").featuredLootId)
+        val shown=ledger.featureLoot(owned.id)
+        assertEquals(owned.id,shown.featuredLootId)
+        assertEquals(listOf(owned,other),shown.vault)
+        assertEquals(15,shown.coins)
+        assertEquals(owned.id,RelicEscapeLedger(context).read().featuredLootId)
+        assertTrue(RelicTreasureGallery.identity(owned.name).contains("月光"))
+        assertTrue(RelicTreasureGallery.shareText(owned).contains("月银胸针"))
+        assertFalse(RelicTreasureGallery.shareText(owned).contains("星穹冠冕"))
+        val sold=ledger.sellLoot(owned.id)
+        assertEquals(null,sold.featuredLootId)
+        assertEquals(listOf(other),sold.vault)
+        assertEquals(225,sold.coins)
+        assertEquals(null,RelicEscapeLedger(context).read().featuredLootId)
+        val old=JSONObject(original.json().toString()).apply { remove("featuredLootId") }
+        assertNull(RelicSnapshot.read(old.toString()).featuredLootId)
+        val fraudulent=JSONObject(original.json().toString()).apply {
+            put("featuredLootId","not-owned")
+        }
+        assertNull(RelicSnapshot.read(fraudulent.toString()).featuredLootId)
+        val newDisplay=ledger.featureLoot(other.id)
+        assertEquals(other.id,newDisplay.featuredLootId)
+        assertEquals(other.id,RelicSnapshot.read(newDisplay.json().toString()).featuredLootId)
+    }
+
     @Test fun physicalContractSuccessAddsPermanentCoinsOnlyOnce() {
         val ledger=cleared()
         val context=RuntimeEnvironment.getApplication()
