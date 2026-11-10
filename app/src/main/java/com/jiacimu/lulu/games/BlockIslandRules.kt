@@ -152,9 +152,6 @@ internal object IslandMilestones {
             s.nightsSurvived < 3 -> "生存 5/5 · 守住3夜（${s.nightsSurvived}/3）"
             nextLandmark != null ->
                 "远航 ${IslandExpeditionTrail.completedCount(s)+1}/${IslandExpeditionTrail.landmarks.size} · 前往${nextLandmark.title}（距离${IslandExpeditionTrail.distance(s,nextLandmark)}格）"
-            IslandGuardianEncounter.ready(s) ->
-                "终章 · ${IslandGuardianEncounter.title} · "+
-                (IslandGuardianEncounter.active(s)?.let { "生命${it.hp}/${IslandGuardianEncounter.hp}" } ?: "守卫将在南岭现身")
             s.supplyCaches.any { it !in s.openedSupplies } ->
                 "探险 1/3 · 搜寻补给宝箱（${s.openedSupplies.size}/${s.supplyCaches.size}）"
             !s.tools.containsAll(setOf("axe", "pickaxe", "sword", "rod")) ->
@@ -167,6 +164,9 @@ internal object IslandMilestones {
                 "家园 1/2 · 为动物伙伴建造温暖小屋"
             s.structures.values.none { it=="lantern" } ->
                 "家园 2/2 · 建造夜灯，点亮自己的家"
+            IslandGuardianEncounter.ready(s) ->
+                "终章 · ${IslandGuardianEncounter.title} · "+
+                (IslandGuardianEncounter.active(s)?.let { "生命${it.hp}/${IslandGuardianEncounter.hp}" } ?: "守卫将在南岭现身")
             else -> "生存、拓荒、生态与家园目标达成！继续创造自己的世界"
         }
     }
