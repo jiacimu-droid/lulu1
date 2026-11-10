@@ -104,6 +104,7 @@ internal data class RelicRun(
     /** Permanent expedition satchel tier is captured at departure. Allies keep 8 slots. */
     val satchelLevel:Int = 0,
     val difficulty:RelicDifficulty = RelicDifficulty.NORMAL,
+    val contract:RelicContract = RelicContract.NONE,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -133,6 +134,7 @@ internal data class RelicRun(
         .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
         .put("guardedBy",guardedBy)
         .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
+        .put("contract",contract.name)
         .put("coopPlans",JSONObject().apply { coopPlans.forEach { (id,p) -> put(id,p.json()) } })
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
@@ -175,7 +177,9 @@ internal data class RelicRun(
             result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result),
                 satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2),
                 difficulty=runCatching { RelicDifficulty.valueOf(j.optString("difficulty","NORMAL")) }
-                    .getOrDefault(RelicDifficulty.NORMAL))
+                    .getOrDefault(RelicDifficulty.NORMAL),
+                contract=runCatching { RelicContract.valueOf(j.optString("contract","NONE")) }
+                    .getOrDefault(RelicContract.NONE))
         }.getOrNull()
     }
 }

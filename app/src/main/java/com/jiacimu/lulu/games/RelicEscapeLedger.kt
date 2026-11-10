@@ -85,14 +85,14 @@ internal class RelicEscapeLedger(context:Context) {
     }
     @Synchronized fun begin(participants:List<String>,medkits:Int,
         difficulty:RelicDifficulty=RelicDifficulty.NORMAL,
-        startingWeapon:String="blade"):RelicSnapshot {
+        startingWeapon:String="blade",contract:RelicContract=RelicContract.NONE):RelicSnapshot {
         val old=read()
         if(old.run?.phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return old
         if(medkits !in 0..3 || old.kits<medkits)return old
         val level=(old.successes+1).coerceAtMost(5)
         val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,
-            difficulty,old.purchasedWeapons,startingWeapon)
+            difficulty,old.purchasedWeapons,startingWeapon).copy(contract=contract)
         return write(old.copy(run=run,kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
@@ -140,7 +140,7 @@ internal class RelicEscapeLedger(context:Context) {
         // Even if caller replays a stale action, each unique run can be settled only once.
         return write(old.copy(run=next,
             vault=old.vault+award.filter{candidate->old.vault.none{it.id==candidate.id}},
-            coins=old.coins+if(terminal)award.sumOf{it.value}/4 else 0,
+            coins=old.coins+if(terminal)award.sumOf{it.value}/4 + RelicContractBoard.bonus(next) else 0,
             successes=old.successes+if(terminal && next.phase==RelicPhase.SUCCESS)1 else 0,
             awarded=if(terminal)old.awarded+next.id else old.awarded,
             discovered=if(terminal && next.phase==RelicPhase.SUCCESS)

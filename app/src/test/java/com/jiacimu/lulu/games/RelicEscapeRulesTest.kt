@@ -12,6 +12,32 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun physicalContractSuccessAddsPermanentCoinsOnlyOnce() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val run=RelicEscapeWorld.create(232,1,emptyList(),0,1)
+        val loot=RelicLoot("contract-award","旧王银币",RelicTier.COMMON,80)
+        val prepared=run.copy(contract=RelicContract.FIRST_HAUL,mobs=emptyList(),
+            hero=run.hero.copy(x=run.exitX,y=run.exitY,bag=listOf(loot)))
+        val json=JSONObject(prepared.json().toString())
+        assertEquals(RelicContract.FIRST_HAUL,RelicRun.read(json)!!.contract)
+        json.remove("contract")
+        assertEquals(RelicContract.NONE,RelicRun.read(json)!!.contract)
+        prefs.edit().putString("ledger",RelicSnapshot(run=prepared).json().toString()).commit()
+        assertEquals(0,RelicContractBoard.bonus(prepared))
+        ledger.perform("extract")
+        repeat(3){ledger.perform("wait")}
+        val settled=ledger.read()
+        assertEquals(RelicPhase.SUCCESS,settled.run!!.phase)
+        assertEquals(80/4+60,settled.coins)
+        assertEquals(60,RelicContractBoard.bonus(settled.run!!))
+        ledger.perform("extract")
+        ledger.perform("wait")
+        assertEquals(settled.coins,RelicEscapeLedger(context).read().coins)
+        assertEquals(0,RelicContractBoard.bonus(settled.run!!.copy(contract=RelicContract.RARITY)))
+        assertEquals(0,RelicContractBoard.bonus(settled.run!!.copy(phase=RelicPhase.FAILURE)))
+    }
     private fun cleared():RelicEscapeLedger {
         val context=RuntimeEnvironment.getApplication()
         context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit().clear().commit()

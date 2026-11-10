@@ -53,6 +53,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
     var startingWeapon by rememberSaveable { mutableStateOf("blade") }
+    var chosenContract by rememberSaveable { mutableStateOf(RelicContract.FIRST_HAUL) }
     var invitingId by remember { mutableStateOf<String?>(null) }
     var invitationStatus by remember { mutableStateOf("") }
     val invitationScope=rememberCoroutineScope()
@@ -136,8 +137,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         RelicEscapeLobby(
             snapshot=snapshot, accepted=acceptedInvites, inviting=invitingId,
             inviteStatus=invitationStatus,error=error,kits=kits,difficulty=difficulty,
-            startingWeapon=startingWeapon,
+            startingWeapon=startingWeapon,contract=chosenContract,
             onKits={kits=it},onDifficulty={difficulty=it},onStartingWeapon={startingWeapon=it},
+            onContract={chosenContract=it},
             onInvite={ id ->
                 if(invitingId==null && id !in acceptedInvites && acceptedInvites.size<3) {
                     invitingId=id
@@ -165,7 +167,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             onRemove={id->acceptedInvites=acceptedInvites.filterNot{it==id}},
             onStart={
                 store.selectCharacters(acceptedInvites)
-                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon) }) {
+                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon,chosenContract) }) {
                     if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) lobbyOpen=false
                 }
             },
@@ -319,6 +321,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
                 Text(objective, color=relicGold, fontWeight=FontWeight.Bold,
                     fontSize=11.sp, maxLines=2)
+                if(run.contract!=RelicContract.NONE) {
+                    Text("✦ 探险委托 · "+run.contract.label+" · "+run.contract.condition,
+                        color=relicGreen,fontSize=10.sp,maxLines=2)
+                }
                 val attackTarget = relicAttackTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
@@ -844,7 +850,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val ended=ledger.perform("abandon")
                 ledger.syncExperiences(ended,store)
                 ledger.begin(previous.allies.map{it.id},kits.coerceAtMost(ended.kits),
-                    previous.difficulty,startingWeapon)
+                    previous.difficulty,startingWeapon,previous.contract)
             }
             if(restarted && snapshot.run?.id!=previous.id) lobbyOpen=false
             confirmRestart=false
@@ -938,6 +944,12 @@ private fun relicDirection(dx:Int,dy:Int):String=
                         fontSize=11.sp,color=relicGold)
                 }
             }
+        }
+        if(run.contract!=RelicContract.NONE) {
+            val earned=RelicContractBoard.bonus(run)
+            Text("探险委托 · "+run.contract.label+" · "+
+                (if(earned>0) "达成！铜币 +"+earned else "本局未完成（无额外奖励）"),
+                color=if(earned>0)relicGreen else relicMuted,fontWeight=FontWeight.Bold)
         }
         run.secured.forEach{Text("带回 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicGreen)}
         run.lost.forEach{Text("遗失 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicRed)}

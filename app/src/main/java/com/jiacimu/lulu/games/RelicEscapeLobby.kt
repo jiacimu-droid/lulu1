@@ -36,6 +36,8 @@ internal fun RelicEscapeLobby(
     kits:Int,
     difficulty:RelicDifficulty,
     startingWeapon:String,
+    contract:RelicContract,
+    onContract:(RelicContract)->Unit,
     onKits:(Int)->Unit,
     onStartingWeapon:(String)->Unit,
     onDifficulty:(RelicDifficulty)->Unit,
@@ -205,6 +207,26 @@ internal fun RelicEscapeLobby(
                             RelicDifficulty.NORMAL->"标准探索 · 正常数量与强度的守卫"
                             RelicDifficulty.HARD->"更危险的遗迹 · 守卫更多、更强，也更容易倒地"
                         },color=campMuted,fontSize=11.sp)
+                    }
+                    RelicLobbyPanel {
+                        Text("✦ 选择本局探险委托",color=Color.White,fontSize=17.sp,
+                            fontWeight=FontWeight.Black)
+                        Text("带着目标出发。完成委托并成功撤离，才会结算额外铜币。",
+                            color=campMuted,fontSize=11.sp)
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                            RelicContract.values().forEach { choice ->
+                                FilterChip(selected=contract==choice,onClick={onContract(choice)},
+                                    label={Text(choice.label)},
+                                    colors=FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor=campGold,selectedLabelColor=campInk,
+                                        labelColor=campMuted))
+                            }
+                        }
+                        Text(contract.condition+" · "+
+                            (if(contract.bonus>0)"额外获得 ◇"+contract.bonus+" 铜币"
+                             else "不设奖励，可自由探索"),
+                            color=campGold,fontSize=12.sp,fontWeight=FontWeight.Bold)
                     }
                     RelicLobbyPanel {
                         Text("我的出发装备",color=Color.White,fontSize=17.sp,
