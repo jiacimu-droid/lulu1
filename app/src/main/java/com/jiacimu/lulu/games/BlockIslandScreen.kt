@@ -360,9 +360,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         // The existing navigational stepper walks actual connected
                         // terrain and stops if a creature or wall blocks the route.
                         buildMode=null
-                        target=nextLandmark.x to nextLandmark.y
+                        val destination=IslandExpeditionTrail.position(island,nextLandmark)
+                        target=destination
                         mapAim=false
-                        navigateTo=nextLandmark.x to nextLandmark.y
+                        navigateTo=destination
                     },
                     color=Color(0xDF4B4833),shape=RoundedCornerShape(11.dp),
                     border=BorderStroke(1.dp,Color(0xFFFFDB94).copy(alpha=.82f))
@@ -919,7 +920,8 @@ private fun IslandMiniMap(island: BlockIslandState) {
                     dot(it%w.width,it/w.width,Color(0xFFFFD992))
                 }
                 IslandExpeditionTrail.landmarks.forEach { place ->
-                    dot(place.x,place.y,
+                    val (mx,my)=IslandExpeditionTrail.position(island,place)
+                    dot(mx,my,
                         if(place.id in island.awardedChallenges)Color(0xFF71DEC6)
                         else Color(0xFFFFE093),1.75f)
                 }
