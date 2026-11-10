@@ -398,6 +398,7 @@ object CompanionOnlineStore {
         now: Instant = Instant.now(),
     ) {
         val memberIds = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId).distinct()
+            .filterNot { it.startsWith("resident:") }
         if (memberIds.isEmpty()) return
         synchronized(lock) {
             groupFocusUntil = groupFocusUntil + (conversation.id to now.plus(onlineDuration))
@@ -504,6 +505,10 @@ object CompanionOnlineStore {
             // never a cooldown for reading new messages. Do not enqueue here:
             // recipients below schedule one debounced worker for each reader.
             readers.distinct().filter(String::isNotBlank).forEach { reader ->
+                if (reader.startsWith("resident:")) {
+                    appContext?.let { renewResidentWindow(it, reader, now) }
+                    return@forEach
+                }
                 wakeCharacter(
                     characterId = reader,
                     reason = CompanionOnlineReason.NewActivity,
@@ -536,7 +541,7 @@ object CompanionOnlineStore {
             if (focused && members.isNotEmpty() &&
                 message.sender == LuluChatMessage.Sender.User) {
                 groupFocusUntil = groupFocusUntil + (conversation.id to now.plus(onlineDuration))
-                members.forEach { characterId ->
+                members.filterNot { it.startsWith("resident:") }.forEach { characterId ->
                     val previous = mutableStates.value[characterId]
                     EmbodiedBodyRuntime.onPresenceWake(characterId, previous, now)
                     val state = (previous ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)).copy(

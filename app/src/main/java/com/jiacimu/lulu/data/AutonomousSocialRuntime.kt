@@ -48,7 +48,9 @@ internal object AutonomousSocialRuntime {
         requestedPeers: Set<String>? = null, encounterIntent: String = "",
     ): MeetingSession? = encounterMutex.withLock {
         ScopedModelSelections.initialize(context.applicationContext)
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return@withLock null
+        if (!DigitalLifeProfileStore.isEnabled(characterId) ||
+            (characterId.startsWith("resident:") &&
+                !CompanionOnlineStore.residentIsAwake(context, characterId, now))) return@withLock null
         val currentLocation = DigitalWorldStore.locationOf(characterId)
         if (currentLocation == previousLocation) return@withLock null
         if (
@@ -71,7 +73,8 @@ internal object AutonomousSocialRuntime {
                 id != characterId &&
                     (requestedPeers == null || id in requestedPeers) &&
                     location == currentLocation &&
-                    DigitalLifeProfileStore.isEnabled(id)
+                    DigitalLifeProfileStore.isEnabled(id) &&
+                    (!id.startsWith("resident:") || CompanionOnlineStore.residentIsAwake(context, id, now))
             }
             .map { it.key }
             .distinct()
@@ -117,6 +120,10 @@ internal object AutonomousSocialRuntime {
         val characters = participantIds.associateWith(MigratedDomainStores.characters::get)
         val names = participantIds.map { characters.getValue(it).displayName }
         participantIds.forEach { id ->
+            if (id.startsWith("resident:")) {
+                CompanionOnlineStore.renewResidentWindow(context, id, now)
+                return@forEach
+            }
             val others = participantIds
                 .filterNot { it == id }
                 .joinToString("、") { characters.getValue(it).displayName }

@@ -321,9 +321,10 @@ object MomentsStore {
                 perceiveNow = false,
             )
         }
-        candidates.forEach { character ->
+        candidates.filterNot { it.characterId.startsWith("resident:") }.forEach { character ->
             runIndependentReaction(post, character, UserProfileContext.displayLabel())
         }
+        offerResidentFeedActivity(post, MomentFriendAccess.OWNER, requestReview = true)
     }
 
     private suspend fun runIndependentReaction(
@@ -621,7 +622,10 @@ object MomentsStore {
             speakerName = UserProfileContext.displayLabel(),
             timelineText = "【公开评论】评论了${authorName}的朋友圈：$clean",
         )
-        post.authorCharacterId?.let { authorId ->
+        mutablePosts.value.firstOrNull { it.id == postId }?.let {
+            offerResidentFeedActivity(it, MomentFriendAccess.OWNER, requestReview = true)
+        }
+        post.authorCharacterId?.takeUnless { it.startsWith("resident:") }?.let { authorId ->
             socialScope.launch { replyToUserComment(postId, comment.id, authorId) }
         }
         return comment

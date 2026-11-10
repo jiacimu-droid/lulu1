@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.CharacterMessageFavorites
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluChatStore
@@ -590,8 +592,12 @@ internal suspend fun runGroupReplies(
     onSpeakerChange: (String?) -> Unit = {},
     afterReply: suspend (String, String) -> Unit = { _, _ -> },
 ) {
-    val members = group.members.filter { it.characterId in characterNames }
-    if (members.size < 2) return onError("群聊至少需要两个仍然存在的角色")
+    val known = group.members.filter { it.characterId in characterNames }
+    if (known.size < 2) return onError("群聊至少需要两个仍然存在的角色")
+    fun isAvailable(id: String) = !id.startsWith("resident:") ||
+        CompanionOnlineStore.residentIsAwake(LuluAiServices.connectionStore.appContext, id)
+    val members = known.filter { isAvailable(it.characterId) }
+    if (members.isEmpty()) return
     val mentioned = members.filter { m -> m.groupNickname.ifBlank { characterNames[m.characterId].orEmpty() }.let { it.isNotBlank() && pendingText.contains("@$it", true) } }
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val recalled = recalledMessageIds(before)
@@ -626,6 +632,7 @@ internal suspend fun runGroupReplies(
     while (index < replyLimit && queue.isNotEmpty()) {
         val member = queue.removeAt(0)
         if (!currentCoroutineContext().isActive) return
+        if (!isAvailable(member.characterId)) continue
         // The owner has already spoken again while a planning/previous role
         // request was running. Yield before starting another paid role turn.
         if (pendingUserIds.isNotEmpty() &&
@@ -649,14 +656,14 @@ internal suspend fun runGroupReplies(
         val historySource = if (index == 0) visibleAll.filterNot { it.id in pendingIds } else visibleAll
         val history = buildBoundedHistory(historySource, label, characterNames)
             .ifBlank { initialHistory.takeIf { !DigitalLifeProfileStore.isEnabled(member.characterId) }.orEmpty() }
-        val memberList = members.joinToString("、") { it.groupNickname.ifBlank { characterNames[it.characterId] ?: it.characterId } }
+        val memberList = known.joinToString("、") { it.groupNickname.ifBlank { characterNames[it.characterId] ?: it.characterId } }
         val quotable = latest.filter { it.sender == LuluChatMessage.Sender.User && it.id in pendingUserIds }
         val prompt = buildString {
             val participants = if (group.ownerIncluded)
                 "${group.userGroupNickname}、$memberList" else memberList
             appendLine("[这是QQ式群聊《${group.name}》，成员：$participants。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
-            appendLine("[" + groupPeerEvidenceContext(member.characterId, members, latest, characterNames) + "]")
+            appendLine("[" + groupPeerEvidenceContext(member.characterId, known, latest, characterNames) + "]")
             if (!isGroupPhone) {
                 // The only direction this character sees is their OWN; it is
                 // a suggestion, not a fact, instruction, or another's private mind.
