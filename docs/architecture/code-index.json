@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T07:47:42.578887+00:00",
-  "commit": "aef4470e067fd1c7d82947d6bae21b758b21c44e",
+  "generatedAt": "2026-11-10T07:48:12.381608+00:00",
+  "commit": "9569a5db24b7a493a97f38df7225406596c268be",
   "branch": "main",
-  "sourceFingerprint": "09f89042a876aabe44334d98254b39644e9a15c3cc905923f426ae5d386b1a06",
+  "sourceFingerprint": "9d4e9959593ac43fdd2cf821d18d4cac7cd40eb5c2b330b0e499014290426fd5",
   "summary": {
     "files": 1169,
-    "lines": 252474,
+    "lines": 252475,
     "symbols": 3440
   },
   "symbolIndex": {
@@ -507,7 +507,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 36
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -7989,7 +7989,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "handled": [
@@ -26481,16 +26481,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 78,
-      "sha256": "215cf43d58d1b496548a29c4ea3fd4682bb57ef325b2697a5c4f3e5a31ad38ee",
+      "lines": 79,
+      "sha256": "662adfbc3ce0d484844aa20ae300b89bc343f99ff6a2916f45978a8269b70ad8",
       "symbols": [
         {
           "name": "context",
-          "line": 36
+          "line": 37
         },
         {
           "name": "drafts",
-          "line": 56
+          "line": 57
         }
       ]
     },
