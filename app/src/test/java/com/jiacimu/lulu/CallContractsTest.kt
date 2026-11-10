@@ -6,6 +6,13 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class CallContractsTest {
+    @Test fun ordinaryCallAllowsUserToStartBeforePaidGreetingButWakeDoesNotWait() {
+        assertEquals(1_200L, CallOpeningTurn.initialReplyGraceMillis("", false))
+        assertEquals(1_200L, CallOpeningTurn.initialReplyGraceMillis("想聊天", false))
+        assertEquals(0L, CallOpeningTurn.initialReplyGraceMillis("到了叫醒时间", false))
+        assertEquals(0L, CallOpeningTurn.initialReplyGraceMillis("", true))
+    }
+
     @Test fun speechRecognitionOnlyUsesExplicitChoiceAndLegacyAutoMeansPhoneSystem() {
         assertEquals("elevenlabs", CallVoiceConfiguration.resolveSttEngine("elevenlabs"))
         assertEquals("local", CallVoiceConfiguration.resolveSttEngine("system"))

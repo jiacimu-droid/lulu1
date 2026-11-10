@@ -11,6 +11,11 @@ internal class CallOpeningTurn {
     }
 
     companion object {
+        // Before paying for an unsolicited greeting, give the caller a moment
+        // to start speaking. A scheduled wake-up must not be delayed.
+        fun initialReplyGraceMillis(incomingReason: String, hasScheduledTask: Boolean): Long =
+            if (hasScheduledTask || isWakeCallReason(incomingReason)) 0L else 1_200L
+
         fun isWakeCallReason(reason: String): Boolean =
             listOf("叫醒", "起床", "醒醒", "唤醒", "喊醒", "睡醒").any(reason::contains)
 

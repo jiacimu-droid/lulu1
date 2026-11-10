@@ -439,6 +439,7 @@ internal object LuluVoiceCallSession {
     }
     private var timerJob: Job? = null
     private var dialJob: Job? = null
+    private var openingStartJob: Job? = null
     private var restartListeningJob: Job? = null
     private var systemCommitJob: Job? = null
     private var sleepContinuationJob: Job? = null
@@ -875,6 +876,8 @@ internal object LuluVoiceCallSession {
         mediaTimers.clear()
         mediaSpeechResume?.cancel()
         mediaSpeechResume = null
+        openingStartJob?.cancel()
+        openingStartJob = null
         appContext?.let { context ->
             com.jiacimu.lulu.data.DeferredCallMediaAction.onCallDisconnected(
                 context, current.characterId, current.callExperienceId)
@@ -1488,7 +1491,16 @@ internal object LuluVoiceCallSession {
     private fun startOpening() {
         val current = mutableState.value
         if (!current.connected || !openingTurn.claim(current.callExperienceId)) return
-        mutableState.update { it.copy(opening = true, listening = false, statusMessage = "${it.characterName} 正要开口") }
+        val openingGraceMillis = CallOpeningTurn.initialReplyGraceMillis(
+            current.incomingReason, current.incomingCommitmentTaskId != null)
+        if (openingGraceMillis == 0L) {
+            mutableState.update { it.copy(opening = true, listening = false,
+                statusMessage = "${it.characterName} 正要开口") }
+        } else {
+            // Leave opening=false so the system recognizer can hear an eager
+            // caller; marking opening=true here would block its microphone.
+            mutableState.update { it.copy(statusMessage = "电话已接通，可以先说话") }
+        }
         InteractionSignalBridge.recordCallStart(current.characterId, current.callExperienceId, current.incomingReason)
         if (LuluCallWindowController.videoRequested.value) {
             InteractionSignalBridge.recordVideoSelected(current.characterId, current.callExperienceId)
@@ -1530,7 +1542,35 @@ internal object LuluVoiceCallSession {
                 }
             }
         }
-        handleUserSpeech("", opening = true)
+        if (openingGraceMillis == 0L) {
+            handleUserSpeech("", opening = true)
+        } else {
+            val callId = current.callExperienceId
+            val initialGeneration = replyGeneration
+            openingStartJob?.cancel()
+            openingStartJob = scope.launch {
+                delay(openingGraceMillis)
+                while (true) {
+                    val live = mutableState.value
+                    if (!live.connected || live.callExperienceId != callId ||
+                        initialGeneration != replyGeneration) return@launch
+                    // A real utterance (or pending cloud transcription) owns
+                    // the first turn. Do not pay for a greeting in parallel.
+                    if (userSpeechInProgress || live.userSpeaking ||
+                        systemPartialCandidate.isNotBlank() || systemUtteranceBuffer.isNotBlank() ||
+                        providerInput?.hasPendingUtterance == true) {
+                        delay(180L)
+                        continue
+                    }
+                    if (live.thinking || live.speaking ||
+                        speechQueue?.hasPendingAudio == true) return@launch
+                    mutableState.update { it.copy(opening = true, listening = false,
+                        statusMessage = "${it.characterName} 正要开口") }
+                    handleUserSpeech("", opening = true)
+                    return@launch
+                }
+            }
+        }
     }
 
     private fun handleUserSpeech(
