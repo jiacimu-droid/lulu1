@@ -186,7 +186,18 @@ internal fun GameSceneDeck(
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.End,
         ) {
-            quickActions()
+            // The objective/threat commentary can be arbitrarily long during
+            // co-op. Cap and scroll that informational layer, not the player's
+            // combat/build buttons. Small landscape windows stay playable.
+            Column(
+                Modifier.fillMaxWidth()
+                    .heightIn(max=if(wide) minOf(maxHeight*.39f,195.dp)
+                        else minOf(maxHeight*.30f,260.dp))
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement=Arrangement.spacedBy(5.dp),
+            ) {
+                quickActions()
+            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 actions()
