@@ -42,6 +42,11 @@ internal object BlockIslandArt {
     private val companionOutfits = listOf(
         Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
     )
+    // Reused geometry offsets; drawing the same island must not allocate per-frame coordinate lists.
+    private val houseLightOffsets = floatArrayOf(.55f, 2.44f)
+    private val houseWindowOffsets = floatArrayOf(.33f, 2.37f)
+    private val neighborOffsets = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
+    private val selectionCorners = arrayOf(-1f to -1f, 1f to -1f, -1f to 1f, 1f to 1f)
     private val companionHair = listOf(
         Color(0xFF3F627F), Color(0xFF594D4B), Color(0xFF574D73), Color(0xFF6F5D46),
     )
@@ -135,7 +140,7 @@ internal object BlockIslandArt {
             island.houseProject?.takeIf { it.phase=="complete" }?.let { house ->
                 val base=origin(house.left,house.top)
                 val glow=Color(0xFFFFDBA5)
-                for(dx in listOf(.55f,2.44f)) {
+                for(dx in houseLightOffsets) {
                     val center=base+Offset(tile*dx,tile*2.20f)
                     drawCircle(glow.copy(alpha=.18f),tile*.74f,center)
                     drawCircle(glow.copy(alpha=.38f),tile*.24f,center)
@@ -143,7 +148,9 @@ internal object BlockIslandArt {
             }
         }
         // Only immediately interactable targets glow; no invented objectives or world changes.
-        for ((x, y) in listOf(w.x - 1 to w.y, w.x + 1 to w.y, w.x to w.y - 1, w.x to w.y + 1)) {
+        for ((dx, dy) in neighborOffsets) {
+            val x = w.x + dx
+            val y = w.y + dy
             if (!w.inBounds(x, y)) continue
             val actionable = when {
                 w.mobs.any { it.hp > 0 && it.x == x && it.y == y } -> Color(0xFFFFA78C)
@@ -295,7 +302,7 @@ internal object BlockIslandArt {
             drawRect(color.copy(alpha = .8f), origin(selected.first, selected.second) +
                 Offset(2f, 2f), Size(tile - 4f, tile - 4f), style = Stroke((tile * .055f).coerceAtLeast(1.5f)))
             // Four corner highlights, clear even at the small default zoom.
-            listOf(-1f to -1f, 1f to -1f, -1f to 1f, 1f to 1f).forEach { (dx, dy) ->
+            selectionCorners.forEach { (dx, dy) ->
                 drawRect(cream, topLeft = c + Offset(dx * ring, dy * ring) -
                     Offset(tile * .05f, tile * .05f), size = Size(tile * .10f, tile * .10f))
             }
@@ -657,7 +664,7 @@ internal object BlockIslandArt {
         drawLine(Color(0xFF84664B),p+Offset(t*1.51f,t*.88f),
             p+Offset(t*1.51f,t*1.19f),strokeWidth=t*.055f)
         // Front-facing windows with planter boxes make this visibly lived in.
-        for(x in listOf(.33f,2.37f)){
+        for(x in houseWindowOffsets){
             drawRoundRect(Color(0xFF60473B),p+Offset(t*x,t*2.02f),
                 Size(t*.32f,t*.40f),CornerRadius(t*.04f))
             drawRect(Color(0xFFF7D7A0),p+Offset(t*(x+.05f),t*2.07f),
