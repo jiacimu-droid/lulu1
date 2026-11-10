@@ -92,10 +92,17 @@ internal fun RelicEscapeLobby(
                         }
                     }
                 }
+                GameLobbyStage(
+                    island = false,
+                    eyebrow = "EXPEDITION BASE CAMP",
+                    title = if(live) "遗迹正在等你归队" else "下一件传说珍宝，就在迷雾深处",
+                    subtitle = "组建队伍 · 战术探索 · 带着真正的宝藏归来",
+                    modifier = Modifier.fillMaxWidth().height(218.dp),
+                )
                 if(error.isNotBlank())Text(error,color=Color(0xFFFFB5B5),fontSize=12.sp)
                 RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
-                        Text("我的探险小队",color=Color.White,modifier=Modifier.weight(1f),
+                        Text("冒险者集结",color=Color.White,modifier=Modifier.weight(1f),
                             fontSize=18.sp,fontWeight=FontWeight.Black)
                         Text("你 + "+accepted.size+"/3 位伙伴",color=campMint,fontSize=12.sp)
                     }
@@ -135,10 +142,20 @@ internal fun RelicEscapeLobby(
                         Text("正在等待角色本人回应邀请…",color=campMint,fontSize=12.sp)
                     }
                     if(inviteStatus.isNotBlank())Text(inviteStatus,color=campMint,fontSize=12.sp)
-                    Text("邀请会交给角色本人决定；未答应的角色不会被自动加入。",
+                    Text("队友有自己的选择与行动。邀请需要一次模型调用，拒绝不会强行入队。",
                         color=campMuted,fontSize=10.sp)
                 }
 
+                if(!live) {
+                    Button(onClick=onStart,modifier=Modifier.fillMaxWidth().height(56.dp),
+                        shape=RoundedCornerShape(15.dp),enabled=inviting==null,
+                        colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk)) {
+                        Text("▶ 整备出发 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层遗迹",
+                            fontWeight=FontWeight.Black,fontSize=17.sp)
+                    }
+                    Text("装备、难度、药剂在下方选择；返回营地可继续未结束的对局。",
+                        color=campMuted,fontSize=11.sp)
+                }
                 if(live) {
                     RelicLobbyPanel {
                         Text("有一局探险尚未结束",color=campGold,fontSize=18.sp,
@@ -223,13 +240,6 @@ internal fun RelicEscapeLobby(
                         }
                         Text("每位接受邀请的伙伴自带1份救援药剂。背包装备与药剂会在出发时锁定。",
                             color=campMuted,fontSize=11.sp)
-                        Button(onClick=onStart,modifier=Modifier.fillMaxWidth().height(48.dp),
-                            enabled=inviting==null,
-                            colors=ButtonDefaults.buttonColors(containerColor=campGold,
-                                contentColor=campInk)) {
-                            Text("✦ 开始探险 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层",
-                                fontWeight=FontWeight.Black)
-                        }
                     }
                 }
 

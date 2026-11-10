@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -70,6 +71,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     var invitationResult by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val existingIsland = savedIsland != null
+    val playerProfile = remember(context) { context.getSharedPreferences("lulu_user_profile", 0) }
+    val playerAvatar = remember(playerProfile) { playerProfile.getString("avatar_uri", null) }
+    val playerName = remember(playerProfile) {
+        playerProfile.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    }
     val mint = Color(0xFFB7F2CE)
     val dim = Color(0xFFB6CDBF)
     val panel = Color(0xED183C3E)
@@ -93,39 +99,43 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
             }
         }
 
-        Box(Modifier.fillMaxWidth().height(128.dp)) {
-            Canvas(Modifier.fillMaxSize()) {
-                val cell = size.height / 6f
-                for (row in 0..5) for (col in 0..19) {
-                    val shade = if ((row * 7 + col * 3) % 6 == 0) Color(0xFF3D8065) else Color(0xFF548C6F)
-                    drawRect(shade, Offset(col * cell, row * cell), Size(cell - 1f, cell - 1f))
-                }
-                // Pixel-art island: local drawing only, no new game state.
-                drawRect(Color(0xFF8DC2A1), Offset(size.width * .49f, size.height * .25f),
-                    Size(size.width * .16f, size.height * .48f))
-                drawRect(Color(0xFF775A41), Offset(size.width * .54f, size.height * .35f),
-                    Size(size.width * .07f, size.height * .32f))
-                drawRect(Color(0xFFB5A27B), Offset(size.width * .45f, size.height * .23f),
-                    Size(size.width * .24f, size.height * .12f))
-                drawCircle(Color(0xFFFFE3A7), radius = cell * .55f,
-                    center = Offset(size.width * .26f, size.height * .35f))
-            }
-            Column(Modifier.align(Alignment.BottomStart).padding(12.dp)) {
-                Text("岛屿生活 · 共建家园", color = Color.White, fontWeight = FontWeight.Black, fontSize = 18.sp)
-                Text("建营地、守夜、探索宝箱，与伙伴真正分工", color = Color.White, fontSize = 10.sp)
-            }
+        // The world itself sells the fantasy before the player reads any settings.
+        GameLobbyStage(
+            island = true,
+            title = if (existingIsland) "欢迎回家，岛主" else "从一座小岛，建起我们的世界",
+            eyebrow = if (existingIsland) "CONTINUE YOUR WORLD" else "YOUR FIRST ADVENTURE",
+            subtitle = "探索未知海岸 · 盖一间小屋 · 认识新的伙伴",
+            modifier = Modifier.fillMaxWidth().height(224.dp),
+        )
+        Button(
+            onClick = { onStart(selected.take(3)) },
+            enabled = inviting == null,
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+            shape = RoundedCornerShape(15.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = Color(0xFF183B32)),
+        ) {
+            Text(if (existingIsland) "▶ 继续我的岛屿冒险" else "▶ 开始第一天的冒险",
+                fontWeight = FontWeight.Black, fontSize = 17.sp)
         }
+        Text("不想邀请伙伴？一个人也能出发。进度会自动保存。",
+            color = dim, fontSize = 11.sp)
 
         Surface(shape = RoundedCornerShape(18.dp), color = panel,
             border = BorderStroke(1.dp, mint.copy(alpha = .28f))) {
             Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                Text("出发队伍", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("一起去冒险", color = Color.White, fontWeight = FontWeight.Black,
+                        fontSize = 17.sp, modifier = Modifier.weight(1f))
+                    Text("1 + ${selected.size} / 3", color = mint, fontSize = 11.sp)
+                }
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF32644F)) {
                         Column(Modifier.width(86.dp).padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("🧑", fontSize = 30.sp)
+                            GameCharacterPawn(avatarUri = playerAvatar, fallback = playerName,
+                                moving = false, facingX = 1f, player = true,
+                                coat = Color(0xFF5E9278))
                             Text("你 · 岛主", color = Color.White, fontSize = 11.sp)
                         }
                     }
@@ -147,7 +157,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         Text("＋ 邀请", color = mint)
                     }
                 }
-                Text("邀请角色会调用一次游戏模型，由本人决定是否加入；可独自出发。进入后点🎙说话、点🔊开启角色有声回应，角色会根据局势自行行动。",
+                Text("＋ 邀请由角色本人决定是否接受（需要一次模型调用）；游戏内可语音交谈、一起行动。",
                     color = dim, fontSize = 11.sp, lineHeight = 16.sp)
                 if (choosing) {
                     if (candidates.isEmpty()) {
@@ -205,17 +215,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         }
         Surface(shape = RoundedCornerShape(16.dp), color = panel) {
             Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("本次冒险目标", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = mint)
-                Text("① 收集木石并建立工作台    ② 制造工具与营地\n③ 抵御夜间怪物    ④ 探索补给与建设自己的家",
-                    color = Color.White, lineHeight = 20.sp, fontSize = 12.sp)
-                Text("小岛会自动存档；再次进入可继续，不必重做家园。", color = dim, fontSize = 10.sp)
+                Text("✦ 冒险手册 · 三条成长路线", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = mint)
+                Text("01  生存挑战   ·   做工具、搭营地、守住三夜", color = Color.White, fontSize = 12.sp)
+                Text("02  探险发现   ·   寻宝、解锁工具、搭桥", color = Color.White, fontSize = 12.sp)
+                Text("03  温暖家园   ·   结识动物、盖家、点亮夜灯", color = Color.White, fontSize = 12.sp)
+                Text("这些目标都读取真实岛屿存档，完成后还能自由创造。", color = dim, fontSize = 10.sp)
             }
-        }
-        Button(onClick = { onStart(selected.take(3)) },
-            enabled = inviting == null, modifier = Modifier.fillMaxWidth().height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = Color(0xFF183B32))) {
-            Text(if (existingIsland) "继续我的小岛" else "开始建岛",
-                fontWeight = FontWeight.Black, fontSize = 16.sp)
         }
     }
 }
