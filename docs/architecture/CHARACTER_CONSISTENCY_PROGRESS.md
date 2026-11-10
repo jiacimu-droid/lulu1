@@ -1670,3 +1670,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - 正式 Robolectric `ChatHistoryPersistenceBaselineTest` 在 [d9a8675](https://github.com/jiacimu-droid/lulu1/commit/d9a8675f3e0343502a8c05f2cbae672a3bea0dd9) 加入独立第二会话：1k/10k 主会话元数据置顶后，断言另一会话在 SharedPreferences JSON 和重新初始化 Store 中仍保留原文，防止未来增量迁移只保留活跃会话。原测试 `cd170a5` 的索引 [#42757077702](https://github.com/jiacimu-droid/lulu1/actions/runs/42757077702) 成功、APK/JVM [#42757078292](https://github.com/jiacimu-droid/lulu1/actions/runs/42757078292) 失败；后继 APK/JVM [#42761415401](https://github.com/jiacimu-droid/lulu1/actions/runs/42761415401) 成功（head `e3f27fe`），覆盖原测试源码但没有可读取的计时输出。新增断言的 CI 仍待对应 head SHA 验证。
 - 本轮没有生产格式迁移、收费模型调用或删除历史。下一固定 UI-02.1：检查 `d9a8675` 的 `ChatHistoryPersistenceBaselineTest` APK/JVM 首错与 Refresh code index；取得 1k/10k stdout 基线，100k 在大内存环境单独运行，之后才评估 UI-02.2。P-08a.1g.3 真机/模型独立待验。
+
+
+## 2026-11-10 · UI-02.1 重复元数据写入成本与跨会话保全
+
+- `d9a8675` 的 [APK/JVM #42763652639](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652639) 与 [索引 #42763652738](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652738) 均 completed/success（head SHA `d9a8675f3e0343502a8c05f2cbae672a3bea0dd9`）。这验证已有 1k/10k 两会话测试的工程执行，不提供真实设备 ANR 或数值基线。
+- [233af13](https://github.com/jiacimu-droid/lulu1/commit/233af13f6b7df160632f5b9c3c12c84395f15fe7) 在同一 Robolectric 测试中计时 true→false→true 三次元数据写入，每次核 Store 状态，最终核原 JSON 两会话与冷恢复。避免只凭单次冷启动/CI 抖动判断全量序列化开销；未设任意性能阈值。正式 Store 未改、历史未清空。
+- **下一固定 UI-02.1**：核 `233af13` main push APK/JVM 和 Refresh code index，取得 1k/10k 三次写入 stdout；若无 stdout 则不能声称测得耗时，转 UI-02.2 旧 `state_v1` 无损增量迁移回归夹具。100k、真机、真实模型和服务商计费均独立未验。
