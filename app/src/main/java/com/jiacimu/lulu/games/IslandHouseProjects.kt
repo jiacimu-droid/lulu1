@@ -16,11 +16,13 @@ internal data class IslandHouseProject(
     val style: String = "warm",
     /** Remember which physical job was paused; old saves default to building. */
     val resumePhase: String = "building",
+    /** Number of actually placed pieces when demolition was chosen. */
+    val demolitionStartCount: Int = 9,
 ) {
     fun json(): JSONObject = JSONObject().put("ownerId",ownerId).put("left",left)
         .put("top",top).put("phase",phase).put("placed",JSONArray(placed))
         .put("lastStepTurn",lastStepTurn).put("style",style)
-        .put("resumePhase",resumePhase)
+        .put("resumePhase",resumePhase).put("demolitionStartCount",demolitionStartCount)
 
     companion object {
         fun read(raw: JSONObject?,world: ExpeditionState): IslandHouseProject? = runCatching {
@@ -31,14 +33,17 @@ internal data class IslandHouseProject(
             val p=IslandHouseProject(j.getString("ownerId"),j.getInt("left"),j.getInt("top"),
                 j.getString("phase"),positions,j.optInt("lastStepTurn",-1),
                 j.optString("style","warm").takeIf { it in IslandHouseProjects.styles } ?: "warm",
-                j.optString("resumePhase","building"))
+                j.optString("resumePhase","building"),
+                j.optInt("demolitionStartCount",9))
             val possible=IslandHouseProjects.parts(world,p.left,p.top).map { it.first }
             if(p.ownerId.isBlank() || p.left !in 1 until world.width-3 ||
                 p.top !in 1 until world.height-3 ||
                 p.phase !in setOf("building","paused","complete","demolishing") ||
                 positions.distinct().size!=positions.size ||
                 positions.any { it !in possible } || p.lastStepTurn>world.turns ||
-                p.resumePhase !in setOf("building","demolishing")) null else p
+                p.resumePhase !in setOf("building","demolishing") ||
+                p.demolitionStartCount !in 0..9 ||
+                p.demolitionStartCount<p.placed.size) null else p
         }.getOrNull()
     }
 }
@@ -50,7 +55,7 @@ internal object IslandHouseProjects {
     fun progress(project: IslandHouseProject): Int =
         if(project.phase=="demolishing" ||
             project.phase=="paused" && project.resumePhase=="demolishing")
-            (9-project.placed.size).coerceIn(0,9)
+            (project.demolitionStartCount-project.placed.size).coerceIn(0,9)
         else project.placed.size.coerceIn(0,9)
 
     fun parts(w: ExpeditionState,left: Int,top: Int): List<Pair<Int,String>> =
@@ -107,7 +112,8 @@ internal object IslandHouseProjects {
                 old.copy(phase="paused",resumePhase=old.phase)
             action=="resume_house" && old.phase=="paused" -> old.copy(phase=old.resumePhase)
             action=="demolish_house" && old.phase!="demolishing" ->
-                old.copy(phase="demolishing",resumePhase="demolishing")
+                old.copy(phase="demolishing",resumePhase="demolishing",
+                    demolitionStartCount=old.placed.size)
             else -> return null
         }
         val description=when(action.substringBefore(":")) {
