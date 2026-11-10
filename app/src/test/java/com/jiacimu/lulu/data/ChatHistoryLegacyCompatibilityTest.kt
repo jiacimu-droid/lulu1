@@ -35,6 +35,38 @@ class ChatHistoryLegacyCompatibilityTest {
         }
     }
 
+
+    @Test fun partiallyMalformedLegacyMessagesMustNotLoseOtherHistoryOnWrite() {
+        val app: Context = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val previous = prefs.getString("state_v1", null)
+        val corrupt = JSONObject()
+            .put("conversations", JSONArray().put(JSONObject()
+                .put("id", "ui02-partial").put("characterId", "ui02-character")
+                .put("updatedAt", "2026-01-01T00:00:00Z")))
+            .put("messages", JSONObject().put("ui02-partial", JSONArray()
+                .put(JSONObject().put("id", "ui02-good").put("conversationId", "ui02-partial")
+                    .put("sender", "User").put("content", "Keep this")
+                    .put("createdAt", "2026-01-01T00:00:00Z").put("status", "Sent"))
+                .put("not-a-message-object"))).toString()
+        try {
+            assertTrue(prefs.edit().putString("state_v1", corrupt).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            runCatching { store.setConversationPinned("ui02-partial", true) }
+            assertEquals("Malformed member must not be discarded by a later full rewrite",
+                corrupt, prefs.getString("state_v1", null))
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            runCatching { reopened.setConversationPinned("ui02-partial", false) }
+            assertEquals(corrupt, prefs.getString("state_v1", null))
+        } finally {
+            val edit = prefs.edit()
+            if (previous == null) edit.remove("state_v1") else edit.putString("state_v1", previous)
+            assertTrue(edit.commit())
+        }
+    }
+
     @Test fun legacyEditAndDeleteRemainDurableAcrossReopen() {
         val app: Context = RuntimeEnvironment.getApplication()
         val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
