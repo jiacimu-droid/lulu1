@@ -304,6 +304,8 @@
   - 2026-11-11 已实现的限定子步骤：居民饥饿/口渴从实时身体模拟、保存、提示与展示移除；旧数据由本人 ID 兼容读取，保留主动点单、舒适与其他数值。新增 `EmbodiedBodyPhysicsTest.residentBodyDropsLegacyFoodNeedsAndKeepsOtherSensations`。APK/JVM 与真机分别核验。
   - **十项联动验收入口**：①–⑤ 规划和到点醒、窗口内私信/朋友圈、行程上限独立、缺席线索、在岗和可接待分别用 `ResidentDailyPolicyTest`、`ResidentDailyContinuityTest`、`ResidentPhoneWakeIntegrationTest` 和 `ResidentDailyContinuityTest.cafeOrderNeedsAnAwakeBaristaOnSiteAndSelfServiceDoesNot` 验证，再补真机。⑥–⑦ 每日规划保存有原始来源的兴趣，下一次社交决定读回；本人选定的私信与朋友圈分别看真实消息、可见权限和未读，撤回来源使旧兴趣失效。⑧ 复用聊天批次与水位测试，真机补打字开始、连续气泡、生成中改口。⑨–⑩ 用 `MemoryRecallIntegrationTest.revisedRawChatKeepsBothTimeConditionsBeforeLongTermExtraction` 查更正前后原文、实际模型请求和注入记录，真机/真实模型另验理解和自然度。短时间问句只有明确主题时也召回原话。聊天置顶在后台确认写入后才刷新，写入失败保留原状态并提示重试，由 `ChatHistoryLegacyCompatibilityTest.failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState` 验证。
 
+- **S-02.4 / UI-02.2 工程验收记录**：`7b262da` 的 [#42860437140](https://github.com/jiacimu-droid/lulu1/actions/runs/42860437140) 已过居民 0 行程社交、兴趣和真实送达回归。`2c8ca29` 的 [#42861721064](https://github.com/jiacimu-droid/lulu1/actions/runs/42861721064) 已过实际网关 POST（MockWebServer）原文及注入记录验证，完整测试因两项测试环境问题未通过。`5f81f73` 增加置顶后台写入与失败提示；`a145528` 修正拒写模拟与咖啡角测试应用实例。下一轮先核 [APK/JVM #42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 或包含上述修复的后继提交，再分别记录真机及真实模型结果。
+
 ### UI-01 桌面及输入卡顿
 - [ ] **UI-01.1** 测桌面横滑、聊天键盘弹起/收回与 WebView 后台，记录机型/安装版/历史规模/P50-P95 帧耗时、CPU、RAM。
 - [ ] **UI-01.2** 有测量证据才定位 Compose 重组、IME、主线程编码与 WebView 生命周期，修根因再前后 A/B。
