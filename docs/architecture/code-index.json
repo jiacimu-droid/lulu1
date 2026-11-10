@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T15:38:25.207870+00:00",
-  "commit": "0924e0ae7d0f762963c5d52c4684d93b38e55f03",
+  "generatedAt": "2026-11-10T16:04:37.261228+00:00",
+  "commit": "7e6c563c28f6c716e91573fcc935ec6753374aad",
   "branch": "main",
-  "sourceFingerprint": "89e560fee23d2b78e67e59131aecf545c63ef1818426ccca1c45a51d53778e81",
+  "sourceFingerprint": "92fda929474ad8e2ca7aa8fede4da86f2d11222673d2e16e4bfd63b9ce59bd8b",
   "summary": {
     "files": 1172,
-    "lines": 253471,
-    "symbols": 3452
+    "lines": 253490,
+    "symbols": 3453
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -325,7 +325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 60
+        "line": 79
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -14512,10 +14512,16 @@
         "line": 10
       }
     ],
+    "knownRouteTiles": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 36
+      }
+    ],
     "knownRouteSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 34
+        "line": 77
       }
     ],
     "kind": [
@@ -34157,20 +34163,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 75,
-      "sha256": "262633b1c376e138a02d6df78cfb3416500db314cc23eab61f3ee2635deb892b",
+      "lines": 94,
+      "sha256": "36c19b7cd75330df50845db8ca9ea64d9ba18fc71a8040738104485095adb77f",
       "symbols": [
         {
           "name": "nextVisible",
           "line": 10
         },
         {
+          "name": "knownRouteTiles",
+          "line": 36
+        },
+        {
           "name": "knownRouteSteps",
-          "line": 34
+          "line": 77
         },
         {
           "name": "prompt",
-          "line": 60
+          "line": 79
         }
       ]
     },
