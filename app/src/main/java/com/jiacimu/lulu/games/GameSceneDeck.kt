@@ -90,6 +90,12 @@ internal fun GameSceneDeck(
         // nested layout scopes cannot resolve BoxWithConstraints.maxWidth directly.
         val hudStatusWidth = if (wide) maxWidth * .48f else maxWidth * .59f
         val hudNoticeWidth = if (wide) maxWidth * .42f else maxWidth * .56f
+        // Capture BoxWithConstraints height in its own receiver scope. Inside
+        // the bottom-right Column, ColumnScope shadows the constraint receiver
+        // and Kotlin cannot implicitly resolve maxHeight (CI #857 / #858).
+        val quickInfoMaxHeight =
+            if (wide) minOf(maxHeight * .39f, 195.dp)
+            else minOf(maxHeight * .30f, 260.dp)
         // Measure the HUD naturally: on narrow screens and with large fonts,
         // status can wrap to two lines. A fixed 44dp notice offset overlapped it.
         Column(
@@ -191,8 +197,7 @@ internal fun GameSceneDeck(
             // combat/build buttons. Small landscape windows stay playable.
             Column(
                 Modifier.fillMaxWidth()
-                    .heightIn(max=if(wide) minOf(maxHeight*.39f,195.dp)
-                        else minOf(maxHeight*.30f,260.dp))
+                    .heightIn(max = quickInfoMaxHeight)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement=Arrangement.spacedBy(5.dp),
             ) {
