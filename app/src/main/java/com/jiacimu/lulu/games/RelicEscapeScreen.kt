@@ -195,9 +195,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         secondaryLabel = "开箱",
         toolsLabel = "背包 / 战术",
-        notice = error.ifBlank { if(run?.mobs?.any { mob ->
-            mob.hp>0 && mob.windup && run.visible(mob.x,mob.y) &&
-                RelicEscapeRules.distance(run.hero.x,run.hero.y,mob.x,mob.y)<=3
+        notice = error.ifBlank { if(run?.let { current ->
+            current.mobs.any { mob ->
+                mob.hp>0 && mob.windup && current.visible(mob.x,mob.y) &&
+                    RelicEscapeRules.distance(
+                        current.hero.x,current.hero.y,mob.x,mob.y)<=3
+            }
         }==true) "⚠ 遗迹敌人正在蓄力 · 格挡或贴近打断！"
             else if(run?.phase == RelicPhase.SUCCESS)
             "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
