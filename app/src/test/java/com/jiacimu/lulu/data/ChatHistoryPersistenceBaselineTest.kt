@@ -81,9 +81,15 @@ class ChatHistoryPersistenceBaselineTest {
             assertEquals(1, store.messages(otherConversationId).value.size)
 
             // Metadata-only mutation must still rewrite the entire JSON snapshot.
-            val writeStart = SystemClock.elapsedRealtimeNanos()
-            assertTrue(store.setConversationPinned(conversationId, true))
-            val writeMillis = (SystemClock.elapsedRealtimeNanos() - writeStart) / 1_000_000.0
+            // Measure cold and repeated metadata-only writes independently.
+            // No timing threshold: a CI runner is not an Android ANR benchmark.
+            val writeMillis = mutableListOf<Double>()
+            for (pinned in listOf(true, false, true)) {
+                val writeStart = SystemClock.elapsedRealtimeNanos()
+                assertTrue(store.setConversationPinned(conversationId, pinned))
+                writeMillis += (SystemClock.elapsedRealtimeNanos() - writeStart) / 1_000_000.0
+                assertEquals(pinned, store.conversations.value.first { it.id == conversationId }.pinned)
+            }
             val saved = prefs.getString(key, null)
             assertNotNull(saved)
             assertEquals(count, JSONObject(saved!!).getJSONObject("messages")
