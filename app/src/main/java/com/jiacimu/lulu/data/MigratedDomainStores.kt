@@ -838,6 +838,11 @@ class InMemoryLuluChatStore : LuluChatStore {
             // imports, but must not fabricate IDs while reading the sole state_v1 copy.
             val conversations = decodeAll(root.getJSONArray("conversations")) { item ->
                 require(item.optString("id").isNotBlank()) { "会话缺少原始 ID" }
+                // The permissive decoder substitutes now() for a malformed updatedAt.
+                // Do not rewrite the sole authoritative snapshot with an invented time.
+                require(runCatching { Instant.parse(item.getString("updatedAt")) }.isSuccess) {
+                    "会话原始时间无效"
+                }
                 decodeConversation(item)
             }
             val messagesObject = root.getJSONObject("messages")
