@@ -405,4 +405,38 @@ class IslandHouseProjectsTest {
         assertEquals(beforeWood,next.world.wood)
     }
 
+    @Test fun blockedCompanionConstructionResumesOnlyByOwnerAndChargesExactlyOnce() {
+        val started=start()
+        val project=started.houseProject!!
+        val floor=IslandHouseProjects.parts(started.world,project.left,project.top).first().first
+        val tx=floor%started.world.width
+        val ty=floor/started.world.width
+        val owner=started.world.friends.first()
+        val occupied=started.copy(world=started.world.copy(
+            friends=listOf(owner.copy(x=tx+1,y=ty),owner.copy(id="bob",x=tx,y=ty))
+        ))
+        val paused=IslandHouseProjects.advance(occupied,setOf("alice"))
+        assertEquals("paused",paused.houseProject?.phase)
+        assertEquals(occupied.world.wood,paused.world.wood)
+        val reloaded=BlockIslandState.fromJson(paused.toJson())!!
+        val cleared=reloaded.copy(world=reloaded.world.copy(
+            friends=reloaded.world.friends.take(1)))
+        val idle=cleared.copy(world=cleared.world.copy(turns=cleared.world.turns+1))
+        assertEquals(idle,IslandHouseProjects.advance(idle,setOf("alice")))
+        // A different companion cannot authorize the owner's project.
+        assertNull(IslandHouseProjects.choose(idle,"bob","resume_house","我替她决定开工"))
+        val resumed=IslandActorPlay.apply(idle,"alice",idle.world.turns,
+            IslandActorChoice("resume_house","位置空出来了，我继续盖"))!!
+        assertEquals("building",resumed.houseProject?.phase)
+        // The owner's choice is recorded on this turn; physical work begins next turn.
+        val next=resumed.copy(world=resumed.world.copy(turns=resumed.world.turns+1))
+        val built=IslandHouseProjects.advance(next,setOf("alice"))
+        assertEquals(listOf(floor),built.houseProject?.placed)
+        assertEquals(occupied.world.wood-1,built.world.wood)
+        assertEquals(4,built.world.tiles[floor])
+        assertEquals(built,IslandHouseProjects.advance(built,setOf("alice")))
+        val saved=BlockIslandState.fromJson(built.toJson())!!
+        assertEquals(saved,IslandHouseProjects.advance(saved,setOf("alice")))
+    }
+
 }
