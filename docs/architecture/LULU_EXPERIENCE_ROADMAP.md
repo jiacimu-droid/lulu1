@@ -295,6 +295,7 @@
 - [ ] **UI-02.1** 对 MigratedDomainStores.kt 的 InMemoryLuluChatStore.persistLocked 测 1千/1万/10万消息的锁、完整 JSON 编码、apply/commit、恢复耗时与 ANR。
 - [ ] **UI-02.2** 设计可恢复事务/增量存储：旧 SharedPreferences JSON 迁移、失败回退、旧数据/导出/编辑/删除/回执和备份兼容，不截断历史。
 - [ ] **UI-02.3** 接通正式写入并测突发并发/重启/强杀/升级，单次新消息写入不再随无关会话历史线性增长。
+- **2026-11-10 UI-02.2 旧格式兼容夹具**：[4b2be0c](https://github.com/jiacimu-droid/lulu1/commit/4b2be0cf6f1391ebb0a7120fb6773140c53fffcf) 新增正式 Robolectric `ChatHistoryLegacyCompatibilityTest.legacyEditAndDeleteRemainDurableAcrossReopen`，以原 `state_v1` 双会话 JSON 初始化正式 Store，执行编辑/删除/重复删除，检查实际落盘与冷重启后不复活、另一会话不丢。**仅测试已提交，未改正式存储格式，CI 尚待对应 SHA 验证；不勾 UI-02.2。** 旧三次写入 [#42769855635](https://github.com/jiacimu-droid/lulu1/actions/runs/42769855635) 已确认 cancelled，不能声称有毫秒结果。下一轮直接检查本测试 JVM/APK 首错；通过后补迁移失败回退/中断恢复，再决定事务性增量实现。
 - **源码已确认的缺口**：persistLocked 仍调用 encode(conversationState.value, messageStates.mapValues(...)) 重写所有历史，不能只标待真机。
 
 ### P-09 / M4 长期记忆性能
