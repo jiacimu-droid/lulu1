@@ -901,6 +901,80 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+        val actor = MigratedDomainStores.characters.create("群聊交接甲", "只说自己确认过的进展")
+        val peer = MigratedDomainStores.characters.create("群聊交接乙", "先听别人说完")
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "条件步骤", listOf(actor.characterId, peer.characterId))
+        val source = MigratedDomainStores.chat.sendUserMessage(group.id, "确认之前别说已经完成")
+        val actorEvidenceId = "${source.id}:group:${actor.characterId}"
+        val peerEvidenceId = "${source.id}:group:${peer.characterId}"
+        val declined = JSONObject().put("tool", "favorite_user_message")
+            .put("args", JSONObject().put("messageId", "missing-group-message"))
+        val dependentText = "此前成功才允许发布"
+        val independentText = "另一条独立记录"
+        val dependent = JSONObject().put("tool", "publish_moment")
+            .put("requiresPreviousSuccess", true).put("args", JSONObject().put("text", dependentText))
+        val independent = JSONObject().put("tool", "publish_moment")
+            .put("curiosity", JSONObject().put("question", "还想核对原资料的来源"))
+            .put("args", JSONObject().put("text", independentText))
+        val words = "还没有确认结果。"
+        val director = JSONObject().put("beats", JSONArray().put(
+            JSONObject().put("speakerId", actor.characterId)))
+        val decision = JSONObject().put("action", "reply").put("text", words)
+            .put("steps", JSONArray().put(declined).put(dependent).put(independent))
+        fun response(body: JSONObject) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", body.toString()))
+                .put("finish_reason", "stop"))).toString())
+        val server = MockWebServer()
+        server.enqueue(response(director))
+        server.enqueue(response(decision))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            LuluAiServices.connectionStore.selectArchive(archive.id, com.jiacimu.lulu.ai.ModelUsage.Chat)
+            val errors = mutableListOf<String>()
+            com.jiacimu.lulu.runGroupReplies(group.id, checkNotNull(group.groupChat), source.content,
+                "", "test", archive.id, mapOf(actor.characterId to actor.displayName,
+                    peer.characterId to peer.displayName), onError = { errors.add(it) })
+            assertTrue(errors.toString(), errors.isEmpty())
+            assertTrue(MigratedDomainStores.chat.messages(group.id).value.any {
+                it.authorCharacterId == actor.characterId && it.content == words
+            })
+            val prefix = "group-${group.id}-${actor.characterId}-${source.id}:step:"
+            fun receipts(roleId: String) = SharedExperienceTimeline.all(roleId)
+                .filter { it.source == "tool-router" }
+                .map { JSONObject(it.content) }
+                .filter { it.optString("requestId").startsWith(prefix) }
+                .associateBy { it.getString("requestId") }
+            val actual = receipts(actor.characterId)
+            assertEquals(setOf(prefix + "0", prefix + "2"), actual.keys)
+            val failure = actual.getValue(prefix + "0")
+            val success = actual.getValue(prefix + "2")
+            assertFalse(JSONObject(failure.getString("result")).optBoolean("success"))
+            assertTrue(ToolExecutionStatus.completed(JSONObject(success.getString("result"))))
+            assertEquals(actorEvidenceId, failure.getString("causeEvidenceId"))
+            assertEquals(actorEvidenceId, success.getString("causeEvidenceId"))
+            assertEquals(actorEvidenceId, success.getJSONObject("curiosity").getString("sourceEvidenceId"))
+            assertEquals(listOf(independentText), MomentsStore.posts.value
+                .filter { it.authorCharacterId == actor.characterId }.map { it.content })
+            assertTrue(SharedExperienceTimeline.eventsByIds(peer.characterId, listOf(peerEvidenceId)).isNotEmpty())
+            assertTrue(receipts(peer.characterId).isEmpty())
+            assertEquals(2, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

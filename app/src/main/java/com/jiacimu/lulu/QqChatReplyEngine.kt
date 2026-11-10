@@ -704,10 +704,13 @@ internal suspend fun runGroupReplies(
         // A blank/non-silent response is a failed or incomplete attempt, not permission
         // to silently buy a second model call with a different prompt. Preserve the
         // original result for the existing error/receipt path below.
+        // Keep the role's exact timeline evidence from planning through tools.
+        // Raw chat IDs still own bubble delivery and the source watermark.
+        val roleUserEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" }
         val result = requestGroupRoleOnce(member.characterId, history, prompt, memberLabel,
             memberArchive, sceneContext,
             turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
-            evidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
+            evidenceIds = roleUserEvidenceIds)
         if (!currentCoroutineContext().isActive) return
         if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
             onSpeakerChange(null)
@@ -742,7 +745,7 @@ internal suspend fun runGroupReplies(
                         LuluDeviceToolBridge.executeDeferredReplyActions(
                             member.characterId, reply.deferredActions,
                             requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
-                            userEvidenceIds = pendingUserIds, userText = pendingText,
+                            userEvidenceIds = roleUserEvidenceIds.toSet(), userText = pendingText,
                             diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                         )
                     }
