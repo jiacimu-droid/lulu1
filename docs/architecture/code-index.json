@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:15:46.728517+00:00",
-  "commit": "98ea899a18fe03a575b519c7deb88091137e96f2",
+  "generatedAt": "2026-11-10T09:33:06.869387+00:00",
+  "commit": "66f1600bed184760c57300e6b14401143c21c353",
   "branch": "main",
-  "sourceFingerprint": "c2632f8fbdd5365714a99c49a5dbfc22530692d6c69c7b7b920b95944bb7f211",
+  "sourceFingerprint": "510bb7fdb1d42a89b002fcbc925f761d8babed1972e4688b52f989cfc4eaaa43",
   "summary": {
     "files": 1171,
-    "lines": 252851,
-    "symbols": 3443
+    "lines": 252927,
+    "symbols": 3444
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17420,6 +17420,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
         "line": 689
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 767
       }
     ],
     "bubbles": [
@@ -35174,8 +35178,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2210,
-      "sha256": "e5d1f65d323e9d9639dfde53e6509ce7f592528b69dc53715f61cba3851ecba0",
+      "lines": 2217,
+      "sha256": "a11af1a2dd5fbaca20c3990edb44faa04af93bd8e14cdaba41081809827d2280",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -38227,8 +38231,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 854,
-      "sha256": "1321a7f961e1bcd6f2914e117e1fefff444b6cddfd66b6ac3991443653fd6b17",
+      "lines": 923,
+      "sha256": "d51ec842e7791df958340a948d674d7fb8de1dc2e38d746748ddd49ce1fb9f88",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -38281,6 +38285,10 @@
         {
           "name": "hasMediaReceipt",
           "line": 710
+        },
+        {
+          "name": "response",
+          "line": 767
         }
       ]
     },
