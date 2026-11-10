@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T05:16:10.743777+00:00",
-  "commit": "2a854bce44a7a05324a40ca613e05dda774d6d19",
+  "generatedAt": "2026-11-10T05:19:45.882154+00:00",
+  "commit": "e3f27fe306186b180d83c779ef15a2919e023ab6",
   "branch": "main",
-  "sourceFingerprint": "eca4ac60a4cfdfaf14c4ae150e0e1fa73e105e53d43b2363d6747d842bec76e6",
+  "sourceFingerprint": "b08cc05edb0a6462defb96b4646c176a7550c9b4a38d169e2c02f9b72d0289f3",
   "summary": {
     "files": 1166,
-    "lines": 251257,
+    "lines": 251263,
     "symbols": 3420
   },
   "symbolIndex": {
@@ -32936,8 +32936,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt",
-      "lines": 247,
-      "sha256": "5df505218c3beb09a6f1f89a90aa8043a2ddd0fa5b615e351126bfd95ad76426",
+      "lines": 253,
+      "sha256": "971d04debc1abb6f54b35f83d62757640a2591dad4951dda224f8ef3bc65fa87",
       "symbols": []
     },
     {
