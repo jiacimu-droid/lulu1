@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-10 UI-02.2 局部损坏旧聊天快照保护
+
+- 前轮完整损坏快照修复 `6e5bd7d` 的 [APK/JVM #42809824951](https://github.com/jiacimu-droid/lulu1/actions/runs/42809824951) 与 [索引 #42809825080](https://github.com/jiacimu-droid/lulu1/actions/runs/42809825080) completed/success，build job `129808829371` success。
+- 新发现 `decodeObjects` 宽容跳过非 JSONObject/解析异常，旧 `state_v1` 局部损坏仍会在后续全量重写时无声丢记录。新增 [61edfb8](https://github.com/jiacimu-droid/lulu1/commit/61edfb8932b43b9f60ffbd0b3d70f3c8fa49a362) 的真实 Robolectric 局部损坏、元数据写入、重启保护测试；[0816307](https://github.com/jiacimu-droid/lulu1/commit/0816307cba77e8aac08546ff93cf7019377704be) 在权威 ChatStore 解码改为严格数组成员解析，解析失败沿既有不可覆盖保护，不改变其他宽容导入调用或历史格式。
+- 新代码的 JVM/APK/索引结果仍待对应 head SHA 查证；没有声称新测试已通过、真机恢复已验或增量迁移已实现。下一固定 UI-02.2：先查新回归 CI，再覆盖字段级损坏与写入失败，后续才实施事务增量存储。
+
+
+
 完整跨窗口体验路线与优先级见 [LULU_EXPERIENCE_ROADMAP.md](LULU_EXPERIENCE_ROADMAP.md)：人物活人感第一，角色社交第二，再推进游戏与视频。本文件记录人物专项的真实证据与待验状态。
 
 
