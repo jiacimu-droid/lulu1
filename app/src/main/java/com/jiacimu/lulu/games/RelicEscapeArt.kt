@@ -299,23 +299,23 @@ internal fun RelicEscapeWorldMap(
             run.mobs.filter{it.hp>0 && run.visible(it.x,it.y)}.forEach{mob->
                 val p=center(mob.x,mob.y)
                 drawCircle(Color.Black.copy(alpha=.4f),t*.35f,p+Offset(0f,t*.13f))
-                val skin=when(mob.kind){
-                    0->Color(0xFF785D94);1->Color(0xFF84606C);else->Color(0xFFAB816D)
-                }
                 if(mob.windup) {
                     drawCircle(Color(0xFFFF7183).copy(alpha=.16f+shimmer*.36f),
                         t*.64f,p,style=Stroke(t*.10f))
                     drawCircle(Color(0xFFFF7183).copy(alpha=.28f),t*.52f,p)
                 } else if(mob.alert>0)drawCircle(Color(0xFFF3A6A1).copy(alpha=.35f),
                     t*.47f,p,style=Stroke(t*.035f))
-                drawCircle(skin,t*.33f,p)
-                if(mob.kind==2)drawRoundRect(Color(0xFF504051),p+Offset(-t*.25f,-t*.26f),
-                    Size(t*.5f,t*.18f),CornerRadius(t*.04f))
-                drawCircle(Color(0xFFFFB0B3),t*.075f,p+Offset(-t*.12f,-t*.055f))
-                drawCircle(Color(0xFFFFB0B3),t*.075f,p+Offset(t*.12f,-t*.055f))
-                drawRect(Color(0xFF121B24),p+Offset(-t*.29f,-t*.43f),Size(t*.58f,t*.065f))
-                drawRect(Color(0xFFE17984),p+Offset(-t*.29f,-t*.43f),
-                    Size(t*.58f*(mob.hp.toFloat()/(if(mob.kind==2)9 else 5)).coerceIn(0f,1f),t*.065f))
+                drawRelicMonsterSprite(p,t,mob.kind,shimmer)
+                // The monster silhouette and its bar reflect its *real* kind
+                // and difficulty; the old generic circles used a wrong 5/9 HP cap.
+                val maxHp=(if(mob.kind==3)9+run.level
+                    else 2+mob.kind*2+run.level/2)+run.difficulty.monsterHp
+                drawRoundRect(Color(0xE30B1420),p+Offset(-t*.32f,-t*.49f),
+                    Size(t*.64f,t*.095f),CornerRadius(t*.025f))
+                drawRoundRect(if(mob.windup)Color(0xFFFF667B) else Color(0xFFE49C83),
+                    p+Offset(-t*.30f,-t*.47f),
+                    Size(t*.60f*(mob.hp.toFloat()/maxHp.coerceAtLeast(1)).coerceIn(0f,1f),
+                        t*.055f),CornerRadius(t*.02f))
             }
             run.allies.filter{run.visible(it.x,it.y)}.forEachIndexed{index,ally->
                 val p=center(ally.x,ally.y)
@@ -387,6 +387,105 @@ internal fun RelicEscapeWorldMap(
                     radius=size.maxDimension*.72f))
             }
             }
+        }
+    }
+}
+
+/** Four readable creature silhouettes in place of indistinguishable HP orbs.
+ * No animation here may change combat; only saved mob kind/HP is rendered. */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRelicMonsterSprite(
+    p:Offset,t:Float,kind:Int,shimmer:Float,
+) {
+    val shadow=Color(0xFF0D1420)
+    val eye=Color(0xFFFFB6A0).copy(alpha=.77f+shimmer*.18f)
+    when(kind) {
+        0 -> {
+            // Night wraith: tapered cloak, high collar, blue-violet glowing eyes.
+            val wings=Path().apply {
+                moveTo(p.x-t*.06f,p.y-t*.12f)
+                lineTo(p.x-t*.45f,p.y-t*.23f)
+                lineTo(p.x-t*.34f,p.y+t*.15f)
+                lineTo(p.x-t*.48f,p.y+t*.31f)
+                lineTo(p.x-t*.10f,p.y+t*.16f)
+                lineTo(p.x+t*.10f,p.y+t*.16f)
+                lineTo(p.x+t*.48f,p.y+t*.31f)
+                lineTo(p.x+t*.34f,p.y+t*.15f)
+                lineTo(p.x+t*.45f,p.y-t*.23f)
+                lineTo(p.x+t*.06f,p.y-t*.12f)
+                close()
+            }
+            drawPath(wings,Color(0xFF4D4568))
+            val hood=Path().apply {
+                moveTo(p.x,p.y-t*.35f)
+                lineTo(p.x-t*.27f,p.y-t*.04f)
+                lineTo(p.x-t*.18f,p.y+t*.30f)
+                lineTo(p.x+t*.18f,p.y+t*.30f)
+                lineTo(p.x+t*.27f,p.y-t*.04f)
+                close()
+            }
+            drawPath(hood,Color(0xFF8575A7))
+            drawOval(shadow,p+Offset(-t*.17f,-t*.17f),Size(t*.34f,t*.23f))
+            drawCircle(Color(0xFFACE7EC),t*.045f,p+Offset(-t*.085f,-t*.07f))
+            drawCircle(Color(0xFFACE7EC),t*.045f,p+Offset(t*.085f,-t*.07f))
+            drawLine(Color(0xFFBDB4D4),p+Offset(-t*.11f,t*.16f),
+                p+Offset(t*.09f,t*.23f),strokeWidth=t*.04f)
+        }
+        1 -> {
+            // Tomb raider spirit: ribbed bronze plates and a crimson visor.
+            drawRoundRect(shadow,p+Offset(-t*.31f,-t*.12f),
+                Size(t*.62f,t*.51f),CornerRadius(t*.13f))
+            drawRoundRect(Color(0xFF795568),p+Offset(-t*.27f,-t*.25f),
+                Size(t*.54f,t*.53f),CornerRadius(t*.12f))
+            drawRect(Color(0xFFB28779),p+Offset(-t*.22f,-t*.29f),
+                Size(t*.44f,t*.12f))
+            drawLine(Color(0xFF523847),p+Offset(-t*.23f,t*.06f),
+                p+Offset(t*.23f,t*.06f),strokeWidth=t*.08f)
+            drawCircle(eye,t*.052f,p+Offset(-t*.11f,-t*.08f))
+            drawCircle(eye,t*.052f,p+Offset(t*.11f,-t*.08f))
+            drawRect(Color(0xFFB39185),p+Offset(-t*.16f,t*.20f),
+                Size(t*.32f,t*.045f))
+        }
+        2 -> {
+            // Carved guardian: broad square shoulders, stone visor and cheek plates.
+            drawRoundRect(shadow,p+Offset(-t*.39f,-t*.10f),
+                Size(t*.78f,t*.49f),CornerRadius(t*.08f))
+            drawRoundRect(Color(0xFF818B83),p+Offset(-t*.35f,-t*.26f),
+                Size(t*.70f,t*.49f),CornerRadius(t*.06f))
+            drawRect(Color(0xFFB4BDAE),p+Offset(-t*.22f,-t*.35f),
+                Size(t*.44f,t*.14f))
+            drawRect(Color(0xFF404B50),p+Offset(-t*.25f,-t*.10f),
+                Size(t*.50f,t*.15f))
+            drawRect(Color(0xFFF9BE7B),p+Offset(-t*.16f,-t*.07f),
+                Size(t*.11f,t*.055f))
+            drawRect(Color(0xFFF9BE7B),p+Offset(t*.06f,-t*.07f),
+                Size(t*.11f,t*.055f))
+            drawRect(Color(0xFF5B716B),p+Offset(-t*.24f,t*.18f),
+                Size(t*.48f,t*.065f))
+        }
+        else -> {
+            // Elite ancient sentinel: tall rune crown, gold seams and broad cape.
+            val silhouette=Path().apply {
+                moveTo(p.x,p.y-t*.48f)
+                lineTo(p.x-t*.11f,p.y-t*.31f)
+                lineTo(p.x-t*.32f,p.y-t*.38f)
+                lineTo(p.x-t*.40f,p.y+t*.28f)
+                lineTo(p.x,p.y+t*.38f)
+                lineTo(p.x+t*.40f,p.y+t*.28f)
+                lineTo(p.x+t*.32f,p.y-t*.38f)
+                lineTo(p.x+t*.11f,p.y-t*.31f)
+                close()
+            }
+            drawPath(silhouette,Color(0xFF655A65))
+            drawRoundRect(Color(0xFFB6A188),p+Offset(-t*.25f,-t*.26f),
+                Size(t*.50f,t*.51f),CornerRadius(t*.075f))
+            drawRect(Color(0xFF665E5D),p+Offset(-t*.20f,-t*.11f),
+                Size(t*.40f,t*.17f))
+            drawCircle(Color(0xFFFFDD94),t*.065f,p+Offset(-t*.10f,-t*.035f))
+            drawCircle(Color(0xFFFFDD94),t*.065f,p+Offset(t*.10f,-t*.035f))
+            drawLine(Color(0xFFFFC879),p+Offset(0f,t*.07f),
+                p+Offset(0f,t*.29f),strokeWidth=t*.06f)
+            drawCircle(Color(0xFFFFD49B).copy(alpha=.35f+shimmer*.20f),
+                t*.40f,p,style=Stroke(t*.042f))
         }
     }
 }
