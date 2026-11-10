@@ -58,6 +58,12 @@
 - 新增 [cd170a5](https://github.com/jiacimu-droid/lulu1/commit/cd170a5ea0706debff009e63bfb6305cf2f48831) `ChatHistoryPersistenceBaselineTest`：用原 `state_v1` JSON 格式一次性播种 1,000/10,000 条，真实 `InMemoryLuluChatStore.initialize` → `setConversationPinned`（元数据单次写入）→ 重新实例化并核消息数与置顶持久化，打印 UTF-8 字节量、初始恢复、写入、二次恢复耗时；100,000 条标为 opt-in heavy，不自动占用普通 JVM CI。每轮恢复原 SharedPreferences，防测试污染。此测试未在本环境运行，不能报告耗时或勾工程验收。
 - **2026-11-10 追加跨会话无损回归**：[d9a8675](https://github.com/jiacimu-droid/lulu1/commit/d9a8675f3e0343502a8c05f2cbae672a3bea0dd9) 将原 1k/10k 真实 Store 基线扩展为两会话，检查仅置顶目标会话后无关会话的消息在序列化、重启恢复中仍完整保留。`cd170a5` 原 APK/JVM [#42757078292](https://github.com/jiacimu-droid/lulu1/actions/runs/42757078292) failed，索引 [#42757077702](https://github.com/jiacimu-droid/lulu1/actions/runs/42757077702) success；后继祖先覆盖的 APK/JVM [#42761415401](https://github.com/jiacimu-droid/lulu1/actions/runs/42761415401) completed/success（head `e3f27fe`），但该后继通过不提供具体耗时日志。新测试提交 `d9a8675` 的 CI 待验；未测 100k/真机，不能勾 UI-02.1 全量完成。下一轮直接查 `d9a8675` 的 APK/JVM 与索引 head SHA，失败修首错，通过后收集基线 stdout，才考虑 UI-02.2。\n- **下一固定 UI-02.1**：先核 `cd170a5` main push APK/JVM 与 Refresh code index 的 head SHA、首错；失败修夹具，成功收集 1k/10k 基线并在合适内存环境单独跑 100k。确认写入/恢复瓶颈后再考虑 UI-02.2 增量持久化和旧 `state_v1` 无损迁移。P-08a.1g.3 的模型上下文断言继续独立待验；请求尝试≠成功≠计费。
 
+### 2026-11-10 UI-02.1 三次写入计时续接（新 CI 待验）
+
+- `d9a8675` 的 main push [Lulu APK/JVM #42763652639](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652639) 和 [Refresh code index #42763652738](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652738) 均 completed/success，跨会话 1k/10k 回归已取得工程成功证据，但未取得耗时 stdout。
+- 新增 [233af13](https://github.com/jiacimu-droid/lulu1/commit/233af13f6b7df160632f5b9c3c12c84395f15fe7)：原 Robolectric 基线由一次元数据置顶写入扩展为 true→false→true 三次独立计时，每次验证 Store 状态，最终继续验证两会话 JSON 与重启恢复；区分首次/重复写入的运行时成本。此提交的 CI、耗时、100k、真机均待验；生产存储格式未改。
+- **下一固定 UI-02.1**：按 `233af13` head SHA 查 APK/JVM 和索引，取得 1k/10k 三次写入 stdout；若 stdout 无法读取则明确无量化结果，进入 UI-02.2 的无损迁移测试准备，不虚报性能收益。P-08a.1g.3 真实模型/真机仍独立待验。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
