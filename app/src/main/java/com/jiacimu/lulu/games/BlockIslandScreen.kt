@@ -246,6 +246,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     // Later collection objectives are derived from the saved island, not reset by closing UI.
     val survivalGoal = IslandMilestones.next(island)
     val nextLandmark = IslandExpeditionTrail.next(island)
+    val activeGuardian = IslandGuardianEncounter.active(island)
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -353,6 +354,32 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("☑ " + survivalGoal + " · 查看目标", color=Color(0xFFFFE3A7),
                     modifier=Modifier.padding(horizontal=8.dp,vertical=5.dp),
                     fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
+            }
+            if(activeGuardian!=null) {
+                Surface(onClick={
+                    target=activeGuardian.x to activeGuardian.y
+                    mapAim=false
+                    // The authoritative stepper approaches the occupied enemy,
+                    // but never walks *through* it or attacks automatically.
+                    navigateTo=activeGuardian.x to activeGuardian.y
+                },color=Color(0xE3523835),shape=RoundedCornerShape(11.dp),
+                    border=BorderStroke(1.dp,Color(0xFFFFB58B))) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal=9.dp,vertical=8.dp),
+                        verticalArrangement=Arrangement.spacedBy(3.dp)) {
+                        Text("⚔ ${IslandGuardianEncounter.title} · ${activeGuardian.hp}/${IslandGuardianEncounter.hp} ♥",
+                            color=Color(0xFFFFD8B3),fontWeight=FontWeight.Black,
+                            fontSize=11.sp,maxLines=1)
+                        Text(if(IslandGuardianEncounter.impendingHeavyAttack(island))
+                            "⚠ 下回合重击 · 躲开或提前补给"
+                            else "点击追踪 · 靠近后用石剑攻击",
+                            color=if(IslandGuardianEncounter.impendingHeavyAttack(island))
+                                Color(0xFFFFAA98) else Color(0xFFFFE5CB),
+                            fontSize=10.sp,maxLines=1)
+                    }
+                }
+            } else if(nextLandmark==null && !island.guardianCleared) {
+                Text("◇ 终章挑战 · "+IslandGuardianEncounter.remainingRequirements(island),
+                    color=Color(0xFFFFD6A2),fontSize=10.sp,maxLines=2)
             }
             if(nextLandmark!=null) {
                 Surface(
@@ -797,6 +824,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
                 Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
                     color=Color.White,fontSize=12.sp)
+                Text("终章篇  ·  双地标 → 石剑 → 守住3夜 → 挑战南岭巨岩守卫",
+                    color=Color(0xFFFFD5AF),fontSize=12.sp,fontWeight=FontWeight.Bold)
+                Text("守卫状态："+IslandGuardianEncounter.remainingRequirements(island),
+                    color=Color(0xFFFFE7CF),fontSize=11.sp)
                 Text("家园篇  ·  结识动物 → 建宠物小屋 → 点亮夜灯",
                     color=Color.White,fontSize=12.sp)
                 Text("实际进度：守夜 " + island.nightsSurvived + "/3 · 补给 " +
@@ -925,13 +956,18 @@ private fun IslandMiniMap(island: BlockIslandState) {
                         if(place.id in island.awardedChallenges)Color(0xFF71DEC6)
                         else Color(0xFFFFE093),1.75f)
                 }
-                w.mobs.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFFFF918B)) }
+                w.mobs.filter { it.hp>0 }.forEach {
+                    dot(it.x,it.y,
+                        if(it.id==IslandGuardianEncounter.id)Color(0xFFFFCB7A)
+                        else Color(0xFFFF918B),
+                        if(it.id==IslandGuardianEncounter.id)2.15f else 1f)
+                }
                 island.animals.forEach { dot(it.x,it.y,
                     if(it.befriended)Color(0xFFFFD693) else Color(0xFFD6F4C2)) }
                 w.friends.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFF8BDAF3)) }
                 dot(w.x,w.y,Color(0xFFFFF0B1),1.35f)
             }
-            Text("金色大点：远航地标（青绿为已发现）　黄：你／补给　蓝：伙伴　红：怪物　浅绿：动物",
+            Text("金色大点：远航地标 / 守卫　青绿：已探索　黄：你／补给　蓝：伙伴　红：怪物",
                 color=Color(0xFFC5E0D3),fontSize=10.sp,maxLines=2)
         }
     }
