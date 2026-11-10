@@ -1761,3 +1761,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [637f3c5](https://github.com/jiacimu-droid/lulu1/commit/637f3c58ec6312b7a49e2e0fa5297cee1062e01f) 复用已有同角色时间线查询，在心事工作集中交接上次真实尝试的动作、成败、原回执 ID 与摘要。查不到原回执时明确说不可用。已保存事实、注意力预算、共享执行器、人物选择及请求次数沿用原实现。
 - 扩展 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，由同一后台决定选择发布、失败的收藏、仅在收藏成功后发布的依赖步骤。核真实失败回执、依赖发布未发生，以及下一次同角色 HTTP 请求同时收到真实发布和带来源的失败；原过期批次不得重复调用的断言保留。该测试覆盖契约及实际本地工具链，真实模型与设备体验待验。
 - 本轮静态核查文件 SHA 与改动范围。CI [Refresh code index #42845477645](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477645) in_progress，[Lulu APK #42845477728](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477728) in_progress。下一轮沿 P-03.1 先查本 SHA 的首错或通过结果。通过后先验来源撤回导致回执不可用时的输入边界，优先打开上述测试及 `CharacterUnfinishedActionContext`。工程子项的完成证据交总大纲归并。
+
+
+### 2026-11-11 · UI-02.2 会话 updatedAt 权威时间保护（待 CI）
+
+- 回归 `9a2e88b84e1d9c96db50751c49320364e5856c7c`：`ChatHistoryLegacyCompatibilityTest.malformedConversationTimestampMustNotReplaceOriginalSnapshot` 以旧 `state_v1` 会话无效 `updatedAt` + 合法消息复现，覆盖置顶写入、重建及再次写入，要求原快照字节文本不被替换。
+- 正式修复 `6639d80a293b541f967e80947ffd545b9f4986a9`：权威 `decode()` 在 `decodeConversation()` 的宽容 `toInstantOrNow()` 之前严格 `Instant.parse(updatedAt)`，无效则沿既有不可覆盖状态保护原文。未改普通导入、人物、预算、存储格式或收费模型调用。
+- 本轮 GitHub main push Actions 查询未取得可用结果；**未运行本地 JVM/APK，不勾工程通过**。下一轮固定 UI-02.2：先核 `6639d80` 对应 APK/JVM 和 Refresh code index 的 head SHA/首错；通过后优先覆盖 SharedPreferences 写入失败与重启回退，再决定事务性增量存储。真机强杀、10万条性能与供应商计费独立待验。
