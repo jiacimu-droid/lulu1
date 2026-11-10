@@ -26,6 +26,32 @@ internal object RelicObjectiveGuide {
         else null
     }
 
+    /** The player can choose whether to keep hunting loot or head home.
+     * Neither option hides/reveals map cells, spends a turn, or overrules the
+     * player's intention. Unseen objects cannot be targeted from the HUD. */
+    fun visibleChest(run:RelicRun):RelicObjectiveTarget? {
+        if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT))return null
+        val hero=run.hero
+        return run.chests.filter { !it.opened && run.visible(it.x,it.y) }
+            .minWithOrNull(compareBy<RelicChest> {
+                RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)
+            }.thenBy { it.id })
+            ?.let { RelicObjectiveTarget(it.x,it.y,"已发现的宝箱") }
+    }
+
+    fun visibleExit(run:RelicRun):RelicObjectiveTarget? =
+        if(run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) &&
+            run.visible(run.exitX,run.exitY))
+            RelicObjectiveTarget(run.exitX,run.exitY,"已发现的撤离门")
+        else null
+
+    fun optionLabel(run:RelicRun,target:RelicObjectiveTarget):String {
+        val knownSteps=knownRouteSteps(run,target)
+        return if(knownSteps==null) "路径未探明"
+            else if(knownSteps==0) "就在附近"
+            else "已知路线约${knownSteps}步"
+    }
+
     /** Shortest route over already-discovered safe tiles.
      *
      * The returned path includes the hero's tile and stops next to the
