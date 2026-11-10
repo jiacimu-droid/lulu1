@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T10:49:37.837281+00:00",
-  "commit": "9f579bfedc0b4df2ad02245d2087eabbe26322ea",
+  "generatedAt": "2026-11-10T11:35:40.144554+00:00",
+  "commit": "e7dfa472aa91503aaa242d03aab94b3f08b575ed",
   "branch": "main",
-  "sourceFingerprint": "9a7155b670f1ad31fd47ea9dd65cf96fe71a416a407831a6327dc0ada37b5a23",
+  "sourceFingerprint": "5f84616f7e77d12d906f5bb1bec0f9e4469c396a52d2677ad8b04c97a04a5e5c",
   "summary": {
     "files": 1172,
-    "lines": 253026,
-    "symbols": 3447
+    "lines": 253136,
+    "symbols": 3450
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -475,7 +475,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1980
+        "line": 1990
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -495,7 +495,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 289
+        "line": 301
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
@@ -4687,7 +4687,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 211
+        "line": 223
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -6187,7 +6187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 261
+        "line": 273
       }
     ],
     "pendingDecisionCues": [
@@ -6337,7 +6337,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 209
+        "line": 221
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6825,13 +6825,13 @@
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1804
+        "line": 1814
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1856
+        "line": 1866
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -7255,37 +7255,37 @@
     "unresolved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 220
+        "line": 232
       }
     ],
     "meritsOneFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 225
+        "line": 237
       }
     ],
     "closures": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 234
+        "line": 246
       }
     ],
     "closure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 239
+        "line": 251
       }
     ],
     "dependsOnEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 259
+        "line": 271
       }
     ],
     "closureContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 269
+        "line": 281
       }
     ],
     "integrate": [
@@ -17440,6 +17440,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
         "line": 767
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 849
       }
     ],
     "bubbles": [
@@ -17464,6 +17468,22 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
         "line": 710
+      }
+    ],
+    "concern": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 836
+      }
+    ],
+    "decision": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 840
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 1448
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -18522,12 +18542,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 1248
-      }
-    ],
-    "decision": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1448
       }
     ],
     "invalid": [
@@ -25194,8 +25208,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2149,
-      "sha256": "de012e835f5a058a4a0f20be02a3f677df762a1a36df3b0c0e75919035b4bc18",
+      "lines": 2159,
+      "sha256": "625d8229b5ef9cad890e1901e9d9feac177c8858f517688d6be8f116a1e77955",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -25235,15 +25249,15 @@
         },
         {
           "name": "axis",
-          "line": 1804
+          "line": 1814
         },
         {
           "name": "compactContext",
-          "line": 1856
+          "line": 1866
         },
         {
           "name": "context",
-          "line": 1980
+          "line": 1990
         }
       ]
     },
@@ -25677,8 +25691,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 351,
-      "sha256": "2ea5d9530b908fbbf68e09e090828a8f816642eb2c9c75a1819d55c0d73152ab",
+      "lines": 363,
+      "sha256": "828a6d788434ed52e4e53065caec884f210f7344c9ace027830cd641970a22ce",
       "symbols": [
         {
           "name": "proposals",
@@ -25702,43 +25716,43 @@
         },
         {
           "name": "active",
-          "line": 209
+          "line": 221
         },
         {
           "name": "recent",
-          "line": 211
+          "line": 223
         },
         {
           "name": "unresolved",
-          "line": 220
+          "line": 232
         },
         {
           "name": "meritsOneFollowThrough",
-          "line": 225
+          "line": 237
         },
         {
           "name": "closures",
-          "line": 234
+          "line": 246
         },
         {
           "name": "closure",
-          "line": 239
+          "line": 251
         },
         {
           "name": "dependsOnEvidence",
-          "line": 259
+          "line": 271
         },
         {
           "name": "matches",
-          "line": 261
+          "line": 273
         },
         {
           "name": "closureContext",
-          "line": 269
+          "line": 281
         },
         {
           "name": "context",
-          "line": 289
+          "line": 301
         }
       ]
     },
@@ -38266,8 +38280,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 923,
-      "sha256": "d51ec842e7791df958340a948d674d7fb8de1dc2e38d746748ddd49ce1fb9f88",
+      "lines": 1011,
+      "sha256": "23d8d4d1083c2c3dc4fc4543e35bf6360e38a9de1ff748887af0d1c43ae70e2e",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -38324,6 +38338,18 @@
         {
           "name": "response",
           "line": 767
+        },
+        {
+          "name": "concern",
+          "line": 836
+        },
+        {
+          "name": "decision",
+          "line": 840
+        },
+        {
+          "name": "response",
+          "line": 849
         }
       ]
     },
