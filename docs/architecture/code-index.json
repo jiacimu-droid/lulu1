@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:45:52.578693+00:00",
-  "commit": "02bd25ff3b2b0b97002a4e5d8301700f69d9132f",
+  "generatedAt": "2026-11-10T16:47:16.827402+00:00",
+  "commit": "87bca76f3be7c7b2be004369e2a0c684ee1527fd",
   "branch": "main",
-  "sourceFingerprint": "933849e1bb2205716e8a994398e227f3e85d8eb0cf27c004525cee3490db27c4",
+  "sourceFingerprint": "ffd9f3d934af6da60e18209edf022db8eb8929d3acac13eba8c33d3df2d6424a",
   "summary": {
     "files": 1173,
-    "lines": 253712,
+    "lines": 253757,
     "symbols": 3457
   },
   "symbolIndex": {
@@ -11223,7 +11223,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-        "line": 171
+        "line": 216
       }
     ],
     "rendered": [
@@ -17369,7 +17369,7 @@
     "message": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-        "line": 174
+        "line": 219
       }
     ],
     "ChatHistoryPersistenceBaselineTest": [
@@ -38204,8 +38204,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-      "lines": 213,
-      "sha256": "259c91cb51d2cdc84b28a0fdd703e941f220e3a9455b446c2eafae1cc268cf83",
+      "lines": 258,
+      "sha256": "c7f55bbc7a64065999be170a59ab1a8b661e13705b0efe731701facd1d9ff1d5",
       "symbols": [
         {
           "name": "ChatHistoryLegacyCompatibilityTest",
@@ -38213,11 +38213,11 @@
         },
         {
           "name": "conversation",
-          "line": 171
+          "line": 216
         },
         {
           "name": "message",
-          "line": 174
+          "line": 219
         }
       ]
     },
