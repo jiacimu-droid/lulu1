@@ -101,7 +101,14 @@ object CommitmentTurnAutomation {
         val acceptedWake = WakeCommitmentParser.acceptedRequest(userText, roleText) ||
             contextualWake
         val coveredWake = active.firstOrNull { task ->
-            task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
+            // A stored promise with an invalid text-only route, missing alarm,
+            // or rejected permission is NOT a fulfilled registration.
+            // Allow one focused semantic correction of that same task.
+            task.isWakeResponsibility() &&
+                evidenceIds.any(task.sourceEventIds::contains) &&
+                task.status == CommitmentTaskStatus.Scheduled &&
+                task.deliveryAction in setOf("start_call", "alarm_only") &&
+                !task.linkedAlarmId.isNullOrBlank()
         }
         // A completed primary decision is final for normal chatting,
         // including []: NO repeated generic extraction. The sole exception
