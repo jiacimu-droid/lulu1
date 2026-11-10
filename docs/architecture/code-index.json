@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T04:31:48.795139+00:00",
-  "commit": "1497789385755e7e96a498936c5b701439732900",
+  "generatedAt": "2026-11-10T04:38:08.491800+00:00",
+  "commit": "cd170a5ea0706debff009e63bfb6305cf2f48831",
   "branch": "main",
-  "sourceFingerprint": "1b7f29d2507190ac4e65bf7c83152747de037a483c2d97d26b7f2732790dbac5",
+  "sourceFingerprint": "d00345b186336b87d1e8d2a4a02cbaf36e4ab3c918c07f3e4764a53545338b0d",
   "summary": {
-    "files": 1165,
-    "lines": 251019,
-    "symbols": 3419
+    "files": 1166,
+    "lines": 251111,
+    "symbols": 3420
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17240,6 +17240,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
         "line": 5
+      }
+    ],
+    "ChatHistoryPersistenceBaselineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
+        "line": 25
       }
     ],
     "ChatLexiconRetryPolicyTest": [
@@ -37899,6 +37905,17 @@
         {
           "name": "ChatAutomationRoutingTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
+      "lines": 92,
+      "sha256": "0ed13c05db5cc9b0dcd711abf08c9867d83fb57573a2768dd6c418cb4046cd6d",
+      "symbols": [
+        {
+          "name": "ChatHistoryPersistenceBaselineTest",
+          "line": 25
         }
       ]
     },
