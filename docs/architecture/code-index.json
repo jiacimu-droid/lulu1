@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T17:22:07.882994+00:00",
-  "commit": "a145528570f42d7bb05bbb99f03af883bace6fd4",
+  "generatedAt": "2026-11-10T17:32:09.520411+00:00",
+  "commit": "618674423d95d09f02806d5c04f820a8c38da7e8",
   "branch": "main",
-  "sourceFingerprint": "478b6c1c13d821da22f1c162d40d9927d4adaee5e24310c5d025c2cacddfd077",
+  "sourceFingerprint": "dcf7517bc48a5c4bd9e8690e3a20ff66a8124550777c81b8ee8362bc49896ea8",
   "summary": {
     "files": 1173,
-    "lines": 253997,
-    "symbols": 3459
+    "lines": 254030,
+    "symbols": 3461
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -495,7 +495,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 301
+        "line": 318
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
@@ -503,7 +503,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 122
+        "line": 118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -3871,7 +3871,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 101
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
@@ -7296,6 +7296,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 281
+      }
+    ],
+    "lastAttemptContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 301
+      }
+    ],
+    "contextForRole": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 309
       }
     ],
     "integrate": [
@@ -25257,7 +25269,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 2159,
-      "sha256": "625d8229b5ef9cad890e1901e9d9feac177c8858f517688d6be8f116a1e77955",
+      "sha256": "2d198544246dd166d383890676e960a765f725f6eab1979cefe2f6752680656a",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -25739,8 +25751,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 363,
-      "sha256": "828a6d788434ed52e4e53065caec884f210f7344c9ace027830cd641970a22ce",
+      "lines": 377,
+      "sha256": "21427bb34e2302b941779fe0f9da11e4026eeb6127bdb6df7bafe9fb54dbe311",
       "symbols": [
         {
           "name": "proposals",
@@ -25799,8 +25811,16 @@
           "line": 281
         },
         {
-          "name": "context",
+          "name": "lastAttemptContext",
           "line": 301
+        },
+        {
+          "name": "contextForRole",
+          "line": 309
+        },
+        {
+          "name": "context",
+          "line": 318
         }
       ]
     },
@@ -26252,8 +26272,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-      "lines": 126,
-      "sha256": "5e80c43b7e4c002821ad19a4779edf3591ac1711d9f102860ef6bcb2c8796020",
+      "lines": 122,
+      "sha256": "76cda05bea4e97df6c0b91793fac3c6380d58ebac9596b1ec9f5a9985b4e80f3",
       "symbols": [
         {
           "name": "Cue",
@@ -26273,11 +26293,11 @@
         },
         {
           "name": "render",
-          "line": 101
+          "line": 97
         },
         {
           "name": "context",
-          "line": 122
+          "line": 118
         }
       ]
     },
@@ -35280,7 +35300,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2217,
-      "sha256": "a11af1a2dd5fbaca20c3990edb44faa04af93bd8e14cdaba41081809827d2280",
+      "sha256": "75292883f4afc8c65b937a2bc34e3345960da179548b16d7bbfba7a66c478eba",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36947,8 +36967,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 562,
-      "sha256": "3d23d627bd5b4497092cc3e87b2721bdc961c9c364c194c0eba0908e4a61b3ea",
+      "lines": 582,
+      "sha256": "c3ddb1da0178c2c011d06fbf3145540f5aee9d2df8d84b66b9c101dbda01d894",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
@@ -37926,8 +37946,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
-      "lines": 388,
-      "sha256": "c1034aa80481154329c8f763dd2825a94769ae00b7e98571db36bfa5aabafb60",
+      "lines": 391,
+      "sha256": "38f478299656479f003b0fb64c2f8023e04c3568d6585007d1f7f503d30e2c80",
       "symbols": [
         {
           "name": "CharacterOpenConcernRuntimeTest",
