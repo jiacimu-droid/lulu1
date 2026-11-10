@@ -403,7 +403,7 @@ internal fun acceptedWakeAfterSleepDurationQuestion(
     val reply = deliveredRoleText.replace(Regex("\\s+"), "")
     val offeredTime = Regex("睡.{0,8}(?:多久|多长|几分钟)|(?:多久|几分钟).{0,8}(?:叫你|叫醒|喊醒|睡)")
         .containsMatchIn(prior)
-    val suppliedDuration = Regex("""(?:\\d{1,4}|[零〇一二两三四五六七八九十百]{1,5})(?:个)?分钟|半(?:个)?小时""")
+    val suppliedDuration = Regex("""(?:\d{1,4}|[零〇一二两三四五六七八九十百]{1,5})(?:个)?分钟|半(?:个)?小时""")
         .containsMatchIn(answer)
     val acceptedAction = Regex("叫醒|叫你|喊你|喊醒|起床|闹钟|响铃|来电")
         .containsMatchIn(reply)
