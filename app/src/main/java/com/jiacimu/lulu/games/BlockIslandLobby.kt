@@ -76,9 +76,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val playerName = remember(playerProfile) {
         playerProfile.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
     }
-    val mint = Color(0xFFB7F2CE)
-    val dim = Color(0xFFB6CDBF)
-    val panel = Color(0xED183C3E)
+    // A soft coastal palette: sage, warm ivory and quiet deep foliage.
+    // Keep the panels readable over any part of the actual island artwork.
+    val mint = Color(0xFFD6E7CB)
+    val dim = Color(0xFFCCD8CC)
+    val panel = Color(0xE525403B)
 
 
     // Wide phones get a complete game screen: the island is the backdrop, the
@@ -174,7 +176,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 val completed=savedIsland?.let { state ->
                     IslandChallengeBoard.challenges.count { it.id in state.awardedChallenges }
                 } ?: 0
-                Text("✦ 本次冒险简报",fontSize=20.sp,fontWeight=FontWeight.Black,color=mint)
+                Text("今天去哪里",fontSize=20.sp,fontWeight=FontWeight.Bold,color=Color(0xFFF2EED9))
                 Text(if(existingIsland)"主线 · "+IslandMilestones.next(savedIsland!!)
                     else "主线 · 收集木石，搭建你的第一座工作台",
                     color=Color.White,fontWeight=FontWeight.Bold,fontSize=12.sp,
@@ -186,9 +188,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         .height(6.dp)
                         .background(Color(0xFFF2C777),RoundedCornerShape(99.dp)))
                 }
+                // Two visible goals at once: enough direction, no checklist
+                // wall competing with the landscape. The full quest journal
+                // remains available inside the game.
                 val nextChallenges=IslandChallengeBoard.challenges.filter {
                     savedIsland==null || it.id !in savedIsland.awardedChallenges
-                }.take(3)
+                }.take(2)
                 if(nextChallenges.isEmpty()) {
                     Text("✦ 本岛全部挑战完成！继续自由建造，收集与伙伴的故事",
                         color=Color(0xFFFFE3A9),fontSize=12.sp)
@@ -207,7 +212,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         }
                     }
                 }
-                Text("生存 · 探索 · 建造家园，完成挑战会在世界里获得真实物资。",
+                Text("生存、探险、建起喜欢的家。",
                     color=dim,fontSize=11.sp,lineHeight=16.sp)
             }
         }
@@ -217,12 +222,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
             modifier=Modifier.fillMaxWidth().height(65.dp)
                 .clip(RoundedCornerShape(17.dp))
                 .background(Brush.horizontalGradient(listOf(
-                    Color(0xFFFFE2A7),Color(0xFFE9B061),Color(0xFFF5C47B)))),
+                    Color(0xFFF3E7C8),Color(0xFFE2CFA9),Color(0xFFEBDFC0)))),
             shape=RoundedCornerShape(17.dp),
             elevation=ButtonDefaults.buttonElevation(defaultElevation=6.dp,
                 pressedElevation=2.dp),
             colors=ButtonDefaults.buttonColors(containerColor=Color.Transparent,
-                contentColor=Color(0xFF38291D),
+                contentColor=Color(0xFF38483E),
                 disabledContainerColor=Color(0xAA69625A))) {
             Text(if(existingIsland)"▶  继续海岛冒险" else "▶  开始第一天的探险",
                 fontWeight=FontWeight.Black,fontSize=19.sp)
@@ -238,12 +243,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         ) {
             Row(verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("方块小岛",fontSize=31.sp,fontWeight=FontWeight.Black,color=Color.White)
-                Text("海岛生存 · 自由建造 · 与喜欢的人一起冒险",
+                Text("方块小岛",fontSize=31.sp,fontWeight=FontWeight.Bold,color=Color(0xFFF6F2E6))
+                Text("慢慢探索，一起把小岛建成家",
                     fontSize=13.sp,color=dim)
             }
-            Surface(color=Color(0xD328534A),shape=RoundedCornerShape(12.dp),
-                border=BorderStroke(1.dp,mint.copy(alpha=.35f))) {
+            Surface(color=Color(0xC52D4D43),shape=RoundedCornerShape(12.dp),
+                border=BorderStroke(1.dp,mint.copy(alpha=.24f))) {
                 Text(if(existingIsland)"✦ 家园已保存" else "✦ 全新旅程",
                     modifier=Modifier.padding(horizontal=12.dp,vertical=8.dp),
                     color=mint,fontSize=11.sp)
