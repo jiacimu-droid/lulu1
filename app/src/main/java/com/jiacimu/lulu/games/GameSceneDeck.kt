@@ -61,6 +61,8 @@ internal fun GameSceneDeck(
     actions: @Composable RowScope.() -> Unit,
     movement: @Composable () -> Unit = {},
     quickActions: @Composable () -> Unit = {},
+    /** Real combat/gather/build hotkeys, never scrolled away with tactical text. */
+    primaryActions: @Composable () -> Unit = {},
     tools: @Composable () -> Unit,
 ) {
     var drawer by remember { mutableStateOf(false) }
@@ -93,9 +95,13 @@ internal fun GameSceneDeck(
         // Capture BoxWithConstraints height in its own receiver scope. Inside
         // the bottom-right Column, ColumnScope shadows the constraint receiver
         // and Kotlin cannot implicitly resolve maxHeight (CI #857 / #858).
-        val quickInfoMaxHeight =
+        val quickInfoMaxHeight = minOf(
             if (wide) minOf(maxHeight * .39f, 195.dp)
-            else minOf(maxHeight * .30f, 260.dp)
+                else minOf(maxHeight * .30f, 260.dp),
+            // A narrow phone still reserves a real thumb zone for up to two
+            // gameplay hotkey rows, the contextual action and the tools key.
+            (maxHeight - 225.dp).coerceAtLeast(0.dp)
+        )
         // Measure the HUD naturally: on narrow screens and with large fonts,
         // status can wrap to two lines. A fixed 44dp notice offset overlapped it.
         Column(
@@ -203,6 +209,9 @@ internal fun GameSceneDeck(
             ) {
                 quickActions()
             }
+            // Gameplay inputs stay in a separate, non-scrollable slot. The
+            // scrollable intel above must never swallow combat or building.
+            primaryActions()
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 actions()
