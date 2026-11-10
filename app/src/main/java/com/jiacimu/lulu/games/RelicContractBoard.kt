@@ -20,5 +20,20 @@ internal object RelicContractBoard {
             RelicContract.RARITY->run.secured.any{it.tier!=RelicTier.COMMON}
         }
     }
+    /** Provisional contract progress is based on actual loot in real party bags.
+     * It is never treated as success or paid until the party extracts it. */
+    fun bagProgress(run:RelicRun):Pair<Int,Int>? {
+        val held=when(run.phase) {
+            RelicPhase.SUCCESS -> run.secured
+            RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED -> run.carried
+            else -> emptyList()
+        }
+        return when(run.contract) {
+            RelicContract.NONE -> null
+            RelicContract.FIRST_HAUL -> (if(held.isNotEmpty())1 else 0) to 1
+            RelicContract.COLLECTOR -> held.size.coerceAtMost(3) to 3
+            RelicContract.RARITY -> (if(held.any { it.tier!=RelicTier.COMMON })1 else 0) to 1
+        }
+    }
     fun bonus(run:RelicRun):Int=if(completed(run))run.contract.bonus else 0
 }
