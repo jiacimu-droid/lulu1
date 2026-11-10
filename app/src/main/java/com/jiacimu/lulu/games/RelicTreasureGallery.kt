@@ -63,37 +63,44 @@ internal object RelicTreasureGallery {
 
 @Composable
 internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
+    // Museum lighting is intentionally understated: a single quiet pedestal
+    // and restrained metal tone instead of overlapping neon rings. The actual
+    // owned item remains the only visual subject.
     val accent=when(loot.tier) {
-        RelicTier.COMMON -> Color(0xFFE7C39F)
-        RelicTier.RARE -> Color(0xFF9EE0FF)
-        RelicTier.PRECIOUS -> Color(0xFFFFD787)
+        RelicTier.COMMON -> Color(0xFFC8C4B9)
+        RelicTier.RARE -> Color(0xFFB4CDD6)
+        RelicTier.PRECIOUS -> Color(0xFFDBC7A4)
     }
-    Surface(shape=RoundedCornerShape(20.dp),color=Color(0xFF182839),
-        border=BorderStroke(if(featured)2.dp else 1.dp,
-            accent.copy(alpha=if(featured).94f else .57f))) {
-        Column(Modifier.fillMaxWidth().padding(12.dp),
+    Surface(shape=RoundedCornerShape(16.dp),color=Color(0xFF171D27),
+        border=BorderStroke(1.dp,accent.copy(alpha=if(featured).52f else .24f))) {
+        Column(Modifier.fillMaxWidth().padding(15.dp),
             horizontalAlignment=Alignment.CenterHorizontally,
-            verticalArrangement=Arrangement.spacedBy(6.dp)) {
-            Text(if(featured)"✦ 正在展出 · 我的珍宝" else "✧ 收藏鉴赏",
-                color=accent,fontSize=12.sp,fontWeight=FontWeight.Bold)
-            Canvas(Modifier.fillMaxWidth().height(150.dp)) {
-                val c=Offset(size.width*.5f,size.height*.48f)
-                drawCircle(Brush.radialGradient(
-                    listOf(accent.copy(alpha=.27f),Color.Transparent),
-                    center=c,radius=size.height*.60f),size.height*.60f,c)
-                drawCircle(accent.copy(alpha=.38f),size.height*.39f,c,
-                    style=androidx.compose.ui.graphics.drawscope.Stroke(1.7.dp.toPx()))
+            verticalArrangement=Arrangement.spacedBy(9.dp)) {
+            Text(if(featured)"正在展出" else "馆藏鉴赏",
+                color=accent,fontSize=12.sp,fontWeight=FontWeight.Medium)
+            Canvas(Modifier.fillMaxWidth().height(182.dp)) {
+                val c=Offset(size.width*.5f,size.height*.45f)
+                drawRect(Brush.verticalGradient(listOf(
+                    Color(0xFF28323B),Color(0xFF1B2631),Color(0xFF111820))))
+                drawOval(Color(0xFF3B4A52),
+                    topLeft=Offset(size.width*.24f,size.height*.80f),
+                    size=androidx.compose.ui.geometry.Size(
+                        size.width*.52f,size.height*.10f))
+                drawLine(accent.copy(alpha=.32f),
+                    Offset(size.width*.24f,size.height*.85f),
+                    Offset(size.width*.76f,size.height*.85f),
+                    strokeWidth=1.dp.toPx())
                 with(RelicTreasureArt) {
-                    drawTreasure(loot.name,c,size.height*.87f,accent)
+                    drawTreasure(loot.name,c,size.height*.79f,accent)
                 }
             }
-            Text(loot.name,color=Color.White,fontSize=20.sp,
-                fontWeight=FontWeight.Black)
-            Text(RelicTreasureGallery.identity(loot.name),color=Color(0xFFCFDEEA),
+            Text(loot.name,color=Color(0xFFF3F0E9),fontSize=21.sp,
+                fontWeight=FontWeight.Bold)
+            Text(RelicTreasureGallery.identity(loot.name),color=Color(0xFFCCD1D5),
                 fontSize=12.sp,lineHeight=18.sp)
-            Text("◇ ${loot.tier.label}珍藏 · 价值 ${loot.value}",
+            Text("${loot.tier.label}珍藏 · 鉴定价值 ${loot.value}",
                 color=accent,fontSize=11.sp)
-            Text(RelicTreasureGallery.useHint(loot.name),color=Color(0xFFADC9C5),
+            Text(RelicTreasureGallery.useHint(loot.name),color=Color(0xFFA9B3B5),
                 fontSize=10.sp)
         }
     }
