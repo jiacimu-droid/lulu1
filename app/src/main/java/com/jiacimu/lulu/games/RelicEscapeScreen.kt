@@ -372,6 +372,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
                 if (attackTarget == null) Text(relicAttackHint(run, selected),
                     color = relicMuted, fontSize = 10.sp, maxLines = 2)
+            }
+        },
+        primaryActions = {
+            if (run != null && run.phase in setOf(
+                RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
+                val hero = run.hero
+                val attackTarget = relicAttackTarget(run, selected)
+                val nearbyLoot = run.chests.firstOrNull { !it.opened &&
+                    RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 &&
+                    run.visible(it.x, it.y) }
                 val sx = selected.first
                 val sy = selected.second
                 val visible = run.visible(sx, sy)
