@@ -108,6 +108,7 @@
 
 - [x] ~~G-02.2：施工/暂停/恢复后进度投影 JVM 回归~~ — `3823e49` 的 [APK/JVM #42839226558](https://github.com/jiacimu-droid/lulu1/actions/runs/42839226558) 成功；正式 HUD、手感和真实角色意图仍待验。
 - [x] ~~P-03.1：后台输入带回上一轮真实挂心动作的成败与回执 ID~~ — `637f3c5` 的 [APK/JVM #42845477728](https://github.com/jiacimu-droid/lulu1/actions/runs/42845477728) 成功；撤回边界另验。
+- [x] ~~UI-02.2：置顶写入失败不改变当前和重开的会话状态~~ — `a145528` 的 [APK/JVM #42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 通过，真机提示与其他聊天操作的事务迁移继续独立跟踪。
 - [x] ~~UI-02.2：损坏的会话更新时间不覆盖原始聊天快照~~ — `6639d80` 的 [APK/JVM #42846387183](https://github.com/jiacimu-droid/lulu1/actions/runs/42846387183) 成功；写入失败回退另验。
 
 **标记原则**：有源码和测试不等于测试通过；有 APK/JVM 成功不等于真机/模型体验完成。下方尚未完结的大项继续 [ ]，但不可再要求重复实现上面已勾选的子步骤。
@@ -124,7 +125,7 @@
 | 8 P-07 / M5–M6 | 待源码复核/真实模型 | P-07.1 撤回后旧依据是否继续注入 | 旧事实不能充当当前结论 |
 | 9 P-08e | 待真实模型/跨日 | P-08e.1 使用相同场景、不同角色对照日常接话、约定与主动找人 | 本人表达与行动有连续理由、无无谓重复调用 |
 | 10 S-01 | 信箱、好友、朋友圈与探索回执已有正式入口，缺席如何成为本人已知事实待做 | S-01.3 随 S-02.4 验清醒/错过/后续；S-01.2 验兴趣→真实探索→本人再选 | 自主交流与关系变化有依据，无自动刷量 |
-| 11 S-02 | 源码已接规划、到期、清醒社交及独立暂停，新增额度只限制行程 | S-02.4 先核 CI 再用两位居民和主角色测醒睡、朋友动态、岗位与暂停恢复 | 行程额度 0 时仍能社交；按真实请求统计，休眠保留未读 |
+| 11 S-02 | 源码已接规划、到期、清醒社交及独立暂停，新增额度只限制行程 | S-02.4 工程回归已通过；用两位居民和主角色真机测醒睡、动态、岗位与暂停恢复 | 行程额度 0 时仍能社交；按真实请求统计，休眠保留未读 |
 | 12 UI-01 | 待测量/真机 | UI-01.1 桌面/IME 帧耗时和 WebView 开销 | P50/P95 和功能退化前后可比 |
 | 13 UI-02 | 会话时间保护已过工程 CI；仍待失败恢复与大历史量化 | UI-02.2 写入失败/重开回退，UI-02.1 持续量化 | 写失败保住旧档，正常写入不随其他会话历史线性增长 |
 | 14 P-09 / M4 | 待测量 | P-09.1 大规模记忆资源与费用 | 数据驱动索引或分页策略 |
@@ -300,11 +301,13 @@
 - [ ] **S-02.2** 删居民后查仍运行的任务、孤儿私聊、群聊历史、朋友圈/通知；保留历史，不生成幽灵居民。
 - [ ] **S-02.3** 验性别/身份/详细本人设定在相遇导演、双方提示词和实际称谓中一致；不能根据职业/姓名推断。旧 cc03dadd 私聊过滤不重做。
 
-- [ ] **S-02.4 居民五分钟清醒与社会活动（源码及回归已提交，CI/真机待验）**：本人每日规划、已排活动到点开启现有持久窗口；清醒期间真实可见的来信与朋友圈活动续期，原信箱/朋友圈光标保留睡眠时未读；自动社交的回复确实写入原信箱并保留回执，后续由对方自己的下一机会处理，防止互相自动触发。预约数量与实际请求计数分离，独立暂停保留历史和原计划。咖啡角点单查现场店员是否可接待并保留自助台。回归先查 `ResidentDailyContinuityTest.awakeResidentsCanReadAndReplyAfterZeroAgendaSlots`、`ResidentDailyPolicyTest` 与网关 POST 统计，再真机查两位居民和主角色、时钟、进程恢复和真实模型行为。
+- [x] ~~S-02.4 居民五分钟清醒与社会活动的工程回归~~（[APK/JVM #42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655)）：本人每日规划、已排活动到点开启现有持久窗口；清醒期间真实可见的来信与朋友圈活动续期，原信箱/朋友圈光标保留睡眠时未读；自动社交的回复确实写入原信箱并保留回执，后续由对方自己的下一机会处理，防止互相自动触发。预约数量与实际请求计数分离，独立暂停保留历史和原计划。咖啡角点单查现场店员是否可接待并保留自助台。回归先查 `ResidentDailyContinuityTest.awakeResidentsCanReadAndReplyAfterZeroAgendaSlots`、`ResidentDailyPolicyTest` 与网关 POST 统计，再真机查两位居民和主角色、时钟、进程恢复和真实模型行为。
   - 2026-11-11 已实现的限定子步骤：居民饥饿/口渴从实时身体模拟、保存、提示与展示移除；旧数据由本人 ID 兼容读取，保留主动点单、舒适与其他数值。新增 `EmbodiedBodyPhysicsTest.residentBodyDropsLegacyFoodNeedsAndKeepsOtherSensations`。APK/JVM 与真机分别核验。
   - **十项联动验收入口**：①–⑤ 规划和到点醒、窗口内私信/朋友圈、行程上限独立、缺席线索、在岗和可接待分别用 `ResidentDailyPolicyTest`、`ResidentDailyContinuityTest`、`ResidentPhoneWakeIntegrationTest` 和 `ResidentDailyContinuityTest.cafeOrderNeedsAnAwakeBaristaOnSiteAndSelfServiceDoesNot` 验证，再补真机。⑥–⑦ 每日规划保存有原始来源的兴趣，下一次社交决定读回；本人选定的私信与朋友圈分别看真实消息、可见权限和未读，撤回来源使旧兴趣失效。⑧ 复用聊天批次与水位测试，真机补打字开始、连续气泡、生成中改口。⑨–⑩ 用 `MemoryRecallIntegrationTest.revisedRawChatKeepsBothTimeConditionsBeforeLongTermExtraction` 查更正前后原文、实际模型请求和注入记录，真机/真实模型另验理解和自然度。短时间问句只有明确主题时也召回原话。聊天置顶在后台确认写入后才刷新，写入失败保留原状态并提示重试，由 `ChatHistoryLegacyCompatibilityTest.failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState` 验证。
 
-- **S-02.4 / UI-02.2 工程验收记录**：`7b262da` 的 [#42860437140](https://github.com/jiacimu-droid/lulu1/actions/runs/42860437140) 已过居民 0 行程社交、兴趣和真实送达回归。`2c8ca29` 的 [#42861721064](https://github.com/jiacimu-droid/lulu1/actions/runs/42861721064) 已过实际网关 POST（MockWebServer）原文及注入记录验证，完整测试因两项测试环境问题未通过。`5f81f73` 增加置顶后台写入与失败提示；`a145528` 修正拒写模拟与咖啡角测试应用实例。下一轮先核 [APK/JVM #42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 或包含上述修复的后继提交，再分别记录真机及真实模型结果。
+- **S-02.4 / UI-02.2 工程验收记录**：`7b262da` 的 [#42860437140](https://github.com/jiacimu-droid/lulu1/actions/runs/42860437140) 已过居民 0 行程社交、兴趣和真实送达回归。`2c8ca29` 的 [#42861721064](https://github.com/jiacimu-droid/lulu1/actions/runs/42861721064) 已过实际网关 POST（MockWebServer）原文及注入记录验证，完整测试因两项测试环境问题未通过。`5f81f73` 增加置顶后台写入与失败提示；`a145528` 修正拒写模拟与咖啡角测试应用实例。[APK/JVM #42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 通过，2681 项通过、1 项跳过，已发布 [Lulu v8577](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v8577)。
+
+- [ ] **S-02.4 真机和真实模型**：两位居民与主角色验证跨日/重启后的醒睡、在岗接待、缺席后是否自然想起对方，以及兴趣在后续是否真正影响行动。聊天验证键盘节奏、生成中改口、时间约定的自然表达。
 
 ### UI-01 桌面及输入卡顿
 - [ ] **UI-01.1** 测桌面横滑、聊天键盘弹起/收回与 WebView 后台，记录机型/安装版/历史规模/P50-P95 帧耗时、CPU、RAM。

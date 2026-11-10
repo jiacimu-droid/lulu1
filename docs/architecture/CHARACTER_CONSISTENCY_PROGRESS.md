@@ -4,7 +4,7 @@
 
 - [7b262da](https://github.com/jiacimu-droid/lulu1/commit/7b262da4b05f1ce60ab803c8831d5285f56f26f2) 将居民本人提出的兴趣关联到真实来源和修订版本，后续计划、到点活动和社交可继续使用。`ResidentDailyContinuityTest.awakeResidentsCanReadAndReplyAfterZeroAgendaSlots` 已在 #42860437140、#42861721064 通过，覆盖零行程、真实来信、兴趣续接、本人选择的私信和朋友圈以及撤回来源。
 - [2c8ca29](https://github.com/jiacimu-droid/lulu1/commit/2c8ca2991633b6a74d63b7fdc020bbd08ee3aaab) 修复短时间问句召回和咖啡角可接待状态；更正原话及两项时间条件在 #42861721064 的实际网关请求和注入追踪测试中通过。置顶先持久化再更新列表，[5f81f73](https://github.com/jiacimu-droid/lulu1/commit/5f81f73db0d0887fcb2248b4b3e3b430352b86af) 将实际界面写入移至后台并提示失败。
-- #42861721064 共 2682 项测试，2 项失败，1 项跳过。失败是拒写模拟的流式接口返回了原 Editor、咖啡角用例沿用了前一个 Robolectric 应用实例。[a145528](https://github.com/jiacimu-droid/lulu1/commit/a145528570f42d7bb05bbb99f03af883bace6fd4) 修正用例，保留实际业务断言。下一轮先核 [#42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 的咖啡角和置顶写入结果，再验真机操作、进程恢复和真实模型理解。
+- #42861721064 共 2682 项测试，2 项失败，1 项跳过。失败是拒写模拟的流式接口返回了原 Editor、咖啡角用例沿用了前一个 Robolectric 应用实例。[a145528](https://github.com/jiacimu-droid/lulu1/commit/a145528570f42d7bb05bbb99f03af883bace6fd4) 修正用例，保留实际业务断言。[#42864191655](https://github.com/jiacimu-droid/lulu1/actions/runs/42864191655) 已完成且成功，咖啡角、置顶拒写、零行程社交和更正原话用例均通过，合计 2681 项通过、1 项跳过，已发布 [Lulu v8577](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v8577)。真机操作、进程恢复和真实模型理解独立待验。
 
 ## 2026-11-10 UI-02.2 权威聊天身份字段严格保护
 
