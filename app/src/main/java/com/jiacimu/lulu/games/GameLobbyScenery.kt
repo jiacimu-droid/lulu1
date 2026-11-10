@@ -158,8 +158,14 @@ internal fun GameLobbyStage(
 @Composable
 internal fun GameLobbyBackdrop(island:Boolean, modifier:Modifier=Modifier) {
     Box(modifier) {
-        GameLobbyStage(island,eyebrow="",title="",subtitle="",
-            modifier=Modifier.matchParentSize(),fullBleed=true,showTitle=false)
+        if(island) {
+            GameLobbyStage(island=true,eyebrow="",title="",subtitle="",
+                modifier=Modifier.matchParentSize(),fullBleed=true,showTitle=false)
+        } else {
+            // Use the already bundled full-resolution illustrated temple artwork.
+            // A flat procedural banner here would regress the previous camp art.
+            RelicCampBackdrop()
+        }
         Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
             listOf(Color(0xA00C1F29),Color(0x3310242B),Color(0xA60C1721)))))
         Box(Modifier.matchParentSize().background(Brush.verticalGradient(
