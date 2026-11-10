@@ -1744,3 +1744,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [d79cc50](https://github.com/jiacimu-droid/lulu1/commit/d79cc50a533d7e1fbe951795bbbd195b563c03ff) 在群聊适配器生成一次成员专属证据，规划与已送达后的独立副动作共用。消息发送水位仍用原始聊天 ID，原工具权限、依赖规则、独立回执、模型调用次数不变。历史数据不猜测补绑。
 - `ConversationExpressionGatewayTest.groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults` 从正式群导演和本人 HTTP 入口开始，核实际群发言与真实收藏失败回执、依赖步骤不执行、独立朋友圈真正发布、回执和好奇来源都归发言者的群证据。该测试不证明真实模型语义或手机界面体验。
 - CI [Lulu APK #42826571378](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571378) in_progress，[Refresh code index #42826571444](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571444) completed/success。静态核对目标文件 SHA 及差异。下一轮按 `d79cc50a533d7e1fbe951795bbbd195b563c03ff` 查上述回归和索引，失败修同一工作包。若通过，打开 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，继续 P-03.1 后台同轮依赖步骤和下一轮真实回执注入的交接，避开已覆盖的群聊送达取消。
+
+
+## 2026-11-10 · UI-02.2 权威时间字段不可猜测回归
+
+- 接手 main `fc95d06fa8f474ca2f2d04b806a6068c16641546`，先读 AGENTS 全文、CODE_INDEX/ROADMAP 对应段及正式 Store 和历史兼容测试；双游戏近期提交未覆盖 UI-02.2。源码发现 `decodeMessage` 的宽容时间回退可能将无效 `createdAt` 解释为当前时间并在下一次全量写入中永久替换原始证据。
+- [测试 d67228d](https://github.com/jiacimu-droid/lulu1/commit/d67228d4ac67928123e0814ea2c874db1672dfc4)：`ChatHistoryLegacyCompatibilityTest.malformedMessageTimestampMustNotBeRewrittenAsCurrentTime`，损坏原始时间→真实 Store 初始化→置顶→重开→再次置顶，断言原始 `state_v1` 字节不变。
+- [正式修复 3a01b80](https://github.com/jiacimu-droid/lulu1/commit/3a01b8070d0f699395f6fb291cde3fb10f011814)：仅在权威快照读取时要求 `Instant.parse(createdAt)` 成功，避免宽容解码自动补时间；复用既有不可覆盖保护，不更改非权威导入、人设、居民预算或收费模型调用。
+- **CI 未验**：本轮没有得到 `3a01b80` 对应 main push APK/JVM、Refresh code index 的 completed/success，亦未运行本地 Gradle；真机、强杀、事务迁移仍未知。不能勾 UI-02.2。下一轮直接核本 SHA 的 Actions 首错，随后调查会话 `updatedAt` 的时间回退与写入失败的持久回滚，只有测试揭示缺口才继续修改生产代码。
