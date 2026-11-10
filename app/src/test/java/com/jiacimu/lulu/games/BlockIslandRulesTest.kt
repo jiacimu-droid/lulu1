@@ -10,6 +10,35 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BlockIslandRulesTest {
+    @Test fun challengeRewardsArePersistedAndCannotMintTwice() {
+        val base=BlockIslandRules.newWorld(311,emptyList())
+        val ready=base.copy(world=base.world.copy(mobs=emptyList()),
+            tools=setOf("axe"),structures=mapOf(base.world.index(5,5) to "workbench"))
+        val rewarded=BlockIslandRules.act(ready,"move",4,6)
+        assertTrue("craft" in rewarded.awardedChallenges)
+        assertEquals(ready.fruit+2,rewarded.fruit)
+        assertEquals(ready.world.turns+1,rewarded.world.turns)
+        val saved=BlockIslandState.fromJson(rewarded.toJson())!!
+        assertEquals(rewarded.awardedChallenges,saved.awardedChallenges)
+        val repeat=BlockIslandRules.act(saved,"move",4,5)
+        assertEquals(rewarded.fruit,repeat.fruit)
+        assertEquals(rewarded.awardedChallenges,repeat.awardedChallenges)
+        val rejected=BlockIslandRules.act(repeat,"move",4,5)
+        assertEquals(repeat.world.turns,rejected.world.turns)
+    }
+
+    @Test fun challengeChecksAreBasedOnPhysicalProgressAndOldSavesLoad() {
+        val base=BlockIslandRules.newWorld(51,emptyList())
+        assertTrue(IslandChallengeBoard.challenges.none{it.completed(base)})
+        assertEquals(base,IslandChallengeBoard.awardCompleted(base))
+        val old=org.json.JSONObject(base.toJson()).apply{remove("awardedChallenges")}
+        assertEquals(emptySet<String>(),BlockIslandState.fromJson(old.toString())!!.awardedChallenges)
+        val completed=base.copy(openedSupplies=setOf(base.supplyCaches.first()))
+        val awarded=IslandChallengeBoard.awardCompleted(completed)
+        assertEquals(completed.world.wood+2,awarded.world.wood)
+        assertEquals(completed.world.stone+2,awarded.world.stone)
+        assertEquals(awarded,IslandChallengeBoard.awardCompleted(awarded))
+    }
     @Test fun explorationMilestonesReadPhysicalSaveInsteadOfResettingAfterThreeNights() {
         val base=BlockIslandRules.newWorld(311,emptyList())
         val table=base.world.index(5,5)

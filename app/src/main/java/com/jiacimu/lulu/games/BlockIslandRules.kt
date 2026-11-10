@@ -28,6 +28,8 @@ internal data class BlockIslandState(
     val lastKnockoutTurn: Int = -100,
     val animals: List<IslandAnimal> = emptyList(),
     val discoveredSpecies: Set<String> = emptySet(),
+    /** Completed one-shot challenges are part of the same authoritative island save. */
+    val awardedChallenges: Set<String> = emptySet(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -51,6 +53,7 @@ internal data class BlockIslandState(
         .put("lastKnockoutTurn",lastKnockoutTurn)
         .put("animals",JSONArray(animals.map { it.json() }))
         .put("discoveredSpecies",JSONArray(discoveredSpecies.sorted()))
+        .put("awardedChallenges",JSONArray(awardedChallenges.sorted()))
         .toString()
 
     companion object {
@@ -112,7 +115,12 @@ internal data class BlockIslandState(
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in IslandWildlife.species }
                     }.toSet()
-                } ?: animals.filter { it.befriended }.map { it.species }.toSet())
+                } ?: animals.filter { it.befriended }.map { it.species }.toSet(),
+                awardedChallenges=json.optJSONArray("awardedChallenges")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in IslandChallengeBoard.ids }
+                    }.toSet()
+                } ?: emptySet())
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -552,7 +560,7 @@ internal object BlockIslandRules {
                     notice=result.world.notice+" · ✦ 初次发现"+discovered,
                     events=(result.world.events+"初次发现"+discovered).takeLast(150)))
         }
-        return result
+        return IslandChallengeBoard.awardCompleted(result)
     }
 
     private fun companionTurn(s: BlockIslandState, autonomousIds: Set<String>): BlockIslandState {

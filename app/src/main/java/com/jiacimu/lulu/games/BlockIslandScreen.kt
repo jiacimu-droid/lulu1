@@ -772,7 +772,23 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     " · 工具 " + island.tools.size + "/4 · 已结识动物 " +
                     island.animals.count { it.befriended } + "/" + island.animals.size,
                     color=Color(0xFFAEE7CF),fontSize=11.sp)
-                Text("目标按当前真实存档自动推进，不会因为关闭任务手册而丢失。达成后依然可以自由建房。",
+                Text("✦ 挑战奖励 · 达成后自动放进真实存档",
+                    color=Color(0xFFFFE3A7),fontWeight=FontWeight.Bold,fontSize=13.sp)
+                IslandChallengeBoard.challenges.forEach { challenge ->
+                    val complete = challenge.completed(island)
+                    val claimed = challenge.id in island.awardedChallenges
+                    Surface(color=if(claimed)Color(0xFF27594E) else Color(0xFF245052),
+                        shape=RoundedCornerShape(10.dp)) {
+                        Column(Modifier.fillMaxWidth().padding(9.dp)) {
+                            Text((if(claimed) "✓ " else if(complete) "✦ " else "○ ") + challenge.title,
+                                color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                            Text(challenge.detail + " · " + challenge.rewardText +
+                                if(claimed) " · 已领取" else if(complete) " · 下一有效行动领取" else "",
+                                color=Color(0xFFBCE9D7),fontSize=10.sp,lineHeight=15.sp)
+                        }
+                    }
+                }
+                Text("奖励只结算一次，不靠每日打卡；完成与否取决于真实游戏存档。",
                     color=Color(0xFFB5CAC3),fontSize=11.sp)
             }
         },
