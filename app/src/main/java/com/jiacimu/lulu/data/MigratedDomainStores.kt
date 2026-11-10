@@ -826,13 +826,20 @@ class InMemoryLuluChatStore : LuluChatStore {
             require(root.optJSONArray("conversations") != null && root.optJSONObject("messages") != null) {
                 "聊天历史结构不完整"
             }
-            val conversations = root.getJSONArray("conversations").decodeObjects(::decodeConversation)
+            // Chat history is an authority, not a best-effort import. The shared
+            // decodeObjects helper intentionally skips malformed entries, which would
+            // silently erase them on the next full state_v1 rewrite.
+            fun <T> decodeAll(array: JSONArray, parse: (JSONObject) -> T): List<T> =
+                (0 until array.length()).map { index ->
+                    parse(array.getJSONObject(index))
+                }
+            val conversations = decodeAll(root.getJSONArray("conversations"), ::decodeConversation)
             val messagesObject = root.getJSONObject("messages")
             val messages = buildMap {
                 val keys = messagesObject.keys()
                 while (keys.hasNext()) {
                     val conversationId = keys.next()
-                    put(conversationId, messagesObject.optJSONArray(conversationId).decodeObjects(::decodeMessage))
+                    put(conversationId, decodeAll(messagesObject.getJSONArray(conversationId), ::decodeMessage))
                 }
             }
             conversations.sortedByDescending(LuluConversation::updatedAt) to messages
