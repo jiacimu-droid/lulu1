@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import android.widget.Toast
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
@@ -37,6 +38,7 @@ import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.data.ResidentDailyRoutine
 import com.jiacimu.lulu.data.ResidentCharacterBridge
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.design.LuluColors
@@ -255,6 +257,8 @@ internal fun ownerVisibleQqConversations(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
@@ -333,8 +337,17 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                             text = { Text(if (conversation.pinned) "取消置顶" else "置顶") },
                             leadingIcon = { Icon(Icons.Outlined.PushPin, null) },
                             onClick = {
-                                MigratedDomainStores.chat.setConversationPinned(conversation.id, !conversation.pinned)
                                 menuConversationId = null
+                                scope.launch {
+                                    val result = withContext(Dispatchers.IO) {
+                                        runCatching {
+                                            MigratedDomainStores.chat.setConversationPinned(conversation.id, !conversation.pinned)
+                                        }
+                                    }
+                                    if (result.isFailure) {
+                                        Toast.makeText(context, "置顶状态未能保存，请重试", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             },
                         )
                     }
