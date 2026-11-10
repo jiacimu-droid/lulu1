@@ -14,6 +14,27 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ChatHistoryLegacyCompatibilityTest {
+
+    @Test fun malformedLegacySnapshotMustNotBeSilentlyOverwritten() {
+        val app: Context = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val previous = prefs.getString("state_v1", null)
+        val corrupt = """{"conversations":[{"id":"kept"}],"messages":"""
+        try {
+            assertTrue(prefs.edit().putString("state_v1", corrupt).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            // A corrupt but present snapshot is not an empty chat. A metadata mutation
+            // must not replace the only remaining copy with a fresh default history.
+            runCatching { store.setConversationPinned("lulu-main", true) }
+            assertEquals(corrupt, prefs.getString("state_v1", null))
+        } finally {
+            val edit = prefs.edit()
+            if (previous == null) edit.remove("state_v1") else edit.putString("state_v1", previous)
+            assertTrue(edit.commit())
+        }
+    }
+
     @Test fun legacyEditAndDeleteRemainDurableAcrossReopen() {
         val app: Context = RuntimeEnvironment.getApplication()
         val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
