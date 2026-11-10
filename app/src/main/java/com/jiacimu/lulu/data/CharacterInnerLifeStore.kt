@@ -1970,7 +1970,7 @@ object CharacterInnerLifeStore {
             // Read actual executor receipts even when no motiveId was supplied.
             CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
                 ?.let(::appendLine)
-            CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now)
+            CharacterOpenConcernRuntime.contextForRole(characterId, root.optJSONArray("openConcerns"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterOpenConcernRuntime.closureContext(root.optJSONArray("closedConcerns"), now, compact = true)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
@@ -2139,7 +2139,7 @@ object CharacterInnerLifeStore {
                     appendLine("· ${voice.optJSONObject(i)?.optString("text")}")
                 }
             }
-            CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now, compact = false)
+            CharacterOpenConcernRuntime.contextForRole(characterId, root.optJSONArray("openConcerns"), now, compact = false)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterOpenConcernRuntime.closureContext(root.optJSONArray("closedConcerns"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)

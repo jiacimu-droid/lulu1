@@ -904,8 +904,8 @@ object LuluDeviceToolBridge {
                     appendLine("【现实互动】${userText.takeLast(2_000)}")
                     if (history.isNotBlank()) appendLine("【已发生的上下文】${history.takeLast(3_000)}")
                     appendLine("【原本的这轮角色判断】${plannedReply.text.take(2_000)}")
-                    appendLine("【已有的私人心事】${com.jiacimu.lulu.data.CharacterOpenConcernRuntime.context(
-                        com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
+                    appendLine("【已有的私人心事】${com.jiacimu.lulu.data.CharacterOpenConcernRuntime.contextForRole(
+                        characterId, com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
                             .optJSONArray("openConcerns"), now
                     )}")
                 },

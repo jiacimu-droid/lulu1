@@ -299,8 +299,25 @@ internal object CharacterOpenConcernRuntime {
         }.trim()
     }
 
+    fun lastAttemptContext(entry: JSONObject, availableReceiptIds: Set<String>): String {
+        val last = entry.optJSONObject("lastOutcome") ?: return ""
+        val receiptId = last.optString("id")
+        if (receiptId !in availableReceiptIds) return "上次尝试的原回执不可用"
+        return "上次实际尝试=${if (last.optBoolean("success")) "执行成功" else "执行失败"}；" +
+            "动作=${last.optString("action")}；回执ID=$receiptId；结果=${last.optString("summary")}"
+    }
+
+    fun contextForRole(role: String, previous: JSONArray?, now: Instant = Instant.now(),
+                       compact: Boolean = true): String {
+        val receiptIds = active(previous, now).mapNotNull {
+            it.optJSONObject("lastOutcome")?.optString("id")?.takeIf(String::isNotBlank)
+        }.distinct()
+        val available = SharedExperienceTimeline.eventsByIds(role, receiptIds).mapTo(hashSetOf()) { it.id }
+        return context(previous, now, compact, available)
+    }
+
     fun context(previous: JSONArray?, now: Instant = Instant.now(),
-                compact: Boolean = true): String {
+                compact: Boolean = true, availableReceiptIds: Set<String> = emptySet()): String {
         val active = active(previous, now)
         val dormant = retained(previous).filterNot { item ->
             active.any { it.optString("id") == item.optString("id") }
@@ -330,11 +347,8 @@ internal object CharacterOpenConcernRuntime {
                         "；犹豫=${entry.optString("hesitation")}" +
                         "；曾考虑=${entry.optString("possibleNextStep")}" +
                         "；距上次转变约${elapsed ?: "未知"}分钟")
-                    entry.optJSONObject("lastOutcome")?.let { actual ->
-                        appendLine("  上次实际尝试：${actual.optString("action")}；" +
-                            "${if (actual.optBoolean("success")) "执行成功" else "执行失败"}；" +
-                            actual.optString("summary"))
-                    }
+                    lastAttemptContext(entry, availableReceiptIds)
+                        .takeIf(String::isNotBlank)?.let { appendLine("  $it") }
                     if (!compact) {
                         val journey = entry.optJSONArray("journey") ?: JSONArray()
                         for (i in maxOf(0, journey.length() - 3) until journey.length()) {

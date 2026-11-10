@@ -200,7 +200,10 @@ class CharacterOpenConcernRuntimeTest {
         )
         assertEquals(1, attempted.length())
         assertFalse(attempted.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
-        assertTrue(CharacterOpenConcernRuntime.context(attempted, now.plusSeconds(90)).contains("执行失败"))
+        assertTrue(CharacterOpenConcernRuntime.context(attempted, now.plusSeconds(90),
+            availableReceiptIds = setOf("real-tool-1")).contains("执行失败"))
+        assertTrue(CharacterOpenConcernRuntime.context(attempted, now.plusSeconds(90))
+            .contains("上次尝试的原回执不可用"))
         val again = CharacterOpenConcernRuntime.recordOutcome(
             attempted, threadId, "real-tool-1", "send_private_sticker", true,
             "编造执行成功", now.plusSeconds(90),

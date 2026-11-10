@@ -498,10 +498,12 @@ class AutonomousActionBoundaryIntegrationTest {
                             .put("requiresPreviousSuccess", true)
                             .put("args", JSONObject().put("text", dependentPost))))
                 }
+                val decision = if (index <= 2) choice else JSONObject().put("action", "silent")
+                    .put("reason", "眼下只想核对已知事实")
                 return okhttp3.mockwebserver.MockResponse()
                     .setHeader("Content-Type", "application/json")
                     .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
-                        .put("message", JSONObject().put("content", choice.toString()))
+                        .put("message", JSONObject().put("content", decision.toString()))
                         .put("finish_reason", "stop"))).toString())
             }
         }
@@ -554,6 +556,24 @@ class AutonomousActionBoundaryIntegrationTest {
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = first.revision, requiresUnread = true)
             assertEquals("过期批次不能再次购买模型请求", 2, requests.get())
+
+            SharedExperienceTimeline.deleteEvent(failureId)
+            assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(failureId)).isEmpty())
+            assertEquals(concernId, CharacterInnerLifeStore.snapshot(actor)
+                .getJSONArray("openConcerns").getJSONObject(0).getString("id"))
+            MigratedDomainStores.chat.sendUserMessage(chat.id, "只按仍能核对的记录继续")
+            val third = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = third.revision, requiresUnread = true)
+            assertEquals(3, requests.get())
+            val afterWithdrawal = modelInputs[2]
+            assertTrue(afterWithdrawal.contains("想核对最初那条材料"))
+            assertTrue(afterWithdrawal.contains("上次尝试的原回执不可用"))
+            assertFalse(afterWithdrawal.contains("上次实际尝试：favorite_user_message"))
+            assertFalse(afterWithdrawal.contains("上次实际尝试=执行失败；动作=favorite_user_message"))
+            assertFalse(afterWithdrawal.contains("回执ID=$failureId"))
+            assertTrue(afterWithdrawal.contains(secondPost))
         } finally {
             server.shutdown()
         }
