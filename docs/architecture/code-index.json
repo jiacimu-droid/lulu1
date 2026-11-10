@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T07:47:19.007461+00:00",
-  "commit": "418a525f4439ed8c64baa6292579f0722b480d88",
+  "generatedAt": "2026-11-10T07:47:42.578887+00:00",
+  "commit": "aef4470e067fd1c7d82947d6bae21b758b21c44e",
   "branch": "main",
-  "sourceFingerprint": "df5b7ef65e79dcc835058ec978deb76edf7faf1cf50b521df2b40f19429634ef",
+  "sourceFingerprint": "09f89042a876aabe44334d98254b39644e9a15c3cc905923f426ae5d386b1a06",
   "summary": {
     "files": 1169,
-    "lines": 252401,
+    "lines": 252474,
     "symbols": 3440
   },
   "symbolIndex": {
@@ -38080,8 +38080,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
-      "lines": 26,
-      "sha256": "891c13986aa0c6b086976ce2e4dd492655f9890fee24fecce4250244ba6cde2a",
+      "lines": 41,
+      "sha256": "f146d4e5b2477e713d57edb9d1e92c5d33105d042a5ac71ed8af1a0e41d67efa",
       "symbols": [
         {
           "name": "ChatAutomationRoutingTest",
@@ -38157,8 +38157,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 473,
-      "sha256": "81b493f4c42302bb40445dfadf0678037d0a2a34a14cd50b12f4a801beaf09ad",
+      "lines": 531,
+      "sha256": "919f1cb1f335764b690123b0893c2caabcfc89f4e9e1d51c4b7e5138d5843172",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
