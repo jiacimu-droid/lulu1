@@ -165,6 +165,64 @@ class CommitmentSemanticPersistenceTest {
         assertTrue(retained.lastVerificationReason.contains("可靠证据"))
     }
 
+
+    @Test fun textOnlyWakeFromAnyCallerIsNotRegisteredAsASuccessfulAlarm() = runBlocking {
+        val due = Instant.now().plusSeconds(20 * 60L)
+        // Even an unvalidated foreground draft must not bypass the audible-wake gate.
+        val outcome = applyCommitmentTaskDrafts(role, "nap-without-ring", listOf("nap-user"),
+            listOf(CommitmentTaskDraft(
+                action = "create", goal = "20分钟后叫醒用户",
+                dueAt = due, timezone = zone.id,
+                deliveryAction = "send_private_message",
+                needsClarification = false,
+            ))).single()
+        val pending = CommitmentTaskStore.snapshot(role).single { it.id == outcome.appliedTaskId }
+        assertEquals(CommitmentTaskStatus.NeedsClarification, pending.status)
+        assertNull(pending.linkedAlarmId)
+        assertTrue(pending.lastActionResult.contains("真实来电或有声闹钟"))
+        assertFalse(LuluAlarmSystem.list().any { it.commitmentTaskId == pending.id })
+    }
+
+    @Test fun wakeRescheduleKeepsItsAudibleChannelAndFailedChangeKeepsOldAlarm() = runBlocking {
+        val due = Instant.now().plusSeconds(60 * 60L)
+        val old = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "一小时后叫醒用户",
+            dueAt = due, timezone = zone.id,
+            status = CommitmentTaskStatus.Scheduled,
+            deliveryAction = "alarm_only",
+        ))
+        val firstAlarm = LuluAlarmSystem.create(role, "测试角色", due, old.goal,
+            commitmentTaskId = old.id).getOrThrow()
+        CommitmentTaskStore.update(old.id) { it.copy(linkedAlarmId = firstAlarm.id) }
+        val rejected = applyCommitmentTaskDrafts(role, "nap-unsure", listOf("nap-user"),
+            listOf(CommitmentTaskDraft(
+                action = "reschedule", targetTaskId = old.id,
+                goal = "改到二十分钟后叫醒用户", dueAt = due.minusSeconds(40 * 60L),
+                needsClarification = true,
+            ))).single()
+        assertNull(rejected.appliedTaskId)
+        assertEquals(firstAlarm.id, CommitmentTaskStore.snapshot(role).single { it.id == old.id }.linkedAlarmId)
+        assertEquals(CommitmentTaskStatus.Scheduled,
+            CommitmentTaskStore.snapshot(role).single { it.id == old.id }.status)
+
+        val newDue = due.minusSeconds(30 * 60L)
+        val updated = applyCommitmentTaskDrafts(role, "nap-reschedule", listOf("nap-user"),
+            listOf(CommitmentTaskDraft(
+                action = "reschedule", targetTaskId = old.id,
+                goal = "半小时后叫醒用户", dueAt = newDue,
+                timezone = zone.id, deliveryAction = "send_private_message",
+            ))).single()
+        assertEquals(old.id, updated.appliedTaskId)
+        val after = CommitmentTaskStore.snapshot(role).single { it.id == old.id }
+        assertEquals("alarm_only", after.deliveryAction)
+        assertEquals(newDue, after.dueAt)
+        assertEquals(CommitmentTaskStatus.Scheduled, after.status)
+        assertNotNull(after.linkedAlarmId)
+        assertNotEquals(firstAlarm.id, after.linkedAlarmId)
+        assertEquals(listOf(after.linkedAlarmId),
+            LuluAlarmSystem.list().filter { it.commitmentTaskId == old.id }.map { it.id })
+    }
+
     @Test fun acceptedTwentyMinuteWakeIsScheduledFromTheModelDraftAfterMainMissedIt() = runBlocking {
         val due = Instant.now().plusSeconds(20 * 60)
         val evidence = "accepted-wake-user"
