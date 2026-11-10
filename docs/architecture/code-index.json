@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T07:51:52.355144+00:00",
-  "commit": "d9801b7b38766eec4c8a304760a88042c520e5ef",
+  "generatedAt": "2026-11-10T07:53:11.025238+00:00",
+  "commit": "f73a5beeeca146ff053d858b1d315beda6f11b2b",
   "branch": "main",
-  "sourceFingerprint": "56e1254db8778b084f5622f1876e821544020feaea56884f85e0ca467f6a6d60",
+  "sourceFingerprint": "913452b6652bb279aed50e9bb5eef13810b6ae8dd6b4523904d7de94e7166843",
   "summary": {
     "files": 1169,
-    "lines": 252485,
+    "lines": 252490,
     "symbols": 3440
   },
   "symbolIndex": {
@@ -507,7 +507,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 37
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -7989,7 +7989,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "handled": [
@@ -26481,16 +26481,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 79,
-      "sha256": "662adfbc3ce0d484844aa20ae300b89bc343f99ff6a2916f45978a8269b70ad8",
+      "lines": 80,
+      "sha256": "48286c63c972cbc391e682bb7e80705f2bc0253535de6824c82cba43ec029fa2",
       "symbols": [
         {
           "name": "context",
-          "line": 37
+          "line": 38
         },
         {
           "name": "drafts",
-          "line": 57
+          "line": 58
         }
       ]
     },
@@ -38080,8 +38080,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
-      "lines": 41,
-      "sha256": "f146d4e5b2477e713d57edb9d1e92c5d33105d042a5ac71ed8af1a0e41d67efa",
+      "lines": 45,
+      "sha256": "915b4012f93cb82def89a117bb40c1bc8e1c8c1f96f4bb2bc6943d157ae3c5ac",
       "symbols": [
         {
           "name": "ChatAutomationRoutingTest",

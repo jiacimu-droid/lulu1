@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d9801b7b38766eec4c8a304760a88042c520e5ef`
+- 基准提交：`f73a5beeeca146ff053d858b1d315beda6f11b2b`
 - 分支：`main`
 - 已索引文件：1169
-- 已索引代码/文本行：252485
+- 已索引代码/文本行：252490
 - 已发现符号：3440
 
 | 文件 | 行数 | 符号数 |
@@ -413,7 +413,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt` | 14 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 79 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 85 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 79 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 80 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 149 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 517 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
@@ -967,7 +967,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 517 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 118 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 502 | 1 |
