@@ -291,6 +291,12 @@
 - [ ] **UI-01.2** 有测量证据才定位 Compose 重组、IME、主线程编码与 WebView 生命周期，修根因再前后 A/B。
 - [ ] **UI-01.3** 真机测输入不丢、浏览器暂停后能读、通知与历史不退化。已有草稿/IME/桌面状态隔离等修复不重做。
 
+### 2026-11-10 UI-02.2 字段级权威身份防覆盖（工程 CI 待验）
+
+- [a191bd3](https://github.com/jiacimu-droid/lulu1/commit/a191bd372cbd9edd631fd7309ec04397a248a5b6) 新增正式 Robolectric `ChatHistoryLegacyCompatibilityTest.missingMessageIdentityMustNotBeRewrittenAsInventedHistory`：旧消息缺原始 ID 时，置顶/重启不得把自动 UUID 写回唯一原文。
+- [449fd8d](https://github.com/jiacimu-droid/lulu1/commit/449fd8d583eadac319cf5b1b5e762ac69222fac5) 在权威 `state_v1` 解码前验证会话/消息 ID、消息所属会话、sender/status 枚举；无效数据沿既有不可覆盖保护，保留宽容导入 helper 和历史格式。未改变收费模型、人设或居民预算。
+- **验证**：已读取最新 main 和文件 blob SHA；本轮 GitHub commit workflow 查询接口仅返回 PR 触发运行，`0816307` 与 `449fd8d` 均返回空列表，**不能据此判断 main push APK/JVM 或 Refresh code index 状态**；没有本地 Android SDK/Gradle 运行证据。不得勾工程通过。下一轮固定 UI-02.2：优先按 main push Actions 核 `449fd8d` JVM/APK 和索引，失败修首错；成功后补字段时间/结构损坏及写入失败恢复回归，再考虑事务增量迁移。真机/强杀/100k 仍待验。
+
 ### 2026-11-10 UI-02.2 局部损坏快照防丢失续接
 
 - 前轮 `6e5bd7d` 的 main push [Lulu APK/JVM #42809824951](https://github.com/jiacimu-droid/lulu1/actions/runs/42809824951) 和 [Refresh code index #42809825080](https://github.com/jiacimu-droid/lulu1/actions/runs/42809825080) 已核 completed/success，JVM/APK build job `129808829371` 成功。仅代表完整 JSON 损坏防覆盖工程回归，不等于增量迁移完成。
