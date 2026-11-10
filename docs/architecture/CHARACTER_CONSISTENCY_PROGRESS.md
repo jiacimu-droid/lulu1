@@ -1729,3 +1729,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 静态核查文件 SHA 和改动范围。CI [Lulu APK #42808715035](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715035) in_progress，[Refresh code index #42808715132](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715132) completed/success。下一轮先按 `e7dfa472aa91503aaa242d03aab94b3f08b575ed` 核该测试及索引，失败修同一工作包。若通过，P-03.1 继续对照群聊或后台的条件步骤与真实回执，优先查看 `GroupChatTurnPlannerTest` 及 `AutonomousActionBoundaryIntegrationTest` 的既有覆盖；整个 P-03.1 仍待跨媒介与真实样本验证。
 
 - **2026-11-10 UI-02.2 损坏快照防覆盖**：失败复现 [`65e3029`](https://github.com/jiacimu-droid/lulu1/commit/65e3029d92a47f318eb131f310c1adf0840d223a)；正式修复 [`6e5bd7d`](https://github.com/jiacimu-droid/lulu1/commit/6e5bd7deb9eebcc11b62267b74a96fd63cd524b4)。旧 `state_v1` JSON 无法解析或缺核心结构时标记不可写，拒绝后续默认会话写回覆盖原始快照；有效旧格式照常读取。**新提交 JVM/APK/索引、真机尚未验；UI-02.2 不勾完成。** 下一轮直接查 `ChatHistoryLegacyCompatibilityTest.malformedLegacySnapshotMustNotBeSilentlyOverwritten` 的 CI 首错，再补格式局部损坏/重启恢复反例；后续事务迁移仍待做。
+
+
+## 2026-11-10 · P-03.1 群聊成员的原始证据交接
+
+- 上一轮 [e7dfa47 APK/JVM #42808715035](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715035) 的测试、构建和发布均通过，[原索引 #42808715132](https://github.com/jiacimu-droid/lulu1/actions/runs/42808715132) 成功。已核实电话和私聊的有效心事绑定、旧回执重放工程回归。
+- `runGroupReplies` 先把成员专属的 `messageId:group:roleId` 给本人规划，送达后的同轮步骤却收到原始群消息 ID。ToolRouter 会解析并存入成员专属 causeEvidenceId，但默认 curiosity.sourceEvidenceId 仍读取传入值，重放比较也会将原始 ID 与已保存的成员证据比较。同一决定在表达与动作两边因此有两种来源。
+- [d79cc50](https://github.com/jiacimu-droid/lulu1/commit/d79cc50a533d7e1fbe951795bbbd195b563c03ff) 在群聊适配器生成一次成员专属证据，规划与已送达后的独立副动作共用。消息发送水位仍用原始聊天 ID，原工具权限、依赖规则、独立回执、模型调用次数不变。历史数据不猜测补绑。
+- `ConversationExpressionGatewayTest.groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults` 从正式群导演和本人 HTTP 入口开始，核实际群发言与真实收藏失败回执、依赖步骤不执行、独立朋友圈真正发布、回执和好奇来源都归发言者的群证据。该测试不证明真实模型语义或手机界面体验。
+- CI [Lulu APK #42826571378](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571378) in_progress，[Refresh code index #42826571444](https://github.com/jiacimu-droid/lulu1/actions/runs/42826571444) completed/success。静态核对目标文件 SHA 及差异。下一轮按 `d79cc50a533d7e1fbe951795bbbd195b563c03ff` 查上述回归和索引，失败修同一工作包。若通过，打开 `AutonomousActionBoundaryIntegrationTest.freshUserBatchRunsAnotherRealModelDecisionWithoutReplayingPriorPost`，继续 P-03.1 后台同轮依赖步骤和下一轮真实回执注入的交接，避开已覆盖的群聊送达取消。
