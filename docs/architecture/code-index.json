@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T22:54:37.779404+00:00",
-  "commit": "c143493a185d30a05ec15d1715dcbb286880dc9a",
+  "generatedAt": "2026-11-10T23:36:20.959923+00:00",
+  "commit": "52f0624bd6d02f184e28ada9e9d9c5c0ecb1bc17",
   "branch": "main",
-  "sourceFingerprint": "8dac949827385dff041d286bbd3713b4b41490c3c1394b499f7dfdadbbe53085",
+  "sourceFingerprint": "087b4b718a6bd69f88b5ad733c467d23b898a6360fed1d7482478802bbef3d4d",
   "summary": {
     "files": 1173,
-    "lines": 254186,
-    "symbols": 3461
+    "lines": 254343,
+    "symbols": 3465
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -330,6 +330,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
         "line": 624
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 205
       }
     ],
     "update": [
@@ -487,7 +491,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1254
+        "line": 1256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -6845,7 +6849,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1214
+        "line": 1216
       }
     ],
     "cue": [
@@ -7005,13 +7009,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 640
+        "line": 642
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1185
+        "line": 1187
       }
     ],
     "current": [
@@ -17078,6 +17082,12 @@
         "line": 958
       }
     ],
+    "reload": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 1001
+      }
+    ],
     "CharacterLifeVisibilityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
@@ -18495,7 +18505,19 @@
     "RelationshipPreferenceGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 27
+        "line": 29
+      }
+    ],
+    "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 159
+      }
+    ],
+    "assertCurrent": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 223
       }
     ],
     "RelationshipPreferencePersistenceTest": [
@@ -25481,8 +25503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1303,
-      "sha256": "a8b3b613bb31505b2edec2403461db715ec39a6801150eb6bebd44dd50c39ae2",
+      "lines": 1305,
+      "sha256": "e422ebe48a9a830137b6777583aaa06b81ceb85030a513a5e0bf5c25bcedd32b",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -25506,19 +25528,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 640
+          "line": 642
         },
         {
           "name": "profileContext",
-          "line": 1185
+          "line": 1187
         },
         {
           "name": "compactContext",
-          "line": 1214
+          "line": 1216
         },
         {
           "name": "context",
-          "line": 1254
+          "line": 1256
         }
       ]
     },
@@ -37766,8 +37788,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 987,
-      "sha256": "b8a7a98772e1e1b76012bba8485b9170306a2acf4df2c76c92afbd20af4db46d",
+      "lines": 1028,
+      "sha256": "8b8694325d632f5c529e24c360126bc66070372d0dc76047a10194118ec051bb",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -37844,6 +37866,10 @@
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
           "line": 958
+        },
+        {
+          "name": "reload",
+          "line": 1001
         }
       ]
     },
@@ -39687,12 +39713,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 157,
-      "sha256": "dd75d88eab084c63be1718ae751738b179ceab76c5d9b1981582e1d36dd060a0",
+      "lines": 271,
+      "sha256": "0d7d68dd0f16e64c71150fb4087ca508f1e2bb878e1d32c01ffdd3b1ac187163",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
-          "line": 27
+          "line": 29
+        },
+        {
+          "name": "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression",
+          "line": 159
+        },
+        {
+          "name": "prompt",
+          "line": 205
+        },
+        {
+          "name": "assertCurrent",
+          "line": 223
         }
       ]
     },
