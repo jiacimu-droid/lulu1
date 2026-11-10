@@ -162,6 +162,51 @@ class ChatHistoryLegacyCompatibilityTest {
         }
     }
 
+
+    @Test fun failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState() {
+        val base: Context = RuntimeEnvironment.getApplication()
+        val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val original = real.getString("state_v1", null)
+        val conversationId = "ui02-write-failure"
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(JSONObject()
+                .put("id", conversationId).put("characterId", "ui02-character")
+                .put("updatedAt", "2026-01-01T00:00:00Z").put("pinned", false)))
+            .put("messages", JSONObject().put(conversationId, JSONArray())).toString()
+        try {
+            assertTrue(real.edit().putString("state_v1", snapshot).commit())
+            val failing = object : android.content.SharedPreferences by real {
+                override fun edit(): android.content.SharedPreferences.Editor {
+                    val underlying = real.edit()
+                    return object : android.content.SharedPreferences.Editor by underlying {
+                        override fun commit(): Boolean = false
+                        override fun apply() { /* Simulate storage failure; nothing reaches disk. */ }
+                    }
+                }
+            }
+            val context = object : android.content.ContextWrapper(base) {
+                override fun getApplicationContext(): Context = this
+                override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
+                    if (name == "lulu_chat_store") failing else base.getSharedPreferences(name, mode)
+            }
+            val store = InMemoryLuluChatStore()
+            store.initialize(context)
+            val outcome = runCatching { store.setConversationPinned(conversationId, true) }
+            assertTrue("A failed write cannot be acknowledged as successful",
+                outcome.isFailure || outcome.getOrNull() == false)
+            assertFalse("A rejected mutation must not remain visible in memory",
+                store.conversations.value.single { it.id == conversationId }.pinned)
+            assertEquals(snapshot, real.getString("state_v1", null))
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(base)
+            assertFalse(reopened.conversations.value.single { it.id == conversationId }.pinned)
+        } finally {
+            val editor = real.edit()
+            if (original == null) editor.remove("state_v1") else editor.putString("state_v1", original)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun legacyEditAndDeleteRemainDurableAcrossReopen() {
         val app: Context = RuntimeEnvironment.getApplication()
         val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
