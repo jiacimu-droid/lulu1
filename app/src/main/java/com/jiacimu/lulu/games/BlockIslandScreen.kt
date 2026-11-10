@@ -432,6 +432,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
                 color=Color(0xFFF0FFE9),fontSize=10.sp,maxLines=1)
+        },
+        primaryActions = {
             // Keep the world visible while browsing recipes with the right thumb.
             // Browsing never calls the game rules or spends a turn.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
