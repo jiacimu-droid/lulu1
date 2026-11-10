@@ -53,6 +53,11 @@
 - [0cac523](https://github.com/jiacimu-droid/lulu1/commit/0cac5231b351ffd62ce0b67510ac36c28d3491e3) 在现有两批次 MockWebServer/正式 Runtime 回归中捕获第二次真实 HTTP 请求体，断言新模型输入包含第一轮已送达动态的事实。只补测试，**未证实断言通过**；无生产修改、收费模型调用或人设变更。
 - **下一固定 P-08a.1g.3**：核 `0cac523` 的 main push APK/JVM、Refresh code index（按 head SHA）；失败修首错并追真实时间线→提示词组装，成功后测执行中取消。真机/真实模型/账单独立待验。详细交接见 `CHARACTER_CONSISTENCY_PROGRESS.md`。
 
+### 2026-11-10 UI-02.1 长历史持久化量化夹具（待 CI）
+
+- 新增 [cd170a5](https://github.com/jiacimu-droid/lulu1/commit/cd170a5ea0706debff009e63bfb6305cf2f48831) `ChatHistoryPersistenceBaselineTest`：用原 `state_v1` JSON 格式一次性播种 1,000/10,000 条，真实 `InMemoryLuluChatStore.initialize` → `setConversationPinned`（元数据单次写入）→ 重新实例化并核消息数与置顶持久化，打印 UTF-8 字节量、初始恢复、写入、二次恢复耗时；100,000 条标为 opt-in heavy，不自动占用普通 JVM CI。每轮恢复原 SharedPreferences，防测试污染。此测试未在本环境运行，不能报告耗时或勾工程验收。
+- **下一固定 UI-02.1**：先核 `cd170a5` main push APK/JVM 与 Refresh code index 的 head SHA、首错；失败修夹具，成功收集 1k/10k 基线并在合适内存环境单独跑 100k。确认写入/恢复瓶颈后再考虑 UI-02.2 增量持久化和旧 `state_v1` 无损迁移。P-08a.1g.3 的模型上下文断言继续独立待验；请求尝试≠成功≠计费。
+
 ## 一点五、下一轮可领用的最小工程工作包（跨自动任务防空转队列，2026-11-08）
 
 > 此表是既有固定 ID 的**执行入口**，不是新增的重复待办。开工时先对照最新 main 和现有回归；若其他任务已完成，附提交/CI 证据后标定该子项，不重复施工。下表所列测试目标仅为**待尝试的具体候选**，不是未经核实就断言生产源码有缺陷。
