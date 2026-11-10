@@ -30,6 +30,7 @@ internal object CommitmentDecisionProtocol {
         由你判断是否接受了约定、是否更正了前面的日期，以及最终指向哪一条原任务。
         若口头确认与已保存的任务日期不一致，返回 reschedule + 真实 targetTaskId +
         你理解的完整 dueAt（带时区）与原有执行方式；旧任务由执行器原位更新。
+        同源已有定时叫醒任务若只是 NeedsClarification / Blocked，或仍是 send_private_message、没有真实闹钟登记，不能算“已正确保存”。若原对话确实接受了叫醒责任，使用 reschedule + 原任务 ID 补正为经授权的真实来电 start_call 或有声闹钟 alarm_only，保留正确截止时间，绝不重复 create；若没有真正接受叫醒，则不要替角色虚构约定。
         如本轮已经正确保存，或没承诺/没要求修改，返回 []。
         不要为了对齐而重复 create；不能凭词表、程序日历偏移或机械的关键词匹配覆盖本人最终理解。
         模型是时间含义的唯一解释者。程序只检查格式、未来时间、真实 ID 和执行权限。
