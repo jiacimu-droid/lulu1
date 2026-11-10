@@ -1677,3 +1677,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `d9a8675` 的 [APK/JVM #42763652639](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652639) 与 [索引 #42763652738](https://github.com/jiacimu-droid/lulu1/actions/runs/42763652738) 均 completed/success（head SHA `d9a8675f3e0343502a8c05f2cbae672a3bea0dd9`）。这验证已有 1k/10k 两会话测试的工程执行，不提供真实设备 ANR 或数值基线。
 - [233af13](https://github.com/jiacimu-droid/lulu1/commit/233af13f6b7df160632f5b9c3c12c84395f15fe7) 在同一 Robolectric 测试中计时 true→false→true 三次元数据写入，每次核 Store 状态，最终核原 JSON 两会话与冷恢复。避免只凭单次冷启动/CI 抖动判断全量序列化开销；未设任意性能阈值。正式 Store 未改、历史未清空。
 - **下一固定 UI-02.1**：核 `233af13` main push APK/JVM 和 Refresh code index，取得 1k/10k 三次写入 stdout；若无 stdout 则不能声称测得耗时，转 UI-02.2 旧 `state_v1` 无损增量迁移回归夹具。100k、真机、真实模型和服务商计费均独立未验。
+
+
+## 2026-11-10 · P-03.1 电话补写被打断时的副动作交接
+
+- 上一轮 [4a8f729 的 APK/JVM #42762942772](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942772) 已完成且成功。构建步骤、APK 收集和发布均通过；[原索引 #42762942809](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942809) 同样成功。该提交的角色资料、关系修改和完整条件投影回归已随构建运行，真机和真实模型待验。
+- 通话打断沿 `LuluVoiceCallSession.interruptSystemReplyForSpeech` 取消旧 `replyJob`。此前 `LuluDeviceToolBridge.respond` 会在等待补写台词之前登记延迟音乐、写其真实尝试回执并应用约定改动。用户在这次等待中继续说话时，旧台词被取消，前置副动作却已经开始。
+- [bb1d54b](https://github.com/jiacimu-droid/lulu1/commit/bb1d54ba3dd416fdb3e9eb1252aa719c80f3ce23) 把原有缺台词补写移到该轮副动作开始之前，并在补写返回与进入副动作之间检查取消。仍有效的决定沿原权限和执行器处理，补写普通失败时独立动作仍能得到原执行回执。用户媒体更正与已实际交付的声音仍由原流程处理。模型调用次数和人设不变。
+- 新回归 `ConversationExpressionGatewayTest.interruptedPhoneIntentRecoveryDoesNotStartOldSideActions` 通过正式 Bridge 和实际 HTTP 入口挂起补写，在请求已到后取消，验证旧轮无媒体尝试回执、后继有效轮有真实尝试回执。它复现任务取消时序；音频设备实际打断和远端计费待验。
+- 本轮 CI：[Lulu APK #42775719430](https://github.com/jiacimu-droid/lulu1/actions/runs/42775719430) in_progress，[Refresh code index #42775719412](https://github.com/jiacimu-droid/lulu1/actions/runs/42775719412) completed/success。已核对两个修改文件的 blob SHA 和变更范围；本地无 Gradle/Android 设备。下一轮沿 P-03.1 先按 `bb1d54ba3dd416fdb3e9eb1252aa719c80f3ce23` 核对回归和索引；成功后比较同一份已选意图及独立副动作在电话和私聊的交付回执，优先查看 `LuluDeviceToolBridge.respond` 和本测试所在文件，不重复测试已经验证的角色隔离。
