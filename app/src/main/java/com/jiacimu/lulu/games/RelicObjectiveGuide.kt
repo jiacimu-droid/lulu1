@@ -60,7 +60,14 @@ internal object RelicObjectiveGuide {
 
     fun prompt(run:RelicRun):String {
         val target=nextVisible(run)
-        if(target!=null)return "◈ 查看"+target.label+" →"
+        if(target!=null) {
+            val steps=knownRouteSteps(run,target)
+            return when(steps) {
+                null -> "◈ "+target.label+"已发现 · 通路未探明，继续侦察"
+                0 -> "◈ "+target.label+"就在附近 · 点击定位"
+                else -> "◈ "+target.label+" · 已探明路线约"+steps+"步 · 点击定位"
+            }
+        }
         return if(run.carried.isEmpty())"◈ 尚未发现宝箱 · 探索迷雾或侦察"
             else "◈ 尚未发现出口 · 继续探索寻找撤离门"
     }
