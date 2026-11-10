@@ -322,8 +322,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text(objective, color=relicGold, fontWeight=FontWeight.Bold,
                     fontSize=11.sp, maxLines=2)
                 if(run.contract!=RelicContract.NONE) {
-                    Text("✦ 探险委托 · "+run.contract.label+" · "+run.contract.condition,
-                        color=relicGreen,fontSize=10.sp,maxLines=2)
+                    val progress=RelicContractBoard.bagProgress(run)
+                    Text("✦ "+run.contract.label+" · 背包进度 "+
+                        (progress?.first?:0)+"/"+(progress?.second?:1)+
+                        " · 撤离成功额外 ◇"+run.contract.bonus,
+                        color=relicGreen,fontSize=11.sp,
+                        fontWeight=FontWeight.Bold,maxLines=2)
                 }
                 val attackTarget = relicAttackTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
