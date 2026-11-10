@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:09:13.219378+00:00",
-  "commit": "f253db4488efd89e2bba6fcef10feac5093717ab",
+  "generatedAt": "2026-11-10T09:09:34.405228+00:00",
+  "commit": "f97099c6134807429f608117f16e862416b14572",
   "branch": "main",
-  "sourceFingerprint": "2d04239fc8783706496afc5049f8e0a18a1729d0779c37fc722db029a9b134ce",
+  "sourceFingerprint": "00ddb3515befd9fd76a42ce8860d0eb798a7b354446df53e07ea1c3a7e706529",
   "summary": {
     "files": 1170,
-    "lines": 252773,
+    "lines": 252780,
     "symbols": 3442
   },
   "symbolIndex": {
@@ -34109,8 +34109,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 68,
-      "sha256": "d585df38a4a33d05ce404941dc53ea89ec63d9cb5315c490a1a06beb7586a5fc",
+      "lines": 75,
+      "sha256": "262633b1c376e138a02d6df78cfb3416500db314cc23eab61f3ee2635deb892b",
       "symbols": [
         {
           "name": "nextVisible",
