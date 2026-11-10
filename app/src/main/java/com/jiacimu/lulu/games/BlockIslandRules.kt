@@ -139,12 +139,15 @@ internal object IslandMilestones {
         val w = s.world
         val hasTable = s.structures.values.any { it == "workbench" }
         val hasShelter = s.structures.values.any { it in setOf("campfire", "bed") }
+        val nextLandmark=IslandExpeditionTrail.next(s)
         return when {
             !hasTable -> "生存 1/5 · 收集4木2石，建造工作台"
             "sword" !in s.tools -> "生存 2/5 · 在工作台打造石剑"
             !hasShelter -> "生存 3/5 · 建造篝火或床铺"
             s.defeatedMonsters == 0 -> "生存 4/5 · 击退野怪，保护家园"
             s.nightsSurvived < 3 -> "生存 5/5 · 守住3夜（${s.nightsSurvived}/3）"
+            nextLandmark != null ->
+                "远航 ${IslandExpeditionTrail.completedCount(s)+1}/${IslandExpeditionTrail.landmarks.size} · 前往${nextLandmark.title}（距离${IslandExpeditionTrail.distance(s,nextLandmark)}格）"
             s.supplyCaches.any { it !in s.openedSupplies } ->
                 "探险 1/3 · 搜寻补给宝箱（${s.openedSupplies.size}/${s.supplyCaches.size}）"
             !s.tools.containsAll(setOf("axe", "pickaxe", "sword", "rod")) ->
