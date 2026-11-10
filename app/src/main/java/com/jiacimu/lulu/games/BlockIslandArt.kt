@@ -4,6 +4,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -68,6 +72,7 @@ internal object BlockIslandArt {
         impactProgress: Float = 1f,
         buildPreview: IslandBuildPreview? = null,
         hurtProgress: Float = 1f,
+        terrainAtlas: ImageBitmap? = null,
     ) {
         val w = island.world
         val tile = camera.tileSize
@@ -88,9 +93,16 @@ internal object BlockIslandArt {
             for (x in left until (left + cols).coerceAtMost(w.width)) {
                 val cell = w.cell(x, y)
                 val base = origin(x, y)
-                drawGround(cell, base, tile, x, y, phase, w.seed,
-                    w.cell(x, y - 1) == 8, w.cell(x - 1, y) == 8,
-                    w.cell(x, y + 1) == 8, w.cell(x + 1, y) == 8)
+                val seaUp=w.cell(x,y-1)==8
+                val seaLeft=w.cell(x-1,y)==8
+                val seaDown=w.cell(x,y+1)==8
+                val seaRight=w.cell(x+1,y)==8
+                if(terrainAtlas!=null)
+                    drawTerrainAtlas(terrainAtlas,cell,base,tile,x,y,w.seed,phase,
+                        seaUp,seaLeft,seaDown,seaRight)
+                else
+                    drawGround(cell,base,tile,x,y,phase,w.seed,
+                        seaUp,seaLeft,seaDown,seaRight)
             }
         }
         // Scenery rendered in a separate pass so tree crowns can overhang adjacent tiles.
@@ -506,6 +518,49 @@ internal object BlockIslandArt {
                 drawContext.canvas.nativeCanvas.drawText(impact.label,
                     point.x,point.y-tile*(.36f+impactProgress*.65f),paint)
             }
+        }
+    }
+
+    /** A real Figma-authored 6-cell texture atlas, displayed from the SAME
+     * saved tile type as movement, harvesting, building and monster collision.
+     * No parallel art map or hidden model call. Keep DrawScope fallback for
+     * render-only tests and previews that do not load Android resources. */
+    private fun DrawScope.drawTerrainAtlas(
+        atlas:ImageBitmap,kind:Int,p:Offset,t:Float,x:Int,y:Int,seed:Int,
+        phase:Float,waterAbove:Boolean,waterLeft:Boolean,
+        waterBelow:Boolean,waterRight:Boolean,
+    ) {
+        val hash=((x*73856093) xor (y*19349663) xor seed) and Int.MAX_VALUE
+        val frame=when(kind){
+            8 -> 2  // moving water
+            4 -> 4  // hand-drawn planks
+            3 -> 3  // stone path below real walls
+            7 -> 5  // warm sand at the actual starting camp
+            else -> if(hash%3==0)1 else 0 // two grassy variants
+        }
+        val left=kotlin.math.floor(p.x.toDouble()).toInt()
+        val top=kotlin.math.floor(p.y.toDouble()).toInt()
+        val right=kotlin.math.ceil((p.x+t).toDouble()).toInt()
+        val bottom=kotlin.math.ceil((p.y+t).toDouble()).toInt()
+        drawImage(atlas,
+            srcOffset=IntOffset(frame*128,0),srcSize=IntSize(128,128),
+            dstOffset=IntOffset(left,top),
+            dstSize=IntSize((right-left).coerceAtLeast(1),(bottom-top).coerceAtLeast(1)),
+            filterQuality=FilterQuality.Low)
+        if(kind==8){
+            // The atlas provides texture while small waves remain animated;
+            // fishing/shoreline rules still read the original world tile.
+            val drift=t*(.10f+.22f*phase)
+            drawRoundRect(Color(0x99DDF5EA).copy(alpha=.20f+.12f*phase),
+                topLeft=p+Offset(t*.16f+drift*.15f,t*.36f),
+                size=Size(t*.21f,t*.035f),cornerRadius=CornerRadius(t*.02f))
+        }else if(waterAbove || waterBelow || waterLeft || waterRight){
+            val edge=Color(0xFFEED19C).copy(alpha=.54f)
+            val width=t*.085f
+            if(waterAbove)drawRect(edge,p,Size(t,width))
+            if(waterBelow)drawRect(edge,p+Offset(0f,t-width),Size(t,width))
+            if(waterLeft)drawRect(edge,p,Size(width,t))
+            if(waterRight)drawRect(edge,p+Offset(t-width,0f),Size(width,t))
         }
     }
 
