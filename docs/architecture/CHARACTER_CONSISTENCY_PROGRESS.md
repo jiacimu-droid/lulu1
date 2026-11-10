@@ -1788,3 +1788,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `15ef0a99dfb972566980e6e8334d70608394e2e0` 的 main push [Lulu APK/JVM #42898573257](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573257) 和 [Refresh code index #42898573526](https://github.com/jiacimu-droid/lulu1/actions/runs/42898573526) 已核 completed/success；此前重载闹钟测试工程验收通过，真机/模型仍未知。
 - 新增回归 [6d64e6b](https://github.com/jiacimu-droid/lulu1/commit/6d64e6bd42715c58fe2907782628ba6537ca672b)：`CommitmentAlarmRecoveryTest.failedWakeVoiceReceiptSurvivesColdReloadAndRemainsVisibleToNextDecision`。使用真实 `CommitmentCallFeedback.onVoiceFailed` 写入播放失败，重建 `CommitmentTaskStore`，检查 Blocked、原失败回执、尝试次数及 `ActiveCommitmentAttention.render` 下轮投影；禁止把连接/播放失败等同已醒。测试待本 SHA 的 main push JVM/APK/索引，未修改生产逻辑。
 - 下一轮固定 P-08d.2b.2：核新回归 CI 首错，若通过继续验证正式角色模型输入包含失败事实以及新决定/取消的实际执行；真机 TTS/权限、真实模型与跨日独立待验。
+
+
+## 2026-11-11 · P-08b.1c 长关系约定的完整保存与编辑后跨入口投影
+
+- 上轮 [6186744 APK/JVM #42865903439](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903439) 与[原索引 #42865903302](https://github.com/jiacimu-droid/lulu1/actions/runs/42865903302) 已核 completed/success。心事回执撤回后的第三轮后台输入工程回归通过，真机与真实模型仍待验。
+- 本轮按 P-08b.1 进入最新人物定义的编辑后反例。调用链为角色/关系编辑 → CharacterLifeStore.setRelationshipAgreement → 原 SharedPreferences → CharacterSocialRelationship → CharacterRuntime → 正式电话或精简表达网关。保存函数先把 title 截为 70 字、details 截为 1600 字，末尾条件或否定在进入任何模型前便永久丢失。现有网关长约定夹具没有超过 1600 字，未覆盖这一保存缺口。
+- [52f0624](https://github.com/jiacimu-droid/lulu1/commit/52f0624bd6d02f184e28ada9e9d9c5c0ecb1bc17) 移除上述两处保存截断，完整保留用户当前编写的关系标题与说明，继续使用同一 Store、归属校验和清空语义。没有修改任何角色预设、共享执行器、取舍原则或模型调用次数。旧版本已丢失的文字无法凭程序恢复，需要重新保存原文。
+- 新增 CharacterLifeStoreTest.authoredRelationshipKeepsCompleteBoundariesAcrossReloadEditAndClear，覆盖超限标题与说明真实落盘、重新加载、替换、清空和另一角色不受影响。新增 RelationshipPreferenceGatewayTest.editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression，以江渡/星禾差异化样本走真实电话 Bridge 和网关 HTTP。先返回 401，再修改身份、人格、语言习惯、示例和长关系约定，重载后核后继电话及精简表达的实际请求携带完整新条件且只出现一次，另一角色和 Isolated 无串线，清空后不补旧约定。固定响应只用于检查投影与调用契约，不作真实语言质量证据。
+- 修改前已核 main 与三个目标文件 blob SHA，提交以 expected_sha 租约推进 main，保留并行游戏及承诺工作。本地只有 Java，未运行本地 Gradle/JVM/APK。原生成器已由既有 [Refresh code index #42924717775](https://github.com/jiacimu-droid/lulu1/actions/runs/42924717775) 完成，CODE_INDEX 基准确为 52f0624；[Lulu APK/JVM #42924717735](https://github.com/jiacimu-droid/lulu1/actions/runs/42924717735) 仍 in_progress，新增测试及 APK 不能写作已通过。真机、真实模型和长时负载待验，不勾整体 P-08b。
+- 下一轮固定 P-08b.1c，先按完整 head_sha 52f0624bd6d02f184e28ada9e9d9c5c0ecb1bc17 核上述两个新增测试的 CI 首错或通过结果。通过后接着打开 RelationshipPreferenceGatewayTest，补 PersonaAndScenario 在人物编辑后的跨世界投影对照，验证保留最新稳定性格与表达、排除原世界身份和对象关系。已有五模式覆盖不重复重写，任何新生产修改须由该反例证实。ROADMAP 顶部交总接力归并。
