@@ -464,6 +464,33 @@ class IslandHouseProjectsTest {
         assertEquals(saved,IslandHouseProjects.advance(saved,setOf("alice")))
     }
 
+    @Test fun partiallyBuiltHouseDemolitionRefundsOnlyRealPlacedPieces() {
+        var state=start()
+        repeat(50) {
+            if(state.houseProject?.placed?.isEmpty()==true)state=nextTurn(state)
+        }
+        val built=state.houseProject!!
+        assertEquals(1,built.placed.size)
+        val placedIndex=built.placed.single()
+        val woodAfterBuild=state.world.wood
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","先拆掉这一格，重新规划"))!!
+        assertEquals(1,state.houseProject?.demolitionStartCount)
+        assertEquals(0,IslandHouseProjects.progress(state.houseProject!!))
+        assertEquals(woodAfterBuild,state.world.wood)
+        val reloaded=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(1,reloaded.houseProject?.demolitionStartCount)
+        repeat(50) {
+            if(state.houseProject!=null)state=nextTurn(state)
+        }
+        assertNull(state.houseProject)
+        assertEquals(woodAfterBuild+1,state.world.wood)
+        assertEquals(0,state.world.tiles[placedIndex])
+        val persisted=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(state.world.wood,persisted.world.wood)
+        assertEquals(persisted,IslandHouseProjects.advance(persisted,setOf("alice")))
+    }
+
     @Test fun progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction() {
         val started=start()
         val p=started.houseProject!!
