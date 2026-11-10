@@ -43,7 +43,15 @@ internal object IslandChallengeBoard {
             wood=place.wood,stone=place.stone,
             fruit=place.fruit,fish=place.fish,
         ) { s -> IslandExpeditionTrail.reached(s,place) }
-    }
+    } + listOf(
+        IslandChallenge(
+            id=IslandGuardianEncounter.challengeId,
+            title="南岭守护之证",
+            detail="踏遍两处地标，守住三夜并用真实战斗击败南岭守卫",
+            rewardText="木材 +12、石料 +10、野果 +6、小鱼 +3",
+            wood=12,stone=10,fruit=6,fish=3,
+        ) { s -> s.guardianCleared },
+    )
     val ids=challenges.map{it.id}.toSet()
 
     fun awardCompleted(s:BlockIslandState):BlockIslandState {
