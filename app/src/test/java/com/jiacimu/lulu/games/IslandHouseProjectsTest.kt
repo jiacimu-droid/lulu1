@@ -456,12 +456,14 @@ class IslandHouseProjectsTest {
         assertEquals(count,IslandHouseProjects.progress(restored.houseProject!!))
         assertEquals(count,IslandHouseProjects.progress(nextTurn(restored).houseProject!!))
         val demolishing=IslandHouseProjects.choose(restored,"alice","demolish_house","我决定拆除")!!
-        assertEquals(9-count,IslandHouseProjects.progress(demolishing.houseProject!!))
+        assertEquals(0,IslandHouseProjects.progress(demolishing.houseProject!!))
+        assertEquals(count,demolishing.houseProject!!.demolitionStartCount)
         val pausedDemolition=IslandHouseProjects.choose(demolishing,"alice","pause_house","先暂停拆除")!!
         assertEquals("paused",pausedDemolition.houseProject?.phase)
         assertEquals("demolishing",pausedDemolition.houseProject?.resumePhase)
         val saved=BlockIslandState.fromJson(pausedDemolition.toJson())!!
-        assertEquals(9-count,IslandHouseProjects.progress(saved.houseProject!!))
+        assertEquals(0,IslandHouseProjects.progress(saved.houseProject!!))
+        assertEquals(count,saved.houseProject!!.demolitionStartCount)
         assertEquals(demolishing.world.wood,saved.world.wood)
         assertEquals(demolishing.world.tiles,saved.world.tiles)
     }
