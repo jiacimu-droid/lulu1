@@ -822,6 +822,32 @@ object LuluDeviceToolBridge {
                 }
             }
         }
+        // Common voice models sometimes complete speechIntent but omit the
+        // optional final text field. Fix only the missing spoken surface instead
+        // of treating a usable character decision as a failed phone request.
+        if (sceneContext.contains("电话") && !callSilence &&
+            plan.action == "reply" && plan.text.isBlank() &&
+            plan.speechIntent.isNotBlank()) {
+            val speech = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = """
+                    【本人已选定的电话表达意图】
+                    ${plan.speechIntent}
+                    【用户本轮原话】
+                    $userText
+                """.trimIndent(),
+                instruction = "只把已定意图组织成自然口语，保留完整的条件、否定与不确定性。只输出台词，不输出 JSON、状态或新的行动决定。",
+                source = com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING,
+                title = title,
+                maxTokens = 300,
+                connectionOverride = connection,
+            ).getOrNull()?.text?.trim().orEmpty()
+            if (speech.isNotBlank() && !speech.startsWith("{") &&
+                !speech.startsWith("```")) plan = plan.copy(text = speech)
+        }
+        // A newer phone turn can cancel this one while speech is being rendered.
+        // Start the authored side effects only after the cancellable handoff.
+        currentCoroutineContext().ensureActive()
         // A phone media plan is a side action chosen in the SAME role turn.
         // It cannot be treated as achieved merely because the role said it.
         val mediaReceipt = if (!rewriting && !callSilence && sceneContext.contains("电话") &&
@@ -860,29 +886,6 @@ object LuluDeviceToolBridge {
                 )
             }.getOrElse { "约定保存/更新未成功：${it.message.orEmpty().take(180)}；不能声称已改好。" }
         } else ""
-        // Common voice models sometimes complete speechIntent but omit the
-        // optional final text field. Fix only the missing spoken surface instead
-        // of treating a usable character decision as a failed phone request.
-        if (sceneContext.contains("电话") && !callSilence &&
-            plan.action == "reply" && plan.text.isBlank() &&
-            plan.speechIntent.isNotBlank()) {
-            val speech = LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = """
-                    【本人已选定的电话表达意图】
-                    ${plan.speechIntent}
-                    【用户本轮原话】
-                    $userText
-                """.trimIndent(),
-                instruction = "只把已定意图组织成自然口语，保留完整的条件、否定与不确定性。只输出台词，不输出 JSON、状态或新的行动决定。",
-                source = com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING,
-                title = title,
-                maxTokens = 300,
-                connectionOverride = connection,
-            ).getOrNull()?.text?.trim().orEmpty()
-            if (speech.isNotBlank() && !speech.startsWith("{") &&
-                !speech.startsWith("```")) plan = plan.copy(text = speech)
-        }
         if (rewriting) {
             if (plan.action != "reply") return Result.failure(
                 IllegalStateException("重新回复只能重新组织语言，不重做工具或沉默决定")

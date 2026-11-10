@@ -9,10 +9,16 @@ import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.core.WorldBookPromptPosition
 import com.jiacimu.lulu.ai.ModelConversationMessage
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONObject
 import org.json.JSONArray
 import org.junit.After
@@ -23,7 +29,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -662,6 +670,78 @@ class ConversationExpressionGatewayTest {
             assertFalse(isolated.contains(xingAgreement))
             assertEquals(5, server.requestCount)
         } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun interruptedPhoneIntentRecoveryDoesNotStartOldSideActions() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("电话打断样本", "在意明确授权")
+        val characterId = role.characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(characterId, "test")
+        val oldTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "想听点音乐")
+        val nextTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "我先把话说完")
+        val callId = "phone-interrupted-intent"
+        val releaseRendering = CountDownLatch(1)
+        val requests = AtomicInteger()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", content))
+                .put("finish_reason", "stop"))).toString())
+        fun mediaReply() = JSONObject().put("action", "reply")
+            .put("afterCallMedia", JSONObject().put("trigger", "call_end").put("delaySeconds", 30))
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse = when (requests.getAndIncrement()) {
+                0 -> response(mediaReply().put("speechIntent", "先回答，再按自己选定的时间尝试播放").toString())
+                1 -> if (releaseRendering.await(15, TimeUnit.SECONDS)) response("我听见了。")
+                    else MockResponse().setResponseCode(500)
+                2 -> response(mediaReply().put("text", "那就等通话结束。").toString())
+                else -> MockResponse().setResponseCode(500)
+            }
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            fun hasMediaReceipt(turnId: String) = SharedExperienceTimeline.eventsByIds(
+                characterId, listOf("phone-media-decision:$characterId:$turnId")
+            ).any { it.source == "deferred-call-media" }
+            val interrupted = async {
+                LuluDeviceToolBridge.respond(characterId, "", oldTurn.content, "test",
+                    archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = callId,
+                    userEvidenceIds = listOf(oldTurn.id))
+            }
+            try {
+                withContext(Dispatchers.IO) {
+                    repeat(2) { checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)) }
+                }
+                // While the response is held, the old turn must not have attempted the media step.
+                assertFalse(hasMediaReceipt(oldTurn.id))
+                interrupted.cancel()
+            } finally {
+                releaseRendering.countDown()
+                interrupted.cancelAndJoin()
+            }
+            assertTrue(interrupted.isCancelled)
+            assertFalse(hasMediaReceipt(oldTurn.id))
+
+            val next = LuluDeviceToolBridge.respond(characterId, "", nextTurn.content, "test",
+                archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = callId,
+                userEvidenceIds = listOf(nextTurn.id)).getOrThrow()
+            assertEquals("那就等通话结束。", next.text)
+            // No music player is required: the genuine tool attempt still returns its own receipt.
+            assertFalse(next.phoneMediaReceipt.isNullOrBlank())
+            assertTrue(hasMediaReceipt(nextTurn.id))
+            assertFalse(hasMediaReceipt(oldTurn.id))
+            assertEquals(3, server.requestCount)
+        } finally {
+            releaseRendering.countDown()
+            server.shutdown()
+        }
     }
 
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
