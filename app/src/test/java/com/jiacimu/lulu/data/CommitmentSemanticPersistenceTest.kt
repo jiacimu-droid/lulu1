@@ -271,6 +271,7 @@ class CommitmentSemanticPersistenceTest {
         // Rebuild the authoritative task store, not just the returned snapshot.
         resetTaskPreferences()
         CommitmentTaskStore.initialize(context)
+        LuluAlarmSystem.initialize(context)
         assertEquals(original.id, CommitmentTaskStore.active(role).single().id)
         assertTrue(CommitmentDecisionRuntime.applyModelRecovery(
             context, role, turn, listOf(source), listOf(modelDecision)).isEmpty())
@@ -286,6 +287,7 @@ class CommitmentSemanticPersistenceTest {
         assertTrue(CommitmentTaskStore.active(role).none { it.id == original.id })
         resetTaskPreferences()
         CommitmentTaskStore.initialize(context)
+        LuluAlarmSystem.initialize(context)
         assertTrue(CommitmentDecisionRuntime.applyModelRecovery(
             context, role, turn, listOf(source), listOf(modelDecision)).isEmpty())
         assertTrue(CommitmentTaskStore.active(role).none { it.id == original.id })
