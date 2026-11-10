@@ -25,6 +25,10 @@ class ChatAutomationRoutingTest {
             "你想睡多久？", "20分钟", "不行，我不能叫醒你"))
         assertFalse(acceptedWakeAfterSleepDurationQuestion(
             "你想睡多久？", "等会儿吧", "我会叫醒你"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "你想睡多久？", "20分钟", "二十分钟后起床就好"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "你想睡多久？", "20分钟", "要不要我二十分钟后叫你呀？"))
     }
 
     @Test fun genuineFutureObligationAndFactualLifeNotesRemainEligible() {
