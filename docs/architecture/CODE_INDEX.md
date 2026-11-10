@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d0febd6cf7aab741352c240c9a30ab6723975aad`
+- 基准提交：`d3ad5a81c2de6f369bab9cfeb3f280fa38db1981`
 - 分支：`main`
-- 已索引文件：1163
-- 已索引代码/文本行：250772
-- 已发现符号：3416
+- 已索引文件：1164
+- 已索引代码/文本行：250882
+- 已发现符号：3417
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -645,8 +645,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 897 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 227 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 760 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1044 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 768 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1060 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -670,6 +670,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 336 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 66 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 57 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
@@ -1115,7 +1116,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 506 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 535 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
