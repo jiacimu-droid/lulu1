@@ -833,13 +833,29 @@ class InMemoryLuluChatStore : LuluChatStore {
                 (0 until array.length()).map { index ->
                     parse(array.getJSONObject(index))
                 }
-            val conversations = decodeAll(root.getJSONArray("conversations"), ::decodeConversation)
+            // Preserve authority: missing IDs or ownership cannot be reconstructed.
+            // The permissive per-field decoders are retained for non-authoritative
+            // imports, but must not fabricate IDs while reading the sole state_v1 copy.
+            val conversations = decodeAll(root.getJSONArray("conversations")) { item ->
+                require(item.optString("id").isNotBlank()) { "会话缺少原始 ID" }
+                decodeConversation(item)
+            }
             val messagesObject = root.getJSONObject("messages")
             val messages = buildMap {
                 val keys = messagesObject.keys()
                 while (keys.hasNext()) {
                     val conversationId = keys.next()
-                    put(conversationId, decodeAll(messagesObject.getJSONArray(conversationId), ::decodeMessage))
+                    put(conversationId, decodeAll(messagesObject.getJSONArray(conversationId)) { item ->
+                        require(item.optString("id").isNotBlank()) { "消息缺少原始 ID" }
+                        require(item.optString("conversationId") == conversationId) { "消息归属与会话不一致" }
+                        require(item.optString("sender") in LuluChatMessage.Sender.entries.map { it.name }) {
+                            "消息发送者无效"
+                        }
+                        require(item.optString("status") in LuluChatMessage.Status.entries.map { it.name }) {
+                            "消息状态无效"
+                        }
+                        decodeMessage(item)
+                    })
                 }
             }
             conversations.sortedByDescending(LuluConversation::updatedAt) to messages
