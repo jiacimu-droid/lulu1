@@ -1656,3 +1656,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 提交 [`cd170a5`](https://github.com/jiacimu-droid/lulu1/commit/cd170a5ea0706debff009e63bfb6305cf2f48831)：新增 `ChatHistoryPersistenceBaselineTest.kt`。按正式 `state_v1` JSON 播种 1k/10k 消息，真实 Store 初始化→置顶元数据更新→再次初始化，断言消息不丢、置顶持久化并输出字节数和阶段耗时；100k 为 opt-in heavy。测的是端到端操作，**不能单独归因 JSON 编码、磁盘 fsync 或锁等待**。
 - 正式 `MigratedDomainStores.kt` blob `5c52404f561c5c164f55a9c1aa112da5d3eb8e94` 的 `persistLocked` 仍全量 encode 后 `apply/commit`；本轮不改变生产格式、不删历史。CI 尚未取得 `cd170a5` 的 head SHA 对应 APK/JVM/索引结果；容器访问 `api.github.com` DNS 失败，未运行本地 Gradle。**不勾工程回归**，没有真实耗时数据。
 - 下一固定 UI-02.1：先核 `cd170a5` main push JVM/APK 和 Refresh code index 首错，收集 1k/10k 计时，100k 在资源足够环境单独跑；再按证据决定 UI-02.2 的增量存储/无损迁移。P-08a.1g.3 与真机/真实模型仍待验；服务商计费数未知。
+
+
+## 2026-11-10 · P-08b.1 / P-03.1 电话本人决定到可听台词的完整交接
+
+- **接力依据**：main 的人物专项入口仍是 P-08b.1。现有 `RelationshipPreferenceGatewayTest` 已覆盖 Full/精简表达/CharacterAndScenario/PersonaAndScenario/Isolated 的关系投影及 Ensemble 私有资料隔离。本轮沿其未覆盖的正式电话入口，进入 P-03.1 的决定→表达交接。原 c8c37d 的 APK/JVM #41333088808 failure、索引 #41333088856 skipped；已修后继 8c5bf66 的 APK/JVM #41882293649、索引 #41882293653 均 success。上次 1a17c74 的索引 #41936349357 success，APK/JVM #41936349268 failure，日志显示 Test and build phone APK 到达 40 分钟超时。接手时最近可核的成功 APK 为 809f1e0 的 #42760365403；e3f27fe 的 #42761415401 为 in_progress。
+- **源码证据与修复**：[4a8f729](https://github.com/jiacimu-droid/lulu1/commit/4a8f7291482506f771b2e0b946d4f558a747c0a0)。`LuluDeviceToolBridge.respond` 经同一角色 Full 网关提交电话决定。模型选 `reply` 并填 `speechIntent`、但缺 `text` 时，既有补写把已选意图截为 600 字、用户原话截为 700 字，并在 `CompanionModelGateway` 再获统一决策协议。现在沿用既有补写请求、电话连接及角色资料，完整传递选定意图与原话，使用 `CharacterExpressionGuide` 中已有表达交接原则及电话呈现规则。补写只返回口语，条件、否定及不确定性按原决定传递。正常回复仍用原决定直接交付，无新增常态请求。
+- **回归与范围**：`ConversationExpressionGatewayTest.phoneIntentRecoveryKeepsTheCurrentPersonAndCompleteBoundaries` 通过正式电话入口捕获两个独立人物及编辑后的请求，覆盖正常电话、缺台词恢复、超过旧截断点的原话和意图、实际请求身份/性格/关系归属与隔离负例。正式私聊、后台、群聊、日程、工具执行及回执仍由各入口和原 Store 负责。该测试证明请求与分工契约，手机发声及真实模型对否定、条件与自主取舍的遵循需独立验收。
+- **本轮 CI**：[Lulu APK #42762942772](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942772) pending，[Refresh code index #42762942809](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942809) completed/success。静态对照通过，当前环境无本地 Gradle/Android 测试或设备；实际单测、APK 结果以该源码提交的 Actions 为准。
+- **下一轮固定 P-03.1**：直接打开上述测试，先按 `4a8f7291482506f771b2e0b946d4f558a747c0a0` 查 APK/JVM 和原索引。若红，读取首错并修同一工作包。若绿，核 `LuluDeviceToolBridge.respond` 的电话补写取消与真实交付边界，再做电话/私聊同样已选意图和副动作的对照；真实模型与真机仍待样本。
