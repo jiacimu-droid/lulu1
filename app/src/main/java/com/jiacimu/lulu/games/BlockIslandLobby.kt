@@ -170,12 +170,31 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
             border = BorderStroke(1.dp, mint.copy(alpha=.42f))) {
             Column(Modifier.fillMaxWidth().padding(15.dp),
                 verticalArrangement=Arrangement.spacedBy(9.dp)) {
+                val total=IslandChallengeBoard.challenges.size
+                val completed=savedIsland?.let { state ->
+                    IslandChallengeBoard.challenges.count { it.id in state.awardedChallenges }
+                } ?: 0
                 Text("✦ 本次冒险简报",fontSize=20.sp,fontWeight=FontWeight.Black,color=mint)
-                Text(if(existingIsland)"家园存档已就绪 · 回到你建设的海岛"
-                    else "从搭建工作台开始，解锁自己的第一处营地",
-                    color=Color.White,fontSize=12.sp)
-                IslandChallengeBoard.challenges.take(3).forEach { challenge ->
-                    val achieved=savedIsland?.let(challenge.completed) ?: false
+                Text(if(existingIsland)"主线 · "+IslandMilestones.next(savedIsland!!)
+                    else "主线 · 收集木石，搭建你的第一座工作台",
+                    color=Color.White,fontWeight=FontWeight.Bold,fontSize=12.sp,
+                    lineHeight=16.sp,maxLines=2)
+                Text("冒险进度  $completed / $total",color=mint,fontSize=11.sp)
+                Box(Modifier.fillMaxWidth().height(6.dp)
+                    .background(Color(0x88466362),RoundedCornerShape(99.dp))) {
+                    Box(Modifier.fillMaxWidth(completed.toFloat()/total.coerceAtLeast(1))
+                        .height(6.dp)
+                        .background(Color(0xFFF2C777),RoundedCornerShape(99.dp)))
+                }
+                val nextChallenges=IslandChallengeBoard.challenges.filter {
+                    savedIsland==null || it.id !in savedIsland.awardedChallenges
+                }.take(3)
+                if(nextChallenges.isEmpty()) {
+                    Text("✦ 本岛全部挑战完成！继续自由建造，收集与伙伴的故事",
+                        color=Color(0xFFFFE3A9),fontSize=12.sp)
+                }
+                nextChallenges.forEach { challenge ->
+                    val achieved=false
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text(if(achieved)"✓" else "□",color=if(achieved)mint else dim,
                             fontSize=17.sp,modifier=Modifier.width(26.dp))
