@@ -178,12 +178,15 @@ internal fun GameLobbyBackdrop(island:Boolean, modifier:Modifier=Modifier) {
             // with the project instead of regressing to debug Canvas scenery.
             RelicCampBackdrop()
         }
+        // Editorial art direction: let the scenery breathe. The original
+        // heavy teal/black veils crushed the island's soft sky and made every
+        // environment look like the same dark fantasy screen.
         val horizontal=if(island)
-            listOf(Color(0x85102732),Color(0x1710242B),Color(0x92102230))
-        else listOf(Color(0xA00C1F29),Color(0x3310242B),Color(0xA60C1721))
+            listOf(Color(0x582C4945),Color(0x081D473E),Color(0x602A403F))
+        else listOf(Color(0x99101824),Color(0x19101824),Color(0xA11A1A26))
         val vertical=if(island)
-            listOf(Color(0x8A0B1C25),Color(0x02122731),Color(0xC30B1D24))
-        else listOf(Color(0xA60B1C25),Color(0x0A122731),Color(0xE80B1D24))
+            listOf(Color(0x362C4E46),Color(0x041D473E),Color(0x8C1D3431))
+        else listOf(Color(0x91101925),Color(0x08182732),Color(0xBD101821))
         Box(Modifier.matchParentSize().background(Brush.horizontalGradient(horizontal)))
         Box(Modifier.matchParentSize().background(Brush.verticalGradient(vertical)))
     }
@@ -203,22 +206,22 @@ internal fun GameLobbyPartySlot(
 ) {
     // An RPG-style standee, not a settings checkbox. The actual user/character
     // avatar still comes from the same profile and invitation state.
-    Surface(modifier=Modifier.width(112.dp),shape=RoundedCornerShape(17.dp),
-        color=Color(0xF01A2D36),
-        border=BorderStroke(if(isPlayer)2.dp else 1.dp,
-            accent.copy(alpha=if(isPlayer).92f else .65f)),
-        shadowElevation=6.dp) {
+    Surface(modifier=Modifier.width(112.dp),shape=RoundedCornerShape(15.dp),
+        color=Color(0xF0253035),
+        border=BorderStroke(1.dp,
+            accent.copy(alpha=if(isPlayer).58f else .31f)),
+        shadowElevation=2.dp) {
         Column(Modifier.background(Brush.verticalGradient(listOf(
-            if(isPlayer)Color(0xFF45675A) else Color(0xFF354352),
-            Color(0xFF182B36),Color(0xFF111F2C)))),
+            if(isPlayer)Color(0xFF54695F) else Color(0xFF414D55),
+            Color(0xFF293B42),Color(0xFF202F37)))),
             horizontalAlignment=Alignment.CenterHorizontally) {
             Box(Modifier.fillMaxWidth().height(111.dp),
                 contentAlignment=Alignment.Center) {
                 Canvas(Modifier.matchParentSize()) {
-                    drawCircle(accent.copy(alpha=.14f),size.minDimension*.43f,
-                        center=Offset(size.width*.50f,size.height*.43f))
-                    drawCircle(accent.copy(alpha=.12f),size.minDimension*.33f,
-                        center=Offset(size.width*.50f,size.height*.43f))
+                    // Quiet backlighting keeps the actual avatar as the focal
+                    // point instead of adding two competing glowing halos.
+                    drawCircle(accent.copy(alpha=.08f),size.minDimension*.37f,
+                        center=Offset(size.width*.50f,size.height*.47f))
                 }
                 GameCharacterPawn(avatarUri=avatarUri,fallback=fallback,
                     moving=false,facingX=1f,player=isPlayer,
@@ -248,11 +251,11 @@ internal fun GameLobbyInviteSlot(
 ) {
     Surface(onClick=onClick,enabled=enabled,
         modifier=Modifier.width(112.dp).height(170.dp),
-        color=Color(0xC01B3744),shape=RoundedCornerShape(17.dp),
-        border=BorderStroke(1.5.dp,accent.copy(alpha=.62f)),
-        shadowElevation=4.dp) {
+        color=Color(0xC52A3F43),shape=RoundedCornerShape(15.dp),
+        border=BorderStroke(1.dp,accent.copy(alpha=.38f)),
+        shadowElevation=2.dp) {
         Column(Modifier.fillMaxSize().background(Brush.verticalGradient(
-            listOf(Color(0xD02D4B50),Color(0xD0102331)))).padding(9.dp),
+            listOf(Color(0xD03C5050),Color(0xD0233338)))).padding(9.dp),
             horizontalAlignment=Alignment.CenterHorizontally,
             verticalArrangement=Arrangement.Center) {
             Surface(shape=RoundedCornerShape(99.dp),color=accent.copy(alpha=.16f),
