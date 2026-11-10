@@ -372,4 +372,37 @@ class IslandHouseProjectsTest {
         val persisted=BlockIslandState.fromJson(progress.toJson())!!
         assertEquals(persisted,IslandHouseProjects.advance(persisted,setOf("alice")))
     }
+    @Test fun anotherCompanionOnFirstConstructionTilePausesWithoutChargingOrTeleporting() {
+        val started=start()
+        val project=started.houseProject!!
+        val floor=IslandHouseProjects.parts(started.world,project.left,project.top).first().first
+        val tx=floor%started.world.width
+        val ty=floor/started.world.width
+        val owner=started.world.friends.first()
+        // The owner is already beside the next part; a different companion occupies it.
+        val occupied=started.copy(world=started.world.copy(
+            friends=listOf(owner.copy(x=tx+1,y=ty),owner.copy(id="bob",x=tx,y=ty))
+        ))
+        val beforeWood=occupied.world.wood
+        val beforeTiles=occupied.world.tiles
+        val after=IslandHouseProjects.advance(occupied,setOf("alice"))
+        assertEquals("paused",after.houseProject?.phase)
+        assertEquals("building",after.houseProject?.resumePhase)
+        assertEquals(emptyList<Int>(),after.houseProject?.placed)
+        assertEquals(beforeWood,after.world.wood)
+        assertEquals(beforeTiles,after.world.tiles)
+        assertEquals(tx,after.world.friends.last().x)
+        assertEquals(ty,after.world.friends.last().y)
+        val restored=BlockIslandState.fromJson(after.toJson())!!
+        assertEquals("paused",restored.houseProject?.phase)
+        assertEquals(beforeWood,restored.world.wood)
+        assertEquals(beforeTiles,restored.world.tiles)
+        // A subsequent turn must not silently resume the character's paused intention.
+        val next=nextTurn(restored.copy(world=restored.world.copy(
+            friends=restored.world.friends.take(1)
+        )))
+        assertEquals("paused",next.houseProject?.phase)
+        assertEquals(beforeWood,next.world.wood)
+    }
+
 }
