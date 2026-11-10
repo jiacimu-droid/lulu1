@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`19fc450d8a7d89973defb900eda223d0f1891763`
+- 基准提交：`6ee177426c2bfe673ab57909c00f76bc1425ac59`
 - 分支：`main`
-- 已索引文件：1169
-- 已索引代码/文本行：252713
-- 已发现符号：3440
+- 已索引文件：1170
+- 已索引代码/文本行：252741
+- 已发现符号：3441
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1126,6 +1126,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:06:48.524495+00:00",
-  "commit": "19fc450d8a7d89973defb900eda223d0f1891763",
+  "generatedAt": "2026-11-10T09:07:11.725394+00:00",
+  "commit": "6ee177426c2bfe673ab57909c00f76bc1425ac59",
   "branch": "main",
-  "sourceFingerprint": "433bb2a638ddeefdbd6a12dc1e95fb78238a376ee1c1e040405dd6a3cd4f911c",
+  "sourceFingerprint": "41063e1e65832dc849fc708272c7a6dba73ba1d1dcf2277059b0ca7a9fb89713",
   "summary": {
-    "files": 1169,
-    "lines": 252713,
-    "symbols": 3440
+    "files": 1170,
+    "lines": 252741,
+    "symbols": 3441
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18924,6 +18924,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt",
         "line": 12
+      }
+    ],
+    "GameHudLayoutBudgetTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt",
+        "line": 8
       }
     ],
     "GameInvitationContinuityTest": [
@@ -40364,6 +40370,17 @@
         {
           "name": "ExplorationPlaytest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt",
+      "lines": 28,
+      "sha256": "40522de6f40b0d0acc718bd74bfa3a70eb11c063e7fbfb800938bfe7797a3a83",
+      "symbols": [
+        {
+          "name": "GameHudLayoutBudgetTest",
+          "line": 8
         }
       ]
     },
