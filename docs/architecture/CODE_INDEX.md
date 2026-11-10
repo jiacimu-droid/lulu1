@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`badfe76c6ffb023f11edef751cf1e971f87a05f5`
+- 基准提交：`837735ca04ff439424c126f3be279aab81f3fb77`
 - 分支：`main`
 - 已索引文件：1162
-- 已索引代码/文本行：250546
-- 已发现符号：3415
+- 已索引代码/文本行：250598
+- 已发现符号：3416
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -81,7 +81,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 11 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 27 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 32 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallResponsibilityContext.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 49 | 4 |
@@ -205,7 +205,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 817 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2669 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2709 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -773,7 +773,7 @@
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 249 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 256 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
