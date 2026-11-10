@@ -268,12 +268,42 @@ internal fun RelicEscapeWorldMap(
                     drawCircle(tint,t*.10f,c+Offset(t*.23f,t*.20f))
                 }
                 if(x==run.exitX && y==run.exitY) {
-                    val green=Color(0xFF80F3CF)
-                    drawCircle(green.copy(alpha=.18f+shimmer*.20f),t*.64f,c)
-                    drawCircle(green,t*.34f,c,style=Stroke(t*.09f))
-                    drawCircle(Color.White.copy(alpha=.45f+shimmer*.4f),t*.16f,c)
-                    drawLine(green.copy(alpha=.6f),c+Offset(0f,-t*.58f),
-                        c+Offset(0f,t*.58f),strokeWidth=t*.07f)
+                    // An actual carved extraction gate, not a generic green
+                    // debug circle. It occupies the same real saved exit cell.
+                    val jade=Color(0xFF83F2D3)
+                    val stone=Color(0xFF829D98)
+                    drawCircle(Brush.radialGradient(
+                        listOf(jade.copy(alpha=.22f+shimmer*.25f),Color.Transparent),
+                        center=c,radius=t*.80f),t*.80f,c)
+                    drawOval(Color(0xAA071923),p+Offset(t*.07f,t*.79f),
+                        Size(t*.87f,t*.16f))
+                    drawRoundRect(Color(0xFF334B55),p+Offset(t*.12f,t*.17f),
+                        Size(t*.77f,t*.68f),CornerRadius(t*.13f))
+                    drawRoundRect(stone,p+Offset(t*.17f,t*.11f),
+                        Size(t*.67f,t*.71f),CornerRadius(t*.17f))
+                    drawRoundRect(Color(0xFF1C4550),p+Offset(t*.28f,t*.26f),
+                        Size(t*.45f,t*.52f),CornerRadius(t*.15f))
+                    drawRoundRect(jade.copy(alpha=.34f+shimmer*.28f),
+                        p+Offset(t*.32f,t*.27f),Size(t*.36f,t*.50f),
+                        CornerRadius(t*.14f))
+                    drawLine(jade.copy(alpha=.75f),p+Offset(t*.36f,t*.28f),
+                        p+Offset(t*.36f,t*.68f),strokeWidth=t*.035f)
+                    drawLine(Color(0xFFE2D5B4),p+Offset(t*.17f,t*.22f),
+                        p+Offset(t*.30f,t*.22f),strokeWidth=t*.043f)
+                    drawLine(Color(0xFFE2D5B4),p+Offset(t*.69f,t*.22f),
+                        p+Offset(t*.84f,t*.22f),strokeWidth=t*.043f)
+                    val rune=Path().apply {
+                        moveTo(c.x,c.y-t*.27f)
+                        lineTo(c.x+t*.12f,c.y-t*.10f)
+                        lineTo(c.x,c.y+t*.08f)
+                        lineTo(c.x-t*.12f,c.y-t*.10f)
+                        close()
+                    }
+                    drawPath(rune,Color(0xFFD8FFF0).copy(alpha=.55f+shimmer*.40f))
+                    drawCircle(jade.copy(alpha=.64f+shimmer*.28f),
+                        t*.50f,c,style=Stroke(t*.045f))
+                    drawCircle(Color.White.copy(alpha=.42f+shimmer*.36f),
+                        t*.065f,c+Offset(t*.26f,-t*.32f))
                 }
                 if(!lit)drawRect(Color(0xFF090E1B).copy(alpha=.42f),
                     p,Size(t+.3f,t+.3f))
