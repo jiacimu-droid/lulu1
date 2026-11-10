@@ -22,10 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 
-private val campGold=Color(0xFFFFD894)
-private val campMint=Color(0xFF91F1D3)
-private val campMuted=Color(0xFFC6CEDD)
-private val campInk=Color(0xFF0C1522)
+// Restrained gallery palette: warm ivory metal, cool slate and pale jade.
+private val campGold=Color(0xFFE3D1B2)
+private val campMint=Color(0xFFB5CECB)
+private val campMuted=Color(0xFFBDC6CB)
+private val campInk=Color(0xFF151B24)
 
 @Composable
 internal fun RelicEscapeLobby(
@@ -110,7 +111,7 @@ internal fun RelicEscapeLobby(
         Button(onClick=onStart,modifier=Modifier.fillMaxWidth().height(62.dp),
             enabled=inviting==null,shape=RoundedCornerShape(15.dp),
             colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk)) {
-            Text("⚔ 出发摸金 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层",
+            Text("出发寻宝 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层",
                 fontSize=19.sp,fontWeight=FontWeight.Black)
         }
     }
@@ -123,9 +124,9 @@ internal fun RelicEscapeLobby(
                 verticalArrangement=Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment=Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("✦ 迷雾摸金",color=Color.White,fontSize=31.sp,
+                        Text("迷雾摸金",color=Color(0xFFF1EAE0),fontSize=31.sp,
                             fontWeight=FontWeight.Black)
-                        Text("遗迹探索 · 寻回珍宝 · 带着队友安全撤离",
+                        Text("寻找值得珍藏的美丽宝物",
                             color=campMuted,fontSize=13.sp)
                     }
                     Surface(color=Color(0xD71B2E3B),shape=RoundedCornerShape(14.dp),
@@ -150,7 +151,7 @@ internal fun RelicEscapeLobby(
                         Column(Modifier.weight(1f),
                             verticalArrangement=Arrangement.spacedBy(10.dp)) {
                             RelicLobbyPanel {
-                                Text("✦ 本次出发简报",color=campGold,fontSize=20.sp,
+                                Text("本次寻宝",color=campGold,fontSize=20.sp,
                                     fontWeight=FontWeight.Black)
                                 Text(if(live)"尚有未结束的探索，可返回营地续玩"
                                     else "前往第"+(snapshot.successes+1).coerceAtMost(5)+"层遗迹",
@@ -376,8 +377,8 @@ internal fun RelicEscapeLobby(
                         color=campMuted,fontSize=12.sp)
                     snapshot.vault.reversed().forEach { item ->
                         Surface(onClick={selectedTreasureId=item.id},
-                            color=if(item.id==exhibit?.id) Color(0xFF355064)
-                                else Color(0xFF1C3443),
+                            color=if(item.id==exhibit?.id) Color(0xFF303A42)
+                                else Color(0xFF212B35),
                             shape=RoundedCornerShape(12.dp),
                             border=BorderStroke(1.dp,
                                 if(item.id==exhibit?.id) campGold.copy(alpha=.65f)
@@ -448,9 +449,9 @@ internal fun RelicEscapeLobby(
 @Composable
 private fun RelicLobbyPanel(content:@Composable ColumnScope.()->Unit) {
     Surface(
-        modifier=Modifier.fillMaxWidth(),color=Color(0xED172836),
-        shape=RoundedCornerShape(18.dp),
-        border=BorderStroke(1.dp,campGold.copy(alpha=.26f)),
+        modifier=Modifier.fillMaxWidth(),color=Color(0xED202934),
+        shape=RoundedCornerShape(15.dp),
+        border=BorderStroke(1.dp,campGold.copy(alpha=.18f)),
     ) {
         Column(Modifier.fillMaxWidth().padding(14.dp),
             verticalArrangement=Arrangement.spacedBy(9.dp),content=content)
