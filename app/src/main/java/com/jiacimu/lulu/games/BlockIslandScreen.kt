@@ -245,6 +245,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val campRestAvailable = islandCampRestAvailable(island)
     // Later collection objectives are derived from the saved island, not reset by closing UI.
     val survivalGoal = IslandMilestones.next(island)
+    val nextLandmark = IslandExpeditionTrail.next(island)
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -352,6 +353,26 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("☑ " + survivalGoal + " · 查看目标", color=Color(0xFFFFE3A7),
                     modifier=Modifier.padding(horizontal=8.dp,vertical=5.dp),
                     fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
+            }
+            if(nextLandmark!=null) {
+                Surface(
+                    onClick={
+                        // The existing navigational stepper walks actual connected
+                        // terrain and stops if a creature or wall blocks the route.
+                        buildMode=null
+                        target=nextLandmark.x to nextLandmark.y
+                        mapAim=false
+                        navigateTo=nextLandmark.x to nextLandmark.y
+                    },
+                    color=Color(0xDF4B4833),shape=RoundedCornerShape(11.dp),
+                    border=BorderStroke(1.dp,Color(0xFFFFDB94).copy(alpha=.82f))
+                ) {
+                    Text("✧ 追踪${nextLandmark.title} · ${IslandExpeditionTrail.distance(island,nextLandmark)}格  ▶",
+                        modifier=Modifier.fillMaxWidth()
+                            .padding(horizontal=8.dp,vertical=8.dp),
+                        color=Color(0xFFFFE3B1),fontSize=11.sp,
+                        fontWeight=FontWeight.Bold,maxLines=1)
+                }
             }
             Text(statusHint,
                 color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
@@ -763,6 +784,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color=Color(0xFFFFE3A7),fontWeight=FontWeight.Bold)
                 Text("生存篇  ·  工作台 → 石剑 → 篝火/床铺 → 击退怪物 → 守住3夜",
                     color=Color.White,fontSize=12.sp)
+                Text("远航篇  ·  晨光海角 → 南岭古树（地图金色航标，点击右下角可自动寻路）",
+                    color=Color(0xFFFFD79F),fontSize=12.sp)
+                IslandExpeditionTrail.landmarks.forEach { place ->
+                    val claimed=place.id in island.awardedChallenges
+                    Text((if(claimed)"✓ " else "◇ ")+place.title+" · "+
+                        (if(claimed)"已探索" else "距离${IslandExpeditionTrail.distance(island,place)}格")+
+                        " · "+place.rewardText,
+                        color=if(claimed)Color(0xFFB1E4CF) else Color(0xFFFFE3AE),
+                        fontSize=11.sp)
+                }
                 Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
                     color=Color.White,fontSize=12.sp)
                 Text("家园篇  ·  结识动物 → 建宠物小屋 → 点亮夜灯",
@@ -887,13 +918,18 @@ private fun IslandMiniMap(island: BlockIslandState) {
                 island.supplyCaches.filter { it !in island.openedSupplies }.forEach {
                     dot(it%w.width,it/w.width,Color(0xFFFFD992))
                 }
+                IslandExpeditionTrail.landmarks.forEach { place ->
+                    dot(place.x,place.y,
+                        if(place.id in island.awardedChallenges)Color(0xFF71DEC6)
+                        else Color(0xFFFFE093),1.75f)
+                }
                 w.mobs.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFFFF918B)) }
                 island.animals.forEach { dot(it.x,it.y,
                     if(it.befriended)Color(0xFFFFD693) else Color(0xFFD6F4C2)) }
                 w.friends.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFF8BDAF3)) }
                 dot(w.x,w.y,Color(0xFFFFF0B1),1.35f)
             }
-            Text("黄：你／补给　蓝：伙伴　红：怪物　浅绿：动物　浅褐：已建建筑",
+            Text("金色大点：远航地标（青绿为已发现）　黄：你／补给　蓝：伙伴　红：怪物　浅绿：动物",
                 color=Color(0xFFC5E0D3),fontSize=10.sp,maxLines=2)
         }
     }
