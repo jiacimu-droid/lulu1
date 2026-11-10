@@ -431,8 +431,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else -> "正在拆"
                 }
                 val progressCount=IslandHouseProjects.progress(project)
+                val totalCount=if(project.phase=="demolishing" ||
+                    project.phase=="paused" && project.resumePhase=="demolishing")
+                    project.demolitionStartCount else 9
                 Text("⌂ "+owner+" "+progress+" "+IslandHouseProjects.styleName(project.style)+
-                    " · "+progressCount+"/9",
+                    " · "+progressCount+"/"+totalCount,
                     color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
@@ -606,7 +609,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Text((if(project.phase=="demolishing" ||
                         project.phase=="paused" && project.resumePhase=="demolishing")
-                        "已拆除 " else "已建造 ")+IslandHouseProjects.progress(project)+"/9 · 位置("+
+                        "已拆除 " else "已建造 ")+IslandHouseProjects.progress(project)+"/"+
+                        (if(project.phase=="demolishing" || project.phase=="paused" &&
+                            project.resumePhase=="demolishing")project.demolitionStartCount else 9)+
+                        " · 位置("+
                         project.left+","+project.top+") · 每个真实回合施工一步",
                         color = Color(0xFFBEE8D2), fontSize = 11.sp)
                     if(project.phase=="building" ||
@@ -620,7 +626,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             color=if(woodStillNeeded>world.wood)Color(0xFFFFD5AD)
                                 else Color(0xFFBEE8D2),fontSize=11.sp)
                     }
-                    LinearProgressIndicator(progress = { IslandHouseProjects.progress(project)/9f },
+                    LinearProgressIndicator(progress = {
+                        val demolition=project.phase=="demolishing" ||
+                            project.phase=="paused" && project.resumePhase=="demolishing"
+                        IslandHouseProjects.progress(project).toFloat() /
+                            (if(demolition)project.demolitionStartCount else 9).coerceAtLeast(1)
+                    },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))
                     Text("房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
