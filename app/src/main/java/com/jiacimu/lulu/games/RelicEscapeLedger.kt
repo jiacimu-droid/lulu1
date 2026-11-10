@@ -24,6 +24,8 @@ internal data class RelicSnapshot(
     val newDiscoveries:Set<String> = emptySet(),
     /** Only purchased weapons travel between runs; in-run chest unlocks do not. */
     val purchasedWeapons:Set<String> = setOf("blade"),
+    /** One actual owned trophy displayed on the museum pedestal; no phantom item. */
+    val featuredLootId:String?=null,
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
@@ -32,6 +34,7 @@ internal data class RelicSnapshot(
         .put("satchelLevel",satchelLevel)
         .put("newDiscoveries",JSONArray(newDiscoveries.sorted()))
         .put("purchasedWeapons",JSONArray(purchasedWeapons.sorted()))
+        .put("featuredLootId",featuredLootId?:JSONObject.NULL)
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -55,6 +58,10 @@ internal data class RelicSnapshot(
                         a.optString(i).takeIf { it in RelicCollectibles.names }
                     }.toSet()
                 } ?: emptySet(),
+                featuredLootId=j.optString("featuredLootId").takeIf { id ->
+                    id.isNotBlank() && id!="null" &&
+                        j.getJSONArray("vault").lootList().any { it.id==id }
+                },
                 purchasedWeapons=(j.optJSONArray("purchasedWeapons")?.let { a ->
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in RelicArsenal.weapons }
@@ -120,9 +127,15 @@ internal class RelicEscapeLedger(context:Context) {
         return if(old.coins>=price)write(old.copy(
             satchelLevel=old.satchelLevel+1,coins=old.coins-price)) else old
     }
+    @Synchronized fun featureLoot(id:String):RelicSnapshot {
+        val old=read()
+        if(old.vault.none { it.id==id })return old
+        return write(old.copy(featuredLootId=id))
+    }
     @Synchronized fun sellLoot(id:String):RelicSnapshot {
         val old=read();val item=old.vault.firstOrNull{it.id==id}?:return old
         return write(old.copy(vault=old.vault.filterNot{it.id==id},
+            featuredLootId=old.featuredLootId?.takeUnless { it==id },
             coins=old.coins+item.value))
     }
     @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet()):RelicSnapshot {
