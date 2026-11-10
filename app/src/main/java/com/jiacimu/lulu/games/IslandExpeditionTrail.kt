@@ -42,8 +42,24 @@ internal object IslandExpeditionTrail {
         ),
     )
 
-    fun distance(s:BlockIslandState,place:IslandLandmark):Int =
-        abs(s.world.x-place.x)+abs(s.world.y-place.y)
+    /**
+     * New islands have hand-authored coast and south paths. Legacy migrated
+     * homesteads can be 20 x 16; place the markers on their original corridor
+     * intersections instead of publishing an impossible out-of-bounds quest.
+     */
+    fun position(s:BlockIslandState,place:IslandLandmark):Pair<Int,Int> =
+        if(s.world.width==BlockIslandRules.WORLD_WIDTH &&
+            s.world.height==BlockIslandRules.WORLD_HEIGHT) place.x to place.y
+        else {
+            val x=(s.world.width-3).coerceAtLeast(2)
+            if(place.id=="cape_beacon") x to 3.coerceAtMost(s.world.height-2)
+            else x to (s.world.height-3).coerceAtLeast(2)
+        }
+
+    fun distance(s:BlockIslandState,place:IslandLandmark):Int {
+        val (x,y)=position(s,place)
+        return abs(s.world.x-x)+abs(s.world.y-y)
+    }
 
     // The goal is a small physical approach zone; a monster standing on the
     // marker may not force the player to enter an occupied enemy tile.
