@@ -44,6 +44,10 @@ import androidx.compose.ui.unit.sp
 internal fun GameSceneDeck(
     accent: Color,
     status: String,
+    /** Read-only projections of real saved health and secondary progress. */
+    healthFraction: Float? = null,
+    secondaryFraction: Float? = null,
+    secondaryLabel: String = "进度",
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
     /** An explicit selection change can dismiss the tools panel without changing other games. */
@@ -99,18 +103,31 @@ internal fun GameSceneDeck(
                 border = BorderStroke(1.dp, accent.copy(alpha = .62f)),
                 shadowElevation = 5.dp,
             ) {
-                Row(Modifier.padding(horizontal=12.dp,vertical=9.dp),
-                    verticalAlignment=Alignment.CenterVertically,
-                    horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                    Surface(modifier=Modifier.size(31.dp),shape=CircleShape,
-                        color=accent.copy(alpha=.22f),
-                        border=BorderStroke(1.dp,accent.copy(alpha=.66f))) {
-                        Box(contentAlignment=Alignment.Center) {
-                            Text("✦",color=accent,fontSize=17.sp,fontWeight=FontWeight.Bold)
+                Column(Modifier.padding(horizontal=12.dp,vertical=9.dp),
+                    verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                    Row(verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(9.dp)) {
+                        Surface(modifier=Modifier.size(29.dp),shape=CircleShape,
+                            color=accent.copy(alpha=.19f),
+                            border=BorderStroke(1.dp,accent.copy(alpha=.60f))) {
+                            Box(contentAlignment=Alignment.Center) {
+                                Text("✦",color=accent,fontSize=17.sp,
+                                    fontWeight=FontWeight.Bold)
+                            }
+                        }
+                        Text(status,color=Color.White,fontSize=11.sp,
+                            fontWeight=FontWeight.SemiBold,maxLines=2,lineHeight=16.sp)
+                    }
+                    if(healthFraction!=null || secondaryFraction!=null) {
+                        Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                            if(healthFraction!=null)
+                                GameHudConditionTrack("生命",healthFraction,
+                                    Color(0xFFFFA78C))
+                            if(secondaryFraction!=null)
+                                GameHudConditionTrack(secondaryLabel,
+                                    secondaryFraction,accent)
                         }
                     }
-                    Text(status,color=Color.White,fontSize=12.sp,
-                        fontWeight=FontWeight.SemiBold,maxLines=2,lineHeight=17.sp)
                 }
             }
             if (notice.isNotBlank()) {
@@ -226,6 +243,24 @@ internal fun GameSceneDeck(
                     Box(Modifier.fillMaxWidth().fillMaxHeight(.72f)) { tools() }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GameHudConditionTrack(label:String,fraction:Float,accent:Color) {
+    Row(verticalAlignment=Alignment.CenterVertically,
+        horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+        Text(label,color=Color(0xFFE3F1EA),fontSize=9.sp,
+            fontWeight=FontWeight.Bold,modifier=Modifier.width(28.dp),
+            maxLines=1)
+        Box(Modifier.weight(1f).height(6.dp)
+            .background(Color(0xFF40555A),RoundedCornerShape(10.dp))) {
+            Box(Modifier.fillMaxWidth(fraction.coerceIn(0f,1f))
+                .height(6.dp).background(
+                    Brush.horizontalGradient(listOf(
+                        accent.copy(alpha=.74f),accent)),
+                    RoundedCornerShape(10.dp)))
         }
     }
 }
