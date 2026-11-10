@@ -219,7 +219,12 @@ internal object BlockIslandArt {
                 // Identify the hit by stable mob ID, not by its old target coordinate.
                 val hit = impact?.takeIf { it.action=="fight" &&
                     it.targetMobId==mob.id && impactProgress<1f }
-                drawSlime(actorCenter(mobVisuals[mob.id],mob.x,mob.y),tile,mob.hp,phase,mob.id,
+                val pos=actorCenter(mobVisuals[mob.id],mob.x,mob.y)
+                if(mob.id==IslandGuardianEncounter.id)
+                    drawGuardian(pos,tile,mob.hp,phase,
+                        hit?.let { 1f-impactProgress } ?: 0f,
+                        IslandGuardianEncounter.impendingHeavyAttack(island))
+                else drawSlime(pos,tile,mob.hp,phase,mob.id,
                     hit?.let { 1f-impactProgress } ?: 0f)
             }
         // Every living creature is rendered from real saved entities, not decorative sprites.
@@ -878,6 +883,74 @@ internal object BlockIslandArt {
             Size(t * .20f, t * .26f))
         drawRect(Color(0xFFFFF0C5), p + Offset(t * .46f, t * .43f),
             Size(t * .09f, t * .13f))
+    }
+
+    /** A sculpted stone guardian with separate jaw, arm, runes, impact and
+     * telegraphed strike. Visuals never hit or mint resources by themselves. */
+    private fun DrawScope.drawGuardian(
+        c:Offset,t:Float,hp:Int,phase:Float,hit:Float,heavyNext:Boolean,
+    ) {
+        val beat=(sin(phase*6.28318f)+1f)*.5f
+        val shift=if(hit>0f)sin(hit*29f)*t*.06f else 0f
+        val core=c+Offset(shift,-t*.05f+sin(phase*6.28318f)*t*.018f)
+        drawOval(Color(0xB30D2D30),c+Offset(-t*.50f,t*.31f),
+            Size(t*1.02f,t*.24f))
+        val aura=if(heavyNext)Color(0xFFFF8D70) else Color(0xFFEAC891)
+        drawCircle(Brush.radialGradient(
+                listOf(aura.copy(alpha=.28f+.15f*beat),Color.Transparent),
+                center=core,radius=t*.78f),
+            t*.78f,core)
+        // A rough four-pronged broken crown, not a second invisible enemy.
+        val crest=Path().apply {
+            moveTo(core.x-t*.37f,core.y-t*.25f)
+            lineTo(core.x-t*.42f,core.y-t*.60f)
+            lineTo(core.x-t*.22f,core.y-t*.42f)
+            lineTo(core.x-t*.08f,core.y-t*.66f)
+            lineTo(core.x+t*.08f,core.y-t*.66f)
+            lineTo(core.x+t*.22f,core.y-t*.42f)
+            lineTo(core.x+t*.42f,core.y-t*.60f)
+            lineTo(core.x+t*.37f,core.y-t*.25f)
+            close()
+        }
+        drawPath(crest,Color(0xFF708581))
+        drawPath(crest,Color(0xFFB9AB88).copy(alpha=.46f),
+            style=Stroke(t*.025f))
+        // Individual physical stone limbs to read much larger than the slimes.
+        drawRoundRect(Color(0xFF596A69),core+Offset(-t*.53f,-t*.18f),
+            Size(t*.23f,t*.55f),CornerRadius(t*.07f))
+        drawRoundRect(Color(0xFF596A69),core+Offset(t*.30f,-t*.18f),
+            Size(t*.23f,t*.55f),CornerRadius(t*.07f))
+        drawRoundRect(Color(0xFF778580),core+Offset(-t*.35f,-t*.29f),
+            Size(t*.70f,t*.66f),CornerRadius(t*.15f))
+        drawRoundRect(Color(0xFFA0AFA0),core+Offset(-t*.27f,-t*.30f),
+            Size(t*.53f,t*.34f),CornerRadius(t*.085f))
+        drawRoundRect(Color(0xFF3B494E),core+Offset(-t*.23f,-t*.18f),
+            Size(t*.46f,t*.19f),CornerRadius(t*.04f))
+        drawCircle(Color(0xFFFFBD79).copy(alpha=.75f+.20f*beat),
+            t*.065f,core+Offset(-t*.115f,-t*.09f))
+        drawCircle(Color(0xFFFFBD79).copy(alpha=.75f+.20f*beat),
+            t*.065f,core+Offset(t*.115f,-t*.09f))
+        drawRect(Color(0xFF4A585B),core+Offset(-t*.20f,t*.22f),
+            Size(t*.40f,t*.08f))
+        // Embedded rune mirrors the boss' saved HP and current warning state.
+        val sigil=Path().apply {
+            moveTo(core.x,core.y+t*.045f)
+            lineTo(core.x+t*.075f,core.y+t*.145f)
+            lineTo(core.x,core.y+t*.235f)
+            lineTo(core.x-t*.075f,core.y+t*.145f)
+            close()
+        }
+        drawPath(sigil,aura.copy(alpha=.67f+.30f*beat))
+        if(heavyNext)drawCircle(Color(0xFFFF927E).copy(alpha=.35f+.28f*beat),
+            t*.58f,core,style=Stroke(t*.075f))
+        if(hit>0f)drawCircle(Color(0xFFFFEAC7).copy(alpha=hit*.65f),
+            t*.42f,core,style=Stroke(t*.10f))
+        drawRoundRect(Color(0xC52F2930),core+Offset(-t*.48f,-t*.77f),
+            Size(t*.96f,t*.13f),CornerRadius(t*.06f))
+        drawRoundRect(if(heavyNext)Color(0xFFFF947E) else Color(0xFFFFD18B),
+            core+Offset(-t*.45f,-t*.74f),
+            Size(t*.90f*(hp/IslandGuardianEncounter.hp.toFloat()).coerceIn(0f,1f),
+                t*.075f),CornerRadius(t*.035f))
     }
 
     private fun DrawScope.drawSlime(
