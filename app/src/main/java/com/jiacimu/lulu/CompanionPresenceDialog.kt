@@ -759,14 +759,17 @@ private fun CharacterVitalsPanel(characterId: String, now: Instant, revision: Lo
             } else {
                 val before = change?.optJSONObject("before")
                 val after = change?.optJSONObject("after")
-                listOf(
-                    Triple("精力", body.energy, "energy"),
-                    Triple("睡眠压力", body.sleepPressure, "sleepPressure"),
-                    Triple("饥饿", body.hunger, "hunger"),
-                    Triple("口渴", body.thirst, "thirst"),
-                    Triple("舒适", body.comfort, "comfort"),
-                    Triple("单调感", body.boredom, "boredom"),
-                ).forEach { (label, value, key) ->
+                val vitals = buildList {
+                    add(Triple("精力", body.energy, "energy"))
+                    add(Triple("睡眠压力", body.sleepPressure, "sleepPressure"))
+                    if (body.tracksFoodAndWater) {
+                        add(Triple("饥饿", body.hunger, "hunger"))
+                        add(Triple("口渴", body.thirst, "thirst"))
+                    }
+                    add(Triple("舒适", body.comfort, "comfort"))
+                    add(Triple("单调感", body.boredom, "boredom"))
+                }
+                vitals.forEach { (label, value, key) ->
                     val old = before?.optDouble(key, Double.NaN) ?: Double.NaN
                     val new = after?.optDouble(key, Double.NaN) ?: Double.NaN
                     val delta = if (old.isFinite() && new.isFinite()) new - old else Double.NaN

@@ -108,8 +108,7 @@ internal object ResidentDailyRoutine {
                 resident.id, plan.location, key, plan.activity, at) ?: continue
             val characterId = ResidentCharacterBridge.characterId(resident.id)
             check(DigitalWorldStore.syncNativeResidentLocation(characterId, canonical.currentLocationCode, at))
-            val before = CharacterLifeStore.bodyState(characterId)
-                ?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(at)
+            val before = EmbodiedBodyRuntime.storedOrFresh(characterId, at)
             var body = EmbodiedBodyPhysics.advance(before, at)
                 .copy(recoveryMode = "", recoveryUntil = null)
             var activity = plan.activity
@@ -130,8 +129,7 @@ internal object ResidentDailyRoutine {
                 val choice = chosenCafeOrder(savedDay, plan.slot)?.let(DigitalCafeMenu::byConsume)
                 if (choice != null) {
                     // Use the very same inventory/receipt executor used by the
-                    // main companion. Ordering is not eating; a failed order
-                    // must never reduce hunger or fabricate a purchase.
+                    // main companion. A failed order never fabricates consumption.
                     val order = runCatching {
                         DigitalWorldActivityStateStore.apply(characterId, null,
                             choice.orderActivity, "向在岗店员点单", at)

@@ -27,6 +27,29 @@ class EmbodiedBodyPhysicsTest {
         assertEquals(later, advance(later, start.plusSeconds(8 * 3600)))
     }
 
+    @Test fun residentBodyDropsLegacyFoodNeedsAndKeepsOtherSensations() {
+        val legacy = EmbodiedBodyPhysics.fresh(start).copy(hunger = 90.0, thirst = 80.0).toJson()
+        val resident = EmbodiedBodyRuntime.storedOrFresh("resident:barista", start, legacy)
+        val later = advance(resident, start.plusSeconds(6 * 3600))
+        val coffee = EmbodiedBodyPhysics.applyWorldActivity(
+            later, "cafe_consume_coffee", later.lastAt, null)
+        val stored = coffee.toJson()
+        assertFalse(stored.has("hunger"))
+        assertFalse(stored.has("thirst"))
+        assertEquals(0.0, coffee.hunger, 0.001)
+        assertEquals(0.0, coffee.thirst, 0.001)
+        assertTrue(coffee.energy < resident.energy)
+        assertTrue(coffee.comfort > later.comfort)
+        assertFalse(EmbodiedBodyPhysics.prompt(coffee).contains("饥饿"))
+        assertFalse(EmbodiedBodyPhysics.prompt(coffee).contains("口渴"))
+        assertEquals(coffee, EmbodiedBodyRuntime.storedOrFresh("resident:barista", coffee.lastAt, stored))
+
+        val companion = EmbodiedBodyRuntime.storedOrFresh("companion", start, legacy)
+        assertEquals(90.0, companion.hunger, 0.001)
+        assertEquals(80.0, companion.thirst, 0.001)
+        assertTrue(EmbodiedBodyPhysics.prompt(companion).contains("饥饿感"))
+    }
+
     @Test fun recoveredHoursEndAtRecordedWorldActivityTimeNotAtNextPrompt() {
         val before = advance(EmbodiedBodyPhysics.fresh(start), start.plusSeconds(8 * 3600))
         val started = EmbodiedBodyPhysics.applyWorldActivity(before, "nap",

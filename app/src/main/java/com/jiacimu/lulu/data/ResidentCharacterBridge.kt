@@ -69,7 +69,7 @@ internal object ResidentCharacterBridge {
                 DigitalLifeProfileStore.registerNewLife(id, resident.name, "数字世界原住民", resident.createdAt)
             }
             if (CharacterLifeStore.bodyState(id) == null) {
-                CharacterLifeStore.saveBodyState(id, EmbodiedBodyPhysics.fresh(now).toJson())
+                CharacterLifeStore.saveBodyState(id, EmbodiedBodyRuntime.storedOrFresh(id, now).toJson())
             }
             // A native citizen owns a persistent, editable home just like any
             // digital character. Seeding does not move them: the authoritative
