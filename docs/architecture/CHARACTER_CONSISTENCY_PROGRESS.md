@@ -1665,3 +1665,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归与范围**：`ConversationExpressionGatewayTest.phoneIntentRecoveryKeepsTheCurrentPersonAndCompleteBoundaries` 通过正式电话入口捕获两个独立人物及编辑后的请求，覆盖正常电话、缺台词恢复、超过旧截断点的原话和意图、实际请求身份/性格/关系归属与隔离负例。正式私聊、后台、群聊、日程、工具执行及回执仍由各入口和原 Store 负责。该测试证明请求与分工契约，手机发声及真实模型对否定、条件与自主取舍的遵循需独立验收。
 - **本轮 CI**：[Lulu APK #42762942772](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942772) pending，[Refresh code index #42762942809](https://github.com/jiacimu-droid/lulu1/actions/runs/42762942809) completed/success。静态对照通过，当前环境无本地 Gradle/Android 测试或设备；实际单测、APK 结果以该源码提交的 Actions 为准。
 - **下一轮固定 P-03.1**：直接打开上述测试，先按 `4a8f7291482506f771b2e0b946d4f558a747c0a0` 查 APK/JVM 和原索引。若红，读取首错并修同一工作包。若绿，核 `LuluDeviceToolBridge.respond` 的电话补写取消与真实交付边界，再做电话/私聊同样已选意图和副动作的对照；真实模型与真机仍待样本。
+
+### 2026-11-10 UI-02.1 接力：长历史跨会话保全
+
+- 正式 Robolectric `ChatHistoryPersistenceBaselineTest` 在 [d9a8675](https://github.com/jiacimu-droid/lulu1/commit/d9a8675f3e0343502a8c05f2cbae672a3bea0dd9) 加入独立第二会话：1k/10k 主会话元数据置顶后，断言另一会话在 SharedPreferences JSON 和重新初始化 Store 中仍保留原文，防止未来增量迁移只保留活跃会话。原测试 `cd170a5` 的索引 [#42757077702](https://github.com/jiacimu-droid/lulu1/actions/runs/42757077702) 成功、APK/JVM [#42757078292](https://github.com/jiacimu-droid/lulu1/actions/runs/42757078292) 失败；后继 APK/JVM [#42761415401](https://github.com/jiacimu-droid/lulu1/actions/runs/42761415401) 成功（head `e3f27fe`），覆盖原测试源码但没有可读取的计时输出。新增断言的 CI 仍待对应 head SHA 验证。
+- 本轮没有生产格式迁移、收费模型调用或删除历史。下一固定 UI-02.1：检查 `d9a8675` 的 `ChatHistoryPersistenceBaselineTest` APK/JVM 首错与 Refresh code index；取得 1k/10k stdout 基线，100k 在大内存环境单独运行，之后才评估 UI-02.2。P-08a.1g.3 真机/模型独立待验。
