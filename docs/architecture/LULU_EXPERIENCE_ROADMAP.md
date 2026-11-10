@@ -291,6 +291,12 @@
 - [ ] **UI-01.2** 有测量证据才定位 Compose 重组、IME、主线程编码与 WebView 生命周期，修根因再前后 A/B。
 - [ ] **UI-01.3** 真机测输入不丢、浏览器暂停后能读、通知与历史不退化。已有草稿/IME/桌面状态隔离等修复不重做。
 
+### 2026-11-10 UI-02.2 权威消息时间防猜测（本轮待 CI）
+
+- 测试 [d67228d](https://github.com/jiacimu-droid/lulu1/commit/d67228d4ac67928123e0814ea2c874db1672dfc4) 在正式 `ChatHistoryLegacyCompatibilityTest.malformedMessageTimestampMustNotBeRewrittenAsCurrentTime` 用合法双层 `state_v1` 结构、无效 `createdAt` 复现宽容解码器可能用当前时间覆盖原证据；覆盖元数据写入与重建后的再次写入。
+- 正式修复 [3a01b80](https://github.com/jiacimu-droid/lulu1/commit/3a01b8070d0f699395f6fb291cde3fb10f011814)：仅权威消息解码入口校验 `Instant.parse(createdAt)` 成功，拒绝无效时间后沿已有不可覆盖状态保留原始 `state_v1`；不更改非权威导入、角色、居民额度和模型调用。
+- **未验**：本 SHA 的 main push APK/JVM、Refresh code index、真机/强杀、增量事务迁移；本项保持 [ ]。下一轮固定 UI-02.2：核 `3a01b80` Actions 首错，成功后调查会话 `updatedAt` 无效时间和写入失败回退，不重复写同类测试。
+
 ### 2026-11-10 UI-02.2 字段级权威身份防覆盖（工程 CI 待验）
 
 - [a191bd3](https://github.com/jiacimu-droid/lulu1/commit/a191bd372cbd9edd631fd7309ec04397a248a5b6) 新增正式 Robolectric `ChatHistoryLegacyCompatibilityTest.missingMessageIdentityMustNotBeRewrittenAsInventedHistory`：旧消息缺原始 ID 时，置顶/重启不得把自动 UUID 写回唯一原文。
