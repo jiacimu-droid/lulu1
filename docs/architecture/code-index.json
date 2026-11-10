@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T05:19:45.882154+00:00",
-  "commit": "e3f27fe306186b180d83c779ef15a2919e023ab6",
+  "generatedAt": "2026-11-10T05:34:26.460966+00:00",
+  "commit": "4a8f7291482506f771b2e0b946d4f558a747c0a0",
   "branch": "main",
-  "sourceFingerprint": "b08cc05edb0a6462defb96b4646c176a7550c9b4a38d169e2c02f9b72d0289f3",
+  "sourceFingerprint": "3d43a02d66153d6dab9917a252974bcac702c4c54d5275f3ec5cb6165f68c66c",
   "summary": {
     "files": 1166,
-    "lines": 251263,
-    "symbols": 3420
+    "lines": 251367,
+    "symbols": 3423
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -322,6 +322,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
         "line": 227
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 616
       }
     ],
     "update": [
@@ -809,7 +813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1485
+        "line": 1487
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1096,6 +1100,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
         "line": 233
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 596
       }
     ],
     "prepareVoiceNote": [
@@ -4997,31 +5005,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 694
+        "line": 696
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 700
+        "line": 702
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1240
+        "line": 1242
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1252
+        "line": 1254
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1475
+        "line": 1477
       }
     ],
     "configured": [
@@ -5869,7 +5877,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 51
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -6549,19 +6557,19 @@
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 45
+        "line": 47
       }
     ],
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 63
+        "line": 65
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 78
+        "line": 85
       }
     ],
     "relationships": [
@@ -17336,6 +17344,12 @@
         "line": 418
       }
     ],
+    "requestBody": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 615
+      }
+    ],
     "ConversationGroundingEngineTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
@@ -23421,8 +23435,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1493,
-      "sha256": "b51c2cc1c0c2171325a4c684db36d0a2b72f550facba9aacbeeef0788424e104",
+      "lines": 1495,
+      "sha256": "9a56a859f3a4e8144282df16c4a61a631c0dbeb3d9cc6b903cda0785c54951eb",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23514,27 +23528,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 694
+          "line": 696
         },
         {
           "name": "positionedBooks",
-          "line": 700
+          "line": 702
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1240
+          "line": 1242
         },
         {
           "name": "consumeEvent",
-          "line": 1252
+          "line": 1254
         },
         {
           "name": "LuluAiServices",
-          "line": 1475
+          "line": 1477
         },
         {
           "name": "initialize",
-          "line": 1485
+          "line": 1487
         }
       ]
     },
@@ -24873,24 +24887,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 97,
-      "sha256": "a51f235e969da7baebc8117aa271cbc45f2d9055707ed7e70efbe8b256f9985d",
+      "lines": 104,
+      "sha256": "9345385a7f899e937ac008c452f8bcb91bf9ba0f2a0f432c5345db67b8326432",
       "symbols": [
         {
           "name": "isExpressionOnly",
-          "line": 45
+          "line": 47
         },
         {
           "name": "promptSection",
-          "line": 51
+          "line": 53
         },
         {
           "name": "forGeneration",
-          "line": 63
+          "line": 65
         },
         {
           "name": "channelNote",
-          "line": 78
+          "line": 85
         }
       ]
     },
@@ -34971,8 +34985,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2202,
-      "sha256": "17be01bcf26010165f5a428586b04ac4187fdca400d1a4261b8616a3b42571fc",
+      "lines": 2207,
+      "sha256": "2e49fc06258d4760f7f46a4eb7bfc88a5f2e41a48949a9be99ebc0e623773658",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -38024,8 +38038,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 684,
-      "sha256": "2e9b9381e1f85ef5b11d1f1628163fbbf97bb1130d468f560da03647e9c02087",
+      "lines": 774,
+      "sha256": "693da955d0c371df3d73979f4deefbbeb580f6379b50ceabf4a5b0258b07b2eb",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -38054,6 +38068,18 @@
         {
           "name": "response",
           "line": 548
+        },
+        {
+          "name": "enqueue",
+          "line": 596
+        },
+        {
+          "name": "requestBody",
+          "line": 615
+        },
+        {
+          "name": "prompt",
+          "line": 616
         }
       ]
     },
