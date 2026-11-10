@@ -79,7 +79,7 @@
 
 **交接记录**：每个专项只更新所领 ID 的小节，总接力维护执行入口表。一次回合交付写「负责人/ID、改动或已核查内容、提交 SHA、CI run 与结果、外部待验、下一文件或测试」。候选若已验通，更新验收边界后转下项；CI 仍在跑就记录待验并避开同一条写链，无需反复提交只改状态的文档。
 
-**2026-11-11 G-02.2 施工拆除 HUD 真实计数修复（待 CI/真机）**：发现未建完即选择拆除时，旧 `progress()` 按 `9-placed.size` 显示“已拆除”，把从未施工的空格误算为成果；修正为角色选择拆除时记录 `demolitionStartCount`，拆除进度只计算该次计划中实际拆掉的建筑格，正式 HUD 数字与进度条使用同一基数。旧档无字段默认 9 保持可读，原有施工/拆除权威状态和木材规则不变。源码 `e933102`、UI `6a3b109`、回归 `20ee167`；**Kotlin/JVM、APK Actions、真机尚未确认通过**。下轮直接查 `IslandHouseProjectsTest.progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction` 与对应 push CI；再补已拆除一格、重入后计数的回归，若已有覆盖转 G-03.5 箱盖与开箱回执同步。
+**2026-11-11 G-02.2 施工拆除 HUD 真实计数修复（待 CI/真机）**：发现未建完即选择拆除时，旧 `progress()` 按 `9-placed.size` 显示“已拆除”，把从未施工的空格误算为成果；修正为角色选择拆除时记录 `demolitionStartCount`，拆除进度只计算该次计划中实际拆掉的建筑格，正式 HUD 数字与进度条使用同一基数。旧档无字段默认 9 保持可读，原有施工/拆除权威状态和木材规则不变。源码 `e933102`、UI `6a3b109`、回归 `20ee167`；**Kotlin/JVM、APK Actions、真机尚未确认通过**。下轮直接查 `IslandHouseProjectsTest.progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction` 与对应 push CI；再补已拆除一格、重入后计数的回归，若已有覆盖转 G-03.5 箱盖与开箱回执同步。 **2026-11-11 G-02.2 同 ID 续接**：`d94d6dc` 新增 `IslandHouseProjectsTest.actualFirstDemolitionStepUpdatesHudAndSurvivesReloadWithoutDoubleRefund`，从真实已建完房屋选择拆除，走到首次实际拆格，检查 HUD 进度 0→1、仅回收 1 木、存档重读计数一致及同回合重放不重复退款。只新增 JVM 回归，尚无本 SHA 的 Kotlin/JVM/APK 成功或真机证据；下一轮先核该测试 CI，随后检查手机 HUD 与触控。
 
 ### 2026-11-09 G-02 玩家实测 UI / 玩法入口改造（源码提交，CI/真机未验）
 
