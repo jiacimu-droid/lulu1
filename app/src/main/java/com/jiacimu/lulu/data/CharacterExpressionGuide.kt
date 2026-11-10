@@ -6,6 +6,8 @@ internal enum class CharacterSpeechChannel {
 }
 
 internal object CharacterExpressionGuide {
+    const val PHONE_INTENT_RENDERING = "电话已决定意图·补一句可听的台词"
+
     val personalityOrigin: String = """
         【以本人为表达的起点】
         先从本人的稳定性格、价值、兴趣和与眼前这个人的真实关系，理解刚刚发生的事：自己注意到了哪里、怎样看待、此刻在意什么。让这个人的判断一路延续到选择行动和说出口的话，性格同时影响关注点、立场、主动性、措辞与节奏。
@@ -60,12 +62,17 @@ internal object CharacterExpressionGuide {
     """.trimIndent()
 
     /** The caller may already provide the same static turn-taking module in its scene contract. */
-    fun forGeneration(source: String, includeTurnTaking: Boolean = true): String = if (isExpressionOnly(source))
-        (listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
-            factualBoundary, rendererInstruction) +
-            listOfNotNull(casualChatRhythm.takeIf { includeTurnTaking }))
-            .joinToString("\n\n")
-    else promptSection()
+    fun forGeneration(source: String, includeTurnTaking: Boolean = true): String = when {
+        source == PHONE_INTENT_RENDERING -> listOf(
+            renderingOrigin, factualBoundary, channelNote(CharacterSpeechChannel.PHONE),
+        ).joinToString("\n\n")
+        isExpressionOnly(source) ->
+            (listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
+                factualBoundary, rendererInstruction) +
+                listOfNotNull(casualChatRhythm.takeIf { includeTurnTaking }))
+                .joinToString("\n\n")
+        else -> promptSection()
+    }
 
     val rendererInstruction: String = """
         【本人已经作出选择，现在对她说话】

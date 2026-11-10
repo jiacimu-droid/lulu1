@@ -868,9 +868,14 @@ object LuluDeviceToolBridge {
             plan.speechIntent.isNotBlank()) {
             val speech = LuluAiServices.gateway.generate(
                 characterId = characterId,
-                facts = "这是刚刚确定的本人电话表达意图：${plan.speechIntent.take(600)}。用户刚说：${userText.take(700)}。",
-                instruction = "只返回简短自然口语，禁止 JSON 或状态字段；不需要重复解释或报备工具。",
-                source = "电话已决定意图·补一句可听的台词",
+                facts = """
+                    【本人已选定的电话表达意图】
+                    ${plan.speechIntent}
+                    【用户本轮原话】
+                    $userText
+                """.trimIndent(),
+                instruction = "只把已定意图组织成自然口语，保留完整的条件、否定与不确定性。只输出台词，不输出 JSON、状态或新的行动决定。",
+                source = com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING,
                 title = title,
                 maxTokens = 300,
                 connectionOverride = connection,

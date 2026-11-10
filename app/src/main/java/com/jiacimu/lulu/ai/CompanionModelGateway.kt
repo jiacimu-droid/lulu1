@@ -563,6 +563,8 @@ class CompanionModelGateway(
             if (dialogueRequest) require(conversation.last().role == ModelConversationMessage.Role.USER) {
                 "聊天必须从当前用户消息接话"
             }
+            val rendersChosenIntent = expressionOnly ||
+                source == com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING
             val leanExpression = expressionOnly &&
                 !budget.precise && !budget.worldDetails
             // Native-world citizens never inherit the protagonist's broad
@@ -637,7 +639,7 @@ class CompanionModelGateway(
                     }
                 }
                 if (effectiveMode != CompanionContextMode.Isolated) {
-                    if (!expressionOnly && (effectiveMode == CompanionContextMode.Full ||
+                    if (!rendersChosenIntent && (effectiveMode == CompanionContextMode.Full ||
                         effectiveMode == CompanionContextMode.CharacterAndScenario) &&
                         !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples) &&
                         !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)) {

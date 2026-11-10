@@ -574,6 +574,96 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun phoneIntentRecoveryKeepsTheCurrentPersonAndCompleteBoundaries() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡电话样本", "江渡性格样本：先问清事实")
+        val xing = MigratedDomainStores.characters.create("星禾电话样本", "星禾性格样本：直率又独立")
+        CharacterIdentityStore.set(jiang.characterId, "江渡身份样本：独立插画师")
+        CharacterIdentityStore.set(xing.characterId, "星禾身份样本：社区园艺师")
+        val oldAgreement = "江渡旧约定：午后可以来电"
+        val newAgreement = "江渡新约定：除非本人确认，否则不要再拨"
+        val xingAgreement = "星禾约定：只在答应以后发文字"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(jiang.characterId, "user", "江渡约定", oldAgreement))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(xing.characterId, "user", "星禾约定", xingAgreement))
+
+        val intent = "先按实际发生的事解释。".repeat(70) + "如果还没有明确同意，就不承诺再次来电。"
+        val currentInput = "这次我想先把之前发生的经过都说明白。".repeat(50) + "但我没有授权你再次来电。"
+        val server = MockWebServer()
+        fun enqueue(content: String) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", content))
+                    .put("finish_reason", "stop"))).toString()))
+        }
+        enqueue("""{"action":"reply","text":"我听到了。"}""")
+        enqueue("""{"action":"reply","text":"嗯，我记得。"}""")
+        enqueue(JSONObject().put("action", "reply").put("speechIntent", intent).toString())
+        enqueue("好，我不会再打。")
+        enqueue("独立任务")
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            suspend fun call(roleId: String, input: String) =
+                LuluDeviceToolBridge.respond(roleId, "", input, "test", archiveId = archive.id,
+                    sceneContext = "正在电话中", phoneCallId = "phone-persona-contract-$roleId").getOrThrow()
+            fun requestBody(): String = checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8()
+            fun prompt(body: String) = JSONObject(body).getJSONArray("messages").getJSONObject(0).getString("content")
+
+            assertEquals("我听到了。", call(jiang.characterId, "我说完了").text)
+            val jiangPrompt = prompt(requestBody())
+            assertTrue(jiangPrompt.contains("江渡性格样本"))
+            assertTrue(jiangPrompt.contains("江渡身份样本"))
+            assertFalse(jiangPrompt.contains("星禾身份样本"))
+            assertTrue(jiangPrompt.contains(oldAgreement))
+            assertFalse(jiangPrompt.contains(xingAgreement))
+
+            assertEquals("嗯，我记得。", call(xing.characterId, "我说完了").text)
+            val xingPrompt = prompt(requestBody())
+            assertTrue(xingPrompt.contains("星禾性格样本"))
+            assertTrue(xingPrompt.contains("星禾身份样本"))
+            assertFalse(xingPrompt.contains("江渡身份样本"))
+            assertTrue(xingPrompt.contains(xingAgreement))
+            assertFalse(xingPrompt.contains("江渡性格样本"))
+            assertFalse(xingPrompt.contains(oldAgreement))
+
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(jiang.characterId, "user", "江渡约定", newAgreement))
+            assertEquals("好，我不会再打。", call(jiang.characterId, currentInput).text)
+            val decision = prompt(requestBody())
+            val rendering = JSONObject(requestBody()).getJSONArray("messages")
+            val renderingSystem = rendering.getJSONObject(0).getString("content")
+            val renderingFacts = rendering.getJSONObject(rendering.length() - 1).getString("content")
+            for (system in listOf(decision, renderingSystem)) {
+                assertTrue(system.contains("江渡性格样本"))
+                assertTrue(system.contains("江渡身份样本"))
+                assertFalse(system.contains("星禾身份样本"))
+                assertTrue(system.contains(newAgreement))
+                assertFalse(system.contains(oldAgreement))
+                assertFalse(system.contains(xingAgreement))
+            }
+            assertTrue(renderingFacts.contains(intent))
+            assertTrue(renderingFacts.contains(currentInput))
+            assertFalse(renderingSystem.contains("【统一角色决策协议】"))
+            assertFalse(renderingSystem.contains("JSON 中每个 bubbles 元素"))
+            assertTrue(renderingSystem.contains("理解和行动取舍以本轮决策交接为准"))
+
+            LuluAiServices.gateway.generate(jiang.characterId, "独立素材", "只处理素材",
+                "独立工具任务", "test", contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test")).getOrThrow()
+            val isolated = prompt(requestBody())
+            assertFalse(isolated.contains(newAgreement))
+            assertFalse(isolated.contains("江渡性格样本"))
+            assertFalse(isolated.contains("江渡身份样本"))
+            assertFalse(isolated.contains(xingAgreement))
+            assertEquals(5, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
