@@ -39,6 +39,44 @@ class BlockIslandRulesTest {
         assertEquals(completed.world.stone+2,awarded.world.stone)
         assertEquals(awarded,IslandChallengeBoard.awardCompleted(awarded))
     }
+    @Test fun expeditionTrailRequiresPhysicalMovementAndKeepsPermanentRewards() {
+        val base=BlockIslandRules.newWorld(913,emptyList())
+        val cape=IslandExpeditionTrail.landmarks[0]
+        val grove=IslandExpeditionTrail.landmarks[1]
+        assertEquals(21 to 5,cape.x to cape.y)
+        assertEquals(21 to 18,grove.x to grove.y)
+        val ready=base.copy(animals=emptyList(),
+            world=base.world.copy(x=19,y=5,mobs=emptyList(),wood=5,stone=6))
+        assertEquals(2,IslandExpeditionTrail.distance(ready,cape))
+        assertFalse(IslandChallengeBoard.challenges.first { it.id==cape.id }.completed(ready))
+        // A rejected no-op must never mint a location reward.
+        val noOp=BlockIslandRules.act(ready,"move",19,5)
+        assertEquals(ready.awardedChallenges,noOp.awardedChallenges)
+        assertEquals(ready.world.turns,noOp.world.turns)
+        val visitedCape=BlockIslandRules.act(ready,"move",20,5)
+        assertEquals(ready.world.turns+1,visitedCape.world.turns)
+        assertEquals(0,IslandExpeditionTrail.distance(visitedCape,cape)-1)
+        assertTrue(cape.id in visitedCape.awardedChallenges)
+        assertEquals(ready.world.wood+cape.wood,visitedCape.world.wood)
+        assertEquals(ready.world.stone+cape.stone,visitedCape.world.stone)
+        assertEquals(ready.fruit+cape.fruit,visitedCape.fruit)
+        val restored=BlockIslandState.fromJson(visitedCape.toJson())!!
+        assertEquals(visitedCape.awardedChallenges,restored.awardedChallenges)
+        assertEquals(visitedCape,IslandChallengeBoard.awardCompleted(restored))
+        val repeated=BlockIslandRules.act(restored,"move",19,5)
+        assertEquals(visitedCape.world.wood,repeated.world.wood)
+        assertEquals(visitedCape.fruit,repeated.fruit)
+        assertEquals(grove.id,IslandExpeditionTrail.next(repeated)?.id)
+        // The southern path is physically passable; entering its approach zone
+        // awards a separate chapter once, not every time we save or reload.
+        val southern=repeated.copy(world=repeated.world.copy(x=19,y=18))
+        val arrived=BlockIslandRules.act(southern,"move",20,18)
+        assertTrue(grove.id in arrived.awardedChallenges)
+        assertEquals(2,IslandExpeditionTrail.completedCount(arrived))
+        assertEquals(null,IslandExpeditionTrail.next(arrived))
+        assertEquals(arrived,IslandChallengeBoard.awardCompleted(arrived))
+    }
+
     @Test fun explorationMilestonesReadPhysicalSaveInsteadOfResettingAfterThreeNights() {
         val base=BlockIslandRules.newWorld(311,emptyList())
         val table=base.world.index(5,5)
@@ -52,8 +90,11 @@ class BlockIslandRulesTest {
             structures=mapOf(table to "workbench",fire to "campfire"),
             tools=setOf("sword"),nightsSurvived=3,defeatedMonsters=1,
         )
-        assertTrue(IslandMilestones.next(settled).contains("探险 1/3"))
-        val caches=settled.copy(openedSupplies=settled.supplyCaches.toSet())
+        assertTrue(IslandMilestones.next(settled).contains("远航 1/2"))
+        val explored=settled.copy(
+            awardedChallenges=IslandExpeditionTrail.landmarks.map { it.id }.toSet())
+        assertTrue(IslandMilestones.next(explored).contains("探险 1/3"))
+        val caches=explored.copy(openedSupplies=explored.supplyCaches.toSet())
         assertTrue(IslandMilestones.next(caches).contains("探险 2/3"))
         val crafted=caches.copy(tools=setOf("axe","pickaxe","sword","rod"))
         assertTrue(IslandMilestones.next(crafted).contains("探险 3/3"))
