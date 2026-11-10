@@ -61,7 +61,7 @@ internal fun GameSceneDeck(
     var drawer by remember { mutableStateOf(false) }
     LaunchedEffect(closeToolsSignal) { drawer = false }
     LaunchedEffect(openToolsSignal) { if (openToolsSignal != null) drawer = true }
-    var teamExpanded by remember { mutableStateOf(true) }
+    var teamExpanded by remember { mutableStateOf(false) }
     BackHandler(enabled = drawer) { drawer = false }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
@@ -95,11 +95,23 @@ internal fun GameSceneDeck(
             Surface(
                 modifier = Modifier.widthIn(
                     max = hudStatusWidth),
-                color = Color(0xD9132932), shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, accent.copy(alpha = .30f)),
+                color = Color(0xE0162935), shape = RoundedCornerShape(17.dp),
+                border = BorderStroke(1.dp, accent.copy(alpha = .62f)),
+                shadowElevation = 5.dp,
             ) {
-                Text(status, color = Color.White, fontSize = 12.sp, maxLines = 2,
-                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 7.dp))
+                Row(Modifier.padding(horizontal=12.dp,vertical=9.dp),
+                    verticalAlignment=Alignment.CenterVertically,
+                    horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    Surface(modifier=Modifier.size(31.dp),shape=CircleShape,
+                        color=accent.copy(alpha=.22f),
+                        border=BorderStroke(1.dp,accent.copy(alpha=.66f))) {
+                        Box(contentAlignment=Alignment.Center) {
+                            Text("✦",color=accent,fontSize=17.sp,fontWeight=FontWeight.Bold)
+                        }
+                    }
+                    Text(status,color=Color.White,fontSize=12.sp,
+                        fontWeight=FontWeight.SemiBold,maxLines=2,lineHeight=17.sp)
+                }
             }
             if (notice.isNotBlank()) {
                 Surface(
@@ -123,7 +135,7 @@ internal fun GameSceneDeck(
                     ) {
                         Row(Modifier.fillMaxWidth().height(32.dp).padding(start = 10.dp, end = 3.dp),
                             verticalAlignment = Alignment.CenterVertically) {
-                            Text("同行伙伴", modifier = Modifier.weight(1f), color = Color.White,
+                            Text("♡ 队伍与语音", modifier = Modifier.weight(1f), color = Color.White,
                                 fontWeight = FontWeight.Bold, fontSize = 11.sp)
                             TextButton(onClick = { teamExpanded = !teamExpanded },
                                 contentPadding = PaddingValues(horizontal = 6.dp)) {
@@ -243,7 +255,7 @@ internal fun GameDirectionalPad(
     var centerPressed by remember { mutableStateOf(false) }
     val repeatMs = holdRepeatMs.coerceAtLeast(135L)
     Box(
-        modifier = Modifier.size(138.dp)
+        modifier = Modifier.size(144.dp)
             .pointerInput(enabled, repeatMs, stopWhen) {
                 if (!enabled) return@pointerInput
                 // Launch the held-repeat coroutine outside the restricted
@@ -305,6 +317,12 @@ internal fun GameDirectionalPad(
             },
         contentAlignment = Alignment.Center,
     ) {
+        // A single circular joystick shell makes this read as a game control, while
+        // preserving four independent accessibility semantics and hold-to-walk input.
+        Surface(modifier=Modifier.matchParentSize(),shape=CircleShape,
+            color=Color(0xB5162D37),
+            border=BorderStroke(2.dp,accent.copy(alpha=.52f)),
+            shadowElevation=4.dp) {}
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             GameDirectionCell("↑", "向上移动", accent, enabled,
                 activeDirection == (0 to -1)) { latestStep(0, -1) }
@@ -356,9 +374,9 @@ private fun GameDirectionCell(
             contentDescription = description
             if (enabled) onClick { currentActivate(); true } else disabled()
         },
-        shape = RoundedCornerShape(13.dp),
+        shape = CircleShape,
         color = if (!enabled) Color(0x88101E26)
-            else if (active) accent.copy(alpha = .52f) else Color(0xD51C3540),
+            else if (active) accent.copy(alpha = .62f) else Color(0xE0223944),
         border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) .7f else .18f)),
         shadowElevation = if (active) 1.dp else 3.dp,
     ) {
@@ -389,14 +407,18 @@ internal fun GameHudQuickAction(
 ) {
     Surface(
         onClick = onClick, enabled = enabled,
-        modifier = modifier.height(46.dp),
-        color = if (enabled) Color(0xE21F3741) else Color(0xA516252C),
-        shape = RoundedCornerShape(11.dp),
-        border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) .64f else .16f)),
+        modifier = modifier.height(52.dp),
+        color = Color.Transparent,
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.5.dp,accent.copy(alpha=if(enabled).72f else .18f)),
+        shadowElevation = if(enabled)3.dp else 0.dp,
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(label, color = if (enabled) Color.White else Color(0xFF7D9298),
-                fontWeight = FontWeight.SemiBold, fontSize = 12.sp, maxLines = 1)
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
+            if(enabled)listOf(Color(0xF0425359),Color(0xF01A303B))
+            else listOf(Color(0xBB24313A),Color(0xBB192832)))),
+            contentAlignment=Alignment.Center) {
+            Text(label,color=if(enabled)Color.White else Color(0xFF7D9298),
+                fontWeight=FontWeight.Bold,fontSize=13.sp,maxLines=1)
         }
     }
 }
