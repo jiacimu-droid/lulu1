@@ -1,5 +1,11 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-10 UI-02.2 权威聊天身份字段严格保护
+
+- 测试 [a191bd3](https://github.com/jiacimu-droid/lulu1/commit/a191bd372cbd9edd631fd7309ec04397a248a5b6)：旧 state_v1 消息缺 ID 时，正式 ChatStore 元数据修改和重启不能静默把随机新 ID 写回原始快照。
+- 正式源码 [449fd8d](https://github.com/jiacimu-droid/lulu1/commit/449fd8d583eadac319cf5b1b5e762ac69222fac5)：权威 decode 要求原始会话/消息 ID、正确所属会话、有效 sender/status，避免宽容字段默认值将来源身份/送达状态伪造为新事实。无格式迁移，未修改其他宽容导入。
+- CI：当前连接器的 commit workflow 查询仅返回 PR runs，对 main push 返回空列表；本轮未获取 `449fd8d` APK/JVM 或 Refresh code index 的 head SHA 成功证据，不标通过。下一轮直接打开 `ChatHistoryLegacyCompatibilityTest.kt` 和 `MigratedDomainStores.kt` 的 decode，先核 Actions 首错，再做时间/结构字段和写入失败回退。真机、100k、强杀仍待验。
+
 ## 2026-11-10 UI-02.2 局部损坏旧聊天快照保护
 
 - 前轮完整损坏快照修复 `6e5bd7d` 的 [APK/JVM #42809824951](https://github.com/jiacimu-droid/lulu1/actions/runs/42809824951) 与 [索引 #42809825080](https://github.com/jiacimu-droid/lulu1/actions/runs/42809825080) completed/success，build job `129808829371` success。
