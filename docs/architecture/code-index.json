@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T08:10:43.964122+00:00",
-  "commit": "eb49cbf12b81a01f58c4fe61d46219a249361bf8",
+  "generatedAt": "2026-11-10T08:12:14.857240+00:00",
+  "commit": "4f70904f3443d5ea1450e7ca7454841e8f1b8a2c",
   "branch": "main",
-  "sourceFingerprint": "8806fa71f3c89d6f8f1c14390c5146f8851ef65fc23f48217428473ae1a1f10b",
+  "sourceFingerprint": "6eeaa1dd80d329dd4dd8a721f207dad8e1f5d769086116eb6b602cf1c7590bdf",
   "summary": {
     "files": 1169,
-    "lines": 252502,
+    "lines": 252524,
     "symbols": 3440
   },
   "symbolIndex": {
@@ -32653,8 +32653,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 275,
-      "sha256": "32cc67a1fce4312afd573d9a9c0db282fc95519445481e2d4d68983146560884",
+      "lines": 297,
+      "sha256": "e5362ef01af1f24d41ef832ff9efaf7ca291dfd40226f3d02abd43997f102c80",
       "symbols": []
     },
     {
