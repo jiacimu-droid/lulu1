@@ -2,6 +2,7 @@ package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.jiacimu.lulu.R
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -159,17 +163,25 @@ internal fun GameLobbyStage(
 internal fun GameLobbyBackdrop(island:Boolean, modifier:Modifier=Modifier) {
     Box(modifier) {
         if(island) {
-            GameLobbyStage(island=true,eyebrow="",title="",subtitle="",
-                modifier=Modifier.matchParentSize(),fullBleed=true,showTitle=false)
+            // The scene is a real, bundled export of an editable layered Figma
+            // illustration. Actual players, quests and controls remain native
+            // Compose overlays with live saved state — not baked into the PNG.
+            Image(painter=painterResource(R.drawable.game_island_lobby_art),
+                contentDescription=null,modifier=Modifier.matchParentSize(),
+                contentScale=ContentScale.Crop)
         } else {
-            // Use the already bundled full-resolution illustrated temple artwork.
-            // A flat procedural banner here would regress the previous camp art.
+            // Preserve the high-resolution authored relic camp already bundled
+            // with the project instead of regressing to debug Canvas scenery.
             RelicCampBackdrop()
         }
-        Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
-            listOf(Color(0xA00C1F29),Color(0x3310242B),Color(0xA60C1721)))))
-        Box(Modifier.matchParentSize().background(Brush.verticalGradient(
-            listOf(Color(0xA60B1C25),Color(0x0A122731),Color(0xE80B1D24)))))
+        val horizontal=if(island)
+            listOf(Color(0x85102732),Color(0x1710242B),Color(0x92102230))
+        else listOf(Color(0xA00C1F29),Color(0x3310242B),Color(0xA60C1721))
+        val vertical=if(island)
+            listOf(Color(0x8A0B1C25),Color(0x02122731),Color(0xC30B1D24))
+        else listOf(Color(0xA60B1C25),Color(0x0A122731),Color(0xE80B1D24))
+        Box(Modifier.matchParentSize().background(Brush.horizontalGradient(horizontal)))
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(vertical)))
     }
 }
 
