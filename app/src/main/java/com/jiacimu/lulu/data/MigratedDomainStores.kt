@@ -854,6 +854,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                         require(item.optString("status") in LuluChatMessage.Status.entries.map { it.name }) {
                             "消息状态无效"
                         }
+                        // The permissive decoder substitutes now() for an invalid time.
+                        // Never turn that guess into authoritative persisted history.
+                        require(runCatching { Instant.parse(item.getString("createdAt")) }.isSuccess) {
+                            "消息原始时间无效"
+                        }
                         decodeMessage(item)
                     })
                 }
