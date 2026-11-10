@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:04:37.261228+00:00",
-  "commit": "7e6c563c28f6c716e91573fcc935ec6753374aad",
+  "generatedAt": "2026-11-10T16:18:58.083088+00:00",
+  "commit": "25999ee707ed2d6fd1f9caedb07596ec23102d79",
   "branch": "main",
-  "sourceFingerprint": "92fda929474ad8e2ca7aa8fede4da86f2d11222673d2e16e4bfd63b9ce59bd8b",
+  "sourceFingerprint": "797a4a10e7c98db5c69babc4a1b353543bc327bb483f44bf4a47231df9abb9fb",
   "summary": {
     "files": 1172,
-    "lines": 253490,
-    "symbols": 3453
+    "lines": 253516,
+    "symbols": 3456
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -325,7 +325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 79
+        "line": 105
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -14512,16 +14512,34 @@
         "line": 10
       }
     ],
+    "visibleChest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 32
+      }
+    ],
+    "visibleExit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 41
+      }
+    ],
+    "optionLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 47
+      }
+    ],
     "knownRouteTiles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 36
+        "line": 62
       }
     ],
     "knownRouteSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 77
+        "line": 103
       }
     ],
     "kind": [
@@ -34163,24 +34181,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 94,
-      "sha256": "36c19b7cd75330df50845db8ca9ea64d9ba18fc71a8040738104485095adb77f",
+      "lines": 120,
+      "sha256": "7289c85d0c7b1a9a076607047472f7e89df320eef62811fc9586831125292ad1",
       "symbols": [
         {
           "name": "nextVisible",
           "line": 10
         },
         {
+          "name": "visibleChest",
+          "line": 32
+        },
+        {
+          "name": "visibleExit",
+          "line": 41
+        },
+        {
+          "name": "optionLabel",
+          "line": 47
+        },
+        {
           "name": "knownRouteTiles",
-          "line": 36
+          "line": 62
         },
         {
           "name": "knownRouteSteps",
-          "line": 77
+          "line": 103
         },
         {
           "name": "prompt",
-          "line": 79
+          "line": 105
         }
       ]
     },
