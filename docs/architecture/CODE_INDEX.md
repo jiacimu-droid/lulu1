@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`951b52ad09b969338da0d235bf9b0977ca428c4f`
+- 基准提交：`1497789385755e7e96a498936c5b701439732900`
 - 分支：`main`
 - 已索引文件：1165
-- 已索引代码/文本行：250971
+- 已索引代码/文本行：251019
 - 已发现符号：3419
 
 | 文件 | 行数 | 符号数 |
@@ -644,7 +644,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 897 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 227 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 213 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 768 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1060 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
@@ -660,7 +660,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 149 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 211 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 403 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |

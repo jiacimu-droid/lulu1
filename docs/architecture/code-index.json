@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T04:27:41.776255+00:00",
-  "commit": "951b52ad09b969338da0d235bf9b0977ca428c4f",
+  "generatedAt": "2026-11-10T04:31:48.795139+00:00",
+  "commit": "1497789385755e7e96a498936c5b701439732900",
   "branch": "main",
-  "sourceFingerprint": "bef35d67fc413a5fe251b14ce4059178ce2c76e4c4232c851d18e53b503d94b8",
+  "sourceFingerprint": "1b7f29d2507190ac4e65bf7c83152747de037a483c2d97d26b7f2732790dbac5",
   "summary": {
     "files": 1165,
-    "lines": 250971,
+    "lines": 251019,
     "symbols": 3419
   },
   "symbolIndex": {
@@ -32543,8 +32543,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 227,
-      "sha256": "c423dbc935fb009c47de00b6ea99567d83a60e009d7e356bd43ad37dcb1b43ac",
+      "lines": 213,
+      "sha256": "f57ce742e7d5b535a3bd08eb819d5c920bb4ff247ec102d42bf848e151301728",
       "symbols": []
     },
     {
@@ -32930,8 +32930,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt",
-      "lines": 149,
-      "sha256": "2e855c37f0d80b1f34586763a214ffa3c0cb6b091a1dac61a73cc72c7c307518",
+      "lines": 211,
+      "sha256": "c7ba963b0935ad98db93362bda999427a4ee6dcf10564dad29f88ce68f6c5e80",
       "symbols": []
     },
     {
@@ -33761,7 +33761,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
       "lines": 368,
-      "sha256": "2beb13cc7763a03324632b819a306684dfe148bb9da55b83dcedac26e6b1cdb0",
+      "sha256": "a248ada6c644c32d373ac72b99e4199ceccdaba1139b24de64f175c8b6907afb",
       "symbols": []
     },
     {
