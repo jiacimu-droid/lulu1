@@ -33,8 +33,10 @@ internal fun GameLobbyStage(
     title: String,
     subtitle: String,
     modifier: Modifier = Modifier,
+    fullBleed: Boolean = false,
+    showTitle: Boolean = true,
 ) {
-    Box(modifier.clip(RoundedCornerShape(22.dp))) {
+    Box(if(fullBleed) modifier else modifier.clip(RoundedCornerShape(22.dp))) {
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
@@ -138,14 +140,30 @@ internal fun GameLobbyStage(
             .47f to Color(0x200A1722),
             1f to Color(0xF2081A21),
         )))
-        Column(Modifier.align(Alignment.BottomStart).padding(horizontal=17.dp,vertical=15.dp),
-            verticalArrangement=Arrangement.spacedBy(4.dp)) {
-            Text(eyebrow,color=if(island)Color(0xFFBCECB3) else Color(0xFFFFD7A0),
-                fontSize=10.sp,fontWeight=FontWeight.Bold,letterSpacing=1.7.sp)
-            Text(title,color=Color.White,fontWeight=FontWeight.Black,fontSize=21.sp,
-                lineHeight=25.sp,maxLines=2)
-            Text(subtitle,color=Color(0xFFD5E6E5),fontSize=11.sp,lineHeight=15.sp,maxLines=2)
+        if(showTitle) {
+            Column(Modifier.align(Alignment.BottomStart).padding(horizontal=17.dp,vertical=15.dp),
+                verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                Text(eyebrow,color=if(island)Color(0xFFBCECB3) else Color(0xFFFFD7A0),
+                    fontSize=10.sp,fontWeight=FontWeight.Bold,letterSpacing=1.7.sp)
+                Text(title,color=Color.White,fontWeight=FontWeight.Black,fontSize=21.sp,
+                    lineHeight=25.sp,maxLines=2)
+                Text(subtitle,color=Color(0xFFD5E6E5),fontSize=11.sp,lineHeight=15.sp,maxLines=2)
+            }
         }
+    }
+}
+
+/** A real full-bleed title scene, not a short banner floating over a settings form.
+ * Its shading layers are decorative and never block button hit-testing. */
+@Composable
+internal fun GameLobbyBackdrop(island:Boolean, modifier:Modifier=Modifier) {
+    Box(modifier) {
+        GameLobbyStage(island,eyebrow="",title="",subtitle="",
+            modifier=Modifier.matchParentSize(),fullBleed=true,showTitle=false)
+        Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
+            listOf(Color(0xA00C1F29),Color(0x3310242B),Color(0xA60C1721)))))
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(
+            listOf(Color(0xA60B1C25),Color(0x0A122731),Color(0xE80B1D24)))))
     }
 }
 
