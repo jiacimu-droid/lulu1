@@ -1,11 +1,13 @@
 package com.jiacimu.lulu.games
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -143,6 +145,66 @@ internal fun GameLobbyStage(
             Text(title,color=Color.White,fontWeight=FontWeight.Black,fontSize=21.sp,
                 lineHeight=25.sp,maxLines=2)
             Text(subtitle,color=Color(0xFFD5E6E5),fontSize=11.sp,lineHeight=15.sp,maxLines=2)
+        }
+    }
+}
+
+/** Same cinematic character cards in both lobbies. An accepted companion is a real actor,
+ * not a generic emoji checkbox. These cards only edit party selection, not character intent. */
+@Composable
+internal fun GameLobbyPartySlot(
+    avatarUri:String?,
+    fallback:String,
+    name:String,
+    isPlayer:Boolean,
+    accent:Color,
+    allowRemove:Boolean=false,
+    onRemove:()->Unit={},
+) {
+    Surface(
+        modifier=Modifier.width(108.dp),
+        shape=RoundedCornerShape(16.dp),
+        color=if(isPlayer)Color(0xD0345149) else Color(0xC6213640),
+        border=BorderStroke(1.dp,accent.copy(alpha=if(isPlayer).85f else .43f)),
+    ) {
+        Column(Modifier.padding(horizontal=8.dp,vertical=7.dp),
+            horizontalAlignment=Alignment.CenterHorizontally) {
+            GameCharacterPawn(avatarUri=avatarUri,fallback=fallback,moving=false,facingX=1f,
+                player=isPlayer,coat=if(isPlayer)Color(0xFF608C7D) else Color(0xFF6D6B80))
+            Text(name,color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Bold,maxLines=1)
+            if(isPlayer) {
+                Text("✦ 队长",color=accent,fontSize=10.sp)
+            } else {
+                Text(if(allowRemove)"✓ 已加入 · 移出" else "✓ 同行中",
+                    color=accent,fontSize=10.sp,
+                    modifier=Modifier.padding(top=4.dp))
+                if(allowRemove) {
+                    TextButton(onClick=onRemove,modifier=Modifier.height(28.dp),
+                        contentPadding=PaddingValues(0.dp)) {
+                        Text("移出队伍",color=accent,fontSize=10.sp)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun GameLobbyInviteSlot(
+    accent:Color,
+    enabled:Boolean,
+    onClick:()->Unit,
+) {
+    Surface(onClick=onClick,enabled=enabled,
+        modifier=Modifier.width(108.dp).height(154.dp),
+        color=Color(0x991E3D42),shape=RoundedCornerShape(16.dp),
+        border=BorderStroke(1.dp,accent.copy(alpha=.65f))) {
+        Column(Modifier.fillMaxSize().padding(9.dp),
+            horizontalAlignment=Alignment.CenterHorizontally,
+            verticalArrangement=Arrangement.Center) {
+            Text("＋",color=accent,fontSize=36.sp,fontWeight=FontWeight.Light)
+            Text("邀请伙伴",color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+            Text("角色自己回应",color=accent,fontSize=9.sp)
         }
     }
 }

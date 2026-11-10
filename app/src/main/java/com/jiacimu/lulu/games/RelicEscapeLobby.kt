@@ -65,6 +65,8 @@ internal fun RelicEscapeLobby(
     val live=snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
+    var shopExpanded by remember { mutableStateOf(false) }
+    var vaultExpanded by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize().background(campInk)) {
         RelicCampBackdrop()
@@ -110,33 +112,17 @@ internal fun RelicEscapeLobby(
                     }
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         verticalAlignment=Alignment.CenterVertically,
-                        horizontalArrangement=Arrangement.spacedBy(15.dp)) {
-                        Column(horizontalAlignment=Alignment.CenterHorizontally) {
-                            GameCharacterPawn(avatarUri=playerAvatarUri,fallback=playerAvatarText,moving=false,facingX=1f,
-                                player=true,coat=Color(0xFF5E7D91))
-                            Text("你 · 队长",color=campGold,fontSize=11.sp,fontWeight=FontWeight.Bold)
-                        }
+                        horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                        GameLobbyPartySlot(playerAvatarUri,playerAvatarText,"你 · 队长",true,campGold)
                         accepted.forEach { id ->
                             val character=characters[id]
-                            Column(horizontalAlignment=Alignment.CenterHorizontally) {
-                                GameCharacterPawn(
-                                    avatarUri=character?.avatarUri,fallback=character?.displayName?.take(1) ?: "伴",
-                                    moving=false,facingX=1f,coat=Color(0xFF5E7D64))
-                                Text(character?.displayName ?: "同行伙伴",color=Color.White,fontSize=11.sp)
-                                TextButton(onClick={onRemove(id)},enabled=!live,
-                                    contentPadding=PaddingValues(horizontal=4.dp,vertical=0.dp),
-                                    modifier=Modifier.height(28.dp)) {
-                                    Text("移出",color=campMuted,fontSize=10.sp)
-                                }
-                            }
+                            GameLobbyPartySlot(character?.avatarUri,
+                                character?.displayName?.take(1) ?: "伴",
+                                character?.displayName ?: "同行伙伴",false,campMint,
+                                allowRemove=!live,onRemove={onRemove(id)})
                         }
-                        if(!live && accepted.size<3) {
-                            OutlinedButton(onClick={picker=true},
-                                enabled=inviting==null,
-                                modifier=Modifier.height(64.dp),
-                                border=BorderStroke(1.dp,campMint.copy(alpha=.7f))) {
-                                Text("+ 邀请伙伴",color=campMint,fontSize=12.sp)
-                            }
+                        if(!live && accepted.size<3) GameLobbyInviteSlot(campMint,inviting==null) {
+                            picker=true
                         }
                     }
                     if(inviting!=null) {
@@ -269,8 +255,11 @@ internal fun RelicEscapeLobby(
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("营地商店",color=Color.White,fontWeight=FontWeight.Black,
                             fontSize=17.sp,modifier=Modifier.weight(1f))
-                        Text("只用游戏内铜币",color=campMuted,fontSize=11.sp)
+                        TextButton(onClick={shopExpanded=!shopExpanded}) {
+                            Text(if(shopExpanded)"收起 −" else "打开商店 ＋",color=campGold,fontSize=11.sp)
+                        }
                     }
+                    if(shopExpanded) {
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                         OutlinedButton(onClick=onBuyKit,enabled=!live && snapshot.coins>=70) {
@@ -292,13 +281,24 @@ internal fun RelicEscapeLobby(
                             }
                         }
                     }
-                    Text("带出的宝物可卖换铜币。购买的是确定的装备和补给，不卖随机抽奖。",
+                    Text("带出的宝物可换铜币，商店只出售确定的装备和补给。",
                         color=campMuted,fontSize=11.sp)
+                    }
                 }
 
                 RelicLobbyPanel {
-                    Text("永久仓库 · "+snapshot.vault.size+"件",
-                        color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black)
+                    Row(verticalAlignment=Alignment.CenterVertically) {
+                        Text("永久藏宝库 · "+snapshot.vault.size+"件",
+                            color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black,
+                            modifier=Modifier.weight(1f))
+                        TextButton(onClick={vaultExpanded=!vaultExpanded}) {
+                            Text(if(vaultExpanded)"收起 −" else "查看珍藏 ＋",
+                                color=campGold,fontSize=11.sp)
+                        }
+                    }
+                    Text("图鉴已收录 "+snapshot.discovered.size+"/"+RelicCollectibles.names.size+" 件",
+                        color=campMint,fontSize=11.sp)
+                    if(vaultExpanded) {
                     if(snapshot.vault.isEmpty())Text("成功撤离后，这里会展示你带出的宝物。",
                         color=campMuted,fontSize=12.sp)
                     snapshot.vault.takeLast(12).reversed().forEach { item ->
@@ -310,8 +310,8 @@ internal fun RelicEscapeLobby(
                             }
                         }
                     }
-                    Text("图鉴已发现 "+snapshot.discovered.size+"/"+RelicCollectibles.names.size+
-                        " 件 · 卖出后图鉴记录仍在",color=campMuted,fontSize=11.sp)
+                    Text("出售实物不会抹掉永久图鉴记录。",color=campMuted,fontSize=11.sp)
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
             }

@@ -129,32 +129,18 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                     Text("1 + ${selected.size} / 3", color = mint, fontSize = 11.sp)
                 }
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF32644F)) {
-                        Column(Modifier.width(86.dp).padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            GameCharacterPawn(avatarUri = playerAvatar, fallback = playerName,
-                                moving = false, facingX = 1f, player = true,
-                                coat = Color(0xFF5E9278))
-                            Text("你 · 岛主", color = Color.White, fontSize = 11.sp)
-                        }
-                    }
+                    horizontalArrangement=Arrangement.spacedBy(10.dp),
+                    verticalAlignment=Alignment.CenterVertically) {
+                    GameLobbyPartySlot(playerAvatar,playerName,"你 · 岛主",true,mint)
                     selected.forEach { id ->
                         characters[id]?.let { c ->
-                            Column(Modifier.width(84.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                LuluProfileAvatar(c.avatarUri, c.displayName.take(1), 45)
-                                Text(c.displayName, color = mint, fontSize = 11.sp, maxLines = 1)
-                                TextButton(onClick = { selected = selected - id },
-                                    contentPadding = PaddingValues(0.dp), modifier = Modifier.height(26.dp)) {
-                                    Text("移出", color = dim, fontSize = 10.sp)
-                                }
-                            }
+                            GameLobbyPartySlot(c.avatarUri,c.displayName.take(1),c.displayName,
+                                false,mint,allowRemove=inviting==null,
+                                onRemove={selected=selected-id})
                         }
                     }
-                    OutlinedButton(onClick = { choosing = !choosing },
-                        modifier = Modifier.height(56.dp),
-                        border = BorderStroke(1.dp, mint)) {
-                        Text("＋ 邀请", color = mint)
+                    if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null) {
+                        choosing=!choosing
                     }
                 }
                 Text("＋ 邀请由角色本人决定是否接受（需要一次模型调用）；游戏内可语音交谈、一起行动。",
