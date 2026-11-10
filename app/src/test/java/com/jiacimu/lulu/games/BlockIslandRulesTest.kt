@@ -10,6 +10,33 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BlockIslandRulesTest {
+    @Test fun existingCompanionAttackMayCompleteGuardianWithoutHijackingModelControlledTeammate() {
+        val base=BlockIslandRules.newWorld(618,emptyList())
+        val ready=base.copy(animals=emptyList(),nightsSurvived=3,
+            tools=setOf("sword"),
+            awardedChallenges=IslandExpeditionTrail.landmarks.map { it.id }.toSet(),
+            world=base.world.copy(mobs=emptyList()))
+        val awakened=BlockIslandRules.act(ready,"move",4,6)
+        val boss=IslandGuardianEncounter.active(awakened)!!
+        val friend=ExpeditionFriend("companion",boss.x-1,boss.y,mode="guard")
+        val justOneHit=awakened.copy(world=awakened.world.copy(
+            x=boss.x-3,y=boss.y,friends=listOf(friend),
+            mobs=listOf(boss.copy(hp=1))))
+        // A companion controlled by the real model must never be given an
+        // extra scripted combat action behind its chosen plan.
+        val modelControlled=BlockIslandRules.act(justOneHit,"move",
+            boss.x-2,boss.y,autonomousIds=setOf("companion"))
+        assertFalse(modelControlled.guardianCleared)
+        assertEquals(1,IslandGuardianEncounter.active(modelControlled)!!.hp)
+        // In a legacy non-autonomous companion slot the existing physical
+        // guard-mode attack remains valid and can win the same objective.
+        val helped=BlockIslandRules.act(justOneHit,"move",boss.x-2,boss.y)
+        assertTrue(helped.guardianCleared)
+        assertEquals(12,helped.world.wood)
+        assertEquals(10,helped.world.stone)
+        assertTrue(IslandGuardianEncounter.challengeId in helped.awardedChallenges)
+    }
+
     @Test fun migratedIslandUsesReachableLandmarksRatherThanOutOfBoundsTargets() {
         val previous=ExpeditionRules.start(ExpeditionMode.HOMESTEAD,49,emptyList())
         val old=BlockIslandState.fromLegacy(previous)!!
