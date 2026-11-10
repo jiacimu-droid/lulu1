@@ -80,46 +80,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val dim = Color(0xFFB6CDBF)
     val panel = Color(0xED183C3E)
 
-    Column(
-        Modifier.fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF0D2730), Color(0xFF163D3B), Color(0xFF101F2C))))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("方块小岛", fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color.White)
-                Text("你的小岛，不止是采集材料", fontSize = 12.sp, color = dim)
-            }
-            Surface(color = Color(0xFF28564D), shape = RoundedCornerShape(12.dp)) {
-                Text(if (existingIsland) "家园已保存" else "新的旅程",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    color = mint, fontSize = 11.sp)
-            }
-        }
 
-        // The world itself sells the fantasy before the player reads any settings.
-        GameLobbyStage(
-            island = true,
-            title = if (existingIsland) "欢迎回家，岛主" else "从一座小岛，建起我们的世界",
-            eyebrow = if (existingIsland) "CONTINUE YOUR WORLD" else "YOUR FIRST ADVENTURE",
-            subtitle = "探索未知海岸 · 盖一间小屋 · 认识新的伙伴",
-            modifier = Modifier.fillMaxWidth().height(224.dp),
-        )
-        Button(
-            onClick = { onStart(selected.take(3)) },
-            enabled = inviting == null,
-            modifier = Modifier.fillMaxWidth().height(54.dp),
-            shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = Color(0xFF183B32)),
-        ) {
-            Text(if (existingIsland) "▶ 继续我的岛屿冒险" else "▶ 开始第一天的冒险",
-                fontWeight = FontWeight.Black, fontSize = 17.sp)
-        }
-        Text("不想邀请伙伴？一个人也能出发。进度会自动保存。",
-            color = dim, fontSize = 11.sp)
-
+    // Wide phones get a complete game screen: the island is the backdrop, the
+    // selected players stand in the foreground and the real objective is on the right.
+    // Portrait uses the same interactions with a readable stacked fallback.
+    val rosterPanel: @Composable () -> Unit = {
         Surface(shape = RoundedCornerShape(18.dp), color = panel,
             border = BorderStroke(1.dp, mint.copy(alpha = .28f))) {
             Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -199,13 +164,89 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 }
             }
         }
-        Surface(shape = RoundedCornerShape(16.dp), color = panel) {
-            Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("✦ 冒险手册 · 三条成长路线", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = mint)
-                Text("01  生存挑战   ·   做工具、搭营地、守住三夜", color = Color.White, fontSize = 12.sp)
-                Text("02  探险发现   ·   寻宝、解锁工具、搭桥", color = Color.White, fontSize = 12.sp)
-                Text("03  温暖家园   ·   结识动物、盖家、点亮夜灯", color = Color.White, fontSize = 12.sp)
-                Text("这些目标都读取真实岛屿存档，完成后还能自由创造。", color = dim, fontSize = 10.sp)
+    }
+    val missionPanel: @Composable () -> Unit = {
+        Surface(shape = RoundedCornerShape(18.dp), color = panel,
+            border = BorderStroke(1.dp, mint.copy(alpha=.42f))) {
+            Column(Modifier.fillMaxWidth().padding(15.dp),
+                verticalArrangement=Arrangement.spacedBy(9.dp)) {
+                Text("✦ 本次冒险简报",fontSize=20.sp,fontWeight=FontWeight.Black,color=mint)
+                Text(if(existingIsland)"家园存档已就绪 · 回到你建设的海岛"
+                    else "从搭建工作台开始，解锁自己的第一处营地",
+                    color=Color.White,fontSize=12.sp)
+                IslandChallengeBoard.challenges.take(3).forEach { challenge ->
+                    val achieved=savedIsland?.let(challenge.completed) ?: false
+                    Row(verticalAlignment=Alignment.CenterVertically) {
+                        Text(if(achieved)"✓" else "□",color=if(achieved)mint else dim,
+                            fontSize=17.sp,modifier=Modifier.width(26.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(challenge.title,color=Color.White,fontWeight=FontWeight.Bold,
+                                fontSize=13.sp)
+                            Text(challenge.rewardText,color=dim,fontSize=11.sp)
+                        }
+                    }
+                }
+                Text("生存 · 探索 · 建造家园，完成挑战会在世界里获得真实物资。",
+                    color=dim,fontSize=11.sp,lineHeight=16.sp)
+            }
+        }
+    }
+    val launchButton: @Composable () -> Unit = {
+        Button(onClick={onStart(selected.take(3))},enabled=inviting==null,
+            modifier=Modifier.fillMaxWidth().height(62.dp),
+            shape=RoundedCornerShape(15.dp),
+            colors=ButtonDefaults.buttonColors(containerColor=Color(0xFFF7BF65),
+                contentColor=Color(0xFF3A2B18))) {
+            Text(if(existingIsland)"▶ 继续我的海岛冒险" else "▶ 开始第一天的探险",
+                fontWeight=FontWeight.Black,fontSize=19.sp)
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val landscape = maxWidth > maxHeight
+        GameLobbyBackdrop(island=true,modifier=Modifier.matchParentSize())
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                .padding(horizontal=18.dp,vertical=14.dp),
+            verticalArrangement=Arrangement.spacedBy(12.dp),
+        ) {
+            Row(verticalAlignment=Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("方块小岛",fontSize=31.sp,fontWeight=FontWeight.Black,color=Color.White)
+                Text("海岛生存 · 自由建造 · 与喜欢的人一起冒险",
+                    fontSize=13.sp,color=dim)
+            }
+            Surface(color=Color(0xD328534A),shape=RoundedCornerShape(12.dp),
+                border=BorderStroke(1.dp,mint.copy(alpha=.35f))) {
+                Text(if(existingIsland)"✦ 家园已保存" else "✦ 全新旅程",
+                    modifier=Modifier.padding(horizontal=12.dp,vertical=8.dp),
+                    color=mint,fontSize=11.sp)
+            }
+        }
+            if(landscape) {
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(16.dp),
+                    verticalAlignment=Alignment.Top) {
+                    Column(Modifier.weight(1.48f),
+                        verticalArrangement=Arrangement.spacedBy(9.dp)) {
+                        Spacer(Modifier.height(110.dp))
+                        rosterPanel()
+                    }
+                    Column(Modifier.weight(1f),
+                        verticalArrangement=Arrangement.spacedBy(10.dp)) {
+                        missionPanel()
+                        launchButton()
+                        Text("可独自出发 · 已接受邀请的伙伴会随你一起进入真实世界",
+                            color=dim,fontSize=11.sp)
+                    }
+                }
+            } else {
+                GameLobbyStage(island=true,
+                    eyebrow=if(existingIsland)"CONTINUE YOUR WORLD" else "YOUR FIRST ADVENTURE",
+                    title=if(existingIsland)"欢迎回家，岛主" else "从一座小岛，建起我们的世界",
+                    subtitle="探索未知海岸 · 盖一间小屋 · 认识新的伙伴",
+                    modifier=Modifier.fillMaxWidth().height(202.dp))
+                launchButton()
+                rosterPanel()
+                missionPanel()
             }
         }
     }
