@@ -27,6 +27,7 @@ class ChatHistoryPersistenceBaselineTest {
     private val prefs get() = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
     private val key = "state_v1"
     private val conversationId = "ui02-history-baseline"
+    private val otherConversationId = "ui02-unrelated-history"
 
     @Test fun thousandAndTenThousandMessagesWriteAndReopenWithoutLoss() {
         for (count in listOf(1_000, 10_000)) measure(count)
@@ -53,9 +54,22 @@ class ChatHistoryPersistenceBaselineTest {
                 .put("characterId", "ui02-character")
                 .put("title", "UI-02 persistence baseline")
                 .put("updatedAt", "2026-01-01T00:00:00Z")
+            val otherConversation = JSONObject()
+                .put("id", otherConversationId)
+                .put("characterId", "ui02-other-character")
+                .put("title", "Unrelated conversation must survive")
+                .put("updatedAt", "2026-01-01T00:00:00Z")
+            val otherMessages = JSONArray().put(JSONObject()
+                .put("id", "ui02-unrelated-1")
+                .put("conversationId", otherConversationId)
+                .put("sender", "User")
+                .put("content", "Do not discard another conversation")
+                .put("createdAt", "2026-01-01T00:00:00Z")
+                .put("status", "Sent"))
             val snapshot = JSONObject()
-                .put("conversations", JSONArray().put(conversation))
-                .put("messages", JSONObject().put(conversationId, messages))
+                .put("conversations", JSONArray().put(conversation).put(otherConversation))
+                .put("messages", JSONObject().put(conversationId, messages)
+                    .put(otherConversationId, otherMessages))
                 .toString()
             assertTrue(prefs.edit().putString(key, snapshot).commit())
 
@@ -64,6 +78,7 @@ class ChatHistoryPersistenceBaselineTest {
             store.initialize(app)
             val openMillis = (SystemClock.elapsedRealtimeNanos() - openStart) / 1_000_000.0
             assertEquals(count, store.messages(conversationId).value.size)
+            assertEquals(1, store.messages(otherConversationId).value.size)
 
             // Metadata-only mutation must still rewrite the entire JSON snapshot.
             val writeStart = SystemClock.elapsedRealtimeNanos()
@@ -73,12 +88,17 @@ class ChatHistoryPersistenceBaselineTest {
             assertNotNull(saved)
             assertEquals(count, JSONObject(saved!!).getJSONObject("messages")
                 .getJSONArray(conversationId).length())
+            assertEquals("Do not discard another conversation", JSONObject(saved)
+                .getJSONObject("messages").getJSONArray(otherConversationId)
+                .getJSONObject(0).getString("content"))
 
             val reopenStart = SystemClock.elapsedRealtimeNanos()
             val reopened = InMemoryLuluChatStore()
             reopened.initialize(app)
             val reopenMillis = (SystemClock.elapsedRealtimeNanos() - reopenStart) / 1_000_000.0
             assertEquals(count, reopened.messages(conversationId).value.size)
+            assertEquals("Do not discard another conversation",
+                reopened.messages(otherConversationId).value.single().content)
             assertTrue(reopened.conversations.value.first { it.id == conversationId }.pinned)
             println("UI-02.1 messages=$count snapshotBytes=${saved.toByteArray(Charsets.UTF_8).size} " +
                 "initialOpenMs=$openMillis metadataWriteMs=$writeMillis reopenMs=$reopenMillis")
