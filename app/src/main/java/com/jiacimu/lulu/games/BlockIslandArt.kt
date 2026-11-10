@@ -124,8 +124,7 @@ internal object BlockIslandArt {
         // NOT structures, resources or collision targets. Completed sites settle
         // into quiet blue-gold mosaics instead of disappearing from the world.
         for (site in IslandExpeditionTrail.landmarks) {
-            val x=site.x
-            val y=site.y
+            val (x,y)=IslandExpeditionTrail.position(island,site)
             if(x !in left until left+cols || y !in top until top+rows)continue
             val position=center(x,y)
             val completed=site.id in island.awardedChallenges
