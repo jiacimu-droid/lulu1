@@ -12,6 +12,21 @@ class ChatAutomationRoutingTest {
         assertFalse(looksLikeLexiconCandidate("我会想你的"))
     }
 
+    @Test fun durationAnswerToACharacterWakeQuestionGetsOneSemanticRecoveryChance() {
+        assertTrue(acceptedWakeAfterSleepDurationQuestion(
+            "宝宝想睡多久呀？", "20分钟", "好，二十分钟后我叫你起床"))
+        assertTrue(acceptedWakeAfterSleepDurationQuestion(
+            "想睡多久？", "半小时", "等会儿我来叫醒你"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "你这次打算睡多久？", "20分钟", "好好睡吧，我在这里"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "今晚准备做什么？", "20分钟", "二十分钟后叫你"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "你想睡多久？", "20分钟", "不行，我不能叫醒你"))
+        assertFalse(acceptedWakeAfterSleepDurationQuestion(
+            "你想睡多久？", "等会儿吧", "我会叫醒你"))
+    }
+
     @Test fun genuineFutureObligationAndFactualLifeNotesRemainEligible() {
         assertTrue(looksLikeTaskTurn("明天8点叫我起床", "好，我会叫醒你"))
         assertTrue(looksLikeTaskTurn("你等会儿给我打电话", "好"))
