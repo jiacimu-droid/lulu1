@@ -117,6 +117,8 @@ class InMemoryLuluChatStore : LuluChatStore {
     private val conversationState = MutableStateFlow(defaultConversations())
     private val messageStates = java.util.concurrent.ConcurrentHashMap<String, MutableStateFlow<List<LuluChatMessage>>>()
     private var prefs: android.content.SharedPreferences? = null
+    // A present but unreadable legacy snapshot must never be overwritten by defaults.
+    private var unreadableChatSnapshot = false
     private var appContext: Context? = null
     private val lock = Any()
 
@@ -790,6 +792,7 @@ class InMemoryLuluChatStore : LuluChatStore {
     }
 
     private fun persistLocked(durable: Boolean = false) {
+        check(!unreadableChatSnapshot) { "聊天历史无法读取，已保护原始数据，禁止覆盖" }
         val editor = prefs?.edit()?.putString(
             CHAT_STATE,
             encode(conversationState.value, messageStates.mapValues { (_, state) -> state.value }).toString(),
@@ -820,8 +823,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         if (raw.isNullOrBlank()) return emptyList<LuluConversation>() to emptyMap()
         return runCatching {
             val root = JSONObject(raw)
-            val conversations = root.optJSONArray("conversations").decodeObjects(::decodeConversation)
-            val messagesObject = root.optJSONObject("messages") ?: JSONObject()
+            require(root.optJSONArray("conversations") != null && root.optJSONObject("messages") != null) {
+                "聊天历史结构不完整"
+            }
+            val conversations = root.getJSONArray("conversations").decodeObjects(::decodeConversation)
+            val messagesObject = root.getJSONObject("messages")
             val messages = buildMap {
                 val keys = messagesObject.keys()
                 while (keys.hasNext()) {
@@ -830,7 +836,10 @@ class InMemoryLuluChatStore : LuluChatStore {
                 }
             }
             conversations.sortedByDescending(LuluConversation::updatedAt) to messages
-        }.getOrDefault(emptyList<LuluConversation>() to emptyMap())
+        }.getOrElse {
+            unreadableChatSnapshot = true
+            emptyList<LuluConversation>() to emptyMap()
+        }
     }
 
     private fun encodeConversation(value: LuluConversation): JSONObject = JSONObject()
