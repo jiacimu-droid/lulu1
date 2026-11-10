@@ -184,6 +184,14 @@ internal object BlockIslandArt {
                 if (animal.x !in left until left + cols || animal.y !in top until top + rows) return@forEach
                 drawIslandAnimal(center(animal.x,animal.y),tile,animal,phase)
             }
+        // One label paint per frame, rather than one allocation/typeface lookup per visible friend.
+        val companionNamePaint = android.graphics.Paint(
+            android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color(0xFFE5FFF1).toArgb()
+            textAlign = android.graphics.Paint.Align.CENTER
+            typeface = android.graphics.Typeface.create(
+                android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        }
         w.friends.forEach { friend ->
                 if (friend.x !in left until left + cols || friend.y !in top until top + rows) return@forEach
                 val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
@@ -205,17 +213,9 @@ internal object BlockIslandArt {
                         topLeft=head+Offset(-plateWidth*.5f,-tile*.80f),
                         size=Size(plateWidth,tile*.28f),
                         cornerRadius=CornerRadius(tile*.09f))
-                    val namePaint=android.graphics.Paint(
-                        android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-                        this.color=Color(0xFFE5FFF1).toArgb()
-                        textAlign=android.graphics.Paint.Align.CENTER
-                        textSize=(tile*.23f).coerceIn(9f,15f)
-                        typeface=android.graphics.Typeface.create(
-                            android.graphics.Typeface.DEFAULT,
-                            android.graphics.Typeface.BOLD)
-                    }
+                    companionNamePaint.textSize = (tile*.23f).coerceIn(9f,15f)
                     drawContext.canvas.nativeCanvas.drawText(name,
-                        head.x,head.y-tile*.59f,namePaint)
+                        head.x,head.y-tile*.59f,companionNamePaint)
                 }
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
