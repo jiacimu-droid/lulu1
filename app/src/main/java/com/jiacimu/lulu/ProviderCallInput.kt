@@ -155,9 +155,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     }
                     queuedChunks.decrementAndGet()
                     if (!chunk.isFinal) continue
-                    // A breath or a cloud response arriving late isn't a new
-                    // conversational turn. Wait for all recorded PCM chunks.
-                    delay(500)
+                    // Cloud ASR may finish a PCM fragment before the human finishes
+                    // the sentence. Reuse the adaptive continuation window from
+                    // system STT; a fixed 500ms gap caused a second paid LLM turn
+                    // when the user only took a breath. New captured PCM keeps
+                    // the same phrase until the final segment is actually ready.
+                    delay(SystemSpeechTurnPolicy.continuationMillis(phrase.toString()))
                     if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
                     val acousticNote = phraseAcoustics?.finish()
                     try {

@@ -177,8 +177,15 @@ internal class ElevenLabsRealtimeStt(
 
     private fun completeAfterBreath() {
         turnDelay?.cancel()
+        // A server VAD commit can represent a breath, not the end of the
+        // caller's whole thought. Hold the committed words across nearby
+        // commits instead of sending two near-identical full-context LLM turns.
+        // New partial/committed events cancel and restart this same window.
+        val continuationMillis = synchronized(lock) {
+            SystemSpeechTurnPolicy.continuationMillis(transcript.pendingCommittedText())
+        }
         turnDelay = scope.launch(Dispatchers.Main) {
-            delay(500)
+            delay(continuationMillis)
             if (closed.get() || !active()) return@launch
             val finalText = synchronized(lock) { transcript.takeFinal() }
             if (finalText.isNotBlank()) onText(finalText)
@@ -230,6 +237,8 @@ internal class ScribeRealtimeTranscriptState {
         stable = PhoneTranscriptAssembler.combine(stable, committed)
         return stable
     }
+
+    fun pendingCommittedText(): String = stable.trim()
 
     fun takeFinal(): String = stable.trim().also { stable = ""; partial = "" }
 }

@@ -64,6 +64,53 @@ class ScribeRealtimeTransportTest {
             scope.cancel()
         }
     }
+    @Test fun breathingPauseBetweenCommittedPhrasesDoesNotStartTwoModelTurns() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val partials = mutableListOf<String>()
+        val turns = mutableListOf<String>()
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            onPartial = { partials += it }, onText = { turns += it }, onError = { fail(it) },
+            socketFactory = wire)
+        try {
+            recognizer.start()
+            wire.receive("committed_transcript", "我刚刚想起来还有一件事情")
+            pumpUntil { partials.any { it.contains("还有一件事情") } }
+            // The old fixed 500ms delay would already have billed one LLM
+            // request here; the speaker is only taking a short breath.
+            shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+            assertTrue("A breath is not a second user turn", turns.isEmpty())
+            wire.receive("partial_transcript", "然后")
+            pumpUntil { partials.any { it.endsWith("然后") } }
+            wire.receive("committed_transcript", "然后我想再说两句")
+            pumpUntil { turns.isNotEmpty() }
+            assertEquals(listOf("我刚刚想起来还有一件事情然后我想再说两句"), turns)
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
+    @Test fun distinctRepeatedWordsAfterACompletedTurnRemainDistinct() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val turns = mutableListOf<String>()
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            onPartial = {}, onText = { turns += it }, onError = { fail(it) },
+            socketFactory = wire)
+        try {
+            recognizer.start()
+            wire.receive("committed_transcript", "你好")
+            pumpUntil { turns.size == 1 }
+            wire.receive("committed_transcript", "你好")
+            pumpUntil { turns.size == 2 }
+            assertEquals(listOf("你好", "你好"), turns)
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
     private class FakeWire : WebSocket.Factory, WebSocket {
         lateinit var request: Request
         lateinit var listener: WebSocketListener
