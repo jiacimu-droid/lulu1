@@ -10,6 +10,79 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BlockIslandRulesTest {
+    @Test fun migratedIslandUsesReachableLandmarksRatherThanOutOfBoundsTargets() {
+        val previous=ExpeditionRules.start(ExpeditionMode.HOMESTEAD,49,emptyList())
+        val old=BlockIslandState.fromLegacy(previous)!!
+        val (east,south)=IslandExpeditionTrail.landmarks
+        assertEquals(17 to 3,IslandExpeditionTrail.position(old,east))
+        assertEquals(17 to 13,IslandExpeditionTrail.position(old,south))
+        for(place in IslandExpeditionTrail.landmarks) {
+            val (x,y)=IslandExpeditionTrail.position(old,place)
+            assertTrue(old.world.inBounds(x,y))
+            assertEquals(0,old.world.cell(x,y))
+        }
+        val approaching=old.copy(animals=emptyList(),
+            world=old.world.copy(x=16,y=3,mobs=emptyList()))
+        val arrived=BlockIslandRules.act(approaching,"move",17,3)
+        assertTrue(east.id in arrived.awardedChallenges)
+        assertEquals(1,arrived.world.turns)
+        val reloaded=BlockIslandState.fromJson(arrived.toJson())!!
+        assertEquals(17 to 13,IslandExpeditionTrail.position(reloaded,south))
+        assertEquals(arrived.awardedChallenges,reloaded.awardedChallenges)
+    }
+
+    @Test fun islandGuardianRequiresLegitimateProgressAndOnlyPaysAfterPhysicalDefeat() {
+        val original=BlockIslandRules.newWorld(607,emptyList())
+        assertFalse(IslandGuardianEncounter.ready(original))
+        assertNull(IslandGuardianEncounter.active(original))
+        // A menu draw or rejected move cannot spawn or pay a real boss.
+        val unlocked=original.copy(
+            animals=emptyList(),nightsSurvived=3,tools=setOf("sword"),
+            awardedChallenges=IslandExpeditionTrail.landmarks.map { it.id }.toSet(),
+            world=original.world.copy(mobs=emptyList()))
+        assertTrue(IslandGuardianEncounter.ready(unlocked))
+        val rejected=BlockIslandRules.act(unlocked,"move",unlocked.world.x,unlocked.world.y)
+        assertEquals(unlocked.world.turns,rejected.world.turns)
+        assertNull(IslandGuardianEncounter.active(rejected))
+        assertEquals(0,rejected.world.wood)
+        val triggered=BlockIslandRules.act(unlocked,"move",4,6)
+        val guardian=IslandGuardianEncounter.active(triggered)!!
+        assertEquals(IslandGuardianEncounter.id,guardian.id)
+        assertEquals(IslandGuardianEncounter.hp,guardian.hp)
+        assertTrue(guardian.y in 1 until triggered.world.height-1)
+        assertEquals(1,triggered.world.mobs.count { it.id==IslandGuardianEncounter.id })
+        val saved=BlockIslandState.fromJson(triggered.toJson())!!
+        assertEquals(1,saved.world.mobs.count { it.id==IslandGuardianEncounter.id })
+        assertEquals(triggered.awardedChallenges,saved.awardedChallenges)
+        val near=saved.copy(world=saved.world.copy(x=guardian.x-1,y=guardian.y,mobs=listOf(guardian)))
+        val hits=generateSequence(near) { before ->
+            if(before.guardianCleared) null else
+                BlockIslandRules.act(before,"fight",guardian.x,guardian.y)
+        }.take(7).toList()
+        val victory=hits.last()
+        assertTrue(victory.guardianCleared)
+        assertNull(IslandGuardianEncounter.active(victory))
+        assertTrue(IslandGuardianEncounter.challengeId in victory.awardedChallenges)
+        assertEquals(near.world.wood+12,victory.world.wood)
+        assertEquals(near.world.stone+10,victory.world.stone)
+        // +2 for the defeated creature plus the one-time trophy reward.
+        assertEquals(near.fruit+8,victory.fruit)
+        assertEquals(near.fish+3,victory.fish)
+        assertEquals(1,victory.defeatedMonsters)
+        assertEquals(victory,IslandChallengeBoard.awardCompleted(victory))
+        val restored=BlockIslandState.fromJson(victory.toJson())!!
+        assertTrue(restored.guardianCleared)
+        assertEquals(victory.awardedChallenges,restored.awardedChallenges)
+        assertEquals(victory.world.wood,restored.world.wood)
+        assertEquals(victory.fruit,restored.fruit)
+        // A legitimate later move may generate ordinary enemies, not resurrect
+        // an already-defeated guardian or replay its challenge loot.
+        val after=BlockIslandRules.act(restored,"move",guardian.x-2,guardian.y)
+        assertEquals(victory.world.wood,after.world.wood)
+        assertEquals(victory.fruit,after.fruit)
+        assertNull(IslandGuardianEncounter.active(after))
+    }
+
     @Test fun challengeRewardsArePersistedAndCannotMintTwice() {
         val base=BlockIslandRules.newWorld(311,emptyList())
         val ready=base.copy(world=base.world.copy(mobs=emptyList()),
