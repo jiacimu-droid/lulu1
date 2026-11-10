@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T08:17:13.628312+00:00",
-  "commit": "13b34d48d2b128783eec36a5ce588b477c68982d",
+  "generatedAt": "2026-11-10T08:18:22.470362+00:00",
+  "commit": "3e36865ffbe5b11d52b2786a79aecae494da306c",
   "branch": "main",
-  "sourceFingerprint": "d49b61dd3fdd308a141068ddce2a0535eb60d2dcaf0a33cdff5dd683dc66dc22",
+  "sourceFingerprint": "735d74fe2f0e8084c3be6a806d8c743943c0c2d098123662f07470d97a4ef5be",
   "summary": {
     "files": 1169,
-    "lines": 252568,
+    "lines": 252630,
     "symbols": 3440
   },
   "symbolIndex": {
@@ -1499,7 +1499,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 117
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13443,13 +13443,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 78
+        "line": 83
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 82
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -13463,7 +13463,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 83
+        "line": 88
       }
     ],
     "next": [
@@ -13573,13 +13573,13 @@
     "playSound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 71
+        "line": 74
       }
     ],
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 122
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13593,13 +13593,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 945
+        "line": 948
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1093
+        "line": 1099
       }
     ],
     "saveTurn": [
@@ -32634,20 +32634,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 1081,
-      "sha256": "1372d7b34685bc2f6844e304edf7cbd2e9d1c5116e646a5c044b5d47182df8a5",
+      "lines": 1136,
+      "sha256": "1dd0d8cc3c7ebf45ec765b26f44ce419ec5a9ecabdace0b0ca0608f4d32f21db",
       "symbols": [
         {
           "name": "origin",
-          "line": 78
+          "line": 83
         },
         {
           "name": "center",
-          "line": 82
+          "line": 87
         },
         {
           "name": "actorCenter",
-          "line": 83
+          "line": 88
         }
       ]
     },
@@ -32738,28 +32738,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1137,
-      "sha256": "f97537b8d5238b5fa68572fc21c23baeb521a330d9c71add04c59df7efec7f95",
+      "lines": 1144,
+      "sha256": "10b4115bbc0f856b8edd7474892567b5e395a9e6576ab6c291a9c8f5be4b844a",
       "symbols": [
         {
           "name": "playSound",
-          "line": 71
+          "line": 74
         },
         {
           "name": "save",
-          "line": 117
+          "line": 120
         },
         {
           "name": "perform",
-          "line": 122
+          "line": 125
         },
         {
           "name": "dot",
-          "line": 945
+          "line": 948
         },
         {
           "name": "targetFor",
-          "line": 1093
+          "line": 1099
         }
       ]
     },
