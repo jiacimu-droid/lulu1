@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`20f27ea205c233faef18c36300d9e4fa9a1007cc`
+- 基准提交：`3e2eb666ddb5d549ed2325858455d6d34547d936`
 - 分支：`main`
 - 已索引文件：1168
-- 已索引代码/文本行：252017
+- 已索引代码/文本行：252090
 - 已发现符号：3435
 
 | 文件 | 行数 | 符号数 |
@@ -1120,7 +1120,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 589 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 662 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
