@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e52d88a69bc44bd56dc1962e0d22d54cf733e9a3`
+- 基准提交：`dee473e1c89210e2bcedc2077ca63702c93e052e`
 - 分支：`main`
 - 已索引文件：1173
-- 已索引代码/文本行：253785
+- 已索引代码/文本行：253786
 - 已发现符号：3458
 
 | 文件 | 行数 | 符号数 |
@@ -1074,7 +1074,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 178 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3011 | 24 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 141 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |

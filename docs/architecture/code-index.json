@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T16:49:09.150067+00:00",
-  "commit": "e52d88a69bc44bd56dc1962e0d22d54cf733e9a3",
+  "generatedAt": "2026-11-10T16:50:41.101238+00:00",
+  "commit": "dee473e1c89210e2bcedc2077ca63702c93e052e",
   "branch": "main",
-  "sourceFingerprint": "bfe43d660d54ca5d0b9ff765fbaa982d606287fc5a78f3947e344c6701620f56",
+  "sourceFingerprint": "c5a0795171bac2673dcd75b10b8372f34bd6d060f11f460670dd93e11f71351b",
   "summary": {
     "files": 1173,
-    "lines": 253785,
+    "lines": 253786,
     "symbols": 3458
   },
   "symbolIndex": {
@@ -18635,7 +18635,7 @@
     "ResidentDailyPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -39869,12 +39869,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 141,
-      "sha256": "c42153a4d5442c05812facbabe07ed971790c41889214050084a629456bc7698",
+      "lines": 142,
+      "sha256": "7a9e1ab2b0e86da43e59daad4feee4e73f0435865447ef7eaf5413812f96ec6f",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
-          "line": 16
+          "line": 17
         }
       ]
     },
