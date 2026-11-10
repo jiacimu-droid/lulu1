@@ -12,6 +12,31 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun liveContractsShowRealBagProgressButDoNotPayBeforeEscape() {
+        val base=RelicEscapeWorld.create(817,1,emptyList(),0,1)
+        val common=RelicLoot("common-progress","旧王银币",RelicTier.COMMON,80)
+        val rare=RelicLoot("rare-progress","月银胸针",RelicTier.RARE,200)
+        assertEquals(null,RelicContractBoard.bagProgress(base))
+        val holding=base.copy(hero=base.hero.copy(bag=listOf(common,rare)))
+        val first=holding.copy(contract=RelicContract.FIRST_HAUL)
+        assertEquals(1 to 1,RelicContractBoard.bagProgress(first))
+        assertEquals(0,RelicContractBoard.bonus(first))
+        val hunter=holding.copy(contract=RelicContract.COLLECTOR)
+        assertEquals(2 to 3,RelicContractBoard.bagProgress(hunter))
+        assertEquals(0,RelicContractBoard.bonus(hunter))
+        val rareRun=holding.copy(contract=RelicContract.RARITY)
+        assertEquals(1 to 1,RelicContractBoard.bagProgress(rareRun))
+        assertEquals(0,RelicContractBoard.bonus(rareRun))
+        assertEquals(0 to 1,RelicContractBoard.bagProgress(
+            rareRun.copy(phase=RelicPhase.FAILURE)))
+        val secured=rareRun.copy(phase=RelicPhase.SUCCESS,
+            hero=rareRun.hero.copy(bag=emptyList()),secured=listOf(common,rare))
+        assertEquals(1 to 1,RelicContractBoard.bagProgress(secured))
+        assertEquals(160,RelicContractBoard.bonus(secured))
+        assertEquals(0,RelicContractBoard.bonus(
+            secured.copy(contract=RelicContract.COLLECTOR)))
+    }
+
     @Test fun physicalContractSuccessAddsPermanentCoinsOnlyOnce() {
         val ledger=cleared()
         val context=RuntimeEnvironment.getApplication()
