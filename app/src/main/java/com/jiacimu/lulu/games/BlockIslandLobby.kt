@@ -214,11 +214,17 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     }
     val launchButton: @Composable () -> Unit = {
         Button(onClick={onStart(selected.take(3))},enabled=inviting==null,
-            modifier=Modifier.fillMaxWidth().height(62.dp),
-            shape=RoundedCornerShape(15.dp),
-            colors=ButtonDefaults.buttonColors(containerColor=Color(0xFFF7BF65),
-                contentColor=Color(0xFF3A2B18))) {
-            Text(if(existingIsland)"▶ 继续我的海岛冒险" else "▶ 开始第一天的探险",
+            modifier=Modifier.fillMaxWidth().height(65.dp)
+                .clip(RoundedCornerShape(17.dp))
+                .background(Brush.horizontalGradient(listOf(
+                    Color(0xFFFFE2A7),Color(0xFFE9B061),Color(0xFFF5C47B)))),
+            shape=RoundedCornerShape(17.dp),
+            elevation=ButtonDefaults.buttonElevation(defaultElevation=6.dp,
+                pressedElevation=2.dp),
+            colors=ButtonDefaults.buttonColors(containerColor=Color.Transparent,
+                contentColor=Color(0xFF38291D),
+                disabledContainerColor=Color(0xAA69625A))) {
+            Text(if(existingIsland)"▶  继续海岛冒险" else "▶  开始第一天的探险",
                 fontWeight=FontWeight.Black,fontSize=19.sp)
         }
     }
@@ -260,11 +266,27 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                     }
                 }
             } else {
-                GameLobbyStage(island=true,
-                    eyebrow=if(existingIsland)"CONTINUE YOUR WORLD" else "YOUR FIRST ADVENTURE",
-                    title=if(existingIsland)"欢迎回家，岛主" else "从一座小岛，建起我们的世界",
-                    subtitle="探索未知海岸 · 盖一间小屋 · 认识新的伙伴",
-                    modifier=Modifier.fillMaxWidth().height(202.dp))
+                // Portrait shows the *same* exported coastal artwork behind
+                // the actual controls, instead of a second low-fidelity banner
+                // drawn over it and hiding all the landscape.
+                Box(Modifier.fillMaxWidth().height(170.dp)) {
+                    Surface(
+                        modifier=Modifier.align(Alignment.BottomStart),
+                        shape=RoundedCornerShape(13.dp),
+                        color=Color(0xC2173A3E),
+                        border=BorderStroke(1.dp,Color(0x88F3DAB0))
+                    ) {
+                        Column(Modifier.padding(horizontal=15.dp,vertical=12.dp),
+                            verticalArrangement=Arrangement.spacedBy(3.dp)) {
+                            Text(if(existingIsland)"WELCOME HOME" else "YOUR FIRST ADVENTURE",
+                                color=Color(0xFFFFD89D),fontSize=10.sp,
+                                fontWeight=FontWeight.Bold)
+                            Text(if(existingIsland)"欢迎回家，岛主" else "从这片海岸，开始我们的故事",
+                                color=Color.White,fontSize=16.sp,
+                                fontWeight=FontWeight.Black,maxLines=1)
+                        }
+                    }
+                }
                 launchButton()
                 rosterPanel()
                 missionPanel()
