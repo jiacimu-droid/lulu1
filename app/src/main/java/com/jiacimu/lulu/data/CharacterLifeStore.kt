@@ -524,8 +524,10 @@ object CharacterLifeStore {
         val root = state(characterId)
         val all = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val entry = JSONObject()
-            .put("title", title.trim().take(70))
-            .put("details", details.trim().take(1600))
+            // These are authored relationship boundaries, not a display preview.
+            // Preserve the final conditions and negations in the single durable source.
+            .put("title", title.trim())
+            .put("details", details.trim())
             .put("updatedAt", Instant.now().toString())
         all.put(target, entry)
         root.put("relationshipAgreements", all)

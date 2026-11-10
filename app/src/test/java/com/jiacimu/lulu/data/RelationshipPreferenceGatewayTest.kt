@@ -7,10 +7,12 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
+import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import com.jiacimu.lulu.core.MemoryTier
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.After
@@ -153,4 +155,116 @@ class RelationshipPreferenceGatewayTest {
             assertEquals(2, server.requestCount) // No additional model call for durable preferences.
         } finally { server.shutdown() }
     }
+    @Test(timeout = 60_000)
+    fun editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡编辑样本", "江渡旧性格样本")
+        val xing = MigratedDomainStores.characters.create("星禾编辑样本", "星禾独立性格样本")
+        val role = jiang.characterId
+        val oldTitle = "双方共同写下的关系说明".repeat(8) + "旧标题末尾"
+        val oldAgreement = "这份约定需要按完整条件理解。".repeat(150) +
+            "旧末尾边界：没有用户明确确认，不代为作出决定。"
+        val newAgreement = "双方重新商量后的完整约定。".repeat(160) +
+            "新末尾边界：只有用户明确同意才再次联系，否则不再拨号。"
+        val peerAgreement = "星禾本人约定：平等朋友，各自保留判断。"
+        CharacterIdentityStore.set(role, "江渡旧身份样本")
+        CharacterIdentityStore.set(xing.characterId, "星禾独立身份样本")
+        CharacterLifeStore.setProfile(role, "speechHabits", "江渡旧语言习惯样本")
+        assertTrue(CharacterSocialRelationship.setAgreement(role, "user", oldTitle, oldAgreement))
+        assertTrue(CharacterSocialRelationship.setAgreement(xing.characterId, "user", "星禾约定", peerAgreement))
+        assertTrue(oldTitle.length > 70)
+        assertTrue(oldAgreement.length > 1600)
+        assertTrue(newAgreement.length > 1600)
+        val saved = CharacterSocialRelationship.agreement(role, "user")!!
+        assertEquals(oldTitle, saved.title)
+        assertEquals(oldAgreement, saved.details)
+
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(401)
+            .setBody("""{"error":{"message":"test rejected request"}}"""))
+        repeat(5) {
+            val choice = JSONObject().put("message", JSONObject().put("content",
+                JSONObject().put("action", "reply").put("text", "收到。").toString()))
+                .put("finish_reason", "stop")
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(choice)).toString()))
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            suspend fun phone(id: String) = LuluDeviceToolBridge.respond(id, "", "按当前约定接话",
+                "test", archiveId = archive.id, sceneContext = "正在电话中",
+                phoneCallId = "relationship-edit-$id")
+            fun prompt(): String = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS))
+                .body.readUtf8()).getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(phone(role).isFailure)
+            val failed = prompt()
+            assertTrue(failed.contains(oldTitle))
+            assertTrue(failed.contains(oldAgreement))
+
+            MigratedDomainStores.characters.update(
+                MigratedDomainStores.characters.get(role).copy(persona = "江渡新性格样本：有主见，按约定负责"))
+            CharacterIdentityStore.set(role, "江渡新身份样本")
+            CharacterLifeStore.setProfile(role, "speechHabits", "江渡新语言习惯样本")
+            CharacterLifeStore.setProfile(role, "dialogueExamples", "用户：先听我说完。江渡：嗯，我听着。")
+            assertTrue(CharacterSocialRelationship.setAgreement(role, "user", "江渡新约定", newAgreement))
+            // Reload the real durable source. A failed request must not restore its old snapshot.
+            CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+                .set(CharacterLifeStore, null)
+            CharacterLifeStore.initialize(context)
+            assertEquals(newAgreement, CharacterSocialRelationship.agreement(role, "user")?.details)
+            fun assertCurrent(system: String) {
+                assertTrue(system.contains("江渡新性格样本"))
+                assertTrue(system.contains("江渡新身份样本"))
+                assertTrue(system.contains("江渡新语言习惯样本"))
+                assertTrue(system.contains("用户：先听我说完。江渡：嗯，我听着。"))
+                assertTrue(system.contains(newAgreement))
+                assertEquals(1, system.split(newAgreement).size - 1)
+                assertFalse(system.contains(oldAgreement))
+                assertFalse(system.contains(oldTitle))
+                assertFalse(system.contains("江渡旧性格样本"))
+                assertFalse(system.contains("江渡旧身份样本"))
+                assertFalse(system.contains("江渡旧语言习惯样本"))
+                assertFalse(system.contains(peerAgreement))
+                assertFalse(system.contains("星禾独立性格样本"))
+            }
+            phone(role).getOrThrow()
+            assertCurrent(prompt())
+            suspend fun expression(mode: CompanionContextMode = CompanionContextMode.Full) =
+                LuluAiServices.gateway.generate(role, "本人已经选定回应的意思", "表达本轮已选意图",
+                    "聊天表达渲染", "test", connectionOverride = connection, contextMode = mode)
+                    .getOrThrow()
+            expression()
+            assertCurrent(prompt())
+            phone(xing.characterId).getOrThrow()
+            val peer = prompt()
+            assertTrue(peer.contains(peerAgreement))
+            assertTrue(peer.contains("星禾独立性格样本"))
+            assertFalse(peer.contains(newAgreement))
+            assertFalse(peer.contains("江渡新性格样本"))
+            expression(CompanionContextMode.Isolated)
+            val isolated = prompt()
+            assertFalse(isolated.contains(newAgreement))
+            assertFalse(isolated.contains("江渡新性格样本"))
+            assertFalse(isolated.contains("江渡新身份样本"))
+            assertFalse(isolated.contains("江渡新语言习惯样本"))
+
+            assertTrue(CharacterSocialRelationship.setAgreement(role, "user", "", ""))
+            expression()
+            val cleared = prompt()
+            assertFalse(cleared.contains(newAgreement))
+            assertFalse(cleared.contains(oldAgreement))
+            assertTrue(cleared.contains("江渡新性格样本"))
+            assertNull(CharacterSocialRelationship.agreement(role, "user"))
+            assertEquals(6, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
 }

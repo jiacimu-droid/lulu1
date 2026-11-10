@@ -983,4 +983,45 @@ class CharacterLifeStoreTest {
         assertFalse(CharacterLifeStore.profileContext(role.characterId).contains("真正的更新前人格"))
     }
 
+    @Test fun authoredRelationshipKeepsCompleteBoundariesAcrossReloadEditAndClear() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "long-authored-relationship"
+        val other = "independent-authored-relationship"
+        val title = "双方共同选择的关系标题".repeat(8) + "末尾仍有效"
+        val first = "此处是双方亲自填写的相处说明。".repeat(150) +
+            "末尾否定：没有明确同意，不代为决定。"
+        val edited = "重新编辑后仍需完整保留的约定。".repeat(160) +
+            "末尾条件：只有用户主动确认才可继续，否则停止。"
+        assertTrue(title.length > 70)
+        assertTrue(first.length > 1600)
+        assertTrue(edited.length > 1600)
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", title, first))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(other, "user", "另一角色", "独立约定"))
+        fun reload() {
+            releasePreferences()
+            CharacterLifeStore.initialize(context)
+        }
+        reload()
+        assertEquals(title, CharacterSocialRelationship.agreement(role, "user")?.title)
+        assertEquals(first, CharacterSocialRelationship.agreement(role, "user")?.details)
+        val durable = JSONObject(context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            .getString(role, null)!!).getJSONObject("relationshipAgreements").getJSONObject("user")
+        assertEquals(first, durable.getString("details"))
+        assertEquals(title, durable.getString("title"))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", "修订", edited))
+        reload()
+        assertEquals(edited, CharacterSocialRelationship.agreement(role, "user")?.details)
+        val projected = CharacterSocialRelationship.promptSection(role)
+        assertTrue(projected.contains(edited))
+        assertFalse(projected.contains(first))
+        assertFalse(projected.contains("独立约定"))
+        assertEquals("独立约定", CharacterSocialRelationship.agreement(other, "user")?.details)
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", "", ""))
+        reload()
+        assertNull(CharacterSocialRelationship.agreement(role, "user"))
+        assertFalse(CharacterSocialRelationship.promptSection(role).contains(edited))
+        assertEquals("独立约定", CharacterSocialRelationship.agreement(other, "user")?.details)
+    }
+
 }
