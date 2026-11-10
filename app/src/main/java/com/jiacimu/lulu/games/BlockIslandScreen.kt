@@ -27,6 +27,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
+import com.jiacimu.lulu.R
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -1062,6 +1065,9 @@ private fun BlockIslandCanvas(
             mob.id to islandActorPosition(w.seed,"mob-${mob.id}",mob.x,mob.y)
         }
     }
+    // Decode the bundled atlas once at the composable/resource boundary;
+    // Canvas then samples only the tiles in the camera's visible viewport.
+    val terrainAtlas=ImageBitmap.imageResource(R.drawable.game_island_ground_atlas)
     // Only the Canvas recomposes for breeze/water/fire; controls & saved state stay stable.
     val scenery = rememberInfiniteTransition(label = "island-weather")
     val phase by scenery.animateFloat(
@@ -1115,6 +1121,7 @@ private fun BlockIslandCanvas(
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
                 buildPreview = buildPreview, hurtProgress = hurtProgress,
+                terrainAtlas = terrainAtlas,
             )
         }
     }
