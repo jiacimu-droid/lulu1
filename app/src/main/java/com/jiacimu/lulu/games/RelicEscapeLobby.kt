@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import android.content.Context
+import android.content.Intent
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -51,6 +52,7 @@ internal fun RelicEscapeLobby(
     onBuyBow:()->Unit,
     onUpgradeSatchel:()->Unit,
     onSellLoot:(String)->Unit,
+    onFeatureLoot:(String)->Unit,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     // Use the same avatar profile as chat and Moments rather than a placeholder pawn.
@@ -66,7 +68,10 @@ internal fun RelicEscapeLobby(
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
     var shopExpanded by remember { mutableStateOf(false) }
-    var vaultExpanded by remember { mutableStateOf(false) }
+    var vaultExpanded by remember { mutableStateOf(true) }
+    var selectedTreasureId by remember(snapshot.vault.map { it.id }) {
+        mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id)
+    }
 
 
     var prepExpanded by remember { mutableStateOf(false) }
@@ -338,19 +343,65 @@ internal fun RelicEscapeLobby(
                     }
                     Text("图鉴已收录 "+snapshot.discovered.size+"/"+RelicCollectibles.names.size+" 件",
                         color=campMint,fontSize=11.sp)
-                    if(vaultExpanded) {
-                    if(snapshot.vault.isEmpty())Text("成功撤离后，这里会展示你带出的宝物。",
-                        color=campMuted,fontSize=12.sp)
-                    snapshot.vault.takeLast(12).reversed().forEach { item ->
-                        Row(verticalAlignment=Alignment.CenterVertically) {
-                            Text(item.tier.label+" · "+item.name+" · ◇"+item.value,
-                                color=campGold,fontSize=11.sp,modifier=Modifier.weight(1f))
-                            TextButton(onClick={onSellLoot(item.id)},enabled=!live) {
-                                Text("出售",color=campMint,fontSize=11.sp)
+                    val exhibit=snapshot.vault.firstOrNull { it.id==selectedTreasureId }
+                        ?: snapshot.vault.firstOrNull { it.id==snapshot.featuredLootId }
+                        ?: snapshot.vault.lastOrNull()
+                    if(exhibit!=null) {
+                        RelicTreasureGalleryCard(exhibit,
+                            featured=exhibit.id==snapshot.featuredLootId)
+                        Row(Modifier.fillMaxWidth(),
+                            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                            OutlinedButton(onClick={onFeatureLoot(exhibit.id)},
+                                enabled=exhibit.id!=snapshot.featuredLootId,
+                                modifier=Modifier.weight(1f)) {
+                                Text(if(exhibit.id==snapshot.featuredLootId)
+                                    "✓ 已展出" else "✦ 放到展柜",color=campGold,
+                                    fontSize=11.sp)
+                            }
+                            OutlinedButton(onClick={
+                                val intent=Intent(Intent.ACTION_SEND).apply {
+                                    type="text/plain"
+                                    putExtra(Intent.EXTRA_TEXT,
+                                        RelicTreasureGallery.shareText(exhibit))
+                                }
+                                context.startActivity(Intent.createChooser(intent,"分享我的珍宝"))
+                            },modifier=Modifier.weight(1f)) {
+                                Text("♡ 炫耀珍宝",color=campMint,fontSize=11.sp)
                             }
                         }
                     }
-                    Text("出售实物不会抹掉永久图鉴记录。",color=campMuted,fontSize=11.sp)
+                    if(vaultExpanded) {
+                    if(snapshot.vault.isEmpty())Text(
+                        "珍宝馆还空着。去寻找一件让你真正心动的漂亮宝物吧。",
+                        color=campMuted,fontSize=12.sp)
+                    snapshot.vault.reversed().forEach { item ->
+                        Surface(onClick={selectedTreasureId=item.id},
+                            color=if(item.id==exhibit?.id) Color(0xFF355064)
+                                else Color(0xFF1C3443),
+                            shape=RoundedCornerShape(12.dp),
+                            border=BorderStroke(1.dp,
+                                if(item.id==exhibit?.id) campGold.copy(alpha=.65f)
+                                else campMint.copy(alpha=.22f))) {
+                            Row(Modifier.fillMaxWidth()
+                                .padding(horizontal=8.dp,vertical=5.dp),
+                                verticalAlignment=Alignment.CenterVertically,
+                                horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                                Column(Modifier.weight(1f)) {
+                                    Text((if(item.id==snapshot.featuredLootId)"✦ " else "✧ ")+
+                                        item.name+" · "+item.tier.label,
+                                        color=campGold,fontSize=12.sp,
+                                        fontWeight=FontWeight.Bold)
+                                    Text(RelicTreasureGallery.identity(item.name),
+                                        color=campMuted,fontSize=10.sp,maxLines=1)
+                                }
+                                TextButton(onClick={onSellLoot(item.id)},enabled=!live) {
+                                    Text("出售",color=campMint,fontSize=11.sp)
+                                }
+                            }
+                        }
+                    }
+                    Text("点击藏品可切换大幅鉴赏图。出售实物不会抹掉永久图鉴，但会撤下展柜中的同一件实物。",
+                        color=campMuted,fontSize=11.sp)
                     }
                 }
                 Spacer(Modifier.height(16.dp))
