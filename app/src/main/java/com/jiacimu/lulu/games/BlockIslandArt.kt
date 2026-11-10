@@ -119,6 +119,43 @@ internal object BlockIslandArt {
                 house.top+3>=top && house.top<top+rows)
                 drawFinishedCompanionHouse(origin(house.left,house.top),tile,house.style,phase)
         }
+        // Two map-readable travel waypoints, projected from the same physical
+        // coordinates and awarded IDs used by the rules. These are floor sigils,
+        // NOT structures, resources or collision targets. Completed sites settle
+        // into quiet blue-gold mosaics instead of disappearing from the world.
+        for (site in IslandExpeditionTrail.landmarks) {
+            val x=site.x
+            val y=site.y
+            if(x !in left until left+cols || y !in top until top+rows)continue
+            val position=center(x,y)
+            val completed=site.id in island.awardedChallenges
+            val pulse=.5f+.5f*sin(phase*6.28318f + x*.31f)
+            val accent=if(completed)Color(0xFF8BDDC8)else Color(0xFFFFD995)
+            val glow=.09f+if(completed).02f else pulse*.09f
+            drawCircle(accent.copy(alpha=glow),tile*.94f,position)
+            drawCircle(Color(0xFF244F4D).copy(alpha=.66f),tile*.39f,position)
+            drawCircle(Color(0xFFE1D1A1).copy(alpha=.83f),tile*.30f,position,
+                style=Stroke(tile*.055f))
+            drawCircle(accent.copy(alpha=if(completed).44f else .72f+.20f*pulse),
+                tile*(if(completed).36f else .40f+.06f*pulse),position,
+                style=Stroke(tile*.045f))
+            val jewel=Path().apply {
+                moveTo(position.x,position.y-tile*.27f)
+                lineTo(position.x+tile*.19f,position.y)
+                lineTo(position.x,position.y+tile*.27f)
+                lineTo(position.x-tile*.19f,position.y)
+                close()
+            }
+            drawPath(jewel,if(completed)Color(0xFF75C9B6)else Color(0xFFFFF1B8))
+            drawLine(Color(0xFF6F8F8B),position+Offset(-tile*.08f,0f),
+                position+Offset(tile*.08f,0f),strokeWidth=tile*.035f)
+            if(!completed) {
+                drawCircle(Color(0xFFFCF4DC).copy(alpha=.56f+.35f*pulse),
+                    tile*.055f,position+Offset(tile*.30f,-tile*.40f))
+                drawCircle(Color(0xFFFCE6AC).copy(alpha=.50f+.26f*pulse),
+                    tile*.038f,position+Offset(-tile*.42f,-tile*.22f))
+            }
+        }
         if (night) {
             // Small translucent veil allows genuine color changes, rather than an opaque black map.
             drawRect(Color(0xFF0D234C).copy(alpha = .27f))
@@ -492,6 +529,15 @@ internal object BlockIslandArt {
                 topLeft = p + Offset(t*.91f,0f), size = Size(t*.09f,t))
             if (!waterBelow) drawRect(Color(0xFFB8DCE0).copy(alpha = .34f),
                 topLeft = p + Offset(0f,t*.91f), size = Size(t,t*.09f))
+            // Alternating transparent sea bands and short wave crests, animated
+            // in place. They do not affect navigation, fishing or treasure drops.
+            drawRect(Color(0xFF0B5272).copy(alpha=.20f),
+                p+Offset(0f,t*.56f),Size(t,t*.28f))
+            if(hash % 3==0) {
+                val surf=t*(.11f+.05f*sin(phase*6.28318f+x*.7f))
+                drawOval(Color(0xFFC4EFE4).copy(alpha=.29f),
+                    p+Offset(t*.15f,t*.78f-surf),Size(t*.42f,t*.065f))
+            }
             val drift = ((phase * t * .28f + hash % 7) % (t * .26f))
             drawRect(waterLight.copy(alpha = .6f), p + Offset(t * .14f + drift, t * .36f),
                 Size(t * .20f, t * .07f))
@@ -541,6 +587,19 @@ internal object BlockIslandArt {
         if (hash % 9 == 0) {
             drawRect(Color(0xFF4B7B59), p + Offset(t * .61f, t * .84f),
                 Size(t * .18f, t * .06f))
+        }
+        if(hash%23==0) {
+            // A hand-shaped cluster of blossoms, with an outlined golden core.
+            val center=p+Offset(t*.36f,t*.37f)
+            val petal=Color(0xFFF4D1DC)
+            drawCircle(Color(0xFF365A4D).copy(alpha=.20f),t*.16f,
+                center+Offset(t*.035f,t*.10f))
+            for (i in 0..3) {
+                val angle=i*1.5707963f
+                drawOval(petal,center+Offset(cos(angle)*t*.10f-t*.06f,
+                    sin(angle)*t*.10f-t*.07f),Size(t*.12f,t*.15f))
+            }
+            drawCircle(Color(0xFFFFD17E),t*.067f,center)
         }
     }
 
