@@ -175,12 +175,20 @@ class ChatHistoryLegacyCompatibilityTest {
             .put("messages", JSONObject().put(conversationId, JSONArray())).toString()
         try {
             assertTrue(real.edit().putString("state_v1", snapshot).commit())
+            var writeAttempts = 0
             val failing = object : android.content.SharedPreferences by real {
                 override fun edit(): android.content.SharedPreferences.Editor {
                     val underlying = real.edit()
                     return object : android.content.SharedPreferences.Editor by underlying {
-                        override fun commit(): Boolean = false
-                        override fun apply() { /* Simulate storage failure; nothing reaches disk. */ }
+                        override fun putString(key: String?, value: String?): android.content.SharedPreferences.Editor {
+                            underlying.putString(key, value)
+                            return this
+                        }
+                        override fun commit(): Boolean {
+                            writeAttempts++
+                            return false
+                        }
+                        override fun apply() { writeAttempts++ }
                     }
                 }
             }
@@ -192,6 +200,7 @@ class ChatHistoryLegacyCompatibilityTest {
             val store = InMemoryLuluChatStore()
             store.initialize(context)
             val outcome = runCatching { store.setConversationPinned(conversationId, true) }
+            assertEquals("The injected write failure must actually be reached", 1, writeAttempts)
             assertTrue("A failed write cannot be acknowledged as successful",
                 outcome.isFailure || outcome.getOrNull() == false)
             assertFalse("A rejected mutation must not remain visible in memory",

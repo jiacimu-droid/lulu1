@@ -38,6 +38,8 @@ class ResidentDailyContinuityTest {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         val now = Instant.now()
         DigitalWorldStore.initialize(app)
+        // Robolectric replaces the application but retains the world singleton across tests.
+        DigitalWorldActivityStateStore.initialize(app)
         val barista = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
             name = "验收店员", identity = "店员", templateName = "岑灯",
             homeLocationCode = DigitalWorldPublicPlaces.COURTYARD))
@@ -58,6 +60,7 @@ class ResidentDailyContinuityTest {
             assertTrue(order().contains("店员验收店员实际"))
             assertTrue(ResidentDailyPolicy.setActivityEnabled(app, false, baristaRole))
             assertTrue(CompanionOnlineStore.isOnline(baristaRole, now))
+            assertFalse(CompanionOnlineStore.residentIsAwake(app, baristaRole, now))
             assertTrue(runCatching { order() }.exceptionOrNull()?.message.orEmpty().contains("暂时无法接待"))
             assertTrue(DigitalWorldActivityStateStore.apply(customerRole, null, "order_drink",
                 "自助取水", now).contains("从自助供应台领取了"))
