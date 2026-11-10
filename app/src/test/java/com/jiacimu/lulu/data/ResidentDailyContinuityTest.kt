@@ -34,6 +34,38 @@ class ResidentDailyContinuityTest {
     private fun residentField() = DigitalWorldExpansionStore::class.java
         .getDeclaredField("residents").apply { isAccessible = true }
 
+    @Test fun cafeOrderNeedsAnAwakeBaristaOnSiteAndSelfServiceDoesNot() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        val now = Instant.now()
+        DigitalWorldStore.initialize(app)
+        val barista = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "验收店员", identity = "店员", templateName = "岑灯",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD))
+        val customer = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "验收顾客", identity = "来访居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD))
+        ResidentCharacterBridge.sync(app, now)
+        val baristaRole = ResidentCharacterBridge.characterId(barista.id)
+        val customerRole = ResidentCharacterBridge.characterId(customer.id)
+        assertNotNull(DigitalWorldExpansionStore.moveResident(customer.id, DigitalWorldPublicPlaces.CAFE, now))
+        fun order() = DigitalWorldActivityStateStore.apply(customerRole, null, "cafe_order_coffee", "点热咖啡", now)
+        try {
+            assertNotNull(DigitalWorldExpansionStore.moveResident(barista.id, DigitalWorldPublicPlaces.CAFE, now))
+            assertTrue(runCatching { order() }.exceptionOrNull()?.message.orEmpty().contains("暂时无法接待"))
+            assertNotNull(DigitalWorldExpansionStore.moveResident(barista.id, barista.homeLocationCode, now))
+            CompanionOnlineStore.openResidentWindow(app, baristaRole, now)
+            assertTrue(runCatching { order() }.exceptionOrNull()?.message.orEmpty().contains("暂时无法接待"))
+            assertNotNull(DigitalWorldExpansionStore.moveResident(barista.id, DigitalWorldPublicPlaces.CAFE, now))
+            assertTrue(order().contains("店员验收店员实际"))
+            assertTrue(ResidentDailyPolicy.setActivityEnabled(app, false, baristaRole))
+            assertTrue(CompanionOnlineStore.isOnline(baristaRole, now))
+            assertTrue(runCatching { order() }.exceptionOrNull()?.message.orEmpty().contains("暂时无法接待"))
+            assertTrue(DigitalWorldActivityStateStore.apply(customerRole, null, "order_drink",
+                "自助取水", now).contains("从自助供应台领取了"))
+        } finally {
+            ResidentDailyPolicy.setActivityEnabled(app, true, baristaRole)
+        }
+    }
+
     @org.junit.Before fun initializeWorkerHost() {
         // Robolectric swaps Application/SharedPreferences between cases but
         // keeps Kotlin singletons. Recreate the model gateway against THIS

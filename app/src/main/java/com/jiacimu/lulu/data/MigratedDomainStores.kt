@@ -300,20 +300,22 @@ class InMemoryLuluChatStore : LuluChatStore {
     }
 
     override fun setConversationPinned(conversationId: String, pinned: Boolean): Boolean = synchronized(lock) {
-        var changed = false
-        conversationState.value = conversationState.value.map { conversation ->
-            if (conversation.id != conversationId || conversation.pinned == pinned) {
+        val current = conversationState.value.firstOrNull { it.id == conversationId }
+            ?: return@synchronized false
+        if (current.pinned == pinned) return@synchronized false
+        val updated = conversationState.value.map { conversation ->
+            if (conversation.id != conversationId) {
                 conversation
             } else {
-                changed = true
                 conversation.copy(
                     pinned = pinned,
                     groupChat = conversation.groupChat?.copy(pinned = pinned),
                 )
             }
         }.sortedWith(conversationOrdering())
-        if (changed) persistLocked()
-        changed
+        persistLocked(durable = true, conversations = updated)
+        conversationState.value = updated
+        true
     }
 
     private fun recordGroupMembershipAwareness(
@@ -791,11 +793,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         }.sortedWith(conversationOrdering())
     }
 
-    private fun persistLocked(durable: Boolean = false) {
+    private fun persistLocked(durable: Boolean = false, conversations: List<LuluConversation> = conversationState.value) {
         check(!unreadableChatSnapshot) { "聊天历史无法读取，已保护原始数据，禁止覆盖" }
         val editor = prefs?.edit()?.putString(
             CHAT_STATE,
-            encode(conversationState.value, messageStates.mapValues { (_, state) -> state.value }).toString(),
+            encode(conversations, messageStates.mapValues { (_, state) -> state.value }).toString(),
         ) ?: return
         if (durable) check(editor.commit()) { "消息未能保存到手机" } else editor.apply()
     }

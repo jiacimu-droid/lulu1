@@ -29,6 +29,14 @@ internal object DigitalWorldActivityStateStore {
         RealityWorldWindowRuntime.initialize(application)
     }
 
+    private fun availableBarista(now: Instant): DigitalWorldResident? {
+        val context = appContext ?: return null
+        return DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE).firstOrNull { resident ->
+            resident.isCafeBarista &&
+                CompanionOnlineStore.residentIsAwake(context, ResidentCharacterBridge.characterId(resident.id), now)
+        }
+    }
+
     /** Minimal truthful living state for non-world chat: no furniture/tool catalog
      * or reality-news feed. Active rest/reading and elapsed time still carry over.
      */
@@ -95,9 +103,7 @@ internal object DigitalWorldActivityStateStore {
             }
             if (cafeInventory.isNotEmpty()) appendLine("咖啡角随身物品：${cafeInventory.joinToString("；")}。")
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
-                val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.isCafeBarista && CompanionOnlineStore.isOnline(
-                        ResidentCharacterBridge.characterId(it.id), now) }
+                val server = availableBarista(now)
                 if (server != null) appendLine("店员${server.name}在岗，可点=${DigitalCafeMenu.names()}。")
                 else appendLine("店员暂时无法接待，自助台仍有温水和饼干。")
                 appendLine("点单只入库；实际喝完或吃完才结算身体。")
@@ -154,9 +160,7 @@ internal object DigitalWorldActivityStateStore {
             in DigitalCafeMenu.orderActionIds -> {
                 require(DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) { "需要先到浮光咖啡角点单" }
                 val item = checkNotNull(DigitalCafeMenu.byOrder(activityId))
-                val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.isCafeBarista && CompanionOnlineStore.isOnline(
-                        ResidentCharacterBridge.characterId(it.id), now) }
+                val server = availableBarista(now)
                     ?: error("咖啡角店员暂时无法接待；可使用自助台")
                 val key = item.inventoryPrefix + characterId
                 val count = p.getInt(key, 0)

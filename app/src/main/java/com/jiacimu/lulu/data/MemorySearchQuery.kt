@@ -50,11 +50,16 @@ internal fun memoryTimeRange(query: String, now: Instant = Instant.now(), zone: 
 
 /** Searches evidence directly so a failed extractor cannot hide an older relevant event. */
 internal object RawTimelineMemoryRecall {
+    private val timeQuestion = Regex("""^([\p{L}\p{N}]{2,16}?)(?:是)?(?:什么时候|什么时间|几点)[吗呢呀？?]*$""")
+
     fun find(characterId: String, query: String, limit: Int = 16): List<SharedTimelineEvent> {
         val focused = RelevantMemoryRecall.focusQuery(query)
         val range = memoryTimeRange(focused)
-        val overview = Regex("(?:做了什么|聊了什么|聊过什么|发生了什么|有什么事)").containsMatchIn(memoryTemporalQuery(focused))
+        val currentInput = memoryTemporalQuery(focused).trim()
+        val overview = Regex("(?:做了什么|聊了什么|聊过什么|发生了什么|有什么事)").containsMatchIn(currentInput)
         val terms = if (range != null && overview) emptySet() else memorySearchTerms(focused)
+        val timeTopic = timeQuestion.matchEntire(currentInput)?.groupValues?.get(1)?.lowercase()
+            ?.takeIf { it in memorySearchTerms(it) }
         if (terms.isEmpty() && range == null) return emptyList()
         val events = SharedExperienceTimeline.all(characterId).filter {
             com.jiacimu.lulu.LuluRepositories.memory.allowsRawRecall(it) &&
@@ -62,7 +67,9 @@ internal object RawTimelineMemoryRecall {
         }
         return events.map { event ->
             val overlap = terms.intersect(memorySearchTerms(event.content)).size
-            event to overlap
+            // A short topic such as 练琴 can be the only meaningful match in a time question.
+            val exactTopic = timeTopic != null && event.content.contains(timeTopic, ignoreCase = true)
+            event to if (exactTopic) maxOf(2, overlap) else overlap
         }.filter { (_, overlap) -> terms.isNotEmpty() && overlap >= minOf(2, terms.size) ||
                 (range != null && (terms.isEmpty() || overlap > 0)) }
             .sortedWith(compareByDescending<Pair<SharedTimelineEvent, Int>> { it.second }.thenByDescending { it.first.occurredAt })

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T17:00:47.809418+00:00",
-  "commit": "7b262da4b05f1ce60ab803c8831d5285f56f26f2",
+  "generatedAt": "2026-11-10T17:06:47.224800+00:00",
+  "commit": "28aef264e4611d615bb2afc2d3a538c28f435b2d",
   "branch": "main",
-  "sourceFingerprint": "cc5c611e101bfe08d27b207f7581f2ba499b1058a3f3af39486580447f6168be",
+  "sourceFingerprint": "9123f6936bb91a3d2f80cafb5016407d902d04b1b6feb6e2885be133cb527e21",
   "summary": {
     "files": 1173,
-    "lines": 253927,
-    "symbols": 3458
+    "lines": 253972,
+    "symbols": 3459
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -355,7 +355,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1054
+        "line": 1056
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -989,11 +989,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1046
+        "line": 1048
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1191
+        "line": 1193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -2049,7 +2049,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1491
+        "line": 1523
       }
     ],
     "part": [
@@ -2883,7 +2883,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1173
+        "line": 1175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -3305,7 +3305,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 124
+        "line": 130
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
@@ -4063,15 +4063,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1807
+        "line": 1839
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1859
+        "line": 1891
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1906
+        "line": 1938
       }
     ],
     "todoId": [
@@ -4172,6 +4172,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
         "line": 42
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 50
       }
     ],
     "allPending": [
@@ -4217,7 +4221,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1062
+        "line": 1064
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -5725,7 +5729,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 53
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -6437,7 +6441,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 310
+        "line": 314
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6663,7 +6667,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1082
+        "line": 1084
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -6707,7 +6711,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1072
+        "line": 1074
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -7703,7 +7707,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1180
+        "line": 1182
       }
     ],
     "realtimeVoiceId": [
@@ -8759,13 +8763,13 @@
     "briefContextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 36
+        "line": 44
       }
     ],
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 60
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
@@ -8787,25 +8791,25 @@
     "beginReading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 232
+        "line": 236
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 244
+        "line": 248
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 255
+        "line": 259
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 269
+        "line": 273
       }
     ],
     "recipients": [
@@ -10827,67 +10831,67 @@
     "migrateUserFavorites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 726
+        "line": 728
       }
     ],
     "removeUserFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 735
+        "line": 737
       }
     ],
     "defaultConversations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 992
+        "line": 994
       }
     ],
     "defaultMessages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1001
+        "line": 1003
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1013
+        "line": 1015
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1031
+        "line": 1033
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1040
+        "line": 1042
       }
     ],
     "defaultSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1153
+        "line": 1155
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1163
+        "line": 1165
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1169
+        "line": 1171
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1186
+        "line": 1188
       }
     ],
     "objectOrNull": [
@@ -16963,7 +16967,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2986
+        "line": 3018
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17189,7 +17193,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 892
+        "line": 924
       }
     ],
     "CharacterRelationalInitiativeTest": [
@@ -17519,7 +17523,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1531
+        "line": 1563
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -18545,91 +18549,91 @@
     "citizen": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 91
+        "line": 123
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2760
+        "line": 2792
       }
     ],
     "modelAnswer": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 182
+        "line": 214
       }
     ],
     "resident": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1045
+        "line": 1077
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1331
+        "line": 1363
       }
     ],
     "row": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1258
+        "line": 1290
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1344
+        "line": 1376
       }
     ],
     "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1325
+        "line": 1357
       }
     ],
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1585
+        "line": 1617
       }
     ],
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2368
+        "line": 2400
       }
     ],
     "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2410
+        "line": 2442
       }
     ],
     "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2472
+        "line": 2504
       }
     ],
     "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2537
+        "line": 2569
       }
     ],
     "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2699
+        "line": 2731
       }
     ],
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2881
+        "line": 2913
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2963
+        "line": 2995
       }
     ],
     "ResidentDailyPolicyTest": [
@@ -27469,8 +27473,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 319,
-      "sha256": "dedd9bfa8401e74386647f27f9ad5e251b2eff48e9a4bd02cf01e5beac882496",
+      "lines": 323,
+      "sha256": "a7943095bc0d74e162542f8c5054bb8ae8e1b70070e2aa1f4d6eb9101b441993",
       "symbols": [
         {
           "name": "initialize",
@@ -27478,35 +27482,35 @@
         },
         {
           "name": "briefContextFor",
-          "line": 36
+          "line": 44
         },
         {
           "name": "contextFor",
-          "line": 60
+          "line": 68
         },
         {
           "name": "apply",
-          "line": 124
+          "line": 130
         },
         {
           "name": "beginReading",
-          "line": 232
+          "line": 236
         },
         {
           "name": "ongoingActivity",
-          "line": 244
+          "line": 248
         },
         {
           "name": "pauseActivity",
-          "line": 255
+          "line": 259
         },
         {
           "name": "endActivity",
-          "line": 269
+          "line": 273
         },
         {
           "name": "clearCharacter",
-          "line": 310
+          "line": 314
         }
       ]
     },
@@ -29325,12 +29329,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 72,
-      "sha256": "14f41ab181bfc26bc02712c31a8a836c4465993147181f7c592bf24f35846d1f",
+      "lines": 79,
+      "sha256": "f916eed917665ce4832cfee8ea9ec4113128f019d77fad0272cae3f061ef20ba",
       "symbols": [
         {
           "name": "find",
-          "line": 53
+          "line": 54
         }
       ]
     },
@@ -29493,8 +29497,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 1213,
-      "sha256": "5e8733f6e44705e168a76eeba8eb002f5ef7cc2a31bf63fb30e5cdd61fa544f7",
+      "lines": 1215,
+      "sha256": "dc3a83386f25d46d402e1917f49ce3b9d121e4b6a15f40376869f4bafc8c9c36",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -29614,79 +29618,79 @@
         },
         {
           "name": "migrateUserFavorites",
-          "line": 726
+          "line": 728
         },
         {
           "name": "removeUserFavorite",
-          "line": 735
+          "line": 737
         },
         {
           "name": "defaultConversations",
-          "line": 992
+          "line": 994
         },
         {
           "name": "defaultMessages",
-          "line": 1001
+          "line": 1003
         },
         {
           "name": "CharacterContactPolicy",
-          "line": 1013
+          "line": 1015
         },
         {
           "name": "CharacterSettings",
-          "line": 1031
+          "line": 1033
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 1040
+          "line": 1042
         },
         {
           "name": "initialize",
-          "line": 1046
+          "line": 1048
         },
         {
           "name": "update",
-          "line": 1054
+          "line": 1056
         },
         {
           "name": "create",
-          "line": 1062
+          "line": 1064
         },
         {
           "name": "delete",
-          "line": 1072
+          "line": 1074
         },
         {
           "name": "get",
-          "line": 1082
+          "line": 1084
         },
         {
           "name": "defaultSettings",
-          "line": 1153
+          "line": 1155
         },
         {
           "name": "CharacterWorldBookRule",
-          "line": 1163
+          "line": 1165
         },
         {
           "name": "CharacterWorldBookRuleStore",
-          "line": 1169
+          "line": 1171
         },
         {
           "name": "setEnabled",
-          "line": 1173
+          "line": 1175
         },
         {
           "name": "isEnabled",
-          "line": 1180
+          "line": 1182
         },
         {
           "name": "MigratedDomainStores",
-          "line": 1186
+          "line": 1188
         },
         {
           "name": "initialize",
-          "line": 1191
+          "line": 1193
         }
       ]
     },
@@ -39766,104 +39770,108 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 3038,
-      "sha256": "415da55987d4286c843ad98759c4fabc02e6e45a4ba813c0793d67036dc9a71b",
+      "lines": 3070,
+      "sha256": "73f307c1997c5e00c840c7c19a3d13f9b8e9591cbdc1ce2e24d59b2793ebef65",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
           "line": 22
         },
         {
+          "name": "order",
+          "line": 50
+        },
+        {
           "name": "citizen",
-          "line": 91
+          "line": 123
         },
         {
           "name": "modelAnswer",
-          "line": 182
+          "line": 214
         },
         {
           "name": "item",
-          "line": 892
+          "line": 924
         },
         {
           "name": "resident",
-          "line": 1045
+          "line": 1077
         },
         {
           "name": "row",
-          "line": 1258
+          "line": 1290
         },
         {
           "name": "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn",
-          "line": 1325
+          "line": 1357
         },
         {
           "name": "resident",
-          "line": 1331
+          "line": 1363
         },
         {
           "name": "row",
-          "line": 1344
+          "line": 1376
         },
         {
           "name": "choice",
-          "line": 1491
+          "line": 1523
         },
         {
           "name": "decision",
-          "line": 1531
+          "line": 1563
         },
         {
           "name": "invalid",
-          "line": 1585
+          "line": 1617
         },
         {
           "name": "select",
-          "line": 1807
+          "line": 1839
         },
         {
           "name": "select",
-          "line": 1859
+          "line": 1891
         },
         {
           "name": "select",
-          "line": 1906
+          "line": 1938
         },
         {
           "name": "posts",
-          "line": 2368
+          "line": 2400
         },
         {
           "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
-          "line": 2410
+          "line": 2442
         },
         {
           "name": "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance",
-          "line": 2472
+          "line": 2504
         },
         {
           "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
-          "line": 2537
+          "line": 2569
         },
         {
           "name": "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay",
-          "line": 2699
+          "line": 2731
         },
         {
           "name": "citizen",
-          "line": 2760
+          "line": 2792
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 2881
+          "line": 2913
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 2963
+          "line": 2995
         },
         {
           "name": "proposal",
-          "line": 2986
+          "line": 3018
         }
       ]
     },
