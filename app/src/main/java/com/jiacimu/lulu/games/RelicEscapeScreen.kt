@@ -319,15 +319,36 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     else -> if (run.carried.isEmpty()) "目标：找到一件宝物，再去绿色撤离门"
                         else "已带${run.carried.size}件宝物（估值${run.value}）→ 去绿色撤离门"
                 }
-                Text(objective, color=relicGold, fontWeight=FontWeight.Bold,
-                    fontSize=11.sp, maxLines=2)
-                if(run.contract!=RelicContract.NONE) {
-                    val progress=RelicContractBoard.bagProgress(run)
-                    Text("✦ "+run.contract.label+" · 背包进度 "+
-                        (progress?.first?:0)+"/"+(progress?.second?:1)+
-                        " · 撤离成功额外 ◇"+run.contract.bonus,
-                        color=relicGreen,fontSize=11.sp,
-                        fontWeight=FontWeight.Bold,maxLines=2)
+                val guide=RelicObjectiveGuide.nextVisible(run)
+                Surface(
+                    onClick={
+                        guide?.let {
+                            // Only camera focus changes: no walking, no fog
+                            // reveal, no free survey or loot transfer.
+                            cameraFocus=it.x to it.y
+                            selected=it.x to it.y
+                        }
+                    },
+                    enabled=guide!=null,
+                    color=Color(0xE31B3340),shape=RoundedCornerShape(12.dp),
+                    border=BorderStroke(1.dp,relicGold.copy(alpha=.48f)),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal=10.dp,vertical=8.dp),
+                        verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                        Text(objective,color=relicGold,fontWeight=FontWeight.Bold,
+                            fontSize=11.sp,maxLines=2)
+                        if(run.contract!=RelicContract.NONE) {
+                            val progress=RelicContractBoard.bagProgress(run)
+                            Text("✦ "+run.contract.label+" · "+
+                                (progress?.first?:0)+"/"+(progress?.second?:1)+
+                                " · 成功撤离额外 ◇"+run.contract.bonus,
+                                color=relicGreen,fontSize=10.sp,
+                                fontWeight=FontWeight.Bold,maxLines=2)
+                        }
+                        Text(RelicObjectiveGuide.prompt(run),
+                            color=if(guide!=null)Color(0xFFFFE2AC) else relicMuted,
+                            fontSize=10.sp,maxLines=2)
+                    }
                 }
                 val attackTarget = relicAttackTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
