@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T06:30:50.203203+00:00",
-  "commit": "02dc28120be5ca3268d3c04012e26c8b4a13bb81",
+  "generatedAt": "2026-11-10T06:32:00.732090+00:00",
+  "commit": "6653c7f317184bbbf5d47733a9c4fa21248ab6ca",
   "branch": "main",
-  "sourceFingerprint": "e2c2c5af51bb5b0a61ed5f334db9ab4874f970faadc39f4e24b7ef6f031d3ca8",
+  "sourceFingerprint": "f4a6aa93d2b5a6b5cbcb1748b56bd5e3281d63f9c86ff0f269a60018cbfc931e",
   "summary": {
-    "files": 1167,
-    "lines": 251813,
-    "symbols": 3429
+    "files": 1168,
+    "lines": 251888,
+    "symbols": 3435
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4356,6 +4356,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt",
         "line": 7
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 17
       }
     ],
     "latest": [
@@ -6346,6 +6350,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 21
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -13838,6 +13846,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
         "line": 8
+      }
+    ],
+    "remainingRequirements": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 24
+      }
+    ],
+    "spawnIfReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 35
+      }
+    ],
+    "recordVictory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 67
+      }
+    ],
+    "impendingHeavyAttack": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 71
       }
     ],
     "json": [
@@ -33198,6 +33230,37 @@
         {
           "name": "tileAt",
           "line": 21
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+      "lines": 75,
+      "sha256": "f72222c8a8e6c0512de5bbf6002a0750a96af77e50d7a14c865cee89d6141302",
+      "symbols": [
+        {
+          "name": "ready",
+          "line": 17
+        },
+        {
+          "name": "active",
+          "line": 21
+        },
+        {
+          "name": "remainingRequirements",
+          "line": 24
+        },
+        {
+          "name": "spawnIfReady",
+          "line": 35
+        },
+        {
+          "name": "recordVictory",
+          "line": 67
+        },
+        {
+          "name": "impendingHeavyAttack",
+          "line": 71
         }
       ]
     },
