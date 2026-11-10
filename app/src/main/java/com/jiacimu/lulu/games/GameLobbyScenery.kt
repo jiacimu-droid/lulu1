@@ -179,29 +179,40 @@ internal fun GameLobbyPartySlot(
     allowRemove:Boolean=false,
     onRemove:()->Unit={},
 ) {
-    Surface(
-        modifier=Modifier.width(108.dp),
-        shape=RoundedCornerShape(16.dp),
-        color=if(isPlayer)Color(0xD0345149) else Color(0xC6213640),
-        border=BorderStroke(1.dp,accent.copy(alpha=if(isPlayer).85f else .43f)),
-    ) {
-        Column(Modifier.padding(horizontal=8.dp,vertical=7.dp),
+    // An RPG-style standee, not a settings checkbox. The actual user/character
+    // avatar still comes from the same profile and invitation state.
+    Surface(modifier=Modifier.width(112.dp),shape=RoundedCornerShape(17.dp),
+        color=Color(0xF01A2D36),
+        border=BorderStroke(if(isPlayer)2.dp else 1.dp,
+            accent.copy(alpha=if(isPlayer).92f else .65f)),
+        shadowElevation=6.dp) {
+        Column(Modifier.background(Brush.verticalGradient(listOf(
+            if(isPlayer)Color(0xFF45675A) else Color(0xFF354352),
+            Color(0xFF182B36),Color(0xFF111F2C)))),
             horizontalAlignment=Alignment.CenterHorizontally) {
-            GameCharacterPawn(avatarUri=avatarUri,fallback=fallback,moving=false,facingX=1f,
-                player=isPlayer,coat=if(isPlayer)Color(0xFF608C7D) else Color(0xFF6D6B80))
-            Text(name,color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Bold,maxLines=1)
-            if(isPlayer) {
-                Text("✦ 队长",color=accent,fontSize=10.sp)
-            } else {
-                Text(if(allowRemove)"✓ 已加入 · 移出" else "✓ 同行中",
-                    color=accent,fontSize=10.sp,
-                    modifier=Modifier.padding(top=4.dp))
-                if(allowRemove) {
-                    TextButton(onClick=onRemove,modifier=Modifier.height(28.dp),
-                        contentPadding=PaddingValues(0.dp)) {
-                        Text("移出队伍",color=accent,fontSize=10.sp)
-                    }
+            Box(Modifier.fillMaxWidth().height(111.dp),
+                contentAlignment=Alignment.Center) {
+                Canvas(Modifier.matchParentSize()) {
+                    drawCircle(accent.copy(alpha=.14f),size.minDimension*.43f,
+                        center=Offset(size.width*.50f,size.height*.43f))
+                    drawCircle(accent.copy(alpha=.12f),size.minDimension*.33f,
+                        center=Offset(size.width*.50f,size.height*.43f))
                 }
+                GameCharacterPawn(avatarUri=avatarUri,fallback=fallback,
+                    moving=false,facingX=1f,player=isPlayer,
+                    coat=if(isPlayer)Color(0xFF608C7D) else Color(0xFF6D6B80))
+                Text(if(isPlayer)"♛" else "✓",color=accent,fontSize=18.sp,
+                    fontWeight=FontWeight.Bold,
+                    modifier=Modifier.align(Alignment.TopEnd).padding(end=7.dp,top=4.dp))
+            }
+            Text(name,color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold,
+                maxLines=1,modifier=Modifier.padding(horizontal=6.dp))
+            Text(if(isPlayer)"队长" else "已加入队伍",color=accent,fontSize=10.sp,
+                modifier=Modifier.padding(vertical=3.dp))
+            if(allowRemove)TextButton(onClick=onRemove,
+                modifier=Modifier.height(28.dp),
+                contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
+                Text("移出队伍",color=accent,fontSize=10.sp)
             }
         }
     }
@@ -214,15 +225,22 @@ internal fun GameLobbyInviteSlot(
     onClick:()->Unit,
 ) {
     Surface(onClick=onClick,enabled=enabled,
-        modifier=Modifier.width(108.dp).height(154.dp),
-        color=Color(0x991E3D42),shape=RoundedCornerShape(16.dp),
-        border=BorderStroke(1.dp,accent.copy(alpha=.65f))) {
-        Column(Modifier.fillMaxSize().padding(9.dp),
+        modifier=Modifier.width(112.dp).height(170.dp),
+        color=Color(0xC01B3744),shape=RoundedCornerShape(17.dp),
+        border=BorderStroke(1.5.dp,accent.copy(alpha=.62f)),
+        shadowElevation=4.dp) {
+        Column(Modifier.fillMaxSize().background(Brush.verticalGradient(
+            listOf(Color(0xD02D4B50),Color(0xD0102331)))).padding(9.dp),
             horizontalAlignment=Alignment.CenterHorizontally,
             verticalArrangement=Arrangement.Center) {
-            Text("＋",color=accent,fontSize=36.sp,fontWeight=FontWeight.Light)
-            Text("邀请伙伴",color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
-            Text("角色自己回应",color=accent,fontSize=9.sp)
+            Surface(shape=RoundedCornerShape(99.dp),color=accent.copy(alpha=.16f),
+                border=BorderStroke(1.dp,accent.copy(alpha=.72f))) {
+                Text("＋",color=accent,fontSize=36.sp,fontWeight=FontWeight.Light,
+                    modifier=Modifier.padding(horizontal=11.dp,vertical=0.dp))
+            }
+            Spacer(Modifier.height(10.dp))
+            Text("邀请新伙伴",color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+            Text("由角色自己决定",color=accent,fontSize=9.sp)
         }
     }
 }
