@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T09:09:34.405228+00:00",
-  "commit": "f97099c6134807429f608117f16e862416b14572",
+  "generatedAt": "2026-11-10T09:10:19.355017+00:00",
+  "commit": "7fd3f29ce0fcd654663f9560f48913190b0a38f6",
   "branch": "main",
-  "sourceFingerprint": "00ddb3515befd9fd76a42ce8860d0eb798a7b354446df53e07ea1c3a7e706529",
+  "sourceFingerprint": "28bc79aad91ebf2befd0d98e776764a397be0f437f0e9dd4713a33552f994f3b",
   "summary": {
-    "files": 1170,
-    "lines": 252780,
-    "symbols": 3442
+    "files": 1171,
+    "lines": 252839,
+    "symbols": 3443
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19056,6 +19056,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
         "line": 5
+      }
+    ],
+    "RelicObjectiveRouteTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
+        "line": 9
       }
     ],
     "RelicQuickActionTest": [
@@ -40615,6 +40621,17 @@
         {
           "name": "RelicMapCameraTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
+      "lines": 59,
+      "sha256": "b04b7169b0cdc7d00c482e0398e176f6b11aa24fe41737c7e07360e9786e2e77",
+      "symbols": [
+        {
+          "name": "RelicObjectiveRouteTest",
+          "line": 9
         }
       ]
     },
