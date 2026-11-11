@@ -152,6 +152,14 @@ class AutonomousActionBoundaryIntegrationTest {
                 modelInputs[1].contains("实际工具执行"))
             assertTrue("下一轮模型应收到拒绝的具体原因，而非仅有工具名称和状态",
                 rejectionEvidence.any { modelInputs[1].contains(it) })
+            // A silent follow-up must not replay the rejected primary action or
+            // manufacture a second failure receipt for the same decision.
+            val receiptsAfterFollowUp = SharedExperienceTimeline.all(actor)
+                .filter { it.channel == "实际工具执行" }
+                .mapNotNull { runCatching { JSONObject(it.content) }.getOrNull() }
+                .filter { it.optString("tool") == "send_character_message" }
+            assertEquals("静默后续不得重复执行已拒绝的主工具",
+                primaryReceipts.map { it.toString() }, receiptsAfterFollowUp.map { it.toString() })
             assertTrue("下一轮应保留成功的独立动态", modelInputs[1].contains(text))
             assertEquals("沉默决定不能重放独立动态", 1,
                 MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == text })
