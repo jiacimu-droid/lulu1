@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:02:25.389723+00:00",
-  "commit": "51cf018633d0714e82eaf56557f0dacbc30b920d",
+  "generatedAt": "2026-11-11T15:03:43.742165+00:00",
+  "commit": "a7db8ed6339b0098144617cdc07ae973faf26fd7",
   "branch": "main",
-  "sourceFingerprint": "4c268fc63d748668e90b3c8b8f8645a5ac16ff0fec37f2c554784f1ba0c27140",
+  "sourceFingerprint": "19e888c76c230b9f0eaf6d78e5732874accb28c31811ba5eaf99bd77509e2fac",
   "summary": {
     "files": 1177,
-    "lines": 256163,
+    "lines": 256197,
     "symbols": 3497
   },
   "symbolIndex": {
@@ -34775,8 +34775,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt",
-      "lines": 197,
-      "sha256": "f020f8281335b74bd5146c9f3cebdb63f91f68a183901a2bbcba0f6a1d0f5436",
+      "lines": 231,
+      "sha256": "3d5589f42f6b4f81f183968e10a95167a7709666e8927dc08786268cb406ea5d",
       "symbols": []
     },
     {
