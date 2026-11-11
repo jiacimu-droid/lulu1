@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cb54a9c373a093f46adda2dd9997a6cd20e4f15e`
+- 基准提交：`6a4b2fa5a9f19d77d6563459fb0c86b740950d21`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：254698
+- 已索引代码/文本行：254786
 - 已发现符号：3473
 
 | 文件 | 行数 | 符号数 |
@@ -655,7 +655,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt` | 157 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt` | 313 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt` | 421 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 843 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 857 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
@@ -1066,7 +1066,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 278 | 5 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 352 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 124 | 1 |

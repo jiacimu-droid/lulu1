@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T00:47:15.961654+00:00",
-  "commit": "cb54a9c373a093f46adda2dd9997a6cd20e4f15e",
+  "generatedAt": "2026-11-11T01:32:10.999331+00:00",
+  "commit": "6a4b2fa5a9f19d77d6563459fb0c86b740950d21",
   "branch": "main",
-  "sourceFingerprint": "8af54b100529b5b9cb8216ac59fb137e586725a77316405d5e9006f5539e14de",
+  "sourceFingerprint": "0dcb3a99e1d100ecfa8a40881574fd86b7bb1c58abde7628ba38b7159c14735b",
   "summary": {
     "files": 1175,
-    "lines": 254698,
+    "lines": 254786,
     "symbols": 3473
   },
   "symbolIndex": {
@@ -333,7 +333,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 211
+        "line": 212
       }
     ],
     "update": [
@@ -1519,7 +1519,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 176
+        "line": 206
       }
     ],
     "sceneLabel": [
@@ -13153,7 +13153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 149
+        "line": 179
       }
     ],
     "has": [
@@ -13603,7 +13603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 400
+        "line": 430
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -18543,25 +18543,25 @@
     "RelationshipPreferenceGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 159
+        "line": 160
       }
     ],
     "persistedAgreement": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 188
+        "line": 189
       }
     ],
     "assertCurrent": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 230
+        "line": 231
       }
     ],
     "RelationshipPreferencePersistenceTest": [
@@ -33149,20 +33149,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 843,
-      "sha256": "a35d8462fa15276a66aa272e5e6468afe1fac932e70c40802e4c2c78f1a27110",
+      "lines": 857,
+      "sha256": "a42684786179452752b017571a569845878225f19c6ae01ea820c9406b33e313",
       "symbols": [
         {
           "name": "load",
-          "line": 149
+          "line": 179
         },
         {
           "name": "save",
-          "line": 176
+          "line": 206
         },
         {
           "name": "perform",
-          "line": 400
+          "line": 430
         }
       ]
     },
@@ -39799,28 +39799,28 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 278,
-      "sha256": "082a26a6ba81a38c2417db02cb04ef03ca1d6d00610d9b73efe608128dbff6d5",
+      "lines": 352,
+      "sha256": "e8157db6f2787269945a1cedcf37067c4b0121137c73da99d556a89f3350d2c2",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
-          "line": 29
+          "line": 30
         },
         {
           "name": "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression",
-          "line": 159
+          "line": 160
         },
         {
           "name": "persistedAgreement",
-          "line": 188
+          "line": 189
         },
         {
           "name": "prompt",
-          "line": 211
+          "line": 212
         },
         {
           "name": "assertCurrent",
-          "line": 230
+          "line": 231
         }
       ]
     },
