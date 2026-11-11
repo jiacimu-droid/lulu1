@@ -52,6 +52,14 @@ internal object RelicRevealTimeline {
     }
 }
 
+/** Bound the centerpiece to the actual viewport so short landscape screens keep the receipt visible. */
+internal fun relicCeremonyArtHeightDp(viewportHeightDp: Float): Int = when {
+    viewportHeightDp < 280f -> 72
+    viewportHeightDp < 360f -> 96
+    viewportHeightDp < 440f -> 124
+    else -> 172
+}
+
 /** Local, one-shot animation of an already committed physical chest reward. */
 @Composable
 internal fun RelicChestCeremony(
@@ -69,11 +77,12 @@ internal fun RelicChestCeremony(
         RelicTier.PRECIOUS -> Color(0xFFE4D0A4)
     }
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
-    Box(
+    BoxWithConstraints(
         Modifier.fillMaxSize().background(Color(0xC909101D))
             .clickable(onClick = onFinished),
         contentAlignment = Alignment.Center,
     ) {
+        val compact = maxHeight < 360.dp
         Surface(
             modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp),
             color = Color(0xFF171F2A),
@@ -82,9 +91,9 @@ internal fun RelicChestCeremony(
             shadowElevation = 5.dp,
         ) {
             Column(
-                Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+                Modifier.padding(horizontal = 16.dp, vertical = if (compact) 8.dp else 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(7.dp),
+                verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 7.dp),
             ) {
                 Text(
                     if (reveal < .05f) "✦ 古老的锁扣正在开启…"
@@ -92,7 +101,7 @@ internal fun RelicChestCeremony(
                     else "发现了" + receipt.loot.tier.label + "珍藏",
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
-                Canvas(Modifier.fillMaxWidth().height(172.dp)) {
+                Canvas(Modifier.fillMaxWidth().height(relicCeremonyArtHeightDp(maxHeight.value).dp)) {
                     val h=size.height
                     val x=size.width*.5f
                     val center=Offset(x,h*.54f)
