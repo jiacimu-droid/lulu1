@@ -259,7 +259,8 @@ object LuluScreenAwareness {
                 if (!userRequested) preferences(context).edit()
                     .putLong(LAST_AUTO, System.currentTimeMillis()).apply()
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
-                report(context, "已取得一帧截图，识图进行中")
+                report(context, if (sendToChat) "已取得截图，准备作为私聊图片发送"
+                    else "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
                 // An explicitly selected screen share is a REAL image message,
                 // not a textual vision summary or a claimed screenshot. Never
