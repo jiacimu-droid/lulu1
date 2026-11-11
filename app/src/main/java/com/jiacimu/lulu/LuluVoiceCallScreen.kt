@@ -249,7 +249,9 @@ fun LuluVoiceCallScreen(
             LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
     }
 
-    val voiceArchiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+    val voiceArchiveId = if (state.sleepMode)
+        library.archiveIdFor(com.jiacimu.lulu.ai.ModelUsage.Sleep)
+    else com.jiacimu.lulu.ai.ScopedModelSelections
         .selectedCharacterChatArchiveId(currentCharacterId, library)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     // Only messages belonging to this *connected* call may appear as call
