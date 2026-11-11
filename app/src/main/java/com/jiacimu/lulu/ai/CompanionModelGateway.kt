@@ -201,8 +201,9 @@ class ModelConnectionStore private constructor(context: Context) {
                 archives = current.archives + archive,
                 // Importing an archive is storage-only. Only the very first
                 // compatible archive establishes a fallback, never subsequent imports.
-                activeArchiveId = current.activeArchiveId
-                    ?: archive.id.takeUnless { cleanModel.startsWith("jev-") },
+                activeArchiveId = current.activeArchiveId?.takeIf { id ->
+                    current.archives.any { it.id == id && !it.model.startsWith("jev-") }
+                } ?: archive.id.takeUnless { cleanModel.startsWith("jev-") },
             ),
         )
         return archive
@@ -255,7 +256,7 @@ class ModelConnectionStore private constructor(context: Context) {
         if (current.sleepArchiveId != null) persist(current.copy(sleepArchiveId = null))
     }
 
-    fun resolveConnection(archiveId: String? = mutable.value.activeArchiveId): ModelConnection {
+    fun resolveConnection(archiveId: String? = null): ModelConnection {
         val state = mutable.value
         val resolvedArchiveId = archiveId ?: state.archiveIdFor(ModelUsage.Sleep)
         val archive = state.archives.firstOrNull { it.id == resolvedArchiveId }
@@ -380,12 +381,12 @@ class ModelConnectionStore private constructor(context: Context) {
             }
         }
         val savedActive = root.optString("activeArchiveId").takeIf { candidate ->
-            archives.any { it.id == candidate }
+            archives.any { it.id == candidate && !it.model.startsWith("jev-") }
         }
         return ModelLibraryState(
             configurations = configurations,
             archives = archives,
-            activeArchiveId = savedActive ?: archives.firstOrNull()?.id,
+            activeArchiveId = savedActive ?: archives.firstOrNull { !it.model.startsWith("jev-") }?.id,
             chatArchiveId = root.optString("chatArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
             voiceCallArchiveId = root.optString("voiceCallArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
             voiceCallFollowsChat = root.optBoolean("voiceCallFollowsChat", true),
