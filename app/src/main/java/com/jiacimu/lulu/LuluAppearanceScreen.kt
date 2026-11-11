@@ -15,8 +15,12 @@ import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +47,9 @@ import com.jiacimu.lulu.design.isJournal
 @Composable
 fun LuluAppearanceScreen(onBack: () -> Unit) {
     val library by LuluAppearanceStore.state.collectAsState()
-    var scope by remember { mutableStateOf("Home") }
+    var scope by rememberSaveable { mutableStateOf("Home") }
+    var showScopePicker by rememberSaveable { mutableStateOf(false) }
+    var scopeSearch by rememberSaveable { mutableStateOf("") }
     var showBasicThemes by remember { mutableStateOf(false) }
     var copySource by remember { mutableStateOf<LuluAppearance?>(null) }
     var copyName by remember { mutableStateOf("") }
@@ -99,6 +105,75 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
         )
     }
 
+
+    if (showScopePicker) {
+        val visibleScopes = LuluAppearanceCatalog.scopes.filter { (key, title) ->
+            scopeSearch.isBlank() ||
+                title.contains(scopeSearch.trim(), ignoreCase = true) ||
+                key.contains(scopeSearch.trim(), ignoreCase = true)
+        }
+        ModalBottomSheet(
+            onDismissRequest = { showScopePicker = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(
+                Modifier.fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("选择装扮位置", style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold)
+                OutlinedTextField(
+                    value = scopeSearch,
+                    onValueChange = { scopeSearch = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("搜索页面") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                )
+                LazyColumn(
+                    Modifier.fillMaxWidth().heightIn(max = 420.dp),
+                    contentPadding = PaddingValues(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    items(visibleScopes, key = { it.first }) { (key, title) ->
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                scope = key
+                                scopeSearch = ""
+                                showScopePicker = false
+                            },
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (key == scope) MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surface,
+                        ) {
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 52.dp)
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(title, modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = if (key == scope) FontWeight.SemiBold
+                                        else FontWeight.Normal)
+                                if (key == scope) Icon(Icons.Outlined.Check, "当前选中",
+                                    tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
+                    if (visibleScopes.isEmpty()) {
+                        item {
+                            Text("没有找到这个页面", color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = 24.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -126,17 +201,21 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
             item {
                 LuluEditorialSectionHeading(title = "装扮位置")
                 Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                OutlinedButton(
+                    onClick = { scopeSearch = ""; showScopePicker = true },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 ) {
-                    LuluAppearanceCatalog.scopes.forEach { (key, title) ->
-                        FilterChip(
-                            selected = scope == key,
-                            onClick = { scope = key },
-                            label = { Text(title) },
-                        )
-                    }
+                    Text(
+                        LuluAppearanceCatalog.scopes.firstOrNull { it.first == scope }?.second ?: "选择页面",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text("切换", style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.width(8.dp))
+                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
                 }
             }
             item {
