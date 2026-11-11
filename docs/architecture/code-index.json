@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:08:27.254565+00:00",
-  "commit": "e879c731b018bb680af8ac1de8a88705e09e279a",
+  "generatedAt": "2026-11-11T16:09:27.653734+00:00",
+  "commit": "71dc5be2d35a518220de5bcde1a37e663d1e6cb5",
   "branch": "main",
-  "sourceFingerprint": "8fe5cb2a6f518e7ec281356b141cb3ed6b4447172c7426e585c756b51492d569",
+  "sourceFingerprint": "5f5475653fa46f64ab5b19866a865ecb15ea2ec7e90151ddd7ac7b10651860c5",
   "summary": {
-    "files": 1199,
-    "lines": 259353,
-    "symbols": 3626
+    "files": 1200,
+    "lines": 259583,
+    "symbols": 3627
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15682,6 +15682,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 304
+      }
+    ],
+    "connected": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
+        "line": 32
       }
     ],
     "LuluDeviceToolBridge": [
@@ -36320,6 +36326,17 @@
         {
           "name": "LuluBootReceiver",
           "line": 304
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
+      "lines": 230,
+      "sha256": "59bdb1c579126674308cbee06b1fd0f52681ab5e8b7a766ecacb9c303a524efc",
+      "symbols": [
+        {
+          "name": "connected",
+          "line": 32
         }
       ]
     },
