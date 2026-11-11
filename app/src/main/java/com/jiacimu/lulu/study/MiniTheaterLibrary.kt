@@ -27,6 +27,8 @@ internal data class MiniTheaterItem(
     val worldMode: String = "original",
     /** Explicit entries frozen with each standalone work, independent of global activation. */
     val worldBookIds: List<String> = emptyList(), val worldBookContext: String = "",
+    /** Frozen at enqueue so the worker never silently changes a paid model mid-job. */
+    val generationArchiveId: String = "",
 )
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
@@ -138,9 +140,19 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
         val entry = items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
         check(entry.status !in setOf("queued", "running")) { "这篇已经在生成中" }
         check(entry.status != "complete" || rewrite) { "已完结作品不可静默覆盖" }
+        com.jiacimu.lulu.ai.LuluAiServices.initialize(app)
+        ScopedModelSelections.initialize(app)
+        val archiveId = if (entry.characterId.isNotBlank()) {
+            ScopedModelSelections.selectedPersonalTheaterArchiveId(entry.characterId)
+        } else ScopedModelSelections.selectedArchiveId(ScopedModelSelections.THEATER)
+        require(!archiveId.isNullOrBlank()) { "请先为番外选择可用模型" }
+        // Resolve BEFORE marking the work queued. Missing models cannot leave
+        // a phantom running task, and later model switches cannot change the bill.
+        com.jiacimu.lulu.ai.LuluAiServices.connectionStore.resolveConnection(archiveId)
         val token = UUID.randomUUID().toString()
         save(items.value.map {
             if (it.id == id) it.copy(sceneContext = background, generationToken = token,
+                generationArchiveId = archiveId,
                 status = "queued", error = "", rewriting = rewrite || it.rewriting)
             else it
         })
@@ -171,7 +183,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 .put("rewriting", it.rewriting).put("characterId", it.characterId)
                 .put("characterName", it.characterName).put("characterContext", it.characterContext)
                 .put("variationContext", it.variationContext).put("worldMode", it.worldMode)
-                .put("worldBookIds", JSONArray(it.worldBookIds)).put("worldBookContext", it.worldBookContext))
+                .put("worldBookIds", JSONArray(it.worldBookIds)).put("worldBookContext", it.worldBookContext)
+                .put("generationArchiveId", it.generationArchiveId))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -192,7 +205,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 o.optJSONArray("worldBookIds")?.let { ids ->
                     (0 until ids.length()).mapNotNull { j -> ids.optString(j).takeIf(String::isNotBlank) }
                 }.orEmpty(),
-                o.optString("worldBookContext"))
+                o.optString("worldBookContext"),
+                o.optString("generationArchiveId"))
         }
     }.getOrDefault(emptyList())
 
@@ -299,7 +313,11 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
                 source = "剧场·单篇小剧场",
                 title = "${snapshot.title} · 单篇",
                 contextMode = CompanionContextMode.Isolated,
-                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                connectionOverride = LuluAiServices.connectionStore.resolveConnection(
+                    snapshot.generationArchiveId.takeIf(String::isNotBlank)
+                        ?: if (snapshot.characterId.isNotBlank())
+                            ScopedModelSelections.selectedPersonalTheaterArchiveId(snapshot.characterId)
+                        else ScopedModelSelections.selectedArchiveId(ScopedModelSelections.THEATER)),
                 maxTokens = if (personal == null) null else 4_500,
                 readTimeoutMillis = 540_000,
             ).getOrThrow().text.trim()
