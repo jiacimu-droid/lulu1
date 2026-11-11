@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:26:52.652074+00:00",
-  "commit": "40902c1b4c97a43c11700b99819cb94bda02d16b",
+  "generatedAt": "2026-11-11T09:28:51.032307+00:00",
+  "commit": "961bb2cc495a9e4bf55331368eb92c4791a1f36d",
   "branch": "main",
-  "sourceFingerprint": "74566a3deaa10c82c7d8034773f7c916862aea9d5b3de3bb54f5e82d92657272",
+  "sourceFingerprint": "b0e861e100c7e6aac80201a1b06c3c3c3d1c737c515dba025d97b4d9200c9c5c",
   "summary": {
     "files": 1175,
-    "lines": 255381,
-    "symbols": 3479
+    "lines": 255388,
+    "symbols": 3480
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -825,7 +825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 65
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -4031,7 +4031,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 94
+        "line": 101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
@@ -4537,7 +4537,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 151
+        "line": 158
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
@@ -4987,7 +4987,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 70
+        "line": 77
       }
     ],
     "clearSleepArchive": [
@@ -5003,7 +5003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 145
+        "line": 152
       }
     ],
     "archiveLabel": [
@@ -5176,64 +5176,70 @@
         "line": 36
       }
     ],
+    "selectedPhoneArchiveId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 46
+      }
+    ],
     "selectCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 43
+        "line": 50
       }
     ],
     "clearCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 55
+        "line": 62
       }
     ],
     "residentSocialArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 107
+        "line": 114
       }
     ],
     "worldSocialArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 110
+        "line": 117
       }
     ],
     "worldSceneArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 115
+        "line": 122
       }
     ],
     "worldLifeArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 119
+        "line": 126
       }
     ],
     "residentSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 124
+        "line": 131
       }
     ],
     "worldSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 130
+        "line": 137
       }
     ],
     "worldSceneConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 136
+        "line": 143
       }
     ],
     "worldLifeConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 139
+        "line": 146
       }
     ],
     "VisionModelService": [
@@ -24002,8 +24008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 162,
-      "sha256": "0fca1c89c122500fac21e3b330ba01c22cb386dfa088c2adbecbbe9b07b47428",
+      "lines": 169,
+      "sha256": "982715a3781e0805f6f37016de97f613eee4210b2f1eaea83a473a2153055aab",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -24014,64 +24020,68 @@
           "line": 36
         },
         {
+          "name": "selectedPhoneArchiveId",
+          "line": 46
+        },
+        {
           "name": "selectCharacterChatArchive",
-          "line": 43
+          "line": 50
         },
         {
           "name": "clearCharacterChatArchive",
-          "line": 55
+          "line": 62
         },
         {
           "name": "initialize",
-          "line": 65
+          "line": 72
         },
         {
           "name": "selectedArchiveId",
-          "line": 70
+          "line": 77
         },
         {
           "name": "select",
-          "line": 94
+          "line": 101
         },
         {
           "name": "residentSocialArchiveId",
-          "line": 107
+          "line": 114
         },
         {
           "name": "worldSocialArchiveId",
-          "line": 110
+          "line": 117
         },
         {
           "name": "worldSceneArchiveId",
-          "line": 115
+          "line": 122
         },
         {
           "name": "worldLifeArchiveId",
-          "line": 119
+          "line": 126
         },
         {
           "name": "residentSocialConnection",
-          "line": 124
+          "line": 131
         },
         {
           "name": "worldSocialConnection",
-          "line": 130
+          "line": 137
         },
         {
           "name": "worldSceneConnection",
-          "line": 136
+          "line": 143
         },
         {
           "name": "worldLifeConnection",
-          "line": 139
+          "line": 146
         },
         {
           "name": "resolveConnection",
-          "line": 145
+          "line": 152
         },
         {
           "name": "clear",
-          "line": 151
+          "line": 158
         }
       ]
     },
