@@ -993,6 +993,93 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun phoneStepsStopAfterRelationshipEditButKeepCompletedToolReceipt() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+
+        val role = MigratedDomainStores.characters.create("通话多步样本", "尊重当下的相处约定")
+        val id = role.characterId
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", "沿用旧称呼"))
+        val staleStatus = "等我把剩余动作也做完"
+        val direction = JSONObject().put("tool", "consider_directions")
+            .put("args", JSONObject().put("state", "先核对这个想法")
+                .put("questions", JSONObject().put("continue", JSONObject().put("instructions", "继续吗？"))))
+        val post = JSONObject().put("tool", "publish_moment")
+            .put("args", JSONObject().put("text", "旧决定中尚未发出的动态"))
+        val plan = JSONObject().put("action", "silent").put("reason", "我先自己想一想")
+            .put("statusText", staleStatus).put("steps", JSONArray().put(direction).put(post))
+        val release = CountDownLatch(1)
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse =
+                when (request.path) {
+                    "/v1/systemone" -> if (release.await(15, TimeUnit.SECONDS))
+                        MockResponse().setHeader("Content-Type", "application/json").setBody(
+                            """{"model":"jev-test","usage":{"input_tokens":10,"output_tokens":2},"answers":{"continue":{"type":"noul","noul":0.6}}}""")
+                    else MockResponse().setResponseCode(500)
+                    else -> MockResponse().setHeader("Content-Type", "application/json")
+                        .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                            .put("message", JSONObject().put("content", plan.toString()))
+                            .put("finish_reason", "stop"))).toString())
+                }
+        }
+        server.start()
+        val scope = com.jiacimu.lulu.ai.ScopedModelSelections
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val chat = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val reasoning = LuluAiServices.connectionStore.addArchive(config.id, "jev-test")
+            scope.select(com.jiacimu.lulu.ai.ScopedModelSelections.JEV, reasoning.id)
+            val observation = "call-quiet-edit-during-tool"
+            SharedExperienceTimeline.record(observation, id, "通话观察", "通话",
+                "电话接通，暂时无人发言", source = "call-quiet", evidenceKind = EventEvidenceKind.Observation)
+            val pending = async {
+                LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = chat.id,
+                    sceneContext = "一对一电话仍然接通，用户没有新增发言",
+                    silenceObservationId = observation)
+            }
+            try {
+                val toolRequest = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
+                }
+                assertEquals("/v1/systemone", toolRequest.path)
+                assertTrue(CharacterLifeStore.setRelationshipAgreement(
+                    id, "user", "约定", "除非我先提起，否则请用新的称呼"))
+            } finally {
+                release.countDown()
+            }
+            val stale = pending.await()
+            assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("旧决定未继续交付"))
+            val receipts = SharedExperienceTimeline.all(id)
+                .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+            val execution = JSONObject(receipts.single().content)
+            assertEquals("consider_directions", execution.getString("tool"))
+            assertTrue(ToolExecutionStatus.completed(JSONObject(execution.getString("result"))))
+            assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == id })
+            assertNotEquals(staleStatus, CompanionPresenceStore.current(id)?.statusText)
+            val decisions = checkNotNull(CharacterInnerLifeStore.snapshot(id).optJSONArray("decisions"))
+            val recorded = (0 until decisions.length()).map { decisions.getJSONObject(it) }
+            val batch = recorded.single { it.optString("executionRequestId") == "reply-side-$observation" }
+            assertEquals("reported", batch.getString("executionState"))
+            assertFalse(batch.getBoolean("succeeded"))
+            assertTrue(batch.getString("outcome").contains("第2步及后续步骤未执行"))
+            assertTrue(recorded.none { it.optString("id") == "$observation:silent" })
+            assertEquals(2, server.requestCount)
+        } finally {
+            release.countDown()
+            scope.clear(com.jiacimu.lulu.ai.ScopedModelSelections.JEV)
+            server.shutdown()
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneObservationRejectsStaleReceiptDecisionWithoutRepeatingItsTool() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

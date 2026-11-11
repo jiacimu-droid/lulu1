@@ -1206,6 +1206,7 @@ object LuluDeviceToolBridge {
             )
         }
         var phoneSideAllCompleted = false
+        var phoneSideInterruptedByEdit = false
         val sideDeviceReceipt = if (trackPhoneSideSteps && phoneSteps != null) {
             val notes = mutableListOf<String>()
             var verifiedWakeAudio = false
@@ -1213,6 +1214,14 @@ object LuluDeviceToolBridge {
             phoneSideAllCompleted = true
             var previousStepCompleted = true
             for (i in 0 until phoneSteps.length()) {
+                // The preceding tool may have suspended and already recorded a
+                // real result. Stop before dispatching another step from the old plan.
+                if (phoneDefinitionChanged()) {
+                    phoneSideInterruptedByEdit = true
+                    phoneSideAllCompleted = false
+                    notes.add(0, "角色设定或关系已更新，第${i + 1}步及后续步骤未执行")
+                    break
+                }
                 val effect = phoneSteps.optJSONObject(i)
                 if (effect == null) {
                     phoneSideAllCompleted = false
@@ -1299,6 +1308,9 @@ object LuluDeviceToolBridge {
                 characterId, phoneSideDecisionId, phoneSideRequestBase,
                 sideDeviceReceipt.ifBlank { "独立步骤未产生可核实结果" },
                 phoneSideAllCompleted,
+            )
+            if (phoneSideInterruptedByEdit || phoneDefinitionChanged()) return Result.failure(
+                IllegalStateException("通话期间角色设定或关系已更新，已执行动作的回执保留，旧决定未继续交付"),
             )
         }
         if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat || sceneContext.contains("电话")) && !rewriting) {
