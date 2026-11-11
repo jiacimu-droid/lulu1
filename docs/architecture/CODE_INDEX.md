@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`71dc5be2d35a518220de5bcde1a37e663d1e6cb5`
+- 基准提交：`a9b96f80c0e56b591a9d1a4ad0a26e28db669101`
 - 分支：`main`
 - 已索引文件：1200
-- 已索引代码/文本行：259583
+- 已索引代码/文本行：259587
 - 已发现符号：3627
 
 | 文件 | 行数 | 符号数 |
@@ -333,7 +333,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 135 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 137 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -366,7 +366,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 203 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 204 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 170 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2159 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
@@ -760,7 +760,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 272 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 230 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2275 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2276 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
