@@ -221,16 +221,38 @@ internal fun RelicEscapeWorldMap(
                         RelicTier.PRECIOUS->Color(0xFFFFDB84)
                     }
                     if(!chest.opened) {
-                        drawCircle(glow.copy(alpha=.14f+shimmer*.22f),t*.63f,c)
-                        drawRoundRect(Color(0xFF1D1925),p+Offset(t*.10f,t*.33f),
-                            Size(t*.85f,t*.52f),CornerRadius(t*.13f))
-                        drawRoundRect(Color(0xFF8E5B41),p+Offset(t*.13f,t*.24f),
-                            Size(t*.74f,t*.52f),CornerRadius(t*.10f))
-                        drawRoundRect(Color(0xFFD0A16B),p+Offset(t*.16f,t*.26f),
-                            Size(t*.68f,t*.14f),CornerRadius(t*.045f))
-                        drawRect(glow,p+Offset(t*.46f,t*.37f),Size(t*.09f,t*.28f))
-                        drawCircle(Color.White.copy(alpha=.55f+shimmer*.4f),t*.068f,
-                            c+Offset(t*.02f,t*.04f))
+                        // Show recognizable, tier-specific treasure instead of one generic brown box.
+                        val metal = when(chest.tier) {
+                            RelicTier.COMMON -> Color(0xFF6A4B39)
+                            RelicTier.RARE -> Color(0xFF274C65)
+                            RelicTier.PRECIOUS -> Color(0xFF655034)
+                        }
+                        drawCircle(Brush.radialGradient(
+                            listOf(glow.copy(alpha=.19f+shimmer*.19f),Color.Transparent),
+                            center=c,radius=t*.80f),t*.80f,c)
+                        drawOval(Color.Black.copy(alpha=.35f),
+                            p+Offset(t*.08f,t*.76f),Size(t*.85f,t*.14f))
+                        drawRoundRect(Color(0xFF151A23),p+Offset(t*.10f,t*.32f),
+                            Size(t*.82f,t*.49f),CornerRadius(t*.10f))
+                        drawRoundRect(metal,p+Offset(t*.14f,t*.26f),
+                            Size(t*.73f,t*.49f),CornerRadius(t*.08f))
+                        drawRoundRect(glow.copy(alpha=.78f),p+Offset(t*.16f,t*.28f),
+                            Size(t*.69f,t*.11f),CornerRadius(t*.03f))
+                        drawLine(glow.copy(alpha=.85f),p+Offset(t*.20f,t*.69f),
+                            p+Offset(t*.81f,t*.69f),strokeWidth=t*.025f)
+                        drawRelicFacet(c+Offset(0f,t*.065f),
+                            t*(if(chest.tier==RelicTier.PRECIOUS).25f else .18f),
+                            glow, chest.tier==RelicTier.PRECIOUS)
+                        if(chest.tier==RelicTier.PRECIOUS) {
+                            // Crown finials make the rarest chest identifiable even while moving.
+                            for(i in -1..1) {
+                                val x0=c.x+i*t*.23f
+                                drawCircle(Color(0xFFFFF1C8).copy(alpha=.68f+shimmer*.28f),
+                                    t*.044f,Offset(x0,p.y+t*.23f))
+                                drawLine(glow,Offset(x0,p.y+t*.26f),
+                                    Offset(c.x+i*t*.13f,p.y+t*.40f),strokeWidth=t*.028f)
+                            }
+                        }
                     } else {
                         // The map's opening glow is driven by the exact committed
                         // receipt shown in the ceremony, never by an invented drop.
@@ -271,10 +293,16 @@ internal fun RelicEscapeWorldMap(
                     }
                 }
                 dropsByCell[y*run.w+x].orEmpty().forEach{drop->
-                    val tint=if(drop.loot.tier==RelicTier.PRECIOUS)Color(0xFFFFDC84)
-                        else Color(0xFFB9E8DD)
-                    drawCircle(tint.copy(alpha=.2f+shimmer*.22f),t*.27f,c+Offset(t*.23f,t*.20f))
-                    drawCircle(tint,t*.10f,c+Offset(t*.23f,t*.20f))
+                    val tint=when(drop.loot.tier) {
+                        RelicTier.COMMON -> Color(0xFFE1D5B9)
+                        RelicTier.RARE -> Color(0xFF8EE2F4)
+                        RelicTier.PRECIOUS -> Color(0xFFFFDC84)
+                    }
+                    val gemAt=c+Offset(t*.22f,t*.20f)
+                    drawCircle(tint.copy(alpha=.14f+shimmer*.17f),t*.37f,gemAt)
+                    drawRelicFacet(gemAt,
+                        t*(if(drop.loot.tier==RelicTier.PRECIOUS).19f else .13f),
+                        tint,drop.loot.tier==RelicTier.PRECIOUS)
                 }
                 if(x==run.exitX && y==run.exitY) {
                     // An actual carved extraction gate, not a generic green
@@ -313,6 +341,14 @@ internal fun RelicEscapeWorldMap(
                         t*.50f,c,style=Stroke(t*.045f))
                     drawCircle(Color.White.copy(alpha=.42f+shimmer*.36f),
                         t*.065f,c+Offset(t*.26f,-t*.32f))
+                    if(run.phase==RelicPhase.EXTRACT) {
+                        // Three actual saved escape turns; never invent elapsed seconds.
+                        for(i in 0 until 3) {
+                            drawCircle(if(i < run.extraction) Color(0xFFD8FFF0)
+                                else Color(0xFF30474E),t*.051f,
+                                p+Offset(t*(.33f+i*.17f),t*.09f))
+                        }
+                    }
                 }
                 if(!lit)drawRect(Color(0xFF090E1B).copy(alpha=.42f),
                     p,Size(t+.3f,t+.3f))
@@ -433,14 +469,47 @@ internal fun RelicEscapeWorldMap(
                 drawCircle(Color(0xFFEBE0BB).copy(alpha=.045f+shimmer*.075f),
                     t*(.026f+i%3*.011f),center)
             }
-            if(run.phase==RelicPhase.EXTRACT) {
-                drawRect(Brush.radialGradient(listOf(Color.Transparent,
-                    Color(0xFF9E3D4C).copy(alpha=.20f*shimmer)),center=hero,
-                    radius=size.maxDimension*.72f))
+            val tension = relicTension(run)
+            if(tension.urgent) {
+                val tint = if(tension.level==RelicTensionLevel.DANGER ||
+                    tension.level==RelicTensionLevel.DOWNED)
+                    Color(0xFFD36C75) else Color(0xFF7BC5B3)
+                // Only local, restrained rings: no flashing full-screen vignette.
+                drawCircle(tint.copy(alpha=.24f+shimmer*.12f),
+                    t*.62f,hero,style=Stroke(t*.045f))
+                drawCircle(tint.copy(alpha=.08f+shimmer*.05f),
+                    t*.87f,hero,style=Stroke(t*.06f))
             }
             }
         }
     }
+}
+
+/** Locally drawn facet: no heavy textures, network assets or extra render engine. */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRelicFacet(
+    center:Offset,radius:Float,tint:Color,precious:Boolean,
+) {
+    val gem=Path().apply {
+        moveTo(center.x,center.y-radius)
+        lineTo(center.x+radius*.85f,center.y-radius*.14f)
+        lineTo(center.x+radius*.65f,center.y+radius*.60f)
+        lineTo(center.x,center.y+radius)
+        lineTo(center.x-radius*.65f,center.y+radius*.60f)
+        lineTo(center.x-radius*.85f,center.y-radius*.14f)
+        close()
+    }
+    drawPath(gem,Brush.linearGradient(
+        listOf(Color(0xFFF8FFFA),tint,
+            if(precious)Color(0xFF936234) else Color(0xFF294B65)),
+        start=Offset(center.x-radius,center.y-radius),
+        end=Offset(center.x+radius,center.y+radius)))
+    drawPath(gem,tint.copy(alpha=.94f),
+        style=Stroke((radius*.12f).coerceAtLeast(.7f)))
+    drawLine(Color.White.copy(alpha=.70f),center+Offset(0f,-radius*.82f),
+        center+Offset(0f,radius*.63f),strokeWidth=radius*.07f)
+    drawLine(Color.White.copy(alpha=.52f),
+        center+Offset(-radius*.70f,-radius*.10f),
+        center+Offset(radius*.70f,-radius*.10f),strokeWidth=radius*.055f)
 }
 
 /** Four readable creature silhouettes in place of indistinguishable HP orbs.
