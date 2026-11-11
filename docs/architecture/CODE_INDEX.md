@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff1a1f2d59f6bac28b6668655006d618956f0258`
+- 基准提交：`99c667e8e734e84628c56270df6b651744691326`
 - 分支：`main`
 - 已索引文件：1204
-- 已索引代码/文本行：260182
+- 已索引代码/文本行：260198
 - 已发现符号：3637
 
 | 文件 | 行数 | 符号数 |
@@ -646,7 +646,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1173 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 324 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 329 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 783 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1156 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
@@ -662,7 +662,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 272 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 275 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 494 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
@@ -703,7 +703,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 257 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 620 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 224 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 460 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 468 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 604 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1063 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 122 | 2 |
