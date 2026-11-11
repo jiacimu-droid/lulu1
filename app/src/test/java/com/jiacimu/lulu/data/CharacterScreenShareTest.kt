@@ -19,7 +19,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE, sdk = [30])
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterScreenShareTest {
     private fun initializedContext(): Context {
         val context = RuntimeEnvironment.getApplication() as Context
