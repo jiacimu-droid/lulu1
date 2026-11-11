@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 取消后的真实工具回执进入下一次电话判断
+
+- 上轮 `c72f729` 的 [JVM #43104160507](https://github.com/jiacimu-droid/lulu1/actions/runs/43104160507) 新电话回归通过，APK 被已存在的 SQLite 用例挡住。[后继 #43105245014](https://github.com/jiacimu-droid/lulu1/actions/runs/43105245014) 已复核该 SQLite 用例和电话取消用例通过，并完成全量 JVM/APK。
+- [3e839e5](https://github.com/jiacimu-droid/lulu1/commit/3e839e5ecefe998551d47c08e034295cbc4e61cd) 延伸 `ConversationExpressionGatewayTest.phoneStepsStopAfterCancellationButKeepCompletedToolReceipt`，首轮工具执行等待中取消，随后用正常用户发言请求同一角色。断言模型输入含这次新发言、原工具回执 ID 与 Jev 返回的参考结果，模型能继续正常答复。工具只有首轮一次物理请求，第二步未发动态，时间线仍只有一条工具回执。数据来自 `ToolRouter` → 本人 `SharedExperienceTimeline` → `CharacterPerceptionContext.pending/render` → 电话模型输入。沿用现有生产路径，没有新增模型调用、二次执行或自动重试。
+- 此提交的[原索引 #43120646348](https://github.com/jiacimu-droid/lulu1/actions/runs/43120646348) 成功，首次 [APK/JVM #43120646469](https://github.com/jiacimu-droid/lulu1/actions/runs/43120646469) 卡在继承自 [#43106361458](https://github.com/jiacimu-droid/lulu1/actions/runs/43106361458) 的 `RelicChestCeremony.kt:104` Compose 作用域编译错。[53d49dc](https://github.com/jiacimu-droid/lulu1/commit/53d49dc16dcead5891d8562c3ba4de0b8f63971d) 把原尺寸计算移到可合法访问 `maxHeight` 的原约束层，计算和布局参数一致，仅解除验证阻塞。
+- 后继 [全量 JVM/APK #43120817176](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817176) 与[原索引 #43120817562](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817562) 均成功。日志确认扩展后的跨轮回归及关系编辑回归 PASSED，APK 已发布。真机语音、真实模型质量仍待验。回归驱动正式桥接和真实 HTTP，未覆盖真机麦克风或自动排队时序。
+- 下一轮沿 P-03.1 打开 `LuluVoiceCallSession.onExternalToolResult`、`CallExternalResultPolicyTest`、`PerceptionStimulusLedger`。核对用户发言优先消费已入队工具回执时，独立通话观察会不会在随后再次请求；同时确认未被看到和已撤回的回执保持各自边界。
+
 ## 2026-11-12 · P-08d.2b.2 备份合并后的独立回执稳定性
 
 - [f7bbf37](https://github.com/jiacimu-droid/lulu1/commit/f7bbf37e2240103b3517bc53e275086cac29e59f) 在正式 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 中新增备份再导入的幂等断言：同一人物实际工具执行的主拒绝、副成功回执在合并恢复后 ID 与原始内容保持一致，不能复制执行事实。已有下一轮 HTTP 输入与静默不重放断言继续运行。没有修改生产代码或额外模型调用。
