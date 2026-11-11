@@ -282,7 +282,9 @@ object ToolRouter {
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
                             saveToAlbum = args.optBoolean("saveToAlbum", false),
-                            handoffToRole = args.optBoolean("_handoffToRole", false))
+                            handoffToRole = args.optBoolean("_handoffToRole", false),
+                            sendToChat = args.optBoolean("sendToChat", false),
+                            chatCaption = args.optString("caption"))
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
                     } else if (name == "start_study_watch") {
@@ -460,10 +462,9 @@ object ToolRouter {
                 val outcome = parsed
                 // A delivered chat bubble does not automatically buy another five-minute
                 // online lease. Only the character's next expiry decision can do that.
-                val chatDelivery = name in setOf(
-                    "send_private_message", "send_group_message",
-                    "send_private_sticker", "send_group_sticker",
-                )
+                val chatDelivery = (name == "capture_screen" && outcome.optBoolean("sentToChat")) ||
+                    name in setOf("send_private_message", "send_group_message",
+                        "send_private_sticker", "send_group_sticker")
                 // An autonomous tool that finished while the role explicitly
                 // chose offline cannot implicitly wake it for another five minutes.
                 // During a real online window, activities may still refresh it.
