@@ -828,6 +828,85 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+
+    @Test(timeout = 60_000) fun firstPhoneDecisionRejectsOldDirectSpeechAndUnrenderedIntentAfterEdit() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+
+        for (speechField in listOf("text", "speechIntent")) {
+            val role = MigratedDomainStores.characters.create("首次电话决策样本-$speechField", "保留条件")
+            val id = role.characterId
+            val oldAgreement = "旧约定：可以主动安排音乐"
+            val newAgreement = "新约定：只有我明确同意才安排音乐，否则先不安排"
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", oldAgreement))
+            val chat = MigratedDomainStores.chat.ensureConversation(id, "test")
+            val oldTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "我想聊聊音乐")
+            val callId = "phone-first-decision-edit-$id"
+            val releaseDecision = CountDownLatch(1)
+            val requests = AtomicInteger()
+            fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", content))
+                    .put("finish_reason", "stop"))).toString())
+            val oldPlan = JSONObject().put("action", "reply").put(speechField, "旧轮决定的表达")
+                .put("mediaUnderstanding", JSONObject().put("music", "stop"))
+                .put("afterCallMedia", JSONObject().put("trigger", "call_end").put("delaySeconds", 30))
+            val server = MockWebServer()
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse = when (requests.getAndIncrement()) {
+                    0 -> if (releaseDecision.await(15, TimeUnit.SECONDS)) response(oldPlan.toString())
+                        else MockResponse().setResponseCode(500)
+                    1 -> response("""{"action":"reply","text":"我听清了，这次先不安排。"}""")
+                    else -> MockResponse().setResponseCode(500)
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                    server.url("/").toString(), "test-only")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                suspend fun call(turn: LuluChatMessage) = LuluDeviceToolBridge.respond(
+                    id, "", turn.content, "test", archiveId = archive.id, sceneContext = "正在电话中",
+                    phoneCallId = callId, userEvidenceIds = listOf(turn.id),
+                )
+                fun systemPrompt(request: RecordedRequest) = JSONObject(request.body.readUtf8())
+                    .getJSONArray("messages").getJSONObject(0).getString("content")
+                val before = DeferredCallMediaAction.musicContext(id, callId)
+                val pending = async { call(oldTurn) }
+                try {
+                    val first = withContext(Dispatchers.IO) {
+                        checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
+                    }
+                    assertTrue(systemPrompt(first).contains(oldAgreement))
+                    assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", newAgreement))
+                } finally {
+                    releaseDecision.countDown()
+                }
+                val stale = pending.await()
+                assertTrue("Expected stale failure for $speechField", stale.isFailure)
+                assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("设定或关系已更新"))
+                assertEquals(before, DeferredCallMediaAction.musicContext(id, callId))
+                assertTrue(SharedExperienceTimeline.eventsByIds(id,
+                    listOf("phone-media-decision:$id:${oldTurn.id}")).isEmpty())
+                assertEquals("No extra rendering or retry for $speechField", 1, server.requestCount)
+
+                val nextTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "我这次还没确认")
+                assertEquals("我听清了，这次先不安排。", call(nextTurn).getOrThrow().text)
+                val next = systemPrompt(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)))
+                assertTrue(next.contains(newAgreement))
+                assertFalse(next.contains(oldAgreement))
+                assertEquals(2, server.requestCount)
+            } finally {
+                releaseDecision.countDown()
+                server.shutdown()
+            }
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneAndPrivateChatBothRejectAnUnownedConcernInAScheduleStep() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

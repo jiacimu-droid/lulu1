@@ -492,6 +492,12 @@ object LuluDeviceToolBridge {
             "角色=$characterId；会话=$currentSessionId")
         val phoneDecisionDefinition = if (sceneContext.contains("电话") && !callSilence)
             CharacterRuntime.definition(characterId) else null
+        fun phoneDefinitionChanged() = phoneDecisionDefinition?.let { original ->
+            !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
+        } == true
+        fun stalePhoneTurn() = Result.failure<ModelReply>(IllegalStateException(
+            "本轮电话期间角色设定或关系已更新，旧决定未提交，请继续说话",
+        ))
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -696,6 +702,9 @@ object LuluDeviceToolBridge {
         )
         currentCoroutineContext().ensureActive()
         if (planner.isFailure) return planner
+        // Direct phone speech and tool decisions also belong to the definition
+        // under which they were requested, even when no speech repair is needed.
+        if (phoneDefinitionChanged()) return stalePhoneTurn()
         val plannedReply = planner.getOrThrow()
         val plannerCompletedNanos = System.nanoTime()
         val firstParsedPlan = parsePlan(plannedReply.text)
@@ -807,14 +816,8 @@ object LuluDeviceToolBridge {
         if (phoneDecisionDefinition != null &&
             plan.action == "reply" && plan.text.isBlank() &&
             plan.speechIntent.isNotBlank()) {
-            fun definitionChanged() = !phoneDecisionDefinition.hasSameConfiguration(
-                CharacterRuntime.definition(characterId),
-            )
-            fun staleTurn() = Result.failure<ModelReply>(IllegalStateException(
-                "本轮补写期间角色设定或关系已更新，旧决定未提交，请继续说话",
-            ))
             // Keep a decision and its spoken rendering on the same role definition.
-            if (definitionChanged()) return staleTurn()
+            if (phoneDefinitionChanged()) return stalePhoneTurn()
             val speech = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = """
@@ -829,14 +832,13 @@ object LuluDeviceToolBridge {
                 maxTokens = 300,
                 connectionOverride = connection,
             ).getOrNull()?.text?.trim().orEmpty()
-            currentCoroutineContext().ensureActive()
-            if (definitionChanged()) return staleTurn()
             if (speech.isNotBlank() && !speech.startsWith("{") &&
                 !speech.startsWith("```")) plan = plan.copy(text = speech)
         }
         // A newer phone turn can cancel this one while speech is being rendered.
         // Start the authored side effects only after the cancellable handoff.
         currentCoroutineContext().ensureActive()
+        if (phoneDefinitionChanged()) return stalePhoneTurn()
         // The character's own model interprets natural speech. Only an actual
         // new user turn can revise the previous music-stop boundary or confirm
         // the wake goal. Time-based silence and old chat history cannot.
