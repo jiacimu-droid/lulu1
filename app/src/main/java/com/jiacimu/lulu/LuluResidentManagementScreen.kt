@@ -18,6 +18,7 @@ import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.ResidentDailyPolicy
 import com.jiacimu.lulu.data.ResidentDailyDecision
 import com.jiacimu.lulu.ai.ScopedModelSelections
+import com.jiacimu.lulu.ai.LuluAiServices
 import java.time.Instant
 import kotlin.math.roundToInt
 
@@ -31,6 +32,13 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
         true
     }
     val revision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val modelLibrary by LuluAiServices.connectionStore.library.collectAsState()
+    val selectionRevision by ScopedModelSelections.changes.collectAsState()
+    val residentModelId = remember(modelLibrary, selectionRevision) {
+        ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY, modelLibrary)
+    }
+    val residentModel = modelLibrary.archives.firstOrNull { it.id == residentModelId }
+    var choosingResidentModel by remember { mutableStateOf(false) }
     val residents = remember(revision) { DigitalWorldExpansionStore.residents() }
     var allowNew by remember(context) { mutableStateOf(ResidentDailyPolicy.allowNewResidents(context)) }
     var maximum by remember(context) { mutableIntStateOf(ResidentDailyPolicy.maxResidents(context)) }
@@ -47,6 +55,23 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
         LazyColumn(Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                Card(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth().padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("居民模型", fontWeight = FontWeight.SemiBold)
+                            Text(residentModel?.let(LuluAiServices.connectionStore::archiveLabel)
+                                ?: "尚未选择", fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = { choosingResidentModel = true; error = "" }) {
+                            Text("选择模型")
+                        }
+                    }
+                }
+            }
             item { Text("现有居民：" + residents.size + " 位", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -97,7 +122,7 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
             }
             item {
                 if (ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY) == null) {
-                    Text("尚未选择居民每日规划模型，今天可能不会生成任何行程。请先到角色设置里配置居民模型。",
+                    Text("尚未选择居民模型，居民规划和社交暂不发起模型请求。",
                         fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
                 }
             }
@@ -160,6 +185,26 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+    if (choosingResidentModel) {
+        ModelArchivePickerSheet(
+            title = "居民模型",
+            subtitle = "居民每日规划、行程决策、私聊与社交共用此模型；不影响主角聊天。",
+            selectedArchiveId = residentModelId,
+            onSelect = { id ->
+                val model = modelLibrary.archives.firstOrNull { it.id == id }
+                if (model == null || model.model.startsWith("jev-")) {
+                    error = "请选择能生成文字的模型"
+                } else {
+                    runCatching {
+                        ScopedModelSelections.select(ScopedModelSelections.RESIDENT_DAILY, id)
+                        ResidentDailyDecision.schedule(context.applicationContext)
+                    }.onFailure { error = it.message ?: "居民模型保存失败" }
+                    choosingResidentModel = false
+                }
+            },
+            onDismiss = { choosingResidentModel = false },
+        )
     }
     residents.firstOrNull { it.id == editingId }?.let { person ->
         ResidentProfileEditDialog(person, onDismiss = { editingId = null }, onSaved = { editingId = null })
