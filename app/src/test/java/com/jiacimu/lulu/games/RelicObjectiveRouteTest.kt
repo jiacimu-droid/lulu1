@@ -55,4 +55,22 @@ class RelicObjectiveRouteTest {
         assertNull(RelicObjectiveGuide.knownRouteSteps(s.copy(
             phase=RelicPhase.FAILURE),RelicObjectiveTarget(10,8,"失败终点")))
     }
+    @Test fun mapRouteMatchesHudAndDisappearsWhenNewThreatBlocksCorridor() {
+        val discovered=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
+        val target=RelicObjectiveGuide.nextVisible(discovered)!!
+        val expected=listOf(2 to 2,3 to 2,4 to 2,5 to 2)
+        assertEquals(expected,RelicObjectiveGuide.knownRouteTiles(discovered,target))
+        assertEquals(expected.size-1,RelicObjectiveGuide.knownRouteSteps(discovered,target))
+        assertEquals("已知路线约3步",RelicObjectiveGuide.optionLabel(discovered,target))
+        // Rendering a hint never moves the hero or opens the physical chest.
+        assertEquals(2 to 2,discovered.hero.x to discovered.hero.y)
+        assertTrue(discovered.chests.none { it.opened })
+
+        val threatened=discovered.copy(mobs=listOf(RelicMob(92,4,2,5,0)))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(threatened,target))
+        assertEquals("路径未探明",RelicObjectiveGuide.optionLabel(threatened,target))
+        assertEquals(2 to 2,threatened.hero.x to threatened.hero.y)
+        assertTrue(threatened.chests.none { it.opened })
+    }
+
 }
