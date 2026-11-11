@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T03:44:00.939066+00:00",
-  "commit": "b2d39152c8f0d0bc931ebe36dda3b0a019bf8ec5",
+  "generatedAt": "2026-11-11T05:34:57.996083+00:00",
+  "commit": "0eb4e7471cc2c95a3ea1b01a0c6c343e4c04269e",
   "branch": "main",
-  "sourceFingerprint": "99c504873225b98b04680a97551862d379d4fcbf4ff28cb4b62c9d692e5bd3bf",
+  "sourceFingerprint": "44d6ac39447330e30cd2322fa5ddb94f9b3bbe99ece79d6d5a662e2e8d834bbc",
   "summary": {
     "files": 1175,
-    "lines": 255113,
+    "lines": 255197,
     "symbols": 3474
   },
   "symbolIndex": {
@@ -821,7 +821,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1485
+        "line": 1490
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5027,31 +5027,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 699
+        "line": 704
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 705
+        "line": 710
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1240
+        "line": 1245
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1252
+        "line": 1257
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1475
+        "line": 1480
       }
     ],
     "configured": [
@@ -7497,37 +7497,37 @@
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 63
+        "line": 68
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 93
+        "line": 98
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 103
+        "line": 108
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 188
+        "line": 193
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 199
+        "line": 204
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 216
+        "line": 221
       }
     ],
     "offer": [
@@ -23707,8 +23707,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1493,
-      "sha256": "f5868d0d85f5dcafa5006ed1af7682b84813d408eadc4caf9b87b5fcebf4686e",
+      "lines": 1498,
+      "sha256": "e729cc683ddf3719c5912747a15de01f29c5e3cad7d97470e750f08201e762fa",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23800,27 +23800,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 699
+          "line": 704
         },
         {
           "name": "positionedBooks",
-          "line": 705
+          "line": 710
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1240
+          "line": 1245
         },
         {
           "name": "consumeEvent",
-          "line": 1252
+          "line": 1257
         },
         {
           "name": "LuluAiServices",
-          "line": 1475
+          "line": 1480
         },
         {
           "name": "initialize",
-          "line": 1485
+          "line": 1490
         }
       ]
     },
@@ -26072,8 +26072,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 220,
-      "sha256": "2aed98f5d09f3a7d63ea5b802a192b398deccb3cf6bbfe8b2ca95a1cb7a996ed",
+      "lines": 225,
+      "sha256": "49d661c8623243355927972df2255a6474bd8f045638f6ff88daf2d0c1feeea4",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -26105,27 +26105,27 @@
         },
         {
           "name": "definitionChanges",
-          "line": 63
+          "line": 68
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 93
+          "line": 98
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 103
+          "line": 108
         },
         {
           "name": "learningContext",
-          "line": 188
+          "line": 193
         },
         {
           "name": "leanExpressionContext",
-          "line": 199
+          "line": 204
         },
         {
           "name": "developmentContext",
-          "line": 216
+          "line": 221
         }
       ]
     },
@@ -39808,8 +39808,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 428,
-      "sha256": "98301ab14a7d24d4c0447b5610de17c72cf79f8d396bdc29518a66fb2a741a68",
+      "lines": 502,
+      "sha256": "0119769b4ecb91c6b99fdf18d25d4f6141da036c6e70d5635de84b0db91abde9",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
