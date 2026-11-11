@@ -136,23 +136,15 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
         return true
     }
 
-    @Synchronized fun begin(id: String, background: String, rewrite: Boolean): String {
+    @Synchronized fun begin(id: String, background: String, rewrite: Boolean,
+        modelArchiveId: String = ""): String {
         val entry = items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
         check(entry.status !in setOf("queued", "running")) { "这篇已经在生成中" }
         check(entry.status != "complete" || rewrite) { "已完结作品不可静默覆盖" }
-        com.jiacimu.lulu.ai.LuluAiServices.initialize(app)
-        ScopedModelSelections.initialize(app)
-        val archiveId = if (entry.characterId.isNotBlank()) {
-            ScopedModelSelections.selectedPersonalTheaterArchiveId(entry.characterId)
-        } else ScopedModelSelections.selectedArchiveId(ScopedModelSelections.THEATER)
-        require(!archiveId.isNullOrBlank()) { "请先为番外选择可用模型" }
-        // Resolve BEFORE marking the work queued. Missing models cannot leave
-        // a phantom running task, and later model switches cannot change the bill.
-        com.jiacimu.lulu.ai.LuluAiServices.connectionStore.resolveConnection(archiveId)
         val token = UUID.randomUUID().toString()
         save(items.value.map {
             if (it.id == id) it.copy(sceneContext = background, generationToken = token,
-                generationArchiveId = archiveId,
+                generationArchiveId = modelArchiveId,
                 status = "queued", error = "", rewriting = rewrite || it.rewriting)
             else it
         })
@@ -250,7 +242,16 @@ internal object MiniTheaterJobs {
             val item = store.items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
             check(item.characterId.isBlank() || com.jiacimu.lulu.data.MigratedDomainStores.characters.settings.value.containsKey(item.characterId)) { "角色已移除，保留已保存的作品" }
         }
-        val token = store.begin(id, background, rewrite)
+        LuluAiServices.initialize(context.applicationContext)
+        ScopedModelSelections.initialize(context.applicationContext)
+        val entry = store.items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
+        val archiveId = if (entry.characterId.isNotBlank())
+            ScopedModelSelections.selectedPersonalTheaterArchiveId(entry.characterId)
+        else ScopedModelSelections.selectedArchiveId(ScopedModelSelections.THEATER)
+        require(!archiveId.isNullOrBlank()) { "请先为番外选择可用模型" }
+        // The model used for a background paid request is frozen once queued.
+        LuluAiServices.connectionStore.resolveConnection(archiveId)
+        val token = store.begin(id, background, rewrite, modelArchiveId = archiveId)
         try {
             WorkManager.getInstance(context).enqueueUniqueWork(
                 "single-theater-$id", ExistingWorkPolicy.REPLACE,
