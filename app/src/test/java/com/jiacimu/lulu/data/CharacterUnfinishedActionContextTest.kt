@@ -143,7 +143,7 @@ class CharacterUnfinishedActionContextTest {
     @Test fun saturatedBoredomReachesThePrivateChatActionHandoffWithoutInventingAWorldAction() {
         if (!DigitalLifeProfileStore.isResolved(role)) {
             DigitalLifeProfileStore.registerNewLife(role, "未竟事回归", "测试创建者",
-                now.minusSeconds(3600))
+                now.minusSeconds(7 * 86400))
         }
         CharacterLifeStore.saveBodyState(role,
             EmbodiedBodyPhysics.fresh(now).copy(boredom = 96.0).toJson())
