@@ -71,6 +71,8 @@
 
 **2026-11-11 P-08d.2b.2 接力**：新增真实 `ProactivePerceptionRuntime.runDueCycle` → MockWebServer 模型 HTTP 请求回归 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，从 `CommitmentCallFeedback.onVoiceFailed` 经 `CommitmentTaskStore` 重载到新用户气泡的实际模型请求，检查任务 ID、播放失败事实、不得虚报已醒及一次批次一次模型请求。源码测试提交 [`717cc0d`](https://github.com/jiacimu-droid/lulu1/commit/717cc0dedaccc08dcf84c1464ffb1f4091113272)；**APK/JVM、索引未验，不勾工程通过**。下一轮先查此 SHA 的 `AutonomousActionBoundaryIntegrationTest` 首错；绿后再验证失败后新选择的真实工具执行/独立回执。真机声音与真实模型独立待验。
 
+**2026-11-11 P-08d.2b.2 来源回执续接**：已按 `3401079` 的 main push SHA 核 [Lulu APK #43030814176](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814176) 与 [Refresh code index #43030814030](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814030) completed/success。新增测试 [2a4ae32](https://github.com/jiacimu-droid/lulu1/commit/2a4ae3254a90bef5c05738d4c151f79b8ad1a6b9) 在同一正式第二轮 HTTP 请求断言被拒主工具 `send_character_message` 与来源通道 `实际工具执行` 均可见，防止只剩 motive 状态而丢失执行证据。仅新增回归，当前新 SHA 的 JVM/APK/索引待 CI；下一轮先核 `successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 首错，若通过再审取消与重启反例。真机/真实模型独立待验。
+
 ## 一点五、下一轮可领用的最小工程工作包
 
 > 此表是固定 ID 的当前执行入口。先核实 main、对应源码、已有测试和别的任务正在做的范围；有缺口才改生产代码。若当前环境无法拉取全仓或运行 Gradle，优先用连接器读取实际文件、提交可审的最小工作包、由现有 main push CI 执行；没有可验证改动就记阻塞及替代 ID。
