@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:38:46.642010+00:00",
-  "commit": "2f29f3691558aaaea2e51d619ca3ef861caf3236",
+  "generatedAt": "2026-11-11T16:39:33.130396+00:00",
+  "commit": "bda3b43adf5265ad1dd5310debdcaaa36222083c",
   "branch": "main",
-  "sourceFingerprint": "0de4796f01c23df0efda0d7879570520acc32199cc313406b51308def6e55b1e",
+  "sourceFingerprint": "9e09a1d23179e56068049fd363b6dfca063090518b9469bf10f712b9685ef25d",
   "summary": {
     "files": 1204,
-    "lines": 260237,
+    "lines": 260174,
     "symbols": 3637
   },
   "symbolIndex": {
@@ -743,7 +743,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 441
+        "line": 442
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -13679,7 +13679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 109
+        "line": 110
       }
     ],
     "actorCenter": [
@@ -13945,7 +13945,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 108
+        "line": 109
       }
     ],
     "adjacent": [
@@ -33752,8 +33752,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 387,
-      "sha256": "a7b8aea72aac6bc22072c0da0e8e2146e47f993a6899e7f1e89a6636656a022e",
+      "lines": 324,
+      "sha256": "5bdd40ab3f243ffbb37e19c016c33604a3091701ef78b38381b22c243feaeded",
       "symbols": []
     },
     {
@@ -35014,19 +35014,19 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
       "lines": 620,
-      "sha256": "c4dfbc6ffeba0f5c04d39a0c3b87d192138ca60f9ae2e6618105ef71b03d17ad",
+      "sha256": "a09d6db1c60a446f9a3ef9a7c1e7e3662e0208d219b910c5b202ff15cec06a67",
       "symbols": [
         {
           "name": "cell",
-          "line": 108
-        },
-        {
-          "name": "center",
           "line": 109
         },
         {
+          "name": "center",
+          "line": 110
+        },
+        {
           "name": "label",
-          "line": 441
+          "line": 442
         }
       ]
     },
