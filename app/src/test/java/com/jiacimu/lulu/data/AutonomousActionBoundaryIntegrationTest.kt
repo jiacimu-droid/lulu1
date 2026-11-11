@@ -613,8 +613,15 @@ class AutonomousActionBoundaryIntegrationTest {
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
                 requests.add(request.body.readUtf8())
-                val decision = JSONObject().put("action", "silent")
-                    .put("reason", "先核对实际有声送达结果")
+                val decision = if (requests.size == 1) {
+                    JSONObject().put("action", "tool").put("tool", "publish_moment")
+                        .put("args", JSONObject().put("text", "重新核实有声失败后的实际安排"))
+                        .put("reason", "上一次有声送达失败，需要保留事实并采取新的独立行动")
+                        .put("replyChoice", "silent")
+                } else {
+                    JSONObject().put("action", "silent")
+                        .put("reason", "继续核对新的真实行动回执")
+                }
                 return okhttp3.mockwebserver.MockResponse()
                     .setHeader("Content-Type", "application/json")
                     .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
@@ -634,11 +641,26 @@ class AutonomousActionBoundaryIntegrationTest {
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = batch.revision, requiresUnread = true)
             assertEquals("本次新批次只应购买一次本人模型决定", 1, requests.size)
-            assertTrue("实际模型请求必须包含原任务ID", requests.single().contains(task.id))
-            assertTrue("实际模型请求必须包含真实播放失败", requests.single().contains("播放失败"))
-            assertFalse("失败不得伪造成已醒", requests.single().contains("已确认醒来"))
+            assertTrue("实际模型请求必须包含原任务ID", requests[0].contains(task.id))
+            assertTrue("实际模型请求必须包含真实播放失败", requests[0].contains("播放失败"))
+            assertFalse("失败不得伪造成已醒", requests[0].contains("已确认醒来"))
             assertEquals(CommitmentTaskStatus.Blocked,
                 (CommitmentTaskStore.snapshot().firstOrNull { it.id == task.id } ?: error("Wake task missing after model decision: " + CommitmentTaskStore.snapshot().joinToString { it.id + ":" + it.status })).status)
+            val followUp = "重新核实有声失败后的实际安排"
+            assertTrue("新决定必须经真实工具送达", MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == followUp
+            })
+            assertTrue("新动作必须留下独立时间线证据", SharedExperienceTimeline.all(actor).any {
+                it.content.contains(followUp)
+            })
+            MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那项新安排实际做成了吗？")
+            val next = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = next.revision, requiresUnread = true)
+            assertEquals("第二个有效批次才应再购买一次决定", 2, requests.size)
+            assertTrue("下一轮应同时保留旧失败与新动作", requests[1].contains("播放失败") &&
+                requests[1].contains(followUp))
         } finally {
             server.shutdown()
         }
