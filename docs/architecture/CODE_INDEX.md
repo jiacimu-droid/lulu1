@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`816d018f9259dd1bd8a15a2836fbfae6dad172f3`
+- 基准提交：`1f6c299dad83f2f841d2bff46e30c5c367638b37`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255339
+- 已索引代码/文本行：255372
 - 已发现符号：3479
 
 | 文件 | 行数 | 符号数 |
@@ -883,7 +883,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 191 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 676 | 3 |
