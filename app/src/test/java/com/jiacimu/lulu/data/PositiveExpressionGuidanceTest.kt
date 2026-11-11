@@ -168,7 +168,7 @@ class PositiveExpressionGuidanceTest {
         assertFalse(renderer.contains("重新选择行动"))
     }
 
-    @Test fun immediateAndReflectiveReactionsBothBelongToOnePersonWithoutQuotas() {
+    // The concise runtime contract and the full private-life guide jointly cover spontaneity.\n    @Test fun immediateAndReflectiveReactionsBothBelongToOnePersonWithoutQuotas() {
         val ordinary = CharacterExpressionGuide.forGeneration("普通聊天")
         val expression = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         val directPrivate = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
@@ -182,8 +182,8 @@ class PositiveExpressionGuidanceTest {
         assertTrue(expression.contains("对已选定的审慎回应"))
         assertTrue(directPrivate.contains("顺势脱口而出的自然接话"))
         assertTrue(phone.contains("沿用本人的判断"))
-        assertTrue(protocol.contains("顺口接话、惊讶、吐槽或停顿"))
-        assertTrue(protocol.contains("不为每个即时反应强制填心理字段"))
+        assertTrue(protocol.contains("性格、关系、情绪与现场共同决定接话或沉默"))
+        assertTrue(protocol.contains("不强制填心理字段"))
         assertTrue(privateLife.contains("第一反应可以直接说出口"))
         assertTrue(privateLife.contains("已经说出去的直觉不需要重复记录成心声"))
         assertFalse(expression.contains("必须先写心声"))
