@@ -580,6 +580,10 @@ class AutonomousActionBoundaryIntegrationTest {
     }
 
     @Test(timeout = 90_000) fun failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput() = runBlocking {
+        // The background runtime does not initialize the commitment store; the
+        // real app does so before saving commitments. Persist through that
+        // initialized store before simulating process recreation.
+        CommitmentTaskStore.initialize(app)
         val actor = role()
         val task = CommitmentTaskStore.save(CommitmentTask(
             characterId = actor, goal = "在约定时刻有声叫醒",
