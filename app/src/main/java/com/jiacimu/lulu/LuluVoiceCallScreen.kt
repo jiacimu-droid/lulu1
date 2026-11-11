@@ -48,7 +48,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
-import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
@@ -249,10 +248,8 @@ fun LuluVoiceCallScreen(
             LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
     }
 
-    val voiceArchiveId = if (state.sleepMode)
-        library.archiveIdFor(com.jiacimu.lulu.ai.ModelUsage.Sleep)
-    else com.jiacimu.lulu.ai.ScopedModelSelections
-        .selectedCharacterChatArchiveId(currentCharacterId, library)
+    val voiceArchiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+        .selectedPhoneArchiveId(currentCharacterId, state.sleepMode, library)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     // Only messages belonging to this *connected* call may appear as call
     // captions. List position alone leaked old chat after a cold screen restore.
