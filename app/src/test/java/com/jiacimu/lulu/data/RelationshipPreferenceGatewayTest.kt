@@ -348,4 +348,80 @@ class RelationshipPreferenceGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun crossWorldKeepsEditedTemperamentWithoutOriginalWorldDialogueScenes() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡投影样本", "江渡旧版性格")
+        val xing = MigratedDomainStores.characters.create("星禾投影样本", "星禾会直说自己的顾虑")
+        val jiangId = jiang.characterId
+        val xingId = xing.characterId
+        val identity = "江渡原世界身份专用标记"
+        val agreement = "江渡原世界具体约定专用标记"
+        val dialogue = "原世界客厅里的恋人对话专用标记"
+        val xingDialogue = "星禾原世界闺蜜对话专用标记"
+        CharacterIdentityStore.set(jiangId, identity)
+        assertTrue(CharacterSocialRelationship.setAgreement(jiangId, "user", "原世界约定", agreement))
+        CharacterLifeStore.setProfile(jiangId, "dialogueExamples", dialogue)
+        CharacterLifeStore.setProfile(jiangId, "speechHabits", "江渡旧版表达")
+        CharacterLifeStore.setProfile(xingId, "dialogueExamples", xingDialogue)
+        CharacterLifeStore.setProfile(xingId, "speechHabits", "星禾表达直截了当")
+
+        val server = MockWebServer()
+        repeat(5) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"测试返回"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            suspend fun system(role: String, mode: CompanionContextMode, source: String): String {
+                LuluAiServices.gateway.generate(role, "本轮场景中双方刚见面", "按场景和人设回应",
+                    source, "测试", connectionOverride = connection, contextMode = mode).getOrThrow()
+                val body = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+                return body.getJSONArray("messages").getJSONObject(0).getString("content")
+            }
+
+            val before = system(jiangId, CompanionContextMode.PersonaAndScenario, "末世求生V4正文")
+            assertTrue(before.contains("江渡旧版性格"))
+            assertFalse(before.contains(dialogue))
+
+            val revised = "江渡新版性格：先确认当事人的意愿。".repeat(90) +
+                "最终条件：只有当事人明确同意才分头行动，否则不代为决定。"
+            val revisedSpeech = "江渡新版表达：简短，但不省略否定条件"
+            val revisedDialogue = "江渡编辑后的原世界场景专用标记"
+            MigratedDomainStores.characters.update(jiang.copy(persona = revised))
+            CharacterLifeStore.setProfile(jiangId, "speechHabits", revisedSpeech)
+            CharacterLifeStore.setProfile(jiangId, "dialogueExamples", revisedDialogue)
+
+            val xingPrompt = system(xingId, CompanionContextMode.PersonaAndScenario, "末世求生V4正文")
+            assertTrue(xingPrompt.contains("星禾会直说自己的顾虑"))
+            assertTrue(xingPrompt.contains("星禾表达直截了当"))
+            assertFalse(xingPrompt.contains(xingDialogue))
+            assertFalse(xingPrompt.contains(revisedSpeech))
+
+            val after = system(jiangId, CompanionContextMode.PersonaAndScenario, "末世求生V4正文")
+            assertTrue(after.contains(revised))
+            assertTrue(after.contains(revisedSpeech))
+            for (excluded in listOf(identity, agreement, dialogue, revisedDialogue, xingDialogue,
+                "江渡旧版性格", "江渡旧版表达", "星禾表达直截了当")) {
+                assertFalse(after.contains(excluded))
+            }
+
+            for (mode in listOf(CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario)) {
+                val native = system(jiangId, mode, "聊天表达渲染")
+                assertTrue(native.contains(revised))
+                assertTrue(native.contains(revisedSpeech))
+                assertTrue(native.contains(identity))
+                assertTrue(native.contains(agreement))
+                assertTrue(native.contains(revisedDialogue))
+                assertFalse(native.contains(dialogue))
+                assertFalse(native.contains(xingDialogue))
+            }
+            assertEquals(5, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
 }

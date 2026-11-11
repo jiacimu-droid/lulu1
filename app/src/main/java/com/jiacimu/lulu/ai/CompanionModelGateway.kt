@@ -659,7 +659,8 @@ class CompanionModelGateway(
                         // Lean chat expression intentionally skips broad memory recall, but it must
                         // still sound like the same person. Verified expression habits are bounded
                         // identity evidence, not permission to re-decide the turn.
-                        includeObserved = fullContext || expressionOnly,
+                        includeObserved = fullContext ||
+                            (effectiveMode == CompanionContextMode.CharacterAndScenario && expressionOnly),
                         // Full mode already carries configured profile fields; reduced modes do not.
                         includeConfigured = !fullContext,
                         includeRelationship = effectiveMode == CompanionContextMode.Full ||
@@ -667,6 +668,8 @@ class CompanionModelGateway(
                         // Core lives in one central prompt channel, not a second speech-only copy.
                         includeCore = false,
                         query = request.retrievalQuery(),
+                        // Examples can contain complete scenes and relationships from the original world.
+                        includeDialogueExamples = effectiveMode != CompanionContextMode.PersonaAndScenario,
                     ))
                     // Object-specific relationship authority is rendered once below from
                     // CharacterRuntime. A title keyword must never add a second role script.

@@ -14,11 +14,12 @@ internal object CharacterSpeechIdentity {
         includeRelationship: Boolean = true,
         includeCore: Boolean = false,
         query: String = "",
+        includeDialogueExamples: Boolean = true,
     ): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
-        val illustrativeDialogues = CharacterLifeStore.state(characterId)
-            .optJSONObject("profile")?.optString("dialogueExamples").orEmpty().trim()
+        val illustrativeDialogues = if (includeDialogueExamples) CharacterLifeStore.state(characterId)
+            .optJSONObject("profile")?.optString("dialogueExamples").orEmpty().trim() else ""
         val acquired = if (includeObserved) CharacterDevelopmentRecall.select(
             CharacterDevelopmentStore.active(characterId).filter { it.kind == DevelopmentKind.ExpressionHabit },
             query, limit = 5) else emptyList()
