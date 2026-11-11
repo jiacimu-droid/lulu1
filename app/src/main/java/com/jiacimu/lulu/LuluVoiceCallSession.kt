@@ -1700,10 +1700,8 @@ internal object LuluVoiceCallSession {
             // Sleep is an independent call mode: it always uses the fixed
             // fallback, while normal phone/chat share this character's choice.
             // Switching modes does not redial or alter the live conversation.
-            val archiveId = if (mutableState.value.sleepMode)
-                library.archiveIdFor(com.jiacimu.lulu.ai.ModelUsage.Sleep)
-            else com.jiacimu.lulu.ai.ScopedModelSelections
-                .selectedCharacterChatArchiveId(latest.characterId, library)
+            val archiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+                .selectedPhoneArchiveId(latest.characterId, mutableState.value.sleepMode, library)
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null && !(opening && latest.incomingReason.isNotBlank())) {
                 replyIsSilence = false
