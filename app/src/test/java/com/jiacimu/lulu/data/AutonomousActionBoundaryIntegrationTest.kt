@@ -161,6 +161,24 @@ class AutonomousActionBoundaryIntegrationTest {
                     } == true
                 })
 
+            // A backup restore must merge the same durable receipts by stable ID,
+            // not invent a second execution or replace the rejected primary with
+            // the successful independent side action. This is an import/recovery
+            // regression, not a process-death or cold SQLite reopen simulation.
+            val beforeRestore = (0 until ledger.length()).map { ledger.getJSONObject(it) }
+                .filter { it.optString("character_id") == actor &&
+                    it.optString("channel") == "实际工具执行" }
+                .map { it.getString("id") to it.getString("content") }
+            SharedExperienceTimeline.importBackup(SharedExperienceTimeline.exportBackup())
+            val afterRestoreLedger = SharedExperienceTimeline.exportBackup()
+                .optJSONArray("events") ?: JSONArray()
+            val afterRestore = (0 until afterRestoreLedger.length())
+                .map { afterRestoreLedger.getJSONObject(it) }
+                .filter { it.optString("character_id") == actor &&
+                    it.optString("channel") == "实际工具执行" }
+                .map { it.getString("id") to it.getString("content") }
+            assertEquals("恢复同一账本不能复制或改写工具执行回执", beforeRestore, afterRestore)
+
             // A successful independent side action must not erase the rejected
             // primary action when the same character decides again.
             MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
