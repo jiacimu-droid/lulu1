@@ -103,7 +103,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 setupBusy = true
                 scope.launch {
                     try {
-                        val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.stop()
+                        val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.stop(context)
                         setupStatus = if (stopped) "后台虚拟屏幕已停止，新任务也已暂停"
                             else "后台操作已暂停，主人重新允许前不会启动"
                     } catch (e: Exception) {
@@ -112,7 +112,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 }
             }) { Text("立即停止后台手机操作") }
             TextButton(onClick = {
-                com.jiacimu.lulu.system.LuluBackgroundPhoneSession.resumeByOwner()
+                com.jiacimu.lulu.system.LuluBackgroundPhoneSession.resumeByOwner(context)
                 setupStatus = "已允许新后台操作会话；仍需按角色屏幕权限核实"
             }) { Text("重新允许后台操作") }
             Text(setupStatus, style = MaterialTheme.typography.bodySmall)

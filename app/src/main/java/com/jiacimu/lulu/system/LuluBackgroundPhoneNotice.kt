@@ -53,7 +53,7 @@ internal class LuluBackgroundPhoneStopReceiver : BroadcastReceiver() {
         if (intent.action != LuluBackgroundPhoneNotice.ACTION_STOP) return
         val completion = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-            try { LuluBackgroundPhoneSession.stop() }
+            try { LuluBackgroundPhoneSession.stop(context) }
             finally { completion.finish() }
         }
     }

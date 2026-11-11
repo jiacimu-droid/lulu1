@@ -25,10 +25,18 @@ internal object LuluBackgroundPhoneSession {
     private const val REPLY_MARK = "LULU_DISPLAY:"
     private val mutex = Mutex()
     @Volatile private var stoppedByOwner = false
+    private const val OWNER_PREF = "lulu_background_phone_owner"
+    private const val PAUSED = "paused"
 
-    /** Only a direct user action can re-enable future background phone sessions. */
-    fun resumeByOwner() { stoppedByOwner = false }
-    fun ownerHasPaused(): Boolean = stoppedByOwner
+    /** Owner STOP is persisted, so app death/restart cannot silently re-arm control. */
+    fun resumeByOwner(context: Context) {
+        check(context.getSharedPreferences(OWNER_PREF, Context.MODE_PRIVATE)
+            .edit().putBoolean(PAUSED, false).commit()) { "无法保存恢复授权" }
+        stoppedByOwner = false
+    }
+    fun ownerHasPaused(context: Context): Boolean =
+        stoppedByOwner || context.getSharedPreferences(OWNER_PREF, Context.MODE_PRIVATE)
+            .getBoolean(PAUSED, false)
     private var adb: AdbConnection? = null
     private var stream: AdbConnection.AdbStream? = null
     private var displayId = -1
@@ -111,10 +119,17 @@ internal object LuluBackgroundPhoneSession {
         response
     }
 
-    suspend fun stop(): Boolean {
-        // Set immediately, BEFORE waiting for another in-flight tool to
-        // release the session mutex. Later model steps cannot undo STOP.
+    suspend fun stop(context: Context? = null): Boolean {
+        // The in-memory flag takes effect immediately, before an in-flight
+        // model/ADB command releases the lock.
         stoppedByOwner = true
+        val ownerContext = context ?: appContext
+        if (ownerContext != null) {
+            check(ownerContext.getSharedPreferences(OWNER_PREF, Context.MODE_PRIVATE)
+                .edit().putBoolean(PAUSED, true).commit()) {
+                "停止请求已应用但未能持久保存；请关闭系统无线调试"
+            }
+        }
         mutex.lock()
         try {
             if (!connected()) return false
@@ -131,7 +146,7 @@ internal object LuluBackgroundPhoneSession {
     ): String {
         mutex.lock()
         try {
-            check(!stoppedByOwner) {
+            check(!ownerHasPaused(context)) {
                 "主人已停止后台手机操作；必须由主人在设置中重新允许"
             }
             check(LuluScreenAwareness.onDemandAllowed(context)) {
@@ -153,6 +168,7 @@ internal object LuluBackgroundPhoneSession {
                     .put("status", "stopped").put("verification", "后台屏幕本来没有运行").toString()
                 return try {
                     command(JSONObject().put("action", "stop"))
+                        .put("mode", "independent_virtual_display")
                         .put("verification", "后台屏幕已收到关闭请求").toString()
                 } finally { forgetTransport() }
             }
