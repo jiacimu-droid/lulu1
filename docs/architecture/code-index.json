@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T19:44:36.809706+00:00",
-  "commit": "80ae8bbb154c65d1ce58dfd00c473707ee3b493e",
+  "generatedAt": "2026-11-11T21:34:13.192602+00:00",
+  "commit": "c72f729fe8a803103818d0cab284423aff166835",
   "branch": "main",
-  "sourceFingerprint": "09b702b04cd469802db65fa567ded4c51ff2adab3156b88079ae6453b11b5732",
+  "sourceFingerprint": "1ec9b87975297584d22d153aa8bed681df075790dab3c9c5bbb540b747db9168",
   "summary": {
     "files": 1208,
-    "lines": 260893,
+    "lines": 260939,
     "symbols": 3649
   },
   "symbolIndex": {
@@ -1085,7 +1085,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 59
+        "line": 61
       }
     ],
     "suppressAutoPlay": [
@@ -7871,7 +7871,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 39
+        "line": 41
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -11821,19 +11821,19 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1101
+        "line": 1119
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1212
+        "line": 1230
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1312
+        "line": 1330
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1589
+        "line": 1607
       }
     ],
     "repliedByDecisionId": [
@@ -15757,37 +15757,37 @@
     "LuluDeviceToolBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 33
+        "line": 35
       }
     ],
     "ReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 71
+        "line": 73
       }
     ],
     "commitReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 84
+        "line": 86
       }
     ],
     "phoneDefinitionChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 496
+        "line": 498
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 499
+        "line": 501
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1541
+        "line": 1559
       }
     ],
     "candidateHosts": [
@@ -18409,27 +18409,27 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1114
+        "line": 1132
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1215
+        "line": 1233
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1315
+        "line": 1333
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1402
+        "line": 1420
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1484
+        "line": 1502
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1567
+        "line": 1585
       }
     ],
     "bubbles": [
@@ -18473,15 +18473,15 @@
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1103
+        "line": 1121
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1214
+        "line": 1232
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1314
+        "line": 1332
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -18491,13 +18491,13 @@
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1471
+        "line": 1489
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1475
+        "line": 1493
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -34965,12 +34965,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 177,
-      "sha256": "9afb74a5a3a4852dab5e362145bc9a7f5ef0fb6324d46ae7965c8cb00e861f95",
+      "lines": 184,
+      "sha256": "f5b7818d4ef3a432f43022d74b4aaed9422475b913dd06b0ff90571f702a6b1f",
       "symbols": [
         {
           "name": "at",
-          "line": 39
+          "line": 41
         }
       ]
     },
@@ -36526,36 +36526,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2319,
-      "sha256": "cff8b34211ea40697a6a2666c38cde7f8ad1d50bc276f738b393ded371169c50",
+      "lines": 2337,
+      "sha256": "955b702ca16fdae9c5f5e9b11754f7e1352c8afc97eb9ad7bce09e42240526ed",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
-          "line": 33
+          "line": 35
         },
         {
           "name": "initialize",
-          "line": 59
+          "line": 61
         },
         {
           "name": "ReconsideredChatReply",
-          "line": 71
+          "line": 73
         },
         {
           "name": "commitReconsideredChatReply",
-          "line": 84
+          "line": 86
         },
         {
           "name": "phoneDefinitionChanged",
-          "line": 496
+          "line": 498
         },
         {
           "name": "stalePhoneTurn",
-          "line": 499
+          "line": 501
         },
         {
           "name": "staleReplyExpression",
-          "line": 1541
+          "line": 1559
         }
       ]
     },
@@ -40244,8 +40244,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 1720,
-      "sha256": "4d19ebda39f4f986e66576461397c1774e28a7235cf74c4a3fc3dba17a8964d2",
+      "lines": 1738,
+      "sha256": "354238211e0da00a280fab1912b964c877ff0a11bf13f7339eac984aea8d60bc",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -40325,63 +40325,63 @@
         },
         {
           "name": "receipts",
-          "line": 1101
+          "line": 1119
         },
         {
           "name": "posts",
-          "line": 1103
+          "line": 1121
         },
         {
           "name": "response",
-          "line": 1114
+          "line": 1132
         },
         {
           "name": "receipts",
-          "line": 1212
+          "line": 1230
         },
         {
           "name": "posts",
-          "line": 1214
+          "line": 1232
         },
         {
           "name": "response",
-          "line": 1215
+          "line": 1233
         },
         {
           "name": "receipts",
-          "line": 1312
+          "line": 1330
         },
         {
           "name": "posts",
-          "line": 1314
+          "line": 1332
         },
         {
           "name": "response",
-          "line": 1315
+          "line": 1333
         },
         {
           "name": "response",
-          "line": 1402
+          "line": 1420
         },
         {
           "name": "concern",
-          "line": 1471
+          "line": 1489
         },
         {
           "name": "decision",
-          "line": 1475
+          "line": 1493
         },
         {
           "name": "response",
-          "line": 1484
+          "line": 1502
         },
         {
           "name": "response",
-          "line": 1567
+          "line": 1585
         },
         {
           "name": "receipts",
-          "line": 1589
+          "line": 1607
         }
       ]
     },
@@ -42773,8 +42773,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt",
-      "lines": 25,
-      "sha256": "7c8278218d8784e2b714fc19b921eec7de4886c962474224d90121ae9ae57c72",
+      "lines": 28,
+      "sha256": "d79227cbbd27cee9df21a0d25572ddad6837f7f8edd1c6a607fc28ee2a29a39f",
       "symbols": [
         {
           "name": "RelicRevealTimelineContinuityTest",
