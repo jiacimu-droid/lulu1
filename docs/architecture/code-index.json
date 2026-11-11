@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:11:38.817934+00:00",
-  "commit": "f8c33c612e9f592c00fa33eaf026a410a0fcb844",
+  "generatedAt": "2026-11-11T16:12:11.549487+00:00",
+  "commit": "336e0d1d6c8d94a3b7432ba952c717e5f8ce402a",
   "branch": "main",
-  "sourceFingerprint": "5b4433d2d5bb11a51d28cccaae98cfcf742d4f3c1690e0f1239492f4236d6126",
+  "sourceFingerprint": "efcb70f888fb7808e13b2b5b67a4bc7a0108e75d436f4b4ca3e09b5dcacd5e4d",
   "summary": {
     "files": 1200,
-    "lines": 259610,
+    "lines": 259632,
     "symbols": 3628
   },
   "symbolIndex": {
@@ -25330,7 +25330,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 137,
-      "sha256": "92fccdd33728b46cbf8a625daa47edc315b9030223db38698fc94d8af2a65417",
+      "sha256": "ea277e1c143dba472402c8d881156329aeb2001089e6332935ec55d1f09d8905",
       "symbols": [
         {
           "name": "Capability",
@@ -36341,8 +36341,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 234,
-      "sha256": "4f07d6563b146736c28d1d023f933d8ac964dbd19ca0a30d4c800645460a0a13",
+      "lines": 256,
+      "sha256": "108ce1f9818cf8a1ed38d3d90c69af63869d49dcd102951cf8ff3b2eec3bfec7",
       "symbols": [
         {
           "name": "connected",
