@@ -103,6 +103,27 @@ class LuluAccessibilityService : AccessibilityService() {
                 visibleText = root.collectVisibleText().take(6_000), capturedAt = Instant.now()).also { mutableState.value = it }
         }
 
+        /**
+         * The virtual display has a different Android display ID.
+         * Never mix its windows with rootInActiveWindow (owner's main screen).
+         * A missing/ambiguous window produces an unverified observation.
+         */
+        fun observeDisplay(displayId: Int): AccessibilitySnapshot {
+            val service = instance ?: return AccessibilitySnapshot()
+            if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0) return AccessibilitySnapshot()
+            val all = service.windowsOnAllDisplays
+            val windows = all.get(displayId).orEmpty()
+            val window = windows.filter { it.isActive || it.isFocused }
+                .maxByOrNull { it.layer } ?: windows.maxByOrNull { it.layer }
+            val root = window?.root
+            return AccessibilitySnapshot(
+                connected = root != null,
+                packageName = root?.packageName?.toString().orEmpty(),
+                visibleText = root.collectVisibleText().take(6_000),
+                capturedAt = Instant.now(),
+            )
+        }
+
         fun perform(action: LuluScreenAction): Boolean {
             val service = instance ?: return false
             val globalAction = when (action) {
