@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 新语音打断电话多步动作
+
+- 上轮 `75193fc` 的 [全量 JVM/APK #43088107233](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107233) 和[原索引 #43088107109](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107109) 复核成功。
+- [c72f729](https://github.com/jiacimu-droid/lulu1/commit/c72f729fe8a803103818d0cab284423aff166835) 只修电话适配层。新语音取消旧轮时，ToolRouter 仍可在原非取消区提交已经开始的工具结果。此前电话步骤循环只查人物配置，还会把取消当普通执行错误，导致恢复后继续派发或保存旧沉默。现在检查旧轮是否仍活动，按原决定记录取消与剩余步骤，保留独立的真实工具回执，再把取消传回会话，停止交付旧轮。不新增模型调用。
+- `ConversationExpressionGatewayTest.phoneStepsStopAfterCancellationButKeepCompletedToolReceipt` 沿已验证的关系编辑夹具，在真实 ToolRouter 的 HTTP 等待中取消桥接协程，核对一条成功回执、无第二条动态、无旧沉默、原批次有取消摘要，并确认桥接没有按普通响应返回。该用例模拟会话使用的协程取消，不覆盖真机语音识别。
+- [原索引 #43104160597](https://github.com/jiacimu-droid/lulu1/actions/runs/43104160597) 通过。[本轮 JVM/APK #43104160507](https://github.com/jiacimu-droid/lulu1/actions/runs/43104160507) 中取消与关系编辑回归均为 PASSED。全量有一项 SQLite 测试失败，同一用例与 `SQLITE_CANTOPEN` 首错在本轮前 [#43089979122](https://github.com/jiacimu-droid/lulu1/actions/runs/43089979122) 已出现，APK 未发布。总接力的 SQLite 修正 `f8816c9` [后继 CI #43105245014](https://github.com/jiacimu-droid/lulu1/actions/runs/43105245014) 尚在运行。真机和真实模型质量待验。
+- 下一步沿 P-03.1 查看 `LuluVoiceCallSession.onExternalToolResult`、`CallExternalResultPolicy` 和 `ConversationExpressionGatewayTest`。构造旧轮取消后新一轮正常用户发言，检查已落盘的结果能否进本人下一轮真实模型输入，确认不会为了追回执重复自动执行旧工具。
+
 ## 2026-11-12 · P-03.1 电话多步动作执行中的关系更新
 
 - 上轮 `7d98a43` 的 [全量 JVM/APK #43068891449](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891449) 与[原索引 #43068891396](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891396) 复核通过。当前 `main` 已含其他窗口的设备能力和截图变更。
