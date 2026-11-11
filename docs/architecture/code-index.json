@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:30:12.826640+00:00",
-  "commit": "cc044c2e63fa6739a84f0973ccb5b05ea6209bd1",
+  "generatedAt": "2026-11-11T09:37:03.969179+00:00",
+  "commit": "287a8671f3f9ce2c223ff1d5be87b3ac8a1f3719",
   "branch": "main",
-  "sourceFingerprint": "660b7b5592ca5d5af2a5fee3113197d49f04d4be07e6664b7dff195b088f8755",
+  "sourceFingerprint": "b0be83bc4579ba261069846b1b4013faeebcbdd3d5c5154b53d05dd1cfd6a12a",
   "summary": {
     "files": 1175,
-    "lines": 255412,
-    "symbols": 3480
+    "lines": 255493,
+    "symbols": 3482
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11647,7 +11647,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1038
+        "line": 1117
       }
     ],
     "repliedByDecisionId": [
@@ -15460,16 +15460,16 @@
         "line": 84
       }
     ],
-    "definitionChanged": [
+    "phoneDefinitionChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 810
+        "line": 495
       }
     ],
-    "staleTurn": [
+    "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 813
+        "line": 498
       }
     ],
     "LuluLocationProvider": [
@@ -17565,11 +17565,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 933
+        "line": 930
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1016
+        "line": 1012
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 1095
       }
     ],
     "bubbles": [
@@ -17604,16 +17608,22 @@
         "line": 787
       }
     ],
+    "systemPrompt": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 876
+      }
+    ],
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 920
+        "line": 999
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 924
+        "line": 1003
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -35450,8 +35460,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2230,
-      "sha256": "a75f1783f28cb0917f4bd9a84eff65d2ab0409cb6372d0747d2fadbff993bf40",
+      "lines": 2232,
+      "sha256": "4180211ccd19f19eabe0ed949d6e633c9d68a6c4b85d5dcfb20e99e7b32bb4e9",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -35470,12 +35480,12 @@
           "line": 84
         },
         {
-          "name": "definitionChanged",
-          "line": 810
+          "name": "phoneDefinitionChanged",
+          "line": 495
         },
         {
-          "name": "staleTurn",
-          "line": 813
+          "name": "stalePhoneTurn",
+          "line": 498
         }
       ]
     },
@@ -38534,8 +38544,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 1169,
-      "sha256": "9df34dc996eeef2cb8c30db88c458cf72d36c0c3d8967fc8b01fff551087c75f",
+      "lines": 1248,
+      "sha256": "5b67a81e89a6b60189af4f3be1621512dceec6ec25bc1c94f5e4834508bb3ce2",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -38606,24 +38616,32 @@
           "line": 851
         },
         {
+          "name": "systemPrompt",
+          "line": 876
+        },
+        {
+          "name": "response",
+          "line": 930
+        },
+        {
           "name": "concern",
-          "line": 920
+          "line": 999
         },
         {
           "name": "decision",
-          "line": 924
+          "line": 1003
         },
         {
           "name": "response",
-          "line": 933
+          "line": 1012
         },
         {
           "name": "response",
-          "line": 1016
+          "line": 1095
         },
         {
           "name": "receipts",
-          "line": 1038
+          "line": 1117
         }
       ]
     },
