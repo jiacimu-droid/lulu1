@@ -29,6 +29,11 @@
 
     <!-- Android 11+ package visibility for device speech-recognition services. -->
     <queries>
+        <!-- Discover launchable apps for owner-authorized phone_ui.launch without QUERY_ALL_PACKAGES. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>

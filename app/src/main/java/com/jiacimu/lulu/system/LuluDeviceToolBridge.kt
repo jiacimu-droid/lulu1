@@ -1995,6 +1995,7 @@ object LuluDeviceToolBridge {
                     .put("visibleText", observed.visibleText).put("verification", "点击请求已返回；未指定验证条件，不能宣称目标完成").toString()
             }
             "screen_sequence" -> VerifiedScreenSequence.execute(args)
+            "phone_ui" -> LuluPhoneUiOperator.execute(context, args)
             "read_screen" -> {
                 val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
                 check(value.connected) { "尚未开启屏幕感知与控制权限" }

@@ -2,6 +2,12 @@ package com.jiacimu.lulu.system
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
+import android.graphics.Path
+import android.graphics.Rect
+import android.accessibilityservice.GestureDescription
+import android.os.Bundle
+import org.json.JSONArray
+import org.json.JSONObject
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -107,6 +113,105 @@ class LuluAccessibilityService : AccessibilityService() {
                 LuluScreenAction.QuickSettings -> GLOBAL_ACTION_QUICK_SETTINGS
             }
             return service.performGlobalAction(globalAction)
+        }
+
+        /** Normalized 0..1000 coordinates for the currently visible display only. */
+        fun tapNormalized(x: Int, y: Int): Boolean {
+            val service = instance ?: return false
+            val metrics = service.resources.displayMetrics
+            val path = Path().apply {
+                moveTo(LuluPhoneUiGeometry.pixel(x, metrics.widthPixels),
+                    LuluPhoneUiGeometry.pixel(y, metrics.heightPixels))
+            }
+            return service.dispatchGesture(
+                GestureDescription.Builder().addStroke(
+                    GestureDescription.StrokeDescription(path, 0, 120)).build(),
+                null, null)
+        }
+
+        fun swipeNormalized(
+            startX: Int, startY: Int, endX: Int, endY: Int, durationMs: Long,
+        ): Boolean {
+            val service = instance ?: return false
+            val metrics = service.resources.displayMetrics
+            val path = Path().apply {
+                moveTo(LuluPhoneUiGeometry.pixel(startX, metrics.widthPixels),
+                    LuluPhoneUiGeometry.pixel(startY, metrics.heightPixels))
+                lineTo(LuluPhoneUiGeometry.pixel(endX, metrics.widthPixels),
+                    LuluPhoneUiGeometry.pixel(endY, metrics.heightPixels))
+            }
+            return service.dispatchGesture(
+                GestureDescription.Builder().addStroke(
+                    GestureDescription.StrokeDescription(path, 0, durationMs)).build(),
+                null, null)
+        }
+
+        /** No clipboard tricks; only a focused non-password editable node. */
+        fun typeIntoFocusedField(value: String): Boolean {
+            val service = instance ?: return false
+            val root = service.rootInActiveWindow ?: return false
+            val node = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
+            if (!node.isEditable || node.isPassword || !node.isVisibleToUser) return false
+            val extras = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, value)
+            }
+            return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, extras)
+        }
+
+        fun scrollVisible(direction: String): Boolean {
+            val service = instance ?: return false
+            val action = when (direction) {
+                "forward" -> AccessibilityNodeInfo.ACTION_SCROLL_FORWARD
+                "backward" -> AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD
+                else -> error("direction应为forward或backward")
+            }
+            val root = service.rootInActiveWindow ?: return false
+            var first: AccessibilityNodeInfo? = null
+            fun scan(node: AccessibilityNodeInfo?, depth: Int) {
+                if (node == null || depth > 32 || first != null) return
+                if (node.isScrollable && node.isVisibleToUser &&
+                    node.actionList.any { it.id == action }) {
+                    first = node
+                    return
+                }
+                for (i in 0 until node.childCount) scan(node.getChild(i), depth + 1)
+            }
+            scan(root, 0)
+            return first?.performAction(action) == true
+        }
+
+        /** Bounded control hints. Password content is never exposed. */
+        fun controls(): JSONArray {
+            val result = JSONArray()
+            val service = instance ?: return result
+            val root = service.rootInActiveWindow ?: return result
+            val metrics = service.resources.displayMetrics
+            var visited = 0
+            fun normalize(position: Int, extent: Int): Int =
+                if (extent > 0) (position.toLong() * 1000 / extent)
+                    .toInt().coerceIn(0, 1000) else 0
+            fun walk(node: AccessibilityNodeInfo?, depth: Int) {
+                if (node == null || depth > 30 || result.length() >= 70 || visited++ >= 320) return
+                if (node.isVisibleToUser &&
+                    (node.isClickable || node.isScrollable || node.isEditable)) {
+                    val rect = Rect()
+                    node.getBoundsInScreen(rect)
+                    result.put(JSONObject()
+                        .put("text", if (node.isPassword) "" else node.text?.toString()?.take(100).orEmpty())
+                        .put("description", if (node.isPassword) "" else node.contentDescription?.toString()?.take(80).orEmpty())
+                        .put("bounds1000", JSONArray()
+                            .put(normalize(rect.left, metrics.widthPixels))
+                            .put(normalize(rect.top, metrics.heightPixels))
+                            .put(normalize(rect.right, metrics.widthPixels))
+                            .put(normalize(rect.bottom, metrics.heightPixels)))
+                        .put("clickable", node.isClickable)
+                        .put("scrollable", node.isScrollable)
+                        .put("editable", node.isEditable && !node.isPassword))
+                }
+                for (i in 0 until node.childCount) walk(node.getChild(i), depth + 1)
+            }
+            walk(root, 0)
+            return result
         }
 
         fun clickFirstText(text: String): Boolean {
