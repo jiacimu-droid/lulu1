@@ -535,6 +535,18 @@ class IslandHouseProjectsTest {
         assertEquals(3,resumed.houseProject?.demolitionStartCount)
         assertEquals(1,IslandHouseProjects.progress(resumed.houseProject!!))
         assertEquals(restored.world.wood,resumed.world.wood)
+        // Resuming must remove a second real tile, preserving the same 3-piece denominator.
+        var continued=BlockIslandState.fromJson(resumed.toJson())!!
+        repeat(70) {
+            if (continued.houseProject?.placed?.size == 2) continued=nextTurn(continued)
+        }
+        assertEquals(1,continued.houseProject?.placed?.size)
+        assertEquals(3,continued.houseProject?.demolitionStartCount)
+        assertEquals(2,IslandHouseProjects.progress(continued.houseProject!!))
+        assertEquals(beforeWood+2,continued.world.wood)
+        val continuedSaved=BlockIslandState.fromJson(continued.toJson())!!
+        assertEquals(2,IslandHouseProjects.progress(continuedSaved.houseProject!!))
+        assertEquals(continuedSaved,IslandHouseProjects.advance(continuedSaved,setOf("alice")))
     }
 
     @Test fun progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction() {
