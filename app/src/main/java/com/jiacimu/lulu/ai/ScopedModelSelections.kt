@@ -72,23 +72,23 @@ object ScopedModelSelections {
         scope: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
     ): String? {
-        val preferences = prefs
-        val saved = preferences?.getString(key(scope), null)
-            ?.takeIf { candidate -> library.archives.any { it.id == candidate } }
+        // Retired global role selectors do not override the visible choices
+        // in character chat, resident management or the stable fallback.
+        when (scope) {
+            RESIDENT_SOCIAL -> return selectedArchiveId(RESIDENT_DAILY, library)
+            WORLD_SOCIAL, WORLD_SCENE, WORLD_LIFE, EXPRESSION ->
+                return library.archiveIdFor(ModelUsage.Sleep)
+        }
+        val saved = prefs?.getString(key(scope), null)
+            ?.takeIf { id -> library.archives.any { it.id == id && !it.model.startsWith("jev-") || scope == JEV && it.id == id } }
         if (saved != null) return saved
 
-        // First use migrates from the generic game selection only as a starting value. After this id
-        // is persisted the two selectors are completely independent.
-        val fallback = when (scope) {
-            APOCALYPSE, THEATER -> library.archiveIdFor(ModelUsage.Game)
-            MEETING -> library.archiveIdFor(ModelUsage.Chat)
-            RESIDENT_DAILY, RESIDENT_SOCIAL, WORLD_SOCIAL, WORLD_SCENE, WORLD_LIFE,
-            EXPRESSION, JEV -> null // Optional roles never silently select a paid model.
-            else -> library.activeArchiveId?.takeIf { candidate -> library.archives.any { it.id == candidate } }
-                ?: library.archives.firstOrNull()?.id
+        // Screen-owned choices are independent; with no choice they dynamically
+        // follow the fallback rather than caching an obsolete global game/chat id.
+        return when (scope) {
+            RESIDENT_DAILY, JEV -> null
+            else -> library.archiveIdFor(ModelUsage.Sleep)
         }
-        if (fallback != null) preferences?.edit()?.putString(key(scope), fallback)?.apply()
-        return fallback
     }
 
     fun select(scope: String, archiveId: String) {
@@ -101,44 +101,35 @@ object ScopedModelSelections {
         mutableRevision.value++
     }
 
-    /** Resolved role choice IDs are read-only, testable and share one policy
-     * across UI, resident calls, encounter adviser and literary workers. */
+    /** All resident planning, chat and social choices share the single model
+     * selected in Resident Management. Character-specific private chat is separate. */
     fun residentSocialArchiveId(
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
-    ): String? = selectedArchiveId(RESIDENT_SOCIAL, library)
-        ?: selectedArchiveId(RESIDENT_DAILY, library)
+    ): String? = selectedArchiveId(RESIDENT_DAILY, library)
 
     fun worldSocialArchiveId(characterId: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
-    ): String? = selectedArchiveId(WORLD_SOCIAL, library)
-        // Social life uses the chosen cheap resident model by default.
-        // This changes neither the character's private-chat choice nor memories.
-        ?: residentSocialArchiveId(library)
-        ?: if (characterId.startsWith("resident:")) null
-            else selectedCharacterChatArchiveId(characterId, library)
+    ): String? = if (characterId.startsWith("resident:"))
+        residentSocialArchiveId(library) else library.archiveIdFor(ModelUsage.Sleep)
 
     fun worldSceneArchiveId(
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
-    ): String? = selectedArchiveId(WORLD_SCENE, library)
-        ?: selectedArchiveId(WORLD_SOCIAL, library)
-        ?: residentSocialArchiveId(library)
-        ?: library.archiveIdFor(ModelUsage.Chat)
+    ): String? = library.archiveIdFor(ModelUsage.Sleep)
 
     fun worldLifeArchiveId(characterId: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
-    ): String? = selectedArchiveId(WORLD_LIFE, library)
-        ?: if (characterId.startsWith("resident:")) residentSocialArchiveId(library)
-            else selectedCharacterChatArchiveId(characterId, library)
+    ): String? = if (characterId.startsWith("resident:"))
+        residentSocialArchiveId(library) else library.archiveIdFor(ModelUsage.Sleep)
 
     fun residentSocialConnection(): ModelConnection {
         val archiveId = residentSocialArchiveId()
-            ?: error("请先在 API 设置中选择居民模型")
+            ?: error("请先在居民管理中选择居民模型")
         return LuluAiServices.connectionStore.resolveConnection(archiveId)
     }
 
     fun worldSocialConnection(characterId: String): ModelConnection? {
         if (characterId.startsWith("resident:") && worldSocialArchiveId(characterId) == null)
-            error("请先在 API 设置中选择居民社交模型")
+            error("请先在居民管理中选择居民模型")
         return LuluAiServices.connectionStore.resolveConnection(worldSocialArchiveId(characterId))
     }
 
@@ -147,7 +138,7 @@ object ScopedModelSelections {
 
     fun worldLifeConnection(characterId: String): ModelConnection? {
         if (characterId.startsWith("resident:") && worldLifeArchiveId(characterId) == null)
-            error("请先在 API 设置中选择居民模型")
+            error("请先在居民管理中选择居民模型")
         return LuluAiServices.connectionStore.resolveConnection(worldLifeArchiveId(characterId))
     }
 
@@ -161,16 +152,6 @@ object ScopedModelSelections {
         checkNotNull(prefs) { "ScopedModelSelections 尚未初始化" }
             .edit().remove(key(scope)).apply()
         mutableRevision.value++
-    }
-
-    /** Change the writer only at the existing expression stage, never the
-     * character's decision, isolated task, or number of model calls. */
-    internal fun expressionConnection(source: String, mode: CompanionContextMode,
-        store: ModelConnectionStore): ModelConnection? {
-        if (mode == CompanionContextMode.Isolated ||
-            !com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)) return null
-        val id = selectedArchiveId(EXPRESSION, store.library.value) ?: return null
-        return store.resolveConnection(id)
     }
 
     private fun key(scope: String): String = "archive_${scope.trim()}"
