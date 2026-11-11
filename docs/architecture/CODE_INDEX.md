@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7f372bf60558deb0fc975879dbbbe8f14a9d0177`
+- 基准提交：`07cce503fabd0ffcd6e8498110515fcc010cfbcf`
 - 分支：`main`
-- 已索引文件：1197
-- 已索引代码/文本行：259047
-- 已发现符号：3622
+- 已索引文件：1199
+- 已索引代码/文本行：259325
+- 已发现符号：3625
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -773,6 +773,8 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 196 | 2 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
 | `app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt` | 132 | 6 |

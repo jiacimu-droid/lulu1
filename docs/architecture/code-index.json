@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:03:44.678240+00:00",
-  "commit": "7f372bf60558deb0fc975879dbbbe8f14a9d0177",
+  "generatedAt": "2026-11-11T16:06:36.194581+00:00",
+  "commit": "07cce503fabd0ffcd6e8498110515fcc010cfbcf",
   "branch": "main",
-  "sourceFingerprint": "5862c5d658fab20edaa0c14d7936536dce0a070a98374edec7e2998b02f10fac",
+  "sourceFingerprint": "904ab4e6701c14ae7949d076e42b64356f1d1390a5f457ec4c16fe29f47456e2",
   "summary": {
-    "files": 1197,
-    "lines": 259047,
-    "symbols": 3622
+    "files": 1199,
+    "lines": 259325,
+    "symbols": 3625
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4306,6 +4306,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt",
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
@@ -16014,6 +16018,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
         "line": 12
+      }
+    ],
+    "LuluShellDisplayMain": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
+        "line": 23
+      }
+    ],
+    "main": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
+        "line": 44
       }
     ],
     "AndroidAdb": [
@@ -36681,6 +36697,32 @@
       "lines": 49,
       "sha256": "f6eb173c073df2a5ba7588ed122ebe5c1610974c0acc076a18cab31db449dcc3",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
+      "lines": 196,
+      "sha256": "f55fc0cd582af62bf118760d482359250445e4e53aec2a42b3295e4b91a2183d",
+      "symbols": [
+        {
+          "name": "LuluShellDisplayMain",
+          "line": 23
+        },
+        {
+          "name": "main",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt",
+      "lines": 82,
+      "sha256": "b4f94361e37be0dad034fdd774afe7df2dd3249db0fa1f64f224d8b5c240628c",
+      "symbols": [
+        {
+          "name": "create",
+          "line": 45
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
