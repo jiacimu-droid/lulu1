@@ -1020,6 +1020,8 @@ class ConversationExpressionGatewayTest {
             .put("args", JSONObject().put("text", "旧决定中尚未发出的动态"))
         val plan = JSONObject().put("action", "silent").put("reason", "我先自己想一想")
             .put("statusText", staleStatus).put("steps", JSONArray().put(direction).put(post))
+        val nextSpeech = "我把刚才得到的参考和你现在说的分开看。"
+        val decisionRequests = AtomicInteger()
         val release = CountDownLatch(1)
         val server = MockWebServer()
         server.dispatcher = object : Dispatcher() {
@@ -1031,7 +1033,9 @@ class ConversationExpressionGatewayTest {
                     else MockResponse().setResponseCode(500)
                     else -> MockResponse().setHeader("Content-Type", "application/json")
                         .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
-                            .put("message", JSONObject().put("content", plan.toString()))
+                            .put("message", JSONObject().put("content",
+                                if (decisionRequests.incrementAndGet() == 1) plan.toString()
+                                else JSONObject().put("action", "reply").put("text", nextSpeech).toString()))
                             .put("finish_reason", "stop"))).toString())
                 }
         }
@@ -1091,6 +1095,24 @@ class ConversationExpressionGatewayTest {
             if (cancelTurn) assertTrue(outcome.contains("旧通话轮次已取消"))
             assertTrue(recorded.none { it.optString("id") == "$observation:silent" })
             assertEquals(2, server.requestCount)
+            if (cancelTurn) {
+                val receipt = receipts.single()
+                val userText = "刚才你查到什么了？"
+                val next = LuluDeviceToolBridge.respond(id, "", userText, "test", archiveId = chat.id,
+                    sceneContext = "正在一对一电话中").getOrThrow()
+                val nextRequest = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertTrue(nextRequest.contains(userText))
+                assertTrue(nextRequest.contains("evidenceId=${receipt.id}"))
+                assertTrue(nextRequest.contains("本人真实调用Jev取得模型参考"))
+                assertTrue(nextRequest.contains("0.6"))
+                assertEquals(nextSpeech, next.text)
+                assertEquals(3, server.requestCount)
+                assertEquals(listOf(receipt), SharedExperienceTimeline.all(id)
+                    .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult })
+                assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == id })
+            }
         } finally {
             release.countDown()
             scope.clear(com.jiacimu.lulu.ai.ScopedModelSelections.JEV)
