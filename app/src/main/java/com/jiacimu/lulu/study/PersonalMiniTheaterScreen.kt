@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.ModelArchivePickerSheet
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
@@ -35,6 +37,16 @@ import java.time.LocalDate
 @Composable
 internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) {
     val context = LocalContext.current
+    remember(context) { ScopedModelSelections.initialize(context.applicationContext); Unit }
+    val modelLibrary by LuluAiServices.connectionStore.library.collectAsState()
+    val modelRevision by ScopedModelSelections.changes.collectAsState()
+    val theaterModelId = remember(characterId, modelLibrary, modelRevision) {
+        ScopedModelSelections.selectedPersonalTheaterArchiveId(characterId, modelLibrary)
+    }
+    val followsChatModel = remember(characterId, modelLibrary, modelRevision) {
+        ScopedModelSelections.personalTheaterOverrideId(characterId, modelLibrary) == null
+    }
+    var showModelPicker by remember { mutableStateOf(false) }
     val library = remember(context) { MiniTheaterLibrary.get(context) }
     val all by library.items.collectAsState()
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
@@ -100,7 +112,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     source = "剧场·番外灵感",
                     title = "新一批番外灵感",
                     contextMode = CompanionContextMode.Isolated,
-                    connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                    connectionOverride = LuluAiServices.connectionStore.resolveConnection(
+                        ScopedModelSelections.selectedPersonalTheaterArchiveId(characterId)),
                     maxTokens = 3_800,
                     readTimeoutMillis = 120_000,
                 ).getOrThrow()
@@ -133,7 +146,14 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
         TopAppBar(title = { Text("番外", maxLines = 1) },
             navigationIcon = { IconButton(onClick = {
                 if (work != null) { opened = null; error = "" } else onBack()
-            }) { Icon(Icons.Outlined.ArrowBack, "返回") } })
+            }) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+            actions = {
+                TextButton(onClick = { showModelPicker = true }) {
+                    Icon(Icons.Outlined.Memory, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("模型", fontSize = 12.sp)
+                }
+            })
     }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), state = pageScroll,
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
@@ -144,6 +164,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
                     Text("挑个奇妙设定，或者写下自己的脑洞 · 不计入真实记忆",
                         style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    val modelName = modelLibrary.archives.firstOrNull { it.id == theaterModelId }?.model
+                        ?: "尚未配置"
+                    Text((if (followsChatModel) "跟随聊天模型 · " else "番外专用模型 · ") + modelName,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     Text(storyTitle, style = MaterialTheme.typography.headlineSmall,
@@ -343,6 +368,25 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 }
             }
         }
+    }
+    if (showModelPicker) {
+        ModelArchivePickerSheet(
+            title = "当前角色的番外模型",
+            subtitle = "默认跟随这位角色的聊天模型。单独选择后只影响这位角色的番外，不改变私聊或其他人的模型。",
+            selectedArchiveId = theaterModelId,
+            onSelect = { archiveId ->
+                runCatching {
+                    ScopedModelSelections.selectPersonalTheaterArchive(characterId, archiveId)
+                }.onSuccess { showModelPicker = false }
+                    .onFailure { error = it.message ?: "模型选择失败"; showModelPicker = false }
+            },
+            onFollowDefault = {
+                ScopedModelSelections.clearPersonalTheaterArchive(characterId)
+                showModelPicker = false
+            },
+            followDefaultLabel = "跟随这位角色的聊天模型",
+            onDismiss = { showModelPicker = false },
+        )
     }
     if (showWorldBookPicker) AlertDialog(
         onDismissRequest = { showWorldBookPicker = false },
