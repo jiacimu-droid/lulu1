@@ -87,12 +87,17 @@ class AutonomousActionBoundaryIntegrationTest {
             .put("motiveId", motive).put("replyChoice", "silent")
             .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
                 .put("requiresPreviousSuccess", false).put("args", JSONObject().put("text", text))))
+        val modelInputs = java.util.concurrent.CopyOnWriteArrayList<String>()
         val server = okhttp3.mockwebserver.MockWebServer()
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
-            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest) =
-                okhttp3.mockwebserver.MockResponse().setHeader("Content-Type", "application/json")
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
+                modelInputs.add(request.body.readUtf8())
+                val decision = if (modelInputs.size == 1) choice else JSONObject()
+                    .put("action", "silent").put("reason", "等待真实失败结果的后续核实")
+                return okhttp3.mockwebserver.MockResponse().setHeader("Content-Type", "application/json")
                     .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
-                        JSONObject().put("content", choice.toString())).put("finish_reason", "stop"))).toString())
+                        JSONObject().put("content", decision.toString())).put("finish_reason", "stop"))).toString())
+            }
         }
         server.start()
         try {
@@ -108,6 +113,21 @@ class AutonomousActionBoundaryIntegrationTest {
             assertTrue(outcomes.length() > 0)
             assertFalse((0 until outcomes.length()).any { outcomes.getJSONObject(it).optBoolean("success") })
             assertEquals("needs_review", state.optString("lastAttemptOutcome"))
+            // A successful independent side action must not erase the rejected
+            // primary action when the same character decides again.
+            MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
+            val next = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = next.revision, requiresUnread = true)
+            assertEquals("两次有效批次各一次模型决定", 2, modelInputs.size)
+            assertTrue("下一轮仍应知道原目标", modelInputs[1].contains("想核实这个操作能否执行"))
+            assertTrue("下一轮应保留成功的独立动态", modelInputs[1].contains(text))
+            assertEquals("沉默决定不能重放独立动态", 1,
+                MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == text })
+            assertEquals("副动作成功不能改写主动作失败", "needs_review",
+                CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor).optJSONArray("motives"))
+                    .single { it.optString("id") == motive }.optString("lastAttemptOutcome"))
         } finally { server.shutdown() }
     }
 
