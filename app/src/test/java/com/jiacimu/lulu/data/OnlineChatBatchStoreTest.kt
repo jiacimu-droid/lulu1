@@ -120,6 +120,22 @@ class OnlineChatBatchStoreTest {
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
     }
 
+    @Test fun emptyCaretWithActiveImeMicrophoneMustNotReleaseThePendingTurn() {
+        OnlineChatBatchStore.cancel(app, role)
+        val sent = OnlineChatBatchStore.onUserBubble(app, role, 700_000L)
+        // A voice keyboard is recording, but it hasn't committed any letters.
+        // The UI observes this as local composer activity, not another chat bubble.
+        assertTrue(OnlineChatBatchStore.onComposerEdit(app, role, 703_000L))
+        assertEquals(763_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, sent.revision, 708_000L))
+        // When recording actually stops, release the same revision after grace.
+        assertTrue(OnlineChatBatchStore.onComposerIdle(app, role, 714_000L))
+        assertEquals(718_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertTrue(OnlineChatBatchStore.claim(app, role, sent.revision, 718_000L))
+        OnlineChatBatchStore.finish(app, role, sent.revision)
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
     @Test fun abandonedDraftCannotHoldOnePendingReplyForever() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 300_000L)
