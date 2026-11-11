@@ -744,6 +744,90 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+
+    @Test(timeout = 60_000) fun phoneIntentRecoveryDiscardsStaleDecisionAfterRelationshipEdit() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("电话编辑样本", "初始人物判断样本")
+        val id = role.characterId
+        val oldAgreement = "旧关系样本：可以主动提议音乐"
+        val newAgreement = "新关系样本：只有我明确同意才安排音乐，否则先不安排"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", oldAgreement))
+        val chat = MigratedDomainStores.chat.ensureConversation(id, "test")
+        val oldTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "我想聊聊音乐")
+        val callId = "phone-edited-intent"
+        val releaseRendering = CountDownLatch(1)
+        val requests = AtomicInteger()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", content))
+                .put("finish_reason", "stop"))).toString())
+        fun mediaReply() = JSONObject().put("action", "reply")
+            .put("afterCallMedia", JSONObject().put("trigger", "call_end").put("delaySeconds", 30))
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse = when (requests.getAndIncrement()) {
+                0 -> response(mediaReply().put("speechIntent", "接住她想聊的事")
+                    .put("mediaUnderstanding", JSONObject().put("music", "stop")).toString())
+                1 -> if (releaseRendering.await(15, TimeUnit.SECONDS)) response("这是旧轮补出的台词。")
+                    else MockResponse().setResponseCode(500)
+                2 -> response(mediaReply().put("text", "这次按你刚确认的安排。").toString())
+                else -> MockResponse().setResponseCode(500)
+            }
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            fun hasMediaReceipt(turnId: String) = SharedExperienceTimeline.eventsByIds(
+                id, listOf("phone-media-decision:$id:$turnId")
+            ).any { it.source == "deferred-call-media" }
+            val before = DeferredCallMediaAction.musicContext(id, callId)
+            val pending = async {
+                LuluDeviceToolBridge.respond(id, "", oldTurn.content, "test",
+                    archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = callId,
+                    userEvidenceIds = listOf(oldTurn.id))
+            }
+            try {
+                withContext(Dispatchers.IO) {
+                    repeat(2) { checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)) }
+                }
+                assertEquals(before, DeferredCallMediaAction.musicContext(id, callId))
+                assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", newAgreement))
+                MigratedDomainStores.characters.update(role.copy(persona = "编辑后的人物判断样本"))
+            } finally {
+                releaseRendering.countDown()
+            }
+            val stale = pending.await()
+            assertTrue(stale.isFailure)
+            assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("设定或关系已更新"))
+            assertEquals(before, DeferredCallMediaAction.musicContext(id, callId))
+            assertFalse(hasMediaReceipt(oldTurn.id))
+
+            val nextTurn = MigratedDomainStores.chat.sendUserMessage(chat.id, "这次我确认，可以安排")
+            val next = LuluDeviceToolBridge.respond(id, "", nextTurn.content, "test",
+                archiveId = archive.id, sceneContext = "正在电话中", phoneCallId = callId,
+                userEvidenceIds = listOf(nextTurn.id)).getOrThrow()
+            val nextRequest = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+            val system = nextRequest.getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(system.contains(newAgreement))
+            assertTrue(system.contains("编辑后的人物判断样本"))
+            assertFalse(system.contains(oldAgreement))
+            assertEquals("这次按你刚确认的安排。", next.text)
+            assertTrue(hasMediaReceipt(nextTurn.id))
+            assertFalse(hasMediaReceipt(oldTurn.id))
+            assertEquals(3, server.requestCount)
+        } finally {
+            releaseRendering.countDown()
+            server.shutdown()
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneAndPrivateChatBothRejectAnUnownedConcernInAScheduleStep() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

@@ -19,6 +19,7 @@ import com.jiacimu.lulu.data.CommitmentTaskStatus
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CharacterDecisionProtocol
+import com.jiacimu.lulu.data.CharacterRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.health.HealthRolePerception
@@ -489,6 +490,8 @@ object LuluDeviceToolBridge {
         com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "角色=$characterId；会话=$currentSessionId")
+        val phoneDecisionDefinition = if (sceneContext.contains("电话") && !callSilence)
+            CharacterRuntime.definition(characterId) else null
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -798,6 +801,42 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        // Common voice models sometimes complete speechIntent but omit the
+        // optional final text field. Fix only the missing spoken surface instead
+        // of treating a usable character decision as a failed phone request.
+        if (phoneDecisionDefinition != null &&
+            plan.action == "reply" && plan.text.isBlank() &&
+            plan.speechIntent.isNotBlank()) {
+            fun definitionChanged() = !phoneDecisionDefinition.hasSameConfiguration(
+                CharacterRuntime.definition(characterId),
+            )
+            fun staleTurn() = Result.failure<ModelReply>(IllegalStateException(
+                "本轮补写期间角色设定或关系已更新，旧决定未提交，请继续说话",
+            ))
+            // Keep a decision and its spoken rendering on the same role definition.
+            if (definitionChanged()) return staleTurn()
+            val speech = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = """
+                    【本人已选定的电话表达意图】
+                    ${plan.speechIntent}
+                    【用户本轮原话】
+                    $userText
+                """.trimIndent(),
+                instruction = "只把已定意图组织成自然口语，保留完整的条件、否定与不确定性。只输出台词，不输出 JSON、状态或新的行动决定。",
+                source = com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING,
+                title = title,
+                maxTokens = 300,
+                connectionOverride = connection,
+            ).getOrNull()?.text?.trim().orEmpty()
+            currentCoroutineContext().ensureActive()
+            if (definitionChanged()) return staleTurn()
+            if (speech.isNotBlank() && !speech.startsWith("{") &&
+                !speech.startsWith("```")) plan = plan.copy(text = speech)
+        }
+        // A newer phone turn can cancel this one while speech is being rendered.
+        // Start the authored side effects only after the cancellable handoff.
+        currentCoroutineContext().ensureActive()
         // The character's own model interprets natural speech. Only an actual
         // new user turn can revise the previous music-stop boundary or confirm
         // the wake goal. Time-based silence and old chat history cannot.
@@ -822,32 +861,6 @@ object LuluDeviceToolBridge {
                 }
             }
         }
-        // Common voice models sometimes complete speechIntent but omit the
-        // optional final text field. Fix only the missing spoken surface instead
-        // of treating a usable character decision as a failed phone request.
-        if (sceneContext.contains("电话") && !callSilence &&
-            plan.action == "reply" && plan.text.isBlank() &&
-            plan.speechIntent.isNotBlank()) {
-            val speech = LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = """
-                    【本人已选定的电话表达意图】
-                    ${plan.speechIntent}
-                    【用户本轮原话】
-                    $userText
-                """.trimIndent(),
-                instruction = "只把已定意图组织成自然口语，保留完整的条件、否定与不确定性。只输出台词，不输出 JSON、状态或新的行动决定。",
-                source = com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING,
-                title = title,
-                maxTokens = 300,
-                connectionOverride = connection,
-            ).getOrNull()?.text?.trim().orEmpty()
-            if (speech.isNotBlank() && !speech.startsWith("{") &&
-                !speech.startsWith("```")) plan = plan.copy(text = speech)
-        }
-        // A newer phone turn can cancel this one while speech is being rendered.
-        // Start the authored side effects only after the cancellable handoff.
-        currentCoroutineContext().ensureActive()
         // A phone media plan is a side action chosen in the SAME role turn.
         // It cannot be treated as achieved merely because the role said it.
         val mediaReceipt = if (!rewriting && !callSilence && sceneContext.contains("电话") &&
