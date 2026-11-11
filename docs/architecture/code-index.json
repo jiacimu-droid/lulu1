@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T08:42:53.269489+00:00",
-  "commit": "6305d9d3bcaa1159e78238d1aa42003b1e264352",
+  "generatedAt": "2026-11-11T09:15:21.548733+00:00",
+  "commit": "16983ca163fde133416661b9617c33eff1467caf",
   "branch": "main",
-  "sourceFingerprint": "653526def3ea92ce35d4c8da8d6272710ec6b4113563e1e0c43d1aebaadf0f6a",
+  "sourceFingerprint": "7ab6a625237accd9477b25fb8db91babd24bf8cca3aa802923ea200ed5040505",
   "summary": {
     "files": 1175,
-    "lines": 255424,
+    "lines": 255430,
     "symbols": 3479
   },
   "symbolIndex": {
@@ -821,7 +821,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1490
+        "line": 1496
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4221,7 +4221,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 397
+        "line": 402
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -4973,17 +4973,17 @@
     "selectArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 225
+        "line": 229
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 230
+        "line": 235
       }
     ],
     "selectedArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 243
+        "line": 248
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4993,13 +4993,13 @@
     "clearSleepArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 248
+        "line": 253
       }
     ],
     "resolveConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 252
+        "line": 257
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5009,49 +5009,49 @@
     "archiveLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 266
+        "line": 271
       }
     ],
     "normalizeBaseUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 395
+        "line": 400
       }
     ],
     "CompanionModelGateway": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 401
+        "line": 406
       }
     ],
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 704
+        "line": 710
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 710
+        "line": 716
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1245
+        "line": 1251
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1257
+        "line": 1263
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1480
+        "line": 1486
       }
     ],
     "configured": [
@@ -23731,8 +23731,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1498,
-      "sha256": "e729cc683ddf3719c5912747a15de01f29c5e3cad7d97470e750f08201e762fa",
+      "lines": 1504,
+      "sha256": "d6eccdb5bf840326bb10f6f967358171ea81e29f1e82431e7128850fb1d892b9",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -23788,63 +23788,63 @@
         },
         {
           "name": "selectArchive",
-          "line": 225
+          "line": 229
         },
         {
           "name": "selectArchive",
-          "line": 230
+          "line": 235
         },
         {
           "name": "selectedArchiveId",
-          "line": 243
-        },
-        {
-          "name": "clearSleepArchive",
           "line": 248
         },
         {
+          "name": "clearSleepArchive",
+          "line": 253
+        },
+        {
           "name": "resolveConnection",
-          "line": 252
+          "line": 257
         },
         {
           "name": "archiveLabel",
-          "line": 266
+          "line": 271
         },
         {
           "name": "normalizeBaseUrl",
-          "line": 395
+          "line": 400
         },
         {
           "name": "create",
-          "line": 397
+          "line": 402
         },
         {
           "name": "CompanionModelGateway",
-          "line": 401
+          "line": 406
         },
         {
           "name": "worldBookSection",
-          "line": 704
-        },
-        {
-          "name": "positionedBooks",
           "line": 710
         },
         {
+          "name": "positionedBooks",
+          "line": 716
+        },
+        {
           "name": "publishVisibleProgress",
-          "line": 1245
+          "line": 1251
         },
         {
           "name": "consumeEvent",
-          "line": 1257
+          "line": 1263
         },
         {
           "name": "LuluAiServices",
-          "line": 1480
+          "line": 1486
         },
         {
           "name": "initialize",
-          "line": 1490
+          "line": 1496
         }
       ]
     },
