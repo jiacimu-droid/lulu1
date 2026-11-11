@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T14:49:00.369761+00:00",
-  "commit": "0f8c4c33911b07f890e1e03495e7011b7daea044",
+  "generatedAt": "2026-11-11T14:49:30.589117+00:00",
+  "commit": "e670be742fb6c35f2b491c6ed93c330ba48f0af6",
   "branch": "main",
-  "sourceFingerprint": "a639bae145a4617a36f7f338134729685e0f30f462f31e47b5c9dcb51b79303c",
+  "sourceFingerprint": "a43e3b6ff10e77c185d3393b772e1dc7b7dbb5b0588d53fa56e2df543c90da69",
   "summary": {
     "files": 1176,
-    "lines": 255999,
+    "lines": 256022,
     "symbols": 3494
   },
   "symbolIndex": {
@@ -41174,8 +41174,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 458,
-      "sha256": "68d8a83f3fdcba198966b2354618f84227f946680f41cefc9cce1b364731b10b",
+      "lines": 481,
+      "sha256": "04ef2e14af3fa12ee6e1e0ac09aa146f61fc485e8fa2ff87969982e3c12db24e",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
