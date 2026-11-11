@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:31:30.408625+00:00",
-  "commit": "c3d1a86205d0e519ce87c9c3320b3dc64b38c58f",
+  "generatedAt": "2026-11-11T15:31:53.496563+00:00",
+  "commit": "3793b02c3305fe3bf616e1d45b0e2f027ad7d1df",
   "branch": "main",
-  "sourceFingerprint": "58cfe852ff47c0dcc936a842a0cce8f2afcd748450b7398b7ac51963b00763fa",
+  "sourceFingerprint": "345435189398f38413584c12d91050adb3f119f73999d501f9278ba9e986e092",
   "summary": {
-    "files": 1182,
-    "lines": 256769,
-    "symbols": 3514
+    "files": 1183,
+    "lines": 256814,
+    "symbols": 3515
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16494,6 +16494,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt",
         "line": 5
+      }
+    ],
+    "SettingsHomeSearchTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt",
+        "line": 7
       }
     ],
     "SleepCallContinuationPolicyTest": [
@@ -37089,6 +37095,17 @@
         {
           "name": "SelfWishFoldersTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt",
+      "lines": 45,
+      "sha256": "67bf9d73e18b97f19f59243c48e07647c6fbc9a4e6d77f7e8fc110ce566b619b",
+      "symbols": [
+        {
+          "name": "SettingsHomeSearchTest",
+          "line": 7
         }
       ]
     },
