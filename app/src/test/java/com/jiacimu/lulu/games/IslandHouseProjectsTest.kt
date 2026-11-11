@@ -517,6 +517,24 @@ class IslandHouseProjectsTest {
         assertEquals(3,restored.houseProject?.demolitionStartCount)
         assertEquals(1,IslandHouseProjects.progress(restored.houseProject!!))
         assertEquals(restored,IslandHouseProjects.advance(restored,setOf("alice")))
+
+        // Pausing after a real removal must not reset the demolition denominator
+        // or refund materials while idle. Only the same owner's later decision resumes.
+        val paused=IslandHouseProjects.choose(restored,"alice","pause_house","先停工看看")!!
+        assertEquals("paused",paused.houseProject?.phase)
+        assertEquals("demolishing",paused.houseProject?.resumePhase)
+        assertEquals(3,paused.houseProject?.demolitionStartCount)
+        assertEquals(1,IslandHouseProjects.progress(paused.houseProject!!))
+        val idle=nextTurn(BlockIslandState.fromJson(paused.toJson())!!)
+        assertEquals("paused",idle.houseProject?.phase)
+        assertEquals(1,IslandHouseProjects.progress(idle.houseProject!!))
+        assertEquals(restored.world.wood,idle.world.wood)
+        assertEquals(restored.world.tiles,idle.world.tiles)
+        val resumed=IslandHouseProjects.choose(idle,"alice","resume_house","继续拆掉剩下的")!!
+        assertEquals("demolishing",resumed.houseProject?.phase)
+        assertEquals(3,resumed.houseProject?.demolitionStartCount)
+        assertEquals(1,IslandHouseProjects.progress(resumed.houseProject!!))
+        assertEquals(restored.world.wood,resumed.world.wood)
     }
 
     @Test fun progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction() {
