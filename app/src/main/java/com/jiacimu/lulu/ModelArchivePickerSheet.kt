@@ -73,6 +73,7 @@ internal fun ModelArchivePickerSheet(
     border: Color = Color(0xFFE0E4E1),
     usage: ModelUsage? = null,
     onFollowDefault: (() -> Unit)? = null,
+    followDefaultLabel: String = "跟随公共聊天模型",
 ) {
     val library by LuluAiServices.connectionStore.library.collectAsState()
 
@@ -175,7 +176,7 @@ internal fun ModelArchivePickerSheet(
             }
             if (onFollowDefault != null) TextButton(onClick = onFollowDefault,
                 modifier = Modifier.fillMaxWidth()) {
-                Text("跟随公共聊天模型", color = accent)
+                Text(followDefaultLabel, color = accent)
             }
             Spacer(Modifier.navigationBarsPadding())
         }
