@@ -62,7 +62,7 @@ internal object QqChatPhotoAttachmentStore {
             destination.outputStream().use { output ->
                 check(frame.compress(Bitmap.CompressFormat.JPEG, 88, output)) { "手机截图编码失败" }
             }
-            check(destination.length() in 1..MAX_BYTES) { "手机截图为空或超过24MB" }
+            check(destination.length() in 1L..MAX_BYTES) { "手机截图为空或超过24MB" }
             Uri.fromFile(destination).toString()
         } catch (error: Exception) {
             destination.delete()
