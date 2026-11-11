@@ -773,6 +773,8 @@ object LuluDeviceToolBridge {
                     ?.takeIf { it.isNotBlank() && !it.startsWith("{") &&
                         !it.startsWith("```") }
             } else null
+            currentCoroutineContext().ensureActive()
+            if (phoneDefinitionChanged()) return stalePhoneTurn()
             val visible = fallback?.takeIf(String::isNotBlank) ?: recoveredPhoneSpeech
             if (visible.isNullOrBlank()) {
                 if (sceneContext.contains("电话")) return Result.success(plannedReply.copy(
@@ -788,9 +790,11 @@ object LuluDeviceToolBridge {
                     "角色把内部观察误写为口语，已拦截发声，请重试"))
             }
             val verifiedSpeech = repairUnfairSpeech(visible)
-                ?: return Result.failure(IllegalStateException(
-                    "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
-                ))
+            currentCoroutineContext().ensureActive()
+            if (phoneDefinitionChanged()) return stalePhoneTurn()
+            if (verifiedSpeech == null) return Result.failure(IllegalStateException(
+                "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
+            ))
             // A malformed phone JSON can still recover genuinely speakable
             // text. Previously this early return skipped the whole Live2D
             // action gateway: audio played but no motion was ever planned.
@@ -800,7 +804,9 @@ object LuluDeviceToolBridge {
                 live2dDecisionContext.isNotBlank() && onLive2DAction != null) {
                 Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
                     verifiedSpeech, null, history, userText, sceneContext,
-                    connection, title, onLive2DAction, onLive2DStatus)
+                    connection, title, onLive2DAction, onLive2DStatus,
+                    canPublish = { !phoneDefinitionChanged() })
+                if (phoneDefinitionChanged()) return stalePhoneTurn()
             }
             return Result.success(plannedReply.copy(text = verifiedSpeech))
         }

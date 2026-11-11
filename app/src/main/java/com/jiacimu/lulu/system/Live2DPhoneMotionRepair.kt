@@ -18,10 +18,13 @@ internal object Live2DPhoneMotionRepair {
         text: String, chosen: JSONObject?, history: String, userText: String,
         sceneContext: String, connection: ModelConnection, title: String,
         onAction: ((JSONObject) -> Unit)?, onStatus: ((String) -> Unit)?,
+        canPublish: () -> Boolean = { true },
     ) {
         if (onAction == null) return
         val resolution = prepare(context, characterId, callId, text, chosen, history,
             userText, sceneContext, connection, title)
+        currentCoroutineContext().ensureActive()
+        if (!canPublish()) return
         if (resolution.errors.isNotEmpty()) {
             val status = "视频动作未配齐，已保留语音；本轮动作补正未成功"
             com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(characterId,
