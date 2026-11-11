@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:26:12.612869+00:00",
-  "commit": "cddef66e0623d064df02abdec71c6605a93d5a95",
+  "generatedAt": "2026-11-11T16:35:15.831449+00:00",
+  "commit": "8d2a6617efbecda40289fb54abae864d714f44e0",
   "branch": "main",
-  "sourceFingerprint": "cb8d85f4409b9ce58ceba2ecbd6bd80a1f6b1b5d41a321eeaac3bc2f4eb3d906",
+  "sourceFingerprint": "129982772f3a0383c530e04909b5e8d2fe12d66378dce2e6ba2a64aa2ce81cc7",
   "summary": {
-    "files": 1202,
-    "lines": 259976,
+    "files": 1203,
+    "lines": 260025,
     "symbols": 3636
   },
   "symbolIndex": {
@@ -35283,6 +35283,12 @@
           "line": 42
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt",
+      "lines": 49,
+      "sha256": "6ff188ac6b179cc8139491d523a958bad115350c046a59fbab4dfc78084374ac",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
