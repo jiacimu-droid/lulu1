@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`2bc807b755718412d049b53c50e039ea9d464938`
+- 基准提交：`9490dd966364783560f5d25440d8f9049f018034`
 - 分支：`main`
-- 已索引文件：1177
-- 已索引代码/文本行：256189
-- 已发现符号：3497
+- 已索引文件：1179
+- 已索引代码/文本行：256465
+- 已发现符号：3509
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 234 | 0 |
-| `app/src/main/AndroidManifest.xml` | 186 | 0 |
+| `app/src/main/AndroidManifest.xml` | 191 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -332,7 +332,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 132 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 135 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -756,13 +756,14 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 251 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2253 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2254 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 526 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
@@ -1174,6 +1175,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

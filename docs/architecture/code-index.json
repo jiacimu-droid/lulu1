@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:07:48.745908+00:00",
-  "commit": "2bc807b755718412d049b53c50e039ea9d464938",
+  "generatedAt": "2026-11-11T15:08:53.929803+00:00",
+  "commit": "9490dd966364783560f5d25440d8f9049f018034",
   "branch": "main",
-  "sourceFingerprint": "2ea0b5010cfbab143ad3825830173faa0f59dce7ea644af734f0d03193ae1d8e",
+  "sourceFingerprint": "305db6599c4bd61c1aa9c66d706375412e4b98592915224d80d800adb891a66c",
   "summary": {
-    "files": 1177,
-    "lines": 256189,
-    "symbols": 3497
+    "files": 1179,
+    "lines": 256465,
+    "symbols": 3509
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -451,7 +451,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 121
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -1639,7 +1639,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 92
+        "line": 98
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt",
@@ -1886,6 +1886,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 129
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 184
       }
     ],
     "motionMetadata": [
@@ -2584,6 +2588,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
         "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 22
       }
     ],
     "publish": [
@@ -5558,6 +5566,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 190
       }
     ],
     "needsIndependentLifeReview": [
@@ -5755,7 +5767,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 38
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -5781,25 +5793,25 @@
     "canChoose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 92
+        "line": 93
       }
     ],
     "isWakeExplanation": [
@@ -10203,7 +10215,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 135
+        "line": 193
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 240
       }
     ],
     "validateZip": [
@@ -13663,7 +13679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 99
+        "line": 105
       }
     ],
     "dot": [
@@ -15455,25 +15471,55 @@
     "LuluAccessibilityService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 24
+        "line": 30
+      }
+    ],
+    "tapNormalized": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 119
+      }
+    ],
+    "swipeNormalized": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 131
+      }
+    ],
+    "typeIntoFocusedField": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 150
+      }
+    ],
+    "scrollVisible": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 160
+      }
+    ],
+    "scan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 170
       }
     ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 111
+        "line": 216
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 121
+        "line": 226
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 129
+        "line": 234
       }
     ],
     "LuluAlarm": [
@@ -15580,6 +15626,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
         "line": 47
+      }
+    ],
+    "pixel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 26
+      }
+    ],
+    "duration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 31
       }
     ],
     "LuluScreenAwareness": [
@@ -19472,6 +19530,12 @@
         "line": 12
       }
     ],
+    "LuluPhoneUiGeometryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt",
+        "line": 6
+      }
+    ],
     "LuluScreenAwarenessTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
@@ -19506,8 +19570,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 186,
-      "sha256": "d92313f005ca2edfa7f633bf4681c096100dc3150eac4ec35421ce0ce43f6f2b",
+      "lines": 191,
+      "sha256": "3337250ebaa497cac7cc5052080e8b27162b048929c1d81ffc7c13f50b4c465c",
       "symbols": []
     },
     {
@@ -24617,8 +24681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 132,
-      "sha256": "2bf8f9c5b424deb19dd361a28c11e7afc3778509fcca2b6df7024d055dba7bab",
+      "lines": 135,
+      "sha256": "0b5a1981bf307acd400f826a229dc27c996807854b939739dd556c5eee0011f8",
       "symbols": [
         {
           "name": "Capability",
@@ -24630,27 +24694,27 @@
         },
         {
           "name": "find",
-          "line": 38
-        },
-        {
-          "name": "canChoose",
           "line": 39
         },
         {
+          "name": "canChoose",
+          "line": 40
+        },
+        {
           "name": "scheduledActionName",
-          "line": 47
+          "line": 48
         },
         {
           "name": "allows",
-          "line": 58
+          "line": 59
         },
         {
           "name": "screenVisionContext",
-          "line": 92
+          "line": 93
         },
         {
           "name": "context",
-          "line": 121
+          "line": 122
         }
       ]
     },
@@ -35511,36 +35575,68 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 146,
-      "sha256": "6ae8cc9d4e0dc0b68209c8e7efe1dc52200ba6a666f14be49f3ac7da4b7ec9b6",
+      "lines": 251,
+      "sha256": "06021b9710908b932cad0d7b5c86f8d63ba955a3f8e2c1541a9b4e257ae46ae8",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
-          "line": 24
+          "line": 30
         },
         {
           "name": "observe",
-          "line": 92
+          "line": 98
         },
         {
           "name": "perform",
-          "line": 99
+          "line": 105
         },
         {
-          "name": "clickFirstText",
-          "line": 111
+          "name": "tapNormalized",
+          "line": 119
         },
         {
-          "name": "AccessibilitySnapshot",
-          "line": 121
+          "name": "swipeNormalized",
+          "line": 131
         },
         {
-          "name": "LuluScreenAction",
-          "line": 129
+          "name": "typeIntoFocusedField",
+          "line": 150
+        },
+        {
+          "name": "scrollVisible",
+          "line": 160
+        },
+        {
+          "name": "scan",
+          "line": 170
+        },
+        {
+          "name": "controls",
+          "line": 184
+        },
+        {
+          "name": "normalize",
+          "line": 190
         },
         {
           "name": "walk",
-          "line": 135
+          "line": 193
+        },
+        {
+          "name": "clickFirstText",
+          "line": 216
+        },
+        {
+          "name": "AccessibilitySnapshot",
+          "line": 226
+        },
+        {
+          "name": "LuluScreenAction",
+          "line": 234
+        },
+        {
+          "name": "walk",
+          "line": 240
         }
       ]
     },
@@ -35589,8 +35685,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2253,
-      "sha256": "fc628baeee03e96e30e9cab68a7e3a65e536bb2db8928cb1ea8e5a23e7cc3a13",
+      "lines": 2254,
+      "sha256": "b73d9465b407b16107c484ecc6ce758b4158741b1761956d8900a54c557d182a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -35679,6 +35775,25 @@
         {
           "name": "LuluNotificationSnapshot",
           "line": 47
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+      "lines": 136,
+      "sha256": "1bbe7abac42eb6b55295527a944de8a1bd1511aeb810aa83f3c14240df0bbc01",
+      "symbols": [
+        {
+          "name": "normalized",
+          "line": 22
+        },
+        {
+          "name": "pixel",
+          "line": 26
+        },
+        {
+          "name": "duration",
+          "line": 31
         }
       ]
     },
@@ -41401,6 +41516,17 @@
         {
           "name": "LuluMediaTransportPolicyTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt",
+      "lines": 26,
+      "sha256": "3a006d71389c829108efdca3cc3ad2199a7857f5ab344c6249e0b07a8623f636",
+      "symbols": [
+        {
+          "name": "LuluPhoneUiGeometryTest",
+          "line": 6
         }
       ]
     },
