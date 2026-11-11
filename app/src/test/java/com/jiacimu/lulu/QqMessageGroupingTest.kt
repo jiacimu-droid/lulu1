@@ -45,6 +45,15 @@ class QqMessageGroupingTest {
         assertEquals(authored, characterOutgoingBubblePlan(presentation).map(CharacterOutgoingBubble::text))
     }
 
+    @Test fun keyboardVoiceCaptureSourceAcceptsRedactedMicButNotCallAudio() {
+        assertTrue(isImeSpeechCaptureSource(android.media.MediaRecorder.AudioSource.VOICE_RECOGNITION))
+        assertTrue(isImeSpeechCaptureSource(android.media.MediaRecorder.AudioSource.MIC))
+        // Other apps' source can be anonymized to DEFAULT by Android.
+        assertTrue(isImeSpeechCaptureSource(android.media.MediaRecorder.AudioSource.DEFAULT))
+        assertFalse(isImeSpeechCaptureSource(android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION))
+        assertFalse(isImeSpeechCaptureSource(android.media.MediaRecorder.AudioSource.CAMCORDER))
+    }
+
     @Test fun voiceNoteKeepsModelChosenEmotionCuesAcrossWhitespaceAlignment() {
         val spoken = "我，真的很想你。"
         val performance = "[softly] 我， [hesitant] 真的很想你。"
