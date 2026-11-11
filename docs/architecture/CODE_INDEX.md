@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e7742dc4bda6181df77e711d89dae4980a1b788d`
+- 基准提交：`a3d0418299a9b44b4de518fb3335a7ba88d37e31`
 - 分支：`main`
 - 已索引文件：1204
-- 已索引代码/文本行：260201
+- 已索引代码/文本行：260203
 - 已发现符号：3637
 
 | 文件 | 行数 | 符号数 |
@@ -960,7 +960,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 313 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 695 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 77 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 539 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 540 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
@@ -1078,7 +1078,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 217 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 218 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
