@@ -168,6 +168,17 @@
 
 ### PH-01 手机操作：Mika 开源执行器复用（2026-11-11）
 
+**2026-11-11 PH-01 本轮源代码实际施工交接（集成待当前 CI/真机验收）**：
+
+- 上游 Mika ADB 安全本机传输与原许可：[`bcfcd4f`](https://github.com/jiacimu-droid/lulu1/commit/bcfcd4f99a9e9220167b39d06bc688b5e5c2924a)；配对与校验/设备端口发现：`LuluWirelessDebugging.kt`；角色设置中有本机无线调试六位配对码、配对端口、实际连接端口、连接验证及清密钥；未将 shell 通用指令暴露给模型。
+- Mika ShellContext + 独立焦点屏的精简本机 helper：[`07cce50`](https://github.com/jiacimu-droid/lulu1/commit/07cce503fabd0ffcd6e8498110515fcc010cfbcf)，修复 Kotlin 标准输入编译问题 [`46d351b`](https://github.com/jiacimu-droid/lulu1/commit/46d351be9b98900cd444739aeb3b2dafb1622abe)；后台屏控制器 [`71dc5be`](https://github.com/jiacimu-droid/lulu1/commit/71dc5be2d35a518220de5bcde1a37e663d1e6cb5)；取仅属于指定 displayId 的无障碍节点、支持非密码框 Unicode、主屏焦点失效时安全拒绝。**尚未真机证明 HyperOS 允许该 trusted display**。
+- 原 ToolRouter 与同角色图文模型的 `background_phone` 新能力：[`a9b96f8`](https://github.com/jiacimu-droid/lulu1/commit/a9b96f80c0e56b591a9d1a4ad0a26e28db669101)。本人模型多步观察→自主选择动作→真实工具回执，最多12步，见 `LuluBackgroundPhoneContinuation.kt` + [`a4518fb`](https://github.com/jiacimu-droid/lulu1/commit/a4518fbf23bbae722207ab5601eb925185056c6e)。不引入另一个 persona、独立 AgentLoop 或独立视觉模型。
+- 防误操作后续：单角色屏幕占用、启动后核屏与截图归属、输入框密码检测；用户可用通知及设置 STOP，跨进程重启停止状态持久保留，必须主人重新允许；敏感不可逆目标点击拒绝，相关最后提交 [`cddef66`](https://github.com/jiacimu-droid/lulu1/commit/cddef66e0623d064df02abdec71c6605a93d5a95)。
+- **分层核实**：早期实际 APK/JVM [#43050306789](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306789) 前台手机操作 5 项测试均 PASS；后继 [#43056300586](https://github.com/jiacimu-droid/lulu1/actions/runs/43056300586) 新 ADB/虚拟屏核心可通过 `:app:compilePhoneKotlin`，但完整 `:app:testPhoneUnitTest` 仍是 2726 项中 **5 个角色历史回归失败**，与此轮手机移植测试不同，未生成合格 APK。**新增连续模型链/停止/安全代码的最终 SHA APK 仍待 CI**；这不等于真机运行通过。
+- 下一项 PH-01.1：核当前 main 头提交完整 `Lulu APK` 工作流，先修新增文件的实际首错（如有）；不要为让 APK 绿而跳过既有失败的角色测试。PH-01.2 实机必须分别证实无线配对、带独立焦点的虚拟 displayId 非零、第三方 App 启动/稳定截图、主屏继续聊天、撤权/关闭/重启/停止后的控制；后续长任务验收必须实际截图及模型决策回执。未验阶段仍禁止宣称“角色已接管手机”。
+
+
+
 - **授权与技术范围**：主人明确授权研究并复用 [wangzan101/Mika](https://github.com/wangzan101/Mika) 的 Android 手机操作源码，仅作为现有角色可选的工具能力。禁止引入 Mika 人格/第二套独立意图判断、另设人物记忆；模型可多次调用且用各角色选中的支持视觉的聊天模型。Mika 是 Apache-2.0；未来实际复制代码时保留许可证和 NOTICE，记录来源及对上游的修改。
 - **已提交但仍待 APK/JVM/真机**：[9490dd9](https://github.com/jiacimu-droid/lulu1/commit/9490dd966364783560f5d25440d8f9049f018034) 提供前台 `phone_ui`：inspect/launch/tap/swipe/scroll/type、Android 手势/控件树、准确包名核验、可见效果回执；[72aedc0](https://github.com/jiacimu-droid/lulu1/commit/72aedc0cadd4a78a5e5fc3dcc040ae7c455ff23f) 复用原屏幕隐私排除列表，在前后操作中拦截受保护应用。此阶段仍是默认主屏，不是后台屏。
 - **已提交但仍待 APK/JVM/模型**：[daa3644](https://github.com/jiacimu-droid/lulu1/commit/daa36442b88a1452772d3f743571f7243df267ed) 为聊天回合直接选择 `capture_screen` 时传入当次实际 JPEG 图片 + 同屏无障碍文字至原角色模型的**同一次工具后回复**；不调用专用识图描述模型、不在 ToolRouter JSON/时间线里保存图像、内存一次性 handoff。原独立学习监督、后台观察、存相册路径不变。工具后这次仍只负责回复；连续下一个手机动作尚未实现，不得声称已自动完成长任务。
