@@ -297,11 +297,12 @@ internal fun ScopedModelArchiveIconButton(
     val context = LocalContext.current
     val library by LuluAiServices.connectionStore.library.collectAsState()
     var visible by remember { mutableStateOf(false) }
-    var selectedId by remember(library.archives, scope) {
+    val scopedRevision by ScopedModelSelections.changes.collectAsState()
+    var selectedId by remember(library, scope, scopedRevision) {
         mutableStateOf(ScopedModelSelections.selectedArchiveId(scope, library))
     }
 
-    LaunchedEffect(context, library.archives, scope) {
+    LaunchedEffect(context, library, scope, scopedRevision) {
         ScopedModelSelections.initialize(context)
         selectedId = ScopedModelSelections.selectedArchiveId(scope, library)
     }
