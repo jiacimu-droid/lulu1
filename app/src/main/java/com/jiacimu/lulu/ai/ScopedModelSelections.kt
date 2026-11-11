@@ -76,8 +76,9 @@ object ScopedModelSelections {
         // in character chat, resident management or the stable fallback.
         when (scope) {
             RESIDENT_SOCIAL -> return selectedArchiveId(RESIDENT_DAILY, library)
-            WORLD_SOCIAL, WORLD_SCENE, WORLD_LIFE, EXPRESSION ->
+            WORLD_SOCIAL, WORLD_SCENE, WORLD_LIFE ->
                 return library.archiveIdFor(ModelUsage.Sleep)
+            EXPRESSION -> return null // Legacy separate writer no longer overrides the character.
         }
         val saved = prefs?.getString(key(scope), null)
             ?.takeIf { id -> library.archives.any { it.id == id && !it.model.startsWith("jev-") || scope == JEV && it.id == id } }
