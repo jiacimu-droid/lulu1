@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:38:41.088005+00:00",
-  "commit": "f5565fa761b9ca42b4c0bbc6ed528c8e83bf537b",
+  "generatedAt": "2026-11-11T10:01:28.048466+00:00",
+  "commit": "33d467ad92b18d93eb7985abb124f74ec7248437",
   "branch": "main",
-  "sourceFingerprint": "9a8cfd162d41d968a8f1d3ef5473225c970aad876589787bf74ffe9b5e651fd7",
+  "sourceFingerprint": "f34144fafd0eed0e64fe57b1906ce04ff94992068928a7ccd4ad33a08a7bd067",
   "summary": {
     "files": 1175,
-    "lines": 255513,
-    "symbols": 3482
+    "lines": 255553,
+    "symbols": 3486
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -825,7 +825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 72
+        "line": 111
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -4031,7 +4031,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 101
+        "line": 140
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
@@ -4537,7 +4537,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 158
+        "line": 197
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
@@ -4987,7 +4987,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 77
+        "line": 116
       }
     ],
     "clearSleepArchive": [
@@ -5003,7 +5003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 152
+        "line": 191
       }
     ],
     "archiveLabel": [
@@ -5182,64 +5182,88 @@
         "line": 46
       }
     ],
+    "personalTheaterOverrideId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 59
+      }
+    ],
+    "selectedPersonalTheaterArchiveId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 64
+      }
+    ],
+    "selectPersonalTheaterArchive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 69
+      }
+    ],
+    "clearPersonalTheaterArchive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 81
+      }
+    ],
     "selectCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 50
+        "line": 89
       }
     ],
     "clearCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 62
+        "line": 101
       }
     ],
     "residentSocialArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 114
+        "line": 153
       }
     ],
     "worldSocialArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 117
+        "line": 156
       }
     ],
     "worldSceneArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 122
+        "line": 161
       }
     ],
     "worldLifeArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 126
+        "line": 165
       }
     ],
     "residentSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 131
+        "line": 170
       }
     ],
     "worldSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 137
+        "line": 176
       }
     ],
     "worldSceneConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 143
+        "line": 182
       }
     ],
     "worldLifeConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 146
+        "line": 185
       }
     ],
     "VisionModelService": [
@@ -22400,8 +22424,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt",
-      "lines": 341,
-      "sha256": "97a1cb2e9c30384e6d233469ca92fdcfebfd6947569568eaba562e7b6d672ad1",
+      "lines": 342,
+      "sha256": "81da9cc75c09d096ec8e68d004ba5efbb0ae11880e19ed77973e4651811176b4",
       "symbols": []
     },
     {
@@ -24018,8 +24042,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 169,
-      "sha256": "982715a3781e0805f6f37016de97f613eee4210b2f1eaea83a473a2153055aab",
+      "lines": 208,
+      "sha256": "885a6914021b650a153afa72045ae031d9cd8a66c11ee23a6aa3c50f384d8660",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -24034,64 +24058,80 @@
           "line": 46
         },
         {
+          "name": "personalTheaterOverrideId",
+          "line": 59
+        },
+        {
+          "name": "selectedPersonalTheaterArchiveId",
+          "line": 64
+        },
+        {
+          "name": "selectPersonalTheaterArchive",
+          "line": 69
+        },
+        {
+          "name": "clearPersonalTheaterArchive",
+          "line": 81
+        },
+        {
           "name": "selectCharacterChatArchive",
-          "line": 50
+          "line": 89
         },
         {
           "name": "clearCharacterChatArchive",
-          "line": 62
-        },
-        {
-          "name": "initialize",
-          "line": 72
-        },
-        {
-          "name": "selectedArchiveId",
-          "line": 77
-        },
-        {
-          "name": "select",
           "line": 101
         },
         {
+          "name": "initialize",
+          "line": 111
+        },
+        {
+          "name": "selectedArchiveId",
+          "line": 116
+        },
+        {
+          "name": "select",
+          "line": 140
+        },
+        {
           "name": "residentSocialArchiveId",
-          "line": 114
+          "line": 153
         },
         {
           "name": "worldSocialArchiveId",
-          "line": 117
+          "line": 156
         },
         {
           "name": "worldSceneArchiveId",
-          "line": 122
+          "line": 161
         },
         {
           "name": "worldLifeArchiveId",
-          "line": 126
+          "line": 165
         },
         {
           "name": "residentSocialConnection",
-          "line": 131
+          "line": 170
         },
         {
           "name": "worldSocialConnection",
-          "line": 137
+          "line": 176
         },
         {
           "name": "worldSceneConnection",
-          "line": 143
+          "line": 182
         },
         {
           "name": "worldLifeConnection",
-          "line": 146
+          "line": 185
         },
         {
           "name": "resolveConnection",
-          "line": 152
+          "line": 191
         },
         {
           "name": "clear",
-          "line": 158
+          "line": 197
         }
       ]
     },

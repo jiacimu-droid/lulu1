@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f5565fa761b9ca42b4c0bbc6ed528c8e83bf537b`
+- 基准提交：`33d467ad92b18d93eb7985abb124f74ec7248437`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255513
-- 已发现符号：3482
+- 已索引代码/文本行：255553
+- 已发现符号：3486
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -223,7 +223,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 341 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
@@ -314,7 +314,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 216 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 147 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 169 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 208 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 408 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 172 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
