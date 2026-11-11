@@ -51,6 +51,16 @@ internal data class IslandHouseProject(
 internal object IslandHouseProjects {
     val styles=linkedMapOf("warm" to "暖灯原木屋", "pine" to "松林木屋")
     fun styleName(style:String)=styles[style] ?: styles.getValue("warm")
+    /** The original demolition scope is authoritative, including partially built houses. */
+    fun totalSteps(project: IslandHouseProject): Int =
+        if(project.phase=="demolishing" ||
+            project.phase=="paused" && project.resumePhase=="demolishing")
+            project.demolitionStartCount else 9
+
+    /** A zero-piece demolition has no progress to animate. */
+    fun progressFraction(project: IslandHouseProject): Float =
+        totalSteps(project).takeIf { it>0 }?.let { progress(project).toFloat()/it } ?: 0f
+
     /** A single presentation truth for HUD and project panel; no inventory mutation. */
     fun progress(project: IslandHouseProject): Int =
         if(project.phase=="demolishing" ||
