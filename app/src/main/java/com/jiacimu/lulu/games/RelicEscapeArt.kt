@@ -48,6 +48,7 @@ internal fun RelicEscapeWorldMap(
 ) {
     // Only the player's selected, already-visible objective gets a route hint.
     // The path is a read-only projection of discovered traversable cells.
+    val tension = remember(run) { relicTension(run) }
     val knownRoute = remember(run, selected) {
         val target = listOfNotNull(
             RelicObjectiveGuide.visibleChest(run),
@@ -469,7 +470,6 @@ internal fun RelicEscapeWorldMap(
                 drawCircle(Color(0xFFEBE0BB).copy(alpha=.045f+shimmer*.075f),
                     t*(.026f+i%3*.011f),center)
             }
-            val tension = relicTension(run)
             if(tension.urgent) {
                 val tint = if(tension.level==RelicTensionLevel.DANGER ||
                     tension.level==RelicTensionLevel.DOWNED)
