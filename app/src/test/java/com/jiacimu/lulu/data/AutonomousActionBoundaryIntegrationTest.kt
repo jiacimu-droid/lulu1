@@ -140,6 +140,10 @@ class AutonomousActionBoundaryIntegrationTest {
             assertTrue("下一轮应保留失败主目标的稳定来源ID", modelInputs[1].contains(motive))
             assertTrue("下一轮应明确保留主动作未成功状态，而非只看见副动态",
                 modelInputs[1].contains("needs_review"))
+            assertTrue("下一轮模型必须看到被拒主工具的名称，而非只有目标状态",
+                modelInputs[1].contains("send_character_message"))
+            assertTrue("下一轮模型必须看到独立拒绝回执的来源通道",
+                modelInputs[1].contains("实际工具执行"))
             assertTrue("下一轮应保留成功的独立动态", modelInputs[1].contains(text))
             assertEquals("沉默决定不能重放独立动态", 1,
                 MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == text })
