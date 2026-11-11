@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-10T23:36:20.959923+00:00",
-  "commit": "52f0624bd6d02f184e28ada9e9d9c5c0ecb1bc17",
+  "generatedAt": "2026-11-11T00:20:29.653807+00:00",
+  "commit": "d934f849e5555df021ddcce69cbedee799a4c7c7",
   "branch": "main",
-  "sourceFingerprint": "087b4b718a6bd69f88b5ad733c467d23b898a6360fed1d7482478802bbef3d4d",
+  "sourceFingerprint": "3c9a620b8380e094f2eb90538d1a5e381ab442fa782942558288e4985106dbf5",
   "summary": {
-    "files": 1173,
-    "lines": 254343,
-    "symbols": 3465
+    "files": 1174,
+    "lines": 254536,
+    "symbols": 3471
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14556,20 +14556,52 @@
     ],
     "kind": [
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 22
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
         "line": 53
       }
     ],
     "DrawScope": [
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 28
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
         "line": 57
+      }
+    ],
+    "p": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 37
+      }
+    ],
+    "color": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 38
+      }
+    ],
+    "stroke": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 40
+      }
+    ],
+    "polygon": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 42
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 67
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
@@ -14579,7 +14611,7 @@
     "poly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 69
+        "line": 74
       }
     ],
     "useHint": [
@@ -34267,9 +34299,40 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+      "lines": 188,
+      "sha256": "f6a9b8c3e7755f0de69d90bfae40d4755f5119c421ac2a1001ee6a308cafa541",
+      "symbols": [
+        {
+          "name": "kind",
+          "line": 22
+        },
+        {
+          "name": "DrawScope",
+          "line": 28
+        },
+        {
+          "name": "p",
+          "line": 37
+        },
+        {
+          "name": "color",
+          "line": 38
+        },
+        {
+          "name": "stroke",
+          "line": 40
+        },
+        {
+          "name": "polygon",
+          "line": 42
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-      "lines": 205,
-      "sha256": "08c0ec4591fd69e50ab1dab00ba027c2c08bc553abef40da21d6fae15010c1c9",
+      "lines": 210,
+      "sha256": "d62318541ba11e4aa27bbc098a8afe5cd2c03f040ce4763d507206c54475b3f9",
       "symbols": [
         {
           "name": "kind",
@@ -34281,11 +34344,11 @@
         },
         {
           "name": "line",
-          "line": 67
+          "line": 72
         },
         {
           "name": "poly",
-          "line": 69
+          "line": 74
         }
       ]
     },
