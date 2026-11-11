@@ -47,6 +47,7 @@ internal fun DigitalWorldSocialGraphDialog(
     var editingRelation by remember(focusId, selectedId) { mutableStateOf(false) }
     var relationshipTitle by remember(focusId, selectedId) { mutableStateOf("") }
     var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
+    var relationshipSaveError by remember(focusId, selectedId) { mutableStateOf("") }
     // Read the existing evidence-backed bonds and genuine encounters; no extra
     // social score or fabricated "friendship" database is introduced.
     val nodes = remember(focusId, settings, world.meetings, revision, relationData, timelineRevision, friendsRevision) {
@@ -117,22 +118,28 @@ internal fun DigitalWorldSocialGraphDialog(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(value = relationshipTitle,
-                        onValueChange = { relationshipTitle = it.take(70) },
+                        onValueChange = { relationshipTitle = it },
                         label = { Text("身份与关系（如：朋友、恋人、主人）") },
                         modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(value = relationshipDetails,
-                        onValueChange = { relationshipDetails = it.take(1600) },
+                        onValueChange = { relationshipDetails = it },
                         label = { Text("共同约定与已确认的关系事实") },
                         modifier = Modifier.fillMaxWidth(), minLines = 4, maxLines = 9)
                     Text("清空并保存可撤销原约定；角色的主观感受仍由实际经历变化。",
                         style = MaterialTheme.typography.labelSmall)
+                    if (relationshipSaveError.isNotBlank()) {
+                        Text(relationshipSaveError, color = MaterialTheme.colorScheme.error)
+                    }
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    CharacterSocialRelationship.setAgreement(focusId, selectedNode.id,
-                        relationshipTitle, relationshipDetails)
-                    editingRelation = false
+                    val saved = runCatching {
+                        CharacterSocialRelationship.setAgreement(focusId, selectedNode.id,
+                            relationshipTitle, relationshipDetails)
+                    }.getOrDefault(false)
+                    if (saved) editingRelation = false
+                    else relationshipSaveError = "关系未能保存，请重试"
                 }) { Text("保存关系") }
             },
             dismissButton = { TextButton(onClick = { editingRelation = false }) { Text("取消") } },
@@ -243,6 +250,7 @@ internal fun DigitalWorldSocialGraphDialog(
                         TextButton(onClick = {
                             relationshipTitle = agreement?.title.orEmpty()
                             relationshipDetails = agreement?.details.orEmpty()
+                            relationshipSaveError = ""
                             editingRelation = true
                         }) { Text("编辑这段关系的身份与约定") }
                         if (selectedNode.kind == "原住民") {
