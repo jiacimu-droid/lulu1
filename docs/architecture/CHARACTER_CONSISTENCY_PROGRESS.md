@@ -1891,3 +1891,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 核 main push `3281ad6dce78df155a5bbbdfec249960a190f828` 的 [APK/JVM #43015458694](https://github.com/jiacimu-droid/lulu1/actions/runs/43015458694) 和 [索引 #43015458724](https://github.com/jiacimu-droid/lulu1/actions/runs/43015458724) 均 completed/success；旧 `c88a24c` 失败已被包含同测试的后继成功覆盖。
 - [9503ba3](https://github.com/jiacimu-droid/lulu1/commit/9503ba3f292b912a07f3e5a75882a036cca92cc4) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 的第二轮真实模型 HTTP 输入补 motiveId 与 `needs_review` 断言；仅测试，当前 SHA CI 未验，不宣称通过。
 - 下一轮固定 P-08d.2b.2：核 `9503ba3` main push APK/JVM/索引 head SHA；失败修首错，通过后继续新工具取消/失败的来源回执。真机 TTS/权限、真实模型和计费仍待验。
+
+## 2026-11-11 · P-08d.2b.2 被拒主动作独立回执（待 CI）
+
+- 已核 `9503ba3` 的 main push [APK/JVM #43022317769](https://github.com/jiacimu-droid/lulu1/actions/runs/43022317769) 与 [索引 #43022317957](https://github.com/jiacimu-droid/lulu1/actions/runs/43022317957) completed/success；此前 `needs_review` 与 motiveId 的下一轮输入断言已有工程通过证据。
+- [3401079](https://github.com/jiacimu-droid/lulu1/commit/340107907ea2df3d7100eed75dff7697afa33816) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 增加正式 SharedExperienceTimeline 中 `send_character_message` 独立失败回执的持久记录断言，避免成功副动态掩盖被拒主动作。没有更改生产逻辑；新测试 CI 尚未运行确认，不能称已通过。
+- 下一轮同 ID 直接核新测试的 APK/JVM 首错及 Refresh code index；若绿，继续检查拒绝原因和来源是否进入下轮真实 HTTP 输入；若红，先定位执行器/回执归属或夹具。真机与真实模型待验。
