@@ -19,6 +19,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.ProactivePerceptionRuntime
+import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.initializeBackgroundRuntime
 import android.app.usage.UsageStatsManager
 import android.content.Context
@@ -214,11 +215,15 @@ object LuluScreenAwareness {
     suspend fun capture(context: Context, userRequested: Boolean,
         characterId: String = "", requestId: String = "", approved: Boolean = false,
         sessionId: String = "", saveToAlbum: Boolean = false,
-        handoffToRole: Boolean = false): String {
+        handoffToRole: Boolean = false, sendToChat: Boolean = false,
+        chatCaption: String = ""): String {
         if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
         fun studySessionValid(): Boolean = sessionId.isBlank() ||
             LuluStudyWatch.canObserve(context, characterId, sessionId)
         if (!studySessionValid()) return rejected(context, "学习监督已停止或到期，禁止继续截图")
+        if (sendToChat && (characterId.isBlank() || characterId.startsWith("resident:") ||
+            sessionId.isNotBlank()))
+            return rejected(context, "屏幕分享仅限真实角色主动选择的一次私聊截图", "failed")
         if (!userRequested && !autonomousAllowed(context))
             return rejected(context, "角色自主屏幕观察尚未获授权")
         if (Build.VERSION.SDK_INT < 30) return rejected(context, "Android 11 以下不支持", "failed")
@@ -256,6 +261,43 @@ object LuluScreenAwareness {
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
+                // An explicitly selected screen share is a REAL image message,
+                // not a textual vision summary or a claimed screenshot. Never
+                // deliver study-watch captures, excluded apps or revoked frames.
+                // No extra paid vision call is needed just to forward pixels.
+                if (sendToChat) {
+                    val sent = try {
+                        CompanionActionRuntime.sendCapturedScreenshot(
+                            context, characterId, bitmap, chatCaption, fresh.packageName)
+                    } catch (error: Exception) {
+                        return rejected(context, "已取得截图，但图片未发送：" +
+                            error.message.orEmpty().take(90), "failed")
+                    }
+                    if (handoffToRole && requestId.startsWith("reply-")) {
+                        // Same-frame optional continuation; no second screenshot.
+                        runCatching {
+                            LuluScreenFrameHandoff.put(characterId, requestId,
+                                VisionModelService.screenFrameDataUrl(bitmap))
+                        }
+                    }
+                    val result = JSONObject(sent.asJson())
+                        .put("status", "observed").put("sentToChat", true)
+                        .put("packageName", fresh.packageName)
+                        .put("capturedAt", capturedAt.toString())
+                        .put("visibleText", fresh.visibleText.take(4500))
+                        .put("verification", "本机真实单帧与角色私聊图片消息已持久化；不是持续录屏")
+                    if (saveToAlbum) {
+                        val photo = runCatching {
+                            com.jiacimu.lulu.RolePhotoAlbumStore.saveCapture(
+                                context, characterId, bitmap, "已发送给主人的手机屏幕截图")
+                        }
+                        result.put("albumSaved", photo.isSuccess)
+                            .put("albumPhotoId", photo.getOrNull()?.id.orEmpty())
+                            .put("albumError", photo.exceptionOrNull()?.message.orEmpty().take(100))
+                    }
+                    report(context, "已截图，并真正发出一条私聊图片消息")
+                    return result.toString()
+                }
                 // A normal chat tool call can hand this real frame to the SAME
                 // character's immediate next model request, beside accessibility text.
                 // Proactive/study/saved captures keep their original observed receipts.
