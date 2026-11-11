@@ -14,6 +14,7 @@ import com.jiacimu.lulu.data.CharacterLearningLedger
 import com.jiacimu.lulu.data.CharacterLearningAgenda
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import java.time.ZoneId
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -29,6 +30,80 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 Switch(allowed, { allowed = it; prefs.edit().putBoolean("$characterId:$key", it).commit() })
             }
         }
+        // Device-wide local shell consent belongs to the owner, never to a character model.
+        // The per-character "screen" toggle above still gates actual actions.
+        var advancedPhoneOpen by remember { mutableStateOf(false) }
+        TextButton(onClick = { advancedPhoneOpen = !advancedPhoneOpen }) {
+            Text(if (advancedPhoneOpen) "收起后台手机操作设置" else "后台手机操作（无线调试）")
+        }
+        if (advancedPhoneOpen) {
+            val debug = com.jiacimu.lulu.system.LuluWirelessDebugging
+            val scope = rememberCoroutineScope()
+            var pairPort by remember { mutableStateOf("") }
+            var connectPort by remember { mutableStateOf("") }
+            var pairingCode by remember { mutableStateOf("") }
+            var setupBusy by remember { mutableStateOf(false) }
+            var setupStatus by remember { mutableStateOf(
+                if (debug.hasPriorPairing(context)) "本机保存过配对身份，需重新核实无线调试是否已连接" else "尚未配对"
+            ) }
+            Text("只在本机配对 Android 无线调试。它授权的是手机操作引擎，不是另一个 AI；配对码不会发送给角色模型。",
+                style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = {
+                runCatching { context.startActivity(android.content.Intent(
+                    android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)) }
+                    .onFailure { setupStatus = "无法自动打开开发者选项，请手动进入系统设置" }
+            }) { Text("打开系统开发者选项") }
+            OutlinedTextField(
+                value = pairPort, onValueChange = { pairPort = it.filter(Char::isDigit).take(5) },
+                singleLine = true, label = { Text("系统显示的配对端口") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = pairingCode, onValueChange = { pairingCode = it.filter(Char::isDigit).take(6) },
+                singleLine = true, label = { Text("无线配对码（仅本机使用）") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            )
+            Button(enabled = !setupBusy && pairPort.toIntOrNull() in 1..65535 &&
+                pairingCode.length == 6, onClick = {
+                val port = pairPort.toIntOrNull() ?: return@Button
+                val oneTimeCode = pairingCode
+                pairingCode = ""
+                setupBusy = true
+                scope.launch {
+                    try {
+                        setupStatus = debug.pair(context, port, oneTimeCode)
+                    } catch (e: Exception) {
+                        setupStatus = "无线配对失败：" + e.message.orEmpty().take(150)
+                    } finally { setupBusy = false }
+                }
+            }) { Text(if (setupBusy) "正在配对…" else "配对本机无线调试") }
+            OutlinedTextField(
+                value = connectPort, onValueChange = { connectPort = it.filter(Char::isDigit).take(5) },
+                singleLine = true, label = { Text("连接端口（可留空自动发现，与配对端口不同）") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(enabled = !setupBusy && debug.hasPriorPairing(context), onClick = {
+                    setupBusy = true
+                    scope.launch {
+                        try { setupStatus = debug.test(context, connectPort.toIntOrNull()) }
+                        catch (e: Exception) {
+                            setupStatus = "连接失败：" + e.message.orEmpty().take(150)
+                        } finally { setupBusy = false }
+                    }
+                }) { Text("检查连接") }
+                TextButton(enabled = !setupBusy && debug.hasPriorPairing(context), onClick = {
+                    runCatching { debug.forget(context) }
+                        .onSuccess { setupStatus = "已清除露露机本地密钥；请到系统无线调试中撤销已配对设备" }
+                        .onFailure { setupStatus = "本地撤销失败：" + it.message.orEmpty().take(100) }
+                }) { Text("撤销本机密钥") }
+            }
+            Text(setupStatus, style = MaterialTheme.typography.bodySmall)
+            Text("连接通过只证明 shell 权限可用；后台独立屏幕和第三方 App 操作仍需完成助手安装、启动和真机验证。关闭无线调试或撤销配对后不可继续控制。",
+                style = MaterialTheme.typography.bodySmall)
+        }
+
         val exactAlarmGranted = remember { mutableStateOf(com.jiacimu.lulu.system.LuluAlarmSystem.canScheduleExact()) }
         val fullScreenGranted = remember { mutableStateOf(android.os.Build.VERSION.SDK_INT < 34 ||
             context.getSystemService(android.app.NotificationManager::class.java).canUseFullScreenIntent()) }
