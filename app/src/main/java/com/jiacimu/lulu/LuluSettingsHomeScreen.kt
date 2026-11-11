@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LuluEditorialHeader
+import com.jiacimu.lulu.design.LuluEditorialSectionHeading
 import com.jiacimu.lulu.design.LocalLuluAppearance
 import com.jiacimu.lulu.design.JournalPressedFlower
 import com.jiacimu.lulu.design.isJournal
@@ -124,16 +126,22 @@ private fun SettingsEntryScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 36.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
+                LuluEditorialHeader(
+                    overline = "LULU  /  PREFERENCES",
+                    title = "让每一处，都合你心意",
+                    subtitle = "管理连接、角色能力与数据，让日常相处更轻松。",
+                )
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("露露机 ${BuildConfig.VERSION_NAME} · ${BuildConfig.BUILD_REVISION}",
                         modifier = Modifier.weight(1f), color = SettingsHomeMuted, fontSize = 12.sp)
                     TextButton(onClick = { showUpdateNotes = true }) { Text("更新内容", fontSize = 12.sp) }
                 }
             }
+            item { LuluEditorialSectionHeading(title = "模型与连接") }
             item {
                 SettingsEntryRow(
                     icon = Icons.Outlined.Api,
@@ -166,6 +174,7 @@ private fun SettingsEntryScreen(
                     onClick = onOpenMemory,
                 )
             }
+            item { LuluEditorialSectionHeading(title = "角色与设备") }
             item {
                 SettingsEntryRow(
                     icon = Icons.Outlined.Groups,
@@ -198,6 +207,7 @@ private fun SettingsEntryScreen(
                     onClick = onOpenCapabilities,
                 )
             }
+            item { LuluEditorialSectionHeading(title = "数据与安心") }
             item {
                 SettingsEntryRow(
                     icon = Icons.Outlined.Backup,
@@ -220,30 +230,32 @@ private fun SettingsEntryRow(
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = if (LocalLuluAppearance.current.isJournal())
-            RoundedCornerShape(8.dp, 20.dp, 9.dp, 18.dp) else RoundedCornerShape(18.dp),
+            RoundedCornerShape(8.dp, 20.dp, 9.dp, 18.dp) else
+                RoundedCornerShape(LocalLuluAppearance.current.corner.coerceIn(12, 26).dp),
         color = SettingsHomeCard,
-        border = BorderStroke(1.dp, SettingsHomeBorder),
+        border = BorderStroke(1.dp, SettingsHomeBorder.copy(alpha = 0.68f)),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
                 .then(if (LocalLuluAppearance.current.isJournal())
                     Modifier.journalPaper(LocalLuluAppearance.current) else Modifier)
-                .padding(15.dp),
+                .padding(horizontal = 15.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(shape = RoundedCornerShape(12.dp), color = SettingsHomeAccent) {
+            Surface(shape = RoundedCornerShape(13.dp),
+                color = SettingsHomeAccent.copy(alpha = 0.7f)) {
                 Icon(
                     icon,
                     null,
-                    modifier = Modifier.padding(9.dp).size(22.dp),
+                    modifier = Modifier.padding(11.dp).size(21.dp),
                     tint = SettingsHomeAccentStrong,
                 )
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = SettingsHomeInk)
+                Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = SettingsHomeInk)
                 Spacer(Modifier.height(2.dp))
-                Text(subtitle, color = SettingsHomeMuted, fontSize = 12.sp, lineHeight = 17.sp)
+                Text(subtitle, color = SettingsHomeMuted, fontSize = 12.sp, lineHeight = 18.sp)
             }
             Icon(Icons.Outlined.ChevronRight, null, tint = SettingsHomeMuted)
         }
