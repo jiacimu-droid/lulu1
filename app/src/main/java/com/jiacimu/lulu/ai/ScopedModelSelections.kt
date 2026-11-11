@@ -41,6 +41,13 @@ object ScopedModelSelections {
         } ?: library.archiveIdFor(ModelUsage.Chat)
     }
 
+    /** One shared selector for the real phone request and its visible model
+     * label. Normal calls follow character chat; sleep always uses fallback. */
+    fun selectedPhoneArchiveId(characterId: String, sleepMode: Boolean,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value): String? =
+        if (sleepMode) library.archiveIdFor(ModelUsage.Sleep)
+        else selectedCharacterChatArchiveId(characterId, library)
+
     fun selectCharacterChatArchive(characterId: String, archiveId: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value) {
         require(library.archives.any { it.id == archiveId && !it.model.startsWith("jev-") }) {
