@@ -799,8 +799,43 @@ internal object BlockIslandArt {
         val roof=if(pine)Color(0xFF466F64) else Color(0xFFAC5C4E)
         val roofLight=if(pine)Color(0xFF7AA58B) else Color(0xFFD99A75)
         val roofShade=if(pine)Color(0xFF294C49) else Color(0xFF78473F)
-        drawRoundRect(Color(0xFF302F2F).copy(alpha=.22f),
+        drawRoundRect(Color(0xFF302F2F).copy(alpha=.17f),
             p+Offset(t*.03f,t*.65f),Size(t*2.94f,t*2.31f),CornerRadius(t*.11f))
+        // A complete three-tile façade sits beneath the overhanging roof.
+        // The original rendering left the windows floating above bare terrain.
+        // This remains decorative: the original 9 persisted structure cells
+        // are still the sole authority for collision and construction.
+        val plaster=if(pine)Color(0xFFD9E0CB) else Color(0xFFF0DCC0)
+        val plasterShade=if(pine)Color(0xFFA2B6A7) else Color(0xFFC9AE90)
+        val trim=if(pine)Color(0xFF607D72) else Color(0xFF9F7D62)
+        drawRoundRect(plasterShade,p+Offset(t*.18f,t*1.16f),
+            Size(t*2.64f,t*1.63f),CornerRadius(t*.13f))
+        drawRoundRect(plaster,p+Offset(t*.24f,t*1.20f),
+            Size(t*2.53f,t*1.49f),CornerRadius(t*.10f))
+        drawRect(trim.copy(alpha=.32f),
+            p+Offset(t*.24f,t*1.69f),Size(t*2.53f,t*.055f))
+        // Quiet vertical support timbers and a simple stone plinth give the
+        // cottage structure and scale, without cluttering its roof silhouette.
+        for(dx in listOf(.27f,2.68f)) {
+            drawRoundRect(trim,p+Offset(t*dx,t*1.62f),
+                Size(t*.075f,t*1.10f),CornerRadius(t*.02f))
+        }
+        drawRoundRect(Color(0xFF89938B).copy(alpha=.75f),
+            p+Offset(t*.16f,t*2.69f),Size(t*2.67f,t*.18f),
+            CornerRadius(t*.05f))
+        // A solid entrance, frame, recessed panels and a single brass knob.
+        drawRoundRect(Color(0xFF5D5149),p+Offset(t*1.17f,t*1.89f),
+            Size(t*.67f,t*.85f),CornerRadius(t*.10f))
+        drawRoundRect(if(pine)Color(0xFF708676) else Color(0xFFBD8B64),
+            p+Offset(t*1.24f,t*1.97f),
+            Size(t*.53f,t*.74f),CornerRadius(t*.075f))
+        drawRoundRect(Color(0xFF4D625C).copy(alpha=.34f),
+            p+Offset(t*1.30f,t*2.06f),
+            Size(t*.40f,t*.48f),CornerRadius(t*.06f))
+        drawCircle(Color(0xFFE6C791),t*.033f,
+            p+Offset(t*1.67f,t*2.38f))
+        drawRoundRect(Color(0xFFB7AD94),p+Offset(t*1.04f,t*2.78f),
+            Size(t*.92f,t*.13f),CornerRadius(t*.04f))
         // Broad gabled roof with overhang; the foreground door stays visible.
         val shape=Path().apply {
             moveTo(p.x-t*.04f,p.y+t*.95f)
