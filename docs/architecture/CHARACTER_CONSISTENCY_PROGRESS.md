@@ -1934,3 +1934,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 先按 head SHA 核 `2a4ae3254a90bef5c05738d4c151f79b8ad1a6b9` 的 [Lulu APK/JVM #43040603800](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603800) 与 [Refresh code index #43040603870](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603870) 均 completed/success；上轮来源通道断言已有工程成功证据。
 - [073ceff](https://github.com/jiacimu-droid/lulu1/commit/073ceff4302be42b1deb2dd2f2ea078fd23fe38c) 继续扩展 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress`：从正式执行回执取出非空 error/summary，断言下一轮实际 HTTP 请求包含同一拒绝原因，防止只保留工具名、来源和 needs_review 却丢失原因。只改测试，未改生产逻辑或人物，**新增测试 CI 未验**。
 - 下一轮固定 P-08d.2b.2：按 `073ceff` 或覆盖它的后继 main push SHA 查 APK/JVM 首错及索引；若拒绝原因未投影，追 `SharedExperienceTimeline.recentContext` 到 `ProactivePerceptionRuntime` 的真实输入裁剪，先修证实根因。若通过，再补取消/冷重启反例；真机 TTS、锁屏与真实模型选择仍待验。
+
+## 2026-11-12 · P-08d.2b.2 静默后续不得重放主工具回执（待 CI）
+
+- `073ceff` 的 [JVM/APK #43051686746](https://github.com/jiacimu-droid/lulu1/actions/runs/43051686746) 失败（2726 tests，5 failed，1 skipped），但日志明确显示 `successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress PASSED`、`failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput PASSED`；五项失败在 CharacterDecisionProtocol、CharacterExplorationContinuity、CharacterMotivationOwnership、CharacterUnfinishedActionContext，归属其他人物专项。索引 [#43051686800](https://github.com/jiacimu-droid/lulu1/actions/runs/43051686800) 成功。不可将目标测试 PASSED 当作整套 APK/JVM 成功。
+- 新增 [68e3713](https://github.com/jiacimu-droid/lulu1/commit/68e3713df2ab01fd61a5c457d021eb829289b178) 在同一真实 HTTP 两轮回归中，对比第二轮 silent 前后的正式时间线拒绝工具回执，防止重复执行被拒绝主动作或伪造第二次失败；只改测试，不增加模型调用/人物规则。新提交 CI 待验。
+- 下一轮沿 P-08d.2b.2，直接核 `68e3713` 的 main push Actions，若目标用例红修真实原因，若绿补冷重启/取消独立回执反例。真机与真实模型仍外部待验。
