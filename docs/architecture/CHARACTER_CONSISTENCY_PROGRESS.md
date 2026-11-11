@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-11 · P-03.1 电话工具回执与过期结果表达的分离
+
+- 最新 `main` 已核前轮 `2773dce` 的 [JVM/APK #43012688208](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688208) 及[原索引 #43012688106](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688106) 成功。历史 `c8c37d3` 的独立 APK 运行失败、索引跳过，后续构建另计。
+- [b10fa71](https://github.com/jiacimu-droid/lulu1/commit/b10fa717d5b95bbd4f3dc2fa37ec13bc5306cac6) 针对有用户发言的正式电话。原链是角色决策 → `ToolRouter` 持久化效果与回执 → 本人结果表达及可选补正 → 电话语音、动作、状态与后续心理。原实现只在工具执行前的决策路径核对关系，工具结果生成和视频补正挂起后仍可交付旧草稿。
+- 在结果生成前后、语音核验后和视频回调前复用同一 `CharacterRuntime` 配置比较及取消边界。失败原因区分已保留的工具结果与未交付的台词。真正执行和回执仍由原执行器保存，未交付草稿不写为角色的新状态，也不触发挂断。未增加模型调用或重试。
+- `ConversationExpressionGatewayTest.phoneToolReceiptSurvivesEditsBeforeResultSpeechOrMotion` 通过正式 HTTP 请求运行一项实际朋友圈发布。分别在结果模型和视频补正等待时更新关系，核对输入含同一回执 ID，动态和成功回执各保留一份，旧台词、动作、状态回调及挂断被拦截。
+- [原索引 #43030085832](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085832) 成功并记录本提交为基准。[全量 JVM/APK #43030085743](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085743) completed/success，新回归及前轮格式恢复回归的日志均为 PASSED，APK 产物已上传并发布。真机播放、实际视频动作与真实模型质量待验。下一步沿 P-03.1 打开 `LuluDeviceToolBridge.respond` 的正常结构化 `verifiedSpeech` 与随后的视频 `Live2DPhoneMotionRepair.publish`。用 `ConversationExpressionGatewayTest` 复现仅有正常台词的电话在归责核验或视频补正期间编辑，分别检查台词、视频和已提交动作的状态，避免重做工具结果与格式恢复路径。
+
 ## 2026-11-11 P-08d.2b.2 实际模型请求回归（待 CI）
 
 - `717cc0d` 在 `AutonomousActionBoundaryIntegrationTest` 增加 `failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，沿真实 `CommitmentCallFeedback.onVoiceFailed` → `CommitmentTaskStore` 冷重载 → 用户新气泡 → `ProactivePerceptionRuntime.runDueCycle` → MockWebServer 捕获真实请求体，检查失败任务 ID、播放失败事实、无虚构已醒及不重复 POST。该用例尚未取得 APK/JVM 运行结果；生产代码未修改。
