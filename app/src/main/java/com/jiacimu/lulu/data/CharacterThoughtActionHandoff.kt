@@ -5,7 +5,7 @@ import org.json.JSONObject
 
 /** Decode explicitly chosen thought actions into the existing executor, never execute prose. */
 internal object CharacterThoughtActionHandoff {
-    const val runtimeGuidance = "落实填nextAction={tool,args}交原steps；稍后用plan_personal_activity；文字不执行。"
+    const val runtimeGuidance = "当轮真实决定做的事填action/steps，或在该条privateIdeas/挂心/动机/好奇中明确填nextAction={tool,args}交原steps；多件可同轮执行，需结果才能决定的下一步等真实回执。稍后执行用plan_personal_activity；只有想法文字不会执行。"
     const val guidance = "possibleNextStep/nextStep只是候选文字，不会执行。重新考虑旧下一步时，区分尚在考虑、等待具体条件、现在落实或未来排期；已决定的下一步不能又只写成候选文字。若已决定落实，在同轮nextAction填写{tool:真实工具,args:{}}（也可写在挂心、privateIdeas、thoughts、motives或curiosity项内；仅在明确填写nextAction时才执行，不将普通想法自动当指令）；现在做选实际工具，稍后做选plan_personal_activity并填title、intent、dueAt、activityAction、activityArgs。程序将其交给原steps执行器，不能只写下一步便当作已安排；尚在考虑或等待则不填，不自动把所有念头变待办。具体如：现在真想发给用户一张表情包、且本轮已列出可用真实stickerId，可以选action=sticker并填写stickerId，或在当前回复的steps/nextAction明确选择tool=send_private_sticker,args={stickerId:准确ID}；只有已送达回执才算发过，没有图库或还在犹豫可继续想但不要声称已发。真正决定修改用户的私人联系人备注时，选action=user_remark与nickname，或明确选择tool=set_user_remark,args={nickname:新备注}；备注成功保存才可以说已改好。不要从心声里的动词自动派发工具，也不要为了证明主动性强制发送表情或更名。"
 
     /**
