@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:38:19.114210+00:00",
-  "commit": "0089d3517a0b9822d477e74358b1eb4e9615814f",
+  "generatedAt": "2026-11-11T15:46:41.394670+00:00",
+  "commit": "8836b7b7e85df41f56fee771250212a5e9ba0c1e",
   "branch": "main",
-  "sourceFingerprint": "31c9e6f0365c63f027f90475a236a061e7fea0e3af03f26e891c1a426eef7102",
+  "sourceFingerprint": "9f6d51801bd96c4fd26721060e941de84312cdab0460169f816ec412bb3d9228",
   "summary": {
     "files": 1183,
-    "lines": 257035,
+    "lines": 257043,
     "symbols": 3519
   },
   "symbolIndex": {
@@ -16713,13 +16713,13 @@
     "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 191
+        "line": 199
       }
     ],
     "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 256
+        "line": 264
       }
     ],
     "AutonomousActionTraceTest": [
@@ -37476,8 +37476,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 738,
-      "sha256": "a553c7162666ae896b482456c0acaa530ec747e92f4326d7e604bd841b3898ba",
+      "lines": 746,
+      "sha256": "c42d0891bb04d8e50174819a3383de7ce113b60d307bb8b76509d19557fafb7e",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
@@ -37485,11 +37485,11 @@
         },
         {
           "name": "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost",
-          "line": 191
+          "line": 199
         },
         {
           "name": "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved",
-          "line": 256
+          "line": 264
         }
       ]
     },
