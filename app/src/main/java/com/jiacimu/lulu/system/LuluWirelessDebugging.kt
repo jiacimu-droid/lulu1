@@ -8,7 +8,7 @@ import com.wangzan101.mika.core.adb.AdbConnectPort
 import com.wangzan101.mika.core.adb.AdbConnection
 import com.wangzan101.mika.core.adb.AdbPairing
 import com.wangzan101.mika.core.adb.LocalPortScan
-import com.wangzan101.mika.core.adb.NioLocalPortScanner
+import com.wangzan101.mika.core.adb.NioPortScanner
 import com.wangzan101.mika.core.adb.PortCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -66,7 +66,7 @@ object LuluWirelessDebugging {
             finder = NsdAdbServiceFinder(context),
             cache = cache,
             scan = LocalPortScan(
-                scanner = NioLocalPortScanner(),
+                scanner = NioPortScanner(),
                 hosts = { listOf("127.0.0.1") },
             ),
             manual = { manualConnectPort?.takeIf { it in 1..65535 } },
