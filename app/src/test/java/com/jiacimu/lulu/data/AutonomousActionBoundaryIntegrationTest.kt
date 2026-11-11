@@ -128,6 +128,12 @@ class AutonomousActionBoundaryIntegrationTest {
             assertTrue("拒绝回执不能伪装成成功", primaryReceipts.all {
                 !JSONObject(it.getString("result")).optBoolean("success")
             })
+            val rejectionEvidence = primaryReceipts.mapNotNull { receipt ->
+                val result = JSONObject(receipt.getString("result"))
+                (result.optString("error").ifBlank { result.optString("summary") })
+                    .takeIf { it.isNotBlank() }
+            }
+            assertTrue("拒绝回执必须包含可追溯的失败原因", rejectionEvidence.isNotEmpty())
             // A successful independent side action must not erase the rejected
             // primary action when the same character decides again.
             MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
@@ -144,6 +150,8 @@ class AutonomousActionBoundaryIntegrationTest {
                 modelInputs[1].contains("send_character_message"))
             assertTrue("下一轮模型必须看到独立拒绝回执的来源通道",
                 modelInputs[1].contains("实际工具执行"))
+            assertTrue("下一轮模型应收到拒绝的具体原因，而非仅有工具名称和状态",
+                rejectionEvidence.any { modelInputs[1].contains(it) })
             assertTrue("下一轮应保留成功的独立动态", modelInputs[1].contains(text))
             assertEquals("沉默决定不能重放独立动态", 1,
                 MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == text })
