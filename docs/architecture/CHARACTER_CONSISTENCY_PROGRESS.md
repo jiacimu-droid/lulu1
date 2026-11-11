@@ -1927,3 +1927,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [9e0cc1d](https://github.com/jiacimu-droid/lulu1/commit/9e0cc1d31412c9ba9218f783663e212d7ac23dbf)、[184c6ce](https://github.com/jiacimu-droid/lulu1/commit/184c6cebd15c52517621242ec0de74f19a416905)：`CharacterThoughtActionHandoff.actions` 原先解析 steps、sideActions、挂心、动机与好奇的 nextAction，却漏掉本轮 `appraisal.privateIdeas[].nextAction`。现只取模型明确选中的可执行结构交原执行器，保留顺序与依赖，未选动作的私人念头不会自动执行；所有角色共享紧凑格式说明，不增加普通模型轮次。
 - 回归 [1d474e2](https://github.com/jiacimu-droid/lulu1/commit/1d474e25bf770e1307af20d6eb3e4a7a25d01008)、[9f116c7](https://github.com/jiacimu-droid/lulu1/commit/9f116c77effb60e41c220353d2c79b9b96f41e47)、[a58d090](https://github.com/jiacimu-droid/lulu1/commit/a58d090ea591991ce65fba7270309294988eaa11)：高分享值私聊可见、注意优先级、单调值只读无副作用、两条明确私人想法顺序执行和未选想法不执行。当前仅测试源码已提交；未获得本轮 Android JVM/assemblePhone/APK Actions 或手机真实模型验收证据，不能宣称功能最终验通。
 - 下一步：以最新 main 包含 `184c6ce` 的 APK/JVM 首个完成工作流核对应测试是否通过；真机分别验证聊天+搜索、搜索后根据真实回执再分享、无人消息时自发游戏/探索、高分值但不合时宜选择暂缓、重启后未竟目标继续推进。预排多步无需多次模型决策，但依赖未知搜索结果的新判断需要后续同角色真实决策，不能预造结论。
+
+
+## 2026-11-12 · P-08d.2b.2 被拒工具的具体失败原因跨轮传递（待 CI）
+
+- 先按 head SHA 核 `2a4ae3254a90bef5c05738d4c151f79b8ad1a6b9` 的 [Lulu APK/JVM #43040603800](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603800) 与 [Refresh code index #43040603870](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603870) 均 completed/success；上轮来源通道断言已有工程成功证据。
+- [073ceff](https://github.com/jiacimu-droid/lulu1/commit/073ceff4302be42b1deb2dd2f2ea078fd23fe38c) 继续扩展 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress`：从正式执行回执取出非空 error/summary，断言下一轮实际 HTTP 请求包含同一拒绝原因，防止只保留工具名、来源和 needs_review 却丢失原因。只改测试，未改生产逻辑或人物，**新增测试 CI 未验**。
+- 下一轮固定 P-08d.2b.2：按 `073ceff` 或覆盖它的后继 main push SHA 查 APK/JVM 首错及索引；若拒绝原因未投影，追 `SharedExperienceTimeline.recentContext` 到 `ProactivePerceptionRuntime` 的真实输入裁剪，先修证实根因。若通过，再补取消/冷重启反例；真机 TTS、锁屏与真实模型选择仍待验。
