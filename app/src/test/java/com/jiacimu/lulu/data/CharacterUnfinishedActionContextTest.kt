@@ -127,11 +127,33 @@ class CharacterUnfinishedActionContextTest {
         assertTrue("high-urge real events must reach the common decision",
             choices.any { it.kind == "想分享" && it.id in ids &&
                 it.detail.contains("experienceId=") })
+        assertTrue("saturated urge must influence the attention ranking without auto-posting",
+            choices.any { it.kind == "想分享" && it.id in ids && it.attentionPriority >= 35 })
+        val privateChat = CharacterLifeFollowThroughStore.briefContext(role, now)
+        assertTrue("private chat must receive the same concrete urge as proactive decisions",
+            privateChat.contains("累计分享冲动≈100/100"))
+        assertTrue(privateChat.contains("experienceId="))
         // The existing sender still owns execution; perception cannot mark anything shared.
         assertTrue(CharacterLifeFollowThroughStore.auditSnapshot(role)
             .filter { it.optString("id") in ids }
             .all { it.optString("shareStatus") == "open" })
         ids.forEach { SharedExperienceTimeline.deleteEvent(it) }
+    }
+
+    @Test fun saturatedBoredomReachesThePrivateChatActionHandoffWithoutInventingAWorldAction() {
+        if (!DigitalLifeProfileStore.isResolved(role)) {
+            DigitalLifeProfileStore.registerNewLife(role, "未竟事回归", "测试创建者",
+                now.minusSeconds(3600))
+        }
+        CharacterLifeStore.saveBodyState(role,
+            EmbodiedBodyPhysics.fresh(now).copy(boredom = 96.0).toJson())
+        val before = SharedExperienceTimeline.all(role).map { it.id }
+        val input = CharacterUnfinishedActionContext.context(context, role, now)
+        assertTrue(input.contains("【此刻单调感与实际选择】"))
+        assertTrue(input.contains("当前单调感≈96/100"))
+        assertTrue(input.contains("直接在同一决策选择真实 action/steps"))
+        assertEquals("a simulated urge cannot perform any real action",
+            before, SharedExperienceTimeline.all(role).map { it.id })
     }
 
     @Test fun researchCanBeScheduledInTheExistingDecisionWithoutLosingItsGoal() = runBlocking {
