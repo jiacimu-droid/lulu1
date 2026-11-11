@@ -73,7 +73,7 @@
 
 **2026-11-11 P-08d.2b.2 来源回执续接**：已按 `3401079` 的 main push SHA 核 [Lulu APK #43030814176](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814176) 与 [Refresh code index #43030814030](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814030) completed/success。新增测试 [2a4ae32](https://github.com/jiacimu-droid/lulu1/commit/2a4ae3254a90bef5c05738d4c151f79b8ad1a6b9) 在同一正式第二轮 HTTP 请求断言被拒主工具 `send_character_message` 与来源通道 `实际工具执行` 均可见，防止只剩 motive 状态而丢失执行证据。仅新增回归，当前新 SHA 的 JVM/APK/索引待 CI；下一轮先核 `successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 首错，若通过再审取消与重启反例。真机/真实模型独立待验。
 
-## 一点五、下一轮可领用的最小工程工作包
+**2026-11-12 P-08d.2b.2 续接（拒绝原因跨轮，CI 待验）**：上一轮 `2a4ae32` 的 [APK/JVM #43040603800](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603800) 与 [索引 #43040603870](https://github.com/jiacimu-droid/lulu1/actions/runs/43040603870) 均按同 head SHA 核为 completed/success。新增 [073ceff](https://github.com/jiacimu-droid/lulu1/commit/073ceff4302be42b1deb2dd2f2ea078fd23fe38c) 回归：正式拒绝回执必须有非空错误原因，且下一轮真实模型 HTTP 输入必须包含同一原因；只补测试，未证明新断言通过。下一轮先核此测试的 JVM 首错，失败沿 `SharedExperienceTimeline.recentContext` → `ProactivePerceptionRuntime` 投影定位，成功后测取消/冷重启；真机与真实模型单独待验。\n\n## 一点五、下一轮可领用的最小工程工作包
 
 > 此表是固定 ID 的当前执行入口。先核实 main、对应源码、已有测试和别的任务正在做的范围；有缺口才改生产代码。若当前环境无法拉取全仓或运行 Gradle，优先用连接器读取实际文件、提交可审的最小工作包、由现有 main push CI 执行；没有可验证改动就记阻塞及替代 ID。
 
