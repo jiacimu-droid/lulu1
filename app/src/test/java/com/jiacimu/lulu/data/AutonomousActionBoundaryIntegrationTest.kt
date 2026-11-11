@@ -118,6 +118,16 @@ class AutonomousActionBoundaryIntegrationTest {
             assertTrue(outcomes.length() > 0)
             assertFalse((0 until outcomes.length()).any { outcomes.getJSONObject(it).optBoolean("success") })
             assertEquals("needs_review", state.optString("lastAttemptOutcome"))
+            // The rejected primary tool needs its own durable receipt; a
+            // successful side post is not evidence that the contact happened.
+            val primaryReceipts = SharedExperienceTimeline.all(actor)
+                .filter { it.channel == "实际工具执行" }
+                .mapNotNull { runCatching { JSONObject(it.content) }.getOrNull() }
+                .filter { it.optString("tool") == "send_character_message" }
+            assertTrue("被拒绝的主工具必须留下独立执行回执", primaryReceipts.isNotEmpty())
+            assertTrue("拒绝回执不能伪装成成功", primaryReceipts.all {
+                !JSONObject(it.getString("result")).optBoolean("success")
+            })
             // A successful independent side action must not erase the rejected
             // primary action when the same character decides again.
             MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
