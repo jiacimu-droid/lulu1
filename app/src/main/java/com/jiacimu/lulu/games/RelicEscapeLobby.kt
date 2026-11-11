@@ -55,6 +55,9 @@ internal fun RelicEscapeLobby(
     onSellLoot:(String)->Unit,
     onFeatureLoot:(String)->Unit,
 ) {
+    val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
+        it.screenWidthDp > it.screenHeightDp
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     // Use the same avatar profile as chat and Moments rather than a placeholder pawn.
     val context=LocalContext.current
@@ -86,15 +89,16 @@ internal fun RelicEscapeLobby(
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         verticalAlignment=Alignment.CenterVertically,
                         horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                        GameLobbyPartySlot(playerAvatarUri,playerAvatarText,"你 · 队长",true,campGold)
+                        GameLobbyPartySlot(playerAvatarUri,playerAvatarText,"你 · 队长",true,campGold,
+                            compact=compactLobby)
                         accepted.forEach { id ->
                             val character=characters[id]
                             GameLobbyPartySlot(character?.avatarUri,
                                 character?.displayName?.take(1) ?: "伴",
                                 character?.displayName ?: "同行伙伴",false,campMint,
-                                allowRemove=!live,onRemove={onRemove(id)})
+                                allowRemove=!live,onRemove={onRemove(id)},compact=compactLobby)
                         }
-                        if(!live && accepted.size<3) GameLobbyInviteSlot(campMint,inviting==null) {
+                        if(!live && accepted.size<3) GameLobbyInviteSlot(campMint,inviting==null,compact=compactLobby) {
                             picker=true
                         }
                     }
@@ -103,7 +107,7 @@ internal fun RelicEscapeLobby(
                         Text("正在等待角色本人回应邀请…",color=campMint,fontSize=12.sp)
                     }
                     if(inviteStatus.isNotBlank())Text(inviteStatus,color=campMint,fontSize=12.sp)
-                    Text("队友有自己的选择与行动。邀请需要一次模型调用，拒绝不会强行入队。",
+                    if(!compactLobby)Text("伙伴由自己决定是否加入；邀请需角色确认。",
                         color=campMuted,fontSize=10.sp)
                 }
     }
@@ -167,6 +171,10 @@ internal fun RelicEscapeLobby(
                     Spacer(Modifier.weight(1f))
                     Text(if(live)"返回遗迹，带珍宝安全撤离" else "真正的珍宝，等你亲手带回来",
                         color=Color.White,fontSize=13.sp,fontWeight=FontWeight.Bold)
+                    if(live)TextButton(onClick={leaveConfirm=true},
+                        contentPadding=PaddingValues(0.dp)) {
+                        Text("放弃本局",color=campMuted,fontSize=11.sp)
+                    }
                 }
                 Column(Modifier.weight(1.15f).fillMaxHeight(),
                     verticalArrangement=Arrangement.spacedBy(5.dp)) {
