@@ -28,6 +28,7 @@ internal object LuluBackgroundPhoneSession {
     private var stream: AdbConnection.AdbStream? = null
     private var displayId = -1
     private var activeApp = ""
+    private var ownerCharacterId = ""
     private val replies = LinkedBlockingQueue<String>()
 
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
@@ -35,6 +36,7 @@ internal object LuluBackgroundPhoneSession {
     private fun forgetTransport() {
         displayId = -1
         activeApp = ""
+        ownerCharacterId = ""
         runCatching { stream?.close() }
         runCatching { adb?.close() }
         stream = null
@@ -124,6 +126,11 @@ internal object LuluBackgroundPhoneSession {
             val userLocked = context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true
             check(!userLocked) { "手机处于锁屏状态，后台屏幕操作暂不可用" }
             val action = args.optString("action").trim().lowercase()
+            // One real virtual phone session belongs to one character at a
+            // time. Never let a second role inherit the first role's screen.
+            check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
+                "后台屏幕由另一角色使用中；请先由主人停止该会话"
+            }
             check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
@@ -147,6 +154,7 @@ internal object LuluBackgroundPhoneSession {
                 }
             }
             val id = ensureStarted(context)
+            if (ownerCharacterId.isBlank()) ownerCharacterId = characterId
             if (action == "start") return JSONObject().put("success", true)
                 .put("status", "observed").put("mode", "independent_virtual_display")
                 .put("displayId", id).put("verification", "shell 已创建独立焦点屏幕；不代表已启动其他 App").toString()
