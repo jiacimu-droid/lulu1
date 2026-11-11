@@ -661,6 +661,13 @@ class AutonomousActionBoundaryIntegrationTest {
             assertEquals("第二个有效批次才应再购买一次决定", 2, requests.size)
             assertTrue("下一轮应同时保留旧失败与新动作", requests[1].contains("播放失败") &&
                 requests[1].contains(followUp))
+            assertEquals("下一轮明确选择沉默时不得重放前轮工具",
+                1, MomentsStore.posts.value.count {
+                    it.authorCharacterId == actor && it.content == followUp
+                })
+            assertEquals("新动态不能把原有声失败责任伪装成已完成",
+                CommitmentTaskStatus.Blocked,
+                CommitmentTaskStore.snapshot().first { it.id == task.id }.status)
         } finally {
             server.shutdown()
         }
