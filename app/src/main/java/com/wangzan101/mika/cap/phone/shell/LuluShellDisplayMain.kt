@@ -53,10 +53,10 @@ object LuluShellDisplayMain {
         try {
             while (true) {
                 val raw = input.readLine() ?: break
-                val request = runCatching {
+                val request = try {
                     require(raw.length <= 4000)
                     JSONObject(raw)
-                }.getOrElse {
+                } catch (_: Exception) {
                     reply(JSONObject().put("success", false).put("error", "invalid command"))
                     continue
                 }
