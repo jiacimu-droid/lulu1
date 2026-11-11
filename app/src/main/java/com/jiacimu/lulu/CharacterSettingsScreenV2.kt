@@ -86,10 +86,10 @@ fun CharacterSettingsScreenV2(
         ResidentCharacterBridge.nativeResident(characterId)
     }
     var editNativeProfile by remember(characterId) { mutableStateOf(false) }
-    var chooseResidentModel by remember { mutableStateOf(false) }
-    var residentModelId by remember { mutableStateOf(
+    val residentModelRevision by ScopedModelSelections.changes.collectAsState()
+    val residentModelId = remember(residentModelRevision) {
         ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY)
-    ) }
+    }
     LaunchedEffect(characterId) {
         if (nativeResident != null) {
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -435,12 +435,10 @@ fun CharacterSettingsScreenV2(
                             }
                         }
                     }
-                    OutlinedButton(onClick = { chooseResidentModel = true },
-                        modifier = Modifier.fillMaxWidth()) {
-                        val picked = LuluAiServices.connectionStore.library.value.archives
-                            .firstOrNull { it.id == residentModelId }
-                        Text("每天一次自主规划模型 · ${picked?.model ?: "选择低价模型"}")
-                    }
+                    val picked = LuluAiServices.connectionStore.library.value.archives
+                        .firstOrNull { it.id == residentModelId }
+                    Text("居民模型 · ${picked?.model ?: "请到设置 → 居民管理选择"}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     val body = EmbodiedBodyRuntime.sensorySnapshot(characterId)
                     if (body != null) {
                         Text("精力 ${body.energy.toInt()}  ·  单调感 ${body.boredom.toInt()}",
@@ -496,20 +494,6 @@ fun CharacterSettingsScreenV2(
         )
     }
 
-    if (chooseResidentModel) {
-        ModelArchivePickerSheet(
-            title = "原住民每日规划",
-            subtitle = "每日规划调用一次；每项行程到点再单独决策。居民互动使用独立低价模型。",
-            selectedArchiveId = residentModelId,
-            onSelect = { id ->
-                ScopedModelSelections.select(ScopedModelSelections.RESIDENT_DAILY, id)
-                residentModelId = id
-                ResidentDailyDecision.schedule(context.applicationContext)
-                chooseResidentModel = false
-            },
-            onDismiss = { chooseResidentModel = false },
-        )
-    }
     if (editNativeProfile && nativeResident != null) {
         ResidentProfileEditDialog(nativeResident,
             onDismiss = { editNativeProfile = false },
