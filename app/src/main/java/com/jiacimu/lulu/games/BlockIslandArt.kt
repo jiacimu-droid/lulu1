@@ -530,14 +530,7 @@ internal object BlockIslandArt {
         phase:Float,waterAbove:Boolean,waterLeft:Boolean,
         waterBelow:Boolean,waterRight:Boolean,
     ) {
-        val hash=((x*73856093) xor (y*19349663) xor seed) and Int.MAX_VALUE
-        val frame=when(kind){
-            8 -> 2  // moving water
-            4 -> 4  // hand-drawn planks
-            3 -> 3  // stone path below real walls
-            7 -> 5  // warm sand at the actual starting camp
-            else -> if(hash%3==0)1 else 0 // two grassy variants
-        }
+        val frame=IslandTerrainPalette.atlasFrame(kind,x,y,seed)
         val left=kotlin.math.floor(p.x.toDouble()).toInt()
         val top=kotlin.math.floor(p.y.toDouble()).toInt()
         val right=kotlin.math.ceil((p.x+t).toDouble()).toInt()
@@ -546,21 +539,30 @@ internal object BlockIslandArt {
             srcOffset=IntOffset(frame*128,0),srcSize=IntSize(128,128),
             dstOffset=IntOffset(left,top),
             dstSize=IntSize((right-left).coerceAtLeast(1),(bottom-top).coerceAtLeast(1)),
-            filterQuality=FilterQuality.Low)
+            // Smooth scaled artwork on modern phone densities; nearest-neighbor
+            // sampling made these soft hand-painted textures look pixelated.
+            filterQuality=FilterQuality.Medium)
         if(kind==8){
+            drawRect(Color(0xFFD3E9E4).copy(alpha=.12f),p,Size(t,t))
             // The atlas provides texture while small waves remain animated;
             // fishing/shoreline rules still read the original world tile.
             val drift=t*(.10f+.22f*phase)
             drawRoundRect(Color(0x99DDF5EA).copy(alpha=.20f+.12f*phase),
                 topLeft=p+Offset(t*.16f+drift*.15f,t*.36f),
                 size=Size(t*.21f,t*.035f),cornerRadius=CornerRadius(t*.02f))
-        }else if(waterAbove || waterBelow || waterLeft || waterRight){
-            val edge=Color(0xFFEED19C).copy(alpha=.54f)
-            val width=t*.085f
+        }else {
+            // One quiet tint ties adjacent atlas tiles together without
+            // obscuring the authored grass and stone brushwork.
+            if(kind!=3 && kind!=4)
+                drawRect(Color(0xFFDFE7CE).copy(alpha=.07f),p,Size(t,t))
+            if(waterAbove || waterBelow || waterLeft || waterRight) {
+            val edge=Color(0xFFF3E1BA).copy(alpha=.32f)
+            val width=t*.055f
             if(waterAbove)drawRect(edge,p,Size(t,width))
             if(waterBelow)drawRect(edge,p+Offset(0f,t-width),Size(t,width))
             if(waterLeft)drawRect(edge,p,Size(width,t))
             if(waterRight)drawRect(edge,p+Offset(t-width,0f),Size(width,t))
+            }
         }
     }
 
