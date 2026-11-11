@@ -57,6 +57,11 @@ internal object RelicTreasureArt {
     fun DrawScope.drawTreasure(
         name:String,center:Offset,diameter:Float,tint:Color,alpha:Float=1f,
     ) {
+        // Three standout collectibles get individually drawn metalwork and
+        // gem facets. Both chest reveals and the real museum use this method.
+        if (with(RelicSignatureJewels) {
+                drawSignature(name,center,diameter,alpha)
+            }) return
         val s=diameter
         val x=center.x
         val y=center.y
