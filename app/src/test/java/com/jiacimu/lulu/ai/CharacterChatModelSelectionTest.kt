@@ -47,6 +47,35 @@ class CharacterChatModelSelectionTest {
             ScopedModelSelections.clearCharacterChatArchive(b)
         }
     }
+    @Test fun normalPhoneAndSleepUseDifferentSourcesWithoutChangingThePerson() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        ScopedModelSelections.initialize(context)
+        val id = "phone-" + UUID.randomUUID()
+        val fallback = ModelArchive(id = "budget", configurationId = "site", model = "budget")
+        val foreground = ModelArchive(id = "premium", configurationId = "site", model = "premium")
+        val library = ModelLibraryState(archives = listOf(fallback, foreground),
+            activeArchiveId = fallback.id, chatArchiveId = fallback.id,
+            sleepArchiveId = foreground.id)
+        try {
+            ScopedModelSelections.selectCharacterChatArchive(id, foreground.id, library)
+            assertEquals(foreground.id,
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library))
+            assertEquals(fallback.id,
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library))
+            // Old saved independent sleep choice must not override the fallback.
+            val altered = library.copy(sleepArchiveId = fallback.id)
+            assertEquals(fallback.id,
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, altered))
+            ScopedModelSelections.selectCharacterChatArchive(id, fallback.id, library)
+            assertEquals(fallback.id,
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library))
+            assertEquals(fallback.id,
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library))
+        } finally {
+            ScopedModelSelections.clearCharacterChatArchive(id)
+        }
+    }
+
     @Test fun missingOldArchiveFallsBackInsteadOfAffectingOtherCharacter() {
         val context = RuntimeEnvironment.getApplication() as Context
         ScopedModelSelections.initialize(context)
