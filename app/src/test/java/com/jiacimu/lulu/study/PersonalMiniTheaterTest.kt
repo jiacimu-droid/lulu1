@@ -30,6 +30,29 @@ class PersonalMiniTheaterTest {
         context.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE).edit().clear().commit()
     }
 
+    @Test fun bodyCharacterCountExcludesTitleMarkersPunctuationAndWhitespace() {
+        val story = "《第一页》\n\n你来了，Hi 2026！\n\n“好呀。”\n\n【小剧场已完】"
+        assertEquals(11, PersonalTheaterTypography.wordCount(story))
+        assertEquals(6, PersonalTheaterTypography.wordCount("旧版番外正文"))
+        assertEquals(0, PersonalTheaterTypography.wordCount("《封面》\n\n【小剧场已完】"))
+        // Display-only counts cannot alter the original work on disk.
+        assertEquals("《第一页》", PersonalTheaterTypography.sections(story).first().text)
+    }
+
+    @Test fun ideaProposalsRemainOpenEndedWhenTheWritingModelChanges() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val id = library.addPersonal(
+            PersonalMiniTheater.Cast("open-plot", "角色", "有主见、独立"),
+            PersonalMiniTheater.ideas.first())
+        val request = PersonalMiniTheater.request(library.items.value.first { it.id == id })
+        assertTrue(request.facts.contains("仅供开场与世界条件参考"))
+        assertTrue(request.instructions.contains("不是预先排好的剧情大纲"))
+        assertTrue(request.instructions.contains("不要机械照着灵感里的例子逐步演"))
+        val ideasPrompt = PersonalMiniTheater.inspirationRequest(emptyList(), emptyList()).instructions
+        assertTrue(ideasPrompt.contains("【提案不是剧本】"))
+        assertTrue(ideasPrompt.contains("不替写作模型排好故事的步骤"))
+    }
+
     @Test fun readerSeparatesQuotedSpeechFromNarrationWithoutChangingSavedStory() {
         val story = """
             《耳尖藏不住》
