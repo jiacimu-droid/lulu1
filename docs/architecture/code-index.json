@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T10:01:56.667750+00:00",
-  "commit": "670a9a127f638724e9104759912560ae2cdd2579",
+  "generatedAt": "2026-11-11T10:03:42.461471+00:00",
+  "commit": "9dfe727d0ca7c50912ec4c739b2bec0853d1953f",
   "branch": "main",
-  "sourceFingerprint": "7e7010c7fba1152a047c57ec2f29b1139dc44bff02d8d8e74bfdfa4050215635",
+  "sourceFingerprint": "6bd3d29f14b5438d76139d2a5b73bc76bc08d9d025f0333437fcac1c71857669",
   "summary": {
     "files": 1175,
-    "lines": 255597,
+    "lines": 255615,
     "symbols": 3486
   },
   "symbolIndex": {
@@ -1107,7 +1107,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 233
+        "line": 247
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -5667,7 +5667,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 212
+        "line": 226
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6709,7 +6709,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 201
+        "line": 215
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -34671,20 +34671,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 328,
-      "sha256": "7a59dec78fb8a656bf6dcdca3ee9a7e50addb05f71af3f9360a1f3d45922dad0",
+      "lines": 346,
+      "sha256": "65ce52ab7f5db7595e3a31789a40d5d64d3540acc8a72e222ff25ebd6f5782db",
       "symbols": [
         {
           "name": "get",
-          "line": 201
+          "line": 215
         },
         {
           "name": "parse",
-          "line": 212
+          "line": 226
         },
         {
           "name": "enqueue",
-          "line": 233
+          "line": 247
         }
       ]
     },
