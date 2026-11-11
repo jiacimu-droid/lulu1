@@ -277,7 +277,8 @@ fun QqStyleChatDetailScreen(
                                 }.getOrDefault(false)
                                 val now = android.os.SystemClock.elapsedRealtime()
                                 if (dictating) {
-                                    if (lastEditSignalAt == null || now - lastEditSignalAt >= 350L) {
+                                    val last = lastEditSignalAt
+                                    if (last == null || now - last >= 350L) {
                                         OnlineChatBatchStore.onComposerEdit(context, characterId)
                                         lastEditSignalAt = now
                                     }
@@ -290,7 +291,8 @@ fun QqStyleChatDetailScreen(
                         } else if (draft.isNotBlank() && focused) {
                             // Actual typing or a committed partial transcript.
                             val now = android.os.SystemClock.elapsedRealtime()
-                            if (lastEditSignalAt == null || now - lastEditSignalAt >= 350L) {
+                            val last = lastEditSignalAt
+                            if (last == null || now - last >= 350L) {
                                 OnlineChatBatchStore.onComposerEdit(context, characterId)
                                 lastEditSignalAt = now
                             }
