@@ -531,7 +531,10 @@ class CompanionModelGateway(
             require(!connection.model.startsWith("jev-")) { "Jev是思路参考模型，不能生成台词；请为聊天/表达选择文字模型" }
             // Reuse the selected multimodal chat model (e.g. Gemini); never
             // start another API request just to identify the owner's avatar.
-            val ownerAvatar = if (source in setOf("后台主动感知", "聊天工具规划", "电话回复"))
+            val originalWorldContext = contextMode == CompanionContextMode.Full ||
+                contextMode == CompanionContextMode.CharacterAndScenario
+            val ownerAvatar = if (originalWorldContext &&
+                source in setOf("后台主动感知", "聊天工具规划", "电话回复"))
                 com.jiacimu.lulu.data.UserAvatarVision.prepare(
                     connectionStore.appContext, characterId, imageDataUrls.size)
             else null
@@ -577,7 +580,7 @@ class CompanionModelGateway(
             val fullContext = effectiveMode == CompanionContextMode.Full
             val personaContext = effectiveMode == CompanionContextMode.PersonaAndScenario ||
                 effectiveMode == CompanionContextMode.CharacterAndScenario
-            val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
+            val presence = if (fullContext) CompanionPresenceStore.current(characterId) else null
             val unifiedMemory = if (fullContext) {
                 com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget,
                     paidRanking = com.jiacimu.lulu.data.PromptContextPolicy.paidRankingFor(source, request))
@@ -614,19 +617,22 @@ class CompanionModelGateway(
                 !entry.globalEnabled && entry.characterOverrides[characterId] == true
             }
 
-            val definition = com.jiacimu.lulu.data.CharacterRuntime.definition(characterId)
+            val definition = if (fullContext || personaContext)
+                com.jiacimu.lulu.data.CharacterRuntime.definition(characterId, includeOriginalWorld = originalWorldContext)
+            else null
+            val displayName = definition?.displayName.orEmpty().ifBlank { "角色" }
             val baseRules = buildString {
                 when (effectiveMode) {
                     CompanionContextMode.Full -> {
-                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("你正在以‘$displayName’参与露露机中的当前活动。")
                         appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，性格、关系边界和语言习惯必须保持；背景设定与实际亲历分开，当前物品、位置和行动结果以执行状态为准。")
                     }
                     CompanionContextMode.CharacterAndScenario -> {
-                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机原世界的当前场景。")
+                        appendLine("你正在以‘$displayName’参与露露机原世界的当前场景。")
                         appendLine("完整继承当前角色身份、人设与人格行为字段；场景、记忆和事实只使用本次明确提供的素材，不补造经历。")
                     }
                     CompanionContextMode.PersonaAndScenario -> {
-                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("你正在以‘$displayName’参与露露机中的当前活动。")
                         appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
                     }
                     CompanionContextMode.Ensemble -> {
@@ -689,11 +695,10 @@ class CompanionModelGateway(
                 appendLine("本次任务：$instruction")
                 if (ownerAvatar != null) appendLine(ownerAvatar.promptNote)
             }.trim()
-            val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "身份与背景事实（客观层）：\n$it" }.orEmpty()
-            val personaSection = definition.personaPromptSection()
-                .takeIf { fullContext || personaContext }.orEmpty()
-            val relationshipSection = definition.relationshipPromptSection()
-                .takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }.orEmpty()
+            val identitySection = definition?.identity?.takeIf(String::isNotBlank)
+                ?.let { "身份与背景事实（客观层）：\n$it" }.orEmpty()
+            val personaSection = definition?.personaPromptSection().orEmpty()
+            val relationshipSection = definition?.relationshipPromptSection().orEmpty()
             // One persisted source of truth; placement changes only where active
             // entries appear inside the actual system message, not their scope or order.
             fun worldBookSection(

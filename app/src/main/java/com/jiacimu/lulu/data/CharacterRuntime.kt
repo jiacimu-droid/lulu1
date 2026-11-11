@@ -40,7 +40,7 @@ data class CharacterDefinitionSnapshot(
 /** Every Full-context gateway call uses this same assembly, including voice and meetings. */
 object CharacterRuntime {
     /** Read live stores at prompt assembly; never use a conversation's cached role definition. */
-    fun definition(characterId: String): CharacterDefinitionSnapshot {
+    fun definition(characterId: String, includeOriginalWorld: Boolean = true): CharacterDefinitionSnapshot {
         val character = MigratedDomainStores.characters.get(characterId)
         // One live relationship projection for the user and every other known
         // person. No Jiang-Du-specific relationship prompt branch here.
@@ -48,6 +48,11 @@ object CharacterRuntime {
             character.persona,
             CharacterLifeStore.profileContext(characterId),
         ).filter(String::isNotBlank).joinToString("\n\n")
+        if (!includeOriginalWorld) {
+            return CharacterDefinitionSnapshot(
+                character.displayName, "", persona, listOf(character.displayName, persona),
+            )
+        }
         val relationships = CharacterSocialRelationship.promptSection(characterId)
         val life = DigitalLifeProfileStore.get(characterId)
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,

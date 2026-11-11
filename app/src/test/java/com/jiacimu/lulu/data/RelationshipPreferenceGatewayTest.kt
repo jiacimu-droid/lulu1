@@ -424,4 +424,78 @@ class RelationshipPreferenceGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun isolatedContextsDoNotAttachOrConsumeProfileAvatarFromPhoneSource() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡头像样本", "江渡稳定个性标记")
+        val role = jiang.characterId
+        val identity = "江渡原世界专用身份标记"
+        val agreement = "江渡原世界专用关系标记"
+        CharacterIdentityStore.set(role, identity)
+        assertTrue(CharacterSocialRelationship.setAgreement(role, "user", "本世界约定", agreement))
+
+        val profile = context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+        val avatar = java.io.File.createTempFile("test-avatar-", ".png", context.cacheDir)
+        val png = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGPUKN7HwMDAxMDAwMDAAAAPwAFd5W5fSAAAAABJRU5ErkJggg=="
+        avatar.writeBytes(android.util.Base64.decode(png, android.util.Base64.DEFAULT))
+        val revision = "test-avatar-boundary"
+        val uri = android.net.Uri.fromFile(avatar).toString()
+        val explicitImage = "data:image/png;base64,$png"
+        val server = MockWebServer()
+        repeat(4) {
+            val reply = JSONObject().put("avatarObservation", "测试图片观察")
+            val choice = JSONObject().put("message", JSONObject().put("content", reply.toString()))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(choice)).toString()))
+        }
+        server.start()
+        try {
+            profile.edit().putString("avatar_uri", uri).putString("avatar_vision_revision_v2", revision).commit()
+            val prepared = checkNotNull(UserAvatarVision.prepare(context, role, 1))
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val evidenceId = "user-profile-avatar-vision-$revision-$role"
+            suspend fun request(mode: CompanionContextMode): Pair<String, List<String>> {
+                LuluAiServices.gateway.generate(role, "场景专用素材", "按场景回应", "电话回复", "测试",
+                    contextMode = mode, connectionOverride = connection,
+                    imageDataUrls = listOf(explicitImage)).getOrThrow()
+                val body = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+                val messages = body.getJSONArray("messages")
+                val system = messages.getJSONObject(0).getString("content")
+                val content = messages.getJSONObject(messages.length() - 1).getJSONArray("content")
+                val images = (0 until content.length()).mapNotNull { index ->
+                    content.getJSONObject(index).optJSONObject("image_url")?.getString("url")
+                }
+                return system to images
+            }
+            for (mode in listOf(CompanionContextMode.Isolated, CompanionContextMode.PersonaAndScenario,
+                CompanionContextMode.Ensemble)) {
+                val (system, images) = request(mode)
+                assertEquals(listOf(explicitImage), images)
+                assertFalse(system.contains("avatarObservation"))
+                assertFalse(system.contains(identity))
+                assertFalse(system.contains(agreement))
+                assertEquals(mode == CompanionContextMode.PersonaAndScenario, system.contains(jiang.persona))
+                assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).isEmpty())
+                assertNull(profile.getString("avatar_vision_seen_v2:$role", null))
+            }
+
+            val (phone, phoneImages) = request(CompanionContextMode.CharacterAndScenario)
+            assertEquals(listOf(explicitImage, prepared.dataUrl), phoneImages)
+            assertTrue(phone.contains("avatarObservation"))
+            assertTrue(phone.contains(identity))
+            assertTrue(phone.contains(agreement))
+            assertEquals(revision, profile.getString("avatar_vision_seen_v2:$role", null))
+            assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).size)
+            assertEquals(4, server.requestCount)
+        } finally {
+            profile.edit().remove("avatar_uri").remove("avatar_vision_revision_v2")
+                .remove("avatar_vision_seen_v2:$role").commit()
+            avatar.delete()
+            server.shutdown()
+        }
+    }
+
 }
