@@ -29,6 +29,9 @@ import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.LuluAppearanceStore
 import com.jiacimu.lulu.design.LuluAppearancePattern
 import com.jiacimu.lulu.design.LuluAppearanceTheme
+import com.jiacimu.lulu.design.LuluEditorialHeader
+import com.jiacimu.lulu.design.LuluEditorialPanel
+import com.jiacimu.lulu.design.LuluEditorialSectionHeading
 import com.jiacimu.lulu.design.JournalStudioHero
 import com.jiacimu.lulu.design.isJournal
 
@@ -110,23 +113,18 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
     ) { inset ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(inset),
-            contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text("你的每个世界，都有自己的样子。",
-                        style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        "先选要装扮的 App，再选择风格。各 App 独立保存，方案可以反复应用；" +
-                            "换新衣服，不会丢掉昨天喜欢的那一套。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+                LuluEditorialHeader(
+                    overline = "LULU  /  APPEARANCE",
+                    title = "你的每个世界，都有自己的样子",
+                    subtitle = "每个 App 可以单独搭配，随时切回喜欢的方案。",
+                )
             }
             item {
-                Text("装扮位置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                LuluEditorialSectionHeading(title = "装扮位置")
                 Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -142,12 +140,9 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                ) {
+                LuluEditorialPanel(emphasized = true) {
                     Row(
-                        Modifier.fillMaxWidth().padding(15.dp),
+                        Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Outlined.AutoAwesome, null,
@@ -166,7 +161,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
             }
             if (library.recent.isNotEmpty()) {
                 item {
-                    Text("最近使用", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    LuluEditorialSectionHeading(title = "最近使用")
                     Row(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -183,10 +178,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                Text("主题工坊 · 精修进度", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text("先把「奶油布艺手账」做成完整视觉。其他方案保留供切换，后续逐套精修。",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall)
+                LuluEditorialSectionHeading(title = "精选风格")
             }
             // A curated studio, not a wall of nine unpolished 'finished' themes.
             // All existing choices remain reachable; only hand-finished themes are showcased.
