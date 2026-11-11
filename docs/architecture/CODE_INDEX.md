@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`06a3d8accf7306ff6b22d66a5cb089ca2c6db962`
+- 基准提交：`3a17e9524bfcc536b736fe583da49a5cb92cb90d`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255643
+- 已索引代码/文本行：255698
 - 已发现符号：3486
 
 | 文件 | 行数 | 符号数 |
@@ -873,7 +873,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 299 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 82 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 143 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 184 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 179 | 1 |
@@ -1154,7 +1154,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt` | 22 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 458 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |

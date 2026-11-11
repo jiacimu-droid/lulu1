@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T10:05:08.188045+00:00",
-  "commit": "06a3d8accf7306ff6b22d66a5cb089ca2c6db962",
+  "generatedAt": "2026-11-11T10:05:55.852114+00:00",
+  "commit": "3a17e9524bfcc536b736fe583da49a5cb92cb90d",
   "branch": "main",
-  "sourceFingerprint": "020d646ade08a9c254d86e27bc723d48d09a2be3b1fdb333936b26db038a280b",
+  "sourceFingerprint": "07a7579edf584acf8ad4efc3f6613b696321e3d3623a0f3de98737fdfc3d06b7",
   "summary": {
     "files": 1175,
-    "lines": 255643,
+    "lines": 255698,
     "symbols": 3486
   },
   "symbolIndex": {
@@ -37021,8 +37021,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt",
-      "lines": 143,
-      "sha256": "eff08bdd6d42e5883657145040cfdeaa958fe3b48a0a1314b9b688b8a2cbe188",
+      "lines": 178,
+      "sha256": "0ea6380a27ffa2deccdde8528e21eaeb00ac66a5244178d25393c611fa3b1cba",
       "symbols": [
         {
           "name": "CharacterChatModelSelectionTest",
@@ -41084,8 +41084,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
-      "lines": 50,
-      "sha256": "148d070bcd900802c47009450d2f0f0eb0a97739abd12aaad1f0683d2e04bedc",
+      "lines": 70,
+      "sha256": "6015398f5d1e105cca64b9784e3b2366e0945998eae42c256c01da56d6ba2182",
       "symbols": [
         {
           "name": "MiniTheaterLibraryTest",
