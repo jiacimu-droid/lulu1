@@ -45,6 +45,29 @@ class QqMessageGroupingTest {
         assertEquals(authored, characterOutgoingBubblePlan(presentation).map(CharacterOutgoingBubble::text))
     }
 
+    @Test fun voiceNoteKeepsModelChosenEmotionCuesAcrossWhitespaceAlignment() {
+        val spoken = "我，真的很想你。"
+        val performance = "[softly] 我， [hesitant] 真的很想你。"
+        val plan = characterOutgoingBubblePlan(CharacterReplyPresentation(
+            spoken,
+            bubbleDeliveryModes = listOf("voice"),
+            bubbleSpeechTracks = listOf(performance),
+            preserveAuthoredBubbleBoundaries = true,
+        ))
+        assertEquals(1, plan.size)
+        assertTrue(plan.single().voiceNote)
+        assertEquals(spoken, plan.single().text)
+        assertEquals(spoken, VoicePerformance.plain(plan.single().speechText))
+        assertTrue(plan.single().speechText.contains("[softly]"))
+        assertTrue(plan.single().speechText.contains("[hesitant]"))
+        val textOnly = characterOutgoingBubblePlan(CharacterReplyPresentation(
+            spoken, bubbleDeliveryModes = listOf("text"),
+            bubbleSpeechTracks = listOf(performance),
+            preserveAuthoredBubbleBoundaries = true,
+        ))
+        assertEquals("", textOnly.single().speechText)
+    }
+
     @Test fun onlyExplicitSemanticMarkerCreatesAnotherBubble() {
         val raw = "果然猜中了\n，还真是跟家里人聊天呢。⟪BUBBLE⟫既然在大姨旁边，就先专心陪长辈说话，顺便把热乎的鸡蛋吃了。"
         val parsed = parseCharacterReplyPresentation(raw)
