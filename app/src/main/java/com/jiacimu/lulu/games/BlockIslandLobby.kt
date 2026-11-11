@@ -110,57 +110,9 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         choosing=!choosing
                     }
                 }
-                Text("＋ 邀请由角色本人决定是否接受（需要一次模型调用）；游戏内可语音交谈、一起行动。",
+                Text("伙伴可自由决定是否同行；入岛后能共同冒险。",
                     color = dim, fontSize = 11.sp, lineHeight = 16.sp)
-                if (choosing) {
-                    if (candidates.isEmpty()) {
-                        Text("还没有可选择的角色", color = dim)
-                    } else {
-                        candidates.forEach { c ->
-                            val checked = c.characterId in selected
-                            Surface(onClick = {
-                                when {
-                                    inviting != null -> Unit
-                                    checked -> selected = selected - c.characterId
-                                    selected.size >= 3 -> invitationResult = "队伍最多3位同行角色"
-                                    else -> {
-                                        val id = c.characterId
-                                        inviting = id
-                                        invitationResult = "正在邀请 " + c.displayName + "…"
-                                        scope.launch {
-                                            val result = IslandInvitation.ask(id, selected)
-                                            if (inviting == id) {
-                                                result.onSuccess { answer ->
-                                                    invitationResult = c.displayName + "：" +
-                                                        answer.speech.ifBlank {
-                                                            if (answer.accepted) "我来啦" else "这次先不去了"
-                                                        }
-                                                    if (answer.accepted && id !in selected && selected.size < 3)
-                                                        selected = selected + id
-                                                }.onFailure { error ->
-                                                    invitationResult = c.displayName + "还没有给出有效答复：" +
-                                                        (error.message ?: "请检查游戏模型后重试")
-                                                }
-                                                inviting = null
-                                            }
-                                        }
-                                    }
-                                }
-                            }, color = if (checked) Color(0xFF315E51) else Color(0xFF204346),
-                                shape = RoundedCornerShape(11.dp)) {
-                                Row(Modifier.fillMaxWidth().padding(9.dp),
-                                    verticalAlignment = Alignment.CenterVertically) {
-                                    LuluProfileAvatar(c.avatarUri, c.displayName.take(1), 34)
-                                    Spacer(Modifier.width(10.dp))
-                                    Text(c.displayName, color = Color.White,
-                                        modifier = Modifier.weight(1f), fontSize = 12.sp)
-                                    Text(if (checked) "✓ 同行" else if (inviting == c.characterId) "邀请中…" else if (selected.size >= 3) "队伍已满" else "＋ 邀请",
-                                        color = mint, fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-                }
+                
                 if (invitationResult.isNotBlank()) {
                     Text(invitationResult, color = mint, fontSize = 11.sp, lineHeight = 16.sp)
                 }
@@ -295,7 +247,140 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 launchButton()
                 rosterPanel()
                 missionPanel()
+      
+    // A single-screen game lobby in both orientations; additional detail is
+    // shown on demand instead of turning the title screen into a vertical form.
+    var goalsOpen by rememberSaveable { mutableStateOf(false) }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val landscape = maxWidth > maxHeight
+        GameLobbyBackdrop(island=true,modifier=Modifier.matchParentSize())
+        val header: @Composable () -> Unit = {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("方块小岛",fontSize=if(landscape)26.sp else 30.sp,
+                        fontWeight=FontWeight.Black,color=Color(0xFFF6F2E6))
+                    Text("一起探索，把这片小岛建成家",fontSize=12.sp,
+                        color=dim,maxLines=1)
+                }
+                Surface(color=Color(0xC52D4D43),shape=RoundedCornerShape(12.dp),
+                    border=BorderStroke(1.dp,mint.copy(alpha=.24f))) {
+                    Text(if(existingIsland)"✦ 已保存" else "✦ 新旅程",
+                        modifier=Modifier.padding(horizontal=10.dp,vertical=8.dp),
+                        color=mint,fontSize=11.sp)
+                }
+            }
+        }
+        val goalsButton: @Composable () -> Unit = {
+            OutlinedButton(onClick={goalsOpen=true},modifier=Modifier.fillMaxWidth(),
+                border=BorderStroke(1.dp,mint.copy(alpha=.55f)),
+                colors=ButtonDefaults.outlinedButtonColors(
+                    containerColor=Color(0xB820403D))) {
+                Text("▣ 查看冒险目标",color=Color.White,fontSize=13.sp)
+            }
+        }
+        if(landscape) {
+            Row(Modifier.fillMaxSize().padding(horizontal=16.dp,vertical=10.dp),
+                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight()) {
+                    header()
+                    Spacer(Modifier.weight(1f))
+                    Text(if(existingIsland)"欢迎回家，岛主" else "从这片海岸，开始我们的故事",
+                        color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Bold)
+                }
+                Column(Modifier.weight(1.15f).fillMaxHeight(),
+                    verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                    rosterPanel()
+                    Spacer(Modifier.weight(1f))
+                    goalsButton()
+                    launchButton()
+                }
+            }
+        } else {
+            Column(Modifier.fillMaxSize().padding(horizontal=16.dp,vertical=12.dp),
+                verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                header()
+                Spacer(Modifier.weight(1f))
+                Text(if(existingIsland)"欢迎回家，岛主" else "从这片海岸，开始我们的故事",
+                    color=Color.White,fontSize=16.sp,fontWeight=FontWeight.Black)
+                rosterPanel()
+                goalsButton()
+                launchButton()
             }
         }
     }
+    if(goalsOpen) {
+        ModalBottomSheet(onDismissRequest={goalsOpen=false},
+            containerColor=Color(0xFF1D3834)) {
+            Column(Modifier.fillMaxWidth().fillMaxHeight(.7f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal=16.dp,vertical=8.dp)) {
+                missionPanel()
+                TextButton(onClick={goalsOpen=false},modifier=Modifier.align(Alignment.End)) {
+                    Text("返回大厅",color=mint)
+                }
+            }
+        }
+    }
+    if(choosing)AlertDialog(
+        onDismissRequest={choosing=false},
+        containerColor=Color(0xFF1D3834),
+        title={Text("邀请伙伴一起登岛",color=Color.White)},
+        text={
+            Column(Modifier.heightIn(max=310.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement=Arrangement.spacedBy(7.dp)) {
+
+                    if (candidates.isEmpty()) {
+                        Text("还没有可选择的角色", color = dim)
+                    } else {
+                        candidates.forEach { c ->
+                            val checked = c.characterId in selected
+                            Surface(onClick = {
+                                when {
+                                    inviting != null -> Unit
+                                    checked -> selected = selected - c.characterId
+                                    selected.size >= 3 -> invitationResult = "队伍最多3位同行角色"
+                                    else -> {
+                                        val id = c.characterId
+                                        inviting = id
+                                        invitationResult = "正在邀请 " + c.displayName + "…"
+                                        scope.launch {
+                                            val result = IslandInvitation.ask(id, selected)
+                                            if (inviting == id) {
+                                                result.onSuccess { answer ->
+                                                    invitationResult = c.displayName + "：" +
+                                                        answer.speech.ifBlank {
+                                                            if (answer.accepted) "我来啦" else "这次先不去了"
+                                                        }
+                                                    if (answer.accepted && id !in selected && selected.size < 3)
+                                                        selected = selected + id
+                                                }.onFailure { error ->
+                                                    invitationResult = c.displayName + "还没有给出有效答复：" +
+                                                        (error.message ?: "请检查游戏模型后重试")
+                                                }
+                                                inviting = null
+                                            }
+                                        }
+                                    }
+                                }
+                            }, color = if (checked) Color(0xFF315E51) else Color(0xFF204346),
+                                shape = RoundedCornerShape(11.dp)) {
+                                Row(Modifier.fillMaxWidth().padding(9.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    LuluProfileAvatar(c.avatarUri, c.displayName.take(1), 34)
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(c.displayName, color = Color.White,
+                                        modifier = Modifier.weight(1f), fontSize = 12.sp)
+                                    Text(if (checked) "✓ 同行" else if (inviting == c.characterId) "邀请中…" else if (selected.size >= 3) "队伍已满" else "＋ 邀请",
+                                        color = mint, fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                
+            }
+        },
+        confirmButton={TextButton(onClick={choosing=false}) {
+            Text("完成",color=mint)
+        }},
+    )
 }
