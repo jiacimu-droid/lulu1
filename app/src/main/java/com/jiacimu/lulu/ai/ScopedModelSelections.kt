@@ -48,6 +48,45 @@ object ScopedModelSelections {
         if (sleepMode) library.archiveIdFor(ModelUsage.Sleep)
         else selectedCharacterChatArchiveId(characterId, library)
 
+    private const val PERSONAL_THEATER_PREFIX = "personal_theater:"
+    private fun personalTheaterKey(characterId: String): String {
+        require(characterId.isNotBlank()) { "番外角色 ID 不能为空" }
+        return key(PERSONAL_THEATER_PREFIX + characterId)
+    }
+
+    /** The personal fanfic belongs to this character, not to the public theater.
+     * No override means follow this character's real chat model dynamically. */
+    fun personalTheaterOverrideId(characterId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value): String? =
+        prefs?.getString(personalTheaterKey(characterId), null)?.takeIf { id ->
+            library.archives.any { it.id == id && !it.model.startsWith("jev-") }
+        }
+
+    fun selectedPersonalTheaterArchiveId(characterId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value): String? =
+        personalTheaterOverrideId(characterId, library)
+            ?: selectedCharacterChatArchiveId(characterId, library)
+
+    fun selectPersonalTheaterArchive(characterId: String, archiveId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value) {
+        require(library.archives.any { it.id == archiveId && !it.model.startsWith("jev-") }) {
+            "请选择可以生成文字的模型"
+        }
+        check(checkNotNull(prefs) { "番外模型尚未初始化" }
+            .edit().putString(personalTheaterKey(characterId), archiveId).commit()) {
+            "番外模型保存失败"
+        }
+        mutableRevision.value++
+    }
+
+    fun clearPersonalTheaterArchive(characterId: String) {
+        check(checkNotNull(prefs) { "番外模型尚未初始化" }
+            .edit().remove(personalTheaterKey(characterId)).commit()) {
+            "番外模型重置失败"
+        }
+        mutableRevision.value++
+    }
+
     fun selectCharacterChatArchive(characterId: String, archiveId: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value) {
         require(library.archives.any { it.id == archiveId && !it.model.startsWith("jev-") }) {
