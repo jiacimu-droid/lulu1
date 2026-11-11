@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
+import com.jiacimu.lulu.study.PomodoroTimerMode
 import com.jiacimu.lulu.study.StudyPomodoroScreen
 import org.json.JSONArray
 import org.json.JSONObject
@@ -182,6 +183,12 @@ fun SelfPrefaceScreen(
                 LegacySelfTodo(it.id, it.title, it.body, it.done, it.updated)
             },
             onBack = { overview = true },
+            onOpenCountdown = {
+                // Reuse the existing self-owned timer. An ongoing session keeps
+                // its mode and remaining time instead of being restarted.
+                PomodoroCompanionSessions.store.updateTimerMode(PomodoroTimerMode.Countdown)
+                pomodoroOpen = true
+            },
         )
         return
     }
