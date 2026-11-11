@@ -313,6 +313,38 @@ internal object CompanionActionRuntime {
         }
     }.trim()
 
+    /**
+     * The screen capture executor, not model-supplied file paths, is the sole caller.
+     * Store the actual pixels in chat-owned durable media before appending the
+     * role-authored image bubble; failures remove only the unused owned file.
+     */
+    internal suspend fun sendCapturedScreenshot(
+        context: Context, characterId: String, bitmap: android.graphics.Bitmap,
+        caption: String, packageName: String,
+    ): CompanionActionResult {
+        require(characterId.isNotBlank() && !characterId.startsWith("resident:")) {
+            "没有可发送手机屏幕截图的真实角色"
+        }
+        val role = MigratedDomainStores.characters.get(characterId)
+        val imageUri = com.jiacimu.lulu.QqChatPhotoAttachmentStore.saveRoleCapture(context, bitmap)
+        return try {
+            val conversation = privateConversation(characterId, role.displayName)
+            val payload = com.jiacimu.lulu.encodeQqChatImage(
+                imageUri, caption = caption.trim().take(300),
+                imageDescription = "主人已授权的真实手机屏幕截图；当前应用=$packageName；未额外推断画面内容",
+            )
+            val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                MigratedDomainStores.chat.appendCharacterMessage(
+                    conversation.id, payload, characterId)
+            }
+            CompanionActionResult(true, "真实手机截图已作为图片消息发到主人私聊",
+                conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
+        } catch (error: Exception) {
+            com.jiacimu.lulu.QqChatPhotoAttachmentStore.deleteIfOwned(context, imageUri)
+            throw error
+        }
+    }
+
     private suspend fun sendSearchedImage(
         characterId: String,
         characterName: String,
