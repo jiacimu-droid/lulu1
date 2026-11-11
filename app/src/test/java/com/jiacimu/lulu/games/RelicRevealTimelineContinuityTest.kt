@@ -11,6 +11,8 @@ class RelicRevealTimelineContinuityTest {
             val frame = RelicRevealTimeline.at(step / 100f)
             assertTrue("lid must never close during reveal at $step", frame.lidOpen >= previous.lidOpen)
             assertTrue("jewel must never reverse at $step", frame.jewelReveal >= previous.jewelReveal)
+            assertTrue("hinged lid must never swing shut at $step", frame.lidAngleDegrees <= previous.lidAngleDegrees)
+            assertEquals("lid hinge follows the committed reveal clock at $step", -58f * frame.lidOpen, frame.lidAngleDegrees, 0.0001f)
             assertTrue("chest must not reappear at $step", frame.chestAlpha <= previous.chestAlpha)
             assertTrue("jewel must not shrink at $step",
                 frame.jewelDiameterFraction >= previous.jewelDiameterFraction)
@@ -18,6 +20,7 @@ class RelicRevealTimelineContinuityTest {
                 frame.chestAlpha > 0f || frame.jewelReveal > 0f)
             previous = frame
         }
+        assertEquals(-58f, RelicRevealTimeline.at(1f).lidAngleDegrees, 0.0001f)
         assertEquals(0f, RelicRevealTimeline.at(1f).chestAlpha, 0.0001f)
         assertEquals(1f, RelicRevealTimeline.at(1f).jewelReveal, 0.0001f)
     }
