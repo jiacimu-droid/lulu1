@@ -80,6 +80,11 @@
             android:theme="@style/Theme.Lulu" />
 
         <receiver
+            android:name=".system.LuluBackgroundPhoneStopReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".system.LuluScreenRequestReceiver"
             android:enabled="true"
             android:exported="false" />

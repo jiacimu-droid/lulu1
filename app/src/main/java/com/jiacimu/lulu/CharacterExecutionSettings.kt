@@ -99,6 +99,17 @@ internal fun CharacterExecutionSettings(characterId: String) {
                         .onFailure { setupStatus = "本地撤销失败：" + it.message.orEmpty().take(100) }
                 }) { Text("撤销本机密钥") }
             }
+            TextButton(enabled = !setupBusy, onClick = {
+                setupBusy = true
+                scope.launch {
+                    try {
+                        val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.stop()
+                        setupStatus = if (stopped) "后台虚拟屏幕已停止" else "后台虚拟屏幕当前未运行"
+                    } catch (e: Exception) {
+                        setupStatus = "停止失败：" + e.message.orEmpty().take(120)
+                    } finally { setupBusy = false }
+                }
+            }) { Text("立即停止后台手机操作") }
             Text(setupStatus, style = MaterialTheme.typography.bodySmall)
             Text("连接通过只证明 shell 权限可用；后台独立屏幕和第三方 App 操作仍需完成助手安装、启动和真机验证。关闭无线调试或撤销配对后不可继续控制。",
                 style = MaterialTheme.typography.bodySmall)

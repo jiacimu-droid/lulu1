@@ -29,11 +29,14 @@ internal object LuluBackgroundPhoneSession {
     private var displayId = -1
     private var activeApp = ""
     private var ownerCharacterId = ""
+    private var appContext: Context? = null
     private val replies = LinkedBlockingQueue<String>()
 
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
 
     private fun forgetTransport() {
+        appContext?.let { runCatching { LuluBackgroundPhoneNotice.clear(it) } }
+        appContext = null
         displayId = -1
         activeApp = ""
         ownerCharacterId = ""
@@ -155,6 +158,8 @@ internal object LuluBackgroundPhoneSession {
             }
             val id = ensureStarted(context)
             if (ownerCharacterId.isBlank()) ownerCharacterId = characterId
+            appContext = context.applicationContext
+            LuluBackgroundPhoneNotice.show(context)
             if (action == "start") return JSONObject().put("success", true)
                 .put("status", "observed").put("mode", "independent_virtual_display")
                 .put("displayId", id).put("verification", "shell 已创建独立焦点屏幕；不代表已启动其他 App").toString()
