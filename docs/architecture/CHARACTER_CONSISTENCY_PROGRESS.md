@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 电话多步动作执行中的关系更新
+
+- 上轮 `7d98a43` 的 [全量 JVM/APK #43068891449](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891449) 与[原索引 #43068891396](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891396) 复核通过。当前 `main` 已含其他窗口的设备能力和截图变更。
+- [75193fc](https://github.com/jiacimu-droid/lulu1/commit/75193fc11fe326932e20c7ea89b6471797414e31) 修复 `LuluDeviceToolBridge.respond` 的电话专用步骤循环。首次模型决定通过人物配置检查后，工具执行可挂起。此前恢复时会直接执行下一步，且无声分支可以把过期草稿记录为已选沉默。现在每一步开始前复用同一人物配置检查，发现更新就停止派发，已完成步骤的真实回执保留，原步骤决定摘要记录剩余步骤未执行。最后一步返回后仍会校验，过期台词或沉默状态停止交付。无新增模型请求或自动重试。
+- `ConversationExpressionGatewayTest.phoneStepsStopAfterRelationshipEditButKeepCompletedToolReceipt` 使用真实电话观察、正式模型网关和 ToolRouter 的 Jev 工具 HTTP 入口，局部等待中编辑关系约定。断言第一步保留成功回执，第二步朋友圈没有发布，旧沉默状态未提交，原步骤决定已有部分执行摘要。MockWebServer 只替代外部响应。
+- [原索引 #43088107109](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107109) 与 [全量 JVM/APK #43088107233](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107233) 成功，APK 已发布。真机通话和真实模型表现待验。
+- 下一步沿 P-03.1 打开 `LuluDeviceToolBridge.respond` 的 `phoneSteps` 和 `ToolRouter.execute` 的非取消持久化区。构造新语音轮次取消旧电话时首步正在等待工具的反例，核对已执行回执保留、取消不被错误摘要吞掉，后续步骤和旧沉默状态不提交。只改电话适配边界。
+
 ## 2026-11-12 · P-03.1 通话主动观察的人设交接
 
 - 上轮 `0089d35` 的 [原索引 #43050306765](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306765) 成功，新增普通电话回归在其 JVM 日志通过，全量当时有五项已有失败。复核包含该回归的后继 `a3d0418` [全量 JVM/APK #43063650483](https://github.com/jiacimu-droid/lulu1/actions/runs/43063650483) 成功并发布 APK，日志再次确认普通电话回归 PASSED。
