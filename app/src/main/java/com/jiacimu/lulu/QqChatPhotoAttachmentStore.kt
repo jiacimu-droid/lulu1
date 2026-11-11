@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
@@ -48,14 +49,36 @@ internal object QqChatPhotoAttachmentStore {
             throw error
         }
     }
+    /** A character-selected real screen share owns its own durable media file.
+     * It must not depend on a removable role-album entry or photo picker grant.
+     * Only LuluScreenAwareness may authorize and call the screenshot sender.
+     */
+    fun saveRoleCapture(context: Context, frame: Bitmap): String {
+        val folder = File(context.applicationContext.filesDir, "qq-role-captures").apply {
+            check(isDirectory || mkdirs()) { "无法创建角色截图消息目录" }
+        }
+        val destination = File.createTempFile("screen-", ".jpg", folder)
+        return try {
+            destination.outputStream().use { output ->
+                check(frame.compress(Bitmap.CompressFormat.JPEG, 88, output)) { "手机截图编码失败" }
+            }
+            check(destination.length() in 1..MAX_BYTES) { "手机截图为空或超过24MB" }
+            Uri.fromFile(destination).toString()
+        } catch (error: Exception) {
+            destination.delete()
+            throw error
+        }
+    }
+
     /** Never delete arbitrary file:// paths or external gallery content. */
     fun deleteIfOwned(context: Context, imageUri: String): Boolean {
         val uri = runCatching { Uri.parse(imageUri) }.getOrNull() ?: return false
         if (uri.scheme != "file") return false
         val file = uri.path?.let(::File) ?: return false
-        val folder = File(context.applicationContext.filesDir, "qq-user-photos")
+        val ownedFolders = listOf("qq-user-photos", "qq-role-captures")
+            .map { File(context.applicationContext.filesDir, it).canonicalFile }
         return runCatching {
-            if (file.canonicalFile.parentFile != folder.canonicalFile) return false
+            if (file.canonicalFile.parentFile !in ownedFolders) return false
             file.delete()
         }.getOrDefault(false)
     }
