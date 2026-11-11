@@ -167,6 +167,8 @@
 
 ## 13. 移动端视觉精修工作流（参考 MotionSites 的方法，不硬套网页）
 
+> **跨窗口必读入口**：[MOTIONSITES_NATIVE_UI_GUIDE.md](MOTIONSITES_NATIVE_UI_GUIDE.md)。用户明确要求以后每次美化都重新查阅 MotionSites 开源项目的主技能、案例索引、craft 与 review，并阅读 2–3 个贴近当前页面的案例；不能只看这里的摘要，也不能只靠随手改圆角或泛用模板。细则与原始链接统一维护在这份长期指南。技术或网络受限时如实标明未完成的验收。
+
 参考开源项目 [MotionSites Web Builder](https://github.com/Motionsites-AI/claude-skill) 的 **参考 → 规格 → 实现 → 截图 → 返工** 方法论。该项目为网站设计 skill，不是 Android 可直接接入的动效 SDK；露露机不移植网页播放器、Three.js、网页悬停交互或未经核准的第三方素材。
 
 ### 每轮做实际页面，不做空泛“统一高级感”
