@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:24:40.078129+00:00",
-  "commit": "4a6752d36a0eaa11fa8adb7efb07cd4a810df72f",
+  "generatedAt": "2026-11-11T16:26:12.612869+00:00",
+  "commit": "cddef66e0623d064df02abdec71c6605a93d5a95",
   "branch": "main",
-  "sourceFingerprint": "9238be967297ee39c2072c0c7b2fa9a08bf8afdf9d16613301dd08dab68f1eef",
+  "sourceFingerprint": "cb8d85f4409b9ce58ceba2ecbd6bd80a1f6b1b5d41a321eeaac3bc2f4eb3d906",
   "summary": {
     "files": 1202,
-    "lines": 259960,
+    "lines": 259976,
     "symbols": 3636
   },
   "symbolIndex": {
@@ -15723,19 +15723,19 @@
     "resumeByOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 30
+        "line": 32
       }
     ],
     "ownerHasPaused": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 31
+        "line": 37
       }
     ],
     "connected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 39
+        "line": 47
       }
     ],
     "LuluDeviceToolBridge": [
@@ -21027,7 +21027,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
       "lines": 262,
-      "sha256": "0db6178205e0b7ad4a3abfb692c4f64e1ff81c4ac6cab3731317cd9cb7f70f94",
+      "sha256": "aa8a34f9cd928b0179e4227cb930e490e82a221cc4f6d0d04b3087ad7c185711",
       "symbols": []
     },
     {
@@ -36407,7 +36407,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
       "lines": 61,
-      "sha256": "24e4090de146a80a0224818c8a45f128f56b2a99fb0bf982e97d39f7aee96f9f",
+      "sha256": "ba044030d69904099ffd6eecf34627ebe86d27e132286d805bfa3dd403688908",
       "symbols": [
         {
           "name": "show",
@@ -36421,20 +36421,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 293,
-      "sha256": "34146a8cf3586d424122d80927dbab0b2610309475fc8c22b12c746a94fee344",
+      "lines": 309,
+      "sha256": "a1f551b72e3a5e04afcaab02b8014d7e2168cc590e0b939aa3de697e3f5efbed",
       "symbols": [
         {
           "name": "resumeByOwner",
-          "line": 30
+          "line": 32
         },
         {
           "name": "ownerHasPaused",
-          "line": 31
+          "line": 37
         },
         {
           "name": "connected",
-          "line": 39
+          "line": 47
         }
       ]
     },
