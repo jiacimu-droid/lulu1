@@ -90,6 +90,8 @@
 **2026-11-11 G-02.2 同 ID 暂停续接回归增量**：`1686d68` 扩展 `IslandHouseProjectsTest.partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload`：3格半成品实际拆除1格后，角色明确暂停、跨回合空闲、存档恢复、同一房主明确续拆，验证 HUD 维持 1/3、拆除基数3不丢、暂停/续接不多退木或改地图。仅测试源码提交；本 SHA Kotlin/JVM、APK Actions、真机均待验。下一轮直接核该测试在 `:app:testPhoneUnitTest` 的 CI 首错，成功后转正式手机施工 HUD/触控与 G-03.5 箱盖视觉。
 **2026-11-11 G-02.2 续接后第二格实物拆除回归**：`dc87767` 扩展 `IslandHouseProjectsTest.partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload`，验证明确恢复施工后真正拆掉第二格、HUD 2/3、累计只退 2 木、存档恢复与同回合重放幂等；仅新增测试，JVM/APK/真机尚待验。下一轮直接核该测试的 `:app:testPhoneUnitTest` 与 push APK 首错，成功后检查正式 HUD/触屏；不要把未运行测试记作通过。
 
+**2026-11-11 G-02.2 正式 HUD 进度同源增量（CI 待验）**：`70007d6` 在 `IslandHouseProjects` 统一施工/拆除总步数与进度比例，`a10d9fe` 将 `BlockIslandScreen` 顶部 HUD、地图工程卡文字和进度条接入同一权威投影，防止半成品拆除的 3 格分母在界面多处独立计算而漂移；0 格未施工即选择拆除时进度比例为 0，不产生虚假完成。`3281ad6` 新增 `IslandHouseProjectsTest.hudAndPanelUseOneScopeForPartBuiltDemolitionAndZeroPieceCancel`，覆盖 0/9、0/0、0/3、1/3、暂停及存档恢复。仅 UI 投影与测试，不改角色意愿、库存、回合执行；**本轮新 SHA JVM/APK/真机均待验**。下一轮直接按 `3281ad6` head SHA 查 Lulu APK/JVM 与索引工作流，失败修测试首错；成功后验 G-02.2 正式触屏、低端帧时间，若外部证据阻塞转 G-03.5 箱盖视觉。
+
 
 - **已做但未打验收勾**：`BlockIslandLobby` 替代小岛独立进入前的通用角色选择页，加入玩家／角色队伍席、恢复旧档同伴、继续游戏和游戏目标预览；地图中心互动直接唤出工作台配方，快捷建造弹出建筑目录；通用菜单只保留地图／行囊／伙伴／图鉴／设置；任务条可打开三章目标手册；配方数据被 UI 与执行器共用。代码证据：`9e3f579`、`443136b`、`e971b49`、`c2846fe`、`7ab6d50`、`ffea168`、`363c0e3`、`b83427d`、`e1330b3`；新增回归 `f79f4ea`。
 - **未完成的 G-02 体验边界**：真机横屏、工作台触控与配方单测/APK 编译待查；“邀请”最初仅是玩家选人，已由后继提交实现本人接受/拒绝决定；仍待对应 CI、真机与真实模型验证；语音现有麦克风按次语音识别＋有声回复，非免按键连续语音；主线仍是已有生存／探索／家园目标，未扩充敌群或高级目标奖励。详情与下一轮固定入口见 `COOP_GAME_SCENE_PROGRESS.md` 最新节。不得将已写源码当作已通过测试或已完成游戏体验。
