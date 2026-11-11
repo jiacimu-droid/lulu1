@@ -490,7 +490,8 @@ class CharacterExpressionGuideTest {
         assertFalse(noDuplicate.contains("熟悉时说话干脆，会接冷笑话"))
         assertTrue(noDuplicate.contains("最近消息用来理解上下文"))
     }
-    // Assert the semantic contract without re-introducing verbose model prompt wording.\n    @Test fun allCharactersCanNoticeMeaningfulContextWithoutAForcedBedtimeScript() {
+    // Assert the semantic contract without re-introducing verbose model prompt wording.
+    @Test fun allCharactersCanNoticeMeaningfulContextWithoutAForcedBedtimeScript() {
         val common = CharacterDecisionProtocol.runtimePrinciples
         val causal = CharacterDecisionProtocol.causalPrinciples
         assertTrue(common.contains("【自主注意力】"))
