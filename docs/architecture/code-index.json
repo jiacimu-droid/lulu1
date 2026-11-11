@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:14:31.310179+00:00",
-  "commit": "46d351be9b98900cd444739aeb3b2dafb1622abe",
+  "generatedAt": "2026-11-11T16:17:49.640723+00:00",
+  "commit": "b2ab97046222e7d9a02e317af47edf83adb44dcc",
   "branch": "main",
-  "sourceFingerprint": "0021f26ce031c314db2a5aeaf59f5ad3d885a5b4c0da8b57b25d8e06fb080f17",
+  "sourceFingerprint": "36a2a6eccad81888778feab8018eaa5516bff93c9e28c54401c69f39b5beb4a0",
   "summary": {
-    "files": 1201,
-    "lines": 259722,
-    "symbols": 3630
+    "files": 1202,
+    "lines": 259865,
+    "symbols": 3632
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5698,6 +5698,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
         "line": 105
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+        "line": 19
       }
     ],
     "contractError": [
@@ -15696,6 +15700,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 304
+      }
+    ],
+    "decodeDecision": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+        "line": 26
       }
     ],
     "connected": [
@@ -36344,6 +36354,21 @@
         {
           "name": "LuluBootReceiver",
           "line": 304
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+      "lines": 143,
+      "sha256": "903705e1ef321a384e19701e40f76817b3ca96c81d62fe16d204d3bcd86d57ad",
+      "symbols": [
+        {
+          "name": "Outcome",
+          "line": 19
+        },
+        {
+          "name": "decodeDecision",
+          "line": 26
         }
       ]
     },
