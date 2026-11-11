@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T13:37:51.301772+00:00",
-  "commit": "172544ea1fdce16ed7e8bd74bb1e1234da9ba8e7",
+  "generatedAt": "2026-11-11T13:54:21.228948+00:00",
+  "commit": "a0a1fb6ae1377f4b44dd3f70a5dbb2a69688c44d",
   "branch": "main",
-  "sourceFingerprint": "f281c7efee8b5927d18b0055a6debc53be500cda66ec89b25b050d3d6f218760",
+  "sourceFingerprint": "1bf21fe8eb1bff56099f64d0e7d28db577f8d1d6c6ff998509a88f149ce78c87",
   "summary": {
-    "files": 1175,
-    "lines": 255952,
-    "symbols": 3492
+    "files": 1176,
+    "lines": 255977,
+    "symbols": 3493
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19320,6 +19320,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
         "line": 5
+      }
+    ],
+    "RelicRevealTimelineContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt",
+        "line": 7
       }
     ],
     "RelicSceneIndexTest": [
@@ -41120,6 +41126,17 @@
         {
           "name": "RelicQuickActionTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt",
+      "lines": 25,
+      "sha256": "7c8278218d8784e2b714fc19b921eec7de4886c962474224d90121ae9ae57c72",
+      "symbols": [
+        {
+          "name": "RelicRevealTimelineContinuityTest",
+          "line": 7
         }
       ]
     },
