@@ -1,5 +1,11 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-11 P-08d.2b.2 实际模型请求回归（待 CI）
+
+- `717cc0d` 在 `AutonomousActionBoundaryIntegrationTest` 增加 `failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，沿真实 `CommitmentCallFeedback.onVoiceFailed` → `CommitmentTaskStore` 冷重载 → 用户新气泡 → `ProactivePerceptionRuntime.runDueCycle` → MockWebServer 捕获真实请求体，检查失败任务 ID、播放失败事实、无虚构已醒及不重复 POST。该用例尚未取得 APK/JVM 运行结果；生产代码未修改。
+- 本轮无法通过现有连接器取得 main push 的 Actions head SHA 结果，不能声称通过。下一轮先查 `717cc0dedaccc08dcf84c1464ffb1f4091113272` 的 JVM 首错和索引，再接本人下一决定的实际执行回执；真机声音、权限、真实模型仍外部待验。
+
+
 ## 2026-11-11 Issue #868 与夜间改动回查
 
 - `52f0624` 的 [APK/JVM #42924717735](https://github.com/jiacimu-droid/lulu1/actions/runs/42924717735) 在 `RelationshipPreferenceGatewayTest.kt:222` 失败，期望新约定而重载后为空。用例在配置关系前遗漏 `CharacterLifeStore.initialize(context)`，沿用了之前测试的存储实例。`bfd7158` 补齐正式启动顺序，并直接检查编辑前后真实 SharedPreferences 中的完整原文。
