@@ -53,38 +53,45 @@ object LuluWirelessDebugging {
      * Connection is established fresh and validated as uid 2000. Do not accept
      * unrelated TCP endpoints, remote IPs, or user/model-supplied shell strings.
      */
+    /** Leaves an authenticated local ADB connection open for a single helper session. */
+    suspend fun openShell(context: Context, manualConnectPort: Int? = null): AdbConnection =
+        withContext(Dispatchers.IO) {
+            require(Build.VERSION.SDK_INT >= 30) { "Android 11 以下不支持无线调试连接" }
+            check(hasPriorPairing(context)) { "请先在露露机设置中配对无线调试" }
+            val cache = portCache(context)
+            val connect = AdbConnectPort(
+                property = { null },
+                finder = NsdAdbServiceFinder(context),
+                cache = cache,
+                scan = LocalPortScan(
+                    scanner = NioPortScanner(),
+                    hosts = { listOf("127.0.0.1") },
+                ),
+                manual = { manualConnectPort?.takeIf { it in 1..65535 } },
+            )
+            val tls = AndroidAdb.tls(AndroidAdb.identity(context.applicationContext))
+            connect.connect { host, port ->
+                val adb = AdbConnection.open(host, port, tls)
+                try {
+                    adb.exec("id").use { stream ->
+                        check(stream.readText().contains("uid=2000(shell)")) {
+                            "连接到的不是 Android shell 身份，拒绝操作"
+                        }
+                    }
+                    adb
+                } catch (t: Throwable) {
+                    adb.close()
+                    throw t
+                }
+            }
+        }
+
     suspend fun <T> withShell(
         context: Context,
         manualConnectPort: Int? = null,
         block: (AdbConnection) -> T,
     ): T = withContext(Dispatchers.IO) {
-        require(Build.VERSION.SDK_INT >= 30) { "Android 11 以下不支持无线调试连接" }
-        check(hasPriorPairing(context)) { "请先在露露机设置中配对无线调试" }
-        val cache = portCache(context)
-        val connect = AdbConnectPort(
-            property = { null },
-            finder = NsdAdbServiceFinder(context),
-            cache = cache,
-            scan = LocalPortScan(
-                scanner = NioPortScanner(),
-                hosts = { listOf("127.0.0.1") },
-            ),
-            manual = { manualConnectPort?.takeIf { it in 1..65535 } },
-        )
-        val tls = AndroidAdb.tls(AndroidAdb.identity(context.applicationContext))
-        connect.connect { host, port ->
-            val adb = AdbConnection.open(host, port, tls)
-            try {
-                adb.exec("id").use { id ->
-                    check(id.readText().contains("uid=2000(shell)")) {
-                        "连接到的不是 Android shell 身份，拒绝操作"
-                    }
-                }
-                block(adb)
-            } finally {
-                adb.close()
-            }
-        }
+        openShell(context, manualConnectPort).use(block)
     }
 
     suspend fun test(context: Context, port: Int? = null): String =
