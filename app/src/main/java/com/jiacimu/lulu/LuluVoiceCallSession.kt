@@ -1697,18 +1697,11 @@ internal object LuluVoiceCallSession {
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
-            // Sleep-mode turns resolve the dedicated sleep model when one
-            // is chosen, and fall back to the chat model otherwise, so a
-            // sleep call never needs hanging up and redialling to change
-            // models. Leaving sleep mode returns to the call model by the
-            // same condition, with no redial and no lost call context.
-            // A configured sleep archive still owns sleep-mode turns.
-            // Otherwise the SAME character's chat selection also owns calls.
-            val sleepArchiveId = library.sleepArchiveId?.takeIf { id ->
-                library.archives.any { it.id == id && !it.model.startsWith("jev-") }
-            }
-            val archiveId = if (mutableState.value.sleepMode && sleepArchiveId != null)
-                sleepArchiveId
+            // Sleep is an independent call mode: it always uses the fixed
+            // fallback, while normal phone/chat share this character's choice.
+            // Switching modes does not redial or alter the live conversation.
+            val archiveId = if (mutableState.value.sleepMode)
+                library.archiveIdFor(com.jiacimu.lulu.ai.ModelUsage.Sleep)
             else com.jiacimu.lulu.ai.ScopedModelSelections
                 .selectedCharacterChatArchiveId(latest.characterId, library)
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
