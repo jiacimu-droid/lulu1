@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0804558a8af6f33cbbd2089a5ef219a6f86f6d1a`
+- 基准提交：`9340224ae923b1f0883233e3c3984663d2169b18`
 - 分支：`main`
-- 已索引文件：1174
-- 已索引代码/文本行：254556
-- 已发现符号：3471
+- 已索引文件：1175
+- 已索引代码/文本行：254582
+- 已发现符号：3472
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -681,6 +681,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 88 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandTerrainPalette.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 231 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt` | 157 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 34 | 2 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T00:22:08.328905+00:00",
-  "commit": "0804558a8af6f33cbbd2089a5ef219a6f86f6d1a",
+  "generatedAt": "2026-11-11T00:22:43.427889+00:00",
+  "commit": "9340224ae923b1f0883233e3c3984663d2169b18",
   "branch": "main",
-  "sourceFingerprint": "d20430a5a85aafebb992447616ee1d58c4b5eccd9b1d84d42b7fd20ca697324f",
+  "sourceFingerprint": "1f7dfbcb1b2f1fc5e0c2a320407cae8fc7eb52bfc2670ea84095fca99db6eca0",
   "summary": {
-    "files": 1174,
-    "lines": 254556,
-    "symbols": 3471
+    "files": 1175,
+    "lines": 254582,
+    "symbols": 3472
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13994,6 +13994,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
         "line": 19
+      }
+    ],
+    "atlasFrame": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTerrainPalette.kt",
+        "line": 10
       }
     ],
     "reachableWood": [
@@ -33559,6 +33565,17 @@
         {
           "name": "fromJson",
           "line": 49
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTerrainPalette.kt",
+      "lines": 26,
+      "sha256": "941243f72ea9aac314f29ca3d00160321b52471efc4b7faff6d731ef027b9b61",
+      "symbols": [
+        {
+          "name": "atlasFrame",
+          "line": 10
         }
       ]
     },
