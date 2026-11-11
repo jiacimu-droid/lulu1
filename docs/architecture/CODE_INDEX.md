@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1f6c299dad83f2f841d2bff46e30c5c367638b37`
+- 基准提交：`76ae4beaa24429a08fdd7a91b88de4517170c523`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255372
+- 已索引代码/文本行：255373
 - 已发现符号：3479
 
 | 文件 | 行数 | 符号数 |
@@ -303,7 +303,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 271 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1504 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1505 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
