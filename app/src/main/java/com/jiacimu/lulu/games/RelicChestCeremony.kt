@@ -23,6 +23,32 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * Pure presentation timeline. The game has already committed the exact loot
+ * before this animation begins. The chest recedes rather than covering the
+ * beautiful collectible during its reveal.
+ */
+internal data class RelicRevealFrame(
+    val lidOpen: Float,
+    val jewelReveal: Float,
+    val chestAlpha: Float,
+    val jewelDiameterFraction: Float,
+)
+
+internal object RelicRevealTimeline {
+    fun at(progress: Float): RelicRevealFrame {
+        val p = progress.coerceIn(0f,1f)
+        val lid = ((p-.09f)/.40f).coerceIn(0f,1f)
+        val reveal = ((p-.47f)/.43f).coerceIn(0f,1f)
+        return RelicRevealFrame(
+            lidOpen=lid,
+            jewelReveal=reveal,
+            chestAlpha=(1f-((reveal-.10f)/.78f)).coerceIn(0f,1f),
+            jewelDiameterFraction=.24f+.58f*reveal,
+        )
+    }
+}
+
 /** Local, one-shot animation of an already committed physical chest reward. */
 @Composable
 internal fun RelicChestCeremony(
@@ -30,13 +56,15 @@ internal fun RelicChestCeremony(
     progress: Float,
     onFinished: () -> Unit,
 ) {
-    val p = progress.coerceIn(0f, 1f)
-    val unlocked = ((p - .10f) / .47f).coerceIn(0f, 1f)
-    val reveal = ((p - .55f) / .32f).coerceIn(0f, 1f)
+    val frame = RelicRevealTimeline.at(progress)
+    val unlocked = frame.lidOpen
+    val reveal = frame.jewelReveal
+    val chestAlpha = frame.chestAlpha
+    // Museum colors, not three competing neon flares.
     val tint = when (receipt.loot.tier) {
-        RelicTier.COMMON -> Color(0xFFE1B38A)
-        RelicTier.RARE -> Color(0xFF91E5FF)
-        RelicTier.PRECIOUS -> Color(0xFFFFDE90)
+        RelicTier.COMMON -> Color(0xFFC9B9A3)
+        RelicTier.RARE -> Color(0xFFB5D5DB)
+        RelicTier.PRECIOUS -> Color(0xFFE4D0A4)
     }
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
     Box(
@@ -46,10 +74,10 @@ internal fun RelicChestCeremony(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp),
-            color = Color(0xFF172535),
-            shape = RoundedCornerShape(24.dp),
-            border = BorderStroke(1.dp, tint.copy(alpha = .65f)),
-            shadowElevation = 16.dp,
+            color = Color(0xFF171F2A),
+            shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, tint.copy(alpha = .33f)),
+            shadowElevation = 5.dp,
         ) {
             Column(
                 Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
@@ -58,57 +86,63 @@ internal fun RelicChestCeremony(
             ) {
                 Text(
                     if (reveal < .05f) "✦ 古老的锁扣正在开启…"
-                    else if (legendary) "✦ 隐世奇珍 · 命运的发现"
-                    else "✧ " + receipt.loot.tier.label + "宝藏出世",
+                    else if (legendary) "一件难得的珍宝"
+                    else "发现了" + receipt.loot.tier.label + "珍藏",
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
-                Canvas(Modifier.fillMaxWidth().height(158.dp)) {
-                    val scale = size.height
-                    val center = Offset(size.width * .5f, size.height * .62f)
-                    val spread = .65f + reveal * .7f
+                Canvas(Modifier.fillMaxWidth().height(172.dp)) {
+                    val h=size.height
+                    val x=size.width*.5f
+                    val center=Offset(x,h*.54f)
+                    // Quiet diffuse museum lighting; a single focal point.
+                    drawRect(Brush.verticalGradient(listOf(
+                        Color(0xFF1A2630),Color(0xFF121B25))))
                     drawCircle(
                         Brush.radialGradient(
-                            listOf(tint.copy(alpha = reveal * .42f), Color.Transparent),
-                            center = center + Offset(0f, -scale * .24f),
-                            radius = scale * spread,
+                            listOf(tint.copy(alpha=.10f+.14f*reveal),
+                                Color.Transparent),
+                            center=center+Offset(0f,-h*.14f),
+                            radius=h*.68f,
                         ),
-                        radius = scale * spread,
-                        center = center + Offset(0f, -scale * .24f),
+                        radius=h*.68f,center=center+Offset(0f,-h*.14f),
                     )
-                    drawOval(Color.Black.copy(alpha = .38f),
-                        Offset(center.x - scale * .47f, center.y + scale * .23f),
-                        Size(scale * .94f, scale * .17f))
-                    val base = Offset(center.x - scale * .44f, center.y - scale * .10f)
-                    drawRoundRect(Color(0xFF654636), base,
-                        Size(scale * .88f, scale * .45f), CornerRadius(scale * .095f))
-                    drawRoundRect(Color(0xFF9B6B4C),
-                        base + Offset(scale * .045f, scale * .042f),
-                        Size(scale * .79f, scale * .34f), CornerRadius(scale * .055f))
-                    drawRect(tint.copy(alpha = .75f),
-                        base + Offset(scale * .39f, scale * .08f),
-                        Size(scale * .10f, scale * .29f))
-                    val lidY = center.y - scale * (.28f + unlocked * .47f)
-                    drawRoundRect(Color(0xFF4C3540),
-                        Offset(center.x - scale * .48f, lidY + scale * .015f),
-                        Size(scale * .96f, scale * .25f), CornerRadius(scale * .075f))
-                    drawRoundRect(Color(0xFFC39267),
-                        Offset(center.x - scale * .44f, lidY),
-                        Size(scale * .88f, scale * .15f), CornerRadius(scale * .05f))
-                    drawRect(tint, Offset(center.x - scale * .048f, lidY),
-                        Size(scale * .096f, scale * .19f))
-                    if (reveal > 0f) {
-                        val jewelCenter = center + Offset(0f, -scale * (.27f + reveal * .30f))
-                        val radius = scale * (.11f + reveal * .14f)
+                    if(chestAlpha>0f) {
+                        drawOval(Color.Black.copy(alpha=.25f*chestAlpha),
+                            Offset(x-h*.47f,center.y+h*.28f),
+                            Size(h*.94f,h*.13f))
+                        val base=Offset(x-h*.44f,center.y-h*.12f)
+                        drawRoundRect(Color(0xFF6C5044).copy(alpha=chestAlpha),
+                            base,Size(h*.88f,h*.45f),CornerRadius(h*.07f))
+                        drawRoundRect(Color(0xFFC3A27D).copy(alpha=chestAlpha),
+                            base+Offset(h*.055f,h*.04f),
+                            Size(h*.77f,h*.33f),CornerRadius(h*.06f))
+                        drawRect(tint.copy(alpha=.52f*chestAlpha),
+                            base+Offset(h*.40f,h*.07f),Size(h*.08f,h*.31f))
+                        val lidY=center.y-h*(.31f+unlocked*.34f)
+                        drawRoundRect(Color(0xFF554342).copy(alpha=chestAlpha),
+                            Offset(x-h*.48f,lidY+h*.015f),
+                            Size(h*.96f,h*.23f),CornerRadius(h*.065f))
+                        drawRoundRect(Color(0xFFD4B391).copy(alpha=chestAlpha),
+                            Offset(x-h*.44f,lidY),
+                            Size(h*.88f,h*.13f),CornerRadius(h*.06f))
+                    }
+                    if(reveal>0f) {
+                        // The exact physical loot gets much larger as the box
+                        // fades. At full reveal it is the ONLY principal object.
+                        val jewelCenter=Offset(x,
+                            center.y-h*(.11f+.10f*reveal))
+                        val diameter=h*frame.jewelDiameterFraction
                         with(RelicTreasureArt) {
-                            drawTreasure(receipt.loot.name,jewelCenter,radius*2f,
+                            drawTreasure(receipt.loot.name,jewelCenter,diameter,
                                 tint,reveal)
                         }
-                        for (i in 0 until 12) {
-                            val a = (i * 6.2831853f / 12f)
-                            val distance = radius * (1.5f + reveal * 1.5f)
-                            val sparkle = jewelCenter + Offset(cos(a) * distance, sin(a) * distance)
-                            drawCircle(tint.copy(alpha = reveal * .80f),
-                                scale * (if (i % 3 == 0) .024f else .012f), sparkle)
+                        // Four tiny glints at most; not a noisy halo of particles.
+                        for(i in 0 until 4) {
+                            val a=i*1.5707963f+.43f
+                            val d=diameter*.60f
+                            drawCircle(tint.copy(alpha=.21f*reveal),
+                                h*.014f,
+                                jewelCenter+Offset(cos(a)*d,sin(a)*d))
                         }
                     }
                 }
@@ -119,7 +153,11 @@ internal fun RelicChestCeremony(
                         fontWeight = FontWeight.Black,
                         color = Color.White,
                     )
-                    Text("鉴定价值 ◇ " + receipt.loot.value, color = tint, fontSize = 13.sp)
+                    Text(RelicTreasureGallery.identity(receipt.loot.name),
+                        fontSize = 11.sp,lineHeight = 15.sp,
+                        color = Color(0xFFD1D7D7))
+                    Text("鉴定价值 ◇ " + receipt.loot.value,
+                        color = tint,fontSize = 12.sp)
                     Text(
                         if (receipt.inBag) "✓ 已装入背包 · 成功撤离后才会永久收藏"
                         else "⚠ 背包已满 · 宝物真实落在箱子旁，记得拾取",
