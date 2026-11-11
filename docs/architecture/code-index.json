@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:23:51.524141+00:00",
-  "commit": "184c6cebd15c52517621242ec0de74f19a416905",
+  "generatedAt": "2026-11-11T15:30:36.494044+00:00",
+  "commit": "45433ac40889fa30a208a3f476e8bc2f7a0b6a0b",
   "branch": "main",
-  "sourceFingerprint": "d5ddbc19cf642b7b77cf17b929ec54392bae8cf649f473cefe78612386a0a6fe",
+  "sourceFingerprint": "1ea19b3ca100ad8e446a236563ff775589f198697c4934a2406b84f09dc66fd8",
   "summary": {
-    "files": 1181,
-    "lines": 256649,
+    "files": 1182,
+    "lines": 256730,
     "symbols": 3514
   },
   "symbolIndex": {
@@ -23427,6 +23427,12 @@
           "line": 89
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt",
+      "lines": 81,
+      "sha256": "c61f1cad3aee64815606b3ca68632717ebd4a9ff535c108e9be0cfec7216fd46",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
