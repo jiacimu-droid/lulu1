@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.media.AudioManager
+import android.media.MediaRecorder
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -38,10 +40,18 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+/** System microphone activity is only a hint about an active keyboard dictation, never
+ * an STT transcript or a reason to invoke a second model. Android may redact other apps. */
+internal fun isImeSpeechCaptureSource(source: Int): Boolean = source == MediaRecorder.AudioSource.MIC ||
+    source == MediaRecorder.AudioSource.VOICE_RECOGNITION ||
+    source == MediaRecorder.AudioSource.UNPROCESSED
 
 internal val QqPage: Color @Composable get() = MaterialTheme.colorScheme.background
 internal val QqHeader: Color @Composable get() = MaterialTheme.colorScheme.surface
@@ -242,33 +252,56 @@ fun QqStyleChatDetailScreen(
     // Keep draft writes in the composer snapshot: editing must not invalidate the entire chat screen.
     val inputState = rememberSaveable(conversationId) { mutableStateOf("") }
     var composerFocused by remember(conversationId) { mutableStateOf(false) }
-    // Purely LOCAL input observation: no AI, no token usage, no extra worker.
-    // While a next bubble is being typed, extend the same pending user turn.
-    // After the editor is empty or loses focus, shorten that turn to a four-
-    // second grace. 60s inactivity is the safe fallback for abandoned drafts.
+    // The keyboard may be *listening* without having inserted a single character:
+    // a stationary caret / empty draft is NOT proof that voice dictation ended.
+    // Observe Android's active input recording only while this private IME has focus.
+    // No microphone capture, speech recognition, polling AI or new model request here.
+    val latestKeyboardVisible = rememberUpdatedState(keyboardVisible)
     LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible) {
         if (groupChat == null && routeVisible) {
             try {
                 var lastEditSignalAt: Long? = null
-                snapshotFlow { inputState.value to composerFocused }
-                    .collect { (draft, focused) ->
-                        if (draft.isNotBlank() && focused) {
-                            // The first keystroke must reach the local turn gate
-                            // immediately. Throttle repeated edits during the burst.
+                val audioManager = context.getSystemService(AudioManager::class.java)
+                snapshotFlow { Triple(inputState.value, composerFocused, latestKeyboardVisible.value) }
+                    .collectLatest { (draft, focused, imeVisible) ->
+                        if (focused && imeVisible && draft.isBlank()) {
+                            // Third-party keyboards can dictate for several seconds before
+                            // their first committed text change. Only the OS audio-recording
+                            // state can tell us that a silent-looking composer is still busy.
+                            // Poll only in this focused/empty state; Android may hide sources.
+                            while (currentCoroutineContext().isActive) {
+                                val dictating = runCatching {
+                                    audioManager?.activeRecordingConfigurations?.any {
+                                        isImeSpeechCaptureSource(it.clientAudioSource)
+                                    } == true
+                                }.getOrDefault(false)
+                                val now = android.os.SystemClock.elapsedRealtime()
+                                if (dictating) {
+                                    if (lastEditSignalAt == null || now - lastEditSignalAt >= 350L) {
+                                        OnlineChatBatchStore.onComposerEdit(context, characterId)
+                                        lastEditSignalAt = now
+                                    }
+                                } else {
+                                    OnlineChatBatchStore.onComposerIdle(context, characterId)
+                                    lastEditSignalAt = null
+                                }
+                                delay(350L)
+                            }
+                        } else if (draft.isNotBlank() && focused) {
+                            // Actual typing or a committed partial transcript.
                             val now = android.os.SystemClock.elapsedRealtime()
-                            val last = lastEditSignalAt
-                            if (last == null || now - last >= 350L) {
+                            if (lastEditSignalAt == null || now - lastEditSignalAt >= 350L) {
                                 OnlineChatBatchStore.onComposerEdit(context, characterId)
                                 lastEditSignalAt = now
                             }
                         } else {
+                            // Defocus / keyboard dismissal is a genuine input boundary.
                             OnlineChatBatchStore.onComposerIdle(context, characterId)
                             lastEditSignalAt = null
                         }
                     }
             } finally {
-                // Leaving the page must not hold a background pending reply
-                // behind an editing deadline the owner can no longer see.
+                // Do not keep a stale local input hold after leaving the chat.
                 OnlineChatBatchStore.onComposerIdle(context, characterId)
             }
         } else if (groupChat == null) {
