@@ -6,9 +6,9 @@ import org.junit.Test
 
 class LuluPhoneUiGeometryTest {
     @Test fun normalizedCoordinatesRemainOnScreen() {
-        assertEquals(0f, LuluPhoneUiGeometry.pixel(0, 1080))
-        assertEquals(1079f, LuluPhoneUiGeometry.pixel(1000, 1080))
-        assertEquals(539f, LuluPhoneUiGeometry.pixel(500, 1080))
+        assertEquals(0f, LuluPhoneUiGeometry.pixel(0, 1080), 0f)
+        assertEquals(1079f, LuluPhoneUiGeometry.pixel(1000, 1080), 0f)
+        assertEquals(539f, LuluPhoneUiGeometry.pixel(500, 1080), 0f)
     }
 
     @Test fun coordinatesRejectOutOfBounds() {
