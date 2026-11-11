@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:17:18.406811+00:00",
-  "commit": "235adeb0b19331b8900b737cdfe214c920b3c165",
+  "generatedAt": "2026-11-11T15:18:38.390288+00:00",
+  "commit": "1d474e25bf770e1307af20d6eb3e4a7a25d01008",
   "branch": "main",
-  "sourceFingerprint": "1e1b799472b354a5689db197ffc1daa3b6f5b3c704e118fb9650a188b7971424",
+  "sourceFingerprint": "240f4f251eecae94c4b2263ddeda72c71722893c1e110d32f7409b4a69b015ca",
   "summary": {
     "files": 1181,
-    "lines": 256576,
+    "lines": 256598,
     "symbols": 3514
   },
   "symbolIndex": {
@@ -38662,8 +38662,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 517,
-      "sha256": "783e0ccc2eeace7318b3cc1ad5d286e317dd73362bc81106e2617c9d3bf7f7b5",
+      "lines": 539,
+      "sha256": "b015c7a98837ac1266c64110ea9ea9e22a4846473c657d5fb6cef209f8f2f1d2",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",
