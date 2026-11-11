@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ import kotlin.math.sin
  */
 internal data class RelicRevealFrame(
     val lidOpen: Float,
+    val lidAngleDegrees: Float,
     val jewelReveal: Float,
     val chestAlpha: Float,
     val jewelDiameterFraction: Float,
@@ -42,6 +44,7 @@ internal object RelicRevealTimeline {
         val reveal = ((p-.47f)/.43f).coerceIn(0f,1f)
         return RelicRevealFrame(
             lidOpen=lid,
+            lidAngleDegrees=-58f * lid,
             jewelReveal=reveal,
             chestAlpha=(1f-((reveal-.10f)/.78f)).coerceIn(0f,1f),
             jewelDiameterFraction=.24f+.58f*reveal,
@@ -57,7 +60,6 @@ internal fun RelicChestCeremony(
     onFinished: () -> Unit,
 ) {
     val frame = RelicRevealTimeline.at(progress)
-    val unlocked = frame.lidOpen
     val reveal = frame.jewelReveal
     val chestAlpha = frame.chestAlpha
     // Museum colors, not three competing neon flares.
@@ -118,13 +120,18 @@ internal fun RelicChestCeremony(
                             Size(h*.77f,h*.33f),CornerRadius(h*.06f))
                         drawRect(tint.copy(alpha=.52f*chestAlpha),
                             base+Offset(h*.40f,h*.07f),Size(h*.08f,h*.31f))
-                        val lidY=center.y-h*(.31f+unlocked*.34f)
-                        drawRoundRect(Color(0xFF554342).copy(alpha=chestAlpha),
-                            Offset(x-h*.48f,lidY+h*.015f),
-                            Size(h*.96f,h*.23f),CornerRadius(h*.065f))
-                        drawRoundRect(Color(0xFFD4B391).copy(alpha=chestAlpha),
-                            Offset(x-h*.44f,lidY),
-                            Size(h*.88f,h*.13f),CornerRadius(h*.06f))
+                        // A hinged lid pivots around its back edge instead of
+                        // floating vertically away from the chest.
+                        val hinge=Offset(x-h*.44f,center.y-h*.18f)
+                        rotate(frame.lidAngleDegrees, pivot=hinge) {
+                            val lidY=center.y-h*.31f
+                            drawRoundRect(Color(0xFF554342).copy(alpha=chestAlpha),
+                                Offset(x-h*.48f,lidY+h*.015f),
+                                Size(h*.96f,h*.23f),CornerRadius(h*.065f))
+                            drawRoundRect(Color(0xFFD4B391).copy(alpha=chestAlpha),
+                                Offset(x-h*.44f,lidY),
+                                Size(h*.88f,h*.13f),CornerRadius(h*.06f))
+                        }
                     }
                     if(reveal>0f) {
                         // The exact physical loot gets much larger as the box
