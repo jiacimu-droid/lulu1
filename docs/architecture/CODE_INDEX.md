@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cd2f4b063ae98fe2023ccb84794002d02893c074`
+- 基准提交：`fbee411100719859086e41a19dd9678b83928df2`
 - 分支：`main`
-- 已索引文件：1208
-- 已索引代码/文本行：260934
-- 已发现符号：3649
+- 已索引文件：1209
+- 已索引代码/文本行：260968
+- 已发现符号：3650
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -695,7 +695,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 280 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 184 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 193 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 27 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 40 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 176 | 1 |
@@ -1175,6 +1175,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 178 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 782 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt` | 29 | 1 |

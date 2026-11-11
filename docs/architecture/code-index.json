@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T21:41:38.300574+00:00",
-  "commit": "cd2f4b063ae98fe2023ccb84794002d02893c074",
+  "generatedAt": "2026-11-11T21:49:18.608247+00:00",
+  "commit": "fbee411100719859086e41a19dd9678b83928df2",
   "branch": "main",
-  "sourceFingerprint": "44900425c595c1bb68461204a10804f809ed9af8942071122ed06474dfb1fca8",
+  "sourceFingerprint": "bbeaa6d95e19f6c19e66ab0626aed26ce98d90e4363cda9243300ab24e058897",
   "summary": {
-    "files": 1208,
-    "lines": 260934,
-    "symbols": 3649
+    "files": 1209,
+    "lines": 260968,
+    "symbols": 3650
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20102,6 +20102,12 @@
         "line": 11
       }
     ],
+    "RelicCeremonyLayoutTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt",
+        "line": 7
+      }
+    ],
     "RelicChestHudStateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
@@ -34965,8 +34971,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 184,
-      "sha256": "f5b7818d4ef3a432f43022d74b4aaed9422475b913dd06b0ff90571f702a6b1f",
+      "lines": 193,
+      "sha256": "a463a7ee4ec68193a4987d372de6f2cc1711dc41526fe60c3ec75af28df179a8",
       "symbols": [
         {
           "name": "at",
@@ -42702,6 +42708,17 @@
         {
           "name": "RelicActorPlayTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt",
+      "lines": 25,
+      "sha256": "3c02101fd511c5208adb84ad61e17d74f552652e741623b606ca4bce156e9fec",
+      "symbols": [
+        {
+          "name": "RelicCeremonyLayoutTest",
+          "line": 7
         }
       ]
     },
