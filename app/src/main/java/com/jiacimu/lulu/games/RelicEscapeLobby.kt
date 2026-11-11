@@ -28,6 +28,7 @@ private val campMint=Color(0xFFB5CECB)
 private val campMuted=Color(0xFFBDC6CB)
 private val campInk=Color(0xFF151B24)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RelicEscapeLobby(
     snapshot:RelicSnapshot,
