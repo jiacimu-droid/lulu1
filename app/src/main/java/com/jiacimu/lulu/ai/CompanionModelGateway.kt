@@ -73,7 +73,7 @@ data class ModelLibraryState(
     val chatArchiveId: String? = null,
     val voiceCallArchiveId: String? = null,
     val gameArchiveId: String? = null,
-    /** Chosen sleep model; null means sleep follows the chat model, as before. */
+    /** Legacy sleep choice retained only for restoring old backups; sleep now uses the fixed fallback. */
     val sleepArchiveId: String? = null,
     val voiceCallFollowsChat: Boolean = true,
 )
@@ -84,13 +84,13 @@ fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? {
     val compatible = archives.filterNot { it.model.startsWith("jev-") }
     return when (usage) {
     ModelUsage.Chat -> chatArchiveId
-    // Phone calls share the currently selected chat model; historical standalone
-    // phone choices remain readable for old backups but never override chat.
+    // Outside sleep mode, calls follow the current character's chat selection.
+    // The shared chat slot is kept for older installations with no per-character choice.
     ModelUsage.VoiceCall -> chatArchiveId
     ModelUsage.Game -> gameArchiveId
-    // Sleep has its own slot when the user picks one; otherwise it follows
-    // chat, which is exactly what sleep calls did before this slot existed.
-    ModelUsage.Sleep -> sleepArchiveId ?: chatArchiveId
+    // Sleep and independent background features use the stable library fallback,
+    // never the currently selected foreground chat model.
+    ModelUsage.Sleep -> activeArchiveId
     }?.takeIf { candidate -> compatible.any { it.id == candidate } }
         ?: activeArchiveId?.takeIf { candidate -> compatible.any { it.id == candidate } }
         ?: compatible.firstOrNull()?.id
@@ -176,7 +176,7 @@ class ModelConnectionStore private constructor(context: Context) {
             current.copy(
                 configurations = current.configurations.filterNot { it.id == id },
                 archives = archives,
-                activeArchiveId = active ?: archives.firstOrNull()?.id,
+                activeArchiveId = active ?: archives.firstOrNull { !it.model.startsWith("jev-") }?.id,
                 chatArchiveId = current.chatArchiveId?.takeUnless { it in removedArchiveIds },
                 voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it in removedArchiveIds },
                 gameArchiveId = current.gameArchiveId?.takeUnless { it in removedArchiveIds },
@@ -194,15 +194,15 @@ class ModelConnectionStore private constructor(context: Context) {
         val existing = current.archives.firstOrNull {
             it.configurationId == configurationId && it.model == cleanModel
         }
-        if (existing != null) {
-            if (!cleanModel.startsWith("jev-")) selectArchive(existing.id)
-            return existing
-        }
+        if (existing != null) return existing
         val archive = ModelArchive(configurationId = configurationId, model = cleanModel)
         persist(
             current.copy(
                 archives = current.archives + archive,
-                activeArchiveId = if (cleanModel.startsWith("jev-")) current.activeArchiveId else archive.id,
+                // Importing an archive is storage-only. Only the very first
+                // compatible archive establishes a fallback, never subsequent imports.
+                activeArchiveId = current.activeArchiveId
+                    ?: archive.id.takeUnless { cleanModel.startsWith("jev-") },
             ),
         )
         return archive
@@ -214,7 +214,9 @@ class ModelConnectionStore private constructor(context: Context) {
         persist(
             current.copy(
                 archives = archives,
-                activeArchiveId = if (current.activeArchiveId == id) archives.firstOrNull()?.id else current.activeArchiveId,
+                activeArchiveId = if (current.activeArchiveId == id)
+                    archives.firstOrNull { !it.model.startsWith("jev-") }?.id
+                else current.activeArchiveId,
                 chatArchiveId = current.chatArchiveId?.takeUnless { it == id },
                 voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it == id },
                 gameArchiveId = current.gameArchiveId?.takeUnless { it == id },
@@ -223,8 +225,11 @@ class ModelConnectionStore private constructor(context: Context) {
         )
     }
 
+    /** Explicitly choose the library fallback; archive imports never call this. */
     fun selectArchive(id: String) {
-        require(mutable.value.archives.any { it.id == id }) { "模型存档不存在" }
+        require(mutable.value.archives.any { it.id == id && !it.model.startsWith("jev-") }) {
+            "请选择可用于文字生成的模型存档"
+        }
         persist(mutable.value.copy(activeArchiveId = id))
     }
 
@@ -252,7 +257,7 @@ class ModelConnectionStore private constructor(context: Context) {
 
     fun resolveConnection(archiveId: String? = mutable.value.activeArchiveId): ModelConnection {
         val state = mutable.value
-        val resolvedArchiveId = archiveId ?: state.activeArchiveId ?: state.archives.firstOrNull()?.id
+        val resolvedArchiveId = archiveId ?: state.archiveIdFor(ModelUsage.Sleep)
         val archive = state.archives.firstOrNull { it.id == resolvedArchiveId }
             ?: error("请先在设置中获取模型并加入存档")
         val configuration = state.configurations.firstOrNull { it.id == archive.configurationId }
@@ -526,8 +531,9 @@ class CompanionModelGateway(
             } else {
                 usage?.let(connectionStore::selectedArchiveId)
             }
-            val connection = ScopedModelSelections.expressionConnection(source, contextMode, connectionStore)
-                ?: connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
+            // Character expression uses the same actual reasoning/chat model.
+            // Hidden legacy expression slots must never silently swap personas.
+            val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             require(!connection.model.startsWith("jev-")) { "Jev是思路参考模型，不能生成台词；请为聊天/表达选择文字模型" }
             // Reuse the selected multimodal chat model (e.g. Gemini); never
             // start another API request just to identify the owner's avatar.
