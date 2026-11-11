@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 通话主动观察的人设交接
+
+- 上轮 `0089d35` 的 [原索引 #43050306765](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306765) 成功，新增普通电话回归在其 JVM 日志通过，全量当时有五项已有失败。复核包含该回归的后继 `a3d0418` [全量 JVM/APK #43063650483](https://github.com/jiacimu-droid/lulu1/actions/runs/43063650483) 成功并发布 APK，日志再次确认普通电话回归 PASSED。
+- [7d98a43](https://github.com/jiacimu-droid/lulu1/commit/7d98a438d7df01380db982df698d1f36f24ca352) 接通后的真实回执由 `LuluVoiceCallSession.onExternalToolResult` 交给原人物网关。原桥接层仅对有用户发言的电话捕获配置，主动观察即使会选择说话、挂断或副动作，也跳过同一提交检查。现在所有电话观察共用 `CharacterRuntime` 的定义检查，正常观察的静默、结构要求及口语补写预算保持原有行为。已执行工具的原始回执由权威时间线保留，校验不自动重发工具或旧决定。
+- `ConversationExpressionGatewayTest.phoneObservationRejectsStaleReceiptDecisionWithoutRepeatingItsTool` 使用正式桥接 HTTP 与实际 `ToolRouter` 朋友圈发布。模型等待中编辑关系约定，核对旧请求读到原约定和真实回执，旧回复、挂断、第二条动态及其回执未提交。后续独立观察读取新约定，可按本人选择保持安静。该用例从正式桥接入口驱动，不覆盖真机通话队列或语音硬件。
+- [原索引 #43068891396](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891396) 与 [全量 JVM/APK #43068891449](https://github.com/jiacimu-droid/lulu1/actions/runs/43068891449) 均 completed/success。日志确认新增回归和上轮普通电话回归 PASSED，APK 已上传并发布。真机语音、视频播放、真实模型质量独立待验。
+- 下一步沿 P-03.1 查看 `LuluDeviceToolBridge.respond` 的 `phoneSteps` 循环与无声发布。先构造首个独立步骤真实执行等待期间编辑关系，核对已完成回执留存、尚未执行的后续步骤和旧沉默状态是否会继续提交。
+
 ## 2026-11-11 · P-03.1 普通结构化电话回复的交付边界
 
 - 上轮 `b10fa71` 的 [全量 JVM/APK #43030085743](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085743) 与[原索引 #43030085832](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085832) 均复核成功。最新 `main` 已合并另一窗口的屏幕输入改动，当前工作仅修改正常结构化回复分支及其回归。
