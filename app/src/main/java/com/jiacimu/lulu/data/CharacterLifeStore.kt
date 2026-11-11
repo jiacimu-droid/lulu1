@@ -519,6 +519,7 @@ object CharacterLifeStore {
     @Synchronized fun setRelationshipAgreement(
         characterId: String, targetId: String, title: String, details: String,
     ): Boolean {
+        if (prefs == null) return false
         val target = targetId.trim()
         if (target.isBlank() || target == characterId || target.length > 120) return false
         val root = state(characterId)

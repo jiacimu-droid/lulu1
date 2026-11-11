@@ -983,6 +983,25 @@ class CharacterLifeStoreTest {
         assertFalse(CharacterLifeStore.profileContext(role.characterId).contains("真正的更新前人格"))
     }
 
+    @Test fun relationshipEditRequiresAnInitializedDurableSource() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "relationship-source-not-ready"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", "原关系", "原约定"))
+        val preferences = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+        val original = preferences.getString(role, null)
+        releasePreferences()
+        assertFalse(CharacterLifeStore.setRelationshipAgreement(role, "user", "新关系", "待初始化的修改"))
+        assertEquals(original, preferences.getString(role, null))
+        assertEquals("原约定", CharacterSocialRelationship.agreement(role, "user")?.details)
+        CharacterLifeStore.initialize(context)
+        assertEquals("原约定", CharacterSocialRelationship.agreement(role, "user")?.details)
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role, "user", "新关系", "已初始化的修改"))
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        assertEquals("已初始化的修改", CharacterSocialRelationship.agreement(role, "user")?.details)
+    }
+
     @Test fun authoredRelationshipKeepsCompleteBoundariesAcrossReloadEditAndClear() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)
