@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T17:39:10.938985+00:00",
-  "commit": "fd05b986edd34948be078cf107058a6feec21958",
+  "generatedAt": "2026-11-11T17:39:45.783151+00:00",
+  "commit": "275b86eb3695f729b5b5e5a2ce3ca92cd25c31fb",
   "branch": "main",
-  "sourceFingerprint": "71a6cdaca35c9f1f33c71fe01f43c3355df9740dd713bbac05dd0d73efc605ca",
+  "sourceFingerprint": "69208b8639beed1bebc528ecd5a1b4888b756fcb4e8446ed87c04aa44a23f1cc",
   "summary": {
     "files": 1205,
-    "lines": 260357,
-    "symbols": 3643
+    "lines": 260385,
+    "symbols": 3644
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16073,19 +16073,25 @@
     "LuluWirelessDebugging": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "hasPriorPairing": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-        "line": 29
+        "line": 31
+      }
+    ],
+    "suggestedWifiHost": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
+        "line": 34
       }
     ],
     "forget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-        "line": 99
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
@@ -36850,20 +36856,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-      "lines": 107,
-      "sha256": "66a362f18d84cf753c94d92e39f13261d989cc7858edb3960f5c7830f58e2143",
+      "lines": 135,
+      "sha256": "7c423b6e13672583ee0ce2d0a05334bf561115a1513b33bc2697eaab60de1458",
       "symbols": [
         {
           "name": "LuluWirelessDebugging",
-          "line": 23
+          "line": 24
         },
         {
           "name": "hasPriorPairing",
-          "line": 29
+          "line": 31
+        },
+        {
+          "name": "suggestedWifiHost",
+          "line": 34
         },
         {
           "name": "forget",
-          "line": 99
+          "line": 127
         }
       ]
     },

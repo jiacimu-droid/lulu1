@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd05b986edd34948be078cf107058a6feec21958`
+- 基准提交：`275b86eb3695f729b5b5e5a2ce3ca92cd25c31fb`
 - 分支：`main`
 - 已索引文件：1205
-- 已索引代码/文本行：260357
-- 已发现符号：3643
+- 已索引代码/文本行：260385
+- 已发现符号：3644
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -775,7 +775,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 107 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 196 | 2 |
