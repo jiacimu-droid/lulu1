@@ -993,6 +993,111 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun ordinaryPhoneReplyRejectsEditsDuringSpeechOrMotionRepair() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+
+        for (repairSpeech in listOf(true, false)) {
+            val role = MigratedDomainStores.characters.create("电话普通回复样本-$repairSpeech", "记得自己的约定")
+            val id = role.characterId
+            val callId = "ordinary-phone-reply-edit-$id"
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", "沿用原来的称呼"))
+
+            val relative = "models/test-ordinary-reply-$id/avatar.model3.json"
+            val settings = java.io.File(com.jiacimu.lulu.Live2DAssets.base(context), relative)
+            settings.parentFile?.mkdirs()
+            settings.writeText("""{"FileReferences":{"Moc":"avatar.moc3","Textures":["skin.png"],"Motions":{"Gesture":[{"File":"wave.motion3.json"}]}}}""")
+            val models = context.getSharedPreferences("lulu_live2d_models_v1", 0)
+            models.edit().putString("model:$id", relative).commit()
+            com.jiacimu.lulu.Live2DVisualActionBus.stageReady(id, callId)
+
+            val post = "刚才的事留了一条动态"
+            val spoken = "我还要去核对一下。"
+            val staleStatus = "已经向用户交代"
+            val userText = if (repairSpeech) "那你也没十点叫我啊" else "后来核对了吗？"
+            val draft = if (repairSpeech) "憋了四个小时，就憋出这一句倒打一耙？" else spoken
+            val decision = JSONObject().put("action", "reply").put("text", draft)
+                .put("statusText", staleStatus).put("endCall", true)
+                .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", post))))
+            val release = CountDownLatch(1)
+            val requests = AtomicInteger()
+            val actions = AtomicInteger()
+            val statuses = AtomicInteger()
+            val hangups = AtomicInteger()
+            fun receipts() = SharedExperienceTimeline.all(id)
+                .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+            fun posts() = MomentsStore.posts.value.filter { it.authorCharacterId == id }.map { it.content }
+            fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", content))
+                    .put("finish_reason", "stop"))).toString())
+            val server = MockWebServer()
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse {
+                    return when (requests.incrementAndGet()) {
+                        1 -> response(decision.toString())
+                        2 -> {
+                            if (!release.await(15, TimeUnit.SECONDS)) return MockResponse().setResponseCode(500)
+                            if (repairSpeech) response(spoken) else response(
+                                """{"live2d":{"speech":[{"id":"s1","text":"$spoken","motion":{"group":"Gesture","index":0},"transition":"blend"}]}}""")
+                        }
+                        else -> MockResponse().setResponseCode(500)
+                    }
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                    server.url("/").toString(), "test-only")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                val pending = async {
+                    LuluDeviceToolBridge.respond(id, "", userText, "test", archiveId = archive.id,
+                        sceneContext = "正在电话中", phoneCallId = callId,
+                        onCharacterHangup = { hangups.incrementAndGet() },
+                        onLive2DAction = { actions.incrementAndGet() },
+                        onLive2DStatus = { statuses.incrementAndGet() })
+                }
+                val receiptBefore = try {
+                    val repairRequest = withContext(Dispatchers.IO) {
+                        checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
+                        checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                    }
+                    assertTrue(repairRequest.contains(if (repairSpeech) draft else "spokenText"))
+                    val receipt = receipts().single()
+                    val result = JSONObject(receipt.content).getString("result")
+                    assertTrue(ToolExecutionStatus.completed(JSONObject(result)))
+                    assertEquals(listOf(post), posts())
+                    assertTrue(CharacterLifeStore.setRelationshipAgreement(
+                        id, "user", "约定", "除非我主动提起，否则别用旧称呼"))
+                    receipt
+                } finally {
+                    release.countDown()
+                }
+                val stale = pending.await()
+                assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("旧台词未交付"))
+                assertNotEquals(staleStatus, CompanionPresenceStore.current(id)?.statusText)
+                assertEquals(listOf(receiptBefore), receipts())
+                assertEquals(listOf(post), posts())
+                assertEquals(0, actions.get())
+                assertEquals(0, statuses.get())
+                assertEquals(0, hangups.get())
+                assertEquals(2, server.requestCount)
+            } finally {
+                release.countDown()
+                server.shutdown()
+                com.jiacimu.lulu.Live2DVisualActionBus.stageClosed(id, callId)
+                models.edit().remove("model:$id").commit()
+                settings.parentFile?.deleteRecursively()
+            }
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneToolReceiptSurvivesEditsBeforeResultSpeechOrMotion() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

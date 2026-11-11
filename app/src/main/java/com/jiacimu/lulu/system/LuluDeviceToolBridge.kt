@@ -1521,8 +1521,15 @@ object LuluDeviceToolBridge {
                 else if (!separateExpression && phoneSpoken.isNotBlank())
                     phoneSpoken
                 else proposedSpeech
-            val verifiedSpeech = repairUnfairSpeech(naturalText)
-                ?: return Result.failure(IllegalStateException(
+            // Authored side steps may already have executed. An edit during
+            // expression invalidates delivery, not those completed attempts.
+            fun staleReplyExpression() = Result.failure<ModelReply>(IllegalStateException(
+                "本轮电话期间角色设定或关系已更新，旧台词未交付，请继续说话",
+            ))
+            val repairedSpeech = repairUnfairSpeech(naturalText)
+            currentCoroutineContext().ensureActive()
+            if (phoneDefinitionChanged()) return staleReplyExpression()
+            val verifiedSpeech = repairedSpeech ?: return Result.failure(IllegalStateException(
                     "角色本轮表达与未履行责任的事实不符，已停止发送，不使用固定道歉模板"
                 ))
             if (sceneContext.contains("电话") &&
@@ -1553,15 +1560,6 @@ object LuluDeviceToolBridge {
                     sticker = true,
                 ),
             ).filter(String::isNotBlank).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
-            if (!invalidBlame && safeText == naturalText && !rewriting) {
-                savePresence(
-                    characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
-                    heartVoiceFingerprint = privateDelta.fingerprint,
-                    momentChanged = privateDelta.meaningful,
-                    provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
-                )
-                com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
-            }
             if (com.jiacimu.lulu.Live2DVisualActionBus.canPublishPhoneVisual(
                     invalidBlame, rewriting, phoneCallId, safeText)) {
                 // Visual expression is an independent action chosen by the
@@ -1573,8 +1571,19 @@ object LuluDeviceToolBridge {
                     onLive2DAction != null && !sceneContext.contains("哄睡")) {
                     Live2DPhoneMotionRepair.publish(appContext,
                         characterId, phoneCallId, safeText, plan.live2d, history,
-                        userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus)
+                        userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus,
+                        canPublish = { !phoneDefinitionChanged() })
+                    if (phoneDefinitionChanged()) return staleReplyExpression()
                 } else plan.live2d?.let { chosen -> onLive2DAction?.invoke(chosen) }
+            }
+            if (!invalidBlame && safeText == naturalText && !rewriting) {
+                savePresence(
+                    characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
+                    heartVoiceFingerprint = privateDelta.fingerprint,
+                    momentChanged = privateDelta.meaningful,
+                    provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
+                )
+                com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
             if (!invalidBlame && !rewriting && !plan.endCall &&
                 sceneContext.contains("电话") && phoneCallId.isNotBlank() &&
