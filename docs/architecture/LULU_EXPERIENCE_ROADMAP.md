@@ -149,6 +149,9 @@
 | 18 G-03 | 已有营地、战利品仪式与仓库；已探索路径查询有新源码，待核地图接入 | G-03.1/2/3/5 玩通出发、冒险取舍、开箱、救援和撤离结算 | 选择影响局势，物品与图鉴如实结算，失败知道如何重开 |
 | 19 G-04 | 待真机/真实模型 | G-04.1 邀请→加入→结算回执 | 自主邀约不伪造玩家响应 |
 | 20 V-01 | 待真机/测量 | V-01.1 长句动作和音频时间线 | 口型、居中、回正和中断自然 |
+| 21 UI-04 | 手机内容页第一批源码已提交，APK/JVM 与真实截图待验 | UI-04.1 核四页 Kotlin/屏幕/字体适配；UI-04.2 按优先级逐批精修正式桌面、聊天附属面板、朋友圈/相册、学习工具页及其关联弹窗 | 遵循 `docs/DESIGN_SYSTEM.md` §13 的参考→规格→原生实现→截图返工流程；保留既有外观和真实操作，不以网页动画冒充 APK 体验 |
+
+**2026-11-11 UI-04.1 主人新增多页面高级感诉求（首批实际源码、待 CI/真机）**：参考 MotionSites 开源仓库的视觉工作流，仅借鉴设计与截图复核方法，不复制网页动画/素材。Android 原生新增 `LuluEditorialComponents.kt`（`85dceff`）；正式角色番外页与作品卡（`291d9be`）、设置入口分组（`51cf018`）、单篇剧场书架与折叠创作设定（`a7db8ed`）、美化工坊（`2bc807b`）已提交；`docs/DESIGN_SYSTEM.md` §13 已补原生页面验收规范（`2239a79`）。主要按 `MaterialTheme`/用户既有外观生效，未改变角色决策、模型或持久化。**不得把源码提交当真机美观验收**：先查最新 `2bc807b` 的 APK/JVM、Refresh code index；如失败先修真实首错，随后用 360dp/412dp、字体放大、深色/手账外观与弹窗做实际截图对比，再按 UI-04.2 逐批扩面。UI-01 的性能测量与 G-02/G-03 的独立游戏画风继续各自跟踪。
 
 **2026-11-09 S-02.1 接力**：`608fbfd` 的 [APK/JVM #42521395829](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395829) 为 2591 tests / 1 failed；四居民预算新增测试 PASSED，唯一失败为 `OnlineChatExperienceTest.interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending`（expected 12000 but null）。根因是夹具用被动 `next` 假装正在读取期间新用户气泡，正式 `next` 按契约保留原 revision；`77aca0e` 已将该测试改为真实 `onUserBubble`，后继 JVM/APK 与索引待验。索引 [#42521395832](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395832) success。**下一轮固定 S-02.1**：先核 `77aca0e` Actions head SHA，失败修首错；通过后沿 `CompanionModelGateway`/`LocalPerformanceRepository` 补 MockWebServer HTTP handoff 失败重试计数。不得把请求尝试等同计费。
 
