@@ -46,6 +46,9 @@ internal fun BlockIslandEntry(store: LuluGameStore) {
 @Composable
 private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
+        it.screenWidthDp > it.screenHeightDp
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val candidates = characters.values.sortedBy { it.displayName }
     val savedIsland = remember(context) {
@@ -98,23 +101,25 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement=Arrangement.spacedBy(10.dp),
                     verticalAlignment=Alignment.CenterVertically) {
-                    GameLobbyPartySlot(playerAvatar,playerName,"你 · 岛主",true,mint)
+                    GameLobbyPartySlot(playerAvatar,playerName,"你 · 岛主",true,mint,
+                        compact=compactLobby)
                     selected.forEach { id ->
                         characters[id]?.let { c ->
                             GameLobbyPartySlot(c.avatarUri,c.displayName.take(1),c.displayName,
                                 false,mint,allowRemove=inviting==null,
-                                onRemove={selected=selected-id})
+                                onRemove={selected=selected-id},compact=compactLobby)
                         }
                     }
-                    if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null) {
+                    if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null,compact=compactLobby) {
                         choosing=!choosing
                     }
                 }
-                Text("伙伴可自由决定是否同行；入岛后能共同冒险。",
+                if(!compactLobby)Text("伙伴可自由决定是否同行；入岛后能共同冒险。",
                     color = dim, fontSize = 11.sp, lineHeight = 16.sp)
                 
                 if (invitationResult.isNotBlank()) {
-                    Text(invitationResult, color = mint, fontSize = 11.sp, lineHeight = 16.sp)
+                    Text(invitationResult, color = mint, fontSize = 11.sp, lineHeight = 16.sp,
+                        maxLines=2)
                 }
             }
         }
