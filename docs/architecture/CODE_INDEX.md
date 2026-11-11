@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8836b7b7e85df41f56fee771250212a5e9ba0c1e`
+- 基准提交：`bcfcd4f99a9e9220167b39d06bc688b5e5c2924a`
 - 分支：`main`
-- 已索引文件：1183
-- 已索引代码/文本行：257043
-- 已发现符号：3519
+- 已索引文件：1196
+- 已索引代码/文本行：258872
+- 已发现符号：3619
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -772,6 +772,19 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt` | 132 | 6 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt` | 268 | 10 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt` | 160 | 4 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt` | 322 | 19 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt` | 72 | 5 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt` | 141 | 9 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt` | 93 | 6 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt` | 119 | 7 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt` | 187 | 11 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt` | 86 | 11 |
+| `app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt` | 94 | 5 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon_foreground.xml` | 21 | 0 |

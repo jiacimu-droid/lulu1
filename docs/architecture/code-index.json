@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:46:41.394670+00:00",
-  "commit": "8836b7b7e85df41f56fee771250212a5e9ba0c1e",
+  "generatedAt": "2026-11-11T16:02:18.348594+00:00",
+  "commit": "bcfcd4f99a9e9220167b39d06bc688b5e5c2924a",
   "branch": "main",
-  "sourceFingerprint": "9f6d51801bd96c4fd26721060e941de84312cdab0460169f816ec412bb3d9228",
+  "sourceFingerprint": "9dcd7e678fff82b70f381de60f3cf12f733f8e17333458cc4657b4b5f8112619",
   "summary": {
-    "files": 1183,
-    "lines": 257043,
-    "symbols": 3519
+    "files": 1196,
+    "lines": 258872,
+    "symbols": 3619
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -604,6 +604,18 @@
         "line": 134
       },
       {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 149
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt",
+        "line": 125
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 185
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
         "line": 132
       },
@@ -628,6 +640,14 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 40
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 203
       }
     ],
     "explicitlyEndsOwnCall": [
@@ -1168,6 +1188,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 27
       }
     ],
     "CharacterHubScreen": [
@@ -1520,6 +1544,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 206
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 10
       }
     ],
     "sceneLabel": [
@@ -1792,6 +1820,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 82
       }
     ],
     "decodePlan": [
@@ -2314,6 +2346,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 140
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 132
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 184
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 242
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+        "line": 50
       }
     ],
     "millis": [
@@ -3782,6 +3830,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
         "line": 42
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 37
       }
     ],
     "pauseCapture": [
@@ -4254,6 +4306,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 286
       }
     ],
     "rename": [
@@ -4582,6 +4638,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 186
       }
     ],
     "generated": [
@@ -4796,6 +4856,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
         "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 265
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 51
       }
     ],
     "observedMs": [
@@ -5110,6 +5182,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt",
         "line": 5
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 21
       }
     ],
     "user": [
@@ -6164,6 +6240,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
         "line": 7
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 28
       }
     ],
     "absorb": [
@@ -7174,6 +7254,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
         "line": 554
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 26
       }
     ],
     "latestVoice": [
@@ -7422,6 +7506,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
         "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 41
       }
     ],
     "modelContext": [
@@ -8124,6 +8212,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
         "line": 181
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 62
       }
     ],
     "elapsed": [
@@ -10560,6 +10652,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 60
       }
     ],
     "removeMemory": [
@@ -13240,6 +13336,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 179
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 9
       }
     ],
     "has": [
@@ -14080,6 +14180,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 72
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 47
       }
     ],
     "remaining": [
@@ -14126,6 +14230,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+        "line": 45
       }
     ],
     "feed": [
@@ -15880,6 +15988,434 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
         "line": 12
+      }
+    ],
+    "AndroidAdb": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 23
+      }
+    ],
+    "identities": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 36
+      }
+    ],
+    "pairingIdentity": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 44
+      }
+    ],
+    "tls": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 45
+      }
+    ],
+    "forget": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 140
+      }
+    ],
+    "NsdAdbServiceFinder": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt",
+        "line": 18
+      }
+    ],
+    "PortCache": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 8
+      }
+    ],
+    "ConnectCandidates": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 17
+      }
+    ],
+    "AdbConnectPort": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 39
+      }
+    ],
+    "AdbConnectionException": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 20
+      }
+    ],
+    "Reason": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 31
+      }
+    ],
+    "AdbConnection": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 38
+      }
+    ],
+    "exec": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 57
+      }
+    ],
+    "readAll": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 143
+      }
+    ],
+    "readText": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+        "line": 147
+      }
+    ],
+    "AdbHosts": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt",
+        "line": 15
+      }
+    ],
+    "ownAddress": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt",
+        "line": 25
+      }
+    ],
+    "ownSocketAddress": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt",
+        "line": 35
+      }
+    ],
+    "AdbIdentity": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 31
+      }
+    ],
+    "fromPkcs8": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 58
+      }
+    ],
+    "AdbKeyUnreadableException": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 91
+      }
+    ],
+    "AdbKeyState": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 94
+      }
+    ],
+    "AdbIdentitySource": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 110
+      }
+    ],
+    "forConnect": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 126
+      }
+    ],
+    "forPairing": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 130
+      }
+    ],
+    "AdbKeyStore": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 183
+      }
+    ],
+    "WrappedKeyFile": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 193
+      }
+    ],
+    "publicExponent": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 230
+      }
+    ],
+    "AdbPublicKey": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 262
+      }
+    ],
+    "AdbMessage": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+        "line": 14
+      }
+    ],
+    "checksum": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+        "line": 39
+      }
+    ],
+    "AdbServiceTypes": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 14
+      }
+    ],
+    "interface": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 17
+      }
+    ],
+    "AdbPairingException": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 29
+      }
+    ],
+    "AdbPeerInfo": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 39
+      }
+    ],
+    "AdbPairing": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 47
+      }
+    ],
+    "pair": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 49
+      }
+    ],
+    "writePacket": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 115
+      }
+    ],
+    "readPacket": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+        "line": 123
+      }
+    ],
+    "export": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 18
+      }
+    ],
+    "AdbTls": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 25
+      }
+    ],
+    "wrap": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 51
+      }
+    ],
+    "exportKeyingMaterial": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+        "line": 65
+      }
+    ],
+    "times": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 34
+      }
+    ],
+    "affine": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 45
+      }
+    ],
+    "fromLe": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 105
+      }
+    ],
+    "toLe": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 107
+      }
+    ],
+    "hex": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+        "line": 115
+      }
+    ],
+    "AdbEndpoint": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 21
+      }
+    ],
+    "OwnListeningPorts": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 24
+      }
+    ],
+    "LocalPortScanner": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 32
+      }
+    ],
+    "speaksAdbTls": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 37
+      }
+    ],
+    "ScanResult": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 41
+      }
+    ],
+    "LocalPortScan": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 50
+      }
+    ],
+    "parseRange": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 87
+      }
+    ],
+    "NioPortScanner": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 100
+      }
+    ],
+    "Hkdf": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 11
+      }
+    ],
+    "sha256": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 12
+      }
+    ],
+    "PairingCipher": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 40
+      }
+    ],
+    "encrypt": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 73
+      }
+    ],
+    "decrypt": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 48
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 75
+      }
+    ],
+    "PairingAuth": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 64
+      }
+    ],
+    "initCipher": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 68
+      }
+    ],
+    "client": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 80
+      }
+    ],
+    "server": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+        "line": 81
+      }
+    ],
+    "Spake2": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 16
+      }
+    ],
+    "generateMessage": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 28
+      }
+    ],
+    "processMessage": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 52
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -36110,6 +36646,497 @@
       "lines": 49,
       "sha256": "f6eb173c073df2a5ba7588ed122ebe5c1610974c0acc076a18cab31db449dcc3",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+      "lines": 76,
+      "sha256": "4abae02cfea5bfb43e6410e64defc9087e7b46ac9c96fb3a1045ae3a4fb93ab5",
+      "symbols": [
+        {
+          "name": "AndroidAdb",
+          "line": 23
+        },
+        {
+          "name": "identities",
+          "line": 36
+        },
+        {
+          "name": "identity",
+          "line": 41
+        },
+        {
+          "name": "pairingIdentity",
+          "line": 44
+        },
+        {
+          "name": "tls",
+          "line": 45
+        },
+        {
+          "name": "forget",
+          "line": 49
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt",
+      "lines": 79,
+      "sha256": "cf30e8c394cc47db453e99e03893713d6b24aefdd605fdf99c637acafc97ee15",
+      "symbols": [
+        {
+          "name": "NsdAdbServiceFinder",
+          "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+      "lines": 132,
+      "sha256": "83e6f38eb422f0545f5a6fd087eeff379a9c5c6c1deec475ce498b1ad18060e2",
+      "symbols": [
+        {
+          "name": "PortCache",
+          "line": 8
+        },
+        {
+          "name": "load",
+          "line": 9
+        },
+        {
+          "name": "save",
+          "line": 10
+        },
+        {
+          "name": "ConnectCandidates",
+          "line": 17
+        },
+        {
+          "name": "AdbConnectPort",
+          "line": 39
+        },
+        {
+          "name": "local",
+          "line": 62
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
+      "lines": 268,
+      "sha256": "ad41bbc83485cd06e4708b8598f032dd32f4503cdf940e45fc57c0d43d7c9dfd",
+      "symbols": [
+        {
+          "name": "AdbConnectionException",
+          "line": 20
+        },
+        {
+          "name": "Reason",
+          "line": 22
+        },
+        {
+          "name": "AdbConnection",
+          "line": 38
+        },
+        {
+          "name": "exec",
+          "line": 57
+        },
+        {
+          "name": "open",
+          "line": 58
+        },
+        {
+          "name": "read",
+          "line": 132
+        },
+        {
+          "name": "readAll",
+          "line": 143
+        },
+        {
+          "name": "readText",
+          "line": 147
+        },
+        {
+          "name": "write",
+          "line": 149
+        },
+        {
+          "name": "open",
+          "line": 203
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbHosts.kt",
+      "lines": 160,
+      "sha256": "47a56a6a103315493464494b4cf5ce1c0d52f6bc063249a0be051d813eae0ca5",
+      "symbols": [
+        {
+          "name": "AdbHosts",
+          "line": 15
+        },
+        {
+          "name": "ownAddress",
+          "line": 25
+        },
+        {
+          "name": "ownSocketAddress",
+          "line": 35
+        },
+        {
+          "name": "write",
+          "line": 125
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+      "lines": 322,
+      "sha256": "9ba649388e958d9ebe483834f3131f7e157923181c4a8429e34f154879f0dd0d",
+      "symbols": [
+        {
+          "name": "AdbIdentity",
+          "line": 31
+        },
+        {
+          "name": "generate",
+          "line": 47
+        },
+        {
+          "name": "fromPkcs8",
+          "line": 58
+        },
+        {
+          "name": "AdbKeyUnreadableException",
+          "line": 91
+        },
+        {
+          "name": "AdbKeyState",
+          "line": 94
+        },
+        {
+          "name": "AdbIdentitySource",
+          "line": 110
+        },
+        {
+          "name": "forConnect",
+          "line": 126
+        },
+        {
+          "name": "forPairing",
+          "line": 130
+        },
+        {
+          "name": "forget",
+          "line": 140
+        },
+        {
+          "name": "AdbKeyStore",
+          "line": 183
+        },
+        {
+          "name": "read",
+          "line": 184
+        },
+        {
+          "name": "write",
+          "line": 185
+        },
+        {
+          "name": "clear",
+          "line": 186
+        },
+        {
+          "name": "WrappedKeyFile",
+          "line": 193
+        },
+        {
+          "name": "publicExponent",
+          "line": 230
+        },
+        {
+          "name": "read",
+          "line": 242
+        },
+        {
+          "name": "AdbPublicKey",
+          "line": 262
+        },
+        {
+          "name": "encode",
+          "line": 265
+        },
+        {
+          "name": "create",
+          "line": 286
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
+      "lines": 72,
+      "sha256": "30ef5fc0bd4e1e7c1e4ceb1f8c26576424a55645d6ac2b0adf363332adbf31a8",
+      "symbols": [
+        {
+          "name": "AdbMessage",
+          "line": 14
+        },
+        {
+          "name": "encode",
+          "line": 15
+        },
+        {
+          "name": "checksum",
+          "line": 39
+        },
+        {
+          "name": "name",
+          "line": 45
+        },
+        {
+          "name": "read",
+          "line": 50
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbPairing.kt",
+      "lines": 141,
+      "sha256": "0cedfc3dc85909df7e38493da3ef14c3b7ac977d2db23bb4f9d3a6c7d4ac8876",
+      "symbols": [
+        {
+          "name": "AdbServiceTypes",
+          "line": 14
+        },
+        {
+          "name": "interface",
+          "line": 26
+        },
+        {
+          "name": "AdbPairingException",
+          "line": 29
+        },
+        {
+          "name": "Reason",
+          "line": 31
+        },
+        {
+          "name": "AdbPeerInfo",
+          "line": 39
+        },
+        {
+          "name": "AdbPairing",
+          "line": 47
+        },
+        {
+          "name": "pair",
+          "line": 49
+        },
+        {
+          "name": "writePacket",
+          "line": 115
+        },
+        {
+          "name": "readPacket",
+          "line": 123
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbTls.kt",
+      "lines": 93,
+      "sha256": "3f68dd1c20b53c5df31a2a28f5064c1c4cdf4a7ce166e1b2b6fea2c9aa3c626e",
+      "symbols": [
+        {
+          "name": "interface",
+          "line": 17
+        },
+        {
+          "name": "export",
+          "line": 18
+        },
+        {
+          "name": "AdbTls",
+          "line": 25
+        },
+        {
+          "name": "connect",
+          "line": 37
+        },
+        {
+          "name": "wrap",
+          "line": 51
+        },
+        {
+          "name": "exportKeyingMaterial",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
+      "lines": 119,
+      "sha256": "16434ed24d09e21f6d0f0f1e95ce393d909c0f1e0e666eb6a8008e329bc6ec74",
+      "symbols": [
+        {
+          "name": "times",
+          "line": 34
+        },
+        {
+          "name": "affine",
+          "line": 45
+        },
+        {
+          "name": "encode",
+          "line": 51
+        },
+        {
+          "name": "decode",
+          "line": 82
+        },
+        {
+          "name": "fromLe",
+          "line": 105
+        },
+        {
+          "name": "toLe",
+          "line": 107
+        },
+        {
+          "name": "hex",
+          "line": 115
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+      "lines": 187,
+      "sha256": "d8db65573b5a7bdbaf27981b9a2023aa96cbb00d01a56182587b20a0af6bf90f",
+      "symbols": [
+        {
+          "name": "AdbEndpoint",
+          "line": 21
+        },
+        {
+          "name": "OwnListeningPorts",
+          "line": 24
+        },
+        {
+          "name": "add",
+          "line": 26
+        },
+        {
+          "name": "remove",
+          "line": 27
+        },
+        {
+          "name": "snapshot",
+          "line": 28
+        },
+        {
+          "name": "LocalPortScanner",
+          "line": 32
+        },
+        {
+          "name": "speaksAdbTls",
+          "line": 37
+        },
+        {
+          "name": "ScanResult",
+          "line": 41
+        },
+        {
+          "name": "LocalPortScan",
+          "line": 50
+        },
+        {
+          "name": "parseRange",
+          "line": 87
+        },
+        {
+          "name": "NioPortScanner",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/PairingAuth.kt",
+      "lines": 86,
+      "sha256": "e443d580d4bd6a3a3fcbbf089fbf43fc02c5dd1a0bc09a78f8fdbefa8fa5f826",
+      "symbols": [
+        {
+          "name": "Hkdf",
+          "line": 11
+        },
+        {
+          "name": "sha256",
+          "line": 12
+        },
+        {
+          "name": "PairingCipher",
+          "line": 40
+        },
+        {
+          "name": "encrypt",
+          "line": 44
+        },
+        {
+          "name": "decrypt",
+          "line": 48
+        },
+        {
+          "name": "PairingAuth",
+          "line": 64
+        },
+        {
+          "name": "initCipher",
+          "line": 68
+        },
+        {
+          "name": "encrypt",
+          "line": 73
+        },
+        {
+          "name": "decrypt",
+          "line": 75
+        },
+        {
+          "name": "client",
+          "line": 80
+        },
+        {
+          "name": "server",
+          "line": 81
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+      "lines": 94,
+      "sha256": "a157e27c28be1cec90e703fecbf0e7d5380d0ef456066ce2f566adb2768af1d0",
+      "symbols": [
+        {
+          "name": "Spake2",
+          "line": 16
+        },
+        {
+          "name": "Role",
+          "line": 21
+        },
+        {
+          "name": "generateMessage",
+          "line": 28
+        },
+        {
+          "name": "processMessage",
+          "line": 52
+        },
+        {
+          "name": "put",
+          "line": 60
+        }
+      ]
     },
     {
       "path": "app/src/main/res/drawable/ic_lulu.xml",
