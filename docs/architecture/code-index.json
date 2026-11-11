@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:20:28.027529+00:00",
-  "commit": "697dce7f0f1dd09d7ff2a5e4916a7a07a44b340f",
+  "generatedAt": "2026-11-11T09:20:48.932084+00:00",
+  "commit": "816d018f9259dd1bd8a15a2836fbfae6dad172f3",
   "branch": "main",
-  "sourceFingerprint": "b4d3e2e3d6d154af0c1c8bb25869cde9e007f0edae1d880737549c5e8dfacb95",
+  "sourceFingerprint": "3b678d2bbba8ff59b3d51544343d97949cde9a7e33b27919bc81d2f30ff484e0",
   "summary": {
     "files": 1175,
-    "lines": 255338,
+    "lines": 255339,
     "symbols": 3479
   },
   "symbolIndex": {
@@ -36972,8 +36972,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
-      "lines": 183,
-      "sha256": "224016a525c6cebc52f363ef34dca9236ab55ebee3965812891d9b2dd6f74c4b",
+      "lines": 184,
+      "sha256": "ea60e67d289bd4ec0939396c39ebcf1651c69b3c91bbf3fd4a8844254f81cea6",
       "symbols": [
         {
           "name": "JevDirectionsTest",
