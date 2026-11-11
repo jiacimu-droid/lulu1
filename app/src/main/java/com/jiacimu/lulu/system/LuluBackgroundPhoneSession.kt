@@ -47,7 +47,7 @@ internal object LuluBackgroundPhoneSession {
         forgetTransport()
         check(Build.VERSION.SDK_INT >= 34) { "独立焦点虚拟屏需要 Android 14 及以上" }
         val source = context.applicationInfo.sourceDir
-        check(source.matches(Regex("/[a-zA-Z0-9_./-]+\\.apk"))) {
+        check(source.matches(Regex("/[a-zA-Z0-9_./~+=-]+\\.apk"))) {
             "不能安全定位本机 APK 的 classpath"
         }
         val conn = LuluWirelessDebugging.openShell(context)
@@ -218,6 +218,10 @@ internal object LuluBackgroundPhoneSession {
                     else "只确认输入派发和实际画面；尚未观察到预期文字，不能标记任务完成")
                 .toString()
         } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) {
+                forgetTransport()
+                throw error
+            }
             // An unknown transport/display state must never be retried with
             // an old action ID; release before the next request.
             forgetTransport()

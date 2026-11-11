@@ -64,7 +64,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
             )
-            Button(enabled = !setupBusy && pairPort.toIntOrNull() in 1..65535 &&
+            Button(enabled = !setupBusy && (pairPort.toIntOrNull()?.let { it in 1..65535 } == true) &&
                 pairingCode.length == 6, onClick = {
                 val port = pairPort.toIntOrNull() ?: return@Button
                 val oneTimeCode = pairingCode
