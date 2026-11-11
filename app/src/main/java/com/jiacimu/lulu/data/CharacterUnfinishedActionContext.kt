@@ -76,6 +76,7 @@ internal object CharacterUnfinishedActionContext {
         // Use the SAME sources as the sharing-urge gauge, not only 'held'.
         // An open experience that contributes to a saturated urge must have a
         // chance to enter the next real decision. This is a cue, not auto-send.
+        val shareImpulse = CharacterLifeFollowThroughStore.sharingUrge(role, now)
         val shareIds = CharacterLifeFollowThroughStore.sharingCandidates(role, now)
             .mapTo(hashSetOf()) { it.optString("id") }
         CharacterLifeFollowThroughStore.auditSnapshot(role)
@@ -87,7 +88,7 @@ internal object CharacterUnfinishedActionContext {
                         else "这件真实经历形成了累计分享欲，但尚未明确决定分享；") +
                         "若现在本人真想分享，可选择私聊message、好友可见朋友圈moment或有真实groupId的群聊，并附experienceId；不想说可以暂缓或放下",
                     at(share, "occurredAt"),
-                    attentionPriority = if (held) 45 else 4)
+                    attentionPriority = if (held) 45 else if (shareImpulse >= 85.0) 35 else 4)
             }
         return CharacterAttentionWorkingSet.select(cues.filter { !it.at.isAfter(now) }.sortedBy { it.at },
             6, now, ProactivePerceptionPolicyStore.get(role).onlinePulseSeconds.toLong(),
@@ -116,6 +117,16 @@ internal object CharacterUnfinishedActionContext {
         append("挂心是尚未解决的在意，记忆是所依据的事实；安排日程不代表挂心已解决，也不自动把每件挂心升级为核心记忆。探索沿原goalId继续；到点重新核实参数、时机与权限，可执行、改期或取消。无需为排日程单独增加模型调用，也不必强行把每个念头变成待办。")
     }
 
-    fun context(context: Context, role: String, now: Instant = Instant.now()): String =
-        render(candidates(context, role, now))
+    fun context(context: Context, role: String, now: Instant = Instant.now()): String {
+        val unfinished = render(candidates(context, role, now))
+        // Bring the real embodied urge next to the actionable handoff, not only
+        // deep inside the personality/memory prompt. This never chooses tools.
+        val boredom = EmbodiedBodyRuntime.sensorySnapshot(role, now)?.boredom ?: return unfinished
+        if (boredom < 75.0) return unfinished
+        val bodyCue = buildString {
+            appendLine("【此刻单调感与实际选择】")
+            appendLine("当前单调感≈${boredom.toInt()}/100：缺少新体验的倾向已很明显。请在本轮真实的兴趣、精力、关系、许可和可用工具中权衡：若本人现在真的想查资料、阅读、游戏、游览或找人分享，直接在同一决策选择真实 action/steps（可与回复并行）；若需要看过搜索结果再决定，则先执行搜索，后续根据真实回执重新判断；若只是闪念、时机不合或想休息，允许保持安静或暂缓。数值不授权程序替本人选择动作，也不是已完成回执。")
+        }.trim()
+        return listOf(bodyCue, unfinished).filter(String::isNotBlank).joinToString("\n")
+    }
 }
