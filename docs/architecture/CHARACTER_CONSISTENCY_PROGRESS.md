@@ -1854,3 +1854,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `ConversationExpressionGatewayTest.phoneIntentRecoveryDiscardsStaleDecisionAfterRelationshipEdit` 用真实 HTTP 请求暂停电话补写，在等待期间修改本人关系和核心简介，核旧轮无发声结果、无提前媒体暂停和旧媒体回执，后继新轮读取完整新条件、正常返回与留下独立回执。固定模型响应仅用于工程验证。
 - 原索引 [#42980757807](https://github.com/jiacimu-droid/lulu1/actions/runs/42980757807) completed/success，源码本身的 [JVM/APK #42980757789](https://github.com/jiacimu-droid/lulu1/actions/runs/42980757789) 被后续提交取消。含本改动的后继 `e639211` [索引 #42980817976](https://github.com/jiacimu-droid/lulu1/actions/runs/42980817976) 成功，[JVM/APK #42980818040](https://github.com/jiacimu-droid/lulu1/actions/runs/42980818040) completed/success，新增设定更新用例和已有电话取消用例均 PASSED，全量构建和 APK 发布成功。真机和真实模型待验。
 - 下一轮固定 P-03.1 在同一 `ConversationExpressionGatewayTest` 检查用户编辑发生在首次电话决策请求内时，旧意图是否确实在第二次 HTTP 之前被拦下，并核普通直接台词入口是否还有不同的跨轮交接缺口。只在可复现时改生产代码。
+
+## 2026-11-11 · P-08d.2b.2 纵向正例 CI 核实与静默不重放
+
+- `1b6f749578a1d8b15b4928952bf67c783312439b` 对应 main push [Lulu APK/JVM #42974284902](https://github.com/jiacimu-droid/lulu1/actions/runs/42974284902) 和 [Refresh code index #42974284632](https://github.com/jiacimu-droid/lulu1/actions/runs/42974284632) 均 completed/success。既有失败声音→重载→模型 HTTP→新动态送达→下一轮事实承接的确定性工程正例已验；不能代替真机 TTS 或真实模型选择。
+- [7c7ec4d](https://github.com/jiacimu-droid/lulu1/commit/7c7ec4d005af95e1019458dd61b0699591acc219) 沿同一测试补下一轮明确 silent 时原动态不重复发布、原叫醒失败责任不被新独立动作改写为完成。只增加回归断言，没有修改生产逻辑；本 SHA 的 JVM/APK 与索引仍待 CI。
+- 下一轮直接打开 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，先按 `7c7ec4d` head SHA 核 JVM/索引，再补工具执行失败或取消后独立回执跨轮可见的反例。真实设备权限、实际有声播放和模型理解独立待验。
