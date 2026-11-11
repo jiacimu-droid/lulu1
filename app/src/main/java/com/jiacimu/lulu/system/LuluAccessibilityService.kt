@@ -124,6 +124,25 @@ class LuluAccessibilityService : AccessibilityService() {
             )
         }
 
+        /** Set Unicode text ONLY in an editable, non-password node on the owned display. */
+        fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
+            val service = instance ?: return false
+            if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0 ||
+                text.isEmpty() || text.length > 500) return false
+            val windows = service.windowsOnAllDisplays.get(displayId).orEmpty()
+            for (window in windows.sortedByDescending { it.layer }) {
+                val root = window.root ?: continue
+                if (root.packageName?.toString() != packageName) continue
+                val field = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: continue
+                if (!field.isVisibleToUser || !field.isEditable || field.isPassword) continue
+                val arguments = Bundle().apply {
+                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+                }
+                return field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+            }
+            return false
+        }
+
         fun perform(action: LuluScreenAction): Boolean {
             val service = instance ?: return false
             val globalAction = when (action) {
