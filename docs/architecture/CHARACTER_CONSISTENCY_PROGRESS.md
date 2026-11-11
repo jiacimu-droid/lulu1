@@ -1885,3 +1885,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [2773dce](https://github.com/jiacimu-droid/lulu1/commit/2773dceb1cceb37efb968a26339af29b85414d32) 在这条旁路的语音恢复及归责核验之后复用现有定义和取消检查。视频补正把同一配置校验传到动作与状态回调前，桥接层随后再核发声。保留原修复预算与完整原轮所有权，失效结果不自动重发。这次只绑定格式恢复路径，其他视频调用的配置复核仍需各自按已证路径检查。
 - `ConversationExpressionGatewayTest.malformedPhoneRecoveryRejectsEditsDuringSpeechOrMotionRepair` 使用实际网关 HTTP 和已有的测试动作目录方式，分别在第二次语音恢复、第三次视频动作补正请求等待中更新关系。两条路径都无可交付台词、动作或状态回调，且没有额外请求。该用例和首次电话决策回归在 [JVM/APK #43012688208](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688208) 日志确认 PASSED，全量构建和 APK 发布成功，[原索引 #43012688106](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688106) 成功。真机 Live2D、TTS 与真实模型表现待验。
 - 下一轮 P-03.1 先核本轮索引及 APK 证据，再打开 `LuluDeviceToolBridge` 中 `checkedResultText` 的电话工具结果表达与 `ConversationExpressionGatewayTest`。构造实际工具已完成、返回表达仍在等待时编辑约定的反例，分别核原真实回执保留和过期表达不交付。仅在源码或测试证实缺口时修改，不重复本轮格式异常路径。
+
+## 2026-11-11 · P-08d.2b.2 失败主动作下轮来源/状态输入（待 CI）
+
+- 核 main push `3281ad6dce78df155a5bbbdfec249960a190f828` 的 [APK/JVM #43015458694](https://github.com/jiacimu-droid/lulu1/actions/runs/43015458694) 和 [索引 #43015458724](https://github.com/jiacimu-droid/lulu1/actions/runs/43015458724) 均 completed/success；旧 `c88a24c` 失败已被包含同测试的后继成功覆盖。
+- [9503ba3](https://github.com/jiacimu-droid/lulu1/commit/9503ba3f292b912a07f3e5a75882a036cca92cc4) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 的第二轮真实模型 HTTP 输入补 motiveId 与 `needs_review` 断言；仅测试，当前 SHA CI 未验，不宣称通过。
+- 下一轮固定 P-08d.2b.2：核 `9503ba3` main push APK/JVM/索引 head SHA；失败修首错，通过后继续新工具取消/失败的来源回执。真机 TTS/权限、真实模型和计费仍待验。
