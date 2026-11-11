@@ -1,5 +1,10 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08d.2b.2 备份合并后的独立回执稳定性
+
+- [f7bbf37](https://github.com/jiacimu-droid/lulu1/commit/f7bbf37e2240103b3517bc53e275086cac29e59f) 在正式 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 中新增备份再导入的幂等断言：同一人物实际工具执行的主拒绝、副成功回执在合并恢复后 ID 与原始内容保持一致，不能复制执行事实。已有下一轮 HTTP 输入与静默不重放断言继续运行。没有修改生产代码或额外模型调用。
+- 本次提交尚无可确认的 main push JVM/APK 和索引运行结果；该测试未标工程通过。备份合并不等于关闭 SQLite helper 或进程死亡，真机/真实模型另待验。下一轮先核该测试 CI 首错；若通过，优先找隔离冷重启测试夹具，不能安全隔离则转 P-08c.2。
+
 ## 2026-11-12 · P-03.1 新语音打断电话多步动作
 
 - 上轮 `75193fc` 的 [全量 JVM/APK #43088107233](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107233) 和[原索引 #43088107109](https://github.com/jiacimu-droid/lulu1/actions/runs/43088107109) 复核成功。
