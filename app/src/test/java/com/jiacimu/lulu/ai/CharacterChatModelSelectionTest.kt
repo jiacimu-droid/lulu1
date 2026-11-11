@@ -47,6 +47,41 @@ class CharacterChatModelSelectionTest {
             ScopedModelSelections.clearCharacterChatArchive(b)
         }
     }
+    @Test fun personalFanficFollowsItsOwnCharacterChatUnlessExplicitlyOverridden() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        ScopedModelSelections.initialize(context)
+        val one = "fanfic-a-" + UUID.randomUUID()
+        val other = "fanfic-b-" + UUID.randomUUID()
+        val default = ModelArchive(id = "budget-" + UUID.randomUUID(),
+            configurationId = "site", model = "budget")
+        val premium = ModelArchive(id = "premium-" + UUID.randomUUID(),
+            configurationId = "site", model = "premium")
+        val library = ModelLibraryState(archives = listOf(default, premium),
+            activeArchiveId = default.id, chatArchiveId = default.id)
+        try {
+            assertNull(ScopedModelSelections.personalTheaterOverrideId(one, library))
+            assertEquals(default.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(one, library))
+            ScopedModelSelections.selectCharacterChatArchive(one, premium.id, library)
+            assertEquals(premium.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(one, library))
+            assertEquals(default.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(other, library))
+            ScopedModelSelections.selectPersonalTheaterArchive(one, default.id, library)
+            assertEquals(default.id, ScopedModelSelections.personalTheaterOverrideId(one, library))
+            assertEquals(default.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(one, library))
+            assertEquals(premium.id, ScopedModelSelections.selectedCharacterChatArchiveId(one, library))
+            assertEquals(default.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(other, library))
+            ScopedModelSelections.clearPersonalTheaterArchive(one)
+            assertEquals(premium.id, ScopedModelSelections.selectedPersonalTheaterArchiveId(one, library))
+            val afterDeletion = library.copy(archives = listOf(default), chatArchiveId = default.id)
+            assertEquals(default.id,
+                ScopedModelSelections.selectedPersonalTheaterArchiveId(one, afterDeletion))
+        } finally {
+            ScopedModelSelections.clearPersonalTheaterArchive(one)
+            ScopedModelSelections.clearPersonalTheaterArchive(other)
+            ScopedModelSelections.clearCharacterChatArchive(one)
+            ScopedModelSelections.clearCharacterChatArchive(other)
+        }
+    }
+
     @Test fun normalPhoneAndSleepUseDifferentSourcesWithoutChangingThePerson() {
         val context = RuntimeEnvironment.getApplication() as Context
         ScopedModelSelections.initialize(context)
