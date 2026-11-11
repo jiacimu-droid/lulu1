@@ -431,9 +431,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else -> "正在拆"
                 }
                 val progressCount=IslandHouseProjects.progress(project)
-                val totalCount=if(project.phase=="demolishing" ||
-                    project.phase=="paused" && project.resumePhase=="demolishing")
-                    project.demolitionStartCount else 9
+                val totalCount=IslandHouseProjects.totalSteps(project)
                 Text("⌂ "+owner+" "+progress+" "+IslandHouseProjects.styleName(project.style)+
                     " · "+progressCount+"/"+totalCount,
                     color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
@@ -610,8 +608,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Text((if(project.phase=="demolishing" ||
                         project.phase=="paused" && project.resumePhase=="demolishing")
                         "已拆除 " else "已建造 ")+IslandHouseProjects.progress(project)+"/"+
-                        (if(project.phase=="demolishing" || project.phase=="paused" &&
-                            project.resumePhase=="demolishing")project.demolitionStartCount else 9)+
+                        IslandHouseProjects.totalSteps(project)+
                         " · 位置("+
                         project.left+","+project.top+") · 每个真实回合施工一步",
                         color = Color(0xFFBEE8D2), fontSize = 11.sp)
@@ -627,10 +624,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                                 else Color(0xFFBEE8D2),fontSize=11.sp)
                     }
                     LinearProgressIndicator(progress = {
-                        val demolition=project.phase=="demolishing" ||
-                            project.phase=="paused" && project.resumePhase=="demolishing"
-                        IslandHouseProjects.progress(project).toFloat() /
-                            (if(demolition)project.demolitionStartCount else 9).coerceAtLeast(1)
+                        IslandHouseProjects.progressFraction(project)
                     },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))
