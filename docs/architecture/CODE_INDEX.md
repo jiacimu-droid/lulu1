@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`79f13035e85b1d453d4fcb62c2007a62aa8cf8e5`
+- 基准提交：`ec1d9491f7f7b0ee6c633afd0a094bd169d4225b`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255017
+- 已索引代码/文本行：255029
 - 已发现符号：3474
 
 | 文件 | 行数 | 符号数 |
@@ -258,7 +258,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1195 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1198 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
@@ -845,7 +845,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 219 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 785 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
