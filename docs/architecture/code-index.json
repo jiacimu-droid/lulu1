@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T17:31:07.131974+00:00",
-  "commit": "7d98a438d7df01380db982df698d1f36f24ca352",
+  "generatedAt": "2026-11-11T17:39:10.938985+00:00",
+  "commit": "fd05b986edd34948be078cf107058a6feec21958",
   "branch": "main",
-  "sourceFingerprint": "acc4dd1829d8518278941aaa5f426afa13f975d3990a1a848cd2e80590dbe1e2",
+  "sourceFingerprint": "71a6cdaca35c9f1f33c71fe01f43c3355df9740dd713bbac05dd0d73efc605ca",
   "summary": {
-    "files": 1204,
-    "lines": 260297,
-    "symbols": 3640
+    "files": 1205,
+    "lines": 260357,
+    "symbols": 3643
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15776,6 +15776,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
         "line": 1528
+      }
+    ],
+    "candidateHosts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt",
+        "line": 17
+      }
+    ],
+    "wifiIps": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt",
+        "line": 22
+      }
+    ],
+    "validatedCandidates": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt",
+        "line": 48
       }
     ],
     "LuluLocationProvider": [
@@ -36494,6 +36512,25 @@
         {
           "name": "staleReplyExpression",
           "line": 1528
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt",
+      "lines": 60,
+      "sha256": "6f37c85236884519a97dbce0f9cc433ab6ce96c0c7a312f1f46675d7af028752",
+      "symbols": [
+        {
+          "name": "candidateHosts",
+          "line": 17
+        },
+        {
+          "name": "wifiIps",
+          "line": 22
+        },
+        {
+          "name": "validatedCandidates",
+          "line": 48
         }
       ]
     },
