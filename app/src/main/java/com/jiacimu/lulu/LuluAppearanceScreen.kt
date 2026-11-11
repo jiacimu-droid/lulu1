@@ -25,6 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -80,9 +83,21 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         ).distinct()
                         colors.forEach { candidate ->
                             val selected = (accentOption ?: source.palette.accent) == candidate
+                            val colorName = when (candidate) {
+                                source.palette.accent -> "原方案颜色"
+                                0xFFAA6571L -> "玫瑰色"
+                                0xFF5D7F65L -> "灰绿色"
+                                0xFF526EACL -> "蓝色"
+                                0xFFD08E42L -> "暖金色"
+                                else -> "自定义颜色"
+                            }
                             Surface(
                                 modifier = Modifier.size(48.dp)
-                                    .clickable { accentOption = candidate },
+                                    .clickable { accentOption = candidate }
+                                    .semantics {
+                                        contentDescription = colorName
+                                        stateDescription = if (selected) "已选中" else "未选中"
+                                    },
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.surface,
                                 border = BorderStroke(
