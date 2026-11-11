@@ -49,7 +49,8 @@ import java.time.format.DateTimeFormatter
 
 /** System microphone activity is only a hint about an active keyboard dictation, never
  * an STT transcript or a reason to invoke a second model. Android may redact other apps. */
-internal fun isImeSpeechCaptureSource(source: Int): Boolean = source == MediaRecorder.AudioSource.MIC ||
+internal fun isImeSpeechCaptureSource(source: Int): Boolean = source == MediaRecorder.AudioSource.DEFAULT ||
+    source == MediaRecorder.AudioSource.MIC ||
     source == MediaRecorder.AudioSource.VOICE_RECOGNITION ||
     source == MediaRecorder.AudioSource.UNPROCESSED
 
