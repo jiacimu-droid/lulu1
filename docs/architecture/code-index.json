@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T02:03:15.977162+00:00",
-  "commit": "d965df7092a8665ea796eb2da6ec18b81f1e5be5",
+  "generatedAt": "2026-11-11T02:09:35.832789+00:00",
+  "commit": "4a1f189f2962496560b39a9d43807587907f8bc3",
   "branch": "main",
-  "sourceFingerprint": "5508a56e552ca9eae955fb392fef4716189a53ea40a940ca8ca19d95e893bd75",
+  "sourceFingerprint": "e1028073257c58489367f3e6923757b2558a586c19737c0cbbeca0b6767734cc",
   "summary": {
     "files": 1175,
-    "lines": 254936,
+    "lines": 255001,
     "symbols": 3474
   },
   "symbolIndex": {
@@ -3841,13 +3841,13 @@
     "isAvailable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 597
+        "line": 606
       }
     ],
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 808
+        "line": 817
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -3913,67 +3913,67 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 58
+        "line": 68
       }
     ],
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 299
+        "line": 332
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 311
+        "line": 344
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 317
+        "line": 350
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 324
+        "line": 357
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 328
+        "line": 361
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 351
+        "line": 384
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 364
+        "line": 397
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 372
+        "line": 405
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 406
+        "line": 439
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 485
+        "line": 518
       }
     ],
     "saveChatMessage": [
@@ -22808,16 +22808,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 834,
-      "sha256": "64822ba74840c5aa8c7e4517f0a70820f3c42e5311e72256986aafcecfdc7c74",
+      "lines": 843,
+      "sha256": "886d49cba932aa18ef8b60074fa4bebd7f2c95fafe2dab1535f66b5943a1a071",
       "symbols": [
         {
           "name": "isAvailable",
-          "line": 597
+          "line": 606
         },
         {
           "name": "render",
-          "line": 808
+          "line": 817
         }
       ]
     },
@@ -22853,52 +22853,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1162,
-      "sha256": "10cbc4ba285efa66d19027244ea4e97d0410697bb405c9989d467c419cbfdf4b",
+      "lines": 1195,
+      "sha256": "87e632ad42ba760cac097d44d0b1b75b0395d8978acea39df7d2c954887dbd7b",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 58
+          "line": 68
         },
         {
           "name": "messageLabel",
-          "line": 299
+          "line": 332
         },
         {
           "name": "repliedPreview",
-          "line": 311
+          "line": 344
         },
         {
           "name": "beginReply",
-          "line": 317
+          "line": 350
         },
         {
           "name": "toggleSelected",
-          "line": 324
+          "line": 357
         },
         {
           "name": "buildForwardPayload",
-          "line": 328
+          "line": 361
         },
         {
           "name": "appendDraft",
-          "line": 351
+          "line": 384
         },
         {
           "name": "stopReceiving",
-          "line": 364
+          "line": 397
         },
         {
           "name": "wakeOnline",
-          "line": 372
+          "line": 405
         },
         {
           "name": "sendAndReceive",
-          "line": 406
+          "line": 439
         },
         {
           "name": "regenerateLatestReply",
-          "line": 485
+          "line": 518
         }
       ]
     },
@@ -30139,7 +30139,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 208,
-      "sha256": "2e88a66c9eaf21373b83f94f74dc0dd0c17eb622480528d18b79a41afe5f4e82",
+      "sha256": "93f32faf6441d83bbcd10cf87da03736fe97ddb8573d70229493ae207a3f8666",
       "symbols": []
     },
     {
@@ -35417,7 +35417,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2217,
-      "sha256": "75292883f4afc8c65b937a2bc34e3345960da179548b16d7bbfba7a66c478eba",
+      "sha256": "756a55304680e7aa72766af9a438da157636df3846d0aca843936014e7da763a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36553,8 +36553,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 196,
-      "sha256": "a266429834644ddb289f815619bc2df7ebd5b19cd2c5d3933ac1d55864e1c4b0",
+      "lines": 219,
+      "sha256": "3594ce83e5cfab61faa844ba068989aadbc79e20eadc15c436a51d484dce46dd",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
