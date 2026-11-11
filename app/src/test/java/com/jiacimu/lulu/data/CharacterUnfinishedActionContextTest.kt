@@ -45,6 +45,10 @@ class CharacterUnfinishedActionContextTest {
         CharacterLifeFollowThroughStore.initialize(context)
         MomentsStore.initialize(context)
         CompanionOnlineStore.initialize(context)
+        // This test checks the real persisted body-to-private-chat path. The
+        // generic memory fixture does not initialize the optional life stores.
+        CharacterLifeStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
         role = MigratedDomainStores.characters.create("未竟事回归").characterId
         MigratedDomainStores.chat.ensureConversation(role, "未竟事回归")
         now = Instant.now()
