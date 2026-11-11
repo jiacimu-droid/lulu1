@@ -1958,3 +1958,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 下一轮沿 P-08d.2b.2，直接核 `68e3713` 的 main push Actions，若目标用例红修真实原因，若绿补冷重启/取消独立回执反例。真机与真实模型仍外部待验。
 
 **2026-11-12 P-08d.2b.2 独立 SQLite 连接增量（待 CI）**：提交 [89a6c3a](https://github.com/jiacimu-droid/lulu1/commit/89a6c3abbeb26911f56b64f47260cdf42572a8af) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 中从独立只读 SQLite 连接核验主工具失败与副动态成功的持久回执，再走已有第二轮真实 MockWebServer 决策；未关闭全局 Store，因此**不是完整冷重启验收**，不能勾该项完成。下一轮先查此提交的 Lulu APK/JVM 与 Refresh code index 的 head SHA、目标测试首错；通过后再设计隔离的 Store 关闭/重建反例，避免污染共享 JVM 用例。真机和真实模型独立待验。
+
+## 2026-11-12 · P-08d.2b.2 SQLite CI 首错与回归修复（待新 CI）
+
+- 从 [APK/JVM #43089979122](https://github.com/jiacimu-droid/lulu1/actions/runs/43089979122) job 130764783352 实际日志定位：2739 tests、1 failed、1 skipped；唯一失败为 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress`，`SQLiteCantOpenDatabaseException (code 14)` 发生在测试直接以 `OPEN_READONLY` 重开数据库文件处，不是正式执行器回执失败。
+- [f8816c9](https://github.com/jiacimu-droid/lulu1/commit/f8816c989faec8821972b9d981cfcf5090b6d246) 将不可靠的 Robolectric 第二文件连接改成正式 `SharedExperienceTimeline.exportBackup()` 对 SQLite 原始账本的查询，仍分别核拒绝主工具与成功副动态；不声称冷重启已验，生产逻辑未改。新增 CI 待查。
+- 下一轮固定 P-08d.2b.2：先核该 SHA 的 Lulu APK/JVM、Refresh code index 及目标用例；若通过，继续隔离的 Store 关闭/重建/旧动作不重放回归。真机和真实模型独立待验。
