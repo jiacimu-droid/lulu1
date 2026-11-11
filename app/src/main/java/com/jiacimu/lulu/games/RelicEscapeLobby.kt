@@ -68,14 +68,14 @@ internal fun RelicEscapeLobby(
     val live=snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
-    var shopExpanded by remember { mutableStateOf(false) }
+    var shopExpanded by remember { mutableStateOf(true) }
     var vaultExpanded by remember { mutableStateOf(true) }
     var selectedTreasureId by remember(snapshot.vault.map { it.id }) {
         mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id)
     }
 
 
-    var prepExpanded by remember { mutableStateOf(false) }
+    var prepExpanded by remember { mutableStateOf(true) }
     val partyPanel: @Composable () -> Unit = {
         RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
@@ -115,110 +115,107 @@ internal fun RelicEscapeLobby(
                 fontSize=19.sp,fontWeight=FontWeight.Black)
         }
     }
-    BoxWithConstraints(Modifier.fillMaxSize().background(campInk)) {
-        val landscape=maxWidth>maxHeight
-        GameLobbyBackdrop(island=false,modifier=Modifier.matchParentSize())
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-            .padding(horizontal=18.dp,vertical=14.dp),horizontalAlignment=Alignment.CenterHorizontally) {
-            Column(Modifier.widthIn(max=1040.dp).fillMaxWidth(),
-                verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                Row(verticalAlignment=Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("迷雾摸金",color=Color(0xFFF1EAE0),fontSize=31.sp,
-                            fontWeight=FontWeight.Black)
-                        Text("寻找值得珍藏的美丽宝物",
-                            color=campMuted,fontSize=13.sp)
-                    }
-                    Surface(color=Color(0xD71B2E3B),shape=RoundedCornerShape(14.dp),
-                        border=BorderStroke(1.dp,campGold.copy(alpha=.42f))) {
-                        Column(Modifier.padding(horizontal=14.dp,vertical=9.dp)) {
-                            Text("◇ "+snapshot.coins+" 铜币",color=campGold,
-                                fontSize=15.sp,fontWeight=FontWeight.Bold)
-                            Text("永久珍藏 "+snapshot.vault.size+" 件",
-                                color=campMuted,fontSize=11.sp)
-                        }
-                    }
-                }
-                if(error.isNotBlank())Text(error,color=Color(0xFFFFB5B5),fontSize=12.sp)
-                if(landscape) {
-                    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(16.dp),
-                        verticalAlignment=Alignment.Top) {
-                        Column(Modifier.weight(1.40f),
-                            verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                            Spacer(Modifier.height(108.dp))
-                            partyPanel()
-                        }
-                        Column(Modifier.weight(1f),
-                            verticalArrangement=Arrangement.spacedBy(10.dp)) {
-                            RelicLobbyPanel {
-                                Text("本次寻宝",color=campGold,fontSize=20.sp,
-                                    fontWeight=FontWeight.Black)
-                                Text(if(live)"尚有未结束的探索，可返回营地续玩"
-                                    else "前往第"+(snapshot.successes+1).coerceAtMost(5)+"层遗迹",
-                                    color=Color.White,fontSize=13.sp)
-                                Text("难度 · "+difficulty.label+"    治疗药剂 · "+
-                                    kits.coerceIn(0,snapshot.kits),
-                                    color=campMuted,fontSize=12.sp)
-                                Text("本次委托 · "+contract.label,
-                                    color=campGold,fontSize=12.sp,fontWeight=FontWeight.Bold)
-                                Text(contract.condition,color=campMuted,fontSize=11.sp)
-                                Text("武器 · "+RelicArsenal.label(startingWeapon),
-                                    color=campMuted,fontSize=11.sp)
-                                if(!live) TextButton(onClick={prepExpanded=!prepExpanded}) {
-                                    Text(if(prepExpanded)"收起战前整备 −" else "配置装备 / 委托 / 难度 ＋",
-                                        color=campMint,fontSize=12.sp)
-                                }
-                            }
-                            if(!live) launchButton()
-                            else Button(onClick=onContinue,modifier=Modifier.fillMaxWidth().height(55.dp),
-                                colors=ButtonDefaults.buttonColors(containerColor=campGold,
-                                    contentColor=campInk)) { Text("▶ 继续上次探险",fontWeight=FontWeight.Bold) }
-                        }
-                    }
-                } else {
-                    GameLobbyStage(island=false,eyebrow="EXPEDITION BASE CAMP",
-                        title=if(live)"遗迹正在等你归队" else "下一件传说珍宝，就在迷雾深处",
-                        subtitle="组建队伍 · 战术探索 · 带着真正的宝藏归来",
-                        modifier=Modifier.fillMaxWidth().height(202.dp))
-                    partyPanel()
-                    if(!live)launchButton()
-                    if(!live)TextButton(onClick={prepExpanded=!prepExpanded}) {
-                        Text(if(prepExpanded)"收起战前整备 −" else "装备 / 难度 / 委托整备 ＋",
-                            color=campMint,fontSize=12.sp)
-                    }
-                }
 
-                if(live) {
-                    RelicLobbyPanel {
-                        Text("有一局探险尚未结束",color=campGold,fontSize=18.sp,
-                            fontWeight=FontWeight.Bold)
-                        val run=snapshot.run
-                        if(run!=null)Text(
-                            "第"+run.level+"层 · "+run.difficulty.label+" · "+run.turns+"回合 · "+
-                                (if(run.phase==RelicPhase.DOWNED)"你已倒地，可继续等待救援或结束本局" else "存档完整，可继续探索"),
-                            color=campMuted,fontSize=12.sp)
-                        Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                            Button(onClick=onContinue,
-                                colors=ButtonDefaults.buttonColors(containerColor=campGold,
-                                    contentColor=campInk)) { Text("继续本局") }
-                            OutlinedButton(onClick={leaveConfirm=true}) {
-                                Text("放弃本局",color=campMuted)
-                            }
+    // The title screen is a fixed game viewport. Long-form controls live in
+    // separate sheets, never below the launch button on a scrolling homepage.
+    var detailPage by rememberSaveable { mutableStateOf("") }
+    BoxWithConstraints(Modifier.fillMaxSize().background(campInk)) {
+        val landscape = maxWidth > maxHeight
+        GameLobbyBackdrop(island=false,modifier=Modifier.matchParentSize())
+        val heading: @Composable () -> Unit = {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("迷雾摸金",color=Color(0xFFF1EAE0),
+                        fontSize=if(landscape)26.sp else 30.sp,fontWeight=FontWeight.Black)
+                    Text(if(live)"遗迹还有一局未结束" else "寻找值得珍藏的美丽宝物",
+                        color=campMuted,fontSize=12.sp,maxLines=1)
+                }
+                Surface(color=Color(0xD71B2E3B),shape=RoundedCornerShape(12.dp),
+                    border=BorderStroke(1.dp,campGold.copy(alpha=.4f))) {
+                    Text("◇ "+snapshot.coins+"  ·  ✦ "+snapshot.vault.size,
+                        modifier=Modifier.padding(horizontal=10.dp,vertical=8.dp),
+                        color=campGold,fontSize=12.sp)
+                }
+            }
+        }
+        val tools: @Composable () -> Unit = {
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                listOf("整备" to "prep","商店" to "shop","藏宝馆" to "vault")
+                    .forEach { (label,page) ->
+                        OutlinedButton(onClick={detailPage=page},
+                            modifier=Modifier.weight(1f),
+                            contentPadding=PaddingValues(horizontal=4.dp,vertical=0.dp),
+                            border=BorderStroke(1.dp,campGold.copy(alpha=.36f))) {
+                            Text(label,color=campGold,fontSize=12.sp,maxLines=1)
                         }
                     }
-                } else {
-                    snapshot.run?.let { previous ->
-                        if(previous.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE)) {
-                            RelicLobbyPanel {
-                                Text(if(previous.phase==RelicPhase.SUCCESS)"上局撤离成功！" else "上局探险失败",
-                                    color=campGold,fontWeight=FontWeight.Bold)
-                                Text("宝物带出 "+previous.secured.size+" 件 · 遗失 "+
-                                    previous.lost.size+" 件。永久仓库和升级仍然保留。",
-                                    color=campMuted,fontSize=12.sp)
-                            }
-                        }
+            }
+        }
+        val go: @Composable () -> Unit = {
+            if(live) {
+                Button(onClick=onContinue,modifier=Modifier.fillMaxWidth().height(58.dp),
+                    colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk)) {
+                    Text("▶ 继续本局探险",fontWeight=FontWeight.Black,fontSize=17.sp)
+                }
+            } else launchButton()
+        }
+        if(landscape) {
+            Row(Modifier.fillMaxSize().padding(horizontal=16.dp,vertical=10.dp),
+                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight()) {
+                    heading()
+                    Spacer(Modifier.weight(1f))
+                    Text(if(live)"返回遗迹，带珍宝安全撤离" else "真正的珍宝，等你亲手带回来",
+                        color=Color.White,fontSize=13.sp,fontWeight=FontWeight.Bold)
+                }
+                Column(Modifier.weight(1.15f).fillMaxHeight(),
+                    verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                    partyPanel()
+                    Spacer(Modifier.weight(1f))
+                    tools()
+                    go()
+                }
+            }
+        } else {
+            Column(Modifier.fillMaxSize().padding(horizontal=16.dp,vertical=12.dp),
+                horizontalAlignment=Alignment.CenterHorizontally,
+                verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                heading()
+                if(error.isNotBlank())Text(error,color=Color(0xFFFFB5B5),
+                    fontSize=11.sp,maxLines=2)
+                Spacer(Modifier.weight(1f))
+                Text(if(live)"探险尚未结束，继续本局或返回整备" else "组建队伍 · 挑选装备 · 出发寻宝",
+                    color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                partyPanel()
+                tools()
+                go()
+                if(live)TextButton(onClick={leaveConfirm=true},
+                    modifier=Modifier.height(30.dp)) {
+                    Text("放弃本局",color=campMuted,fontSize=12.sp)
+                }
+            }
+        }
+    }
+    if(detailPage.isNotEmpty()) {
+        ModalBottomSheet(onDismissRequest={detailPage=""},containerColor=campInk) {
+            Column(Modifier.fillMaxWidth().fillMaxHeight(.78f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal=16.dp,vertical=8.dp),
+                verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                    Text(when(detailPage) {
+                        "prep"->"出发整备"
+                        "shop"->"营地商店"
+                        else->"我的藏宝馆"
+                    },color=campGold,fontSize=21.sp,fontWeight=FontWeight.Black,
+                        modifier=Modifier.weight(1f))
+                    TextButton(onClick={detailPage=""}) {
+                        Text("完成",color=campMint)
                     }
-                    if(prepExpanded) {
+                }
+                when(detailPage) {
+                    "prep" -> {
+
                     RelicLobbyPanel {
                         Text("选择难度",color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black)
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -294,10 +291,10 @@ internal fun RelicEscapeLobby(
                         Text("每位接受邀请的伙伴自带1份救援药剂。背包装备与药剂会在出发时锁定。",
                             color=campMuted,fontSize=11.sp)
                     }
+                    
                     }
-                }
-
-                RelicLobbyPanel {
+                    "shop" -> {
+RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("营地商店",color=Color.White,fontWeight=FontWeight.Black,
                             fontSize=17.sp,modifier=Modifier.weight(1f))
@@ -331,8 +328,9 @@ internal fun RelicEscapeLobby(
                         color=campMuted,fontSize=11.sp)
                     }
                 }
-
-                RelicLobbyPanel {
+                    }
+                    "vault" -> {
+RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("永久藏宝库 · "+snapshot.vault.size+"件",
                             color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black,
@@ -405,7 +403,9 @@ internal fun RelicEscapeLobby(
                         color=campMuted,fontSize=11.sp)
                     }
                 }
-                Spacer(Modifier.height(16.dp))
+                    }
+                }
+                Spacer(Modifier.height(14.dp))
             }
         }
     }
