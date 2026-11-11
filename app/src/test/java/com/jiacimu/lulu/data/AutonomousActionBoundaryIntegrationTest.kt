@@ -134,6 +134,38 @@ class AutonomousActionBoundaryIntegrationTest {
                     .takeIf { it.isNotBlank() }
             }
             assertTrue("拒绝回执必须包含可追溯的失败原因", rejectionEvidence.isNotEmpty())
+            // Read through a separate SQLite connection, not the timeline
+            // singleton's in-memory state. A process restart must be able to
+            // recover both the rejected primary receipt and its independent
+            // successful side action from the durable ledger.
+            val durableReceipts = mutableListOf<String>()
+            android.database.sqlite.SQLiteDatabase.openDatabase(
+                app.getDatabasePath("shared_experience_timeline.db").absolutePath,
+                null, android.database.sqlite.SQLiteDatabase.OPEN_READONLY
+            ).use { reopened ->
+                reopened.query("timeline_events", arrayOf("content"),
+                    "character_id = ? AND channel = ?",
+                    arrayOf(actor, "实际工具执行"), null, null, null).use { cursor ->
+                    while (cursor.moveToNext()) durableReceipts += cursor.getString(0)
+                }
+            }
+            assertTrue("独立数据库连接必须读到主工具的真实失败回执",
+                durableReceipts.any { raw ->
+                    runCatching { JSONObject(raw) }.getOrNull()?.let { receipt ->
+                        receipt.optString("tool") == "send_character_message" &&
+                            !runCatching { JSONObject(receipt.getString("result"))
+                                .optBoolean("success") }.getOrDefault(true)
+                    } == true
+                })
+            assertTrue("独立数据库连接必须读到成功的副动态回执",
+                durableReceipts.any { raw ->
+                    runCatching { JSONObject(raw) }.getOrNull()?.let { receipt ->
+                        receipt.optString("tool") == "publish_moment" &&
+                            runCatching { JSONObject(receipt.getString("result"))
+                                .optBoolean("success") }.getOrDefault(false)
+                    } == true
+                })
+
             // A successful independent side action must not erase the rejected
             // primary action when the same character decides again.
             MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
