@@ -5,7 +5,7 @@
 - 上轮 `b10fa71` 的 [全量 JVM/APK #43030085743](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085743) 与[原索引 #43030085832](https://github.com/jiacimu-droid/lulu1/actions/runs/43030085832) 均复核成功。最新 `main` 已合并另一窗口的屏幕输入改动，当前工作仅修改正常结构化回复分支及其回归。
 - [0089d35](https://github.com/jiacimu-droid/lulu1/commit/0089d3517a0b9822d477e74358b1eb4e9615814f) 修复有用户发言的正式电话。规划与独立副动作之后，责任事实核验和 Live2D 补正都会挂起。此前等待结束后未复核人物配置，且视频补正之前已记录状态。现在等待结束后沿原 `CharacterRuntime` 配置判断和取消边界，动作回调前拦截旧轮。回复状态和余韵移到视频补正及复核之后，过期台词和挂断请求停止交付，已经发生的副动作及其独立回执仍保留。没有新增模型请求或自动重试。
 - `ConversationExpressionGatewayTest.ordinaryPhoneReplyRejectsEditsDuringSpeechOrMotionRepair` 用正式桥接、网关 HTTP、实际朋友圈存储与 ToolRouter 回执覆盖两种等待时序，检查旧状态、台词、动作及挂断均未交付，已发布动态与执行回执各留一份。
-- [原索引 #43050306765](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306765) 成功并以本轮提交为基准。[全量 JVM/APK #43050306789](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306789) 已进入队列，回归与 APK 结果待复核。真机语音、视频播放和真实模型质量待验。
+- [原索引 #43050306765](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306765) 成功并以本轮提交为基准。[全量 JVM/APK #43050306789](https://github.com/jiacimu-droid/lulu1/actions/runs/43050306789) 在正式日志中确认新增电话回归 PASSED。全量 JVM 有五项失败，名称和断言位置与改动前 [#43049983699](https://github.com/jiacimu-droid/lulu1/actions/runs/43049983699) 一致，首项为 `CharacterDecisionProtocolTest.kt:25`。APK 发布已跳过，未标为全量通过。真机语音、视频播放和真实模型质量待验。
 - 下一步沿 P-03.1 查看 `LuluDeviceToolBridge.respond` 的 `callSilence` / `externalCallResult`、`phoneDecisionDefinition` 和 `ConversationExpressionGatewayTest`。当前无人发言的电话回合不捕获配置版本。先复现等真实工具回执触发的主动感知 HTTP 时修改关系，核对旧决定的副动作、音频及回执能否分开交付。
 
 ## 2026-11-11 · P-03.1 电话工具回执与过期结果表达的分离
