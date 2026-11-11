@@ -993,7 +993,13 @@ class ConversationExpressionGatewayTest {
         }
     }
 
-    @Test(timeout = 60_000) fun phoneStepsStopAfterRelationshipEditButKeepCompletedToolReceipt() = runBlocking {
+    @Test(timeout = 60_000) fun phoneStepsStopAfterRelationshipEditButKeepCompletedToolReceipt() =
+        verifyInterruptedPhoneSteps(cancelTurn = false)
+
+    @Test(timeout = 60_000) fun phoneStepsStopAfterCancellationButKeepCompletedToolReceipt() =
+        verifyInterruptedPhoneSteps(cancelTurn = true)
+
+    private fun verifyInterruptedPhoneSteps(cancelTurn: Boolean) = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
@@ -1040,10 +1046,13 @@ class ConversationExpressionGatewayTest {
             val observation = "call-quiet-edit-during-tool"
             SharedExperienceTimeline.record(observation, id, "通话观察", "通话",
                 "电话接通，暂时无人发言", source = "call-quiet", evidenceKind = EventEvidenceKind.Observation)
+            var returned = false
             val pending = async {
-                LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = chat.id,
+                val response = LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = chat.id,
                     sceneContext = "一对一电话仍然接通，用户没有新增发言",
                     silenceObservationId = observation)
+                returned = true
+                response
             }
             try {
                 val toolRequest = withContext(Dispatchers.IO) {
@@ -1051,13 +1060,20 @@ class ConversationExpressionGatewayTest {
                     checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
                 }
                 assertEquals("/v1/systemone", toolRequest.path)
-                assertTrue(CharacterLifeStore.setRelationshipAgreement(
+                if (cancelTurn) pending.cancel()
+                else assertTrue(CharacterLifeStore.setRelationshipAgreement(
                     id, "user", "约定", "除非我先提起，否则请用新的称呼"))
             } finally {
                 release.countDown()
             }
-            val stale = pending.await()
-            assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("旧决定未继续交付"))
+            if (cancelTurn) {
+                pending.join()
+                assertTrue(pending.isCancelled)
+                assertFalse(returned)
+            } else {
+                val stale = pending.await()
+                assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("旧决定未继续交付"))
+            }
             val receipts = SharedExperienceTimeline.all(id)
                 .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
             val execution = JSONObject(receipts.single().content)
@@ -1070,7 +1086,9 @@ class ConversationExpressionGatewayTest {
             val batch = recorded.single { it.optString("executionRequestId") == "reply-side-$observation" }
             assertEquals("reported", batch.getString("executionState"))
             assertFalse(batch.getBoolean("succeeded"))
-            assertTrue(batch.getString("outcome").contains("第2步及后续步骤未执行"))
+            val outcome = batch.getString("outcome")
+            assertTrue(outcome.contains("第2步及后续步骤未执行"))
+            if (cancelTurn) assertTrue(outcome.contains("旧通话轮次已取消"))
             assertTrue(recorded.none { it.optString("id") == "$observation:silent" })
             assertEquals(2, server.requestCount)
         } finally {

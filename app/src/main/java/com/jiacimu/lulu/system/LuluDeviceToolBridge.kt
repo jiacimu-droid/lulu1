@@ -23,8 +23,10 @@ import com.jiacimu.lulu.data.CharacterRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.health.HealthRolePerception
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -1207,6 +1209,7 @@ object LuluDeviceToolBridge {
         }
         var phoneSideAllCompleted = false
         var phoneSideInterruptedByEdit = false
+        var phoneSideCancellation: CancellationException? = null
         val sideDeviceReceipt = if (trackPhoneSideSteps && phoneSteps != null) {
             val notes = mutableListOf<String>()
             var verifiedWakeAudio = false
@@ -1214,6 +1217,11 @@ object LuluDeviceToolBridge {
             phoneSideAllCompleted = true
             var previousStepCompleted = true
             for (i in 0 until phoneSteps.length()) {
+                if (!currentCoroutineContext().isActive) {
+                    phoneSideAllCompleted = false
+                    notes.add(0, "旧通话轮次已取消，第${i + 1}步及后续步骤未执行")
+                    break
+                }
                 // The preceding tool may have suspended and already recorded a
                 // real result. Stop before dispatching another step from the old plan.
                 if (phoneDefinitionChanged()) {
@@ -1260,7 +1268,7 @@ object LuluDeviceToolBridge {
                     }
                     raisedVolumeThisTurn = true
                 }
-                val result = runCatching {
+                val attempt = runCatching {
                     JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
                         appContext, characterId, tool,
                         effectArgs,
@@ -1275,7 +1283,15 @@ object LuluDeviceToolBridge {
                         concernId = effect.optString("concernId"),
                         experienceId = effect.optString("experienceId"),
                         curiosity = effect.optJSONObject("curiosity")))
-                }.getOrElse { error ->
+                }
+                val cancellation = attempt.exceptionOrNull() as? CancellationException
+                if (cancellation != null) {
+                    phoneSideCancellation = cancellation
+                    phoneSideAllCompleted = false
+                    notes.add(0, "旧通话轮次已取消，第${i + 1}步以实际工具回执为准，后续步骤未执行")
+                    break
+                }
+                val result = attempt.getOrElse { error ->
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
@@ -1309,6 +1325,8 @@ object LuluDeviceToolBridge {
                 sideDeviceReceipt.ifBlank { "独立步骤未产生可核实结果" },
                 phoneSideAllCompleted,
             )
+            phoneSideCancellation?.let { throw it }
+            currentCoroutineContext().ensureActive()
             if (phoneSideInterruptedByEdit || phoneDefinitionChanged()) return Result.failure(
                 IllegalStateException("通话期间角色设定或关系已更新，已执行动作的回执保留，旧决定未继续交付"),
             )
