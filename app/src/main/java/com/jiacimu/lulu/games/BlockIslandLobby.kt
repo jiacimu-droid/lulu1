@@ -185,69 +185,6 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                 fontWeight=FontWeight.Black,fontSize=19.sp)
         }
     }
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val landscape = maxWidth > maxHeight
-        GameLobbyBackdrop(island=true,modifier=Modifier.matchParentSize())
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal=18.dp,vertical=14.dp),
-            verticalArrangement=Arrangement.spacedBy(12.dp),
-        ) {
-            Row(verticalAlignment=Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("方块小岛",fontSize=31.sp,fontWeight=FontWeight.Bold,color=Color(0xFFF6F2E6))
-                Text("慢慢探索，一起把小岛建成家",
-                    fontSize=13.sp,color=dim)
-            }
-            Surface(color=Color(0xC52D4D43),shape=RoundedCornerShape(12.dp),
-                border=BorderStroke(1.dp,mint.copy(alpha=.24f))) {
-                Text(if(existingIsland)"✦ 家园已保存" else "✦ 全新旅程",
-                    modifier=Modifier.padding(horizontal=12.dp,vertical=8.dp),
-                    color=mint,fontSize=11.sp)
-            }
-        }
-            if(landscape) {
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(16.dp),
-                    verticalAlignment=Alignment.Top) {
-                    Column(Modifier.weight(1.48f),
-                        verticalArrangement=Arrangement.spacedBy(9.dp)) {
-                        Spacer(Modifier.height(110.dp))
-                        rosterPanel()
-                    }
-                    Column(Modifier.weight(1f),
-                        verticalArrangement=Arrangement.spacedBy(10.dp)) {
-                        missionPanel()
-                        launchButton()
-                        Text("可独自出发 · 已接受邀请的伙伴会随你一起进入真实世界",
-                            color=dim,fontSize=11.sp)
-                    }
-                }
-            } else {
-                // Portrait shows the *same* exported coastal artwork behind
-                // the actual controls, instead of a second low-fidelity banner
-                // drawn over it and hiding all the landscape.
-                Box(Modifier.fillMaxWidth().height(170.dp)) {
-                    Surface(
-                        modifier=Modifier.align(Alignment.BottomStart),
-                        shape=RoundedCornerShape(13.dp),
-                        color=Color(0xC2173A3E),
-                        border=BorderStroke(1.dp,Color(0x88F3DAB0))
-                    ) {
-                        Column(Modifier.padding(horizontal=15.dp,vertical=12.dp),
-                            verticalArrangement=Arrangement.spacedBy(3.dp)) {
-                            Text(if(existingIsland)"WELCOME HOME" else "YOUR FIRST ADVENTURE",
-                                color=Color(0xFFFFD89D),fontSize=10.sp,
-                                fontWeight=FontWeight.Bold)
-                            Text(if(existingIsland)"欢迎回家，岛主" else "从这片海岸，开始我们的故事",
-                                color=Color.White,fontSize=16.sp,
-                                fontWeight=FontWeight.Black,maxLines=1)
-                        }
-                    }
-                }
-                launchButton()
-                rosterPanel()
-                missionPanel()
-      
     // A single-screen game lobby in both orientations; additional detail is
     // shown on demand instead of turning the title screen into a vertical form.
     var goalsOpen by rememberSaveable { mutableStateOf(false) }
