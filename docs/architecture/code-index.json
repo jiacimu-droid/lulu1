@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:02:18.348594+00:00",
-  "commit": "bcfcd4f99a9e9220167b39d06bc688b5e5c2924a",
+  "generatedAt": "2026-11-11T16:03:15.494643+00:00",
+  "commit": "e9f128b53d60c75eacbd1caa4e6750e160f7c9c2",
   "branch": "main",
-  "sourceFingerprint": "9dcd7e678fff82b70f381de60f3cf12f733f8e17333458cc4657b4b5f8112619",
+  "sourceFingerprint": "f1138a532ade812f5ac06309c78ae23adbf8074f333fd34367e373ba29f2135d",
   "summary": {
-    "files": 1196,
-    "lines": 258872,
-    "symbols": 3619
+    "files": 1197,
+    "lines": 258972,
+    "symbols": 3622
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15984,6 +15984,32 @@
         "line": 428
       }
     ],
+    "LuluWirelessDebugging": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
+        "line": 23
+      }
+    ],
+    "hasPriorPairing": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
+        "line": 29
+      }
+    ],
+    "forget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
+        "line": 92
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 140
+      }
+    ],
     "shouldStream": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
@@ -16012,16 +16038,6 @@
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
         "line": 45
-      }
-    ],
-    "forget": [
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
-        "line": 49
-      },
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
-        "line": 140
       }
     ],
     "NsdAdbServiceFinder": [
@@ -36627,6 +36643,25 @@
         {
           "name": "text",
           "line": 86
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
+      "lines": 100,
+      "sha256": "8af6bd3fe1d4bb184246076f714c53b32c1bcbce67f455ba725af0510629215e",
+      "symbols": [
+        {
+          "name": "LuluWirelessDebugging",
+          "line": 23
+        },
+        {
+          "name": "hasPriorPairing",
+          "line": 29
+        },
+        {
+          "name": "forget",
+          "line": 92
         }
       ]
     },
