@@ -113,6 +113,26 @@ class RelicEscapeRulesTest {
             secured.copy(contract=RelicContract.COLLECTOR)))
     }
 
+    @Test fun distinctSignatureJewelsUseOneSharedIllustrationForRevealAndMuseum() {
+        val expected=mapOf(
+            "月银胸针" to RelicSignatureKind.MOON_BROOCH,
+            "星穹冠冕" to RelicSignatureKind.STAR_CROWN,
+            "冰魄竖琴" to RelicSignatureKind.FROST_HARP,
+        )
+        assertEquals(3,expected.values.toSet().size)
+        for((name,signature) in expected) {
+            assertEquals(signature,RelicSignatureJewels.kind(name))
+            assertTrue(RelicTreasureArt.catalogKinds.containsKey(name))
+            assertTrue(RelicTreasureGallery.identity(name).isNotBlank())
+        }
+        assertNull(RelicSignatureJewels.kind("旧王银币"))
+        assertNull(RelicSignatureJewels.kind("幽蓝宝石"))
+        assertNull(RelicSignatureJewels.kind("还没有发行的宝物"))
+        // The specialist never becomes a second loot or collection source:
+        // it changes only the illustration chosen by drawTreasure().
+        assertEquals(3,expected.keys.size)
+    }
+
     @Test fun permanentTreasureGalleryOnlyDisplaysActuallyOwnedLoot() {
         val ledger=cleared()
         val context=RuntimeEnvironment.getApplication()
