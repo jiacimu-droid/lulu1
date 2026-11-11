@@ -1860,3 +1860,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `1b6f749578a1d8b15b4928952bf67c783312439b` 对应 main push [Lulu APK/JVM #42974284902](https://github.com/jiacimu-droid/lulu1/actions/runs/42974284902) 和 [Refresh code index #42974284632](https://github.com/jiacimu-droid/lulu1/actions/runs/42974284632) 均 completed/success。既有失败声音→重载→模型 HTTP→新动态送达→下一轮事实承接的确定性工程正例已验；不能代替真机 TTS 或真实模型选择。
 - [7c7ec4d](https://github.com/jiacimu-droid/lulu1/commit/7c7ec4d005af95e1019458dd61b0699591acc219) 沿同一测试补下一轮明确 silent 时原动态不重复发布、原叫醒失败责任不被新独立动作改写为完成。只增加回归断言，没有修改生产逻辑；本 SHA 的 JVM/APK 与索引仍待 CI。
 - 下一轮直接打开 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，先按 `7c7ec4d` head SHA 核 JVM/索引，再补工具执行失败或取消后独立回执跨轮可见的反例。真实设备权限、实际有声播放和模型理解独立待验。
+
+## 2026-11-11 · P-08d.2b.2 主动作失败与副动作成功的跨轮分离（待 CI）
+
+- 已核 [7c7ec4d](https://github.com/jiacimu-droid/lulu1/commit/7c7ec4d005af95e1019458dd61b0699591acc219) 的 main push [APK/JVM #42989167113](https://github.com/jiacimu-droid/lulu1/actions/runs/42989167113) 与 [Refresh code index #42989167110](https://github.com/jiacimu-droid/lulu1/actions/runs/42989167110) 均 completed/success，静默不重发及叫醒失败责任隔离的工程断言已通过，真机与真实模型仍待验。
+- 新增 [c88a24c](https://github.com/jiacimu-droid/lulu1/commit/c88a24c99edbfba21490f0028ec9611724438aa8) 在现有 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 中捕获第二个正式模型 HTTP 请求，验证失败主联系的原目标与成功的独立动态同时交接、下一轮明确 silent 不重放动态、主动作仍为 needs_review。只补回归，不改生产逻辑；本 SHA 的 JVM/APK/索引尚未取得结论。
+- 下一轮固定 P-08d.2b.2：先查 `c88a24c` 的 JVM 首错；若通过，再沿原测试核失败主工具回执在下一轮请求中有可核对的来源/失败标记，而不是仅有目标和成功动态；失败则修实际根因或夹具。真机 TTS、权限、真实模型自主行为独立待验。
