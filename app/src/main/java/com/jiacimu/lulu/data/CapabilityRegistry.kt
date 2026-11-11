@@ -122,6 +122,42 @@ object CapabilityRegistry {
         }.trim()
     }
 
+
+    /**
+     * The role's factual phone-affordance snapshot, derived from live gates.
+     * Paired ADB key != active shell != working display != successful action.
+     * The role alone decides whether to try the existing execution tool.
+     */
+    fun phoneOperationContext(context: Context, characterId: String): String {
+        if (characterId.startsWith("resident:")) return ""
+        val foreground = find("phone_ui")
+        val background = find("background_phone")
+        val roleScreenGrant = context.getSharedPreferences(
+            "lulu_execution_policy", Context.MODE_PRIVATE)
+            .getBoolean("$characterId:screen", false)
+        val screenConsent = com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
+        val adbPaired = com.jiacimu.lulu.system.LuluWirelessDebugging.hasPriorPairing(context)
+        val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.ownerHasPaused(context)
+        val supported = android.os.Build.VERSION.SDK_INT >= 34
+        return buildString {
+            appendLine("【本机手机操作的当前事实（比你以前的回答和旧记忆更新）】")
+            appendLine("phone_ui（当前可见主屏操作）工具已注册=${foreground != null}；" +
+                "background_phone（独立后台虚拟屏）工具已注册=${background != null}。")
+            appendLine("主人全局按需屏幕授权=$screenConsent；本角色自主操作屏幕授权=$roleScreenGrant；" +
+                "本机无线调试已保存配对密钥=$adbPaired；主人已暂停后台操作=$stopped；" +
+                "当前系统支持独立焦点屏的版本要求=$supported。")
+            appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
+                "只有实际调用工具得到新回执，才能知道这次是否成功。")
+            appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
+                "应说明具体缺的是哪项，不能说没有background_phone这个工具。" +
+                "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。")
+            appendLine("实际决定使用时：action=tool,tool=background_phone," +
+                "args={\"action\":\"start\"}；启动成功后可在同一角色的工具后续流程" +
+                "选择launch/observe/tap/swipe/type/back/stop，打开应用要传真实packageName。" +
+                "每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+        }.trim()
+    }
+
     fun context(context: Context, characterId: String): String {
         if (characterId.startsWith("resident:"))
             return "数字世界原住民没有现实设备或云端能力；只能感知亲历的地点、社交与已公开的数字世界消息。"

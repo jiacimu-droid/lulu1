@@ -548,6 +548,7 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                appendLine(com.jiacimu.lulu.data.CapabilityRegistry.phoneOperationContext(appContext, characterId))
                 if (separateExpression) appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(
                     userText, history, includeExamples = false,
                 ))
@@ -644,7 +645,7 @@ object LuluDeviceToolBridge {
                 界面操作：screen_action(args.name=back|home|recents|notifications|quick_settings)、click_text(args.text)。
                 位置只用工具返回的 readableAddress；定位老旧/模糊要说明，不能猜具体建筑。
                 需要闹钟/操作/设备实时状态时调用工具，不假装完成；日期不明时追问，禁止自行猜时间。
-                屏幕操作必须有用户明确授权，一次仅执行一个动作。当前已经在私聊/群聊时直接 reply，不要重复调用向当前会话发送同样的话。
+                屏幕操作必须有真实授权；前台动作按操作回执验证，独立后台屏可在同一角色的已选任务内依据每步新观察连续操作。不能把“工具已注册”“无线已配对”“操作执行成功”混成同一个事实。当前已经在私聊/群聊时直接 reply，不要重复调用向当前会话发送同样的话。
                 【小红书真实阅读能力】
                 露露机已实现 read_xiaohongshu 工具，角色可以按关键词搜索、看首页推荐或按用户给的具体链接读帖。一轮工具调用只核实并打开一篇帖子，**这不是每天只能读一篇的限额**；后续有新的真实阅读理由时可以再次调用。不能声称应用没有该工具，也不能自创每天阅读数量限制。未实际调用时不得说“刚在后台检查过能力列表”。
                 工具始终已注册，浏览器当前是否能访问网页是一次调用的执行结果，不是角色有无此能力。只读小红书搜索可以按自己的兴趣选择 action=tool, tool=read_xiaohongshu，args={"keyword":"自己想搜的内容"}；读用户指定原帖则 args={"url":"真实原帖官方链接"}。搜索网页失败后说清楚“这次网页没搜出来”就够，不要编造“我没有工具权限/系统没接入/我在后台查过权限”等没有实际回执的结论。
@@ -1709,7 +1710,8 @@ object LuluDeviceToolBridge {
         val phoneContinuation = if (plan.tool == "background_phone" &&
             actual?.optString("mode") == "independent_virtual_display" &&
             actual.optString("status") !in setOf("failed", "denied") &&
-            roleScreenImage != null &&
+            (roleScreenImage != null || (actualToolArgs.optString("action") == "start" &&
+                actual.optBoolean("success"))) &&
             actualToolArgs.optString("action") != "stop" &&
             !sceneContext.contains("电话")) {
             LuluBackgroundPhoneContinuation.continueFrom(
