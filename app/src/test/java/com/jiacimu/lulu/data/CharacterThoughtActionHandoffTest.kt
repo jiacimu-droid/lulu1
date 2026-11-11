@@ -130,6 +130,33 @@ class CharacterThoughtActionHandoffTest {
         assertNull(CharacterThoughtActionHandoff.actions(speechOnly))
     }
 
+    @Test fun explicitlyCommittedPrivateIdeasBecomeOrderedToolsButUncommittedIdeasRemainPrivate() {
+        val research = JSONObject().put("thought", "想研究一点新人工智能知识")
+            .put("nextAction", JSONObject().put("tool", "web_search")
+                .put("args", JSONObject().put("query", "人工智能最新研究"))
+                .put("requiresPreviousSuccess", false))
+        val uncommitted = JSONObject().put("thought", "也想试试新的小游戏")
+            .put("possibleNextStep", "有空时玩一局")
+        val share = JSONObject().put("thought", "想把已亲历的事情写成一条动态")
+            .put("nextAction", JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", "这段新体验挺有意思"))
+                .put("requiresPreviousSuccess", true))
+        val decision = JSONObject().put("action", "message").put("text", "我先跟你说一声")
+            .put("appraisal", JSONObject().put("privateIdeas", JSONArray()
+                .put(research).put(uncommitted).put(share)))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(2, steps.length())
+        assertEquals("web_search", steps.getJSONObject(0).getString("tool"))
+        assertFalse(steps.getJSONObject(0).getBoolean("requiresPreviousSuccess"))
+        assertEquals("publish_moment", steps.getJSONObject(1).getString("tool"))
+        assertTrue(steps.getJSONObject(1).getBoolean("requiresPreviousSuccess"))
+        assertEquals(original, decision.toString())
+        val ideasOnly = JSONObject().put("action", "silent").put("appraisal",
+            JSONObject().put("privateIdeas", JSONArray().put(uncommitted)))
+        assertNull(CharacterThoughtActionHandoff.actions(ideasOnly))
+    }
+
     @Test fun explicitlySelectedStickerAndRemarkShareRealToolPathWithoutTurningThoughtsIntoActions() {
         val decision = JSONObject().put("action", "message").put("text", "有个小惊喜")
             .put("steps", JSONArray().put(JSONObject()
