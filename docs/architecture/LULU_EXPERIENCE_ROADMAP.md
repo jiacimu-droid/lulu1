@@ -88,6 +88,8 @@
 
 **2026-11-11 G-02.2 同 ID 多格半成品拆除回归**：`03cea7a` 在 `IslandHouseProjectsTest.partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload` 从角色真实选择建房开始，实际施工到 3 格，再由同一角色选择拆除；检查选择时 HUD 0/3、拆掉第一格后 HUD 1/3、真实仅回收 1 木、重载后进度与幂等重放一致。仅增加测试，没有替角色选意图或改变材料规则。**该提交 Kotlin/JVM、APK Actions、真机均待验证**；下一轮直接核该测试在 `:app:testPhoneUnitTest` 的结果与同 SHA APK 构建，若失败先修真实首错；若成功再验正式手机施工 HUD 的分母/暂停/触控表现。\n\n### 2026-11-09 G-02 玩家实测 UI / 玩法入口改造（源码提交，CI/真机未验）
 **2026-11-11 G-02.2 同 ID 暂停续接回归增量**：`1686d68` 扩展 `IslandHouseProjectsTest.partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload`：3格半成品实际拆除1格后，角色明确暂停、跨回合空闲、存档恢复、同一房主明确续拆，验证 HUD 维持 1/3、拆除基数3不丢、暂停/续接不多退木或改地图。仅测试源码提交；本 SHA Kotlin/JVM、APK Actions、真机均待验。下一轮直接核该测试在 `:app:testPhoneUnitTest` 的 CI 首错，成功后转正式手机施工 HUD/触控与 G-03.5 箱盖视觉。
+**2026-11-11 G-02.2 续接后第二格实物拆除回归**：`dc87767` 扩展 `IslandHouseProjectsTest.partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload`，验证明确恢复施工后真正拆掉第二格、HUD 2/3、累计只退 2 木、存档恢复与同回合重放幂等；仅新增测试，JVM/APK/真机尚待验。下一轮直接核该测试的 `:app:testPhoneUnitTest` 与 push APK 首错，成功后检查正式 HUD/触屏；不要把未运行测试记作通过。
+
 
 - **已做但未打验收勾**：`BlockIslandLobby` 替代小岛独立进入前的通用角色选择页，加入玩家／角色队伍席、恢复旧档同伴、继续游戏和游戏目标预览；地图中心互动直接唤出工作台配方，快捷建造弹出建筑目录；通用菜单只保留地图／行囊／伙伴／图鉴／设置；任务条可打开三章目标手册；配方数据被 UI 与执行器共用。代码证据：`9e3f579`、`443136b`、`e971b49`、`c2846fe`、`7ab6d50`、`ffea168`、`363c0e3`、`b83427d`、`e1330b3`；新增回归 `f79f4ea`。
 - **未完成的 G-02 体验边界**：真机横屏、工作台触控与配方单测/APK 编译待查；“邀请”最初仅是玩家选人，已由后继提交实现本人接受/拒绝决定；仍待对应 CI、真机与真实模型验证；语音现有麦克风按次语音识别＋有声回复，非免按键连续语音；主线仍是已有生存／探索／家园目标，未扩充敌群或高级目标奖励。详情与下一轮固定入口见 `COOP_GAME_SCENE_PROGRESS.md` 最新节。不得将已写源码当作已通过测试或已完成游戏体验。
