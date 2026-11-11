@@ -1830,3 +1830,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [34341e5](https://github.com/jiacimu-droid/lulu1/commit/34341e58b4b0855cf8720f0f6d5db2de6b773d75) 在既有表达投影中按场景跳过原世界对话示例，并将从交流学到的表达习惯限定在原世界模式。平行世界继续收到当前稳定人格和用户设定的说话习惯。原世界私聊保留用户编辑的示例，调用次数未增加。本轮范围为网关的表达投影，用户自己写在自由人设或显式场景素材中的内容仍由原输入负责。
 - `RelationshipPreferenceGatewayTest.crossWorldKeepsEditedTemperamentWithoutOriginalWorldDialogueScenes` 使用 V4 正文的网关调用配置捕获真实 HTTP 请求。核江渡编辑前后、星禾插入回合、完整长条件和否定、原世界身份与关系和示例的隔离，以及原世界精简表达仍收到新示例。用例在 [Lulu APK/JVM #42954102373](https://github.com/jiacimu-droid/lulu1/actions/runs/42954102373) 日志确认为 PASSED。完整 JVM 2699 项，1 失败、1 跳过，唯一失败仍为前述 P-08d 重载用例，APK 未产出。原索引 [#42954102416](https://github.com/jiacimu-droid/lulu1/actions/runs/42954102416) completed/success，基准 `34341e58b4b0855cf8720f0f6d5db2de6b773d75`。真机及真实模型待验。
 - 下轮固定 P-08b.1c 先核包含本提交的后继全量 JVM/APK，整包成功后交总接力归并此工程子步骤。若仍卡 P-08d，继续检查 `CompanionModelGateway` 的 Isolated 定义读取和头像准备是否仅由显式场景素材触发，先找正式调用与可复现反例，再定生产改动。
+
+
+## 2026-11-11 · P-08b.1c 隔离场景的资料读取与头像边界
+
+- 上轮 `34341e5` 的后继 `b2d3915` [JVM/APK #42954642984](https://github.com/jiacimu-droid/lulu1/actions/runs/42954642984) 与 [原索引 #42954643038](https://github.com/jiacimu-droid/lulu1/actions/runs/42954643038) 均 completed/success。前轮叫醒回执夹具的构建阻断已消除。
+- 复查正式跑团 `CampaignHost.generate`、独立番外 `MiniTheaterLibrary` 和电话调用的公共网关。原网关先按调用名称准备资料头像，之后才分场景投影。同名请求即使指定 Isolated，仍会进入 `UserAvatarVision.prepare`，有效头像可能附到 HTTP 请求，响应还可写入头像观察及已读版本。另一路无条件组装完整人物定义及读取在场状态，虽然后续会丢弃隔离模式不需要的字段。现行跑团和番外的调用名称不触发头像分支，头像越界由同名负例覆盖。
+- [0eb4e74](https://github.com/jiacimu-droid/lulu1/commit/0eb4e7471cc2c95a3ea1b01a0c6c343e4c04269e) 先以场景范围限制隐式资料输入，只有原世界角色模式允许在原有入口附加用户资料头像。隔离、群像保留显式素材并跳过单人的定义读取，跨世界只读取稳定性格与名字。资料头像与明确附件分别处理，原世界仍走原来的角色观察和回执。继续复用原有 Store 和调用次数。
+- `RelationshipPreferenceGatewayTest.isolatedContextsDoNotAttachOrConsumeProfileAvatarFromPhoneSource` 使用可解码 PNG 和 MockWebServer，固定相同电话来源，对照三个非原世界本人模式和原世界电话模式。逐次核对 HTTP 图片列表、身份关系提示、本人头像观察回执和已读版本。该用例与前两轮人物投影用例均 PASSED。[JVM/APK #42966666349](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666349) 构建与发布成功，[原索引 #42966666328](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666328) completed/success。源码和文件 SHA 已核对。真机图片体验及真实模型自然表现待验。
+- P-08b.1c 的这一工程子步骤可交总接力归并。下一轮 P-03.1 打开 `LuluDeviceToolBridge` 的电话 `speechIntent` 补写入口和 `ConversationExpressionGatewayTest`，核用户在一次已选决定与补写之间修改人设时，原决定、更新后的表达约束和副动作是否能一致交接。先查已有取消测试和真实调用，再定是否需要生产修复。
