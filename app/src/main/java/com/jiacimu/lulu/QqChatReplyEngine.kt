@@ -6,6 +6,7 @@ import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluChatStore
+import com.jiacimu.lulu.data.MeetingSegmentType
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.LuluGroupChat
@@ -322,14 +323,22 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
         val track = if (positionAligned && voice) {
             presentation.bubbleSpeechTracks.getOrNull(sourceIndex).orEmpty().trim()
         } else ""
-        val alignTrack = track.isNotEmpty() && VoicePerformance.plain(track) == sourceText
+        // A natural performance cue often carries whitespace around the label:
+        // "我，[hesitant] 还想说" and "我，还想说" have identical spoken words.
+        // Align cues to the original transcript before slicing; never discard the
+        // whole audio track merely because of spacing around a model's tag.
+        val alignedTrack = if (track.isNotEmpty()) {
+            VoicePerformance.meetingSegment(MeetingSegmentType.DIALOGUE, sourceText, track).speechText
+        } else ""
+        val hasAlignedTrack = alignedTrack.isNotEmpty() &&
+            VoicePerformance.plain(alignedTrack) == sourceText
         var cursor = 0
         textBubbles.map { text ->
             // Each voice bubble has its own audio-only direction track. Never
             // attach the whole original performance to every resulting bubble.
-            val start = if (alignTrack) sourceText.indexOf(text, cursor) else -1
+            val start = if (hasAlignedTrack) sourceText.indexOf(text, cursor) else -1
             val speech = if (start >= 0) {
-                VoicePerformance.slice(track, start, start + text.length)
+                VoicePerformance.slice(alignedTrack, start, start + text.length)
                     .takeIf { VoicePerformance.plain(it) == text }.orEmpty()
             } else ""
             if (start >= 0) cursor = start + text.length
