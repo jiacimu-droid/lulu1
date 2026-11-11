@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T14:58:18.642254+00:00",
-  "commit": "fb487a49ed0f36d906890ee376a74460ed516162",
+  "generatedAt": "2026-11-11T15:00:33.561349+00:00",
+  "commit": "85dceffb467209428ed75015157a40ea31e6bdab",
   "branch": "main",
-  "sourceFingerprint": "816bfbfee14d85fa17a437016afc353b913e2e91de56c94a6088aed6f3711968",
+  "sourceFingerprint": "4260b05a0ea484a562bba2871c6252a946d2764f5a1a29cbef9341927ea44a10",
   "summary": {
-    "files": 1176,
-    "lines": 256040,
-    "symbols": 3494
+    "files": 1177,
+    "lines": 256154,
+    "symbols": 3497
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13104,6 +13104,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
         "line": 57
+      }
+    ],
+    "LuluEditorialHeader": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt",
+        "line": 35
+      }
+    ],
+    "LuluEditorialSectionHeading": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt",
+        "line": 71
+      }
+    ],
+    "LuluEditorialPanel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt",
+        "line": 92
       }
     ],
     "Modifier": [
@@ -32230,6 +32248,25 @@
         {
           "name": "LuluMotionTokens",
           "line": 57
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt",
+      "lines": 114,
+      "sha256": "fd2cbc6d94c37d034d03088bc4ee02c850caa8e4d01a62b0870e67c9bb7d0742",
+      "symbols": [
+        {
+          "name": "LuluEditorialHeader",
+          "line": 35
+        },
+        {
+          "name": "LuluEditorialSectionHeading",
+          "line": 71
+        },
+        {
+          "name": "LuluEditorialPanel",
+          "line": 92
         }
       ]
     },
