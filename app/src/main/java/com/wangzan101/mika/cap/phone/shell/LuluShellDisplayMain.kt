@@ -49,7 +49,7 @@ object LuluShellDisplayMain {
         @SuppressLint("PrivateApi")
         val manager = DisplayManager::class.java.getDeclaredConstructor(Context::class.java)
             .apply { isAccessible = true }.newInstance(context)
-        val input = System.in.bufferedReader()
+        val input = System.`in`.bufferedReader()
         try {
             while (true) {
                 val raw = input.readLine() ?: break
