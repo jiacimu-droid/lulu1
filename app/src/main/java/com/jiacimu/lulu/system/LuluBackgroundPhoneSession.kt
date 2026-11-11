@@ -191,6 +191,17 @@ internal object LuluBackgroundPhoneSession {
                     "屏幕内容已变更或目标窗口无法核实；为了避免错点，拒绝这一步"
                 }
             }
+            if (action == "tap") {
+                val x = args.getInt("x")
+                val y = args.getInt("y")
+                val sensitive = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.isSensitiveVirtualTap(
+                        id, activeApp, x, y, 720, 1280)
+                }
+                check(!sensitive) {
+                    "检测到付款、发送、发布、删除或无法核实的敏感点击目标；拒绝自动操作"
+                }
+            }
             val request = JSONObject().put("action", action)
             if (action == "launch") request.put("packageName", requestedPackage)
             if (action == "tap") {

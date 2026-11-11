@@ -125,6 +125,45 @@ class LuluAccessibilityService : AccessibilityService() {
         }
 
         /** Set Unicode text ONLY in an editable, non-password node on the owned display. */
+        /**
+         * Deny tapping labeled irreversible/sensitive controls on the virtual
+         * screen. This is a conservative guard, NOT a complete transaction
+         * detector; unknown controls remain unverified, never auto-approved.
+         */
+        fun isSensitiveVirtualTap(
+            displayId: Int, packageName: String, x: Int, y: Int,
+            screenWidth: Int, screenHeight: Int,
+        ): Boolean {
+            val service = instance ?: return true
+            if (displayId <= 0 || screenWidth <= 0 || screenHeight <= 0 ||
+                x !in 0..1000 || y !in 0..1000) return true
+            val px = (screenWidth - 1L) * x / 1000L
+            val py = (screenHeight - 1L) * y / 1000L
+            val root = service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .mapNotNull { it.root }
+                .firstOrNull { it.packageName?.toString() == packageName } ?: return true
+            val risky = Regex(
+                "(付款|支付|转账|立即购买|确认购买|下单|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易)",
+                RegexOption.IGNORE_CASE,
+            )
+            var blocked = false
+            var visited = 0
+            fun checkNode(node: AccessibilityNodeInfo?, depth: Int) {
+                if (node == null || depth > 28 || visited++ >= 400) return
+                val rect = Rect()
+                node.getBoundsInScreen(rect)
+                if (rect.contains(px.toInt(), py.toInt()) && node.isVisibleToUser) {
+                    if (node.isPassword) blocked = true
+                    val label = node.text?.toString().orEmpty() + " " +
+                        node.contentDescription?.toString().orEmpty()
+                    if (risky.containsMatchIn(label)) blocked = true
+                    for (i in 0 until node.childCount) checkNode(node.getChild(i), depth + 1)
+                }
+            }
+            checkNode(root, 0)
+            return blocked
+        }
+
         fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
             if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0 ||
