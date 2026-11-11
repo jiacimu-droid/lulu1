@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:14:53.249195+00:00",
-  "commit": "daa36442b88a1452772d3f743571f7243df267ed",
+  "generatedAt": "2026-11-11T15:16:45.864065+00:00",
+  "commit": "788da0cb37fab5586976d29b3de844f7a958bfe2",
   "branch": "main",
-  "sourceFingerprint": "a566a9ea1c52f24d1a183427ffba65cd23ce3720930e7da877a8c1aa1f0ce30d",
+  "sourceFingerprint": "5232fcbdbf40168219c7b21cb7e98ef9251c2e1903b411cf90c2c03a4deaf49f",
   "summary": {
     "files": 1181,
-    "lines": 256563,
+    "lines": 256565,
     "symbols": 3514
   },
   "symbolIndex": {
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 217
+        "line": 219
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
@@ -7005,13 +7005,13 @@
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 255
+        "line": 257
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 300
+        "line": 302
       }
     ],
     "localDay": [
@@ -25715,8 +25715,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 332,
-      "sha256": "9750478be9b1ee8be7a1a5eec2350bdafb10c33446c2470c45f8b3428465a84d",
+      "lines": 334,
+      "sha256": "3c019168407f5e090ada8bd1097c0182a575820adeed4212644d08af51b46a64",
       "symbols": [
         {
           "name": "initialize",
@@ -25756,15 +25756,15 @@
         },
         {
           "name": "context",
-          "line": 217
+          "line": 219
         },
         {
           "name": "recordShareWish",
-          "line": 255
+          "line": 257
         },
         {
           "name": "recordAction",
-          "line": 300
+          "line": 302
         }
       ]
     },
