@@ -82,6 +82,8 @@
 | 大纲接力（每小时，P-08a/c/d/M/S/UI） | 先领 P-08d.2b.2：已接受的相对叫醒约定，从 `CommitmentDecisionRuntime` 到有声回执。 | 对照既有 `ChatAutomationRoutingTest`、`CommitmentSemanticPersistenceTest` 和 `CommitmentAlarmRecoveryTest`，找出整链缺测点；仅针对复现的断点修改源码。 | 声音/权限只能真机确认时切 P-08c.2 聊天中途纠正的真实送达回执，或 UI-02.2 的写入失败恢复。 |
 | 人物专项（每两小时，P-08b/P-03） | P-03.1：接续 `CharacterUnfinishedActionContext` 对上一真实结果的交接，先核回执撤回/缺失后下一次后台输入。 | 保留原目标和可用证据，过期回执不能继续当事实；同轮其他动作不受影响。由人物专项改输入投影，总接力改承诺执行。 | 已有覆盖则转 P-08b.1，核另一正式入口的人设/关系边界。 |
 | 双游戏（每小时，G-02/G-03） | G-03.5：从 `RelicObjectiveGuide.knownRouteTiles` 查到实际 `RelicEscapeScreen`/地图的展示与清空，先查 `7e6c563` 及后继提交；G-02.2 已通过的施工进度回归转正式界面。 | 摸金先跑可见路线→开箱→撤离，小岛先跑采集→工作台→营地成果。每轮择一项用户看得到的局内增量，配相关回归或真机证据。 | 触屏或帧率待外部时做现有规则到正式界面的状态接入，保留真实模型、触屏、画质待验。 |
+
+**2026-11-11 G-03.5 已知路线显示回归（CI/真机待验）**：沿看板固定入口 `RelicObjectiveGuide.knownRouteTiles`→`RelicEscapeArt` 正式地图，新增 `RelicObjectiveRouteTest.mapRouteMatchesHudAndDisappearsWhenNewThreatBlocksCorridor`（`4ead18b`），验证已发现走廊地图路径与 HUD 步数同源，敌人新出现后路径/提示立即失效，提示不会移动角色或打开宝箱。仅新增 JVM 回归，未改真实战利品、角色意愿或渲染；本提交 APK/JVM、低端真机触屏和 FPS 尚待验证。下一轮先查 `4ead18b` 的 main push Lulu APK/JVM 首错，再检查地图路线叠层与开箱箱盖在窄横屏是否遮挡。
 | 新 Issue 修复（每小时，被动） | 仅处理新增且仍开放的 Issue，或确认尚未被后继构建修复的新 CI 失败。 | 查最新 head/首错并避让正在处理的专项；无新 Issue 时静默。 | 已由后继成功构建覆盖的旧失败不重做。 |
 
 **交接记录**：每个专项只更新所领 ID 的小节，总接力维护执行入口表。一次回合交付写「负责人/ID、改动或已核查内容、提交 SHA、CI run 与结果、外部待验、下一文件或测试」。候选若已验通，更新验收边界后转下项；CI 仍在跑就记录待验并避开同一条写链，无需反复提交只改状态的文档。
