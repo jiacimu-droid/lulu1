@@ -207,6 +207,8 @@ internal object CharacterLifeFollowThroughStore {
         if (pending.isEmpty()) return@synchronized ""
         buildString {
             appendLine("【自己真实经历过、还未分享的生活｜有兴趣才自然带入当前话题】")
+            val urge = sharingUrge(characterId, now).toInt()
+            appendLine("当前累计分享冲动≈$urge/100；这是多条真实经历形成的私人驱动力，不是发送配额。此刻真想分享某件事，可以在同轮回复之外选择实际 message/moment/group_message 或 steps，并关联 experienceId；想晚些做要选真实日程，不只是心声。没有合适对象或时机也可暂缓或放下，不能把数值本身当已发送结果。")
             pending.forEach { item ->
                 appendLine("- experienceId=${item.optString("id")}；[${item.optString("occurredAt")}] ${item.optString("fact").take(200)}")
                 item.optString("shareWhy").takeIf(String::isNotBlank)?.let { appendLine("  当时想分享的理由：${it}") }
