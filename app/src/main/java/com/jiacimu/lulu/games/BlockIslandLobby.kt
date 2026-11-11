@@ -43,6 +43,7 @@ internal fun BlockIslandEntry(store: LuluGameStore) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
