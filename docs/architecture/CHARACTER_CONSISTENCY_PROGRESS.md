@@ -10,8 +10,9 @@
 
 - `52f0624` 的 [APK/JVM #42924717735](https://github.com/jiacimu-droid/lulu1/actions/runs/42924717735) 在 `RelationshipPreferenceGatewayTest.kt:222` 失败，期望新约定而重载后为空。用例在配置关系前遗漏 `CharacterLifeStore.initialize(context)`，沿用了之前测试的存储实例。`bfd7158` 补齐正式启动顺序，并直接检查编辑前后真实 SharedPreferences 中的完整原文。
 - 同路径发现生产接口在存储未初始化时仍返回 true。`500cc83` 改为明确拒绝本次写入，并通过 `relationshipEditRequiresAnInitializedDurableSource` 检查未写入时旧数据保留、初始化后重试与重载。既有 `commit` 保存失败继续暴露实际错误，完整标题和约定保持保存。
+- 编辑入口另有配套缺口，关系编辑框仍按 70/1600 字截断，编辑已保存长约定时会丢失末尾。`f85ddb1` 移除输入截断；保存失败或存储未就绪时保留草稿和弹窗并提示重试，成功后才关闭。
 - 回查范围从已验 `c666055` 至今早美术交接 `c67dc44`，另复核后继美术修正 `3a79dfc`。该范围的关系正文保留、已发现路线绘制、宝物渲染与地表贴图选择没有新增 AI 请求、重写物理世界或删改历史。已核新的宝物绘制函数接入实际开箱和藏品共用入口。未发现需要回滚的其他生产逻辑，性能和真机画面尚无测量证据。
-- 本轮 [APK/JVM #42931549522](https://github.com/jiacimu-droid/lulu1/actions/runs/42931549522) 对应 `500cc83`，包含 `bfd7158`，当前待运行。先核新用例和完整构建，成功后登记工程结果。真机与真实模型表现独立待验。
+- `500cc83` 的 [APK/JVM #42931549522](https://github.com/jiacimu-droid/lulu1/actions/runs/42931549522) 及包含编辑入口的 `f85ddb1` [完整 APK/JVM #42932289426](https://github.com/jiacimu-droid/lulu1/actions/runs/42932289426) 均成功。后者 2691 项通过、1 项跳过，长约定重载、失败电话后的新设定注入、初始化拒写用例均通过；原索引 #42932289408 成功。已发布 [Lulu v8596](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v8596)，#868 已由成功构建自动关闭。真机编辑、实际模型自然度及帧率独立待验。
 
 ## 2026-11-11 S-02.4 十项联动回归与 UI-02.2 写入失败
 
