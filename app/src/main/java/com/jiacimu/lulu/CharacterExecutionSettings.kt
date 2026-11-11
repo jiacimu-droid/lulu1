@@ -39,6 +39,9 @@ internal fun CharacterExecutionSettings(characterId: String) {
         if (advancedPhoneOpen) {
             val debug = com.jiacimu.lulu.system.LuluWirelessDebugging
             val scope = rememberCoroutineScope()
+            var pairAddress by remember {
+                mutableStateOf(debug.suggestedWifiHost(context).orEmpty())
+            }
             var pairPort by remember { mutableStateOf("") }
             var connectPort by remember { mutableStateOf("") }
             var pairingCode by remember { mutableStateOf("") }
@@ -53,6 +56,16 @@ internal fun CharacterExecutionSettings(characterId: String) {
                     android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)) }
                     .onFailure { setupStatus = "无法自动打开开发者选项，请手动进入系统设置" }
             }) { Text("打开系统开发者选项") }
+            OutlinedTextField(
+                value = pairAddress,
+                onValueChange = { pairAddress = it.trim().take(45) },
+                singleLine = true,
+                label = { Text("本机Wi-Fi IP（配对弹窗中的IP）") },
+                supportingText = { Text("自动识别：" +
+                    (debug.suggestedWifiHost(context) ?: "失败，请手动输入系统显示的IP") +
+                    "；只连接本机，不连接其他设备") },
+                modifier = Modifier.fillMaxWidth(),
+            )
             OutlinedTextField(
                 value = pairPort, onValueChange = { pairPort = it.filter(Char::isDigit).take(5) },
                 singleLine = true, label = { Text("系统显示的配对端口") },
@@ -72,7 +85,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 setupBusy = true
                 scope.launch {
                     try {
-                        setupStatus = debug.pair(context, port, oneTimeCode)
+                        setupStatus = debug.pair(context, port, oneTimeCode, pairAddress)
                     } catch (e: Exception) {
                         setupStatus = "无线配对失败：" + e.message.orEmpty().take(150)
                     } finally { setupBusy = false }
@@ -87,7 +100,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 TextButton(enabled = !setupBusy && debug.hasPriorPairing(context), onClick = {
                     setupBusy = true
                     scope.launch {
-                        try { setupStatus = debug.test(context, connectPort.toIntOrNull()) }
+                        try { setupStatus = debug.test(context, connectPort.toIntOrNull(), pairAddress) }
                         catch (e: Exception) {
                             setupStatus = "连接失败：" + e.message.orEmpty().take(150)
                         } finally { setupBusy = false }
@@ -116,6 +129,8 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 setupStatus = "已允许新后台操作会话；仍需按角色屏幕权限核实"
             }) { Text("重新允许后台操作") }
             Text(setupStatus, style = MaterialTheme.typography.bodySmall)
+            Text("配对使用系统弹窗显示的Wi-Fi IP、配对端口、6位码，保持弹窗打开；连接端口来自无线调试主页面，与配对端口不同，可以留空自动发现。",
+                style = MaterialTheme.typography.bodySmall)
             Text("连接通过只证明 shell 权限可用；后台独立屏幕和第三方 App 操作仍需完成助手安装、启动和真机验证。关闭无线调试或撤销配对后不可继续控制。",
                 style = MaterialTheme.typography.bodySmall)
         }
