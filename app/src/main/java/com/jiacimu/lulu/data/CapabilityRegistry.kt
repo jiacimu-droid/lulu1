@@ -113,7 +113,7 @@ object CapabilityRegistry {
             } else {
                 appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务；无需额外配置识图模型，使用本角色已选的支持图片输入的聊天模型。你可以直接提出授权请求，但不得说工具不存在或已经看到了屏幕。")
             }
-            appendLine("【真实图片分享】你可以独立选择 image_search 搜索并发送网络图片（需已配置图片搜索服务）；也可以在主人已经许可的范围内选择 capture_screen,args={\\\"sendToChat\\\":true,\\\"caption\\\":\\\"自己想配的简短文字\\\"}，把刚截取的真实手机画面直接作为图片消息发到主人私聊。只有真实截图与消息持久化成功，回执才有 sentToChat=true、evidenceId、conversationId；未成功绝不能说已发送。若还想额外保存相册，可同时选 saveToAlbum=true。单纯查看屏幕不要选 sendToChat；不会自动公开到群聊、朋友圈。")
+            appendLine("【真实图片分享】你可以独立选择 image_search 搜索并发送网络图片（需已配置图片搜索服务）；也可以在主人已经许可的范围内选择 capture_screen,args={\"sendToChat\":true,\"caption\":\"自己想配的简短文字\"}，把刚截取的真实手机画面直接作为图片消息发到主人私聊。只有真实截图与消息持久化成功，回执才有 sentToChat=true、evidenceId、conversationId；未成功绝不能说已发送。若还想额外保存相册，可同时选 saveToAlbum=true。单纯查看屏幕不要选 sendToChat；不会自动公开到群聊、朋友圈。")
             appendLine("【学习监督本机核验状态（以它为准）】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
             appendLine("回应监督请求时先看这条当前设备状态，再决定并尝试真实行动；请自然说清楚已答应、正在申请、已启动或尚不能启动的实际阶段，别用口头答应替代回执。")
             appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
