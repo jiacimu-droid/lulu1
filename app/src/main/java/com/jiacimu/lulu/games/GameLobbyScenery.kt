@@ -203,10 +203,11 @@ internal fun GameLobbyPartySlot(
     accent:Color,
     allowRemove:Boolean=false,
     onRemove:()->Unit={},
+    compact:Boolean=false,
 ) {
     // An RPG-style standee, not a settings checkbox. The actual user/character
     // avatar still comes from the same profile and invitation state.
-    Surface(modifier=Modifier.width(112.dp),shape=RoundedCornerShape(15.dp),
+    Surface(modifier=Modifier.width(if(compact)88.dp else 112.dp),shape=RoundedCornerShape(15.dp),
         color=Color(0xF0253035),
         border=BorderStroke(1.dp,
             accent.copy(alpha=if(isPlayer).58f else .31f)),
@@ -215,7 +216,7 @@ internal fun GameLobbyPartySlot(
             if(isPlayer)Color(0xFF54695F) else Color(0xFF414D55),
             Color(0xFF293B42),Color(0xFF202F37)))),
             horizontalAlignment=Alignment.CenterHorizontally) {
-            Box(Modifier.fillMaxWidth().height(111.dp),
+            Box(Modifier.fillMaxWidth().height(if(compact)65.dp else 111.dp),
                 contentAlignment=Alignment.Center) {
                 Canvas(Modifier.matchParentSize()) {
                     // Quiet backlighting keeps the actual avatar as the focal
@@ -230,12 +231,12 @@ internal fun GameLobbyPartySlot(
                     fontWeight=FontWeight.Bold,
                     modifier=Modifier.align(Alignment.TopEnd).padding(end=7.dp,top=4.dp))
             }
-            Text(name,color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold,
+            Text(name,color=Color.White,fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold,
                 maxLines=1,modifier=Modifier.padding(horizontal=6.dp))
-            Text(if(isPlayer)"队长" else "已加入队伍",color=accent,fontSize=10.sp,
+            if(!compact)Text(if(isPlayer)"队长" else "已加入队伍",color=accent,fontSize=10.sp,
                 modifier=Modifier.padding(vertical=3.dp))
             if(allowRemove)TextButton(onClick=onRemove,
-                modifier=Modifier.height(28.dp),
+                modifier=Modifier.height(if(compact)24.dp else 28.dp),
                 contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
                 Text("移出队伍",color=accent,fontSize=10.sp)
             }
@@ -247,10 +248,12 @@ internal fun GameLobbyPartySlot(
 internal fun GameLobbyInviteSlot(
     accent:Color,
     enabled:Boolean,
+    compact:Boolean=false,
     onClick:()->Unit,
 ) {
     Surface(onClick=onClick,enabled=enabled,
-        modifier=Modifier.width(112.dp).height(170.dp),
+        modifier=Modifier.width(if(compact)88.dp else 112.dp)
+            .height(if(compact)105.dp else 170.dp),
         color=Color(0xC52A3F43),shape=RoundedCornerShape(15.dp),
         border=BorderStroke(1.dp,accent.copy(alpha=.38f)),
         shadowElevation=2.dp) {
@@ -260,12 +263,12 @@ internal fun GameLobbyInviteSlot(
             verticalArrangement=Arrangement.Center) {
             Surface(shape=RoundedCornerShape(99.dp),color=accent.copy(alpha=.16f),
                 border=BorderStroke(1.dp,accent.copy(alpha=.72f))) {
-                Text("＋",color=accent,fontSize=36.sp,fontWeight=FontWeight.Light,
+                Text("＋",color=accent,fontSize=if(compact)25.sp else 36.sp,fontWeight=FontWeight.Light,
                     modifier=Modifier.padding(horizontal=11.dp,vertical=0.dp))
             }
-            Spacer(Modifier.height(10.dp))
-            Text("邀请新伙伴",color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
-            Text("由角色自己决定",color=accent,fontSize=9.sp)
+            Spacer(Modifier.height(if(compact)4.dp else 10.dp))
+            Text("邀请新伙伴",color=Color.White,fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold)
+            if(!compact)Text("由角色自己决定",color=accent,fontSize=9.sp)
         }
     }
 }
