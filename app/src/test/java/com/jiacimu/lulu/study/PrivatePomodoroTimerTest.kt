@@ -63,6 +63,32 @@ class PrivatePomodoroTimerTest {
         assertFalse(prefs.contains("automatic_dialogue"))
         assertFalse(prefs.contains("opening_handled"))
     }
+    @Test fun todoCountdownShortcutKeepsTheCurrentSessionAndOnlyChangesIdleMode() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE)
+            .edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.updateTask("完成今天的待办")
+        timer.setDuration(35)
+        timer.updateTimerMode(PomodoroTimerMode.CountUp)
+
+        // 所行 shortcut selects countdown only when the timer is idle.
+        timer.updateTimerMode(PomodoroTimerMode.Countdown)
+        assertEquals(PomodoroTimerMode.Countdown, timer.state.value.timerMode)
+        assertEquals("完成今天的待办", timer.state.value.task)
+        assertEquals(35, timer.state.value.selectedMinutes)
+
+        // An existing session is reopened, not switched, restarted or discarded.
+        timer.updateTimerMode(PomodoroTimerMode.CountUp)
+        timer.beginSession("正在进行的任务", PomodoroTimerMode.CountUp, startedAtEpochMillis = 5_000L)
+        val active = timer.state.value
+        timer.updateTimerMode(PomodoroTimerMode.Countdown)
+        assertEquals(PomodoroTimerMode.CountUp, timer.state.value.timerMode)
+        assertEquals(active.activeSessionId, timer.state.value.activeSessionId)
+        assertEquals(active.countUpAnchorEpochMillis, timer.state.value.countUpAnchorEpochMillis)
+        assertTrue(timer.state.value.countUpRunning)
+    }
+
     @Test fun countdownCanPauseResumeAndFinishWithoutExamStore() {
         val context = RuntimeEnvironment.getApplication() as Context
         context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE)
