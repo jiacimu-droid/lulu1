@@ -1876,3 +1876,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - `ConversationExpressionGatewayTest.firstPhoneDecisionRejectsOldDirectSpeechAndUnrenderedIntentAfterEdit` 在两个实际 HTTP 首次请求等待期间编辑约定，分别返回直接台词和待补写意图。核旧轮报失效、没有媒体状态变化及回执、没有第二次 HTTP，以及下一轮收到完整的否定和条件并正常返回。新增用例和上轮补写编辑用例在后继日志均 PASSED。真机及真实模型待验。
 - 本提交原索引 [#42996654387](https://github.com/jiacimu-droid/lulu1/actions/runs/42996654387) success，直接 [APK/JVM #42996654123](https://github.com/jiacimu-droid/lulu1/actions/runs/42996654123) cancelled。后继 `c88a24c` 的[索引 #42996881880](https://github.com/jiacimu-droid/lulu1/actions/runs/42996881880) success，[JVM/APK #42996881949](https://github.com/jiacimu-droid/lulu1/actions/runs/42996881949) failure，2706 项中 5 失败、1 跳过。首错为 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput` 的 Broken pipe，另有三个后台用例连接同一已关闭本机端口失败，以及 `dedicatedWriterChangesOnlyExistingExpressionRequestsAndCanBeCleared` NPE。五项在本改动之前的 `cc044c2` [#42995665792](https://github.com/jiacimu-droid/lulu1/actions/runs/42995665792) 已有同样结果，APK 尚未完成，交相关模型路由和回执工作包核因。
 - 下一轮固定 P-03.1 先查包含本提交的后继完整 CI。若仍被上述失败阻断，继续可实施的同一交接审计，直接打开 `LuluDeviceToolBridge` 中“格式失败后的柔性恢复”以及 `ConversationExpressionGatewayTest`，对照补写请求挂起期间编辑约定时是否仍会发声或发布 Live2D 动作。以证实的缺口决定生产改动。
+
+
+## 2026-11-11 · P-03.1 电话格式恢复的台词与视频动作交付
+
+- 上轮 `287a867` 的后继 `3a17e95` [JVM/APK #43000674169](https://github.com/jiacimu-droid/lulu1/actions/runs/43000674169) 与[原索引 #43000674283](https://github.com/jiacimu-droid/lulu1/actions/runs/43000674283) completed/success。日志确认首次决策期间编辑的电话回归 PASSED，先前五项失败已由后继构建替代。
+- `LuluDeviceToolBridge.respond` 的格式异常路径会在原决策校验后另行恢复台词，并在分支末尾直接返回，绕开正常结构化分支的发布检查。对视频回复，`Live2DPhoneMotionRepair.publish` 又会在模型补正挂起之后立即回调发布。两处都可能在用户编辑了本人的关系约定后提交旧轮产物。
+- [2773dce](https://github.com/jiacimu-droid/lulu1/commit/2773dceb1cceb37efb968a26339af29b85414d32) 在这条旁路的语音恢复及归责核验之后复用现有定义和取消检查。视频补正把同一配置校验传到动作与状态回调前，桥接层随后再核发声。保留原修复预算与完整原轮所有权，失效结果不自动重发。这次只绑定格式恢复路径，其他视频调用的配置复核仍需各自按已证路径检查。
+- `ConversationExpressionGatewayTest.malformedPhoneRecoveryRejectsEditsDuringSpeechOrMotionRepair` 使用实际网关 HTTP 和已有的测试动作目录方式，分别在第二次语音恢复、第三次视频动作补正请求等待中更新关系。两条路径都无可交付台词、动作或状态回调，且没有额外请求。该用例和首次电话决策回归在 [JVM/APK #43012688208](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688208) 日志确认 PASSED，全量构建和 APK 发布成功，[原索引 #43012688106](https://github.com/jiacimu-droid/lulu1/actions/runs/43012688106) 成功。真机 Live2D、TTS 与真实模型表现待验。
+- 下一轮 P-03.1 先核本轮索引及 APK 证据，再打开 `LuluDeviceToolBridge` 中 `checkedResultText` 的电话工具结果表达与 `ConversationExpressionGatewayTest`。构造实际工具已完成、返回表达仍在等待时编辑约定的反例，分别核原真实回执保留和过期表达不交付。仅在源码或测试证实缺口时修改，不重复本轮格式异常路径。
