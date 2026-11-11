@@ -578,4 +578,65 @@ class AutonomousActionBoundaryIntegrationTest {
             server.shutdown()
         }
     }
+
+    @Test(timeout = 90_000) fun failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput() = runBlocking {
+        val actor = role()
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = actor, goal = "在约定时刻有声叫醒",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = Instant.now().minusSeconds(2),
+            deliveryAction = "start_call",
+        ))
+        CommitmentCallFeedback.onResponse(task.id, true)
+        CommitmentCallFeedback.onVoiceFailed(task.id, "failed-audio-${UUID.randomUUID()}", "tts offline")
+        val failed = CommitmentTaskStore.snapshot().single { it.id == task.id }
+        assertEquals(CommitmentTaskStatus.Blocked, failed.status)
+        assertTrue(failed.lastActionResult.contains("播放失败"))
+
+        // Reload the authoritative commitment store before the actual runtime
+        // builds the next paid decision request, rather than testing a renderer.
+        val field = CommitmentTaskStore.javaClass.getDeclaredField("prefs")
+        field.isAccessible = true
+        field.set(CommitmentTaskStore, null)
+        CommitmentTaskStore.initialize(app)
+        assertEquals(failed.lastActionResult,
+            CommitmentTaskStore.snapshot().single { it.id == task.id }.lastActionResult)
+
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "有声失败后的新决定")
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "你刚才叫醒我了吗？")
+        val server = okhttp3.mockwebserver.MockWebServer()
+        val requests = java.util.concurrent.CopyOnWriteArrayList<String>()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
+                requests.add(request.body.readUtf8())
+                val decision = JSONObject().put("action", "silent")
+                    .put("reason", "先核对实际有声送达结果")
+                return okhttp3.mockwebserver.MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                        .put("message", JSONObject().put("content", decision.toString()))
+                        .put("finish_reason", "stop"))).toString())
+            }
+        }
+        server.start()
+        try {
+            val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "wake-receipt-${UUID.randomUUID()}",
+                server.url("/").toString(), "test")
+            store.addArchive(config.id, "test")
+            OnlineChatBatchStore.cancel(app, actor)
+            val batch = OnlineChatBatchStore.onUserBubble(app, actor,
+                atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = batch.revision, requiresUnread = true)
+            assertEquals("本次新批次只应购买一次本人模型决定", 1, requests.size)
+            assertTrue("实际模型请求必须包含原任务ID", requests.single().contains(task.id))
+            assertTrue("实际模型请求必须包含真实播放失败", requests.single().contains("播放失败"))
+            assertFalse("失败不得伪造成已醒", requests.single().contains("已确认醒来"))
+            assertEquals(CommitmentTaskStatus.Blocked,
+                CommitmentTaskStore.snapshot().single { it.id == task.id }.status)
+        } finally {
+            server.shutdown()
+        }
+    }
 }
