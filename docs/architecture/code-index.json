@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:06:36.194581+00:00",
-  "commit": "07cce503fabd0ffcd6e8498110515fcc010cfbcf",
+  "generatedAt": "2026-11-11T16:07:14.087094+00:00",
+  "commit": "840707c4d708616446b8d5fb8eae4afd84256948",
   "branch": "main",
-  "sourceFingerprint": "904ab4e6701c14ae7949d076e42b64356f1d1390a5f457ec4c16fe29f47456e2",
+  "sourceFingerprint": "e5ab72f490d1b8464ee38619509ee8277c9914e3eab12d0b5ebc5ee6452a6dcf",
   "summary": {
     "files": 1199,
-    "lines": 259325,
+    "lines": 259332,
     "symbols": 3625
   },
   "symbolIndex": {
@@ -16003,7 +16003,7 @@
     "forget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-        "line": 92
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt",
@@ -36664,8 +36664,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt",
-      "lines": 100,
-      "sha256": "8af6bd3fe1d4bb184246076f714c53b32c1bcbce67f455ba725af0510629215e",
+      "lines": 107,
+      "sha256": "66a362f18d84cf753c94d92e39f13261d989cc7858edb3960f5c7830f58e2143",
       "symbols": [
         {
           "name": "LuluWirelessDebugging",
@@ -36677,7 +36677,7 @@
         },
         {
           "name": "forget",
-          "line": 92
+          "line": 99
         }
       ]
     },
@@ -36701,7 +36701,7 @@
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
       "lines": 196,
-      "sha256": "f55fc0cd582af62bf118760d482359250445e4e53aec2a42b3295e4b91a2183d",
+      "sha256": "032b195c04862907c7faecc20ece26a4287303aebb1b26ac5ee58409d5a756b7",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
