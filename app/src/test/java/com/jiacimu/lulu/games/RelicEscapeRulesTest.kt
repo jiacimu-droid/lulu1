@@ -113,6 +113,28 @@ class RelicEscapeRulesTest {
             secured.copy(contract=RelicContract.COLLECTOR)))
     }
 
+    @Test fun treasureRevealMakesJewelTheFocalPointWithoutChangingPhysicalLoot() {
+        val locked=RelicRevealTimeline.at(0f)
+        val opening=RelicRevealTimeline.at(.36f)
+        val appearing=RelicRevealTimeline.at(.72f)
+        val closeUp=RelicRevealTimeline.at(1f)
+        assertEquals(0f,locked.lidOpen,0.0001f)
+        assertEquals(0f,locked.jewelReveal,0.0001f)
+        assertEquals(1f,locked.chestAlpha,0.0001f)
+        assertTrue(opening.lidOpen>locked.lidOpen)
+        assertTrue(appearing.jewelReveal>0f)
+        assertTrue(appearing.chestAlpha<opening.chestAlpha)
+        assertEquals(0f,closeUp.chestAlpha,0.0001f)
+        assertEquals(1f,closeUp.jewelReveal,0.0001f)
+        assertTrue(closeUp.jewelDiameterFraction>locked.jewelDiameterFraction*2)
+        assertEquals(closeUp,RelicRevealTimeline.at(20f))
+        assertEquals(locked,RelicRevealTimeline.at(-20f))
+        // Rendering does not reroll, value, clone, or grant the loot.
+        val owned=RelicLoot("only-once","冰魄竖琴",RelicTier.PRECIOUS,310)
+        assertEquals("冰魄竖琴",owned.name)
+        assertEquals(310,owned.value)
+    }
+
     @Test fun distinctSignatureJewelsUseOneSharedIllustrationForRevealAndMuseum() {
         val expected=mapOf(
             "月银胸针" to RelicSignatureKind.MOON_BROOCH,
