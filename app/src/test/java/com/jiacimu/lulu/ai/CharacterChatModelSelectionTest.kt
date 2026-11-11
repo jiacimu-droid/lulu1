@@ -59,18 +59,18 @@ class CharacterChatModelSelectionTest {
         try {
             ScopedModelSelections.selectCharacterChatArchive(id, foreground.id, library)
             assertEquals(foreground.id,
-                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library))
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library = library))
             assertEquals(fallback.id,
-                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library))
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library = library))
             // Old saved independent sleep choice must not override the fallback.
             val altered = library.copy(sleepArchiveId = fallback.id)
             assertEquals(fallback.id,
-                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, altered))
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library = altered))
             ScopedModelSelections.selectCharacterChatArchive(id, fallback.id, library)
             assertEquals(fallback.id,
-                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library))
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = false, library = library))
             assertEquals(fallback.id,
-                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library))
+                ScopedModelSelections.selectedPhoneArchiveId(id, sleepMode = true, library = library))
         } finally {
             ScopedModelSelections.clearCharacterChatArchive(id)
         }
