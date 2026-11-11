@@ -213,7 +213,8 @@ object LuluScreenAwareness {
      * remain mandatory; autonomy does not mean hidden continuous recording. */
     suspend fun capture(context: Context, userRequested: Boolean,
         characterId: String = "", requestId: String = "", approved: Boolean = false,
-        sessionId: String = "", saveToAlbum: Boolean = false): String {
+        sessionId: String = "", saveToAlbum: Boolean = false,
+        handoffToRole: Boolean = false): String {
         if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
         fun studySessionValid(): Boolean = sessionId.isBlank() ||
             LuluStudyWatch.canObserve(context, characterId, sessionId)
@@ -255,6 +256,22 @@ object LuluScreenAwareness {
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
+                // A normal chat tool call can hand this real frame to the SAME
+                // character's immediate next model request, beside accessibility text.
+                // Proactive/study/saved captures keep their original observed receipts.
+                if (handoffToRole && requestId.startsWith("reply-") &&
+                    characterId.isNotBlank() && sessionId.isBlank() && !saveToAlbum) {
+                    val dataUrl = VisionModelService.screenFrameDataUrl(bitmap)
+                    LuluScreenFrameHandoff.put(characterId, requestId, dataUrl)
+                    report(context, "已取得截图；交给同一角色的下一轮模型直接理解")
+                    return JSONObject().put("success", true).put("status", "observed")
+                        .put("summary", "真实截图已经交给角色本轮模型输入，尚未完成内容理解")
+                        .put("packageName", fresh.packageName)
+                        .put("capturedAt", capturedAt.toString())
+                        .put("visibleText", fresh.visibleText.take(4500))
+                        .put("verification", "只取得真实单帧；原始图片不写入工具回执和长期记录，之后的角色模型负责结合可见文字理解")
+                        .toString()
+                }
                 val description = VisionModelService.describeScreenFrame(
                     context, bitmap, studyWatch = sessionId.isNotBlank(),
                     characterId = characterId).getOrElse {

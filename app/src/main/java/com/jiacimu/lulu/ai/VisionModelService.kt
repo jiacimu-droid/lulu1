@@ -135,6 +135,23 @@ object VisionModelService {
             }
         }
 
+    /** Only compresses one transient frame; NO independent model request. */
+    fun screenFrameDataUrl(bitmap: Bitmap): String {
+        val options = listOf(1400 to 82, 1152 to 76, 960 to 70, 800 to 62)
+        for ((edge, quality) in options) {
+            val scaled = scaleDown(bitmap, edge)
+            val bytes = ByteArrayOutputStream().use { output ->
+                check(scaled.compress(Bitmap.CompressFormat.JPEG, quality, output)) { "截图压缩失败" }
+                output.toByteArray()
+            }
+            if (scaled !== bitmap) scaled.recycle()
+            if (bytes.isNotEmpty() && bytes.size <= 750 * 1024) {
+                return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+            }
+        }
+        error("截图过大，已停止上传")
+    }
+
     /** Screen observation follows the same character-scoped Chat archive and gateway as video calls.
      * Standalone image settings must never be a prerequisite for an approved study session. */
     suspend fun describeScreenFrame(context: Context, bitmap: Bitmap,
@@ -143,21 +160,7 @@ object VisionModelService {
             runCatching {
                 val chat = chatConfiguration(characterId)
                     ?: error("当前角色没有可用的聊天模型；请为角色选择支持图片输入的聊天模型")
-                val options = listOf(1400 to 82, 1152 to 76, 960 to 70, 800 to 62)
-                var pixels = ""
-                for ((edge, quality) in options) {
-                    val scaled = scaleDown(bitmap, edge)
-                    val bytes = ByteArrayOutputStream().use { output ->
-                        check(scaled.compress(Bitmap.CompressFormat.JPEG, quality, output)) { "截图压缩失败" }
-                        output.toByteArray()
-                    }
-                    if (scaled !== bitmap) scaled.recycle()
-                    if (bytes.isNotEmpty() && bytes.size <= 750 * 1024) {
-                        pixels = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
-                        break
-                    }
-                }
-                check(pixels.isNotBlank()) { "截图过大，已停止上传" }
+                val pixels = screenFrameDataUrl(bitmap)
                 val prompt = if (studyWatch) """
                     这是用户特意授权的短时学习监督中的一帧手机屏幕。仅依据当下可见画面，
                     在回答第一行严格写出：学习状态：focused 或 distracted 或 unknown。

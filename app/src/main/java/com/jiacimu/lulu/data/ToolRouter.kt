@@ -281,7 +281,8 @@ object ToolRouter {
                             .toString()
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
-                            saveToAlbum = args.optBoolean("saveToAlbum", false))
+                            saveToAlbum = args.optBoolean("saveToAlbum", false),
+                            handoffToRole = args.optBoolean("_handoffToRole", false))
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
                     } else if (name == "start_study_watch") {
