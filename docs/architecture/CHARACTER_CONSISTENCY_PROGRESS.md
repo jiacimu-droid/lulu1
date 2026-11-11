@@ -1844,3 +1844,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - [1b6f749](https://github.com/jiacimu-droid/lulu1/commit/1b6f749578a1d8b15b4928952bf67c783312439b)：扩展 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，在已有正式 Store 冷恢复与 HTTP 失败事实断言后，令 MockWebServer 模型选择新 `publish_moment`，核 MomentsStore 与时间线实际结果，再产生第二个用户批次，核下一次 HTTP 请求同时包含旧播放失败和新动作。模型固定 JSON 只用于确定性工程测试，不是实际自主语义证明；无生产代码、模型费用或人物修改。
 - **CI 待验**：本轮 GitHub 连接器没有通用 push Actions 查询，公开 API 查询不可用；未运行本地 Gradle，不得宣称 JVM/APK 或索引通过。下一轮先核 `1b6f749` 对应 main push APK/JVM 首错及索引；失败沿同一测试修夹具或已证生产根因，通过后补新工具失败/取消反例。真机 TTS、权限与真实模型仍待验。
+
+
+## 2026-11-11 · P-03.1 电话补写期间的设定更新
+
+- 上轮 `0eb4e74` 的 [JVM/APK #42966666349](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666349) 和 [原索引 #42966666328](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666328) 按 head SHA 复核均 completed/success。隔离头像和显式图片用例保留。
+- `LuluVoiceCallSession` 通过 `LuluDeviceToolBridge.respond` 交给同一角色规划。仅有 `speechIntent` 时，补写网关重新读人物定义。原实现缺少同轮配置核对，用户在请求之间编辑可以把旧决定与新约束混用，编辑发生在补写请求内也会交付旧台词和副动作。另外 `mediaUnderstanding` 的音乐、醒来状态更新原先早于补写和取消检查。
+- [d350377](https://github.com/jiacimu-droid/lulu1/commit/d350377e901b5be6e5ff541358bb69471307e3db) 在电话缺台词补写前后复用 `CharacterDefinitionSnapshot.hasSameConfiguration` 核对原角色的定义。发现更新时明确结束未交付的旧轮，不自动重发。媒体语义结果在通过补写与取消检查后才提交，副动作沿原回执路径。常态电话模型调用次数不变。这一改动限定结构化意图补写，普通直接台词的配置更新时序和补写后异步设备执行仍需分别核验。
+- `ConversationExpressionGatewayTest.phoneIntentRecoveryDiscardsStaleDecisionAfterRelationshipEdit` 用真实 HTTP 请求暂停电话补写，在等待期间修改本人关系和核心简介，核旧轮无发声结果、无提前媒体暂停和旧媒体回执，后继新轮读取完整新条件、正常返回与留下独立回执。固定模型响应仅用于工程验证。
+- 原索引 [#42980757807](https://github.com/jiacimu-droid/lulu1/actions/runs/42980757807) completed/success，源码本身的 [JVM/APK #42980757789](https://github.com/jiacimu-droid/lulu1/actions/runs/42980757789) 被后续提交取消。含本改动的后继 `e639211` [索引 #42980817976](https://github.com/jiacimu-droid/lulu1/actions/runs/42980817976) 成功，[JVM/APK #42980818040](https://github.com/jiacimu-droid/lulu1/actions/runs/42980818040) 记录时 未知。真机和真实模型待验。
+- 下一轮固定 P-03.1 先核上述后继 CI 与新增用例。通过后在同一 `ConversationExpressionGatewayTest` 检查用户编辑发生在首次电话决策请求内时，旧意图是否确实在第二次 HTTP 之前被拦下，并核普通直接台词入口是否还有不同的跨轮交接缺口。只在可复现时改生产代码。
