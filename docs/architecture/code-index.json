@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T10:04:30.390651+00:00",
-  "commit": "90defae3d6a077320959364fa92b78931d871a91",
+  "generatedAt": "2026-11-11T10:05:08.188045+00:00",
+  "commit": "06a3d8accf7306ff6b22d66a5cb089ca2c6db962",
   "branch": "main",
-  "sourceFingerprint": "22d544be2f3b02456b52ac858189b85d6b79d948a71cd41e53dfcffd3ab1fa85",
+  "sourceFingerprint": "020d646ade08a9c254d86e27bc723d48d09a2be3b1fdb333936b26db038a280b",
   "summary": {
     "files": 1175,
-    "lines": 255642,
+    "lines": 255643,
     "symbols": 3486
   },
   "symbolIndex": {
@@ -1107,7 +1107,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 247
+        "line": 239
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -5667,7 +5667,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 226
+        "line": 218
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6709,7 +6709,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 215
+        "line": 207
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -34671,20 +34671,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 346,
-      "sha256": "65ce52ab7f5db7595e3a31789a40d5d64d3540acc8a72e222ff25ebd6f5782db",
+      "lines": 347,
+      "sha256": "643d5efb12e9ae6cb3e9d30ca7f21f574c072c996f72c7024f04dd4b24b9f4ef",
       "symbols": [
         {
           "name": "get",
-          "line": 215
+          "line": 207
         },
         {
           "name": "parse",
-          "line": 226
+          "line": 218
         },
         {
           "name": "enqueue",
-          "line": 247
+          "line": 239
         }
       ]
     },
