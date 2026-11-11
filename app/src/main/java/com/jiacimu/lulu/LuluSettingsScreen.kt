@@ -258,7 +258,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("所有模型存档与功能分工都在这里统一管理；角色私聊仍可单独选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
+                    Text("模型存档仅用于保存和管理。使用哪个模型，请在兜底或对应功能页面选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             item { SettingsCardBox { OptionalModelRolesSettings() } }
@@ -274,8 +274,6 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                     ModelArchiveRow(
                         archive = archive,
                         label = store.archiveLabel(archive),
-                        selected = archive.id == library.activeArchiveId,
-                        onSelect = { store.selectArchive(archive.id) },
                         onDelete = { store.removeArchive(archive.id) },
                     )
                 }
@@ -312,21 +310,25 @@ private fun SavedConfigurationRow(configuration: ApiConfiguration, selected: Boo
 }
 
 @Composable
-private fun ModelArchiveRow(archive: ModelArchive, label: String, selected: Boolean, onSelect: () -> Unit, onDelete: () -> Unit) {
+private fun ModelArchiveRow(archive: ModelArchive, label: String, onDelete: () -> Unit) {
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onSelect),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        color = if (selected) SettingsAccent else SettingsCard,
-        border = BorderStroke(1.dp, if (selected) SettingsAccentStrong.copy(alpha = 0.55f) else SettingsBorder),
+        color = SettingsCard,
+        border = BorderStroke(1.dp, SettingsBorder),
     ) {
-        Row(modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = selected, onClick = onSelect)
-            Spacer(Modifier.width(5.dp))
-            Column(Modifier.weight(1f)) {
-                Text(label, fontWeight = FontWeight.Bold, color = SettingsInk)
-                Text(if (selected) "默认兜底存档" else "点按设为默认兜底", color = SettingsMuted, fontSize = 12.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(start = 17.dp, top = 13.dp, bottom = 13.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Outlined.Inventory2, null, tint = SettingsMuted)
+            Spacer(Modifier.width(12.dp))
+            Text(label, modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.SemiBold, color = SettingsInk)
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted)
             }
-            IconButton(onClick = onDelete) { Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted) }
         }
     }
 }
