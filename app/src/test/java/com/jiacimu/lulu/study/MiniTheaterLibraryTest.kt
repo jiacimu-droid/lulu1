@@ -9,6 +9,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class MiniTheaterLibraryTest {
+    @Test fun backgroundFanficModelChoiceSurvivesReloadAndOnlyChangesOnNextEnqueue() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        val library = MiniTheaterLibrary(context, emptyList())
+        val cast = PersonalMiniTheater.Cast(
+            "model-choice-${java.util.UUID.randomUUID()}", "测试角色", "独立角色资料")
+        val id = library.addPersonal(cast, PersonalMiniTheater.ideas.first())
+        val token = library.begin(id, "", rewrite = false, modelArchiveId = "model-first")
+        val running = library.items.value.first { it.id == id }
+        assertEquals("model-first", running.generationArchiveId)
+        assertEquals("model-first", MiniTheaterLibrary(context, emptyList())
+            .items.value.first { it.id == id }.generationArchiveId)
+        assertTrue(library.finish(id, token, "failed", error = "人工重试前中断"))
+        val next = library.begin(id, "", rewrite = false, modelArchiveId = "model-second")
+        assertEquals("model-second", library.items.value.first { it.id == id }.generationArchiveId)
+        assertNotEquals(token, next)
+        assertTrue(library.finish(id, next, "failed"))
+        assertEquals("model-second", MiniTheaterLibrary(context, emptyList())
+            .items.value.first { it.id == id }.generationArchiveId)
+    }
+
     @Test fun sourcePresetFiltersOnlyNamedSingleScenesAndKeepsOriginalPromptsVerbatim() {
         val raw = """{"prompts":[
             {"identifier":"first","name":"🔸超书信小剧场","content":"<small_theater>\n甲{{user}}、乙{{char}}\n不要修改原文</small_theater>","enabled":false},
