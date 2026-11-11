@@ -1,5 +1,12 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-11 Issue #868 与夜间改动回查
+
+- `52f0624` 的 [APK/JVM #42924717735](https://github.com/jiacimu-droid/lulu1/actions/runs/42924717735) 在 `RelationshipPreferenceGatewayTest.kt:222` 失败，期望新约定而重载后为空。用例在配置关系前遗漏 `CharacterLifeStore.initialize(context)`，沿用了之前测试的存储实例。`bfd7158` 补齐正式启动顺序，并直接检查编辑前后真实 SharedPreferences 中的完整原文。
+- 同路径发现生产接口在存储未初始化时仍返回 true。`500cc83` 改为明确拒绝本次写入，并通过 `relationshipEditRequiresAnInitializedDurableSource` 检查未写入时旧数据保留、初始化后重试与重载。既有 `commit` 保存失败继续暴露实际错误，完整标题和约定保持保存。
+- 回查范围从已验 `c666055` 至今早美术交接 `c67dc44`，另复核后继美术修正 `3a79dfc`。该范围的关系正文保留、已发现路线绘制、宝物渲染与地表贴图选择没有新增 AI 请求、重写物理世界或删改历史。已核新的宝物绘制函数接入实际开箱和藏品共用入口。未发现需要回滚的其他生产逻辑，性能和真机画面尚无测量证据。
+- 本轮 [APK/JVM #42931549522](https://github.com/jiacimu-droid/lulu1/actions/runs/42931549522) 对应 `500cc83`，包含 `bfd7158`，当前待运行。先核新用例和完整构建，成功后登记工程结果。真机与真实模型表现独立待验。
+
 ## 2026-11-11 S-02.4 十项联动回归与 UI-02.2 写入失败
 
 - [7b262da](https://github.com/jiacimu-droid/lulu1/commit/7b262da4b05f1ce60ab803c8831d5285f56f26f2) 将居民本人提出的兴趣关联到真实来源和修订版本，后续计划、到点活动和社交可继续使用。`ResidentDailyContinuityTest.awakeResidentsCanReadAndReplyAfterZeroAgendaSlots` 已在 #42860437140、#42861721064 通过，覆盖零行程、真实来信、兴趣续接、本人选择的私信和朋友圈以及撤回来源。
