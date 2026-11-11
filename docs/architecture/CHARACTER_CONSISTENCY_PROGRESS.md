@@ -1910,3 +1910,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 已按 main push head SHA 核实 `3401079` 对应 [APK/JVM #43030814176](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814176) 与 [索引 #43030814030](https://github.com/jiacimu-droid/lulu1/actions/runs/43030814030) completed/success，前轮独立失败回执测试工程通过。
 - 新增 [2a4ae32](https://github.com/jiacimu-droid/lulu1/commit/2a4ae3254a90bef5c05738d4c151f79b8ad1a6b9) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 对第二轮真实 HTTP 输入补 `send_character_message` 与 `实际工具执行` 来源断言，确保失败主工具来源不会被成功副动态掩盖。只补测试；新 SHA CI 未确认，不能标记通过。
 - 下一轮固定 P-08d.2b.2：直接核 `2a4ae32` APK/JVM 与索引；失败则检查 `SharedExperienceTimeline` → `ProactivePerceptionRuntime` 投影，成功后补取消/重启独立回执反例。真机 TTS/锁屏、真实模型选择及历史计费待外部验证。
+
+## 2026-11-11 · P-08 想法/单调/分享欲进入同轮行动选择（源码和回归已提交，CI/真机待验）
+
+- 用户报告：心理想法常无下文；单调值与分享欲长期接近满值却很少影响实际生活。复查 main 确认原有动作链支持同轮 `action+steps`、顺序依赖、ToolRouter 独立回执，不能把“没有行动”笼统归因于模型不支持多工具。
+- [788da0c](https://github.com/jiacimu-droid/lulu1/commit/788da0cb37fab5586976d29b3de844f7a958bfe2)：私聊原 `CharacterLifeFollowThroughStore.briefContext` 只有生活经历无累积分享欲，现把真实分享冲动数值、可选择的具体分享与 experienceId 一起交给同一决策，不设自动发言阈值。
+- [235adeb](https://github.com/jiacimu-droid/lulu1/commit/235adeb0b19331b8900b737cdfe214c920b3c165)：既有未竟事工作集中，强分享欲下的开放素材提升只读注意优先级；单调感显著时将数字身体只读状态与实际可选动作一同交给私聊决策。程序不派发游戏、搜索或社交，也不将心声记作成功。
+- [9e0cc1d](https://github.com/jiacimu-droid/lulu1/commit/9e0cc1d31412c9ba9218f783663e212d7ac23dbf)、[184c6ce](https://github.com/jiacimu-droid/lulu1/commit/184c6cebd15c52517621242ec0de74f19a416905)：`CharacterThoughtActionHandoff.actions` 原先解析 steps、sideActions、挂心、动机与好奇的 nextAction，却漏掉本轮 `appraisal.privateIdeas[].nextAction`。现只取模型明确选中的可执行结构交原执行器，保留顺序与依赖，未选动作的私人念头不会自动执行；所有角色共享紧凑格式说明，不增加普通模型轮次。
+- 回归 [1d474e2](https://github.com/jiacimu-droid/lulu1/commit/1d474e25bf770e1307af20d6eb3e4a7a25d01008)、[9f116c7](https://github.com/jiacimu-droid/lulu1/commit/9f116c77effb60e41c220353d2c79b9b96f41e47)、[a58d090](https://github.com/jiacimu-droid/lulu1/commit/a58d090ea591991ce65fba7270309294988eaa11)：高分享值私聊可见、注意优先级、单调值只读无副作用、两条明确私人想法顺序执行和未选想法不执行。当前仅测试源码已提交；未获得本轮 Android JVM/assemblePhone/APK Actions 或手机真实模型验收证据，不能宣称功能最终验通。
+- 下一步：以最新 main 包含 `184c6ce` 的 APK/JVM 首个完成工作流核对应测试是否通过；真机分别验证聊天+搜索、搜索后根据真实回执再分享、无人消息时自发游戏/探索、高分值但不合时宜选择暂缓、重启后未竟目标继续推进。预排多步无需多次模型决策，但依赖未知搜索结果的新判断需要后续同角色真实决策，不能预造结论。
