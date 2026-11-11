@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.Role
@@ -110,6 +111,8 @@ private fun SettingsEntryScreen(
     onOpenBackup: () -> Unit,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
+    val searchFocus = androidx.compose.ui.platform.LocalFocusManager.current
+    val searchKeyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     var showUpdateNotes by rememberSaveable { mutableStateOf(false) }
     if (showUpdateNotes) LuluUpdateNotesDialog { showUpdateNotes = false }
 
@@ -163,6 +166,10 @@ private fun SettingsEntryScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = {
+                        searchFocus.clearFocus()
+                        searchKeyboard?.hide()
+                    }),
                 )
             }
         },
