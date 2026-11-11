@@ -127,6 +127,9 @@ class AutonomousActionBoundaryIntegrationTest {
                 onlineRevision = next.revision, requiresUnread = true)
             assertEquals("两次有效批次各一次模型决定", 2, modelInputs.size)
             assertTrue("下一轮仍应知道原目标", modelInputs[1].contains("想核实这个操作能否执行"))
+            assertTrue("下一轮应保留失败主目标的稳定来源ID", modelInputs[1].contains(motive))
+            assertTrue("下一轮应明确保留主动作未成功状态，而非只看见副动态",
+                modelInputs[1].contains("needs_review"))
             assertTrue("下一轮应保留成功的独立动态", modelInputs[1].contains(text))
             assertEquals("沉默决定不能重放独立动态", 1,
                 MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == text })
