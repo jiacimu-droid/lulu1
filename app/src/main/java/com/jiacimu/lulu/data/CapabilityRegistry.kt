@@ -25,6 +25,7 @@ object CapabilityRegistry {
         Capability("screen_action", "phone", "screen", "post-action screen observation", false),
         Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
         Capability("phone_ui", "phone", "screen", "owner-authorized foreground app actions and fresh UI evidence", false),
+        Capability("background_phone", "phone", "screen", "owner-paired shell virtual screen with isolated focus and per-display verification", false),
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "create_group_chat", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
@@ -128,6 +129,7 @@ object CapabilityRegistry {
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|swipe|back|stop,packageName:目标包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,expectedText:可选验证文字}。只对后台displayId操作，图片＋无障碍文字交同一角色模型；accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }

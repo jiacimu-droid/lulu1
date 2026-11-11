@@ -1698,7 +1698,7 @@ object LuluDeviceToolBridge {
         // The model receives actual screenshot pixels + the same screen's
         // accessibility words in the SAME post-tool character request.
         // There is no separate vision-summary request on this direct path.
-        val roleScreenImage = if (plan.tool == "capture_screen")
+        val roleScreenImage = if (plan.tool in setOf("capture_screen", "background_phone"))
             LuluScreenFrameHandoff.take(characterId, requestId) else null
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -2017,6 +2017,7 @@ object LuluDeviceToolBridge {
             }
             "screen_sequence" -> VerifiedScreenSequence.execute(args)
             "phone_ui" -> LuluPhoneUiOperator.execute(context, args)
+            "background_phone" -> LuluBackgroundPhoneSession.execute(context, characterId, requestId, args)
             "read_screen" -> {
                 val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
                 check(value.connected) { "尚未开启屏幕感知与控制权限" }

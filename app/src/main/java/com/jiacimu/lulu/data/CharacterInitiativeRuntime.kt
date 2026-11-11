@@ -182,6 +182,7 @@ internal object CharacterInitiativeRuntime {
             "summon_lulu" -> Regex("叫我回来|叫我回去|让我回来|提醒我回来|唤起露露").containsMatchIn(text)
             "click_text" -> Regex("点|点击|按.*按钮|帮我选").containsMatchIn(text)
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
+            "background_phone" -> Regex("后台.*(手机|屏幕|app)|独立屏|帮我.*(操作手机|逛.*app|打开.*应用)|接管.*手机").containsMatchIn(text)
             "cloud_task" -> Regex("研究|ppt|pptx|文档|docx|云端任务").containsMatchIn(text)
             "read_xiaohongshu" -> Regex("小红书|红薯|xhs|笔记|帖子").containsMatchIn(text)
             else -> false
