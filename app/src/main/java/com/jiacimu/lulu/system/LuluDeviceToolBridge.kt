@@ -495,9 +495,12 @@ object LuluDeviceToolBridge {
         fun phoneDefinitionChanged() = phoneDecisionDefinition?.let { original ->
             !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
         } == true
-        fun stalePhoneTurn() = Result.failure<ModelReply>(IllegalStateException(
-            "本轮电话期间角色设定或关系已更新，旧决定未提交，请继续说话",
-        ))
+        fun stalePhoneTurn(toolResultAvailable: Boolean = false) =
+            Result.failure<ModelReply>(IllegalStateException(
+                if (toolResultAvailable)
+                    "工具结果已保留。角色设定或关系已更新，本轮结果台词未交付，请继续说话"
+                else "本轮电话期间角色设定或关系已更新，旧决定未提交，请继续说话",
+            ))
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -1674,6 +1677,11 @@ object LuluDeviceToolBridge {
             )
         }
 
+        // The executor has already settled this attempt. A configuration change
+        // can invalidate its pending expression, not the historical tool result.
+        currentCoroutineContext().ensureActive()
+        if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -1719,6 +1727,9 @@ object LuluDeviceToolBridge {
             onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
         )
+        currentCoroutineContext().ensureActive()
+        if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+
         // Tool follow-ups used to be re-rendered by a second paid model
         // call when the naturalness gate flagged them. That second pass is
         // removed: it costs an extra chat API call, re-introduces a uniform
@@ -1777,8 +1788,10 @@ object LuluDeviceToolBridge {
             }
             val naturalText = finalPlan?.text?.ifBlank { result.text }
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
-            val checkedResultText = repairUnfairSpeech(naturalText)
-                ?: throw IllegalStateException(
+            val repairedResultText = repairUnfairSpeech(naturalText)
+            currentCoroutineContext().ensureActive()
+            if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+            val checkedResultText = repairedResultText ?: throw IllegalStateException(
                     "工具完成后回复包含无依据的归责，重新表达仍未通过核验；不代写道歉"
                 )
             if (sceneContext.contains("电话") &&
@@ -1788,7 +1801,9 @@ object LuluDeviceToolBridge {
                 checkedResultText.isNotBlank()) {
                 Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
                     checkedResultText, finalPlan?.live2d, "$history\n真实工具回执：$toolResult",
-                    userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus)
+                    userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus,
+                    canPublish = { !phoneDefinitionChanged() })
+                if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
             }
             if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(
