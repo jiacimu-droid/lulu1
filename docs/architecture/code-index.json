@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:11:39.711151+00:00",
-  "commit": "8567e3a3d405c98f977f096c6402458b7c670e24",
+  "generatedAt": "2026-11-11T15:14:53.249195+00:00",
+  "commit": "daa36442b88a1452772d3f743571f7243df267ed",
   "branch": "main",
-  "sourceFingerprint": "5bbfd7e51def52760e3a96b9c2c993a5a23b08e95247416827cfe2ea936e33be",
+  "sourceFingerprint": "a566a9ea1c52f24d1a183427ffba65cd23ce3720930e7da877a8c1aa1f0ce30d",
   "summary": {
-    "files": 1179,
-    "lines": 256465,
-    "symbols": 3509
+    "files": 1181,
+    "lines": 256563,
+    "symbols": 3514
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5296,22 +5296,28 @@
         "line": 27
       }
     ],
+    "screenFrameDataUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
+        "line": 139
+      }
+    ],
     "canDescribeCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 197
+        "line": 200
       }
     ],
     "xhsConnectionOverride": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 222
+        "line": 225
       }
     ],
     "PreparedXhsImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 230
+        "line": 233
       }
     ],
     "CharacterSummary": [
@@ -10550,6 +10556,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
         "line": 71
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
+        "line": 16
       }
     ],
     "removeMemory": [
@@ -12605,7 +12615,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 489
+        "line": 490
       }
     ],
     "allowsExpansion": [
@@ -15709,43 +15719,55 @@
     "studySessionValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 218
+        "line": 219
       }
     ],
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 310
+        "line": 327
       }
     ],
     "scheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 373
+        "line": 390
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 423
+        "line": 440
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 433
+        "line": 450
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 463
+        "line": 480
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 475
+        "line": 492
+      }
+    ],
+    "take": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
+        "line": 26
+      }
+    ],
+    "discard": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
+        "line": 33
       }
     ],
     "showCapture": [
@@ -19540,6 +19562,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
         "line": 15
+      }
+    ],
+    "LuluScreenFrameHandoffTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt",
+        "line": 6
       }
     ],
     "LuluStudyWatchTest": [
@@ -24259,8 +24287,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 408,
-      "sha256": "392d1cfb384eb21fc1d1d6497e599e6aec547f6b76ac2d368ac2febaefc3faf6",
+      "lines": 411,
+      "sha256": "20e82bac860e6fb19abe0501211ebd724d3ed89099a8031a1c7690caa6ac05fc",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -24275,16 +24303,20 @@
           "line": 39
         },
         {
+          "name": "screenFrameDataUrl",
+          "line": 139
+        },
+        {
           "name": "canDescribeCamera",
-          "line": 197
+          "line": 200
         },
         {
           "name": "xhsConnectionOverride",
-          "line": 222
+          "line": 225
         },
         {
           "name": "PreparedXhsImages",
-          "line": 230
+          "line": 233
         }
       ]
     },
@@ -31558,8 +31590,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 603,
-      "sha256": "aed8901e66fec52795f507eda9ef4330fe0ba47cccfc531261e1deedc82250d6",
+      "lines": 604,
+      "sha256": "96af0cc1613dcd4c836df17761f0248a906814bc204b0733020db0ee4102186c",
       "symbols": [
         {
           "name": "completed",
@@ -31587,7 +31619,7 @@
         },
         {
           "name": "project",
-          "line": 489
+          "line": 490
         }
       ]
     },
@@ -35685,8 +35717,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2254,
-      "sha256": "b73d9465b407b16107c484ecc6ce758b4158741b1761956d8900a54c557d182a",
+      "lines": 2266,
+      "sha256": "a813a686b0a5d394cf95c6c661aee059990d4f12e05d77ebc63e10e7580e9b21",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -35799,8 +35831,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 526,
-      "sha256": "b8eba073e9752c1d01e33246dfc5ad09063f91a5618a7b4289785f768953e1e6",
+      "lines": 543,
+      "sha256": "6ce691c53a52ab9999744f4df2a57d7ff8881b3ca52f342690f9a91b21326c11",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -35848,31 +35880,50 @@
         },
         {
           "name": "studySessionValid",
-          "line": 218
+          "line": 219
         },
         {
           "name": "summon",
-          "line": 310
+          "line": 327
         },
         {
           "name": "scheduledReminder",
-          "line": 373
+          "line": 390
         },
         {
           "name": "recentAppActivity",
-          "line": 423
+          "line": 440
         },
         {
           "name": "addUntil",
-          "line": 433
+          "line": 450
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 463
+          "line": 480
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 475
+          "line": 492
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
+      "lines": 38,
+      "sha256": "2fcdcdd7eb0d911ecc23b15d4c588a9672b3674272f62742f72c6a67ff4061a0",
+      "symbols": [
+        {
+          "name": "put",
+          "line": 16
+        },
+        {
+          "name": "take",
+          "line": 26
+        },
+        {
+          "name": "discard",
+          "line": 33
         }
       ]
     },
@@ -41538,6 +41589,17 @@
         {
           "name": "LuluScreenAwarenessTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt",
+      "lines": 27,
+      "sha256": "5108f02d222d61cafe4ca53ce1d3faaadb4d2974cfb230f57e067960b80803d7",
+      "symbols": [
+        {
+          "name": "LuluScreenFrameHandoffTest",
+          "line": 6
         }
       ]
     },
