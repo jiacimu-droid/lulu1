@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:21:19.172106+00:00",
-  "commit": "e9e92d5e8c6a32cbfc6560c8c4955060d528b994",
+  "generatedAt": "2026-11-11T16:22:28.652195+00:00",
+  "commit": "5846fdfe708e48e0b35a28aea5d892fc3a0d34e8",
   "branch": "main",
-  "sourceFingerprint": "5c3a91cda175e483b10f376a8d46a736701e4ec3f4d8a6206cccb44051119bd3",
+  "sourceFingerprint": "d5cb42cf1dd092f0ef054e368ea395bc989a994359ec8ba7ade54c7ed58821d6",
   "summary": {
     "files": 1202,
     "lines": 259910,
@@ -36402,7 +36402,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
       "lines": 282,
-      "sha256": "eb902b26fd9a81691e5cb7058003389c1fa1750e61887bc2bb27870ace326f52",
+      "sha256": "e8fe8d082359f5b2e47c3d6ce2372f392fe37a22918a64c639ffb67a6ce28318",
       "symbols": [
         {
           "name": "resumeByOwner",
