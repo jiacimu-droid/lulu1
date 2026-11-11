@@ -529,6 +529,11 @@ class CompanionModelGateway(
                 contextMode != CompanionContextMode.Isolated &&
                 usage in setOf(ModelUsage.Chat, ModelUsage.VoiceCall)) {
                 ScopedModelSelections.selectedCharacterChatArchiveId(characterId, connectionStore.library.value)
+            } else if (connectionOverride == null &&
+                contextMode == CompanionContextMode.Isolated &&
+                usage in setOf(ModelUsage.Chat, ModelUsage.VoiceCall)) {
+                // Independent jobs are not someone's foreground chat.
+                connectionStore.selectedArchiveId(ModelUsage.Sleep)
             } else {
                 usage?.let(connectionStore::selectedArchiveId)
             }
