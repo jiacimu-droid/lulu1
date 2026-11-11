@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T00:23:44.895948+00:00",
-  "commit": "e0fbc2f23e0c46273efe40b6ca555c6a4449a4e3",
+  "generatedAt": "2026-11-11T00:24:21.793105+00:00",
+  "commit": "bfd7158dd6be09901432d5e422c0c8331f297239",
   "branch": "main",
-  "sourceFingerprint": "e66a4253ba109f21d006fc2aa006297a1b72ffadcc9115979d3b97fb058f736f",
+  "sourceFingerprint": "75d9443fddbd8eb105c439ee8176207e945625336c8133741fd4cbff12901968",
   "summary": {
     "files": 1175,
-    "lines": 254602,
-    "symbols": 3472
+    "lines": 254609,
+    "symbols": 3473
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -333,7 +333,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 205
+        "line": 211
       }
     ],
     "update": [
@@ -18552,10 +18552,16 @@
         "line": 159
       }
     ],
+    "persistedAgreement": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 188
+      }
+    ],
     "assertCurrent": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 223
+        "line": 230
       }
     ],
     "RelationshipPreferencePersistenceTest": [
@@ -39793,8 +39799,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 271,
-      "sha256": "0d7d68dd0f16e64c71150fb4087ca508f1e2bb878e1d32c01ffdd3b1ac187163",
+      "lines": 278,
+      "sha256": "082a26a6ba81a38c2417db02cb04ef03ca1d6d00610d9b73efe608128dbff6d5",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
@@ -39805,12 +39811,16 @@
           "line": 159
         },
         {
+          "name": "persistedAgreement",
+          "line": 188
+        },
+        {
           "name": "prompt",
-          "line": 205
+          "line": 211
         },
         {
           "name": "assertCurrent",
-          "line": 223
+          "line": 230
         }
       ]
     },
