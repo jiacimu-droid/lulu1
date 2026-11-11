@@ -1839,3 +1839,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - [0eb4e74](https://github.com/jiacimu-droid/lulu1/commit/0eb4e7471cc2c95a3ea1b01a0c6c343e4c04269e) 先以场景范围限制隐式资料输入，只有原世界角色模式允许在原有入口附加用户资料头像。隔离、群像保留显式素材并跳过单人的定义读取，跨世界只读取稳定性格与名字。资料头像与明确附件分别处理，原世界仍走原来的角色观察和回执。继续复用原有 Store 和调用次数。
 - `RelationshipPreferenceGatewayTest.isolatedContextsDoNotAttachOrConsumeProfileAvatarFromPhoneSource` 使用可解码 PNG 和 MockWebServer，固定相同电话来源，对照三个非原世界本人模式和原世界电话模式。逐次核对 HTTP 图片列表、身份关系提示、本人头像观察回执和已读版本。该用例与前两轮人物投影用例均 PASSED。[JVM/APK #42966666349](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666349) 构建与发布成功，[原索引 #42966666328](https://github.com/jiacimu-droid/lulu1/actions/runs/42966666328) completed/success。源码和文件 SHA 已核对。真机图片体验及真实模型自然表现待验。
 - P-08b.1c 的这一工程子步骤可交总接力归并。下一轮 P-03.1 打开 `LuluDeviceToolBridge` 的电话 `speechIntent` 补写入口和 `ConversationExpressionGatewayTest`，核用户在一次已选决定与补写之间修改人设时，原决定、更新后的表达约束和副动作是否能一致交接。先查已有取消测试和真实调用，再定是否需要生产修复。
+
+## 2026-11-11 · P-08d.2b.2 有声失败后新决定、独立送达与再次承接
+
+- [1b6f749](https://github.com/jiacimu-droid/lulu1/commit/1b6f749578a1d8b15b4928952bf67c783312439b)：扩展 `AutonomousActionBoundaryIntegrationTest.failedWakeVoiceSurvivesReloadIntoActualNextModelHttpInput`，在已有正式 Store 冷恢复与 HTTP 失败事实断言后，令 MockWebServer 模型选择新 `publish_moment`，核 MomentsStore 与时间线实际结果，再产生第二个用户批次，核下一次 HTTP 请求同时包含旧播放失败和新动作。模型固定 JSON 只用于确定性工程测试，不是实际自主语义证明；无生产代码、模型费用或人物修改。
+- **CI 待验**：本轮 GitHub 连接器没有通用 push Actions 查询，公开 API 查询不可用；未运行本地 Gradle，不得宣称 JVM/APK 或索引通过。下一轮先核 `1b6f749` 对应 main push APK/JVM 首错及索引；失败沿同一测试修夹具或已证生产根因，通过后补新工具失败/取消反例。真机 TTS、权限与真实模型仍待验。
