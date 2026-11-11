@@ -24,6 +24,11 @@ import kotlin.concurrent.thread
 internal object LuluBackgroundPhoneSession {
     private const val REPLY_MARK = "LULU_DISPLAY:"
     private val mutex = Mutex()
+    @Volatile private var stoppedByOwner = false
+
+    /** Only a direct user action can re-enable future background phone sessions. */
+    fun resumeByOwner() { stoppedByOwner = false }
+    fun ownerHasPaused(): Boolean = stoppedByOwner
     private var adb: AdbConnection? = null
     private var stream: AdbConnection.AdbStream? = null
     private var displayId = -1
@@ -107,6 +112,9 @@ internal object LuluBackgroundPhoneSession {
     }
 
     suspend fun stop(): Boolean {
+        // Set immediately, BEFORE waiting for another in-flight tool to
+        // release the session mutex. Later model steps cannot undo STOP.
+        stoppedByOwner = true
         mutex.lock()
         try {
             if (!connected()) return false
@@ -123,6 +131,9 @@ internal object LuluBackgroundPhoneSession {
     ): String {
         mutex.lock()
         try {
+            check(!stoppedByOwner) {
+                "主人已停止后台手机操作；必须由主人在设置中重新允许"
+            }
             check(LuluScreenAwareness.onDemandAllowed(context)) {
                 "主人尚未授权手机屏幕访问"
             }
@@ -240,7 +251,9 @@ internal object LuluBackgroundPhoneSession {
                 LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             }
             val expected = args.optString("expectedText").trim()
-            val verified = action == "observe" || (expected.isNotBlank() && visible.visibleText.contains(expected))
+            val verified = action == "observe" ||
+                (action == "launch" && visible.packageName == requestedPackage) ||
+                (expected.isNotBlank() && visible.visibleText.contains(expected))
             return JSONObject().put("success", verified)
                 .put("status", if (verified) "observed" else "unverified")
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
