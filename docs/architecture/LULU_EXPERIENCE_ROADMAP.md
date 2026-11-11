@@ -84,6 +84,7 @@
 | 双游戏（每小时，G-02/G-03） | G-03.5：从 `RelicObjectiveGuide.knownRouteTiles` 查到实际 `RelicEscapeScreen`/地图的展示与清空，先查 `7e6c563` 及后继提交；G-02.2 已通过的施工进度回归转正式界面。 | 摸金先跑可见路线→开箱→撤离，小岛先跑采集→工作台→营地成果。每轮择一项用户看得到的局内增量，配相关回归或真机证据。 | 触屏或帧率待外部时做现有规则到正式界面的状态接入，保留真实模型、触屏、画质待验。 |
 
 **2026-11-11 G-03.5 已知路线显示回归（CI/真机待验）**：沿看板固定入口 `RelicObjectiveGuide.knownRouteTiles`→`RelicEscapeArt` 正式地图，新增 `RelicObjectiveRouteTest.mapRouteMatchesHudAndDisappearsWhenNewThreatBlocksCorridor`（`4ead18b`），验证已发现走廊地图路径与 HUD 步数同源，敌人新出现后路径/提示立即失效，提示不会移动角色或打开宝箱。仅新增 JVM 回归，未改真实战利品、角色意愿或渲染；本提交 APK/JVM、低端真机触屏和 FPS 尚待验证。下一轮先查 `4ead18b` 的 main push Lulu APK/JVM 首错，再检查地图路线叠层与开箱箱盖在窄横屏是否遮挡。
+| 本窗口手机操作整合（PH-01） | 已读 Mika 的 AgentDisplay/ShellService 和 Lulu 现有 AccessibilityService、ToolRouter；前台动作与同角色原帧交接已提交。 | PH-01.1：核 APK/JVM 编译与权限回归；PH-01.2：复用 Mika 的 ADB shell 辅助进程、无线配对和虚拟显示，先在真机创建独立屏幕再接入角色工具。 | 不可把前台无障碍当成后台屏；无线调试/HyperOS 限制须真机验，失败安全回落前台模式。 |
 | 新 Issue 修复（每小时，被动） | 仅处理新增且仍开放的 Issue，或确认尚未被后继构建修复的新 CI 失败。 | 查最新 head/首错并避让正在处理的专项；无新 Issue 时静默。 | 已由后继成功构建覆盖的旧失败不重做。 |
 
 **交接记录**：每个专项只更新所领 ID 的小节，总接力维护执行入口表。一次回合交付写「负责人/ID、改动或已核查内容、提交 SHA、CI run 与结果、外部待验、下一文件或测试」。候选若已验通，更新验收边界后转下项；CI 仍在跑就记录待验并避开同一条写链，无需反复提交只改状态的文档。
@@ -151,6 +152,8 @@
 | 20 V-01 | 待真机/测量 | V-01.1 长句动作和音频时间线 | 口型、居中、回正和中断自然 |
 | 21 UI-04 | 手机内容页第一批源码已提交，APK/JVM 与真实截图待验 | UI-04.1 核四页 Kotlin/屏幕/字体适配；UI-04.2 按优先级逐批精修正式桌面、聊天附属面板、朋友圈/相册、学习工具页及其关联弹窗 | 遵循 `docs/DESIGN_SYSTEM.md` §13 的参考→规格→原生实现→截图返工流程；保留既有外观和真实操作，不以网页动画冒充 APK 体验 |
 
+| 22 PH-01 | 已实现首批前台 UI 操作和一次性图片交接，APK 构建/真机待验；Mika 后台屏幕尚未接入 | PH-01.1 检查本轮 JVM/APK/源码安全；PH-01.2 移植无线调试启动 shell helper、虚拟屏、独立焦点与停止恢复；PH-01.3 同角色多轮工具观察执行 | 主屏与角色独立屏互不抢焦点，角色能自行完成连续任务、结果可追踪、授权随时撤销、没有第二人格 |
+
 **2026-11-11 UI-04.1 主人新增多页面高级感诉求（首批实际源码、待 CI/真机）**：参考 MotionSites 开源仓库的视觉工作流，仅借鉴设计与截图复核方法，不复制网页动画/素材。Android 原生新增 `LuluEditorialComponents.kt`（`85dceff`）；正式角色番外页与作品卡（`291d9be`）、设置入口分组（`51cf018`）、单篇剧场书架与折叠创作设定（`a7db8ed`）、美化工坊（`2bc807b`）已提交；`docs/DESIGN_SYSTEM.md` §13 已补原生页面验收规范（`2239a79`）。主要按 `MaterialTheme`/用户既有外观生效，未改变角色决策、模型或持久化。**不得把源码提交当真机美观验收**：先查最新 `2bc807b` 的 APK/JVM、Refresh code index；如失败先修真实首错，随后用 360dp/412dp、字体放大、深色/手账外观与弹窗做实际截图对比，再按 UI-04.2 逐批扩面。UI-01 的性能测量与 G-02/G-03 的独立游戏画风继续各自跟踪。
 
 **2026-11-09 S-02.1 接力**：`608fbfd` 的 [APK/JVM #42521395829](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395829) 为 2591 tests / 1 failed；四居民预算新增测试 PASSED，唯一失败为 `OnlineChatExperienceTest.interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending`（expected 12000 but null）。根因是夹具用被动 `next` 假装正在读取期间新用户气泡，正式 `next` 按契约保留原 revision；`77aca0e` 已将该测试改为真实 `onUserBubble`，后继 JVM/APK 与索引待验。索引 [#42521395832](https://github.com/jiacimu-droid/lulu1/actions/runs/42521395832) success。**下一轮固定 S-02.1**：先核 `77aca0e` Actions head SHA，失败修首错；通过后沿 `CompanionModelGateway`/`LocalPerformanceRepository` 补 MockWebServer HTTP handoff 失败重试计数。不得把请求尝试等同计费。
@@ -160,6 +163,18 @@
 **2026-11-09 S-02.1 本轮（源码/预算边界回归已提交，CI待验）**：`23aa1c9` 在 `CompanionModelGateway.openAiCompatible` 的明确 stream 协议拒绝后、第二次 POST 前追加居民额度原子领取；同一入口的 503 负载保护第二次 POST 也领取独立居民额度。`8244036` 在 `ResidentDailyPolicyTest.oneResidentCannotSpendAnUnclaimedFallbackRequest` 证明单居民额度 1 时第二次领取被拒、计数不越限。此前 `f432110` 已记录第二次 HTTP handoff，本轮不重复记账。**限制**：此测试只验证权威预算规则，不是 MockWebServer 网关端到端；完整 JVM/APK、索引、流式拒绝实际两 POST、预算耗尽时只有一个 POST、BackgroundModelRequestBudget 与居民预算的跨层协调、真机计费均未验。GitHub 连接 commit workflow 只覆盖 PR；直接查询 REST Actions 本轮不可用，不能视为 CI 成功。**下一轮固定 S-02.1**：打开 `CompanionModelGateway.kt` 与 `ResidentDailyPolicyTest.kt`，补 MockWebServer 对流式回退额度 1/2 的真实 POST 数与回执归属断言；先查 `8244036` 后继 Actions 首错。请求尝试≠成功≠服务商计费。
 
 ## 三、逐项施工清单
+
+### PH-01 手机操作：Mika 开源执行器复用（2026-11-11）
+
+- **授权与技术范围**：主人明确授权研究并复用 [wangzan101/Mika](https://github.com/wangzan101/Mika) 的 Android 手机操作源码，仅作为现有角色可选的工具能力。禁止引入 Mika 人格/第二套独立意图判断、另设人物记忆；模型可多次调用且用各角色选中的支持视觉的聊天模型。Mika 是 Apache-2.0；未来实际复制代码时保留许可证和 NOTICE，记录来源及对上游的修改。
+- **已提交但仍待 APK/JVM/真机**：[9490dd9](https://github.com/jiacimu-droid/lulu1/commit/9490dd966364783560f5d25440d8f9049f018034) 提供前台 `phone_ui`：inspect/launch/tap/swipe/scroll/type、Android 手势/控件树、准确包名核验、可见效果回执；[72aedc0](https://github.com/jiacimu-droid/lulu1/commit/72aedc0cadd4a78a5e5fc3dcc040ae7c455ff23f) 复用原屏幕隐私排除列表，在前后操作中拦截受保护应用。此阶段仍是默认主屏，不是后台屏。
+- **已提交但仍待 APK/JVM/模型**：[daa3644](https://github.com/jiacimu-droid/lulu1/commit/daa36442b88a1452772d3f743571f7243df267ed) 为聊天回合直接选择 `capture_screen` 时传入当次实际 JPEG 图片 + 同屏无障碍文字至原角色模型的**同一次工具后回复**；不调用专用识图描述模型、不在 ToolRouter JSON/时间线里保存图像、内存一次性 handoff。原独立学习监督、后台观察、存相册路径不变。工具后这次仍只负责回复；连续下一个手机动作尚未实现，不得声称已自动完成长任务。
+- [ ] **PH-01.1 工程/安全回归**：按当前 head 及后继 CI 检查新工具 Kotlin/JVM/APK 首错，补 protected-app、坐标、输入聚焦、动作变动中途切换、图片 TTL/角色隔离、取消后迟到图像不接下一轮的测试；检查 package visibility 和授权页一致性。最新多窗口连续提交可能取消早前 push CI；取消不等于成功。
+- [ ] **PH-01.2 背景屏真实能力**：以 Mika 的 `app/cap/phone/display/AgentDisplay.kt`、`app/cap/phone/shell/ShellService.kt`、`app/cap/phone/shell/adb/` 为核心复用来源；复核完整依赖/第三方许可证，接入本机无线调试配对、shell uid helper、AIDL/本机通信、VirtualDisplay、只对该 display 的输入/窗口树、按机型降级。真实验收：Android 17/HyperOS 上主屏持续打字不丢焦点，后台独立打开第三方 App 并真实输入滑动；切后台、关屏/解锁、重启与撤权后安全退出/恢复。
+- [ ] **PH-01.3 原角色连续任务**：让本人既有 ToolRouter/时间线在同一人物上下文中按需多轮接收后台画面像素＋文字、再选择工具和下一个动作；不能把 Mika 的独立 AgentLoop/人格复制成第二套脑。每次工具确认实际设备回执，支持随时打断、暂停/失败恢复和明确的敏感提交确认。若启动 helper 失败，报告不可用，不假装后台成功；前台无障碍只能在明确选择时降级。
+- **完成口径**：代码进入 main ≠ 构建通过 ≠ Redmi 真机兼容 ≠ 长链任务成功；目前已提交的是首批前台操作和直接模型原图交接，Mika 后台屏/无线配对仍未移植。
+
+
 
 
 
