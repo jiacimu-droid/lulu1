@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:29:27.408153+00:00",
-  "commit": "17052283dfb691003d48d6ecb0bed738d7e9e717",
+  "generatedAt": "2026-11-11T09:29:47.848506+00:00",
+  "commit": "7610d6b47961a573bfe16ea76c471e29144c5ca1",
   "branch": "main",
-  "sourceFingerprint": "8ca346d5df2c943c8d25ed1ca55abf4014c611c585dc4b744671e89780361888",
+  "sourceFingerprint": "126d4fead9b836f1b27b74404738ca618fcfcf32f61b4fcbbb5e6646e4eac686",
   "summary": {
     "files": 1175,
-    "lines": 255383,
+    "lines": 255412,
     "symbols": 3480
   },
   "symbolIndex": {
@@ -36971,8 +36971,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt",
-      "lines": 114,
-      "sha256": "313e7d246095c20bee50153fac8a671e0bbf93a5a95be61cd0fd6ed0f28edf51",
+      "lines": 143,
+      "sha256": "19337ff47f48f954058feb1464b3f8d496a98b1ed35196aa10611b2accc15579",
       "symbols": [
         {
           "name": "CharacterChatModelSelectionTest",
