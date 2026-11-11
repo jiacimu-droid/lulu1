@@ -81,7 +81,7 @@ class CharacterChatModelSelectionTest {
             chatArchiveId = chat.id, activeArchiveId = chat.id)
         try {
             val editor = prefs.edit()
-            keys.forEach(editor::remove)
+            keys.forEach { editor.remove(it) }
             editor.putString("archive_resident_daily", resident.id)
             // Old hidden global routing preferences must no longer override
             // either the visible resident picker or the library fallback.
