@@ -578,4 +578,31 @@ class IslandHouseProjectsTest {
         assertEquals(demolishing.world.tiles,saved.world.tiles)
     }
 
+    @Test fun hudAndPanelUseOneScopeForPartBuiltDemolitionAndZeroPieceCancel() {
+        val started=start()
+        val project=started.houseProject!!
+        assertEquals(9,IslandHouseProjects.totalSteps(project))
+        assertEquals(0f,IslandHouseProjects.progressFraction(project),0.0001f)
+        val emptyDemolition=IslandHouseProjects.choose(started,"alice","demolish_house","不盖了")!!
+        assertEquals(0,IslandHouseProjects.totalSteps(emptyDemolition.houseProject!!))
+        assertEquals(0f,IslandHouseProjects.progressFraction(emptyDemolition.houseProject!!),0.0001f)
+        val emptyRestored=BlockIslandState.fromJson(emptyDemolition.toJson())!!
+        assertEquals(0,IslandHouseProjects.totalSteps(emptyRestored.houseProject!!))
+        val partiallyBuilt=project.copy(placed=IslandHouseProjects.parts(started.world,project.left,project.top)
+            .take(3).map { it.first })
+        assertEquals(3f/9f,IslandHouseProjects.progressFraction(partiallyBuilt),0.0001f)
+        val demolition=partiallyBuilt.copy(phase="demolishing",resumePhase="demolishing",
+            demolitionStartCount=3)
+        assertEquals(3,IslandHouseProjects.totalSteps(demolition))
+        assertEquals(0f,IslandHouseProjects.progressFraction(demolition),0.0001f)
+        val removed=demolition.copy(placed=demolition.placed.dropLast(1))
+        assertEquals(1f/3f,IslandHouseProjects.progressFraction(removed),0.0001f)
+        val paused=removed.copy(phase="paused",resumePhase="demolishing")
+        assertEquals(3,IslandHouseProjects.totalSteps(paused))
+        assertEquals(1f/3f,IslandHouseProjects.progressFraction(paused),0.0001f)
+        val reloaded=IslandHouseProject.read(paused.json(),started.world)!!
+        assertEquals(3,IslandHouseProjects.totalSteps(reloaded))
+        assertEquals(1f/3f,IslandHouseProjects.progressFraction(reloaded),0.0001f)
+    }
+
 }
