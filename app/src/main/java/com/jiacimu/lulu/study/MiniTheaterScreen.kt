@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.FileUpload
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LuluEditorialHeader
+import com.jiacimu.lulu.design.LuluEditorialPanel
+import com.jiacimu.lulu.design.LuluEditorialSectionHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +38,7 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
     val scenes = allScenes.filter { it.characterId.isBlank() }
     val scope = rememberCoroutineScope()
     var opened by remember { mutableStateOf<String?>(null) }
+    var showPrompt by remember(opened) { mutableStateOf(false) }
     var background by remember(opened) { mutableStateOf("") }
     var query by remember { mutableStateOf("") }
     var notice by remember { mutableStateOf("") }
@@ -74,7 +81,7 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
                 IconButton(onClick = { if (current == null) onBack() else opened = null }) {
                     Icon(Icons.Outlined.ArrowBack, "返回")
                 }
-                Text(current?.title ?: "单篇小剧场",
+                Text(if (current == null) "单篇小剧场" else "阅读",
                     modifier = Modifier.weight(1f), maxLines = 1, fontWeight = FontWeight.SemiBold)
                 if (current == null) IconButton(onClick = {
                     picker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
@@ -82,25 +89,37 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
             }
         }
         if (current == null) {
-            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyColumn(Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 40.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 item {
-                    Text("${scenes.size} 个单篇剧场 · 不需要长篇故事大纲",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    LuluEditorialHeader(
+                        overline = "THEATER  /  LIBRARY",
+                        title = "每一篇，都是一个小世界",
+                        subtitle = "${scenes.size} 个独立故事。在这里重逢、探索，或开始新的想象。",
+                    )
+                    Spacer(Modifier.height(20.dp))
                     OutlinedTextField(query, { query = it },
-                        modifier = Modifier.fillMaxWidth(), label = { Text("搜索小剧场") })
-                    TextButton(onClick = {
-                        picker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-                    }) { Text("从 JSON 中多选导入") }
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                        singleLine = true,
+                        label = { Text("搜索小剧场") })
                     if (notice.isNotBlank()) Text(notice, color = MaterialTheme.colorScheme.primary)
                 }
+                item { LuluEditorialSectionHeading(title = "故事书架") }
                 items(scenes.filter { query.isBlank() || it.title.contains(query, true) },
                     key = { it.id }) { item ->
                     OutlinedCard(onClick = {
                         opened = item.id; background = item.sceneContext; notice = ""
-                    }, modifier = Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(14.dp)) {
-                            Text(item.title, fontWeight = FontWeight.SemiBold)
+                    }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.outlinedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surface)) {
+                        Column(Modifier.padding(horizontal = 18.dp, vertical = 17.dp),
+                            verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text(item.title, style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold)
                             Text(when (item.status) {
                                 "complete" -> "已写完 · 点击阅读"
                                 "queued", "running" -> "正在写 · 可离开页面"
@@ -115,12 +134,26 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
             }
         } else {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(current.title, fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge)
-                Text("原文创作要求", fontWeight = FontWeight.Medium)
-                SelectionContainer {
-                    Text(current.prompt, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("READING ROOM  /  单篇", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary)
+                Text(current.title, fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.headlineSmall)
+                if (current.text.isNotBlank()) Text(
+                    "正文 ${PersonalTheaterTypography.wordCount(current.text)} 字",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                TextButton(onClick = { showPrompt = !showPrompt },
+                    contentPadding = PaddingValues(horizontal = 0.dp)) {
+                    Text(if (showPrompt) "收起创作设定" else "查看创作设定")
+                }
+                if (showPrompt) LuluEditorialPanel {
+                    SelectionContainer {
+                        Text(current.prompt, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium, lineHeight = 23.sp)
+                    }
                 }
                 if (current.status !in setOf("queued", "running", "complete")) {
                     OutlinedTextField(background, { background = it },
@@ -143,7 +176,8 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
                     HorizontalDivider()
                     Text(if (current.rewriting) "上一版正文（已保留）" else "小剧场正文",
                         fontWeight = FontWeight.SemiBold)
-                    SelectionContainer { Text(current.text) }
+                    SelectionContainer { Text(current.text, style = MaterialTheme.typography.bodyLarge,
+                        lineHeight = 28.sp) }
                     if (current.status == "complete") TextButton(onClick = {
                         confirmRewrite = true
                     }) { Text("重新创作") }
