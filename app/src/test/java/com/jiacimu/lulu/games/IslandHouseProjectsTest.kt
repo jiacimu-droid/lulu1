@@ -491,6 +491,34 @@ class IslandHouseProjectsTest {
         assertEquals(persisted,IslandHouseProjects.advance(persisted,setOf("alice")))
     }
 
+    @Test fun partialMultiPieceDemolitionHudCountsOnlyActualRemovedTilesAfterReload() {
+        var state=start()
+        repeat(70) {
+            if ((state.houseProject?.placed?.size ?: 0) < 3) state=nextTurn(state)
+        }
+        val built=state.houseProject!!
+        assertEquals(3,built.placed.size)
+        val beforeWood=state.world.wood
+        state=IslandActorPlay.apply(state,"alice",state.world.turns,
+            IslandActorChoice("demolish_house","我决定拆掉已搭好的部分"))!!
+        assertEquals(3,state.houseProject?.demolitionStartCount)
+        assertEquals(0,IslandHouseProjects.progress(state.houseProject!!))
+        val saved=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(3,saved.houseProject?.demolitionStartCount)
+        assertEquals(0,IslandHouseProjects.progress(saved.houseProject!!))
+        state=saved
+        repeat(70) {
+            if (state.houseProject?.placed?.size == 3) state=nextTurn(state)
+        }
+        assertEquals(2,state.houseProject?.placed?.size)
+        assertEquals(1,IslandHouseProjects.progress(state.houseProject!!))
+        assertEquals(beforeWood+1,state.world.wood)
+        val restored=BlockIslandState.fromJson(state.toJson())!!
+        assertEquals(3,restored.houseProject?.demolitionStartCount)
+        assertEquals(1,IslandHouseProjects.progress(restored.houseProject!!))
+        assertEquals(restored,IslandHouseProjects.advance(restored,setOf("alice")))
+    }
+
     @Test fun progressProjectionSurvivesSaveAndPauseWithoutInventingConstruction() {
         val started=start()
         val p=started.houseProject!!
