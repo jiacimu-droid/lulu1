@@ -118,3 +118,14 @@
 - 此轮读取 [#846](https://github.com/jiacimu-droid/lulu1/issues/846)、[#847](https://github.com/jiacimu-droid/lulu1/issues/847)、[#848](https://github.com/jiacimu-droid/lulu1/issues/848)、[#849](https://github.com/jiacimu-droid/lulu1/issues/849) 的实际 Actions jobs 日志，四轮均在 `Test and build phone APK → :app:compilePhoneKotlin` 失败，最早一条均指向 `BlockIslandLobby.kt` 的 `var selected by rememberSaveable { mutableStateOf(savedIsland?.world?.friends?.map { it.id } ?: emptyList()) }`，导致委托 `setValue` 泛型推断失败，后续 `forEach` / `minus` / `plus` / `take` 皆为同一根因引起的类型级联错误；不是模型、安卓权限或网络问题。已显式指定双层不变泛型 `var selected: List<String>` + `mutableStateOf<List<String>>`，保留旧岛队伍和新增邀请语义。生产修复 [`cfa1859`](https://github.com/jiacimu-droid/lulu1/commit/cfa18597fa0895998ae42b7d6a8442009404bfa2)；**未拿到该修复后的有效 JVM/APK 运行结果，不关闭 CI 工单、不宣称已通过**。
 - 同一轮审查菜单职责调整发现：此前“工作台制作”所在菜单撤除后，玩家 `rest` 的入口随之丢失，虽然 `BlockIslandRules.act("rest")` 仍可在真实篝火／床铺旁执行。新增 `islandCampNearby` 与 `islandCampRestAvailable`，在游戏场景的中心互动／主操作键出现“在营地休息”，沿原恢复生命、位置、间隔与回合规则执行，不再塞回通用菜单。生产提交 [`6b18223`](https://github.com/jiacimu-droid/lulu1/commit/6b1822340742357bb32fb8958233d2ec8e140cbd)、[`7888c3e`](https://github.com/jiacimu-droid/lulu1/commit/7888c3ebe5a664a728677364e2bfd10b64cbb7bd)、[`fa6e7f3`](https://github.com/jiacimu-droid/lulu1/commit/fa6e7f32472d53022c8fd10220b191195737c997)；测试 [`54aa57a`](https://github.com/jiacimu-droid/lulu1/commit/54aa57ab1ea507e75d0d2871715624d058cb285a) 覆盖物理营地、生命、冷却、重复操作；**测试源码已写但尚未获得运行成功**。
 - **下一轮固定 G-02**：核包含 `cfa1859` 及 `54aa57a` 的完整 phone Kotlin/JVM/APK CI，失败只修实际第一个错误；通过后复核动作入口、旧世界+多伙伴真机横屏、Android 语音识别与音色播放。注意 #846~#849 属于修复提交前的旧 SHA，不能把它们的红灯误当修复后失败或宣称成功。
+
+## 2026-11-12 G-03 真正 2D 美术 + 回合紧迫感（实做，CI/真机待验）
+
+主人否定前轮写实 3D 效果图（此图只是概念、无法直接跑在 APK），要求实际修改现有地图。针对正式 `RelicEscapeScreen` / `RelicEscapeArt`，本轮按 MotionSites 的信息层次与视觉精度原则、现有 2D Canvas 渲染实现：
+- `8d2a661` 新增纯展示投影 `RelicTensionPresentation`：隐藏敌人与死亡敌人不触发伪警报；可见三格内蓄力、本人低血、倒地救援、珍贵战利品与撤离原有 3 回合进度由 `RelicRun` 的真实事实推导，无虚假秒级时钟，也不替玩家决定撤离。
+- `1491697` 将投影接进正式 `GameSceneDeck.notice` 与顶部状态/目标板：提示优先级与剩余撤离回合真实同步，避免冗余的长解说文本；仅改变 UI 不新增行动或模型调用。
+- `fc05cc3` 用原创离线 Canvas 绘制的三种材质宝箱、宝石切面、珍贵箱金冠装饰替代普通统一箱；地上的真实掉落物按 tier 渲染不同切面，撤离门按保存的 `extraction` 亮起 0–3 个点；本人周边仅在真实危险/撤离/倒地显示克制状态圈，删掉原覆盖范围很大的红色径向遮罩。
+- `f5e1a04` 新增 `RelicTensionPresentationTest`，测试回合取代假秒数、危险仅对可见蓄力活敌人显示、救援进度、低血与真实持有珍贵宝物。不改变地图可见性、敌人攻击、战利品或持久化。
+- `73e8d93` 对纯展示投影做 `remember(run)`，防止地图动画重绘每帧重复搜怪物。
+
+**工程证据**：这批提交已写入现有 main；对应最终 head [Lulu APK/JVM #43060458609](https://github.com/jiacimu-droid/lulu1/actions/runs/43060458609) 在查询时仍 pending/后继可能取消，**未确认 APK 编译或新单测通过**。基于 Compose 源码审查可确认更新了可运行的渲染入口，但无法凭聊天内的静态概念图宣称真实截图效果。待最近覆盖这批提交的最终 APK/JVM terminal success 后，按 360dp/412dp 真机实际检查宝箱可辨识、HUD 不挡地图、低端帧率、方向键/开箱/撤离、字体放大与横屏；如果 CI 首错就在本范围先修，若后继提交成功再标工程通过。下一轮继续 G-03.5 的真实游玩/界面闭环而不是再出 3D 假效果图。
