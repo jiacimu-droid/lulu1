@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.study
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.design.LuluEditorialHeader
+import com.jiacimu.lulu.design.LuluEditorialPanel
+import com.jiacimu.lulu.design.LuluEditorialSectionHeading
 import com.jiacimu.lulu.ModelArchivePickerSheet
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -152,19 +156,21 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             })
     }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), state = pageScroll,
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
                 if (work == null) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("把想象写成故事",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.SemiBold)
-                        Text("与${character?.displayName ?: "这位角色"}，在另一种可能里相遇",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                    LuluEditorialHeader(
+                        overline = "EXTRA STORIES  /  番外",
+                        title = "把想象写成故事",
+                        subtitle = "与${character?.displayName ?: "这位角色"}，在另一种可能里相遇。",
+                    )
                 } else {
+                    Text("与${character?.displayName ?: "这位角色"}的番外",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth())
                     Text(storyTitle, style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth(),
@@ -192,20 +198,14 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             }
             if (work == null) {
                 item {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("故事灵感", style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold)
+                    LuluEditorialSectionHeading(title = "挑一个故事") {
                         TextButton(onClick = { nextInspiration() }, enabled = !inspirationLoading) {
                             Text(if (inspirationLoading) "正在构思…" else if (offset + 1 >= availableIdeas.size) "再想 10 个" else "换一个")
                         }
                     }
                 }
                 item {
-                    Column(Modifier.fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
-                            RoundedCornerShape(18.dp))
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    LuluEditorialPanel {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("故事设定", style = MaterialTheme.typography.titleSmall,
@@ -234,11 +234,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     }
                     if (inspirationLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
                     val idea = availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)]
-                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
-                        colors = CardDefaults.cardColors(containerColor =
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))) {
-                        Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
-                            Text("这一篇的灵感", style = MaterialTheme.typography.labelMedium,
+                    LuluEditorialPanel(emphasized = true) {
+                            Text("STORY IDEA  /  本篇灵感", style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary)
                             Text(idea.title, style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.SemiBold)
@@ -254,8 +251,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                            }, shape = RoundedCornerShape(13.dp)) { Text("开始创作") }
-                        }
+                            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                shape = RoundedCornerShape(13.dp)) { Text("开始创作") }
                     }
                 }
                 item {
@@ -292,14 +289,14 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         }
                     }
                 }
-                item { Text("我的番外 · ${saved.size}", style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold) }
+                item { LuluEditorialSectionHeading(title = "我的番外 · ${saved.size}") }
                 items(saved, key = { it.id }) { item ->
                     Card(onClick = {
                         opened = item.id; background = item.sceneContext; error = ""
                     }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f)),
                         colors = CardDefaults.cardColors(containerColor =
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f))) {
+                            MaterialTheme.colorScheme.surface)) {
                         Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(item.title, style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold)
