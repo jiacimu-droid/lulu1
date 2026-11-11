@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:35:50.561704+00:00",
-  "commit": "1491697626c3d2e8f265f5aaf6288bc312754257",
+  "generatedAt": "2026-11-11T16:37:06.599233+00:00",
+  "commit": "2d1085cb33353a8278b8f6110e241c76b948e623",
   "branch": "main",
-  "sourceFingerprint": "051d0b3a73a406451cde7921ea23c1fb9aa7ffe9eab49faf14495a5bed6d63a0",
+  "sourceFingerprint": "5fcfa64a4559d9222f5b52e12f25fdad5283aeca356ff7b5381b8387b6a9499a",
   "summary": {
     "files": 1203,
-    "lines": 260024,
+    "lines": 260028,
     "symbols": 3636
   },
   "symbolIndex": {
@@ -25758,7 +25758,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "cbbc389e6ff2fa65b7b4da1c12cb9083656f1409d796800ced563c3503624542",
+      "sha256": "3fca4c11e01af4d9d1d90465ffc192c8bb79e9591517099863074370a1f22869",
       "symbols": [
         {
           "name": "expressionContext",
@@ -39942,8 +39942,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 539,
-      "sha256": "acf993aebe813a1b13c1d903f904dbddcc8deb4984cfdc90a6540b9a1c6d35fb",
+      "lines": 543,
+      "sha256": "28cd6175838b84521d1806955e867628c0d5ad23ab5d163146979a4346d412e2",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",
