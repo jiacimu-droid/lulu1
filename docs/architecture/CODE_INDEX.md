@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9dfe727d0ca7c50912ec4c739b2bec0853d1953f`
+- 基准提交：`50cecdd9b58d9528aa372a5f8a6d5b735c3dee98`
 - 分支：`main`
 - 已索引文件：1175
-- 已索引代码/文本行：255615
+- 已索引代码/文本行：255642
 - 已发现符号：3486
 
 | 文件 | 行数 | 符号数 |
@@ -886,7 +886,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 696 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 721 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 358 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 158 | 1 |
@@ -982,7 +982,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1248 | 24 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1250 | 24 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |

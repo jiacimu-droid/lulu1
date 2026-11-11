@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T10:03:42.461471+00:00",
-  "commit": "9dfe727d0ca7c50912ec4c739b2bec0853d1953f",
+  "generatedAt": "2026-11-11T10:04:10.176022+00:00",
+  "commit": "50cecdd9b58d9528aa372a5f8a6d5b735c3dee98",
   "branch": "main",
-  "sourceFingerprint": "6bd3d29f14b5438d76139d2a5b73bc76bc08d9d025f0333437fcac1c71857669",
+  "sourceFingerprint": "22d544be2f3b02456b52ac858189b85d6b79d948a71cd41e53dfcffd3ab1fa85",
   "summary": {
     "files": 1175,
-    "lines": 255615,
+    "lines": 255642,
     "symbols": 3486
   },
   "symbolIndex": {
@@ -329,7 +329,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 624
+        "line": 626
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
@@ -1111,7 +1111,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 604
+        "line": 606
       }
     ],
     "prepareVoiceNote": [
@@ -11671,7 +11671,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1117
+        "line": 1119
       }
     ],
     "repliedByDecisionId": [
@@ -16577,13 +16577,13 @@
     "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 169
+        "line": 174
       }
     ],
     "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 229
+        "line": 239
       }
     ],
     "AutonomousActionTraceTest": [
@@ -17561,93 +17561,93 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 423
+        "line": 425
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 487
+        "line": 489
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 525
+        "line": 527
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 556
+        "line": 558
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 689
+        "line": 691
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 765
+        "line": 767
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 851
+        "line": 853
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 930
+        "line": 932
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1012
+        "line": 1014
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1095
+        "line": 1097
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 426
+        "line": 428
       }
     ],
     "requestBody": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 623
+        "line": 625
       }
     ],
     "mediaReply": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 693
+        "line": 695
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 769
+        "line": 771
       }
     ],
     "hasMediaReceipt": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 710
+        "line": 712
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 787
+        "line": 789
       }
     ],
     "systemPrompt": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 876
+        "line": 878
       }
     ],
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 999
+        "line": 1001
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1003
+        "line": 1005
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -37176,8 +37176,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 696,
-      "sha256": "5c52b3f43170f3064aae54e9442ea98ed52edc500e36ad927e71e170faa2212f",
+      "lines": 721,
+      "sha256": "0dc23cb014b6a57d89f2ceff6ff10fcf04a1671768a65a46f9d25b826f9530b8",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
@@ -37185,11 +37185,11 @@
         },
         {
           "name": "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost",
-          "line": 169
+          "line": 174
         },
         {
           "name": "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved",
-          "line": 229
+          "line": 239
         }
       ]
     },
@@ -38584,8 +38584,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 1248,
-      "sha256": "5b67a81e89a6b60189af4f3be1621512dceec6ec25bc1c94f5e4834508bb3ce2",
+      "lines": 1250,
+      "sha256": "4cdc8ed3bb1a7e2b2f4bdb877705545e2e7671b334a0e039a62e9bf76f6ec685",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -38597,91 +38597,91 @@
         },
         {
           "name": "response",
-          "line": 423
+          "line": 425
         },
         {
           "name": "bubbles",
-          "line": 426
+          "line": 428
         },
         {
           "name": "response",
-          "line": 487
+          "line": 489
         },
         {
           "name": "response",
-          "line": 525
+          "line": 527
         },
         {
           "name": "response",
-          "line": 556
+          "line": 558
         },
         {
           "name": "enqueue",
-          "line": 604
+          "line": 606
         },
         {
           "name": "requestBody",
-          "line": 623
+          "line": 625
         },
         {
           "name": "prompt",
-          "line": 624
+          "line": 626
         },
         {
           "name": "response",
-          "line": 689
+          "line": 691
         },
         {
           "name": "mediaReply",
-          "line": 693
+          "line": 695
         },
         {
           "name": "hasMediaReceipt",
-          "line": 710
+          "line": 712
         },
         {
           "name": "response",
-          "line": 765
+          "line": 767
         },
         {
           "name": "mediaReply",
-          "line": 769
+          "line": 771
         },
         {
           "name": "hasMediaReceipt",
-          "line": 787
+          "line": 789
         },
         {
           "name": "response",
-          "line": 851
+          "line": 853
         },
         {
           "name": "systemPrompt",
-          "line": 876
+          "line": 878
         },
         {
           "name": "response",
-          "line": 930
+          "line": 932
         },
         {
           "name": "concern",
-          "line": 999
+          "line": 1001
         },
         {
           "name": "decision",
-          "line": 1003
+          "line": 1005
         },
         {
           "name": "response",
-          "line": 1012
+          "line": 1014
         },
         {
           "name": "response",
-          "line": 1095
+          "line": 1097
         },
         {
           "name": "receipts",
-          "line": 1117
+          "line": 1119
         }
       ]
     },
