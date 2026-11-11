@@ -64,10 +64,10 @@ internal object LuluBackgroundPhoneSession {
         try {
             // Exactly the same app_process mechanism used by Mika, but a
             // smaller helper with no Mika chat loop/HTTP server/role identity.
-            val command = "CLASSPATH=" + source +
+            val launchCommand = "CLASSPATH=" + source +
                 " app_process /system/bin --nice-name=lulu:display " +
                 "com.wangzan101.mika.cap.phone.shell.LuluShellDisplayMain"
-            val pipe = conn.exec(command)
+            val pipe = conn.exec(launchCommand)
             adb = conn
             stream = pipe
             replies.clear()
