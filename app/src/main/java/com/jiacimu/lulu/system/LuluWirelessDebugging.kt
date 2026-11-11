@@ -116,14 +116,14 @@ object LuluWirelessDebugging {
     suspend fun <T> withShell(
         context: Context,
         manualConnectPort: Int? = null,
-        block: (AdbConnection) -> T,
         localIp: String? = null,
+        block: (AdbConnection) -> T,
     ): T = withContext(Dispatchers.IO) {
         openShell(context, manualConnectPort, localIp).use(block)
     }
 
     suspend fun test(context: Context, port: Int? = null, localIp: String? = null): String =
-        withShell(context, port, { "已连接本机 Android shell；后台屏幕尚需助手初始化" }, localIp)
+        withShell(context, port, localIp) { "已连接本机 Android shell；后台屏幕尚需助手初始化" }
 
     fun forget(context: Context) {
         AndroidAdb.forget(context.applicationContext)
