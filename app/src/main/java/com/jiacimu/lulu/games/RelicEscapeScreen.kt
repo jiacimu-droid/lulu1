@@ -186,6 +186,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         return
     }
 
+    // The risk display reads the authoritative turn state. No fake realtime clock.
+    val tension = run?.let(::relicTension)
     Box(Modifier.fillMaxSize()) {
     GameSceneDeck(
         accent = relicGold,
@@ -196,19 +198,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         secondaryLabel = "开箱",
         toolsLabel = "背包 / 战术",
-        notice = error.ifBlank { if(run?.let { current ->
-            current.mobs.any { mob ->
-                mob.hp>0 && mob.windup && current.visible(mob.x,mob.y) &&
-                    RelicEscapeRules.distance(
-                        current.hero.x,current.hero.y,mob.x,mob.y)<=3
-            }
-        }==true) "⚠ 遗迹敌人正在蓄力 · 格挡或贴近打断！"
-            else if(run?.phase == RelicPhase.SUCCESS)
-            "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
-            "本次探索结束 · 战利品遗失" else run?.notice.orEmpty() },
+        notice = error.ifBlank {
+            tension?.headline?.takeIf { it.isNotBlank() } ?: run?.notice.orEmpty()
+        },
         status = if (run == null) "暗影遗迹 · 营地" else
             "❤ ${run.hero.hp}/10   ◇ ${run.value}   第${run.turns}回合\n" +
-                if (run.allies.isEmpty()) "本局单人探索" else "同行 ${run.allies.size} 人 · 金圈是你",
+                if (run.phase == RelicPhase.EXTRACT)
+                    "撤离进度 ${run.extraction.coerceIn(0, 3)}/3 回合"
+                else if (run.allies.isEmpty()) "本局单人探索"
+                else "同行 ${run.allies.size} 人 · 金圈是你",
         scene = {
             Box(Modifier.fillMaxSize()) {
                 if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
@@ -329,9 +327,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 &&
                     run.visible(it.x, it.y) }
                 val objective = when (run.phase) {
-                    RelicPhase.EXTRACT -> "撤离中：守住剩余${(3-run.extraction).coerceAtLeast(0)}回合"
-                    else -> if (run.carried.isEmpty()) "目标：找到一件宝物，再去绿色撤离门"
-                        else "已带${run.carried.size}件宝物（估值${run.value}）→ 去绿色撤离门"
+                    RelicPhase.EXTRACT -> "撤离 · 守住 ${(3-run.extraction).coerceAtLeast(0)} 回合"
+                    RelicPhase.DOWNED -> "倒地 · 等待同伴救援"
+                    else -> if (run.carried.isEmpty()) "找漂亮珍宝 · 自己决定何时撤离"
+                        else "已携带 ${run.carried.size} 件宝物 · 估值 ${run.value}"
                 }
                 val chestTarget=RelicObjectiveGuide.visibleChest(run)
                 val exitTarget=RelicObjectiveGuide.visibleExit(run)
