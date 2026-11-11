@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T01:32:10.999331+00:00",
-  "commit": "6a4b2fa5a9f19d77d6563459fb0c86b740950d21",
+  "generatedAt": "2026-11-11T02:01:21.456939+00:00",
+  "commit": "c662bde824932259809b2ab5b3e8d817a93ddb66",
   "branch": "main",
-  "sourceFingerprint": "0dcb3a99e1d100ecfa8a40881574fd86b7bb1c58abde7628ba38b7159c14735b",
+  "sourceFingerprint": "65bc8a1ac6cdcdf92e9ce87b937011e3bf984d8be376467a604547d8e5970fd9",
   "summary": {
     "files": 1175,
-    "lines": 254786,
-    "symbols": 3473
+    "lines": 254824,
+    "symbols": 3474
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7704,6 +7704,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
         "line": 20
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
+        "line": 39
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -33958,9 +33962,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 139,
-      "sha256": "b66234b7a3218a609922bf01fe90039b352acdc81584074134ce89d659d19104",
-      "symbols": []
+      "lines": 177,
+      "sha256": "9afb74a5a3a4852dab5e362145bc9a7f5ef0fb6324d46ae7965c8cb00e861f95",
+      "symbols": [
+        {
+          "name": "at",
+          "line": 39
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
