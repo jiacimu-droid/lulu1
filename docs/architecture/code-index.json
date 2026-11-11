@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T17:40:08.355659+00:00",
-  "commit": "a554b388abacf427acfdcbc983b9ddbb1d5d00c2",
+  "generatedAt": "2026-11-11T17:40:35.406671+00:00",
+  "commit": "1fff5a584e93fd9cc0743a6bd89ccae5ac4cae5e",
   "branch": "main",
-  "sourceFingerprint": "b2b74fff392abf9cd0363adf87afa525b0ae31d3f40cf0c554e77fcf5279c229",
+  "sourceFingerprint": "3cb5e6d720ecd8ded64140f52185cfe9a19232a5a0cec51a8982097b37536ae4",
   "summary": {
-    "files": 1205,
-    "lines": 260400,
-    "symbols": 3644
+    "files": 1206,
+    "lines": 260435,
+    "symbols": 3645
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20268,6 +20268,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
         "line": 17
+      }
+    ],
+    "LuluWirelessDebuggingHostTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt",
+        "line": 5
       }
     ],
     "TimelineMigrationTest": [
@@ -42991,6 +42997,17 @@
         {
           "name": "LuluStudyWatchTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt",
+      "lines": 35,
+      "sha256": "70172d7e3eefe2ba1e2a6f2a0277ff67b09f1701b9282e8332699f37048cdb90",
+      "symbols": [
+        {
+          "name": "LuluWirelessDebuggingHostTest",
+          "line": 5
         }
       ]
     },

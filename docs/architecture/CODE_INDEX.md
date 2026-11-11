@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a554b388abacf427acfdcbc983b9ddbb1d5d00c2`
+- 基准提交：`1fff5a584e93fd9cc0743a6bd89ccae5ac4cae5e`
 - 分支：`main`
-- 已索引文件：1205
-- 已索引代码/文本行：260400
-- 已发现符号：3644
+- 已索引文件：1206
+- 已索引代码/文本行：260435
+- 已发现符号：3645
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1204,6 +1204,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
