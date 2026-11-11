@@ -44,6 +44,14 @@ internal object LuluPhoneUiOperator {
         val target = args.optString("packageName").trim()
         val before = LuluAccessibilityService.observe()
         check(before.connected) { "无障碍服务尚未连接，不能控制手机" }
+        // Reuse the SAME privacy exclusion authority as capture_screen.
+        // No new phone tool may read an app the owner explicitly excluded.
+        if (action != "launch" && LuluScreenAwareness.isExcluded(context, before.packageName)) {
+            return@withContext blocked(before.packageName, "当前应用被屏幕隐私规则排除")
+        }
+        if (action == "launch" && LuluScreenAwareness.isExcluded(context, target)) {
+            return@withContext blocked(target, "目标应用被屏幕隐私规则排除")
+        }
 
         if (action == "inspect") {
             return@withContext result(before, before, accepted = true, verified = true,
@@ -89,15 +97,16 @@ internal object LuluPhoneUiOperator {
         var after = LuluAccessibilityService.observe()
         var verified = false
         if (accepted) {
-            repeat(6) {
+            for (attempt in 0 until 6) {
                 delay(300)
                 after = LuluAccessibilityService.observe()
-                if (action == "launch") {
-                    verified = after.packageName == target
-                } else if (expected.isNotBlank()) {
-                    verified = after.visibleText.contains(expected)
+                if (LuluScreenAwareness.isExcluded(context, after.packageName)) {
+                    return@withContext blocked(after.packageName,
+                        "操作后进入被隐私规则排除的应用，不读取新画面")
                 }
-                if (verified) return@repeat
+                verified = if (action == "launch") after.packageName == target
+                    else expected.isNotBlank() && after.visibleText.contains(expected)
+                if (verified) break
             }
         }
         result(before, after, accepted, verified, action,
@@ -109,6 +118,15 @@ internal object LuluPhoneUiOperator {
                 else -> "Android 接受了操作请求，但没有可核实的完成条件；请继续观察再判断"
             })
     }
+
+    private fun blocked(packageName: String, note: String): String = JSONObject()
+        .put("success", false)
+        .put("status", "denied")
+        .put("accepted", false)
+        .put("mode", "foreground_accessibility")
+        .put("packageName", packageName)
+        .put("verification", note)
+        .toString()
 
     private fun result(
         before: AccessibilitySnapshot,
