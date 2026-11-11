@@ -43,9 +43,6 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     val theaterModelId = remember(characterId, modelLibrary, modelRevision) {
         ScopedModelSelections.selectedPersonalTheaterArchiveId(characterId, modelLibrary)
     }
-    val followsChatModel = remember(characterId, modelLibrary, modelRevision) {
-        ScopedModelSelections.personalTheaterOverrideId(characterId, modelLibrary) == null
-    }
     var showModelPicker by remember { mutableStateOf(false) }
     val library = remember(context) { MiniTheaterLibrary.get(context) }
     val all by library.items.collectAsState()
@@ -59,6 +56,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var offset by rememberSaveable(characterId) { mutableIntStateOf(
         Math.floorMod(LocalDate.now().toEpochDay(), PersonalMiniTheater.ideas.size.toLong()).toInt()) }
     var guidance by rememberSaveable(characterId) { mutableStateOf("") }
+    var showCustom by rememberSaveable(characterId) { mutableStateOf(false) }
     var worldMode by rememberSaveable(characterId) {
         mutableStateOf(availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)].recommendedWorldMode)
     }
@@ -148,10 +146,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } },
             actions = {
-                TextButton(onClick = { showModelPicker = true }) {
-                    Icon(Icons.Outlined.Memory, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("模型", fontSize = 12.sp)
+                IconButton(onClick = { showModelPicker = true }) {
+                    Icon(Icons.Outlined.Memory, contentDescription = "选择番外模型")
                 }
             })
     }) { padding ->
@@ -160,23 +156,20 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
                 if (work == null) {
-                    Text("和" + (character?.displayName ?: "这位角色") + "的番外",
-                        style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
-                    Text("挑个奇妙设定，或者写下自己的脑洞 · 不计入真实记忆",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    val modelName = modelLibrary.archives.firstOrNull { it.id == theaterModelId }?.model
-                        ?: "尚未配置"
-                    Text((if (followsChatModel) "跟随聊天模型 · " else "番外专用模型 · ") + modelName,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("把想象写成故事",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.SemiBold)
+                        Text("与${character?.displayName ?: "这位角色"}，在另一种可能里相遇",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 } else {
                     Text(storyTitle, style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center)
-                    Text((character?.displayName ?: work.characterName) + " × 你   ·   " +
-                        (if (work.worldMode == "alternate") "平行世界番外" else "原世界番外"),
+                    Text("正文 ${PersonalTheaterTypography.wordCount(work.text)} 字",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
@@ -203,38 +196,40 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         Text("故事灵感", style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold)
                         TextButton(onClick = { nextInspiration() }, enabled = !inspirationLoading) {
-                            Text(if (inspirationLoading) "正在想新脑洞…" else if (offset + 1 >= availableIdeas.size) "AI 再想10个" else "下一个")
+                            Text(if (inspirationLoading) "正在构思…" else if (offset + 1 >= availableIdeas.size) "再想 10 个" else "换一个")
                         }
                     }
                 }
                 item {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = worldMode == "original", onClick = { worldMode = "original" },
-                            label = { Text("原世界") })
-                        FilterChip(selected = worldMode == "alternate", onClick = { worldMode = "alternate" },
-                            label = { Text("平行世界") })
-                    }
-                    Text(if (worldMode == "alternate")
-                            "只继承人物的性格，不带入原世界身份或与你的既定关系。"
-                        else "保留原本的世界、身份和关系，展开另一种可能。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("灵感会推荐世界模式，也可以自己切换。",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("本篇世界书", style = MaterialTheme.typography.titleSmall)
-                        TextButton(onClick = { showWorldBookPicker = true }) {
-                            Text(if (chosenWorldBookIds.isEmpty()) "选择世界书（可不选）"
-                                else "已选 ${chosenWorldBookIds.size} 条 · 修改")
+                    Column(Modifier.fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
+                            RoundedCornerShape(18.dp))
+                        .padding(horizontal = 14.dp, vertical = 9.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("故事设定", style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Medium)
+                            TextButton(onClick = { showWorldBookPicker = true }) {
+                                Text(if (chosenWorldBookIds.isEmpty()) "世界书 · 可选"
+                                    else "世界书 · ${chosenWorldBookIds.size} 条")
+                            }
                         }
-                    }
-                    if (chosenWorldBookIds.isNotEmpty()) {
-                        Text(worldBooks.filter { it.id in chosenWorldBookIds }
-                            .joinToString(" · ") { it.title },
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 2,
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(selected = worldMode == "original",
+                                onClick = { worldMode = "original" },
+                                label = { Text("原世界") })
+                            FilterChip(selected = worldMode == "alternate",
+                                onClick = { worldMode = "alternate" },
+                                label = { Text("平行世界") })
+                        }
+                        if (worldMode == "alternate") Text("换身份与关系，只保留人物性格",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (chosenWorldBookIds.isNotEmpty()) Text(
+                            worldBooks.filter { it.id in chosenWorldBookIds }
+                                .joinToString(" · ") { it.title },
+                            style = MaterialTheme.typography.labelSmall, maxLines = 1,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (inspirationLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -242,7 +237,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
                         colors = CardDefaults.cardColors(containerColor =
                             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))) {
-                        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+                            Text("这一篇的灵感", style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary)
                             Text(idea.title, style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.SemiBold)
                             Text(idea.premise, style = MaterialTheme.typography.bodyMedium,
@@ -257,33 +254,42 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                            }, shape = RoundedCornerShape(13.dp)) { Text("写这一篇") }
+                            }, shape = RoundedCornerShape(13.dp)) { Text("开始创作") }
                         }
                     }
                 }
                 item {
-                    Column(Modifier.fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f),
-                            RoundedCornerShape(22.dp))
-                        .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("自己来设定", style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold)
-                    OutlinedTextField(guidance, { guidance = it }, modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
-                        label = { Text("想看的情景或设定") }, minLines = 3,
-                        placeholder = { Text("比如：醒来后，我和他交换了身体……") })
-                    Button(enabled = character != null && guidance.isNotBlank(), onClick = {
-                        runCatching {
-                            val idea = PersonalMiniTheater.customIdea(guidance)
-                            val id = library.addPersonal(
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("有自己的脑洞？", style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { showCustom = !showCustom }) {
+                            Text(if (showCustom) "收起" else "自己写设定")
+                        }
+                    }
+                    if (showCustom) {
+                        Column(Modifier.fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f),
+                                RoundedCornerShape(18.dp))
+                            .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedTextField(guidance, { guidance = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                label = { Text("想看的情景或设定") }, minLines = 3,
+                                placeholder = { Text("比如：醒来后，我们交换了身体……") })
+                            Button(enabled = character != null && guidance.isNotBlank(), onClick = {
+                                runCatching {
+                                    val idea = PersonalMiniTheater.customIdea(guidance)
+                                    val id = library.addPersonal(
                                         PersonalMiniTheater.capture(characterId, worldMode), idea,
                                         selectedWorldBookIds = chosenWorldBookIds.toSet(),
                                         availableWorldBooks = worldBooks
                                     )
-                            opened = id; background = ""; error = ""
-                            MiniTheaterJobs.enqueue(context, id, "")
-                        }.onFailure { error = it.message ?: "没有开始创作，请重试" }
-                    }, shape = RoundedCornerShape(13.dp)) { Text("按这个写") }
+                                    opened = id; background = ""; error = ""
+                                    MiniTheaterJobs.enqueue(context, id, "")
+                                }.onFailure { error = it.message ?: "没有开始创作，请重试" }
+                            }, shape = RoundedCornerShape(13.dp)) { Text("按这个写") }
+                        }
                     }
                 }
                 item { Text("我的番外 · ${saved.size}", style = MaterialTheme.typography.titleMedium,
@@ -297,6 +303,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(item.title, style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold)
+                            Text("正文 ${PersonalTheaterTypography.wordCount(item.text)} 字",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val snippet = remember(item.text) {
                                 PersonalTheaterTypography.sections(item.text)
                                     .firstOrNull { it.kind == PersonalTheaterTypography.Kind.Narration }
@@ -324,7 +333,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         Text(if (showPremise) "收起本篇设定" else "查看本篇设定",
                             style = MaterialTheme.typography.labelMedium)
                     }
-                    if (work.worldBookIds.isNotEmpty()) {
+                    if (showPremise && work.worldBookIds.isNotEmpty()) {
                         Text("本篇选用世界书 · ${work.worldBookIds.size} 条（创作时设定已保存）",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -643,6 +652,13 @@ internal object PersonalTheaterTypography {
         pieces += text.substring(start)
         return pieces
     }
+
+    /** Count actual body characters, not the generated title, ending marker, spaces or punctuation.
+     * This is a read-only projection; never change the saved edition for a counter.
+     */
+    fun wordCount(raw: String): Int = sections(raw).asSequence()
+        .filter { it.kind == Kind.Narration || it.kind == Kind.Dialogue }
+        .sumOf { part -> part.text.count { it.isLetterOrDigit() } }
 
     /** Generated title belongs to the reader header, not to two stacked headings. */
     fun leadingTitle(sections: List<Section>, fallback: String): String =
