@@ -56,6 +56,39 @@ class VoiceCallModelSelectionTest {
         }
     }
 
+    @Test fun importingArchivesNeverChangesAnExplicitFallbackOrTheForegroundChat() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_model_connection", 0)
+        val original = prefs.getString("model_library_v2", null)
+        try {
+            prefs.edit().remove("model_library_v2").commit()
+            val store = ModelConnectionStore.create(context)
+            val config = store.saveConfiguration(null, "main", "https://example.test/v1", "test")
+            val first = store.addArchive(config.id, "cheap")
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Sleep))
+            val second = store.addArchive(config.id, "premium")
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Sleep))
+            store.selectArchive(second.id) // Explicit fallback choice only.
+            store.selectArchive(first.id, ModelUsage.Chat) // Foreground is independent.
+            store.addArchive(config.id, "newly-imported")
+            store.addArchive(config.id, "cheap") // Duplicate import does not change either.
+            assertEquals(second.id, store.selectedArchiveId(ModelUsage.Sleep))
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Chat))
+            store.selectArchive(first.id, ModelUsage.Sleep) // Old sleep slot is not used.
+            assertEquals(second.id, store.selectedArchiveId(ModelUsage.Sleep))
+            assertEquals(second.id, ModelConnectionStore.create(context)
+                .selectedArchiveId(ModelUsage.Sleep))
+            store.removeArchive(second.id)
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Sleep))
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Chat))
+        } finally {
+            val editor = prefs.edit()
+            if (original == null) editor.remove("model_library_v2")
+            else editor.putString("model_library_v2", original)
+            editor.commit()
+        }
+    }
+
     @Test fun legacyIndependentPhoneSettingCannotOverrideChat() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("lulu_model_connection", 0)
