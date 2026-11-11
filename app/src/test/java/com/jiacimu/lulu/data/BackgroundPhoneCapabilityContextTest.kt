@@ -1,0 +1,79 @@
+package com.jiacimu.lulu.data
+
+import android.content.Context
+import com.jiacimu.lulu.system.LuluBackgroundPhoneSession
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+
+/**
+ * Regression: a registered phone tool is not "missing" just because its
+ * permissions/ADB transport are incomplete. In-chat models must see both
+ * the real tool name and the separately verified authorization stages.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [33])
+class BackgroundPhoneCapabilityContextTest {
+    private val context: Context = RuntimeEnvironment.getApplication()
+    private val characterId = "background-phone-context-test"
+
+    @Test fun previouslyUnpairedAndNotAuthorizedStillShowsRegisteredTool() {
+        val rolePrefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        val adbPrefs = context.getSharedPreferences("lulu_local_wireless_debug", Context.MODE_PRIVATE)
+        val oldRole = rolePrefs.getBoolean("$characterId:screen", false)
+        val hadRole = rolePrefs.contains("$characterId:screen")
+        val oldPaired = adbPrefs.getBoolean("paired_by_owner", false)
+        val hadPaired = adbPrefs.contains("paired_by_owner")
+        try {
+            rolePrefs.edit().putBoolean("$characterId:screen", false).commit()
+            adbPrefs.edit().putBoolean("paired_by_owner", false).commit()
+            val status = CapabilityRegistry.phoneOperationContext(context, characterId)
+            assertTrue(status.contains("background_phone（独立后台虚拟屏）工具已注册=true"))
+            assertTrue(status.contains("本角色自主操作屏幕授权=false"))
+            assertTrue(status.contains("本机无线调试已保存配对密钥=false"))
+            assertTrue(status.contains("工具已注册"))
+            assertFalse(status.contains("background_phone工具不存在"))
+        } finally {
+            val roleEdit = rolePrefs.edit()
+            if (hadRole) roleEdit.putBoolean("$characterId:screen", oldRole)
+            else roleEdit.remove("$characterId:screen")
+            roleEdit.commit()
+            val adbEdit = adbPrefs.edit()
+            if (hadPaired) adbEdit.putBoolean("paired_by_owner", oldPaired)
+            else adbEdit.remove("paired_by_owner")
+            adbEdit.commit()
+        }
+    }
+
+    @Test fun pairingDoesNotPretendShellOrDisplayHasBeenVerified() {
+        val rolePrefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        val adbPrefs = context.getSharedPreferences("lulu_local_wireless_debug", Context.MODE_PRIVATE)
+        val oldRole = rolePrefs.getBoolean("$characterId:screen", false)
+        val hadRole = rolePrefs.contains("$characterId:screen")
+        val oldPaired = adbPrefs.getBoolean("paired_by_owner", false)
+        val hadPaired = adbPrefs.contains("paired_by_owner")
+        try {
+            rolePrefs.edit().putBoolean("$characterId:screen", true).commit()
+            adbPrefs.edit().putBoolean("paired_by_owner", true).commit()
+            val status = CapabilityRegistry.phoneOperationContext(context, characterId)
+            assertTrue(status.contains("本角色自主操作屏幕授权=true"))
+            assertTrue(status.contains("本机无线调试已保存配对密钥=true"))
+            assertTrue(status.contains("已保存配对密钥≠本次已连接shell"))
+            assertTrue(status.contains("action=tool,tool=background_phone"))
+            assertTrue(CapabilityRegistry.find("background_phone") != null)
+        } finally {
+            val roleEdit = rolePrefs.edit()
+            if (hadRole) roleEdit.putBoolean("$characterId:screen", oldRole)
+            else roleEdit.remove("$characterId:screen")
+            roleEdit.commit()
+            val adbEdit = adbPrefs.edit()
+            if (hadPaired) adbEdit.putBoolean("paired_by_owner", oldPaired)
+            else adbEdit.remove("paired_by_owner")
+            adbEdit.commit()
+        }
+    }
+}
