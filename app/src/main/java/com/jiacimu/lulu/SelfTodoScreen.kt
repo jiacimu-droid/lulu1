@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -297,6 +298,7 @@ private fun todoDateLabel(date: LocalDate, today: LocalDate, minutes: Int?): Str
 internal fun SelfTodoScreen(
     legacy: List<LegacySelfTodo>,
     onBack: () -> Unit,
+    onOpenCountdown: () -> Unit,
 ) {
     val context = LocalContext.current
     var tasks by remember { mutableStateOf(SelfTodoStore.loadWithLegacy(context, legacy)) }
@@ -395,6 +397,14 @@ internal fun SelfTodoScreen(
                         fontWeight = FontWeight.Bold, fontSize = 20.sp,
                         color = TodoInk.title, modifier = Modifier.weight(1f))
                     if (!showingHistory) {
+                        TextButton(
+                            onClick = onOpenCountdown,
+                            colors = ButtonDefaults.textButtonColors(contentColor = TodoInk.violet),
+                        ) {
+                            Icon(Icons.Outlined.Timer, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(5.dp))
+                            Text("倒计时", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
                         IconButton(onClick = { exiting = emptyMap(); showingHistory = true }) {
                             Icon(Icons.Outlined.History, "查看已完成历史", tint = TodoInk.violet)
                         }
