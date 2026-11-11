@@ -490,7 +490,8 @@ object LuluDeviceToolBridge {
         com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "角色=$characterId；会话=$currentSessionId")
-        val phoneDecisionDefinition = if (sceneContext.contains("电话") && !callSilence)
+        // In-call observations can choose speech and independent tools too.
+        val phoneDecisionDefinition = if (sceneContext.contains("电话"))
             CharacterRuntime.definition(characterId) else null
         fun phoneDefinitionChanged() = phoneDecisionDefinition?.let { original ->
             !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
@@ -499,6 +500,7 @@ object LuluDeviceToolBridge {
             Result.failure<ModelReply>(IllegalStateException(
                 if (toolResultAvailable)
                     "工具结果已保留。角色设定或关系已更新，本轮结果台词未交付，请继续说话"
+                else if (callSilence) "通话观察期间角色设定或关系已更新，旧决定未提交"
                 else "本轮电话期间角色设定或关系已更新，旧决定未提交，请继续说话",
             ))
         val planner = LuluAiServices.gateway.generate(
@@ -822,7 +824,7 @@ object LuluDeviceToolBridge {
         // Common voice models sometimes complete speechIntent but omit the
         // optional final text field. Fix only the missing spoken surface instead
         // of treating a usable character decision as a failed phone request.
-        if (phoneDecisionDefinition != null &&
+        if (phoneDecisionDefinition != null && !callSilence &&
             plan.action == "reply" && plan.text.isBlank() &&
             plan.speechIntent.isNotBlank()) {
             // Keep a decision and its spoken rendering on the same role definition.

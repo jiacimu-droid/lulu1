@@ -993,6 +993,98 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun phoneObservationRejectsStaleReceiptDecisionWithoutRepeatingItsTool() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+
+        val role = MigratedDomainStores.characters.create("电话回执观察样本", "记得自己的约定")
+        val id = role.characterId
+        val oldAgreement = "先沿用旧的称呼"
+        val newAgreement = "除非我主动提起，否则不要使用旧称呼"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", oldAgreement))
+        val originalPost = "这是原工具实际发布的动态"
+        val receiptResult = JSONObject(ToolRouter.execute(context, id, "publish_moment",
+            JSONObject().put("text", originalPost), requestId = "call-observation-source"))
+        assertTrue(ToolExecutionStatus.completed(receiptResult))
+        fun receipts() = SharedExperienceTimeline.all(id)
+            .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+        fun posts() = MomentsStore.posts.value.filter { it.authorCharacterId == id }.map { it.content }
+        val source = receipts().single()
+
+        val release = CountDownLatch(1)
+        val requests = AtomicInteger()
+        val hangups = AtomicInteger()
+        val staleStatus = "旧轮已经向用户说明"
+        val decision = JSONObject().put("action", "reply").put("text", "我现在就和你说。")
+            .put("statusText", staleStatus).put("endCall", true)
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", "旧决定准备发布的第二条动态"))))
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", content))
+                .put("finish_reason", "stop"))).toString())
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
+                1 -> if (release.await(15, TimeUnit.SECONDS)) response(decision.toString())
+                    else MockResponse().setResponseCode(500)
+                2 -> response("""{"action":"silent","reason":"按这次相处约定安静待一会儿"}""")
+                else -> MockResponse().setResponseCode(500)
+            }
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val pending = async {
+                LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = archive.id,
+                    sceneContext = "一对一电话仍然接通，用户没有新增发言",
+                    silenceObservationId = source.id,
+                    turnContext = "刚完成的真实工具回执：${source.content}",
+                    onCharacterHangup = { hangups.incrementAndGet() })
+            }
+            try {
+                val request = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertTrue(request.contains(oldAgreement))
+                assertTrue(request.contains("call-observation-source"))
+                assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", newAgreement))
+            } finally {
+                release.countDown()
+            }
+            val stale = pending.await()
+            assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("旧决定未提交"))
+            assertNotEquals(staleStatus, CompanionPresenceStore.current(id)?.statusText)
+            assertEquals(0, hangups.get())
+            assertEquals(1, server.requestCount)
+            assertEquals(listOf(originalPost), posts())
+            assertEquals(listOf(source), receipts())
+
+            val next = LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = archive.id,
+                sceneContext = "一对一电话仍然接通，用户没有新增发言",
+                silenceObservationId = "call-quiet-after-agreement-edit").getOrThrow()
+            val nextRequest = withContext(Dispatchers.IO) {
+                checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+            }
+            assertTrue(nextRequest.contains(newAgreement))
+            assertFalse(nextRequest.contains(oldAgreement))
+            assertEquals(CharacterDecisionProtocol.SILENT, next.disposition)
+            assertTrue(next.text.isBlank())
+            assertEquals(listOf(source), receipts())
+            assertEquals(2, server.requestCount)
+        } finally {
+            release.countDown()
+            server.shutdown()
+        }
+    }
+
     @Test(timeout = 60_000) fun ordinaryPhoneReplyRejectsEditsDuringSpeechOrMotionRepair() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
