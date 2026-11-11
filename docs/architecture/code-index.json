@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T15:18:38.390288+00:00",
-  "commit": "1d474e25bf770e1307af20d6eb3e4a7a25d01008",
+  "generatedAt": "2026-11-11T15:20:13.342558+00:00",
+  "commit": "9e0cc1d31412c9ba9218f783663e212d7ac23dbf",
   "branch": "main",
-  "sourceFingerprint": "240f4f251eecae94c4b2263ddeda72c71722893c1e110d32f7409b4a69b015ca",
+  "sourceFingerprint": "ee5b3f6b184b2a3aaf5407c535eb562a4244a808bea0a31fe2393b7420237016",
   "summary": {
     "files": 1181,
-    "lines": 256598,
+    "lines": 256622,
     "symbols": 3514
   },
   "symbolIndex": {
@@ -7681,7 +7681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 169
+        "line": 175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -7739,7 +7739,7 @@
     "withPrimaryActionOwnership": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 164
+        "line": 170
       }
     ],
     "candidates": [
@@ -26534,8 +26534,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 297,
-      "sha256": "7103957bff5bba34a9a6c680209ec0b1ce8b456de89bb7e29fc1815028231b74",
+      "lines": 303,
+      "sha256": "35adcfe8705c6a8535f66e109469472b5bd30ac31e849939c4bd7855468b45bd",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -26559,11 +26559,11 @@
         },
         {
           "name": "withPrimaryActionOwnership",
-          "line": 164
+          "line": 170
         },
         {
           "name": "collect",
-          "line": 169
+          "line": 175
         }
       ]
     },
@@ -35812,8 +35812,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
-      "lines": 136,
-      "sha256": "1bbe7abac42eb6b55295527a944de8a1bd1511aeb810aa83f3c14240df0bbc01",
+      "lines": 154,
+      "sha256": "cad8955b80869cf4816b6ab4c00982177ce3d110d21322b8319285171e970cd6",
       "symbols": [
         {
           "name": "normalized",
