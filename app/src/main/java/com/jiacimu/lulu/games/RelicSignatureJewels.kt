@@ -36,7 +36,7 @@ internal object RelicSignatureJewels {
         val opacity = alpha.coerceIn(0f, 1f)
         fun p(dx: Float, dy: Float) = Offset(x + s * dx, y + s * dy)
         fun color(rgb: Long, opacityScale: Float = 1f) =
-            Color(rgb).copy(alpha = opacity * opacityScale.coerceIn(0f, 1f))
+            Color(rgb.toInt()).copy(alpha = opacity * opacityScale.coerceIn(0f, 1f))
         fun stroke(path: Path, tone: Color, thickness: Float) =
             drawPath(path, tone, style = Stroke(width = s * thickness))
         fun polygon(vararg points: Pair<Float, Float>) = Path().apply {
