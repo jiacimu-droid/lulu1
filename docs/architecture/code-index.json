@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:13:17.892383+00:00",
-  "commit": "bd306d4fac4c25673cb9d479d535aebb79913390",
+  "generatedAt": "2026-11-11T16:13:59.383020+00:00",
+  "commit": "59db19b14453ad1ddfbd84e48ac8864e921a67f7",
   "branch": "main",
-  "sourceFingerprint": "b472fa96bb5a4aef999d7f3ff11bbe69b9122b359e37b7c2164d2a0b0a7e8f52",
+  "sourceFingerprint": "1d839ba7e0102818b11354ddf0a4420256c0037a8d5bcb8c9212963a49590c28",
   "summary": {
-    "files": 1200,
-    "lines": 259640,
-    "symbols": 3628
+    "files": 1201,
+    "lines": 259722,
+    "symbols": 3630
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2874,6 +2874,10 @@
         "line": 61
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
+        "line": 22
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
         "line": 60
       }
@@ -4642,6 +4646,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
@@ -15693,7 +15701,7 @@
     "connected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "LuluDeviceToolBridge": [
@@ -20208,8 +20216,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 191,
-      "sha256": "3337250ebaa497cac7cc5052080e8b27162b048929c1d81ffc7c13f50b4c465c",
+      "lines": 196,
+      "sha256": "f886bfa2b150c702ca7bc8037a6d2391418441637b892415ae5bc1cb6399e311",
       "symbols": []
     },
     {
@@ -20984,8 +20992,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 246,
-      "sha256": "e491b7d63618fa88ad41ed1df07b8834c1a1e909484cf8f53671e7032aab80a9",
+      "lines": 257,
+      "sha256": "30a3eaaed014cb590df180cc95c8e6149b40ebd796f1aacbbe1dd65399266328",
       "symbols": []
     },
     {
@@ -36340,13 +36348,28 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
+      "lines": 61,
+      "sha256": "24e4090de146a80a0224818c8a45f128f56b2a99fb0bf982e97d39f7aee96f9f",
+      "symbols": [
+        {
+          "name": "show",
+          "line": 22
+        },
+        {
+          "name": "clear",
+          "line": 45
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 264,
-      "sha256": "187336ed0cac5b3fb78c08211e8c5ca1353a1e9ad2f4e7d157f593bf150357d1",
+      "lines": 269,
+      "sha256": "460cf211743721b1934e7aea61a016e5eedddfe1a60329ddf3634079521f4692",
       "symbols": [
         {
           "name": "connected",
-          "line": 33
+          "line": 34
         }
       ]
     },
