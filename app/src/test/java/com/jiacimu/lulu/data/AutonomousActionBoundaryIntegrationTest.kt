@@ -103,7 +103,12 @@ class AutonomousActionBoundaryIntegrationTest {
         try {
             val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
             val config = store.saveConfiguration(null, "primary-result-test", server.url("/").toString(), "test")
-            store.addArchive(config.id, "test")
+            val archive = store.addArchive(config.id, "test")
+            // Importing an archive is storage-only. The test must explicitly
+            // assign its mock server to this character's real chat route.
+            com.jiacimu.lulu.ai.ScopedModelSelections.initialize(app)
+            com.jiacimu.lulu.ai.ScopedModelSelections.selectCharacterChatArchive(
+                actor, archive.id, store.library.value)
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = batch.revision, requiresUnread = true)
             assertTrue(MomentsStore.posts.value.any { it.authorCharacterId == actor && it.content == text })
@@ -203,7 +208,12 @@ class AutonomousActionBoundaryIntegrationTest {
             val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
             val config = store.saveConfiguration(null, "missing-dueAt-${UUID.randomUUID()}",
                 server.url("/").toString(), "test")
-            store.addArchive(config.id, "test")
+            val archive = store.addArchive(config.id, "test")
+            // Importing an archive is storage-only. The test must explicitly
+            // assign its mock server to this character's real chat route.
+            com.jiacimu.lulu.ai.ScopedModelSelections.initialize(app)
+            com.jiacimu.lulu.ai.ScopedModelSelections.selectCharacterChatArchive(
+                actor, archive.id, store.library.value)
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = batch.revision, requiresUnread = true)
             assertTrue("独立的朋友圈动作不能被未补齐的日程吞掉",
@@ -266,7 +276,12 @@ class AutonomousActionBoundaryIntegrationTest {
             val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
             val config = store.saveConfiguration(null, "repair-dueAt-${UUID.randomUUID()}",
                 server.url("/").toString(), "test")
-            store.addArchive(config.id, "test")
+            val archive = store.addArchive(config.id, "test")
+            // Importing an archive is storage-only. The test must explicitly
+            // assign its mock server to this character's real chat route.
+            com.jiacimu.lulu.ai.ScopedModelSelections.initialize(app)
+            com.jiacimu.lulu.ai.ScopedModelSelections.selectCharacterChatArchive(
+                actor, archive.id, store.library.value)
             ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
                 onlineRevision = batch.revision, requiresUnread = true)
             assertTrue("必须真的向同一角色请求缺失时间", requests.get() >= 2)
@@ -532,7 +547,12 @@ class AutonomousActionBoundaryIntegrationTest {
             val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
             val config = store.saveConfiguration(null, "two-real-batches-${UUID.randomUUID()}",
                 server.url("/").toString(), "test")
-            store.addArchive(config.id, "test")
+            val archive = store.addArchive(config.id, "test")
+            // Importing an archive is storage-only. The test must explicitly
+            // assign its mock server to this character's real chat route.
+            com.jiacimu.lulu.ai.ScopedModelSelections.initialize(app)
+            com.jiacimu.lulu.ai.ScopedModelSelections.selectCharacterChatArchive(
+                actor, archive.id, store.library.value)
             OnlineChatBatchStore.cancel(app, actor)
             val first = OnlineChatBatchStore.onUserBubble(app, actor,
                 atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
@@ -654,7 +674,12 @@ class AutonomousActionBoundaryIntegrationTest {
             val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
             val config = store.saveConfiguration(null, "wake-receipt-${UUID.randomUUID()}",
                 server.url("/").toString(), "test")
-            store.addArchive(config.id, "test")
+            val archive = store.addArchive(config.id, "test")
+            // Importing an archive is storage-only. The test must explicitly
+            // assign its mock server to this character's real chat route.
+            com.jiacimu.lulu.ai.ScopedModelSelections.initialize(app)
+            com.jiacimu.lulu.ai.ScopedModelSelections.selectCharacterChatArchive(
+                actor, archive.id, store.library.value)
             OnlineChatBatchStore.cancel(app, actor)
             val batch = OnlineChatBatchStore.onUserBubble(app, actor,
                 atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
