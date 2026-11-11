@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T09:17:12.120807+00:00",
-  "commit": "9e1214d532c08f38b0228fb92aa3c580c364275d",
+  "generatedAt": "2026-11-11T09:17:49.458553+00:00",
+  "commit": "d665fdc77f7636f835e3b4a6bfc5f4e567a86af5",
   "branch": "main",
-  "sourceFingerprint": "5f92361613616a436d88903d7a2733190ab229ad9cecc06c61f56c4fe1e8014e",
+  "sourceFingerprint": "0d4121398aec66266d2dcc3480bef87f52acfde6a81b75bdca9282b0c433cf1d",
   "summary": {
     "files": 1175,
-    "lines": 255299,
+    "lines": 255344,
     "symbols": 3479
   },
   "symbolIndex": {
@@ -21881,8 +21881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt",
-      "lines": 186,
-      "sha256": "2c2f278e0b42ac3c3c1d12a02d797a6fb3abfc05826e2a8fa09f3d8a532ed90c",
+      "lines": 231,
+      "sha256": "42dfb1b6666187dbdeea809ddbfd83c5ba6e30ea2f882f5e770003d996e4fa36",
       "symbols": []
     },
     {
