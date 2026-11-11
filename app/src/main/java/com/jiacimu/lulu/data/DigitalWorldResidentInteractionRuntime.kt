@@ -46,16 +46,16 @@ internal object DigitalWorldResidentInteractionRuntime {
                 AutonomousSocialRuntime.directedResidentInteraction(
                     context, characterId, nativeId, normalized, now)?.let { return@runCatching it }
             }
-            // Resident-to-resident dialogue uses the separately selected cheap model.
-            // A protagonist meeting a resident retains the original identity model.
+            // The digital-world scene is independent from foreground chat:
+            // the protagonist speaks here through the fixed fallback, while
+            // resident decisions and dialogue use the single resident model.
+            // The caller still supplies the same person's identity and memory.
             ScopedModelSelections.initialize(context)
             val actorConnection = if (characterId.startsWith("resident:"))
                 ScopedModelSelections.residentSocialConnection()
-            else LuluAiServices.connectionStore.resolveConnection(
-                ScopedModelSelections.selectedCharacterChatArchiveId(characterId))
-            // The native's own answer always uses the resident social model,
-            // regardless of whether the person addressing them is a resident
-            // or a protagonist with an expensive character-chat archive.
+            else ScopedModelSelections.worldSocialConnection(characterId)
+                ?: error("请先选择默认兜底模型")
+            // The native's own answer always uses the resident-management model.
             val nativeConnection = ScopedModelSelections.residentSocialConnection()
             val actorReply = LuluAiServices.gateway.generate(
                 characterId = characterId,
