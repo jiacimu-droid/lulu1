@@ -589,7 +589,7 @@ class AutonomousActionBoundaryIntegrationTest {
         ))
         CommitmentCallFeedback.onResponse(task.id, true)
         CommitmentCallFeedback.onVoiceFailed(task.id, "failed-audio-${UUID.randomUUID()}", "tts offline")
-        val failed = CommitmentTaskStore.snapshot().single { it.id == task.id }
+        val failed = (CommitmentTaskStore.snapshot().firstOrNull { it.id == task.id } ?: error("Wake task missing after voice callback: " + CommitmentTaskStore.snapshot().joinToString { it.id + ":" + it.status }))
         assertEquals(CommitmentTaskStatus.Blocked, failed.status)
         assertTrue(failed.lastActionResult.contains("播放失败"))
 
@@ -600,7 +600,7 @@ class AutonomousActionBoundaryIntegrationTest {
         field.set(CommitmentTaskStore, null)
         CommitmentTaskStore.initialize(app)
         assertEquals(failed.lastActionResult,
-            CommitmentTaskStore.snapshot().single { it.id == task.id }.lastActionResult)
+            (CommitmentTaskStore.snapshot().firstOrNull { it.id == task.id } ?: error("Wake task missing after store reload: " + CommitmentTaskStore.snapshot().joinToString { it.id + ":" + it.status })).lastActionResult)
 
         val chat = MigratedDomainStores.chat.ensureConversation(actor, "有声失败后的新决定")
         MigratedDomainStores.chat.sendUserMessage(chat.id, "你刚才叫醒我了吗？")
@@ -634,7 +634,7 @@ class AutonomousActionBoundaryIntegrationTest {
             assertTrue("实际模型请求必须包含真实播放失败", requests.single().contains("播放失败"))
             assertFalse("失败不得伪造成已醒", requests.single().contains("已确认醒来"))
             assertEquals(CommitmentTaskStatus.Blocked,
-                CommitmentTaskStore.snapshot().single { it.id == task.id }.status)
+                (CommitmentTaskStore.snapshot().firstOrNull { it.id == task.id } ?: error("Wake task missing after model decision: " + CommitmentTaskStore.snapshot().joinToString { it.id + ":" + it.status })).status)
         } finally {
             server.shutdown()
         }
