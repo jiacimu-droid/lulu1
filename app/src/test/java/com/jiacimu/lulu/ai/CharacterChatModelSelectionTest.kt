@@ -41,7 +41,7 @@ class CharacterChatModelSelectionTest {
             assertEquals(cheap.id, ScopedModelSelections.selectedCharacterChatArchiveId(b, newDefault))
             ScopedModelSelections.clearCharacterChatArchive(a)
             assertEquals(cheap.id, ScopedModelSelections.selectedCharacterChatArchiveId(a, library))
-            assertEquals(premium.id, library.archiveIdFor(ModelUsage.Sleep))
+            assertEquals(cheap.id, library.archiveIdFor(ModelUsage.Sleep))
         } finally {
             ScopedModelSelections.clearCharacterChatArchive(a)
             ScopedModelSelections.clearCharacterChatArchive(b)
@@ -67,32 +67,41 @@ class CharacterChatModelSelectionTest {
         }
     }
 
-    @Test fun residentAndWorldModelFallbacksStayIsolatedAndConfigurable() {
+    @Test fun residentModelStaysInResidentManagementAndWorldUsesStableFallback() {
         val context = RuntimeEnvironment.getApplication() as Context
         ScopedModelSelections.initialize(context)
         val prefs = context.getSharedPreferences("lulu_scoped_model_selections_v1", Context.MODE_PRIVATE)
         val keys = listOf("archive_resident_daily", "archive_resident_social",
-            "archive_world_social_character", "archive_world_social_scene", "archive_world_life_episode")
+            "archive_world_social_character", "archive_world_social_scene",
+            "archive_world_life_episode", "archive_character_expression")
         val original = keys.associateWith { prefs.getString(it, null) }
-        val cheap = ModelArchive(id = "resident-cheap", configurationId = "api", model = "tiny")
-        val premium = ModelArchive(id = "personal-premium", configurationId = "api", model = "premium")
-        val library = ModelLibraryState(archives = listOf(cheap, premium), chatArchiveId = premium.id)
+        val resident = ModelArchive(id = "resident-cheap", configurationId = "api", model = "tiny")
+        val chat = ModelArchive(id = "personal-premium", configurationId = "api", model = "premium")
+        val library = ModelLibraryState(archives = listOf(resident, chat),
+            chatArchiveId = chat.id, activeArchiveId = chat.id)
         try {
-            val blank = prefs.edit()
-            keys.forEach { blank.remove(it) }
-            blank.putString("archive_resident_daily", cheap.id).commit()
-            assertEquals(cheap.id, ScopedModelSelections.residentSocialArchiveId(library))
-            assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("resident:b", library))
-            assertEquals(cheap.id, ScopedModelSelections.worldSceneArchiveId(library))
-            assertEquals(cheap.id, ScopedModelSelections.worldLifeArchiveId("resident:b", library))
-            assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("character:a", library))
-            assertEquals(premium.id, ScopedModelSelections.worldLifeArchiveId("character:a", library))
-            prefs.edit().putString("archive_world_social_character", cheap.id)
-                .putString("archive_world_social_scene", premium.id)
-                .putString("archive_world_life_episode", premium.id).commit()
-            assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("character:a", library))
-            assertEquals(premium.id, ScopedModelSelections.worldSceneArchiveId(library))
-            assertEquals(premium.id, ScopedModelSelections.worldLifeArchiveId("resident:b", library))
+            val editor = prefs.edit()
+            keys.forEach(editor::remove)
+            editor.putString("archive_resident_daily", resident.id)
+            // Old hidden global routing preferences must no longer override
+            // either the visible resident picker or the library fallback.
+            editor.putString("archive_resident_social", chat.id)
+                .putString("archive_world_social_character", resident.id)
+                .putString("archive_world_social_scene", resident.id)
+                .putString("archive_world_life_episode", resident.id)
+                .putString("archive_character_expression", resident.id)
+                .commit()
+            assertEquals(resident.id, ScopedModelSelections.residentSocialArchiveId(library))
+            assertEquals(resident.id, ScopedModelSelections.worldSocialArchiveId("resident:b", library))
+            assertEquals(resident.id, ScopedModelSelections.worldLifeArchiveId("resident:b", library))
+            assertEquals(chat.id, ScopedModelSelections.worldSceneArchiveId(library))
+            assertEquals(chat.id, ScopedModelSelections.worldLifeArchiveId("character:a", library))
+            assertEquals(chat.id, ScopedModelSelections.worldSocialArchiveId("character:a", library))
+            assertNull(ScopedModelSelections.selectedArchiveId(ScopedModelSelections.EXPRESSION, library))
+            val changedFallback = library.copy(activeArchiveId = resident.id)
+            assertEquals(resident.id, ScopedModelSelections.worldSceneArchiveId(changedFallback))
+            assertEquals(resident.id, ScopedModelSelections.worldSocialArchiveId("character:a", changedFallback))
+            assertEquals(resident.id, ScopedModelSelections.residentSocialArchiveId(changedFallback))
         } finally {
             val editor = prefs.edit()
             original.forEach { (key, value) ->
