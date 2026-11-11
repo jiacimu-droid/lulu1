@@ -10,6 +10,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BlockIslandRulesTest {
+    @Test fun softTerrainPaletteHasCoherentPatchesWithoutChangingTileIdentity() {
+        val seed=721
+        // All physical terrain still maps to its correct authored atlas cell.
+        assertEquals(2,IslandTerrainPalette.atlasFrame(8,7,9,seed))
+        assertEquals(4,IslandTerrainPalette.atlasFrame(4,7,9,seed))
+        assertEquals(3,IslandTerrainPalette.atlasFrame(3,7,9,seed))
+        assertEquals(5,IslandTerrainPalette.atlasFrame(7,7,9,seed))
+        // A 5x5 swath shares one vegetation palette; unlike the old
+        // per-tile random noise it cannot flicker between adjacent cells.
+        val samples=(0..4).flatMap { y ->
+            (0..4).map { x -> IslandTerrainPalette.atlasFrame(0,x,y,seed) }
+        }
+        assertEquals(1,samples.toSet().size)
+        assertTrue(samples.first() in 0..1)
+        assertEquals(samples.first(),IslandTerrainPalette.atlasFrame(1,3,3,seed))
+        assertEquals(samples.first(),IslandTerrainPalette.atlasFrame(2,3,3,seed))
+    }
+
     @Test fun existingCompanionAttackMayCompleteGuardianWithoutHijackingModelControlledTeammate() {
         val base=BlockIslandRules.newWorld(618,emptyList())
         val ready=base.copy(animals=emptyList(),nightsSurvived=3,
