@@ -168,7 +168,8 @@ class PositiveExpressionGuidanceTest {
         assertFalse(renderer.contains("重新选择行动"))
     }
 
-    // The concise runtime contract and the full private-life guide jointly cover spontaneity.\n    @Test fun immediateAndReflectiveReactionsBothBelongToOnePersonWithoutQuotas() {
+    // The concise runtime contract and the full private-life guide jointly cover spontaneity.
+    @Test fun immediateAndReflectiveReactionsBothBelongToOnePersonWithoutQuotas() {
         val ordinary = CharacterExpressionGuide.forGeneration("普通聊天")
         val expression = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         val directPrivate = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
