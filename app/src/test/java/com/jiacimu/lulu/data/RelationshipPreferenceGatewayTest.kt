@@ -7,6 +7,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
+import com.jiacimu.lulu.games.CampaignHost
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import com.jiacimu.lulu.core.MemoryTier
 import kotlinx.coroutines.runBlocking
@@ -271,6 +272,79 @@ class RelationshipPreferenceGatewayTest {
             assertTrue(cleared.contains("江渡新性格样本"))
             assertNull(CharacterSocialRelationship.agreement(role, "user"))
             assertEquals(6, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun campaignHostUsesEachMembersEditedPersonaAndOnlyCampaignFacts() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡跑团样本", "江渡旧版取舍")
+        val xing = MigratedDomainStores.characters.create("星禾跑团样本", "星禾独立取舍")
+        val jiangId = jiang.characterId
+        val xingId = xing.characterId
+        val jiangIdentity = "江渡原世界专属职业样本"
+        val xingIdentity = "星禾原世界专属职业样本"
+        val jiangAgreement = "江渡原世界约定样本"
+        val xingAgreement = "星禾原世界约定样本"
+        CharacterIdentityStore.set(jiangId, jiangIdentity)
+        CharacterIdentityStore.set(xingId, xingIdentity)
+        assertTrue(CharacterSocialRelationship.setAgreement(jiangId, "user", "原世界", jiangAgreement))
+        assertTrue(CharacterSocialRelationship.setAgreement(xingId, "user", "原世界", xingAgreement))
+        CharacterLifeStore.setProfile(jiangId, "speechHabits", "江渡旧版语气")
+        val xingSpeech = "星禾说话直率，有疑问先确认"
+        CharacterLifeStore.setProfile(xingId, "speechHabits", xingSpeech)
+
+        val server = MockWebServer()
+        repeat(3) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"测试返回"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val roster = listOf(xingId, jiangId)
+            suspend fun request(host: CampaignHost, source: String, facts: String): String {
+                host.generate(facts, "根据同行角色各自设定主持本战役", source, "测试", 500).getOrThrow()
+                val body = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+                val messages = body.getJSONArray("messages")
+                val system = messages.getJSONObject(0).getString("content")
+                assertFalse(system.contains("你正在以"))
+                val payload = messages.getJSONObject(messages.length() - 1).getString("content")
+                assertTrue(payload.contains(facts))
+                for (privateFact in listOf(jiangIdentity, xingIdentity, jiangAgreement, xingAgreement)) {
+                    assertFalse(messages.toString().contains(privateFact))
+                }
+                return payload
+            }
+
+            val before = request(CampaignHost(roster), "游戏裁定", "本战役旧轮输入")
+            assertTrue(before.substringAfter("角色ID：$jiangId").contains("江渡旧版语气"))
+
+            val revised = "江渡新版取舍：只有当事人明确同意才分头行动，否则先留在原地。"
+            val revisedSpeech = "江渡新版语气：话短，但把条件说完整"
+            MigratedDomainStores.characters.update(jiang.copy(persona = revised))
+            CharacterLifeStore.setProfile(jiangId, "speechHabits", revisedSpeech)
+
+            val turn = CampaignHost(roster)
+            val ruling = request(turn, "游戏裁定", "本战役新轮输入")
+            val narration = request(turn, "游戏", "本战役新轮输入，已裁定无需检定")
+            for (payload in listOf(ruling, narration)) {
+                val xingBlock = payload.substringAfter("角色ID：$xingId").substringBefore("角色ID：$jiangId")
+                val jiangBlock = payload.substringAfter("角色ID：$jiangId")
+                assertTrue(xingBlock.contains("星禾独立取舍"))
+                assertTrue(xingBlock.contains(xingSpeech))
+                assertFalse(xingBlock.contains(revisedSpeech))
+                assertTrue(jiangBlock.contains(revised))
+                assertTrue(jiangBlock.contains(revisedSpeech))
+                assertFalse(jiangBlock.contains(xingSpeech))
+                assertFalse(payload.contains("江渡旧版"))
+            }
+            assertEquals(3, server.requestCount)
         } finally { server.shutdown() }
     }
 

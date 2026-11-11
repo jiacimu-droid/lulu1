@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.data.CharacterRuntime
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
@@ -35,6 +36,35 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 import kotlin.random.Random
+
+/**
+ * One turn's cast for the host's adjudication and narration. Resolve each
+ * member from the current character stores when the turn starts.
+ */
+internal class CampaignHost(partyIds: List<String>) {
+    private val cast = partyIds.distinct().joinToString("\n\n") { id ->
+        val member = MigratedDomainStores.characters.get(id)
+        val persona = CharacterRuntime.personaConstraintSnapshot(id)
+        "角色ID：$id\n姓名：${member.displayName}\n稳定性格与表达：\n$persona"
+    }
+
+    suspend fun generate(
+        facts: String,
+        instruction: String,
+        source: String,
+        title: String,
+        maxTokens: Int,
+    ) = LuluAiServices.gateway.generate(
+        characterId = "formal-roleplay-host",
+        facts = "同行角色（按各自ID和设定表现）：\n$cast\n\n$facts",
+        instruction = instruction,
+        source = source,
+        title = title,
+        maxTokens = maxTokens,
+        usage = ModelUsage.Game,
+        contextMode = CompanionContextMode.Isolated,
+    )
+}
 
 private data class CampaignWorld(
     val id: String,
@@ -406,9 +436,7 @@ private fun CampaignPlay(
             lastRoll = 0
             lastResult = "主持人正在判断是否需要检定…"
 
-            val partyPrompt = party.joinToString("\n") { member ->
-                "- id=${member.characterId}；姓名=${member.displayName}；persona=${member.persona.ifBlank { "按其既有角色设定行动" }}"
-            }
+            val host = CampaignHost(save.partyIds)
             val adjudicationFacts = """
                 正式跑团：《${save.title}》
                 世界：${world.title}
@@ -417,8 +445,6 @@ private fun CampaignPlay(
                 当前场景：${save.scene}
                 状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}，可用金钱¥${save.money}
                 用户声明的行动：$cleanAction
-                同行角色：
-                $partyPrompt
                 最近记录：
                 ${save.log.takeLast(8).joinToString("\n")}
                 上一段叙事：
@@ -442,28 +468,22 @@ private fun CampaignPlay(
                 9. ruling 要明确说明“为何无需检定”或“由谁进行什么检定”，控制在60个汉字内。
             """.trimIndent()
 
-            var adjudicationGeneration = LuluAiServices.gateway.generate(
-                characterId = party.firstOrNull()?.characterId ?: "lulu",
+            var adjudicationGeneration = host.generate(
                 facts = adjudicationFacts,
                 instruction = adjudicationInstruction,
                 source = "游戏裁定",
                 title = "跑团主持裁定 · ${world.title}",
                 maxTokens = 500,
-                usage = ModelUsage.Game,
-                contextMode = CompanionContextMode.PersonaAndScenario,
             )
             var adjudication = adjudicationGeneration.getOrNull()?.text
                 ?.let { raw -> parseCampaignAdjudication(raw, party) }
             if (adjudication == null) {
-                adjudicationGeneration = LuluAiServices.gateway.generate(
-                    characterId = party.firstOrNull()?.characterId ?: "lulu",
+                adjudicationGeneration = host.generate(
                     facts = adjudicationFacts,
                     instruction = adjudicationInstruction + "\n上一次格式无效。本次必须只返回可解析的单个JSON对象，不要添加任何解释。",
                     source = "游戏裁定重试",
                     title = "跑团主持裁定 · ${world.title}",
                     maxTokens = 400,
-                    usage = ModelUsage.Game,
-                    contextMode = CompanionContextMode.PersonaAndScenario,
                 )
                 adjudication = adjudicationGeneration.getOrNull()?.text
                     ?.let { raw -> parseCampaignAdjudication(raw, party) }
@@ -542,26 +562,20 @@ private fun CampaignPlay(
                 只输出游戏正文，不要返回空内容，不要输出JSON。
             """.trimIndent()
 
-            var generation = LuluAiServices.gateway.generate(
-                characterId = party.firstOrNull()?.characterId ?: "lulu",
+            var generation = host.generate(
                 facts = facts,
                 instruction = instruction,
                 source = "游戏",
                 title = "跑团 · ${world.title}",
                 maxTokens = 1800,
-                usage = ModelUsage.Game,
-                contextMode = CompanionContextMode.PersonaAndScenario,
             )
             if (generation.getOrNull()?.text.isNullOrBlank()) {
-                generation = LuluAiServices.gateway.generate(
-                    characterId = party.firstOrNull()?.characterId ?: "lulu",
+                generation = host.generate(
                     facts = facts,
                     instruction = instruction + "\n上一次返回为空。本次请立刻从用户行动发生的瞬间开始写正文，至少600个汉字。",
                     source = "游戏重试",
                     title = "跑团 · ${world.title}",
                     maxTokens = 1600,
-                    usage = ModelUsage.Game,
-                    contextMode = CompanionContextMode.PersonaAndScenario,
                 )
             }
 
