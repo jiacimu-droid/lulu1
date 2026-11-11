@@ -124,7 +124,7 @@ internal object LuluBackgroundPhoneSession {
             val userLocked = context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true
             check(!userLocked) { "手机处于锁屏状态，后台屏幕操作暂不可用" }
             val action = args.optString("action").trim().lowercase()
-            check(action in setOf("start", "launch", "tap", "swipe", "back", "observe", "stop")) {
+            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
             if (action == "stop") {
@@ -158,6 +158,15 @@ internal object LuluBackgroundPhoneSession {
             if (action != "launch" && requestedPackage.isNotBlank() && requestedPackage != activeApp) {
                 error("当前后台屏幕目标与指定包名不一致，拒绝执行")
             }
+            if (action != "launch") {
+                val before = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.observeDisplay(id)
+                }
+                check(before.connected && before.packageName == activeApp &&
+                    !LuluScreenAwareness.isExcluded(context, before.packageName)) {
+                    "屏幕内容已变更或目标窗口无法核实；为了避免错点，拒绝这一步"
+                }
+            }
             val request = JSONObject().put("action", action)
             if (action == "launch") request.put("packageName", requestedPackage)
             if (action == "tap") {
@@ -170,7 +179,20 @@ internal object LuluBackgroundPhoneSession {
                 }
                 request.put("durationMs", args.optInt("durationMs", 400))
             }
-            val applied = if (action == "observe") null else command(request)
+            val applied = when (action) {
+                "observe" -> null
+                "type" -> {
+                    val value = args.getString("text")
+                    require(value.isNotEmpty() && value.length <= 500) {
+                        "每次只允许输入1到500个字符"
+                    }
+                    val accepted = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.typeOnDisplay(id, activeApp, value)
+                    }
+                    JSONObject().put("accepted", accepted).put("displayId", id)
+                }
+                else -> command(request)
+            }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted")) {
                 return applied.put("mode", "independent_virtual_display")
