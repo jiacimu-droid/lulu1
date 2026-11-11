@@ -160,6 +160,8 @@ class RelationshipPreferenceGatewayTest {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
+        // Match application startup before editing the durable character source.
+        CharacterLifeStore.initialize(context)
         LuluAiServices.initialize(context)
         LuluDeviceToolBridge.initialize(context)
         val jiang = MigratedDomainStores.characters.create("江渡编辑样本", "江渡旧性格样本")
@@ -182,6 +184,10 @@ class RelationshipPreferenceGatewayTest {
         val saved = CharacterSocialRelationship.agreement(role, "user")!!
         assertEquals(oldTitle, saved.title)
         assertEquals(oldAgreement, saved.details)
+        val preferences = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+        fun persistedAgreement(): String = JSONObject(checkNotNull(preferences.getString(role, null)))
+            .getJSONObject("relationshipAgreements").getJSONObject("user").getString("details")
+        assertEquals(oldAgreement, persistedAgreement())
 
         val server = MockWebServer()
         server.enqueue(MockResponse().setResponseCode(401)
@@ -215,6 +221,7 @@ class RelationshipPreferenceGatewayTest {
             CharacterLifeStore.setProfile(role, "speechHabits", "江渡新语言习惯样本")
             CharacterLifeStore.setProfile(role, "dialogueExamples", "用户：先听我说完。江渡：嗯，我听着。")
             assertTrue(CharacterSocialRelationship.setAgreement(role, "user", "江渡新约定", newAgreement))
+            assertEquals(newAgreement, persistedAgreement())
             // Reload the real durable source. A failed request must not restore its old snapshot.
             CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
                 .set(CharacterLifeStore, null)
