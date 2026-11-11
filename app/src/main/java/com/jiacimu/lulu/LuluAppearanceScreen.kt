@@ -79,16 +79,22 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                             0xFF526EACL, 0xFFD08E42L,
                         ).distinct()
                         colors.forEach { candidate ->
+                            val selected = (accentOption ?: source.palette.accent) == candidate
                             Surface(
-                                modifier = Modifier.size(if (accentOption == candidate) 39.dp else 34.dp)
+                                modifier = Modifier.size(48.dp)
                                     .clickable { accentOption = candidate },
                                 shape = CircleShape,
-                                color = Color(candidate.toInt()),
+                                color = MaterialTheme.colorScheme.surface,
                                 border = BorderStroke(
-                                    if (accentOption == candidate) 3.dp else 1.dp,
-                                    MaterialTheme.colorScheme.onSurface,
+                                    if (selected) 2.dp else 1.dp,
+                                    if (selected) MaterialTheme.colorScheme.onSurface
+                                        else MaterialTheme.colorScheme.outline,
                                 ),
-                            ) {}
+                            ) {
+                                Box(Modifier.fillMaxSize().padding(7.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(candidate.toInt())))
+                            }
                         }
                     }
                 }
