@@ -75,7 +75,8 @@ class JevDirectionsTest {
         assertEquals(chat.id, store.library.value.activeArchiveId)
         store.addArchive(nativeConfig.id, "jev-1.14.0")
         assertEquals(chat.id, store.library.value.activeArchiveId)
-        store.selectArchive(native.id) // Legacy/global archive default may still be stored.
+        assertTrue(runCatching { store.selectArchive(native.id) }.isFailure)
+        // The decision-only Jev model cannot become the universal text fallback.
         for (usage in ModelUsage.entries) assertEquals(chat.id, store.selectedArchiveId(usage))
         store.removeArchive(chat.id)
         for (usage in ModelUsage.entries) assertNull(store.selectedArchiveId(usage))
