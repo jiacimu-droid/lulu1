@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T16:37:45.287040+00:00",
-  "commit": "fc05cc363154a0cc660cbcd2854fd612394eda0f",
+  "generatedAt": "2026-11-11T16:38:16.169173+00:00",
+  "commit": "f5e1a04cc0948612e43acf975e6516a654b0bcdb",
   "branch": "main",
-  "sourceFingerprint": "e69de0be2190f545fc27648971e44806448399d3117ad47099e075998288d186",
+  "sourceFingerprint": "e82c0a8925d72cd7374b49de98d3fce25cf2cc3d7ed83c41ae4a262c71e1340c",
   "summary": {
-    "files": 1203,
-    "lines": 260097,
-    "symbols": 3636
+    "files": 1204,
+    "lines": 260152,
+    "symbols": 3637
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20087,6 +20087,12 @@
     "RelicSceneIndexTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt",
+        "line": 7
+      }
+    ],
+    "RelicTensionPresentationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt",
         "line": 7
       }
     ],
@@ -42652,6 +42658,17 @@
       "symbols": [
         {
           "name": "RelicSceneIndexTest",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt",
+      "lines": 55,
+      "sha256": "aa90ae78b74a7770274b430242e677f4bb9573775727b965d7e9a13e2df57a48",
+      "symbols": [
+        {
+          "name": "RelicTensionPresentationTest",
           "line": 7
         }
       ]
