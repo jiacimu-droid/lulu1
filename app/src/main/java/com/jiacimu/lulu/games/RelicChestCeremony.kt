@@ -83,6 +83,7 @@ internal fun RelicChestCeremony(
         contentAlignment = Alignment.Center,
     ) {
         val compact = maxHeight < 360.dp
+        val artHeight = relicCeremonyArtHeightDp(maxHeight.value).dp
         Surface(
             modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp),
             color = Color(0xFF171F2A),
@@ -101,7 +102,7 @@ internal fun RelicChestCeremony(
                     else "发现了" + receipt.loot.tier.label + "珍藏",
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
-                Canvas(Modifier.fillMaxWidth().height(relicCeremonyArtHeightDp(maxHeight.value).dp)) {
+                Canvas(Modifier.fillMaxWidth().height(artHeight)) {
                     val h=size.height
                     val x=size.width*.5f
                     val center=Offset(x,h*.54f)
