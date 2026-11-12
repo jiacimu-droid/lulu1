@@ -158,14 +158,14 @@ object UnifiedMemoryOrchestrator {
         val seenIds = (recentEvents - promptRecentEvents.toSet()).mapTo(mutableSetOf()) { it.id }
         val query = request.retrievalQuery()
         val core = CoreMemoryDelivery.active(characterId).filterNot { memory ->
-            memory.sourceEventIds().any { it in excluded }
+            shouldExcludeReplyDerivedMemory(memory.source, excluded)
         }
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
         val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly, paidRanking = paidRanking)
         val recalled = recall.memories
             .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory -> memoryHasLiveSources(memory, characterId) }
-            .filterNot { memory -> memory.sourceEventIds().any { it in excluded } }
+            .filterNot { memory -> shouldExcludeReplyDerivedMemory(memory.source, excluded) }
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in seenIds }
@@ -264,6 +264,23 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             appendLine()
         }
     }.trim()
+}
+
+/**
+ * A summary built from any superseded message is not valid evidence for the
+ * same reply's alternate first draft, even when other live sources exist.
+ * The original memory remains persistent and available to later normal turns.
+ */
+internal fun shouldExcludeReplyDerivedMemory(source: String, excluded: Set<String>): Boolean {
+    if (excluded.isEmpty()) return false
+    val ids = when {
+        source.startsWith("timeline-events:") ->
+            source.removePrefix("timeline-events:").split('|')
+        source.startsWith("timeline-batch:") ->
+            source.removePrefix("timeline-batch:").split('|')
+        else -> emptyList()
+    }
+    return ids.any { it in excluded }
 }
 
 private fun MemoryEntry.sourceEventIds(): List<String> = when {
