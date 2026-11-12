@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 通话观察中撤回或修订工具回执
+
+- 上轮 `0b19345` [全量 JVM/APK #43149308747](https://github.com/jiacimu-droid/lulu1/actions/runs/43149308747) 和[后继原索引 #43149303988](https://github.com/jiacimu-droid/lulu1/actions/runs/43149303988) 复核成功。
+- [da4805a](https://github.com/jiacimu-droid/lulu1/commit/da4805abdc188f917b7b2740c769ab530b40c08e) 将 `LuluDeviceToolBridge.respond` 的外部回执版本纳入已有通话判断校验。以角色本人时间线中的 ID、修订、来源和证据类型为准，在首次模型回包与现有后续交付检查处重新核对。原触发回执被撤回或修订时，旧判断不再确认旧感知，也不会开始后续台词和副动作。没有新增模型调用、Store 或自动重试。
+- `ConversationExpressionGatewayTest.phoneObservationDiscardsDecisionWhenItsReceiptIsRevisedOrWithdrawn` 用正式桥接 HTTP 与实际工具回执，分别在模型等待中修订和撤回，核对旧状态、挂断与副动作停止，后续请求只接受仍有效的版本，已发布动态未被重跑。模拟响应仅证明工程交接。
+- [原索引 #43162768461](https://github.com/jiacimu-droid/lulu1/actions/runs/43162768461) 成功。源提交 [Lulu APK #43162768274](https://github.com/jiacimu-droid/lulu1/actions/runs/43162768274) 在排队中被后继替换。已通过祖先关系与源文件、测试文件的 blob SHA 核实 `26ceaf0` 带有同一修复和回归，跟进 [后继 JVM/APK #43163188957](https://github.com/jiacimu-droid/lulu1/actions/runs/43163188957)，当前排队。真机语音和真实模型质量仍待验。
+- 下一轮转 P-08b.1 的另一正式入口，打开 `GroupChatTurnPlanner`、`GroupChatRoundCoordinator` 与 `ConversationExpressionGatewayTest.groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults`。先核导演返回到本人发言之间编辑单个角色关系时，实际发送的第二阶段请求是否读取更新的人设，同时隔离同群其他角色的私有资料；已有覆盖则选择同一工作包的取消负例。
+
 ## 2026-11-12 · UI-02.2 持久置顶提交失败不能假成功（工程 CI 待验）
 
 - 生产源码 `InMemoryLuluChatStore.setConversationPinned` 已在 `persistLocked(durable=true)` 成功后才发布 `conversationState`；`persistLocked` 对 `commit()==false` 抛错。为保护这一现有正确顺序，提交 [300b314](https://github.com/jiacimu-droid/lulu1/commit/300b314d38355548670269761ac06a6419936a6e) 增加真实 Store + 仅拒绝持久提交的 SharedPreferences 代理回归，检查失败抛错、内存/原始快照/重开一致性。**未运行 JVM、APK 或真机；没有生产修复，也不声称已验通。**
