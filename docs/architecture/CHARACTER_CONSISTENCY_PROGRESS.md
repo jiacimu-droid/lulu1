@@ -2,6 +2,14 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08b.1 群聊导演等待中的用户修订与补发
+
+- 上轮导演路由隔离的后继 `dd485d09` [索引 #43190648244](https://github.com/jiacimu-droid/lulu1/actions/runs/43190648244) 与 [JVM/APK #43190648269](https://github.com/jiacimu-droid/lulu1/actions/runs/43190648269) 已成功。核对祖先关系与群聊文件，日志确认原导演隔离和两位角色设定交接回归均为 `PASSED`，APK 已发布。
+- 根因在文本群聊 `GroupChatRoundCoordinator → runGroupReplies → GroupChatTurnPlanner → requestGroupRoleOnce`。此前能用最新消息 ID 拦补发，但对编辑原气泡，导演已经读了旧话，角色请求却在导演返回后才取得同 ID 的新版本，第一拍仍可夹带旧文字。
+- [6691df8](https://github.com/jiacimu-droid/lulu1/commit/6691df88d0d901ee4442ac875ce5807dd2513a05) 在导演前按实际已发送文本与每位角色的证据取得原水位，发言前复核该水位并沿用到交付和已存在的副动作门禁。新轮从 ChatStore 的真实消息重建文字与证据，保留角色本人选择及旧轮已真实送达的内容。没有新增 Store、轮询或模型调用。
+- `ConversationExpressionGatewayTest.groupDirectorCannotHandOffAfterUserEditsOrAddsMessage` 在同一正式群聊 HTTP 路径分别模拟同 ID 编辑和补发，在导演释放后验证旧轮没有角色请求、输入状态或气泡。后续正式请求读到新的否定和条件，已被编辑掉的旧话不再出现。本轮索引、全量 JVM 和 APK 待按源码 SHA 或包含相同文件的后继 SHA 核验。 真机群聊及真实模型质量待验。
+- 下一步沿 P-08b.1 直接打开 `runGroupReplies` 的 `directorSources` 与 `GroupChatTurnPlanner.choose` 的公开消息投影，检查导演读过的已送达群友发言在等待期间撤回，或名单变化时，旧候选能否进入角色请求。对照 `QqReplySourceWatermarkTest` 的已发消息、真实成员与时间线归属。
+
 ## 2026-11-12 · P-08a: 在线=清醒、离线=休眠（角色执行不可与休眠并存）；承诺提取 524 去重
 
 **用户现场**：私聊标题同时出现「离线」与「执行后续中」，角色仍在处理购买/后台手机操作。用户明确澄清在线本身就是清醒、离线就是休眠，没有「离线聊天、后台仍工作」这种双重人物状态；性能监控中承诺提取连续两次 HTTP 524、各耗时约126秒。
