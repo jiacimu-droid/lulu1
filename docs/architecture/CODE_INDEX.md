@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e4c534fb41088c59de88cf96545a1096af580a5a`
+- 基准提交：`401e375f941eb614408a4b0025fe28591aae94be`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271247
+- 已索引代码/文本行：271273
 - 已发现符号：3839
 
 | 文件 | 行数 | 符号数 |
@@ -107,7 +107,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 616 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 709 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 33 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 49 | 0 |
@@ -858,7 +858,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt` | 71 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 29 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatPresencePresentationTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 45 | 1 |
