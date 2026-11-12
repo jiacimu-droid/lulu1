@@ -275,6 +275,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         secondaryFraction = island.hunger / 10f,
         secondaryLabel = "饱食",
         compactStatus = true,
+        compactSummary = "❤ ${world.hp}/12  饱 ${island.hunger}/10",
         compactSummary = "❤ ${world.hp}/12 · 饱 ${island.hunger}/10",
         toolsLabel = "☰ 行囊 / 更多",
         closeToolsSignal = dismissToolsVersion,
