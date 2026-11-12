@@ -47,7 +47,7 @@ internal data class IslandLostPack(
             while(keys.hasNext()) {
                 val key=keys.next()
                 val index=key.toIntOrNull() ?: continue
-                if(index !in world.tiles.indices || world.tiles[index] == 8) continue
+                if(index !in world.tiles.indices) continue
                 val data=raw.optJSONObject(key) ?: continue
                 val parts=listOf("wood","stone","fruit","crystals").map { data.optInt(it, -1) }
                 if(parts.any { it !in 0..1000000 }) continue
