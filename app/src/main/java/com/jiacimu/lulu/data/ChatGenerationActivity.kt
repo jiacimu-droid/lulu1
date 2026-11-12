@@ -13,6 +13,8 @@ object ChatGenerationActivity {
         // The lease also covers executing the decision's tools. That is NOT
         // evidence the character is still generating text for the chat header.
         val awaitingModel: Boolean = true,
+        // UI-only age of this real request/decision lease; not a response deadline.
+        val startedAtMillis: Long = System.currentTimeMillis(),
     )
     private val mutable = MutableStateFlow<Map<String, Activity>>(emptyMap())
     val activities = mutable.asStateFlow()
