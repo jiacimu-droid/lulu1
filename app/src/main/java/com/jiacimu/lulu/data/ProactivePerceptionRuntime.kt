@@ -2707,12 +2707,22 @@ object ProactivePerceptionRuntime {
         // app launch fails before any image/continuation could be produced.
         // These are execution facts, not model-authored chat or a new goal store.
         val phoneReceipts = mutableListOf<String>()
+        val phoneUnverifiedFacts = mutableListOf<String>()
         suspend fun continueOwnedPhoneTask(
             actionRequestId: String, actionArgs: JSONObject, actual: JSONObject,
             actionReason: String,
         ): String? {
             phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
                 "动作=${actionArgs.optString("action")}；真实回执=${actual.toString().take(1_250)}"
+            if (actual.optString("status") in setOf("failed", "unverified", "denied", "waiting_user")) {
+                val why = actual.optString("error").ifBlank {
+                    actual.optString("verification").ifBlank {
+                        actual.optString("summary").ifBlank { actual.optString("status") }
+                    }
+                }
+                phoneUnverifiedFacts += "动作=${actionArgs.optString("action")}；" +
+                    "未确认完成：${why.take(230)}"
+            }
             if (actual.optString("mode") != "independent_virtual_display" ||
                 actual.optString("status") == "denied" ||
                 actionArgs.optString("action") == "stop") return null
@@ -3036,6 +3046,19 @@ object ProactivePerceptionRuntime {
                 } else if (!supersededByNewMessage() &&
                     (hasFreshUserMessage || shareChosen && feedbackText.isBlank())) {
                     effectNotes += "后台任务已有真实回执，但模型尚未生成可发送的结果反馈"
+                    // The model did not author a usable follow-up. Show a
+                    // clearly SYSTEM-owned factual error instead of pretending
+                    // the role said it or quietly losing the failed attempt.
+                    if (phoneUnverifiedFacts.isNotEmpty() &&
+                        (feedbackDecision == null || hasFreshUserMessage)) {
+                        val factual = "系统工具回执（不是角色发言）：后台手机操作尚未确认完成。\n" +
+                            phoneUnverifiedFacts.distinct().take(3).joinToString("\n")
+                        val existing = MigratedDomainStores.chat.messages(destination.id).value.any {
+                            it.sender == LuluChatMessage.Sender.System && it.content == factual
+                        }
+                        if (!existing) MigratedDomainStores.chat.appendSystemMessage(
+                            destination.id, factual)
+                    }
                     com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(destination.id)
                         .reportError("后台手机操作结果已记录，但本轮结果回复未生成；请查看实际工具回执")
                 }
