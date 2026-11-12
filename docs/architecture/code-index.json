@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T04:52:18.653363+00:00",
-  "commit": "64a8ca089972cb59ff895ec54d25064f08641696",
+  "generatedAt": "2026-11-12T04:53:14.701656+00:00",
+  "commit": "34072978c168aa84afc750a704bccd6592c831cc",
   "branch": "main",
-  "sourceFingerprint": "55299c78b11ca2688928e8320714eb6780f6b0257edffcbd8a358753da77c9c9",
+  "sourceFingerprint": "b9f0728ee3fa053f24cfe6f1fb3de855acfb562ed403421ab1a7304237d487e5",
   "summary": {
-    "files": 1220,
-    "lines": 262559,
-    "symbols": 3668
+    "files": 1221,
+    "lines": 262620,
+    "symbols": 3669
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3980,6 +3980,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
         "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
@@ -31129,6 +31133,17 @@
         {
           "name": "needsCommitmentRecovery",
           "line": 58
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
+      "lines": 61,
+      "sha256": "4ddec7e10c3fd911fb101d63b19abcd29b372dec81f7e320b61efafcb5ba69d7",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 18
         }
       ]
     },
