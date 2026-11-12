@@ -64,6 +64,7 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("本机无线调试已保存配对密钥=true"))
             assertTrue(status.contains("已保存配对密钥≠本次已连接shell"))
             assertTrue(status.contains("action=tool,tool=background_phone"))
+            assertTrue(status.contains("准确显示名称appName"))
             assertTrue(CapabilityRegistry.find("background_phone") != null)
         } finally {
             val roleEdit = rolePrefs.edit()
