@@ -340,7 +340,7 @@ class RelicEscapeRulesTest {
         val hard=RelicEscapeWorld.create(341,1,emptyList(),0,1,
             difficulty=RelicDifficulty.HARD)
         assertEquals(normal.mobs.size-1,easy.mobs.size)
-        assertEquals(normal.mobs.size+2,hard.mobs.size)
+        assertEquals(normal.mobs.size+RelicDifficulty.HARD.extraMobs,hard.mobs.size)
         assertTrue(hard.mobs.first().hp>normal.mobs.first().hp)
         assertEquals(RelicDifficulty.HARD,
             RelicRun.read(JSONObject(hard.json().toString()))!!.difficulty)
