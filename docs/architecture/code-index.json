@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T01:49:43.945853+00:00",
-  "commit": "5718ca1d1db9a231d282553b4ce9ef3a1b7cbfeb",
+  "generatedAt": "2026-11-12T01:51:05.831362+00:00",
+  "commit": "665ba7ba91bb29fc57d9338a4211f9c282e5d32d",
   "branch": "main",
-  "sourceFingerprint": "0d89e3cf1cd3fafe95ab3f7e1831b2c219b2f08adb3544ae291bf514fe6919b9",
+  "sourceFingerprint": "e2beddb6f998316543ffded93e57c83be393ad5e4986b88ef74911cfc42ff6ba",
   "summary": {
     "files": 1209,
-    "lines": 261088,
+    "lines": 261082,
     "symbols": 3651
   },
   "symbolIndex": {
@@ -15781,19 +15781,19 @@
     "phoneDefinitionChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 505
+        "line": 500
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 508
+        "line": 503
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1569
+        "line": 1563
       }
     ],
     "candidateHosts": [
@@ -36542,8 +36542,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2347,
-      "sha256": "26ef9d8dea775f441b556ab7546eb4badad4d9daed14077f55ba8b9b318f0477",
+      "lines": 2341,
+      "sha256": "c07f546a2c148d9d2f1aa54601f6f58232c329a60992bda7d3ed3906921df3c9",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36563,15 +36563,15 @@
         },
         {
           "name": "phoneDefinitionChanged",
-          "line": 505
+          "line": 500
         },
         {
           "name": "stalePhoneTurn",
-          "line": 508
+          "line": 503
         },
         {
           "name": "staleReplyExpression",
-          "line": 1569
+          "line": 1563
         }
       ]
     },
