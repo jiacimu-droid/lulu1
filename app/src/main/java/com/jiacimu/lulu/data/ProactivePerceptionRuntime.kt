@@ -509,6 +509,9 @@ object ProactivePerceptionRuntime {
                 chatBatchError?.let { throw it }
                 evaluated
             } finally {
+                if (onlineExpiryAtMillis > 0L)
+                    CompanionOnlineStore.finishOnlineExpiryReview(
+                        targetCharacterId, onlineExpiryAtMillis)
                 if (onlineRevision != null && targetCharacterId != null) {
                     OnlineChatBatchStore.finish(context, targetCharacterId, onlineRevision,
                         completed = chatBatchError == null &&
