@@ -2020,3 +2020,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 按 main push SHA 核实 `f7bbf37e2240103b3517bc53e275086cac29e59f` 的 [Lulu APK/JVM #43122421944](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421944) 和 [Refresh code index #43122421967](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421967) 均 completed/success；原备份合并幂等回归已有工程成功证据，但仍不是进程冷重启。
 - 新测试提交 [035df73](https://github.com/jiacimu-droid/lulu1/commit/035df735aa5cf90d5312c0dd162dff2da03ce576) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 补已完成在线批次取消的反例：取消后正式 SQLite 账本的主工具拒绝与独立成功副动作 ID/内容不变，不产生额外模型 HTTP；随后新用户气泡仍走独立新批次、原失败原因进入下一轮。只修改回归，未更改生产行为。**本次新测试尚未取得 JVM/APK/索引成功证据**。
 - 下一轮同 ID 先核 `035df73` 的 main push APK/JVM 与 Refresh code index；若测试红，先修取消后回执丢失/夹具首错；若绿，本子项取消正例可归档，完整进程冷重启与真机仍外部待验，切 P-08c.2 或 UI-02.2 可执行缺口。真实模型和历史服务商计费未验。
+
+## 2026-11-12 · P-08c.2 私聊部分送达、纠正与 Store 重建（新 CI 待验）
+
+- 核实 `a964c4f` 的 [APK/JVM #43150286715](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286715) `build=completed/success`、[索引 #43150286675](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286675) `refresh=completed/success`，该私聊已完成工具请求重放回归工程已验。
+- 续接正式 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`，测试提交 [4869419](https://github.com/jiacimu-droid/lulu1/commit/486941934c44ab67cb8e422454f9713a67ea95f0)、[3eda282](https://github.com/jiacimu-droid/lulu1/commit/3eda282a52fd980cc26ded48ca5305012be456f2)：旧轮部分气泡实际送达→用户纠正→新轮独立送达→重新初始化 ChatStore→保留旧/新消息 ID 和原文→旧水位仍无权追加消息。复用现有真实 Store 与执行器，不加收费模型请求、不改生产人物行为。
+- **新增测试尚无本 SHA 的 APK/JVM/索引成功证据，不勾完成。** 此处 Store 重建不等于真实进程死亡。下一轮直接检查 `privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection` 的 JVM 首错；绿后转 UI-02.2 写入失败恢复或 P-08a.1g.3 未覆盖的纵向断点；真机与真实模型独立待验。
