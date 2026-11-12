@@ -519,7 +519,7 @@ internal object BlockIslandRules {
                 next = s.copy(world = w.copy(wood = w.wood - recipe.wood,
                     stone = w.stone - recipe.stone), tools = s.tools + tool,
                     crystals=s.crystals-recipe.crystals)
-                message = "制作成功：${actionName(tool)}"
+                message = "制作成功：${actionName(tool)} · ${recipe.effect}"
             }
             "revive" -> {
                 val companion = w.friends.firstOrNull { it.hp <= 0 && it.x == tx && it.y == ty }
@@ -706,6 +706,7 @@ internal object BlockIslandRules {
             if (friend.mode == "gather") {
                 val resource = (0 until world.height).flatMap { y -> (0 until world.width).map { x -> x to y } }
                     .filter { (x, y) -> world.cell(x, y) in setOf(1, 2) &&
+                        !(world.cell(x,y)==2 && IslandProgression.crystalVein(world.seed,world.index(x,y))) &&
                         distance(friend.x, friend.y, x, y) <= 7 }
                     .sortedBy { (x, y) -> distance(friend.x, friend.y, x, y) }
                     .firstOrNull { (x, y) ->
@@ -845,6 +846,7 @@ internal object BlockIslandRules {
         }
         val place = spots.firstOrNull { (x, y) ->
             w.cell(x, y) == 0 && w.index(x, y) !in s.structures &&
+                w.index(x,y) !in s.lostPacks &&
                 !IslandSupplyCaches.available(s, x, y) &&
                 distance(x, y, w.x, w.y) > 5 &&
                 w.friends.none { it.x == x && it.y == y } &&
