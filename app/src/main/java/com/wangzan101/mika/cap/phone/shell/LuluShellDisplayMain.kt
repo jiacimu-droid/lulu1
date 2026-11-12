@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Looper
 import android.view.Display
 import android.view.Surface
+import com.jiacimu.lulu.system.LuluMikaFrameMath
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.util.Base64
@@ -264,6 +265,24 @@ object LuluShellDisplayMain {
                 full.copyPixelsFromBuffer(plane.buffer)
                 val crop = Bitmap.createBitmap(full, 0, 0, WIDTH, HEIGHT)
                 try {
+                    // Mika FrameMath: an accepted gesture can produce a NEW
+                    // all-black virtual frame (compositor/security failure).
+                    // This is not a readable screenshot; never send it to the
+                    // character or silently use the owner's main display.
+                    val allBlack = LuluMikaFrameMath.isBlack(WIDTH, HEIGHT) { x, y ->
+                        crop.getPixel(x, y)
+                    }
+                    if (allBlack) {
+                        lastDeliveredFrameNanos = timestamp
+                        pendingActionFrameBarrierNanos = 0L
+                        pendingActionNeedsFrame = false
+                        return JSONObject().put("success", false)
+                            .put("status", "unverified").put("displayId", displayId)
+                            .put("frameBlack", true).put("frameValidated", false)
+                            .put("frameTimestampNanos", timestamp)
+                            .put("frameFreshAfterAction", afterAction)
+                            .put("verification", "后台独立屏产生了全黑新帧，无法当作可读画面；仍可仅使用目标App控件树的安全证据")
+                    }
                     val bytes = ByteArrayOutputStream().use { buffer ->
                         check(crop.compress(Bitmap.CompressFormat.JPEG, 65, buffer))
                         buffer.toByteArray()

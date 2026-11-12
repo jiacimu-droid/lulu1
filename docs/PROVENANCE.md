@@ -12,6 +12,13 @@
 - **实装**：从 Lulu 当前角色拥有的独立后台 display 和目标 App 读取非密码控件属性和屏上文字；遇到验证码/密码/支付安全校验、跨 App/系统窗口切换，返回 `waiting_user` 且不把危险截图送进模型，`LuluBackgroundPhoneContinuation` 接到该回执后停止盲试并报告。复用 ToolRouter 的权限、持久回执、授权及独立屏隔离。不把登录页面伪装为搜索成功；未知窗口需要人确认，程序不自行输入密码/验证码。
 - **验收**：Mika 原 JVM 测试已移植，但实际执行结果、APK 和 Redmi 真机仍按最新 Actions SHA 核查；没有实测前不得宣称屏幕诊断全覆盖。
 
+## 2026-11-12：Mika FrameMath 原算法接入实际后台屏与滑动回执
+
+- 上游：`wangzan101/Mika` @ `106535545bfefa150e24276c6301238398ca5f88`，Apache-2.0，`FrameMath.kt` 原算法此前已移植到 `LuluMikaFrameMath.kt`（THIRD_PARTY_MODIFIED），随 APK 保留 LICENSE/NOTICE。
+- 本轮 `LuluShellDisplayMain` 将其 `isBlack` 真正用于独立虚拟显示真实像素，拒绝把全黑帧作为可读图片转交角色；可访问目标 App 控件树仍可作为降级事实，不能擅自取用户主屏替代。`LuluVirtualFrameSafety` 及测试为 Lulu 原创适配。
+- `LuluVirtualScrollOutcome` 与 JVM 测试为 Lulu 原创，参考 Mika `ActionEffect`、`WheelOutcome` 事实/副作用分离思路，不复制其模型调度或第二角色；正式执行器回传可见进展等级并由已有续行引擎限制反复无效滑动。
+- 源码、自动测试、APK 和真实 Redmi/XHS 体验各层验收分开，不因存在新算法或 CI 绿色声称实际手机已通。
+
 ## 2026-11-12：Mika 安卓后台屏操作算法直接移植（Apache-2.0）
 
 - **上游及版本**：[wangzan101/Mika](https://github.com/wangzan101/Mika) main `106535545bfefa150e24276c6301238398ca5f88`；作者在上游 NOTICE 中标注 `Copyright 2026 wangzan101`；许可证为 Apache License 2.0。

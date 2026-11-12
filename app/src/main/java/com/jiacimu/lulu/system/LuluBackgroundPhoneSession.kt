@@ -478,6 +478,10 @@ internal object LuluBackgroundPhoneSession {
                     LuluAccessibilityService.virtualUiSnapshot(id, activeApp)
                         .optString("fingerprint")
                 }
+            val beforeScrollText = if (action == "swipe")
+                withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.observeDisplay(id).visibleText.take(5_000)
+                } else ""
             val request = JSONObject().put("action", action)
             if (action == "launch") {
                 // Pass Android's actual exported launcher component, not just a
@@ -646,6 +650,9 @@ internal object LuluBackgroundPhoneSession {
                     .put("inputTextReadbackVerified", typed)
                     .put("inputVerification", applied?.optString("inputVerification").orEmpty())
                     .put("frameValidated", false).put("taskCompleted", false)
+                    .put("frameBlack", frame.optBoolean("frameBlack", false))
+                    .put("screenCaptureStatus", if (frame.optBoolean("frameBlack", false))
+                        "all_black_unreadable" else "no_fresh_frame")
                     .put("uiSettled", false)
                     .put("actionMethod", applied?.optString("actionMethod").orEmpty())
                     .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
@@ -656,6 +663,12 @@ internal object LuluBackgroundPhoneSession {
                     return unverified.put("effectKind", "unknown").toString()
                 }
                 attachUiEvidence(unverified, characterId, id, activeApp)
+                if (action == "swipe") {
+                    unverified.put("scrollOutcome", LuluVirtualScrollOutcome.classify(
+                        applied?.optBoolean("accepted") != false, owned,
+                        beforeUiFingerprint, lastObservedUi?.fingerprint,
+                        beforeScrollText, observed.visibleText).wire)
+                }
                 return unverified.put("effectKind", LuluVirtualUiPolicy.effectKind(
                     action, applied?.optBoolean("accepted") != false,
                     beforeUiFingerprint, lastObservedUi?.fingerprint,
@@ -695,9 +708,12 @@ internal object LuluBackgroundPhoneSession {
             // Pass the owned virtual-display frame only to the same role and
             // exact tool request, regardless of foreground/online entry point.
             // capture_screen remains strictly the owner's main display.
-            val hasFrame = frame.optBoolean("frameValidated", false) &&
-                frame.optLong("frameTimestampNanos", 0L) > 0L &&
-                pixels.startsWith("data:image/jpeg;base64,")
+            val hasFrame = LuluVirtualFrameSafety.canSendToRole(
+                frame.optBoolean("frameValidated", false),
+                frame.optLong("frameTimestampNanos", 0L),
+                pixels,
+                frame.optBoolean("frameBlack", false),
+            )
             if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             val searchStatus = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
@@ -765,6 +781,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("imageForwardedToRole", hasFrame)
                 .put("frameFreshAfterAction", frameFresh)
                 .put("frameValidated", hasFrame)
+                .put("frameBlack", frame.optBoolean("frameBlack", false))
                 .put("frameTimestampNanos", frame.optLong("frameTimestampNanos", 0L))
                 .put("newerThanPreviousCapture", frame.optBoolean("newerThanPreviousCapture", false))
                 .put("screenSource", "virtual_display")
@@ -785,6 +802,17 @@ internal object LuluBackgroundPhoneSession {
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
                     else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
             attachUiEvidence(finalReceipt, characterId, id, activeApp)
+            if (action == "swipe") {
+                finalReceipt.put("scrollOutcome", LuluVirtualScrollOutcome.classify(
+                    applied?.optBoolean("accepted") != false, true,
+                    beforeUiFingerprint, lastObservedUi?.fingerprint,
+                    beforeScrollText, visible.visibleText).wire)
+                finalReceipt.put("scrollVerification", when (finalReceipt.optString("scrollOutcome")) {
+                    "content_changed" -> "后台可读内容或控件树发生变化；仍需核对是否是预期的新笔记"
+                    "no_visible_change" -> "滑动后没有可证实的内容变化；可能已到底、未滚动或尚未加载，不得自动认定到底"
+                    else -> "本次滑动结果不确定；不要重复滑动或声称看过新内容"
+                })
+            }
             return finalReceipt.put("effectKind", LuluVirtualUiPolicy.effectKind(
                 action, applied?.optBoolean("accepted") != false,
                 beforeUiFingerprint, lastObservedUi?.fingerprint,
