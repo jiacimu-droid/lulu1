@@ -200,6 +200,28 @@ class LuluAccessibilityService : AccessibilityService() {
             return false
         }
 
+        /** An Enter on a virtual display can send a chat message as well as search.
+         * Only allow it when the already-focused editable node is clearly a
+         * search field belonging to the verified target app. Unknown = deny.
+         */
+        fun hasFocusedVirtualSearchEditor(displayId: Int, packageName: String): Boolean {
+            val service = instance ?: return false
+            if (displayId <= 0 || packageName.isBlank()) return false
+            return service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION }
+                .sortedByDescending { it.layer }
+                .any { window ->
+                    val root = window.root ?: return@any false
+                    if (root.packageName?.toString() != packageName) return@any false
+                    val node = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                        ?: return@any false
+                    node.isVisibleToUser && node.isEditable && !node.isPassword &&
+                        LuluVirtualSearchFieldPolicy.isSearchEditor(
+                            node.className?.toString(), node.hintText?.toString(),
+                            node.viewIdResourceName)
+                }
+        }
+
         fun perform(action: LuluScreenAction): Boolean {
             val service = instance ?: return false
             val globalAction = when (action) {
