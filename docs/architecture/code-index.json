@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:41:02.764037+00:00",
-  "commit": "cebfae24a94ac883b09682392ae91d2b9e483d50",
+  "generatedAt": "2026-11-12T12:41:26.883345+00:00",
+  "commit": "6fe0d80706f8071be9a752efbcac662aa2432612",
   "branch": "main",
-  "sourceFingerprint": "c49396de40349b07f7f83edf9f148734de57464c503aafdfa7eab4d8c3be6de6",
+  "sourceFingerprint": "505a79fc6e99b2bf1d51133f702818a19adce7438231f64d7c24b9ae49f23353",
   "summary": {
-    "files": 1280,
-    "lines": 270383,
-    "symbols": 3828
+    "files": 1281,
+    "lines": 270433,
+    "symbols": 3829
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20913,6 +20913,12 @@
     "IslandInvitationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt",
+        "line": 11
+      }
+    ],
+    "IslandManualMovementTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt",
         "line": 11
       }
     ],
@@ -44569,6 +44575,17 @@
       "symbols": [
         {
           "name": "IslandInvitationTest",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt",
+      "lines": 50,
+      "sha256": "3c03aad4ac39f86339403b997afc05529296520bbbc8f0e650019d3c1cd38cc0",
+      "symbols": [
+        {
+          "name": "IslandManualMovementTest",
           "line": 11
         }
       ]
