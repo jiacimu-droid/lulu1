@@ -12,6 +12,18 @@ internal object LuluVirtualSearchFieldPolicy {
     fun canRecoverUniqueSearchField(searchEditors: Int, otherEditors: Int): Boolean =
         searchEditors == 1 && otherEditors == 0
 
+    /** Without frame pixels, allow only owner-verified search actions. */
+    fun canActWithoutFrame(
+        action: String, targetVerified: Boolean, uniqueSearch: Boolean,
+        searchFocused: Boolean, typedReadbackVerified: Boolean,
+    ): Boolean = when (action) {
+        "start", "launch", "observe", "stop" -> true
+        "focus_search" -> targetVerified && uniqueSearch
+        "type" -> targetVerified && uniqueSearch && searchFocused
+        "submit" -> targetVerified && uniqueSearch && searchFocused && typedReadbackVerified
+        else -> false
+    }
+
     fun isSearchEditor(className: String?, hint: String?, viewId: String?): Boolean {
         val metadata = listOfNotNull(className, hint, viewId)
             .joinToString(" ").lowercase()

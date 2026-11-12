@@ -220,6 +220,53 @@ class LuluAccessibilityService : AccessibilityService() {
             .sortedByDescending { it.layer }.mapNotNull { it.root }
             .filter { it.packageName?.toString() == packageName }
 
+        /** Mika-style target discovery based on the verified virtual app.
+         * Only editor metadata/geometry, never entered text or display 0. */
+        fun virtualSearchFieldStatus(displayId: Int, packageName: String): JSONObject {
+            val result = JSONObject().put("uniqueSearchField", false)
+                .put("focusedSearchField", false).put("searchEditorCount", 0)
+            val service = instance ?: return result
+            if (displayId <= 0 || packageName.isBlank()) return result
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            val unique = LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                searches.size, editors.size - searches.size)
+            result.put("searchEditorCount", searches.size)
+                .put("uniqueSearchField", unique)
+            if (unique) {
+                val target = searches.single()
+                result.put("focusedSearchField", roots.any { root ->
+                    root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.let(::searchEditor) == true
+                })
+                val rect = Rect().also(target::getBoundsInScreen)
+                if (rect.width() > 0 && rect.height() > 0) {
+                    result.put("centerX", ((rect.centerX().coerceIn(0, 719) * 1000L) / 719L).toInt())
+                        .put("centerY", ((rect.centerY().coerceIn(0, 1279) * 1000L) / 1279L).toInt())
+                }
+                result.put("hint", target.hintText?.toString().orEmpty().take(90))
+            }
+            return result
+        }
+
+        /** Semantic focus: only when exactly one safe search editor exists. */
+        fun focusUniqueVirtualSearchEditor(displayId: Int, packageName: String): Boolean {
+            val service = instance ?: return false
+            if (displayId <= 0 || packageName.isBlank()) return false
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            if (!LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                    searches.size, editors.size - searches.size)) return false
+            val target = searches.single()
+            target.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+            target.refresh()
+            if (!target.isFocused) target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            return ownedVirtualRoots(service, displayId, packageName).any { root ->
+                root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.let(::searchEditor) == true
+            }
+        }
+
         fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
             if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
@@ -255,23 +302,10 @@ class LuluAccessibilityService : AccessibilityService() {
         /** Enter may send a message. Only a truly focused search editor on the
          * verified virtual app can authorize it; an ambiguous editor cannot. */
         fun hasFocusedVirtualSearchEditor(displayId: Int, packageName: String): Boolean {
-            val service = instance ?: return false
-            if (displayId <= 0 || packageName.isBlank()) return false
-            return ownedVirtualRoots(service, displayId, packageName).any { root ->
-                val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                if (focused != null && safeEditable(focused))
-                    return@any searchEditor(focused)
-                val unique = uniqueSearchEditor(root) ?: return@any false
-                // A field can lose focus when the IME reopens. Restore focus
-                // only to a verified unique SEARCH editor; never synthesize Enter
-                // unless the device confirms it currently owns input focus.
-                unique.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
-                unique.refresh()
-                if (!unique.isFocused) unique.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                val refreshed = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                    ?: unique.takeIf { it.refresh() && it.isFocused }
-                refreshed != null && searchEditor(refreshed)
-            }
+            // Enter is never authorized by silently re-focusing another field.
+            val status = virtualSearchFieldStatus(displayId, packageName)
+            return status.optBoolean("uniqueSearchField") &&
+                status.optBoolean("focusedSearchField")
         }
 
         fun perform(action: LuluScreenAction): Boolean {

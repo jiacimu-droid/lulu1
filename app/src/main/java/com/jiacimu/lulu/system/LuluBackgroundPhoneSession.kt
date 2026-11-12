@@ -222,7 +222,7 @@ internal object LuluBackgroundPhoneSession {
             check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
                 "后台屏幕由另一角色使用中；请先由主人停止该会话"
             }
-            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "submit", "observe", "stop")) {
+            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "focus_search", "submit", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
             if (action == "stop") {
@@ -322,6 +322,14 @@ internal object LuluBackgroundPhoneSession {
             }
             val applied = when (action) {
                 "observe" -> null
+                "focus_search" -> {
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) { "无法建立后台聚焦画面屏障" }
+                    val accepted = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.focusUniqueVirtualSearchEditor(id, activeApp)
+                    }
+                    JSONObject().put("accepted", accepted).put("displayId", id)
+                }
                 "type" -> {
                     val value = args.getString("text")
                     require(value.isNotEmpty() && value.length <= 500) {
@@ -339,7 +347,8 @@ internal object LuluBackgroundPhoneSession {
                 else -> command(request)
             }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
-            if (applied != null && !applied.optBoolean("accepted") && action != "type") {
+            if (applied != null && !applied.optBoolean("accepted") &&
+                action !in setOf("type", "focus_search")) {
                 return applied.put("mode", "independent_virtual_display")
                     .put("status", "unverified")
                     .put("verification", if (action == "type")
@@ -361,12 +370,35 @@ internal object LuluBackgroundPhoneSession {
             // A new frame is observed after the action. A successful dispatch
             // is never mistaken for a finished user task.
             val frame = command(JSONObject().put("action", "observe"))
-            if (!frame.optBoolean("success")) return JSONObject()
-                .put("success", false).put("status", "unverified")
-                .put("accepted", applied?.optBoolean("accepted") ?: true)
-                .put("mode", "independent_virtual_display").put("displayId", id)
-                .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面"))
-                .toString()
+            if (!frame.optBoolean("success")) {
+                // Mika can still verify a UI tree when ImageReader has no new
+                // frame. Preserve accessibility facts without fabricating pixels.
+                val observed = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.observeDisplay(id)
+                }
+                val owned = observed.connected && observed.packageName == activeApp &&
+                    !LuluScreenAwareness.isExcluded(context, observed.packageName)
+                val search = if (owned) withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
+                } else JSONObject()
+                val typed = owned && action == "type" && applied?.optBoolean("accepted") == true &&
+                    withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.typedTextReadbackOnDisplay(
+                            id, activeApp, args.getString("text"))
+                    }
+                return JSONObject().put("success", false).put("status", "unverified")
+                    .put("accepted", applied?.optBoolean("accepted") ?: true)
+                    .put("mode", "independent_virtual_display").put("displayId", id)
+                    .put("targetWindowVerified", owned)
+                    .put("visibleText", if (owned) observed.visibleText.take(5_000) else "")
+                    .put("searchEditorStatus", search)
+                    .put("inputTextReadbackVerified", typed)
+                    .put("frameValidated", false).put("taskCompleted", false)
+                    .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
+                        if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
+                        else "；目标App窗口未核实，禁止盲点")
+                    .toString()
+            }
 
             val visible = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.observeDisplay(id)
@@ -391,6 +423,9 @@ internal object LuluBackgroundPhoneSession {
                 frame.optLong("frameTimestampNanos", 0L) > 0L &&
                 pixels.startsWith("data:image/jpeg;base64,")
             if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
+            val searchStatus = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
+            }
             val expected = args.optString("expectedText").trim()
             val textReadbackVerified = if (action == "type" && applied?.optBoolean("accepted") == true) {
                 withContext(Dispatchers.Main) {
@@ -400,6 +435,7 @@ internal object LuluBackgroundPhoneSession {
             } else false
             val actionConditionVerified = action == "observe" ||
                 (action == "launch" && visible.packageName == requestedPackage) ||
+                (action == "focus_search" && searchStatus.optBoolean("focusedSearchField")) ||
                 (expected.isNotBlank() && visible.visibleText.contains(expected))
             // A real post-action frame is sufficient to let the SAME character
             // inspect the result and select another action. It is NOT proof that
@@ -408,7 +444,8 @@ internal object LuluBackgroundPhoneSession {
             // so continuous browsing stopped after just one swipe.
             val observed = hasFrame && (actionConditionVerified || expected.isBlank()) &&
                 (applied?.optBoolean("accepted") != false) &&
-                (action != "type" || textReadbackVerified)
+                (action != "type" || textReadbackVerified) &&
+                (action != "focus_search" || searchStatus.optBoolean("focusedSearchField"))
             val sharedReceipt = if (args.optBoolean("sendToChat")) {
                 if (!hasFrame) JSONObject().put("sentToChat", false)
                     .put("shareError", "后台虚拟屏未获得真实画面，不能发主屏截图替代")
@@ -440,6 +477,8 @@ internal object LuluBackgroundPhoneSession {
                 .put("actionConditionVerified", actionConditionVerified)
                 .put("taskCompleted", false)
                 .put("inputTextReadbackVerified", textReadbackVerified)
+                .put("targetWindowVerified", true)
+                .put("searchEditorStatus", searchStatus)
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
@@ -453,7 +492,11 @@ internal object LuluBackgroundPhoneSession {
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
                 .put("shareError", sharedReceipt.optString("shareError"))
-                .put("verification", if (action == "type" && !textReadbackVerified)
+                .put("verification", if (action == "focus_search")
+                    (if (searchStatus.optBoolean("focusedSearchField"))
+                        "已核实唯一搜索框获得焦点；未输入或提交内容"
+                    else "搜索框焦点未能核实；没有点击其他输入框")
+                    else if (action == "type" && !textReadbackVerified)
                     "后台搜索文字未能从目标输入框读回，可能未取得焦点或App拒绝输入；此画面仅供本人排查，不能声称已经搜到"
                     else if (action == "type" && observed)
                     "已从后台目标应用输入框读回所输文字；尚未执行搜索提交，实际搜索结果仍需观察"

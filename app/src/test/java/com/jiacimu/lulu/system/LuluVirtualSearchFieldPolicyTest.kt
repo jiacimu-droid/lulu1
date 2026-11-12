@@ -33,6 +33,21 @@ class LuluVirtualSearchFieldPolicyTest {
         assertFalse(LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(1, 1))
     }
 
+    @Test fun noFrameRecoveryRequiresVerifiedSearchAndReadback() {
+        val can = LuluVirtualSearchFieldPolicy::canActWithoutFrame
+        assertTrue(can("observe", false, false, false, false))
+        assertTrue(can("launch", false, false, false, false))
+        assertFalse(can("tap", true, true, true, true))
+        assertFalse(can("swipe", true, true, true, true))
+        assertFalse(can("focus_search", false, true, false, false))
+        assertTrue(can("focus_search", true, true, false, false))
+        assertFalse(can("type", true, true, false, false))
+        assertTrue(can("type", true, true, true, false))
+        assertFalse(can("submit", true, true, true, false))
+        assertTrue(can("submit", true, true, true, true))
+        assertFalse(can("submit", true, false, true, true))
+    }
+
     @Test fun inputContentsCannotTurnAnotherEditorIntoSearch() {
         // The policy has no actual text/input-content argument at all: only
         // the currently focused editor's class/hint/resourceId count.
