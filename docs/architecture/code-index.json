@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:07:20.996054+00:00",
-  "commit": "5d6c2dd27d3c2f266963b5d97112aa5ef8d8159b",
+  "generatedAt": "2026-11-12T07:12:13.677942+00:00",
+  "commit": "64268cc20446322bf2fbf098bf8b2f5302831d16",
   "branch": "main",
-  "sourceFingerprint": "1c9ddd5771413f0bfed7c9ac1d8db19b2ff20cc29c413e2f2068c8a7eb34ce79",
+  "sourceFingerprint": "08ca34f44ee8786084ecf68be3ad9c35eb74f78c9cd2b80d020cf5f9c766aded",
   "summary": {
     "files": 1250,
-    "lines": 265562,
-    "symbols": 3750
+    "lines": 265621,
+    "symbols": 3753
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16103,7 +16103,25 @@
     "between": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
-        "line": 42
+        "line": 44
+      }
+    ],
+    "sameName": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 54
+      }
+    ],
+    "samePosition": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 57
+      }
+    ],
+    "matchOnce": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 59
       }
     ],
     "LuluMikaScreenState": [
@@ -37409,8 +37427,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
-      "lines": 58,
-      "sha256": "530169ca7f1cfabcb2f8473866d8eaa9db1cca00b3f269bc2119407715f8598d",
+      "lines": 89,
+      "sha256": "b06bd568d403554430a2ac82ab8d1993940342b199a404289991178f7f6f1e80",
       "symbols": [
         {
           "name": "Element",
@@ -37426,7 +37444,19 @@
         },
         {
           "name": "between",
-          "line": 42
+          "line": 44
+        },
+        {
+          "name": "sameName",
+          "line": 54
+        },
+        {
+          "name": "samePosition",
+          "line": 57
+        },
+        {
+          "name": "matchOnce",
+          "line": 59
         }
       ]
     },
@@ -44147,8 +44177,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt",
-      "lines": 44,
-      "sha256": "6a1c2abea951fcf64a6436f8b78d29d26c6e7f9f9aedc8cb02469dee30641901",
+      "lines": 72,
+      "sha256": "df66f76e96baf30f24a58f4c133b0e35acc74c8db1eb2498e9d45254f9162852",
       "symbols": [
         {
           "name": "LuluMikaInterfaceUpdateTest",

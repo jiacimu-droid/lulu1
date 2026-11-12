@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5d6c2dd27d3c2f266963b5d97112aa5ef8d8159b`
+- 基准提交：`64268cc20446322bf2fbf098bf8b2f5302831d16`
 - 分支：`main`
 - 已索引文件：1250
-- 已索引代码/文本行：265562
-- 已发现符号：3750
+- 已索引代码/文本行：265621
+- 已发现符号：3753
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -777,7 +777,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaClickFallback.kt` | 122 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaFrameMath.kt` | 66 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaHant.kt` | 20 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt` | 58 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt` | 89 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaScreenDiagnosis.kt` | 119 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
@@ -1232,7 +1232,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaChangeWaitTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaClickFallbackTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaFrameMathTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaScreenDiagnosisTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaTextAccuracyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuardTest.kt` | 35 | 1 |
