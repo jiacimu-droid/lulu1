@@ -81,6 +81,9 @@ private val ActivityTime = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
 internal fun RolePhoneActivitySection(roleId: String) {
+    // Keep the chat list close to the first viewport. The owner can reveal
+    // the remaining real action receipts instead of scrolling past them.
+    var expanded by remember(roleId) { mutableStateOf(false) }
     val version by SharedExperienceTimeline.revisions.collectAsState()
     val history by produceState<List<InspectedPhoneAction>>(emptyList(), roleId, version) {
         value = if (roleId.isNotBlank()) withContext(Dispatchers.IO) {
@@ -105,7 +108,7 @@ internal fun RolePhoneActivitySection(roleId: String) {
                     Text("目前没有可核实的手机操作记录",
                         fontSize = 14.sp, color = Color(0xFF73767C),
                         modifier = Modifier.padding(vertical = 14.dp))
-                } else history.forEachIndexed { index, item ->
+                } else (if (expanded) history else history.take(2)).forEachIndexed { index, item ->
                     if (index > 0) HorizontalDivider(color = Color(0xFFEEEEF0))
                     Row(verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -127,6 +130,14 @@ internal fun RolePhoneActivitySection(roleId: String) {
                         }
                         Text(ActivityTime.format(item.occurredAt.atZone(ZoneId.systemDefault())),
                             fontSize = 12.sp, color = Color(0xFF73767C))
+                    }
+                }
+                if (history.size > 2) {
+                    TextButton(onClick = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text(if (expanded) "收起动态" else "查看另 ${history.size - 2} 条操作记录")
+                        Icon(if (expanded) Icons.Outlined.ExpandLess
+                            else Icons.Outlined.ExpandMore, null)
                     }
                 }
             }
