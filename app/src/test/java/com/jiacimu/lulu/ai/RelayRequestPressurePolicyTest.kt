@@ -5,6 +5,19 @@ import org.junit.Test
 import com.jiacimu.lulu.data.MemoryWorkingSet
 
 class RelayRequestPressurePolicyTest {
+    @Test fun compactRelayKeepsLiveClockEvenWhenOldHistoryIsDropped() {
+        val clock = CharacterClockAuthority.render(
+            java.time.Instant.parse("2026-11-12T01:39:00Z"),
+            java.time.ZoneId.of("Asia/Shanghai"))
+        val reduced = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            "权威现实时钟" to clock,
+            "本轮背景依据" to "昨晚凌晨两点的旧聊天。\n".repeat(1_500),
+        ))
+        assertEquals(clock, reduced.single { it.first == "权威现实时钟" }.second)
+        assertTrue(reduced.single { it.first == "权威现实时钟" }.second
+            .contains("2026-11-12T09:39:00+08:00"))
+    }
+
     @Test fun separatedNativeRelationshipsRemainWholeUnderRequestPressure() {
         val relationship = "只针对当前对象的关系约定与具体条件\n".repeat(500) +
             "最后的条件：明确拒绝本次以后再调整，不能推断全局拒绝主动关心"

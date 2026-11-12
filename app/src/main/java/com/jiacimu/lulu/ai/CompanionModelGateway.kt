@@ -809,7 +809,18 @@ class CompanionModelGateway(
                 "跨场景连续性锚点" to continuitySection, "已读材料与可修订的理解" to learningSection,
                 "近期时间线/未完成责任" to timelineSection, "核心记忆" to deliveredCoreSection,
                 "召回记忆摘要" to memorySection, "召回原始证据" to memoryEvidenceSection, "生活记录" to lexiconSection)
+            // Current wall-clock time is an observed runtime fact, not a memory or a
+            // role decision. Inject at the common gateway so the second-stage
+            // chat renderer and post-tool reply cannot lose the planner's clock.
+            // Refresh per request: a long tool/voice turn must not reuse an old
+            // turn's local time. Fiction/isolated modes keep their own chronology.
+            val authoritativeClock = if (effectiveMode == CompanionContextMode.Full ||
+                effectiveMode == CompanionContextMode.CharacterAndScenario ||
+                effectiveMode == CompanionContextMode.Ensemble)
+                CharacterClockAuthority.render(java.time.Instant.now(), java.time.ZoneId.systemDefault())
+            else ""
             val fixedSections = listOf(
+                "权威现实时钟" to authoritativeClock,
                 "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
                 "当前人物关系" to relationshipSection,

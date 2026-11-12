@@ -53,7 +53,7 @@ internal object RelayRequestPressurePolicy {
      * role identity, established relationships, commitments, or the tool rules.
      */
     private val protected = setOf(
-        "任务规则/工具协议", "角色身份", "角色人设", "当前人物关系",
+        "权威现实时钟", "任务规则/工具协议", "角色身份", "角色人设", "当前人物关系",
         "核心记忆", "未完成责任", "全局世界书",
         "角色世界书/设计书", "数字世界权威状态",
         "全局世界书/TOP", "角色世界书/TOP",

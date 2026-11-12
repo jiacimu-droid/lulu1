@@ -1,5 +1,12 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-07.1 真实时钟在人物决定→聊天表达→工具结果中不断链
+
+- 主人真机截图：手机上午09:39，人物回“凌晨两点”；仅凭截图不能证明旧记忆是唯一原因。源码确认原前台 planner 在 `LuluDeviceToolBridge.respond` 注入了本机钟点，但其二阶段聊天气泡 renderer / 部分工具结果回复依赖 gateway，没有同一层的统一时间权威；`MemoryEvidenceSelection.render` 还将原始记录硬编码成上海时区并省略年份。
+- 修复：`CharacterClockAuthority` 以每次实际 gateway 请求时的 `Instant` + 设备 `ZoneId` 提供现实时间，统一进入 Full/CharacterAndScenario/Ensemble 系统上下文；精简 Relay 继续完整保留此权威事实。跨世界剧情、独立任务不被现实时间侵入；不新增模型调用/定时轮询/人格规则/影子记忆。不再以过去原话的“现在/两点”代替本轮钟点。历史证据保留原年/月/日和当时本地 UTC 偏移，去掉 Asia/Shanghai 硬编码。
+- 回归：`CharacterClockAuthorityTest`、`CoreMemoryDeliveryIntegrationTest.everyRealWorldModelModeReceivesCoreWithoutOrdinaryRecallAndIsolatedModesDoNot`、`RelayRequestPressurePolicyTest.compactRelayKeepsLiveClockEvenWhenOldHistoryIsDropped`、`MemoryEvidenceSelectionTest.oldNightEventKeepsFullDateAndActualDeviceZone`；源代码与测试已构成可审核工作包，**本轮 CI/JVM/APK、用户真机与真实模型实际对话待验**。下一步按本工作包提交 SHA 核 main push APK/JVM、索引，再检查实际前台双阶段 HTTP 输入和最终气泡是否仍发错误钟点。
+
+
 ## 2026-11-12 · P-03.1 正常发言已感知回执后的电话队列去重
 
 - 上轮包含跨轮回归的 `53d49dc` [全量 JVM/APK #43120817176](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817176) 和[原索引 #43120817562](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817562) 复核成功。当前基线 `f7bbf37` 的[全量 JVM/APK #43122421944](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421944) 也成功。

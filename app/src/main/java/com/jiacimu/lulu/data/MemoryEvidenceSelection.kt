@@ -9,15 +9,18 @@ internal object MemoryEvidenceSelection {
         NarrativeEvidenceChain.expand(seeds, live, limit)
 
     fun render(events: List<SharedTimelineEvent>, characterBudget: Int,
-               focus: String = ""): RenderedMemorySection {
+               focus: String = "", zone: java.time.ZoneId = java.time.ZoneId.systemDefault()): RenderedMemorySection {
         if (characterBudget <= 0) return RenderedMemorySection()
         var remaining = characterBudget
         val kept = mutableListOf<Pair<SharedTimelineEvent, String>>()
         val truncated = mutableListOf<String>()
         val episodeHints = NarrativeEvidenceChain.annotations(events)
         events.distinctBy { it.id }.forEach { event ->
-            val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
-                .format(event.occurredAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+            // Preserve the year and local UTC offset on historical evidence.
+            // A fixed Shanghai zone and yearless "2:00" made yesterday's
+            // night conversation look like the current local time elsewhere.
+            val at = java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                .format(event.occurredAt.atZone(zone))
             val basePrefix = "[" + at + "] [" + event.channel + "] " + event.speaker + "："
             val note = episodeHints[event.id].orEmpty()
             val plainPrefix = if (remaining - basePrefix.length - note.length - 1 >= 48)

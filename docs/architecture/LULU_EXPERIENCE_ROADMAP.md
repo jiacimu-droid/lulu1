@@ -342,6 +342,9 @@
 - [ ] **P-06.3** 实际召回验证，不在没有真实坐标需求时引入 R-tree。旧 ID 归属修复 bb615e53/2d33ffce 不重复。
 
 ### P-07 / M5–M6 认识有效期
+
+**2026-11-12 P-07.1 当前时间/旧记忆边界（源码已改，CI/真机/真实模型待验）**：主人的上午聊天出现“凌晨两点”；前台 planner 已有时钟，但二阶段表达与工具后续没有统一强制携带，原文证据还用固定 Asia/Shanghai 且省略年份。本轮把手机真实时间作为 Full/CharacterAndScenario/Ensemble 的统一网关系统事实，包含日期、偏移、设备时区；Relay 精简也保留。原文展示用设备本地时区与完整日期；历史仍可回忆，不覆盖现在；独立/跨世界剧情不受影响。不增加 API 调用。回归在 `CharacterClockAuthorityTest`、`CoreMemoryDeliveryIntegrationTest`、`MemoryEvidenceSelectionTest`、`RelayRequestPressurePolicyTest`；下一轮核本轮 SHA 的主分支 JVM/APK/索引和真机跨日实际台词，**P-07.1 不勾已验**。
+
 - [ ] **P-07.1** 沿 MemoryValidityStore、成长/摘要/注入，复现来源修订或撤回后旧认识是否仍被当当前事实。
 - [ ] **P-07.2** 旧存量跨角色隔离、缓存和重启回归；历史原文可留，但须显式过去时间和来源。
 - [ ] **P-07.3** 真实模型分开验证候选召回、实际注入、最终判断。

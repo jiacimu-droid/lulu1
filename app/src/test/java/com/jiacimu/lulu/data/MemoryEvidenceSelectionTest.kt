@@ -5,6 +5,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MemoryEvidenceSelectionTest {
+    @Test fun oldNightEventKeepsFullDateAndActualDeviceZone() {
+        val old = SharedTimelineEvent("old-night", "role", "私聊", "用户",
+            "现在凌晨两点整了", Instant.parse("2026-11-11T18:00:00Z"),
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val shanghai = MemoryEvidenceSelection.render(listOf(old), 450,
+            zone = java.time.ZoneId.of("Asia/Shanghai")).text
+        val tokyo = MemoryEvidenceSelection.render(listOf(old), 450,
+            zone = java.time.ZoneId.of("Asia/Tokyo")).text
+        assertTrue(shanghai.contains("[2026-11-12T02:00:00+08:00]"))
+        assertTrue(tokyo.contains("[2026-11-12T03:00:00+09:00]"))
+        assertTrue(shanghai.contains("现在凌晨两点整了"))
+    }
+
     private val at = Instant.parse("2026-10-12T12:00:00Z")
     private fun event(id: String, seconds: Long = 0, session: String = "meeting", role: String = "role") =
         SharedTimelineEvent(id, role, "见面", "用户", "原始内容$id".repeat(15), at.plusSeconds(seconds),

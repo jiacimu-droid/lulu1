@@ -60,6 +60,8 @@ class CoreMemoryDeliveryIntegrationTest {
                 val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
                 val system = body.getJSONArray("messages").getJSONObject(0).getString("content")
                 assertEquals(source, expectsCore, system.contains("核心事实：我喜欢称呼宝宝"))
+                assertEquals("只有现实人物调用含实时设备时钟，包括聊天表达第二阶段",
+                    expectsCore, system.contains("【当前现实时钟｜手机读取】"))
                 if (expectsCore) assertTrue(system.contains("持续生效的核心记忆"))
             }
             val audit = CoreMemoryInjectionAudit.recent(role)
