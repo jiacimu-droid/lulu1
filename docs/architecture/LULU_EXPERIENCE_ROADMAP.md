@@ -111,6 +111,10 @@
 - [0cac523](https://github.com/jiacimu-droid/lulu1/commit/0cac5231b351ffd62ce0b67510ac36c28d3491e3) 在现有两批次 MockWebServer/正式 Runtime 回归中捕获第二次真实 HTTP 请求体，断言新模型输入包含第一轮已送达动态的事实。只补测试，**未证实断言通过**；无生产修改、收费模型调用或人设变更。
 - **下一固定 P-08a.1g.3**：核 `0cac523` 的 main push APK/JVM、Refresh code index（按 head SHA）；失败修首错并追真实时间线→提示词组装，成功后测执行中取消。真机/真实模型/账单独立待验。详细交接见 `CHARACTER_CONSISTENCY_PROGRESS.md`。
 
+### UI-02.2 本轮消息追加失败回退（待 CI）
+
+- 2026-11-12 UI-02.2 durable character append: [8bfee6c](https://github.com/jiacimu-droid/lulu1/commit/8bfee6ca7b3e734bdde8a558371731b6d98e2bf9) fixes a verified source-level rollback gap in `InMemoryLuluChatStore.append`: rejected durable commit previously left an in-memory bubble and changed conversation metadata, while the persisted snapshot stayed unchanged. The failure now restores both projections before any timeline/online side effects. [cf65c41](https://github.com/jiacimu-droid/lulu1/commit/cf65c413c391854d754429e43cfe69a9fcfe2d5c) adds `ChatHistoryPersistenceBaselineTest.rejectedCharacterAppendRestoresMessagesAndConversationOnReopen` with a rejecting Editor proxy and reopened Store. **JVM/APK and Refresh code index for cf65c41 are unverified; no engineering checkbox checked.** Next: inspect this test's first CI failure (if any), then investigate the non-durable append/other mutation paths without claiming they are transactionally safe. Device process death and real-model delivery remain external.
+
 ### 2026-11-12 UI-02.2 持久置顶写入拒绝回归（待 CI）
 
 - 测试提交 [`300b314`](https://github.com/jiacimu-droid/lulu1/commit/300b314d38355548670269761ac06a6419936a6e)：`ChatHistoryPersistenceBaselineTest.rejectedPinCommitKeepsMemoryAndReopenedSnapshotUnchanged` 在正式 ChatStore 注入仅拒绝 `SharedPreferences.Editor.commit()` 的隔离代理，验证 `setConversationPinned` 抛错、内存不出现假置顶、旧 `state_v1` 不变且重新打开仍未置顶。生产路径已有 `persistLocked(durable=true)` 后才发布状态，因此先补防回归，不改生产。**尚未运行 JVM/APK/索引，不能勾验收**。下一轮先按测试提交及后继 main SHA 查完整 Actions 首错；通过后继续 UI-02.2 消息追加写入失败/重启一致性，必要时再修生产持久化职责。真机强杀、10万条性能与服务商账单独立待验。
