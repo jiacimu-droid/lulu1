@@ -54,6 +54,8 @@ internal object IslandBuildingControls {
             kotlin.math.abs(w.x-x) + kotlin.math.abs(w.y-y) > 1 ->
                 "需要站到目标旁边（1格内）"
             !locationOK -> "地形不符或位置被占用"
+            !allowed && action=="crystal_lantern" && s.crystals<1 ->
+                "还差1颗晶石；用石镐采蓝色晶矿"
             !allowed -> "材料不足，继续采集木材和石料"
             else -> "可放置 · 点击建造"
         }
