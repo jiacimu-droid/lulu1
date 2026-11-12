@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`906f6e60e4fc54f393fe0464fc0b4c05cab27f5e`
+- 基准提交：`a9ed52b91f89966bc37de9aa11da4401c2bde12d`
 - 分支：`main`
-- 已索引文件：1268
-- 已索引代码/文本行：267622
-- 已发现符号：3779
+- 已索引文件：1270
+- 已索引代码/文本行：267795
+- 已发现符号：3781
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -432,7 +432,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 56 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 160 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 578 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 478 | 3 |
@@ -536,6 +536,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 68 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 75 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
@@ -545,7 +546,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3583 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3594 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
@@ -962,7 +963,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousSocialWakeAnchorsTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 146 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 100 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 978 | 3 |
@@ -1114,10 +1115,11 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 127 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 218 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |

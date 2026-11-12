@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:57:40.265982+00:00",
-  "commit": "906f6e60e4fc54f393fe0464fc0b4c05cab27f5e",
+  "generatedAt": "2026-11-12T08:59:12.910074+00:00",
+  "commit": "a9ed52b91f89966bc37de9aa11da4401c2bde12d",
   "branch": "main",
-  "sourceFingerprint": "802f30d40b89267c28f0a61788caac08e7c4a4d0cf62c1758980777b47aa79f5",
+  "sourceFingerprint": "dd11809273e6cf313f88e46359984671e89c5ee3406d3b4e2355f2bd5f5af020",
   "summary": {
-    "files": 1268,
-    "lines": 267622,
-    "symbols": 3779
+    "files": 1270,
+    "lines": 267795,
+    "symbols": 3781
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3996,6 +3996,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt",
+        "line": 11
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
@@ -11739,7 +11743,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3516
+        "line": 3527
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -19768,6 +19772,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt",
         "line": 17
+      }
+    ],
+    "PhoneTaskNarrativeContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt",
+        "line": 7
       }
     ],
     "PositiveExpressionGuidanceTest": [
@@ -28605,8 +28615,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 160,
-      "sha256": "286e2da7a8b9955546d6c1971cdd9ed72f35506c57f2a7b20dd077f028cc6c0e",
+      "lines": 172,
+      "sha256": "d4101741b089c8515920aa5cdeeeb5083957986808ada56872eaf5b1aee428d1",
       "symbols": []
     },
     {
@@ -31902,6 +31912,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt",
+      "lines": 41,
+      "sha256": "9665021a0afc930ce3ea17c92556e9dc0620b4540b15b53fb033742c685c3aa0",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 11
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
       "lines": 100,
       "sha256": "b7de2695f287893011a0593fd079c2f3f5ba9bf9f32ab7c5800cd979b2b15561",
@@ -32117,8 +32138,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3583,
-      "sha256": "5b89edfc03c87e2db4a807c0bc81a9be810b8c9587c8e85fafd936540e36376f",
+      "lines": 3594,
+      "sha256": "62a78da6ee6c4a0f82fd8654dc1ac5add4210a69ba097ac4e5f07d456166106e",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32150,7 +32171,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3516
+          "line": 3527
         }
       ]
     },
@@ -40374,8 +40395,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt",
-      "lines": 62,
-      "sha256": "b4d6e6e53158f481049b55a9004d52f4b8eb7992638700f17eef5aea73950a4f",
+      "lines": 86,
+      "sha256": "a686bd7d4bc0ef7aad0dc5a071ea0582fecce131281ebb3d4befbc729c94de59",
       "symbols": [
         {
           "name": "BackgroundModelRequestBudgetTest",
@@ -42710,8 +42731,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 127,
-      "sha256": "52d8ac5d0f972a205a7a5100817730912940390e542fd9d6fb625fc4d2d46e8f",
+      "lines": 150,
+      "sha256": "78d51bab37f42fad1435ce32e443f6eab6e4aea3bc5b24e363c11b2cc2311c3e",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",
@@ -42749,6 +42770,17 @@
         {
           "name": "PhoneReadRequestEvidenceTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt",
+      "lines": 62,
+      "sha256": "20889b113b82ede6e4a573b9108aab3cf9311235f0318c8d581111322f03e98c",
+      "symbols": [
+        {
+          "name": "PhoneTaskNarrativeContextTest",
+          "line": 7
         }
       ]
     },
