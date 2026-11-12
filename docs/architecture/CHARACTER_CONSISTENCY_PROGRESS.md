@@ -1,5 +1,11 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · UI-02.2 持久置顶提交失败不能假成功（工程 CI 待验）
+
+- 生产源码 `InMemoryLuluChatStore.setConversationPinned` 已在 `persistLocked(durable=true)` 成功后才发布 `conversationState`；`persistLocked` 对 `commit()==false` 抛错。为保护这一现有正确顺序，提交 [300b314](https://github.com/jiacimu-droid/lulu1/commit/300b314d38355548670269761ac06a6419936a6e) 增加真实 Store + 仅拒绝持久提交的 SharedPreferences 代理回归，检查失败抛错、内存/原始快照/重开一致性。**未运行 JVM、APK 或真机；没有生产修复，也不声称已验通。**
+- 下一轮直接检查 `ChatHistoryPersistenceBaselineTest.rejectedPinCommitKeepsMemoryAndReopenedSnapshotUnchanged` 的 Actions 首错；通过后查 UI-02.2 消息追加的失败持久化边界。旧 P-08c.2 的 `3eda282` 仍须按有效 main push head SHA 验证，不拿 PR-only 空列表冒充结果。
+
+
 ## 2026-11-12 · P-08a.1g/PH-01.3d 五分钟到期不该吞掉本人已选择但尚未兑现的手机行动
 
 - **用户现场**：江渡在私聊里说自己要检查后台、小红书搜不了；到了五分钟在线期末仍没有具体尝试的可见结果，就显示离线。截图可证明角色自述与体验断点，但不能证明后台 APK 确实访问过哪个 App。
