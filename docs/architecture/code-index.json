@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:21:09.693055+00:00",
-  "commit": "5f24b99a521c958d2ec83ccb2018894446d36470",
+  "generatedAt": "2026-11-12T10:21:39.204092+00:00",
+  "commit": "f591e91e15fc31fa13f332ff1dab27616e2ea30d",
   "branch": "main",
-  "sourceFingerprint": "e6f6e1577896701b7d8d0dc73f6ea1bcfa72cce44f66acfe307e9dcf3b6f97cb",
+  "sourceFingerprint": "069bcc744052b4b85427335ca311697de354a071da7ef80417950d0a73a53625",
   "summary": {
     "files": 1274,
-    "lines": 268807,
-    "symbols": 3804
+    "lines": 268816,
+    "symbols": 3805
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2347,7 +2347,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 20
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
@@ -4895,7 +4895,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 114
+        "line": 123
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -14261,7 +14261,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 15
+        "line": 17
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -14411,7 +14411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 72
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
@@ -14461,35 +14461,41 @@
     "name": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 37
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
         "line": 45
       }
     ],
-    "feed": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 43
-      }
-    ],
-    "canFeed": [
+    "requiredFeeds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 49
       }
     ],
-    "hasNearbyHome": [
+    "feed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 50
+      }
+    ],
+    "canFeed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 57
       }
     ],
+    "hasNearbyHome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
+        "line": 66
+      }
+    ],
     "canGift": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-        "line": 64
+        "line": 73
       }
     ],
     "canCraft": [
@@ -35671,44 +35677,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
-      "lines": 157,
-      "sha256": "288de4a5aa82a377d023b27640a272d0495d7061f8637b7cf8c5075e1707bd69",
+      "lines": 166,
+      "sha256": "e784ce08132c3ac98faf5a8f46501a1e699cb65756ec4d07d8062619c11c19e2",
       "symbols": [
         {
           "name": "json",
-          "line": 15
+          "line": 17
         },
         {
           "name": "read",
-          "line": 20
+          "line": 23
         },
         {
           "name": "name",
-          "line": 37
-        },
-        {
-          "name": "feed",
           "line": 43
         },
         {
-          "name": "canFeed",
+          "name": "requiredFeeds",
           "line": 49
         },
         {
-          "name": "hasNearbyHome",
+          "name": "feed",
+          "line": 50
+        },
+        {
+          "name": "canFeed",
           "line": 57
         },
         {
+          "name": "hasNearbyHome",
+          "line": 66
+        },
+        {
           "name": "canGift",
-          "line": 64
+          "line": 73
         },
         {
           "name": "generate",
-          "line": 72
+          "line": 81
         },
         {
           "name": "advance",
-          "line": 114
+          "line": 123
         }
       ]
     },
