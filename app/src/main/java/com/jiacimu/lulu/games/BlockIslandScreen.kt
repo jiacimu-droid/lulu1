@@ -283,7 +283,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandGuardianEncounter.impendingHeavyAttack(island))
             "⚠ 守卫下一回合重击 · 躲开" else "",
         status = "❤ ${world.hp}/12  饱 ${island.hunger}/10  木 ${world.wood}  石 ${world.stone}  果 ${island.fruit}  " +
-            IslandGarden.season(world.turns) + if (night) "夜" else "昼",
+            IslandGarden.season(world.turns) + (if (night) "夜" else "昼"),
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -381,9 +381,33 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         buildMode=null
                         if(canWork) perform("house_step",bx,by)
                         else {
-                            target=bx to by
-                            mapAim=false
-                            navigateTo=bx to by
+                            val needed=if(nextPart.second=="floor")1 else 2
+                            if(world.wood<needed) {
+                                save(island.copy(world=world.copy(
+                                    notice="施工还需${needed}木材；先砍树，再回来亲手建造")))
+                            } else {
+                                // Approach an accessible *neighbour*, never walk onto
+                                // the future solid wall itself.
+                                val standingSpot=listOf(
+                                    (bx-1) to by,(bx+1) to by,
+                                    bx to (by-1),bx to (by+1),
+                                ).filter { (sx,sy) ->
+                                    BlockIslandRules.isWalkable(island,sx,sy) &&
+                                        world.friends.none { it.x==sx && it.y==sy } &&
+                                        world.mobs.none { it.hp>0 && it.x==sx && it.y==sy } &&
+                                        island.animals.none { it.x==sx && it.y==sy } &&
+                                        ((sx==world.x && sy==world.y) ||
+                                            BlockIslandRules.nextStep(island,world.x,world.y,sx,sy)!=null)
+                                }.minByOrNull { (sx,sy) -> abs(world.x-sx)+abs(world.y-sy) }
+                                if (standingSpot==null) {
+                                    save(island.copy(world=world.copy(
+                                        notice="暂时走不到施工位，先清理房子旁的障碍")))
+                                } else {
+                                    target=bx to by
+                                    mapAim=false
+                                    navigateTo=standingSpot
+                                }
+                            }
                         }
                     }, color=Color(0xCB544A36),
                         shape=RoundedCornerShape(10.dp)) {
@@ -1071,7 +1095,7 @@ private fun BlockIslandCanvas(
     val config = LocalConfiguration.current
     val landscape = config.screenWidthDp > config.screenHeightDp
     val cols = if (landscape) { if (zoomed) 18 else 28 } else { if (zoomed) 14 else 22 }
-    val rows = if (fullscreen) (cols * ((config.screenHeightDp - 54).coerceAtLeast(160).toFloat() /
+    val rows = if (fullscreen) (cols * ((config.screenHeightDp).coerceAtLeast(160).toFloat() /
         config.screenWidthDp.coerceAtLeast(1))).toInt().coerceIn(6, 32)
         else if (landscape) { if (zoomed) 7 else 10 } else { if (zoomed) 11 else 16 }
     // The player and camera share the same interpolated position. Even at the world edge,
