@@ -47,6 +47,10 @@ internal object RelicTreasureArt {
         "冰魄竖琴" to RelicArtKind.HARP,
         "星河沙漏" to RelicArtKind.HOURGLASS,
         "黎明权杖" to RelicArtKind.SCEPTRE,
+        "暗影碎片" to RelicArtKind.CRYSTAL,
+        "锻铁徽片" to RelicArtKind.COIN,
+        "祭司秘纹" to RelicArtKind.BOOK,
+        "哨兵之核" to RelicArtKind.STAR,
         "封印之心" to RelicArtKind.CRYSTAL,
         RelicCollectibles.CROWN_JEWEL to RelicArtKind.STAR,
     )
