@@ -2062,3 +2062,7 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 核实 `a964c4f` 的 [APK/JVM #43150286715](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286715) `build=completed/success`、[索引 #43150286675](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286675) `refresh=completed/success`，该私聊已完成工具请求重放回归工程已验。
 - 续接正式 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`，测试提交 [4869419](https://github.com/jiacimu-droid/lulu1/commit/486941934c44ab67cb8e422454f9713a67ea95f0)、[3eda282](https://github.com/jiacimu-droid/lulu1/commit/3eda282a52fd980cc26ded48ca5305012be456f2)：旧轮部分气泡实际送达→用户纠正→新轮独立送达→重新初始化 ChatStore→保留旧/新消息 ID 和原文→旧水位仍无权追加消息。复用现有真实 Store 与执行器，不加收费模型请求、不改生产人物行为。
 - **新增测试尚无本 SHA 的 APK/JVM/索引成功证据，不勾完成。** 此处 Store 重建不等于真实进程死亡。下一轮直接检查 `privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection` 的 JVM 首错；绿后转 UI-02.2 写入失败恢复或 P-08a.1g.3 未覆盖的纵向断点；真机与真实模型独立待验。
+
+
+## 2026-11-12 · UI-02.2 编辑/删除失败回退接力
+- 源码 [762533d](https://github.com/jiacimu-droid/lulu1/commit/762533d807205eccbb7a712177404924558403a3)：`MigratedDomainStores.kt` 中 `mutateMessagesContaining` 的消息编辑/删除先 durable commit，失败恢复旧消息和会话投影，不允许触发下游删除/撤回假回执。测试 [3ebd9ac](https://github.com/jiacimu-droid/lulu1/commit/3ebd9acd63cdd9731e8f6fa9222c75a2f9efa285)：`ChatHistoryPersistenceBaselineTest.rejectedMessageMutationPreservesOriginalAndReopenedHistory` 拒绝 commit 时原消息与 Store 重建不变。新 SHA APK/JVM、索引仍待 CI；没有本地 Gradle、真机或收费模型调用。下一轮按本测试首错继续同 ID；通过后检查会话清空/删除是否同样会在持久化拒绝时提前销毁历史。
