@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T01:57:12.424109+00:00",
-  "commit": "4d9a68bd1ea9d04e7ed6f8c9fa006b78a2be6107",
+  "generatedAt": "2026-11-12T01:58:27.832420+00:00",
+  "commit": "fad0c8c840bce7755b022f4ba7255632ebe6cb16",
   "branch": "main",
-  "sourceFingerprint": "6511256db14a03e96d8228c6fec84e0e0dddfe7a92a7af1b457d8701bf766ded",
+  "sourceFingerprint": "fdb7777141c3b762cfe770c1b486c252614eb9c75592ee37624dfd1fd97d9ce5",
   "summary": {
     "files": 1210,
-    "lines": 261175,
+    "lines": 261197,
     "symbols": 3652
   },
   "symbolIndex": {
@@ -21339,8 +21339,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
-      "lines": 46,
-      "sha256": "1f518f2d9f0360eeabfc73b6f6e47c4cefc1af44e92622a2633a553a54296786",
+      "lines": 66,
+      "sha256": "49c24f497ca94da0c09896019e90b80a2ff35013a2dcc14be970e6bd05f7e4a3",
       "symbols": []
     },
     {
@@ -23817,8 +23817,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1186,
-      "sha256": "988c69f548e5c02f0e9b750a7353a6e09f2af53ca976ae2866a848d83b655a9c",
+      "lines": 1185,
+      "sha256": "a4c12a73a8a4a7eb64429fc5905343ece733692bf25c4f2747fcddc4da3865ed",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -37769,8 +37769,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt",
-      "lines": 42,
-      "sha256": "607c90a153708fb5726084cea917a3f5df55fa69c84d8d0b970ae3a03612392f",
+      "lines": 45,
+      "sha256": "946f04a38d7ec710f2a38dd75179286ed8f1777194bf3a134e396885a953c89d",
       "symbols": [
         {
           "name": "ChatReplyTurnActionsTest",

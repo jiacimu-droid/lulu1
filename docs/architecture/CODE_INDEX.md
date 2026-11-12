@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4d9a68bd1ea9d04e7ed6f8c9fa006b78a2be6107`
+- 基准提交：`fad0c8c840bce7755b022f4ba7255632ebe6cb16`
 - 分支：`main`
 - 已索引文件：1210
-- 已索引代码/文本行：261175
+- 已索引代码/文本行：261197
 - 已发现符号：3652
 
 | 文件 | 行数 | 符号数 |
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 46 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
@@ -258,7 +258,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1186 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1185 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
@@ -823,7 +823,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt` | 35 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 42 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatScrollFollowPolicyTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt` | 130 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DesktopLauncherMoveTest.kt` | 32 | 1 |
