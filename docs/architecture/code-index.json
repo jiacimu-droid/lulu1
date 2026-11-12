@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T04:26:12.651890+00:00",
-  "commit": "18e8531b3f6698d553a5520645e58cbb36823cee",
+  "generatedAt": "2026-11-12T04:26:56.577510+00:00",
+  "commit": "769e37ce55e8cfd4e4812dbaa8ffe9fe8fb50bc6",
   "branch": "main",
-  "sourceFingerprint": "b3809b0cd2388d45b2a48c524eed271189fb758e6e4e9d23a48727da064eeb65",
+  "sourceFingerprint": "056b5b003241b7f3cceb0a2452bedb521bd12c3040e0f77fffa3c054d35fd901",
   "summary": {
     "files": 1217,
-    "lines": 262320,
+    "lines": 262335,
     "symbols": 3664
   },
   "symbolIndex": {
@@ -36617,8 +36617,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 455,
-      "sha256": "4ca0efc50482b86c7945634f6862afc6704c3aa5bf9ca391de94a61a0c6ea33d",
+      "lines": 459,
+      "sha256": "6a611a794617093366a8b5a24153cc07e20ebaa537c10eea1d9ed614e036340c",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -37086,8 +37086,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 280,
-      "sha256": "2c12a6fb45a5a9903adb7ff4c441ee0fb6fbdb84ef945b7719559b1f96116a17",
+      "lines": 291,
+      "sha256": "8a97a09466871e45ea1a943bfad10ee88069d69441c2e7a3ced5adf66c252d43",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",

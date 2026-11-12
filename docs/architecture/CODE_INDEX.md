@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`18e8531b3f6698d553a5520645e58cbb36823cee`
+- 基准提交：`769e37ce55e8cfd4e4812dbaa8ffe9fe8fb50bc6`
 - 分支：`main`
 - 已索引文件：1217
-- 已索引代码/文本行：262320
+- 已索引代码/文本行：262335
 - 已发现符号：3664
 
 | 文件 | 行数 | 符号数 |
@@ -764,7 +764,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 455 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 459 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2348 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -782,7 +782,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 280 | 2 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 291 | 2 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
