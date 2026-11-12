@@ -6,8 +6,13 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Model parameter mistakes must be refused before shell I/O or display reset. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [33])
 class LuluBackgroundPhoneArgumentPolicyTest {
     @Test fun incompleteSwipeIsRejectedInsteadOfDefaultingOrThrowing() {
         val invalid = JSONObject()
