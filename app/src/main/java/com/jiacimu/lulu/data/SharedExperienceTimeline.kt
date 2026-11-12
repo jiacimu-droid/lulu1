@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.qqForwardContextText
+import com.jiacimu.lulu.recalledMessageIds
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
 import kotlinx.coroutines.CoroutineScope
@@ -272,6 +273,20 @@ object SharedExperienceTimeline {
 
     fun all(characterId: String): List<SharedTimelineEvent> =
         query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
+
+    /** A recall receipt changes evidence visibility, not the raw ledger. Read
+     * each relevant room once from the existing immutable chat snapshot. */
+    internal fun withoutRecalledGroupSpeech(events: List<SharedTimelineEvent>): List<SharedTimelineEvent> {
+        val recallsByRoom = mutableMapOf<String, Set<String>>()
+        return events.filterNot { event ->
+            val suffix = ":group:${event.characterId}"
+            event.channel.startsWith("群聊·") && event.id.endsWith(suffix) &&
+                (event.evidenceKind == EventEvidenceKind.CharacterStatement || event.source == "owner-on-behalf") &&
+                event.id.removeSuffix(suffix) in recallsByRoom.getOrPut(event.sessionId) {
+                    recalledMessageIds(MigratedDomainStores.chat.recordedMessages(event.sessionId))
+                }
+        }
+    }
 
     /** A stable decision's rejected action must not become newly executable on replay.
      * A withdrawn rejection still happened: deleting its visible evidence is not

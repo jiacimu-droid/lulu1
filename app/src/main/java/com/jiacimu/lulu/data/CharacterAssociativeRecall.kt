@@ -194,7 +194,9 @@ internal object CharacterAssociativeRecall {
             .filter { it.label in setOf("实际尝试运用所学", "收到真实应用反馈", "理解受到新的质疑") }
             .sortedByDescending { it.at }.take(3)
         val personalQuestions = CharacterCuriosityRuntime.pendingDecisionCues(characterId)
-        val events = SharedExperienceTimeline.recentEvents(characterId, 160)
+        val events = SharedExperienceTimeline.withoutRecalledGroupSpeech(
+            SharedExperienceTimeline.recentEvents(characterId, 160),
+        )
             .filter { !it.occurredAt.isAfter(now) &&
                 DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) &&
                 LuluRepositories.memory.allowsRawRecall(it) }

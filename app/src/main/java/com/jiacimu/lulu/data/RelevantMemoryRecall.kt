@@ -240,7 +240,9 @@ object RelevantMemoryRecall {
             }.filter(String::isNotBlank)
             if (ids.isEmpty()) return@forEachIndexed
             val memoryTerms = terms(memory.content)
-            SharedExperienceTimeline.eventsByIds(characterId, ids).forEach { event ->
+            SharedExperienceTimeline.withoutRecalledGroupSpeech(
+                SharedExperienceTimeline.eventsByIds(characterId, ids),
+            ).forEach { event ->
                 val eventTerms = terms("${event.channel} ${event.speaker} ${event.evidenceContent}")
                 val semanticTerms = queryTerms + memoryTerms
                 val overlap = if (semanticTerms.isEmpty() || eventTerms.isEmpty()) 0.0 else

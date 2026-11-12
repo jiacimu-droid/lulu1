@@ -114,7 +114,9 @@ internal fun MemoryEntry.sourceIds(): List<String> = when {
 
 internal fun memoryHasLiveSources(memory: MemoryEntry, characterId: String): Boolean {
     val ids = memory.sourceIds()
-    val live = SharedExperienceTimeline.eventsByIds(characterId, ids).associateBy { it.id }
+    val live = SharedExperienceTimeline.withoutRecalledGroupSpeech(
+        SharedExperienceTimeline.eventsByIds(characterId, ids),
+    ).associateBy { it.id }
     return ids.all { id -> live[id]?.let { event ->
         memory.sourceRevisions[id]?.let { it == event.revision } ?: true
     } == true }

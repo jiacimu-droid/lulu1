@@ -706,10 +706,11 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     private fun memoryEligibleTimelineEvents(characterId: String): List<SharedTimelineEvent> =
-        SharedExperienceTimeline.all(characterId).filterNot { event ->
-            (event.channel == "私聊" && event.speaker == "系统") ||
-                event.source == "owner-phone-inspection"
-        }
+        SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId))
+            .filterNot { event ->
+                (event.channel == "私聊" && event.speaker == "系统") ||
+                    event.source == "owner-phone-inspection"
+            }
 
     private fun readableMessages(characterId: String, policy: MemoryPolicy, flushTail: Boolean = false): List<LuluChatMessage> =
         memoryEligibleTimelineEvents(characterId)

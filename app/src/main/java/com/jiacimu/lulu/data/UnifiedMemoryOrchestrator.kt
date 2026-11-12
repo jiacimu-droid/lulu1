@@ -182,9 +182,8 @@ object UnifiedMemoryOrchestrator {
         ) + RawTimelineMemoryRecall.find(characterId, query, limit = 16))
             .distinctBy(SharedTimelineEvent::id)
             .filterNot { event -> event.id in seenIds || event.id in excluded }
-        val liveEvents = SharedExperienceTimeline.all(characterId).filter {
-            it.id !in excluded && LuluRepositories.memory.allowsRawRecall(it)
-        }
+        val liveEvents = SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId))
+            .filter { it.id !in excluded && LuluRepositories.memory.allowsRawRecall(it) }
         val sourceEvents = MemoryEvidenceSelection.expand(directSourceEvents, liveEvents, evidenceLimit)
             .filterNot { it.id in seenIds || it.id in excluded }
         val activeTasks = if (localOnly) "" else renderActiveCommitmentTasks(characterId)

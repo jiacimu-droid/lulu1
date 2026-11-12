@@ -164,8 +164,11 @@ class InMemoryLuluChatStore : LuluChatStore {
      * Receipt/inner-life stores can already hold their own lock here; edits hold
      * the chat lock while withdrawing those same stores' evidence. Concurrent map
      * lookup + immutable StateFlow value avoids reversing that lock order. */
+    internal fun recordedMessages(conversationId: String): List<LuluChatMessage> =
+        messageStates[conversationId]?.value.orEmpty()
+
     internal fun recordedMessage(conversationId: String, messageId: String): LuluChatMessage? =
-        messageStates[conversationId]?.value?.firstOrNull { it.id == messageId }
+        recordedMessages(conversationId).firstOrNull { it.id == messageId }
 
     override fun ensureConversation(characterId: String, title: String): LuluConversation {
         val cleanCharacterId = characterId.trim()

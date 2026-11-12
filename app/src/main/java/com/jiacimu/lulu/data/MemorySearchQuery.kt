@@ -61,7 +61,7 @@ internal object RawTimelineMemoryRecall {
         val timeTopic = timeQuestion.matchEntire(currentInput)?.groupValues?.get(1)?.lowercase()
             ?.takeIf { it in memorySearchTerms(it) }
         if (terms.isEmpty() && range == null) return emptyList()
-        val events = SharedExperienceTimeline.all(characterId).filter {
+        val events = SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId)).filter {
             com.jiacimu.lulu.LuluRepositories.memory.allowsRawRecall(it) &&
                 (range == null || (it.occurredAt >= range.first && it.occurredAt < range.second))
         }

@@ -51,7 +51,7 @@ internal object CharacterContinuityRuntime {
         // Carry this marker across pagination so older pages are not re-filtered.
         var skippedCurrentEcho = false
         fun absorb(page: List<SharedTimelineEvent>) {
-            for (event in page) {
+            for (event in SharedExperienceTimeline.withoutRecalledGroupSpeech(page)) {
                 if (event.id in excludedEventIds) continue
                 if (event.evidenceKind == EventEvidenceKind.UserStatement &&
                     TimelineStatementOwnership.involvesUser(event)) {

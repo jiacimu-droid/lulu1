@@ -1977,6 +1977,68 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun recalledGroupSpeechStaysInLedgerButCannotReachPhoneOrAutonomousContext() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val actor = MigratedDomainStores.characters.create("跨场景江渡", "跨场景本人特征")
+        val peer = MigratedDomainStores.characters.create("跨场景星禾", "自己的观察")
+        val id = actor.characterId
+        val chat = MigratedDomainStores.chat
+        val group = chat.createGroupConversation("跨场景撤回", listOf(id, peer.characterId))
+        val retained = "继续有效的美术展馆地址"
+        val recalled = "待撤回的美术展日期"
+        val summary = "这份美术展时间摘要来自撤回发言"
+        chat.appendCharacterMessage(group.id, retained, authorCharacterId = peer.characterId)
+        val bubble = chat.appendCharacterMessage(group.id, recalled, authorCharacterId = peer.characterId)
+        val eventId = "${bubble.id}:group:$id"
+        val memory = com.jiacimu.lulu.core.MemoryEntry(
+            "recalled-speech-$id", id, summary, com.jiacimu.lulu.core.MemoryKind.Fact,
+            "timeline-events:$eventId", null, java.time.Instant.now(), 8, true, true,
+        )
+        LuluRepositories.memory.save(memory)
+        assertTrue(memoryHasLiveSources(memory, id))
+        assertTrue(LuluRepositories.memory.contextTimelineEvents(id).any { it.id == eventId })
+        assertTrue(chat.retractCharacterMessage(bubble.id, peer.displayName))
+        assertTrue(SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).any { it.content == recalled })
+        assertFalse(memoryHasLiveSources(memory, id))
+        assertFalse(LuluRepositories.memory.contextTimelineEvents(id).any { it.id == eventId })
+        assertFalse(LuluRepositories.memory.pendingTimelineEvents(id).any { it.id == eventId })
+
+        val server = MockWebServer()
+        repeat(2) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"{\"action\":\"reply\",\"text\":\"我再确认一下。\"}"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "跨场景撤回测试",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            LuluDeviceToolBridge.respond(id, "", "美术展的地点呢？", "test", archiveId = archive.id,
+                sceneContext = "一对一电话仍然接通").getOrThrow()
+            LuluAiServices.gateway.generate(id, "现在在独处", "从本人所知决定下一步", "主动感知", "test",
+                contextMode = CompanionContextMode.Full,
+                connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test"),
+                memoryRequest = UnifiedMemoryRequest(currentInput = "美术展的地点", sceneContext = "后台自主感知"),
+            ).getOrThrow()
+            repeat(2) {
+                val request = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertTrue(request.contains(retained))
+                assertTrue(request.contains("跨场景本人特征"))
+                assertFalse(request.contains(recalled))
+                assertFalse(request.contains(summary))
+            }
+            assertEquals(2, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test(timeout = 60_000) fun groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
