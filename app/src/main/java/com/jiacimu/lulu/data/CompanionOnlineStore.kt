@@ -118,7 +118,7 @@ object CompanionOnlineStore {
                 isExpiryReviewRunning(characterId)) return
             // Technical grace for the deferred expiry worker, not a free new
             // 5-minute life window and not a role-authored renewal decision.
-            val deadline = now.plusMillis(600L)
+            val deadline = now.plusSeconds(3)
             mutableStates.value = mutableStates.value +
                 (characterId to current.copy(onlineUntil = deadline))
             persistLocked()
