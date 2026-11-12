@@ -34,6 +34,12 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
                 if(IslandWildlife.canGift(state,resident)) "收取伙伴礼物" else "轻抚"+IslandWildlife.name(resident.species),
                 IslandWildlife.canGift(state,resident),distance)
         }
+        near && state.structures[w.index(x, y)] == "garden" -> {
+            val index = w.index(x, y)
+            IslandTargetAction(IslandGarden.action(state,index),
+                IslandGarden.actionLabel(state,index),
+                IslandGarden.canInteract(state,index),distance)
+        }
         near && w.cell(x, y) in setOf(1, 2) -> IslandTargetAction("gather", "采集", true, distance)
         near && w.cell(x, y) == 8 -> IslandTargetAction(
             "fish", if ("rod" in state.tools) "钓鱼" else "需要鱼竿",
@@ -52,7 +58,7 @@ internal data class IslandNearbyAction(val action: String, val label: String, va
 internal fun islandNearbyAction(
     state: BlockIslandState,
     facing: Pair<Int, Int>,
-    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish", "tame", "care"),
+    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish", "tame", "care", "sow_berries", "tend_berries", "harvest_berries"),
 ): IslandNearbyAction? {
     val w = state.world
     if (w.finished) return null
