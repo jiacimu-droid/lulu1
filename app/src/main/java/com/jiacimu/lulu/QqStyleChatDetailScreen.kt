@@ -538,13 +538,12 @@ fun QqStyleChatDetailScreen(
             return
         }
         val ids = turn.generatedMessageIds.toSet()
-        val originals = snapshot.filter { it.id in ids }
         val roleId = message.authorCharacterId ?: characterId
         val targetRole = MigratedDomainStores.characters.get(roleId)
-        val firstIndex = snapshot.indexOfFirst { it.id in ids }
-        val history = buildBoundedHistory(snapshot.take(firstIndex), targetRole.displayName,
+        val precedingMessages = replyHistoryBeforeTurn(snapshot, turn.generatedMessageIds)
+        val history = buildBoundedHistory(precedingMessages, targetRole.displayName,
             characters.mapValues { it.value.displayName })
-        val originalUserText = snapshot.take(firstIndex)
+        val originalUserText = precedingMessages
             .takeLastWhile { it.sender != LuluChatMessage.Sender.Character }
             .filter { it.sender == LuluChatMessage.Sender.User }
             .joinToString("\n") { it.content }
@@ -552,7 +551,6 @@ fun QqStyleChatDetailScreen(
         selectedMessage = null
         ChatReplyTaskManager.launch(conversationId) {
             setTypingCharacter(roleId)
-            var stagedState: LuluDeviceToolBridge.ReconsideredChatReply? = null
             LuluDeviceToolBridge.respond(
                 characterId = roleId,
                 history = history,
@@ -564,14 +562,11 @@ fun QqStyleChatDetailScreen(
                 archiveId = com.jiacimu.lulu.ai.ScopedModelSelections
                     .selectedCharacterChatArchiveId(roleId, library),
                 reconsiderationEvidenceId = observationId,
-                sceneContext = if (groupChat == null)
-                    "正在重新回复最近一轮私聊；内容由同一角色人格、主观决策和表达架构生成。"
-                else "正在重新回复最近一轮群聊发言；只代表这个角色，不泄漏任何私聊内容。",
-                turnContext = "用户要求重新考虑角色上一轮已经发出的消息；这不是新增的用户正文。" +
-                    "\n【旧回复，仅供判断哪里需要重写，不能作为新经历】\n" +
-                    originals.joinToString("\n") { qqForwardContextText(it.content) } +
-                    "\n不得再次执行旧工具，不重复发送系统回执。模型自己重新判断表达及真正有变化的心声。",
-                onReconsiderationDraft = { stagedState = it },
+                // The model sees only the original user turn, never the
+                // earlier reply or the fact that this button was pressed.
+                sceneContext = if (groupChat == null) "正在和用户进行文字聊天。"
+                    else "正在群聊《${groupChat.name}》里参与文字聊天。",
+                regenerationExcludedEventIds = excludedReplyTimelineIds(ids, roleId),
             ).onSuccess { reply ->
                 // This response came from the structured character-expression
                 // route, not a legacy unstructured paragraph. Re-splitting it
@@ -586,20 +581,8 @@ fun QqStyleChatDetailScreen(
                 )
                 if (replacement == null) reportError("聊天已经继续或原消息已变更，原记录已保留")
                 else {
-                    // A failed retry is not a new life event. Record the user's
-                    // actual re-answer request only after its replacement was committed.
-                    runCatching {
-                        com.jiacimu.lulu.data.SharedExperienceTimeline.record(
-                            eventId = observationId, characterId = roleId,
-                            channel = if (groupChat == null) "私聊交互" else "群聊交互",
-                            speaker = "界面操作",
-                            content = "用户要求角色重新考虑刚才这一轮自己的表达；没有新增聊天正文。",
-                            source = com.jiacimu.lulu.data.InteractionSignalBridge.SOURCE,
-                            evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
-                            triggerExtraction = false,
-                        )
-                        stagedState?.let { LuluDeviceToolBridge.commitReconsideredChatReply(roleId, observationId, it) }
-                    }.onFailure { reportError("回复已替换，但更新心声失败：${it.message}") }
+                    // This is a replacement first answer, not a new social
+                    // event. The timeline is updated by replaceCharacterReply.
                     replacement.filter { decodeQqChatImage(it.content) == null }.forEach {
                         ChatAutoVoicePlayback.enqueue(roleId, it.id, it.content, conversationId)
                     }

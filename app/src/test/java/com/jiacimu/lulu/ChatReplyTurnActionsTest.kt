@@ -18,6 +18,21 @@ class ChatReplyTurnActionsTest {
         assertEquals(listOf("auto"), regeneratableLatestTurn(listOf(role("auto", "autonomous")), "auto")!!.generatedMessageIds)
         assertEquals(listOf("last"), regeneratableLatestTurn(listOf(role("before", null), role("last", null)), "last")!!.generatedMessageIds)
     }
+    @Test fun alternateFirstDraftNeverContainsTheOldBubbles() {
+        val user = LuluChatMessage(id = "user-5", conversationId = "chat",
+            sender = LuluChatMessage.Sender.User, content = "你能刷视频吗")
+        val original = role("old-bubble-1", "batch")
+        val second = role("old-bubble-2", "batch")
+        val snapshot = listOf(user, original, second)
+        val turn = regeneratableLatestTurn(snapshot, original.id)!!
+        val before = replyHistoryBeforeTurn(snapshot, turn.generatedMessageIds)
+        assertEquals(listOf("user-5"), before.map { it.id })
+        assertTrue(before.none { it.id in turn.generatedMessageIds })
+        assertEquals(setOf("old-bubble-1", "old-bubble-2",
+            "old-bubble-1:group:role-1", "old-bubble-2:group:role-1"),
+            excludedReplyTimelineIds(turn.generatedMessageIds, "role-1"))
+    }
+
     @Test fun newUserSpeechPreventsReplacingAnOlderTurn() {
         val all = listOf(role("auto", "a"), LuluChatMessage(id = "new", conversationId = "chat",
             sender = LuluChatMessage.Sender.User, content = "我还有话说"))

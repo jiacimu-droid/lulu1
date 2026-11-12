@@ -25,3 +25,21 @@ internal fun regeneratableLatestTurn(messages: List<LuluChatMessage>, selectedMe
     val anchor = messages.take(firstIndex).lastOrNull { it.sender == LuluChatMessage.Sender.User }
     return RegeneratableReplyTurn(anchor?.id, generated.map(LuluChatMessage::id))
 }
+
+/** A fresh alternative has only the chat preceding the old reply as history. */
+internal fun replyHistoryBeforeTurn(
+    messages: List<LuluChatMessage>,
+    generatedMessageIds: Collection<String>,
+): List<LuluChatMessage> {
+    val ids = generatedMessageIds.toSet()
+    val first = messages.indexOfFirst { it.id in ids }
+    require(first >= 0 && ids.isNotEmpty()) { "原回复已失效，不得在较新聊天后重新生成" }
+    return messages.take(first)
+}
+
+/** The old role message may have both private and group timeline identities. */
+internal fun excludedReplyTimelineIds(
+    generatedMessageIds: Collection<String>, characterId: String,
+): Set<String> = generatedMessageIds.flatMapTo(mutableSetOf()) {
+    listOf(it, "$it:group:$characterId")
+}
