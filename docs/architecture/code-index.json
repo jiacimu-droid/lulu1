@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:23:16.705414+00:00",
-  "commit": "018e1b20e226a083fd066b757c92e4662e003ba1",
+  "generatedAt": "2026-11-12T10:23:49.371196+00:00",
+  "commit": "20a99fc95482cb476233863ae57a34cf263a0c96",
   "branch": "main",
-  "sourceFingerprint": "de4cf472cfff7670f13c303b7f5b1ade01a7aed6ea60cefab933648f6c8f7729",
+  "sourceFingerprint": "d8a764af702d82d4800723a8d0dfb7f11bd80945c690d73007e3a08e9e973765",
   "summary": {
-    "files": 1274,
-    "lines": 268866,
-    "symbols": 3806
+    "files": 1275,
+    "lines": 268946,
+    "symbols": 3807
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20780,6 +20780,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt",
         "line": 5
+      }
+    ],
+    "IslandGardenTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandGardenTest.kt",
+        "line": 11
       }
     ],
     "IslandHarvestPlanTest": [
@@ -44297,6 +44303,17 @@
         {
           "name": "IslandFollowCameraTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandGardenTest.kt",
+      "lines": 80,
+      "sha256": "3f3fd36afb5a838c65fbcff236f6031acb94b2d594fdca772ec8a49fae6b3cfa",
+      "symbols": [
+        {
+          "name": "IslandGardenTest",
+          "line": 11
         }
       ]
     },
