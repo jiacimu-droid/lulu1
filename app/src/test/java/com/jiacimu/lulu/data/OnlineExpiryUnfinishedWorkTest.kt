@@ -5,7 +5,13 @@ import org.json.JSONObject
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+/** JSONObject needs Robolectric rather than Android's unmocked android.jar stub. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [33])
 class OnlineExpiryUnfinishedWorkTest {
     private val now = Instant.parse("2026-11-12T04:46:00Z")
 
