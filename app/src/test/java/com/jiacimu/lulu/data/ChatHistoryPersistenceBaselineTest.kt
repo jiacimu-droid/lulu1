@@ -328,6 +328,84 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+
+    /** UI-02.2: regenerate must not retire the original bubble or rebind its sources on a failed commit. */
+    @Test fun rejectedReplyRegenerationKeepsOriginalAfterStoreReopen() {
+        val previous = prefs.getString(key, null)
+        val originalId = "ui02-original-character-reply"
+        val message = JSONObject()
+            .put("id", originalId)
+            .put("conversationId", conversationId)
+            .put("sender", "Character")
+            .put("content", "Original character reply")
+            .put("createdAt", "2026-01-01T00:01:00Z")
+            .put("status", "Sent")
+        val conversation = JSONObject()
+            .put("id", conversationId)
+            .put("characterId", "ui02-character")
+            .put("title", "Reply regeneration rollback")
+            .put("updatedAt", "2026-01-01T00:01:00Z")
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(conversation))
+            .put("messages", JSONObject().put(conversationId, JSONArray().put(message)))
+            .toString()
+        try {
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val field = InMemoryLuluChatStore::class.java.getDeclaredField("prefs")
+                .apply { isAccessible = true }
+            val actual = field.get(store) as android.content.SharedPreferences
+            val rejected = java.lang.reflect.Proxy.newProxyInstance(
+                actual.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") {
+                    method.invoke(actual, *(args ?: emptyArray()))
+                } else {
+                    val editor = actual.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> false
+                            "apply" -> error("Reply regeneration must not silently apply")
+                            else -> {
+                                val result = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (result === editor) proxy else result
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            val originalMessages = store.messages(conversationId).value
+            val originalConversations = store.conversations.value
+            field.set(store, rejected)
+            try {
+                val failure = runCatching {
+                    store.replaceCharacterReply(conversationId, listOf(originalId), listOf("Regenerated reply"))
+                }.exceptionOrNull()
+                assertTrue("Rejected regeneration must report failure", failure is IllegalStateException)
+                assertEquals(originalMessages, store.messages(conversationId).value)
+                assertEquals(originalConversations, store.conversations.value)
+                assertEquals(snapshot, prefs.getString(key, null))
+            } finally {
+                field.set(store, actual)
+            }
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertEquals(originalMessages, reopened.messages(conversationId).value)
+            assertEquals(originalConversations, reopened.conversations.value)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     private fun measure(count: Int) {
         val previous = prefs.getString(key, null)
         try {
