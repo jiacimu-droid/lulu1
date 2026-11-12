@@ -79,8 +79,9 @@ internal object IslandHouseProjects {
         val part=nextPlayerPart(s) ?: return false
         val w=s.world
         val (index,kind)=part
-        return abs(w.x-index%w.width)+abs(w.y-index/w.width)<=1 &&
-            w.wood>=if(kind=="floor")1 else 2 &&
+        return index!=w.index(w.x,w.y) &&
+            abs(w.x-index%w.width)+abs(w.y-index/w.width)<=1 &&
+            w.wood >= (if(kind=="floor")1 else 2) &&
             w.tiles[index]==0 && index !in s.structures &&
             w.friends.none { w.index(it.x,it.y)==index } &&
             s.animals.none { w.index(it.x,it.y)==index } &&
