@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T02:04:25.032695+00:00",
-  "commit": "108ec7fe7aa44db809659d7e75d7bb1163cf394c",
+  "generatedAt": "2026-11-12T02:06:48.000619+00:00",
+  "commit": "c0063af06007436dfb1f373e6a0a0585dd99c3b2",
   "branch": "main",
-  "sourceFingerprint": "7e33b26155663aada2e8a2b1099d48e9ca3f2e4f528fb3b59b75ecb9d7f8a706",
+  "sourceFingerprint": "184f5e8026c9bcddadc27583392f547cf3a212150b73fab35022efbe2bcd8bd7",
   "summary": {
-    "files": 1212,
-    "lines": 261322,
-    "symbols": 3656
+    "files": 1214,
+    "lines": 261413,
+    "symbols": 3658
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -847,7 +847,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1508
+        "line": 1519
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -3926,6 +3926,10 @@
         "line": 817
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
+        "line": 12
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
         "line": 86
       },
@@ -5143,19 +5147,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1263
+        "line": 1274
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1275
+        "line": 1286
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1498
+        "line": 1509
       }
     ],
     "configured": [
@@ -17310,6 +17314,12 @@
         "line": 14
       }
     ],
+    "CharacterClockAuthorityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterClockAuthorityTest.kt",
+        "line": 7
+      }
+    ],
     "JevDirectionsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
@@ -24698,9 +24708,20 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
+      "lines": 19,
+      "sha256": "f184ee89e18983368b1a1ec7b059fbc55e8d4e558b7f3fb37252e74bccedc709",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 12
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1516,
-      "sha256": "7a5b8d6322a32dd27dbb5bdd6f856b02c74ab35913295e15b3fe9a6d52f07d5f",
+      "lines": 1527,
+      "sha256": "f27eaf66f74ac34d4f919196d1468e93f4b6f691d60e278b6018ab3d700fb3de",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -24800,19 +24821,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1263
+          "line": 1274
         },
         {
           "name": "consumeEvent",
-          "line": 1275
+          "line": 1286
         },
         {
           "name": "LuluAiServices",
-          "line": 1498
+          "line": 1509
         },
         {
           "name": "initialize",
-          "line": 1508
+          "line": 1519
         }
       ]
     },
@@ -24932,7 +24953,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
       "lines": 147,
-      "sha256": "661c2d57c4c4898f239e91b5725930349bc8b7f2f88525469ead951ce35b2f0c",
+      "sha256": "89ff634965c5c904839b0b5ce655d3f00e4783e36916974f71b43de7cae0a575",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -30292,8 +30313,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-      "lines": 71,
-      "sha256": "6678d29e04572fb74e1eda4c0823575a267f4c1357c3cee9e1df8277fd5ec11a",
+      "lines": 74,
+      "sha256": "d0a3ffff7e5209a3985e570fcdf7683c543e065244a3b2f95c045fa72d89597f",
       "symbols": [
         {
           "name": "expand",
@@ -38732,6 +38753,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterClockAuthorityTest.kt",
+      "lines": 30,
+      "sha256": "26cb64564469739395c566b871275bc98a4e268ca495c4627fa420758ab15bc2",
+      "symbols": [
+        {
+          "name": "CharacterClockAuthorityTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
       "lines": 184,
       "sha256": "ea60e67d289bd4ec0939396c39ebcf1651c69b3c91bbf3fd4a8844254f81cea6",
@@ -38833,8 +38865,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 191,
-      "sha256": "eca54f3879982637bb551563a79c06d76332c04a461ec56081e86bbf33997ab2",
+      "lines": 204,
+      "sha256": "e0a66d0fc351cda96a414f558ac297e3802e0977de6691ae6956bb92fa63d92f",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
@@ -40494,8 +40526,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt",
-      "lines": 107,
-      "sha256": "cc9131d3de3c613d316f518de624efbab5862cebb423489ff278f869cfe4d9a8",
+      "lines": 109,
+      "sha256": "0ce71251df020c1119bcaaab3c80b67e4fc1af8be4cbbac2260c7649c3745ccc",
       "symbols": [
         {
           "name": "CoreMemoryDeliveryIntegrationTest",
@@ -41027,8 +41059,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
-      "lines": 218,
-      "sha256": "9adb7cd9915ae86e998494f7a06818fb4b1001ac9fb42409b59b37a0ebdd19a7",
+      "lines": 231,
+      "sha256": "82f5240017e03714d3c598966e48618459c5dbd8e4203308b48c4fe9db6938f8",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",
