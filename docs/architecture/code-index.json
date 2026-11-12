@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:42:39.883090+00:00",
-  "commit": "0197d3065aa2c4bbb8bde10693c8ff2997831557",
+  "generatedAt": "2026-11-12T10:55:16.965734+00:00",
+  "commit": "de3e54b0b535e8374075340e0bb65ea2dfbba071",
   "branch": "main",
-  "sourceFingerprint": "6d65d83d9c70ccf6b1d0687348a447441c5f75bf03bae3322ecfbbdd69b20960",
+  "sourceFingerprint": "12d8294132f67caa305bc0e3c4355ffe59c06592a99e2e473ace31299182ed6c",
   "summary": {
     "files": 1276,
-    "lines": 269436,
+    "lines": 269459,
     "symbols": 3813
   },
   "symbolIndex": {
@@ -497,7 +497,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1284
+        "line": 1301
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -7063,7 +7063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1244
+        "line": 1261
       }
     ],
     "cue": [
@@ -7229,7 +7229,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1215
+        "line": 1232
       }
     ],
     "current": [
@@ -18641,61 +18641,61 @@
     "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 615
+        "line": 618
       }
     ],
     "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 666
+        "line": 672
       }
     ],
     "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 716
+        "line": 722
       }
     ],
     "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 764
+        "line": 770
       }
     ],
     "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 825
+        "line": 831
       }
     ],
     "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 874
+        "line": 880
       }
     ],
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 917
+        "line": 923
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 972
+        "line": 978
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 1000
+        "line": 1006
       }
     ],
     "reload": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 1062
+        "line": 1068
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -27492,8 +27492,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1333,
-      "sha256": "187c47c201e1ec0467747aa410dfa9267008a7486376c79cebbb05f03c87a51f",
+      "lines": 1350,
+      "sha256": "96a7652c71a87d22cffa32ef2b60d1b9cce10704e69b1914a63f967e37799066",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -27521,15 +27521,15 @@
         },
         {
           "name": "profileContext",
-          "line": 1215
+          "line": 1232
         },
         {
           "name": "compactContext",
-          "line": 1244
+          "line": 1261
         },
         {
           "name": "context",
-          "line": 1284
+          "line": 1301
         }
       ]
     },
@@ -41305,8 +41305,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 1089,
-      "sha256": "7fbe16fed1375690f06abe577a36bd8d2b5fae12480de6ceba2ee9064028caae",
+      "lines": 1095,
+      "sha256": "8d17746c390cabe2e2a8c6e389c40db0aa1d79bf08b10439ac5a92dda5432c9a",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -41354,43 +41354,43 @@
         },
         {
           "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
-          "line": 615
+          "line": 618
         },
         {
           "name": "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona",
-          "line": 666
+          "line": 672
         },
         {
           "name": "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits",
-          "line": 716
+          "line": 722
         },
         {
           "name": "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions",
-          "line": 764
+          "line": 770
         },
         {
           "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
-          "line": 825
+          "line": 831
         },
         {
           "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
-          "line": 874
+          "line": 880
         },
         {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 917
+          "line": 923
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 972
+          "line": 978
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 1000
+          "line": 1006
         },
         {
           "name": "reload",
-          "line": 1062
+          "line": 1068
         }
       ]
     },
