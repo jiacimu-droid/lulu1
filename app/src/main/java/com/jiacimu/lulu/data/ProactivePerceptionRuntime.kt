@@ -925,6 +925,7 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
+                appendLine(CapabilityRegistry.phoneOperationContext(appContext, characterId))
                 // Read current owner todo facts cheaply in this existing decision.
                 // Only the role chooses if further checking/contact is warranted.
                 appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(appContext, now))
