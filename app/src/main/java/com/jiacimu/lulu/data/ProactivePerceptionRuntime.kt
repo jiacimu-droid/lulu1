@@ -2239,6 +2239,7 @@ object ProactivePerceptionRuntime {
                 userText = onlineUnread.text,
                 acceptedOnlineRevision = onlineRevision,
                 requestId = shadowRequestId,
+                connection = connection,
                 turnTraceId = turnTraceId,
                 groupNoticeFollowUp = trigger == GroupSocialOpportunity.WAKE_TRIGGER,
             )
@@ -2595,6 +2596,7 @@ object ProactivePerceptionRuntime {
         availableGroups: List<LuluConversation>,
         now: Instant,
         requestId: String,
+        connection: com.jiacimu.lulu.ai.ModelConnection,
         goalReviewMode: Boolean = false,
         hasFreshUserMessage: Boolean = false,
         explicitScreenRequest: Boolean = false,
@@ -2691,6 +2693,39 @@ object ProactivePerceptionRuntime {
             responseEvidenceIds.isNotEmpty()) {
             args.put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
         }
+        // An online private-chat decision uses this SAME character's selected
+        // chat model. The foreground adapter already had this loop; without it,
+        // online chat could only execute "start" and often fell back to taking
+        // a screenshot of the owner's visible screen instead.
+        val phoneOutcomes = mutableListOf<com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation.Outcome>()
+        suspend fun continueOwnedPhoneTask(
+            actionRequestId: String, actionArgs: JSONObject, actual: JSONObject,
+            actionReason: String,
+        ): String? {
+            if (actual.optString("mode") != "independent_virtual_display" ||
+                actual.optString("status") in setOf("denied", "failed") ||
+                actionArgs.optString("action") == "stop") return null
+            // Exactly this action's actual virtual display frame; NEVER use
+            // capture_screen (display 0) to satisfy a background-phone task.
+            val frame = com.jiacimu.lulu.system.LuluScreenFrameHandoff.take(
+                character.characterId, actionRequestId)
+            if (frame == null && !(actionArgs.optString("action") == "start" &&
+                    actual.optBoolean("success"))) return null
+            if (supersededByNewMessage()) return "后续暂缓：用户有更新消息，需要本人重新选择"
+            val outcome = com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation.continueFrom(
+                context = appContext, characterId = character.characterId,
+                connection = connection, title = character.displayName + "后台手机任务",
+                requestId = actionRequestId, userText = userText,
+                roleReason = actionReason, initialReceipt = actual.toString(),
+                initialImage = frame,
+                userRequested = CharacterInitiativeRuntime.isExplicitUserToolRequest(
+                    userText, "background_phone"),
+            )
+            phoneOutcomes += outcome
+            return "已按同一角色决定进一步执行${outcome.actions}步；" +
+                "本人主动结束=${outcome.finishedByRole}；" + outcome.notes.takeLast(450)
+        }
+
         val resultBearingTools = setOf("web_search", "image_search", "read_xiaohongshu", "read_self_todo")
         val resultJson = if (tool.isBlank()) {
             JSONObject().put("success", true).put("status", "skipped")
@@ -2714,6 +2749,11 @@ object ProactivePerceptionRuntime {
             // even when the live online worker is superseded by another chat bubble.
             if (hasFreshUserMessage && tool in resultBearingTools)
                 withContext(NonCancellable) { runTool() } else runTool()
+        }
+        if (tool == "background_phone") continueOwnedPhoneTask(
+            requestId, args, resultJson, decision.reason)?.let { phoneNote ->
+            // Added to effectNotes below, after the primary persisted receipt.
+            // A task continuation is not a new primary tool or fake delivery.
         }
         val primaryDeliveredIds = resultJson.optJSONArray("deliveredMessageIds")?.let { ids ->
             (0 until ids.length()).mapNotNull { ids.optString(it).takeIf(String::isNotBlank) }
@@ -2746,6 +2786,10 @@ object ProactivePerceptionRuntime {
             resultJson.optString("evidenceId"))
         val effectNotes = mutableListOf<String>()
         if (result.summary.isNotBlank()) effectNotes += result.summary
+        if (phoneOutcomes.isNotEmpty()) effectNotes += phoneOutcomes.joinToString("；") {
+            "后台手机确实额外执行${it.actions}步；主动结束=${it.finishedByRole}；" +
+                it.notes.takeLast(600)
+        }
         // The same role-model response may choose a separate device action
         // AND a conversational reply. Neither effect is permission for the
         // other; each receives an independent, persisted ToolRouter receipt.
@@ -2782,6 +2826,9 @@ object ProactivePerceptionRuntime {
                     turnTraceId = turnTraceId,
                     alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
                     groupNoticeFollowUp = groupNoticeFollowUp,
+                    onToolResult = { _, stepId, stepArgs, stepReceipt, stepReason ->
+                        continueOwnedPhoneTask(stepId, stepArgs, stepReceipt, stepReason)
+                    },
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2797,6 +2844,9 @@ object ProactivePerceptionRuntime {
             turnTraceId = turnTraceId,
             alreadyDeliveredPrivateText = primaryDeliveredPrivateText,
             groupNoticeFollowUp = groupNoticeFollowUp,
+            onToolResult = { _, stepId, stepArgs, stepReceipt, stepReason ->
+                continueOwnedPhoneTask(stepId, stepArgs, stepReceipt, stepReason)
+            },
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
