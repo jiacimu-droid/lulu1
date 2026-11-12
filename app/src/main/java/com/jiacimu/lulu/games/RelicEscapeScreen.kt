@@ -80,9 +80,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         if (openingReceipt == null) { openingClock.snapTo(0f); return@LaunchedEffect }
         val receipt = openingReceipt ?: return@LaunchedEffect
         openingClock.snapTo(0f)
-        openingClock.animateTo(1f, androidx.compose.animation.core.tween(1750,
+        val cinematic = RelicRevealTimeline.beamCount(receipt.loot) >= 8
+        openingClock.animateTo(1f, androidx.compose.animation.core.tween(
+            if(cinematic) 2350 else 1750,
             easing = androidx.compose.animation.core.FastOutSlowInEasing))
-        kotlinx.coroutines.delay(1150)
+        kotlinx.coroutines.delay(if(cinematic)1450 else 1000)
         chestHud = chestHud.dismiss(receipt)
     }
     var error by remember{mutableStateOf("")}
@@ -383,7 +385,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         if(run.contract!=RelicContract.NONE) {
                             val progress=RelicContractBoard.bagProgress(run)
                             Text("✦ "+run.contract.label+" · "+
-                                (progress?.first?:0)+"/"+(progress?.second?:1)+
+                                RelicContractBoard.status(run)+
                                 " · 成功撤离额外 ◇"+run.contract.bonus,
                                 color=relicGreen,fontSize=10.sp,
                                 fontWeight=FontWeight.Bold,maxLines=2)
@@ -516,13 +518,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         }
         if(error.isNotBlank())RelicPanel {Text(error,color=relicRed)}
         RelicPanel {
-            Text("宝物品质 · 越往右通常越珍贵",color=relicGold,
+            Text("收藏品级 · 品级越高价值越高",color=relicGold,
                 fontSize=12.sp,fontWeight=FontWeight.Bold)
-            Text("普通 ◇70–132  →  稀有 ◇185–247  →  珍贵 ◇430–492",
+            Text("普通 ◇70–99 → 精良 ◇100–132 → 稀有 ◇185–247",
+                color=relicMuted,fontSize=11.sp,lineHeight=17.sp)
+            Text("珍贵 ◇430–459 → 史诗 ◇460–492 → 传说「封印之心」◇650起",
                 color=relicMuted,fontSize=11.sp,lineHeight=17.sp)
             Text("✦ 传世秘宝「晨星之核」◇6000（珍贵箱极低概率）",
                 color=relicGold,fontSize=11.sp,fontWeight=FontWeight.Bold)
-            Text("祭坛珍藏「封印之心」另计；宝物必须成功撤离才真正入库。",
+            Text("品质和实际鉴定价值来自同一件实物；成功撤离才真正入库。",
                 color=relicMuted,fontSize=10.sp,lineHeight=15.sp)
             if(run!=null && run.allies.isNotEmpty())
                 Text("和伙伴玩：点右上「队伍与语音」，告诉他们想一起打怪、分头搜箱或请他送宝；角色自行选择、行动和承担后果。",
@@ -580,7 +584,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 if(snapshot.vault.isEmpty())Text("尚未有成功带回的实物",color=relicMuted)
                 snapshot.vault.takeLast(30).reversed().forEach{item->
                     Row(verticalAlignment=Alignment.CenterVertically) {
-                        Text(item.tier.label+" · "+item.name+" · "+item.value,
+                        Text(RelicCollectibles.displayRank(item)+" · "+item.name+" · "+item.value,
                             color=when(item.tier){RelicTier.PRECIOUS->relicGold;RelicTier.RARE->relicGreen;else->Color.White},
                             fontSize=12.sp,modifier=Modifier.weight(1f))
                         TextButton(onClick={change{ledger.sellLoot(item.id)}}){Text("兑换铜币")}
@@ -864,7 +868,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 if(hero.bag.isEmpty())Text("背包空空的",color=relicMuted)
                 hero.bag.forEach{item->
                     Row(verticalAlignment=Alignment.CenterVertically) {
-                        Text(item.tier.label+" "+item.name+" · "+item.value+" · "+item.weight+"格",
+                        Text(RelicCollectibles.displayRank(item)+" "+item.name+" · "+item.value+" · "+item.weight+"格",
                             color=relicGold,fontSize=12.sp,modifier=Modifier.weight(1f))
                         TextButton(onClick={action("drop",id=item.id)}){Text("丢下")}
                     }
@@ -966,7 +970,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             Text("移动：左侧方向键每次走一格，点地图可选目标；点「定位你」回到自己。")
             Text("战斗：附近有可攻击的敌人会自动显示「攻击近敌」，无需反复点怪。短剑只打上下左右1格；长矛直线2格，弩弓直线4格并消耗弩箭。")
             Text("探索：靠近宝箱开箱，侦察会消耗一回合；敌人也会随你的行动移动或攻击。")
-            Text("宝物品质：普通（约◇70–132）→ 稀有（约◇185–247）→ 珍贵（约◇430–492）。特殊秘宝「晨星之核」价值◇6000，为当前宝箱最高价值的藏品；祭坛另有「封印之心」。")
+            Text("宝物品级：普通70–99、精良100–132、稀有185–247、珍贵430–459、史诗460–492、传说「封印之心」650起、传世秘宝「晨星之核」6000。怪物掉落与宝箱物件都按统一鉴定价值分级。")
             Text("不同等级会有不同的揭晓光色、名称与展陈效果；真正开到的物品由本局宝箱决定，不能通过跳过动画重抽。")
             Text("组队：先在营地邀请伙伴并等对方决定是否加入。进地图点右上「队伍与语音」，可以点麦克风说话、打字或点击协作提议；伙伴自己决定分头找箱、标记留箱、护卫、救援或送宝。真实动作会更新地图与背包，语音目前是逐句收发，不是不断线的实时电话。")
             Text("撤离：到绿门附近启动撤离，守住3回合才能带走战利品；没赶到门附近的伙伴可能掉队。")
@@ -1086,8 +1090,8 @@ private fun relicDirection(dx:Int,dy:Int):String=
                 (if(earned>0) "达成！铜币 +"+earned else "本局未完成（无额外奖励）"),
                 color=if(earned>0)relicGreen else relicMuted,fontWeight=FontWeight.Bold)
         }
-        run.secured.forEach{Text("带回 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicGreen)}
-        run.lost.forEach{Text("遗失 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicRed)}
+        run.secured.forEach{Text("带回 · "+RelicCollectibles.displayRank(it)+" "+it.name+" · "+it.value,color=relicGreen)}
+        run.lost.forEach{Text("遗失 · "+RelicCollectibles.displayRank(it)+" "+it.name+" · "+it.value,color=relicRed)}
         if(run.secured.isEmpty() && run.lost.isEmpty())Text("本局没有带出宝物",color=relicMuted)
         Text("成员战况",color=Color.White,fontWeight=FontWeight.Bold)
         Text("玩家 · 生命"+run.hero.hp+" · 救援"+run.hero.rescues+"次 · 受伤"+
