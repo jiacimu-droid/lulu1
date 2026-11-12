@@ -142,7 +142,7 @@ internal fun LuluProfileAvatar(
     }
 }
 
-private fun loadLuluAvatarBitmap(context: Context, value: String, preferPreview: Boolean): Bitmap? {
+internal fun loadLuluAvatarBitmap(context: Context, value: String, preferPreview: Boolean): Bitmap? {
     cachedLuluAvatarFullBitmap(value)?.let { return it }
     if (preferPreview) {
         cachedLuluAvatarPreviewBitmap(value)?.let { return it }

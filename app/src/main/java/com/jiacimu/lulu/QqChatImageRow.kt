@@ -38,6 +38,7 @@ internal fun QqChatImageRow(
     onLongClick: () -> Unit,
 ) {
     var descriptionOpen by remember(image.imageUri, image.imageDescription) { mutableStateOf(false) }
+    var previewOpen by remember(image.imageUri) { mutableStateOf(false) }
     val display = remember(image) { qqChatImageDisplay(image) }
     val uriHandler = LocalUriHandler.current
 
@@ -67,7 +68,7 @@ internal fun QqChatImageRow(
             horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         ) {
             Surface(
-                modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
+                modifier = Modifier.combinedClickable(onClick = { previewOpen = true }, onLongClick = onLongClick),
                 color = if (image.sticker) Color.Transparent else Color.White,
                 contentColor = QqInk,
                 shape = RoundedCornerShape(16.dp),
@@ -142,6 +143,9 @@ internal fun QqChatImageRow(
                 if (showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
             }
         }
+    }
+    if (previewOpen) {
+        QqChatImageViewer(image.imageUri, onDismiss = { previewOpen = false })
     }
     if (descriptionOpen) {
         AlertDialog(

@@ -13,9 +13,9 @@ import java.io.File
 
 /** Display the actual GIF frames; generic avatar bitmap loaders only decode frame one. */
 @Composable
-internal fun QqChatAnimatedGif(imageUri: String) {
+internal fun QqChatAnimatedGif(imageUri: String, modifier: Modifier = Modifier.size(154.dp)) {
     AndroidView(
-        modifier = Modifier.size(154.dp),
+        modifier = modifier,
         factory = { context ->
             ImageView(context).apply {
                 scaleType = ImageView.ScaleType.FIT_CENTER
