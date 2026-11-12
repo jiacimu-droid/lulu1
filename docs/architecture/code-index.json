@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:30:50.258835+00:00",
-  "commit": "61abfbbc8666b6283b51222bddea6c70f3928c17",
+  "generatedAt": "2026-11-12T12:31:17.804444+00:00",
+  "commit": "d941d6bcd2a06dbef132b5019b5c60d2b7d5759a",
   "branch": "main",
-  "sourceFingerprint": "607fea7e39250c24cc01c1669f9e11144b0857a38a9fdf90a80250c9c687b461",
+  "sourceFingerprint": "e4ecc58f625fa9ddd1f9db76abadc54cb1997682d9db2aa711df1a3c7f5e073a",
   "summary": {
     "files": 1277,
-    "lines": 269820,
-    "symbols": 3822
+    "lines": 269843,
+    "symbols": 3823
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3604,6 +3604,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
         "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
+        "line": 49
       }
     ],
     "errorNote": [
@@ -7051,7 +7055,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-        "line": 14
+        "line": 16
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
@@ -12229,7 +12233,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-        "line": 38
+        "line": 61
       }
     ],
     "RelevantMemoryRecall": [
@@ -14919,7 +14923,7 @@
     "bagProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-        "line": 25
+        "line": 33
       }
     ],
     "target": [
@@ -36226,20 +36230,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
-      "lines": 40,
-      "sha256": "d3bf178db781f8e2cacbe19a75c096e1848aac74a483303c660644a06e9d7c5a",
+      "lines": 63,
+      "sha256": "cc9c63157b001a81caa871a4725a485380f8def294742799729fe3ce8a03bf1e",
       "symbols": [
         {
           "name": "completed",
-          "line": 14
+          "line": 16
         },
         {
           "name": "bagProgress",
-          "line": 25
+          "line": 33
+        },
+        {
+          "name": "status",
+          "line": 49
         },
         {
           "name": "bonus",
-          "line": 38
+          "line": 61
         }
       ]
     },
