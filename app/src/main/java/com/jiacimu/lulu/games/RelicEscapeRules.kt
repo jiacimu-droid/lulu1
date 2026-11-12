@@ -34,6 +34,11 @@ internal object RelicCollectibles {
     val names: List<String> = ordinary.values.flatten() + listOf("封印之心", CROWN_JEWEL)
     fun namesFor(tier: RelicTier): List<String> = ordinary.getValue(tier)
     fun isCrownJewel(name: String): Boolean = name == CROWN_JEWEL
+    /** Display-only fourth rung for the seeded special drop. Preserve the three
+     * persisted RelicTier enum values so existing saves remain readable. */
+    fun displayRank(loot: RelicLoot): String =
+        if (isCrownJewel(loot.name)) "传世秘宝" else loot.tier.label
+
 }
 
 internal data class RelicLoot(val id:String,val name:String,val tier:RelicTier,val value:Int) {
