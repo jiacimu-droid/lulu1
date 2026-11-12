@@ -419,21 +419,16 @@ object LuluDeviceToolBridge {
             appendLine("请本人依据全部语境判断，对方究竟是在纠正、轻松聊天、表达需要还是讨论别人的经历；如有误解应当自己修复，不由程序关键词断定她的意思。")
         }.trim() else ""
         val decisionFormatRule = if (rewriting) """
-            这是已有聊天的重新回复：不是新的用户消息。保留全部原本人格、记忆、判断、主观心声和表达两阶段架构，
-            但只允许重新决定这轮该怎样用 reply 表达，不能选 tool 或 silent，不能重做已经执行的动作。
-            决策阶段只输出一个尽快闭合的 JSON，必须有 action=reply、speechIntent 和 dialogueMove。
-            speechIntent 是想传达的真实意思，不是已经说出口的话；表达层将负责分气泡。
-            dialogueMove 可用正常聊天的 type/target/contentIntent，回复气泡不是预先规定的数量。
-            若真正产生新的未说出口想法，可选 innerThought，必须同时提供
-            innerThoughtBasis={"focus":"具体触发点","change":"和上一刻有何不同","unsaidWhy":"为何没有说出口"}；
-            如情绪、内在动机有可靠变化可选 innerLife、appraisal、mood。
-            若上一轮真实发生了争执或对方明确受伤，应重新判断自己是否仍有未解决的个人心事，
-            而不是因已经说过道歉就自动当作和好；如角色确实想继续修复，可在
-            appraisal.pendingConcerns 中开放不同主题的可延续心事（每条有独立 topicKey、focus、whyItMatters、priority、hesitation、possibleNextStep），或续想相同 threadId；老的单条 pendingConcern 仍兼容。
-            也允许多个不同甚至矛盾的念头保存在 innerLife.thoughts，行动由后续本人自主选择，
-            不要把一种可能的修复方式写成必做规则、擅自认定用户已原谅或强制连发道歉。
-            不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
-        """.trimIndent() else if (callSilence) """
+            这是即时聊天的一次完整语言回答。只根据当前用户消息、原本确实存在的较早聊天、
+            本人的性格、关系和真实事实，直接决定现在如何接话。尚未发生的台词不是既有经历。
+            当前通道仅产出 reply 的决策与言语表达，不执行新的工具，不建立新安排，
+            也不改变已经实际发生的设备动作与外部结果。
+            决策阶段只输出一个完整 JSON，必须有 action=reply、speechIntent 和 dialogueMove。
+            speechIntent 是本人这次想让对方知道的意思，不是预先写好的台词。
+            dialogueMove 选择真实适合当前用户消息的 type/target/contentIntent。
+            可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood，但只在确有当下变化时填写。
+            已确定的表达由相同人格的语言层生成自然气泡；不根据系统状态虚构新的对话事件。
+                """.trimIndent() else if (callSilence) """
             【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。
             由本人结合当前目标、关系和实际结果选择 action=reply 或 silent。reply 时 text 为真实要说的口语；silent 时没有语音输出，reason 保存本人实际理由。两者均可附 steps/sideActions 执行已授权工具，以及 commitmentChanges 更新原责任或安排下一次结果复查。
             例如结构：{"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。心理字段只在本人确有新变化时按原协议填写，不需为凑字段生成感受。
@@ -631,7 +626,6 @@ object LuluDeviceToolBridge {
                 )}
                 $decisionFormatRule
                 ${if (!rewriting) com.jiacimu.lulu.data.CommitmentDecisionProtocol.instruction else ""}
-                ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
                 $phoneConversationConstraint
                 $live2dDecisionContext
@@ -732,14 +726,14 @@ object LuluDeviceToolBridge {
             LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
-                    appendLine("重新回复仍属于同一角色的同一轮对话。")
+                    appendLine("当前聊天仍由同一角色基于原本的用户消息与历史作答。")
                     appendLine("原本需要回应的用户内容：${userText.takeLast(1_500)}")
                     appendLine("之前真实的交流：${history.takeLast(2_500)}")
                     appendLine("角色状态：${com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now)}")
-                    appendLine("上一份不完整或错误的决策草稿只供参考：${plannedReply.text.take(1_000)}")
+                    appendLine("本次尚未发送的结构草稿（只用来补齐字段）：${plannedReply.text.take(1_000)}")
                 },
                 instruction = """
-                    继续作为同一角色重新思考本轮表达，不更改已发生事实，不执行工具、不选择 silent。
+                    只补全本次尚未发送的决策 JSON，保留既有人格、真实事实；不执行工具、不选择 silent。
                     只返回一个完整紧凑的 JSON 对象，必须包含 action=reply、speechIntent（这次真正想传达的具体意思）及 dialogueMove 对象。
                     dialogueMove.type 由本人根据当前对话从 acknowledge/answer/ask/backchannel/self_repair/other_initiated_repair/candidate_understanding/disagree/tease/reassure/topic_shift/defer/decline/close/share 中选择；再填写本轮实际的 target 和 contentIntent。
                     这是结构补正，不预设角色这次正在回答问题；气泡数量和表达长短由本人原有选择与当前互动需要决定。
@@ -934,7 +928,7 @@ object LuluDeviceToolBridge {
         // just because the model omitted one OPTIONAL JSON field. Ask the same model
         // for a bounded addendum to the SAME decision; this is not a new character,
         // an additional auto-apology, or a background action.
-        if (separateExpression &&
+        if (separateExpression && !rewriting &&
             com.jiacimu.lulu.data.EmotionFollowThroughCoordinator.needsConcernAssessment(userText, plan.appraisal)) {
             val review = LuluAiServices.gateway.generate(
                 characterId = characterId,
