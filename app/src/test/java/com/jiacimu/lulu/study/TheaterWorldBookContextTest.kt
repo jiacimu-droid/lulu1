@@ -17,6 +17,12 @@ class TheaterWorldBookContextTest {
         assertEquals("", TheaterWorldBookContext.capture(emptySet(), entries).promptText())
     }
 
+    @Test fun standaloneRulesContainOnlyUserSelectedStoryFacts() {
+        val context = TheaterWorldBookContext.capture(setOf("a"), listOf(entry("a", "灯塔只在黎明鸣响。")))
+        assertEquals("规则a：灯塔只在黎明鸣响。", context.standalonePromptText())
+        assertEquals("", TheaterWorldBookContext.capture(emptySet(), listOf(entry("a", "未选规则"))).standalonePromptText())
+    }
+
     @Test fun editingOrDeletingSelectedContentRejectsOldResultsButOtherChangesDoNot() {
         val a = entry("a", "旧规则")
         val b = entry("b", "其他")
