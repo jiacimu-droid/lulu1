@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`64268cc20446322bf2fbf098bf8b2f5302831d16`
+- 基准提交：`56c17a2a344368fe2cffb15add53e45ddbf3de05`
 - 分支：`main`
-- 已索引文件：1250
-- 已索引代码/文本行：265621
-- 已发现符号：3753
+- 已索引文件：1253
+- 已索引代码/文本行：265826
+- 已发现符号：3754
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -249,7 +249,8 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 317 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1018 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 843 | 2 |
@@ -257,6 +258,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt` | 37 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1192 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
@@ -890,6 +892,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 876 | 1 |

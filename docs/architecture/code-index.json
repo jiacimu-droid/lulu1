@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:12:13.677942+00:00",
-  "commit": "64268cc20446322bf2fbf098bf8b2f5302831d16",
+  "generatedAt": "2026-11-12T07:31:03.888414+00:00",
+  "commit": "56c17a2a344368fe2cffb15add53e45ddbf3de05",
   "branch": "main",
-  "sourceFingerprint": "08ca34f44ee8786084ecf68be3ad9c35eb74f78c9cd2b80d020cf5f9c766aded",
+  "sourceFingerprint": "14778b74e30449e4d81c317aa2eb41f7a37d5ae7d66f1958b2a076a9faf9dfcd",
   "summary": {
-    "files": 1250,
-    "lines": 265621,
-    "symbols": 3753
+    "files": 1253,
+    "lines": 265826,
+    "symbols": 3754
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17470,6 +17470,12 @@
         "line": 12
       }
     ],
+    "QqChatImageViewerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt",
+        "line": 5
+      }
+    ],
     "QqChatPhotoAttachmentStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt",
@@ -23382,7 +23388,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
       "lines": 402,
-      "sha256": "d4a074f376ab3e2c7801b87030fa29f2269ac1b77d73427b80b760e297ae86a4",
+      "sha256": "9deec5dbfa716e2659bc6f5e07f8843efc328da95bb6e6aa3afe83211621c8fc",
       "symbols": []
     },
     {
@@ -24269,7 +24275,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt",
       "lines": 43,
-      "sha256": "17afc5d2e48797383120ef93c71522fe4a043884e95c52267f82fe9cba8c4567",
+      "sha256": "51c843e304776549cc5a0be3936bcd10dc84d9ffdd9e308e1e1ab45d92b5c240",
       "symbols": []
     },
     {
@@ -24306,8 +24312,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt",
-      "lines": 161,
-      "sha256": "8535d1a18eac4389cf50ba45f32e4be5044d54b3a5d4b867c58bae16abba205b",
+      "lines": 165,
+      "sha256": "6b11a42a52ddb6cfe98dd2b7e327310398dfdf5855e49c45d66dd42b6d4d0ec9",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt",
+      "lines": 121,
+      "sha256": "061f7dd43e634887d317c5cf84c8d82e7f8adfc10d124b8428a58e0aec10b041",
       "symbols": []
     },
     {
@@ -24377,6 +24389,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt",
       "lines": 17,
       "sha256": "bdcb64a6c78541a9201e1593c5e2f5af172a531ba113176aeeec3e0e2acf443d",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt",
+      "lines": 37,
+      "sha256": "b2dbfec58cd35427649005b3c15a3d0c98a08a263f26f470e31fd756ae2abf87",
       "symbols": []
     },
     {
@@ -39314,6 +39332,17 @@
         {
           "name": "QqChatImageDisplayTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt",
+      "lines": 43,
+      "sha256": "12712811188839c84d1985923f566cd27fb3c6e96a9d931847ab9c0a8bb614ff",
+      "symbols": [
+        {
+          "name": "QqChatImageViewerTest",
+          "line": 5
         }
       ]
     },
