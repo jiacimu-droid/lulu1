@@ -23,12 +23,17 @@ internal fun chatPresenceLine(
     return "$presence · $modelLabel"
 }
 
+/** Display threshold only. Never shorten the underlying charged model request. */
+internal const val CHAT_RESPONSE_WAIT_NOTICE_MILLIS = 45_000L
+
 internal fun chatWorkHeaderLabel(
     awaitingReply: Boolean,
     activeFollowThrough: Boolean,
     checkingPhone: Boolean = false,
+    waitingForInterfaceResult: Boolean = false,
 ): String? = when {
     checkingPhone -> "正在查手机"
+    awaitingReply && waitingForInterfaceResult -> "等待接口完成"
     awaitingReply -> "正在输入中"
     activeFollowThrough -> "执行后续中"
     else -> null
