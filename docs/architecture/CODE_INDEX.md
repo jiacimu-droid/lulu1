@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`836d100bbc635ebc410b2245e8438e756e512c2d`
+- 基准提交：`6fc3a6081e32ae2fd52f66612b0c50cc34b4fac3`
 - 分支：`main`
-- 已索引文件：1278
-- 已索引代码/文本行：270249
+- 已索引文件：1279
+- 已索引代码/文本行：270439
 - 已发现符号：3827
 
 | 文件 | 行数 | 符号数 |
@@ -658,7 +658,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1280 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 330 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 919 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1198 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1210 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -727,6 +727,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 210 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 169 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
