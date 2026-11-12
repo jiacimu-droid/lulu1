@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5147f460bbc979befc5ecb8131cbb86226f2482d`
+- 基准提交：`f327d90aece2c3fde78df86b744739753a870b2a`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271410
+- 已索引代码/文本行：271432
 - 已发现符号：3841
 
 | 文件 | 行数 | 符号数 |
@@ -1232,7 +1232,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 897 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt` | 150 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt` | 172 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt` | 22 | 1 |
