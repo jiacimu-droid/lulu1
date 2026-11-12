@@ -378,6 +378,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                             onOpen = { showRoleLiveScreen = true },
                         )
                     }
+                    item("phone-recent-tool-activity") {
+                        RolePhoneActivitySection(actualRole)
+                    }
                     item("phone-summary") {
                         RolePhoneHomeHeader(
                             name = identity?.displayName ?: "角色",
