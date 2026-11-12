@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1663976ba463a033530c36b9a058741099fd3aa6`
+- 基准提交：`c6d3c1ef63e6dee691231ebd2185a330dd0d7477`
 - 分支：`main`
 - 已索引文件：1222
-- 已索引代码/文本行：262837
+- 已索引代码/文本行：262849
 - 已发现符号：3674
 
 | 文件 | 行数 | 符号数 |
@@ -760,7 +760,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 419 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 422 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 184 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
@@ -1079,7 +1079,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 133 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 286 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 232 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1076 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1085 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
