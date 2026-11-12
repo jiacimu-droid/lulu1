@@ -250,7 +250,18 @@ internal object LuluBackgroundPhoneSession {
 
     private fun humanOnlyReceipt(
         displayId: Int, packageName: String, reason: String,
-    ): String = JSONObject().put("success", false).put("status", "waiting_user")
+    ): String {
+        // A verified merchant payment screen is a HANDOFF, not proof the
+        // owner's main screen has inherited the virtual-display checkout task.
+        if (reason == "payment" && packageName == activeApp &&
+            ownerCharacterId.isNotBlank()) {
+            appContext?.let { ownerContext ->
+                runCatching {
+                    LuluBackgroundPhoneNotice.showPaymentHandoff(ownerContext, packageName)
+                }
+            }
+        }
+        return JSONObject().put("success", false).put("status", "waiting_user")
         .put("mode", "independent_virtual_display").put("displayId", displayId)
         .put("packageName", packageName).put("screenState", "needs_human")
         .put("needsHuman", true).put("humanReason", reason)
@@ -259,6 +270,7 @@ internal object LuluBackgroundPhoneSession {
             "后台屏顶层窗口切换到了另一应用或系统弹窗；未确认仍属于本任务，已暂停操作，需主人或原角色核对"
             else "后台出现需要主人亲自处理的登录、验证码、支付或安全验证界面（$reason）；已停止自动操作，不读取密码或代替确认")
         .toString()
+    }
 
     private fun forgetTransport() {
         appContext?.let { runCatching { LuluBackgroundPhoneNotice.clear(it) } }
