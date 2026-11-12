@@ -20,6 +20,7 @@ class LuluShoppingAssistPolicyTest {
     }
 
     @Test fun generalUiSafetyStillRejectsPurchasingWithoutOwnerSwitch() {
+        assertFalse(LuluVirtualUiPolicy.mayClick("加入购物车", "cart_button", ""))
         assertFalse(LuluVirtualUiPolicy.mayClick("立即购买", "btn_buy", ""))
         assertFalse(LuluVirtualUiPolicy.mayClick("去结算", "checkout_btn", ""))
         assertTrue(LuluVirtualUiPolicy.mayClick("加入购物车", "cart_button", "", true))
