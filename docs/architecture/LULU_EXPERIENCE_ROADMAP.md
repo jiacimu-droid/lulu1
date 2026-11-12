@@ -61,6 +61,10 @@
 - [0cac523](https://github.com/jiacimu-droid/lulu1/commit/0cac5231b351ffd62ce0b67510ac36c28d3491e3) 在现有两批次 MockWebServer/正式 Runtime 回归中捕获第二次真实 HTTP 请求体，断言新模型输入包含第一轮已送达动态的事实。只补测试，**未证实断言通过**；无生产修改、收费模型调用或人设变更。
 - **下一固定 P-08a.1g.3**：核 `0cac523` 的 main push APK/JVM、Refresh code index（按 head SHA）；失败修首错并追真实时间线→提示词组装，成功后测执行中取消。真机/真实模型/账单独立待验。详细交接见 `CHARACTER_CONSISTENCY_PROGRESS.md`。
 
+### 2026-11-12 UI-02.2 持久置顶写入拒绝回归（待 CI）
+
+- 测试提交 [`300b314`](https://github.com/jiacimu-droid/lulu1/commit/300b314d38355548670269761ac06a6419936a6e)：`ChatHistoryPersistenceBaselineTest.rejectedPinCommitKeepsMemoryAndReopenedSnapshotUnchanged` 在正式 ChatStore 注入仅拒绝 `SharedPreferences.Editor.commit()` 的隔离代理，验证 `setConversationPinned` 抛错、内存不出现假置顶、旧 `state_v1` 不变且重新打开仍未置顶。生产路径已有 `persistLocked(durable=true)` 后才发布状态，因此先补防回归，不改生产。**尚未运行 JVM/APK/索引，不能勾验收**。下一轮先按测试提交及后继 main SHA 查完整 Actions 首错；通过后继续 UI-02.2 消息追加写入失败/重启一致性，必要时再修生产持久化职责。真机强杀、10万条性能与服务商账单独立待验。
+
 ### 2026-11-10 UI-02.1 长历史持久化量化夹具（待 CI）
 
 - 新增 [cd170a5](https://github.com/jiacimu-droid/lulu1/commit/cd170a5ea0706debff009e63bfb6305cf2f48831) `ChatHistoryPersistenceBaselineTest`：用原 `state_v1` JSON 格式一次性播种 1,000/10,000 条，真实 `InMemoryLuluChatStore.initialize` → `setConversationPinned`（元数据单次写入）→ 重新实例化并核消息数与置顶持久化，打印 UTF-8 字节量、初始恢复、写入、二次恢复耗时；100,000 条标为 opt-in heavy，不自动占用普通 JVM CI。每轮恢复原 SharedPreferences，防测试污染。此测试未在本环境运行，不能报告耗时或勾工程验收。
