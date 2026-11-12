@@ -898,7 +898,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color=Color.White,fontSize=12.sp)
                 Text("实际进度：守夜 " + island.nightsSurvived + "/3 · 补给 " +
                     island.openedSupplies.size + "/" + island.supplyCaches.size +
-                    " · 工具 " + island.tools.size + "/4 · 已结识动物 " +
+                    " · 工具 " + island.tools.intersect(setOf("axe","pickaxe","sword","rod")).size + "/4 · 已结识动物 " +
                     island.animals.count { it.befriended } + "/" + island.animals.size,
                     color=Color(0xFFAEE7CF),fontSize=11.sp)
                 Text("✦ 挑战奖励 · 达成后自动放进真实存档",
