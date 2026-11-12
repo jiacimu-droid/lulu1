@@ -368,6 +368,17 @@ internal object LuluBackgroundPhoneSession {
                         .put("verification", "后台屏幕已收到关闭请求").toString()
                 } finally { forgetTransport() }
             }
+            // Reject incomplete model actions before ensureStarted or any input.
+            // A missing swipe startX is NOT a shell failure: keep the current
+            // virtual display and its verified App/session ownership intact.
+            LuluBackgroundPhoneArgumentPolicy.invalidReason(action, args)?.let { reason ->
+                return JSONObject().put("success", false).put("accepted", false)
+                    .put("status", "failed").put("errorCode", "invalid_action_arguments")
+                    .put("action", action).put("taskCompleted", false)
+                    .put("mode", "independent_virtual_display")
+                    .put("sessionPreserved", connected())
+                    .put("verification", reason).toString()
+            }
             val requestedPackage = if (action == "launch" &&
                 args.optString("packageName").isBlank()) {
                 // A model can choose the actual installed app by its visible name;
@@ -375,7 +386,12 @@ internal object LuluBackgroundPhoneSession {
                 LuluInstalledAppResolver.resolve(context, args.optString("appName"))
             } else args.optString("packageName").trim()
             if (action == "launch") {
-                check(requestedPackage.isNotEmpty()) { "必须指定准确的应用包名或显示名称" }
+                if (requestedPackage.isEmpty()) return JSONObject()
+                    .put("success", false).put("accepted", false)
+                    .put("status", "failed").put("errorCode", "app_not_found")
+                    .put("mode", "independent_virtual_display")
+                    .put("sessionPreserved", connected()).put("taskCompleted", false)
+                    .put("verification", "未找到唯一匹配的已安装应用；请核对应用名称或准确包名").toString()
                 check(!LuluScreenAwareness.isExcluded(context, requestedPackage)) {
                     "该应用处于主人的隐私排除名单，不允许操作"
                 }
@@ -394,7 +410,13 @@ internal object LuluBackgroundPhoneSession {
                 .put("ownFocusVerifiedByDisplayFlags", true)
                 .put("verification", "shell 已创建独立焦点屏幕；尚未观察到 App 或桌面画面").toString()
 
-            if (action != "launch" && activeApp.isBlank()) error("请先在后台屏幕打开一个已授权应用")
+            if (action != "launch" && activeApp.isBlank()) return JSONObject()
+                .put("success", false).put("accepted", false)
+                .put("status", "unverified").put("errorCode", "target_app_not_open")
+                .put("mode", "independent_virtual_display").put("displayId", id)
+                .put("sessionPreserved", true).put("taskCompleted", false)
+                .put("observationAvailable", false)
+                .put("verification", "独立后台屏已创建，但尚未打开已授权应用；由角色选择launch指定准确应用后再观察或操作").toString()
             if (action != "launch" && LuluScreenAwareness.isExcluded(context, activeApp)) {
                 error("原授权应用现已列入隐私排除名单")
             }
@@ -449,9 +471,12 @@ internal object LuluBackgroundPhoneSession {
                 val safeSearch = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.hasFocusedVirtualSearchEditor(id, activeApp)
                 }
-                check(safeSearch) {
-                    "后台没有可确认的已聚焦搜索输入框；Enter 也可能变成发送/提交操作，为安全起见已拒绝。请先点击搜索框并输入文字，或查看后台小窗核对输入焦点"
-                }
+                if (!safeSearch) return JSONObject()
+                    .put("success", false).put("accepted", false)
+                    .put("status", "unverified").put("errorCode", "search_focus_unverified")
+                    .put("mode", "independent_virtual_display").put("displayId", id)
+                    .put("sessionPreserved", true).put("taskCompleted", false)
+                    .put("verification", "没有可确认的已聚焦搜索框；拒绝提交以避免误发消息。可由角色重新观察或聚焦安全搜索框").toString()
             }
             if (action == "tap") {
                 val x = args.getInt("x")
@@ -460,9 +485,12 @@ internal object LuluBackgroundPhoneSession {
                     LuluAccessibilityService.isSensitiveVirtualTap(
                         id, activeApp, x, y)
                 }
-                check(!sensitive) {
-                    "检测到付款、发送、发布、删除或无法核实的敏感点击目标；拒绝自动操作"
-                }
+                if (sensitive) return JSONObject()
+                    .put("success", false).put("accepted", false)
+                    .put("status", "denied").put("errorCode", "sensitive_target")
+                    .put("mode", "independent_virtual_display").put("displayId", id)
+                    .put("sessionPreserved", true).put("taskCompleted", false)
+                    .put("verification", "检测到付款、发送、发布、删除或无法核实的敏感点击目标；已拒绝本次点击，原后台会话未断开").toString()
             }
             // Mika ClickFallback: select a small named, non-outward node
             // before dispatch. If found we click ONE verified node; if its
