@@ -263,18 +263,15 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         healthFraction = world.hp / 12f,
         secondaryFraction = island.hunger / 10f,
         secondaryLabel = "饱食",
+        compactStatus = true,
         toolsLabel = "☰ 行囊 / 更多",
         closeToolsSignal = dismissToolsVersion,
-        // A telegraphed guardian strike belongs in the always-visible HUD,
-        // not inside the optional scrolling tactics/quest text.
-        notice = if (activeGuardian!=null &&
-            abs(activeGuardian.x-world.x)+abs(activeGuardian.y-world.y)<=2 &&
+        notice = if (activeGuardian != null &&
+            abs(activeGuardian.x - world.x) + abs(activeGuardian.y - world.y) <= 2 &&
             IslandGuardianEncounter.impendingHeavyAttack(island))
-            "⚠ 巨岩守卫即将重击 · 先躲开或补给" else worldNotice,
-        status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
-            (if (night) "☾ 夜晚" else "☀ 白天") +
-            " · 守夜 ${island.nightsSurvived}/3" +
-            " · 宠物 ${island.animals.count { it.befriended }}/${island.animals.size}",
+            "⚠ 守卫下一回合重击 · 躲开" else "",
+        status = "❤ ${world.hp}/12  饱 ${island.hunger}/10  木 ${world.wood}  石 ${world.stone}  果 ${island.fruit}  " +
+            if (night) "☾" else "☀",
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -350,94 +347,28 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
-            val statusHint = if (buildMode != null) {
-                val colorHint = if(buildReady) "绿色" else "红色"
-                IslandBuildingControls.label(buildMode) + " · " + colorHint + " · " +
-                    (buildPreview?.message ?: "请选择地图中的位置")
-            } else {
-                val interaction = if(mapAim) "已选中 $targetTitle"
-                    else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"
-                "朝向 $directionLabel · " + interaction
+            // Show one actionable objective instead of a permanent stack of
+            // quest, tracker, direction, protector and construction cards.
+            Surface(
+                onClick = { goalsOpen = true },
+                color = Color(0xBB263E39),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("☑ " + survivalGoal.substringAfter(" · ", survivalGoal) + "  ›",
+                    color = Color(0xFFFFE3A7), fontWeight = FontWeight.SemiBold,
+                    fontSize = 10.sp, maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp))
             }
-            Surface(onClick = { goalsOpen = true },
-                color = Color(0xD82B4441), shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, Color(0xFFEDCF8E).copy(alpha = .6f))) {
-                Text("☑ " + survivalGoal + " · 查看目标", color=Color(0xFFFFE3A7),
-                    modifier=Modifier.padding(horizontal=8.dp,vertical=5.dp),
-                    fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
+            if (buildMode != null) {
+                Text(IslandBuildingControls.label(buildMode) + " · " +
+                    (buildPreview?.message ?: "选好地点后确认"),
+                    color = if (buildReady) Color(0xFFBDF4D3) else Color(0xFFFFD0B6),
+                    fontSize = 10.sp, maxLines = 1)
             }
-            if(activeGuardian!=null) {
-                Surface(onClick={
-                    target=activeGuardian.x to activeGuardian.y
-                    mapAim=false
-                    // The authoritative stepper approaches the occupied enemy,
-                    // but never walks *through* it or attacks automatically.
-                    navigateTo=activeGuardian.x to activeGuardian.y
-                },color=Color(0xE3523835),shape=RoundedCornerShape(11.dp),
-                    border=BorderStroke(1.dp,Color(0xFFFFB58B))) {
-                    Column(Modifier.fillMaxWidth().padding(horizontal=9.dp,vertical=8.dp),
-                        verticalArrangement=Arrangement.spacedBy(3.dp)) {
-                        Text("⚔ ${IslandGuardianEncounter.title} · ${activeGuardian.hp}/${IslandGuardianEncounter.hp} ♥",
-                            color=Color(0xFFFFD8B3),fontWeight=FontWeight.Black,
-                            fontSize=11.sp,maxLines=1)
-                        Text(if(IslandGuardianEncounter.impendingHeavyAttack(island))
-                            "⚠ 下回合重击 · 躲开或提前补给"
-                            else "点击追踪 · 靠近后用石剑攻击",
-                            color=if(IslandGuardianEncounter.impendingHeavyAttack(island))
-                                Color(0xFFFFAA98) else Color(0xFFFFE5CB),
-                            fontSize=10.sp,maxLines=1)
-                    }
-                }
-            } else if(nextLandmark==null && !island.guardianCleared) {
-                Text("◇ 终章挑战 · "+IslandGuardianEncounter.remainingRequirements(island),
-                    color=Color(0xFFFFD6A2),fontSize=10.sp,maxLines=2)
+            if (world.notice.isNotBlank() && world.notice != "走到了 (${world.x},${world.y})") {
+                Text(worldNotice, color = Color(0xFFE7F4E6),
+                    fontSize = 10.sp, maxLines = 1)
             }
-            if(nextLandmark!=null) {
-                Surface(
-                    onClick={
-                        // The existing navigational stepper walks actual connected
-                        // terrain and stops if a creature or wall blocks the route.
-                        buildMode=null
-                        val destination=IslandExpeditionTrail.position(island,nextLandmark)
-                        target=destination
-                        mapAim=false
-                        navigateTo=destination
-                    },
-                    color=Color(0xDF4B4833),shape=RoundedCornerShape(11.dp),
-                    border=BorderStroke(1.dp,Color(0xFFFFDB94).copy(alpha=.82f))
-                ) {
-                    Text("✧ 追踪${nextLandmark.title} · ${IslandExpeditionTrail.distance(island,nextLandmark)}格  ▶",
-                        modifier=Modifier.fillMaxWidth()
-                            .padding(horizontal=8.dp,vertical=8.dp),
-                        color=Color(0xFFFFE3B1),fontSize=11.sp,
-                        fontWeight=FontWeight.Bold,maxLines=1)
-                }
-            }
-            Text(statusHint,
-                color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
-                    else Color(0xFFBDF4D3),fontSize=11.sp,maxLines=2)
-            if(island.guardedBy.isNotBlank()) {
-                val protector=world.friends.firstOrNull { it.id==island.guardedBy && it.hp>0 }
-                if(protector!=null)Text(
-                    "♡ "+MigratedDomainStores.characters.get(protector.id).displayName+" 正在保护你",
-                    color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
-            }
-            island.houseProject?.let { project ->
-                val owner=MigratedDomainStores.characters.get(project.ownerId).displayName
-                val progress=when(project.phase) {
-                    "building" -> "正在盖"
-                    "paused" -> if(project.resumePhase=="demolishing") "暂停拆除" else "暂停建造"
-                    "complete" -> "小屋完成"
-                    else -> "正在拆"
-                }
-                val progressCount=IslandHouseProjects.progress(project)
-                val totalCount=IslandHouseProjects.totalSteps(project)
-                Text("⌂ "+owner+" "+progress+" "+IslandHouseProjects.styleName(project.style)+
-                    " · "+progressCount+"/"+totalCount,
-                    color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
-            }
-            if (navigateTo != null) Text("正在前往 · "+targetTitle,
-                color=Color(0xFFF0FFE9),fontSize=10.sp,maxLines=1)
         },
         primaryActions = {
             // Keep the world visible while browsing recipes with the right thumb.
