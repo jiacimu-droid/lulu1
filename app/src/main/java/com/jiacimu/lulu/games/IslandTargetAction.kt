@@ -24,6 +24,11 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
         near && mob -> IslandTargetAction("fight", "攻击", true, distance)
         near && IslandSupplyCaches.available(state, x, y) ->
             IslandTargetAction("salvage", "打开补给", true, distance)
+        near && IslandHouseProjects.nextPlayerPart(state)?.first == w.index(x,y) -> {
+            val ready=IslandHouseProjects.canPlayerBuildNext(state)
+            IslandTargetAction("house_step",if(ready)"亲手施工" else "备好木材再施工",
+                ready,distance)
+        }
         near && state.animals.any { it.x == x && it.y == y } -> {
             val resident=state.animals.first { it.x == x && it.y == y }
             if (!resident.befriended) IslandTargetAction("tame",
