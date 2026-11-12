@@ -2733,9 +2733,10 @@ object ProactivePerceptionRuntime {
             // capture_screen (display 0) to satisfy a background-phone task.
             val frame = com.jiacimu.lulu.system.LuluScreenFrameHandoff.take(
                 character.characterId, actionRequestId)
-            if (frame == null && !(actionArgs.optString("action") == "start" &&
-                    actual.optBoolean("success")) &&
-                actual.optString("status") != "failed") return null
+            // A missing fresh frame is itself a useful tool receipt, not
+            // permission to silently abandon the character's ongoing task.
+            // The SAME character may choose read-only observe or ask for help;
+            // LuluBackgroundPhoneContinuation blocks blind taps and input.
             if (acceptedOnlineRevision != null &&
                 !OnlineChatBatchStore.isCurrent(appContext, character.characterId,
                     acceptedOnlineRevision)) return "后续暂缓：用户有更新消息，需要本人重新选择"
