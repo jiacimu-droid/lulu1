@@ -1799,6 +1799,86 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun groupDirectorCannotHandOffAfterUserEditsOrAddsMessage() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        for (edit in listOf(true, false)) {
+            val actor = MigratedDomainStores.characters.create("群聊修订江渡-$edit", "先确认情况")
+            val peer = MigratedDomainStores.characters.create("群聊修订星禾-$edit", "先听完整")
+            val chat = MigratedDomainStores.chat
+            val group = chat.createGroupConversation("群聊修订", listOf(actor.characterId, peer.characterId))
+            val original = "旧消息：现在把草稿发出去。"
+            val correction = "新消息：除非我明确同意，否则不要公开草稿。"
+            val message = chat.sendUserMessage(group.id, original)
+            val director = JSONObject().put("beats", JSONArray().put(
+                JSONObject().put("speakerId", actor.characterId).put("targetId", "user")))
+            val visible = "我先等你确认。"
+            val releaseDirector = CountDownLatch(1)
+            val requests = AtomicInteger()
+            fun response(body: JSONObject) = MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", body.toString()))
+                    .put("finish_reason", "stop"))).toString())
+            val server = MockWebServer()
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
+                    1 -> if (releaseDirector.await(15, TimeUnit.SECONDS)) response(director)
+                        else MockResponse().setResponseCode(500)
+                    2 -> response(director)
+                    3 -> response(JSONObject().put("action", "reply").put("text", visible))
+                    else -> MockResponse().setResponseCode(500)
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null, "群聊修订测试",
+                    server.url("/").toString(), "test-only")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                LuluAiServices.connectionStore.selectArchive(archive.id, com.jiacimu.lulu.ai.ModelUsage.Chat)
+                val errors = mutableListOf<String>()
+                val speakers = mutableListOf<String?>()
+                suspend fun runRound() = com.jiacimu.lulu.runGroupReplies(
+                    group.id, checkNotNull(group.groupChat), original, "", "test", archive.id,
+                    mapOf(actor.characterId to actor.displayName, peer.characterId to peer.displayName),
+                    onError = { errors.add(it) }, onSpeakerChange = { speakers.add(it) })
+                suspend fun takeRequest(): String = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+
+                val oldRound = async { runRound() }
+                try {
+                    assertTrue(takeRequest().contains(original))
+                    if (edit) assertTrue(chat.editMessage(message.id, correction))
+                    else chat.sendUserMessage(group.id, correction)
+                } finally {
+                    releaseDirector.countDown()
+                }
+                oldRound.await()
+                assertEquals(1, server.requestCount)
+                assertTrue(speakers.filterNotNull().isEmpty())
+                assertTrue(chat.messages(group.id).value.none { it.sender == LuluChatMessage.Sender.Character })
+
+                // Even a caller holding the old text must use current persisted sources.
+                runRound()
+                for (request in listOf(takeRequest(), takeRequest())) {
+                    assertTrue(request.contains(correction))
+                    assertEquals(!edit, request.contains(original))
+                }
+                assertEquals(3, server.requestCount)
+                assertEquals(listOf(actor.characterId), speakers.filterNotNull())
+                assertEquals(listOf(visible), chat.messages(group.id).value
+                    .filter { it.sender == LuluChatMessage.Sender.Character }.map { it.content })
+                assertTrue(errors.toString(), errors.isEmpty())
+            } finally {
+                releaseDirector.countDown()
+                server.shutdown()
+            }
+        }
+    }
+
     @Test(timeout = 60_000) fun groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

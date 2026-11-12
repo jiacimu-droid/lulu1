@@ -608,15 +608,37 @@ internal suspend fun runGroupReplies(
         CompanionOnlineStore.residentIsAwake(LuluAiServices.connectionStore.appContext, id)
     val members = known.filter { isAvailable(it.characterId) }
     if (members.isEmpty()) return
-    val mentioned = members.filter { m -> m.groupNickname.ifBlank { characterNames[m.characterId].orEmpty() }.let { it.isNotBlank() && pendingText.contains("@$it", true) } }
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val recalled = recalledMessageIds(before)
     val lastSpeaker = before.asSequence().filterNot { it.id in recalled }.lastOrNull { it.sender == LuluChatMessage.Sender.Character }?.authorCharacterId
     val lastCharacter = before.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-    val pendingMessages = before.drop(lastCharacter + 1).filter { it.sender == LuluChatMessage.Sender.User || (it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[戳一戳]")) }
-    val pendingIds = pendingMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
-    val pendingUserIds = pendingMessages.filter { it.sender == LuluChatMessage.Sender.User }.mapTo(mutableSetOf(), LuluChatMessage::id)
     val isGroupPhone = sceneContext.contains("电话")
+    val pendingMessages = before.drop(lastCharacter + 1).filter {
+        (it.sender == LuluChatMessage.Sender.User && (isGroupPhone || it.status == LuluChatMessage.Status.Sent)) ||
+            (it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[戳一戳]"))
+    }
+    val pendingIds = pendingMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
+    val pendingUsers = pendingMessages.filter { it.sender == LuluChatMessage.Sender.User }
+    val pendingUserIds = pendingUsers.mapTo(mutableSetOf(), LuluChatMessage::id)
+    val turnText = if (isGroupPhone || pendingUsers.isEmpty()) pendingText
+        else pendingUsers.joinToString("\n") { qqForwardContextText(it.content) }
+    val mentioned = members.filter { member ->
+        val name = member.groupNickname.ifBlank { characterNames[member.characterId].orEmpty() }
+        name.isNotBlank() && turnText.contains("@$name", ignoreCase = true)
+    }
+    // The director has already reasoned about these sources by the time its
+    // response arrives. Retain the same per-person evidence through delivery.
+    val directorSources = if (!isGroupPhone && pendingUsers.isNotEmpty()) {
+        val expectedContents = pendingUsers.associate { it.id to it.content }
+        val expectedRoom = GroupReplyScene(group.name, group.ownerIncluded, group.userGroupNickname, group.members)
+        members.associate { member ->
+            val source = captureReplySourceWatermark(conversationId, member.characterId, pendingUserIds)
+            member.characterId to source?.takeIf {
+                it.sourceContents == expectedContents && it.latestUserMessageId == pendingUsers.last().id &&
+                    it.visibleGroupScene == expectedRoom
+            }
+        }
+    } else emptyMap()
     val random = Random(System.nanoTime())
     val remaining = members.filterNot { c -> mentioned.any { it.characterId == c.characterId } }
         .shuffled(random).sortedBy { it.characterId == lastSpeaker }
@@ -652,17 +674,22 @@ internal suspend fun runGroupReplies(
             onSpeakerChange(null)
             return
         }
+        val sourceWatermark = when {
+            pendingUserIds.isEmpty() -> null
+            isGroupPhone -> captureReplySourceWatermark(conversationId, member.characterId, pendingUserIds)
+            else -> directorSources[member.characterId]
+        }
+        if (pendingUserIds.isNotEmpty() &&
+            (sourceWatermark == null || (!isGroupPhone && !isReplySourceWatermarkCurrent(sourceWatermark)))) {
+            onSpeakerChange(null)
+            return
+        }
         onSpeakerChange(member.characterId)
         val character = MigratedDomainStores.characters.get(member.characterId)
         val label = member.groupNickname.ifBlank { character.displayName }
         val visibleAll = MigratedDomainStores.chat.messages(conversationId).value.filter { DigitalLifeProfileStore.allowsTimestamp(member.characterId, it.createdAt) }
         val recalledNow = recalledMessageIds(visibleAll)
         val latest = visibleAll.filterNot { it.id in recalledNow }
-        // Capture BEFORE the paid model request. Capturing only when sending
-        // would bless a reply generated against a now-edited user message.
-        val sourceWatermark = if (pendingUserIds.isEmpty()) null else
-            captureReplySourceWatermark(conversationId, member.characterId, pendingUserIds)
-                ?: run { onSpeakerChange(null); return }
         val historySource = if (index == 0) visibleAll.filterNot { it.id in pendingIds } else visibleAll
         val history = buildBoundedHistory(historySource, label, characterNames)
             .ifBlank { initialHistory.takeIf { !DigitalLifeProfileStore.isEnabled(member.characterId) }.orEmpty() }
@@ -703,7 +730,7 @@ internal suspend fun runGroupReplies(
             appendLine("[像真人即时通讯：一个表达动作一个气泡；气泡边界由系统结构化处理，不要输出 BUBBLE 或其他气泡控制串。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
             if (group.allowCharacterConversation) appendLine("[你无需替其他成员指定下一位发言者。程序会让其他真实在场者各自独立判断是否接话；你只负责自己的内容，沉默可直接选择 action=silent。]")
             if (index == 0) {
-                append("用户刚在群里说：$pendingText")
+                append("用户刚在群里说：$turnText")
             } else {
                 // Already in the actual history, with the previous role's real
                 // delivery. Repeating the original as a fresh user request made
@@ -762,7 +789,7 @@ internal suspend fun runGroupReplies(
                         LuluDeviceToolBridge.executeDeferredReplyActions(
                             member.characterId, reply.deferredActions,
                             requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
-                            userEvidenceIds = roleUserEvidenceIds.toSet(), userText = pendingText,
+                            userEvidenceIds = roleUserEvidenceIds.toSet(), userText = turnText,
                             diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                         )
                     }
