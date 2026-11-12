@@ -47,6 +47,30 @@ class BackgroundModelRequestBudgetTest {
             "记忆", "连续记忆提取", later, evidence = "original-event:42"))
     }
 
+    @Test fun aRelay524ForOneCommitmentTurnCannotChargeBothRecoveryScanners() {
+        val ctx = fresh()
+        val originalTurn = "chat-1:user-message-42:jiangdu"
+        val stable = commitmentRecoveryEvidenceKey(originalTurn)
+        assertEquals("commitment-source-turn:$originalTurn", stable)
+        assertEquals(stable, commitmentRecoveryEvidenceKey(originalTurn))
+        assertNull(commitmentRecoveryEvidenceKey(null))
+        assertNull(commitmentRecoveryEvidenceKey(""))
+
+        // Fast accepted-wake reconciliation and slow general recovery use
+        // different prompt text but the same original source-turn identity.
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "承诺任务", "承诺任务提取", now, evidence = stable!!))
+        assertFalse(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "承诺任务", "承诺任务提取", now.plusSeconds(126),
+            evidence = commitmentRecoveryEvidenceKey(originalTurn)!!))
+
+        // Another user turn must still be eligible, even within 15 minutes.
+        assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
+            "承诺任务", "承诺任务提取", now.plusSeconds(126),
+            evidence = commitmentRecoveryEvidenceKey("chat-1:user-message-43:jiangdu")!!))
+        assertEquals(60_000, COMMITMENT_RECOVERY_READ_TIMEOUT_MS)
+    }
+
     @Test fun distinctTurnsAndRolesDoNotBlockEachOther() {
         val ctx = fresh()
         assertTrue(BackgroundModelRequestBudget.claim(ctx, "jiangdu",
