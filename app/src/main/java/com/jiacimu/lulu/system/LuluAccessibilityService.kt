@@ -219,7 +219,8 @@ class LuluAccessibilityService : AccessibilityService() {
                 .mapNotNull { it.root }
                 .firstOrNull { it.packageName?.toString() == packageName } ?: return true
             val risky = Regex(
-                "(付款|支付|转账|立即购买|确认购买|购买|下单|购物车|加购|去结算|结算|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易)",
+                "(付款|支付|转账|立即购买|确认购买|购买|下单|购物车|加购|去结算|结算|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易|" +
+                    "buy|purchase|shopping.?cart|checkout|payment|pay|place.?order|submit.?order|transfer|send|publish|delete)",
                 RegexOption.IGNORE_CASE,
             )
             var blocked = false
@@ -231,7 +232,8 @@ class LuluAccessibilityService : AccessibilityService() {
                 if (rect.contains(px.toInt(), py.toInt()) && node.isVisibleToUser) {
                     if (node.isPassword) blocked = true
                     val label = node.text?.toString().orEmpty() + " " +
-                        node.contentDescription?.toString().orEmpty()
+                        node.contentDescription?.toString().orEmpty() + " " +
+                        node.viewIdResourceName.orEmpty()
                     if (risky.containsMatchIn(label)) blocked = true
                     for (i in 0 until node.childCount) checkNode(node.getChild(i), depth + 1)
                 }
