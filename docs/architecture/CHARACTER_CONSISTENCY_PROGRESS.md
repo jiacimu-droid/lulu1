@@ -1,5 +1,11 @@
 **2026-11-12 UI-02.2 · 会话清空/删除写入拒绝原子性（本轮待 CI）**：[426f815](https://github.com/jiacimu-droid/lulu1/commit/426f81516e66999c1e5bf881376f5827c82773f1) 修正 `InMemoryLuluChatStore.clearConversationMessages/deleteConversation` 先销毁内存投影再异步 `apply()` 的缺口，改为持久 `commit()` 失败即恢复会话与消息，且失败不得撤回时间线、清理图片或通知；[f1fd735](https://github.com/jiacimu-droid/lulu1/commit/f1fd735a9a70db402d9e24649f82219a7186c66e) 增加拒绝提交、原始消息/会话不变、重建 Store 原文不丢的 Robolectric 回归。此前 edit/delete 的 [#43177072436](https://github.com/jiacimu-droid/lulu1/actions/runs/43177072436) 被并发 push 取消，不能判成功；后继 [#43180316840](https://github.com/jiacimu-droid/lulu1/actions/runs/43180316840) 完成成功且包含该祖先，但本轮新提交仍须核其自身或后继完整 JVM/APK 与索引。下一轮直接打开 `ChatHistoryPersistenceBaselineTest.rejectedConversationRemovalPreservesOriginalAndReopenedHistory` 查首错；若通过，核 `replaceCharacterReply` 等剩余非持久编辑路径，真机进程死亡/真实模型独立待验。## 2026-11-12 · UI-02.2 收藏写入跨 Store 保护（CI 待验）
 
+## 2026-11-13 · UI-02.2 收藏档案与聊天补偿同时拒写的工程反例
+
+- [`3d78be5`](https://github.com/jiacimu-droid/lulu1/commit/3d78be5f386a011ca9506809cb16a00d88f22218) 新增 `ChatHistoryPersistenceBaselineTest.rejectedArchiveAndCompensationCannotReportFavoriteRemovalSuccess`，真实档案 Store 的提交拒绝与聊天 Store 首次成功、补偿失败组合；验证失败明确上抛、档案仍在，并刻意记录重启后聊天收藏标记仍可能为 false。此测试只刻画非原子风险，不宣称已修复。
+- 当前无法经连接器取得 main push 工作流（其按 SHA 查询仅含 PR）；容器访问 GitHub REST DNS 失败，JVM/APK/Refresh index 均未确认。下一轮直接核此测试 CI 首错，若通过再选择持久恢复机制的最小可验证工作包；不得把异常抛出视为数据已恢复。
+
+
 - [c0afa9d](https://github.com/jiacimu-droid/lulu1/commit/c0afa9d76678b1b83ff0497a0986f3a5ea6bc491) 调整 `toggleFavorite` 写入次序，先确认聊天持久收藏标记，再更新独立收藏档案；档案失败尝试补偿恢复聊天。 [190c13f](https://github.com/jiacimu-droid/lulu1/commit/190c13f3e485534e8c2abc932417c921c21c4231) 新增拒绝聊天 commit 的 Robolectric 回归，断言独立档案不动、聊天原文/标记与重开一致。跨两个独立偏好文件无法声称原子事务；补偿写入二次失败、音频保留、真机进程死亡待验。
 - 下一轮固定 UI-02.2：先核 `ChatHistoryPersistenceBaselineTest.rejectedFavoriteCommitDoesNotCreateOrphanedArchiveEntry` 的 main push APK/JVM 首错与索引；绿后验证独立收藏档案拒写补偿、`removeUserFavorite`，再决定是否需要单权威存储。
 
