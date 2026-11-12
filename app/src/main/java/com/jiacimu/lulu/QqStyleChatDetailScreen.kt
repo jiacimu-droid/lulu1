@@ -122,6 +122,22 @@ fun QqStyleChatDetailScreen(
     val activeRoleWork = actualActivities.values.filter { conversationId in it.conversationIds }
     val activeTypists = activeRoleWork.filter { it.awaitingModel }.map { it.characterId }.distinct()
     val activeFollowThrough = activeRoleWork.any { !it.awaitingModel }
+    // A long or unclosed SSE response is an interface wait, not proof that the
+    // character is still typing. Display only: no timeout or extra paid call.
+    val waitingSince = listOfNotNull(
+        activeRoleWork.filter { it.awaitingModel }.minOfOrNull { it.startedAtMillis },
+        replyTaskState.startedAt?.toEpochMilli()?.takeIf {
+            replyTaskState.running && replyTaskState.typingCharacterId != null
+        },
+    ).minOrNull()
+    var waitingForInterfaceResult by remember(conversationId) { mutableStateOf(false) }
+    LaunchedEffect(conversationId, waitingSince) {
+        waitingForInterfaceResult = false
+        waitingSince?.let { since ->
+            delay((since + CHAT_RESPONSE_WAIT_NOTICE_MILLIS - System.currentTimeMillis()).coerceAtLeast(0L))
+            waitingForInterfaceResult = true
+        }
+    }
     val receiving = replyTaskState.running || activeRoleWork.isNotEmpty()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
@@ -400,6 +416,9 @@ fun QqStyleChatDetailScreen(
             encodeQqChatImage(image, text, payload.imageDescription)
         } else text
         MigratedDomainStores.chat.sendUserMessage(conversationId, content, replyingTo?.id)
+        // A fresh owner turn supersedes the old warning; a new failure gets a
+        // new errorId and remains visible instead of vanishing with a toast.
+        ChatReplyTaskManager.clearError(conversationId)
         inputState.value = ""
         replyingToId = null
         return true
@@ -620,17 +639,6 @@ fun QqStyleChatDetailScreen(
     }
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
-    LaunchedEffect(replyTaskState.errorId) {
-        replyTaskState.lastError?.let { error ->
-            val id = replyTaskState.errorId
-            val notice = chatErrorNotice(error)
-            // One nonblocking notice only. Duplicating a system Toast AND a
-            // large Snackbar obscures the input and feels like two failures.
-            snackbar.currentSnackbarData?.dismiss()
-            snackbar.showSnackbar(notice, duration = SnackbarDuration.Short)
-            ChatReplyTaskManager.clearError(conversationId, id)
-        }
-    }
     LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat) {
         val count = visibleMessages.size
         if (count == 0) {
@@ -705,11 +713,12 @@ fun QqStyleChatDetailScreen(
                                     Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: chatNickname,
                                         modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                    chatWorkHeaderLabel(showTypingIndicator, activeFollowThrough, checkingPhone)
+                                    chatWorkHeaderLabel(showTypingIndicator, activeFollowThrough,
+                                        checkingPhone, waitingForInterfaceResult)
                                         ?.let { label ->
                                             Text(label, modifier = Modifier.padding(start = 5.dp),
-                                                color = if (showTypingIndicator && !checkingPhone) Color.Black else QqMuted,
-                                                fontSize = if (showTypingIndicator && !checkingPhone) 14.sp else 12.sp,
+                                                color = if (showTypingIndicator && !checkingPhone && !waitingForInterfaceResult) Color.Black else QqMuted,
+                                                fontSize = if (showTypingIndicator && !checkingPhone && !waitingForInterfaceResult) 14.sp else 12.sp,
                                                 maxLines = 1)
                                         }
                                 }
@@ -825,6 +834,26 @@ fun QqStyleChatDetailScreen(
             } else {
                 Surface(color = QqHeader, shadowElevation = 4.dp) {
                     Column(Modifier.fillMaxWidth()) {
+                        // Persist the model/relay error until dismissed or the
+                        // owner sends a new message. A 3-second snackbar erased
+                        // the only visible evidence of an empty billed response.
+                        replyTaskState.lastError?.takeIf { !receiving }?.let { error ->
+                            Surface(color = MaterialTheme.colorScheme.errorContainer) {
+                                Row(
+                                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        "回复未完成：${chatErrorNotice(error)}",
+                                        modifier = Modifier.weight(1f), fontSize = 12.sp, maxLines = 3,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                    )
+                                    TextButton(onClick = {
+                                        ChatReplyTaskManager.clearError(conversationId, replyTaskState.errorId)
+                                    }) { Text("关闭") }
+                                }
+                            }
+                        }
                         replyingTo?.let { quoted ->
                             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Surface(Modifier.weight(1f), color = QqIconSurface, shape = RoundedCornerShape(10.dp)) {
