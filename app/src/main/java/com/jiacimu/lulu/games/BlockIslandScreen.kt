@@ -132,7 +132,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         "+${result.world.wood-island.world.wood} 木"
                         else "+${result.world.stone-island.world.stone} 石"
                     val fruitGain=result.fruit-island.fruit
-                    resource + if(fruitGain>0) " · +$fruitGain 果" else ""
+                    val gems=result.crystals-island.crystals
+                    resource + (if(gems>0)" · +$gems 晶石" else "") +
+                        if(fruitGain>0) " · +$fruitGain 果" else ""
                 }
                 "fight" -> {
                     val enemy = island.world.mobs.firstOrNull {
@@ -147,6 +149,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         if(fruitGain>0) " · +$fruitGain 果" else ""
                 }
                 "revive" -> "队友已救起"
+                "recover_pack" -> "背包物资已找回"
+                "craft_charm" -> "✧ 救命护符"
                 "tame" -> "❤ 新伙伴"
                 "care" -> when(island.animals.firstOrNull { it.x==x && it.y==y }?.species) {
                     "hare" -> "+1 果"; "duck" -> "+1 鱼"; "fox" -> "+2 石"; else -> "❤"
@@ -156,7 +160,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(hpGain>0) "+$hpGain ❤" else "已休息"
                 }
                 "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
-                "bridge", "lantern", "pet_house", "garden", "remove",
+                "bridge", "lantern", "crystal_lantern", "pet_house", "garden", "remove",
                 "house_warm", "house_pine" -> "✓"
                 "house_step" -> "小屋施工 +1格"
                 "sow_berries" -> "种下野果"
@@ -172,7 +176,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 if(action=="fight") HapticFeedbackType.LongPress else HapticFeedbackType.TextHandleMove)
             playSound(when (action) {
                 "move" -> GameSoundEffect.Move
-                "gather", "salvage", "eat", "eat_fish", "fish", "revive", "tame", "care" -> GameSoundEffect.Collect
+                "gather", "salvage", "recover_pack", "eat", "eat_fish", "fish", "revive", "tame", "care" -> GameSoundEffect.Collect
                 "fight" -> GameSoundEffect.Objective
                 else -> GameSoundEffect.Interact
             })
@@ -241,7 +245,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
     val buildReady = buildPreview?.allowed == true
-    val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish",
+    val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","recover_pack","fish",
         "sow_berries","tend_berries","harvest_berries"))
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
     val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
@@ -318,7 +322,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             val center = islandNearbyAction(island, facing)
             // Workbench interaction should remain discoverable near resources.
             val workstationAction = workbenchNear && center?.action !in setOf(
-                "fight", "revive", "tame", "care", "salvage", "gather", "fish")
+                "fight", "revive", "tame", "care", "salvage", "recover_pack", "gather", "fish")
             val restingAction = campRestAvailable && !workstationAction && center == null
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
@@ -346,15 +350,21 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 val x = world.x + dx
                 val y = world.y + dy
                 val front = islandTargetAction(island, x to y)
-                // Walking into resources directly collects; combat remains deliberate.
-                if (buildMode == null && front.enabled &&
-                    front.action in setOf("gather", "salvage")) {
-                    perform(front.action, x, y)
-                } else if (BlockIslandRules.isWalkable(island,x,y) &&
+                // Movement NEVER performs a resource action. The player chooses
+                // gathering/opening separately; gear is thus meaningful and
+                // a held D-pad cannot accidentally destroy a crystal vein.
+                if (BlockIslandRules.isWalkable(island,x,y) &&
                     world.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
                     world.friends.none { it.x==x && it.y==y } &&
                     island.animals.none { it.x==x && it.y==y }) {
                     perform("move",x,y)
+                } else if(buildMode==null &&
+                    front.action in setOf("gather","salvage","recover_pack")) {
+                    // One hint, not repeated disk writes on every held-key tick.
+                    val hint=if(front.enabled)
+                        "前方是资源 · 点右侧采集键或方向盘中心互动；制作工具能提高产量"
+                        else front.label
+                    if(world.notice!=hint) save(island.copy(world=world.copy(notice=hint)))
                 }
             }
         },
@@ -564,6 +574,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
             IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
             IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
+            IslandStat("晶", "${island.crystals}", Color(0xFFD1B6F9), Modifier.weight(1f))
         }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
             Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
@@ -571,6 +582,17 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="行囊") Column(Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("生命归零：回营恢复6/12生命，随身一半木石、野果、晶石掉在原地；到原地点击「找回遗失背包」取回。家园与制作的工具保留。",
+                color=Color(0xFFF3D8B5),fontSize=11.sp)
+            Text("木斧砍树4木/次 · 石镐挖矿4石/次且可采蓝色晶矿 · 石剑伤害4 · 鱼竿钓鱼 · 晶石护符消耗后抵挡一次致命伤",
+                color=Color(0xFFC8E4DD),fontSize=11.sp)
+            Text("已制作："+(if(island.tools.isEmpty())"暂无" else island.tools.sorted().joinToString("、") { BlockIslandRules.actionName(it) }),
+                color=Color(0xFFB5ECD5),fontSize=11.sp)
+            Text(IslandProgression.foundCrystalText(island),
+                color=Color(0xFFD6C2FA),fontSize=11.sp)
+            if(island.lostPacks.isNotEmpty())
+                Text("遗失背包：${island.lostPacks.size}处，点击地图定位后靠近拾回",
+                    color=Color(0xFFFFCCA1),fontSize=11.sp)
             IslandAction("食用野果 · 回血/饱食", enabled=island.fruit>0 &&
                 (world.hp<12 || island.hunger<10),Modifier.fillMaxWidth()) {
                 perform("eat",world.x,world.y)
@@ -583,6 +605,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="地图") {
             IslandMiniMap(island)
+            if(island.lostPacks.isNotEmpty()) {
+                val nearest=island.lostPacks.keys.minByOrNull { idx ->
+                    abs(world.x-idx%world.width)+abs(world.y-idx/world.width) }
+                nearest?.let { key ->
+                    val rx=key%world.width
+                    val ry=key/world.width
+                    IslandAction("遗失背包 · 坐标($rx,$ry) · 点选定位",enabled=true,
+                        modifier=Modifier.fillMaxWidth()) {
+                        target=rx to ry
+                        mapAim=true
+                    }
+                }
+            }
         }
         if(menuSection=="地图") {
         island.houseProject?.let { project ->
@@ -841,6 +876,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color=Color(0xFFF5DCAF),fontSize=12.sp)
                 Text("食物篇  ·  砍树找野果 / 制鱼竿钓鱼 / 建菜圃→播种→至少4步后松土→成熟收果。春夏秋冬每96回合轮换，冬季生长较慢。",
                     color=Color(0xFFCBE9D3),fontSize=12.sp)
+                Text("装备与晶石  ·  用采集键取木石；木斧/石镐增产，蓝色晶矿必须用石镐；晶石造护夜晶灯（夜间3格内减伤1）或工作台护符（挡一次致命伤）。",
+                    color=Color(0xFFDCCBF7),fontSize=12.sp)
                 Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
                     color=Color.White,fontSize=12.sp)
                 Text("终章篇  ·  双地标 → 石剑 → 守住3夜 → 挑战南岭巨岩守卫",
@@ -884,13 +921,15 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         title = { Text("方块小岛 · 怎么玩") },
         text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
             Text("开局只是一片可建设的空地，不是已经拥有房子。")
-            Text("① 方向键移动并决定朝向，走到树、矿或怪物旁，直接用右手采集或攻击，不必点地图。")
-            Text("② 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
-            Text("③ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
-            Text("④ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
-            Text("⑤ 想盖完整小屋：在建造里选暖灯木屋或松林木屋，点地图放3×3蓝图，再走到提示位置一步一步施工，总共17木9步。")
-            Text("⑥ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
-            Text("⑦ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
+            Text("① 方向键只移动与转向，撞树/矿不会自动挖掉。靠近资源点采集键、打怪点攻击键；徒手也能采普通木石。")
+            Text("② 木斧伐木从2到4、石镐采石从2到4，并能开采闪蓝光的晶矿；晶石造护夜晶灯或工作台做一次性救命护符。")
+            Text("③ 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
+            Text("④ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
+            Text("⑤ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
+            Text("⑥ 想盖完整小屋：在建造里选暖灯木屋或松林木屋，点地图放3×3蓝图，再走到提示位置一步一步施工，总共17木9步。")
+            Text("⑦ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
+            Text("⑧ 生命清零自动回营，恢复半血，随身木石/野果/晶石各有一半留在倒下地点，需要找到背包亲手取回。护符可替你挡一次致命伤。")
+            Text("⑨ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
         containerColor=Color(0xFF1A3439),
         titleContentColor=Color.White, textContentColor=Color(0xFFBDD5CC),
