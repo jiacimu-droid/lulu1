@@ -513,6 +513,11 @@ class CompanionModelGateway(
         conversation: List<ModelConversationMessage> = emptyList(),
         /** Diagnostic-only correlation, never sent to the provider or the persona. */
         turnTraceId: String = "",
+        /** Optional stable source-event identity for paid background deduplication.
+         * Unlike the full prompt it does not change when a recovery scanner
+         * sees one more bubble or uses a slightly different context window.
+         */
+        backgroundEvidenceKey: String? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -893,7 +898,8 @@ class CompanionModelGateway(
             if (!ResidentDailyPolicy.activityEnabled(connectionStore.appContext, characterId))
                 error("居民活动已暂停；本次没有发送模型请求")
             if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
-                    source, title, evidence = facts + "\n" + instruction))
+                    source, title, evidence = backgroundEvidenceKey?.takeIf(String::isNotBlank)
+                        ?: (facts + "\n" + instruction)))
                 throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
             check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                 "居民活动已暂停或无法记录请求；本次没有发送模型请求"
@@ -941,7 +947,8 @@ class CompanionModelGateway(
                 // A 503 fallback is another real HTTP attempt and consumes
                 // one additional optional background-request allowance.
                 if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
-                        source, title, evidence = facts + "\\n" + instruction))
+                        source, title, evidence = backgroundEvidenceKey?.takeIf(String::isNotBlank)
+                            ?: (facts + "\\n" + instruction)))
                     throw BackgroundModelBudgetDeferred(BackgroundModelRequestBudget.retryAt())
                 check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                     "居民活动已暂停或无法记录请求；本次没有发送回退请求"
