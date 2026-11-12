@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:01:01.985066+00:00",
-  "commit": "4f49bc7db249a4a968a1af01621511b7a2f5ce50",
+  "generatedAt": "2026-11-12T07:07:20.996054+00:00",
+  "commit": "5d6c2dd27d3c2f266963b5d97112aa5ef8d8159b",
   "branch": "main",
-  "sourceFingerprint": "a2d914d3580483bf61c3ad1430bbe1650959639fd7f34dcc53a6e2d5b470a95e",
+  "sourceFingerprint": "1c9ddd5771413f0bfed7c9ac1d8db19b2ff20cc29c413e2f2068c8a7eb34ce79",
   "summary": {
-    "files": 1246,
-    "lines": 265384,
-    "symbols": 3745
+    "files": 1250,
+    "lines": 265562,
+    "symbols": 3750
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15134,6 +15134,10 @@
         "line": 542
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt",
+        "line": 10
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
         "line": 8
       }
@@ -16138,6 +16142,10 @@
         "line": 73
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt",
+        "line": 16
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
         "line": 10
       }
@@ -16424,6 +16432,12 @@
         "line": 428
       }
     ],
+    "canSendToRole": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt",
+        "line": 7
+      }
+    ],
     "Control": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt",
@@ -16549,13 +16563,13 @@
     "LuluShellDisplayMain": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "main": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "AndroidAdb": [
@@ -20802,6 +20816,12 @@
         "line": 17
       }
     ],
+    "LuluVirtualFrameSafetyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt",
+        "line": 6
+      }
+    ],
     "LuluVirtualHumanGateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt",
@@ -20812,6 +20832,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt",
         "line": 7
+      }
+    ],
+    "LuluVirtualScrollOutcomeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt",
+        "line": 5
       }
     ],
     "LuluVirtualSearchFieldPolicyTest": [
@@ -37115,8 +37141,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 321,
-      "sha256": "8d1fd6f9bcf6b911ad5e5caadd73653104b6aeb4b6f416bad73c4af7a8bac1a8",
+      "lines": 343,
+      "sha256": "ce86b7d6a0ee4311050e0fff997c82bbed22dbd6373766306c776fb146cf125b",
       "symbols": [
         {
           "name": "Outcome",
@@ -37156,8 +37182,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 806,
-      "sha256": "2c1ae65115766063bfa5530a8b4272338c8ee3a53e63c173afe479ffc13823dd",
+      "lines": 834,
+      "sha256": "16eedb8f5e55f3d8338a837873cd11ad530241b63143cb40241c253d35eb674b",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -37759,6 +37785,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt",
+      "lines": 12,
+      "sha256": "b4c114465d05c594897d2f88932f1586f547f609f44e09c06a337a0d1c601d4d",
+      "symbols": [
+        {
+          "name": "canSendToRole",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt",
       "lines": 33,
       "sha256": "46f55d2dc1196222610e75ad4514166ea49372990ea62f5fb06885f16923dc27",
@@ -37785,6 +37822,21 @@
         {
           "name": "exhausted",
           "line": 26
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt",
+      "lines": 39,
+      "sha256": "4bbc466f766d1947f175299f91f06ae412dd957582f96bae19303c7ced2699fc",
+      "symbols": [
+        {
+          "name": "Kind",
+          "line": 10
+        },
+        {
+          "name": "classify",
+          "line": 16
         }
       ]
     },
@@ -37910,16 +37962,16 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 299,
-      "sha256": "42217f7c7717e9eec119fdc11acff64fa1ce2a20d80031dd57e6ca6b5ee9a2dd",
+      "lines": 318,
+      "sha256": "b9f98d18aa1d5ced0c4821ea1916daaa028a7f68ff6412ed83d19bbcd94a3eaf",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
-          "line": 25
+          "line": 26
         },
         {
           "name": "main",
-          "line": 53
+          "line": 54
         }
       ]
     },
@@ -44182,6 +44234,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt",
+      "lines": 21,
+      "sha256": "c96a3b343560eea90300dfecdbf5960d8e30ce8e4b5e82280e5a54fa49321913",
+      "symbols": [
+        {
+          "name": "LuluVirtualFrameSafetyTest",
+          "line": 6
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt",
       "lines": 46,
       "sha256": "d32cabaa4d570753d41901ce979022dfb7407a74f182f4e0084501561bc3a5ac",
@@ -44200,6 +44263,17 @@
         {
           "name": "LuluVirtualNoFramePolicyTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt",
+      "lines": 37,
+      "sha256": "3df3999a78fbef9409f83c2b75b25f63adb5ed5c7cbe76c1dd77ee51d0c56869",
+      "symbols": [
+        {
+          "name": "LuluVirtualScrollOutcomeTest",
+          "line": 5
         }
       ]
     },
