@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c8f45d557a70ed37884425c3640680f6edba4e0`
+- 基准提交：`41c4d3b9ebe2d22b5e2c2e144f36e064fe1f1580`
 - 分支：`main`
 - 已索引文件：1265
-- 已索引代码/文本行：267277
+- 已索引代码/文本行：267288
 - 已发现符号：3771
 
 | 文件 | 行数 | 符号数 |
@@ -411,7 +411,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 133 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 62 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 70 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 125 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 79 | 2 |
@@ -544,7 +544,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3526 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3529 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |

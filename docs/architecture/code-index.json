@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:49:47.837462+00:00",
-  "commit": "0c8f45d557a70ed37884425c3640680f6edba4e0",
+  "generatedAt": "2026-11-12T08:51:39.075275+00:00",
+  "commit": "41c4d3b9ebe2d22b5e2c2e144f36e064fe1f1580",
   "branch": "main",
-  "sourceFingerprint": "5c6652f578cfc6f2e23cefe33f4b462254d6d768cb5ef20fe545188a1ca60749",
+  "sourceFingerprint": "a69fdaceb62d13825b33d3d03a1e9bb3c19f1e51177da6815d7b68867e65b704",
   "summary": {
     "files": 1265,
-    "lines": 267277,
+    "lines": 267288,
     "symbols": 3771
   },
   "symbolIndex": {
@@ -6635,7 +6635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 49
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -8019,31 +8019,31 @@
     "isRunning": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 25
+        "line": 31
       }
     ],
     "isWorking": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 30
+        "line": 36
       }
     ],
     "markModelCompleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 32
+        "line": 38
       }
     ],
     "end": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 37
+        "line": 43
       }
     ],
     "clearConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 46
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
@@ -11683,19 +11683,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 711
+        "line": 714
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 713
+        "line": 716
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3459
+        "line": 3462
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -28145,8 +28145,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-      "lines": 62,
-      "sha256": "b8ecbf471840483646058db19db9faf4045471a9b0435af1f735f8b84ad675df",
+      "lines": 70,
+      "sha256": "6cd510108cc3e080c9c579ad88ab472c476fb83afb768b176a96e5a6fc1bcfeb",
       "symbols": [
         {
           "name": "ChatGenerationActivity",
@@ -28162,27 +28162,27 @@
         },
         {
           "name": "isRunning",
-          "line": 25
+          "line": 31
         },
         {
           "name": "isWorking",
-          "line": 30
+          "line": 36
         },
         {
           "name": "markModelCompleted",
-          "line": 32
+          "line": 38
         },
         {
           "name": "end",
-          "line": 37
+          "line": 43
         },
         {
           "name": "clearConversation",
-          "line": 46
+          "line": 52
         },
         {
           "name": "clearCharacter",
-          "line": 49
+          "line": 55
         }
       ]
     },
@@ -32042,8 +32042,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3526,
-      "sha256": "53f30a3817212849430a4d3053fcce77a61a54b7e1197265f54272c24f490e6b",
+      "lines": 3529,
+      "sha256": "8a3eb331ce7ac82679218cb8e26eed28e24082bbc05e2bf37962985882f59da6",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32067,15 +32067,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 711
+          "line": 714
         },
         {
           "name": "deferSupersededDecision",
-          "line": 713
+          "line": 716
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3459
+          "line": 3462
         }
       ]
     },
