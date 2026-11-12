@@ -101,6 +101,7 @@ data class PerformanceTimingRecord(
     val durationMillis: Long,
     val detail: String,
     val recordedAtMillis: Long = System.currentTimeMillis(),
+    val traceId: String = "",
 )
 
 data class PerformanceErrorRecord(
@@ -211,9 +212,9 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
     }
 
     /** Uses the existing persisted timing stream; no second diagnostic store. */
-    suspend fun recordTiming(stage: String, durationMillis: Long, detail: String) {
+    suspend fun recordTiming(stage: String, durationMillis: Long, detail: String, traceId: String = "") {
         val timing = PerformanceTimingRecord(stage = stage,
-            durationMillis = durationMillis.coerceAtLeast(0L), detail = detail)
+            durationMillis = durationMillis.coerceAtLeast(0L), detail = detail, traceId = traceId)
         update { current -> current.copy(timings =
             (listOf(timing) + current.timings).take(TIMING_RECORD_LIMIT)) }
     }
@@ -311,16 +312,19 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
                 stage = "Prompt",
                 durationMillis = promptMillis.coerceAtLeast(0L),
                 detail = title,
+                traceId = turnTraceId,
             ),
             PerformanceTimingRecord(
                 stage = "模型请求",
                 durationMillis = modelMillis.coerceAtLeast(0L),
                 detail = "$source · $title · $model",
+                traceId = turnTraceId,
             ),
             PerformanceTimingRecord(
                 stage = "总耗时",
                 durationMillis = totalMillis.coerceAtLeast(0L),
                 detail = "$source · $title",
+                traceId = turnTraceId,
             ),
         )
         update { current ->
@@ -543,6 +547,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("durationMillis", value.durationMillis)
         .put("detail", value.detail)
         .put("recordedAtMillis", value.recordedAtMillis)
+        .put("traceId", value.traceId)
 
     private fun decodeTiming(item: JSONObject): PerformanceTimingRecord = PerformanceTimingRecord(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -550,6 +555,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         durationMillis = item.optLong("durationMillis").coerceAtLeast(0L),
         detail = item.optString("detail"),
         recordedAtMillis = item.optLong("recordedAtMillis", System.currentTimeMillis()),
+        traceId = item.optString("traceId"),
     )
 
     private companion object {
