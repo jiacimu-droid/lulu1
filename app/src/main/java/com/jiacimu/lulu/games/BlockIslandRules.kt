@@ -150,6 +150,15 @@ internal object IslandMilestones {
         val hasTable = s.structures.values.any { it == "workbench" }
         val hasShelter = s.structures.values.any { it in setOf("campfire", "bed") }
         val nextLandmark=IslandExpeditionTrail.next(s)
+        // Survival comes before distant milestones when the player is hungry.
+        // This text derives from real inventory, never grants free food.
+        if (s.hunger <= 3) return when {
+            s.fruit > 0 -> "饥饿警报 · 打开行囊吃野果，补充饱食"
+            s.fish > 0 && s.structures.values.any { it=="campfire" } ->
+                "饥饿警报 · 回到篝火旁烤鱼吃"
+            s.gardens.isNotEmpty() -> "饥饿警报 · 照料菜圃等待收获，同时寻找野果"
+            else -> "饥饿警报 · 砍树找野果，或先制作鱼竿钓鱼"
+        }
         return when {
             !hasTable -> "生存 1/5 · 收集4木2石，建造工作台"
             "sword" !in s.tools -> "生存 2/5 · 在工作台打造石剑"
