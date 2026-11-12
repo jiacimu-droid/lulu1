@@ -12,6 +12,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun treasureRarityLegendDistinguishesTheSecretWithoutBreakingSaveTiers() {
+        val ordinary=RelicLoot("a","旧王银币",RelicTier.COMMON,80)
+        val rare=RelicLoot("b","月银胸针",RelicTier.RARE,200)
+        val precious=RelicLoot("c","星穹冠冕",RelicTier.PRECIOUS,470)
+        val crown=RelicLoot("d",RelicCollectibles.CROWN_JEWEL,RelicTier.PRECIOUS,6000)
+        assertEquals("普通",RelicCollectibles.displayRank(ordinary))
+        assertEquals("稀有",RelicCollectibles.displayRank(rare))
+        assertEquals("珍贵",RelicCollectibles.displayRank(precious))
+        assertEquals("传世秘宝",RelicCollectibles.displayRank(crown))
+        assertEquals(RelicTier.PRECIOUS,RelicLoot.read(crown.json()).tier)
+        assertEquals(crown,RelicLoot.read(crown.json()))
+        assertEquals(3,RelicTier.values().size)
+    }
+
     @Test fun treasureOrExitStaysARealPlayerChoiceAfterFindingLoot() {
         val base=RelicEscapeWorld.create(912,2,emptyList(),0,1)
         val chest=base.chests.first()
