@@ -77,6 +77,13 @@ internal fun RelicChestCeremony(
         RelicTier.PRECIOUS -> Color(0xFFE4D0A4)
     }
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
+    val rank = RelicCollectibles.displayRank(receipt.loot)
+    val rarityCue = when {
+        legendary -> "✦ 传世秘宝 · 至臻之光 ✦"
+        receipt.loot.tier == RelicTier.PRECIOUS -> "✧ 珍贵 · 金色辉光"
+        receipt.loot.tier == RelicTier.RARE -> "✧ 稀有 · 蓝银微光"
+        else -> "普通 · 遗迹遗物"
+    }
     BoxWithConstraints(
         Modifier.fillMaxSize().background(Color(0xC909101D))
             .clickable(onClick = onFinished),
@@ -98,8 +105,7 @@ internal fun RelicChestCeremony(
             ) {
                 Text(
                     if (reveal < .05f) "✦ 古老的锁扣正在开启…"
-                    else if (legendary) "一件难得的珍宝"
-                    else "发现了" + receipt.loot.tier.label + "珍藏",
+                    else rarityCue,
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
                 Canvas(Modifier.fillMaxWidth().height(artHeight)) {
@@ -173,8 +179,9 @@ internal fun RelicChestCeremony(
                     Text(RelicTreasureGallery.identity(receipt.loot.name),
                         fontSize = 11.sp,lineHeight = 15.sp,
                         color = Color(0xFFD1D7D7))
-                    Text("鉴定价值 ◇ " + receipt.loot.value,
-                        color = tint,fontSize = 12.sp)
+                    Text("品质：" + rank + "  ·  鉴定价值 ◇ " + receipt.loot.value,
+                        color = tint,fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold)
                     Text(
                         if (receipt.inBag) "✓ 已装入背包 · 成功撤离后才会永久收藏"
                         else "⚠ 背包已满 · 宝物真实落在箱子旁，记得拾取",
@@ -185,7 +192,7 @@ internal fun RelicChestCeremony(
                 } else {
                     Text("光芒里藏着什么……", color = Color(0xFFB6C4D4), fontSize = 12.sp)
                 }
-                Text("轻点画面可跳过动画，宝物不会丢失",
+                Text("轻点画面跳过 · 出货已真实结算，撤离前仍可能遗失",
                     color = Color(0xFFB6C4D4), fontSize = 10.sp)
             }
         }
