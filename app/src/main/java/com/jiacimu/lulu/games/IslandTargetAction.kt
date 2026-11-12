@@ -27,7 +27,9 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
         near && state.animals.any { it.x == x && it.y == y } -> {
             val resident=state.animals.first { it.x == x && it.y == y }
             if (!resident.befriended) IslandTargetAction("tame",
-                if (IslandWildlife.canFeed(state,resident)) "结识"+IslandWildlife.name(resident.species)
+                if (IslandWildlife.canFeed(state,resident))
+                    "喂食"+IslandWildlife.name(resident.species)+" ${resident.trust+1}/${IslandWildlife.requiredFeeds(resident.species)}"
+                else if (w.turns-resident.lastFedTurn<4) "让它歇一会儿"
                 else "需要"+IslandWildlife.feed(resident.species),
                 IslandWildlife.canFeed(state,resident),distance)
             else IslandTargetAction("care",
