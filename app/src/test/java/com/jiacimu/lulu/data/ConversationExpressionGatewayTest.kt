@@ -1701,6 +1701,104 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun groupDirectorHandsOffRoutingAndEachSpeakerReadsOnlyTheirCurrentDefinition() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡群聊样本", "江渡本人性格：遇到分歧先核对细节")
+        val xing = MigratedDomainStores.characters.create("星禾群聊样本", "星禾本人性格：有疑问就直接问")
+        CharacterIdentityStore.set(jiang.characterId, "江渡本人身份：独立插画师")
+        CharacterIdentityStore.set(xing.characterId, "星禾本人身份：社区园艺师")
+        val oldTitle = "江渡旧的私人关系标题"
+        val xingTitle = "星禾自己的私人关系标题"
+        val xingBoundary = "星禾只在本人同意后分享自己的记录"
+        val newBoundary = "先问当事人愿不愿意公开。".repeat(18) + "除非本人明确同意，否则不要向群友转述。"
+        assertTrue(CharacterSocialRelationship.setAgreement(jiang.characterId, "user", oldTitle, "旧约定"))
+        assertTrue(CharacterSocialRelationship.setAgreement(xing.characterId, "user", xingTitle, xingBoundary))
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "两位群友", listOf(jiang.characterId, xing.characterId))
+        val source = MigratedDomainStores.chat.sendUserMessage(group.id, "你们怎么看这幅画？")
+        val firstWords = "我先看右下角。"
+        val secondWords = "我也注意到了。"
+        val director = JSONObject().put("sceneFocus", xingTitle).put("ending", oldTitle)
+            .put("beats", JSONArray()
+                .put(JSONObject().put("speakerId", jiang.characterId).put("targetId", "user")
+                    .put("direction", xingTitle))
+                .put(JSONObject().put("speakerId", xing.characterId).put("targetId", jiang.characterId)
+                    .put("focus", oldTitle)))
+        val releaseDirector = CountDownLatch(1)
+        val requests = AtomicInteger()
+        fun response(body: JSONObject) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", body.toString()))
+                .put("finish_reason", "stop"))).toString())
+        fun reply(words: String) = response(JSONObject().put("action", "reply").put("text", words))
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
+                1 -> if (releaseDirector.await(15, TimeUnit.SECONDS)) response(director)
+                    else MockResponse().setResponseCode(500)
+                2 -> reply(firstWords)
+                3 -> reply(secondWords)
+                else -> MockResponse().setResponseCode(500)
+            }
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            LuluAiServices.connectionStore.selectArchive(archive.id, com.jiacimu.lulu.ai.ModelUsage.Chat)
+            val errors = mutableListOf<String>()
+            suspend fun requestBody(): String = withContext(Dispatchers.IO) {
+                checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+            }
+            val round = async {
+                com.jiacimu.lulu.runGroupReplies(group.id, checkNotNull(group.groupChat), source.content,
+                    "", "test", archive.id, mapOf(jiang.characterId to jiang.displayName,
+                        xing.characterId to xing.displayName), onError = { errors.add(it) })
+            }
+            try {
+                val directorRequest = requestBody()
+                assertTrue(directorRequest.contains(oldTitle))
+                assertTrue(directorRequest.contains(xingTitle))
+                assertFalse(directorRequest.contains(xingBoundary))
+                assertTrue(CharacterSocialRelationship.setAgreement(
+                    jiang.characterId, "user", "江渡修订后的约定", newBoundary))
+            } finally {
+                releaseDirector.countDown()
+            }
+            val first = requestBody()
+            val second = requestBody()
+            round.await()
+            assertTrue(errors.toString(), errors.isEmpty())
+            assertTrue(first.contains("江渡本人性格"))
+            assertTrue(first.contains("江渡本人身份"))
+            assertTrue(first.contains(newBoundary))
+            assertTrue(first.contains("与用户互动"))
+            for (privateText in listOf(oldTitle, xingTitle, xingBoundary, "星禾本人性格", "星禾本人身份"))
+                assertFalse(privateText, first.contains(privateText))
+            assertTrue(second.contains("星禾本人性格"))
+            assertTrue(second.contains("星禾本人身份"))
+            assertTrue(second.contains(xingBoundary))
+            assertTrue(second.contains("与${jiang.displayName}互动"))
+            assertTrue(second.contains(firstWords))
+            for (privateText in listOf(oldTitle, newBoundary, "江渡修订后的约定", "江渡本人性格", "江渡本人身份"))
+                assertFalse(privateText, second.contains(privateText))
+            val delivered = MigratedDomainStores.chat.messages(group.id).value
+                .filter { it.sender == LuluChatMessage.Sender.Character }
+            assertEquals(listOf(jiang.characterId to firstWords, xing.characterId to secondWords),
+                delivered.map { it.authorCharacterId to it.content })
+            assertEquals(3, server.requestCount)
+        } finally {
+            releaseDirector.countDown()
+            server.shutdown()
+        }
+    }
+
     @Test(timeout = 60_000) fun groupDeferredStepsKeepTheSpeakersEvidenceAndActualDependencyResults() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

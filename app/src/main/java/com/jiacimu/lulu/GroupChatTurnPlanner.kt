@@ -21,32 +21,18 @@ import kotlinx.coroutines.CancellationException
 internal data class GroupChatSceneBeat(
     val speakerId: String,
     val targetId: String? = null,
-    val focus: String = "",
-    val direction: String = "",
 )
 
 internal data class GroupChatScenePlan(
     val beats: List<GroupChatSceneBeat>,
-    val sceneFocus: String = "",
-    val ending: String = "",
 ) {
-    /** Expose only this person's own direction, never another actor's beat. */
-    fun hintFor(speakerId: String, names: Map<String, String>): String {
-        val beat = beats.firstOrNull { it.speakerId == speakerId } ?: return ""
-        val target = when (val id = beat.targetId) {
+    /** Only validated routing crosses from the director into a person's prompt. */
+    fun hintFor(speakerId: String, names: Map<String, String>): String =
+        when (val target = beats.firstOrNull { it.speakerId == speakerId }?.targetId) {
             null -> ""
             "user" -> "与用户互动"
-            else -> "与" + (names[id] ?: "当前群友") + "互动"
+            else -> "与" + (names[target] ?: "当前群友") + "互动"
         }
-        return listOf(
-            sceneFocus.takeIf(String::isNotBlank)?.let { "当前公开话题：" + it },
-            beat.focus.takeIf(String::isNotBlank)?.let { "这一拍可关注：" + it },
-            target.takeIf(String::isNotBlank),
-            beat.direction.takeIf(String::isNotBlank)?.let { "可参考的接话方向：" + it },
-            ending.takeIf { beats.lastOrNull()?.speakerId == speakerId && it.isNotBlank() }
-                ?.let { "自然收束的可能方式：" + it },
-        ).filterNotNull().joinToString("；")
-    }
 }
 
 internal object GroupChatTurnPlanner {
@@ -72,18 +58,12 @@ internal object GroupChatTurnPlanner {
                 speakerId = id,
                 targetId = candidate.optString("targetId").trim()
                     .takeIf { it in allowed || (allowUserTarget && it == "user") },
-                focus = candidate.optString("focus").trim().replace("\n", " ").take(150),
-                direction = candidate.optString("direction").trim().replace("\n", " ").take(260),
             )
         } else (0 until legacy!!.length()).mapNotNull { index ->
             legacy.optString(index).trim().takeIf { it in allowed && seen.add(it) }
                 ?.let(::GroupChatSceneBeat)
         }
-        return GroupChatScenePlan(
-            beats = beats.take(limit.coerceAtLeast(1)),
-            sceneFocus = obj.optString("sceneFocus").trim().replace("\n", " ").take(180),
-            ending = obj.optString("ending").trim().replace("\n", " ").take(140),
-        )
+        return GroupChatScenePlan(beats.take(limit.coerceAtLeast(1)))
     }
 
     /** No director decision means no fabricated scene. Explicitly mentioned
@@ -130,7 +110,7 @@ internal object GroupChatTurnPlanner {
         if (connection.model.startsWith("jev-")) return fallback
 
         // The director can read user-configured cast descriptions to propose a scene.
-        // These private production notes are NEVER injected as peer knowledge.
+        // The response only hands off validated speaker/target IDs, never director prose.
         val cast = members.joinToString("\n") { member ->
             val id = member.characterId
             val label = member.groupNickname.ifBlank { names[id].orEmpty() }
@@ -163,18 +143,16 @@ internal object GroupChatTurnPlanner {
             你是这一轮多人聊天的临时导演：设计「关系、反应、节奏和留白」，不是名单排队器，也不是代写台词的人。
             根据刚刚真实发生的公开聊天、每个人的稳定人设及可核验关系，构思这一刻最有生活感的互动：
             可以是一人短接、一个人对另一个人说的话产生反应、轻微误会/冲突/调侃，也可以认真、尴尬或自然冷场。
-            对同一话头安排不同成员各自有辨识度的表达意图；避免每人分别面向用户写长篇点评、解释笑点或机械复述群名。
+            根据每个人可能对谁的话有兴趣，安排不同的互动对象；避免所有成员分别向用户回答同一个问题。
             不为了好笑强迫造梗，不要求一定有人抖包袱，不限制谁话多话少：有分量的话可充分说，简单接话一两句就够。
             你有权提议 0 到 $limit 个角色获得独立决定发言或沉默的机会；多数普通消息不需要全员接力。
             有明确 @ 的成员优先考虑，但如果全场已经说到位也可以收住；不要无限续聊抢掉用户的发言空间。
-            每个 beats 项写这个人「可以怎样接」的意图、互动对象与内容焦点，不写任何具体台词。
+            每个 beats 项只提议谁获得接话机会，以及可选的互动对象。具体立场、表达意图与台词由角色本人决定。
             下一位必须在上一位实际发言后自己重新观察；前一人未按计划说时，后面的预案可自行放弃。
             人设、私下关系说明只供导演理解人物，不意味着其他成员知道这件事。不要泄露其他角色私聊、心理、秘事或编造共同经历。
             本导演没有替人判断心理/替人发言/批准工具/强制说话的权力。每位角色本人仍可以选择完全不同的做法。
             仅返回 JSON：
-            {"sceneFocus":"本轮公开话题焦点","beats":[
-              {"speakerId":"名单内ID","targetId":"user或另一成员ID或空字符串","focus":"要抓住哪一点","direction":"这个人的可选互动方向，不是台词"}
-            ],"ending":"这一轮可能如何留白/收住"}
+            {"beats":[{"speakerId":"名单内ID","targetId":"user或另一成员ID或空字符串"}]}
             speakerId 只从群成员 ID 里选择，不得重复；beats=[] 表示此刻自然停住。无需让所有成员都发言。
         """.trimIndent()
         return try {

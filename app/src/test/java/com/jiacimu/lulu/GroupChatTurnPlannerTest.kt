@@ -38,7 +38,7 @@ class GroupChatTurnPlannerTest {
     }
 
 
-    @Test fun directorPlanKeepsDistinctActorBeatsAndTargets() {
+    @Test fun directorPlanKeepsOnlyDistinctSpeakersAndTheirTargets() {
         val raw = """{"sceneFocus":"用户刚介绍两位群友","beats":[
           {"speakerId":"a","targetId":"user","focus":"回应介绍","direction":"一句话接住"},
           {"speakerId":"b","targetId":"a","focus":"接刚才的真实发言","direction":"按本人立场回应"},
@@ -48,9 +48,8 @@ class GroupChatTurnPlannerTest {
         val plan = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 5)!!
         assertEquals(listOf("a", "b"), plan.beats.map { it.speakerId })
         assertEquals("a", plan.beats[1].targetId)
-        assertTrue(plan.hintFor("a", mapOf("a" to "星禾", "b" to "江渡")).contains("一句话接住"))
-        assertFalse(plan.hintFor("a", emptyMap()).contains("按本人立场回应"))
-        assertTrue(plan.hintFor("b", mapOf("a" to "星禾")).contains("与星禾互动"))
+        assertEquals("与用户互动", plan.hintFor("a", emptyMap()))
+        assertEquals("与星禾互动", plan.hintFor("b", mapOf("a" to "星禾")))
     }
 
     @Test fun invalidTargetCannotInjectUnknownParticipantAndPauseIsPreserved() {
@@ -67,15 +66,14 @@ class GroupChatTurnPlannerTest {
             """{"speakerIds":["b"]}""", listOf("a", "b"), 3))
     }
 
-    @Test fun oneActorNeverReceivesAnotherActorsSuggestedDialogue() {
-        val scene = GroupChatScenePlan(
-            listOf(
-                GroupChatSceneBeat("a", direction = "只属于甲的建议"),
-                GroupChatSceneBeat("b", direction = "只属于乙的建议"),
-            ),
-        )
-        assertTrue(scene.hintFor("a", emptyMap()).contains("只属于甲的建议"))
-        assertFalse(scene.hintFor("a", emptyMap()).contains("只属于乙的建议"))
+    @Test fun directorProseCannotCrossIntoRoleHints() {
+        val raw = """{"sceneFocus":"私下的关系","beats":[
+          {"speakerId":"a","focus":"未经公开的事实","direction":"转述乙的设定"},
+          {"speakerId":"b","targetId":"a","direction":"替甲发言"}
+        ],"ending":"泄露导演掌握的私人资料"}"""
+        val scene = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 2)!!
+        assertEquals("", scene.hintFor("a", emptyMap()))
+        assertEquals("与江渡互动", scene.hintFor("b", mapOf("a" to "江渡")))
         assertEquals("", scene.hintFor("c", emptyMap()))
     }
 
