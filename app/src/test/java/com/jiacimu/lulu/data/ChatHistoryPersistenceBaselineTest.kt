@@ -322,6 +322,25 @@ class ChatHistoryPersistenceBaselineTest {
                     actualArchivePrefs.getString("entries_v1", null))
                 // The first chat commit succeeded, but the archive remains the
                 // durable saved-content authority. Reopen must repair the flag.
+                // Reconciliation itself may fail to commit. Do not publish a
+                // repaired flag that is absent from the durable chat snapshot.
+                var rejectedRecoveryCommits = 0
+                val rejectingContext = object : android.content.ContextWrapper(app) {
+                    override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
+                        if (name == "lulu_chat_store")
+                            intercept(originalChatPrefs) { rejectedRecoveryCommits++; false }
+                        else super.getSharedPreferences(name, mode)
+                }
+                val failedRecovery = InMemoryLuluChatStore()
+                failedRecovery.initialize(rejectingContext)
+                assertEquals(1, rejectedRecoveryCommits)
+                assertFalse(failedRecovery.messages(conversationId).value.single().favorite)
+                assertFalse(JSONObject(prefs.getString(key, null)!!)
+                    .getJSONObject("messages").getJSONArray(conversationId)
+                    .getJSONObject(0).getBoolean("favorite"))
+                assertTrue(archiveStore.contains(messageId))
+                // Once storage accepts writes, a fresh initialization repairs
+                // the original flag without deleting saved content.
                 val reopened = InMemoryLuluChatStore()
                 reopened.initialize(app)
                 assertTrue(reopened.messages(conversationId).value.single().favorite)
