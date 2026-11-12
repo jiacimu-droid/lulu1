@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8254db10d162e29374a0fdb48955b28e6c876059`
+- 基准提交：`5f600bacde3ad26c7c318a726002dcdda295dcf6`
 - 分支：`main`
-- 已索引文件：1233
-- 已索引代码/文本行：264426
-- 已发现符号：3712
+- 已索引文件：1235
+- 已索引代码/文本行：264568
+- 已发现符号：3717
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -762,7 +762,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 691 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 236 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 276 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 686 | 4 |
@@ -776,6 +776,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaClickFallback.kt` | 122 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaFrameMath.kt` | 66 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaHant.kt` | 20 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt` | 58 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
@@ -1223,6 +1224,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaChangeWaitTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaClickFallbackTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaFrameMathTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaTextAccuracyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T06:20:07.493159+00:00",
-  "commit": "8254db10d162e29374a0fdb48955b28e6c876059",
+  "generatedAt": "2026-11-12T06:25:35.854707+00:00",
+  "commit": "5f600bacde3ad26c7c318a726002dcdda295dcf6",
   "branch": "main",
-  "sourceFingerprint": "b225743bc354b24545135c103cd2f010d4057c302c760c034c8eced50dd66362",
+  "sourceFingerprint": "09cf03af8e8cc483114b2ad2e0b2b0dd470d17f70c11480b016ad57e7ab9da76",
   "summary": {
-    "files": 1233,
-    "lines": 264426,
-    "symbols": 3712
+    "files": 1235,
+    "lines": 264568,
+    "symbols": 3717
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4792,6 +4792,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
         "line": 188
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 26
       }
     ],
     "recent": [
@@ -16038,6 +16042,24 @@
         "line": 14
       }
     ],
+    "Element": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 10
+      }
+    ],
+    "Delta": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 19
+      }
+    ],
+    "between": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 42
+      }
+    ],
     "Verification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -20600,6 +20622,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMikaFrameMathTest.kt",
         "line": 9
+      }
+    ],
+    "LuluMikaInterfaceUpdateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt",
+        "line": 7
       }
     ],
     "LuluMikaTextAccuracyTest": [
@@ -36915,8 +36943,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 236,
-      "sha256": "768bcea5423e4b172491e844ec72663bd41f9625d6910fbbf55c92278b3ac908",
+      "lines": 276,
+      "sha256": "8457acc1783b2e313249cd495d51cbd952417acfbd47608d2b84014b0da42fd8",
       "symbols": [
         {
           "name": "Outcome",
@@ -37163,6 +37191,29 @@
         {
           "name": "fold",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+      "lines": 58,
+      "sha256": "530169ca7f1cfabcb2f8473866d8eaa9db1cca00b3f269bc2119407715f8598d",
+      "symbols": [
+        {
+          "name": "Element",
+          "line": 10
+        },
+        {
+          "name": "Delta",
+          "line": 19
+        },
+        {
+          "name": "summary",
+          "line": 26
+        },
+        {
+          "name": "between",
+          "line": 42
         }
       ]
     },
@@ -43745,6 +43796,17 @@
         {
           "name": "LuluMikaFrameMathTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt",
+      "lines": 44,
+      "sha256": "6a1c2abea951fcf64a6436f8b78d29d26c6e7f9f9aedc8cb02469dee30641901",
+      "symbols": [
+        {
+          "name": "LuluMikaInterfaceUpdateTest",
+          "line": 7
         }
       ]
     },
