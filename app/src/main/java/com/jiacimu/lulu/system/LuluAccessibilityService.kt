@@ -220,6 +220,110 @@ class LuluAccessibilityService : AccessibilityService() {
             .sortedByDescending { it.layer }.mapNotNull { it.root }
             .filter { it.packageName?.toString() == packageName }
 
+        private data class VirtualUiNode(
+            val node: AccessibilityNodeInfo,
+            val ref: String,
+            val label: String,
+            val resourceId: String,
+            val fingerprintPart: String,
+            val descriptor: JSONObject,
+        )
+
+        /** Deterministic inspection of the ACTUAL app window on the separate
+         * display. No stored AccessibilityNodeInfo escapes this call. The
+         * owner screen, IME and system dialogs never become action targets. */
+        private fun virtualUiNodes(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+        ): List<VirtualUiNode> {
+            if (displayId <= 0 || packageName.isBlank() ||
+                observeDisplay(displayId).packageName != packageName) return emptyList()
+            val collected = mutableListOf<VirtualUiNode>()
+            var visited = 0
+            fun visit(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 25 || visited++ >= 460) return
+                if (!node.isVisibleToUser || !node.isEnabled || node.isPassword) return
+                val rect = Rect().also(node::getBoundsInScreen)
+                val usable = rect.width() >= 6 && rect.height() >= 6 &&
+                    rect.right > 0 && rect.bottom > 0 &&
+                    rect.left < 720 && rect.top < 1280
+                val editable = safeEditable(node)
+                val interactive = node.isClickable || node.isScrollable || editable
+                if (usable && interactive && collected.size < 40) {
+                    // Never emit a search box's typed content as a control label.
+                    val label = (if (editable) node.hintText?.toString()
+                        ?: node.contentDescription?.toString()
+                        else node.contentDescription?.toString()
+                            ?: node.text?.toString()).orEmpty().trim().take(90)
+                    val rid = node.viewIdResourceName.orEmpty().substringAfterLast('/').take(70)
+                    if (label.isNotBlank() || rid.isNotBlank()) {
+                        val ref = "e" + (collected.size + 1)
+                        val x = (rect.centerX().coerceIn(0, 719) * 1000L / 719L).toInt()
+                        val y = (rect.centerY().coerceIn(0, 1279) * 1000L / 1279L).toInt()
+                        val role = node.className?.toString().orEmpty().substringAfterLast('.').take(60)
+                        val descriptor = JSONObject()
+                            .put("ref", ref).put("name", label).put("role", role)
+                            .put("resourceId", rid).put("x", x).put("y", y)
+                            .put("clickable", node.isClickable)
+                            .put("editable", editable).put("scrollable", node.isScrollable)
+                        val identity = listOf(ref, label, rid, role,
+                            rect.flattenToString(), node.isClickable.toString(),
+                            node.isEnabled.toString(), node.isFocused.toString(),
+                            node.isChecked.toString(), node.isSelected.toString()).joinToString("|")
+                        collected.add(VirtualUiNode(node, ref, label, rid, identity, descriptor))
+                    }
+                }
+                for (i in 0 until node.childCount) node.getChild(i)?.let { visit(it, depth + 1) }
+            }
+            ownedVirtualRoots(service, displayId, packageName).forEach { visit(it, 0) }
+            return collected
+        }
+
+        /** A read-only semantic UI reference, bound to the verified target app.
+         * Fingerprint changes on node order, geometry, label, state or focus. */
+        fun virtualUiSnapshot(displayId: Int, packageName: String): JSONObject {
+            val service = instance ?: return JSONObject()
+            val nodes = virtualUiNodes(service, displayId, packageName)
+            if (nodes.isEmpty()) return JSONObject()
+            val parts = nodes.map { it.fingerprintPart }
+            val elements = JSONArray()
+            nodes.forEach { elements.put(it.descriptor) }
+            return JSONObject()
+                .put("fingerprint", LuluVirtualUiPolicy.fingerprint(parts))
+                .put("elements", elements)
+        }
+
+        /** Click by verified snapshot reference only. No coordinate guessing,
+         * repeated click fallback, or untrusted off-display IME clicks. */
+        fun tapVirtualUiElement(
+            displayId: Int, packageName: String, expectedFingerprint: String,
+            elementRef: String,
+        ): Boolean {
+            val service = instance ?: return false
+            val nodes = virtualUiNodes(service, displayId, packageName)
+            if (nodes.isEmpty() ||
+                LuluVirtualUiPolicy.fingerprint(nodes.map { it.fingerprintPart }) != expectedFingerprint)
+                return false
+            val chosen = nodes.singleOrNull { it.ref == elementRef } ?: return false
+            val node = chosen.node
+            if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled ||
+                !node.isClickable || node.isPassword) return false
+            // A clickable container may have an empty name but dangerous child
+            // labels; inspect its descendants before any irreversible tap.
+            val content = StringBuilder()
+            var visited = 0
+            fun labels(n: AccessibilityNodeInfo, depth: Int) {
+                if (visited++ >= 55 || depth > 7) return
+                if (n.isPassword) { content.append(" password "); return }
+                content.append('\n').append(n.text?.toString().orEmpty().take(100))
+                content.append('\n').append(n.contentDescription?.toString().orEmpty().take(100))
+                for (i in 0 until n.childCount) n.getChild(i)?.let { labels(it, depth + 1) }
+            }
+            labels(node, 0)
+            if (!LuluVirtualUiPolicy.mayClick(chosen.label, chosen.resourceId, content.toString()))
+                return false
+            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+
         /** Mika-style target discovery based on the verified virtual app.
          * Only editor metadata/geometry, never entered text or display 0. */
         fun virtualSearchFieldStatus(displayId: Int, packageName: String): JSONObject {

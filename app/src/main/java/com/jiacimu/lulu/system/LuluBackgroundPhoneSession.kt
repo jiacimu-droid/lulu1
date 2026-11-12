@@ -45,6 +45,37 @@ internal object LuluBackgroundPhoneSession {
     private var appContext: Context? = null
     private val replies = LinkedBlockingQueue<String>()
 
+    private data class ObservedUi(
+        val token: String,
+        val fingerprint: String,
+        val characterId: String,
+        val displayId: Int,
+        val packageName: String,
+    )
+    private var lastObservedUi: ObservedUi? = null
+
+    /** No pixels are invented: every semantic ref comes from the owned
+     * virtual App's CURRENT accessibility tree. A new observation supersedes
+     * the preceding refs, and STOP/transport loss clears them. */
+    private suspend fun attachUiEvidence(
+        output: JSONObject, characterId: String, id: Int, packageName: String,
+    ): JSONObject {
+        val inventory = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualUiSnapshot(id, packageName)
+        }
+        val fingerprint = inventory.optString("fingerprint")
+        val elements = inventory.optJSONArray("elements")
+        if (fingerprint.isBlank() || elements == null || elements.length() == 0) {
+            lastObservedUi = null
+            return output
+        }
+        val token = java.util.UUID.randomUUID().toString().substring(0, 12)
+        lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName)
+        return output.put("screenSnapshotId", token)
+            .put("interactiveElements", elements)
+            .put("uiEvidenceSource", "virtual_accessibility_tree")
+    }
+
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
 
     /**
@@ -115,6 +146,7 @@ internal object LuluBackgroundPhoneSession {
         displayId = -1
         activeApp = ""
         ownerCharacterId = ""
+        lastObservedUi = null
         runCatching { stream?.close() }
         runCatching { adb?.close() }
         stream = null
@@ -222,7 +254,7 @@ internal object LuluBackgroundPhoneSession {
             check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
                 "后台屏幕由另一角色使用中；请先由主人停止该会话"
             }
-            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "focus_search", "submit", "observe", "stop")) {
+            check(action in setOf("start", "launch", "tap", "tap_element", "swipe", "back", "type", "focus_search", "submit", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
             if (action == "stop") {
@@ -276,6 +308,23 @@ internal object LuluBackgroundPhoneSession {
                     "屏幕内容已变更或目标窗口无法核实；为了避免错点，拒绝这一步"
                 }
             }
+            if (action == "tap_element") {
+                val snapshot = lastObservedUi
+                val requestedSnapshot = args.optString("screenSnapshotId")
+                val requestedElement = args.optString("elementRef")
+                val owned = snapshot != null && snapshot.characterId == characterId &&
+                    snapshot.displayId == id && snapshot.packageName == activeApp
+                if (!owned || requestedElement.isBlank() ||
+                    !LuluVirtualUiPolicy.sameSnapshot(
+                        requestedSnapshot, snapshot?.token.orEmpty(),
+                        snapshot?.fingerprint.orEmpty(), snapshot?.fingerprint.orEmpty())) {
+                    return JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "unverified").put("taskCompleted", false)
+                        .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("verification", "控件编号已经过期或不属于此角色的后台App；请先observe重新读取，拒绝按旧位置点击")
+                        .toString()
+                }
+            }
             if (action == "submit") {
                 val safeSearch = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.hasFocusedVirtualSearchEditor(id, activeApp)
@@ -322,6 +371,20 @@ internal object LuluBackgroundPhoneSession {
             }
             val applied = when (action) {
                 "observe" -> null
+                "tap_element" -> {
+                    val prior = lastObservedUi
+                        ?: error("后台控件快照不存在")
+                    lastObservedUi = null
+                    // The same pre-action frame barrier used by focus_search
+                    // keeps an old image from claiming the click succeeded.
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) { "无法核实本次点击前的后台画面" }
+                    val clicked = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.tapVirtualUiElement(
+                            id, activeApp, prior.fingerprint, args.optString("elementRef"))
+                    }
+                    JSONObject().put("accepted", clicked).put("displayId", id)
+                }
                 "focus_search" -> {
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) { "无法建立后台聚焦画面屏障" }
@@ -348,7 +411,7 @@ internal object LuluBackgroundPhoneSession {
             }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted") &&
-                action !in setOf("type", "focus_search")) {
+                action !in setOf("type", "focus_search", "tap_element")) {
                 return applied.put("mode", "independent_virtual_display")
                     .put("status", "unverified")
                     .put("verification", if (action == "type")
@@ -386,7 +449,7 @@ internal object LuluBackgroundPhoneSession {
                         LuluAccessibilityService.typedTextReadbackOnDisplay(
                             id, activeApp, args.getString("text"))
                     }
-                return JSONObject().put("success", false).put("status", "unverified")
+                val unverified = JSONObject().put("success", false).put("status", "unverified")
                     .put("accepted", applied?.optBoolean("accepted") ?: true)
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("targetWindowVerified", owned)
@@ -397,7 +460,11 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
                         if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
                         else "；目标App窗口未核实，禁止盲点")
-                    .toString()
+                if (!owned) {
+                    lastObservedUi = null
+                    return unverified.toString()
+                }
+                return attachUiEvidence(unverified, characterId, id, activeApp).toString()
             }
 
             val visible = withContext(Dispatchers.Main) {
@@ -412,7 +479,7 @@ internal object LuluBackgroundPhoneSession {
                     .put("accepted", applied?.optBoolean("accepted") ?: true)
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("verification", "无法核实独立屏幕的前台窗口属于已授权目标应用；已丢弃截图")
-                    .toString()
+                    .also { lastObservedUi = null }.toString()
             }
             val pixels = frame.optString("imageDataUrl")
             val frameFresh = frame.optBoolean("frameFreshAfterAction", false)
@@ -472,7 +539,7 @@ internal object LuluBackgroundPhoneSession {
                         .put("shareError", failure.message.orEmpty().take(140))
                 }
             } else JSONObject()
-            return JSONObject().put("success", observed)
+            val finalReceipt = JSONObject().put("success", observed)
                 .put("status", if (observed) "observed" else "unverified")
                 .put("actionConditionVerified", actionConditionVerified)
                 .put("taskCompleted", false)
@@ -505,7 +572,7 @@ internal object LuluBackgroundPhoneSession {
                     else if (observed)
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
                     else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
-                .toString()
+            return attachUiEvidence(finalReceipt, characterId, id, activeApp).toString()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) {
                 forgetTransport()

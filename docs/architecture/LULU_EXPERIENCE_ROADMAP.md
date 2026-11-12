@@ -4,6 +4,38 @@
 
 **主接力顺序：人物活人感与履约 P → 自主社交 S → 其他体验。** 数据损坏风险与全局严重卡顿可插队。人物、双游戏专项按各自范围并行，游戏先打通第一段完整游玩，再扩内容。所有代理从 AGENTS.md 读规范，从本页 §一点五 领任务，从专项进度查历史证据。
 
+### 2026-11-12 PH-01.6 · Mika 安卓手机智能体全面对标与分阶段补齐（用户明确要求，体验高优先）
+
+来源：[Mika 主仓](https://github.com/wangzan101/Mika) main `106535545bfefa150e24276c6301238398ca5f88`。已实际检索其 `AndroidScreen`、`ScreenReader`、`NodeIds`、`Accuracy`、`ChangeWait`、`ClickFallback`、`MainScreenSpill`、`ScreenAccessibility`、`FrameFreshness`、`AgentDisplay`、`BuiltinShellRecovery`、`ToolDispatcher`、`ActionEffect`、`InterfaceUpdate`、`EvidenceLog` 等源码。**只复用系统交互能力，不引入第二角色、Mika AgentLoop、第二记忆体系，不改变角色自主选择。** 先核实已有原生功能，严禁因为名称类似就当作已接通。以下是可执行开发清单，未勾选表示未获得完整闭环证据，不是说对应的每一行代码都不存在。
+
+| 固定 ID / 优先级 | Mika 可学的工程能力与当前差距 | 完成定义 / 安全边界 |
+| --- | --- | --- |
+| PH-01.6a P0 | 可交互控件树、snapshotId、编号引用、过期校验、`tap_element`，原 Lulu 以图片及坐标为主；本轮在途源码工作包 | 明确目标 virtual display + App；模型收到新树；模型凭 ref 操作；界面或焦点变更后拒绝旧 ref；外发/密码/付费控件禁点；源代码、JVM/APK、真机分别验 |
+| PH-01.6b P0 | Mika `ActionEffect` + `ChangeWait`：每步效果分级、等界面稳定后比较控件树/画面；原 Lulu 主要证实「接受指令/新帧」，不能证明页面有变化 | 给实际结果分类 changed/unchanged/loading/switched/unknown；永不把新帧当业务完成，不重复执行不确定的外发动作 |
+| PH-01.6c P0 | Mika `ClickFallback`：安全节点点击/坐标切换，先识别不可逆及状态切换动作 | 只对纯导航可重试，原按钮状态/主屏归属及动作效果未确认时不得自动第二次点 |
+| PH-01.6d P0 | Mika `typeAndVerify`、WebView 输入、中文/剪贴板临时粘贴与精确恢复、键盘焦点 | 密码/验证码禁碰；只在唯一安全框可写；读回并区分已显示/已提交/真实搜索结果；剪贴板要原文恢复且异常可恢复 |
+| PH-01.6e P0 | Mika `ScreenReader` 全窗口读取及 IME/系统弹窗仲裁；已有 Lulu 基础处理但单窗口信息仍有限 | 区分目标 App、系统弹窗、输入法与不可读窗口；不得从底层点击被系统窗口遮挡的 App |
+| PH-01.6f P0 | 缺帧/黑屏/安全窗口与无障碍树回退；已有部分降级与 `focus_search` | 无真实图片绝不冒称看见画面；有真实控件证据时可有限探索，点击需要新快照与安全检查 |
+| PH-01.6g P0 | 工具反馈与真机问题诊断（输入没发出/目标变更/系统拒绝/等待加载/缺权限） | 原角色能区分错因并提出真实替代动作；拒绝“我去试试”无后文；结果回写既有 ToolRouter 时间线 |
+| PH-01.6h P0 | Mika `InterfaceUpdate` 局部差异回传、长任务上下文成本控制 | 只在有相应基准快照时发 diff；若模型看不到旧基准则全量；不丢新内容与否定、减少重复 token |
+| PH-01.6i P1 | Mika `AppSwitch`、`MainScreenSpill`：App 跳转和后台任务意外开到主屏 | 识别是谁启动、目标任务所在 display；用户主屏正在操作的不抢；需本人接管时说明实况 |
+| PH-01.6j P1 | Mika `LaunchChooser`/系统选择器、权限框、登录、人手接管 | 人工选择时暂停，不把选择器当目标页；主人处理后再复观察 |
+| PH-01.6k P1 | Mika `Accuracy` 节点重定位、列表重排/换页避免旧引用 | 只有资源 ID、语义、几何与上下文均安全匹配才重定位；有歧义拒绝 |
+| PH-01.6l P1 | Mika `WheelDriver`、`IdleScroll`、停留与列表末端判断 | 列表滚动被页面接受/内容改变/已到底清楚分级；不无限刷同一条 |
+| PH-01.6m P1 | Mika `ScreenAccessibility` 指定 display 手势、双击/长按/复杂轨迹 | 只在后台屏注入，并证实焦点隔离；避免无意义手势、误触、抢主屏 |
+| PH-01.6n P1 | Mika `AfterTaskMarks`、`DwellStop` 与长任务阶段性收尾 | 保留人物真实意图/已完成步骤/阻碍；模型自主决定继续、问主人或结束，不因五分钟到期吞任务 |
+| PH-01.6o P1 | 任务暂停/取消/重复请求与副作用幂等 | 任务及角色所有权验证，已落地步骤不重复发、取消后不重放旧手势与消息 |
+| PH-01.6p P1 | Mika `ScreenShareConsent`、`OverlayHost`、`PipInput`：主人只读预览及接管交互；Lulu 已有初步 owner preview | 不替模型偷点主屏；预览显示真实后台帧，必要时让主人点选或暂停；掉授权立即停 |
+| PH-01.6q P2 | Mika `BuiltinShellRecovery`、`BootRestoreHandler`：无线调试/ADB 开机恢复 | 只对主人此前明确授权的恢复能力生效；重启、Wi-Fi/调试断线、锁屏/系统清理恢复与取消验收 |
+| PH-01.6r P2 | Mika `AgentDisplay`、`DisplayOrientation`：转向/画面几何/帧时间戳 | 横竖屏/键盘布局变化重新测量，不使用过期 720×1280 坐标；独立焦点不被系统丢弃 |
+| PH-01.6s P2 | Mika `PhoneOcr`、`StillFrameRead`：自绘页面、黑帧及不能读控件的图像处理 | 本角色当前支持视觉的模型优先，OCR 仅必要降级；画面不可用不可推测真实内容 |
+| PH-01.6t P2 | Mika `ToolDispatcher`、`ToolGroups`：按需工具分组、适量批处理 | 不创建新 persona/记忆；角色在已有 0/1/N 主循环选择动作；节省重复授权和多余模型调用 |
+| PH-01.6u P2 | Mika `EvidenceLog` 与任务观察回执界面 | 事件结果与实际截图、模型陈述、任务完成分开，主人能查看角色正在做什么、障碍与分享 |
+| PH-01.6v P2 | Mika `AppAccess`、并发/多任务/单 App 锁与长期验收 | 隐私排除、角色隔离、支付/发布、虚拟屏回收、跨重启/断网、低电量/多日长期稳定 |
+
+**执行顺序**：先 PH-01.6a→b→c→d→e→f→g→h 解决正常搜索/阅读；再 i→p 处理任务全过程与可见性；最后 q→v 加固长期体验。若现有 CI 红灯挡住新 APK，优先修**首个真实失败**。严禁为了进度勾掉未验收项；静态、JVM/APK、Redmi 真机、真实模型四层分开写。PH-01.6 与 PH-01 Issue #887 是同一工程任务，不另开重复 Issue。
+
+
 **2026-11-12 P-08c.2 私聊重建回归（CI 待验）**：新增 [a964c4f](https://github.com/jiacimu-droid/lulu1/commit/a964c4f269a1da200aa28fef0b5406e3c9c9ef6b) `QqReplySourceWatermarkTest.completedPrivateToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`，真实 `ToolRouter.send_private_message` 首次送达后重新初始化 ChatStore，使用相同 requestId、不同诊断 trace 重放，核对原回执、真实消息 ID、内容及新旧 Store 不重复。仅新增 JVM 回归，未改生产逻辑；本 SHA 的 main push Actions 尚未查得终态，不能勾工程完成。下一轮直接核该测试的 APK/JVM 首错和 Refresh code index，失败修复同一夹具/根因；通过后核 P-08c.2 取消期间副动作交付边界。进程强杀、真实模型和真机仍待验。
 
 **2026-11-12 P-08c.2 私聊纠正后 Store 重建回归（待 CI）**：上轮 `a964c4f` 的 [Lulu APK/JVM #43150286715](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286715) `build=completed/success`、[Refresh code index #43150286675](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286675) `refresh=completed/success`。本轮续接 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`，新增纠正后新来源可送达、旧部分消息 ID 不变、独立 ChatStore 重建后仍保留原件、旧来源水位不可重新写入的回归；提交 [`4869419`](https://github.com/jiacimu-droid/lulu1/commit/486941934c44ab67cb8e422454f9713a67ea95f0) 和修正水位断言 [`3eda282`](https://github.com/jiacimu-droid/lulu1/commit/3eda282a52fd980cc26ded48ca5305012be456f2)。仅测试，新增 SHA 的 APK/JVM/索引待核，**未勾工程验收**；不代表真实进程强杀。下一轮直接核该测试 JVM 首错，若绿转 UI-02.2 写入失败恢复；真机/真实模型仍待验。
