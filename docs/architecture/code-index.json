@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:56:28.571418+00:00",
-  "commit": "202908304a1e67c6ef2d50fa4b8269fc59402435",
+  "generatedAt": "2026-11-12T05:58:19.509313+00:00",
+  "commit": "413f7a79c48f75724d16a182a6273b00922521b4",
   "branch": "main",
-  "sourceFingerprint": "0c99bd3053044c25ef962d60a654434c7926315391ad619220b3fabfe54e4833",
+  "sourceFingerprint": "b78b808b4787b870f14cbc09548c242de5071837683e64ca0889374d5514b939",
   "summary": {
     "files": 1224,
-    "lines": 263574,
-    "symbols": 3691
+    "lines": 263600,
+    "symbols": 3692
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1927,7 +1927,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 522
+        "line": 548
       }
     ],
     "motionMetadata": [
@@ -5683,7 +5683,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 528
+        "line": 554
       }
     ],
     "needsIndependentLifeReview": [
@@ -5906,6 +5906,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
         "line": 525
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 227
       }
     ],
     "canChoose": [
@@ -10369,11 +10373,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 531
+        "line": 557
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 578
+        "line": 604
       }
     ],
     "validateZip": [
@@ -13857,7 +13861,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 443
+        "line": 469
       }
     ],
     "dot": [
@@ -15691,103 +15695,103 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 242
+        "line": 264
       }
     ],
     "virtualUiSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 297
+        "line": 323
       }
     ],
     "tapVirtualUiElement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 313
+        "line": 339
       }
     ],
     "labels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 330
+        "line": 356
       }
     ],
     "virtualSearchFieldStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 345
+        "line": 371
       }
     ],
     "focusUniqueVirtualSearchEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 373
+        "line": 399
       }
     ],
     "typeOnDisplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 394
+        "line": 420
       }
     ],
     "typedTextReadbackOnDisplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 421
+        "line": 447
       }
     ],
     "hasFocusedVirtualSearchEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 437
+        "line": 463
       }
     ],
     "tapNormalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 457
+        "line": 483
       }
     ],
     "swipeNormalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 469
+        "line": 495
       }
     ],
     "typeIntoFocusedField": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 488
+        "line": 514
       }
     ],
     "scrollVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 498
+        "line": 524
       }
     ],
     "scan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 508
+        "line": 534
       }
     ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 554
+        "line": 580
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 564
+        "line": 590
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 572
+        "line": 598
       }
     ],
     "LuluAlarm": [
@@ -36623,8 +36627,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 589,
-      "sha256": "6020259f3e820455121e3b8a1ddd092bd3a058567e2ae4b7fca1cb7de1c97652",
+      "lines": 615,
+      "sha256": "b4254d31926caf6d743e40aaefac676c8162f6bd29f841cb717b902f380f3b08",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -36651,92 +36655,96 @@
           "line": 196
         },
         {
+          "name": "find",
+          "line": 227
+        },
+        {
           "name": "visit",
-          "line": 242
+          "line": 264
         },
         {
           "name": "virtualUiSnapshot",
-          "line": 297
+          "line": 323
         },
         {
           "name": "tapVirtualUiElement",
-          "line": 313
+          "line": 339
         },
         {
           "name": "labels",
-          "line": 330
+          "line": 356
         },
         {
           "name": "virtualSearchFieldStatus",
-          "line": 345
+          "line": 371
         },
         {
           "name": "focusUniqueVirtualSearchEditor",
-          "line": 373
+          "line": 399
         },
         {
           "name": "typeOnDisplay",
-          "line": 394
+          "line": 420
         },
         {
           "name": "typedTextReadbackOnDisplay",
-          "line": 421
+          "line": 447
         },
         {
           "name": "hasFocusedVirtualSearchEditor",
-          "line": 437
+          "line": 463
         },
         {
           "name": "perform",
-          "line": 443
-        },
-        {
-          "name": "tapNormalized",
-          "line": 457
-        },
-        {
-          "name": "swipeNormalized",
           "line": 469
         },
         {
+          "name": "tapNormalized",
+          "line": 483
+        },
+        {
+          "name": "swipeNormalized",
+          "line": 495
+        },
+        {
           "name": "typeIntoFocusedField",
-          "line": 488
+          "line": 514
         },
         {
           "name": "scrollVisible",
-          "line": 498
+          "line": 524
         },
         {
           "name": "scan",
-          "line": 508
+          "line": 534
         },
         {
           "name": "controls",
-          "line": 522
+          "line": 548
         },
         {
           "name": "normalize",
-          "line": 528
-        },
-        {
-          "name": "walk",
-          "line": 531
-        },
-        {
-          "name": "clickFirstText",
           "line": 554
         },
         {
+          "name": "walk",
+          "line": 557
+        },
+        {
+          "name": "clickFirstText",
+          "line": 580
+        },
+        {
           "name": "AccessibilitySnapshot",
-          "line": 564
+          "line": 590
         },
         {
           "name": "LuluScreenAction",
-          "line": 572
+          "line": 598
         },
         {
           "name": "walk",
-          "line": 578
+          "line": 604
         }
       ]
     },
