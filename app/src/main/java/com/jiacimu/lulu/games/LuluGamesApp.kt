@@ -161,13 +161,29 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     val immersivePlay = route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
 
     // Full-screen is confined to active game sessions; orientation is managed above.
-    DisposableEffect(hostActivity, immersivePlay) {
+    DisposableEffect(hostActivity, immersivePlay, route) {
         val window = hostActivity?.window
         val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
         val wasFullscreen = window?.attributes?.flags?.and(flag) != 0
+        val decor = window?.decorView
+        val oldSystemUi = decor?.systemUiVisibility
         if (immersivePlay) window?.addFlags(flag)
+        // The island should reach the bottom edge, instead of losing another
+        // horizontal band to the Android navigation pill.
+        if (route == GameRoute.BlockIsland && decor != null) {
+            @Suppress("DEPRECATION")
+            decor.systemUiVisibility = (oldSystemUi ?: 0) or
+                android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        }
         onDispose {
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
+            if (route == GameRoute.BlockIsland && decor != null && oldSystemUi != null) {
+                @Suppress("DEPRECATION")
+                decor.systemUiVisibility = oldSystemUi
+            }
         }
     }
     Scaffold(
@@ -214,7 +230,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             ArcadeAtmosphere(Modifier.matchParentSize())
-            Box(Modifier.fillMaxSize().padding(top = if (immersivePlay) 54.dp else 0.dp)) {
+            Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route != GameRoute.BlockIsland) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
                     if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape) route = target
@@ -237,7 +253,37 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                 )
             }
             }
-            if (immersivePlay) {
+            if (route == GameRoute.BlockIsland) {
+                // The entire island extends behind this small floating toolbar.
+                // Do not reserve a 54dp opaque strip across a short landscape screen.
+                Row(
+                    modifier = Modifier.align(Alignment.TopEnd)
+                        .height(40.dp)
+                        .background(Color(0xA80A1521), androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 14.dp))
+                        .padding(horizontal = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = ::stepBack, modifier = Modifier.size(40.dp)) {
+                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = Color.White)
+                    }
+                    if (landscapeSupported) {
+                        TextButton(onClick = { landscape = !landscape },
+                            contentPadding = PaddingValues(horizontal = 6.dp)) {
+                            Text(if (landscape) "竖屏" else "横屏",
+                                color = Color(0xFFB9EBD6), fontSize = 11.sp)
+                        }
+                    }
+                    GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
+                    ModelArchiveIconButton(
+                        usage = ModelUsage.Game, title = "游戏模型",
+                        subtitle = "仅影响游戏内的角色生成，不影响其他对话模型。",
+                        icon = Icons.Outlined.Memory, contentDescription = "选择游戏模型",
+                        tint = Color.White, accent = Color.White,
+                        background = Color(0xFF111620), ink = Color.White,
+                        muted = Color(0xFFB8C2D3), border = Color.White.copy(alpha = .18f),
+                    )
+                }
+            } else if (immersivePlay) {
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                         .background(Brush.horizontalGradient(listOf(Color(0xF00A1521), Color(0xC0182635))))
