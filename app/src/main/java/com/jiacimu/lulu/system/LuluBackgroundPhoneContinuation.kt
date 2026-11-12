@@ -31,6 +31,42 @@ internal object LuluBackgroundPhoneContinuation {
         return runCatching { JSONObject(clean) }.getOrNull()
     }
 
+    /** The original full receipt is still durably stored by ToolRouter.
+     * Do not send a second raw 40-element JSON array back to the PAID model
+     * when the same controls are already summarized below. */
+    private fun compactRoleReceipt(receipt: String, previousText: String? = null): String {
+        val json = runCatching { JSONObject(receipt) }.getOrNull()
+            ?: return receipt.take(3_000)
+        json.remove("interactiveElements")
+        json.remove("imageDataUrl")
+        if (previousText != null && json.optString("visibleText") == previousText) {
+            json.remove("visibleText")
+            json.put("visibleTextUnchanged", true)
+        }
+        return json.toString().take(5_600)
+    }
+
+    private fun inventory(receipt: JSONObject?): List<LuluMikaInterfaceUpdate.Element>? {
+        if (receipt?.optString("screenSnapshotId").isNullOrBlank()) return null
+        val items = receipt?.optJSONArray("interactiveElements") ?: return null
+        return (0 until items.length()).mapNotNull { index ->
+            val item = items.optJSONObject(index) ?: return@mapNotNull null
+            item.optString("ref").takeIf(String::isNotBlank)?.let { ref ->
+                LuluMikaInterfaceUpdate.Element(
+                    ref, item.optString("name"), item.optString("role"),
+                    item.optString("resourceId"), item.optBoolean("clickable"),
+                    item.optInt("x"), item.optInt("y"),
+                )
+            }
+        }
+    }
+
+    private fun uiDiff(before: JSONObject?, after: JSONObject?): String {
+        val now = inventory(after) ?: return ""
+        val old = inventory(before)
+        return LuluMikaInterfaceUpdate.between(old, now, old != null).summary()
+    }
+
     /** Put fresh semantic refs FIRST even when a long tool receipt is clipped.
      * These are only the current, verified virtual App's observed elements. */
     private fun uiReferenceSummary(receipt: String): String {
@@ -65,7 +101,7 @@ internal object LuluBackgroundPhoneContinuation {
         var image = initialImage
         val history = StringBuilder()
         history.appendLine("本人刚才的选择与目标：" + roleReason.take(900))
-        history.appendLine("第一步真实回执：" + initialReceipt.take(3_500))
+        history.appendLine("第一步真实回执：" + compactRoleReceipt(initialReceipt))
         uiReferenceSummary(initialReceipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
         var count = 0
         var lastScreenReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
@@ -180,9 +216,13 @@ internal object LuluBackgroundPhoneContinuation {
             image = LuluScreenFrameHandoff.take(characterId, nextId)
             history.appendLine("下一步 " + index + "：" + action +
                 "；本人原因：" + decision.optString("reason").take(240))
-            history.appendLine("实际回执：" + receipt.take(3_200))
-            uiReferenceSummary(receipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
             val result = runCatching { JSONObject(receipt) }.getOrNull()
+            history.appendLine("实际回执：" +
+                compactRoleReceipt(receipt, lastScreenReceipt?.optString("visibleText")))
+            uiDiff(lastScreenReceipt, result).takeIf(String::isNotBlank)?.let {
+                history.appendLine(it)
+            }
+            uiReferenceSummary(receipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
             lastScreenReceipt = result
             if (action in setOf("start", "launch", "back", "tap", "tap_element", "swipe")) searchTextVerified = false
             if (action == "type") searchTextVerified =
