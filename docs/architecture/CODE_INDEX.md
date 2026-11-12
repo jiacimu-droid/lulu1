@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`76dd2290bf9604d47e7d8675976c788353cb6332`
+- 基准提交：`80a8b2cf0223fdd5e811bd0da5a271c4cdac26e9`
 - 分支：`main`
-- 已索引文件：1218
-- 已索引代码/文本行：262394
-- 已发现符号：3665
+- 已索引文件：1219
+- 已索引代码/文本行：262435
+- 已发现符号：3667
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -759,7 +759,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 348 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 370 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
@@ -778,6 +778,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
