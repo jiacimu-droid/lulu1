@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:44:39.426456+00:00",
-  "commit": "d01cce94e7ab5384d37335c714aa05088e86b58e",
+  "generatedAt": "2026-11-12T08:45:01.862766+00:00",
+  "commit": "36090e971427f726f349c08b201642d833f81092",
   "branch": "main",
-  "sourceFingerprint": "c51bacccea3c0dafc733c14204449ed6ea52279dd312dec9fb09a1ec0fdfd517",
+  "sourceFingerprint": "9e786e82ebbe8dfee1221a38864ee78bbe880b96c242c75603d27c9d1c63b905",
   "summary": {
-    "files": 1264,
-    "lines": 267176,
+    "files": 1265,
+    "lines": 267213,
     "symbols": 3770
   },
   "symbolIndex": {
@@ -21951,6 +21951,12 @@
           "line": 147
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt",
+      "lines": 37,
+      "sha256": "ca0e3026eefbab90e6ae10db5e6cc96deed8e75653c55106fb23d22f63a60f3e",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt",
