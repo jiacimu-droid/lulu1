@@ -228,7 +228,7 @@ internal object LuluBackgroundPhoneSession {
             check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
                 "后台屏幕由另一角色使用中；请先由主人停止该会话"
             }
-            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "observe", "stop")) {
+            check(action in setOf("start", "launch", "tap", "swipe", "back", "type", "submit", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
             if (action == "stop") {
@@ -335,7 +335,10 @@ internal object LuluBackgroundPhoneSession {
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted")) {
                 return applied.put("mode", "independent_virtual_display")
-                    .put("status", "unverified").toString()
+                    .put("status", "unverified")
+                    .put("verification", if (action == "type")
+                        "后台 App 没有获得输入焦点或编辑框拒绝文字输入；请先观察真正后台画面、点击搜索框后再尝试，不得声称已搜索"
+                        else "该后台操作未被设备接受，不得声称成功").toString()
             }
             // Android launches apps asynchronously. Wait briefly for this exact
             // package to own the virtual screen before taking a new screenshot.
