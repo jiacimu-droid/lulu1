@@ -52,6 +52,8 @@ class ProactiveQuietDecisionTest {
         val guidance = spontaneousInnerVoiceGuide
         assertTrue(guidance.contains("高强度生活需求会先牵动念头"))
         assertTrue(guidance.contains("appraisal.privateIdeas"))
+        assertTrue(guidance.contains("不用第三人称任务安排"))
+        assertTrue(guidance.contains("另放 nextAction/steps"))
         assertTrue(guidance.contains("同一次 JSON 决策"))
         assertTrue(guidance.contains("模型没有选择的动作不可由程序按数值替做"))
         val proactive = proactiveDecisionInstruction("drive-aware-autonomous")
