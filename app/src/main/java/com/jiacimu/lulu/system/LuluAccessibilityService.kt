@@ -219,7 +219,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 .mapNotNull { it.root }
                 .firstOrNull { it.packageName?.toString() == packageName } ?: return true
             val risky = Regex(
-                "(付款|支付|转账|立即购买|确认购买|下单|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易)",
+                "(付款|支付|转账|立即购买|确认购买|购买|下单|购物车|加购|去结算|结算|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易)",
                 RegexOption.IGNORE_CASE,
             )
             var blocked = false
