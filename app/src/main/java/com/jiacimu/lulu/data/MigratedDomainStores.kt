@@ -734,14 +734,29 @@ class InMemoryLuluChatStore : LuluChatStore {
             messageStates[conversation.id]?.value?.any { it.id == messageId } == true
         } ?: return false
         val message = messages(conversation.id).value.firstOrNull { it.id == messageId } ?: return false
+        // The chat snapshot is the authority for the visible favorite flag.
+        // Never mutate the independent favorite archive before the chat commit:
+        // a rejected chat write must not leave an orphaned archive entry or
+        // irreversibly delete the archived voice recording.
+        val nextFavorite = !message.favorite
+        val changed = mutateMessagesContaining(messageId) { messages -> messages.map {
+            if (it.id == messageId) it.copy(favorite = nextFavorite) else it
+        } }
+        if (!changed) return false
         val saved = runCatching {
             if (message.favorite) UserMessageFavorites.store.remove(messageId)
             else saveUserFavorite(conversation, message)
         }.getOrDefault(false)
-        if (!saved) return false
-        mutateMessagesContaining(messageId) { messages -> messages.map {
-            if (it.id == messageId) it.copy(favorite = !message.favorite) else it
-        } }
+        if (!saved) {
+            // The archive rejected its write. Restore the chat projection too;
+            // if this compensating disk write fails, surface the error rather
+            // than claiming that both independent stores were committed.
+            mutateMessagesContaining(messageId) { messages -> messages.map {
+                if (it.id == messageId) it.copy(favorite = message.favorite) else it
+            } }
+            return false
+        }
+        true
     }
 
     private fun saveUserFavorite(conversation: LuluConversation, message: LuluChatMessage): Boolean {
