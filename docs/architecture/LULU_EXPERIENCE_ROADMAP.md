@@ -8,6 +8,8 @@
 
 **主人当前明确优先任务（2026-11-12）**：Mika 对标不是纯研究/未来排期。先把能在本轮安全实施的 PH-01.6 P0 直接交付源码，在下一次每小时接力继续验收、修真实首错及补下一项；其他独立人物/游戏专项互不覆盖。不得将有 commit 视为功能已经在真机接通，也不为追求 22/22 勾选而复制第二个 Agent 或冒险放开支付/外发。现有每小时任务已核仍在读取本 Roadmap。
 
+**2026-11-12 PH-01.6i/j + PH-01.6e + PH-01.6c 后续实际施工**：移植 Mika 的 `AppSwitch.kt`（Apache-2.0 署名、许可证沿用）并新增 `LuluVirtualWindowPolicy` 对接独立虚拟屏真实顶层窗口，不再简单依赖包名：同一 App 的系统权限弹窗也被挡下；跨 App / 系统选择器返回 `waiting_user` 而不盲点、不抢主人主屏；未知窗口保留 `unverified` 并允许 `observe` 安全只读重新观察。修复上一批 ScreenDiagnosis 用整篇小红书笔记文字判断“验证码/支付”而误暂停正常阅读的缺陷：`LuluVirtualHumanGate` 仅使用实际安全控件标签与密码框检测，再调用 Mika 诊断。新增 `LuluPhoneRepeatGuard`，同样页面、上次已接受却无已证效果的点击/滑动/搜索提交，不允许不经重新观察就机械重复；重试/换方法仍由同一角色本人决定。包含 3 组纯 JVM 回归。**层级：源码已实施，APK/JVM、真机、真实模型尚未按本批 SHA 验证。** 下轮继续实测顶层系统弹窗、App 交接、后台手势没变化、黑屏可恢复和小红书普通笔记不误停；Mika 主屏任务归属证据与安全迁回尚未接入，禁止自行抢屏。
+
 **2026-11-12 PH-01.6e/g/j · Mika ScreenDiagnosis 整模块接入**：复制/改编上游 `ScreenDiagnosis` 和测试、保留 Apache-2.0 LICENSE/NOTICE；当前后台屏可见验证失败/验证码/密码框/支付、应用切换和系统窗口接管均给真实 `waiting_user` 状态，不再对这些内容盲点或把设备拒绝称为搜索成功；原人物 `LuluBackgroundPhoneContinuation` 遇 `needsHuman` 立即停止后续付费尝试。**仅源码/测试加入**，仍待最新 Actions JVM/APK + Redmi 真机动态场景验收（包括普通信息流不误判为验证码）。后续如有误报应缩小判据，不要移除登录/支付安全边界。
 
 **2026-11-12 PH-01.6h 局部差异/省 Token 实施**：新增 `LuluMikaInterfaceUpdate`（适配 Mika InterfaceUpdate 的 full/diff 决定，含 JVM 测试）并正式连接同一角色 `LuluBackgroundPhoneContinuation`：持久工具回执仍完整存入 ToolRouter 时间线，但后续收费模型不再重复读 `interactiveElements` 原始结构，已单列可点击控件编号；重复 `visibleText` 标记 unchanged；新/变/移除控件差异提供信息，**不会**宣称点击成功或目标完成。此项源码已提交，仍须以本轮 GitHub Actions 和真实模型输入账单验收。下一步在最新 APK 通过后对比单次小红书搜索的上下文 Token 与真实文字完整度，不删关键否定/条件。

@@ -139,6 +139,30 @@ class LuluAccessibilityService : AccessibilityService() {
             )
         }
 
+        /** Reports ONLY the top real window on the character's independent
+         * display. IME/assistive overlays are not task windows, but system
+         * permission/picker dialogs are barriers even if the same package. */
+        fun virtualWindowStatus(displayId: Int, targetPackage: String): JSONObject {
+            val service = instance
+            val unknown = JSONObject().put("kind", "unknown")
+                .put("targetWindowVerified", false)
+            if (service == null || displayId <= 0 || targetPackage.isBlank() ||
+                Build.VERSION.SDK_INT < 30) return unknown
+            val window = service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filterNot {
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
+                }.maxByOrNull { it.layer } ?: return unknown
+            val pkg = window.root?.packageName?.toString().orEmpty()
+            val kind = LuluVirtualWindowPolicy.classify(targetPackage, pkg, window.type)
+            return JSONObject().put("kind", kind.name.lowercase())
+                .put("actualPackage", pkg.take(160))
+                .put("windowType", window.type)
+                .put("targetWindowVerified", kind == LuluVirtualWindowPolicy.Kind.TARGET)
+        }
+
         /** Actual orientation-aware virtual display dimensions.
          * Avoid assuming 720×1280 when the target rotates or IME resizes. */
         private fun virtualDimensions(

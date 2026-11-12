@@ -1,3 +1,11 @@
+## 2026-11-12：Mika AppSwitch 窗口归属适配与正文误报修复
+
+- 上游 `wangzan101/Mika/app/src/main/java/com/wangzan101/mika/cap/phone/a11y/AppSwitch.kt`（Apache-2.0, Copyright 2026 wangzan101）直接移植、改名为 `LuluMikaAppSwitch.kt`，来源标签 **THIRD_PARTY_MODIFIED**；原项目 LICENSE/NOTICE 已随 APK 附带。
+- 新增 Lulu 原生 `LuluVirtualWindowPolicy`（**ORIGINAL**）：仅用实际虚拟 display 最上层窗口类型和包名对接 Mika AppSwitch 分类，绝不猜跨 App 同任务关系、绝不自动搬运或抢占主人主屏；区分 target/system_dialog/other_app/unknown 并返回真实暂停回执。
+- 修正上一批 Mika ScreenDiagnosis 的错误输入：不再把整篇笔记正文中的“验证码、立即支付”等普通词句传入安全接管分类，而是通过 `LuluVirtualHumanGate`（**ORIGINAL**）提取可见、短且可交互的安全控件及真实密码节点；保留支付/验证码接管和未知界面止损。加入 `LuluVirtualWindowPolicyTest`、`LuluVirtualHumanGateTest`。
+- 继续采用 Mika ClickFallback 的副作用原则，新增本机 `LuluPhoneRepeatGuard`（**ORIGINAL**，没有复制源码）拦截上一轮已接受、效果未知且未重新观察的相同点击/滑动/提交；仍由原本人格模型选其他操作，未加入第二 Agent。相关测试 `LuluPhoneRepeatGuardTest`。
+- 验收边界：新增源码与 JVM 夹具并不代表 APK 或 Redmi 真机已通过；须在同一 SHA 核 GitHub Actions、读屏和完整搜索→阅读→分享回执。主屏未获授权绝不能自动迁移应用任务。
+
 ## 2026-11-12：Mika ScreenDiagnosis 页面诊断直接移植（Apache-2.0）
 
 - **来源**：Mika `core/uistate/ScreenDiagnosis.kt` 和对应 `ScreenDiagnosisTest.kt`，上游快照 `106535545bfefa150e24276c6301238398ca5f88`，Copyright 2026 wangzan101。**标签：THIRD_PARTY_MODIFIED**，在 `LuluMikaScreenDiagnosis.kt`、`LuluMikaScreenDiagnosisTest.kt` 保留文件头声明。

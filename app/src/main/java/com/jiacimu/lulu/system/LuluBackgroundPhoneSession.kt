@@ -170,27 +170,63 @@ internal object LuluBackgroundPhoneSession {
         }
     }
 
-    /** Ported Mika ScreenDiagnosis on THIS independent display only.
-     * It reports a human-only page, never reads a password value or
-     * replaces the original character's decision. */
-    private suspend fun humanOnlyPage(
-        displayId: Int, packageName: String, visibleText: String,
-    ): String? {
-        val password = withContext(Dispatchers.Main) {
-            LuluAccessibilityService.virtualHasPasswordField(displayId, packageName)
+    /** The last Mika ScreenDiagnosis port scanned all page prose, which
+     * could misread an ordinary Xiaohongshu note mentioning "验证码" as a
+     * captcha. Only actual actionable security controls (or password nodes)
+     * can block normal reading now. The page body stays read-only evidence. */
+    private suspend fun humanOnlyPage(displayId: Int, packageName: String): String? {
+        val (controls, password) = withContext(Dispatchers.Main) {
+            val nodes = LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
+                .optJSONArray("elements")
+            val controls = (0 until (nodes?.length() ?: 0)).mapNotNull { index ->
+                nodes?.optJSONObject(index)?.let { node ->
+                    LuluVirtualHumanGate.Control(
+                        name = node.optString("name"),
+                        role = node.optString("role"),
+                        resourceId = node.optString("resourceId"),
+                        clickable = node.optBoolean("clickable"),
+                        editable = node.optBoolean("editable"),
+                    )
+                }
+            }
+            controls to LuluAccessibilityService.virtualHasPasswordField(displayId, packageName)
         }
+        val cues = LuluVirtualHumanGate.securityLabels(controls)
+        if (cues.isEmpty() && !password) return null
         val checked = LuluMikaScreenDiagnosis.classify(
             LuluMikaScreenFacts(
-                currentApp = packageName,
-                hasWindow = true,
-                readableElements = if (visibleText.isBlank()) 0 else 1,
-                changing = false,
-                blackFrames = emptyList(),
-                texts = listOf(visibleText.take(2_500)),
-                passwordField = password,
+                currentApp = packageName, hasWindow = true,
+                readableElements = controls.size,
+                changing = false, blackFrames = emptyList(),
+                texts = cues, passwordField = password,
             )
         )
         return if (checked.needsHuman) checked.takeoverReason ?: "manual_verification" else null
+    }
+
+    private suspend fun windowGate(displayId: Int, targetApp: String): JSONObject =
+        withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualWindowStatus(displayId, targetApp)
+        }
+
+    /** A picker, permission layer or another app is not permission to
+     * click an underlying window. We never move the owner's task ourselves. */
+    private fun pausedWindowReceipt(displayId: Int, gate: JSONObject): String {
+        val kind = gate.optString("kind", "unknown")
+        val manual = kind == "system_dialog" || kind == "other_app"
+        val reason = when (kind) {
+            "system_dialog" -> "后台屏有系统选择器、权限或其他覆盖弹窗，不能点击底下的目标 App；需要主人确认"
+            "other_app" -> "目标 App 已跳转到其他应用，未核实同一任务归属；已暂停以防触碰主屏"
+            else -> "后台当前窗口暂时不可核实；未执行操作，可稍后只读观察"
+        }
+        return JSONObject().put("success", false)
+            .put("status", if (manual) "waiting_user" else "unverified")
+            .put("mode", "independent_virtual_display").put("displayId", displayId)
+            .put("windowKind", kind)
+            .put("actualPackage", gate.optString("actualPackage").take(160))
+            .put("needsHuman", manual)
+            .put("targetWindowVerified", false).put("accepted", false)
+            .put("taskCompleted", false).put("verification", reason).toString()
     }
 
     private fun humanOnlyReceipt(
@@ -365,23 +401,31 @@ internal object LuluBackgroundPhoneSession {
                 error("当前后台屏幕目标与指定包名不一致，拒绝执行")
             }
             if (action != "launch") {
+                val top = windowGate(id, activeApp)
+                if (top.optString("kind") != "target" &&
+                    !(action == "observe" && top.optString("kind") == "unknown")) {
+                    lastObservedUi = null
+                    return pausedWindowReceipt(id, top)
+                }
                 val before = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.observeDisplay(id)
                 }
-                if (!before.connected) {
+                if (!before.connected && action != "observe") {
                     lastObservedUi = null
                     return JSONObject().put("success", false).put("status", "unverified")
                         .put("mode", "independent_virtual_display").put("displayId", id)
                         .put("taskCompleted", false).put("targetWindowVerified", false)
-                        .put("verification", "后台暂时没有可核实的应用窗口；未执行动作，可以先observe重新观察")
+                        .put("verification", "后台暂时没有可核实的应用窗口；未执行输入或点击，可以先observe重新观察")
                         .toString()
                 }
-                if (before.packageName != activeApp) {
-                    lastObservedUi = null
-                    return humanOnlyReceipt(id, before.packageName, "window_changed")
+                if (before.connected) {
+                    if (before.packageName != activeApp) {
+                        lastObservedUi = null
+                        return humanOnlyReceipt(id, before.packageName, "window_changed")
+                    }
+                    val human = humanOnlyPage(id, activeApp)
+                    if (human != null) return humanOnlyReceipt(id, activeApp, human)
                 }
-                val human = humanOnlyPage(id, activeApp, before.visibleText)
-                if (human != null) return humanOnlyReceipt(id, activeApp, human)
             }
             if (action == "tap_element") {
                 val snapshot = lastObservedUi
@@ -561,6 +605,11 @@ internal object LuluBackgroundPhoneSession {
                 action in setOf("tap", "tap_element", "swipe", "submit", "back"))
                 awaitStableUi(id, activeApp, beforeUiFingerprint) else false
             if (!frame.optBoolean("success")) {
+                val top = windowGate(id, activeApp)
+                if (top.optString("kind") != "target") {
+                    lastObservedUi = null
+                    return pausedWindowReceipt(id, top)
+                }
                 // Mika can still verify a UI tree when ImageReader has no new
                 // frame. Preserve accessibility facts without fabricating pixels.
                 val observed = withContext(Dispatchers.Main) {
@@ -573,7 +622,7 @@ internal object LuluBackgroundPhoneSession {
                     return humanOnlyReceipt(id, observed.packageName, "window_changed")
                 }
                 if (owned) {
-                    val human = humanOnlyPage(id, activeApp, observed.visibleText)
+                    val human = humanOnlyPage(id, activeApp)
                     if (human != null) {
                         lastObservedUi = null
                         return humanOnlyReceipt(id, activeApp, human)
@@ -612,6 +661,11 @@ internal object LuluBackgroundPhoneSession {
                     typed)).toString()
             }
 
+            val top = windowGate(id, activeApp)
+            if (top.optString("kind") != "target") {
+                lastObservedUi = null
+                return pausedWindowReceipt(id, top)
+            }
             val visible = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.observeDisplay(id)
             }
@@ -630,7 +684,7 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "无法核实独立屏幕的前台窗口属于已授权目标应用；已丢弃截图")
                     .also { lastObservedUi = null }.toString()
             }
-            val human = humanOnlyPage(id, activeApp, visible.visibleText)
+            val human = humanOnlyPage(id, activeApp)
             if (human != null) {
                 lastObservedUi = null
                 return humanOnlyReceipt(id, activeApp, human)

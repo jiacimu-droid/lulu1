@@ -113,6 +113,8 @@ internal object LuluBackgroundPhoneContinuation {
             return Outcome(history.toString().takeLast(5_000), image, false, 0)
         }
         var searchTextVerified = lastScreenReceipt?.optBoolean("inputTextReadbackVerified") == true
+        var lastGesture: LuluPhoneRepeatGuard.Attempt? = null
+        var duplicateRefusals = 0
         var consecutiveNoFrames = if (initialImage == null) 1 else 0
         // A failed first action is still an actual attempt. Give the SAME role
         // one bounded chance to choose a different *safe* step before telling
@@ -142,6 +144,7 @@ internal object LuluBackgroundPhoneContinuation {
                     或 {"decision":"finish","reason":"任务为什么可以结束，未完成时要明确说明"}
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
                     如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。搜索框另可focus_search/type/submit，提交前须文字读回；无证据则ask/finish。
+                    若某次点击/滑动/搜索提交已经被设备接受、但效果仍未知或控件树没变化，不要原样重复同一手势；先只读观察或重新选择安全目标。重复动作会被本机拒绝。
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     小红书等搜索操作可先自行选择focus_search精准聚焦唯一可验证搜索框（没有唯一搜索框时根据真实控件ref选择tap_element，或根据真实图片决定tap），再type文字、再由你自行选择submit（后台屏Enter键）触发搜索；type只输入文字，不等于搜索已提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
                     遇到真的感兴趣的图文或值得给主人看的内容，你可以依据本人的心情和分享欲自行选择sendToChat，不需要等主人追问；不喜欢、尚未核实或没有分享心情也可以不分享，程序不替你规定分享次数。
@@ -210,6 +213,20 @@ internal object LuluBackgroundPhoneContinuation {
                     return Outcome(history.toString().takeLast(5_000), image, false, count)
                 }
             }
+            val gestureTarget = LuluPhoneRepeatGuard.target(action,
+                listOf("x", "y", "screenSnapshotId", "elementRef",
+                    "startX", "startY", "endX", "endY")
+                    .associateWith { args.optString(it) })
+            if (LuluPhoneRepeatGuard.shouldBlock(lastGesture, action, gestureTarget)) {
+                history.appendLine("安全拦截：上一相同手势已被设备接受但未确认界面生效；不自动补点或重复提交")
+                duplicateRefusals++
+                if (duplicateRefusals >= 2) {
+                    history.appendLine("连续两次选择同一无证据动作，本轮停止；请给主人真实故障回执")
+                    return Outcome(history.toString().takeLast(5_000), image, false, count)
+                }
+                continue
+            }
+            duplicateRefusals = 0
             val nextId = requestId + "-phone-" + index
             val receipt = ToolRouter.execute(
                 context = context,
@@ -231,6 +248,13 @@ internal object LuluBackgroundPhoneContinuation {
             }
             uiReferenceSummary(receipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
             lastScreenReceipt = result
+            if (action in setOf("observe", "launch", "start", "stop", "back", "focus_search", "type"))
+                lastGesture = null
+            else if (gestureTarget.isNotBlank()) lastGesture = LuluPhoneRepeatGuard.Attempt(
+                action = action, target = gestureTarget,
+                accepted = result?.optBoolean("accepted") == true,
+                effect = result?.optString("effectKind").orEmpty().ifBlank { "unknown" },
+            )
             if (result?.optBoolean("needsHuman") == true ||
                 result?.optString("status") == "waiting_user") {
                 history.appendLine("后台进入需主人亲自处理的页面，已停止自动操作；不尝试验证码、登录或支付")
