@@ -14,6 +14,9 @@ data class UnifiedMemoryRequest(
     // Already-sent evidence is only used for source de-duplication, never
     // included in semantic retrievalQuery().
     val alreadyPresentedEvidence: String = "",
+    // The clicked "retry answer" must not recall the original reply as if it
+    // had already happened. Never remove this evidence from persistent storage.
+    val excludedEventIds: Set<String> = emptySet(),
 ) {
     fun retrievalQuery(): String = buildString {
         if (currentInput.isNotBlank()) appendLine("当前输入：${currentInput.trim()}")
@@ -142,7 +145,9 @@ object UnifiedMemoryOrchestrator {
         paidRanking: Boolean = true,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
-        val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
+        val excluded = request.excludedEventIds
+        val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory
+            .contextTimelineEvents(characterId).filterNot { it.id in excluded }
         val seenInChat = listOf(request.recentContext, request.alreadyPresentedEvidence)
             .filter(String::isNotBlank).joinToString("\n")
             .replace(Regex("\\s+"), " ")
@@ -152,12 +157,15 @@ object UnifiedMemoryOrchestrator {
         }
         val seenIds = (recentEvents - promptRecentEvents.toSet()).mapTo(mutableSetOf()) { it.id }
         val query = request.retrievalQuery()
-        val core = CoreMemoryDelivery.active(characterId)
+        val core = CoreMemoryDelivery.active(characterId).filterNot { memory ->
+            memory.sourceEventIds().any { it in excluded }
+        }
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
         val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly, paidRanking = paidRanking)
         val recalled = recall.memories
             .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory -> memoryHasLiveSources(memory, characterId) }
+            .filterNot { memory -> memory.sourceEventIds().any { it in excluded } }
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in seenIds }
@@ -168,10 +176,13 @@ object UnifiedMemoryOrchestrator {
             memories = memories,
             limit = evidenceLimit,
         ) + RawTimelineMemoryRecall.find(characterId, query, limit = 16))
-            .distinctBy(SharedTimelineEvent::id).filterNot { event -> event.id in seenIds }
-        val liveEvents = SharedExperienceTimeline.all(characterId).filter { LuluRepositories.memory.allowsRawRecall(it) }
+            .distinctBy(SharedTimelineEvent::id)
+            .filterNot { event -> event.id in seenIds || event.id in excluded }
+        val liveEvents = SharedExperienceTimeline.all(characterId).filter {
+            it.id !in excluded && LuluRepositories.memory.allowsRawRecall(it)
+        }
         val sourceEvents = MemoryEvidenceSelection.expand(directSourceEvents, liveEvents, evidenceLimit)
-            .filterNot { it.id in seenIds }
+            .filterNot { it.id in seenIds || it.id in excluded }
         val activeTasks = if (localOnly) "" else renderActiveCommitmentTasks(characterId)
         val retained = memories.mapTo(mutableSetOf(), MemoryEntry::id)
         val eligibleIds = recalled.mapTo(mutableSetOf(), MemoryEntry::id)

@@ -592,7 +592,10 @@ class CompanionModelGateway(
             val fullContext = effectiveMode == CompanionContextMode.Full
             val personaContext = effectiveMode == CompanionContextMode.PersonaAndScenario ||
                 effectiveMode == CompanionContextMode.CharacterAndScenario
-            val presence = if (fullContext) CompanionPresenceStore.current(characterId) else null
+            // Re-answer works as an alternative FIRST reply; suppress the
+            // transient presence from the replaced response without mutating it.
+            val presence = if (fullContext && request.excludedEventIds.isEmpty())
+                CompanionPresenceStore.current(characterId) else null
             val unifiedMemory = if (fullContext) {
                 com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget,
                     paidRanking = com.jiacimu.lulu.data.PromptContextPolicy.paidRankingFor(source, request))

@@ -567,6 +567,11 @@ fun QqStyleChatDetailScreen(
                 sceneContext = if (groupChat == null) "正在和用户进行文字聊天。"
                     else "正在群聊《${groupChat.name}》里参与文字聊天。",
                 regenerationExcludedEventIds = excludedReplyTimelineIds(ids, roleId),
+                // Evidence of the ORIGINAL user message, not the discarded
+                // character reply and not a synthetic correction event.
+                userEvidenceIds = turn.anchorMessageId?.let { anchor ->
+                    listOf(anchor, "$anchor:group:$roleId")
+                }.orEmpty(),
             ).onSuccess { reply ->
                 // This response came from the structured character-expression
                 // route, not a legacy unstructured paragraph. Re-splitting it

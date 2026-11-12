@@ -183,6 +183,7 @@ object LuluDeviceToolBridge {
         silenceObservationId: String = "",
         turnContext: String = "",
         reconsiderationEvidenceId: String = "",
+        regenerationExcludedEventIds: Set<String> = emptySet(),
         userEvidenceIds: List<String> = emptyList(),
         phoneCallId: String = "",
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
@@ -264,7 +265,10 @@ object LuluDeviceToolBridge {
                 sceneContext.substringAfter("群聊《").substringBefore("》")
             }
         } else "direct:user"
-        val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
+        // An alternate first answer must not see subjective interpretations
+        // produced AFTER the superseded answer was delivered.
+        val interactionContext = if (rewriting) "" else
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
         // Real message IDs supplied by the chat transport outrank fuzzy
         // text matching. A synthetic hash is not a deletable user statement.
         val originalUserEvidence = if (userEvidenceIds.isEmpty()) emptyList() else
@@ -276,7 +280,8 @@ object LuluDeviceToolBridge {
         val currentSessionId = originalUserEvidence.lastOrNull()?.sessionId.orEmpty()
         val recentCharacterReplies = if (currentSessionId.isBlank()) emptyList() else
             com.jiacimu.lulu.data.ConversationTurnEconomy.recentOwnReplies(
-                com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 80),
+                com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 80)
+                    .filterNot { it.id in regenerationExcludedEventIds },
                 characterId, currentSessionId, now,
             )
         val turnEconomyContext = com.jiacimu.lulu.data.ConversationTurnEconomy.context(
@@ -295,9 +300,10 @@ object LuluDeviceToolBridge {
         }
         val commitmentEvidenceIds = verifiedCommitmentEvidenceIds(commitmentEvidence.map { it.id })
         val commitmentSessionId = commitmentEvidence.lastOrNull()?.sessionId.orEmpty()
-        val groundingContext = com.jiacimu.lulu.data.ConversationGroundingEngine.context(
-            characterId, interactionKey,
-        )
+        val groundingContext = if (rewriting) "" else
+            com.jiacimu.lulu.data.ConversationGroundingEngine.context(
+                characterId, interactionKey,
+            )
         // Chat does not suspend the digital world. Its persisted hourly slot prevents
         // event rerolls from rapid messages or retries.
         val inWorldMoment = if (!rewriting && (!sceneContext.contains("电话") || callSilence) &&
@@ -309,7 +315,8 @@ object LuluDeviceToolBridge {
         HealthRolePerception.initialize(appContext)
         if (!rewriting) HealthRolePerception.recordLatestSleep(characterId)
         val deviceContext = com.jiacimu.lulu.data.UserDevicePerception.context(appContext, characterId, now)
-        val observedWorld = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
+        val observedWorld = if (rewriting) emptyList() else
+            com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
@@ -535,7 +542,7 @@ object LuluDeviceToolBridge {
                 // once in Full mode; do not duplicate the same motives and feelings.
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
-                if (!sceneContext.contains("电话"))
+                if (!sceneContext.contains("电话") && !rewriting)
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide(characterId))
                 if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext,
                     cues = userText,
@@ -705,7 +712,8 @@ object LuluDeviceToolBridge {
                 currentInput = userText,
                 sceneContext = sceneContext,
                 recentContext = history,
-                taskIntent = if (rewriting) "使用统一人格和两阶段表达链路重写上一轮，不执行工具" else "判断是直接回复还是执行一个真实手机工具",
+                taskIntent = if (rewriting) "以本人身份回应当前用户消息；此语言生成入口不会发起新工具操作" else "判断是直接回复还是执行一个真实手机工具",
+                excludedEventIds = regenerationExcludedEventIds,
             ),
         )
         currentCoroutineContext().ensureActive()
@@ -748,7 +756,8 @@ object LuluDeviceToolBridge {
                     currentInput = userText,
                     sceneContext = sceneContext,
                     recentContext = history,
-                    taskIntent = "补全一次结构化聊天决策，保持原有角色人格和心理架构",
+                    taskIntent = "补全当前未提交的聊天决策结构，保持原有角色人格和心理架构",
+                    excludedEventIds = regenerationExcludedEventIds,
                 ),
             ).getOrNull()?.text?.let(::parsePlan)
         } else null
@@ -1508,6 +1517,7 @@ object LuluDeviceToolBridge {
                         recentContext = history,
                         taskIntent = "按已确定的回复意图渲染语言，不再次决策",
                         actionContext = plan.speechIntent.take(220) + " " + plan.socialAttempt.take(100),
+                        excludedEventIds = regenerationExcludedEventIds,
                     ),
                 ).getOrElse { return Result.failure(it) }
                 val structuredBubbles = if (rewriting)
