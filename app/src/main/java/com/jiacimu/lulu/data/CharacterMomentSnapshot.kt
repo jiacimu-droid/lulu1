@@ -10,6 +10,53 @@ import org.json.JSONObject
  */
 internal object CharacterMomentSnapshot {
     /**
+     * Private-idea entries may be authored as text or as {thought,nextAction}.
+     * A nextAction belongs to the real action handoff, NEVER to this read-only
+     * caption. Older APKs also saved JSONObject.toString() as a caption, sometimes
+     * cut in the middle of the following field. Recover only a COMPLETE quoted
+     * thought; do not invent the missing tail or display internal JSON.
+     */
+    internal fun privateIdeaText(value: Any?): String = when (value) {
+        is JSONObject -> value.optString("thought").trim()
+        is String -> {
+            val raw = value.trim()
+            if (!raw.startsWith("{")) raw else {
+                val parsed = runCatching { JSONObject(raw) }.getOrNull()
+                parsed?.optString("thought")?.trim() ?: completedLegacyThought(raw)
+            }
+        }
+        else -> ""
+    }
+
+    private fun completedLegacyThought(raw: String): String {
+        val key = "\"thought\""
+        val at = raw.indexOf(key)
+        if (at < 0) return ""
+        val colon = raw.indexOf(':', at + key.length)
+        if (colon < 0 || raw.substring(at + key.length, colon).isNotBlank()) return ""
+        val quoted = raw.substring(colon + 1).trimStart()
+        if (!quoted.startsWith('"')) return ""
+        var escaped = false
+        for (i in 1 until quoted.length) {
+            when {
+                escaped -> escaped = false
+                quoted[i] == '\\' -> escaped = true
+                quoted[i] == '"' -> return runCatching {
+                    JSONObject("{\"thought\":" + quoted.substring(0, i + 1) + "}")
+                        .optString("thought").trim()
+                }.getOrDefault("")
+            }
+        }
+        return ""
+    }
+
+    /** Read-only compatibility for old presence/history rows. Saved evidence is unchanged. */
+    internal fun visibleReflection(raw: String): String = raw.lineSequence()
+        .map(::privateIdeaText)
+        .filter(String::isNotBlank)
+        .joinToString("\n")
+
+    /**
      * Tiny impulses, not a second inner monologue or an explanation of what
      * the character "should" do. The heart-voice is a separate field.
      *
@@ -25,11 +72,10 @@ internal object CharacterMomentSnapshot {
     ): String {
         val ideas = mutableListOf<String>()
         val fingerprints = mutableSetOf<String>()
-        fun add(raw: String, limit: Int = 64) {
+        fun add(raw: String) {
             val cleaned = raw.replace(Regex("\\s+"), " ").trim()
                 .removePrefix("我想").let { if (raw.trim().startsWith("我想")) "想$it" else it }
                 .trim(' ', '。', '，', '、', '：', ':')
-                .take(limit)
                 .trimEnd('，', ',', '、', '：', ':')
             // A concise wish can overlap the full inner monologue without
             // being redundant: A/B are the options, voice is their felt process.
@@ -43,10 +89,10 @@ internal object CharacterMomentSnapshot {
         // Model-facing structured private impulses have priority. A few natural
         // fragments are preferable to a polished explanation of the relationship.
         appraisal?.optJSONArray("privateIdeas")?.let { entries ->
-            for (i in 0 until entries.length()) add(entries.optString(i), 64)
+            for (i in 0 until entries.length()) add(privateIdeaText(entries.opt(i)))
         }
         appraisal?.optJSONObject("spontaneousBid")?.let { bid ->
-            add(bid.optString("wantedMove"), 64)
+            add(bid.optString("wantedMove"))
         }
         appraisal?.optJSONObject("ownActivity")?.let { intent ->
             val name = when (intent.optString("action")) {
@@ -61,8 +107,8 @@ internal object CharacterMomentSnapshot {
         val thoughts = innerLife?.optJSONArray("thoughts")
         if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 3)) {
             val thought = thoughts.optJSONObject(i) ?: continue
-            add(thought.optString("thought"), 72)
-            if (ideas.size < 2) add(thought.optString("hesitation"), 72)
+            add(thought.optString("thought"))
+            if (ideas.size < 2) add(thought.optString("hesitation"))
         }
         // No guesses or abstract risk-analysis notes masquerading as desires.
         // Conflict/uncertainty may inform the role's decision or heart voice,

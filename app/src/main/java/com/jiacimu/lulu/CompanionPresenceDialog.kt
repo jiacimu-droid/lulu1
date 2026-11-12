@@ -370,7 +370,7 @@ private fun PresenceStateContent(
     val voice = heartMoment?.innerThought.orEmpty()
     // "想逗"/"想哄" are the concise alternatives; the heart voice may
     // naturally tell the same A/B story in full without making them redundant.
-    val reflection = heartMoment?.momentReflection.orEmpty()
+    val reflection = CharacterMomentSnapshot.visibleReflection(heartMoment?.momentReflection.orEmpty())
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(top = 7.dp),

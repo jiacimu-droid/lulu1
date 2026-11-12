@@ -48,8 +48,8 @@ internal object CharacterStateHistory {
                 moment.innerThought.takeIf(String::isNotBlank),
                 // A/B labels are intentionally allowed to echo a full voice:
                 // concise choices and their narrative are different functions.
-                moment.momentReflection.takeIf(String::isNotBlank)?.let { text -> text.lineSequence().filter(String::isNotBlank)
-                    .joinToString("\n") { "想法：$it" } },
+                CharacterMomentSnapshot.visibleReflection(moment.momentReflection)
+                    .takeIf(String::isNotBlank)?.lineSequence()?.joinToString("\n") { "想法：$it" },
                 entry.status.takeIf(String::isNotBlank)?.let { "状态：$it" },
                 entry.gesture.takeIf(String::isNotBlank)?.let { "动作：$it" },
             ).joinToString("\n")
@@ -76,7 +76,8 @@ internal object CharacterStateHistory {
             val delta = change.optJSONObject("stateDelta")
             val concurrentIdeas = change.optJSONObject("appraisal")?.optJSONArray("privateIdeas")
             val ideaLines = (0 until (concurrentIdeas?.length() ?: 0))
-                .mapNotNull { i -> concurrentIdeas?.optString(i)?.trim()?.takeIf(String::isNotBlank) }
+                .mapNotNull { i -> CharacterMomentSnapshot.privateIdeaText(concurrentIdeas?.opt(i))
+                    .takeIf(String::isNotBlank) }
                 .distinct().map { "想法：$it" }
             val parts = listOfNotNull(
                 change.optString("innerThought").takeIf(String::isNotBlank),
@@ -378,7 +379,8 @@ internal object CharacterStateHistory {
         val extras = mutableListOf<Pair<String, String>>()
         if (row.deletionKind == "thought" && row.moment == null &&
             row.authoredVoice.isBlank() && row.detail.isNotBlank()) {
-            extras += "想法" to row.detail.trim()
+            CharacterMomentSnapshot.privateIdeaText(row.detail).takeIf(String::isNotBlank)
+                ?.let { extras += "想法" to it }
         }
         var readingLegacyIdea = false
         for (line in lines) {
@@ -405,8 +407,9 @@ internal object CharacterStateHistory {
                 continue
             }
             if (!readingLegacyIdea) continue
-            val content = if (label in setOf("想法", "当时的念头"))
-                line.substringAfter('：').trim() else line
+            val content = CharacterMomentSnapshot.privateIdeaText(
+                if (label in setOf("想法", "当时的念头"))
+                    line.substringAfter('：').trim() else line)
             if (content.isBlank() || extras.any {
                     CharacterHeartVoicePolicy.sameMeaning(it.second, content)
                 }) continue

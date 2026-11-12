@@ -343,7 +343,9 @@ object CompanionPresenceStore {
             provenanceId = provenanceId,
             // It is never valid for yesterday's hesitation to become this turn's
             // private thought just because the newest model omitted the field.
-            momentReflection = momentReflection.cleanPresence(420).orEmpty(),
+            // Keep each authored idea intact. Truncating the joined projection
+            // can cut a JSON field or a sentence in half and corrupt history.
+            momentReflection = momentReflection?.trim().orEmpty(),
             innerThoughtFingerprint = when {
                 innerThought == null -> previous?.innerThoughtFingerprint.orEmpty()
                 innerThought.isBlank() -> ""

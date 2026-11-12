@@ -35,7 +35,7 @@ internal object CharacterDeliberationContext {
         source.optJSONArray("privateIdeas")?.let { candidates ->
             val ideas = JSONArray()
             for (i in 0 until candidates.length()) {
-                val idea = candidates.optString(i).trim()
+                val idea = CharacterMomentSnapshot.privateIdeaText(candidates.opt(i))
                 if (idea.isNotBlank() && !(0 until ideas.length()).any {
                         CharacterHeartVoicePolicy.sameMeaning(ideas.optString(it), idea)
                     }) ideas.put(idea)
@@ -90,7 +90,10 @@ internal object CharacterDeliberationContext {
                 }
                 if (ideas != null && ideas.length() > 0) {
                     append("；当时并存的想法：")
-                    append((0 until ideas.length()).map(ideas::optString).joinToString("／"))
+                    append((0 until ideas.length()).mapNotNull { i ->
+                        CharacterMomentSnapshot.privateIdeaText(ideas.opt(i))
+                            .takeIf(String::isNotBlank)
+                    }.joinToString("／"))
                 }
                 if (possibilities != null && possibilities.length() > 0) {
                     append("；当时想到的不同可能：")
