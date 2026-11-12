@@ -320,11 +320,15 @@ class ChatHistoryPersistenceBaselineTest {
                 assertTrue("Archive must remain intact", archiveStore.contains(messageId))
                 assertEquals(archivePrefs.getString("entries_v1", null),
                     actualArchivePrefs.getString("entries_v1", null))
-                // The first chat commit succeeded; this deliberately documents the
-                // non-atomic boundary without claiming the two stores were repaired.
+                // The first chat commit succeeded, but the archive remains the
+                // durable saved-content authority. Reopen must repair the flag.
                 val reopened = InMemoryLuluChatStore()
                 reopened.initialize(app)
-                assertFalse(reopened.messages(conversationId).value.single().favorite)
+                assertTrue(reopened.messages(conversationId).value.single().favorite)
+                assertTrue(archiveStore.contains(messageId))
+                val reopenedAgain = InMemoryLuluChatStore()
+                reopenedAgain.initialize(app)
+                assertTrue(reopenedAgain.messages(conversationId).value.single().favorite)
             } finally {
                 chatField.set(store, originalChatPrefs)
             }
