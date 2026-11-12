@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:53:03.813525+00:00",
-  "commit": "fcf4696da1622d7c8d4364a99e5a65717a118101",
+  "generatedAt": "2026-11-12T08:53:44.918329+00:00",
+  "commit": "908847a06b475456e31cdeb977252db014af1aa0",
   "branch": "main",
-  "sourceFingerprint": "43a3d4d53fe44eb3da8281cb56c97a1aee418a11f6c5b7d2e765b22964d97b45",
+  "sourceFingerprint": "786fe414ab4a7b80637296ade216adf619c7f770b2c7877d482edf6058d29fce",
   "summary": {
     "files": 1265,
-    "lines": 267324,
+    "lines": 267329,
     "symbols": 3771
   },
   "symbolIndex": {
@@ -8283,7 +8283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1022
+        "line": 1027
       }
     ],
     "DailyCommitmentAttempt": [
@@ -8477,43 +8477,43 @@
     "wakeCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 350
+        "line": 352
       }
     ],
     "goOfflineByChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 378
+        "line": 380
       }
     ],
     "recordActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 411
+        "line": 413
       }
     ],
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 432
+        "line": 434
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 488
+        "line": 490
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 659
+        "line": 661
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 715
+        "line": 717
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -8523,49 +8523,49 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 729
+        "line": 731
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 759
+        "line": 761
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 776
+        "line": 778
       }
     ],
     "finishOnlineExpiryReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 802
+        "line": 807
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 835
+        "line": 840
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1023
+        "line": 1028
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1044
+        "line": 1049
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1065
+        "line": 1070
       }
     ],
     "repeatsConfirmedAction": [
@@ -28691,8 +28691,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1146,
-      "sha256": "73ef335a7ec4e29f3fa17b62e02c67d03f92f078a25bec91af554bc3858fdf07",
+      "lines": 1151,
+      "sha256": "eda317136fe8cc76ad6096a3ba9df11fb701c53c9a89d3624fc7b878b8c1ec9c",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -28724,67 +28724,67 @@
         },
         {
           "name": "wakeCharacter",
-          "line": 350
+          "line": 352
         },
         {
           "name": "goOfflineByChoice",
-          "line": 378
+          "line": 380
         },
         {
           "name": "recordActivity",
-          "line": 411
+          "line": 413
         },
         {
           "name": "wakeGroup",
-          "line": 432
+          "line": 434
         },
         {
           "name": "onConversationMessage",
-          "line": 488
+          "line": 490
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 659
+          "line": 661
         },
         {
           "name": "markSeen",
-          "line": 715
+          "line": 717
         },
         {
           "name": "resetCharacter",
-          "line": 729
+          "line": 731
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 759
+          "line": 761
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 776
+          "line": 778
         },
         {
           "name": "finishOnlineExpiryReview",
-          "line": 802
+          "line": 807
         },
         {
           "name": "extendByOwnChoice",
-          "line": 835
+          "line": 840
         },
         {
           "name": "Result",
-          "line": 1022
+          "line": 1027
         },
         {
           "name": "uncovered",
-          "line": 1023
+          "line": 1028
         },
         {
           "name": "proposalIssue",
-          "line": 1044
+          "line": 1049
         },
         {
           "name": "ensure",
-          "line": 1065
+          "line": 1070
         }
       ]
     },
