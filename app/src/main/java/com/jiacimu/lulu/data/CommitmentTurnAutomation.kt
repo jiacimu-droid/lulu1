@@ -148,6 +148,7 @@ object CommitmentTurnAutomation {
             now = user.createdAt,
             zone = ZoneId.systemDefault(),
             reconcileDeliveredReply = true,
+            recoveryTurnKey = sourceTurnId,
         )
         val changed = CommitmentDecisionRuntime.applyModelRecovery(
             context, characterId, sourceTurnId, evidenceIds, drafts,
@@ -342,6 +343,7 @@ object CommitmentTurnAutomation {
                                 (it.authorCharacterId ?: conversation.characterId) == characterId))
                 }.takeLast(8).joinToString("\n") { "${it.createdAt} ${it.sender}：${it.content.take(600)}" },
                 now = userMessage.createdAt,
+                recoveryTurnKey = sourceTurnId,
             )
             val filtered = drafts.filterNot { draft ->
                 // If we already installed a native wake promise for THIS
