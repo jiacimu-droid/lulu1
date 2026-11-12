@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:47:05.251461+00:00",
-  "commit": "2ee06d2dc90a11284b50926eb5be32c7c4c8906a",
+  "generatedAt": "2026-11-12T07:58:14.581687+00:00",
+  "commit": "6b653eae05f47bc3a2397565ca62beaeb3d2b5a0",
   "branch": "main",
-  "sourceFingerprint": "5aa4725dda4a65c9604ca8773b86412a72d11744a235c226bd8cbe3b72ee5b33",
+  "sourceFingerprint": "14c50d9458c477ca4f79078a4bf4f386ee399beaf2fd90ddfd75ef346020dd56",
   "summary": {
-    "files": 1260,
-    "lines": 266870,
-    "symbols": 3764
+    "files": 1263,
+    "lines": 267021,
+    "symbols": 3768
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4015,61 +4015,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 337
+        "line": 339
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 349
+        "line": 351
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 355
+        "line": 357
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 362
+        "line": 364
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 366
+        "line": 368
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 389
+        "line": 391
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 402
+        "line": 404
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 410
+        "line": 412
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 444
+        "line": 446
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 523
+        "line": 525
       }
     ],
     "saveChatMessage": [
@@ -4851,7 +4851,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 13
+        "line": 19
       }
     ],
     "pause": [
@@ -6635,7 +6635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 24
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -8019,19 +8019,25 @@
     "isRunning": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 19
+        "line": 25
+      }
+    ],
+    "markModelCompleted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
+        "line": 26
       }
     ],
     "end": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 20
+        "line": 31
       }
     ],
     "clearConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 21
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
@@ -11401,13 +11407,13 @@
     "isCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 204
+        "line": 222
       }
     ],
     "dueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 211
+        "line": 229
       }
     ],
     "signed": [
@@ -11504,6 +11510,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
         "line": 42
+      }
+    ],
+    "awaitNewUserInput": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt",
+        "line": 12
       }
     ],
     "ProactiveIncomingCall": [
@@ -11665,19 +11677,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 710
+        "line": 711
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 712
+        "line": 713
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3455
+        "line": 3459
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11851,13 +11863,13 @@
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1163
+        "line": 1165
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1171
+        "line": 1173
       }
     ],
     "ProactiveSendReceipt": [
@@ -18792,6 +18804,12 @@
         "line": 5
       }
     ],
+    "ChatGenerationActivityPhaseTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatGenerationActivityPhaseTest.kt",
+        "line": 7
+      }
+    ],
     "ChatHistoryLegacyCompatibilityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
@@ -19718,6 +19736,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
         "line": 6
+      }
+    ],
+    "PrivateChatModelFailurePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt",
+        "line": 10
       }
     ],
     "ProactiveMessageGateTest": [
@@ -24457,8 +24481,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1192,
-      "sha256": "88dc51f6f5225ff8e4813d8c7a528f59332f8e12cc7fa57a9e1ee815a653212d",
+      "lines": 1196,
+      "sha256": "49ece717c40c1a249018b96e8423f974c2dbb3b2cda2cc65eb20836e18485719",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -24466,43 +24490,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 337
+          "line": 339
         },
         {
           "name": "repliedPreview",
-          "line": 349
+          "line": 351
         },
         {
           "name": "beginReply",
-          "line": 355
+          "line": 357
         },
         {
           "name": "toggleSelected",
-          "line": 362
+          "line": 364
         },
         {
           "name": "buildForwardPayload",
-          "line": 366
+          "line": 368
         },
         {
           "name": "appendDraft",
-          "line": 389
+          "line": 391
         },
         {
           "name": "stopReceiving",
-          "line": 402
+          "line": 404
         },
         {
           "name": "wakeOnline",
-          "line": 410
+          "line": 412
         },
         {
           "name": "sendAndReceive",
-          "line": 444
+          "line": 446
         },
         {
           "name": "regenerateLatestReply",
-          "line": 523
+          "line": 525
         }
       ]
     },
@@ -28097,8 +28121,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-      "lines": 30,
-      "sha256": "131b9aa7d8f8184a06bc38c0c9f680fa70981c6e0845f9c5e4d4215c1cd0a1b1",
+      "lines": 48,
+      "sha256": "1b5958a63659d70ca8f5237ed32faea33951887b59c9a96b5d8da523b4008450",
       "symbols": [
         {
           "name": "ChatGenerationActivity",
@@ -28110,23 +28134,27 @@
         },
         {
           "name": "begin",
-          "line": 13
-        },
-        {
-          "name": "isRunning",
           "line": 19
         },
         {
+          "name": "isRunning",
+          "line": 25
+        },
+        {
+          "name": "markModelCompleted",
+          "line": 26
+        },
+        {
           "name": "end",
-          "line": 20
+          "line": 31
         },
         {
           "name": "clearConversation",
-          "line": 21
+          "line": 32
         },
         {
           "name": "clearCharacter",
-          "line": 24
+          "line": 35
         }
       ]
     },
@@ -31658,8 +31686,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-      "lines": 225,
-      "sha256": "64505d793de286e680dd986f208a5533f80d77e17c90d58f87967d3eb8cedc1b",
+      "lines": 243,
+      "sha256": "a978a03c4a3746e05a2fee9971f4351965df6e6f64f705a66f20126bf5faf9dc",
       "symbols": [
         {
           "name": "Batch",
@@ -31667,11 +31695,11 @@
         },
         {
           "name": "isCurrent",
-          "line": 204
+          "line": 222
         },
         {
           "name": "dueAt",
-          "line": 211
+          "line": 229
         }
       ]
     },
@@ -31809,6 +31837,17 @@
         {
           "name": "rendered",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt",
+      "lines": 15,
+      "sha256": "7f64ce50ae864439b806ae2b069719f4aa05ee267af5cadc346cec2d4d6ecdcf",
+      "symbols": [
+        {
+          "name": "awaitNewUserInput",
+          "line": 12
         }
       ]
     },
@@ -31975,8 +32014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3522,
-      "sha256": "d10a7f2c2c2d2101fcd684a1d694df459e8c614099623e345e0cf46f55cd9032",
+      "lines": 3526,
+      "sha256": "53f30a3817212849430a4d3053fcce77a61a54b7e1197265f54272c24f490e6b",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32000,22 +32039,22 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 710
+          "line": 711
         },
         {
           "name": "deferSupersededDecision",
-          "line": 712
+          "line": 713
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3455
+          "line": 3459
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1227,
-      "sha256": "b71ebaa8a756fa4185895e47a6d87c58b4f6186f0e4e73bd99b5a5dc0b6adad7",
+      "lines": 1229,
+      "sha256": "0c44829a6af11a87d463568d677806deb2f7a8a1dd728dcf3eba8d1e71248e62",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -32135,11 +32174,11 @@
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1163
+          "line": 1165
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1171
+          "line": 1173
         }
       ]
     },
@@ -41317,6 +41356,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatGenerationActivityPhaseTest.kt",
+      "lines": 31,
+      "sha256": "5142e7400232865ec661cb82b793b357f9f53487b7bc48aaa78aeb35cb8053d7",
+      "symbols": [
+        {
+          "name": "ChatGenerationActivityPhaseTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
       "lines": 267,
       "sha256": "52798c8d4f8ef601600751c65c8d8d0adb4018af42a0f79f7f64fd5cdce95586",
@@ -42450,8 +42500,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt",
-      "lines": 232,
-      "sha256": "436c50fe1b73df0960e286358f84c48b371e7175ecdea219f410541f7d8cec6f",
+      "lines": 251,
+      "sha256": "b4ff2515962e8ee6d1661356384b2d7440177fe6ff34b268575637722f17905c",
       "symbols": [
         {
           "name": "OnlineChatBatchStoreTest",
@@ -42614,6 +42664,17 @@
         {
           "name": "PrivateChatExpressionContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt",
+      "lines": 40,
+      "sha256": "78fe300148fc36160c6cfb67c233e37fe40542eb590458b852c484aaf7d1475a",
+      "symbols": [
+        {
+          "name": "PrivateChatModelFailurePolicyTest",
+          "line": 10
         }
       ]
     },
