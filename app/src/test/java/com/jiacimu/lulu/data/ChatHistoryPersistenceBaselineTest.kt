@@ -247,6 +247,100 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+
+    /** UI-02.2: both archive rejection and failed chat compensation must surface a failure.
+     * The archive remains authoritative; a second rejected chat commit is NOT atomic recovery. */
+    @Test fun rejectedArchiveAndCompensationCannotReportFavoriteRemovalSuccess() {
+        val previous = prefs.getString(key, null)
+        val messageId = "ui02-double-favorite-rejection"
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(JSONObject()
+                .put("id", conversationId).put("characterId", "ui02-character")
+                .put("title", "Double rejection").put("updatedAt", "2026-01-01T00:00:00Z")))
+            .put("messages", JSONObject().put(conversationId, JSONArray().put(JSONObject()
+                .put("id", messageId).put("conversationId", conversationId)
+                .put("sender", "User").put("content", "Preserve original favorite")
+                .put("createdAt", "2026-01-01T00:00:00Z").put("status", "Sent").put("favorite", true))))
+            .toString()
+        val archivePrefs = app.getSharedPreferences("lulu_user_message_favorites", Context.MODE_PRIVATE)
+        val archiveBefore = archivePrefs.getString("entries_v1", null)
+        val instanceField = UserMessageFavorites::class.java.getDeclaredField("instance").apply { isAccessible = true }
+        val originalInstance = instanceField.get(UserMessageFavorites)
+        var archiveStore: UserMessageFavoriteStore? = null
+        var archiveField: java.lang.reflect.Field? = null
+        var originalArchivePrefs: android.content.SharedPreferences? = null
+        try {
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            instanceField.set(UserMessageFavorites, null)
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            archiveStore = UserMessageFavorites.store
+            assertTrue(archiveStore.save(store.messages(conversationId).value.single(),
+                "ui02-character", "我", null, "Double rejection"))
+            archiveField = UserMessageFavoriteStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            val actualArchivePrefs = archiveField.get(archiveStore) as android.content.SharedPreferences
+            originalArchivePrefs = actualArchivePrefs
+            val chatField = InMemoryLuluChatStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            val originalChatPrefs = chatField.get(store) as android.content.SharedPreferences
+            fun intercept(
+                original: android.content.SharedPreferences,
+                allowCommit: () -> Boolean,
+            ): android.content.SharedPreferences = java.lang.reflect.Proxy.newProxyInstance(
+                original.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") method.invoke(original, *(args ?: emptyArray()))
+                else {
+                    val editor = original.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> if (allowCommit()) editor.commit() else false
+                            "apply" -> error("Favorites must use durable commit")
+                            else -> {
+                                val value = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (value === editor) proxy else value
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            var chatCommitCount = 0
+            chatField.set(store, intercept(originalChatPrefs) { ++chatCommitCount == 1 })
+            archiveField.set(archiveStore, intercept(actualArchivePrefs) { false })
+            try {
+                val failure = runCatching { store.removeUserFavorite(messageId) }.exceptionOrNull()
+                assertTrue("Failed compensation must not be reported as successful removal",
+                    failure is IllegalStateException)
+                assertEquals(2, chatCommitCount)
+                assertTrue("Archive must remain intact", archiveStore.contains(messageId))
+                assertEquals(archivePrefs.getString("entries_v1", null),
+                    actualArchivePrefs.getString("entries_v1", null))
+                // The first chat commit succeeded; this deliberately documents the
+                // non-atomic boundary without claiming the two stores were repaired.
+                val reopened = InMemoryLuluChatStore()
+                reopened.initialize(app)
+                assertFalse(reopened.messages(conversationId).value.single().favorite)
+            } finally {
+                chatField.set(store, originalChatPrefs)
+            }
+        } finally {
+            if (archiveStore != null && archiveField != null && originalArchivePrefs != null)
+                archiveField.set(archiveStore, originalArchivePrefs)
+            instanceField.set(UserMessageFavorites, originalInstance)
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+            val archiveEditor = archivePrefs.edit()
+            if (archiveBefore == null) archiveEditor.remove("entries_v1") else archiveEditor.putString("entries_v1", archiveBefore)
+            assertTrue(archiveEditor.commit())
+        }
+    }
+
     @Test fun rejectedReadAcknowledgementPreservesUnreadAcrossReopen() {
         val previous = prefs.getString(key, null)
         val conversation = JSONObject()
