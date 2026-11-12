@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:22:36.840973+00:00",
-  "commit": "842feac85ecec99fb665b7e4d9cdbf0c0cf4a651",
+  "generatedAt": "2026-11-12T10:23:16.705414+00:00",
+  "commit": "018e1b20e226a083fd066b757c92e4662e003ba1",
   "branch": "main",
-  "sourceFingerprint": "83f1912c3c7a2f3d7ae4ecee27a533552e1f6987a382ff4a55442e9b8ca53406",
+  "sourceFingerprint": "de4cf472cfff7670f13c303b7f5b1ade01a7aed6ea60cefab933648f6c8f7729",
   "summary": {
     "files": 1274,
-    "lines": 268838,
+    "lines": 268866,
     "symbols": 3806
   },
   "symbolIndex": {
@@ -36300,8 +36300,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1102,
-      "sha256": "0e628b1829aeb4466cd8e587077ccefbf9f5fb70047e737e206b7937caf40afb",
+      "lines": 1118,
+      "sha256": "c9ce02f1892a8c354d065b707b462f80357bf54c50ba0c7f96373170a73f050b",
       "symbols": [
         {
           "name": "change",
@@ -44170,8 +44170,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
-      "lines": 707,
-      "sha256": "d6beb88ef88b7d51c0900ef32b6745e37c0e9681b88546b1e10f16fa4a680e39",
+      "lines": 719,
+      "sha256": "1dd6f04f738c95f0ba37acc54d43441dcdab9c6631e009c167a2f8202142646e",
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
