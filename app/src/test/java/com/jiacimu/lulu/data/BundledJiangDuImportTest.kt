@@ -12,6 +12,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BundledJiangDuImportTest {
+    /** V29 is an immutable shipped migration snapshot; later stock speech is
+     * intentionally upgraded by syncBundledExpressionPresets(). Never make
+     * historical fixtures equal today's defaults just to satisfy a test. */
+    private fun currentStockAfterMigration(key: String, shippedV29: String): String =
+        if (key == "speechHabits") CharacterProfileSchema.jiangDuCurrentSpeechHabits
+        else shippedV29
+
     @Test fun authoredDialogueExamplesAreSeededOnceForExactlyTheTwoExistingCharacters() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
@@ -104,7 +111,8 @@ class BundledJiangDuImportTest {
             val actual = upgraded.getJSONObject("profile")
             assertEquals(29, upgraded.getInt("jiangDuPresetVersion"))
             CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
-                assertEquals("Factory field should migrate: $key", value, actual.getString(key))
+                assertEquals("Factory field should migrate: $key",
+                    currentStockAfterMigration(key, value), actual.getString(key))
             }
             assertEquals(identity, CharacterIdentityStore.get(id))
             listOf("relationshipAgreements", "socialNames", "intention").forEach { key ->
@@ -152,6 +160,7 @@ class BundledJiangDuImportTest {
             custom.getJSONObject("profile").put("care", "主人亲自编辑的照顾方式")
                 .put("perception", "").put("cognitiveStyle", "")
                 .put("dialogueExamples", "主人只要自己的示例")
+                .put("speechHabits", "主人亲自写的说话习惯")
             save.invoke(CharacterLifeStore, id, custom)
             MigratedDomainStores.characters.update(character.copy(persona = "本人手写的核心人格"))
             CharacterLifeStore.initialize(context)
@@ -160,6 +169,7 @@ class BundledJiangDuImportTest {
             assertEquals("", personalized.getString("perception"))
             assertEquals("", personalized.getString("cognitiveStyle"))
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
+            assertEquals("主人亲自写的说话习惯", personalized.getString("speechHabits"))
             assertEquals("本人手写的核心人格", MigratedDomainStores.characters.get(id).persona)
             assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("motives"),
                 personalized.getString("motives"))
@@ -657,6 +667,7 @@ class BundledJiangDuImportTest {
                 listOf("enneagram", "traits", "attachment").forEach { profile.remove(it) }
                 profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamplesV26)
                 if (custom) profile.put("values", "自己的价值").put("traits", "")
+                    .put("speechHabits", "我改写的江渡说话方式")
                     .put("dialogueExamples", "自己的示例")
                 save.invoke(CharacterLifeStore, id, root)
                 MigratedDomainStores.characters.update(role.copy(persona =
@@ -666,7 +677,7 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.initialize(context)
             val profile = CharacterLifeStore.state(id).getJSONObject("profile")
             CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
-                assertEquals(key, value, profile.getString(key))
+                assertEquals(key, currentStockAfterMigration(key, value), profile.getString(key))
             }
             assertEquals(CharacterProfileSchema.jiangDuV29Persona,
                 MigratedDomainStores.characters.get(id).persona)
@@ -680,6 +691,7 @@ class BundledJiangDuImportTest {
             assertEquals("自己的价值", manual.getString("values"))
             assertEquals("", manual.getString("traits"))
             assertEquals("自己的示例", manual.getString("dialogueExamples"))
+            assertEquals("我改写的江渡说话方式", manual.getString("speechHabits"))
             assertEquals("自己的核心人格", MigratedDomainStores.characters.get(id).persona)
             val stable = CharacterLifeStore.state(id).toString()
             CharacterLifeStore.initialize(context)
@@ -737,7 +749,8 @@ class BundledJiangDuImportTest {
                 val profile = prior.getJSONObject("profile")
                 CharacterProfileSchema.jiangDuV28Overrides.forEach { (key, value) -> profile.put(key, value) }
                 profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamplesV28)
-                if (custom) profile.put("care", "").put("values", "手写价值").put("dialogueExamples", "手写示例")
+                if (custom) profile.put("care", "").put("values", "手写价值")
+                    .put("dialogueExamples", "手写示例").put("speechHabits", "独家语言习惯")
                 save.invoke(CharacterLifeStore, id, prior)
                 MigratedDomainStores.characters.update(character.copy(persona =
                     if (custom) "手写人格" else CharacterProfileSchema.jiangDuV27Persona))
@@ -747,10 +760,11 @@ class BundledJiangDuImportTest {
                     assertEquals("", current.getString("care"))
                     assertEquals("手写价值", current.getString("values"))
                     assertEquals("手写示例", current.getString("dialogueExamples"))
+                    assertEquals("独家语言习惯", current.getString("speechHabits"))
                     assertEquals("手写人格", MigratedDomainStores.characters.get(id).persona)
                 } else {
                     CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
-                        assertEquals(key, value, current.getString(key))
+                        assertEquals(key, currentStockAfterMigration(key, value), current.getString(key))
                         assertFalse("Authoring uses third person: $key", value.contains("你"))
                     }
                     assertEquals(CharacterProfileSchema.jiangDuV29Persona,
