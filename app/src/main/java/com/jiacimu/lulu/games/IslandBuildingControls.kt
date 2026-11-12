@@ -12,6 +12,8 @@ internal data class IslandBuildPreview(
 
 internal object IslandBuildingControls {
     val recipes = listOf(
+        IslandBuildRecipe("house_warm", "⌂ 暖灯原木屋 · 3×3", "17木 · 9次施工"),
+        IslandBuildRecipe("house_pine", "⌂ 松林木屋 · 3×3", "17木 · 9次施工"),
         IslandBuildRecipe("workbench", "⚒ 工作台", "4木2石"),
         IslandBuildRecipe("campfire", "♨ 篝火", "2木1石"),
         IslandBuildRecipe("bed", "▱ 木床", "3木1石"),
@@ -36,15 +38,18 @@ internal object IslandBuildingControls {
         val locationOK = when (action) {
             "plant" -> BlockIslandRules.canPlantAt(s, x, y)
             "remove" -> BlockIslandRules.canRemoveAt(s, x, y)
+            "house_warm", "house_pine" -> IslandHouseProjects.canStartPlayer(s,x,y)
             else -> BlockIslandRules.canPlaceBuilding(s, action, x, y)
         }
         val allowed = locationOK && when(action) {
             "plant" -> w.wood >= 1
-            "remove" -> true
+            "remove", "house_warm", "house_pine" -> true
             else -> BlockIslandRules.canBuild(s, action, x, y)
         }
         val message = when {
             w.finished -> "当前岛屿无法继续建造"
+            action in setOf("house_warm","house_pine") ->
+                if(locationOK) "可放蓝图 · 按指示一块块盖好" else "选距离4格内的3×3连续空地"
             kotlin.math.abs(w.x-x) + kotlin.math.abs(w.y-y) > 1 ->
                 "需要站到目标旁边（1格内）"
             !locationOK -> "地形不符或位置被占用"
