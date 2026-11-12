@@ -1,5 +1,10 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08c.2 私聊工具回执重建幂等（待 CI）
+
+- [a964c4f](https://github.com/jiacimu-droid/lulu1/commit/a964c4f269a1da200aa28fef0b5406e3c9c9ef6b) 在 `QqReplySourceWatermarkTest` 补正式私聊工具成功后 ChatStore 重建、同 requestId 但新 trace 的回执重放：持久消息 ID、内容及两份 Store 一致，且不新增气泡。复用现有群聊重建夹具，不关闭全局共享单例。未发现已证生产缺陷，因此仅补回归；CI 尚未确认。下一轮直接查此测试的 main push APK/JVM、索引首错，之后继续 P-08c.2 取消边界。此测试不等于完整进程死亡或真实模型验收。
+
+
 ## 2026-11-12 · P-07.1 真实时钟在人物决定→聊天表达→工具结果中不断链
 
 - 主人真机截图：手机上午09:39，人物回“凌晨两点”；仅凭截图不能证明旧记忆是唯一原因。源码确认原前台 planner 在 `LuluDeviceToolBridge.respond` 注入了本机钟点，但其二阶段聊天气泡 renderer / 部分工具结果回复依赖 gateway，没有同一层的统一时间权威；`MemoryEvidenceSelection.render` 还将原始记录硬编码成上海时区并省略年份。
