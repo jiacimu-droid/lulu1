@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:40:14.796484+00:00",
-  "commit": "6fc3a6081e32ae2fd52f66612b0c50cc34b4fac3",
+  "generatedAt": "2026-11-12T12:41:02.764037+00:00",
+  "commit": "cebfae24a94ac883b09682392ae91d2b9e483d50",
   "branch": "main",
-  "sourceFingerprint": "9892d5db2c4d01d3824da8febc5683f21d553b524328666bc0b61a24cd3d3dce",
+  "sourceFingerprint": "c49396de40349b07f7f83edf9f148734de57464c503aafdfa7eab4d8c3be6de6",
   "summary": {
-    "files": 1279,
-    "lines": 270439,
-    "symbols": 3827
+    "files": 1280,
+    "lines": 270383,
+    "symbols": 3828
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13999,13 +13999,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1014
+        "line": 1012
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1165
+        "line": 1163
       }
     ],
     "saveTurn": [
@@ -14436,6 +14436,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 139
+      }
+    ],
+    "destination": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
+        "line": 8
       }
     ],
     "crystalVein": [
@@ -35038,8 +35044,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1210,
-      "sha256": "208384e0b9cbc9232403ddac223042b06b17de04102db54f5d4e933814d18c1e",
+      "lines": 1208,
+      "sha256": "635c5e2846180007a8c20e88802a659ad62bbde7656c9df9608a54954448d897",
       "symbols": [
         {
           "name": "playSound",
@@ -35055,11 +35061,11 @@
         },
         {
           "name": "dot",
-          "line": 1014
+          "line": 1012
         },
         {
           "name": "targetFor",
-          "line": 1165
+          "line": 1163
         }
       ]
     },
@@ -35704,6 +35710,17 @@
         {
           "name": "parse",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
+      "lines": 21,
+      "sha256": "31233111177ef2ba8ca12a6143502b621bed49caab4365ac1f9250c3b0a0e4c0",
+      "symbols": [
+        {
+          "name": "destination",
+          "line": 8
         }
       ]
     },
@@ -36366,8 +36383,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
-      "lines": 470,
-      "sha256": "c338140349c60a8597cf008eac6e0a72828d2fd10b060d90b98c987d990a1859",
+      "lines": 395,
+      "sha256": "6541f83b4403de89c42f62a37df7abb753ce228e65f33733805041d0e4437746",
       "symbols": []
     },
     {
