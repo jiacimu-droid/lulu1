@@ -195,6 +195,7 @@ internal object LuluBackgroundPhoneSession {
             if (action == "start") return JSONObject().put("success", true)
                 .put("status", "succeeded").put("mode", "independent_virtual_display")
                 .put("displayId", id).put("observationAvailable", false)
+                .put("ownFocusVerifiedByDisplayFlags", true)
                 .put("verification", "shell 已创建独立焦点屏幕；尚未观察到 App 或桌面画面").toString()
 
             if (action != "launch" && activeApp.isBlank()) error("请先在后台屏幕打开一个已授权应用")
