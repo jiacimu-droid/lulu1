@@ -249,25 +249,37 @@ class BlockIslandRulesTest {
         assertEquals(upgraded.animals,BlockIslandState.fromJson(upgraded.toJson())!!.animals)
     }
 
-    @Test fun friendshipCostsRealFoodAndGiftsRequireTurnsWithNoRepeatedMint() {
+    @Test fun friendshipCostsSeveralRealFeedingsAndGiftsRequireTurns() {
         val island=BlockIslandRules.newWorld(123,emptyList())
         val species=listOf("hare" to (1 to 0), "duck" to (0 to 1), "fox" to (0 to 2))
         for((name,payment) in species) {
             val animal=island.animals.first{it.species==name}
-            val start=island.copy(
+            val required=IslandWildlife.requiredFeeds(name)
+            var current=island.copy(
                 world=island.world.copy(x=animal.x,y=animal.y,mobs=emptyList()),
-                fruit=payment.first,fish=payment.second,
+                fruit=payment.first*required,fish=payment.second*required,
             )
-            val friendship=BlockIslandRules.act(start,"tame",animal.x,animal.y)
-            assertTrue(friendship.animals.first{it.id==animal.id}.befriended)
-            assertEquals(payment.first-if(name=="hare")1 else 0,friendship.fruit)
-            assertEquals(payment.second-if(name=="duck")1 else if(name=="fox")2 else 0,friendship.fish)
-            val noDouble=BlockIslandRules.act(friendship,"tame",animal.x,animal.y)
-            assertEquals(friendship.world.turns,noDouble.world.turns)
-            val current=friendship.animals.first{it.id==animal.id}
-            val due=friendship.copy(
-                world=friendship.world.copy(x=current.x,y=current.y,turns=current.lastGiftTurn+25))
-            val gifted=BlockIslandRules.act(due,"care",current.x,current.y)
+            for(step in 1..required) {
+                val pet=current.animals.first{it.id==animal.id}
+                current=current.copy(world=current.world.copy(x=pet.x,y=pet.y,
+                    turns=if(step==1)current.world.turns else pet.lastFedTurn+4))
+                val fed=BlockIslandRules.act(current,"tame",pet.x,pet.y)
+                assertEquals(step,fed.animals.first{it.id==animal.id}.trust)
+                assertEquals(step==required,fed.animals.first{it.id==animal.id}.befriended)
+                if(step<required) {
+                    val retry=BlockIslandRules.act(fed,"tame",pet.x,pet.y)
+                    assertEquals(fed.world.turns,retry.world.turns)
+                }
+                current=fed
+            }
+            assertEquals(0,current.fruit)
+            assertEquals(0,current.fish)
+            val noDouble=BlockIslandRules.act(current,"tame",animal.x,animal.y)
+            assertEquals(current.world.turns,noDouble.world.turns)
+            val pet=current.animals.first{it.id==animal.id}
+            val due=current.copy(
+                world=current.world.copy(x=pet.x,y=pet.y,turns=pet.lastGiftTurn+25))
+            val gifted=BlockIslandRules.act(due,"care",pet.x,pet.y)
             assertEquals(due.world.turns+1,gifted.world.turns)
             assertEquals(1,when(name) {
                 "hare"->gifted.fruit-due.fruit
