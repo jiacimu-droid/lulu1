@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`769e37ce55e8cfd4e4812dbaa8ffe9fe8fb50bc6`
+- 基准提交：`76dd2290bf9604d47e7d8675976c788353cb6332`
 - 分支：`main`
-- 已索引文件：1217
-- 已索引代码/文本行：262335
-- 已发现符号：3664
+- 已索引文件：1218
+- 已索引代码/文本行：262394
+- 已发现符号：3665
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -935,7 +935,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 90 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 95 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 978 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
@@ -1205,6 +1205,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluInstalledAppResolverTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |

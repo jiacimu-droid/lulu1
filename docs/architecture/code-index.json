@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T04:26:56.577510+00:00",
-  "commit": "769e37ce55e8cfd4e4812dbaa8ffe9fe8fb50bc6",
+  "generatedAt": "2026-11-12T04:27:32.931178+00:00",
+  "commit": "76dd2290bf9604d47e7d8675976c788353cb6332",
   "branch": "main",
-  "sourceFingerprint": "056b5b003241b7f3cceb0a2452bedb521bd12c3040e0f77fffa3c054d35fd901",
+  "sourceFingerprint": "dfe8e38898becf069f7b6f643cb924784e94e3a9744139ebf29a33cc045e83a0",
   "summary": {
-    "files": 1217,
-    "lines": 262335,
-    "symbols": 3664
+    "files": 1218,
+    "lines": 262394,
+    "symbols": 3665
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20318,6 +20318,12 @@
         "line": 6
       }
     ],
+    "LuluBackgroundPhonePreviewGateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt",
+        "line": 12
+      }
+    ],
     "LuluGroundingEvidenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt",
@@ -39199,8 +39205,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
-      "lines": 90,
-      "sha256": "9a624f08f542e7067f31a987b3ff54cfbed0696b3f9ba34cbc783844597b7734",
+      "lines": 95,
+      "sha256": "0fc74bb46a90377ef3abc9d6dfcdd18dd9f1dc6bd2e356dd36aa49a877f2604c",
       "symbols": [
         {
           "name": "BackgroundPhoneCapabilityContextTest",
@@ -43148,6 +43154,17 @@
         {
           "name": "TheaterWorldBookContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt",
+      "lines": 54,
+      "sha256": "89c9b04c05fc7b4134a933a1396b3ca371db3ea0e704bf4bc3a0641eb1389a74",
+      "symbols": [
+        {
+          "name": "LuluBackgroundPhonePreviewGateTest",
+          "line": 12
         }
       ]
     },
