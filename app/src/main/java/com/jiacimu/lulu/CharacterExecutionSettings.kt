@@ -145,7 +145,9 @@ internal fun CharacterExecutionSettings(characterId: String) {
                                     started.optString("verification", started.optString("status"))
                                 }.take(150)
                         } else {
-                            setupStatus = "独立屏已创建（ID=${started.optInt("displayId")}），正在验证目标 App"
+                            setupStatus = if (started.optBoolean("ownFocusVerifiedByDisplayFlags"))
+                                "后台屏已获得真正的独立焦点（ID=${started.optInt("displayId")}），正在验证目标 App"
+                                else "后台屏没有独立焦点实证；不向主人主屏注入任何操作"
                             val launched = org.json.JSONObject(
                                 com.jiacimu.lulu.data.ToolRouter.execute(
                                     context, characterId, "background_phone",
@@ -157,9 +159,11 @@ internal fun CharacterExecutionSettings(characterId: String) {
                                     requestId = id + ":launch", userRequested = true))
                             setupStatus = if (launched.optBoolean("success")) {
                                 "后台目标 App 已在独立屏核实（ID=${launched.optInt("displayId")}）；" +
+                                    (if (launched.optBoolean("frameValidated")) "后台真实帧核验成功；"
+                                    else "后台截图没有通过帧核验；") +
                                     (if (launched.optBoolean("sentToChat"))
-                                        "真实后台截图已发到角色私聊"
-                                    else "真实屏已读取但图片发送失败：" +
+                                        "后台画面已作为图片发进角色私聊"
+                                    else "后台图片未发送：" +
                                         launched.optString("shareError").take(90))
                             } else {
                                 "后台启动未通过真实核验：" +
