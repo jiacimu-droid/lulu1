@@ -168,6 +168,17 @@
 
 ### PH-01 手机操作：Mika 开源执行器复用（2026-11-11）
 
+**2026-11-12 PH-01 真后台闭环修复（源码已提交 main，尚未获得当前 HEAD 完整 APK/JVM / Redmi Android17 真机运行证据）**：
+
+- **现象证据**：用户对话里回执为 `capture_screen`，屏幕上出现「正在查看屏幕」，看到的是 ChatGPT/系统多任务主屏；该能力始终走 `Display.DEFAULT_DISPLAY`，不证明独立虚拟屏已运行。之前用户截图中的角色口头称「后台已通」不能当作设备事实。
+- **Mika 源码对照**：上游 `AgentDisplay` 真正使用独立 VirtualDisplay + ImageReader 生成后台帧；`ShellService.startApp` 解析明确启动 Activity 并用指定 displayId 启动、按屏注入。当前 Lulu 是精简版，已移植 shell/ADB，但缺在线聊天的连续模型回路和直观验收；不是 Mika 所有特性已移植。
+- **真实修复**：`ProactivePerceptionRuntime` 在线私聊补 `CapabilityRegistry.phoneOperationContext`，明确 `capture_screen` 是主屏、`background_phone` 才是后台。在线工具主动作和步骤中的 `background_phone` 通过原 `ToolRouter` 回执进入同一角色 `LuluBackgroundPhoneContinuation`，继续观察→选择→执行（限12动作，不建第二 persona/记忆）；已有前台入口不受影响。对真实用户等待的后台任务，最后一个已选模型基于真实回执及实际后台图像发送独立的结果反馈；不能把 start/accepted 当刷视频成功。
+- **启动与续滑**：`LuluBackgroundPhoneSession` 使用本机 PackageManager 查到的明确 launcher component，传给 shell helper 的 `am start --display ID -n COMPONENT`，而不只按 `-p 包名` 猜；仍强制 ID非0、单角色占有、主屏正在使用目标不搬迁、隐私 App 排除和打开后目标屏窗口核验。过去每次 swipe/tap 不带 expectedText 就一律 `unverified`、下一步停掉；现只在真实新帧+已允许目标上以 `observed` 回执继续模型观察，但 `taskCompleted=false`，不冒充业务完成。expectedText 不符但真正返回后台帧时，角色可以看实况自行决定新动作。
+- **可见证据**：`background_phone` 现可选 `sendToChat=true`，仅对核实的独立屏目标帧通过 `CompanionActionRuntime.sendCapturedScreenshot(... sourceDisplay=virtual)` 真正发送标注为后台图的私聊图片，不能退回主屏图片。角色设置「后台手机操作（无线调试）」新增手工测试：填已安装应用准确名称，点击「测试独立后台屏并发真实截图」，沿 ToolRouter 执行 start→launch→私聊图片回执；设备权限/连接/窗口/图片失败会分开显示。测试按钮不偷偷代角色做个人选择。
+- **已提交测试与剩余验收**：`BackgroundPhoneCapabilityContextTest` 检查两种屏幕来源和可见工具说明；`LuluInstalledAppResolverTest` 仍覆盖确切名称、同名拒绝、无目标拒绝。当前主干的最新 Actions push 运行不能通过现有 GitHub 连接器直接验收，绝不算已绿。**接下来**：用正式新 APK 在 Redmi 验：设备上无线调试连接→独立非0 ID→抖音页面真实后台截图发到私聊（主屏保持 ChatGPT）→连续滑动至少两次并看到不同真实视频帧→停用/撤权后执行立刻拒绝→预算/耗电与敏感动作保护。HyperOS 特定兼容失败时保留具体失败回执，不降级为主屏冒充后台。
+
+
+
 **2026-11-12 PH-01 应用启动根因增量（已提交 main；待 CI / Android 17 真机 / 真实模型）**：
 - 截图中「虚拟屏幕创建了，但抖音没打开」不能证明真实设备已成功操作；后端 start 仅证明 shell 显示器已创建，不代表看到后台桌面。将 start 回执明确为 `status=succeeded` 且 `observationAvailable=false`，区分传输与实际应用画面。
 - 补齐准确 App 显示名称→真实包名的**本机**解析：`LuluInstalledAppResolver.kt` 仅从 MAIN/LAUNCHER 可见、且未被隐私排除的安装应用里做精确名称匹配；重名、无匹配直接失败，不凭用户原话擅猜应用。原 `background_phone.launch` 现在允许 `appName` 或 `packageName`，不引入第二人格或模型。
