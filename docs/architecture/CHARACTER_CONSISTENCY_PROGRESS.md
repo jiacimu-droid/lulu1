@@ -7,6 +7,15 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-13 · P-08d / P-08a 长期责任不排期也持续进入本人注意力（源码已提交；CI/真机/真实模型待验）
+
+- **真实断点**：`CommitmentTaskStore.active` 将有日期的工作排在所有未定时责任之前，正式 `ProactivePerceptionRuntime` 对模型只传前 12 条的详情/验收证据；超过窗口时，跨日持续责任可能永远不进入同一人物的五分钟到期选择。另 `CompanionSleepHandoff.uncovered` 强制所有未定时责任在每次休眠前新建复查闹钟，把长期记挂误当作全部需要排日程。
+- **代码**：[`40dc5fe`](https://github.com/jiacimu-droid/lulu1/commit/40dc5feb2d0eca5fb8eec7b20b89c99558bcd00e) 在权威责任列表上建立不新建状态、闹钟或模型调用的轮换注意力视图，保留多数窗口给有时限的责任，给无日期的持续责任固定可见机会；[`cc99bea`](https://github.com/jiacimu-droid/lulu1/commit/cc99beac7c8b9fcd695002d234cf75d9abfa9e29) 将同一选择接进原后台感知、五分钟续醒与证据候选，未显示的仍存于原 Store、自然感知继续轮换；[`ffe8490`](https://github.com/jiacimu-droid/lulu1/commit/ffe849076d0e1b7c63247f8775d1b4ce54b1c793) 仅豁免无执行时刻的持续责任在休眠前**强制**建立闹钟，真正有时限且未交接的责任仍由原闹钟/日程保护。角色主动选定实际未来步骤时仍必须真实登记。[`5bd0755`](https://github.com/jiacimu-droid/lulu1/commit/5bd075532feaa92a1eafaac5fe7c445946a81cb6)、[`ebf5113`](https://github.com/jiacimu-droid/lulu1/commit/ebf511346c127d8d0bcde8da2b23b8723ac233a7) 对齐本人既有提示词与这一职责边界，不添加关键词分派。
+- **回归**：[`dfd162b`](https://github.com/jiacimu-droid/lulu1/commit/dfd162b718c85af8f5141825cfc605f8c19ad32f) 断言 18 条定时工作不能挤掉 11 条持续责任，并验证下个自然五分钟窗口会轮换、完成记录排除；[`69c25eb`](https://github.com/jiacimu-droid/lulu1/commit/69c25eba2060857766845fa349151dce3d866619) 验证长责无闹钟也可自主休眠且保持持久，同时具体时间承诺没有闹钟仍视为未交接。
+- **验收边界**：以上已提交 `main`，尚无对应完整 JVM/APK 和真机、真实模型通过证据。下一轮先查包含 `69c25eb` 的后继 main push CI，核 `ProactiveQuietDecisionTest.undatedResponsibilitiesStayInFiveMinuteAttentionBehindManyScheduledTasks` 与 `OnlineChatExperienceTest.ongoingUndatedDutyPersistsWithoutCompulsoryAlarmAtSleep` 首错；再真机验证普通日程不丢、角色自己想起并可选择实际工具或真实个人计划，轮换不是强制行动也不要求每次付费复查。没有事件且角色已经休眠时，不凭本修改额外唤醒或自动联系。
+
+
+
 ## 2026-11-12 · P-08b.1 群聊撤回的跨场景召回与连续性
 
 - 上轮 `b67236c` 的群聊回归在后继 `d15dd5f3` [全量 JVM/APK #43243816953](https://github.com/jiacimu-droid/lulu1/actions/runs/43243816953) 再次通过，APK 已发布，[原索引 #43243816844](https://github.com/jiacimu-droid/lulu1/actions/runs/43243816844) 成功。原失败由摸金难度回归修正后解除。
