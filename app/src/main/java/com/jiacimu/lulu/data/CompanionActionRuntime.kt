@@ -1638,6 +1638,9 @@ internal object OrderedCharacterActions {
         turnTraceId: String = "",
         alreadyDeliveredPrivateText: String = "",
         groupNoticeFollowUp: Boolean = false,
+        // The same character can observe and continue an explicitly selected
+        // phone tool. Other steps remain on the original ToolRouter boundary.
+        onToolResult: (suspend (String, String, JSONObject, JSONObject, String) -> String?)? = null,
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1765,6 +1768,10 @@ internal object OrderedCharacterActions {
                 searchReceipts += feedback.copy(receiptEvidenceId =
                     SearchReceiptFeedback.recordedReceiptId(characterId, stepRequestId))
             }
+            val afterToolNote = if (name == "background_phone") onToolResult?.invoke(
+                name, stepRequestId, args, result, normalized.optString("reason")) else null
+            if (!afterToolNote.isNullOrBlank()) notes +=
+                "第${index + 1}步后台手机后续：" + afterToolNote.take(420)
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
             previousCompleted = ToolExecutionStatus.completed(result)
