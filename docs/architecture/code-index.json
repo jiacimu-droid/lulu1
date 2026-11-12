@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:42:07.572477+00:00",
-  "commit": "881d8a746ac0277602ef22bfb5bad0a59bca7fc1",
+  "generatedAt": "2026-11-12T07:46:43.168194+00:00",
+  "commit": "2d63c0f14773362753c2eb20cc29c7f980fd5b3d",
   "branch": "main",
-  "sourceFingerprint": "76e916d238bf798e443fa5b2dbd4d730299805863ecb93c6777a89fe0f920863",
+  "sourceFingerprint": "5aa4725dda4a65c9604ca8773b86412a72d11744a235c226bd8cbe3b72ee5b33",
   "summary": {
     "files": 1260,
-    "lines": 266853,
+    "lines": 266870,
     "symbols": 3764
   },
   "symbolIndex": {
@@ -24445,8 +24445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt",
-      "lines": 37,
-      "sha256": "b2dbfec58cd35427649005b3c15a3d0c98a08a263f26f470e31fd756ae2abf87",
+      "lines": 42,
+      "sha256": "833ac015285e3edd38fd1706f6a980a1012d0eeea624bd42b0298e556a8fa431",
       "symbols": []
     },
     {
@@ -39435,8 +39435,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt",
-      "lines": 43,
-      "sha256": "12712811188839c84d1985923f566cd27fb3c6e96a9d931847ab9c0a8bb614ff",
+      "lines": 55,
+      "sha256": "5061cd13eaa0bb1688d4b0487de580575db4f7072260e29bf03f0b883444a1e3",
       "symbols": [
         {
           "name": "QqChatImageViewerTest",
