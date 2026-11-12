@@ -124,8 +124,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
                 it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
             }
-            val window = windows.filter { it.isActive || it.isFocused }
-                .maxByOrNull { it.layer } ?: windows.maxByOrNull { it.layer }
+            // Prefer the highest real content window, not an app window
+            // underneath a system permission/payment dialog. The IME is the
+            // sole intentional focus-owning window ignored above.
+            val window = windows.maxByOrNull { it.layer }
             val root = window?.root
             return AccessibilitySnapshot(
                 connected = root != null,
