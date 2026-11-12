@@ -264,6 +264,16 @@
 
 ### P-08c 群聊与自然气泡
 
+**2026-11-12 P-08c ·「重新回复」必须是替代第一版，不是反省旧回答（源代码已提交，CI/实机待验）**：
+
+- **根因**：旧 `QqStyleChatDetailScreen.regenerateLatestReply` 把已发送旧回复全文放进 `turnContext`，再以「重新考虑」场景重新调用模型；`LuluDeviceToolBridge` 同时对「rewrite」反复叙述旧轮次。即使 UI 预先截断聊天，统一召回和 `CharacterContinuityRuntime` 仍可能重新放入「角色自己上一次真实说过」的旧气泡。
+- **已改**：[`981b223`](https://github.com/jiacimu-droid/lulu1/commit/981b22387f8952db5bcc659fd501b2cc0ae810bd) 让重答只使用原始用户输入和第一次回答前的聊天；不把旧气泡/按钮点击通知模型，不写虚假的「主人让我纠正」生活事件。[`5718ca1`](https://github.com/jiacimu-droid/lulu1/commit/5718ca1d1db9a231d282553b4ce9ef3a1b7cbfeb) 在 `UnifiedMemoryRequest.excludedEventIds` 里只对本次候选回复排除旧气泡（含群聊 fan-out）及其衍生记忆；[`665ba7b`](https://github.com/jiacimu-droid/lulu1/commit/665ba7ba91bb29fc57d9338a4211f9c282e5d32d) 去掉剩余重答元提示；[`0d4c029`](https://github.com/jiacimu-droid/lulu1/commit/0d4c029f23cbffbe0c4952f3cdf9e00077b9cf77) 在连续性锚点排除原回复；[`4d9a68b`](https://github.com/jiacimu-droid/lulu1/commit/4d9a68bd1ea9d04e7ed6f8c9fa006b78a2be6107) 抑制上一稿生成的暂时心理/表达状态；[`fad0c8c`](https://github.com/jiacimu-droid/lulu1/commit/fad0c8c840bce7755b022f4ba7255632ebe6cb16) 避免原用户消息既进入历史又作为新输入重复注入。
+- **范围**：同一角色/同一原消息在 UI 替换旧气泡，源真相只有一条实际送达版本；旧原文和额外历史内存不会供新候选模型参考。已经真实发生的工具/对外副作用不反复执行或伪造回滚。普通新聊天记忆、人物连续性和每日本地维护逻辑不改变。
+- **回归源码**：`ChatReplyTurnActionsTest`、`ReanswerMemoryBoundaryTest`、`CharacterContinuitySnapshotTest` 覆盖重答前置历史、排除旧气泡原文、记忆摘要的源 ID、连续性上次发言归属。
+- [ ] **待验**：核该范围最新 main 同 SHA `Lulu APK` 完整 CI、真机私聊和群聊重新回复；重点检查旧台词从新发言、记忆召回、短心声、后续聊天三处都没有泄漏；若旧稿有真正在外部产生的工具行为，仍以真实回执为准，不能把文字重答当作设备回滚。
+
+
+
 - **2026-11-11 私聊语音标签与输入法听写窗口（源码/回归已提交，CI/真机待验）**：聊天模型原已有逐气泡 `delivery=voice` + `speechText`，与电话共用 `VoicePerformance.direction` 和可用引擎的音频标签过滤，但不是同一条通话发声队列。原音频轨对标签周围空格严格比对，可能丢掉原模型已经写的表演提示；`7fd8d92` 改为将标签按原口语非空白字符对齐，`4a1f189` 回归确保标签留在音频轨、不污染消息正文。后台与前台的 voice 气泡提示改成同轮写出表演轨（`c9113f8`、`6bc02e0`），不另开收费模型调用，非标签 TTS 仍按原兼容降级。用户报告使用第三方输入法听写时光标静止、草稿暂空会误触发 4 秒 onComposerIdle；`a886ee3`、`00f56c6`、`0d0bcdb` 在私聊前台焦点+IME 可见+草稿暂空时只本地观察 Android 活跃麦克风来源（含匿名 DEFAULT），若检测到真实录音则继续延长原有唯一在线批次，停录或收起键盘交还原有短等待；不采录声音、不新建模型入口。回归 `79f1303`、`ec1d949` 覆盖同 revision 保留、停止录音释放以及麦克风来源分类。**Android 可能不公开第三方输入法录音状态**，该类 IME 仍有无法观测的窗口，不能宣称所有听写都不抢答；需在主人设备分别验文本、录音尚未提交文本、录音停后连续发两泡、长停顿、电话切换及真实计费。当前未拿到此 HEAD 的 JVM/APK CI 通过/真机验收证据，保持 [ ] 待验。
 
 
