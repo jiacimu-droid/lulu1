@@ -974,11 +974,16 @@ object ProactivePerceptionRuntime {
                 appendLine("如想查看所行的准确任务与完成记录，可在本轮选择 action=tool,tool=read_self_todo,args={scope:today}；需要连未来安排也看时 scope=all，可用返回的 nextOffset 翻页。只读不改，不因未打勾就判定没学习；需要核实学习行为时沿已有短时授权 start_study_watch 与真实记录，绝不默认永久监控。")
                 appendLine(com.jiacimu.lulu.ai.JevDirections.context())
                 val openCommitments = CommitmentTaskStore.active(characterId)
-                ActiveCommitmentAttention.render(openCommitments, now)
+                // Keep independent undated responsibilities in the SAME paid
+                // perception/expiry decision, even behind many earlier alarms.
+                val focusedCommitments = PersistentResponsibilityAttention.select(openCommitments, now)
+                if (openCommitments.size > focusedCommitments.size)
+                    appendLine("【长期责任持续记挂】共有${openCommitments.size}项进行中的责任，本轮阅读其中${focusedCommitments.size}项；未展示的责任仍持久保存，下一次自然感知轮换查看，不表示已经放弃或完成。")
+                ActiveCommitmentAttention.render(focusedCommitments, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (openCommitments.isNotEmpty()) {
                     appendLine("【当前已承担的目标与统一验收入口】")
-                    openCommitments.take(12).forEach { task ->
+                    focusedCommitments.forEach { task ->
                         appendLine("id=${task.id}; goal=${task.goal.take(140)}; condition=${task.completionCondition.take(130)}; mode=${task.verificationMode}; status=${task.status}; repeat=${task.repeat}; due=${task.dueAt}; nextCheck=${task.nextCheckAt}; last=${task.readableLastResult().take(240)}")
                         // ActiveCommitmentAttention already covers overdue and
                         // unverified responsibilities. For not-yet-due promises,
@@ -994,7 +999,7 @@ object ProactivePerceptionRuntime {
                     appendLine("【按各自任务证据模式核对，不能见到一个事件ID就假定能结案】")
                     appendLine("这些只是来源/类型初筛候选，不保证语义上满足目标。只有自己判断真实结果满足完成条件后，才能使用 tool=verify_commitment,args={taskId:原任务ID,completionEvidenceIds:[实际存在且相关的事件ID],verificationReason:证据如何真正支持目标}。若无合适证据不要空试验收，先调查、继续行动、等待或复查。")
                     val recentCommitmentEvidence = SharedExperienceTimeline.recentEvents(characterId, 160)
-                    openCommitments.take(12).forEach { task ->
+                    focusedCommitments.forEach { task ->
                         appendLine(CommitmentOutcomeVerification.candidateContext(task, recentCommitmentEvidence))
                     }
                     appendLine("若尚无完成证据，可自主选此刻行动、观察、暂缓或稍后复查。选择 tool=schedule_commitment_review,args={taskId:原任务ID,at:本人选定的未来带时区ISO时间,reason:还缺什么证据、为什么此刻等待而非行动、这段等待会不会挤压原目标} 时，依据真实行动/结果时效与届时可获得的新事实来选时间，别默认半小时或仅为了显得在关心而安排一次无变化的检查。复查只唤醒同一角色重新判断，不会自动重拨电话或替代真正达标。")
