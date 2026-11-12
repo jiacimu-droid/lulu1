@@ -11,7 +11,7 @@
 
 - 上轮 `b67236c` 的群聊回归在后继 `d15dd5f3` [全量 JVM/APK #43243816953](https://github.com/jiacimu-droid/lulu1/actions/runs/43243816953) 再次通过，APK 已发布，[原索引 #43243816844](https://github.com/jiacimu-droid/lulu1/actions/runs/43243816844) 成功。原失败由摸金难度回归修正后解除。
 - [3f58255](https://github.com/jiacimu-droid/lulu1/commit/3f58255e1bb48f0af785cb5abee5b90a58bd6908) 让现有 ChatStore 撤回回执成为共用时间线的证据可见性依据。按会话 ID、原气泡 ID 与本人事件归属过滤，调用内每个相关群读取一次不可变消息列表。原始聊天、时间线与带来源摘要保留可审计；新模型上下文、记忆提取、原话检索、连续性与带源记忆有效性排除撤回来源，不新增 Store、模型或轮询。
-- `ConversationExpressionGatewayTest.recalledGroupSpeechStaysInLedgerButCannotReachPhoneOrAutonomousContext` 使用真实 ChatStore 撤回、时间线与带源核心记忆，核对电话桥接和自主感知使用的 Full 网关 HTTP 请求。检查有效群聊消息与本人设定仍送达、撤回内容和摘要消失、原事件仍在。本轮原索引、静态、全量 JVM 与 APK 待按提交 SHA 核验。 真机电话、实际后台调度与真实模型表现待验。
+- `ConversationExpressionGatewayTest.recalledGroupSpeechStaysInLedgerButCannotReachPhoneOrAutonomousContext` 使用真实 ChatStore 撤回、时间线与带源核心记忆，核对电话桥接和自主感知使用的 Full 网关 HTTP 请求。检查有效群聊消息与本人设定仍送达、撤回内容和摘要消失、原事件仍在。精确提交的[原索引 #43249606941](https://github.com/jiacimu-droid/lulu1/actions/runs/43249606941)、[静态检查、全量 JVM、APK 构建和发布 #43249606691](https://github.com/jiacimu-droid/lulu1/actions/runs/43249606691)均成功，日志确认跨场景新回归与既有群聊撤回回归均通过。 真机电话、实际后台调度与真实模型表现待验。
 - 下一步沿 P-08b.1 打开 `PerceptionStimulusLedger`、`ProactivePerceptionRuntime`，核后台未读刺激是否从原始时间线独立取数而绕过此次记忆投影；以已撤回事件和同场仍有效事件的差异回归为准。
 
 ## 2026-11-12 · P-08b.1 撤回群聊原文不能经本人记忆回流
