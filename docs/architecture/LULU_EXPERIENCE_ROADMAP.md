@@ -5,6 +5,8 @@
 **主接力顺序：人物活人感与履约 P → 自主社交 S → 其他体验。** 数据损坏风险与全局严重卡顿可插队。人物、双游戏专项按各自范围并行，游戏先打通第一段完整游玩，再扩内容。所有代理从 AGENTS.md 读规范，从本页 §一点五 领任务，从专项进度查历史证据。
 
 ### 2026-11-12 PH-01.6 · Mika 安卓手机智能体全面对标与分阶段补齐（用户明确要求，体验高优先）
+**2026-11-12 PH-01.6h.2 · 增量界面语义匹配修正**：已定位 `LuluMikaInterfaceUpdate.between` 旧算法把不同读屏中同一个 `e1` 当相同控件，这与 Mika 原 `InterfaceDiff` 的语义对齐原则冲突；当按钮遍历顺序重排时会虚报“新界面/新内容”。改成先匹配语义+资源 ID+真实坐标、再判断移动/改名，新增“相同控件重新编号仍无变化”“同一控件位置变化应报变化”纯 JVM 回归。仅给模型的差异摘要更准，不擅自扩展旧控件点击权限；随本轮最新 CI 核，不因代码存在声称真机通过。
+
 
 **2026-11-12 PH-01.6l/f · 本窗口追加滑动进展与全黑画面保护（源码已实施，CI/真机待验）**：保留并行任务已修复的 `LuluVirtualWindowPolicy`/`LuluVirtualHumanGate`/`LuluPhoneRepeatGuard`，不覆盖其已做的 AppSwitch/系统弹窗接管。新增 `LuluVirtualScrollOutcome` + JVM 回归，背景 `swipe` 对照独立目标 display 的真实前后控件树指纹/可见文字回传 `content_changed | no_visible_change | unknown | rejected`，不再把已接受手势、新截图或未变化直接等于“翻到下一页”“已到底”。角色同一任务内即使穿插 `observe`，同坐标滑动两次未有可见进展也停止重复收费尝试；是否改换方法仍归本人决策。将已移植的 Mika `FrameMath.isBlack` 真正接入 `LuluShellDisplayMain` 的独立屏图像处理（来自源 App 的真像素），全黑帧标 `frameBlack=true/frameValidated=false`、绝不转发给主人/角色或偷用主屏替代，仍可尝试已核实的目标控件树；新增 `LuluVirtualFrameSafety` + JVM 回归。原 ToolRouter/角色因果、授权、privacy exclusion 不改。**待验**：本次合并提交的 `Refresh code index`、`Lulu APK/JVM`；Redmi 图文滑动、无障碍可读信息流、黑屏/图像自绘/系统安全页、是否误报无进展；最后一次真实手机探索分享仍须端到端验证。下一步 PH-01.6q 断线后恢复/重连幂等及 PH-01.6n 持久阶段成果交接，不自动恢复未经明确允许的权限。
 

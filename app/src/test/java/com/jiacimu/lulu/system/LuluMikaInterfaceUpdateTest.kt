@@ -34,6 +34,34 @@ class LuluMikaInterfaceUpdateTest {
         assertTrue(LuluMikaInterfaceUpdate.between(old, newer, true).full)
     }
 
+    @Test fun transientRefRenumberingDoesNotInventNewPageContent() {
+        val left = listOf(
+            item("e1", "搜索").copy(x = 100),
+            item("e2", "返回").copy(x = 800),
+        )
+        val right = listOf(
+            item("e1", "返回").copy(x = 800, resourceId = "id_e2"),
+            item("e2", "搜索").copy(x = 100, resourceId = "id_e1"),
+        )
+        val delta = LuluMikaInterfaceUpdate.between(left, right, true)
+        assertFalse(delta.full)
+        assertEquals(2, delta.unchanged)
+        assertTrue(delta.added.isEmpty())
+        assertTrue(delta.changed.isEmpty())
+        assertTrue(delta.removed.isEmpty())
+    }
+
+    @Test fun movingTheSameNamedControlCountsAsMovementNotNewItem() {
+        val before = listOf(item("e1", "搜索").copy(x = 100), item("e2", "返回"))
+        val after = listOf(item("e7", "搜索").copy(x = 200, resourceId = "id_e1"),
+            item("e8", "返回").copy(resourceId = "id_e2"))
+        val diff = LuluMikaInterfaceUpdate.between(before, after, true)
+        assertFalse(diff.full)
+        assertEquals(1, diff.unchanged)
+        assertEquals("e7", diff.changed.single().ref)
+        assertTrue(diff.added.isEmpty())
+    }
+
     @Test fun refsAreNotSilentlyReusedAsProofOfAction() {
         val before = listOf(item("e1", "点击搜索"), item("e2", "返回"))
         val after = listOf(item("e1", "点击搜索"), item("e2", "返回"))

@@ -12,6 +12,12 @@
 - **实装**：从 Lulu 当前角色拥有的独立后台 display 和目标 App 读取非密码控件属性和屏上文字；遇到验证码/密码/支付安全校验、跨 App/系统窗口切换，返回 `waiting_user` 且不把危险截图送进模型，`LuluBackgroundPhoneContinuation` 接到该回执后停止盲试并报告。复用 ToolRouter 的权限、持久回执、授权及独立屏隔离。不把登录页面伪装为搜索成功；未知窗口需要人确认，程序不自行输入密码/验证码。
 - **验收**：Mika 原 JVM 测试已移植，但实际执行结果、APK 和 Redmi 真机仍按最新 Actions SHA 核查；没有实测前不得宣称屏幕诊断全覆盖。
 
+## 2026-11-12：Mika InterfaceDiff 精确语义匹配改进
+
+- 上游参考：Mika `core/uistate/ActionEffect.kt` 中按控件语义/几何分层配对的 `InterfaceDiff.between`，Apache-2.0、Copyright 2026 wangzan101。
+- 本轮在已适配的 `LuluMikaInterfaceUpdate.kt` 内改进纯 Kotlin diff，跨两次读屏不再依据临时 `e1/e2` 编号假定是同一按钮；先按名称/资源 ID/坐标精确配对，再识别挪动/文本变化，保证新增、移除及局部变化的事实标签不因重新编号而虚增。Lulu 特化改动标为 THIRD_PARTY_MODIFIED；新增两条实际反例回归测试。
+- 此差异仅是送给同一角色的观察摘要，不能让旧控件 ref 复活，也不能证明搜索或浏览目标已完成；真正点击仍由独立屏最新 `screenSnapshotId` 验证。真机待验。
+
 ## 2026-11-12：Mika FrameMath 原算法接入实际后台屏与滑动回执
 
 - 上游：`wangzan101/Mika` @ `106535545bfefa150e24276c6301238398ca5f88`，Apache-2.0，`FrameMath.kt` 原算法此前已移植到 `LuluMikaFrameMath.kt`（THIRD_PARTY_MODIFIED），随 APK 保留 LICENSE/NOTICE。
