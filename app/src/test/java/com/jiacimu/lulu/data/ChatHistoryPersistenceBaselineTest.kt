@@ -103,6 +103,74 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+    /** UI-02.2: rejected durable character delivery cannot leave a phantom bubble. */
+    @Test fun rejectedCharacterAppendRestoresMessagesAndConversationOnReopen() {
+        val previous = prefs.getString(key, null)
+        val conversation = JSONObject()
+            .put("id", conversationId)
+            .put("characterId", "ui02-character")
+            .put("title", "Durable append failure")
+            .put("updatedAt", "2026-01-01T00:00:00Z")
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(conversation))
+            .put("messages", JSONObject().put(conversationId, JSONArray()))
+            .toString()
+        try {
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val field = InMemoryLuluChatStore::class.java.getDeclaredField("prefs")
+                .apply { isAccessible = true }
+            val actual = field.get(store) as android.content.SharedPreferences
+            val rejected = java.lang.reflect.Proxy.newProxyInstance(
+                actual.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") {
+                    method.invoke(actual, *(args ?: emptyArray()))
+                } else {
+                    val editor = actual.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> false
+                            "apply" -> error("Background character delivery must be durable")
+                            else -> {
+                                val result = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (result === editor) proxy else result
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            field.set(store, rejected)
+            try {
+                val before = store.conversations.value
+                val failure = runCatching {
+                    store.appendCharacterMessage(conversationId, "A message that must not appear")
+                }.exceptionOrNull()
+                assertTrue("Rejected character delivery must fail", failure is IllegalStateException)
+                assertTrue("No phantom bubble may remain", store.messages(conversationId).value.isEmpty())
+                assertEquals("Conversation metadata must roll back", before, store.conversations.value)
+                assertEquals(snapshot, prefs.getString(key, null))
+            } finally {
+                field.set(store, actual)
+            }
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertTrue(reopened.messages(conversationId).value.isEmpty())
+            assertEquals("", reopened.conversations.value.first { it.id == conversationId }.lastMessage)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     private fun measure(count: Int) {
         val previous = prefs.getString(key, null)
         try {
