@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:51:57.663885+00:00",
-  "commit": "6718ad8f27b1cc8c3a51da03c9847e0f06498a6a",
+  "generatedAt": "2026-11-12T08:52:42.080035+00:00",
+  "commit": "8348d0a232f5ec00c58f5b18860c2145b87e5dbb",
   "branch": "main",
-  "sourceFingerprint": "a69fdaceb62d13825b33d3d03a1e9bb3c19f1e51177da6815d7b68867e65b704",
+  "sourceFingerprint": "01a5a9a5f9ab73938cd3e3e7ae731808dde588b8e25bb147dcf73d0ccabe1193",
   "summary": {
     "files": 1265,
-    "lines": 267288,
+    "lines": 267318,
     "symbols": 3771
   },
   "symbolIndex": {
@@ -8283,7 +8283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 992
+        "line": 1022
       }
     ],
     "DailyCommitmentAttempt": [
@@ -8547,25 +8547,25 @@
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 809
+        "line": 835
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 993
+        "line": 1023
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1014
+        "line": 1044
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1035
+        "line": 1065
       }
     ],
     "repeatsConfirmedAction": [
@@ -28691,8 +28691,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1116,
-      "sha256": "67f7ece7b9ab1ded1f4d0817d4aabb53e8985febf293afbdbf36074f699b69e5",
+      "lines": 1146,
+      "sha256": "73ef335a7ec4e29f3fa17b62e02c67d03f92f078a25bec91af554bc3858fdf07",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -28768,23 +28768,23 @@
         },
         {
           "name": "extendByOwnChoice",
-          "line": 809
+          "line": 835
         },
         {
           "name": "Result",
-          "line": 992
+          "line": 1022
         },
         {
           "name": "uncovered",
-          "line": 993
+          "line": 1023
         },
         {
           "name": "proposalIssue",
-          "line": 1014
+          "line": 1044
         },
         {
           "name": "ensure",
-          "line": 1035
+          "line": 1065
         }
       ]
     },
