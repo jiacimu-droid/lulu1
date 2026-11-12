@@ -4,6 +4,9 @@
 
 **主接力顺序：人物活人感与履约 P → 自主社交 S → 其他体验。** 数据损坏风险与全局严重卡顿可插队。人物、双游戏专项按各自范围并行，游戏先打通第一段完整游玩，再扩内容。所有代理从 AGENTS.md 读规范，从本页 §一点五 领任务，从专项进度查历史证据。
 
+
+**2026-11-12 UI-02.2 · 已有消息编辑/删除持久写入拒绝回退（新 CI 待验）**：正式源码 [762533d](https://github.com/jiacimu-droid/lulu1/commit/762533d807205eccbb7a712177404924558403a3) 将 `mutateMessagesContaining` 的 edit/delete 提交改为 `commit()` 成功后才可触发时间线撤回/图片清理，提交拒绝时恢复消息和会话投影；回归 [3ebd9ac](https://github.com/jiacimu-droid/lulu1/commit/3ebd9acd63cdd9731e8f6fa9222c75a2f9efa285) 模拟失败 edit/delete，验证原消息、会话及 Store 重建不变。此前角色 append 回归 [cf65c41](https://github.com/jiacimu-droid/lulu1/commit/cf65c413c391854d754429e43cfe69a9fcfe2d5c) 的 main push [APK/JVM #43170020101](https://github.com/jiacimu-droid/lulu1/actions/runs/43170020101) 与 [索引 #43170020102](https://github.com/jiacimu-droid/lulu1/actions/runs/43170020102) 已成功；**本次 edit/delete 新提交仍待按 head SHA 核 Actions 首错**。后续直接打开 `ChatHistoryPersistenceBaselineTest.rejectedMessageMutationPreservesOriginalAndReopenedHistory`，CI 绿后继续 UI-02.2 的会话删除/清空写入失败原子性；真机进程死亡、10 万历史和模型体验未验。
+
 ### 2026-11-12 PH-01.6 · Mika 安卓手机智能体全面对标与分阶段补齐（用户明确要求，体验高优先）
 **2026-11-12 PH-01.6h.2 · 增量界面语义匹配修正**：已定位 `LuluMikaInterfaceUpdate.between` 旧算法把不同读屏中同一个 `e1` 当相同控件，这与 Mika 原 `InterfaceDiff` 的语义对齐原则冲突；当按钮遍历顺序重排时会虚报“新界面/新内容”。改成先匹配语义+资源 ID+真实坐标、再判断移动/改名，新增“相同控件重新编号仍无变化”“同一控件位置变化应报变化”纯 JVM 回归。仅给模型的差异摘要更准，不擅自扩展旧控件点击权限；随本轮最新 CI 核，不因代码存在声称真机通过。
 
