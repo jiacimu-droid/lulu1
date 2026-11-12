@@ -15,19 +15,57 @@ class RelicEscapeRulesTest {
     @Test fun treasureRarityLegendDistinguishesTheSecretWithoutBreakingSaveTiers() {
         val ordinary=RelicLoot("a","旧王银币",RelicTier.COMMON,80)
         val rare=RelicLoot("b","月银胸针",RelicTier.RARE,200)
-        val precious=RelicLoot("c","星穹冠冕",RelicTier.PRECIOUS,470)
+        val precious=RelicLoot("c","星穹冠冕",RelicTier.PRECIOUS,440)
+        val epic=RelicLoot("epic","冰魄竖琴",RelicTier.PRECIOUS,470)
+        val fine=RelicLoot("fine","银线书签",RelicTier.COMMON,116)
+        val seal=RelicLoot("seal","封印之心",RelicTier.PRECIOUS,650)
         val crown=RelicLoot("d",RelicCollectibles.CROWN_JEWEL,RelicTier.PRECIOUS,6000)
         assertEquals("普通",RelicCollectibles.displayRank(ordinary))
+        assertEquals("精良",RelicCollectibles.displayRank(fine))
         assertEquals("稀有",RelicCollectibles.displayRank(rare))
         assertEquals("珍贵",RelicCollectibles.displayRank(precious))
+        assertEquals("史诗",RelicCollectibles.displayRank(epic))
+        assertEquals("传说",RelicCollectibles.displayRank(seal))
         assertEquals("传世秘宝",RelicCollectibles.displayRank(crown))
         assertEquals(0,RelicRevealTimeline.glintCount(ordinary))
         assertEquals(2,RelicRevealTimeline.glintCount(rare))
         assertEquals(4,RelicRevealTimeline.glintCount(precious))
         assertEquals(6,RelicRevealTimeline.glintCount(crown))
+        assertEquals(22,RelicRevealTimeline.beamCount(crown))
+        assertTrue(RelicRevealTimeline.beamCount(epic)>RelicRevealTimeline.beamCount(rare))
+        assertEquals(0f,RelicRevealTimeline.flashStrength(0f),0.0001f)
+        assertTrue(RelicRevealTimeline.flashStrength(.55f)>.9f)
+        assertEquals(0f,RelicRevealTimeline.flashStrength(1f),0.0001f)
         assertEquals(RelicTier.PRECIOUS,RelicLoot.read(crown.json()).tier)
         assertEquals(crown,RelicLoot.read(crown.json()))
         assertEquals(3,RelicTier.values().size)
+    }
+
+    @Test fun highContractsRequireRealKillsSecuredItemsAndDifficulty() {
+        val base=RelicEscapeWorld.create(5312,1,emptyList(),0,1,
+            difficulty=RelicDifficulty.HARD)
+        val seal=RelicLoot("seal","封印之心",RelicTier.PRECIOUS,715)
+        val jewel=RelicLoot("jewel","星穹冠冕",RelicTier.PRECIOUS,470)
+        val killed=listOf(
+            RelicMob(11,8,8,0,1),RelicMob(12,9,8,0,2),RelicMob(13,10,8,0,3)
+        )
+        val secured=base.copy(phase=RelicPhase.SUCCESS,
+            secured=listOf(seal,jewel),mobs=killed,contract=RelicContract.ABYSS)
+        assertTrue(RelicContractBoard.completed(secured))
+        assertEquals(980,RelicContractBoard.bonus(secured))
+        assertEquals("珍贵 2/2 · 击败 3/3 · 封印之心 ✓",
+            RelicContractBoard.status(secured))
+        assertFalse(RelicContractBoard.completed(secured.copy(difficulty=RelicDifficulty.EASY)))
+        assertFalse(RelicContractBoard.completed(secured.copy(mobs=killed.take(2))))
+        assertFalse(RelicContractBoard.completed(secured.copy(secured=listOf(jewel))))
+        assertFalse(RelicContractBoard.completed(secured.copy(
+            secured=listOf(jewel,jewel.copy(id="other")))))
+        assertEquals(0,RelicContractBoard.bonus(secured.copy(phase=RelicPhase.FAILURE)))
+        val master=secured.copy(contract=RelicContract.MASTER)
+        assertTrue(RelicContractBoard.completed(master.copy(difficulty=RelicDifficulty.EASY)))
+        assertFalse(RelicContractBoard.completed(master.copy(mobs=killed.take(1))))
+        assertEquals(0,RelicContractBoard.bonus(base.copy(
+            contract=RelicContract.MASTER,hero=base.hero.copy(bag=listOf(seal,jewel)))))
     }
 
     @Test fun treasureOrExitStaysARealPlayerChoiceAfterFindingLoot() {
