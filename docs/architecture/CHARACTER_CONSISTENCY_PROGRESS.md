@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08b.1 群聊导演向本人只交接发言机会和对象
+
+- 上轮 P-03.1 的[原索引 #43162768461](https://github.com/jiacimu-droid/lulu1/actions/runs/43162768461)和[后继 JVM/APK #43163188957](https://github.com/jiacimu-droid/lulu1/actions/runs/43163188957)复核成功。
+- 根因在文本群聊的角色交接。群聊导演请求读取了群内发言、配置人设和关系标题。原先 `GroupChatScenePlan.hintFor` 把导演写的全场主题、个人焦点、方向及收束文字插进本人请求，按发言人选取字段依然可能夹带同群其他角色的私人资料或本人旧约定。
+- [a90edb6](https://github.com/jiacimu-droid/lulu1/commit/a90edb63a67c17e2f9b750f500c0bf59b7cc3844) 让 `GroupChatTurnPlanner` 只返回已校验的发言人和可选对象 ID，角色请求仍走 `runGroupReplies → requestGroupRoleOnce → LuluDeviceToolBridge → CompanionModelGateway → CharacterRuntime`。关系、稳定人格与公开群聊证据照各角色本人和实际送达消息读取。保留导演的 0/N 机会提议和角色本人决定说话、行动或沉默的权力。没有新增 Store、模型调用或重试。
+- `GroupChatTurnPlannerTest.directorProseCannotCrossIntoRoleHints` 检查任意导演文字无法进入路由。`ConversationExpressionGatewayTest.groupDirectorHandsOffRoutingAndEachSpeakerReadsOnlyTheirCurrentDefinition` 用正式群聊调用和江渡、星禾差异夹具，在导演 HTTP 等待中编辑江渡约定，核对两个本人请求、完整否定和条件、群友已送达发言、隐私隔离及总计 3 次请求。模拟响应只验证契约。源码提交的 [原索引 #43176546035](https://github.com/jiacimu-droid/lulu1/actions/runs/43176546035) 和 [JVM/APK #43176546012](https://github.com/jiacimu-droid/lulu1/actions/runs/43176546012) 被后继任务替换，继续核包含本修复的有效 `main` 构建。 真机群聊与真实模型表现待验。
+- 下一步沿 P-08b.1 打开 `GroupChatRoundCoordinator.schedule`、`QqChatReplyEngine.runGroupReplies` 与 `ConversationExpressionGatewayTest.groupDirectorHandsOffRoutingAndEachSpeakerReadsOnlyTheirCurrentDefinition`，核新用户消息在导演请求等待期间取消旧轮时，旧候选是否还能触发本人请求或写入。对照现有 `QqReplySourceWatermarkTest`，若已有覆盖再核撤回或成员变化时的同一交接。
+
 ## 2026-11-12 · P-03.1 通话观察中撤回或修订工具回执
 
 - 上轮 `0b19345` [全量 JVM/APK #43149308747](https://github.com/jiacimu-droid/lulu1/actions/runs/43149308747) 和[后继原索引 #43149303988](https://github.com/jiacimu-droid/lulu1/actions/runs/43149303988) 复核成功。
