@@ -36,7 +36,10 @@ data class CompanionOnlineState(
     val seenIdsAtLastSeenAt: Set<String> = emptySet(),
 ) {
     fun isOnline(now: Instant = Instant.now()): Boolean =
-        CompanionPresenceStore.isInCall(characterId) || onlineUntil.isAfter(now)
+        CompanionPresenceStore.isInCall(characterId) ||
+            onlineUntil.isAfter(now) ||
+            ChatGenerationActivity.isWorking(characterId) ||
+            CompanionOnlineStore.isExpiryReviewRunning(characterId)
 }
 
 data class CompanionUnreadSnapshot(
@@ -84,6 +87,36 @@ object CompanionOnlineStore {
     // Never persist it across process death as a fictional active decision.
     private val mutableExpiryReviews = MutableStateFlow<Map<String, Long>>(emptyMap())
     val expiryReviews: StateFlow<Map<String, Long>> = mutableExpiryReviews.asStateFlow()
+    // Not a new "awake timer": only the expired lease whose real tool/model
+    // execution was still in progress. Clear on actual idle, never persist.
+    private val workDeferredExpiries = mutableMapOf<String, Long>()
+
+    internal fun isExpiryReviewRunning(characterId: String): Boolean =
+        characterId in mutableExpiryReviews.value
+
+    /**
+     * A five-minute deadline must not record sleep while a real role execution
+     * is running. The boundary stays pending and the SAME character appraises
+     * continue/sleep after the last execution ends, not through another agent.
+     */
+    internal fun onRoleWorkFinished(characterId: String, now: Instant = Instant.now()) {
+        synchronized(lock) {
+            if (ChatGenerationActivity.isWorking(characterId)) return
+            val pending = workDeferredExpiries.remove(characterId) ?: return
+            val current = mutableStates.value[characterId] ?: return
+            if (current.onlineUntil.toEpochMilli() != pending ||
+                current.reason == CompanionOnlineReason.SelfChosenSleep ||
+                CompanionPresenceStore.isInCall(characterId) ||
+                isExpiryReviewRunning(characterId)) return
+            // Technical grace for the deferred expiry worker, not a free new
+            // 5-minute life window and not a role-authored renewal decision.
+            val deadline = now.plusMillis(600L)
+            mutableStates.value = mutableStates.value +
+                (characterId to current.copy(onlineUntil = deadline))
+            persistLocked()
+            scheduleExpiryLocked(characterId)
+        }
+    }
     private var groupFocusUntil: Map<String, Instant> = emptyMap()
 
     private fun deliveredKey(characterId: String) = "${DELIVERY_KEY_PREFIX}$characterId"
@@ -749,6 +782,11 @@ object CompanionOnlineStore {
             now.isAfter(state.onlineUntil.plus(Duration.ofMinutes(3))) ||
             CompanionPresenceStore.isInCall(characterId) ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return@synchronized false
+        if (ChatGenerationActivity.isWorking(characterId)) {
+            if (!isExpiryReviewRunning(characterId))
+                workDeferredExpiries[characterId] = expectedUntilMs
+            return@synchronized false
+        }
         val key = "expiry_decision_claim:$characterId"
         if (prefs?.getLong(key, Long.MIN_VALUE) == expectedUntilMs) return@synchronized false
         val claimed = prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
@@ -777,7 +815,9 @@ object CompanionOnlineStore {
             CompanionPresenceStore.isInCall(characterId)) return@synchronized false
         // New activity may already have awakened the character. If so, the stale
         // expiry cannot overwrite that session's purpose or expiry.
-        if (current.isOnline(now)) return@synchronized false
+        // The expiry decision itself has a live generation lease: that
+        // doesn't mean its old five-minute deadline was actually renewed.
+        if (current.onlineUntil.isAfter(now)) return@synchronized false
         EmbodiedBodyRuntime.onPresenceWake(characterId, current, now)
         mutableStates.value = mutableStates.value + (characterId to current.copy(
             onlineUntil = now.plus(onlineDuration),
@@ -830,7 +870,14 @@ object CompanionOnlineStore {
             delay(waitMillis + 50L)
             val ended = synchronized(lock) {
                 val current = mutableStates.value[characterId]
-                if (current == null || current.isOnline()) false else {
+                if (current == null || current.onlineUntil.toEpochMilli() != until.toEpochMilli() ||
+                    CompanionPresenceStore.isInCall(characterId)) false
+                else if (ChatGenerationActivity.isWorking(characterId) ||
+                    isExpiryReviewRunning(characterId)) {
+                    if (!isExpiryReviewRunning(characterId))
+                        workDeferredExpiries[characterId] = until.toEpochMilli()
+                    false
+                } else {
                     EmbodiedBodyRuntime.onPresenceSleep(characterId, until)
                     mutableStates.value = mutableStates.value + (
                         // Keep the original persisted deadline: the background
