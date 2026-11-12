@@ -827,7 +827,11 @@ class ChatHistoryPersistenceBaselineTest {
                 val store = InMemoryLuluChatStore()
                 store.initialize(app)
                 assertTrue(runCatching {
-                    store.setConversationPinned(conversationId, true)
+                    // The damaged snapshot is not loaded as a normal conversation.
+                    // Exercise an actual default-conversation metadata write instead
+                    // of a missing-ID no-op (which only returns false).
+                    val fallback = store.conversations.value.first { !it.pinned }
+                    store.setConversationPinned(fallback.id, true)
                 }.exceptionOrNull() is IllegalStateException)
                 assertEquals(snapshot, prefs.getString(key, null))
             }
