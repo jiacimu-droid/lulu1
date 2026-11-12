@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:24:29.413450+00:00",
-  "commit": "e5f0a82f98e850f72c3472a028d6a6c441e8784e",
+  "generatedAt": "2026-11-12T10:25:20.910733+00:00",
+  "commit": "d426e7ba7e03f73854b0999a9a103c21a0bd3bb1",
   "branch": "main",
-  "sourceFingerprint": "fba43414ac2d87546ec261d774585a93663bb64070000c417c44cd534aba2d48",
+  "sourceFingerprint": "55476f6e5b28653c9d7328adeef44631b27f53bb0bbcc25b7b78da6f40227c44",
   "summary": {
     "files": 1275,
-    "lines": 268960,
-    "symbols": 3807
+    "lines": 268996,
+    "symbols": 3810
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2139,7 +2139,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 70
+        "line": 106
       }
     ],
     "errors": [
@@ -2205,7 +2205,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 106
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -4887,7 +4887,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 169
+        "line": 205
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -14374,34 +14374,52 @@
         "line": 53
       }
     ],
+    "canStartPlayer": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
+        "line": 57
+      }
+    ],
+    "nextPlayerPart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
+        "line": 71
+      }
+    ],
+    "canPlayerBuildNext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
+        "line": 77
+      }
+    ],
     "totalSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 55
+        "line": 91
       }
     ],
     "progressFraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 61
+        "line": 97
       }
     ],
     "progress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 65
+        "line": 101
       }
     ],
     "sites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 79
+        "line": 115
       }
     ],
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 102
+        "line": 138
       }
     ],
     "generate": [
@@ -35521,8 +35539,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 237,
-      "sha256": "967cbcdfe52b5037b9e7fada4050f4e984fb695552a0b0f993a50d2ececa3bb1",
+      "lines": 273,
+      "sha256": "23bebf6e24fd536a533840d9b98cef3d9fe7da3003682ca4d1aa4c0ed3989a76",
       "symbols": [
         {
           "name": "json",
@@ -35537,36 +35555,48 @@
           "line": 53
         },
         {
+          "name": "canStartPlayer",
+          "line": 57
+        },
+        {
+          "name": "nextPlayerPart",
+          "line": 71
+        },
+        {
+          "name": "canPlayerBuildNext",
+          "line": 77
+        },
+        {
           "name": "totalSteps",
-          "line": 55
+          "line": 91
         },
         {
           "name": "progressFraction",
-          "line": 61
+          "line": 97
         },
         {
           "name": "progress",
-          "line": 65
+          "line": 101
         },
         {
           "name": "parts",
-          "line": 70
-        },
-        {
-          "name": "sites",
-          "line": 79
-        },
-        {
-          "name": "isChangeAction",
-          "line": 102
-        },
-        {
-          "name": "choose",
           "line": 106
         },
         {
+          "name": "sites",
+          "line": 115
+        },
+        {
+          "name": "isChangeAction",
+          "line": 138
+        },
+        {
+          "name": "choose",
+          "line": 142
+        },
+        {
           "name": "advance",
-          "line": 169
+          "line": 205
         }
       ]
     },
