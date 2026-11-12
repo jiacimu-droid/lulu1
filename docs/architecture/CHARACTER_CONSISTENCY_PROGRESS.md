@@ -1,5 +1,15 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08a.1g/PH-01.3d 五分钟到期不该吞掉本人已选择但尚未兑现的手机行动
+
+- **用户现场**：江渡在私聊里说自己要检查后台、小红书搜不了；到了五分钟在线期末仍没有具体尝试的可见结果，就显示离线。截图可证明角色自述与体验断点，但不能证明后台 APK 确实访问过哪个 App。
+- **源码证据**：`CompanionOnlineStore` 到期先按 `onlineUntil` 呈现离线、再异步走 `claimOnlineExpiry` 与 `ProactivePerceptionRuntime` 同一模型决定；已有 `CompanionSleepHandoff` 只保护持久 `CommitmentTask`，没有针对一次失败、未核实的后台设备工具结果给到期模型聚焦提醒；`performAction` 的 phone feedback 曾要求至少一条 `phoneOutcomes`，首次失败却无后台图会漏掉结果。角色当轮说“我去做”但只有气泡、没有结构化工具/日程也不能凭文字变成动作。
+- **实际修复**：`OnlineExpiryUnfinishedWork.render` 只读取原 `SharedExperienceTimeline` 近20分钟各工具最后一条真正 ToolResult 的失败/未核实记录，注入已有到期模型输入，没有新 Store、模型或默认续醒；`LuluBackgroundPhoneContinuation` 失败允许同一角色最多一次安全重试决策，缺图只能 start/launch/stop，成功 start 允许继续 launch，不能原样重放触屏；`performAction` 收集第一条失败回执，角色自己选分享或沉默，模型没有合格反馈时仅以明确“系统工具回执”文字兜底，不冒充人物；普通在线私聊/五分钟续醒提示要求把确实想立刻做的事选真实 action/steps，否则自主选择实际持久计划或坦诚未完成。主屏聊天增加进程内、执行权 claim 后的短暂“在线收尾中·正决定下一步”，并在 runDueCycle 结束/取消时清理，非在线状态续租。
+- **提交/覆盖**：`5151a4c`、`f7e83df`、`64a8ca0`、`57425dd`、`effccb9`、`dd4c659`、`8c08c2e`、`a21f803`、`38b486d`、`27e41bd`、`c6d3c1e`、`e4406d3`。新增 `OnlineExpiryUnfinishedWorkTest` 测错误、后继成功、跨来源与过期；扩 `OnlineChatExperienceTest` 测期限签领期间状态/清理；**仅确认 GitHub 源码/测试提交，没有当前 head Android/JVM CI 通过与手机实测证据**。
+- **后续验收**：先查 main push `:app:testPhoneUnitTest` / APK 完整 run ID；模拟一次小红书后台首次失败→同一角色决定再试/告知→最后模型自行决定 continue/sleep；实际手机观察后台时钟到期时是否显示“收尾中”而非瞬间离线；退出后不保留虚假运行状态；取消/重启、新用户消息抢占期间不得重复调用或丢原回执。
+
+
+
 ## 2026-11-12 · P-03.1 独立通话观察完成后确认真实回执
 
 - 上轮 `6662308` 的[全量 JVM/APK #43135352134](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352134) 与[原索引 #43135352238](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352238) 复核通过。
