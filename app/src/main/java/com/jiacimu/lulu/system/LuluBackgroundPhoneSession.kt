@@ -172,9 +172,14 @@ internal object LuluBackgroundPhoneSession {
                         .put("verification", "后台屏幕已收到关闭请求").toString()
                 } finally { forgetTransport() }
             }
-            val requestedPackage = args.optString("packageName").trim()
+            val requestedPackage = if (action == "launch" &&
+                args.optString("packageName").isBlank()) {
+                // A model can choose the actual installed app by its visible name;
+                // the local resolver never guesses a package or bypasses exclusions.
+                LuluInstalledAppResolver.resolve(context, args.optString("appName"))
+            } else args.optString("packageName").trim()
             if (action == "launch") {
-                check(requestedPackage.isNotEmpty()) { "必须指定准确的应用包名" }
+                check(requestedPackage.isNotEmpty()) { "必须指定准确的应用包名或显示名称" }
                 check(!LuluScreenAwareness.isExcluded(context, requestedPackage)) {
                     "该应用处于主人的隐私排除名单，不允许操作"
                 }
@@ -188,8 +193,9 @@ internal object LuluBackgroundPhoneSession {
             appContext = context.applicationContext
             LuluBackgroundPhoneNotice.show(context)
             if (action == "start") return JSONObject().put("success", true)
-                .put("status", "observed").put("mode", "independent_virtual_display")
-                .put("displayId", id).put("verification", "shell 已创建独立焦点屏幕；不代表已启动其他 App").toString()
+                .put("status", "succeeded").put("mode", "independent_virtual_display")
+                .put("displayId", id).put("observationAvailable", false)
+                .put("verification", "shell 已创建独立焦点屏幕；尚未观察到 App 或桌面画面").toString()
 
             if (action != "launch" && activeApp.isBlank()) error("请先在后台屏幕打开一个已授权应用")
             if (action != "launch" && LuluScreenAwareness.isExcluded(context, activeApp)) {
@@ -249,6 +255,18 @@ internal object LuluBackgroundPhoneSession {
                 return applied.put("mode", "independent_virtual_display")
                     .put("status", "unverified").toString()
             }
+            // Android launches apps asynchronously. Wait briefly for this exact
+            // package to own the virtual screen before taking a new screenshot.
+            // These are local accessibility checks, not additional model calls.
+            if (action == "launch") {
+                for (attempt in 0 until 6) {
+                    val visibleNow = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.observeDisplay(id)
+                    }
+                    if (visibleNow.connected && visibleNow.packageName == requestedPackage) break
+                    if (attempt < 5) kotlinx.coroutines.delay(300)
+                }
+            }
             // A new frame is observed after the action. A successful dispatch
             // is never mistaken for a finished user task.
             val frame = command(JSONObject().put("action", "observe"))
@@ -287,7 +305,8 @@ internal object LuluBackgroundPhoneSession {
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
                 .put("visibleText", visible.visibleText.take(5_000))
-                .put("imageForwardedToRole", requestId.startsWith("reply-") && pixels.isNotBlank())
+                .put("imageForwardedToRole", requestId.startsWith("reply-") &&
+                    pixels.startsWith("data:image/jpeg;base64,"))
                 .put("verification", if (verified)
                     "已核实独立屏幕的目标应用与可见控件；实际业务结果仍按目标条件判断"
                     else "只确认输入派发和实际画面；尚未观察到预期文字，不能标记任务完成")
