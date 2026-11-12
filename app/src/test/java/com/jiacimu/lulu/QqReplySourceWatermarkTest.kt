@@ -244,6 +244,42 @@ class QqReplySourceWatermarkTest {
         assertEquals(persisted.map { it.id }, result.deliveredMessageIds)
         assertEquals(persisted.last().id, result.evidenceId)
         assertTrue("No stale bubble may follow the correction", persisted.size < 3)
+        // A new user source may produce a new, independent delivery. The old
+        // partial receipt must not turn into a completed three-bubble reply.
+        val correction = MigratedDomainStores.chat.messages(conversation.id).value
+            .last { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User }
+        val followUp = CompanionActionRuntime.execute(app, role, "send_private_message",
+            JSONObject().put("text", "收到纠正，我重新回答。")
+                .put("_replyEvidenceIds", JSONArray().put(correction.id)))
+        assertTrue(followUp.summary, followUp.success)
+        val after = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals(persisted.map { it.id }, after.take(persisted.size).map { it.id })
+        assertEquals(listOf(after.last().id), followUp.deliveredMessageIds)
+
+        // Reconstruct a separate chat Store from the persisted backing state,
+        // not from the original in-memory Flow.
+        val prefsField = InMemoryLuluChatStore::class.java
+            .getDeclaredField("prefs").apply { isAccessible = true }
+        val savedPrefs = prefsField.get(MigratedDomainStores.chat)
+            as android.content.SharedPreferences
+        val backingContext = object : android.content.ContextWrapper(app) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getSharedPreferences(name: String, mode: Int):
+                android.content.SharedPreferences =
+                if (name == "lulu_chat_store") savedPrefs
+                else app.getSharedPreferences(name, mode)
+        }
+        val reopened = InMemoryLuluChatStore().also { it.initialize(backingContext) }
+        val recovered = reopened.messages(conversation.id).value
+            .filter { it.authorCharacterId == role }
+        assertEquals(after.map { it.id }, recovered.map { it.id })
+        assertEquals(after.map { it.content }, recovered.map { it.content })
+        assertEquals(persisted.map { it.id }, recovered.take(persisted.size).map { it.id })
+        assertEquals("收到纠正，我重新回答。", recovered.last().content)
+        // A delayed old batch must not append after correction and Store reopen.
+        val stale = captureReplySourceWatermark(conversation.id, role, setOf(source.id), reopened)
+        assertNull("The corrected source must not regain authority on reopen", stale)
     }
 
     @Test fun groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts() = runBlocking {
