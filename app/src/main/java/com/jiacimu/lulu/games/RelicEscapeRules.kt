@@ -9,7 +9,7 @@ internal enum class RelicPhase { PREPARE, EXPLORE, DOWNED, EXTRACT, SUCCESS, FAI
 internal enum class RelicDifficulty(val label:String,val extraMobs:Int,val monsterHp:Int,val incomingDamage:Int) {
     EASY("轻松", -1, -1, -1),
     NORMAL("标准", 0, 0, 0),
-    HARD("险境", 2, 2, 1),
+    HARD("险境", 3, 5, 2),
 }
 internal enum class RelicTier(val label:String,val base:Int,val weight:Int) {
     COMMON("普通",70,1), RARE("稀有",185,2), PRECIOUS("珍贵",430,3)
@@ -36,8 +36,15 @@ internal object RelicCollectibles {
     fun isCrownJewel(name: String): Boolean = name == CROWN_JEWEL
     /** Display-only fourth rung for the seeded special drop. Preserve the three
      * persisted RelicTier enum values so existing saves remain readable. */
-    fun displayRank(loot: RelicLoot): String =
-        if (isCrownJewel(loot.name)) "传世秘宝" else loot.tier.label
+    fun displayRank(loot: RelicLoot): String = when {
+        isCrownJewel(loot.name) -> "传世秘宝"
+        loot.name == "封印之心" -> "传说"
+        loot.tier == RelicTier.PRECIOUS && loot.value >= 460 -> "史诗"
+        loot.tier == RelicTier.PRECIOUS -> "珍贵"
+        loot.tier == RelicTier.RARE -> "稀有"
+        loot.value >= 100 -> "精良"
+        else -> "普通"
+    }
 
 }
 
