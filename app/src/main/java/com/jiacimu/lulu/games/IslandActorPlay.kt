@@ -105,9 +105,13 @@ internal object IslandActorPlay {
                         "与玩家合击同一只怪物，造成3点伤害","combo",x,y)
                 continue
             }
-            if (w.cell(x, y) in setOf(1, 2))
+            if (w.cell(x, y) in setOf(1, 2) &&
+                (w.cell(x,y)!=2 ||
+                    !IslandProgression.crystalVein(w.seed,w.index(x,y)) ||
+                    "pickaxe" in s.tools))
                 result += IslandActorOption("gather:$x:$y",
-                    "采集($x,$y)的" + if (w.cell(x,y)==1) "树" else "矿", "gather", x, y)
+                    "采集($x,$y)的" + if(w.cell(x,y)==1) "树" else if(IslandProgression.crystalVein(w.seed,w.index(x,y)))"蓝色晶矿（可得晶石）" else "石矿",
+                    "gather",x,y)
             val occupied = w.friends.any { it.x == x && it.y == y } ||
                 w.x == x && w.y == y ||
                 s.animals.any { it.x == x && it.y == y }
@@ -189,6 +193,7 @@ internal object IslandActorPlay {
         val a = options(s,id).firstOrNull { it.id==choice.actionId } ?: return null
         var next = w
         var fruit = s.fruit
+        var crystals = s.crystals
         val outcome = when (a.kind) {
             "none" -> "观察现场"
             "move" -> {
@@ -211,10 +216,13 @@ internal object IslandActorPlay {
             }
             "gather" -> {
                 val tile=w.cell(a.x,a.y)
+                val rich=tile==2 && IslandProgression.crystalVein(w.seed,w.index(a.x,a.y))
+                if(rich && "pickaxe" !in s.tools)return null
                 val tiles=w.tiles.toMutableList().also { it[w.index(a.x,a.y)]=0 }
                 next=w.copy(tiles=tiles,wood=w.wood+if(tile==1) 1 else 0,
                     stone=w.stone+if(tile==2) 1 else 0)
-                if(tile==1) "自己采木+1" else "自己采石+1"
+                if(rich)crystals+=1
+                if(tile==1) "自己采木+1" else if(rich)"自己开采蓝色晶矿：石料+1、晶石+1" else "自己采石+1"
             }
             "fight","combo" -> {
                 val damage=if(a.kind=="combo")3 else 2
@@ -262,7 +270,7 @@ internal object IslandActorPlay {
             ?.let { "；下一步想：${it.take(100)}" } ?: ""
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
-        val applied = s.copy(world=next, fruit=fruit,
+        val applied = s.copy(world=next, fruit=fruit,crystals=crystals,
             guardedBy=if(a.kind=="guard_player")id else s.guardedBy)
         return applied.copy(companionTravel=IslandTravel.afterChoice(s,applied,id,a))
     }
@@ -291,6 +299,8 @@ internal object IslandActorPlay {
             .put("selfId",id).put("selfLocation",JSONArray(listOf(a.x,a.y)))
             .put("selfHp",a.hp).put("playerLocation",JSONArray(listOf(w.x,w.y)))
             .put("playerHp",w.hp).put("sharedWood",w.wood).put("sharedStone",w.stone)
+            .put("sharedCrystals",s.crystals).put("craftedTools",JSONArray(s.tools.sorted()))
+            .put("recoverableBackpacks",s.lostPacks.size)
             .put("teammates",JSONArray(w.friends.map { teammate ->
                 JSONObject().put("id", teammate.id)
                     .put("x", teammate.x).put("y", teammate.y).put("hp", teammate.hp)
