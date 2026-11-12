@@ -146,4 +146,26 @@ class RelicObjectiveRouteTest {
     }
 
 
+
+    @Test fun discoveredDetourAroundEnemyRemainsUsableWithoutCrossingFog() {
+        val base=corridor()
+        val seen=(2..6).flatMap { x -> listOf(2*12+x,3*12+x) }.toSet()
+        val terrain=base.tiles.toMutableList().also { tiles ->
+            for(x in 2..6) tiles[3*12+x]=0
+        }
+        val detour=base.copy(
+            tiles=terrain,seen=seen,
+            mobs=listOf(RelicMob(94,4,2,5,0))
+        )
+        val chest=RelicObjectiveGuide.visibleChest(detour)!!
+        val route=RelicObjectiveGuide.knownRouteTiles(detour,chest)!!
+        assertEquals(2 to 2,route.first())
+        assertTrue(RelicEscapeRules.distance(route.last().first,route.last().second,6,2)<=1)
+        assertTrue(route.none { it==4 to 2 })
+        assertTrue(route.all { detour.visible(it.first,it.second) })
+        assertEquals(route.size-1,RelicObjectiveGuide.knownRouteSteps(detour,chest))
+        assertEquals(2 to 2,detour.hero.x to detour.hero.y)
+        assertTrue(detour.chests.none { it.opened })
+    }
+
 }
