@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T02:56:17.718461+00:00",
-  "commit": "a790363c571bdaa7477c501f3068c93e829823e6",
+  "generatedAt": "2026-11-12T02:57:00.602094+00:00",
+  "commit": "d3604b9d1ad7f19390c9ba040b6b7632d6032b82",
   "branch": "main",
-  "sourceFingerprint": "28a9a13bd78bd4af89d93b6a2479821bd3c9cb4472f1b9d098dc415ed6a7f17a",
+  "sourceFingerprint": "c5fee858937fd460ce86608ee52a10783b9aa00c23c6d1eb6884a8dd7c0d4d99",
   "summary": {
     "files": 1214,
-    "lines": 261767,
+    "lines": 261785,
     "symbols": 3658
   },
   "symbolIndex": {
@@ -42868,8 +42868,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-      "lines": 77,
-      "sha256": "e2ac6a91ef6abda18fdcefbf6548f2bf49ce2bd0d481d44ce7cca70e72310a07",
+      "lines": 95,
+      "sha256": "399b476de4cefc60e7d17510eaaa432c2afd6769012a15b0948769ef47972106",
       "symbols": [
         {
           "name": "RelicObjectiveRouteTest",
