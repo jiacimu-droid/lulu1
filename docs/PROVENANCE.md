@@ -1,3 +1,11 @@
+## 2026-11-12：Mika 安卓后台屏操作算法直接移植（Apache-2.0）
+
+- **上游及版本**：[wangzan101/Mika](https://github.com/wangzan101/Mika) main `106535545bfefa150e24276c6301238398ca5f88`；作者在上游 NOTICE 中标注 `Copyright 2026 wangzan101`；许可证为 Apache License 2.0。
+- **来源标签：THIRD_PARTY_MODIFIED（非原创）**：从 Mika 的 `cap/phone/a11y/ClickFallback.kt`、`ChangeWait.kt`、`cap/phone/display/FrameMath.kt`、`core/uistate/Hant.kt` 和 `Accuracy.kt` 提取/适配纯 Kotlin 算法，分别放入 `LuluMikaClickFallback.kt`、`LuluMikaChangeWait.kt`、`LuluMikaFrameMath.kt`、`LuluMikaHant.kt`、`LuluMikaTextAccuracy.kt`。修改包括包名、Lulu 不可逆操作门禁、Lulu 现有的独立屏/角色隔离接口、以及不用额外付费模型调用的 UI 变化等待。绝不将改编后的文件标作 Lulu 原创。
+- **测试**：从 Mika 原 `ClickFallbackTest`、`ChangeWaitTest`、`FrameMathTest` 改名/适配并保留相应署名；为 Lulu 输入场景新增 `LuluMikaTextAccuracyTest`。Apache 完整 LICENSE 和 NOTICE 均随 APK 放在 `app/src/main/assets/licenses/Mika_LICENSE.txt` 和 `Mika_NOTICE.txt`，源码归属此条及各移植文件顶部注明。
+- **正式接入**：`LuluAccessibilityService` 获取独立屏真实宽高，以 Mika 小范围安全控件算法选择单次 ACTION_CLICK；`LuluBackgroundPhoneSession` 用 Mika ChangeWait 等待真正的可见 UI 变化、用 typeAndVerify 有界核验搜索输入。一个动作不重复执行已可能产生副作用的点击；中文输入不侵入系统剪贴板。角色自己的 ToolRouter、权限、心事及人格不被替换。
+- **不复制**：Mika 的完整 AndroidScreen/AgentLoop、全局工具权限、聊天人格、共享任务中心和与本机权限无关的内容。原有独立屏所有权与权限仍以 Lulu 为准。实机和 Actions 证据单独核实，不用许可证或测试移植掩盖真机未验通。
+
 ## 2026-10-30：digital-life-core 融合第二批（工具／注意力／诊断）
 
 - **参考**：https://github.com/mashangshui/digital-life-core ，`main` 快照 `02fdd9383314dd84705775e13c68963286301f4c`，原仓库 `package.json` 标注 MIT。

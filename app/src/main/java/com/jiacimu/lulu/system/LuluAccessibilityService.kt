@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
 import android.graphics.Path
 import android.graphics.Rect
+import android.graphics.Point
+import android.hardware.display.DisplayManager
 import android.accessibilityservice.GestureDescription
 import android.os.Bundle
 import org.json.JSONArray
@@ -137,6 +139,19 @@ class LuluAccessibilityService : AccessibilityService() {
             )
         }
 
+        /** Actual orientation-aware virtual display dimensions.
+         * Avoid assuming 720×1280 when the target rotates or IME resizes. */
+        private fun virtualDimensions(
+            service: LuluAccessibilityService, displayId: Int,
+        ): Pair<Int, Int>? {
+            if (displayId <= 0) return null
+            val screen = service.getSystemService(DisplayManager::class.java)
+                ?.getDisplay(displayId) ?: return null
+            val size = Point()
+            screen.getRealSize(size)
+            return if (size.x > 0 && size.y > 0) size.x to size.y else null
+        }
+
         /** Set Unicode text ONLY in an editable, non-password node on the owned display. */
         /**
          * Deny tapping labeled irreversible/sensitive controls on the virtual
@@ -145,13 +160,13 @@ class LuluAccessibilityService : AccessibilityService() {
          */
         fun isSensitiveVirtualTap(
             displayId: Int, packageName: String, x: Int, y: Int,
-            screenWidth: Int, screenHeight: Int,
         ): Boolean {
             val service = instance ?: return true
-            if (displayId <= 0 || screenWidth <= 0 || screenHeight <= 0 ||
+            val dimensions = virtualDimensions(service, displayId) ?: return true
+            if (packageName.isBlank() || observeDisplay(displayId).packageName != packageName ||
                 x !in 0..1000 || y !in 0..1000) return true
-            val px = (screenWidth - 1L) * x / 1000L
-            val py = (screenHeight - 1L) * y / 1000L
+            val px = (dimensions.first - 1L) * x / 1000L
+            val py = (dimensions.second - 1L) * y / 1000L
             val root = service.windowsOnAllDisplays.get(displayId).orEmpty()
                 .mapNotNull { it.root }
                 .firstOrNull { it.packageName?.toString() == packageName } ?: return true
@@ -248,6 +263,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val label: String,
             val resourceId: String,
             val fingerprintPart: String,
+            val bounds: Rect,
             val descriptor: JSONObject,
         )
 
@@ -259,6 +275,7 @@ class LuluAccessibilityService : AccessibilityService() {
         ): List<VirtualUiNode> {
             if (displayId <= 0 || packageName.isBlank() ||
                 observeDisplay(displayId).packageName != packageName) return emptyList()
+            val (width, height) = virtualDimensions(service, displayId) ?: return emptyList()
             val collected = mutableListOf<VirtualUiNode>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
@@ -267,7 +284,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 val rect = Rect().also(node::getBoundsInScreen)
                 val usable = rect.width() >= 6 && rect.height() >= 6 &&
                     rect.right > 0 && rect.bottom > 0 &&
-                    rect.left < 720 && rect.top < 1280
+                    rect.left < width && rect.top < height
                 val editable = safeEditable(node)
                 val interactive = node.isClickable || node.isScrollable || editable
                 if (usable && interactive && collected.size < 40) {
@@ -283,8 +300,10 @@ class LuluAccessibilityService : AccessibilityService() {
                     val rid = node.viewIdResourceName.orEmpty().substringAfterLast('/').take(70)
                     if (label.isNotBlank() || rid.isNotBlank()) {
                         val ref = "e" + (collected.size + 1)
-                        val x = (rect.centerX().coerceIn(0, 719) * 1000L / 719L).toInt()
-                        val y = (rect.centerY().coerceIn(0, 1279) * 1000L / 1279L).toInt()
+                        val x = (rect.centerX().coerceIn(0, width - 1) * 1000L /
+                            (width - 1).coerceAtLeast(1)).toInt()
+                        val y = (rect.centerY().coerceIn(0, height - 1) * 1000L /
+                            (height - 1).coerceAtLeast(1)).toInt()
                         val role = node.className?.toString().orEmpty().substringAfterLast('.').take(60)
                         val descriptor = JSONObject()
                             .put("ref", ref).put("name", label).put("role", role)
@@ -295,7 +314,7 @@ class LuluAccessibilityService : AccessibilityService() {
                             rect.flattenToString(), node.isClickable.toString(),
                             node.isEnabled.toString(), node.isFocused.toString(),
                             node.isChecked.toString(), node.isSelected.toString()).joinToString("|")
-                        collected.add(VirtualUiNode(node, ref, label, rid, identity, descriptor))
+                        collected.add(VirtualUiNode(node, ref, label, rid, identity, Rect(rect), descriptor))
                     }
                 }
                 for (i in 0 until node.childCount) node.getChild(i)?.let { visit(it, depth + 1) }
@@ -332,6 +351,41 @@ class LuluAccessibilityService : AccessibilityService() {
             return JSONObject()
                 .put("fingerprint", fingerprint)
                 .put("elements", elements)
+        }
+
+        /** Mika ClickFallback.pickTarget adapted for a single safe FIRST tap.
+         * This only selects a candidate: execute still compares fresh tree and
+         * uses one ACTION_CLICK; never repeats a possibly successful tap. */
+        fun safeVirtualTapTarget(
+            displayId: Int, packageName: String, x: Int, y: Int,
+        ): JSONObject {
+            val service = instance ?: return JSONObject()
+            val dimensions = virtualDimensions(service, displayId) ?: return JSONObject()
+            if (x !in 0..1000 || y !in 0..1000) return JSONObject()
+            val nodes = virtualUiNodes(service, displayId, packageName)
+            val fingerprint = virtualUiFingerprint(displayId, packageName, nodes)
+            if (fingerprint.isBlank()) return JSONObject()
+            val px = ((dimensions.first - 1L) * x / 1000L).toInt()
+            val py = ((dimensions.second - 1L) * y / 1000L).toInt()
+            val candidate = LuluMikaClickFallback.pickTarget(
+                px, py, dimensions.first, dimensions.second, nodes.map { node ->
+                    LuluMikaClickFallback.Candidate(
+                        item = node.ref,
+                        left = node.bounds.left.coerceAtLeast(0),
+                        top = node.bounds.top.coerceAtLeast(0),
+                        right = node.bounds.right.coerceAtMost(dimensions.first),
+                        bottom = node.bounds.bottom.coerceAtMost(dimensions.second),
+                        label = node.label,
+                        resourceId = node.resourceId,
+                        scrollable = node.node.isScrollable,
+                        webView = node.node.className?.toString()
+                            ?.contains("WebView", ignoreCase = true) == true,
+                    )
+                }
+            )
+            return if (candidate.isNullOrBlank()) JSONObject()
+                else JSONObject().put("elementRef", candidate)
+                    .put("fingerprint", fingerprint)
         }
 
         /** Click by verified snapshot reference only. No coordinate guessing,
@@ -387,8 +441,13 @@ class LuluAccessibilityService : AccessibilityService() {
                 })
                 val rect = Rect().also(target::getBoundsInScreen)
                 if (rect.width() > 0 && rect.height() > 0) {
-                    result.put("centerX", ((rect.centerX().coerceIn(0, 719) * 1000L) / 719L).toInt())
-                        .put("centerY", ((rect.centerY().coerceIn(0, 1279) * 1000L) / 1279L).toInt())
+                    val size = virtualDimensions(service, displayId)
+                    if (size != null) {
+                        result.put("centerX", (rect.centerX().coerceIn(0, size.first - 1) *
+                            1000L / (size.first - 1).coerceAtLeast(1)).toInt())
+                            .put("centerY", (rect.centerY().coerceIn(0, size.second - 1) *
+                                1000L / (size.second - 1).coerceAtLeast(1)).toInt())
+                    }
                 }
                 result.put("hint", target.hintText?.toString().orEmpty().take(90))
             }
@@ -413,6 +472,23 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
+        /** The only text the local type verifier can read: one focused,
+         * owner-verified search field. Never put this text in UI node metadata. */
+        fun readVirtualSearchFieldText(displayId: Int, packageName: String): String? {
+            val service = instance ?: return null
+            if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
+                observeDisplay(displayId).packageName != packageName) return null
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            if (!LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                    searches.size, editors.size - searches.size)) return null
+            val field = searches.single()
+            if (!field.refresh() || !field.isFocused || !safeEditable(field))
+                return null
+            return if (field.isShowingHintText) "" else field.text?.toString().orEmpty()
+        }
+
         /** Never type in an arbitrary focused editor on the virtual phone.
          * IMEs can shift focus to a comment/message box even after a search
          * attempt. Only ONE recognisable safe search input may receive text.
@@ -420,7 +496,7 @@ class LuluAccessibilityService : AccessibilityService() {
         fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
             if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
-                text.isEmpty() || text.length > 500) return false
+                text.length > 500) return false
             val roots = ownedVirtualRoots(service, displayId, packageName)
             if (roots.isEmpty() || observeDisplay(displayId).packageName != packageName)
                 return false

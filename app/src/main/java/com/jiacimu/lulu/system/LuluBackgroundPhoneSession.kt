@@ -140,21 +140,34 @@ internal object LuluBackgroundPhoneSession {
     }
 
 
-    /** Bounded local settling from Mika ChangeWait/InterfaceUpdate:
-     * no extra model call and no repeated action. It reads the OWN virtual
-     * display only; a still tree is evidence of stability, not task success. */
-    private suspend fun awaitStableUi(displayId: Int, packageName: String): Boolean {
-        var last = ""
-        for (attempt in 0 until 4) {
-            kotlinx.coroutines.delay(130)
-            val current = withContext(Dispatchers.Main) {
-                LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
-                    .optString("fingerprint")
-            }
-            if (current.isNotBlank() && current == last) return true
-            last = current
+    /** Mika's bounded ChangeWait algorithm; polls the verified app's
+     * accessibility tree, not a new paid model call. A new frame alone does
+     * not imply that a navigation, search, or gesture really worked. */
+    private suspend fun awaitStableUi(
+        displayId: Int, packageName: String, beforeFingerprint: String,
+    ): Boolean {
+        if (beforeFingerprint.isBlank()) return false
+        return withContext(Dispatchers.Main) {
+            val start = android.os.SystemClock.uptimeMillis()
+            var lastTree = beforeFingerprint
+            var lastChangeAt = start
+            LuluMikaChangeWait.awaitStableChange(
+                now = android.os.SystemClock::uptimeMillis,
+                sleep = { kotlinx.coroutines.delay(it) },
+                frame = { null },
+                quietForMs = { android.os.SystemClock.uptimeMillis() - lastChangeAt },
+                treeChanged = {
+                    val observed = LuluAccessibilityService
+                        .virtualUiSnapshot(displayId, packageName).optString("fingerprint")
+                    if (observed.isNotBlank() && observed != lastTree) {
+                        lastTree = observed
+                        lastChangeAt = android.os.SystemClock.uptimeMillis()
+                    }
+                    lastTree != beforeFingerprint
+                },
+                beforeFrame = null,
+            )
         }
-        return false
     }
 
     private fun forgetTransport() {
@@ -355,12 +368,19 @@ internal object LuluBackgroundPhoneSession {
                 val y = args.getInt("y")
                 val sensitive = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.isSensitiveVirtualTap(
-                        id, activeApp, x, y, 720, 1280)
+                        id, activeApp, x, y)
                 }
                 check(!sensitive) {
                     "检测到付款、发送、发布、删除或无法核实的敏感点击目标；拒绝自动操作"
                 }
             }
+            // Mika ClickFallback: select a small named, non-outward node
+            // before dispatch. If found we click ONE verified node; if its
+            // callback fails, we never automatically click again by shell.
+            val semanticTap = if (action == "tap") withContext(Dispatchers.Main) {
+                LuluAccessibilityService.safeVirtualTapTarget(
+                    id, activeApp, args.getInt("x"), args.getInt("y"))
+            } else JSONObject()
             // Snapshot BEFORE the action to measure actual UI effect. An
             // accepted gesture or a new frame is not itself a changed page.
             val beforeUiFingerprint = if (action == "launch") "" else
@@ -395,6 +415,24 @@ internal object LuluBackgroundPhoneSession {
             }
             val applied = when (action) {
                 "observe" -> null
+                "tap" -> {
+                    val elementRef = semanticTap.optString("elementRef")
+                    if (elementRef.isBlank()) {
+                        command(request).put("actionMethod", "verified_coordinate")
+                    } else {
+                        val prepared = command(JSONObject().put("action", "prepare_type"))
+                        check(prepared.optBoolean("accepted")) {
+                            "无法建立单次安全控件点击的后台画面屏障"
+                        }
+                        val clicked = withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.tapVirtualUiElement(
+                                id, activeApp, semanticTap.optString("fingerprint"), elementRef)
+                        }
+                        JSONObject().put("accepted", clicked)
+                            .put("actionMethod", "mika_accessibility_node")
+                            .put("displayId", id)
+                    }
+                }
                 "tap_element" -> {
                     val prior = lastObservedUi
                         ?: error("后台控件快照不存在")
@@ -426,10 +464,27 @@ internal object LuluBackgroundPhoneSession {
                     check(prepared.optBoolean("accepted")) {
                         "无法建立后台屏文字输入的画面核验屏障"
                     }
-                    val accepted = withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.typeOnDisplay(id, activeApp, value)
+                    // Direct Mika Accuracy.typeAndVerify port: write, await
+                    // local input settling, read exact field back and retry
+                    // ACTION_SET_TEXT once. This never targets a message box,
+                    // never alters global clipboard, and costs no model calls.
+                    val verified = withContext(Dispatchers.Main) {
+                        LuluMikaTextAccuracy.typeAndVerify(
+                            field = object : LuluMikaTextAccuracy.TextField {
+                                override fun read(): String? =
+                                    LuluAccessibilityService.readVirtualSearchFieldText(id, activeApp)
+                                override fun write(text: String): Boolean =
+                                    LuluAccessibilityService.typeOnDisplay(id, activeApp, text)
+                            },
+                            text = value,
+                            attempts = 2,
+                            settle = { kotlinx.coroutines.delay(100) },
+                        )
                     }
-                    JSONObject().put("accepted", accepted).put("displayId", id)
+                    JSONObject().put("accepted",
+                        verified != LuluMikaTextAccuracy.Verification.MISMATCH)
+                        .put("inputVerification", verified.wire)
+                        .put("displayId", id)
                 }
                 else -> command(request)
             }
@@ -458,8 +513,8 @@ internal object LuluBackgroundPhoneSession {
             // is never mistaken for a finished user task.
             val frame = command(JSONObject().put("action", "observe"))
             val uiSettled = if (frame.optBoolean("success") &&
-                action in setOf("launch", "tap", "tap_element", "swipe", "submit", "back", "type", "focus_search"))
-                awaitStableUi(id, activeApp) else false
+                action in setOf("tap", "tap_element", "swipe", "submit", "back"))
+                awaitStableUi(id, activeApp, beforeUiFingerprint) else false
             if (!frame.optBoolean("success")) {
                 // Mika can still verify a UI tree when ImageReader has no new
                 // frame. Preserve accessibility facts without fabricating pixels.
@@ -483,8 +538,10 @@ internal object LuluBackgroundPhoneSession {
                     .put("visibleText", if (owned) observed.visibleText.take(5_000) else "")
                     .put("searchEditorStatus", search)
                     .put("inputTextReadbackVerified", typed)
+                    .put("inputVerification", applied?.optString("inputVerification").orEmpty())
                     .put("frameValidated", false).put("taskCompleted", false)
                     .put("uiSettled", false)
+                    .put("actionMethod", applied?.optString("actionMethod").orEmpty())
                     .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
                         if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
                         else "；目标App窗口未核实，禁止盲点")
@@ -576,9 +633,11 @@ internal object LuluBackgroundPhoneSession {
                 .put("actionConditionVerified", actionConditionVerified)
                 .put("taskCompleted", false)
                 .put("inputTextReadbackVerified", textReadbackVerified)
+                .put("inputVerification", applied?.optString("inputVerification").orEmpty())
                 .put("targetWindowVerified", true)
                 .put("searchEditorStatus", searchStatus)
                 .put("uiSettled", uiSettled)
+                .put("actionMethod", applied?.optString("actionMethod").orEmpty())
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
