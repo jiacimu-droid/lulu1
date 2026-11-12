@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T02:48:20.602698+00:00",
-  "commit": "3bbbf57c5eb5ea9e20e8d837b38dec8b9f2174ec",
+  "generatedAt": "2026-11-12T02:50:14.260814+00:00",
+  "commit": "788abc105b59fe82a8dea7fe0e564d7870a8dabd",
   "branch": "main",
-  "sourceFingerprint": "7038a96ce65b1610759c3b5889a17ea481ddf0d9d193b2516408379f04a36afc",
+  "sourceFingerprint": "c07435e7f88966e9b299a8b24cc5f200815b209af4138be2130b8dc741b60710",
   "summary": {
     "files": 1214,
-    "lines": 261578,
+    "lines": 261600,
     "symbols": 3658
   },
   "symbolIndex": {
@@ -16149,13 +16149,13 @@
     "LuluShellDisplayMain": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "main": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 44
+        "line": 45
       }
     ],
     "AndroidAdb": [
@@ -36572,8 +36572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 339,
-      "sha256": "f90263204b2431dfd491d29d5c9b1a93b95f67041731cb020f50bb0c4d2f3e91",
+      "lines": 352,
+      "sha256": "930031f410495934da077fb62c3d81e2f770dd8b5c9c0b67a6be6e8b510c2813",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -37018,16 +37018,16 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 196,
-      "sha256": "2a758ba53a777aefbbcc87302e9470fe15020918b0c4c89a09ce70b31fe6291f",
+      "lines": 205,
+      "sha256": "830dc820114422c52226a25a516680d1975abde13654195cb358b0d5bd614976",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
-          "line": 23
+          "line": 24
         },
         {
           "name": "main",
-          "line": 44
+          "line": 45
         }
       ]
     },
