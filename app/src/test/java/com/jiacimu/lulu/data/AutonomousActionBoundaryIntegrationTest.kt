@@ -179,6 +179,17 @@ class AutonomousActionBoundaryIntegrationTest {
                 .map { it.getString("id") to it.getString("content") }
             assertEquals("恢复同一账本不能复制或改写工具执行回执", beforeRestore, afterRestore)
 
+            // Cancelling the now-completed online batch must not erase the
+            // independently committed tool receipts or reactivate the old
+            // decision. The next user bubble must create a fresh batch.
+            OnlineChatBatchStore.cancel(app, actor)
+            val afterCancelLedger = SharedExperienceTimeline.exportBackup().optJSONArray("events") ?: JSONArray()
+            assertEquals("取消批次不能撤销已经发生的真实工具回执", beforeRestore,
+                (0 until afterCancelLedger.length()).map { afterCancelLedger.getJSONObject(it) }
+                    .filter { it.optString("character_id") == actor && it.optString("channel") == "实际工具执行" }
+                    .map { it.getString("id") to it.getString("content") })
+            assertEquals("取消旧批次不能自动购买新模型请求", 1, modelInputs.size)
+
             // A successful independent side action must not erase the rejected
             // primary action when the same character decides again.
             MigratedDomainStores.chat.sendUserMessage(chat.id, "刚才那次联系到底成功了吗？")
