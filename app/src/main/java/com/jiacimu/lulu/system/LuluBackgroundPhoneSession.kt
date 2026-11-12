@@ -320,6 +320,32 @@ internal object LuluBackgroundPhoneSession {
             // Previously a swipe without expectedText was always "unverified",
             // so continuous browsing stopped after just one swipe.
             val observed = hasFrame && (actionConditionVerified || expected.isBlank())
+            val sharedReceipt = if (args.optBoolean("sendToChat")) {
+                if (!hasFrame) JSONObject().put("sentToChat", false)
+                    .put("shareError", "后台虚拟屏未获得真实画面，不能发主屏截图替代")
+                else try {
+                    // Only pixels produced by this exact, independently
+                    // verified displayId may be forwarded as a chat image.
+                    // The user's live main screen is NEVER used here.
+                    val raw = java.util.Base64.getDecoder().decode(
+                        pixels.removePrefix("data:image/jpeg;base64,"))
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(raw, 0, raw.size)
+                        ?: error("后台截图像素解码失败")
+                    try {
+                        val sent = com.jiacimu.lulu.data.CompanionActionRuntime.sendCapturedScreenshot(
+                            context, characterId, bitmap,
+                            args.optString("caption").take(300), visible.packageName,
+                            sourceDisplay = "virtual")
+                        JSONObject().put("sentToChat", sent.success)
+                            .put("shareSummary", sent.summary)
+                            .put("conversationId", sent.conversationId.orEmpty())
+                            .put("evidenceId", sent.evidenceId.orEmpty())
+                    } finally { bitmap.recycle() }
+                } catch (failure: Exception) {
+                    JSONObject().put("sentToChat", false)
+                        .put("shareError", failure.message.orEmpty().take(140))
+                }
+            } else JSONObject()
             return JSONObject().put("success", observed)
                 .put("status", if (observed) "observed" else "unverified")
                 .put("actionConditionVerified", actionConditionVerified)
@@ -329,6 +355,10 @@ internal object LuluBackgroundPhoneSession {
                 .put("displayId", id).put("packageName", visible.packageName)
                 .put("visibleText", visible.visibleText.take(5_000))
                 .put("imageForwardedToRole", hasFrame)
+                .put("screenSource", "virtual_display")
+                .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
+                .put("shareSummary", sharedReceipt.optString("shareSummary"))
+                .put("shareError", sharedReceipt.optString("shareError"))
                 .put("verification", if (actionConditionVerified)
                     "已观察到后台目标窗口与指定的验证条件；实际业务任务是否完成仍由角色依据画面判断"
                     else if (observed)
