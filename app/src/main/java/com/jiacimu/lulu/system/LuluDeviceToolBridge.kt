@@ -320,7 +320,8 @@ object LuluDeviceToolBridge {
         // An explicitly delivered receipt is a durable observation of its own
         // revision, even when it falls outside the pending observation window.
         val observedWorld = if (externalCallResult != null && !rewriting)
-            pendingObservations.filterNot { it.id == externalCallResult.id } + externalCallResult
+            (pendingObservations.filterNot { it.id == externalCallResult.id } + externalCallResult)
+                .sortedWith(compareBy({ it.occurredAt }, { it.id }))
         else pendingObservations
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
