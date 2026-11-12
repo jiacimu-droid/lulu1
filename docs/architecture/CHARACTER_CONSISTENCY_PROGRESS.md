@@ -2192,3 +2192,7 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 ## 2026-11-13 · UI-02.2 双重拒写与恢复拒写工程验收
 - `8f90d83bf1a5ce19418fce397e1549efadd30696` 的 main push [Lulu APK/JVM #43293514812](https://github.com/jiacimu-droid/lulu1/actions/runs/43293514812) 与 [Refresh code index #43293514720](https://github.com/jiacimu-droid/lulu1/actions/runs/43293514720) 均 completed/success。此前 `c73d6dc` 的夹具漏拦截问题已由 `8f90d83` 修正并通过整套工程工作流；无需再次开发同一恢复夹具。
 - 本轮仅核 CI 与归档真实证据，没有修改正式源码或测试；收藏恢复为单向权威修复，不是跨 SharedPreferences 原子事务。真机强杀、语音收藏文件、100k 历史性能仍待验。下一轮固定 UI-02.2：先读 `ChatHistoryPersistenceBaselineTest` 的 1k/10k 基线与 `MigratedDomainStores.kt` 写入路径，选择可运行的增量持久化/迁移失败回归，避免重复收藏补偿补丁。
+
+## 2026-11-13 · UI-02.2 千条旧历史单项损坏拒写回归（CI 待验）
+- 新增 `ChatHistoryPersistenceBaselineTest.malformedItemInThousandMessageSnapshotCannotBeOverwritten`：构造 1000 条历史，其中第 732 条缺原始消息 ID；两次重建真实 ChatStore 后置顶写入均须抛 `IllegalStateException`，原始 `state_v1` 字节及 1000 条 JSON 保持不变。测试提交 [`9b73aa1`](https://github.com/jiacimu-droid/lulu1/commit/9b73aa19605bd37b077af0583fb0c858aba293aa)，不更改生产数据逻辑、不调用模型。
+- ROADMAP 交接 [`6e86eef`](https://github.com/jiacimu-droid/lulu1/commit/6e86eeff6183ef1c7745795c34521d87e3cba128)。**本轮尚未取得本 SHA 的 JVM/APK/索引通过证据**，不得勾完成。下一轮先查新增测试的 JVM 首错，绿后转全量 JSON 写入的可测增量迁移；真机长历史耗时、强杀及跨 Store 原子性另验。
