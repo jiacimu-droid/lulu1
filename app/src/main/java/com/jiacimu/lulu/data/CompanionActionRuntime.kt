@@ -320,7 +320,7 @@ internal object CompanionActionRuntime {
      */
     internal suspend fun sendCapturedScreenshot(
         context: Context, characterId: String, bitmap: android.graphics.Bitmap,
-        caption: String, packageName: String,
+        caption: String, packageName: String, sourceDisplay: String = "main",
     ): CompanionActionResult {
         require(characterId.isNotBlank() && !characterId.startsWith("resident:")) {
             "没有可发送手机屏幕截图的真实角色"
@@ -331,13 +331,17 @@ internal object CompanionActionRuntime {
             val conversation = privateConversation(characterId, role.displayName)
             val payload = com.jiacimu.lulu.encodeQqChatImage(
                 imageUri, caption = caption.trim().take(300),
-                imageDescription = "主人已授权的真实手机屏幕截图；当前应用=$packageName；未额外推断画面内容",
+                imageDescription = if (sourceDisplay == "virtual")
+                    "已授权的角色后台虚拟屏幕截图；后台目标应用=$packageName；不是主人当前主屏；未额外推断画面内容"
+                    else "主人已授权的真实手机主屏截图；当前应用=$packageName；未额外推断画面内容",
             )
             val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversation.id, payload, characterId)
             }
-            CompanionActionResult(true, "真实手机截图已作为图片消息发到主人私聊",
+            CompanionActionResult(true,
+                if (sourceDisplay == "virtual") "真实后台虚拟屏截图已作为图片消息发到主人私聊"
+                else "真实手机主屏截图已作为图片消息发到主人私聊",
                 conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
         } catch (error: Exception) {
             com.jiacimu.lulu.QqChatPhotoAttachmentStore.deleteIfOwned(context, imageUri)
