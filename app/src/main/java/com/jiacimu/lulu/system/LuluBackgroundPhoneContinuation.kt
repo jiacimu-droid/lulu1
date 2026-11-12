@@ -208,6 +208,9 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine("已执行的步骤与真实结果：")
                     appendLine(history.toString().takeLast(9_000))
                     appendLine("可选择的本机工具：background_phone")
+                    appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
+                        "主人已在查手机明确授权你自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element，遇付款页暂停交给主人。"
+                        else "主人尚未打开角色的购物协助授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
                     appendLine("还可作出 ${MAX_ACTIONS - index + 1} 次下一步决定；要给当前目标留出阅读和收尾机会。")
                 },
                 instruction = """
@@ -227,7 +230,7 @@ internal object LuluBackgroundPhoneContinuation {
                     搜索时，当前目标App回执若有唯一可验证搜索框，可一次选择{"action":"search","text":"关键词"}。本机会核实焦点、输入读回后才提交，并返回实际页面；searchSubmitted只说明提交已派发，要阅读页面才知道搜到了什么。没有唯一搜索框时先根据真实控件或画面打开搜索入口；type仍只填入，单独submit才会提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
                     遇到真的感兴趣的图文或值得给主人看的内容，你可以依据本人的心情和分享欲自行选择sendToChat，不需要等主人追问；不喜欢、尚未核实或没有分享心情也可以不分享，程序不替你规定分享次数。
                     不在这里发送聊天正文，后续由原本人格聊天流程回复。
-                    不请求密码、验证码，不付款、对外发布或发送消息。
+                    不请求密码、验证码，不付款、对外发布或发送消息。购物预付款步骤只在主人已开启角色购物授权时才可做；不要点击提交订单、确认订单、支付按钮或免密/货到付款。点击购买类控件必须用最近一次真实快照的tap_element，不能猜坐标；看到付款页就停止并告知主人，绝不声称订单或付款已完成。
                     目标已完成、无法判断或用户停止时可以直接结束。
                 """.trimIndent(),
                 source = "角色本人·手机任务下一步",
