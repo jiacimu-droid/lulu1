@@ -610,7 +610,12 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRelicMonsterSpr
 
 /** Pure display projection: never creates or transfers loot. */
 internal fun relicChestLidLift(run: RelicRun, chestId: Int,
-    receipt: RelicChestReceipt?, progress: Float): Float =
-    if (RelicChestPresentation.isCurrentOpening(run, chestId, receipt))
+    receipt: RelicChestReceipt?, progress: Float): Float {
+    val chest = run.chests.firstOrNull { it.id == chestId } ?: return 0f
+    if (!chest.opened) return 0f
+    // An opened physical chest stays open after the transient ceremony is
+    // dismissed or skipped. The receipt only animates its initial opening.
+    return if (RelicChestPresentation.isCurrentOpening(run, chestId, receipt))
         ((progress - .10f) / .47f).coerceIn(0f, 1f)
-    else 0f
+    else 1f
+}
