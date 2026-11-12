@@ -36,6 +36,7 @@ internal fun RelicVaultPage(
 ) {
     val context=LocalContext.current
     var grade by remember { mutableStateOf("全部") }
+    var museumTab by remember { mutableStateOf("藏品") }
     var selectedId by remember { mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id) }
     var pendingSale by remember { mutableStateOf<RelicLoot?>(null) }
     val selected=snapshot.vault.firstOrNull { it.id==selectedId }
@@ -141,7 +142,44 @@ internal fun RelicVaultPage(
                         color=museumMuted,fontSize=12.sp)
                     if(live) Text("探险中 · 不可出售",color=museumGold,fontSize=11.sp)
                 }
-                if(landscape) {
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                    listOf("藏品","收集目标").forEach { tab ->
+                        FilterChip(selected=museumTab==tab,onClick={museumTab=tab},
+                            label={Text(if(tab=="收集目标")"收集目标 "+
+                                RelicCollectionGoals.completed(snapshot.discovered)+"/"+
+                                RelicCollectionGoals.all.size else tab,fontSize=12.sp)},
+                            colors=FilterChipDefaults.filterChipColors(
+                                selectedContainerColor=museumGold,selectedLabelColor=museumBg,
+                                labelColor=museumMuted))
+                    }
+                }
+                if(museumTab=="收集目标") {
+                    LazyColumn(Modifier.fillMaxSize(),
+                        contentPadding=PaddingValues(bottom=22.dp),
+                        verticalArrangement=Arrangement.spacedBy(10.dp)) {
+                        items(RelicCollectionGoals.all,key={it.id}) { goal ->
+                            val got=goal.owned(snapshot.discovered)
+                            Surface(color=Color(0xFF1C2A36),shape=RoundedCornerShape(14.dp),
+                                border=BorderStroke(1.dp,museumGold.copy(alpha=.16f))) {
+                                Column(Modifier.fillMaxWidth().padding(14.dp),
+                                    verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                                        Text(goal.title,color=museumInk,fontSize=16.sp,
+                                            fontWeight=FontWeight.SemiBold,modifier=Modifier.weight(1f))
+                                        Text(if(goal.complete(snapshot.discovered))"✓ 集齐" else "$got/${goal.names.size}",
+                                            color=museumGold,fontSize=12.sp)
+                                    }
+                                    Text(goal.story,color=museumMuted,fontSize=12.sp)
+                                    LinearProgressIndicator(progress={got.toFloat()/goal.names.size},
+                                        modifier=Modifier.fillMaxWidth(),color=museumGold)
+                                    Text("尚缺："+goal.missing(snapshot.discovered).joinToString(" · ")
+                                        .ifBlank { "这一套已完整收入永久图鉴" },
+                                        color=museumMuted,fontSize=11.sp,lineHeight=18.sp)
+                                }
+                            }
+                        }
+                    }
+                } else if(landscape) {
                     Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                         Column(Modifier.weight(.95f).fillMaxHeight(),content=catalog)
                         Column(Modifier.weight(1.05f).fillMaxHeight()
