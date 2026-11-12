@@ -103,7 +103,7 @@ object CapabilityRegistry {
             appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
             appendLine("本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
-            appendLine("read_screen 只能读无障碍文字；capture_screen 获取一帧真实截图，沿本角色聊天模型的多模态接口理解图片，无需单独设置识图模型。")
+            appendLine("read_screen 只能读主屏无障碍文字；capture_screen 只截主人当前可见的手机主屏（displayId=0），绝不是后台虚拟屏。想独立操作或查看后台 App 的实际画面，必须用 background_phone；不要用 capture_screen 充当后台操作证据。")
             appendLine("授权开关、Android 实际权限、监督时段、已获取屏幕画面是不同层次的事实；主人说权限已开可以提醒你去核对，但不能替代本机状态。")
             appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
             if (permittedAutonomous) {
@@ -154,7 +154,7 @@ object CapabilityRegistry {
             appendLine("实际决定使用时：action=tool,tool=background_phone," +
                 "args={\"action\":\"start\"}；启动成功后可在同一角色的工具后续流程" +
                 "选择launch/observe/tap/swipe/type/back/stop，打开应用可以传真实packageName，或传已安装App的准确显示名称appName（本机精确匹配；找不到或重名就报告，不能猜包名）。" +
-                "每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+                "若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\\\"action\\\":\\\"observe\\\",\\\"sendToChat\\\":true,\\\"caption\\\":\\\"可选说明\\\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
 
