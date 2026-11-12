@@ -125,20 +125,15 @@ internal object CharacterAssociativeRecall {
     internal fun perspectiveSeeds(
         identity: String, persona: String, profile: JSONObject?,
     ): List<Pair<String, String>> {
-        val ordered = listOf(
-            "interests" to "独立兴趣与想深入的问题",
-            "motives" to "本人长期向往与打算",
-            "values" to "底色和看重的事",
-            "perception" to "习惯怎样理解眼前情况",
-            "social" to "与用户以外的人相处",
-            "care" to "亲密时可能出现的另一面",
-            "expression" to "情境中的玩心与表达气质",
-            "conflict" to "受挫或有分歧时",
-        )
-        val found = ordered.mapNotNull { (key, lens) ->
-            profile?.optString(key)?.trim()?.takeIf(String::isNotBlank)
-                ?.let { lens to it.replace("\n", " ").take(125) }
-        }.distinctBy { it.second }
+        // Read the editable personality schema so each concrete trait is
+        // eligible on its own, including fields introduced after this code.
+        val found = CharacterProfileSchema.fields.asSequence()
+            .filterNot { it.key == "dialogueExamples" || it.key == "typing" }
+            .mapNotNull { field ->
+                profile?.optString(field.key)?.trim()?.takeIf(String::isNotBlank)
+                    ?.let { field.label to it.replace("\n", " ").take(125) }
+            }
+            .distinctBy { it.second }.toList()
         // Preserve the long-standing persona as an independent source, but
         // do not echo it when the granular profile already covers the same
         // ground. Explicitly empty profile fields stay empty.
@@ -147,7 +142,7 @@ internal object CharacterAssociativeRecall {
             if (found.size < 2 && persona.isNotBlank())
                 add("稳定人物概述" to persona.replace("\n", " ").take(125))
         }
-        return (found + extras).distinctBy { it.second }.take(9)
+        return (found + extras).distinctBy { it.second }
     }
 
     fun render(characterId: String, now: Instant = Instant.now(),
