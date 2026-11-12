@@ -251,11 +251,9 @@ object ProactivePerceptionRuntime {
             return total
         }
         val queuedAtNanos = System.nanoTime()
+        val dispatchedAtMillis = System.currentTimeMillis()
         return cycleMutex.withLock(targetCharacterId) {
             currentCoroutineContext().ensureActive()
-            LuluRepositories.performance.recordTiming("角色执行队列",
-                (System.nanoTime() - queuedAtNanos) / 1_000_000L,
-                "角色=$targetCharacterId；批次=${onlineRevision ?: "自主"}")
             // The unread user batch is the primary owner of this immediate
             // situation. A separate expiry/life/goal wake must NOT buy a
             // second appraisal while the owner is still typing or the role is
@@ -285,6 +283,34 @@ object ProactivePerceptionRuntime {
                 !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
             if (onlineRevision != null && targetCharacterId != null &&
                 !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
+            val timingTraceId = onlineRevision?.let {
+                ChatTimingTrace.forOnlineBatch(targetCharacterId, it)
+            }.orEmpty()
+            val dueAtMillis = onlineRevision?.let {
+                OnlineChatBatchStore.dueAt(context, targetCharacterId, it)
+            }
+            LuluRepositories.performance.recordTiming("角色执行队列",
+                (System.nanoTime() - queuedAtNanos) / 1_000_000L,
+                "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = timingTraceId)
+            if (dueAtMillis != null) {
+                val unreadIds = CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).messageIds.toSet()
+                val latestUserAt = MigratedDomainStores.chat.conversations.value.asSequence()
+                    .filter { it.characterId == targetCharacterId && it.groupChat == null }
+                    .flatMap { conversation ->
+                        MigratedDomainStores.chat.messages(conversation.id).value.takeLast(40).asSequence()
+                    }
+                    .filter { it.id in unreadIds && it.sender == LuluChatMessage.Sender.User }
+                    .maxOfOrNull { it.createdAt.toEpochMilli() }
+                if (latestUserAt != null && dueAtMillis >= latestUserAt) {
+                    LuluRepositories.performance.recordTiming("消息合并与编辑等待",
+                        dueAtMillis - latestUserAt, "最后用户消息至批次静默截止",
+                        traceId = timingTraceId)
+                }
+                LuluRepositories.performance.recordTiming("调度启动延迟",
+                    (dispatchedAtMillis - dueAtMillis).coerceAtLeast(0L),
+                    "静默截止至任务开始；不含角色互斥队列",
+                    traceId = timingTraceId)
+            }
             var chatBatchError: Throwable? = null
             try {
                 if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
@@ -707,6 +733,9 @@ object ProactivePerceptionRuntime {
     ): Action? {
         val preparationStartedNanos = System.nanoTime()
         val characterId = conversation.characterId.ifBlank { "lulu" }
+        val turnTraceId = onlineRevision?.let {
+            ChatTimingTrace.forOnlineBatch(characterId, it)
+        } ?: java.util.UUID.randomUUID().toString()
         val character = MigratedDomainStores.characters.get(characterId)
         // The generation may take seconds. Any NEW user bubble can open a newer
         // durable revision before this model completes; its older unsent choice
@@ -893,9 +922,10 @@ object ProactivePerceptionRuntime {
         )
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
-            "角色=$characterId；批次=${onlineRevision ?: "自主"}")
-        val turnTraceId = java.util.UUID.randomUUID().toString()
-        val result = LuluAiServices.gateway.generate(
+            "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
+        val modelStartedNanos = System.nanoTime()
+        val modelOutcome = try {
+            LuluAiServices.gateway.generate(
             characterId = characterId,
             turnTraceId = turnTraceId,
             facts = buildString {
@@ -1227,7 +1257,16 @@ object ProactivePerceptionRuntime {
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
             imageDataUrls = unreadPhotos.urls,
-        ).getOrElse { error ->
+            )
+        } finally {
+            // This inclusive duration survives a failed/timeout request.
+            // It overlaps Prompt and 模型请求 on successful generations.
+            LuluRepositories.performance.recordTiming("首轮大脑调用（含Prompt）",
+                (System.nanoTime() - modelStartedNanos) / 1_000_000L,
+                "含提示词准备与网络等待；与Prompt/模型请求指标重叠",
+                traceId = turnTraceId)
+        }
+        val result = modelOutcome.getOrElse { error ->
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 "模型请求失败 · ${error.message.orEmpty().take(120)}",
@@ -2246,8 +2285,10 @@ object ProactivePerceptionRuntime {
         )
         LuluRepositories.performance.recordTiming("决策返回到动作交接",
             (System.nanoTime() - firstModelCompletedNanos) / 1_000_000L,
-            "角色=$characterId；批次=${onlineRevision ?: "自主"}")
-        val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
+            "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
+        val actionStartedNanos = System.nanoTime()
+        val execution = try {
+            SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
             performAction(
                 appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,
                 goalReviewMode = trigger.startsWith("持续目标定时复盘"),
@@ -2264,6 +2305,13 @@ object ProactivePerceptionRuntime {
                 turnTraceId = turnTraceId,
                 groupNoticeFollowUp = trigger == GroupSocialOpportunity.WAKE_TRIGGER,
             )
+            }
+        } finally {
+            // Nested tool calls and the first bubble may overlap this duration.
+            LuluRepositories.performance.recordTiming("动作与工具交付（含气泡）",
+                (System.nanoTime() - actionStartedNanos) / 1_000_000L,
+                "含实际设备动作、工具后续和可能的气泡入库",
+                traceId = turnTraceId)
         }
         // The SAME paid role decision already interpreted the fresh user's
         // commitments. Only model-authored, typed, source-grounded changes
