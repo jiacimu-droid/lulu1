@@ -14,6 +14,10 @@ import java.time.ZoneId
  */
 internal const val COMMITMENT_RECOVERY_READ_TIMEOUT_MS = 60_000
 
+/** Identity of the *source turn*, not the shape of a recovery prompt. */
+internal fun commitmentRecoveryEvidenceKey(turnKey: String?): String? =
+    turnKey?.takeIf(String::isNotBlank)?.let { "commitment-source-turn:$it" }
+
 /** Background-only extraction: never inherit the character's expensive chat model. */
 internal fun commitmentBackgroundConnection(): ModelConnection =
     MemoryModelRuntime.extractionConnection()
@@ -58,7 +62,7 @@ internal suspend fun extractCommitmentTaskDrafts(
         readTimeoutMillis = COMMITMENT_RECOVERY_READ_TIMEOUT_MS,
         contextMode = CompanionContextMode.Isolated,
         connectionOverride = commitmentBackgroundConnection(),
-        backgroundEvidenceKey = recoveryTurnKey?.let { "commitment-source-turn:$it" },
+        backgroundEvidenceKey = commitmentRecoveryEvidenceKey(recoveryTurnKey),
     )
     // A transport failure or cancelled request is NOT "no promises found".
     // Propagate it so the conversation scanner can retry without recording
