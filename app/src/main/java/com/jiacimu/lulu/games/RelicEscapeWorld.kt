@@ -78,7 +78,8 @@ internal object RelicEscapeWorld {
             if(candidates.isEmpty())break
             val (x,y)=candidates[rng.nextInt(candidates.size)]
             occupied+=x to y
-            val kind=if(level>=2 && index==(2+level.coerceIn(1,5)+difficulty.extraMobs)-1)3
+            val kind=if((level>=2 || difficulty==RelicDifficulty.HARD) &&
+                index==(2+level.coerceIn(1,5)+difficulty.extraMobs)-1)3
                 else if(level<=1)index%2 else rng.nextInt(3)
             mobs+=RelicMob(index,x,y,(if(kind==3)9+level else 2+kind*2+level/2)+difficulty.monsterHp,kind)
         }
