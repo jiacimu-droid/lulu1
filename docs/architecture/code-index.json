@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:37:54.401841+00:00",
-  "commit": "483584ee6e55fa1d404709d6e7ce44bbdcb3fb71",
+  "generatedAt": "2026-11-12T05:39:02.278514+00:00",
+  "commit": "da4805abdc188f917b7b2740c769ab530b40c08e",
   "branch": "main",
-  "sourceFingerprint": "cad65f6923bd2a33594174543bfd2e910005c01ff1a91deb66d2b276bdad2e68",
+  "sourceFingerprint": "44b9dd1b0fb4dd83c4f56e43ff1afc61fc703f227231805fdd61ed964e6f546b",
   "summary": {
     "files": 1222,
-    "lines": 263048,
-    "symbols": 3677
+    "lines": 263157,
+    "symbols": 3681
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11849,19 +11849,23 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1148
+        "line": 1146
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1276
+        "line": 1249
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1376
+        "line": 1377
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1653
+        "line": 1477
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 1754
       }
     ],
     "repliedByDecisionId": [
@@ -15842,22 +15846,34 @@
         "line": 86
       }
     ],
-    "phoneDefinitionChanged": [
+    "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
         "line": 506
       }
     ],
+    "phoneDecisionInvalidated": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 511
+      }
+    ],
+    "phoneInvalidationReason": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 515
+      }
+    ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 509
+        "line": 517
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1568
+        "line": 1576
       }
     ],
     "LaunchableApp": [
@@ -18527,27 +18543,31 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1161
+        "line": 1158
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1279
+        "line": 1262
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1379
+        "line": 1380
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1466
+        "line": 1480
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1548
+        "line": 1567
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1631
+        "line": 1649
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 1732
       }
     ],
     "bubbles": [
@@ -18591,15 +18611,15 @@
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1150
+        "line": 1251
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1278
+        "line": 1379
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1378
+        "line": 1479
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -18609,13 +18629,13 @@
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1535
+        "line": 1636
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1539
+        "line": 1640
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -36751,8 +36771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2348,
-      "sha256": "6ba36d67a083325e5a0fae98d2694053801bdcd0a976e38fe776f553dbe28bfb",
+      "lines": 2356,
+      "sha256": "ab5ca045312324a8a70b13a26d589462c6c211e40459311fcb1839635600fdf5",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36771,16 +36791,24 @@
           "line": 86
         },
         {
-          "name": "phoneDefinitionChanged",
+          "name": "phoneReceiptChanged",
           "line": 506
         },
         {
+          "name": "phoneDecisionInvalidated",
+          "line": 511
+        },
+        {
+          "name": "phoneInvalidationReason",
+          "line": 515
+        },
+        {
           "name": "stalePhoneTurn",
-          "line": 509
+          "line": 517
         },
         {
           "name": "staleReplyExpression",
-          "line": 1568
+          "line": 1576
         }
       ]
     },
@@ -40537,8 +40565,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 1784,
-      "sha256": "aa5b861cbcea633d3e3187d521bfd378537885f67c6afd34007a5bfb32ee8f97",
+      "lines": 1885,
+      "sha256": "526316feac82c6d7951fc98df2ff40fd8901ede5e4261b4c74739c5db1183c97",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -40618,63 +40646,71 @@
         },
         {
           "name": "receipts",
-          "line": 1148
-        },
-        {
-          "name": "posts",
-          "line": 1150
+          "line": 1146
         },
         {
           "name": "response",
-          "line": 1161
+          "line": 1158
         },
         {
           "name": "receipts",
-          "line": 1276
+          "line": 1249
         },
         {
           "name": "posts",
-          "line": 1278
+          "line": 1251
         },
         {
           "name": "response",
-          "line": 1279
+          "line": 1262
         },
         {
           "name": "receipts",
-          "line": 1376
+          "line": 1377
         },
         {
           "name": "posts",
-          "line": 1378
-        },
-        {
-          "name": "response",
           "line": 1379
         },
         {
           "name": "response",
-          "line": 1466
-        },
-        {
-          "name": "concern",
-          "line": 1535
-        },
-        {
-          "name": "decision",
-          "line": 1539
-        },
-        {
-          "name": "response",
-          "line": 1548
-        },
-        {
-          "name": "response",
-          "line": 1631
+          "line": 1380
         },
         {
           "name": "receipts",
-          "line": 1653
+          "line": 1477
+        },
+        {
+          "name": "posts",
+          "line": 1479
+        },
+        {
+          "name": "response",
+          "line": 1480
+        },
+        {
+          "name": "response",
+          "line": 1567
+        },
+        {
+          "name": "concern",
+          "line": 1636
+        },
+        {
+          "name": "decision",
+          "line": 1640
+        },
+        {
+          "name": "response",
+          "line": 1649
+        },
+        {
+          "name": "response",
+          "line": 1732
+        },
+        {
+          "name": "receipts",
+          "line": 1754
         }
       ]
     },
