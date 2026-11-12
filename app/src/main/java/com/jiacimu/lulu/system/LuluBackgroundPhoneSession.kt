@@ -305,10 +305,13 @@ internal object LuluBackgroundPhoneSession {
                     .toString()
             }
             val pixels = frame.optString("imageDataUrl")
+            val frameFresh = frame.optBoolean("frameFreshAfterAction", false)
             // Pass the owned virtual-display frame only to the same role and
             // exact tool request, regardless of foreground/online entry point.
             // capture_screen remains strictly the owner's main display.
-            val hasFrame = pixels.startsWith("data:image/jpeg;base64,")
+            val hasFrame = frameFresh &&
+                frame.optLong("frameTimestampNanos", 0L) > 0L &&
+                pixels.startsWith("data:image/jpeg;base64,")
             if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             val expected = args.optString("expectedText").trim()
             val actionConditionVerified = action == "observe" ||
@@ -355,6 +358,9 @@ internal object LuluBackgroundPhoneSession {
                 .put("displayId", id).put("packageName", visible.packageName)
                 .put("visibleText", visible.visibleText.take(5_000))
                 .put("imageForwardedToRole", hasFrame)
+                .put("frameFreshAfterAction", frameFresh)
+                .put("frameTimestampNanos", frame.optLong("frameTimestampNanos", 0L))
+                .put("newerThanPreviousCapture", frame.optBoolean("newerThanPreviousCapture", false))
                 .put("screenSource", "virtual_display")
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
