@@ -322,6 +322,7 @@ internal object LuluVoiceCallSession {
     private val externalResultSeen = mutableSetOf<String>()
 
     internal fun onExternalToolResult(role: String, callId: String, evidenceId: String): Boolean {
+        val context = appContext ?: return false
         val current = mutableState.value
         if (!current.connected || current.characterId != role || current.callExperienceId != callId ||
             evidenceId.isBlank() || !externalResultSeen.add(evidenceId)) return false
@@ -339,8 +340,7 @@ internal object LuluVoiceCallSession {
                 }
                 val id = externalResults.first()
                 externalResults.remove(id)
-                val evidence = com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(role, listOf(id))
-                    .firstOrNull() ?: continue
+                val evidence = CallExternalResultPolicy.pendingEvidence(context, role, id) ?: continue
                 handleUserSpeech("", autonomousSilence = true, externalToolResult = evidence)
                 delay(400L)
             }

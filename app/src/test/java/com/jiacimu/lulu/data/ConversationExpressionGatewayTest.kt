@@ -1097,6 +1097,8 @@ class ConversationExpressionGatewayTest {
             assertEquals(2, server.requestCount)
             if (cancelTurn) {
                 val receipt = receipts.single()
+                assertEquals(receipt, com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, id, receipt.id))
+                assertNull(com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, "another-role", receipt.id))
                 val userText = "刚才你查到什么了？"
                 val next = LuluDeviceToolBridge.respond(id, "", userText, "test", archiveId = chat.id,
                     sceneContext = "正在一对一电话中").getOrThrow()
@@ -1108,10 +1110,15 @@ class ConversationExpressionGatewayTest {
                 assertTrue(nextRequest.contains("本人真实调用Jev取得模型参考"))
                 assertTrue(nextRequest.contains("0.6"))
                 assertEquals(nextSpeech, next.text)
+                assertTrue(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
+                assertNull(com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, id, receipt.id))
                 assertEquals(3, server.requestCount)
                 assertEquals(listOf(receipt), SharedExperienceTimeline.all(id)
                     .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult })
                 assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == id })
+                SharedExperienceTimeline.deleteEvent(receipt.id)
+                assertTrue(SharedExperienceTimeline.eventsByIds(id, listOf(receipt.id)).isEmpty())
+                assertNull(com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, id, receipt.id))
             }
         } finally {
             release.countDown()
