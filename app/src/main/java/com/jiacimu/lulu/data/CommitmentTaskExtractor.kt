@@ -7,6 +7,13 @@ import org.json.JSONArray
 import java.time.Instant
 import java.time.ZoneId
 
+/** A failed, optional promise extraction must not hold the request for the
+ * provider's ~125s relay 524 and block repeated scans. Keep the real result
+ * unacknowledged, and rely on stable source-turn dedup for ambiguous delivery.
+ * The primary chat/phone model keeps its independent full read budget.
+ */
+internal const val COMMITMENT_RECOVERY_READ_TIMEOUT_MS = 60_000
+
 /** Background-only extraction: never inherit the character's expensive chat model. */
 internal fun commitmentBackgroundConnection(): ModelConnection =
     MemoryModelRuntime.extractionConnection()
@@ -48,6 +55,7 @@ internal suspend fun extractCommitmentTaskDrafts(
         source = "承诺任务",
         title = "承诺任务提取",
         maxTokens = 2_400,
+        readTimeoutMillis = COMMITMENT_RECOVERY_READ_TIMEOUT_MS,
         contextMode = CompanionContextMode.Isolated,
         connectionOverride = commitmentBackgroundConnection(),
         backgroundEvidenceKey = recoveryTurnKey?.let { "commitment-source-turn:$it" },
