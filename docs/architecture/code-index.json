@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:48:35.707927+00:00",
-  "commit": "0ea9a957ada5bb3b6b9985f3fe106a3aa2ad547c",
+  "generatedAt": "2026-11-12T08:49:23.770357+00:00",
+  "commit": "0f460b782d4e2c3fc97f3c6011bbee14b6a0d299",
   "branch": "main",
-  "sourceFingerprint": "33d0b29809e02abd25d1a962437406deb0ebb92da2626893f0d5585bb16344a7",
+  "sourceFingerprint": "b5fd52ce154130a33c39dc3ea8a54526d7219a6581d6263f6a844bf0338d94df",
   "summary": {
     "files": 1265,
-    "lines": 267274,
+    "lines": 267271,
     "symbols": 3771
   },
   "symbolIndex": {
@@ -21960,8 +21960,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt",
-      "lines": 37,
-      "sha256": "ca0e3026eefbab90e6ae10db5e6cc96deed8e75653c55106fb23d22f63a60f3e",
+      "lines": 34,
+      "sha256": "a17bad2027fbbf970e1eca9517f6984ec338cc2470d1280558cd9b74cb6187f9",
       "symbols": []
     },
     {
