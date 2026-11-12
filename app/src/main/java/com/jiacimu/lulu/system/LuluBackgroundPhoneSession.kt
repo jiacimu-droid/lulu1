@@ -701,7 +701,8 @@ internal object LuluBackgroundPhoneSession {
                     check(prepared.optBoolean("accepted")) { "无法核实本次点击前的后台画面" }
                     val clicked = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.tapVirtualUiElement(
-                            id, activeApp, prior.fingerprint, args.optString("elementRef"))
+                            id, activeApp, prior.fingerprint, args.optString("elementRef"),
+                            shoppingAllowed = LuluShoppingAssistPolicy.isEnabled(context, characterId))
                     }
                     JSONObject().put("accepted", clicked).put("displayId", id)
                 }
