@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 正常发言已感知回执后的电话队列去重
+
+- 上轮包含跨轮回归的 `53d49dc` [全量 JVM/APK #43120817176](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817176) 和[原索引 #43120817562](https://github.com/jiacimu-droid/lulu1/actions/runs/43120817562) 复核成功。当前基线 `f7bbf37` 的[全量 JVM/APK #43122421944](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421944) 也成功。
+- [6662308](https://github.com/jiacimu-droid/lulu1/commit/666230836d01c6044b026e901cdac750e97ed082) 修复 `LuluVoiceCallSession.onExternalToolResult` 的队列出队边界。原会话内去重只知道是否入队，正常发言已经把同一条工具回执读入本人模型并记录感知后，队列仍会送进独立观察。出队现在沿同角色权威时间线查当前回执，并沿已有 `PerceptionStimulusLedger` 校验精确修订。已感知和已撤回的回执跳过，未感知的本人回执继续走原观察。保留非工具通话证据的原处理，不增加模型请求或状态中心。
+- `ConversationExpressionGatewayTest.phoneStepsStopAfterCancellationButKeepCompletedToolReceipt` 扩展验证真实工具回执在正常发言模型请求前可派发，实际决策提交后被出队入口拒绝。另核他人无法派发、原回执未被去重删除、撤回后不可派发。回归驱动正式桥接 HTTP 与实际出队解析函数，不覆盖真机通话线程调度。
+- [原索引 #43135352238](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352238) 与 [全量 JVM/APK #43135352134](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352134) 均成功，新回归通过，APK 已发布。真机语音和真实模型质量仍待验。
+- 下一轮沿 P-03.1 打开 `LuluDeviceToolBridge.respond` 的 `externalCallResult`、`CharacterPerceptionContext.acknowledge` 和 `ConversationExpressionGatewayTest`。核对工具回执先由独立通话观察读到时，其直接刺激是否绕过精确感知确认。补正式 HTTP 回归，检查成功提交可确认，取消或失败仍留给下一次正常发言，不扩大到普通用户发言确认。
+
 ## 2026-11-12 · P-03.1 取消后的真实工具回执进入下一次电话判断
 
 - 上轮 `c72f729` 的 [JVM #43104160507](https://github.com/jiacimu-droid/lulu1/actions/runs/43104160507) 新电话回归通过，APK 被已存在的 SQLite 用例挡住。[后继 #43105245014](https://github.com/jiacimu-droid/lulu1/actions/runs/43105245014) 已复核该 SQLite 用例和电话取消用例通过，并完成全量 JVM/APK。
