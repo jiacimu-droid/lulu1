@@ -750,7 +750,9 @@ class InMemoryLuluChatStore : LuluChatStore {
                 ?: error("会话不存在：$conversationId。请先通过 ensureConversation 建立角色会话。")
             appendedConversation = current
             val state = messageStates.getOrPut(conversationId) { MutableStateFlow(emptyList()) }
-            state.value = state.value + message
+            val previousMessages = state.value
+            val previousConversations = conversationState.value
+            state.value = previousMessages + message
             val updated = current.copy(
                 lastMessage = message.content,
                 updatedAt = message.createdAt,
@@ -758,7 +760,15 @@ class InMemoryLuluChatStore : LuluChatStore {
             )
             conversationState.value = (listOf(updated) + conversationState.value.filterNot { it.id == conversationId })
                 .sortedWith(conversationOrdering())
-            persistLocked(durable)
+            try {
+                persistLocked(durable)
+            } catch (failure: Throwable) {
+                // A rejected durable write is not a delivered message. Roll back
+                // both projections before any timeline, notification or online side effect.
+                state.value = previousMessages
+                conversationState.value = previousConversations
+                throw failure
+            }
             SharedExperienceTimeline.recordConversationMessage(current, message)
         }
         CompanionOnlineStore.onConversationMessage(appendedConversation, message)
