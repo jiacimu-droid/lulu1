@@ -271,6 +271,7 @@ internal object BlockIslandRules {
         val w = s.world
         if (!w.inBounds(x, y)) return false
         val structure = s.structures[w.index(x, y)]
+        if (w.index(x,y) in s.lostPacks) return false
         if (w.cell(x, y) == 8) return structure == "bridge"
         if (w.cell(x, y) !in setOf(0, 4, 7)) return false
         return structure !in setOf("workbench", "campfire", "bed", "lantern", "crystal_lantern", "pet_house", "garden")
