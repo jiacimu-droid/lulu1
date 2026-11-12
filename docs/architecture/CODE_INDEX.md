@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8d5f16340a2b84fe2d2af70bd13f0e0259d6d9fc`
+- 基准提交：`1b80228447a57d52b4dce2301eb7f30dff0c18ab`
 - 分支：`main`
 - 已索引文件：1277
-- 已索引代码/文本行：269761
+- 已索引代码/文本行：269781
 - 已发现符号：3822
 
 | 文件 | 行数 | 符号数 |
@@ -681,7 +681,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 336 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 72 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 73 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
@@ -693,12 +693,12 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 101 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 116 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTerrainPalette.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 231 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt` | 166 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 34 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 38 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 630 | 27 |
