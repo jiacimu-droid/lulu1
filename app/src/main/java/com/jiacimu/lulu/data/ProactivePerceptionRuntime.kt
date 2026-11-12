@@ -1845,6 +1845,12 @@ object ProactivePerceptionRuntime {
             val newerWindow = !keptAwake &&
                 CompanionOnlineStore.states.value[characterId]
                     ?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
+            if (!keptAwake && !newerWindow && decision.onlineChoice == "sleep" &&
+                decision.onlineChoiceReason.isNotBlank() && sleepHandoff.ok) {
+                // This records the role's own decision, but actual resting is
+                // settled only after the ongoing tool/expiry work has ended.
+                CompanionOnlineStore.acceptSleepAtExpiry(characterId, onlineExpiryAtMillis)
+            }
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 when {
