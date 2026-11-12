@@ -19,6 +19,25 @@ class OnlineChatBatchStoreTest {
         OnlineChatBatchStore.cancel(app, role)
     }
 
+    @Test fun uncertainTransportFailureParksOnlyQueueAndNewBubbleStartsFreshRevision() {
+        OnlineChatBatchStore.cancel(app, role)
+        val original = OnlineChatBatchStore.onUserBubble(app, role, 1_000_000L)
+        assertTrue(OnlineChatBatchStore.markEnqueued(app, role, original.revision))
+        assertTrue(OnlineChatBatchStore.claim(app, role, original.revision, original.dueAtMillis))
+        // Cannot steal a still-running request's lease.
+        assertFalse(OnlineChatBatchStore.parkFailedBatch(app, role, original.revision))
+        OnlineChatBatchStore.finish(app, role, original.revision, completed = false)
+        assertTrue(OnlineChatBatchStore.parkFailedBatch(app, role, original.revision))
+        assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.parkFailedBatch(app, role, original.revision))
+        val next = OnlineChatBatchStore.onUserBubble(app, role, 1_030_000L)
+        assertTrue(next.revision > original.revision)
+        assertEquals(1_030_000L + OnlineChatBatchStore.QUIET_MILLIS, next.dueAtMillis)
+        assertTrue(OnlineChatBatchStore.markEnqueued(app, role, next.revision))
+        assertFalse(OnlineChatBatchStore.parkFailedBatch(app, role, original.revision))
+        assertEquals(next.dueAtMillis, OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
     @Test fun threeBubblesBeforeReadingHaveOneRevisionAndAnExtendedDeadline() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)

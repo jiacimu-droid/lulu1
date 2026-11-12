@@ -202,6 +202,24 @@ internal object OnlineChatBatchStore {
         }
     }
 
+    /**
+     * A provider-rejected or possibly billed request must NOT be replayed
+     * automatically. Release only the queue ticket, never the actual unread
+     * messages or their delivery cursors. The next *real* owner message (or
+     * explicit manual reply) starts a new revision and can recover normally.
+     */
+    @Synchronized fun parkFailedBatch(
+        context: Context, characterId: String, revision: Long,
+    ): Boolean {
+        if (!isCurrent(context, characterId, revision) ||
+            (characterId to revision) in reading) return false
+        val p = prefs(context)
+        if (!p.contains("due:$characterId")) return false
+        return p.edit().remove("due:$characterId")
+            .remove("messageWindow:$characterId")
+            .remove("enqueued:$characterId").commit()
+    }
+
     fun isCurrent(context: Context, characterId: String, revision: Long) =
         prefs(context).getLong("revision:$characterId", 0) == revision
 

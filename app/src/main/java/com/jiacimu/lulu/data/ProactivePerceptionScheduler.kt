@@ -453,10 +453,10 @@ object ProactivePerceptionScheduler {
                             // repaired by replaying the same unread prompt 2s
                             // later. Leave actual user messages unread; the next
                             // new bubble can re-arm their durable window.
-                            if (com.jiacimu.lulu.ai.isNonRetryableModelFailure(error)) {
-                                OnlineChatBatchStore.unmarkEnqueued(app, characterId, revision)
+                            if (PrivateChatModelFailurePolicy.awaitNewUserInput(error)) {
+                                OnlineChatBatchStore.parkFailedBatch(app, characterId, revision)
                                 CompanionPresenceStore.recordPerceptionAttempt(characterId,
-                                    "服务商已明确拒绝本轮输入；不自动重复发送，等待新消息或配置改变",
+                                    "本轮模型请求失败或结果未知；未自动重发，未读消息保留，等待新消息或手动回复",
                                     Instant.now())
                             } else runCatching { scheduleFailedMessageRetry(app, characterId, revision) }
                                 .onFailure { retryError ->
@@ -1142,14 +1142,16 @@ class ProactivePerceptionWorker(
         Result.success()
     }.getOrElse {
         if (it is kotlinx.coroutines.CancellationException) throw it
-        if (com.jiacimu.lulu.ai.isNonRetryableModelFailure(it)) {
-            // Preserve the unsent user turn, but do not retry the identical
-            // provider-rejected payload via WorkManager.
+        if (PrivateChatModelFailurePolicy.awaitNewUserInput(it)) {
+            // Transport may have transmitted a billable request even when the
+            // provider returned no body. Never replay it through WorkManager's
+            // outer retry layer. Keep the unread user facts, not a stale ticket.
             val failedRole = inputData.getString("characterId").orEmpty()
             if (failedRole.isNotBlank()) {
-                inputData.getLong("onlineRevision", -1L).takeIf { it >= 0L }?.let { revision ->
-                    OnlineChatBatchStore.unmarkEnqueued(applicationContext, failedRole, revision)
-                }
+                inputData.getLong("onlineRevision", -1L).takeIf { revision -> revision >= 0L }
+                    ?.let { revision ->
+                        OnlineChatBatchStore.parkFailedBatch(applicationContext, failedRole, revision)
+                    }
             }
             Result.failure()
         } else if (runAttemptCount < 2) Result.retry() else Result.failure()

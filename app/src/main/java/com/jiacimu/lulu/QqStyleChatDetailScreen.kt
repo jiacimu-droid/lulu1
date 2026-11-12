@@ -119,8 +119,10 @@ fun QqStyleChatDetailScreen(
     val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
     val replyTaskState = replyTaskStates[conversationId] ?: ChatReplyTaskManager.TaskState()
     val actualActivities by ChatGenerationActivity.activities.collectAsState()
-    val activeTypists = actualActivities.values.filter { conversationId in it.conversationIds }.map { it.characterId }.distinct()
-    val receiving = replyTaskState.running || activeTypists.isNotEmpty()
+    val activeRoleWork = actualActivities.values.filter { conversationId in it.conversationIds }
+    val activeTypists = activeRoleWork.filter { it.awaitingModel }.map { it.characterId }.distinct()
+    val activeFollowThrough = activeRoleWork.any { !it.awaitingModel }
+    val receiving = replyTaskState.running || activeRoleWork.isNotEmpty()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
@@ -702,6 +704,8 @@ fun QqStyleChatDetailScreen(
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                     if (showTypingIndicator) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
                                         color = Color.Black, fontSize = 14.sp, maxLines = 1)
+                                    else if (activeFollowThrough) Text("执行后续中", modifier = Modifier.padding(start = 5.dp),
+                                        color = QqMuted, fontSize = 12.sp, maxLines = 1)
                                 }
                                 Text(
                                     if (groupChat == null) {

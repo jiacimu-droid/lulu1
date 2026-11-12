@@ -673,11 +673,11 @@ object ProactivePerceptionRuntime {
             appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
             onlineRevision,
         )
-        return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
+        return ChatGenerationActivity.duringWithLease(characterId, unread.conversationIds + conversation.id) { leaseId ->
             try {
                 evaluateCharacterWithActivity(
                     appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
-                    onlineRevision,
+                    onlineRevision, generationActivityId = leaseId,
                 )
             } catch (error: Throwable) {
                 currentCoroutineContext().ensureActive()
@@ -700,6 +700,7 @@ object ProactivePerceptionRuntime {
         requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
+        generationActivityId: String? = null,
     ): Action? {
         val preparationStartedNanos = System.nanoTime()
         val characterId = conversation.characterId.ifBlank { "lulu" }
@@ -1232,6 +1233,9 @@ object ProactivePerceptionRuntime {
             throw error
         }
         val firstModelCompletedNanos = System.nanoTime()
+        // One user-visible model reply phase ended. Subsequent tool execution
+        // may be lengthy but must not masquerade as "still typing".
+        generationActivityId?.let(ChatGenerationActivity::markModelCompleted)
         currentCoroutineContext().ensureActive()
         if (batchSuperseded()) return deferSupersededDecision()
         // A manual reply or another worker may have delivered an answer while
