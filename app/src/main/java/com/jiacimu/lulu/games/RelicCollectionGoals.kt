@@ -10,7 +10,7 @@ internal data class RelicCollectionGoal(
 ) {
     fun owned(discovered:Set<String>):Int=names.count { it in discovered }
     fun complete(discovered:Set<String>):Boolean=owned(discovered)==names.size
-    fun missing(discovered:Set<String>):List<String>=names.filterNot { it in discovered }
+    fun missing(discovered:Set<String>):List<String> = names.filterNot { it in discovered }
 }
 internal object RelicCollectionGoals {
     val all=listOf(
