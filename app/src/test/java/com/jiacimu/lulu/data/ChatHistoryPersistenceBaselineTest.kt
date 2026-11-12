@@ -108,6 +108,70 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+    @Test fun rejectedFavoriteRemovalKeepsChatSnapshot() {
+        val previous = prefs.getString(key, null)
+        val favoritesPrefs = app.getSharedPreferences("lulu_user_message_favorites", Context.MODE_PRIVATE)
+        val favoritesBefore = favoritesPrefs.getString("entries_v1", null)
+        val messageId = "ui02-favorite-remove-rejected"
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(JSONObject()
+                .put("id", conversationId).put("characterId", "ui02-character")
+                .put("title", "Favorite rollback").put("updatedAt", "2026-01-01T00:00:00Z")))
+            .put("messages", JSONObject().put(conversationId, JSONArray().put(JSONObject()
+                .put("id", messageId).put("conversationId", conversationId)
+                .put("sender", "User").put("content", "Favorite this exact text")
+                .put("createdAt", "2026-01-01T00:00:00Z").put("status", "Sent").put("favorite", true))))
+            .toString()
+        try {
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val field = InMemoryLuluChatStore::class.java.getDeclaredField("prefs")
+                .apply { isAccessible = true }
+            val actual = field.get(store) as android.content.SharedPreferences
+            val rejecting = java.lang.reflect.Proxy.newProxyInstance(
+                actual.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") method.invoke(actual, *(args ?: emptyArray()))
+                else {
+                    val editor = actual.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> false
+                            "apply" -> error("Favorite mutation must commit durably")
+                            else -> {
+                                val value = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (value === editor) proxy else value
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            field.set(store, rejecting)
+            try {
+                assertTrue(runCatching { store.removeUserFavorite(messageId) }.exceptionOrNull() is IllegalStateException)
+                assertTrue(store.messages(conversationId).value.single().favorite)
+                assertEquals(snapshot, prefs.getString(key, null))
+                assertEquals(favoritesBefore, favoritesPrefs.getString("entries_v1", null))
+            } finally {
+                field.set(store, actual)
+            }
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertTrue(reopened.messages(conversationId).value.single().favorite)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun rejectedReadAcknowledgementPreservesUnreadAcrossReopen() {
         val previous = prefs.getString(key, null)
         val conversation = JSONObject()
