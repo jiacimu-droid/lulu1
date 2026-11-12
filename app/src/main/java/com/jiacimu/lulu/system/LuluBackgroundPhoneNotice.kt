@@ -43,6 +43,41 @@ internal object LuluBackgroundPhoneNotice {
         manager.notify(ID, notification)
     }
 
+    /**
+     * Owner taps a real notification; Lulu NEVER launches a checkout/payment
+     * activity in the owner's foreground on the role's behalf.
+     * Android does not promise to move an activity from the virtual display
+     * to display 0. The merchant app may reopen at its normal start page.
+     */
+    fun showPaymentHandoff(context: Context, merchantPackage: String) {
+        if (merchantPackage.isBlank() ||
+            LuluScreenAwareness.isExcluded(context, merchantPackage)) return
+        val manager = context.getSystemService(NotificationManager::class.java)
+        if (!manager.areNotificationsEnabled()) return
+        val channel = "lulu_shopping_handoff_v1"
+        manager.createNotificationChannel(NotificationChannel(
+            channel, "购物付款接管", NotificationManager.IMPORTANCE_DEFAULT))
+        val merchantIntent = context.packageManager.getLaunchIntentForPackage(merchantPackage)
+        val safeIntent = merchantIntent
+            ?: context.packageManager.getLaunchIntentForPackage(context.packageName)
+            ?: return
+        safeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        val pending = PendingIntent.getActivity(context, 47232, safeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val notification = Notification.Builder(context, channel)
+            .setSmallIcon(android.R.drawable.ic_menu_info_details)
+            .setContentTitle("购物已到需要你操作的付款阶段")
+            .setContentText("角色已暂停。点此打开商家 App；若未恢复付款页，请到待付款订单查看。")
+            .setStyle(Notification.BigTextStyle().bigText(
+                "独立后台屏的支付页面无法保证直接迁移到主屏。请你亲自核对商品、金额、地址和付款方式；" +
+                    "点此打开商家 App，必要时到待付款订单继续。角色没有替你付款。"))
+            .setContentIntent(pending)
+            .setAutoCancel(true)
+            .setCategory(Notification.CATEGORY_STATUS)
+            .build()
+        manager.notify(47232, notification)
+    }
+
     fun clear(context: Context) {
         context.getSystemService(NotificationManager::class.java).cancel(ID)
     }
