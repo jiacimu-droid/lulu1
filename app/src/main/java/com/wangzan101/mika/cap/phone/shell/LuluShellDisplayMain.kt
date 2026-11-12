@@ -42,6 +42,7 @@ object LuluShellDisplayMain {
     // Never feed a pre-action ImageReader buffer back to the character as
     // proof that a just-sent gesture changed the background display.
     private var pendingActionFrameBarrierNanos = 0L
+    private var pendingActionNeedsFrame = false
     private var lastDeliveredFrameNanos = 0L
     private const val FRAME_WAIT_MS = 1_600L
     private const val FRAME_POLL_MS = 80L
@@ -151,6 +152,7 @@ object LuluShellDisplayMain {
             if (ok) {
                 targetPackage = pkg
                 pendingActionFrameBarrierNanos = frameBarrier
+                pendingActionNeedsFrame = true
             }
             return JSONObject().put("success", false).put("accepted", ok)
                 .put("displayId", id).put("targetPackage", pkg)
@@ -169,7 +171,10 @@ object LuluShellDisplayMain {
         }
         val frameBarrier = discardPreActionFrames()
         val sent = run(args)
-        if (sent) pendingActionFrameBarrierNanos = frameBarrier
+        if (sent) {
+            pendingActionFrameBarrierNanos = frameBarrier
+            pendingActionNeedsFrame = true
+        }
         return JSONObject().put("success", false).put("accepted", sent)
             .put("displayId", id).put("targetPackage", targetPackage)
             .put("verification", "input sent only to virtual display; completion unverified")
@@ -202,6 +207,7 @@ object LuluShellDisplayMain {
     private fun screenFrame(displayId: Int): JSONObject {
         val r = reader ?: error("display buffer missing")
         val barrier = pendingActionFrameBarrierNanos
+        val afterAction = pendingActionNeedsFrame
         val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(FRAME_WAIT_MS)
         var acquired: android.media.Image? = null
         while (System.nanoTime() < deadline) {
@@ -242,10 +248,12 @@ object LuluShellDisplayMain {
                     check(bytes.size <= 700_000) { "image buffer too large" }
                     lastDeliveredFrameNanos = timestamp
                     pendingActionFrameBarrierNanos = 0L
+                    pendingActionNeedsFrame = false
                     return JSONObject().put("success", true).put("status", "captured")
                         .put("displayId", displayId).put("targetPackage", targetPackage)
                         .put("frameTimestampNanos", timestamp)
-                        .put("frameFreshAfterAction", true)
+                        .put("frameValidated", true)
+                        .put("frameFreshAfterAction", afterAction)
                         .put("newerThanPreviousCapture", newerThanLast)
                         .put("imageDataUrl", "data:image/jpeg;base64," +
                             Base64.getEncoder().encodeToString(bytes))
@@ -257,6 +265,7 @@ object LuluShellDisplayMain {
     private fun release() {
         targetPackage = ""
         pendingActionFrameBarrierNanos = 0L
+        pendingActionNeedsFrame = false
         lastDeliveredFrameNanos = 0L
         runCatching { virtual?.release() }
         runCatching { reader?.close() }
