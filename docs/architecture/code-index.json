@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T03:02:02.629661+00:00",
-  "commit": "6f926f22f1addfc06ace3ea0307ab53913f742da",
+  "generatedAt": "2026-11-12T03:09:11.582332+00:00",
+  "commit": "7222cf58357d1087445eca18635afcd751abf689",
   "branch": "main",
-  "sourceFingerprint": "fdf88a90b33bbdfd8029965bf641bf5fd6bf45100f71b04424f84d477a8db982",
+  "sourceFingerprint": "3ded290d29fffcaf04565ccc91f660aa4cb43bad9efb3a892a0812c1c33b1e4c",
   "summary": {
-    "files": 1214,
-    "lines": 261797,
-    "symbols": 3658
+    "files": 1215,
+    "lines": 261819,
+    "symbols": 3661
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8772,6 +8772,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt",
         "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt",
+        "line": 12
       }
     ],
     "byOrder": [
@@ -16144,6 +16148,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
         "line": 12
+      }
+    ],
+    "isNewer": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt",
+        "line": 15
+      }
+    ],
+    "barrier": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt",
+        "line": 18
       }
     ],
     "LuluShellDisplayMain": [
@@ -37015,6 +37031,25 @@
       "lines": 49,
       "sha256": "f6eb173c073df2a5ba7588ed122ebe5c1610974c0acc076a18cab31db449dcc3",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt",
+      "lines": 22,
+      "sha256": "3820b935d2c02bb414c22090e54338f1c0c524561bd618e1e719e712ab30887d",
+      "symbols": [
+        {
+          "name": "accepts",
+          "line": 12
+        },
+        {
+          "name": "isNewer",
+          "line": 15
+        },
+        {
+          "name": "barrier",
+          "line": 18
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
