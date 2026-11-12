@@ -713,7 +713,14 @@ object ProactivePerceptionRuntime {
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 if (unread.text.isNotBlank()) {
                     (unread.conversationIds + conversation.id).forEach { id ->
-                        com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(error.message ?: "回复失败")
+                        // Surface the phase-specific transport diagnosis in chat as
+                        // well as the performance log. A bare "timeout" hides
+                        // whether the body might already have been billed.
+                        val phaseDetail = (error as? com.jiacimu.lulu.ai.ModelPostTransportException)
+                            ?.diagnostic.orEmpty()
+                        com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
+                            (error.message ?: "回复失败") + phaseDetail,
+                        )
                     }
                 }
                 throw error
