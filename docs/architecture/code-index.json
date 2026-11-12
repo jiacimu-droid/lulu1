@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T02:45:07.834251+00:00",
-  "commit": "99bd7885cd375ff5a0fefac139ac5135760c720a",
+  "generatedAt": "2026-11-12T02:46:22.643889+00:00",
+  "commit": "e8c3a0ff2b93eddbb3944a6d88dec30a7379a9f0",
   "branch": "main",
-  "sourceFingerprint": "a8eba763f0e5cd290da124feb2762c62b869e81c14f6de5819e2872c67b0b98b",
+  "sourceFingerprint": "cf37c01985455c4145b9e09b7abe1134629e5a7777dce3b08de09ece15410a12",
   "summary": {
     "files": 1214,
-    "lines": 261521,
+    "lines": 261529,
     "symbols": 3658
   },
   "symbolIndex": {
@@ -8379,7 +8379,7 @@
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1839
+        "line": 1846
       }
     ],
     "age": [
@@ -11627,7 +11627,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3283
+        "line": 3284
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -27945,8 +27945,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1887,
-      "sha256": "074565d8667c0864f7859c49c509b1a4c77cb40f333848f6c9dac18e72d78a46",
+      "lines": 1894,
+      "sha256": "dfaaa0c8c714366b67d045a0b90b4888bec95397935c7f3d34026723be3ab41f",
       "symbols": [
         {
           "name": "asJson",
@@ -27990,7 +27990,7 @@
         },
         {
           "name": "availableContext",
-          "line": 1839
+          "line": 1846
         }
       ]
     },
@@ -31340,8 +31340,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3350,
-      "sha256": "a54c954bb997ed53e30664d7ee7dceaf39cb50bedafc00722dabbf816dcc90f7",
+      "lines": 3351,
+      "sha256": "4e126bbd3496c995b9f276cfb8c37aae03674cdad21b78e95841c746200cdfad",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -31373,7 +31373,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3283
+          "line": 3284
         }
       ]
     },
