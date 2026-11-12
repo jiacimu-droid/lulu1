@@ -50,17 +50,17 @@ class IslandProgressionTest {
 
     @Test fun crystalLampNeedsMiningResourceAndActuallyBlocksNightDamage() {
         val base=island().copy(crystals=0)
-        assertTrue(BlockIslandRules.canPlaceBuilding(base,"crystal_lantern",5,4))
-        assertFalse(BlockIslandRules.canBuild(base,"crystal_lantern",5,4))
-        val denied=BlockIslandRules.act(base,"crystal_lantern",5,4)
+        assertTrue(BlockIslandRules.canPlaceBuilding(base,"crystal_lantern",5,5))
+        assertFalse(BlockIslandRules.canBuild(base,"crystal_lantern",5,5))
+        val denied=BlockIslandRules.act(base,"crystal_lantern",5,5)
         assertEquals(base.world.turns,denied.world.turns)
         val stocked=base.copy(crystals=1)
-        val built=BlockIslandRules.act(stocked,"crystal_lantern",5,4)
+        val built=BlockIslandRules.act(stocked,"crystal_lantern",5,5)
         assertEquals(0,built.crystals)
         assertEquals(17,built.world.wood)
         assertEquals(18,built.world.stone)
-        assertEquals("crystal_lantern",built.structures[built.world.index(5,4)])
-        assertFalse(BlockIslandRules.isWalkable(built,5,4))
+        assertEquals("crystal_lantern",built.structures[built.world.index(5,5)])
+        assertFalse(BlockIslandRules.isWalkable(built,5,5))
         assertEquals(built.structures,BlockIslandState.fromJson(built.toJson())!!.structures)
 
         val w=built.world.copy(turns=29,x=4,y=5,hp=8,
