@@ -62,6 +62,16 @@ class IslandProgressionTest {
         assertEquals("crystal_lantern",built.structures[built.world.index(5,5)])
         assertFalse(BlockIslandRules.isWalkable(built,5,5))
         assertEquals(built.structures,BlockIslandState.fromJson(built.toJson())!!.structures)
+        val homeChallenge=IslandChallengeBoard.challenges.first { it.id=="home" }
+        assertTrue(homeChallenge.completed(built.copy(
+            structures=built.structures+(built.world.index(6,5) to "pet_house"))))
+        val takenDown=BlockIslandRules.act(built.copy(world=built.world.copy(
+            x=4,y=5,mobs=emptyList())),"remove",5,5)
+        assertEquals(1,takenDown.crystals)
+        assertFalse(takenDown.structures.containsKey(built.world.index(5,5)))
+        val secondRemove=BlockIslandRules.act(takenDown,"remove",5,5)
+        assertEquals(takenDown.crystals,secondRemove.crystals)
+        assertEquals(takenDown.world.turns,secondRemove.world.turns)
 
         val w=built.world.copy(turns=29,x=4,y=5,hp=8,
             mobs=listOf(ExpeditionMob(12,4,4,4)))
