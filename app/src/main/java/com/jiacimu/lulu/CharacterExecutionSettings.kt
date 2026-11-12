@@ -157,10 +157,10 @@ internal fun CharacterExecutionSettings(characterId: String) {
                                     requestId = id + ":launch", userRequested = true))
                             setupStatus = if (launched.optBoolean("success")) {
                                 "后台目标 App 已在独立屏核实（ID=${launched.optInt("displayId")}）；" +
-                                    if (launched.optBoolean("sentToChat"))
+                                    (if (launched.optBoolean("sentToChat"))
                                         "真实后台截图已发到角色私聊"
                                     else "真实屏已读取但图片发送失败：" +
-                                        launched.optString("shareError").take(90)
+                                        launched.optString("shareError").take(90))
                             } else {
                                 "后台启动未通过真实核验：" +
                                     launched.optString("error").ifBlank {
