@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:35:00.318802+00:00",
-  "commit": "caf13beaee66c8456df458f0e5de5ba758f07815",
+  "generatedAt": "2026-11-12T12:35:58.987268+00:00",
+  "commit": "9affea169bf795f3eb298ae5ad958b0e1bff8246",
   "branch": "main",
-  "sourceFingerprint": "1007af04e57249e2a4bdcab6db9d32ae9489a3c500ccc4fe67b376539c3be79d",
+  "sourceFingerprint": "67c5387530dece9ece561f32dafbd5080db4c42e1c7f1c71463d49c9848648b3",
   "summary": {
     "files": 1277,
-    "lines": 269986,
+    "lines": 269994,
     "symbols": 3826
   },
   "symbolIndex": {
@@ -745,7 +745,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 69
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -13961,19 +13961,19 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 864
+        "line": 866
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 870
+        "line": 872
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 909
+        "line": 911
       }
     ],
     "playSound": [
@@ -14199,7 +14199,7 @@
     "cycle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 64
+        "line": 66
       }
     ],
     "awardCompleted": [
@@ -14351,7 +14351,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 96
+        "line": 98
       }
     ],
     "canInteract": [
@@ -15045,7 +15045,7 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 89
+        "line": 91
       }
     ],
     "carve": [
@@ -34953,8 +34953,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 917,
-      "sha256": "47c7aac0ef11fa98c7b84d984b5d5a4712d4ed5c248db7711f10143df418f261",
+      "lines": 919,
+      "sha256": "2bbb8b57be24c93c4475ebe811dee51c167dffd892180c9dc47c82449ec7e4cc",
       "symbols": [
         {
           "name": "toJson",
@@ -35018,15 +35018,15 @@
         },
         {
           "name": "nextStep",
-          "line": 864
+          "line": 866
         },
         {
           "name": "occupiedByOther",
-          "line": 870
+          "line": 872
         },
         {
           "name": "actionName",
-          "line": 909
+          "line": 911
         }
       ]
     },
@@ -35449,8 +35449,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 73,
-      "sha256": "3e4a56441512bc2441875d69d7807c67af45d064eaa67d62dcd7e18b187cf618",
+      "lines": 75,
+      "sha256": "f83f7d8f6c1b1996b67b138f3ea902e91f5327cc7f86333a833dbc8b9ee9c1ee",
       "symbols": [
         {
           "name": "preview",
@@ -35458,11 +35458,11 @@
         },
         {
           "name": "cycle",
-          "line": 64
+          "line": 66
         },
         {
           "name": "label",
-          "line": 69
+          "line": 71
         }
       ]
     },
@@ -35704,7 +35704,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
       "lines": 61,
-      "sha256": "e8651fca26654bc888b20fcf23ce65e8e8a6316653f2f95a056e059610d13d27",
+      "sha256": "9787f034617686c783da70974292cb57f62dcbf3803613e75abfabdd31ff1e23",
       "symbols": [
         {
           "name": "crystalVein",
@@ -36477,16 +36477,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1119,
-      "sha256": "a4409d49e8f8bf6b98bd4ed57ea66838dac960778497d137a00d483b81b615b5",
+      "lines": 1123,
+      "sha256": "e26947959a849340ccbb4d62ad074796cff879f4f273c344480da1c0f1cf7514",
       "symbols": [
         {
           "name": "change",
-          "line": 89
+          "line": 91
         },
         {
           "name": "action",
-          "line": 96
+          "line": 98
         }
       ]
     },
