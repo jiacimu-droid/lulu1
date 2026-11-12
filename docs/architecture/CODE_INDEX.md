@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`70a0a3979bc60b602ce2738cb6513fcb617340f0`
+- 基准提交：`739d21e1d34169a464effde428f1a45a7cbec125`
 - 分支：`main`
-- 已索引文件：1255
-- 已索引代码/文本行：266183
-- 已发现符号：3755
+- 已索引文件：1257
+- 已索引代码/文本行：266482
+- 已发现符号：3758
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -152,7 +152,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 201 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 713 | 1 |
@@ -264,6 +264,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 136 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 97 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 449 | 0 |
@@ -765,11 +766,11 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 732 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 48 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 343 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 51 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 344 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 834 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 862 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2356 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -855,7 +856,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 219 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 217 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
@@ -1037,7 +1038,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1885 | 36 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1983 | 38 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
@@ -1228,6 +1229,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluInstalledAppResolverTest.kt` | 52 | 1 |

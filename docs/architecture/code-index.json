@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:35:33.541414+00:00",
-  "commit": "70a0a3979bc60b602ce2738cb6513fcb617340f0",
+  "generatedAt": "2026-11-12T07:36:49.303955+00:00",
+  "commit": "739d21e1d34169a464effde428f1a45a7cbec125",
   "branch": "main",
-  "sourceFingerprint": "335bb8ef2d68bab57180e4ba8411679a0d4a2502edc1e46dc99c0308fd3f5934",
+  "sourceFingerprint": "ff6815868a4d2402419feba6cf17a24e96ebe95975077404724598238216ff0b",
   "summary": {
-    "files": 1255,
-    "lines": 266183,
-    "symbols": 3755
+    "files": 1257,
+    "lines": 266482,
+    "symbols": 3758
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1823,13 +1823,13 @@
     "hintFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 34
+        "line": 30
       }
     ],
     "decode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 55
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
@@ -1839,7 +1839,7 @@
     "decodePlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 57
+        "line": 43
       }
     ],
     "genuinelyConnected": [
@@ -11889,7 +11889,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1754
+        "line": 1852
       }
     ],
     "repliedByDecisionId": [
@@ -15889,7 +15889,7 @@
     "invalidReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 32
+        "line": 35
       }
     ],
     "decodeDecision": [
@@ -18909,7 +18909,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1732
+        "line": 1734
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 1830
       }
     ],
     "bubbles": [
@@ -18982,6 +18986,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 1566
+      }
+    ],
+    "reply": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 1738
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -20744,6 +20754,12 @@
         "line": 6
       }
     ],
+    "LuluBackgroundPhoneArgumentPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
+        "line": 11
+      }
+    ],
     "LuluBackgroundPhonePreviewGateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt",
@@ -22435,20 +22451,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 201,
-      "sha256": "8a7b92afcdfd1743dca4ff59faf8a8132de4ca4c76fc83c4e321ddcaf18198c7",
+      "lines": 179,
+      "sha256": "4f777df6d07d6954b4d16eb900520b7507332102d0233f13bf8561419ab3d5e7",
       "symbols": [
         {
           "name": "hintFor",
-          "line": 34
+          "line": 30
         },
         {
           "name": "decode",
-          "line": 55
+          "line": 41
         },
         {
           "name": "decodePlan",
-          "line": 57
+          "line": 43
         }
       ]
     },
@@ -24476,6 +24492,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
       "lines": 196,
       "sha256": "033905a26350a2a42e4cd2278176f4189fc5bca12a77dcbf25efdbf0b5b1530e",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt",
+      "lines": 136,
+      "sha256": "2f6c2c44174387a27cb9b402732fb650d28058c16b27256a1b7848e14a0ee763",
       "symbols": []
     },
     {
@@ -37189,19 +37211,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-      "lines": 48,
-      "sha256": "979d2dac6274b0580c1410d69858b8c9ae3fd596f00e7e3f3993d8e7fa1be96d",
+      "lines": 51,
+      "sha256": "56557d8da55b52a2f514b084249e44dc068b1f744481debe5ea8a6e63d496b3a",
       "symbols": [
         {
           "name": "invalidReason",
-          "line": 32
+          "line": 35
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 343,
-      "sha256": "ce86b7d6a0ee4311050e0fff997c82bbed22dbd6373766306c776fb146cf125b",
+      "lines": 344,
+      "sha256": "e22866dbe49a2b0abb0af8b131da4021da82ce33c804598ce59db07122b2461a",
       "symbols": [
         {
           "name": "Outcome",
@@ -37241,8 +37263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 834,
-      "sha256": "16eedb8f5e55f3d8338a837873cd11ad530241b63143cb40241c253d35eb674b",
+      "lines": 862,
+      "sha256": "abdb07505a4e64835e0bf29608dcfadf4c4db895ddf759775ed9b4257c46beb4",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -38923,8 +38945,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
-      "lines": 219,
-      "sha256": "818b99e59fe9ae6cf736795d23e4ceb1465d4f77746619948c5c69f81e9d2491",
+      "lines": 217,
+      "sha256": "5526a3241fdab44e83a22f24ecfec28d79f4239421b3945fba766b8603ed87ae",
       "symbols": [
         {
           "name": "GroupChatTurnPlannerTest",
@@ -41365,8 +41387,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 1885,
-      "sha256": "526316feac82c6d7951fc98df2ff40fd8901ede5e4261b4c74739c5db1183c97",
+      "lines": 1983,
+      "sha256": "5d8f862dd0f3a524fddfddd35d8a0295706ffbf02af075283df2c9dc0c0602cc",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -41506,11 +41528,19 @@
         },
         {
           "name": "response",
-          "line": 1732
+          "line": 1734
+        },
+        {
+          "name": "reply",
+          "line": 1738
+        },
+        {
+          "name": "response",
+          "line": 1830
         },
         {
           "name": "receipts",
-          "line": 1754
+          "line": 1852
         }
       ]
     },
@@ -44125,6 +44155,17 @@
         {
           "name": "TheaterWorldBookContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
+      "lines": 57,
+      "sha256": "f0e744578792bc9ae90ed3658b6499d62717a8d099755dce17108e10227dc80d",
+      "symbols": [
+        {
+          "name": "LuluBackgroundPhoneArgumentPolicyTest",
+          "line": 11
         }
       ]
     },
