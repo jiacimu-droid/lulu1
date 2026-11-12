@@ -2963,11 +2963,10 @@ object ProactivePerceptionRuntime {
         // Report the SAME character's actual independent-display receipts only
         // after the continuation has finished/paused, as a new role-authored
         // private message. No screenshot of the owner's main display is used.
-        if (hasFreshUserMessage && phoneReceipts.isNotEmpty() &&
-            replyConversationIds.isNotEmpty() && !supersededByNewMessage()) {
+        if (phoneReceipts.isNotEmpty() && !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
-                it.id in replyConversationIds && it.groupChat == null &&
-                    it.characterId == character.characterId
+                it.groupChat == null && it.characterId == character.characterId &&
+                    (!hasFreshUserMessage || it.id in replyConversationIds)
             }
             if (destination != null) {
                 val report = (
@@ -2990,11 +2989,13 @@ object ProactivePerceptionRuntime {
                             如果还没有真的打开目标App、获得真实画面、或滑动未核实，就直说卡在哪儿；
                             虚拟屏创建成功不等于刷完视频。没有本轮真实后台图片，就绝不能
                             用主人正在聊微信/ChatGPT的主屏内容当作后台画面来描述。
-                            用户仍在等待任务结果。若第一次尝试就失败，也要根据实际回执自然说明；
+                            ${if (hasFreshUserMessage) "主人仍在等待本次请求的结果；请真实说明。" else "这是你自己的主动探索；请自己决定是否自然分享这次发现或故障，若不想说可返回 silent。"}
+                            若第一次尝试就失败，也要根据实际回执自然说明；
                             如果已经亲自尝试了替代步骤，也说明新的真实结果。不要只重复“我再去看看”，
                             更不能把模型后续尝试失败说成已经解决。下线前不留下一句空头保证。
                             你可以按本人性格简短表达具体进展、失败或疑问。
-                            只输出JSON：{"text":"你此刻实际想发给主人私聊的话"}。
+                            只输出JSON：{"decision":"message|silent","text":"本人此刻实际想发的话；选择silent时留空"}。
+                            不能把没有做的事说成已经做完。
                         """.trimIndent(),
                         source = "角色本人·后台手机任务真实结果",
                         title = character.displayName + "后台手机实况反馈",
@@ -3005,9 +3006,12 @@ object ProactivePerceptionRuntime {
                         turnTraceId = turnTraceId,
                     ).getOrThrow().text
                 }.getOrNull()
-                val feedbackText = suggested?.let(ModelStructuredOutput::objectOrNull)
-                    ?.optString("text")?.trim().orEmpty()
-                if (feedbackText.isNotBlank() && !supersededByNewMessage()) {
+                val feedbackDecision = suggested?.let(ModelStructuredOutput::objectOrNull)
+                val feedbackText = feedbackDecision?.optString("text")?.trim().orEmpty()
+                val shareChosen = if (hasFreshUserMessage) {
+                    feedbackDecision?.optString("decision") != "silent"
+                } else feedbackDecision?.optString("decision") == "message"
+                if (shareChosen && feedbackText.isNotBlank() && !supersededByNewMessage()) {
                     val receipt = runCatching {
                         JSONObject(ToolRouter.execute(
                             appContext, character.characterId, "send_private_message",
@@ -3029,7 +3033,8 @@ object ProactivePerceptionRuntime {
                                 ids.optString(it).takeIf(String::isNotBlank)
                             }
                     } else effectNotes += "后台任务已留下真实回执，但最后反馈尚未送达"
-                } else if (!supersededByNewMessage()) {
+                } else if (!supersededByNewMessage() &&
+                    (hasFreshUserMessage || shareChosen && feedbackText.isBlank())) {
                     effectNotes += "后台任务已有真实回执，但模型尚未生成可发送的结果反馈"
                     com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(destination.id)
                         .reportError("后台手机操作结果已记录，但本轮结果回复未生成；请查看实际工具回执")
