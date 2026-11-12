@@ -238,12 +238,20 @@ object LuluShellDisplayMain {
             }
             Thread.sleep(FRAME_POLL_MS)
         }
-        val pixels = acquired ?: return JSONObject().put("success", false)
-            .put("status", "unverified").put("displayId", displayId)
-            .put("frameFreshAfterAction", false)
-            .put("verification", if (barrier > 0L)
-                "未等到动作之后的新虚拟屏帧；保留真实失败，不能使用旧截图冒充"
-                else "独立虚拟屏尚未产生可读取的图像")
+        val pixels = acquired ?: run {
+            // A failed/no-op text input may never produce a new frame. Do not
+            // keep the old barrier armed indefinitely: a later explicit observe
+            // must be allowed to check the display again. Never reuse an old
+            // frame as proof that this action happened.
+            pendingActionFrameBarrierNanos = 0L
+            pendingActionNeedsFrame = false
+            return JSONObject().put("success", false)
+                .put("status", "unverified").put("displayId", displayId)
+                .put("frameFreshAfterAction", false)
+                .put("verification", if (barrier > 0L)
+                    "动作后没有新帧，已解除本次等待屏障；可安全重新观察，旧截图不代表执行成功"
+                    else "独立虚拟屏尚未产生可读取的图像")
+        }
         try {
             val timestamp = pixels.timestamp
             val newerThanLast = LuluDisplayFrameFreshness.isNewer(

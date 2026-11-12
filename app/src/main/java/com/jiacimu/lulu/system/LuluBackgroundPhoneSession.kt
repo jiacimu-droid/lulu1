@@ -339,7 +339,7 @@ internal object LuluBackgroundPhoneSession {
                 else -> command(request)
             }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
-            if (applied != null && !applied.optBoolean("accepted")) {
+            if (applied != null && !applied.optBoolean("accepted") && action != "type") {
                 return applied.put("mode", "independent_virtual_display")
                     .put("status", "unverified")
                     .put("verification", if (action == "type")
@@ -392,6 +392,12 @@ internal object LuluBackgroundPhoneSession {
                 pixels.startsWith("data:image/jpeg;base64,")
             if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             val expected = args.optString("expectedText").trim()
+            val textReadbackVerified = if (action == "type" && applied?.optBoolean("accepted") == true) {
+                withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.typedTextReadbackOnDisplay(
+                        id, activeApp, args.getString("text"))
+                }
+            } else false
             val actionConditionVerified = action == "observe" ||
                 (action == "launch" && visible.packageName == requestedPackage) ||
                 (expected.isNotBlank() && visible.visibleText.contains(expected))
@@ -400,7 +406,9 @@ internal object LuluBackgroundPhoneSession {
             // a swipe changed content or that the requested task was completed.
             // Previously a swipe without expectedText was always "unverified",
             // so continuous browsing stopped after just one swipe.
-            val observed = hasFrame && (actionConditionVerified || expected.isBlank())
+            val observed = hasFrame && (actionConditionVerified || expected.isBlank()) &&
+                (applied?.optBoolean("accepted") != false) &&
+                (action != "type" || textReadbackVerified)
             val sharedReceipt = if (args.optBoolean("sendToChat")) {
                 if (!hasFrame) JSONObject().put("sentToChat", false)
                     .put("shareError", "后台虚拟屏未获得真实画面，不能发主屏截图替代")
@@ -431,6 +439,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("status", if (observed) "observed" else "unverified")
                 .put("actionConditionVerified", actionConditionVerified)
                 .put("taskCompleted", false)
+                .put("inputTextReadbackVerified", textReadbackVerified)
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
@@ -444,7 +453,11 @@ internal object LuluBackgroundPhoneSession {
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
                 .put("shareError", sharedReceipt.optString("shareError"))
-                .put("verification", if (actionConditionVerified)
+                .put("verification", if (action == "type" && !textReadbackVerified)
+                    "后台搜索文字未能从目标输入框读回，可能未取得焦点或App拒绝输入；此画面仅供本人排查，不能声称已经搜到"
+                    else if (action == "type" && observed)
+                    "已从后台目标应用输入框读回所输文字；尚未执行搜索提交，实际搜索结果仍需观察"
+                    else if (actionConditionVerified)
                     "已观察到后台目标窗口与指定的验证条件；实际业务任务是否完成仍由角色依据画面判断"
                     else if (observed)
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"

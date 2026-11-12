@@ -1748,9 +1748,9 @@ object LuluDeviceToolBridge {
         // No second agent/persona and no automatic extra calls on ordinary chat.
         val phoneContinuation = if (plan.tool == "background_phone" &&
             actual?.optString("mode") == "independent_virtual_display" &&
-            actual.optString("status") !in setOf("failed", "denied") &&
-            (roleScreenImage != null || (actualToolArgs.optString("action") == "start" &&
-                actual.optBoolean("success"))) &&
+            actual.optString("status") != "denied" &&
+            // Even an unverified input/no-frame receipt must reach the same
+            // character. It can choose a safe observe/recovery or ask the owner.
             actualToolArgs.optString("action") != "stop" &&
             !sceneContext.contains("电话")) {
             LuluBackgroundPhoneContinuation.continueFrom(

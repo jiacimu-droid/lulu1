@@ -122,8 +122,8 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("动作未获准：" + action.take(80))
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
-            if (image == null && action !in setOf("start", "launch", "stop")) {
-                history.appendLine("当前没有真实后台画面，不能盲点/滑动/输入；只允许重新建屏或明确打开已授权App")
+            if (image == null && action !in setOf("start", "launch", "observe", "stop")) {
+                history.appendLine("当前没有真实后台画面，不能盲点/滑动/输入；只允许重新建屏、打开已授权App或只读重新观察")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             val nextId = requestId + "-phone-" + index

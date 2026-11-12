@@ -7,6 +7,11 @@ package com.jiacimu.lulu.system
  * decision or copied to the model.
  */
 internal object LuluVirtualSearchFieldPolicy {
+    /** Only recover focus when exactly one visible safe editor is a search field.
+     * Ambiguous input targets are never selected programmatically. */
+    fun canRecoverUniqueSearchField(searchEditors: Int, otherEditors: Int): Boolean =
+        searchEditors == 1 && otherEditors == 0
+
     fun isSearchEditor(className: String?, hint: String?, viewId: String?): Boolean {
         val metadata = listOfNotNull(className, hint, viewId)
             .joinToString(" ").lowercase()

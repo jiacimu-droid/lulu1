@@ -177,21 +177,58 @@ class LuluAccessibilityService : AccessibilityService() {
             return blocked
         }
 
+        private fun safeEditable(node: AccessibilityNodeInfo): Boolean =
+            node.isVisibleToUser && node.isEnabled && node.isEditable && !node.isPassword
+
+        private fun searchEditor(node: AccessibilityNodeInfo): Boolean =
+            safeEditable(node) && LuluVirtualSearchFieldPolicy.isSearchEditor(
+                node.className?.toString(), node.hintText?.toString(),
+                node.viewIdResourceName)
+
+        /** Scan only the verified app's actual accessibility tree, never the IME
+         * or the owner's display 0. This is a focus recovery, not a text guess. */
+        private fun visibleEditors(root: AccessibilityNodeInfo): List<AccessibilityNodeInfo> {
+            val editors = mutableListOf<AccessibilityNodeInfo>()
+            var visited = 0
+            fun visit(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 28 || visited++ >= 450) return
+                if (safeEditable(node)) editors.add(node)
+                for (index in 0 until node.childCount) {
+                    node.getChild(index)?.let { visit(it, depth + 1) }
+                }
+            }
+            visit(root, 0)
+            return editors
+        }
+
+        private fun uniqueSearchEditor(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+            val editors = visibleEditors(root)
+            val searches = editors.filter(::searchEditor)
+            return searches.singleOrNull()?.takeIf {
+                LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                    searches.size, editors.size - searches.size)
+            }
+        }
+
+        private fun ownedVirtualRoots(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+        ): List<AccessibilityNodeInfo> = service.windowsOnAllDisplays.get(displayId).orEmpty()
+            .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION }
+            .sortedByDescending { it.layer }.mapNotNull { it.root }
+            .filter { it.packageName?.toString() == packageName }
+
         fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
-            if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0 ||
+            if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
                 text.isEmpty() || text.length > 500) return false
-            val windows = service.windowsOnAllDisplays.get(displayId).orEmpty()
-            // Only the owner app's actual application window may receive
-            // ACTION_SET_TEXT. The keyboard window can cover it, but its
-            // package/name must never become a text target.
-            for (window in windows.filter {
-                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION
-            }.sortedByDescending { it.layer }) {
-                val root = window.root ?: continue
-                if (root.packageName?.toString() != packageName) continue
-                val field = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: continue
-                if (!field.isVisibleToUser || !field.isEditable || field.isPassword) continue
+            for (root in ownedVirtualRoots(service, displayId, packageName)) {
+                val current = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                // Mika recovers focus on the actual editor. Lulu only does this
+                // when there is a single unambiguous search input in the app.
+                val field = current?.takeIf(::safeEditable)
+                    ?: uniqueSearchEditor(root)?.also {
+                        it.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+                    } ?: continue
                 val arguments = Bundle().apply {
                     putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
                 }
@@ -200,26 +237,38 @@ class LuluAccessibilityService : AccessibilityService() {
             return false
         }
 
-        /** An Enter on a virtual display can send a chat message as well as search.
-         * Only allow it when the already-focused editable node is clearly a
-         * search field belonging to the verified target app. Unknown = deny.
-         */
+        /** ACTION_SET_TEXT being accepted is not proof the application kept it. */
+        fun typedTextReadbackOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
+            val service = instance ?: return false
+            if (displayId <= 0 || packageName.isBlank() || text.isEmpty()) return false
+            return ownedVirtualRoots(service, displayId, packageName).any { root ->
+                val focus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                    ?.takeIf(::safeEditable)
+                val field = focus ?: uniqueSearchEditor(root)
+                field?.text?.toString() == text
+            }
+        }
+
+        /** Enter may send a message. Only a truly focused search editor on the
+         * verified virtual app can authorize it; an ambiguous editor cannot. */
         fun hasFocusedVirtualSearchEditor(displayId: Int, packageName: String): Boolean {
             val service = instance ?: return false
             if (displayId <= 0 || packageName.isBlank()) return false
-            return service.windowsOnAllDisplays.get(displayId).orEmpty()
-                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION }
-                .sortedByDescending { it.layer }
-                .any { window ->
-                    val root = window.root ?: return@any false
-                    if (root.packageName?.toString() != packageName) return@any false
-                    val node = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                        ?: return@any false
-                    node.isVisibleToUser && node.isEditable && !node.isPassword &&
-                        LuluVirtualSearchFieldPolicy.isSearchEditor(
-                            node.className?.toString(), node.hintText?.toString(),
-                            node.viewIdResourceName)
-                }
+            return ownedVirtualRoots(service, displayId, packageName).any { root ->
+                val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                if (focused != null && safeEditable(focused))
+                    return@any searchEditor(focused)
+                val unique = uniqueSearchEditor(root) ?: return@any false
+                // A field can lose focus when the IME reopens. Restore focus
+                // only to a verified unique SEARCH editor; never synthesize Enter
+                // unless the device confirms it currently owns input focus.
+                unique.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+                unique.refresh()
+                if (!unique.isFocused) unique.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                val refreshed = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+                    ?: unique.takeIf { it.refresh() && it.isFocused }
+                refreshed != null && searchEditor(refreshed)
+            }
         }
 
         fun perform(action: LuluScreenAction): Boolean {

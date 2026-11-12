@@ -26,6 +26,13 @@ class LuluVirtualSearchFieldPolicyTest {
             "android.widget.EditText", null, null))
     }
 
+    @Test fun searchFocusRecoveryRequiresExactlyOneUnambiguousEditor() {
+        assertTrue(LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(1, 0))
+        assertFalse(LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(0, 0))
+        assertFalse(LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(2, 0))
+        assertFalse(LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(1, 1))
+    }
+
     @Test fun inputContentsCannotTurnAnotherEditorIntoSearch() {
         // The policy has no actual text/input-content argument at all: only
         // the currently focused editor's class/hint/resourceId count.
