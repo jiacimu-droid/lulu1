@@ -167,6 +167,10 @@ object LuluShellDisplayMain {
                 point(cmd, "endX", WIDTH).toString(), point(cmd, "endY", HEIGHT).toString(),
                 cmd.optInt("durationMs", 400).coerceIn(180, 1600).toString())
             "back" -> listOf("input", "-d", id.toString(), "keyevent", "KEYCODE_BACK")
+            // An app's search field often needs an explicit IME Enter/Search
+            // after ACTION_SET_TEXT. Model must choose this as a separate
+            // owner-authorized action; typing text alone never submits.
+            "submit" -> listOf("input", "-d", id.toString(), "keyevent", "KEYCODE_ENTER")
             else -> error("unsupported virtual display operation")
         }
         val frameBarrier = discardPreActionFrames()
