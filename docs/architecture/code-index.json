@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:53:11.340072+00:00",
-  "commit": "aa6d2bd071c3759bcaee0595dfae576875f20c0e",
+  "generatedAt": "2026-11-12T05:56:28.571418+00:00",
+  "commit": "202908304a1e67c6ef2d50fa4b8269fc59402435",
   "branch": "main",
-  "sourceFingerprint": "13b8b6033953803bb3020d1c8deffac459b2196e9be1f2918f00ee69cd1747eb",
+  "sourceFingerprint": "0c99bd3053044c25ef962d60a654434c7926315391ad619220b3fabfe54e4833",
   "summary": {
     "files": 1224,
-    "lines": 263539,
-    "symbols": 3690
+    "lines": 263574,
+    "symbols": 3691
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -331,7 +331,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 105
+        "line": 115
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -749,7 +749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 442
+        "line": 439
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -13727,7 +13727,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 110
+        "line": 107
       }
     ],
     "actorCenter": [
@@ -13993,7 +13993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 109
+        "line": 106
       }
     ],
     "adjacent": [
@@ -14812,22 +14812,28 @@
         "line": 41
       }
     ],
+    "selectedVisible": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
+        "line": 50
+      }
+    ],
     "optionLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 47
+        "line": 57
       }
     ],
     "knownRouteTiles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 62
+        "line": 72
       }
     ],
     "knownRouteSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 103
+        "line": 113
       }
     ],
     "kind": [
@@ -35349,20 +35355,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 620,
-      "sha256": "a09d6db1c60a446f9a3ef9a7c1e7e3662e0208d219b910c5b202ff15cec06a67",
+      "lines": 617,
+      "sha256": "3d11a1eaddfd49395b7c3704ba5b5113e6c953fca7975606238a7da745cb44fc",
       "symbols": [
         {
           "name": "cell",
-          "line": 109
+          "line": 106
         },
         {
           "name": "center",
-          "line": 110
+          "line": 107
         },
         {
           "name": "label",
-          "line": 442
+          "line": 439
         }
       ]
     },
@@ -35556,8 +35562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 120,
-      "sha256": "7289c85d0c7b1a9a076607047472f7e89df320eef62811fc9586831125292ad1",
+      "lines": 130,
+      "sha256": "834c239c85416dcb308f4792f8ed557c8a347910273e401d08ae4299c3f073c3",
       "symbols": [
         {
           "name": "nextVisible",
@@ -35572,20 +35578,24 @@
           "line": 41
         },
         {
+          "name": "selectedVisible",
+          "line": 50
+        },
+        {
           "name": "optionLabel",
-          "line": 47
+          "line": 57
         },
         {
           "name": "knownRouteTiles",
-          "line": 62
+          "line": 72
         },
         {
           "name": "knownRouteSteps",
-          "line": 103
+          "line": 113
         },
         {
           "name": "prompt",
-          "line": 105
+          "line": 115
         }
       ]
     },
@@ -43204,8 +43214,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-      "lines": 95,
-      "sha256": "399b476de4cefc60e7d17510eaaa432c2afd6769012a15b0948769ef47972106",
+      "lines": 123,
+      "sha256": "247807e8ef836915c301e2f3bb03f6c108676a99eead961463f29526af88baa4",
       "symbols": [
         {
           "name": "RelicObjectiveRouteTest",
