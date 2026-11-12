@@ -97,6 +97,34 @@ class RelicEscapeRulesTest {
             contract=RelicContract.MASTER,hero=base.hero.copy(bag=listOf(seal,jewel)))))
     }
 
+    @Test fun epicAndFineHaveIndependentSeededOddsNotUniformRecoloring() {
+        val base=RelicEscapeWorld.create(5001,2,emptyList(),0,1)
+        val preciousChest=RelicChest(0,5,5,RelicTier.PRECIOUS)
+        val commonChest=preciousChest.copy(tier=RelicTier.COMMON)
+        var epic=0
+        var fine=0
+        var crown=0
+        for(seed in 0 until 1000) {
+            val seeded=base.copy(seed=seed)
+            val special=RelicEscapeRules.treasure(seeded,preciousChest)
+            val simple=RelicEscapeRules.treasure(seeded,commonChest)
+            assertEquals(special,RelicEscapeRules.treasure(seeded,preciousChest))
+            assertEquals(simple,RelicEscapeRules.treasure(seeded,commonChest))
+            when(RelicCollectibles.displayRank(special)) {
+                "史诗" -> {epic++;assertTrue(special.value in 460..492)}
+                "传世秘宝" -> {crown++;assertEquals(6000,special.value)}
+                else -> assertTrue(special.value in 430..459)
+            }
+            when(RelicCollectibles.displayRank(simple)) {
+                "精良" -> {fine++;assertTrue(simple.value in 100..132)}
+                else -> assertTrue(simple.value in 70..99)
+            }
+        }
+        assertTrue("Epic must be rarer than base precious",epic in 90..210)
+        assertTrue("Fine must be rarer than base common",fine in 100..210)
+        assertEquals("Precious-box crown remains genuinely exceptional",5,crown)
+    }
+
     @Test fun treasureOrExitStaysARealPlayerChoiceAfterFindingLoot() {
         val base=RelicEscapeWorld.create(912,2,emptyList(),0,1)
         val chest=base.chests.first()
