@@ -57,7 +57,29 @@ class PerformanceAuditPersistenceTest {
         assertEquals("Full", saved.contextMode)
         assertTrue(saved.streamedRequest)
         assertEquals("opaque-turn-test-7", saved.turnTraceId)
+        assertTrue(reloaded.timingRecords.first().filter { it.stage in setOf("Prompt", "模型请求", "总耗时") }
+            .all { it.traceId == "opaque-turn-test-7" })
         assertEquals(1, saved.breakdown.size)
+    }
+
+    @Test fun timingTraceSurvivesReloadAndLegacyIsNeverGuessed() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val pref = app.getSharedPreferences("lulu_performance_monitor", android.content.Context.MODE_PRIVATE)
+        val previous = pref.getString("state_v1", null)
+        try {
+            pref.edit().remove("state_v1").commit()
+            val original = LocalPerformanceRepository(app)
+            original.recordTiming("角色执行队列", 600L, "queue", traceId = "turn-1")
+            original.recordTiming("消息到首条回复入库", 214779L, "legacy")
+            val saved = LocalPerformanceRepository(app).timingRecords.first()
+            assertEquals("turn-1", saved.first { it.stage == "角色执行队列" }.traceId)
+            assertEquals("", saved.first { it.stage == "消息到首条回复入库" }.traceId)
+            assertEquals(1, ChatTimingTrace.group(saved).size)
+            assertEquals(1, ChatTimingTrace.legacy(saved).size)
+        } finally {
+            if (previous == null) pref.edit().remove("state_v1").commit()
+            else pref.edit().putString("state_v1", previous).commit()
+        }
     }
 
     @Test fun requestHandoffsCountFailedAndRepeatedAttemptsWithoutConversationText() = runBlocking {
