@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T03:10:16.270819+00:00",
-  "commit": "d3b55fd96f80d9293ead261994f7c0f726bb7e13",
+  "generatedAt": "2026-11-12T03:10:38.870090+00:00",
+  "commit": "d8cab63454d35b292e5255b91f05c49df1b05fc4",
   "branch": "main",
-  "sourceFingerprint": "47fe4b76035862894962c7c3cd01e31fead19689fd66459770c96735e23050af",
+  "sourceFingerprint": "b5ab61d1103c7fe00db160db452954c1edaacb95340e29915ed25e09cb898998",
   "summary": {
-    "files": 1215,
-    "lines": 261872,
-    "symbols": 3661
+    "files": 1216,
+    "lines": 261911,
+    "symbols": 3662
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20364,6 +20364,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt",
         "line": 5
+      }
+    ],
+    "LuluDisplayFrameFreshnessTest": [
+      {
+        "path": "app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt",
+        "line": 12
       }
     ],
     "TimelineMigrationTest": [
@@ -43225,6 +43231,17 @@
         {
           "name": "LuluWirelessDebuggingHostTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt",
+      "lines": 39,
+      "sha256": "475bb9d7589d54cbe00d5b36e201340dc43ae80c2c0db94f8b5fd31ced645a77",
+      "symbols": [
+        {
+          "name": "LuluDisplayFrameFreshnessTest",
+          "line": 12
         }
       ]
     },
