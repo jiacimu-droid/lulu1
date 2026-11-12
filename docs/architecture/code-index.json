@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:01:50.049177+00:00",
-  "commit": "3d3c8e50335ada827e2d279d1c868ae428605daf",
+  "generatedAt": "2026-11-12T05:03:04.670539+00:00",
+  "commit": "a21f803124031d8091b1177f3dce8bc84ca969f7",
   "branch": "main",
-  "sourceFingerprint": "25c857ef8b18348cc228444f5f522852cb99b75e86ee4ef1fc87d0290cda6c8e",
+  "sourceFingerprint": "c037b2af79aa2682e03513181765ee3be71e31c574a816f299f0d1d27f61892c",
   "summary": {
     "files": 1222,
-    "lines": 262809,
-    "symbols": 3673
+    "lines": 262827,
+    "symbols": 3674
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -911,7 +911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 230
+        "line": 235
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -8239,7 +8239,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 927
+        "line": 945
       }
     ],
     "DailyCommitmentAttempt": [
@@ -8415,7 +8415,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 259
+        "line": 264
       }
     ],
     "CompanionUnreadSnapshot": [
@@ -8433,43 +8433,43 @@
     "wakeCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 312
+        "line": 317
       }
     ],
     "goOfflineByChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 340
+        "line": 345
       }
     ],
     "recordActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 373
+        "line": 378
       }
     ],
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 394
+        "line": 399
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 450
+        "line": 455
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 621
+        "line": 626
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 677
+        "line": 682
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -8479,43 +8479,49 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 691
+        "line": 696
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 721
+        "line": 726
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 738
+        "line": 743
+      }
+    ],
+    "finishOnlineExpiryReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
+        "line": 764
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 753
+        "line": 771
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 928
+        "line": 946
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 949
+        "line": 967
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 970
+        "line": 988
       }
     ],
     "repeatsConfirmedAction": [
@@ -28101,8 +28107,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1051,
-      "sha256": "dd51008eb52176139142fe1f6c8fc1f662605e7eaef46c08c5cacd60b1c41839",
+      "lines": 1069,
+      "sha256": "ef3378c242771e2d373a2e9807794d288e99c00a5fa209a3b1205a36f2463ed9",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -28126,71 +28132,75 @@
         },
         {
           "name": "initialize",
-          "line": 230
+          "line": 235
         },
         {
           "name": "isOnline",
-          "line": 259
+          "line": 264
         },
         {
           "name": "wakeCharacter",
-          "line": 312
+          "line": 317
         },
         {
           "name": "goOfflineByChoice",
-          "line": 340
+          "line": 345
         },
         {
           "name": "recordActivity",
-          "line": 373
+          "line": 378
         },
         {
           "name": "wakeGroup",
-          "line": 394
+          "line": 399
         },
         {
           "name": "onConversationMessage",
-          "line": 450
+          "line": 455
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 621
+          "line": 626
         },
         {
           "name": "markSeen",
-          "line": 677
+          "line": 682
         },
         {
           "name": "resetCharacter",
-          "line": 691
+          "line": 696
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 721
+          "line": 726
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 738
+          "line": 743
+        },
+        {
+          "name": "finishOnlineExpiryReview",
+          "line": 764
         },
         {
           "name": "extendByOwnChoice",
-          "line": 753
+          "line": 771
         },
         {
           "name": "Result",
-          "line": 927
+          "line": 945
         },
         {
           "name": "uncovered",
-          "line": 928
+          "line": 946
         },
         {
           "name": "proposalIssue",
-          "line": 949
+          "line": 967
         },
         {
           "name": "ensure",
-          "line": 970
+          "line": 988
         }
       ]
     },
