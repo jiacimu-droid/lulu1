@@ -319,6 +319,10 @@ internal object LuluBackgroundPhoneSession {
                     require(value.isNotEmpty() && value.length <= 500) {
                         "每次只允许输入1到500个字符"
                     }
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) {
+                        "无法建立后台屏文字输入的画面核验屏障"
+                    }
                     val accepted = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.typeOnDisplay(id, activeApp, value)
                     }
