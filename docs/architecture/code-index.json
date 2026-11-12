@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T15:36:38.651168+00:00",
-  "commit": "3f58255e1bb48f0af785cb5abee5b90a58bd6908",
+  "generatedAt": "2026-11-12T16:05:13.187332+00:00",
+  "commit": "40dc5feb2d0eca5fb8eec7b20b89c99558bcd00e",
   "branch": "main",
-  "sourceFingerprint": "4ce69f9a6c155f44822680b7d1d4e5ba2bca61a67b8784c1419dc677ad72c9d9",
+  "sourceFingerprint": "acc6aa78b8d011f4d9e8a9acc77e75f8b898325314327fdf39a96d4baab94d43",
   "summary": {
     "files": 1283,
-    "lines": 270925,
-    "symbols": 3836
+    "lines": 270955,
+    "symbols": 3837
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3997,7 +3997,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 208
+        "line": 238
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -4162,6 +4162,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
         "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 217
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
@@ -28861,8 +28865,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 252,
-      "sha256": "28bfa4a0f8404dfceb4811e0e5cc610d0b2f6d5461b31afc3602d7a1f65325c1",
+      "lines": 282,
+      "sha256": "c2f310e495cf313bcf0b4f0894893258565030c95ac878408d57b03c067466a6",
       "symbols": [
         {
           "name": "DailyCommitmentAttempt",
@@ -28889,8 +28893,12 @@
           "line": 184
         },
         {
+          "name": "select",
+          "line": 217
+        },
+        {
           "name": "render",
-          "line": 208
+          "line": 238
         }
       ]
     },
