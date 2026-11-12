@@ -47,6 +47,74 @@ internal object LuluBackgroundPhoneSession {
 
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
 
+    /**
+     * Owner-only read-only look into the ALREADY running virtual display.
+     * No helper startup, model request, user main-screen screenshot, image
+     * persistence, timeline action, or role-frame handoff. A missing window,
+     * app ownership change, expired permission or protected app is a hard stop.
+     */
+    data class OwnerPreviewFrame(
+        val displayId: Int,
+        val packageName: String,
+        val imageDataUrl: String,
+        val timestampNanos: Long,
+        val newerThanPreviousCapture: Boolean,
+    )
+
+    suspend fun ownerPreview(context: Context, characterId: String): OwnerPreviewFrame {
+        mutex.lock()
+        try {
+            check(characterId.isNotBlank() && !characterId.startsWith("resident:")) {
+                "没有可查看后台手机的真实角色"
+            }
+            check(!ownerHasPaused(context)) { "主人已暂停后台手机操作" }
+            check(LuluScreenAwareness.onDemandAllowed(context)) { "主人尚未授权按需读取屏幕" }
+            check(context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true) {
+                "手机已锁屏，不能查看后台画面"
+            }
+            check(connected() && displayId > 0) {
+                "当前没有运行中的独立后台屏；请先让角色真实打开一个应用"
+            }
+            check(ownerCharacterId == characterId) {
+                "这块后台屏属于另一角色，不能跨角色查看"
+            }
+            val id = displayId
+            val pkg = activeApp
+            check(pkg.isNotBlank() && !LuluScreenAwareness.isExcluded(context, pkg)) {
+                "后台没有已授权的可查看应用"
+            }
+            val before = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.observeDisplay(id)
+            }
+            check(before.connected && before.packageName == pkg) {
+                "后台窗口已切换或无法核实；禁止显示未经确认的画面"
+            }
+            val captured = command(JSONObject().put("action", "observe"))
+            check(captured.optBoolean("success") &&
+                captured.optBoolean("frameValidated") &&
+                captured.optLong("frameTimestampNanos", 0L) > 0L) {
+                captured.optString("verification").ifBlank { "后台没有新的可核验截图" }
+            }
+            val after = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.observeDisplay(id)
+            }
+            check(after.connected && after.packageName == pkg &&
+                !LuluScreenAwareness.isExcluded(context, after.packageName)) {
+                "截图期间后台窗口发生变化，已丢弃这帧图像"
+            }
+            val pixels = captured.optString("imageDataUrl")
+            check(pixels.startsWith("data:image/jpeg;base64,")) {
+                "独立后台屏没有可读取的 JPEG 画面"
+            }
+            return OwnerPreviewFrame(id, pkg, pixels,
+                captured.optLong("frameTimestampNanos"),
+                captured.optBoolean("newerThanPreviousCapture"))
+        } finally {
+            mutex.unlock()
+        }
+    }
+
+
     private fun forgetTransport() {
         appContext?.let { runCatching { LuluBackgroundPhoneNotice.clear(it) } }
         appContext = null
