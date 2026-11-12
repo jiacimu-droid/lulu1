@@ -507,7 +507,7 @@ class RelicEscapeRulesTest {
     @Test fun everyTreasureHasOriginalDistinctArtSharedByChestAndMuseum() {
         assertEquals("No blank generic icons for new collectibles",
             RelicCollectibles.names.toSet(),RelicTreasureArt.catalogKinds.keys)
-        assertEquals(28,RelicTreasureArt.catalogKinds.size)
+        assertEquals(32,RelicTreasureArt.catalogKinds.size)
         assertTrue("Different item categories should look different",
             RelicTreasureArt.catalogKinds.values.toSet().size >= 12)
         assertEquals(RelicArtKind.STAR,
