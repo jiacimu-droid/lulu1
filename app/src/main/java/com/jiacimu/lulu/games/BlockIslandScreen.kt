@@ -353,11 +353,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 // Movement NEVER performs a resource action. The player chooses
                 // gathering/opening separately; gear is thus meaningful and
                 // a held D-pad cannot accidentally destroy a crystal vein.
-                if (BlockIslandRules.isWalkable(island,x,y) &&
-                    world.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
-                    world.friends.none { it.x==x && it.y==y } &&
-                    island.animals.none { it.x==x && it.y==y }) {
-                    perform("move",x,y)
+                val nextCell=IslandManualMovement.destination(island,dx,dy)
+                if(nextCell!=null) {
+                    perform("move",nextCell.first,nextCell.second)
                 } else if(buildMode==null &&
                     front.action in setOf("gather","salvage","recover_pack")) {
                     // One hint, not repeated disk writes on every held-key tick.
