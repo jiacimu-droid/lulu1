@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:53:44.918329+00:00",
-  "commit": "908847a06b475456e31cdeb977252db014af1aa0",
+  "generatedAt": "2026-11-12T08:54:48.428656+00:00",
+  "commit": "dbde7bc84c299702d8bb2bc7e39c74f4ddeb351a",
   "branch": "main",
-  "sourceFingerprint": "786fe414ab4a7b80637296ade216adf619c7f770b2c7877d482edf6058d29fce",
+  "sourceFingerprint": "0d43b7395383fa24f550557f7eb8ce024fadcd53d296d7ad598c980a43fcec6b",
   "summary": {
     "files": 1265,
-    "lines": 267329,
+    "lines": 267386,
     "symbols": 3771
   },
   "symbolIndex": {
@@ -10155,31 +10155,31 @@
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 105
+        "line": 106
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 115
+        "line": 116
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 128
+        "line": 129
       }
     ],
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 224
+        "line": 225
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 352
+        "line": 356
       }
     ],
     "Key": [
@@ -30383,8 +30383,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 591,
-      "sha256": "40afda718b6c8f8702438c3dfeae8221935d9251988804f13ac9e8be5f8cbf34",
+      "lines": 597,
+      "sha256": "8778fb847c6d88c4bf55df0dc94f01c5befd1bc548e1c875f666427f656d1608",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -30420,23 +30420,23 @@
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 105
+          "line": 106
         },
         {
           "name": "List",
-          "line": 115
+          "line": 116
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 128
+          "line": 129
         },
         {
           "name": "recordModelHandoff",
-          "line": 224
+          "line": 225
         },
         {
           "name": "updateDurations",
-          "line": 352
+          "line": 356
         }
       ]
     },
@@ -42543,8 +42543,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1085,
-      "sha256": "42a6cf19791adb52555e782955093c044d8df5fb6ba2c0499d176cb473acd2a9",
+      "lines": 1116,
+      "sha256": "d7a619d916dfd6b558efc66130df6bc4258d6bf2556961b35a8f172c7545c791",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -44056,8 +44056,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
-      "lines": 81,
-      "sha256": "6d2bcf6e34717eedf5a5994d7b7b56b020933ee77963260d3497adbba65266e3",
+      "lines": 101,
+      "sha256": "eed93323ce1b94a4f33672d2b9b108adb5a1c791ac798006ee6a48f78ed4d13c",
       "symbols": [
         {
           "name": "RelicChestHudStateTest",

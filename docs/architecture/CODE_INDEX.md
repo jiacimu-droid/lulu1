@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`908847a06b475456e31cdeb977252db014af1aa0`
+- 基准提交：`dbde7bc84c299702d8bb2bc7e39c74f4ddeb351a`
 - 分支：`main`
 - 已索引文件：1265
-- 已索引代码/文本行：267329
+- 已索引代码/文本行：267386
 - 已发现符号：3771
 
 | 文件 | 行数 | 符号数 |
@@ -492,7 +492,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1231 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 591 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 597 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
@@ -1105,7 +1105,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 133 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 286 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 251 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1085 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1116 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
@@ -1212,7 +1212,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt` | 25 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 81 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 784 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
