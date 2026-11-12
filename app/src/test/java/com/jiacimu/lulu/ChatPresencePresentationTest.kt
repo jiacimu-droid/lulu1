@@ -41,4 +41,17 @@ class ChatPresencePresentationTest {
         assertEquals("执行后续中", chatWorkHeaderLabel(false, true))
         assertEquals(null, chatWorkHeaderLabel(false, false))
     }
+
+    @Test fun prolongedNetworkWaitIsNotCalledCharacterTyping() {
+        assertEquals("等待接口完成", chatWorkHeaderLabel(true, false,
+            waitingForInterfaceResult = true))
+        assertEquals("等待接口完成", chatWorkHeaderLabel(true, true,
+            waitingForInterfaceResult = true))
+        assertEquals("正在查手机", chatWorkHeaderLabel(true, false,
+            checkingPhone = true, waitingForInterfaceResult = true))
+        assertEquals("执行后续中", chatWorkHeaderLabel(false, true,
+            waitingForInterfaceResult = true))
+        assertEquals(null, chatWorkHeaderLabel(false, false,
+            waitingForInterfaceResult = true))
+    }
 }
