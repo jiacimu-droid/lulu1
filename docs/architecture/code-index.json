@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:56:23.169934+00:00",
-  "commit": "81c4952f9e1f9dc878c805afb701dfac25adb69c",
+  "generatedAt": "2026-11-12T08:57:03.064314+00:00",
+  "commit": "180f8e61a971928253db2010ef6ebef0730a621e",
   "branch": "main",
-  "sourceFingerprint": "897d10d544e7c19e85a275fdfdf28d4fcbbdce16077c7f476a95234134c22569",
+  "sourceFingerprint": "f7bb6217af059bca79227a69d22ca51d8f2c132d1695997d49053d04158ed3f8",
   "summary": {
     "files": 1268,
-    "lines": 267508,
+    "lines": 267569,
     "symbols": 3779
   },
   "symbolIndex": {
@@ -915,7 +915,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 268
+        "line": 276
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -3929,13 +3929,13 @@
     "isAvailable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 606
+        "line": 607
       }
     ],
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 817
+        "line": 818
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
@@ -8327,7 +8327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1027
+        "line": 1039
       }
     ],
     "DailyCommitmentAttempt": [
@@ -8503,7 +8503,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 297
+        "line": 305
       }
     ],
     "CompanionUnreadSnapshot": [
@@ -8521,43 +8521,43 @@
     "wakeCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 352
+        "line": 360
       }
     ],
     "goOfflineByChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 380
+        "line": 388
       }
     ],
     "recordActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 413
+        "line": 425
       }
     ],
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 434
+        "line": 446
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 490
+        "line": 502
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 661
+        "line": 673
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 717
+        "line": 729
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -8567,49 +8567,49 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 731
+        "line": 743
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 761
+        "line": 773
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 778
+        "line": 790
       }
     ],
     "finishOnlineExpiryReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 807
+        "line": 819
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 840
+        "line": 852
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1028
+        "line": 1040
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1049
+        "line": 1061
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1070
+        "line": 1082
       }
     ],
     "repeatsConfirmedAction": [
@@ -11727,19 +11727,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 714
+        "line": 743
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 716
+        "line": 745
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3468
+        "line": 3516
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24498,16 +24498,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 843,
-      "sha256": "886d49cba932aa18ef8b60074fa4bebd7f2c95fafe2dab1535f66b5943a1a071",
+      "lines": 844,
+      "sha256": "3bcf2aac1e3cf486c66addfcd3f8d4a990c5e01990ed215ac58d1b30af89889b",
       "symbols": [
         {
           "name": "isAvailable",
-          "line": 606
+          "line": 607
         },
         {
           "name": "render",
-          "line": 817
+          "line": 818
         }
       ]
     },
@@ -28766,8 +28766,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1151,
-      "sha256": "eda317136fe8cc76ad6096a3ba9df11fb701c53c9a89d3624fc7b878b8c1ec9c",
+      "lines": 1163,
+      "sha256": "5640235f45fd108d498c9384403d01e5121193423d5281e33439c769def62484",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -28791,75 +28791,75 @@
         },
         {
           "name": "initialize",
-          "line": 268
+          "line": 276
         },
         {
           "name": "isOnline",
-          "line": 297
+          "line": 305
         },
         {
           "name": "wakeCharacter",
-          "line": 352
+          "line": 360
         },
         {
           "name": "goOfflineByChoice",
-          "line": 380
+          "line": 388
         },
         {
           "name": "recordActivity",
-          "line": 413
+          "line": 425
         },
         {
           "name": "wakeGroup",
-          "line": 434
+          "line": 446
         },
         {
           "name": "onConversationMessage",
-          "line": 490
+          "line": 502
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 661
+          "line": 673
         },
         {
           "name": "markSeen",
-          "line": 717
+          "line": 729
         },
         {
           "name": "resetCharacter",
-          "line": 731
+          "line": 743
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 761
+          "line": 773
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 778
+          "line": 790
         },
         {
           "name": "finishOnlineExpiryReview",
-          "line": 807
+          "line": 819
         },
         {
           "name": "extendByOwnChoice",
-          "line": 840
+          "line": 852
         },
         {
           "name": "Result",
-          "line": 1027
+          "line": 1039
         },
         {
           "name": "uncovered",
-          "line": 1028
+          "line": 1040
         },
         {
           "name": "proposalIssue",
-          "line": 1049
+          "line": 1061
         },
         {
           "name": "ensure",
-          "line": 1070
+          "line": 1082
         }
       ]
     },
@@ -32117,8 +32117,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3535,
-      "sha256": "33190f6640378693254d0d4a095b7bb98ae1c150b9e2a9f08e1f1f73d1076a98",
+      "lines": 3583,
+      "sha256": "5b89edfc03c87e2db4a807c0bc81a9be810b8c9587c8e85fafd936540e36376f",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32142,15 +32142,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 714
+          "line": 743
         },
         {
           "name": "deferSupersededDecision",
-          "line": 716
+          "line": 745
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3468
+          "line": 3516
         }
       ]
     },
