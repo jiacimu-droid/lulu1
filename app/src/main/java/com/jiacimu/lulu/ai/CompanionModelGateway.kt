@@ -774,7 +774,8 @@ class CompanionModelGateway(
             // already rendered once by CharacterInnerLifeStore.
             val continuitySection = if (fullContext)
                 com.jiacimu.lulu.data.CharacterContinuityRuntime.context(
-                    characterId, request.currentInput, includeMotives = false)
+                    characterId, request.currentInput, includeMotives = false,
+                    excludedEventIds = request.excludedEventIds)
             else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(

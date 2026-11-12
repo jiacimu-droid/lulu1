@@ -39,6 +39,30 @@ class CharacterContinuitySnapshotTest {
         assertFalse(CharacterContinuityRuntime.render(snapshot).contains("其他成员在群里说话"))
     }
 
+    @Test fun reanswerHidesTheSupersededRoleSpeechButKeepsOlderDialogue() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val role = "reanswer-continuity-boundary"
+        val base = Instant.parse("2026-11-04T07:00:00Z")
+        SharedExperienceTimeline.record("original-user", role, "私聊", "用户",
+            "你能帮我找资料吗", base, triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record("earlier-role", role, "私聊", "角色",
+            "之前聊的电影还挺有意思", base.minusSeconds(60), triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record("discarded-reply", role, "私聊", "角色",
+            "我没有联网工具", base.plusSeconds(1), triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val normal = CharacterContinuityRuntime.snapshot(role, now = base.plusSeconds(10))
+        assertEquals("discarded-reply", normal.lastCharacterStatement?.id)
+        val fresh = CharacterContinuityRuntime.snapshot(role,
+            now = base.plusSeconds(10),
+            excludedEventIds = setOf("discarded-reply"))
+        assertEquals("earlier-role", fresh.lastCharacterStatement?.id)
+        assertEquals("original-user", fresh.lastUserStatement?.id)
+        assertFalse(CharacterContinuityRuntime.render(fresh).contains("我没有联网工具"))
+    }
+
     @Test fun identicalShortUserMessagesRemainSeparatePriorTurns() {
         val context = RuntimeEnvironment.getApplication() as Context
         SharedExperienceTimeline.initialize(context)

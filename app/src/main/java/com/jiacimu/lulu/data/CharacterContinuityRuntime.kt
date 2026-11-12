@@ -35,6 +35,7 @@ internal object CharacterContinuityRuntime {
         characterId: String,
         currentUserText: String = "",
         now: Instant = Instant.now(),
+        excludedEventIds: Set<String> = emptySet(),
     ): Snapshot {
         // The first 160 statement rows can all be group witnesses of other
         // characters. Filter ownership before choosing the last real exchange;
@@ -51,6 +52,7 @@ internal object CharacterContinuityRuntime {
         var skippedCurrentEcho = false
         fun absorb(page: List<SharedTimelineEvent>) {
             for (event in page) {
+                if (event.id in excludedEventIds) continue
                 if (event.evidenceKind == EventEvidenceKind.UserStatement &&
                     TimelineStatementOwnership.involvesUser(event)) {
                     if (!skippedCurrentEcho && isCurrentInputEcho(event, currentUserText, now)) {
@@ -117,7 +119,9 @@ internal object CharacterContinuityRuntime {
         currentUserText: String = "",
         now: Instant = Instant.now(),
         includeMotives: Boolean = true,
-    ): String = render(snapshot(characterId, currentUserText, now), includeMotives)
+        excludedEventIds: Set<String> = emptySet(),
+    ): String = render(snapshot(characterId, currentUserText, now,
+        excludedEventIds), includeMotives)
 
     internal fun render(state: Snapshot, includeMotives: Boolean = true): String {
         if (state.previousInteractionAt == null && state.lastCharacterStatement == null &&
