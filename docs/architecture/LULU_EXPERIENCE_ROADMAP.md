@@ -4,6 +4,19 @@
 
 **主接力顺序：人物活人感与履约 P → 自主社交 S → 其他体验。** 数据损坏风险与全局严重卡顿可插队。人物、双游戏专项按各自范围并行，游戏先打通第一段完整游玩，再扩内容。所有代理从 AGENTS.md 读规范，从本页 §一点五 领任务，从专项进度查历史证据。
 
+### 2026-11-12 PERF-ANR.1 · 真实手机频繁“应用无响应”与内存卡顿（用户新反馈，性能插队）
+
+主人实测：角色能正常调用后台手机工具，但露露机时常顿挫，Android 弹出“应用无响应（等待/关闭）”。**不能无证据归因 RAM 满/模型调用或断言已修复全部 ANR**，仍缺 Android ANR trace、`ApplicationExitInfo`、当前已安装 APK SHA 和前后台内存曲线。
+
+**本轮已针对源码实查的主线程/内存风险与修复（源码提交 [881d8a7](https://github.com/jiacimu-droid/lulu1/commit/881d8a746ac0277602ef22bfb5bad0a59bca7fc1)，CI/真机待验）**：
+1. `LuluAccessibilityService.onAccessibilityEvent` 此前 manifest `typeAllMask`，任意事件都在应用主线程 `rootInActiveWindow.collectVisibleText` 全树递归；实际只以 300 条*唯一文字*止损，遇大 WebView/输入法/信息流的无文字节点可遍历成千上万项、频繁分配。这是**真实可见的主线程热点**，不是已证明的 ANR 单一根因。调整为必要窗口/内容/滚动/文字/点击事件集 + 合并/节流、主屏包名与事件来源一致性检查、最大全树访问节点数/深度/字符数；`observe()`、独立 virtual display 的 `observeDisplay()` 和角色明确选的工具调用依旧不受该被动事件限频控制。添加 `LuluAccessibilityEventBudgetTest`。
+2. `LuluScreenFrameHandoff` 原持有约 90 秒大 Base64 字符串，只在下一次 put 时删除过期项；角色不再截图时可能一直留在堆中。增加线程安全、同角色覆盖、全局最多 3 帧和单帧容量上限；`Application.onTrimMemory/onLowMemory` 丢弃可再获取的图片，**不清聊天和角色记忆/回执**，也不因仅仅 UI_HIDDEN 打断正在后台执行的角色。补跨角色队列上限/低内存回收回归。
+3. 独立屏预览的 Main 线程 JPEG decode 亦是可见潜在热点，但已有其他窗口在同期改 `CharacterExecutionSettings.kt`，**不强推旧文件覆盖**。需复核最新 UI 代码是否仍在 Compose 主线程解码、并查相关 render `jank`，如仍在，按最新 SHA 单独搬到后台解码。
+4. 待数据：Android ANR traces 的主线程堆栈、`adb shell dumpsys meminfo com.jiacimu.lulu`（需确认实际包名）、安装版本、重复触发场景（闲置/聊天输入/角色后台操作/Live2D/预览/游戏）。分别核进程 RAM/PSS、Java heap、native/graphics bitmap、binder 响应时间、GPU 帧，以及是否是系统低内存杀进程。未收到真机证据不能声称“内存爆满”或“ANR已彻底修好”。
+
+**验收**：本轮 CI 的 `Lulu APK/JVM` + 索引必须通过，设备上连续操作小红书/聊天/预览 10–20 分钟确认没有 ANR；若仍复现，以真实 traces 指向最慢 main thread、Binder 或 GPU 路径，按根因继续修。此性能任务可插队，但不改角色本人的选择和当前外部授权门禁。
+
+
 
 **2026-11-12 UI-02.2 · 已有消息编辑/删除持久写入拒绝回退（新 CI 待验）**：正式源码 [762533d](https://github.com/jiacimu-droid/lulu1/commit/762533d807205eccbb7a712177404924558403a3) 将 `mutateMessagesContaining` 的 edit/delete 提交改为 `commit()` 成功后才可触发时间线撤回/图片清理，提交拒绝时恢复消息和会话投影；回归 [3ebd9ac](https://github.com/jiacimu-droid/lulu1/commit/3ebd9acd63cdd9731e8f6fa9222c75a2f9efa285) 模拟失败 edit/delete，验证原消息、会话及 Store 重建不变。此前角色 append 回归 [cf65c41](https://github.com/jiacimu-droid/lulu1/commit/cf65c413c391854d754429e43cfe69a9fcfe2d5c) 的 main push [APK/JVM #43170020101](https://github.com/jiacimu-droid/lulu1/actions/runs/43170020101) 与 [索引 #43170020102](https://github.com/jiacimu-droid/lulu1/actions/runs/43170020102) 已成功；**本次 edit/delete 新提交仍待按 head SHA 核 Actions 首错**。后续直接打开 `ChatHistoryPersistenceBaselineTest.rejectedMessageMutationPreservesOriginalAndReopenedHistory`，CI 绿后继续 UI-02.2 的会话删除/清空写入失败原子性；真机进程死亡、10 万历史和模型体验未验。
 
