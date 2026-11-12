@@ -1,5 +1,13 @@
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-03.1 独立通话观察完成后确认真实回执
+
+- 上轮 `6662308` 的[全量 JVM/APK #43135352134](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352134) 与[原索引 #43135352238](https://github.com/jiacimu-droid/lulu1/actions/runs/43135352238) 复核通过。
+- [6949b5e](https://github.com/jiacimu-droid/lulu1/commit/6949b5e4f7e36bdc7701bf003d33234af006fb48) 修复 `LuluDeviceToolBridge.respond` 的反向顺序。独立通话观察的工具回执原先进入直接刺激列表，沿用户发言的排除规则绕过确认。现在用本人时间线的确切回执版本走原观察投影和 `CharacterTurnStateCommit` 的提交后确认。回执进入模型输入，即使它不在常规待观察窗口内，也不会标成用户原话。原发言路径、Store 和模型调用预算不变。
+- 扩展 `ConversationExpressionGatewayTest.phoneObservationRejectsStaleReceiptDecisionWithoutRepeatingItsTool`。正式模型 HTTP 收到回执，关系编辑作废的尝试不会确认它，随后一次成功观察确认确切版本，下一次正常发言不再把它当新事实派发。原工具回执和动态均保持一份。模拟响应仅证明因果交接。
+- [17f3c18](https://github.com/jiacimu-droid/lulu1/commit/17f3c1894ae3bef40ca52b9de3fd317dadd1bc7f) 补齐显式回执与原观察的时间排序。初次 [JVM #43149049800](https://github.com/jiacimu-droid/lulu1/actions/runs/43149049800) 新回归通过，仍有改动前 [#43147248948](https://github.com/jiacimu-droid/lulu1/actions/runs/43147248948) 的两项设备测试失败。排序提交的独立运行被后续提交取消。[后继原索引 #43149303988](https://github.com/jiacimu-droid/lulu1/actions/runs/43149303988) 及包含两项设备测试修正的 [全量 JVM/APK #43149308747](https://github.com/jiacimu-droid/lulu1/actions/runs/43149308747) 均成功，日志确认新回归 PASSED，APK 已发布。真机电话与真实模型表现待验。
+- 下一轮沿 P-03.1 打开 `LuluDeviceToolBridge.respond` 的 `externalCallResult` 与首次模型返回边界，补回执在独立观察 HTTP 等待中被撤回或修订的回归。检查旧版本的决定是否会落心理、台词或副动作，并确保后续只使用仍有效证据。
+
 ## 2026-11-12 · P-08c.2 私聊工具回执重建幂等（待 CI）
 
 - [a964c4f](https://github.com/jiacimu-droid/lulu1/commit/a964c4f269a1da200aa28fef0b5406e3c9c9ef6b) 在 `QqReplySourceWatermarkTest` 补正式私聊工具成功后 ChatStore 重建、同 requestId 但新 trace 的回执重放：持久消息 ID、内容及两份 Store 一致，且不新增气泡。复用现有群聊重建夹具，不关闭全局共享单例。未发现已证生产缺陷，因此仅补回归；CI 尚未确认。下一轮直接查此测试的 main push APK/JVM、索引首错，之后继续 P-08c.2 取消边界。此测试不等于完整进程死亡或真实模型验收。
