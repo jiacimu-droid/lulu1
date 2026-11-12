@@ -154,7 +154,7 @@ object CapabilityRegistry {
             appendLine("实际决定使用时：action=tool,tool=background_phone," +
                 "args={\"action\":\"start\"}；启动成功后可在同一角色的工具后续流程" +
                 "选择launch/observe/tap/swipe/type/back/stop，打开应用可以传真实packageName，或传已安装App的准确显示名称appName（本机精确匹配；找不到或重名就报告，不能猜包名）。" +
-                "若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\\\"action\\\":\\\"observe\\\",\\\"sendToChat\\\":true,\\\"caption\\\":\\\"可选说明\\\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+                "若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
 
