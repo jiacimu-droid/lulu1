@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:29:54.646857+00:00",
-  "commit": "c3ef1bca34165f41b07b3b2e082a99a721e60ad7",
+  "generatedAt": "2026-11-12T10:30:43.359751+00:00",
+  "commit": "245e6535afe5215bb0de1f2a68bef49613af2a41",
   "branch": "main",
-  "sourceFingerprint": "57241bb674ae6e487a8d70ef80d982d434e66b6e901defbddf56746fdcd87954",
+  "sourceFingerprint": "acc5710be3958e9d85bbd16638ecdd2a390d3dd6eb748cee9af1a2b344cf2b1e",
   "summary": {
     "files": 1276,
-    "lines": 269283,
+    "lines": 269284,
     "symbols": 3812
   },
   "symbolIndex": {
@@ -2139,7 +2139,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 106
+        "line": 107
       }
     ],
     "errors": [
@@ -2205,7 +2205,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 142
+        "line": 143
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -4887,7 +4887,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 205
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -14395,31 +14395,31 @@
     "totalSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 91
+        "line": 92
       }
     ],
     "progressFraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "progress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 101
+        "line": 102
       }
     ],
     "sites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 115
+        "line": 116
       }
     ],
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 138
+        "line": 139
       }
     ],
     "generate": [
@@ -27917,7 +27917,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 845,
-      "sha256": "0c34cdfb0aa4fda6b570d8ba306f5673c41e55ef20cc4a9b0e850311ffb95e99",
+      "sha256": "62f5b159beaf9b91d5a928798e2ae66d9228c1844b70576190e0cc6704689cd5",
       "symbols": [
         {
           "name": "groupedFields",
@@ -35551,8 +35551,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 273,
-      "sha256": "23bebf6e24fd536a533840d9b98cef3d9fe7da3003682ca4d1aa4c0ed3989a76",
+      "lines": 274,
+      "sha256": "b72f945999d728e5c002370cf0d0f7dfd585a445c58f9f0f270ecdcca848eb02",
       "symbols": [
         {
           "name": "json",
@@ -35580,35 +35580,35 @@
         },
         {
           "name": "totalSteps",
-          "line": 91
+          "line": 92
         },
         {
           "name": "progressFraction",
-          "line": 97
+          "line": 98
         },
         {
           "name": "progress",
-          "line": 101
+          "line": 102
         },
         {
           "name": "parts",
-          "line": 106
+          "line": 107
         },
         {
           "name": "sites",
-          "line": 115
+          "line": 116
         },
         {
           "name": "isChangeAction",
-          "line": 138
+          "line": 139
         },
         {
           "name": "choose",
-          "line": 142
+          "line": 143
         },
         {
           "name": "advance",
-          "line": 205
+          "line": 206
         }
       ]
     },
