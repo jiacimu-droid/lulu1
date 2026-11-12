@@ -12,7 +12,7 @@
 - 上轮 `c4d0ea0` 的[原索引 #43210023322](https://github.com/jiacimu-droid/lulu1/actions/runs/43210023322)和[全量 JVM/APK #43210023361](https://github.com/jiacimu-droid/lulu1/actions/runs/43210023361)复核成功。
 - 根因是聊天视图与记忆输入的可见范围不同。撤回回执会隐藏 ChatStore 原气泡并保留原时间线，本人模型请求仍会经 `UnifiedMemoryOrchestrator` 和连续性投影读取原记录。
 - [b67236c](https://github.com/jiacimu-droid/lulu1/commit/b67236c2a20a7fe46a114ad8a1da1b30a5363c06) 沿 `runGroupReplies → requestGroupRoleOnce → LuluDeviceToolBridge → UnifiedMemoryRequest → CompanionModelGateway` 交接本群、当前发言人所拥有的撤回事件 ID。当前文字群聊中，最近记录、原始证据、带源摘要和连续性投影共用既有排除逻辑，精简角色上下文的核心记忆也检查相同来源。与重新回复模式分开，保留正常角色状态、原气泡和时间线。没有新增模型调用或 Store。
-- `ConversationExpressionGatewayTest.groupDirectorDiscardsRoutingAfterPeerRecallOrRosterChange` 增验下一轮导演及江渡本人的 HTTP 请求，两者排除已撤回的星禾原话，本人仍获得同场有效消息，角色拥有的原始时间线记录仍在。本轮原索引、静态检查、全量 JVM 和 APK 待按提交或包含同一改动的后继 SHA 核验。 真机群聊及真实模型表现待验。
+- `ConversationExpressionGatewayTest.groupDirectorDiscardsRoutingAfterPeerRecallOrRosterChange` 增验下一轮导演及江渡本人的 HTTP 请求，两者排除已撤回的星禾原话，本人仍获得同场有效消息，角色拥有的原始时间线记录仍在。精确提交的[原索引 #43229467115](https://github.com/jiacimu-droid/lulu1/actions/runs/43229467115)成功，[静态检查与全量 JVM #43229467103](https://github.com/jiacimu-droid/lulu1/actions/runs/43229467103) 日志确认静态阶段完成、群聊回归通过。全量 JVM 仅有 `RelicEscapeRulesTest.difficultyChangesRealThreatsSurvivesSaveAndDefaultsOnOldRuns` 失败（期望 5、实际 6），[本轮改动前 #43222593546](https://github.com/jiacimu-droid/lulu1/actions/runs/43222593546) 同一失败，APK 未发布。 真机群聊及真实模型表现待验。
 - 下一步沿 P-08b.1 检查这类撤回凭据在跨场景召回时是否仍生效，直接打开 `SharedExperienceTimeline.recordConversationMessage`、`LocalMemoryRepository.memoryEligibleTimelineEvents` 与 `TimelineLedgerTest`。本轮限定为当前文字群聊，电话群聊、后台及既有历史提取任务没有据此验通。
 
 ## 2026-11-12 · P-08b.1 群聊导演等待中的撤回与名单变化
