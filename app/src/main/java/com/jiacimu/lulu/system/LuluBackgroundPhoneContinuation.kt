@@ -5,6 +5,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.ToolRouter
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import org.json.JSONObject
@@ -16,6 +17,12 @@ import org.json.JSONObject
  */
 internal object LuluBackgroundPhoneContinuation {
     const val MAX_ACTIONS = 12
+
+    /** A fresh user message yields priority at a SAFE step boundary, not a
+     * hard cancellation of a possibly billed HTTP call or a device gesture. */
+    internal fun hasNewUnreadInput(
+        startedWith: Set<String>, currentlyUnread: Set<String>,
+    ): Boolean = currentlyUnread.any { it !in startedWith }
 
     data class Outcome(
         val notes: String,
@@ -99,6 +106,10 @@ internal object LuluBackgroundPhoneContinuation {
         userRequested: Boolean,
     ): Outcome {
         var image = initialImage
+        val unreadAtStart = CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet()
+        fun ownerHasNewInput(): Boolean = hasNewUnreadInput(
+            unreadAtStart, CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet(),
+        )
         val history = StringBuilder()
         history.appendLine("本人刚才的选择与目标：" + roleReason.take(900))
         history.appendLine("第一步真实回执：" + compactRoleReceipt(initialReceipt))
@@ -126,6 +137,10 @@ internal object LuluBackgroundPhoneContinuation {
         }.getOrDefault(0)
         for (index in 1..MAX_ACTIONS) {
             currentCoroutineContext().ensureActive()
+            if (ownerHasNewInput()) {
+                history.appendLine("主人已发送更新消息，手机任务在本次安全边界暂缓；当前已执行动作保留，交回同一角色先理解新消息")
+                return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
             val response = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
@@ -165,6 +180,12 @@ internal object LuluBackgroundPhoneContinuation {
                 turnTraceId = requestId,
             ).getOrElse {
                 history.appendLine("本次后续理解失败：" + it.message.orEmpty().take(150))
+                return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
+            // The model may have spent minutes waiting for this reply.
+            // Before ANY additional side effect, re-check newer user input.
+            if (ownerHasNewInput()) {
+                history.appendLine("等待下一步模型期间主人发来更新消息；未执行旧决定，手机任务暂缓并保留已有回执")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             val decision = decodeDecision(response.text)
