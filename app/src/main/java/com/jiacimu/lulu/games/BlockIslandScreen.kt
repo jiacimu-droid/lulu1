@@ -156,7 +156,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(hpGain>0) "+$hpGain ❤" else "已休息"
                 }
                 "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
-                "bridge", "lantern", "pet_house", "garden", "remove" -> "✓"
+                "bridge", "lantern", "pet_house", "garden", "remove",
+                "house_warm", "house_pine" -> "✓"
+                "house_step" -> "小屋施工 +1格"
                 "sow_berries" -> "种下野果"
                 "tend_berries" -> "幼苗已照料"
                 "harvest_berries" -> "+${result.fruit-island.fruit} 果"
@@ -176,6 +178,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             })
         } else {
             playSound(GameSoundEffect.Bump)
+        }
+        if (action in setOf("house_warm","house_pine") &&
+            result.houseProject?.ownerId=="player" && island.houseProject==null) {
+            buildMode=null
+            mapAim=false
         }
         save(result)
     }
@@ -363,6 +370,33 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     fontSize = 10.sp, maxLines = 1,
                     modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp))
             }
+            island.houseProject?.takeIf { it.ownerId=="player" }?.let { home ->
+                val nextPart=IslandHouseProjects.nextPlayerPart(island)
+                if (nextPart!=null) {
+                    val bx=nextPart.first%world.width
+                    val by=nextPart.first/world.width
+                    val canWork=IslandHouseProjects.canPlayerBuildNext(island)
+                    Surface(onClick={
+                        buildMode=null
+                        if(canWork) perform("house_step",bx,by)
+                        else {
+                            target=bx to by
+                            mapAim=false
+                            navigateTo=bx to by
+                        }
+                    }, color=Color(0xCB544A36),
+                        shape=RoundedCornerShape(10.dp)) {
+                        Text("⌂ 小屋 ${home.placed.size}/9 · " +
+                            (if(canWork) "施工下一块（${bx},${by}）"
+                            else "前往施工位（${bx},${by}）"),
+                            modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp),
+                            color=Color(0xFFFFE2B1),fontSize=10.sp,maxLines=1)
+                    }
+                } else {
+                    Text("⌂ ${IslandHouseProjects.styleName(home.style)}已完工",
+                        color=Color(0xFFFFE6B3),fontSize=10.sp,maxLines=1)
+                }
+            }
             if (buildMode != null) {
                 Text(IslandBuildingControls.label(buildMode) + " · " +
                     (buildPreview?.message ?: "选好地点后确认"),
@@ -531,7 +565,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .4f))) {
                 Column(Modifier.fillMaxWidth().padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    val owner = MigratedDomainStores.characters.get(project.ownerId).displayName
+                    val owner = if(project.ownerId=="player")"你" else
+                        MigratedDomainStores.characters.get(project.ownerId).displayName
                     val phase = when(project.phase) {
                         "building" -> "施工中"; "paused" ->
                             if(project.resumePhase=="demolishing")"暂停拆除" else "暂停施工"
@@ -563,7 +598,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))
-                    Text("房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
+                    Text(if(project.ownerId=="player")
+                        "你选择房屋风格，按每块施工提示走到旁边，手动消耗木材建造9步。完工后出现真正的屋顶；拆掉房屋一块即可开始修复。"
+                        else "房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
                         color = Color(0xFFB5D5CD), fontSize = 11.sp)
                 }
             }
@@ -775,6 +812,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         color=if(claimed)Color(0xFFB1E4CF) else Color(0xFFFFE3AE),
                         fontSize=11.sp)
                 }
+                Text("家园建造  ·  建造→选择暖灯屋或松林屋→点地图找3×3空地→放蓝图→走到提示施工格，每次真实消耗木材建一格，9格后出现完整屋顶。",
+                    color=Color(0xFFF5DCAF),fontSize=12.sp)
                 Text("食物篇  ·  砍树找野果 / 制鱼竿钓鱼 / 建菜圃→播种→至少4步后松土→成熟收果。春夏秋冬每96回合轮换，冬季生长较慢。",
                     color=Color(0xFFCBE9D3),fontSize=12.sp)
                 Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
@@ -824,8 +863,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Text("② 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
             Text("③ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
             Text("④ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
-            Text("⑤ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
-            Text("⑥ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
+            Text("⑤ 想盖完整小屋：在建造里选暖灯木屋或松林木屋，点地图放3×3蓝图，再走到提示位置一步一步施工，总共17木9步。")
+            Text("⑥ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
+            Text("⑦ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
         containerColor=Color(0xFF1A3439),
         titleContentColor=Color.White, textContentColor=Color(0xFFBDD5CC),
