@@ -2,6 +2,14 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08b.1 群聊导演等待中的撤回与名单变化
+
+- 上轮 `6691df8` [原索引 #43193377844](https://github.com/jiacimu-droid/lulu1/actions/runs/43193377844)和[全量 JVM/APK #43193377745](https://github.com/jiacimu-droid/lulu1/actions/runs/43193377745)复核成功。
+- 最新正式链路 `GroupChatTurnPlanner.publicContext → choose → runGroupReplies → requestGroupRoleOnce`。原导演取最近 14 条送达消息却没应用撤回凭据，且回包后的个人来源校验只覆盖用户消息与本人当前群场景。导演已读的群友发言撤回后，旧候选仍可启动角色请求。
+- [c4d0ea0](https://github.com/jiacimu-droid/lulu1/commit/c4d0ea025a186f8efc51bea148249d07afc86d47) 复用 `recalledMessageIds` 生成实际送给导演的可见消息窗口，随消息 ID 保留本轮快照。导演回包后用同一投影复核窗口及实时群场景，变动时旧轮在显示输入或请求角色前结束。保留聊天原始事件和正式撤回回执，无新增 Store、轮询或模型调用。
+- `ConversationExpressionGatewayTest.groupDirectorDiscardsRoutingAfterPeerRecallOrRosterChange` 阻塞导演的真实 HTTP，再通过 ChatStore 分别撤回星禾发言或将星禾移出群，江渡仍在群内。检查旧轮没有角色请求、输入或气泡，后续正常轮可继续且撤回的原话不再进入导演请求。本轮静态检查、原索引、全量 JVM 与 APK 待按提交或同文件后继 SHA 核验。 真机群聊与真实模型质量待验。
+- 下一步沿 P-08b.1 打开 `QqChatRetraction.retractCharacterMessage`、`runGroupReplies` 的本人请求和 `CompanionModelGateway` 的时间线投影，验证撤回的原始事件保留后，是否会绕过公开窗口，经本人记忆召回重新作为当前群事实。对照新回归的下一次本人 HTTP 请求，不重复做导演过滤。
+
 ## 2026-11-12 · P-08d.2 / P-08c.3 私聊中的独立想法、实际副动作与江渡语气
 
 - `ProactivePerceptionRuntime` 的在线私聊原先省略了联网搜索的实时提供商状态与参数目录。主动感知也绕过了 `CharacterUnfinishedActionContext` 中已用于电话的单调感行动引导。两条真实入口现在复用对应的原有上下文。在已有决策中从身份与自己的生活、性格与价值、本轮交流、已承担的责任联想，按实际意愿选择立即行动、跨轮心事或持久日程。
