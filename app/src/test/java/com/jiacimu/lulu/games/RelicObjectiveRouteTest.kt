@@ -89,6 +89,10 @@ class RelicObjectiveRouteTest {
         ).firstOrNull { it.x==target.x && it.y==target.y }
         assertNull(liveTarget)
         assertTrue(opened.chests.all { it.opened })
+        // A delayed renderer callback may still hold the old target object.
+        // It must not draw a convincing path to an already looted chest.
+        assertNull(RelicObjectiveGuide.knownRouteTiles(opened,target))
+        assertNull(RelicObjectiveGuide.knownRouteSteps(opened,target))
     }
 
     @Test fun manuallySelectedSecondChestUsesLiveDiscoveredTargetAndNeverStaleLoot() {
