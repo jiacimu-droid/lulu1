@@ -276,6 +276,14 @@ internal object LuluBackgroundPhoneSession {
                     "屏幕内容已变更或目标窗口无法核实；为了避免错点，拒绝这一步"
                 }
             }
+            if (action == "submit") {
+                val safeSearch = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.hasFocusedVirtualSearchEditor(id, activeApp)
+                }
+                check(safeSearch) {
+                    "后台没有可确认的已聚焦搜索输入框；Enter 也可能变成发送/提交操作，为安全起见已拒绝。请先点击搜索框并输入文字，或查看后台小窗核对输入焦点"
+                }
+            }
             if (action == "tap") {
                 val x = args.getInt("x")
                 val y = args.getInt("y")
