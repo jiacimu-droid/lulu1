@@ -556,8 +556,9 @@ class OnlineChatExperienceTest {
         // The UI may display "processing the actual expiry decision" while
         // the single claimed worker is running. This is NOT another lease.
         assertEquals(boundary, CompanionOnlineStore.expiryReviews.value[role])
-        assertFalse(CompanionOnlineStore.states.value.getValue(role)
-            .isOnline(start.plusSeconds(300).plusMillis(100)))
+        assertTrue("An in-flight expiry appraisal keeps the role awake",
+            CompanionOnlineStore.states.value.getValue(role)
+                .isOnline(start.plusSeconds(300).plusMillis(100)))
 
         // A reasoned, explicit role choice renews ONLY one five-minute window.
         val chosenAt = start.plusSeconds(301)
@@ -576,6 +577,36 @@ class OnlineChatExperienceTest {
             role, boundary, chosenAt.plusMillis(100)))
         assertFalse(CompanionOnlineStore.extendByOwnChoice(
             role, boundary, "旧的一次判断", chosenAt.plusMillis(100)))
+    }
+
+    @Test fun realWorkAtFiveMinuteBoundaryCannotBecomeSleep() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "边执行边到期角色", "任务运行时不会睡着").characterId
+        val now = java.time.Instant.now()
+        val startedAt = now.minusSeconds(310)
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake,
+            "真实工具开始前已醒着", perceiveNow = false, now = startedAt)
+        val originalUntil = startedAt.plusSeconds(300).toEpochMilli()
+        val lease = ChatGenerationActivity.begin(
+            role, setOf("real-tool-execution"), awaitingModel = false)
+        try {
+            assertTrue(CompanionOnlineStore.isOnline(role))
+            // The worker is doing the original task, so a clock boundary must
+            // NOT start a competing expiry model or settle physical sleep.
+            assertFalse(CompanionOnlineStore.claimOnlineExpiry(
+                role, originalUntil, now))
+            assertEquals(originalUntil,
+                CompanionOnlineStore.states.value.getValue(role).onlineUntil.toEpochMilli())
+        } finally { ChatGenerationActivity.end(lease) }
+
+        val delayedUntil = CompanionOnlineStore.states.value.getValue(role).onlineUntil
+        assertTrue("A very brief grace permits the SAME expiry decision after work",
+            delayedUntil.isAfter(now))
+        assertTrue("This must never invent another five-minute life session",
+            delayedUntil.isBefore(now.plusSeconds(10)))
     }
 
     @Test fun anExpiryDecisionMustNotOverwriteANewerUserWake() {
