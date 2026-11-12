@@ -93,7 +93,7 @@ object CharacterLifeStore {
             }
             profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
             MigratedDomainStores.characters.update(character.copy(
-                persona = CharacterProfileSchema.jiangDuV29Persona))
+                persona = CharacterProfileSchema.jiangDuV30Persona))
         } else {
             // Preserve revision-2's previously authorized intimacy refresh.
             // Never replay it over an owner's edits made AFTER that revision.
@@ -107,6 +107,17 @@ object CharacterLifeStore {
             listOf("values", "motives", "perception", "conflict", "respect").forEach { key ->
                 if (profile.optString(key) == CharacterProfileSchema.jiangDuV29Overrides.getValue(key))
                     profile.put(key, CharacterProfileSchema.jiangDuApprovedOverrides.getValue(key))
+            }
+        }
+        // Keep v29/previous approved words as immutable migration baselines.
+        // On the first approved import, or while completing an interrupted old
+        // revision, bring only still-stock values to the latest owner intent.
+        CharacterProfileSchema.jiangDuV30Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) ||
+                previous == CharacterProfileSchema.jiangDuV29Overrides[key] ||
+                previous == CharacterProfileSchema.jiangDuApprovedOverrides[key]) {
+                profile.put(key, value)
             }
         }
         root.put("profile", profile)
@@ -845,6 +856,16 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // This request concerns Jiang Du alone. Upgrade known factory/approved
+        // text, not independently edited entries (including intentional "").
+        CharacterProfileSchema.jiangDuV30Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) ||
+                previous == CharacterProfileSchema.jiangDuV29Overrides[key] ||
+                previous == CharacterProfileSchema.jiangDuApprovedOverrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -908,7 +929,8 @@ object CharacterLifeStore {
         }
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = if (layeredPersona in setOf(CharacterProfileSchema.jiangDuV24Persona,
-                CharacterProfileSchema.jiangDuV26Persona, CharacterProfileSchema.jiangDuV27Persona)) CharacterProfileSchema.jiangDuV29Persona else layeredPersona))
+                CharacterProfileSchema.jiangDuV26Persona, CharacterProfileSchema.jiangDuV27Persona,
+                CharacterProfileSchema.jiangDuV29Persona)) CharacterProfileSchema.jiangDuV30Persona else layeredPersona))
         root.optJSONObject("socialNames")?.let { names ->
             if (names.optString("selfNickname") in setOf("江一舟", "江都")) {
                 names.put("selfNickname", "江渡")
