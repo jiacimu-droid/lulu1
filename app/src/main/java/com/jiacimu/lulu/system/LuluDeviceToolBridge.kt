@@ -503,15 +503,23 @@ object LuluDeviceToolBridge {
         // In-call observations can choose speech and independent tools too.
         val phoneDecisionDefinition = if (sceneContext.contains("电话"))
             CharacterRuntime.definition(characterId) else null
-        fun phoneDefinitionChanged() = phoneDecisionDefinition?.let { original ->
-            !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
+        fun phoneReceiptChanged() = externalCallResult?.let { original ->
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(original.id))
+                .none { it.revision == original.revision && it.source == original.source &&
+                    it.evidenceKind == original.evidenceKind }
         } == true
+        fun phoneDecisionInvalidated() = phoneReceiptChanged() ||
+            phoneDecisionDefinition?.let { original ->
+                !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
+            } == true
+        fun phoneInvalidationReason() = if (phoneReceiptChanged()) "原工具回执已撤回或修订"
+            else "角色设定或关系已更新"
         fun stalePhoneTurn(toolResultAvailable: Boolean = false) =
             Result.failure<ModelReply>(IllegalStateException(
                 if (toolResultAvailable)
-                    "工具结果已保留。角色设定或关系已更新，本轮结果台词未交付，请继续说话"
-                else if (callSilence) "通话观察期间角色设定或关系已更新，旧决定未提交"
-                else "本轮电话期间角色设定或关系已更新，旧决定未提交，请继续说话",
+                    "工具结果已保留。${phoneInvalidationReason()}，本轮结果台词未交付，请继续说话"
+                else if (callSilence) "通话观察期间${phoneInvalidationReason()}，旧决定未提交"
+                else "本轮电话期间${phoneInvalidationReason()}，旧决定未提交，请继续说话",
             ))
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -720,7 +728,7 @@ object LuluDeviceToolBridge {
         if (planner.isFailure) return planner
         // Direct phone speech and tool decisions also belong to the definition
         // under which they were requested, even when no speech repair is needed.
-        if (phoneDefinitionChanged()) return stalePhoneTurn()
+        if (phoneDecisionInvalidated()) return stalePhoneTurn()
         val plannedReply = planner.getOrThrow()
         val plannerCompletedNanos = System.nanoTime()
         val firstParsedPlan = parsePlan(plannedReply.text)
@@ -791,7 +799,7 @@ object LuluDeviceToolBridge {
                         !it.startsWith("```") }
             } else null
             currentCoroutineContext().ensureActive()
-            if (phoneDefinitionChanged()) return stalePhoneTurn()
+            if (phoneDecisionInvalidated()) return stalePhoneTurn()
             val visible = fallback?.takeIf(String::isNotBlank) ?: recoveredPhoneSpeech
             if (visible.isNullOrBlank()) {
                 if (sceneContext.contains("电话")) return Result.success(plannedReply.copy(
@@ -808,7 +816,7 @@ object LuluDeviceToolBridge {
             }
             val verifiedSpeech = repairUnfairSpeech(visible)
             currentCoroutineContext().ensureActive()
-            if (phoneDefinitionChanged()) return stalePhoneTurn()
+            if (phoneDecisionInvalidated()) return stalePhoneTurn()
             if (verifiedSpeech == null) return Result.failure(IllegalStateException(
                 "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
             ))
@@ -822,8 +830,8 @@ object LuluDeviceToolBridge {
                 Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
                     verifiedSpeech, null, history, userText, sceneContext,
                     connection, title, onLive2DAction, onLive2DStatus,
-                    canPublish = { !phoneDefinitionChanged() })
-                if (phoneDefinitionChanged()) return stalePhoneTurn()
+                    canPublish = { !phoneDecisionInvalidated() })
+                if (phoneDecisionInvalidated()) return stalePhoneTurn()
             }
             return Result.success(plannedReply.copy(text = verifiedSpeech))
         }
@@ -840,7 +848,7 @@ object LuluDeviceToolBridge {
             plan.action == "reply" && plan.text.isBlank() &&
             plan.speechIntent.isNotBlank()) {
             // Keep a decision and its spoken rendering on the same role definition.
-            if (phoneDefinitionChanged()) return stalePhoneTurn()
+            if (phoneDecisionInvalidated()) return stalePhoneTurn()
             val speech = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = """
@@ -861,7 +869,7 @@ object LuluDeviceToolBridge {
         // A newer phone turn can cancel this one while speech is being rendered.
         // Start the authored side effects only after the cancellable handoff.
         currentCoroutineContext().ensureActive()
-        if (phoneDefinitionChanged()) return stalePhoneTurn()
+        if (phoneDecisionInvalidated()) return stalePhoneTurn()
         // The character's own model interprets natural speech. Only an actual
         // new user turn can revise the previous music-stop boundary or confirm
         // the wake goal. Time-based silence and old chat history cannot.
@@ -1232,10 +1240,10 @@ object LuluDeviceToolBridge {
                 }
                 // The preceding tool may have suspended and already recorded a
                 // real result. Stop before dispatching another step from the old plan.
-                if (phoneDefinitionChanged()) {
+                if (phoneDecisionInvalidated()) {
                     phoneSideInterruptedByEdit = true
                     phoneSideAllCompleted = false
-                    notes.add(0, "角色设定或关系已更新，第${i + 1}步及后续步骤未执行")
+                    notes.add(0, "${phoneInvalidationReason()}，第${i + 1}步及后续步骤未执行")
                     break
                 }
                 val effect = phoneSteps.optJSONObject(i)
@@ -1335,8 +1343,8 @@ object LuluDeviceToolBridge {
             )
             phoneSideCancellation?.let { throw it }
             currentCoroutineContext().ensureActive()
-            if (phoneSideInterruptedByEdit || phoneDefinitionChanged()) return Result.failure(
-                IllegalStateException("通话期间角色设定或关系已更新，已执行动作的回执保留，旧决定未继续交付"),
+            if (phoneSideInterruptedByEdit || phoneDecisionInvalidated()) return Result.failure(
+                IllegalStateException("通话期间${phoneInvalidationReason()}，已执行动作的回执保留，旧决定未继续交付"),
             )
         }
         if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat || sceneContext.contains("电话")) && !rewriting) {
@@ -1566,11 +1574,11 @@ object LuluDeviceToolBridge {
             // Authored side steps may already have executed. An edit during
             // expression invalidates delivery, not those completed attempts.
             fun staleReplyExpression() = Result.failure<ModelReply>(IllegalStateException(
-                "本轮电话期间角色设定或关系已更新，旧台词未交付，请继续说话",
+                "本轮电话期间${phoneInvalidationReason()}，旧台词未交付，请继续说话",
             ))
             val repairedSpeech = repairUnfairSpeech(naturalText)
             currentCoroutineContext().ensureActive()
-            if (phoneDefinitionChanged()) return staleReplyExpression()
+            if (phoneDecisionInvalidated()) return staleReplyExpression()
             val verifiedSpeech = repairedSpeech ?: return Result.failure(IllegalStateException(
                     "角色本轮表达与未履行责任的事实不符，已停止发送，不使用固定道歉模板"
                 ))
@@ -1614,8 +1622,8 @@ object LuluDeviceToolBridge {
                     Live2DPhoneMotionRepair.publish(appContext,
                         characterId, phoneCallId, safeText, plan.live2d, history,
                         userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus,
-                        canPublish = { !phoneDefinitionChanged() })
-                    if (phoneDefinitionChanged()) return staleReplyExpression()
+                        canPublish = { !phoneDecisionInvalidated() })
+                    if (phoneDecisionInvalidated()) return staleReplyExpression()
                 } else plan.live2d?.let { chosen -> onLive2DAction?.invoke(chosen) }
             }
             if (!invalidBlame && safeText == naturalText && !rewriting) {
@@ -1735,7 +1743,7 @@ object LuluDeviceToolBridge {
         // The executor has already settled this attempt. A configuration change
         // can invalidate its pending expression, not the historical tool result.
         currentCoroutineContext().ensureActive()
-        if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+        if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
 
         // The model receives actual screenshot pixels + the same screen's
         // accessibility words in the SAME post-tool character request.
@@ -1821,7 +1829,7 @@ object LuluDeviceToolBridge {
             connectionOverride = connection,
         )
         currentCoroutineContext().ensureActive()
-        if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+        if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
 
         // Tool follow-ups used to be re-rendered by a second paid model
         // call when the naturalness gate flagged them. That second pass is
@@ -1883,7 +1891,7 @@ object LuluDeviceToolBridge {
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
             val repairedResultText = repairUnfairSpeech(naturalText)
             currentCoroutineContext().ensureActive()
-            if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+            if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
             val checkedResultText = repairedResultText ?: throw IllegalStateException(
                     "工具完成后回复包含无依据的归责，重新表达仍未通过核验；不代写道歉"
                 )
@@ -1895,8 +1903,8 @@ object LuluDeviceToolBridge {
                 Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
                     checkedResultText, finalPlan?.live2d, "$history\n真实工具回执：$toolResult",
                     userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus,
-                    canPublish = { !phoneDefinitionChanged() })
-                if (phoneDefinitionChanged()) return stalePhoneTurn(toolResultAvailable = true)
+                    canPublish = { !phoneDecisionInvalidated() })
+                if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
             }
             if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(

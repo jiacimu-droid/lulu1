@@ -1127,6 +1127,107 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun phoneObservationDiscardsDecisionWhenItsReceiptIsRevisedOrWithdrawn() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+
+        for (withdraw in listOf(false, true)) {
+            val role = MigratedDomainStores.characters.create("电话证据修订样本-$withdraw", "区分事实和推测")
+            val id = role.characterId
+            val post = "工具真实发布的动态"
+            val initial = JSONObject(ToolRouter.execute(context, id, "publish_moment",
+                JSONObject().put("text", post), requestId = "call-receipt-revision"))
+            assertTrue(ToolExecutionStatus.completed(initial))
+            fun receipts() = SharedExperienceTimeline.all(id)
+                .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+            val receipt = receipts().single()
+            val marker = "修订后的真实回执说明"
+            val status = "旧回执已经向用户说明"
+            val stalePlan = JSONObject().put("action", "reply").put("text", "我按旧结果告诉你。")
+                .put("statusText", status).put("endCall", true)
+                .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", "不应发布的旧决定"))))
+            val release = CountDownLatch(1)
+            val requests = AtomicInteger()
+            val hangups = AtomicInteger()
+            fun response(text: String) = MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", text))
+                    .put("finish_reason", "stop"))).toString())
+            val server = MockWebServer()
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
+                    1 -> if (release.await(15, TimeUnit.SECONDS)) response(stalePlan.toString())
+                        else MockResponse().setResponseCode(500)
+                    2 -> response("""{"action":"reply","text":"我听到了。"}""")
+                    else -> MockResponse().setResponseCode(500)
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                    server.url("/").toString(), "test-only")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                val pending = async {
+                    LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = archive.id,
+                        sceneContext = "一对一电话仍然接通，用户没有新增发言",
+                        silenceObservationId = receipt.id,
+                        onCharacterHangup = { hangups.incrementAndGet() })
+                }
+                val revised = try {
+                    val request = withContext(Dispatchers.IO) {
+                        checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                    }
+                    assertTrue(request.contains("- evidenceId=${receipt.id}"))
+                    assertFalse(request.contains(marker))
+                    if (withdraw) {
+                        SharedExperienceTimeline.deleteEvent(receipt.id)
+                        assertTrue(receipts().isEmpty())
+                        null
+                    } else {
+                        SharedExperienceTimeline.record(receipt.id, id, receipt.channel, receipt.speaker,
+                            JSONObject(receipt.content).put("reason", marker).toString(),
+                            occurredAt = receipt.occurredAt, triggerExtraction = false,
+                            source = receipt.source, evidenceKind = receipt.evidenceKind,
+                            taskId = receipt.taskId, expectedRevision = receipt.revision)
+                        receipts().single().also { assertTrue(it.revision > receipt.revision) }
+                    }
+                } finally {
+                    release.countDown()
+                }
+                val stale = pending.await()
+                assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("原工具回执已撤回或修订"))
+                assertFalse(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
+                assertNotEquals(status, CompanionPresenceStore.current(id)?.statusText)
+                assertEquals(0, hangups.get())
+
+                val next = LuluDeviceToolBridge.respond(id, "", if (withdraw) "现在还有什么结果？" else "", "test",
+                    archiveId = archive.id, sceneContext = "一对一电话仍然接通",
+                    silenceObservationId = revised?.id.orEmpty()).getOrThrow()
+                val nextRequest = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertEquals(!withdraw, nextRequest.contains("- evidenceId=${receipt.id}"))
+                assertEquals(!withdraw, nextRequest.contains(marker))
+                if (revised != null)
+                    assertTrue(PerceptionStimulusLedger.hasSeen(context, id, revised.id, revised.revision))
+                assertEquals("我听到了。", next.text)
+                assertEquals(listOfNotNull(revised), receipts())
+                assertEquals(listOf(post), MomentsStore.posts.value
+                    .filter { it.authorCharacterId == id }.map { it.content })
+                assertEquals(2, server.requestCount)
+            } finally {
+                release.countDown()
+                server.shutdown()
+            }
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneObservationRejectsStaleReceiptDecisionWithoutRepeatingItsTool() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
