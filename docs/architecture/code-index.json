@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:28:29.458704+00:00",
-  "commit": "6c1179b4e7c7f5c5d9b14637aa7c55c19b1d22ae",
+  "generatedAt": "2026-11-12T10:29:29.301394+00:00",
+  "commit": "9abb29a6af89af9247f90efd09b7a0e715661fb1",
   "branch": "main",
-  "sourceFingerprint": "99147bacf02f0ebe88a0e696fc15610be7337be4b7c243119b7b3934b3d8ff85",
+  "sourceFingerprint": "ccc1163c0f3d760966857d2e7586b639abfda9d140221f11b1e39962573b17c3",
   "summary": {
     "files": 1275,
-    "lines": 269134,
+    "lines": 269192,
     "symbols": 3811
   },
   "symbolIndex": {
@@ -497,7 +497,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1262
+        "line": 1284
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1275,7 +1275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 456
+        "line": 467
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -7063,7 +7063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1222
+        "line": 1244
       }
     ],
     "cue": [
@@ -7205,31 +7205,31 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 466
+        "line": 477
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 467
+        "line": 478
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 469
+        "line": 480
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 648
+        "line": 659
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1193
+        "line": 1215
       }
     ],
     "current": [
@@ -13987,13 +13987,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 938
+        "line": 939
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1089
+        "line": 1090
       }
     ],
     "saveTurn": [
@@ -27480,8 +27480,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1311,
-      "sha256": "37d2247076c54df5c9632bccdb9d987fcf73c44fb0b8b29824940257c194c8b8",
+      "lines": 1333,
+      "sha256": "187c47c201e1ec0467747aa410dfa9267008a7486376c79cebbb05f03c87a51f",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -27489,35 +27489,35 @@
         },
         {
           "name": "state",
-          "line": 456
-        },
-        {
-          "name": "bodyStorageReady",
-          "line": 466
-        },
-        {
-          "name": "bodyState",
           "line": 467
         },
         {
+          "name": "bodyStorageReady",
+          "line": 477
+        },
+        {
+          "name": "bodyState",
+          "line": 478
+        },
+        {
           "name": "lastBodyChange",
-          "line": 469
+          "line": 480
         },
         {
           "name": "afterglowContext",
-          "line": 648
+          "line": 659
         },
         {
           "name": "profileContext",
-          "line": 1193
+          "line": 1215
         },
         {
           "name": "compactContext",
-          "line": 1222
+          "line": 1244
         },
         {
           "name": "context",
-          "line": 1262
+          "line": 1284
         }
       ]
     },
@@ -34948,8 +34948,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1134,
-      "sha256": "ab2dec7215773dbd9e327cf61db55828c1c61c6fe8fc2f8a653c1c8f24240c0f",
+      "lines": 1135,
+      "sha256": "994c70901a942d8882f62cb84d234fceccd7176d0269a4028e9b499622f1b5a9",
       "symbols": [
         {
           "name": "playSound",
@@ -34965,11 +34965,11 @@
         },
         {
           "name": "dot",
-          "line": 938
+          "line": 939
         },
         {
           "name": "targetFor",
-          "line": 1089
+          "line": 1090
         }
       ]
     },
@@ -35275,8 +35275,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 510,
-      "sha256": "1be0e3ca2a497d5af33de884b7113bf80490eba36dd1fea95f7e6fb42bb969a7",
+      "lines": 536,
+      "sha256": "50b833b1db926723a080b34bb3f4309906d42372fbd786ece5451ecd218fc519",
       "symbols": []
     },
     {
@@ -36346,8 +36346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1118,
-      "sha256": "c9ce02f1892a8c354d065b707b462f80357bf54c50ba0c7f96373170a73f050b",
+      "lines": 1119,
+      "sha256": "a4409d49e8f8bf6b98bd4ed57ea66838dac960778497d137a00d483b81b615b5",
       "symbols": [
         {
           "name": "change",
@@ -44271,8 +44271,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt",
-      "lines": 28,
-      "sha256": "40522de6f40b0d0acc718bd74bfa3a70eb11c063e7fbfb800938bfe7797a3a83",
+      "lines": 36,
+      "sha256": "1452ae17af334774b6748e12d686d575b20790ebf4e24bb2d1158ed9174e3933",
       "symbols": [
         {
           "name": "GameHudLayoutBudgetTest",
