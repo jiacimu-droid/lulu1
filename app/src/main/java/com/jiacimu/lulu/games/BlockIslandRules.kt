@@ -34,11 +34,15 @@ internal data class BlockIslandState(
     val guardianCleared: Boolean = false,
     /** Crop progress belongs to the same saved island, never UI or a timer. */
     val gardens: Map<Int, IslandGardenCrop> = emptyMap(),
+    /** Mined crystals are real spendable inventory, not decorative sparkles. */
+    val crystals: Int = 0,
+    /** Lost resources on knockout persist until physically reclaimed. */
+    val lostPacks: Map<Int,IslandLostPack> = emptyMap(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
         .put("world", world.toJson())
-        .put("fruit", fruit)
+        .put("fruit", fruit).put("crystals", crystals)
         .put("tools", JSONArray(tools.sorted()))
         .put("structures", JSONObject().apply {
             structures.forEach { (index, item) -> put(index.toString(), item) }
@@ -62,6 +66,9 @@ internal data class BlockIslandState(
         .put("gardens",JSONObject().apply {
             gardens.forEach { (index, crop) -> put(index.toString(),crop.json()) }
         })
+        .put("lostPacks",JSONObject().apply {
+            lostPacks.forEach { (index, pack) -> put(index.toString(),pack.json()) }
+        })
         .toString()
 
     companion object {
@@ -73,7 +80,7 @@ internal data class BlockIslandState(
             ) ?: return@runCatching null
             val list = json.optJSONArray("tools") ?: JSONArray()
             val tools = (0 until list.length()).map { list.getString(it) }.toSet()
-            if (tools.any { it !in setOf("axe", "pickaxe", "sword", "rod") }) return@runCatching null
+            if (tools.any { it !in setOf("axe", "pickaxe", "sword", "rod", "charm") }) return@runCatching null
             val obj = json.optJSONObject("structures") ?: JSONObject()
             val positions = mutableMapOf<Int, String>()
             val keys = obj.keys()
@@ -82,14 +89,14 @@ internal data class BlockIslandState(
                 val index = key.toIntOrNull() ?: return@runCatching null
                 val kind = obj.getString(key)
                 if (index !in world.tiles.indices ||
-                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden") ||
+                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "crystal_lantern", "pet_house", "garden") ||
                     (if (kind == "bridge") world.tiles[index] != 8 else world.tiles[index] !in listOf(0, 4))
                 ) return@runCatching null
                 positions[index] = kind
             }
             val fruit = json.optInt("fruit")
             val fish = json.optInt("fish", 0)
-            if (fruit < 0 || fish < 0) return@runCatching null
+            if (fruit < 0 || fish < 0 || json.optInt("crystals",0) < 0) return@runCatching null
             val base = BlockIslandState(world, fruit, tools, positions,
                 json.optInt("lastRestTurn", -20), fish, json.optInt("lastFishTurn", -20),
                 IslandTravel.restore(json.optJSONObject("companionTravel"),world))
@@ -120,6 +127,8 @@ internal data class BlockIslandState(
                 }.distinctBy { it.id }
             restored.copy(animals=animals,
                 gardens=IslandGarden.restore(json.optJSONObject("gardens"),restored),
+                crystals=json.optInt("crystals",0),
+                lostPacks=IslandLostPack.restore(json.optJSONObject("lostPacks"),world),
                 discoveredSpecies=json.optJSONArray("discoveredSpecies")?.let { a ->
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in IslandWildlife.species }
@@ -264,7 +273,7 @@ internal object BlockIslandRules {
         val structure = s.structures[w.index(x, y)]
         if (w.cell(x, y) == 8) return structure == "bridge"
         if (w.cell(x, y) !in setOf(0, 4, 7)) return false
-        return structure !in setOf("workbench", "campfire", "bed", "lantern", "pet_house", "garden")
+        return structure !in setOf("workbench", "campfire", "bed", "lantern", "crystal_lantern", "pet_house", "garden")
     }
 
     private fun buildingCost(action: String): Pair<Int, Int>? = when (action) {
@@ -275,6 +284,7 @@ internal object BlockIslandRules {
         "bed" -> 3 to 1
         "bridge" -> 3 to 0
         "lantern" -> 2 to 1
+        "crystal_lantern" -> 3 to 2
         "pet_house" -> 4 to 2
         "garden" -> 2 to 0
         else -> null
@@ -288,6 +298,7 @@ internal object BlockIslandRules {
         if (abs(w.x - x) + abs(w.y - y) > 1 ||
             (x == w.x && y == w.y) ||
             IslandSupplyCaches.available(s, x, y) ||
+            w.index(x,y) in s.lostPacks ||
             (action == "floor" && cell == 4) ||
             w.friends.any { it.hp > 0 && it.x == x && it.y == y } ||
             w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
@@ -303,7 +314,8 @@ internal object BlockIslandRules {
     fun canBuild(s: BlockIslandState, action: String, x: Int, y: Int): Boolean {
         val (wood, stone) = buildingCost(action) ?: return false
         return canPlaceBuilding(s, action, x, y) &&
-            s.world.wood >= wood && s.world.stone >= stone
+            s.world.wood >= wood && s.world.stone >= stone &&
+            (action != "crystal_lantern" || s.crystals >= 1)
     }
 
     fun canPlantAt(s: BlockIslandState, x: Int, y: Int): Boolean {
@@ -367,15 +379,20 @@ internal object BlockIslandRules {
             }
             "gather" -> {
                 if (!near() || cell !in setOf(1, 2)) return reject("靠近树林或石矿才能采集")
-                val extra = if (cell == 1 && "axe" in s.tools || cell == 2 && "pickaxe" in s.tools) 2 else 0
-                val amount = 2 + extra
+                val richOre = cell == 2 && IslandProgression.crystalVein(w.seed,index)
+                if (richOre && "pickaxe" !in s.tools)
+                    return reject("这块蓝色晶矿必须用石镐开采。先挖普通石头做石镐")
+                val bonus = if (cell == 1 && "axe" in s.tools || cell == 2 && "pickaxe" in s.tools) 2 else 0
+                val amount = 2 + bonus
                 val berry = if (cell == 1 && (index + w.seed).and(Int.MAX_VALUE) % 3 == 0) 1 else 0
                 next = s.copy(world = w.setTile(tx, ty, 0).copy(
                     wood = w.wood + if (cell == 1) amount else 0,
                     stone = w.stone + if (cell == 2) amount else 0,
-                ), fruit = s.fruit + berry)
-                message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
-                else "开采矿石 +$amount"
+                ), fruit = s.fruit + berry,
+                    crystals = s.crystals + if(richOre) 1 else 0)
+                message = if (cell == 1)
+                    "伐木 +$amount${if(bonus>0)"（木斧增产）" else "（徒手）"}${if(berry>0)"，野果 +1" else ""}"
+                else "采矿 +$amount${if(bonus>0)"（石镐增产）" else "（徒手）"}${if(richOre)"，晶石 +1！可造护夜灯/护符" else ""}"
             }
             "house_warm", "house_pine" -> {
                 if (!IslandHouseProjects.canStartPlayer(s,tx,ty))
@@ -404,21 +421,24 @@ internal object BlockIslandRules {
                     "✦ ${IslandHouseProjects.styleName(project.style)}完工！真正的屋顶和外墙已经出现在地图上"
                 else "亲手安放${if(kind=="floor")"地板" else if(kind=="door")"木门" else "墙体"} · 小屋${placed.size}/9"
             }
-            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden" -> {
+            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "crystal_lantern", "pet_house", "garden" -> {
                 if (!canPlaceBuilding(s, action, tx, ty))
                     return reject("这里无法放置，靠近空地后再试")
                 val (woodCost, stoneCost) = checkNotNull(buildingCost(action))
-                if (w.wood < woodCost || w.stone < stoneCost)
-                    return reject("材料不足：需要木材$woodCost、石料$stoneCost")
+                if (w.wood < woodCost || w.stone < stoneCost ||
+                    (action=="crystal_lantern" && s.crystals<1))
+                    return reject("材料不足：需要木材$woodCost、石料$stoneCost" +
+                        (if(action=="crystal_lantern")"、晶石1" else ""))
                 val newTile = when (action) {
                     "wall" -> 3
                     "floor", "door" -> 4
                     else -> cell
                 }
                 val updated = w.setTile(tx, ty, newTile).copy(wood = w.wood - woodCost, stone = w.stone - stoneCost)
-                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden")) s.structures + (index to action)
+                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "crystal_lantern", "pet_house", "garden")) s.structures + (index to action)
                     else s.structures
-                next = s.copy(world = updated, structures = added)
+                next = s.copy(world = updated, structures = added,
+                    crystals=s.crystals-(if(action=="crystal_lantern")1 else 0))
                 message = "建造成功：${actionName(action)}"
             }
             "sow_berries" -> {
@@ -458,7 +478,7 @@ internal object BlockIslandRules {
                 val structure = s.structures[index]
                 val refundWood = when (structure) {
                     "workbench" -> 2
-                    "campfire", "door", "bed", "lantern" -> 1
+                    "campfire", "door", "bed", "lantern", "crystal_lantern" -> 1
                     "pet_house", "garden" -> 2
                     "bridge" -> 2
                     else -> if (cell == 3 || cell == 4) 1 else 0
@@ -477,7 +497,7 @@ internal object BlockIslandRules {
                 )
                 message = "拆除了${if (structure == null) "建筑" else actionName(structure)}，返还部分材料"
             }
-            "craft_axe", "craft_pickaxe", "craft_sword", "craft_rod" -> {
+            "craft_axe", "craft_pickaxe", "craft_sword", "craft_rod", "craft_charm" -> {
                 val tool = action.removePrefix("craft_")
                 if (tool in s.tools) return reject("已经制作过这件工具")
                 val tableNear = s.structures.any { (location, kind) ->
@@ -485,10 +505,11 @@ internal object BlockIslandRules {
                 }
                 if (!tableNear) return reject("靠近工作台才能制作工具")
                 val recipe = IslandWorkbenchRecipes.find(tool) ?: return reject("未知的工具配方")
-                if (w.wood < recipe.wood || w.stone < recipe.stone)
-                    return reject("需要木材${recipe.wood}、石料${recipe.stone}")
+                if (w.wood < recipe.wood || w.stone < recipe.stone || s.crystals < recipe.crystals)
+                    return reject("需要木材${recipe.wood}、石料${recipe.stone}、晶石${recipe.crystals}")
                 next = s.copy(world = w.copy(wood = w.wood - recipe.wood,
-                    stone = w.stone - recipe.stone), tools = s.tools + tool)
+                    stone = w.stone - recipe.stone), tools = s.tools + tool,
+                    crystals=s.crystals-recipe.crystals)
                 message = "制作成功：${actionName(tool)}"
             }
             "revive" -> {
@@ -855,10 +876,10 @@ internal object BlockIslandRules {
     private fun ExpeditionState.setTile(x: Int, y: Int, tile: Int) =
         copy(tiles = tiles.toMutableList().also { it[index(x, y)] = tile })
     fun actionName(action: String): String = when (action) {
-        "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"
+        "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"; "charm" -> "晶石护符"
         "wall" -> "木墙"; "floor" -> "木地板"; "door" -> "木门"
         "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
-        "lantern" -> "夜灯"; "pet_house" -> "宠物小屋"
+        "lantern" -> "夜灯"; "crystal_lantern" -> "护夜晶灯"; "pet_house" -> "宠物小屋"
         else -> action
     }
 }
