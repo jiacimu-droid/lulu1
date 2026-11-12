@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`80a8b2cf0223fdd5e811bd0da5a271c4cdac26e9`
+- 基准提交：`39b190bb5a516f03c1ddbd2a48a2144ed67a2c1e`
 - 分支：`main`
-- 已索引文件：1219
-- 已索引代码/文本行：262435
-- 已发现符号：3667
+- 已索引文件：1220
+- 已索引代码/文本行：262479
+- 已发现符号：3668
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -764,7 +764,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 459 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 467 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2348 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -1216,6 +1216,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
