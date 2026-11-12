@@ -13,7 +13,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
         val raw = args.opt(key)
         return when (raw) {
             is Int -> raw
-            is Long -> raw.takeIf { it in Int.MIN_VALUE..Int.MAX_VALUE }?.toInt()
+            is Long -> raw.takeIf { it >= Int.MIN_VALUE.toLong() && it <= Int.MAX_VALUE.toLong() }?.toInt()
             is Number -> raw.toDouble().takeIf {
                 it.isFinite() && it >= Int.MIN_VALUE && it <= Int.MAX_VALUE &&
                     it % 1.0 == 0.0
@@ -24,7 +24,10 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     }
 
     private fun coordinateError(args: JSONObject, names: List<String>): String? {
-        val invalid = names.filter { integer(args, it) !in 0..1000 }
+        val invalid = names.filter { name ->
+            val value = integer(args, name)
+            value == null || value !in 0..1000
+        }
         return if (invalid.isEmpty()) null
             else "坐标缺失或超出0到1000范围：" + invalid.joinToString(", ") +
                 "；请根据当前后台画面重新给出完整坐标"
@@ -34,7 +37,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
         "tap" -> coordinateError(args, listOf("x", "y"))
         "swipe" -> coordinateError(args, listOf("startX", "startY", "endX", "endY"))
             ?: if (args.has("durationMs") &&
-                (integer(args, "durationMs") == null || integer(args, "durationMs")!! <= 0))
+                (integer(args, "durationMs")?.let { it > 0 } != true))
                     "durationMs 必须是正整数" else null
         "type" -> args.optString("text").let {
             if (it.isBlank() || it.length > 500) "text 必须是1到500个字符" else null
