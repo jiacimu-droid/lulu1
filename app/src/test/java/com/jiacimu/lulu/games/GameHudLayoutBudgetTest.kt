@@ -18,6 +18,14 @@ class GameHudLayoutBudgetTest {
         assertEquals(0f,gameHudInfoMaxHeightDp(220f,true),.001f)
     }
 
+    @Test fun compactVitalsNeverRecreateAFullWidthTopHud() {
+        assertEquals(184.8f, gameHudCompactStatusMaxWidthDp(660f, true), .001f)
+        assertEquals(194f, gameHudCompactStatusMaxWidthDp(1024f, true), .001f)
+        assertEquals(187.2f, gameHudCompactStatusMaxWidthDp(360f, false), .001f)
+        assertEquals(0f, gameHudCompactStatusMaxWidthDp(-1f, true), .001f)
+        assertTrue(gameHudCompactStatusMaxWidthDp(660f, true) < 660f * .30f)
+    }
+
     @Test fun portraitPanelStillAllowsReadableInformation() {
         assertEquals(180f,gameHudInfoMaxHeightDp(600f,false),.001f)
         assertEquals(260f,gameHudInfoMaxHeightDp(1000f,false),.001f)
