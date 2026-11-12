@@ -36,6 +36,73 @@ class ChatHistoryPersistenceBaselineTest {
     @Ignore("Opt-in heavy baseline: run explicitly on a memory-sized CI runner/device")
     @Test fun hundredThousandMessagesWriteAndReopenWithoutLoss() = measure(100_000)
 
+
+    /**
+     * UI-02.2: a failed durable metadata write must not publish an in-memory
+     * pin that disappears on reopen. The original state_v1 stays authoritative.
+     */
+    @Test fun rejectedPinCommitKeepsMemoryAndReopenedSnapshotUnchanged() {
+        val previous = prefs.getString(key, null)
+        val conversation = JSONObject()
+            .put("id", conversationId)
+            .put("characterId", "ui02-character")
+            .put("title", "Durable pin failure")
+            .put("updatedAt", "2026-01-01T00:00:00Z")
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(conversation))
+            .put("messages", JSONObject().put(conversationId, JSONArray()))
+            .toString()
+        try {
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val field = InMemoryLuluChatStore::class.java.getDeclaredField("prefs")
+                .apply { isAccessible = true }
+            val actual = field.get(store) as android.content.SharedPreferences
+            val rejected = java.lang.reflect.Proxy.newProxyInstance(
+                actual.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") {
+                    method.invoke(actual, *(args ?: emptyArray()))
+                } else {
+                    val editor = actual.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> false
+                            "apply" -> error("Durable pin must use commit, not apply")
+                            else -> {
+                                val result = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (result === editor) proxy else result
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            field.set(store, rejected)
+            try {
+                val failure = runCatching { store.setConversationPinned(conversationId, true) }.exceptionOrNull()
+                assertTrue("A rejected durable commit must surface failure", failure is IllegalStateException)
+                assertFalse(store.conversations.value.first { it.id == conversationId }.pinned)
+                assertEquals(snapshot, prefs.getString(key, null))
+            } finally {
+                field.set(store, actual)
+            }
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertFalse(reopened.conversations.value.first { it.id == conversationId }.pinned)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     private fun measure(count: Int) {
         val previous = prefs.getString(key, null)
         try {
