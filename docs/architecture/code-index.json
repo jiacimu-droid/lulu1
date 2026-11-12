@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T04:19:14.944511+00:00",
-  "commit": "d243c3182e9b65dd7bdb346de55654195c59e532",
+  "generatedAt": "2026-11-12T04:20:28.074848+00:00",
+  "commit": "d31ca848da0dcbb783b723f5ad65c7443cf3df2b",
   "branch": "main",
-  "sourceFingerprint": "bcc1f181c3bdb6c4bfe499aa3c5f76dcf7b0ad6a5c004aa6770ba2b409a79ba7",
+  "sourceFingerprint": "33719153b3e5518ff6fcf3cd2e07fc913bbd20c6cb964611996af297c153ad4c",
   "summary": {
     "files": 1216,
-    "lines": 262100,
+    "lines": 262256,
     "symbols": 3663
   },
   "symbolIndex": {
@@ -21180,8 +21180,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 342,
-      "sha256": "de095b70274244be93fd3c31d94a079676797bd68fb1a785fd3532a79c464099",
+      "lines": 498,
+      "sha256": "b64c9f8d0b0cdb842104063fe08905ad8dce54847ddf72f433a3df8b68587920",
       "symbols": []
     },
     {
