@@ -103,6 +103,17 @@ internal object BlockIslandArt {
                 else
                     drawGround(cell,base,tile,x,y,phase,w.seed,
                         seaUp,seaLeft,seaDown,seaRight)
+                // Quiet seasonal lighting over the original, recognisable terrain atlas.
+                // This is visual only; growth rules use the same saved turn number.
+                if (cell != 8) {
+                    val seasonTint=when(IslandGarden.season(w.turns)) {
+                        "春" -> Color(0xFFBDE6AF).copy(alpha=.05f)
+                        "夏" -> Color(0xFFF8D992).copy(alpha=.05f)
+                        "秋" -> Color(0xFFE4B274).copy(alpha=.13f)
+                        else -> Color(0xFFE6EFF3).copy(alpha=.19f)
+                    }
+                    drawRect(seasonTint,topLeft=base,size=Size(tile,tile))
+                }
             }
         }
         // Scenery rendered in a separate pass so tree crowns can overhang adjacent tiles.
@@ -123,6 +134,34 @@ internal object BlockIslandArt {
                     "campfire" -> drawFire(base, tile, phase, night)
                     "lantern" -> drawIslandLantern(base, tile, phase)
                     "pet_house" -> drawPetHouse(base, tile)
+                    "garden" -> {
+                        // Each visible leaf corresponds to a crop persisted in the save.
+                        drawRoundRect(Color(0xFF805F47),
+                            topLeft=base+Offset(tile*.10f,tile*.21f),
+                            size=Size(tile*.80f,tile*.61f),
+                            cornerRadius=CornerRadius(tile*.10f))
+                        drawRoundRect(Color(0xFF9C7654),
+                            topLeft=base+Offset(tile*.14f,tile*.25f),
+                            size=Size(tile*.72f,tile*.50f),
+                            cornerRadius=CornerRadius(tile*.07f))
+                        val crop=island.gardens[w.index(x,y)]
+                        if(crop!=null) {
+                            val grown=crop.tendedTurn>=0
+                            val ripe=IslandGarden.isReady(crop,w.turns)
+                            for(dx in listOf(.32f,.51f,.68f)) {
+                                drawLine(Color(0xFF346E4B),
+                                    base+Offset(tile*dx,tile*.65f),
+                                    base+Offset(tile*dx,tile*(if(grown).37f else .53f)),
+                                    strokeWidth=tile*.045f)
+                                drawCircle(Color(0xFF65A86F),
+                                    radius=tile*(if(grown).14f else .08f),
+                                    center=base+Offset(tile*dx,tile*(if(grown).38f else .53f)))
+                                if(ripe)drawCircle(Color(0xFFE38171),
+                                    radius=tile*.065f,
+                                    center=base+Offset(tile*dx,tile*.40f))
+                            }
+                        }
+                    }
                 }
             }
         }
