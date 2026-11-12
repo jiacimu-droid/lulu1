@@ -112,7 +112,18 @@ class LuluAccessibilityService : AccessibilityService() {
             val service = instance ?: return AccessibilitySnapshot()
             if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0) return AccessibilitySnapshot()
             val all = service.windowsOnAllDisplays
-            val windows = all.get(displayId).orEmpty()
+            // An IME may own input focus on the SAME virtual display while
+            // the app's search editor is open. Treating that keyboard as the
+            // app's top window makes searches fail package verification.
+            // Mika's ScreenReader likewise excludes IME/accessibility overlays.
+            // Do NOT skip TYPE_SYSTEM: a permission/payment dialog must still
+            // interrupt normal app operation rather than click underneath it.
+            val windows = all.get(displayId).orEmpty().filterNot {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD ||
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY ||
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
+            }
             val window = windows.filter { it.isActive || it.isFocused }
                 .maxByOrNull { it.layer } ?: windows.maxByOrNull { it.layer }
             val root = window?.root
@@ -169,7 +180,12 @@ class LuluAccessibilityService : AccessibilityService() {
             if (android.os.Build.VERSION.SDK_INT < 30 || displayId <= 0 ||
                 text.isEmpty() || text.length > 500) return false
             val windows = service.windowsOnAllDisplays.get(displayId).orEmpty()
-            for (window in windows.sortedByDescending { it.layer }) {
+            // Only the owner app's actual application window may receive
+            // ACTION_SET_TEXT. The keyboard window can cover it, but its
+            // package/name must never become a text target.
+            for (window in windows.filter {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION
+            }.sortedByDescending { it.layer }) {
                 val root = window.root ?: continue
                 if (root.packageName?.toString() != packageName) continue
                 val field = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: continue
