@@ -17,6 +17,17 @@ internal fun chatErrorNotice(raw: String): String {
             .containsMatchIn(message)) {
         return "模型选择的工具名称无效，回复未发送；原消息还在，可点「回复」重试"
     }
+    // A completed HTTP/SSE response with zero public text is a terminal
+    // provider/protocol failure, never a character still composing a message.
+    // Upstream may have charged even though local Token usage cannot be saved.
+    if (Regex("流式结束标记.*没有可显示的正文|流式数据无法完整解析|提前结束流式连接|没有发送可解析的流式数据|模型没有返回可读取的内容|模型没有返回正文|接口返回了空内容")
+            .containsMatchIn(message)) {
+        return "接口结束但没有返回可用正文；可能已计费，本次未自动重试"
+    }
+    if (Regex("等待响应时连接中断或超时|服务端生成结果未知|请求正文已发送|中转站.*超时")
+            .containsMatchIn(message)) {
+        return "接口响应中断或超时，结果未能确认；可能已计费，本次未自动重试"
+    }
     val hint = when {
         Regex("(?i)insufficient|balance|quota exceeded|余额|额度不足|402").containsMatchIn(message) -> "账户余额或额度不足"
         Regex("(?i)no available|no channel|无可用|没有可用|渠道不可用").containsMatchIn(message) -> "没有可用模型渠道"
