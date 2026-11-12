@@ -1985,3 +1985,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 从 [APK/JVM #43089979122](https://github.com/jiacimu-droid/lulu1/actions/runs/43089979122) job 130764783352 实际日志定位：2739 tests、1 failed、1 skipped；唯一失败为 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress`，`SQLiteCantOpenDatabaseException (code 14)` 发生在测试直接以 `OPEN_READONLY` 重开数据库文件处，不是正式执行器回执失败。
 - [f8816c9](https://github.com/jiacimu-droid/lulu1/commit/f8816c989faec8821972b9d981cfcf5090b6d246) 将不可靠的 Robolectric 第二文件连接改成正式 `SharedExperienceTimeline.exportBackup()` 对 SQLite 原始账本的查询，仍分别核拒绝主工具与成功副动态；不声称冷重启已验，生产逻辑未改。新增 CI 待查。
 - 下一轮固定 P-08d.2b.2：先核该 SHA 的 Lulu APK/JVM、Refresh code index 及目标用例；若通过，继续隔离的 Store 关闭/重建/旧动作不重放回归。真机和真实模型独立待验。
+
+
+## 2026-11-12 · P-08d.2b.2 已完成批次取消不撤销真实失败回执（新 CI 待验）
+
+- 按 main push SHA 核实 `f7bbf37e2240103b3517bc53e275086cac29e59f` 的 [Lulu APK/JVM #43122421944](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421944) 和 [Refresh code index #43122421967](https://github.com/jiacimu-droid/lulu1/actions/runs/43122421967) 均 completed/success；原备份合并幂等回归已有工程成功证据，但仍不是进程冷重启。
+- 新测试提交 [035df73](https://github.com/jiacimu-droid/lulu1/commit/035df735aa5cf90d5312c0dd162dff2da03ce576) 在 `AutonomousActionBoundaryIntegrationTest.successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress` 补已完成在线批次取消的反例：取消后正式 SQLite 账本的主工具拒绝与独立成功副动作 ID/内容不变，不产生额外模型 HTTP；随后新用户气泡仍走独立新批次、原失败原因进入下一轮。只修改回归，未更改生产行为。**本次新测试尚未取得 JVM/APK/索引成功证据**。
+- 下一轮同 ID 先核 `035df73` 的 main push APK/JVM 与 Refresh code index；若测试红，先修取消后回执丢失/夹具首错；若绿，本子项取消正例可归档，完整进程冷重启与真机仍外部待验，切 P-08c.2 或 UI-02.2 可执行缺口。真实模型和历史服务商计费未验。
