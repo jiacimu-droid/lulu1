@@ -79,6 +79,11 @@ object CompanionOnlineStore {
     private var prefs: android.content.SharedPreferences? = null
     private val mutableStates = MutableStateFlow<Map<String, CompanionOnlineState>>(emptyMap())
     val states: StateFlow<Map<String, CompanionOnlineState>> = mutableStates.asStateFlow()
+    // Transient, evidence-backed UI status for the *claimed* expiry model/task
+    // still running. It is neither online lease renewal nor a new life state.
+    // Never persist it across process death as a fictional active decision.
+    private val mutableExpiryReviews = MutableStateFlow<Map<String, Long>>(emptyMap())
+    val expiryReviews: StateFlow<Map<String, Long>> = mutableExpiryReviews.asStateFlow()
     private var groupFocusUntil: Map<String, Instant> = emptyMap()
 
     private fun deliveredKey(characterId: String) = "${DELIVERY_KEY_PREFIX}$characterId"
@@ -746,8 +751,21 @@ object CompanionOnlineStore {
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return@synchronized false
         val key = "expiry_decision_claim:$characterId"
         if (prefs?.getLong(key, Long.MIN_VALUE) == expectedUntilMs) return@synchronized false
-        prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
+        val claimed = prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
+        if (claimed) mutableExpiryReviews.value = mutableExpiryReviews.value +
+            (characterId to expectedUntilMs)
+        claimed
     }
+
+    /** A model/executor call genuinely ended (or was cancelled). No invented
+     * online status remains after it; a newer lease's review cannot be cleared
+     * by an older worker's finally block.
+     */
+    fun finishOnlineExpiryReview(characterId: String, expectedUntilMs: Long) =
+        synchronized(lock) {
+            if (mutableExpiryReviews.value[characterId] == expectedUntilMs)
+                mutableExpiryReviews.value = mutableExpiryReviews.value - characterId
+        }
 
     /** Apply ONLY the character's own 'continue' decision, never a timer heuristic. */
     fun extendByOwnChoice(characterId: String, expectedUntilMs: Long, reason: String,
