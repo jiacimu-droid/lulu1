@@ -6,6 +6,8 @@
 
 **2026-11-12 P-08c.2 私聊重建回归（CI 待验）**：新增 [a964c4f](https://github.com/jiacimu-droid/lulu1/commit/a964c4f269a1da200aa28fef0b5406e3c9c9ef6b) `QqReplySourceWatermarkTest.completedPrivateToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`，真实 `ToolRouter.send_private_message` 首次送达后重新初始化 ChatStore，使用相同 requestId、不同诊断 trace 重放，核对原回执、真实消息 ID、内容及新旧 Store 不重复。仅新增 JVM 回归，未改生产逻辑；本 SHA 的 main push Actions 尚未查得终态，不能勾工程完成。下一轮直接核该测试的 APK/JVM 首错和 Refresh code index，失败修复同一夹具/根因；通过后核 P-08c.2 取消期间副动作交付边界。进程强杀、真实模型和真机仍待验。
 
+**2026-11-12 P-08c.2 私聊纠正后 Store 重建回归（待 CI）**：上轮 `a964c4f` 的 [Lulu APK/JVM #43150286715](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286715) `build=completed/success`、[Refresh code index #43150286675](https://github.com/jiacimu-droid/lulu1/actions/runs/43150286675) `refresh=completed/success`。本轮续接 `QqReplySourceWatermarkTest.privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection`，新增纠正后新来源可送达、旧部分消息 ID 不变、独立 ChatStore 重建后仍保留原件、旧来源水位不可重新写入的回归；提交 [`4869419`](https://github.com/jiacimu-droid/lulu1/commit/486941934c44ab67cb8e422454f9713a67ea95f0) 和修正水位断言 [`3eda282`](https://github.com/jiacimu-droid/lulu1/commit/3eda282a52fd980cc26ded48ca5305012be456f2)。仅测试，新增 SHA 的 APK/JVM/索引待核，**未勾工程验收**；不代表真实进程强杀。下一轮直接核该测试 JVM 首错，若绿转 UI-02.2 写入失败恢复；真机/真实模型仍待验。
+
 ## 一、每次接力执行协议（含每小时自动开发）
 
 1. **刷新**：先读最新 main 的 AGENTS.md、CODE_INDEX.md、本页、专项进度最近记录，以及所涉源码/测试/Actions。旧记录里的 pending、cancelled 和 failure 不等于最新提交的结论；当前安装版与 GitHub main 分开判断。
