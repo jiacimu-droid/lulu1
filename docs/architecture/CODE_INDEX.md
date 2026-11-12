@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f7bbf37e2240103b3517bc53e275086cac29e59f`
+- 基准提交：`666230836d01c6044b026e901cdac750e97ed082`
 - 分支：`main`
 - 已索引文件：1209
-- 已索引代码/文本行：261009
-- 已发现符号：3650
+- 已索引代码/文本行：261032
+- 已发现符号：3651
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -78,7 +78,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 74 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallCommitmentDecisionPolicy.kt` | 8 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 11 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 27 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 32 | 4 |
@@ -1010,7 +1010,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1760 | 34 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1767 | 34 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
