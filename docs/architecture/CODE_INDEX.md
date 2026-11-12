@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d941d6bcd2a06dbef132b5019b5c60d2b7d5759a`
+- 基准提交：`e5b8663961334e346ef0523c2bf5bfeb114a0dd7`
 - 分支：`main`
 - 已索引文件：1277
-- 已索引代码/文本行：269843
+- 已索引代码/文本行：269854
 - 已发现符号：3823
 
 | 文件 | 行数 | 符号数 |
@@ -705,7 +705,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 922 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 280 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 66 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 223 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 27 | 5 |
@@ -716,9 +716,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 622 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 224 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 470 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 609 | 26 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 616 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1119 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 122 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt` | 130 | 8 |
