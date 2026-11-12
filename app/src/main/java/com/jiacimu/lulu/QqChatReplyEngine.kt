@@ -581,10 +581,11 @@ internal suspend fun requestGroupRoleOnce(
     sceneContext: String,
     turnContext: String,
     evidenceIds: List<String>,
+    recalledEventIds: Set<String> = emptySet(),
     gateway: suspend (String, String, String, String, String?, String, String, List<String>) ->
         Result<com.jiacimu.lulu.ai.ModelReply> = { id, context, input, label, archive, scene, turn, evidence ->
         LuluDeviceToolBridge.respond(id, context, input, label, archive, scene,
-            turnContext = turn, userEvidenceIds = evidence)
+            turnContext = turn, userEvidenceIds = evidence, recalledGroupEventIds = recalledEventIds)
     },
 ): Result<com.jiacimu.lulu.ai.ModelReply> =
     gateway(characterId, history, prompt, modelLabel, archiveId, sceneContext, turnContext, evidenceIds)
@@ -706,7 +707,11 @@ internal suspend fun runGroupReplies(
         val latest = visibleAll.filterNot { it.id in recalledNow }
         val historySource = if (index == 0) visibleAll.filterNot { it.id in pendingIds } else visibleAll
         val history = buildBoundedHistory(historySource, label, characterNames)
-            .ifBlank { initialHistory.takeIf { !DigitalLifeProfileStore.isEnabled(member.characterId) }.orEmpty() }
+            .ifBlank {
+                initialHistory.takeIf {
+                    recalledNow.isEmpty() && !DigitalLifeProfileStore.isEnabled(member.characterId)
+                }.orEmpty()
+            }
         val memberList = known.joinToString("、") { it.groupNickname.ifBlank { characterNames[it.characterId] ?: it.characterId } }
         val quotable = latest.filter { it.sender == LuluChatMessage.Sender.User && it.id in pendingUserIds }
         val prompt = buildString {
@@ -768,7 +773,9 @@ internal suspend fun runGroupReplies(
         val result = requestGroupRoleOnce(member.characterId, history, prompt, memberLabel,
             memberArchive, sceneContext,
             turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
-            evidenceIds = roleUserEvidenceIds)
+            evidenceIds = roleUserEvidenceIds,
+            recalledEventIds = if (isGroupPhone) emptySet() else
+                recalledNow.mapTo(mutableSetOf()) { "${it}:group:${member.characterId}" })
         if (!currentCoroutineContext().isActive) return
         if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
             onSpeakerChange(null)

@@ -17,7 +17,11 @@ data class UnifiedMemoryRequest(
     // The clicked "retry answer" must not recall the original reply as if it
     // had already happened. Never remove this evidence from persistent storage.
     val excludedEventIds: Set<String> = emptySet(),
+    // Scoped visibility from the current conversation, independent of re-answer mode.
+    val hiddenEventIds: Set<String> = emptySet(),
 ) {
+    val unavailableEventIds: Set<String> get() = excludedEventIds + hiddenEventIds
+
     fun retrievalQuery(): String = buildString {
         if (currentInput.isNotBlank()) appendLine("当前输入：${currentInput.trim()}")
         if (sceneContext.isNotBlank()) appendLine("当前场景：${sceneContext.trim()}")
@@ -145,7 +149,7 @@ object UnifiedMemoryOrchestrator {
         paidRanking: Boolean = true,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
-        val excluded = request.excludedEventIds
+        val excluded = request.unavailableEventIds
         val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory
             .contextTimelineEvents(characterId).filterNot { it.id in excluded }
         val seenInChat = listOf(request.recentContext, request.alreadyPresentedEvidence)

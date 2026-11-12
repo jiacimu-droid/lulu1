@@ -15,6 +15,7 @@ import com.jiacimu.lulu.data.UnifiedMemoryOrchestrator
 import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.data.TokenBreakdownItem
 import com.jiacimu.lulu.data.UserProfileContext
+import com.jiacimu.lulu.data.sourceIds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -615,6 +616,7 @@ class CompanionModelGateway(
                 CompanionContextMode.Full -> unifiedMemory.coreMemories
                 CompanionContextMode.CharacterAndScenario ->
                     com.jiacimu.lulu.data.CoreMemoryDelivery.active(characterId)
+                        .filterNot { memory -> memory.sourceIds().any { it in request.hiddenEventIds } }
                 else -> emptyList()
             }
             val deliveredCoreSection = com.jiacimu.lulu.data.CoreMemoryDelivery.render(deliveredCore)
@@ -780,7 +782,7 @@ class CompanionModelGateway(
             val continuitySection = if (fullContext)
                 com.jiacimu.lulu.data.CharacterContinuityRuntime.context(
                     characterId, request.currentInput, includeMotives = false,
-                    excludedEventIds = request.excludedEventIds)
+                    excludedEventIds = request.unavailableEventIds)
             else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(

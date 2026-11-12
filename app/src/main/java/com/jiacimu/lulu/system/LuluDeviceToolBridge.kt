@@ -190,6 +190,7 @@ object LuluDeviceToolBridge {
         onLive2DAction: ((JSONObject) -> Unit)? = null,
         onLive2DStatus: ((String) -> Unit)? = null,
         diagnosticTurnTraceId: String = "",
+        recalledGroupEventIds: Set<String> = emptySet(),
     ): Result<ModelReply> {
         val turnTraceId = diagnosticTurnTraceId.ifBlank { java.util.UUID.randomUUID().toString() }
         val preparationStartedNanos = System.nanoTime()
@@ -281,7 +282,7 @@ object LuluDeviceToolBridge {
         val recentCharacterReplies = if (currentSessionId.isBlank()) emptyList() else
             com.jiacimu.lulu.data.ConversationTurnEconomy.recentOwnReplies(
                 com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 80)
-                    .filterNot { it.id in regenerationExcludedEventIds },
+                    .filterNot { it.id in regenerationExcludedEventIds || it.id in recalledGroupEventIds },
                 characterId, currentSessionId, now,
             )
         val turnEconomyContext = com.jiacimu.lulu.data.ConversationTurnEconomy.context(
@@ -722,6 +723,7 @@ object LuluDeviceToolBridge {
                 recentContext = history,
                 taskIntent = if (rewriting) "以本人身份回应当前用户消息；此语言生成入口不会发起新工具操作" else "判断是直接回复还是执行一个真实手机工具",
                 excludedEventIds = regenerationExcludedEventIds,
+                hiddenEventIds = recalledGroupEventIds,
             ),
         )
         currentCoroutineContext().ensureActive()
@@ -1827,6 +1829,10 @@ object LuluDeviceToolBridge {
             ),
             onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
+            memoryRequest = recalledGroupEventIds.takeIf { it.isNotEmpty() }?.let {
+                UnifiedMemoryRequest(currentInput = userText, sceneContext = sceneContext,
+                    recentContext = history, actionContext = toolResult, hiddenEventIds = it)
+            },
         )
         currentCoroutineContext().ensureActive()
         if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)

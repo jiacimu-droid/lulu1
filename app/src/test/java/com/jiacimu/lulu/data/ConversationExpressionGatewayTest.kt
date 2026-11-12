@@ -1893,6 +1893,8 @@ class ConversationExpressionGatewayTest {
             val names = listOf(actor, peer, third).associate { it.characterId to it.displayName }
             val chat = MigratedDomainStores.chat
             val group = chat.createGroupConversation("群聊事实变化", names.keys.toList())
+            val retainedWords = "仍有效的会场地址"
+            chat.appendCharacterMessage(group.id, retainedWords, authorCharacterId = peer.characterId)
             val oldWords = "尚未核实的展览日期"
             val oldBubble = chat.appendCharacterMessage(group.id, oldWords, authorCharacterId = peer.characterId)
             val user = chat.sendUserMessage(group.id, "这件事你怎么看？")
@@ -1939,6 +1941,9 @@ class ConversationExpressionGatewayTest {
                     if (recall) {
                         assertTrue(chat.retractCharacterMessage(oldBubble.id, peer.displayName))
                         assertTrue(chat.messages(group.id).value.any { it.id == oldBubble.id })
+                        val eventId = "${oldBubble.id}:group:${actor.characterId}"
+                        assertTrue(SharedExperienceTimeline.eventsByIds(actor.characterId, listOf(eventId))
+                            .any { it.content.contains(oldWords) })
                     } else {
                         val room = checkNotNull(group.groupChat)
                         assertTrue(chat.updateGroupConversation(group.id, room.copy(
@@ -1954,8 +1959,12 @@ class ConversationExpressionGatewayTest {
 
                 runRound()
                 val nextDirector = takeRequest()
-                takeRequest()
-                if (recall) assertFalse(nextDirector.contains(oldWords))
+                val nextRole = takeRequest()
+                assertTrue(nextRole.contains(retainedWords))
+                if (recall) {
+                    assertFalse(nextDirector.contains(oldWords))
+                    assertFalse(nextRole.contains(oldWords))
+                }
                 assertEquals(3, server.requestCount)
                 assertEquals(listOf(actor.characterId), speakers.filterNotNull())
                 assertEquals(listOf(visible), chat.messages(group.id).value
