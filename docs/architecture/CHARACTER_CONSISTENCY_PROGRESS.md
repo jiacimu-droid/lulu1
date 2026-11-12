@@ -1,3 +1,9 @@
+## 2026-11-13 · UI-02.2 收藏档案拒写后的保守恢复
+
+- 生产 [`10eab60`](https://github.com/jiacimu-droid/lulu1/commit/10eab60adb1d2aa0359085d1a93dfd5e978ac768)：聊天 Store 冷启动时，以仍存在的独立收藏档案修复聊天 false 收藏标记；先提交持久聊天快照再发布修复后的投影。恢复提交拒绝则保留旧投影，下一次启动仍可重试，不触碰档案和语音文件。
+- 测试 [`5162eb8`](https://github.com/jiacimu-droid/lulu1/commit/5162eb8f783e22096e10f1c9a732d58d1388a4fe)：双重拒写后首次与再次重启均应恢复收藏标记，档案保留。此前测试明确暴露原风险，现改为期望修复结果。
+- 工程 JVM/APK/索引按新提交及后继 main push CI 待验；真机强杀/语音文件和恢复时再次拒写仍待验。下一轮直接检查该测试首错，补恢复 commit 失败回归。单向恢复不等于两份偏好文件原子化。
+
 **2026-11-12 UI-02.2 · 会话清空/删除写入拒绝原子性（本轮待 CI）**：[426f815](https://github.com/jiacimu-droid/lulu1/commit/426f81516e66999c1e5bf881376f5827c82773f1) 修正 `InMemoryLuluChatStore.clearConversationMessages/deleteConversation` 先销毁内存投影再异步 `apply()` 的缺口，改为持久 `commit()` 失败即恢复会话与消息，且失败不得撤回时间线、清理图片或通知；[f1fd735](https://github.com/jiacimu-droid/lulu1/commit/f1fd735a9a70db402d9e24649f82219a7186c66e) 增加拒绝提交、原始消息/会话不变、重建 Store 原文不丢的 Robolectric 回归。此前 edit/delete 的 [#43177072436](https://github.com/jiacimu-droid/lulu1/actions/runs/43177072436) 被并发 push 取消，不能判成功；后继 [#43180316840](https://github.com/jiacimu-droid/lulu1/actions/runs/43180316840) 完成成功且包含该祖先，但本轮新提交仍须核其自身或后继完整 JVM/APK 与索引。下一轮直接打开 `ChatHistoryPersistenceBaselineTest.rejectedConversationRemovalPreservesOriginalAndReopenedHistory` 查首错；若通过，核 `replaceCharacterReply` 等剩余非持久编辑路径，真机进程死亡/真实模型独立待验。## 2026-11-12 · UI-02.2 收藏写入跨 Store 保护（CI 待验）
 
 ## 2026-11-13 · UI-02.2 收藏档案与聊天补偿同时拒写的工程反例
