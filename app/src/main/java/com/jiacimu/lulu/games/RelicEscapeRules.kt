@@ -510,6 +510,18 @@ internal object RelicEscapeRules {
         }
         return s.copy(allies=done)
     }
+    /** Priest and sentinel threaten a two-tile straight lane, never through walls.
+     * Other enemies remain adjacent melee. The warning happens a full turn first. */
+    fun enemyThreatRange(m:RelicMob):Int=if(m.kind>=2)2 else 1
+    fun canEnemyStrike(s:RelicRun,m:RelicMob,actor:RelicActor):Boolean {
+        val d=distance(m.x,m.y,actor.x,actor.y)
+        if(d<1 || d>enemyThreatRange(m))return false
+        if(d==1)return true
+        if(m.x!=actor.x && m.y!=actor.y)return false
+        val middleX=(m.x+actor.x)/2
+        val middleY=(m.y+actor.y)/2
+        return s.walk(middleX,middleY)
+    }
     private fun enemyTurn(original:RelicRun,noise:Int):RelicRun {
         var s=original
         val alive=mutableListOf<RelicMob>()
@@ -529,7 +541,7 @@ internal object RelicEscapeRules {
                     s=s.log("world","clue","怪物转而扑向诱饵，攻击落空")
                     continue
                 }
-                if(d<=1) {
+                if(canEnemyStrike(s,m,target)) {
                     val rawDamage=(m.kind+1+s.difficulty.incomingDamage).coerceAtLeast(1)
                     val protector=if(target.id=="player")s.allies.firstOrNull { ally ->
                         ally.id==s.guardedBy && ally.hp>0 &&
@@ -563,9 +575,11 @@ internal object RelicEscapeRules {
                 alive+=m.copy(alert=4,windup=false)
                 continue
             }
-            if(d<=1) {
+            if(canEnemyStrike(s,m,target)) {
                 alive+=m.copy(alert=4,windup=true)
-                s=s.log("world","warning","怪物蓄力！下一回合攻击，快闪避")
+                s=s.log("world","warning",RelicArsenal.monsterName(m.kind)+
+                    "正在蓄力！"+(if(enemyThreatRange(m)==2)"直线两格内危险；" else "")+
+                    "下一回合会攻击，可闪避或格挡")
             } else if(alert>0) {
                 val step=path(s,m.x,m.y,target.x,target.y)
                 alive+=if(step!=null && (step.first!=target.x || step.second!=target.y) &&
