@@ -226,6 +226,7 @@ class QqReplySourceWatermarkTest {
         val source = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先回答这个")
         val args = JSONObject().put("text", "第一泡。⟪BUBBLE⟫第二泡。⟪BUBBLE⟫第三泡。")
             .put("_replyEvidenceIds", JSONArray().put(source.id))
+        val oldSourceWatermark = captureReplySourceWatermark(conversation.id, role, setOf(source.id), MigratedDomainStores.chat)!!
         val pending = async {
             CompanionActionRuntime.execute(app, role, "send_private_message", args)
         }
@@ -278,8 +279,17 @@ class QqReplySourceWatermarkTest {
         assertEquals(persisted.map { it.id }, recovered.take(persisted.size).map { it.id })
         assertEquals("收到纠正，我重新回答。", recovered.last().content)
         // A delayed old batch must not append after correction and Store reopen.
-        val stale = captureReplySourceWatermark(conversation.id, role, setOf(source.id), reopened)
-        assertNull("The corrected source must not regain authority on reopen", stale)
+        assertFalse("The corrected source must not regain authority on reopen",
+            isReplySourceWatermarkCurrent(oldSourceWatermark, reopened))
+        val staleAppend = reopened.appendCharacterMessageIfSourceCurrent(
+            conversation.id, "旧批次不能在重建后续发", role, null, "stale-private-after-reopen",
+            false, "", sourceStillCurrent = {
+                isReplySourceWatermarkCurrent(oldSourceWatermark, reopened)
+            },
+        )
+        assertNull(staleAppend)
+        assertEquals(after.map { it.id }, reopened.messages(conversation.id).value
+            .filter { it.authorCharacterId == role }.map { it.id })
     }
 
     @Test fun groupActionPartialDeliveryStopsAfterUserCorrectionAndKeepsOnlyRealReceipts() = runBlocking {
