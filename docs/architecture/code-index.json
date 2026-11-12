@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:24:33.317666+00:00",
-  "commit": "872b19760d1e73a0f08f1c355b5ddf29945e4c95",
+  "generatedAt": "2026-11-12T05:26:04.180907+00:00",
+  "commit": "c9cb2fb2f0c2f4da630d651492d7f86e8076c6a5",
   "branch": "main",
-  "sourceFingerprint": "63190499ff91a61998ac92494e15fed11f9c1f3e8dbabd56626fdd6b4e8376f6",
+  "sourceFingerprint": "9a6470c1755f1b1b58d91127d9755874365a57a8cecdc771b7b59c860f8901f4",
   "summary": {
     "files": 1222,
-    "lines": 262975,
+    "lines": 262981,
     "symbols": 3677
   },
   "symbolIndex": {
@@ -19255,7 +19255,7 @@
     "OnlineExpiryUnfinishedWorkTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt",
-        "line": 8
+        "line": 15
       }
     ],
     "PerceptionStimulusLedgerTest": [
@@ -41557,12 +41557,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt",
-      "lines": 65,
-      "sha256": "7d9c74627ae5f150c5c435053054e4b54908a3d4948427110f60a92bb1368959",
+      "lines": 71,
+      "sha256": "6b2337f83ea5fb16987ce11b3910258975acb53fd2d77683c3c3fdefcbbf5739",
       "symbols": [
         {
           "name": "OnlineExpiryUnfinishedWorkTest",
-          "line": 8
+          "line": 15
         }
       ]
     },
