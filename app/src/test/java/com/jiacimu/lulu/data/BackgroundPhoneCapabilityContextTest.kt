@@ -72,6 +72,11 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("action=tool,tool=background_phone"))
             assertTrue(status.contains("准确显示名称appName"))
             assertTrue(status.contains("sendToChat"))
+            val capability = CapabilityRegistry.context(context, characterId)
+            assertTrue("background search requires an explicit submit",
+                capability.contains("type|submit|stop"))
+            assertTrue("do not call typing a completed search",
+                capability.contains("submit再由本人选择按后台屏回车提交搜索"))
             assertTrue(status.contains("绝不会把主屏截图当后台图"))
             assertTrue(status.contains("这不是capture_screen"))
             assertTrue(CapabilityRegistry.find("background_phone") != null)
