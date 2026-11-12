@@ -50,10 +50,7 @@ internal fun RelicEscapeWorldMap(
     // The path is a read-only projection of discovered traversable cells.
     val tension = remember(run) { relicTension(run) }
     val knownRoute = remember(run, selected) {
-        val target = listOfNotNull(
-            RelicObjectiveGuide.visibleChest(run),
-            RelicObjectiveGuide.visibleExit(run),
-        ).firstOrNull { it.x == selected.first && it.y == selected.second }
+        val target = RelicObjectiveGuide.selectedVisible(run, selected.first, selected.second)
         target?.let { RelicObjectiveGuide.knownRouteTiles(run, it) }
     }
     // Index physical entities once per authoritative snapshot, not once per drawn tile.
