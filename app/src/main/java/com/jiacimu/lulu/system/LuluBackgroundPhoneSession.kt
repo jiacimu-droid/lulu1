@@ -369,12 +369,14 @@ internal object LuluBackgroundPhoneSession {
         )
     }
 
+    private data class SearchDispatch(val receipt: JSONObject, val beforeSubmitTree: String? = null)
+
     /** Mika BatchRunner pattern for one explicitly selected search. Every
      * boundary rechecks the actual target; only the final screen is captured. */
     private suspend fun search(
         context: Context, id: Int, packageName: String, characterId: String,
         unreadAtStart: Set<String>, text: String,
-    ): JSONObject {
+    ): SearchDispatch {
         suspend fun interruption(): JSONObject? {
             if (ownerHasPaused(context) || !LuluScreenAwareness.onDemandAllowed(context) ||
                 LuluScreenAwareness.isExcluded(context, packageName) ||
@@ -396,30 +398,36 @@ internal object LuluBackgroundPhoneSession {
             .put("searchStage", stage).put("errorCode", "search_" + stage)
             .put("verification", reason).put("accepted", false)
 
-        interruption()?.let { return it.put("searchStage", "before_focus") }
+        interruption()?.let { return SearchDispatch(it.put("searchStage", "before_focus")) }
         val focused = withContext(Dispatchers.Main) {
             LuluAccessibilityService.hasFocusedVirtualSearchEditor(id, packageName) ||
                 LuluAccessibilityService.focusUniqueVirtualSearchEditor(id, packageName)
         }
-        if (!focused) return stopped("focus_unverified",
-            "未找到可核实的唯一搜索框。请根据后台控件打开搜索入口，未输入或提交。")
+        if (!focused) return SearchDispatch(stopped("focus_unverified",
+            "未找到可核实的唯一搜索框。请根据后台控件打开搜索入口，未输入或提交。"))
 
-        interruption()?.let { return it.put("searchStage", "before_input") }
+        interruption()?.let { return SearchDispatch(it.put("searchStage", "before_input")) }
         val typed = typeSearchText(id, packageName, text)
-        interruption()?.let { return it.put("searchStage", "before_submit") }
-        val exactReadback = typed == LuluMikaTextAccuracy.Verification.MATCH &&
+        interruption()?.let { return SearchDispatch(it.put("searchStage", "before_submit")) }
+        // Use the tree AFTER typing as the baseline for Enter. Otherwise
+        // suggestions from typing can look like a settled search result.
+        val beforeSubmit = if (typed == LuluMikaTextAccuracy.Verification.MATCH) {
             withContext(Dispatchers.Main) {
-                LuluAccessibilityService.readVirtualSearchFieldText(id, packageName) == text
+                val tree = LuluAccessibilityService.virtualUiSnapshot(id, packageName).optString("fingerprint")
+                tree.takeIf { LuluAccessibilityService.readVirtualSearchFieldText(id, packageName) == text }
             }
-        if (!exactReadback) return stopped("input_unverified",
-            "未能从当前搜索框准确读回所输文字，未提交。").put("inputVerification", typed.wire)
+        } else null
+        if (beforeSubmit == null) return SearchDispatch(stopped("input_unverified",
+            "未能从当前搜索框准确读回所输文字，未提交。").put("inputVerification", typed.wire))
         val submitted = command(JSONObject().put("action", "submit"))
-        return submitted.put("searchStage", if (submitted.optBoolean("accepted")) "submitted" else "submit_rejected")
+        val accepted = submitted.optBoolean("accepted")
+        val receipt = submitted.put("searchStage", if (accepted) "submitted" else "submit_rejected")
             .put("searchInputVerifiedBeforeSubmit", true)
-            .put("searchSubmitted", submitted.optBoolean("accepted"))
-            .put("verification", if (submitted.optBoolean("accepted"))
+            .put("searchSubmitted", accepted)
+            .put("verification", if (accepted)
                 "已读回关键词并提交搜索；请核对页面里的实际搜索结果。"
             else "已读回关键词，但设备未接受搜索提交。")
+        return SearchDispatch(receipt, beforeSubmit)
     }
 
     private fun JSONObject.attachSearchReceipt(applied: JSONObject?): JSONObject {
@@ -628,7 +636,7 @@ internal object LuluBackgroundPhoneSession {
             } else JSONObject()
             // Snapshot BEFORE the action to measure actual UI effect. An
             // accepted gesture or a new frame is not itself a changed page.
-            val beforeUiFingerprint = if (action == "launch") "" else
+            var beforeUiFingerprint = if (action in setOf("launch", "search")) "" else
                 withContext(Dispatchers.Main) {
                     LuluAccessibilityService.virtualUiSnapshot(id, activeApp)
                         .optString("fingerprint")
@@ -725,6 +733,10 @@ internal object LuluBackgroundPhoneSession {
                         .put("displayId", id)
                 }
                 "search" -> search(context, id, activeApp, characterId, unreadAtStart, args.getString("text"))
+                    .let { dispatch ->
+                        beforeUiFingerprint = dispatch.beforeSubmitTree.orEmpty()
+                        dispatch.receipt
+                    }
                 else -> command(request)
             }
             if (action == "search") searchReceipt = applied
