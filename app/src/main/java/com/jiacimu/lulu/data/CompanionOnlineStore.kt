@@ -102,10 +102,18 @@ object CompanionOnlineStore {
     internal fun onRoleWorkFinished(characterId: String, now: Instant = Instant.now()) {
         synchronized(lock) {
             if (ChatGenerationActivity.isWorking(characterId)) return
-            val pending = workDeferredExpiries.remove(characterId) ?: return
             val current = mutableStates.value[characterId] ?: return
+            if (current.reason == CompanionOnlineReason.SelfChosenSleep &&
+                !CompanionPresenceStore.isInCall(characterId) &&
+                !isExpiryReviewRunning(characterId)) {
+                workDeferredExpiries.remove(characterId)
+                // A sleep choice made during an execution lease becomes real
+                // ONLY after the final accepted action has ended.
+                EmbodiedBodyRuntime.onPresenceSleep(characterId, now)
+                return
+            }
+            val pending = workDeferredExpiries.remove(characterId) ?: return
             if (current.onlineUntil.toEpochMilli() != pending ||
-                current.reason == CompanionOnlineReason.SelfChosenSleep ||
                 CompanionPresenceStore.isInCall(characterId) ||
                 isExpiryReviewRunning(characterId)) return
             // Technical grace for the deferred expiry worker, not a free new
@@ -396,8 +404,12 @@ object CompanionOnlineStore {
                 EmbodiedBodyRuntime.onPresenceSleep(characterId, current.onlineUntil)
                 return@synchronized true
             }
-            // Going offline IS sleep: settle awake time before writing the lease.
-            EmbodiedBodyRuntime.onPresenceSleep(characterId, now)
+            // Actual execution means awake, even if its owner has already
+            // chosen to rest AFTER completion. Record the choice now; settle
+            // the sleep clock only when the last real tool lease ends.
+            if (!ChatGenerationActivity.isWorking(characterId) &&
+                !isExpiryReviewRunning(characterId))
+                EmbodiedBodyRuntime.onPresenceSleep(characterId, now)
             mutableStates.value = mutableStates.value + (characterId to current.copy(
                 onlineUntil = now, reason = CompanionOnlineReason.SelfChosenSleep,
             ))
