@@ -50,7 +50,8 @@ class CharacterScreenShareTest {
             assertEquals(LuluChatMessage.Sender.Character, ownMessage.sender)
             val image = requireNotNull(decodeQqChatImage(ownMessage.content))
             assertEquals("你看这个页面", image.caption)
-            assertTrue(image.imageDescription.contains("真实手机屏幕截图"))
+            assertTrue(image.imageDescription.contains("真实手机主屏截图"))
+            assertFalse(image.imageDescription.contains("后台虚拟屏幕截图"))
             assertFalse(image.sticker)
             assertEquals("", image.sourceUrl)
             val persisted = File(requireNotNull(Uri.parse(image.imageUri).path))
@@ -61,6 +62,27 @@ class CharacterScreenShareTest {
                 .list(context, role.characterId).none { it.uri == image.imageUri })
             assertTrue(MigratedDomainStores.chat.messages(otherChat.id).value
                 .none { it.id == ownMessage.id })
+            // A separately verified background-phone frame uses the SAME
+            // durable private-photo pipeline, but must NOT be described as
+            // the user's current main screen.
+            val virtual = CompanionActionRuntime.sendCapturedScreenshot(
+                context, role.characterId, frame, "后台屏", "com.example.reader",
+                sourceDisplay = "virtual")
+            assertTrue(virtual.summary, virtual.success)
+            assertEquals(ownChatId, virtual.conversationId)
+            val virtualMessage = MigratedDomainStores.chat.messages(ownChatId).value
+                .single { it.id == virtual.evidenceId }
+            val virtualImage = requireNotNull(decodeQqChatImage(virtualMessage.content))
+            assertEquals("后台屏", virtualImage.caption)
+            assertTrue(virtualImage.imageDescription.contains("后台虚拟屏幕截图"))
+            assertTrue(virtualImage.imageDescription.contains("不是主人当前主屏"))
+            assertFalse(virtualImage.imageDescription.contains("真实手机主屏截图"))
+            val virtualFile = File(requireNotNull(Uri.parse(virtualImage.imageUri).path))
+            assertTrue(virtualFile.isFile && virtualFile.length() > 0L)
+            assertTrue(MigratedDomainStores.chat.messages(otherChat.id).value
+                .none { it.id == virtualMessage.id })
+            assertTrue(QqChatPhotoAttachmentStore.deleteIfOwned(context, virtualImage.imageUri))
+            assertFalse(virtualFile.exists())
             assertTrue(QqChatPhotoAttachmentStore.deleteIfOwned(context, image.imageUri))
             assertFalse(persisted.exists())
         } finally {
