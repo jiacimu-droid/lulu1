@@ -45,10 +45,18 @@ internal object LuluVirtualUiPolicy {
 
     /** Only safe, named navigation. Unknown, empty, sensitive and outward
      * actions must fail closed, never perform a second click automatically. */
-    fun mayClick(label: String?, resourceId: String?, descendantText: String): Boolean {
+    fun mayClick(
+        label: String?, resourceId: String?, descendantText: String,
+        shoppingAllowed: Boolean = false,
+    ): Boolean {
         val title = label.orEmpty().trim()
         val id = resourceId.orEmpty().trim()
         if (title.isEmpty() && id.isEmpty()) return false
+        // Shopping is a narrow, owner-controlled exception for named, verified
+        // controls. It cannot authorize generic confirm/order submission,
+        // payment or unverified coordinate taps.
+        if (shoppingAllowed &&
+            LuluShoppingAssistPolicy.mayNavigate(title, id, descendantText)) return true
         if (outward.containsMatchIn(title + " " + id)) return false
         // Long article cards often mention "likes" or "comments" as content.
         // Only short individual child controls can make an otherwise safe
