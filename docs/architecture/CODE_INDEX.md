@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f600bacde3ad26c7c318a726002dcdda295dcf6`
+- 基准提交：`efd80725c723fd0ed1770928c97fe4c58c88e05b`
 - 分支：`main`
-- 已索引文件：1235
-- 已索引代码/文本行：264568
-- 已发现符号：3717
+- 已索引文件：1237
+- 已索引代码/文本行：264873
+- 已发现符号：3728
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -760,12 +760,12 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 691 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 708 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 276 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 288 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 686 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 751 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2356 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -777,6 +777,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaFrameMath.kt` | 66 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaHant.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt` | 58 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMikaScreenDiagnosis.kt` | 119 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
@@ -1225,6 +1226,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaClickFallbackTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaFrameMathTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdateTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluMikaScreenDiagnosisTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaTextAccuracyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
