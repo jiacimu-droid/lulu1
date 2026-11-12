@@ -2137,3 +2137,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 未取得新 SHA 的 APK/JVM 与索引成功证据；不能勾工程通过。下一轮沿 UI-02.2 查该测试首错，再核 `toggleFavorite` 跨收藏 Store 与聊天 Store 的失败原子性。真机通知、完整进程强杀、真实模型与服务商计费未验。
 
 2026-11-12 UI-02.2 收藏页直接取消收藏接力（CI 待验）：正式修复 [e3fb439](https://github.com/jiacimu-droid/lulu1/commit/e3fb439dc7e86dbbe8f174a9162b37699c1122d3) 调整 `removeUserFavorite` 为聊天消息收藏标记 durable commit 成功后才删除独立档案；历史聊天已删除时仍允许清理孤立档案，档案失败时尝试恢复原标记。测试 [c91f68b](https://github.com/jiacimu-droid/lulu1/commit/c91f68b1aef322bb487dbdec467811c609676646) 覆盖聊天拒写、原消息收藏标记/持久快照/Store 重开不变。新增测试未取得 APK/JVM 与索引成功证据；两个存储不是原子事务，档案拒写和补偿再次失败、真实语音文件、真机强杀仍待验。下一轮沿 UI-02.2 先核 `rejectedFavoriteRemovalKeepsChatSnapshot` 的 Actions JVM 首错，再补独立收藏档案拒写与补偿反例。
+
+## 2026-11-12 · UI-02.2 收藏档案拒写回归续接
+
+- 新增 Robolectric `ChatHistoryPersistenceBaselineTest.rejectedArchiveRemovalRestoresFavoriteFlagAcrossReopen`：构造已收藏聊天与独立档案，注入档案 SharedPreferences 拒写，验证 `removeUserFavorite` 返回失败、聊天收藏标记补偿恢复、档案仍在、重建 Store 后仍已收藏。
+- 测试提交 [`acbd871`](https://github.com/jiacimu-droid/lulu1/commit/acbd871ab3121c2925b4df52e0250d8ba88da5e0)、夹具修正 [`a006880`](https://github.com/jiacimu-droid/lulu1/commit/a006880e8320a457316bf7f10567defbfc25c2de)。未改生产逻辑；main push APK/JVM、索引尚未验收。
+- 下一轮同 UI-02.2 先核目标测试 CI；再补收藏档案与聊天补偿同时拒写的失败反例。真机强杀和语音文件独立待验。
