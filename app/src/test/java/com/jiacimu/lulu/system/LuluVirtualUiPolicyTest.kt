@@ -16,6 +16,19 @@ class LuluVirtualUiPolicyTest {
         assertNotEquals(tree, LuluVirtualUiPolicy.fingerprint(listOf("e2|笔记", "e1|search")))
     }
 
+    @Test fun deviceEffectIsNotBusinessCompletion() {
+        val changed = LuluVirtualUiPolicy.fingerprint(listOf("next-page"))
+        val before = LuluVirtualUiPolicy.fingerprint(listOf("landing-page"))
+        val kind = LuluVirtualUiPolicy::effectKind
+        assertTrue(kind("observe", true, before, changed, false) == "read_only")
+        assertTrue(kind("tap_element", true, before, changed, false) == "tree_changed")
+        assertTrue(kind("swipe", true, before, before, false) == "tree_unchanged")
+        assertTrue(kind("submit", true, before, "", false) == "unknown")
+        assertTrue(kind("type", true, before, before, true) == "input_verified")
+        assertTrue(kind("type", true, before, before, false) == "input_unverified")
+        assertTrue(kind("tap", false, before, before, false) == "not_accepted")
+    }
+
     @Test fun onlySafeNamedNavigationMayBeClicked() {
         assertTrue(LuluVirtualUiPolicy.mayClick("搜索", "search_icon", ""))
         assertTrue(LuluVirtualUiPolicy.mayClick("打开笔记", "note_card", ""))

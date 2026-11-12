@@ -20,6 +20,22 @@ internal object LuluVirtualUiPolicy {
         return digest.take(12).joinToString("") { "%02x".format(it.toInt() and 0xff) }
     }
 
+    /** Mika ActionEffect-inspired classification of REAL local evidence.
+     * A new frame by itself is not an action effect and none of these states
+     * means the user's business goal is finished. */
+    fun effectKind(
+        action: String, accepted: Boolean,
+        beforeTree: String?, afterTree: String?, inputReadbackVerified: Boolean,
+    ): String {
+        if (action == "observe") return "read_only"
+        if (!accepted) return "not_accepted"
+        if (action == "type" && inputReadbackVerified) return "input_verified"
+        if (action == "type") return "input_unverified"
+        if (action == "launch" && !afterTree.isNullOrBlank()) return "app_visible"
+        if (beforeTree.isNullOrBlank() || afterTree.isNullOrBlank()) return "unknown"
+        return if (beforeTree == afterTree) "tree_unchanged" else "tree_changed"
+    }
+
     fun sameSnapshot(
         requestedId: String, currentId: String,
         expectedFingerprint: String, currentFingerprint: String,

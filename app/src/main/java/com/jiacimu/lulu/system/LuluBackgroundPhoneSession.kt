@@ -140,6 +140,23 @@ internal object LuluBackgroundPhoneSession {
     }
 
 
+    /** Bounded local settling from Mika ChangeWait/InterfaceUpdate:
+     * no extra model call and no repeated action. It reads the OWN virtual
+     * display only; a still tree is evidence of stability, not task success. */
+    private suspend fun awaitStableUi(displayId: Int, packageName: String): Boolean {
+        var last = ""
+        for (attempt in 0 until 4) {
+            kotlinx.coroutines.delay(130)
+            val current = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
+                    .optString("fingerprint")
+            }
+            if (current.isNotBlank() && current == last) return true
+            last = current
+        }
+        return false
+    }
+
     private fun forgetTransport() {
         appContext?.let { runCatching { LuluBackgroundPhoneNotice.clear(it) } }
         appContext = null
@@ -344,6 +361,13 @@ internal object LuluBackgroundPhoneSession {
                     "检测到付款、发送、发布、删除或无法核实的敏感点击目标；拒绝自动操作"
                 }
             }
+            // Snapshot BEFORE the action to measure actual UI effect. An
+            // accepted gesture or a new frame is not itself a changed page.
+            val beforeUiFingerprint = if (action == "launch") "" else
+                withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.virtualUiSnapshot(id, activeApp)
+                        .optString("fingerprint")
+                }
             val request = JSONObject().put("action", action)
             if (action == "launch") {
                 // Pass Android's actual exported launcher component, not just a
@@ -433,6 +457,9 @@ internal object LuluBackgroundPhoneSession {
             // A new frame is observed after the action. A successful dispatch
             // is never mistaken for a finished user task.
             val frame = command(JSONObject().put("action", "observe"))
+            val uiSettled = if (frame.optBoolean("success") &&
+                action in setOf("launch", "tap", "tap_element", "swipe", "submit", "back", "type", "focus_search"))
+                awaitStableUi(id, activeApp) else false
             if (!frame.optBoolean("success")) {
                 // Mika can still verify a UI tree when ImageReader has no new
                 // frame. Preserve accessibility facts without fabricating pixels.
@@ -457,14 +484,19 @@ internal object LuluBackgroundPhoneSession {
                     .put("searchEditorStatus", search)
                     .put("inputTextReadbackVerified", typed)
                     .put("frameValidated", false).put("taskCompleted", false)
+                    .put("uiSettled", false)
                     .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
                         if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
                         else "；目标App窗口未核实，禁止盲点")
                 if (!owned) {
                     lastObservedUi = null
-                    return unverified.toString()
+                    return unverified.put("effectKind", "unknown").toString()
                 }
-                return attachUiEvidence(unverified, characterId, id, activeApp).toString()
+                attachUiEvidence(unverified, characterId, id, activeApp)
+                return unverified.put("effectKind", LuluVirtualUiPolicy.effectKind(
+                    action, applied?.optBoolean("accepted") != false,
+                    beforeUiFingerprint, lastObservedUi?.fingerprint,
+                    typed)).toString()
             }
 
             val visible = withContext(Dispatchers.Main) {
@@ -546,6 +578,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("inputTextReadbackVerified", textReadbackVerified)
                 .put("targetWindowVerified", true)
                 .put("searchEditorStatus", searchStatus)
+                .put("uiSettled", uiSettled)
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
@@ -572,7 +605,11 @@ internal object LuluBackgroundPhoneSession {
                     else if (observed)
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
                     else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
-            return attachUiEvidence(finalReceipt, characterId, id, activeApp).toString()
+            attachUiEvidence(finalReceipt, characterId, id, activeApp)
+            return finalReceipt.put("effectKind", LuluVirtualUiPolicy.effectKind(
+                action, applied?.optBoolean("accepted") != false,
+                beforeUiFingerprint, lastObservedUi?.fingerprint,
+                textReadbackVerified)).toString()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) {
                 forgetTransport()
