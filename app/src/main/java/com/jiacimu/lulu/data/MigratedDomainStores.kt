@@ -782,9 +782,20 @@ class InMemoryLuluChatStore : LuluChatStore {
             val entry = messageStates.entries.firstOrNull { (_, state) ->
                 state.value.any { message -> message.id == messageId }
             } ?: return false
-            entry.value.value = transform(entry.value.value)
+            val previousMessages = entry.value.value
+            val previousConversations = conversationState.value
+            entry.value.value = transform(previousMessages)
             refreshConversationLocked(entry.key)
-            persistLocked()
+            try {
+                // Editing or deleting an existing message changes the only durable
+                // source for later memory/timeline withdrawal. Do not publish the
+                // mutation or trigger deletion side effects on a rejected write.
+                persistLocked(durable = true)
+            } catch (failure: Throwable) {
+                entry.value.value = previousMessages
+                conversationState.value = previousConversations
+                throw failure
+            }
             return true
         }
     }
