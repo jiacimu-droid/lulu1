@@ -233,6 +233,33 @@ class ModelVisibleOutputTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun trulyEmptyTerminalSseFailsImmediatelyWithoutSecondPaidRequest() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        // Billing can succeed with zero public output. A terminal finish_reason
+        // (even without [DONE]) is conclusive: report error, do not keep typing
+        // or submit a speculative paid retry to fill in the missing text.
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("""data: {"choices":[{"index":0,"delta":{"content":null},"finish_reason":"stop"}],"usage":{"prompt_tokens":43500,"completion_tokens":0}}
+
+"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "empty-billed-terminal", "", "回复本轮消息", "后台主动感知", "空回复诊断",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+                readTimeoutMillis = 300_000,
+            )
+            assertTrue(response.isFailure)
+            assertTrue(response.exceptionOrNull()?.message.orEmpty().contains("流式结束标记"))
+            assertEquals("An empty but billed response must not auto-retry", 1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun slowRelayFinalMessageIsNotDiscardedWhenDeltaObjectIsEmpty() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
