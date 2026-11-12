@@ -193,6 +193,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     GameSceneDeck(
         accent = relicGold,
         compactStatus = true,
+        compactSummary = if (run == null) "遗迹营地" else "❤ ${run.hero.hp}/10 · ◇${run.value}",
         healthFraction = run?.hero?.hp?.div(10f),
         secondaryFraction = run?.let { state ->
             state.chests.count { it.opened }.toFloat() /
