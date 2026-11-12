@@ -801,8 +801,34 @@ object CompanionOnlineStore {
      */
     fun finishOnlineExpiryReview(characterId: String, expectedUntilMs: Long) =
         synchronized(lock) {
-            if (mutableExpiryReviews.value[characterId] == expectedUntilMs)
-                mutableExpiryReviews.value = mutableExpiryReviews.value - characterId
+            if (mutableExpiryReviews.value[characterId] != expectedUntilMs)
+                return@synchronized
+            mutableExpiryReviews.value = mutableExpiryReviews.value - characterId
+            val now = Instant.now()
+            val current = mutableStates.value[characterId]
+            // Never mark a character sleeping before their final model and
+            // tools have actually finished. If the model chose continue, its
+            // newer onlineUntil protects it from this old expiry reviewer.
+            if (current != null &&
+                current.onlineUntil.toEpochMilli() == expectedUntilMs &&
+                !ChatGenerationActivity.isWorking(characterId) &&
+                !CompanionPresenceStore.isInCall(characterId)) {
+                EmbodiedBodyRuntime.onPresenceSleep(characterId, now)
+            }
+        }
+
+    /** Record a real model-authored sleep choice; execution continues awake
+     * until the same role's current tool lease and expiry review finish.
+     */
+    internal fun acceptSleepAtExpiry(characterId: String, expectedUntilMs: Long): Boolean =
+        synchronized(lock) {
+            val current = mutableStates.value[characterId] ?: return@synchronized false
+            if (current.onlineUntil.toEpochMilli() != expectedUntilMs ||
+                mutableExpiryReviews.value[characterId] != expectedUntilMs) return@synchronized false
+            mutableStates.value = mutableStates.value + (characterId to
+                current.copy(reason = CompanionOnlineReason.SelfChosenSleep))
+            persistLocked()
+            true
         }
 
     /** Apply ONLY the character's own 'continue' decision, never a timer heuristic. */
@@ -878,7 +904,11 @@ object CompanionOnlineStore {
                         workDeferredExpiries[characterId] = until.toEpochMilli()
                     false
                 } else {
-                    EmbodiedBodyRuntime.onPresenceSleep(characterId, until)
+                    // Defer the physical sleep settlement until the *same*
+                    // expired role has decided continue/sleep or the appraisal
+                    // fails. A bare timer is not an authored sleep decision.
+                    if (!ProactivePerceptionPolicyStore.get(characterId).enabled)
+                        EmbodiedBodyRuntime.onPresenceSleep(characterId, until)
                     mutableStates.value = mutableStates.value + (
                         // Keep the original persisted deadline: the background
                         // expiry worker must still recognize this same boundary.
