@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6381cb32599d65b89b2d9bcf3cc811d34d606102`
+- 基准提交：`aa46edf832fe8a3809067b5ce7958e2ced9fbf68`
 - 分支：`main`
 - 已索引文件：1220
-- 已索引代码/文本行：262480
+- 已索引代码/文本行：262526
 - 已发现符号：3668
 
 | 文件 | 行数 | 符号数 |
@@ -876,7 +876,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 830 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 876 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 52 | 1 |
