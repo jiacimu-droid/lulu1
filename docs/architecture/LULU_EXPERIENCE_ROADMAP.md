@@ -168,6 +168,13 @@
 
 ### PH-01 手机操作：Mika 开源执行器复用（2026-11-11）
 
+**2026-11-12 PH-01 应用启动根因增量（已提交 main；待 CI / Android 17 真机 / 真实模型）**：
+- 截图中「虚拟屏幕创建了，但抖音没打开」不能证明真实设备已成功操作；后端 start 仅证明 shell 显示器已创建，不代表看到后台桌面。将 start 回执明确为 `status=succeeded` 且 `observationAvailable=false`，区分传输与实际应用画面。
+- 补齐准确 App 显示名称→真实包名的**本机**解析：`LuluInstalledAppResolver.kt` 仅从 MAIN/LAUNCHER 可见、且未被隐私排除的安装应用里做精确名称匹配；重名、无匹配直接失败，不凭用户原话擅猜应用。原 `background_phone.launch` 现在允许 `appName` 或 `packageName`，不引入第二人格或模型。
+- Android App 启动异步，在已派发 launch 之后仅在设备端等候最多6次真实虚拟显示器控件树核对，再取帧；没有匹配的目标窗口就不回传未授权截图/不宣称打开成功。`imageForwardedToRole` 仅按有效 JPEG 数据计算。
+- `CapabilityRegistry` 与同一角色的 `LuluBackgroundPhoneContinuation` 已同步传递 `appName` 能力；新 `LuluInstalledAppResolverTest` 验证精确、重复 launcher、重名拒绝、不凭部分名称猜，`BackgroundPhoneCapabilityContextTest` 验证角色能看见用法。提交：`b1ec6b2`、`2e2fc8c`、`82bf69f`、`04f0a11`、`a16fca9`、`7a0bb47`。
+- **验收未完成**：尚无当前 HEAD 的 APK/JVM Actions 通过证据（GitHub 连接器对 push 运行的查询不完整），也未收到 Redmi Android 17 现场包名/目标窗口/截图回执。下一步检查 CI，真机以 `background_phone start → launch(appName=抖音) → observe → swipe → observe` 的真实回执和屏幕所有权验证，不得把日志或角色自述当证明。
+
 **2026-11-11 PH-01 本轮源代码实际施工交接（集成待当前 CI/真机验收）**：
 
 - 上游 Mika ADB 安全本机传输与原许可：[`bcfcd4f`](https://github.com/jiacimu-droid/lulu1/commit/bcfcd4f99a9e9220167b39d06bc688b5e5c2924a)；配对与校验/设备端口发现：`LuluWirelessDebugging.kt`；角色设置中有本机无线调试六位配对码、配对端口、实际连接端口、连接验证及清密钥；未将 shell 通用指令暴露给模型。
