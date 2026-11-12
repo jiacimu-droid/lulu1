@@ -135,6 +135,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
     var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
     var showRoleAlbum by rememberSaveable { mutableStateOf(false) }
+    var showRoleLiveScreen by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -194,6 +195,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
 
     fun goBack() {
         when {
+            showRoleLiveScreen -> showRoleLiveScreen = false
             showRoleCalendar -> showRoleCalendar = false
             showRoleAlbum -> showRoleAlbum = false
             showRoleBrowser -> showRoleBrowser = false
@@ -218,6 +220,15 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     // browsing a list does not prove a feeling, relationship intention or need
     // for an extra model wake. Real messages, social actions, profile edits and
     // user-avatar changes retain their own authoritative event routes.
+
+    if (showRoleLiveScreen) {
+        RolePhoneLiveScreen(
+            roleId = actualRole,
+            roleName = identity?.displayName ?: "角色",
+            onBack = { showRoleLiveScreen = false },
+        )
+        return
+    }
 
     if (showRoleCalendar) {
         ScheduleFeatureScreen(
@@ -269,6 +280,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     },
                     onBack = ::goBack,
                     actions = {
+                        if (!showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
+                            IconButton(onClick = { showRoleLiveScreen = true }) {
+                                Icon(Icons.Outlined.PhoneAndroid, contentDescription = "查看角色后台画面")
+                            }
+                        }
                         if (!showRoleFavorites && !showRoleBrowser && !showRoleAlbum) Box {
                             TextButton(onClick = { rolesExpanded = true },
                                 enabled = roleOptions.isNotEmpty()) {
@@ -356,6 +372,12 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     contentPadding = PaddingValues(top = 12.dp, bottom = 22.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
+                    item("phone-live-now") {
+                        RolePhoneLiveEntry(
+                            roleId = actualRole,
+                            onOpen = { showRoleLiveScreen = true },
+                        )
+                    }
                     item("phone-summary") {
                         RolePhoneHomeHeader(
                             name = identity?.displayName ?: "角色",
