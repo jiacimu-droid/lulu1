@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:17:43.186146+00:00",
-  "commit": "3ea3b09e69d3e63035d9f5bbd5a98a31eda174e2",
+  "generatedAt": "2026-11-12T10:18:06.046394+00:00",
+  "commit": "e50cdcee01d0953d1ce233015206f827adb94a40",
   "branch": "main",
-  "sourceFingerprint": "28a4158754e42176efb222d796fefc3971dd5ec92b0fc9004bd0fbf2a5d0162b",
+  "sourceFingerprint": "673712f6a76046e02a873fb8fb6e14298d2f5766326fbb33c10df67b3f408017",
   "summary": {
-    "files": 1273,
-    "lines": 268611,
-    "symbols": 3795
+    "files": 1274,
+    "lines": 268682,
+    "symbols": 3804
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4966,6 +4966,10 @@
         "line": 31
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 52
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
         "line": 45
       },
@@ -7642,6 +7646,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
         "line": 78
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 34
       }
     ],
     "influences": [
@@ -14238,31 +14246,11 @@
         "line": 8
       }
     ],
-    "remainingRequirements": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
-        "line": 24
-      }
-    ],
-    "spawnIfReady": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
-        "line": 35
-      }
-    ],
-    "recordVictory": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
-        "line": 67
-      }
-    ],
-    "impendingHeavyAttack": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
-        "line": 71
-      }
-    ],
     "json": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 13
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 22
@@ -14314,6 +14302,70 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 118
+      }
+    ],
+    "season": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 18
+      }
+    ],
+    "growthTurns": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 21
+      }
+    ],
+    "harvestYield": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 23
+      }
+    ],
+    "isReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 25
+      }
+    ],
+    "action": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
+        "line": 95
+      }
+    ],
+    "canInteract": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 46
+      }
+    ],
+    "remainingRequirements": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 24
+      }
+    ],
+    "spawnIfReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 35
+      }
+    ],
+    "recordVictory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 67
+      }
+    ],
+    "impendingHeavyAttack": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
+        "line": 71
       }
     ],
     "styleName": [
@@ -14900,12 +14952,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
         "line": 88
-      }
-    ],
-    "action": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 95
       }
     ],
     "carve": [
@@ -35378,6 +35424,49 @@
         {
           "name": "tileAt",
           "line": 21
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+      "lines": 71,
+      "sha256": "325171eaab74e7de2eb15fc1e694a46b3f0dc30e6e544053ce636b6b4c20245b",
+      "symbols": [
+        {
+          "name": "json",
+          "line": 13
+        },
+        {
+          "name": "season",
+          "line": 18
+        },
+        {
+          "name": "growthTurns",
+          "line": 21
+        },
+        {
+          "name": "harvestYield",
+          "line": 23
+        },
+        {
+          "name": "isReady",
+          "line": 25
+        },
+        {
+          "name": "action",
+          "line": 29
+        },
+        {
+          "name": "actionLabel",
+          "line": 34
+        },
+        {
+          "name": "canInteract",
+          "line": 46
+        },
+        {
+          "name": "restore",
+          "line": 52
         }
       ]
     },
