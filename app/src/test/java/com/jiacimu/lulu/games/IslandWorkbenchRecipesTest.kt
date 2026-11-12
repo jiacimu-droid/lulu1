@@ -14,9 +14,9 @@ class IslandWorkbenchRecipesTest {
         val base = BlockIslandRules.newWorld(427, emptyList())
         val w = base.world.copy(x = 5, y = 5, wood = 20, stone = 20, mobs = emptyList())
         val table = w.index(6, 5)
-        val ready = base.copy(world = w, structures = mapOf(table to "workbench"))
+        val ready = base.copy(world = w, crystals = 3, structures = mapOf(table to "workbench"))
 
-        assertEquals(setOf("axe", "pickaxe", "sword", "rod"),
+        assertEquals(setOf("axe", "pickaxe", "sword", "rod", "charm"),
             IslandWorkbenchRecipes.all.map { it.tool }.toSet())
         for (recipe in IslandWorkbenchRecipes.all) {
             assertEquals("craft_" + recipe.tool, recipe.action)
@@ -25,17 +25,26 @@ class IslandWorkbenchRecipesTest {
             val made = BlockIslandRules.act(ready, recipe.action, w.x, w.y)
             assertEquals(w.wood - recipe.wood, made.world.wood)
             assertEquals(w.stone - recipe.stone, made.world.stone)
+            assertEquals(ready.crystals - recipe.crystals, made.crystals)
             assertTrue(recipe.tool in made.tools)
             assertFalse(IslandWorkbenchRecipes.canCraft(made, recipe))
             val repeat = BlockIslandRules.act(made, recipe.action, w.x, w.y)
             assertEquals(made.world.turns, repeat.world.turns)
             assertEquals(made.world.wood, repeat.world.wood)
             assertEquals(made.world.stone, repeat.world.stone)
+            assertEquals(made.crystals, repeat.crystals)
 
             val shortWood = ready.copy(world = w.copy(wood = recipe.wood - 1))
             val shortStone = ready.copy(world = w.copy(stone = recipe.stone - 1))
             assertFalse(IslandWorkbenchRecipes.canCraft(shortWood, recipe))
             assertFalse(IslandWorkbenchRecipes.canCraft(shortStone, recipe))
+            if (recipe.crystals > 0) {
+                val shortCrystals = ready.copy(crystals = recipe.crystals - 1)
+                assertFalse(IslandWorkbenchRecipes.canCraft(shortCrystals, recipe))
+                val rejected = BlockIslandRules.act(shortCrystals, recipe.action, w.x, w.y)
+                assertEquals(shortCrystals.world.turns, rejected.world.turns)
+                assertEquals(shortCrystals.crystals, rejected.crystals)
+            }
             assertEquals(shortWood.world.turns,
                 BlockIslandRules.act(shortWood, recipe.action, w.x, w.y).world.turns)
             assertEquals(shortStone.world.turns,
@@ -50,7 +59,7 @@ class IslandWorkbenchRecipesTest {
         val table = world.index(6, 5)
         val noBench = base.copy(world = world)
         val farAway = noBench.copy(structures = mapOf(world.index(19, 14) to "workbench"))
-        val close = noBench.copy(structures = mapOf(table to "workbench"))
+        val close = noBench.copy(crystals = 3, structures = mapOf(table to "workbench"))
         IslandWorkbenchRecipes.all.forEach { recipe ->
             assertFalse(IslandWorkbenchRecipes.canCraft(noBench, recipe))
             assertFalse(IslandWorkbenchRecipes.canCraft(farAway, recipe))
