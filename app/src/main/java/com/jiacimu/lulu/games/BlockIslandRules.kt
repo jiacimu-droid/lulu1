@@ -186,7 +186,7 @@ internal object IslandMilestones {
                 "生态收集 · 结识小岛动物（${s.animals.count { it.befriended }}/${s.animals.size}）"
             s.structures.values.none { it=="pet_house" } ->
                 "家园 1/2 · 为动物伙伴建造温暖小屋"
-            s.structures.values.none { it=="lantern" } ->
+            s.structures.values.none { it in setOf("lantern","crystal_lantern") } ->
                 "家园 2/2 · 建造夜灯，点亮自己的家"
             IslandGuardianEncounter.ready(s) ->
                 "终章 · ${IslandGuardianEncounter.title} · "+
@@ -494,10 +494,12 @@ internal object BlockIslandRules {
                     else -> if (cell == 3 || cell == 4) 1 else 0
                 }
                 val refundStone = if (structure == "workbench") 1 else 0
+                val refundCrystal = if (structure == "crystal_lantern") 1 else 0
                 next = s.copy(
                     world = w.setTile(tx, ty, if (structure == "bridge") 8 else 0)
                         .copy(wood = w.wood + refundWood, stone = w.stone + refundStone),
                     structures = s.structures - index,
+                    crystals = s.crystals + refundCrystal,
                     gardens = s.gardens - index,
                     houseProject = s.houseProject?.let { project ->
                         if(project.ownerId=="player" && index in project.placed)
