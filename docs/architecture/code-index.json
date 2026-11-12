@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T16:05:13.187332+00:00",
-  "commit": "40dc5feb2d0eca5fb8eec7b20b89c99558bcd00e",
+  "generatedAt": "2026-11-12T16:05:55.726410+00:00",
+  "commit": "ffe849076d0e1b7c63247f8775d1b4ce54b1c793",
   "branch": "main",
-  "sourceFingerprint": "acc6aa78b8d011f4d9e8a9acc77e75f8b898325314327fdf39a96d4baab94d43",
+  "sourceFingerprint": "b65031054fd337e7e60fde4bae9870b590db8ed6330b1c8aefbdcb5c3eee2634",
   "summary": {
     "files": 1283,
-    "lines": 270955,
+    "lines": 270966,
     "symbols": 3837
   },
   "symbolIndex": {
@@ -8659,13 +8659,13 @@
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1061
+        "line": 1067
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1082
+        "line": 1088
       }
     ],
     "repeatsConfirmedAction": [
@@ -11795,7 +11795,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3528
+        "line": 3533
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -29098,8 +29098,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1163,
-      "sha256": "c9747676194364f914acec91d9e6781412aa1e31fba6db77c4d50b3308781401",
+      "lines": 1169,
+      "sha256": "669937c0db8fceae1458e3305f413bd05a3746e82c3c9b594bb324326d925223",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -29187,11 +29187,11 @@
         },
         {
           "name": "proposalIssue",
-          "line": 1061
+          "line": 1067
         },
         {
           "name": "ensure",
-          "line": 1082
+          "line": 1088
         }
       ]
     },
@@ -32460,8 +32460,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3595,
-      "sha256": "9e54dfad3f8774b3d37590118ce99432b4b8c3225ef2e02be7ffc69fc9b0654f",
+      "lines": 3600,
+      "sha256": "0c22cb33d0215f5e59ed8a42bc157f519a448fbfdce2afe1159d1dc1e6fb7de5",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32493,7 +32493,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3528
+          "line": 3533
         }
       ]
     },
