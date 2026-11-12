@@ -146,6 +146,12 @@ object CapabilityRegistry {
             appendLine("主人全局按需屏幕授权=$screenConsent；本角色自主操作屏幕授权=$roleScreenGrant；" +
                 "本机无线调试已保存配对密钥=$adbPaired；主人已暂停后台操作=$stopped；" +
                 "当前系统支持独立焦点屏的版本要求=$supported。")
+            appendLine("主人对本角色的购物前置操作授权=" +
+                com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId) +
+                "；开启时可依据真实商品与后台控件，自主挑选、加购、选规格、点击进入结算；" +
+                "购买类控件只通过最新screenSnapshotId的tap_element。禁止提交/确认订单、" +
+                "免密/货到付款、支付或验证码；付款阶段主人亲自处理，" +
+                "后台第三方付款页不保证迁移到主屏，应用只提示主人手动打开商家App。")
             appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
                 "只有实际调用工具得到新回执，才能知道这次是否成功。")
             appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
