@@ -326,6 +326,9 @@ class ChatHistoryPersistenceBaselineTest {
                 // repaired flag that is absent from the durable chat snapshot.
                 var rejectedRecoveryCommits = 0
                 val rejectingContext = object : android.content.ContextWrapper(app) {
+                    // ChatStore.initialize reads applicationContext, not the wrapper itself.
+                    // Return this wrapper so the injected failed commit reaches that path.
+                    override fun getApplicationContext(): android.content.Context = this
                     override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
                         if (name == "lulu_chat_store")
                             intercept(originalChatPrefs) { rejectedRecoveryCommits++; false }
