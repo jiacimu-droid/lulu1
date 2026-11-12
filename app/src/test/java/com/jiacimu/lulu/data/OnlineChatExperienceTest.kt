@@ -98,6 +98,50 @@ class OnlineChatExperienceTest {
         }
     }
 
+    @Test fun ongoingUndatedDutyPersistsWithoutCompulsoryAlarmAtSleep() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
+        val role = MigratedDomainStores.characters
+            .create("长期记挂不强制排期回归").characterId
+        val now = java.time.Instant.now()
+        val ongoing = CommitmentTask(characterId = role,
+            goal = "长期关注主人的学习和休息",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = null, completionCondition = "持续依据真实反馈调整关心")
+        val timed = CommitmentTask(characterId = role,
+            goal = "已答应在具体时刻执行的提醒",
+            status = CommitmentTaskStatus.Scheduled,
+            dueAt = now.plusSeconds(3600))
+        CommitmentTaskStore.save(ongoing)
+        try {
+            CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+                "日常感知", perceiveNow = false)
+            assertTrue(CompanionSleepHandoff.uncovered(context, role, now).isEmpty())
+            assertTrue("The role can rest without inventing a review alarm for every care duty",
+                CompanionOnlineStore.goOfflineByChoice(role, now))
+            assertFalse(CompanionOnlineStore.isOnline(role, now))
+            assertTrue("Sleep does not cancel or complete the responsibility",
+                CommitmentTaskStore.active(role).any { it.id == ongoing.id })
+            assertTrue("The next natural awake decision can recall it",
+                PersistentResponsibilityAttention.select(CommitmentTaskStore.active(role), now)
+                    .any { it.id == ongoing.id })
+            assertFalse(com.jiacimu.lulu.system.LuluAlarmSystem.list()
+                .any { it.commitmentTaskId == ongoing.id })
+
+            // A concrete clock promise is different: without its real alarm
+            // or linked plan the original sleep handoff remains mandatory.
+            CommitmentTaskStore.save(timed)
+            assertTrue(CompanionSleepHandoff.uncovered(context, role, now)
+                .any { it.id == timed.id })
+        } finally {
+            CommitmentTaskStore.remove(ongoing.id)
+            CommitmentTaskStore.remove(timed.id)
+            CompanionOnlineStore.resetCharacter(role)
+        }
+    }
+
     @Test fun unfinishedSleepResponsibilityMustHaveDurableOwnFollowUpBeforeOffline() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
