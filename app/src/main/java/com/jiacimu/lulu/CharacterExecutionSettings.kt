@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.asImageBitmap
 
 import android.content.Context
 import androidx.compose.foundation.layout.*
@@ -16,7 +15,6 @@ import com.jiacimu.lulu.data.CharacterLearningAgenda
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import java.time.ZoneId
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.isActive
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -179,7 +177,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
                     } finally { setupBusy = false }
                 }
             }) { Text(if (setupBusy) "自测中…" else "测试独立后台屏并发真实截图") }
-            BackgroundPhoneOwnerViewer(characterId)
             TextButton(enabled = !setupBusy, onClick = {
                 setupBusy = true
                 scope.launch {
@@ -262,165 +259,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
 
 
 
-    }
-}
-
-/**
- * The owner can look into the role's ALREADY running independent screen.
- * Reading the frame never starts a display, injects input, invokes the model,
- * records a second role history, or captures the phone's main screen.
- *
- * Refresh is opt-in and lifecycle-scoped: leaving this page or pausing the
- * Activity stops polling, avoiding permanent ADB/image/model traffic.
- */
-@Composable
-private fun BackgroundPhoneOwnerViewer(characterId: String) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    var visible by remember(characterId) { mutableStateOf(false) }
-    var live by remember(characterId) { mutableStateOf(false) }
-    var loading by remember(characterId) { mutableStateOf(false) }
-    var saving by remember(characterId) { mutableStateOf(false) }
-    var status by remember(characterId) {
-        mutableStateOf("只查看已存在的角色后台屏，不会偷偷打开 App 或截主人主屏。")
-    }
-    var currentFrame by remember(characterId) {
-        mutableStateOf<com.jiacimu.lulu.system.LuluBackgroundPhoneSession.OwnerPreviewFrame?>(null)
-    }
-    var currentImage by remember(characterId) {
-        mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
-    }
-    var isForeground by remember(lifecycleOwner) {
-        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(
-            androidx.lifecycle.Lifecycle.State.RESUMED))
-    }
-    DisposableEffect(lifecycleOwner) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            when (event) {
-                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> isForeground = true
-                androidx.lifecycle.Lifecycle.Event.ON_PAUSE,
-                androidx.lifecycle.Lifecycle.Event.ON_STOP -> isForeground = false
-                else -> Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    suspend fun refreshFrame() {
-        if (loading || saving) return
-        loading = true
-        try {
-            val frame = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.ownerPreview(
-                context, characterId)
-            val bytes = java.util.Base64.getDecoder().decode(
-                frame.imageDataUrl.removePrefix("data:image/jpeg;base64,"))
-            val pixels = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                ?: error("虚拟屏画面无法解码")
-            currentImage = pixels.asImageBitmap()
-            currentFrame = frame
-            status = "后台屏 ID=${frame.displayId} · ${frame.packageName} · " +
-                java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")) +
-                (if (frame.newerThanPreviousCapture) " · 新帧" else " · 当前帧")
-        } catch (cancel: kotlinx.coroutines.CancellationException) {
-            throw cancel
-        } catch (failure: Exception) {
-            currentFrame = null
-            currentImage = null
-            live = false
-            status = failure.message.orEmpty().take(180).ifBlank { "后台画面暂不可见" }
-        } finally {
-            loading = false
-        }
-    }
-
-    // Opening the owner viewer is an explicit, one-shot request for a real
-    // background frame; live polling remains off until separately enabled.
-    LaunchedEffect(visible, characterId) {
-        if (visible) refreshFrame()
-    }
-    // No polling at all unless the owner explicitly enables it, and none
-    // after navigation / activity pause. No additional model API call.
-    LaunchedEffect(visible, live, isForeground, characterId) {
-        if (visible && live && isForeground) {
-            while (kotlinx.coroutines.currentCoroutineContext().isActive) {
-                refreshFrame()
-                kotlinx.coroutines.delay(3_000L)
-            }
-        }
-    }
-
-    HorizontalDivider()
-    TextButton(onClick = {
-        visible = !visible
-        if (!visible) {
-            live = false
-            currentFrame = null
-            currentImage = null
-        }
-    }) { Text(if (visible) "收起角色后台屏预览" else "看看角色正在后台看什么") }
-    if (visible) {
-        Text("主人专用 · 只看独立虚拟屏，不操作角色；预览不调用 AI、不保存图片。",
-            style = MaterialTheme.typography.bodySmall)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        ) {
-            Text("自动刷新（每 3 秒）", modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodySmall)
-            Switch(checked = live, onCheckedChange = { live = it })
-            TextButton(enabled = !loading && !saving, onClick = {
-                scope.launch { refreshFrame() }
-            }) { Text(if (loading) "查看中…" else "刷新") }
-        }
-        val bitmap = currentImage
-        if (bitmap != null) {
-            androidx.compose.foundation.Image(
-                bitmap = bitmap,
-                contentDescription = "当前角色独立后台虚拟屏画面（不是主人主屏）",
-                modifier = Modifier.fillMaxWidth().height(390.dp),
-                contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-            )
-            TextButton(enabled = !loading && !saving && currentFrame != null, onClick = {
-                val frame = currentFrame ?: return@TextButton
-                saving = true
-                scope.launch {
-                    try {
-                        check(com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context) &&
-                            !com.jiacimu.lulu.system.LuluBackgroundPhoneSession.ownerHasPaused(context) &&
-                            !com.jiacimu.lulu.system.LuluScreenAwareness.isExcluded(
-                                context, frame.packageName)) {
-                            "主人已撤销屏幕授权、暂停操作或排除了当前应用，不能再分享"
-                        }
-                        // Share precisely the already verified background frame
-                        // the owner chose to save, not a new main-screen capture.
-                        val bytes = java.util.Base64.getDecoder().decode(
-                            frame.imageDataUrl.removePrefix("data:image/jpeg;base64,"))
-                        val pixels = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                            ?: error("后台截图解码失败")
-                        try {
-                            val delivered = com.jiacimu.lulu.data.CompanionActionRuntime
-                                .sendCapturedScreenshot(
-                                    context, characterId, pixels,
-                                    "主人主动保存的后台虚拟屏（非角色自主分享）",
-                                    frame.packageName, sourceDisplay = "virtual")
-                            status = if (delivered.success) "这张后台画面已保存到角色私聊"
-                                else delivered.summary
-                        } finally {
-                            pixels.recycle()
-                        }
-                    } catch (cancel: kotlinx.coroutines.CancellationException) {
-                        throw cancel
-                    } catch (failure: Exception) {
-                        status = "保存失败：" + failure.message.orEmpty().take(140)
-                    } finally { saving = false }
-                }
-            }) { Text(if (saving) "保存中…" else "把这张后台图保存进私聊（主人操作）") }
-        }
-        Text(status, style = MaterialTheme.typography.bodySmall)
-        Text("只有当前页面展开时才刷新；关闭页面即暂停。不会自动替江渡分享，是否主动分享仍由他自己决定。后台 App 没有新画面时会如实提示，不会用主人主屏替代。",
-            style = MaterialTheme.typography.bodySmall)
     }
 }
 
