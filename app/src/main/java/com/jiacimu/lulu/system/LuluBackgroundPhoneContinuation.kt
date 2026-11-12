@@ -71,6 +71,7 @@ internal object LuluBackgroundPhoneContinuation {
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     小红书等搜索操作通常需要先tap搜索框，再type文字，再由你自行选择submit（后台屏Enter键）触发搜索；type只输入文字，不等于搜索已提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
+                    遇到真的感兴趣的图文或值得给主人看的内容，你可以依据本人的心情和分享欲自行选择sendToChat，不需要等主人追问；不喜欢、尚未核实或没有分享心情也可以不分享，程序不替你规定分享次数。
                     不在这里发送聊天正文，后续由原本人格聊天流程回复。
                     不请求密码、验证码，不付款、对外发布或发送消息。
                     目标已完成、无法判断或用户停止时可以直接结束。
