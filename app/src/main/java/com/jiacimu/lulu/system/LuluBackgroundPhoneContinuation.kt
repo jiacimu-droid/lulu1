@@ -105,6 +105,13 @@ internal object LuluBackgroundPhoneContinuation {
         uiReferenceSummary(initialReceipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
         var count = 0
         var lastScreenReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
+        // Mika ScreenDiagnosis: passwords, verification and system takeover
+        // always go back to the owner, not into another paid click loop.
+        if (lastScreenReceipt?.optBoolean("needsHuman") == true ||
+            lastScreenReceipt?.optString("status") == "waiting_user") {
+            history.appendLine("设备明确要求主人接管；本轮未继续自动操作")
+            return Outcome(history.toString().takeLast(5_000), image, false, 0)
+        }
         var searchTextVerified = lastScreenReceipt?.optBoolean("inputTextReadbackVerified") == true
         var consecutiveNoFrames = if (initialImage == null) 1 else 0
         // A failed first action is still an actual attempt. Give the SAME role
@@ -224,6 +231,11 @@ internal object LuluBackgroundPhoneContinuation {
             }
             uiReferenceSummary(receipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
             lastScreenReceipt = result
+            if (result?.optBoolean("needsHuman") == true ||
+                result?.optString("status") == "waiting_user") {
+                history.appendLine("后台进入需主人亲自处理的页面，已停止自动操作；不尝试验证码、登录或支付")
+                return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
             if (action in setOf("start", "launch", "back", "tap", "tap_element", "swipe")) searchTextVerified = false
             if (action == "type") searchTextVerified =
                 result?.optBoolean("inputTextReadbackVerified") == true

@@ -472,6 +472,23 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
+        /** Explicit human-only field detection on this verified virtual App.
+         * Password contents are never accessed or forwarded. */
+        fun virtualHasPasswordField(displayId: Int, packageName: String): Boolean {
+            val service = instance ?: return false
+            if (displayId <= 0 || packageName.isBlank() ||
+                observeDisplay(displayId).packageName != packageName) return false
+            var inspected = 0
+            fun hasPassword(node: AccessibilityNodeInfo, depth: Int): Boolean {
+                if (depth > 24 || inspected++ > 450 || !node.isVisibleToUser) return false
+                if (node.isPassword) return true
+                return (0 until node.childCount).any { index ->
+                    node.getChild(index)?.let { hasPassword(it, depth + 1) } == true
+                }
+            }
+            return ownedVirtualRoots(service, displayId, packageName).any { hasPassword(it, 0) }
+        }
+
         /** The only text the local type verifier can read: one focused,
          * owner-verified search field. Never put this text in UI node metadata. */
         fun readVirtualSearchFieldText(displayId: Int, packageName: String): String? {

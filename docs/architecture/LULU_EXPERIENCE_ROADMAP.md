@@ -8,6 +8,8 @@
 
 **主人当前明确优先任务（2026-11-12）**：Mika 对标不是纯研究/未来排期。先把能在本轮安全实施的 PH-01.6 P0 直接交付源码，在下一次每小时接力继续验收、修真实首错及补下一项；其他独立人物/游戏专项互不覆盖。不得将有 commit 视为功能已经在真机接通，也不为追求 22/22 勾选而复制第二个 Agent 或冒险放开支付/外发。现有每小时任务已核仍在读取本 Roadmap。
 
+**2026-11-12 PH-01.6e/g/j · Mika ScreenDiagnosis 整模块接入**：复制/改编上游 `ScreenDiagnosis` 和测试、保留 Apache-2.0 LICENSE/NOTICE；当前后台屏可见验证失败/验证码/密码框/支付、应用切换和系统窗口接管均给真实 `waiting_user` 状态，不再对这些内容盲点或把设备拒绝称为搜索成功；原人物 `LuluBackgroundPhoneContinuation` 遇 `needsHuman` 立即停止后续付费尝试。**仅源码/测试加入**，仍待最新 Actions JVM/APK + Redmi 真机动态场景验收（包括普通信息流不误判为验证码）。后续如有误报应缩小判据，不要移除登录/支付安全边界。
+
 **2026-11-12 PH-01.6h 局部差异/省 Token 实施**：新增 `LuluMikaInterfaceUpdate`（适配 Mika InterfaceUpdate 的 full/diff 决定，含 JVM 测试）并正式连接同一角色 `LuluBackgroundPhoneContinuation`：持久工具回执仍完整存入 ToolRouter 时间线，但后续收费模型不再重复读 `interactiveElements` 原始结构，已单列可点击控件编号；重复 `visibleText` 标记 unchanged；新/变/移除控件差异提供信息，**不会**宣称点击成功或目标完成。此项源码已提交，仍须以本轮 GitHub Actions 和真实模型输入账单验收。下一步在最新 APK 通过后对比单次小红书搜索的上下文 Token 与真实文字完整度，不删关键否定/条件。
 
 **2026-11-12 PH-01.6c/d/e 增量 · Mika 原算法移植进行到正式 Android 执行入口**：从 Mika Apache-2.0 `ClickFallback`、`ChangeWait`、`FrameMath`、`Hant`、`Accuracy.typeAndVerify` 移植 5 个有来源归属的独立纯 Kotlin 模块；连同上游 ClickFallback/ChangeWait/FrameMath 原测试适配及输入专属回归一次提交。实际接线：独立屏依据 DisplayManager 的真实尺寸归一化坐标；`tap` 先用 ClickFallback 在安全小节点中选一个，选到了只下发一次 `ACTION_CLICK`，失败绝不盲补第二下，选不到仍走既有敏感验证+shell 点击；点击/滑动/提交后 ChangeWait 等真实控件树变化（不额外调用模型）；安全搜索框执行 Mika 输入读回与有限重试，保留失败/未知的区别，绝不在消息、评论和密码框写入。完整上游 LICENSE、NOTICE 随 APK 资产，出处见 `docs/PROVENANCE.md`。**源代码移植 ≠ 测试/APK/真机验收通过。** 尚待：对应该合并提交的 `Lulu APK` JVM 首错、`Refresh code index`；Redmi 后台小红书搜索及横屏/弹窗实测；Mika AppSwitch、人手接管、完整动态状态 diff、设备重连策略下一轮继续。不要重新把本批算法当作“未接入”重做。

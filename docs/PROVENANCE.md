@@ -1,3 +1,9 @@
+## 2026-11-12：Mika ScreenDiagnosis 页面诊断直接移植（Apache-2.0）
+
+- **来源**：Mika `core/uistate/ScreenDiagnosis.kt` 和对应 `ScreenDiagnosisTest.kt`，上游快照 `106535545bfefa150e24276c6301238398ca5f88`，Copyright 2026 wangzan101。**标签：THIRD_PARTY_MODIFIED**，在 `LuluMikaScreenDiagnosis.kt`、`LuluMikaScreenDiagnosisTest.kt` 保留文件头声明。
+- **实装**：从 Lulu 当前角色拥有的独立后台 display 和目标 App 读取非密码控件属性和屏上文字；遇到验证码/密码/支付安全校验、跨 App/系统窗口切换，返回 `waiting_user` 且不把危险截图送进模型，`LuluBackgroundPhoneContinuation` 接到该回执后停止盲试并报告。复用 ToolRouter 的权限、持久回执、授权及独立屏隔离。不把登录页面伪装为搜索成功；未知窗口需要人确认，程序不自行输入密码/验证码。
+- **验收**：Mika 原 JVM 测试已移植，但实际执行结果、APK 和 Redmi 真机仍按最新 Actions SHA 核查；没有实测前不得宣称屏幕诊断全覆盖。
+
 ## 2026-11-12：Mika 安卓后台屏操作算法直接移植（Apache-2.0）
 
 - **上游及版本**：[wangzan101/Mika](https://github.com/wangzan101/Mika) main `106535545bfefa150e24276c6301238398ca5f88`；作者在上游 NOTICE 中标注 `Copyright 2026 wangzan101`；许可证为 Apache License 2.0。

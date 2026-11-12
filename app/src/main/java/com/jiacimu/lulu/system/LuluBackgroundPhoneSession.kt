@@ -170,6 +170,41 @@ internal object LuluBackgroundPhoneSession {
         }
     }
 
+    /** Ported Mika ScreenDiagnosis on THIS independent display only.
+     * It reports a human-only page, never reads a password value or
+     * replaces the original character's decision. */
+    private suspend fun humanOnlyPage(
+        displayId: Int, packageName: String, visibleText: String,
+    ): String? {
+        val password = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualHasPasswordField(displayId, packageName)
+        }
+        val checked = LuluMikaScreenDiagnosis.classify(
+            LuluMikaScreenFacts(
+                currentApp = packageName,
+                hasWindow = true,
+                readableElements = if (visibleText.isBlank()) 0 else 1,
+                changing = false,
+                blackFrames = emptyList(),
+                texts = listOf(visibleText.take(2_500)),
+                passwordField = password,
+            )
+        )
+        return if (checked.needsHuman) checked.takeoverReason ?: "manual_verification" else null
+    }
+
+    private fun humanOnlyReceipt(
+        displayId: Int, packageName: String, reason: String,
+    ): String = JSONObject().put("success", false).put("status", "waiting_user")
+        .put("mode", "independent_virtual_display").put("displayId", displayId)
+        .put("packageName", packageName).put("screenState", "needs_human")
+        .put("needsHuman", true).put("humanReason", reason)
+        .put("accepted", false).put("taskCompleted", false)
+        .put("verification", if (reason == "window_changed")
+            "后台屏顶层窗口切换到了另一应用或系统弹窗；未确认仍属于本任务，已暂停操作，需主人或原角色核对"
+            else "后台出现需要主人亲自处理的登录、验证码、支付或安全验证界面（$reason）；已停止自动操作，不读取密码或代替确认")
+        .toString()
+
     private fun forgetTransport() {
         appContext?.let { runCatching { LuluBackgroundPhoneNotice.clear(it) } }
         appContext = null
@@ -333,10 +368,20 @@ internal object LuluBackgroundPhoneSession {
                 val before = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.observeDisplay(id)
                 }
-                check(before.connected && before.packageName == activeApp &&
-                    !LuluScreenAwareness.isExcluded(context, before.packageName)) {
-                    "屏幕内容已变更或目标窗口无法核实；为了避免错点，拒绝这一步"
+                if (!before.connected) {
+                    lastObservedUi = null
+                    return JSONObject().put("success", false).put("status", "unverified")
+                        .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("taskCompleted", false).put("targetWindowVerified", false)
+                        .put("verification", "后台暂时没有可核实的应用窗口；未执行动作，可以先observe重新观察")
+                        .toString()
                 }
+                if (before.packageName != activeApp) {
+                    lastObservedUi = null
+                    return humanOnlyReceipt(id, before.packageName, "window_changed")
+                }
+                val human = humanOnlyPage(id, activeApp, before.visibleText)
+                if (human != null) return humanOnlyReceipt(id, activeApp, human)
             }
             if (action == "tap_element") {
                 val snapshot = lastObservedUi
@@ -523,6 +568,17 @@ internal object LuluBackgroundPhoneSession {
                 }
                 val owned = observed.connected && observed.packageName == activeApp &&
                     !LuluScreenAwareness.isExcluded(context, observed.packageName)
+                if (observed.connected && observed.packageName != activeApp) {
+                    lastObservedUi = null
+                    return humanOnlyReceipt(id, observed.packageName, "window_changed")
+                }
+                if (owned) {
+                    val human = humanOnlyPage(id, activeApp, observed.visibleText)
+                    if (human != null) {
+                        lastObservedUi = null
+                        return humanOnlyReceipt(id, activeApp, human)
+                    }
+                }
                 val search = if (owned) withContext(Dispatchers.Main) {
                     LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
                 } else JSONObject()
@@ -562,6 +618,10 @@ internal object LuluBackgroundPhoneSession {
             // We must be able to attribute every pixel to a permitted app.
             // A dialog, system permission or other App may appear instead;
             // do not upload it or report it as the intended page.
+            if (visible.connected && visible.packageName != activeApp) {
+                lastObservedUi = null
+                return humanOnlyReceipt(id, visible.packageName, "window_changed")
+            }
             if (!visible.connected || visible.packageName != activeApp ||
                 LuluScreenAwareness.isExcluded(context, visible.packageName)) {
                 return JSONObject().put("success", false).put("status", "unverified")
@@ -569,6 +629,11 @@ internal object LuluBackgroundPhoneSession {
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("verification", "无法核实独立屏幕的前台窗口属于已授权目标应用；已丢弃截图")
                     .also { lastObservedUi = null }.toString()
+            }
+            val human = humanOnlyPage(id, activeApp, visible.visibleText)
+            if (human != null) {
+                lastObservedUi = null
+                return humanOnlyReceipt(id, activeApp, human)
             }
             val pixels = frame.optString("imageDataUrl")
             val frameFresh = frame.optBoolean("frameFreshAfterAction", false)
