@@ -49,6 +49,8 @@ internal fun GameSceneDeck(
     healthFraction: Float? = null,
     secondaryFraction: Float? = null,
     secondaryLabel: String = "进度",
+    /** Immersive island HUD: a single quiet status ribbon, never a map-covering card. */
+    compactStatus: Boolean = false,
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
     /** An explicit selection change can dismiss the tools panel without changing other games. */
@@ -103,40 +105,54 @@ internal fun GameSceneDeck(
                 .padding(start = 9.dp, top = 5.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            Surface(
-                modifier = Modifier.widthIn(
-                    max = hudStatusWidth),
-                color = Color(0xE0162935), shape = RoundedCornerShape(17.dp),
-                border = BorderStroke(1.dp, accent.copy(alpha = .62f)),
-                shadowElevation = 5.dp,
-            ) {
-                Column(Modifier.padding(horizontal=12.dp,vertical=9.dp),
-                    verticalArrangement=Arrangement.spacedBy(7.dp)) {
-                    Row(verticalAlignment=Alignment.CenterVertically,
-                        horizontalArrangement=Arrangement.spacedBy(9.dp)) {
-                        Surface(modifier=Modifier.size(29.dp),shape=CircleShape,
-                            color=accent.copy(alpha=.19f),
-                            border=BorderStroke(1.dp,accent.copy(alpha=.60f))) {
-                            Box(contentAlignment=Alignment.Center) {
-                                Text("✦",color=accent,fontSize=17.sp,
-                                    fontWeight=FontWeight.Bold)
+            if (compactStatus) {
+                Surface(
+                    modifier = Modifier.widthIn(max = hudStatusWidth),
+                    color = Color(0xB5162935),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    Text(
+                        status, color = Color.White, fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1,
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                    )
+                }
+            } else {
+                Surface(
+                    modifier = Modifier.widthIn(
+                        max = hudStatusWidth),
+                    color = Color(0xE0162935), shape = RoundedCornerShape(17.dp),
+                    border = BorderStroke(1.dp, accent.copy(alpha = .62f)),
+                    shadowElevation = 5.dp,
+                ) {
+                    Column(Modifier.padding(horizontal=12.dp,vertical=9.dp),
+                        verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                        Row(verticalAlignment=Alignment.CenterVertically,
+                            horizontalArrangement=Arrangement.spacedBy(9.dp)) {
+                            Surface(modifier=Modifier.size(29.dp),shape=CircleShape,
+                                color=accent.copy(alpha=.19f),
+                                border=BorderStroke(1.dp,accent.copy(alpha=.60f))) {
+                                Box(contentAlignment=Alignment.Center) {
+                                    Text("✦",color=accent,fontSize=17.sp,
+                                        fontWeight=FontWeight.Bold)
+                                }
                             }
+                            Text(status,color=Color.White,fontSize=11.sp,
+                                fontWeight=FontWeight.SemiBold,maxLines=2,lineHeight=16.sp)
                         }
-                        Text(status,color=Color.White,fontSize=11.sp,
-                            fontWeight=FontWeight.SemiBold,maxLines=2,lineHeight=16.sp)
-                    }
-                    if(healthFraction!=null || secondaryFraction!=null) {
-                        Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                            if(healthFraction!=null)
-                                GameHudConditionTrack("生命",healthFraction,
-                                    Color(0xFFFFA78C))
-                            if(secondaryFraction!=null)
-                                GameHudConditionTrack(secondaryLabel,
-                                    secondaryFraction,accent)
+                        if(healthFraction!=null || secondaryFraction!=null) {
+                            Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                                if(healthFraction!=null)
+                                    GameHudConditionTrack("生命",healthFraction,
+                                        Color(0xFFFFA78C))
+                                if(secondaryFraction!=null)
+                                    GameHudConditionTrack(secondaryLabel,
+                                        secondaryFraction,accent)
+                            }
                         }
                     }
                 }
-            }
+                }
             if (notice.isNotBlank()) {
                 Surface(
                     modifier = Modifier.widthIn(
