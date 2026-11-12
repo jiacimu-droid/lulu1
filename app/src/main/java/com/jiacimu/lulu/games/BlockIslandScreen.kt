@@ -686,14 +686,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             Text(if(spotted) IslandWildlife.name(animal.species) else "？？？ 未发现",
                                 color=Color.White,fontWeight=FontWeight.Bold,fontSize=13.sp)
                             Text(if(!spotted) "探索草地，寻找新的小生命"
-                                else if(!animal.befriended) "喜欢 ${IslandWildlife.feed(animal.species)} · 坐标(${animal.x},${animal.y})"
+                                else if(!animal.befriended) "信任 ${animal.trust}/${IslandWildlife.requiredFeeds(animal.species)} · 喜欢 ${IslandWildlife.feed(animal.species)} · 每次喂食后等待4回合"
                                 else if(ready) "已经带回小礼物啦"
                                 else if(IslandWildlife.hasNearbyHome(island,animal)) "在宠物小屋旁休息 · 礼物更快"
                                 else "跟随中 · 还在准备礼物",
                                 color=Color(0xFFB6D8D0),fontSize=11.sp)
                         }
                         if(spotted) {
-                            IslandAction(if(animal.befriended)"领礼物" else "结识",
+                            IslandAction(if(animal.befriended)"领礼物" else "喂食 ${animal.trust}/${IslandWildlife.requiredFeeds(animal.species)}",
                                 enabled=near && ready) {
                                 perform(if(animal.befriended)"care" else "tame",animal.x,animal.y)
                             }
