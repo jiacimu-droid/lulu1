@@ -378,9 +378,17 @@ class InMemoryLuluChatStore : LuluChatStore {
             val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
             val messages = messageStates[conversationId]?.value.orEmpty()
             if (conversationState.value.none { it.id == conversationId }) return false
-            conversationState.value = conversationState.value.filterNot { it.id == conversationId }
+            // Preserve the previous in-memory projections if the durable delete is rejected.
+            val previousConversations = conversationState.value
+            conversationState.value = previousConversations.filterNot { it.id == conversationId }
             messageStates.remove(conversationId)
-            persistLocked()
+            try {
+                persistLocked(durable = true)
+            } catch (failure: Throwable) {
+                conversationState.value = previousConversations
+                messageStates[conversationId] = MutableStateFlow(messages)
+                throw failure
+            }
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
@@ -398,11 +406,18 @@ class InMemoryLuluChatStore : LuluChatStore {
             val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
             val state = messageStates[conversationId] ?: return false
             val messages = state.value
+            val previousConversations = conversationState.value
             state.value = emptyList()
-            conversationState.value = conversationState.value.map { current ->
+            conversationState.value = previousConversations.map { current ->
                 if (current.id == conversationId) current.copy(lastMessage = "", unreadCount = 0, updatedAt = Instant.now()) else current
             }.sortedWith(conversationOrdering())
-            persistLocked()
+            try {
+                persistLocked(durable = true)
+            } catch (failure: Throwable) {
+                state.value = messages
+                conversationState.value = previousConversations
+                throw failure
+            }
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
