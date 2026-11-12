@@ -23,12 +23,26 @@ object ChatGenerationActivity {
         return id
     }
     fun isRunning(conversationId: String) = mutable.value.values.any { conversationId in it.conversationIds }
+
+    /** A real request/tool lease: while it exists, the character is awake.
+     * Unlike a pending plan, this is actual ongoing work with a finally block.
+     */
+    fun isWorking(characterId: String): Boolean = characterId.isNotBlank() &&
+        mutable.value.values.any { it.characterId == characterId }
     fun markModelCompleted(id: String) {
         mutable.update { current ->
             current[id]?.let { current + (id to it.copy(awaitingModel = false)) } ?: current
         }
     }
-    fun end(id: String) { mutable.update { it - id } }
+    fun end(id: String) {
+        val owner = mutable.value[id]?.characterId
+        mutable.update { it - id }
+        // The expiry may have arrived while this character was still working.
+        // Trigger the original expiry appraisal AFTER the last real work ends,
+        // not while the role is halfway through a user-requested task.
+        if (owner != null && !isWorking(owner))
+            CompanionOnlineStore.onRoleWorkFinished(owner)
+    }
     fun clearConversation(conversationId: String) {
         mutable.update { all -> all.mapValues { (_, a) -> a.copy(conversationIds = a.conversationIds - conversationId) } }
     }
