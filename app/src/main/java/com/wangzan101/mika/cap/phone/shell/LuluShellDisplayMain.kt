@@ -10,6 +10,7 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.os.Build
 import android.os.Looper
+import android.view.Display
 import android.view.Surface
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -106,12 +107,26 @@ object LuluShellDisplayMain {
                     img.close()
                     "virtual display id must not be 0"
                 }
+                // Mika's self-check reads the REAL Display flags. Requesting
+                // OWN_FOCUS in createVirtualDisplay is not proof Android
+                // granted it; some OEMs silently drop that capability.
+                val ownFocusDisplayFlag = runCatching {
+                    Display::class.java.getField("FLAG_OWN_FOCUS").getInt(null)
+                }.getOrDefault(1 shl 11)
+                if (disp.display.flags and ownFocusDisplayFlag == 0) {
+                    val observedFlags = disp.display.flags
+                    disp.release()
+                    img.close()
+                    error("系统未授予后台屏独立焦点（displayFlags=$observedFlags）；拒绝抢占主人主屏")
+                }
                 virtual = disp
                 reader = img
             }
             return JSONObject().put("success", true)
                 .put("displayId", virtual!!.display.displayId)
-                .put("width", WIDTH).put("height", HEIGHT).put("ownFocus", true)
+                .put("width", WIDTH).put("height", HEIGHT)
+                .put("ownFocus", true)
+                .put("ownFocusVerifiedByDisplayFlags", true)
         }
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
