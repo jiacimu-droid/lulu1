@@ -112,6 +112,7 @@ object CharacterRuntime {
         interactionKey: String? = null,
         query: String = "",
         includeActiveCommitments: Boolean = true,
+        freshAnswer: Boolean = false,
     ): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = CharacterDevelopmentRecall.select(
@@ -129,20 +130,27 @@ object CharacterRuntime {
             // The stable principles are shared in CharacterDecisionProtocol;
             // one brief anatomy is enough even for a full context request.
             appendLine(CharacterPersonalityArchitecture.promptSection(compact = true))
-            CharacterExperienceLearning.recentContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
-            appendLine(CompanionContactClock.context(characterId))
+            // The superseded speech has already affected some transient
+            // states. A replacement FIRST answer must not see those effects.
+            if (!freshAnswer) {
+                CharacterExperienceLearning.recentContext(characterId)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
+                appendLine(CompanionContactClock.context(characterId))
+            }
             EmbodiedBodyRuntime.context(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
-            appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
-                CharacterLifeStore.context(characterId, includeProfile = false))
-            appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId, query = query) else
-                CharacterInnerLifeStore.context(characterId, query = query))
-            interactionKey?.takeIf(String::isNotBlank)?.let { key ->
+            if (!freshAnswer) {
+                appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
+                    CharacterLifeStore.context(characterId, includeProfile = false))
+                appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId, query = query) else
+                    CharacterInnerLifeStore.context(characterId, query = query))
+            }
+            interactionKey?.takeIf(String::isNotBlank)?.takeUnless { freshAnswer }?.let { key ->
                 CharacterInnerLifeStore.interactionContext(characterId, key)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
             }
             // Verbatim relationship feedback is an immediate lived fact, not a
             // proposed stable personality mutation and not an assumed apology.
-            CharacterGrowthTrajectory.context(characterId)
+            if (!freshAnswer) CharacterGrowthTrajectory.context(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(CharacterAccountabilityContext.prompt(characterId, includeActiveDetails = includeActiveCommitments))
             CharacterCuriosityRuntime.briefContext(characterId)
@@ -154,7 +162,7 @@ object CharacterRuntime {
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             // One evidence-backed relational will follows the same identity and
             // private life across chat, phone and digital-world meetings.
-            appendLine(CharacterRelationalInitiative.context(characterId))
+            if (!freshAnswer) appendLine(CharacterRelationalInitiative.context(characterId))
             if (narrative.isNotEmpty()) {
                 appendLine("【叙事身份｜多次真实经历形成的主观意义，不是新增事实】")
                 narrative.forEach { record ->
@@ -201,8 +209,10 @@ object CharacterRuntime {
      * Read only existing evidence-backed UserPreference/UserHabit records;
      * no presentation rules, bubble quotas, or new personality state.
      */
-    fun leanExpressionContext(characterId: String, query: String = ""): String = buildString {
-        CharacterRelationalInitiative.expressionHandoff(characterId)
+    fun leanExpressionContext(
+        characterId: String, query: String = "", freshAnswer: Boolean = false,
+    ): String = buildString {
+        if (!freshAnswer) CharacterRelationalInitiative.expressionHandoff(characterId)
             .takeIf(String::isNotBlank)?.let(::appendLine)
         val known = CharacterDevelopmentRecall.select(
             CharacterDevelopmentStore.active(characterId).filter {
@@ -218,7 +228,10 @@ object CharacterRuntime {
     }.trim()
 
     /** Backward-compatible entry for callers that do not have a live conversation key. */
-    fun developmentContext(characterId: String, compact: Boolean = false, query: String = "", includeActiveCommitments: Boolean = true): String =
-        personalityRuntimeContext(characterId, compact = compact, query = query, includeActiveCommitments = includeActiveCommitments)
+    fun developmentContext(
+        characterId: String, compact: Boolean = false, query: String = "",
+        includeActiveCommitments: Boolean = true, freshAnswer: Boolean = false,
+    ): String = personalityRuntimeContext(characterId, compact = compact, query = query,
+        includeActiveCommitments = includeActiveCommitments, freshAnswer = freshAnswer)
 
 }

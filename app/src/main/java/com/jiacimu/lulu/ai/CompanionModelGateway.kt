@@ -780,12 +780,14 @@ class CompanionModelGateway(
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
                     characterId, compact = !budget.richInnerLife,
-                    query = request.retrievalQuery(), includeActiveCommitments = false)
+                    query = request.retrievalQuery(), includeActiveCommitments = false,
+                    freshAnswer = request.excludedEventIds.isNotEmpty())
                 // Private chat's second model pass renders text only. It still
                 // receives the same character's unfinished intention, but no
                 // broad timeline or new decision-making authority.
                 leanExpression && contextMode == CompanionContextMode.Full ->
-                    com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId, request.retrievalQuery())
+                    com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId,
+                        request.retrievalQuery(), freshAnswer = request.excludedEventIds.isNotEmpty())
                 else -> ""
             }
             val learningSection = if (fullContext)
