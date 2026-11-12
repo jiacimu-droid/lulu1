@@ -222,6 +222,7 @@ internal data class GroupReplyScene(
     val members: List<com.jiacimu.lulu.data.LuluGroupMember>,
 )
 
+private fun LuluGroupChat.replyScene() = GroupReplyScene(name, ownerIncluded, userGroupNickname, members)
 
 internal fun captureReplySourceWatermark(
     conversationId: String,
@@ -261,8 +262,7 @@ internal fun captureReplySourceWatermark(
             it.sender == LuluChatMessage.Sender.User &&
                 it.status == LuluChatMessage.Status.Sent
         }?.id,
-        group?.let { GroupReplyScene(it.name, it.ownerIncluded,
-            it.userGroupNickname, it.members) },
+        group?.replyScene(),
     )
 }
 
@@ -628,9 +628,9 @@ internal suspend fun runGroupReplies(
     }
     // The director has already reasoned about these sources by the time its
     // response arrives. Retain the same per-person evidence through delivery.
+    val expectedRoom = group.replyScene()
     val directorSources = if (!isGroupPhone && pendingUsers.isNotEmpty()) {
         val expectedContents = pendingUsers.associate { it.id to it.content }
-        val expectedRoom = GroupReplyScene(group.name, group.ownerIncluded, group.userGroupNickname, group.members)
         members.associate { member ->
             val source = captureReplySourceWatermark(conversationId, member.characterId, pendingUserIds)
             member.characterId to source?.takeIf {
@@ -645,8 +645,22 @@ internal suspend fun runGroupReplies(
     // Text groups get ONE room-only scheduling decision; the selected characters
     // each independently choose their own real words or silence. The coordinator
     // is deliberately not a shared narrator or a source of private knowledge.
-    val scenePlan = if (isGroupPhone) null else
-        GroupChatTurnPlanner.choose(group, members, before, characterNames)
+    val scenePlan = if (isGroupPhone) null else {
+        val publicContext = GroupChatTurnPlanner.publicContext(before, characterNames)
+        val newestUserText = before.lastOrNull {
+            it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
+        }?.content.orEmpty()
+        val plan = GroupChatTurnPlanner.choose(group, members, publicContext, newestUserText, characterNames)
+        val currentRoom = MigratedDomainStores.chat.conversations.value
+            .firstOrNull { it.id == conversationId }?.groupChat?.replyScene()
+        val currentMessages = MigratedDomainStores.chat.messages(conversationId).value
+        if (currentRoom != expectedRoom ||
+            GroupChatTurnPlanner.publicContext(currentMessages, characterNames) != publicContext) {
+            onSpeakerChange(null)
+            return
+        }
+        plan
+    }
     val speakingOrder = scenePlan?.beats?.map { it.speakerId }.orEmpty()
     val first = (mentioned.shuffled(random) + remaining).first()
     val queue = (if (isGroupPhone) listOf(first) else

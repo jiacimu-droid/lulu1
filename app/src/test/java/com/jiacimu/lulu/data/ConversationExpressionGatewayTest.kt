@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.retractCharacterMessage
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.ai.CompanionContextMode
@@ -1871,6 +1872,94 @@ class ConversationExpressionGatewayTest {
                 assertEquals(listOf(actor.characterId), speakers.filterNotNull())
                 assertEquals(listOf(visible), chat.messages(group.id).value
                     .filter { it.sender == LuluChatMessage.Sender.Character }.map { it.content })
+                assertTrue(errors.toString(), errors.isEmpty())
+            } finally {
+                releaseDirector.countDown()
+                server.shutdown()
+            }
+        }
+    }
+
+    @Test(timeout = 60_000) fun groupDirectorDiscardsRoutingAfterPeerRecallOrRosterChange() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        for (recall in listOf(true, false)) {
+            val actor = MigratedDomainStores.characters.create("群聊路由江渡-$recall", "根据现场判断")
+            val peer = MigratedDomainStores.characters.create("群聊路由星禾-$recall", "愿意更正自己")
+            val third = MigratedDomainStores.characters.create("群聊路由第三人-$recall", "先听再说")
+            val names = listOf(actor, peer, third).associate { it.characterId to it.displayName }
+            val chat = MigratedDomainStores.chat
+            val group = chat.createGroupConversation("群聊事实变化", names.keys.toList())
+            val oldWords = "尚未核实的展览日期"
+            val oldBubble = chat.appendCharacterMessage(group.id, oldWords, authorCharacterId = peer.characterId)
+            val user = chat.sendUserMessage(group.id, "这件事你怎么看？")
+            val director = JSONObject().put("beats", JSONArray().put(
+                JSONObject().put("speakerId", actor.characterId)))
+            val visible = "我得再确认一下。"
+            val releaseDirector = CountDownLatch(1)
+            val requests = AtomicInteger()
+            fun response(body: JSONObject) = MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                    .put("message", JSONObject().put("content", body.toString()))
+                    .put("finish_reason", "stop"))).toString())
+            val server = MockWebServer()
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
+                    1 -> if (releaseDirector.await(15, TimeUnit.SECONDS)) response(director)
+                        else MockResponse().setResponseCode(500)
+                    2 -> response(director)
+                    3 -> response(JSONObject().put("action", "reply").put("text", visible))
+                    else -> MockResponse().setResponseCode(500)
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null, "群聊路由事实测试",
+                    server.url("/").toString(), "test-only")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                LuluAiServices.connectionStore.selectArchive(archive.id, com.jiacimu.lulu.ai.ModelUsage.Chat)
+                val errors = mutableListOf<String>()
+                val speakers = mutableListOf<String?>()
+                suspend fun runRound() {
+                    val room = chat.conversations.value.first { it.id == group.id }.groupChat
+                    com.jiacimu.lulu.runGroupReplies(group.id, checkNotNull(room), user.content,
+                        "", "test", archive.id, names, onError = { errors.add(it) },
+                        onSpeakerChange = { speakers.add(it) })
+                }
+                suspend fun takeRequest(): String = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+
+                val oldRound = async { runRound() }
+                try {
+                    assertTrue(takeRequest().contains(oldWords))
+                    if (recall) {
+                        assertTrue(chat.retractCharacterMessage(oldBubble.id, peer.displayName))
+                        assertTrue(chat.messages(group.id).value.any { it.id == oldBubble.id })
+                    } else {
+                        val room = checkNotNull(group.groupChat)
+                        assertTrue(chat.updateGroupConversation(group.id, room.copy(
+                            members = room.members.filterNot { it.characterId == peer.characterId })))
+                    }
+                } finally {
+                    releaseDirector.countDown()
+                }
+                oldRound.await()
+                assertEquals(1, server.requestCount)
+                assertTrue(speakers.filterNotNull().isEmpty())
+                assertFalse(chat.messages(group.id).value.any { it.authorCharacterId == actor.characterId })
+
+                runRound()
+                val nextDirector = takeRequest()
+                takeRequest()
+                if (recall) assertFalse(nextDirector.contains(oldWords))
+                assertEquals(3, server.requestCount)
+                assertEquals(listOf(actor.characterId), speakers.filterNotNull())
+                assertEquals(listOf(visible), chat.messages(group.id).value
+                    .filter { it.authorCharacterId == actor.characterId }.map { it.content })
                 assertTrue(errors.toString(), errors.isEmpty())
             } finally {
                 releaseDirector.countDown()

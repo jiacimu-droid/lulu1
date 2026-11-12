@@ -76,11 +76,24 @@ internal object GroupChatTurnPlanner {
         return GroupChatScenePlan(ids.map(::GroupChatSceneBeat))
     }
 
+    /** Keep source IDs with the exact public text given to the director. */
+    fun publicContext(messages: List<LuluChatMessage>, names: Map<String, String>): List<Pair<String, String>> {
+        val recalled = recalledMessageIds(messages)
+        return messages.asReversed().asSequence().filter { it.status == LuluChatMessage.Status.Sent &&
+            it.sender != LuluChatMessage.Sender.System && it.id !in recalled }
+            .take(14).toList().asReversed().map { message ->
+                val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else
+                    (message.authorCharacterId?.let { names[it] } ?: "成员")
+                message.id to "${speaker.take(28)}: ${qqForwardContextText(message.content).take(220)}"
+            }
+    }
+
     /** Text-only, owner initiated group rounds; voice has different latency needs. */
     suspend fun choose(
         group: LuluGroupChat,
         members: List<LuluGroupMember>,
-        messages: List<LuluChatMessage>,
+        publicContext: List<Pair<String, String>>,
+        newestUserText: String,
         names: Map<String, String>,
     ): GroupChatScenePlan {
         val allowed = members.map { it.characterId }.distinct()
@@ -90,9 +103,6 @@ internal object GroupChatTurnPlanner {
             else 1
         // Failed director requests must not make two unrelated characters perform.
         // Explicit @ targets still receive a chance to decide for themselves.
-        val newestUserText = messages.lastOrNull {
-            it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
-        }?.content.orEmpty()
         val addressed = members.filter { member ->
             val nickname = member.groupNickname.ifBlank { names[member.characterId].orEmpty() }
             nickname.isNotBlank() && newestUserText.contains("@" + nickname, ignoreCase = true)
@@ -132,12 +142,7 @@ internal object GroupChatTurnPlanner {
                 if (publicStages.isNotBlank()) append("\n  可核验的群友认识阶段：").append(publicStages)
             }
         }
-        val scene = messages.filter { it.status == LuluChatMessage.Status.Sent &&
-            it.sender != LuluChatMessage.Sender.System }.takeLast(14).joinToString("\n") { m ->
-            val speaker = if (m.sender == LuluChatMessage.Sender.User) "用户" else
-                (m.authorCharacterId?.let { names[it] } ?: "成员")
-            "${speaker.take(28)}: ${qqForwardContextText(m.content).take(220)}"
-        }
+        val scene = publicContext.joinToString("\n") { it.second }
 
         val instruction = """
             你是这一轮多人聊天的临时导演：设计「关系、反应、节奏和留白」，不是名单排队器，也不是代写台词的人。
