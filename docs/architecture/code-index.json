@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:55:38.006765+00:00",
-  "commit": "4de87c030c2925b1b5556fe3911f6fb1385b85f0",
+  "generatedAt": "2026-11-12T12:56:16.432791+00:00",
+  "commit": "b454f1f0556bad73231b8936e9e7348d242872c3",
   "branch": "main",
-  "sourceFingerprint": "6546b53aa025e6142b8f538aa169055f0331c07f70ea6f7fed13009b9d22ae43",
+  "sourceFingerprint": "a38c1f1b01cf44480445cb60895b778acd898ec23b962100777aef9f7a1365ef",
   "summary": {
     "files": 1283,
-    "lines": 270697,
+    "lines": 270729,
     "symbols": 3836
   },
   "symbolIndex": {
@@ -15141,7 +15141,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 53
+        "line": 57
       }
     ],
     "DrawScope": [
@@ -15151,7 +15151,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 57
+        "line": 61
       }
     ],
     "p": [
@@ -15181,7 +15181,7 @@
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 72
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
@@ -15191,7 +15191,7 @@
     "poly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 74
+        "line": 78
       }
     ],
     "useHint": [
@@ -36709,24 +36709,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-      "lines": 210,
-      "sha256": "d62318541ba11e4aa27bbc098a8afe5cd2c03f040ce4763d507206c54475b3f9",
+      "lines": 214,
+      "sha256": "f5b820539222b0eab1f5f01020b1b88b06aa79b7744df991645e665a6424c778",
       "symbols": [
         {
           "name": "kind",
-          "line": 53
-        },
-        {
-          "name": "DrawScope",
           "line": 57
         },
         {
+          "name": "DrawScope",
+          "line": 61
+        },
+        {
           "name": "line",
-          "line": 72
+          "line": 76
         },
         {
           "name": "poly",
-          "line": 74
+          "line": 78
         }
       ]
     },
@@ -44786,8 +44786,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 869,
-      "sha256": "9b9a7dc52961114efdcf6bda09fed64bae12cbdcbac0f80d8a8014650f7b264d",
+      "lines": 897,
+      "sha256": "7fb948bc8d5052b67daadbf9925b088a5e6022c1def94e294b19bb8539ea630b",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
