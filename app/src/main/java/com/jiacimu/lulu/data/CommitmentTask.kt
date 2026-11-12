@@ -204,9 +204,39 @@ internal object CommitmentClockFacts {
  * An accepted duty differs from a passing personal thought: unverified work must
  * remain visible even when the most recent user message was quiet.
  */
+/**
+ * A bounded, rotating read-only attention view over the authoritative duties.
+ * Dated tasks have historically sorted ahead of all undated commitments: a
+ * simple take(12) could hide every persistent responsibility forever.
+ *
+ * Each existing decision sees urgent dated work AND some ongoing duties.
+ * Rotation uses the current five-minute observation window; it never wakes
+ * the role, creates alarms, or makes a semantic choice for the character.
+ */
+internal object PersistentResponsibilityAttention {
+    fun select(tasks: List<CommitmentTask>, now: Instant, limit: Int = 12): List<CommitmentTask> {
+        if (limit <= 0) return emptyList()
+        val active = tasks.filter { it.status.isActive() }
+        if (active.size <= limit) return active
+        val ongoing = active.filter { it.dueAt == null }
+        val timed = active.filter { it.dueAt != null }
+        if (ongoing.isEmpty()) return timed.take(limit)
+
+        // Preserve most of the window for time-bound commitments while never
+        // starving duties without a clock, even if there are many old alarms.
+        val reserved = if (timed.isEmpty()) limit else minOf(3, (limit / 4).coerceAtLeast(1))
+        val timedCount = minOf(timed.size, limit - reserved)
+        val ongoingCount = minOf(ongoing.size, limit - timedCount)
+        val offset = ((now.epochSecond / 300L) * ongoingCount.toLong())
+            .mod(ongoing.size.toLong()).toInt()
+        val sampled = (0 until ongoingCount).map { ongoing[(offset + it) % ongoing.size] }
+        return timed.take(timedCount) + sampled
+    }
+}
+
 internal object ActiveCommitmentAttention {
     fun render(tasks: List<CommitmentTask>, now: Instant): String {
-        val active = tasks.filter { it.status.isActive() }
+        val active = PersistentResponsibilityAttention.select(tasks, now)
         val needsAttention = active.filter { task ->
             task.status == CommitmentTaskStatus.WaitingForFeedback ||
                 task.status == CommitmentTaskStatus.Blocked ||
