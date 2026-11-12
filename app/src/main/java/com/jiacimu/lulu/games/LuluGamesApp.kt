@@ -230,7 +230,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             ArcadeAtmosphere(Modifier.matchParentSize())
-            Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route != GameRoute.BlockIsland) 54.dp else 0.dp)) {
+            Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route !in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
                     if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape) route = target
@@ -253,9 +253,9 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                 )
             }
             }
-            if (route == GameRoute.BlockIsland) {
-                // The entire island extends behind this small floating toolbar.
-                // Do not reserve a 54dp opaque strip across a short landscape screen.
+            if (route == GameRoute.BlockIsland || route == GameRoute.RelicEscape) {
+                // Both world games render edge-to-edge; their controls float over a tiny corner
+                // instead of reserving the 54dp full-width bar on short landscape screens.
                 Row(
                     modifier = Modifier.align(Alignment.TopEnd)
                         .height(40.dp)
@@ -270,7 +270,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                         TextButton(onClick = { landscape = !landscape },
                             contentPadding = PaddingValues(horizontal = 6.dp)) {
                             Text(if (landscape) "竖屏" else "横屏",
-                                color = Color(0xFFB9EBD6), fontSize = 11.sp)
+                                color = if (route == GameRoute.RelicEscape) Color(0xFFFFD894) else Color(0xFFB9EBD6), fontSize = 11.sp)
                         }
                     }
                     GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
