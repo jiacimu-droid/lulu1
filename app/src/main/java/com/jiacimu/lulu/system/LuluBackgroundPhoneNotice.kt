@@ -79,7 +79,11 @@ internal object LuluBackgroundPhoneNotice {
     }
 
     fun clear(context: Context) {
-        context.getSystemService(NotificationManager::class.java).cancel(ID)
+        val notifications = context.getSystemService(NotificationManager::class.java)
+        notifications.cancel(ID)
+        // STOP invalidates any prior shopping handoff. Never leave a stale
+        // "pay here" invitation after the owner has explicitly stopped.
+        notifications.cancel(47232)
     }
 }
 
