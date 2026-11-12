@@ -74,10 +74,6 @@ internal fun RelicEscapeLobby(
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
     var shopExpanded by remember { mutableStateOf(true) }
-    var vaultExpanded by remember { mutableStateOf(true) }
-    var selectedTreasureId by remember(snapshot.vault.map { it.id }) {
-        mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id)
-    }
 
 
     var prepExpanded by remember { mutableStateOf(true) }
@@ -206,7 +202,7 @@ internal fun RelicEscapeLobby(
             }
         }
     }
-    if(detailPage.isNotEmpty()) {
+    if(detailPage.isNotEmpty() && detailPage!="vault") {
         ModalBottomSheet(onDismissRequest={detailPage=""},containerColor=campInk) {
             Column(Modifier.fillMaxWidth().fillMaxHeight(.78f)
                 .verticalScroll(rememberScrollState())
@@ -339,86 +335,15 @@ RelicLobbyPanel {
                     }
                 }
                     }
-                    "vault" -> {
-RelicLobbyPanel {
-                    Row(verticalAlignment=Alignment.CenterVertically) {
-                        Text("永久藏宝库 · "+snapshot.vault.size+"件",
-                            color=Color.White,fontSize=17.sp,fontWeight=FontWeight.Black,
-                            modifier=Modifier.weight(1f))
-                        TextButton(onClick={vaultExpanded=!vaultExpanded}) {
-                            Text(if(vaultExpanded)"收起 −" else "查看珍藏 ＋",
-                                color=campGold,fontSize=11.sp)
-                        }
-                    }
-                    Text("图鉴已收录 "+snapshot.discovered.size+"/"+RelicCollectibles.names.size+" 件",
-                        color=campMint,fontSize=11.sp)
-                    val exhibit=snapshot.vault.firstOrNull { it.id==selectedTreasureId }
-                        ?: snapshot.vault.firstOrNull { it.id==snapshot.featuredLootId }
-                        ?: snapshot.vault.lastOrNull()
-                    if(exhibit!=null) {
-                        RelicTreasureGalleryCard(exhibit,
-                            featured=exhibit.id==snapshot.featuredLootId)
-                        Row(Modifier.fillMaxWidth(),
-                            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-                            OutlinedButton(onClick={onFeatureLoot(exhibit.id)},
-                                enabled=exhibit.id!=snapshot.featuredLootId,
-                                modifier=Modifier.weight(1f)) {
-                                Text(if(exhibit.id==snapshot.featuredLootId)
-                                    "✓ 已展出" else "✦ 放到展柜",color=campGold,
-                                    fontSize=11.sp)
-                            }
-                            OutlinedButton(onClick={
-                                val intent=Intent(Intent.ACTION_SEND).apply {
-                                    type="text/plain"
-                                    putExtra(Intent.EXTRA_TEXT,
-                                        RelicTreasureGallery.shareText(exhibit))
-                                }
-                                context.startActivity(Intent.createChooser(intent,"分享我的珍宝"))
-                            },modifier=Modifier.weight(1f)) {
-                                Text("♡ 炫耀珍宝",color=campMint,fontSize=11.sp)
-                            }
-                        }
-                    }
-                    if(vaultExpanded) {
-                    if(snapshot.vault.isEmpty())Text(
-                        "珍宝馆还空着。去寻找一件让你真正心动的漂亮宝物吧。",
-                        color=campMuted,fontSize=12.sp)
-                    snapshot.vault.reversed().forEach { item ->
-                        Surface(onClick={selectedTreasureId=item.id},
-                            color=if(item.id==exhibit?.id) Color(0xFF303A42)
-                                else Color(0xFF212B35),
-                            shape=RoundedCornerShape(12.dp),
-                            border=BorderStroke(1.dp,
-                                if(item.id==exhibit?.id) campGold.copy(alpha=.65f)
-                                else campMint.copy(alpha=.22f))) {
-                            Row(Modifier.fillMaxWidth()
-                                .padding(horizontal=8.dp,vertical=5.dp),
-                                verticalAlignment=Alignment.CenterVertically,
-                                horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-                                Column(Modifier.weight(1f)) {
-                                    Text((if(item.id==snapshot.featuredLootId)"✦ " else "✧ ")+
-                                        item.name+" · "+item.tier.label,
-                                        color=campGold,fontSize=12.sp,
-                                        fontWeight=FontWeight.Bold)
-                                    Text(RelicTreasureGallery.identity(item.name),
-                                        color=campMuted,fontSize=10.sp,maxLines=1)
-                                }
-                                TextButton(onClick={onSellLoot(item.id)},enabled=!live) {
-                                    Text("出售",color=campMint,fontSize=11.sp)
-                                }
-                            }
-                        }
-                    }
-                    Text("点击藏品可切换大幅鉴赏图。出售实物不会抹掉永久图鉴，但会撤下展柜中的同一件实物。",
-                        color=campMuted,fontSize=11.sp)
-                    }
-                }
-                    }
                 }
                 Spacer(Modifier.height(14.dp))
             }
         }
     }
+    if(detailPage=="vault") RelicVaultPage(
+        snapshot=snapshot,live=live,onClose={detailPage=""},
+        onFeature=onFeatureLoot,onSell=onSellLoot,
+    )
     if(picker)AlertDialog(
         onDismissRequest={picker=false},containerColor=Color(0xFF182938),
         title={Text("邀请谁一起摸金？",color=Color.White)},
