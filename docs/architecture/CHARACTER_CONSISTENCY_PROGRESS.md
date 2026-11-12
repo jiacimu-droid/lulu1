@@ -2,6 +2,25 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08a: 在线=清醒、离线=休眠（角色执行不可与休眠并存）；承诺提取 524 去重
+
+**用户现场**：私聊标题同时出现「离线」与「执行后续中」，角色仍在处理购买/后台手机操作。用户明确澄清在线本身就是清醒、离线就是休眠，没有「离线聊天、后台仍工作」这种双重人物状态；性能监控中承诺提取连续两次 HTTP 524、各耗时约126秒。
+
+**代码根因**：`CompanionOnlineState.isOnline` 只按绝对五分钟 `onlineUntil` 判断（另外通话），不计真正执行中的 `ChatGenerationActivity`；而自主行动的 `evaluateCharacter` 仅在有未读消息时才持有同一角色执行租约。在线到期定时器会在模型决定是否继续之前执行 `EmbodiedBodyRuntime.onPresenceSleep`；UI 又并列展示执行租约与离线，产生用户截图中的悖论。独立承诺提取快/慢补救虽然都针对同一来源消息，但网关收费去重原以整份 `facts+instruction` 为依据，提示词/历史窗口不同就可能二次请求。
+
+**本轮直接修改 main**：
+- `ChatGenerationActivity` 添加真实同角色工作租约判定，且自主模型（无未读用户消息也一样）执行直到所有动作与真实回执完成才释放；可用 `awaitingModel=false` 避免后台探索假显示「正在输入中」。
+- `CompanionOnlineStore.isOnline` 与 `CompanionOnlineState.isOnline` 联合真实工作和真正已签领的在线到期审议。五分钟到期如正在执行，记录**临时过期交接**并不置入休眠；最后一条工作租约结束后只留3秒调度窗口给同一人物原本的自主 continue/sleep 判断，绝不直接赠送新五分钟。由原模型真正选择 continue 才正式续醒；选择 sleep 先保留意图，若行动仍执行则等执行完才把实体状态标记为休眠。无论哪种结果，在线/休眠不与实际正在执行矛盾；被新消息唤醒的更晚会话会让旧交接失效。
+- `QqStyleChatDetailScreen` 不再显示「离线·执行后续」；纯展示辅助 `ChatPresencePresentation` 统一为「在线·正在执行任务」「在线·正在决定下一步」「在线至 …」「休眠」；按同一角色活动而非别人的对话租约判断。
+- `CommitmentTaskExtractor` 保留隔离承诺语义和失败未确认事实，但可选后台提取读响应不再跟随主聊天240秒，而限定60秒（用户已见两次约126秒代理524）；`CompanionModelGateway` 可接收独立的原始 source-turn 付费去重身份；`CommitmentTurnAutomation` 快/慢补救传相同 `sourceTurnId`，同一轮 ambiguous 524 不会因提示词变化重新发出收费请求，真正新一轮主人消息仍独立合法。**原聊天、通话等待时间不变**。
+- 回归补充：`OnlineChatExperienceTest` 验证角色工作越过到期仍清醒、最后才重交到期决定、明确选择睡眠也不能在工具执行中睡；`ChatPresencePresentationTest` 阻止离线+执行矛盾；`BackgroundModelRequestBudgetTest` 验证相同承诺来源两次请求只允许一次、不同主人消息不被误抑制，且60秒隔离超时。
+
+**主要实现提交**：[0ea9a95](https://github.com/jiacimu-droid/lulu1/commit/0ea9a957ada5bb3b6b9985f3fe106a3aa2ad547c)、[41c4d3b](https://github.com/jiacimu-droid/lulu1/commit/41c4d3b9ebe2d22b5e2c2e144f36e064fe1f1580)、[8348d0a](https://github.com/jiacimu-droid/lulu1/commit/8348d0a232f5ec00c58f5b18860c2145b87e5dbb)、[72f80ad](https://github.com/jiacimu-droid/lulu1/commit/72f80ada893aea7580d82d5c8d7a1da929245b99)、[0c8f45d](https://github.com/jiacimu-droid/lulu1/commit/0c8f45d557a70ed37884425c3640680f6edba4e0)、[d01cce9](https://github.com/jiacimu-droid/lulu1/commit/d01cce94e7ab5384d37335c714aa05088e86b58e)、[d27c066](https://github.com/jiacimu-droid/lulu1/commit/d27c066a50e7576acf9686a4388d6a5b03133bad)、[ce4598b](https://github.com/jiacimu-droid/lulu1/commit/ce4598b88bbdfaf64a9229bea75228b0caf4daae)、[2187fe7](https://github.com/jiacimu-droid/lulu1/commit/2187fe76ceb8dc0323b317df10e19aae70b07a5b)、[401da9a](https://github.com/jiacimu-droid/lulu1/commit/401da9a8761d5bf6cc2169151bacc728e47e9e5e)。
+
+**验收边界**：源代码已提交，仍需准确当前 main 的完整 APK/JVM 成功、Redmi 真机验证购物工具跨五分钟不休眠且不会错误抢主屏、任务实际完成或失败后由本人决定继续/休息、进程被杀恢复时不凭空认为仍执行；524 的60秒截止与同一轮阻止二次付费需要真站点/真实消息验证。GitHub 后续 push CI 若 cancelled 绝不能视为 PASS。
+
+
+
 ## 2026-11-12 · P-08b.1 群聊导演向本人只交接发言机会和对象
 
 - 上轮 P-03.1 的[原索引 #43162768461](https://github.com/jiacimu-droid/lulu1/actions/runs/43162768461)和[后继 JVM/APK #43163188957](https://github.com/jiacimu-droid/lulu1/actions/runs/43163188957)复核成功。
