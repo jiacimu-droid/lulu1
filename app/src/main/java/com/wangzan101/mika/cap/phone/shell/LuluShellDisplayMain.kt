@@ -2,6 +2,7 @@ package com.wangzan101.mika.cap.phone.shell
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.ComponentName
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
@@ -114,9 +115,17 @@ object LuluShellDisplayMain {
             check(pkg.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+"))) {
                 "invalid package name"
             }
+            // Android's resolved exported launcher component is selected by
+            // Lulu's owner-authorized local package manager. Launching a bare
+            // package-filtered intent can fail or open a chooser instead of
+            // the selected app on this display.
+            val component = ComponentName.unflattenFromString(
+                cmd.optString("launchComponent")) ?: error("missing explicit launcher component")
+            check(component.packageName == pkg) { "launcher package mismatch" }
             val ok = run(listOf("am", "start", "--display", id.toString(),
-                "-a", "android.intent.action.MAIN", "-c",
-                "android.intent.category.LAUNCHER", "-p", pkg))
+                "-n", component.flattenToString(),
+                "-a", "android.intent.action.MAIN",
+                "-c", "android.intent.category.LAUNCHER"))
             if (ok) targetPackage = pkg
             return JSONObject().put("success", false).put("accepted", ok)
                 .put("displayId", id).put("targetPackage", pkg)
