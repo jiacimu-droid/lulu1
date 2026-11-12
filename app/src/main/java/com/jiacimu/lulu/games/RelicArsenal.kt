@@ -58,5 +58,8 @@ internal object RelicArsenal {
         RelicLoot(s.id+":mob:"+mob.id,when(mob.kind) {
             0->"暗影碎片";1->"锻铁徽片";2->"祭司秘纹";else->"哨兵之核"
         },if(mob.kind>=2)RelicTier.RARE else RelicTier.COMMON,
-            42+mob.kind*38+s.level*8)
+            // Every physical rarity tier has a non-overlapping appraised value;
+            // battle loot must not contradict the museum grade legend.
+            if(mob.kind>=2) (185+(mob.kind-2)*28+s.level*8).coerceAtMost(247)
+            else (70+mob.kind*20+s.level*8).coerceAtMost(132))
 }
