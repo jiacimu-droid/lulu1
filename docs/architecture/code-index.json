@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:29:29.301394+00:00",
-  "commit": "9abb29a6af89af9247f90efd09b7a0e715661fb1",
+  "generatedAt": "2026-11-12T10:29:54.646857+00:00",
+  "commit": "c3ef1bca34165f41b07b3b2e082a99a721e60ad7",
   "branch": "main",
-  "sourceFingerprint": "ccc1163c0f3d760966857d2e7586b639abfda9d140221f11b1e39962573b17c3",
+  "sourceFingerprint": "57241bb674ae6e487a8d70ef80d982d434e66b6e901defbddf56746fdcd87954",
   "summary": {
-    "files": 1275,
-    "lines": 269192,
-    "symbols": 3811
+    "files": 1276,
+    "lines": 269283,
+    "symbols": 3812
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20833,6 +20833,12 @@
     "IslandInvitationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt",
+        "line": 11
+      }
+    ],
+    "IslandPlayerHouseTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt",
         "line": 11
       }
     ],
@@ -44397,6 +44403,17 @@
       "symbols": [
         {
           "name": "IslandInvitationTest",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt",
+      "lines": 91,
+      "sha256": "05465f61539ccac8cd871271728bd1a9a607ddbeda70859d42a5b1a2581ecf3f",
+      "symbols": [
+        {
+          "name": "IslandPlayerHouseTest",
           "line": 11
         }
       ]
