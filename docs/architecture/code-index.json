@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T09:39:41.029114+00:00",
-  "commit": "6691df88d0d901ee4442ac875ce5807dd2513a05",
+  "generatedAt": "2026-11-12T09:41:46.420920+00:00",
+  "commit": "c8a84eab37418eab0b94ab097e6f6b7a29017f71",
   "branch": "main",
-  "sourceFingerprint": "cca2dc93c62960103e36efc45f2121efc94d7c001487a58dadb65e60d6be929e",
+  "sourceFingerprint": "9ec7cf381b41baa9f5dfb0145909f1b8ea5d572ebab61ae864415ac2e6cf350b",
   "summary": {
-    "files": 1270,
-    "lines": 268203,
-    "symbols": 3787
+    "files": 1272,
+    "lines": 268301,
+    "symbols": 3791
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2974,6 +2974,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
         "line": 38
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
+        "line": 17
       }
     ],
     "setBlocked": [
@@ -7946,6 +7950,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 1218
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
+        "line": 12
       }
     ],
     "realtimeVoiceId": [
@@ -16516,6 +16524,12 @@
         "line": 69
       }
     ],
+    "mayNavigate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
+        "line": 47
+      }
+    ],
     "canObserve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -21013,6 +21027,12 @@
     "LuluScreenFrameHandoffTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt",
+        "line": 6
+      }
+    ],
+    "LuluShoppingAssistPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt",
         "line": 6
       }
     ],
@@ -38070,6 +38090,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
+      "lines": 57,
+      "sha256": "23085359820d88678796c8a16ba7768860bc9cbce7bc026a0daa05e9b1a8066f",
+      "symbols": [
+        {
+          "name": "isEnabled",
+          "line": 12
+        },
+        {
+          "name": "setEnabled",
+          "line": 17
+        },
+        {
+          "name": "mayNavigate",
+          "line": 47
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
       "lines": 486,
       "sha256": "d687ba15850581c2785aeac64dc71220e9a608b0c91e0846aca7e28db7aa73d5",
@@ -38228,8 +38267,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-      "lines": 60,
-      "sha256": "568276f4c4c346ddd8448f76cb9ce569022bc3cbbc7f8e193087e895e5a8f28d",
+      "lines": 68,
+      "sha256": "9ff5e57e62a96f4fe75f07356d8efe22f17db0fb47187654d8792c5a042c7bbd",
       "symbols": [
         {
           "name": "fingerprint",
@@ -44707,6 +44746,17 @@
       "symbols": [
         {
           "name": "LuluScreenFrameHandoffTest",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt",
+      "lines": 33,
+      "sha256": "ecc242dea8f457cce9f2d5520d105251c0a80c862cef06f9e06cf24f4548cbef",
+      "symbols": [
+        {
+          "name": "LuluShoppingAssistPolicyTest",
           "line": 6
         }
       ]

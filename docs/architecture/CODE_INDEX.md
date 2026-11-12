@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6691df88d0d901ee4442ac875ce5807dd2513a05`
+- 基准提交：`c8a84eab37418eab0b94ab097e6f6b7a29017f71`
 - 分支：`main`
-- 已索引文件：1270
-- 已索引代码/文本行：268203
-- 已发现符号：3787
+- 已索引文件：1272
+- 已索引代码/文本行：268301
+- 已发现符号：3791
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -796,6 +796,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 586 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 57 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
@@ -803,7 +804,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 60 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 68 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 28 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
@@ -1259,6 +1260,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 45 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt` | 46 | 1 |
