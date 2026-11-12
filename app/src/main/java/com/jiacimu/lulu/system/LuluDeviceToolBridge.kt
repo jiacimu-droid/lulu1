@@ -315,8 +315,13 @@ object LuluDeviceToolBridge {
         HealthRolePerception.initialize(appContext)
         if (!rewriting) HealthRolePerception.recordLatestSleep(characterId)
         val deviceContext = com.jiacimu.lulu.data.UserDevicePerception.context(appContext, characterId, now)
-        val observedWorld = if (rewriting) emptyList() else
+        val pendingObservations = if (rewriting) emptyList() else
             com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
+        // An explicitly delivered receipt is a durable observation of its own
+        // revision, even when it falls outside the pending observation window.
+        val observedWorld = if (externalCallResult != null && !rewriting)
+            pendingObservations.filterNot { it.id == externalCallResult.id } + externalCallResult
+        else pendingObservations
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
@@ -519,7 +524,7 @@ object LuluDeviceToolBridge {
                         "已允许" else "此角色未开启主动来电"))
                 appendLine("本机响铃alarm_only：可申请系统闹钟，准确登记和到点通知仍须程序回执；" +
                     "普通私聊send_private_message不能冒充叫醒熟睡的人。")
-                commitmentEvidence.forEach { event ->
+                commitmentEvidence.filter { it.id != externalCallResult?.id }.forEach { event ->
                     appendLine("本轮用户原话发生时间=${event.occurredAt.atZone(zone)}；内容=${event.content.take(500)}")
                 }
                 appendLine("当前真实互动场景：$sceneContext")
@@ -1064,11 +1069,10 @@ object LuluDeviceToolBridge {
                     it.content.isNotBlank() && (userText.contains(it.content.trim().take(60)) ||
                         it.content.contains(userText.trim().take(60))) }.takeLast(12)
             }
-            val userSources = if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
-                silenceObservationId,
-                externalCallResult?.let { "本人此前查询刚收到的真实执行回执：${it.content.take(2_600)}" }
-                    ?: "电话持续接通；本轮没有新增用户发言",
-                if (externalCallResult == null) setOf("user") else emptySet())) else verifiedSources.map {
+            val userSources = if (externalCallResult != null) emptyList()
+            else if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+                silenceObservationId, "电话持续接通；本轮没有新增用户发言", setOf("user"),
+            )) else verifiedSources.map {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"), it.revision)
             }.ifEmpty { if (userText.isBlank()) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }

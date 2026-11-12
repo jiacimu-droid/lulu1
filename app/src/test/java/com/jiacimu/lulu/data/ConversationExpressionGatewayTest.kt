@@ -1168,6 +1168,7 @@ class ConversationExpressionGatewayTest {
                 1 -> if (release.await(15, TimeUnit.SECONDS)) response(decision.toString())
                     else MockResponse().setResponseCode(500)
                 2 -> response("""{"action":"silent","reason":"按这次相处约定安静待一会儿"}""")
+                3 -> response("""{"action":"reply","text":"我听到了。"}""")
                 else -> MockResponse().setResponseCode(500)
             }
         }
@@ -1180,7 +1181,6 @@ class ConversationExpressionGatewayTest {
                 LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = archive.id,
                     sceneContext = "一对一电话仍然接通，用户没有新增发言",
                     silenceObservationId = source.id,
-                    turnContext = "刚完成的真实工具回执：${source.content}",
                     onCharacterHangup = { hangups.incrementAndGet() })
             }
             try {
@@ -1200,19 +1200,36 @@ class ConversationExpressionGatewayTest {
             assertEquals(1, server.requestCount)
             assertEquals(listOf(originalPost), posts())
             assertEquals(listOf(source), receipts())
+            assertFalse(PerceptionStimulusLedger.hasSeen(context, id, source.id, source.revision))
 
             val next = LuluDeviceToolBridge.respond(id, "", "", "test", archiveId = archive.id,
                 sceneContext = "一对一电话仍然接通，用户没有新增发言",
-                silenceObservationId = "call-quiet-after-agreement-edit").getOrThrow()
+                silenceObservationId = source.id).getOrThrow()
             val nextRequest = withContext(Dispatchers.IO) {
                 checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
             }
             assertTrue(nextRequest.contains(newAgreement))
+            assertTrue(nextRequest.contains("evidenceId=${source.id}"))
+            assertFalse(nextRequest.contains("本轮用户原话发生时间"))
+            assertTrue(PerceptionStimulusLedger.hasSeen(context, id, source.id, source.revision))
+            assertNull(com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, id, source.id))
             assertFalse(nextRequest.contains(oldAgreement))
             assertEquals(CharacterDecisionProtocol.SILENT, next.disposition)
             assertTrue(next.text.isBlank())
             assertEquals(listOf(source), receipts())
             assertEquals(2, server.requestCount)
+
+            val ordinary = LuluDeviceToolBridge.respond(id, "", "我刚刚说话了", "test",
+                archiveId = archive.id, sceneContext = "一对一电话仍然接通").getOrThrow()
+            val ordinaryRequest = withContext(Dispatchers.IO) {
+                checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+            }
+            assertTrue(ordinaryRequest.contains("我刚刚说话了"))
+            assertFalse(ordinaryRequest.contains("- evidenceId=${source.id}"))
+            assertEquals("我听到了。", ordinary.text)
+            assertEquals(listOf(originalPost), posts())
+            assertEquals(listOf(source), receipts())
+            assertEquals(3, server.requestCount)
         } finally {
             release.countDown()
             server.shutdown()
