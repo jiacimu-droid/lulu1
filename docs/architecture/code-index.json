@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T09:47:02.342295+00:00",
-  "commit": "165f24727b9a37b8d3a5315a4117e72fb4601964",
+  "generatedAt": "2026-11-12T09:48:47.196430+00:00",
+  "commit": "58b99d3fd6a638e20176e66bcd4b3245e9a190fa",
   "branch": "main",
-  "sourceFingerprint": "4146950dac3467638602a920b2acb691110ee365e7ec3f5c41140e273ecd8ca4",
+  "sourceFingerprint": "8c114c0dec55f0ff364c27fd9706726dca27f3ddde21305459145815ab381858",
   "summary": {
-    "files": 1272,
-    "lines": 268482,
-    "symbols": 3792
+    "files": 1273,
+    "lines": 268516,
+    "symbols": 3793
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21034,6 +21034,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt",
         "line": 6
+      }
+    ],
+    "LuluShoppingAssistConsentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt",
+        "line": 14
       }
     ],
     "LuluShoppingAssistPolicyTest": [
@@ -44757,6 +44763,17 @@
         {
           "name": "LuluScreenFrameHandoffTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt",
+      "lines": 34,
+      "sha256": "775fbc2de510270de36e42ff22f24690eb622cde2c1a046c98cbc9c32b30a7f2",
+      "symbols": [
+        {
+          "name": "LuluShoppingAssistConsentTest",
+          "line": 14
         }
       ]
     },
