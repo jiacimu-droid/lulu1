@@ -112,6 +112,67 @@ internal fun CharacterExecutionSettings(characterId: String) {
                         .onFailure { setupStatus = "本地撤销失败：" + it.message.orEmpty().take(100) }
                 }) { Text("撤销本机密钥") }
             }
+            // Explicit owner-initiated verification, not an inferred character
+            // action. Both requests go through ToolRouter for durable receipts.
+            // The verified virtual-display pixels are sent as a labeled private
+            // chat image; never a screenshot of the owner's current screen.
+            var testAppName by remember { mutableStateOf("") }
+            OutlinedTextField(
+                value = testAppName,
+                onValueChange = { testAppName = it.take(80) },
+                singleLine = true,
+                label = { Text("后台屏自测：已安装的应用名称") },
+                supportingText = {
+                    Text("例如填「抖音」。不能与主人当前主屏正在使用的 App 相同。")
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(enabled = !setupBusy && debug.hasPriorPairing(context) &&
+                testAppName.trim().isNotEmpty(), onClick = {
+                val name = testAppName.trim()
+                setupBusy = true
+                scope.launch {
+                    try {
+                        val id = "owner-virtual-test-" + java.util.UUID.randomUUID().toString()
+                        val started = org.json.JSONObject(
+                            com.jiacimu.lulu.data.ToolRouter.execute(
+                                context, characterId, "background_phone",
+                                org.json.JSONObject().put("action", "start"),
+                                requestId = id + ":start", userRequested = true))
+                        if (!started.optBoolean("success")) {
+                            setupStatus = "后台屏未创建：" +
+                                started.optString("error").ifBlank {
+                                    started.optString("verification", started.optString("status"))
+                                }.take(150)
+                        } else {
+                            setupStatus = "独立屏已创建（ID=${started.optInt("displayId")}），正在验证目标 App"
+                            val launched = org.json.JSONObject(
+                                com.jiacimu.lulu.data.ToolRouter.execute(
+                                    context, characterId, "background_phone",
+                                    org.json.JSONObject()
+                                        .put("action", "launch")
+                                        .put("appName", name)
+                                        .put("sendToChat", true)
+                                        .put("caption", "后台虚拟屏自测 · " + name),
+                                    requestId = id + ":launch", userRequested = true))
+                            setupStatus = if (launched.optBoolean("success")) {
+                                "后台目标 App 已在独立屏核实（ID=${launched.optInt("displayId")}）；" +
+                                    if (launched.optBoolean("sentToChat"))
+                                        "真实后台截图已发到角色私聊"
+                                    else "真实屏已读取但图片发送失败：" +
+                                        launched.optString("shareError").take(90)
+                            } else {
+                                "后台启动未通过真实核验：" +
+                                    launched.optString("error").ifBlank {
+                                        launched.optString("verification", launched.optString("status"))
+                                    }.take(150)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        setupStatus = "后台屏真机自测失败：" + e.message.orEmpty().take(160)
+                    } finally { setupBusy = false }
+                }
+            }) { Text(if (setupBusy) "自测中…" else "测试独立后台屏并发真实截图") }
             TextButton(enabled = !setupBusy, onClick = {
                 setupBusy = true
                 scope.launch {
