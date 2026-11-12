@@ -683,9 +683,18 @@ class InMemoryLuluChatStore : LuluChatStore {
         ) }
         val next = state.value.filterNot { it.id in ids }.toMutableList()
         next.addAll(insertion, replacements)
+        val previousMessages = state.value
+        val previousConversations = conversationState.value
         state.value = next
         refreshConversationLocked(conversationId)
-        persistLocked()
+        try {
+            persistLocked(durable = true)
+        } catch (failure: Throwable) {
+            state.value = previousMessages
+            conversationState.value = previousConversations
+            throw failure
+        }
+        // External source rebinding and timeline removal must only follow a durable replacement.
         CommitmentTaskStore.rebindReplySources(ids, replacements.first().id)
         originals.forEach { old ->
             SharedExperienceTimeline.deleteConversationMessage(conversation, old.id)
