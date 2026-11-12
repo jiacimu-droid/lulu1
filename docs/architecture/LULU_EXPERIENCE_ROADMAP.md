@@ -4,6 +4,8 @@
 
 **主接力顺序：人物活人感与履约 P → 自主社交 S → 其他体验。** 数据损坏风险与全局严重卡顿可插队。人物、双游戏专项按各自范围并行，游戏先打通第一段完整游玩，再扩内容。所有代理从 AGENTS.md 读规范，从本页 §一点五 领任务，从专项进度查历史证据。
 
+**2026-11-12 P-08c.2 私聊重建回归（CI 待验）**：新增 [a964c4f](https://github.com/jiacimu-droid/lulu1/commit/a964c4f269a1da200aa28fef0b5406e3c9c9ef6b) `QqReplySourceWatermarkTest.completedPrivateToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble`，真实 `ToolRouter.send_private_message` 首次送达后重新初始化 ChatStore，使用相同 requestId、不同诊断 trace 重放，核对原回执、真实消息 ID、内容及新旧 Store 不重复。仅新增 JVM 回归，未改生产逻辑；本 SHA 的 main push Actions 尚未查得终态，不能勾工程完成。下一轮直接核该测试的 APK/JVM 首错和 Refresh code index，失败修复同一夹具/根因；通过后核 P-08c.2 取消期间副动作交付边界。进程强杀、真实模型和真机仍待验。
+
 ## 一、每次接力执行协议（含每小时自动开发）
 
 1. **刷新**：先读最新 main 的 AGENTS.md、CODE_INDEX.md、本页、专项进度最近记录，以及所涉源码/测试/Actions。旧记录里的 pending、cancelled 和 failure 不等于最新提交的结论；当前安装版与 GitHub main 分开判断。
