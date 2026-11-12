@@ -692,6 +692,23 @@ object CharacterLifeStore {
             character.displayName !in CharacterProfileSchema.jiangDuNames) return
         if (DigitalLifeProfileStore.lifeForm(characterId) == CharacterLifeForm.REAL_WORLD) return
         val profile = root.optJSONObject("profile") ?: JSONObject()
+        // A same-named, separately created character is not the bundled person.
+        // In particular, a sparse v29 import with only custom text is not proof
+        // that the current stock persona belongs to it. Do not fill in missing
+        // factory fields or rewrite its profile just because its name matches.
+        // An older real preset still migrates when there is actual stock or
+        // preserved migration evidence; intentionally edited fields still win.
+        if (characterId != BUNDLED_JIANG_DU_ID && version >= 29) {
+            val knownStock = CharacterProfileSchema.jiangDuV29Overrides.any { (key, text) ->
+                profile.has(key) && profile.optString(key) == text
+            } || CharacterProfileSchema.jiangDuApprovedOverrides.any { (key, text) ->
+                profile.has(key) && profile.optString(key) == text
+            } || character.persona in setOf(
+                CharacterProfileSchema.jiangDuV29Persona,
+                CharacterProfileSchema.jiangDuV30Persona,
+            ) || root.has("jiangDuV9Backup")
+            if (!knownStock) return
+        }
         if (!root.has("jiangDuV9Backup")) {
             root.put("jiangDuV9Backup", JSONObject()
                 .put("previousVersion", version)
