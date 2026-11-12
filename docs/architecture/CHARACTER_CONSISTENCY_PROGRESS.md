@@ -1,3 +1,8 @@
+## 2026-11-13 · UI-02.2 恢复拒写测试 CI 首错与修正
+
+- [main push JVM/APK #43282783369](https://github.com/jiacimu-droid/lulu1/actions/runs/43282783369) 运行 `c73d6dc` 失败：2942 测试、1 失败、1 跳过；`rejectedArchiveAndCompensationCannotReportFavoriteRemovalSuccess` 第336行 `rejectedRecoveryCommits` 预期 1、实际 0。原 [Refresh code index #43282783228](https://github.com/jiacimu-droid/lulu1/actions/runs/43282783228) 成功。失败由测试包装器未覆写 `applicationContext` 导致，正式 `InMemoryLuluChatStore.initialize` 取 `context.applicationContext.getSharedPreferences`，所以注入没有命中；并非已证生产恢复缺陷。
+- [8f90d83](https://github.com/jiacimu-droid/lulu1/commit/8f90d83bf1a5ce19418fce397e1549efadd30696) 仅修复测试夹具，`ContextWrapper.getApplicationContext()` 返回自身，使恢复提交拒写确实注入；未修改生产代码。新提交 JVM/APK/索引待验，不标完成。下一轮先核该提交或包含它的后继 main push 测试首错；真机强杀、收藏语音与真正跨 Store 原子性仍待验。
+
 ## 2026-11-13 · UI-02.2 收藏档案拒写后的保守恢复
 
 - 生产 [`10eab60`](https://github.com/jiacimu-droid/lulu1/commit/10eab60adb1d2aa0359085d1a93dfd5e978ac768)：聊天 Store 冷启动时，以仍存在的独立收藏档案修复聊天 false 收藏标记；先提交持久聊天快照再发布修复后的投影。恢复提交拒绝则保留旧投影，下一次启动仍可重试，不触碰档案和语音文件。
