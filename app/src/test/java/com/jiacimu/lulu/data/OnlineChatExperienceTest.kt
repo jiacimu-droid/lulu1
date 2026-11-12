@@ -553,6 +553,11 @@ class OnlineChatExperienceTest {
             role, boundary, start.plusSeconds(300).plusMillis(50)))
         assertFalse(CompanionOnlineStore.claimOnlineExpiry(
             role, boundary, start.plusSeconds(300).plusMillis(100)))
+        // The UI may display "processing the actual expiry decision" while
+        // the single claimed worker is running. This is NOT another lease.
+        assertEquals(boundary, CompanionOnlineStore.expiryReviews.value[role])
+        assertFalse(CompanionOnlineStore.states.value.getValue(role)
+            .isOnline(start.plusSeconds(300).plusMillis(100)))
 
         // A reasoned, explicit role choice renews ONLY one five-minute window.
         val chosenAt = start.plusSeconds(301)
@@ -563,6 +568,8 @@ class OnlineChatExperienceTest {
         val next = CompanionOnlineStore.states.value.getValue(role)
         assertEquals(CompanionOnlineReason.SelfChosenExtension, next.reason)
         assertEquals(chosenAt.plusSeconds(300), next.onlineUntil)
+        CompanionOnlineStore.finishOnlineExpiryReview(role, boundary)
+        assertFalse(role in CompanionOnlineStore.expiryReviews.value)
 
         // A stale expiry worker cannot erase or renew the new interval.
         assertFalse(CompanionOnlineStore.claimOnlineExpiry(
@@ -590,6 +597,8 @@ class OnlineChatExperienceTest {
             role, oldUntil, "旧决定不应该生效", start.plusSeconds(304)))
         assertEquals(start.plusSeconds(603),
             CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+        CompanionOnlineStore.finishOnlineExpiryReview(role, oldUntil)
+        assertFalse(role in CompanionOnlineStore.expiryReviews.value)
     }
 
     @Test fun manyBubblesAndWakeSignalsCannotEnqueueTheSamePaidReplyFourTimes() {
