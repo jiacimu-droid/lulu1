@@ -159,6 +159,12 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("本人已选择关闭后台屏幕")
                 return Outcome(history.toString().takeLast(5_000), image, true, count)
             }
+            if (action == "start" && result.optBoolean("success") && image == null) {
+                // Creating a display intentionally has no app pixels. Do not
+                // classify it as "stuck" before the same role can launch an app.
+                history.appendLine("后台屏创建成功，但尚无应用画面；可由本人接着选择明确的launch")
+                continue
+            }
             // Never keep blindly tapping without a real frame. But if a
             // declared expectedText is absent while a genuine owned-display
             // frame WAS returned, the same role can inspect the discrepancy
