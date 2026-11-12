@@ -428,7 +428,8 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
                 .maxByOrNull { it.createdAt }?.let { source ->
                     LuluRepositories.performance.recordTiming("消息到首条回复入库",
                         java.time.Duration.between(source.createdAt, created.createdAt).toMillis(),
-                        "会话=$conversationId；用户消息=${source.id}；回复=${created.id}")
+                        "首条真实气泡已入库；不含屏幕渲染耗时",
+                        traceId = diagnosticTurnTraceId)
                 }
         }
         // Only actual delivered bubbles influence the character's future
