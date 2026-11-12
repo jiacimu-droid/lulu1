@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:18:36.741374+00:00",
-  "commit": "099c0f64f65160ce0e91e4b77fab83b64b4f655b",
+  "generatedAt": "2026-11-12T10:19:35.393984+00:00",
+  "commit": "8ebbd21841fc9c43137b73358342a5574fba2b53",
   "branch": "main",
-  "sourceFingerprint": "de2290f6444d050dc1efb55806e165cd2d285adda759bb2d3d73ccfbe2d903a1",
+  "sourceFingerprint": "d79fe20ed8dd4621d85179eb688c5fcfd3d3f5646e80f50bab07bfcc0b107892",
   "summary": {
     "files": 1274,
-    "lines": 268715,
+    "lines": 268722,
     "symbols": 3804
   },
   "symbolIndex": {
@@ -745,7 +745,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 62
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -1749,7 +1749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "commit": [
@@ -14187,7 +14187,7 @@
     "cycle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "awardCompleted": [
@@ -35323,20 +35323,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 66,
-      "sha256": "b7165904efb2f110c7bfea3009c577b33387d5d0cdb864f04efd938510de2d81",
+      "lines": 67,
+      "sha256": "f155651f0adbe619dfd757b8eb9b72cd2426e5f6a4ac7762e6c62a436c8170c4",
       "symbols": [
         {
           "name": "preview",
-          "line": 31
+          "line": 32
         },
         {
           "name": "cycle",
-          "line": 57
+          "line": 58
         },
         {
           "name": "label",
-          "line": 62
+          "line": 63
         }
       ]
     },
@@ -35584,8 +35584,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt",
-      "lines": 88,
-      "sha256": "fb7d40990fc56ec42def014ab57679d8912ce09d37acbe9d87225892525f1465",
+      "lines": 94,
+      "sha256": "eba78ff85aabf52777cc6b7f9a1265cce8f092c7e64c01d33a7fabb96f0b6b79",
       "symbols": []
     },
     {
