@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T01:58:27.832420+00:00",
-  "commit": "fad0c8c840bce7755b022f4ba7255632ebe6cb16",
+  "generatedAt": "2026-11-12T01:59:58.649556+00:00",
+  "commit": "0380dcfa463419b7258ee28b27845275a18bdae9",
   "branch": "main",
-  "sourceFingerprint": "fdb7777141c3b762cfe770c1b486c252614eb9c75592ee37624dfd1fd97d9ce5",
+  "sourceFingerprint": "eb5fbd2510953265848ab29fe117b5b90c636f2ab07224f48d33eee42a2c29f0",
   "summary": {
-    "files": 1210,
-    "lines": 261197,
-    "symbols": 3652
+    "files": 1211,
+    "lines": 261248,
+    "symbols": 3655
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5986,6 +5986,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
         "line": 159
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -15794,6 +15798,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
         "line": 1563
+      }
+    ],
+    "LaunchableApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+        "line": 15
+      }
+    ],
+    "exactPackage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+        "line": 18
       }
     ],
     "candidateHosts": [
@@ -36578,6 +36594,25 @@
         {
           "name": "staleReplyExpression",
           "line": 1563
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+      "lines": 51,
+      "sha256": "9334dacaafdebc3d24dcfdd241f7a6895c9b2d2158f3403a4c57688d6fc44a80",
+      "symbols": [
+        {
+          "name": "LaunchableApp",
+          "line": 15
+        },
+        {
+          "name": "exactPackage",
+          "line": 18
+        },
+        {
+          "name": "resolve",
+          "line": 34
         }
       ]
     },
