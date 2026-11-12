@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T09:44:54.832397+00:00",
-  "commit": "14748007de85be0636482855c08696e64ac2f0e8",
+  "generatedAt": "2026-11-12T09:45:33.406819+00:00",
+  "commit": "3148f5a559ab93592144b2caea834371498f3d74",
   "branch": "main",
-  "sourceFingerprint": "cd20b763096caafdf98fcb35545eca7354435c4819d3d84ff13f121fa6a0d0e1",
+  "sourceFingerprint": "5367f5295202775bd17480a89b379f7bd15604f47cffe624c145480feb1b73b6",
   "summary": {
     "files": 1272,
-    "lines": 268390,
+    "lines": 268394,
     "symbols": 3792
   },
   "symbolIndex": {
@@ -37517,8 +37517,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
-      "lines": 96,
-      "sha256": "3d8127911b48a8c487c140624d12f664945d72d0006a01f727b9252eb9e2e1f8",
+      "lines": 100,
+      "sha256": "803535465b01731a6b83cbd936c1b74a1e030732962d521e7fc0ee8a25d76ad1",
       "symbols": [
         {
           "name": "show",
