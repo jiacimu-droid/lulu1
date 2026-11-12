@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T21:40:57.871750+00:00",
-  "commit": "02872a391b07610a5f36f6a17b8034498c910f02",
+  "generatedAt": "2026-11-12T21:57:06.976485+00:00",
+  "commit": "6f73d9e43c5f49c010a2a7193b59349ce13a63b8",
   "branch": "main",
-  "sourceFingerprint": "53a6923bc46d87c37f7ec2aa201dfae6add8e9dafd0399844f29cf036eafeb75",
+  "sourceFingerprint": "22dd9d755fe8e593977ef6f8df08ef44deff1e116320cd61664ebac0d8affbcd",
   "summary": {
     "files": 1283,
-    "lines": 271476,
+    "lines": 271479,
     "symbols": 3841
   },
   "symbolIndex": {
@@ -7965,7 +7965,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 64
+        "line": 66
       }
     ],
     "renderWithBody": [
@@ -14891,19 +14891,19 @@
     "glintCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "beamCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 49
+        "line": 51
       }
     ],
     "flashStrength": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 58
+        "line": 60
       }
     ],
     "committed": [
@@ -36275,24 +36275,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 283,
-      "sha256": "d5c2078b93a052dcb3f679533038bc7b71738541a880126d95417dd476cbc132",
+      "lines": 286,
+      "sha256": "7fd1d8be5d001ecf38e699c92e17c1c0b0649a8cd41c2301909f35c594f9759c",
       "symbols": [
         {
           "name": "glintCount",
-          "line": 42
+          "line": 44
         },
         {
           "name": "beamCount",
-          "line": 49
+          "line": 51
         },
         {
           "name": "flashStrength",
-          "line": 58
+          "line": 60
         },
         {
           "name": "at",
-          "line": 64
+          "line": 66
         }
       ]
     },
