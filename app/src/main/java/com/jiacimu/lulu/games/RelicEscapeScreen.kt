@@ -437,12 +437,18 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val attackTarget = relicAttackTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
-                    .minByOrNull { RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) }
+                    .sortedWith(compareByDescending<RelicMob> { it.windup }
+                        .thenBy { RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) })
+                    .firstOrNull()
                 if (visibleThreat != null) {
                     val name = RelicArsenal.monsterName(visibleThreat.kind)
                     Text(if (visibleThreat.windup)
-                        "⚠ $name 正在蓄力！及时格挡，或用短剑贴身打断"
-                        else "$name · 生命${visibleThreat.hp} · 预计造成${RelicArsenal.damage(run, visibleThreat)}伤害",
+                        "⚠ $name 正在蓄力！"+
+                            (if(RelicEscapeRules.enemyThreatRange(visibleThreat)==2)
+                                "直线2格内危险；" else "")+
+                            "移动躲避、格挡或贴身打断"
+                        else "$name · 生命${visibleThreat.hp} · 攻击伤害"+
+                            (visibleThreat.kind+1+run.difficulty.incomingDamage).coerceAtLeast(1),
                         color = if (visibleThreat.windup) relicRed else relicGreen,
                         fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 2)
                 }
