@@ -16,6 +16,7 @@ import com.jiacimu.lulu.data.CharacterLearningAgenda
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import java.time.ZoneId
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -334,6 +335,11 @@ private fun BackgroundPhoneOwnerViewer(characterId: String) {
         }
     }
 
+    // Opening the owner viewer is an explicit, one-shot request for a real
+    // background frame; live polling remains off until separately enabled.
+    LaunchedEffect(visible, characterId) {
+        if (visible) refreshFrame()
+    }
     // No polling at all unless the owner explicitly enables it, and none
     // after navigation / activity pause. No additional model API call.
     LaunchedEffect(visible, live, isForeground, characterId) {
