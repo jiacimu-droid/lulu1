@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T16:51:30.875314+00:00",
-  "commit": "401e375f941eb614408a4b0025fe28591aae94be",
+  "generatedAt": "2026-11-12T16:54:05.427262+00:00",
+  "commit": "aecf7627bbb156930aa0ee5a58e954f41c98e23b",
   "branch": "main",
-  "sourceFingerprint": "d7eb25835f03b3daf8edd1cdf67b8503089425492ce7318ba7350c12c0772d76",
+  "sourceFingerprint": "6e3e97348c20401e96e31d4051ff63bd8dbc7d900bf102fedf15dee5b48a8c4a",
   "summary": {
     "files": 1283,
-    "lines": 271273,
+    "lines": 271280,
     "symbols": 3839
   },
   "symbolIndex": {
@@ -11783,19 +11783,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 743
+        "line": 750
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 745
+        "line": 752
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3533
+        "line": 3540
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -32472,8 +32472,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3600,
-      "sha256": "0c22cb33d0215f5e59ed8a42bc157f519a448fbfdce2afe1159d1dc1e6fb7de5",
+      "lines": 3607,
+      "sha256": "ca2bc4a7d761fe2f11b690bc9d37483881b1f0f4a8c2394d04fc02f66a46fcd3",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32497,15 +32497,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 743
+          "line": 750
         },
         {
           "name": "deferSupersededDecision",
-          "line": 745
+          "line": 752
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3533
+          "line": 3540
         }
       ]
     },
