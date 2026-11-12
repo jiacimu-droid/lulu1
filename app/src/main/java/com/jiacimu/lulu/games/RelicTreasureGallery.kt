@@ -63,10 +63,20 @@ internal object RelicTreasureGallery {
             "可在藏宝馆展出并分享；乐器互动功能仍待接入"
         else -> "可在藏宝馆展出、鉴赏并分享"
     }
+    /** A stable material accent for the item, shared by reveal and permanent gallery. */
+    fun accent(loot:RelicLoot):Color = when(RelicCollectibles.displayRank(loot)) {
+        "精良" -> Color(0xFFB6D9C8)
+        "稀有" -> Color(0xFFB5D5E8)
+        "珍贵" -> Color(0xFFE9D0A1)
+        "史诗" -> Color(0xFFD4C0EF)
+        "传说" -> Color(0xFFF1C5D3)
+        "传世秘宝" -> Color(0xFFFFE4A3)
+        else -> Color(0xFFC8C4B9)
+    }
     fun shareText(loot:RelicLoot):String =
         "我在《迷雾摸金》带回了「${loot.name}」！\n"+
         identity(loot.name)+"\n"+
-        "收藏品级：${loot.tier.label} · 鉴定价值：${loot.value}\n"+
+        "收藏品级：${RelicCollectibles.displayRank(loot)} · 鉴定价值：${loot.value}\n"+
         "这件珍宝已经真实收入我的藏宝馆。"
 }
 
@@ -99,11 +109,7 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
     // This local-only view state never changes the collection or the displayed
     // item. Both close-up and inventory use the same actual RelicLoot.id/name.
     var inspecting by remember(loot.id) { mutableStateOf(false) }
-    val accent=when(loot.tier) {
-        RelicTier.COMMON -> Color(0xFFC8C4B9)
-        RelicTier.RARE -> Color(0xFFB4CDD6)
-        RelicTier.PRECIOUS -> Color(0xFFDBC7A4)
-    }
+    val accent=RelicTreasureGallery.accent(loot)
     Surface(shape=RoundedCornerShape(16.dp),color=Color(0xFF171D27),
         border=BorderStroke(1.dp,accent.copy(alpha=if(featured).52f else .24f))) {
         Column(Modifier.fillMaxWidth().padding(15.dp),
@@ -122,7 +128,7 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
                 fontWeight=FontWeight.Bold)
             Text(RelicTreasureGallery.identity(loot.name),
                 color=Color(0xFFCCD1D5),fontSize=12.sp,lineHeight=18.sp)
-            Text("${loot.tier.label}珍藏 · 鉴定价值 ${loot.value}",
+            Text("${RelicCollectibles.displayRank(loot)}珍藏 · 鉴定价值 ${loot.value}",
                 color=accent,fontSize=11.sp)
             Text(RelicTreasureGallery.useHint(loot.name),
                 color=Color(0xFFA9B3B5),fontSize=10.sp)
@@ -150,7 +156,7 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
                     Text(RelicTreasureGallery.identity(loot.name),
                         color=Color(0xFFCCD6D6),fontSize=13.sp,
                         lineHeight=19.sp)
-                    Text("${loot.tier.label} · 馆藏实物 · 鉴定价值 ${loot.value}",
+                    Text("${RelicCollectibles.displayRank(loot)} · 馆藏实物 · 鉴定价值 ${loot.value}",
                         color=accent,fontSize=11.sp)
                     TextButton(onClick={inspecting=false}) {
                         Text("收起鉴赏",color=accent,fontSize=13.sp)
