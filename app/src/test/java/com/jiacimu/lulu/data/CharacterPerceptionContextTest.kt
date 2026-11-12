@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.retractCharacterMessage
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -574,6 +575,57 @@ class CharacterPerceptionContextTest {
             assertFalse(PerceptionStimulusLedger.hasSeen(app, role, id, 2L))
         } finally {
             SharedExperienceTimeline.deleteEvent(id)
+            PerceptionStimulusLedger.clear(role)
+        }
+    }
+
+    @Test fun pendingPerceptionSkipsReceiptsWhoseGroupEvidenceWasRecalled() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        com.jiacimu.lulu.LuluRepositories.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val role = MigratedDomainStores.characters.create("后台观察者").characterId
+        val peer = MigratedDomainStores.characters.create("原发言人").characterId
+        val chat = MigratedDomainStores.chat
+        val group = chat.createGroupConversation("来源复核", listOf(role, peer))
+        val withdrawn = chat.appendCharacterMessage(group.id, "撤回的候选地址", peer)
+        val retained = chat.appendCharacterMessage(group.id, "有效的候选地址", peer)
+        val withdrawnSource = "${withdrawn.id}:group:$role"
+        val retainedSource = "${retained.id}:group:$role"
+        val withdrawnReceipt = "$role-withdrawn-result"
+        val retainedReceipt = "$role-retained-result"
+        val recordedAt = Instant.now()
+        val now = recordedAt.plusSeconds(1)
+        fun recordReceipt(id: String, sourceId: String, summary: String) {
+            val payload = org.json.JSONObject().put("success", true)
+                .put("summary", summary).put("evidenceId", sourceId)
+            val outcome = org.json.JSONObject().put("tool", "web_search")
+                .put("status", "observed").put("result", payload.toString())
+            SharedExperienceTimeline.record(id, role, "实际工具执行", "执行器",
+                outcome.toString(), recordedAt, triggerExtraction = false,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        try {
+            recordReceipt(withdrawnReceipt, withdrawnSource, "已撤回的地址引用")
+            recordReceipt(retainedReceipt, retainedSource, "仍有效的地址引用")
+            val both = setOf(withdrawnReceipt, retainedReceipt)
+            fun pending() = CharacterPerceptionContext.pending(app, role, now).filter { it.id in both }
+            assertEquals(both, pending().map { it.id }.toSet())
+            assertTrue(chat.retractCharacterMessage(withdrawn.id, "原发言人"))
+            assertEquals(listOf(retainedReceipt), pending().map { it.id })
+            val recent = CharacterPerceptionContext.recent(role, now).filter { it.id in both }
+            assertEquals(listOf(retainedReceipt), recent.map { it.id })
+            val frame = CharacterPerceptionContext.render(role, pending())
+            assertTrue(frame.contains("仍有效的地址引用"))
+            assertFalse(frame.contains("已撤回的地址引用"))
+            assertFalse(PerceptionStimulusLedger.hasSeen(app, role, withdrawnReceipt, 1L))
+            assertEquals(both + withdrawnSource, SharedExperienceTimeline.eventsByIds(
+                role, both + withdrawnSource,
+            ).map { it.id }.toSet())
+        } finally {
+            chat.deleteConversation(group.id)
+            SharedExperienceTimeline.deleteEvent(withdrawnReceipt)
+            SharedExperienceTimeline.deleteEvent(retainedReceipt)
             PerceptionStimulusLedger.clear(role)
         }
     }

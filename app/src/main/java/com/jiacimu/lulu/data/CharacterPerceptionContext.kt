@@ -86,12 +86,25 @@ internal object CharacterPerceptionContext {
 
     fun recent(characterId: String, now: Instant = Instant.now(), limit: Int = 12): List<SharedTimelineEvent> {
         val events = SharedExperienceTimeline.recentEvents(characterId, 160)
-        val referenced = events.mapNotNull { outcomeEvidenceId(it.source, it.content) }.distinct()
-        val live = SharedExperienceTimeline.eventsByIds(characterId, referenced).mapTo(hashSetOf()) { it.id }
-        return selectRecent(events.filter { event ->
-            val sourceId = outcomeEvidenceId(event.source, event.content)
-            sourceId == null || sourceId == event.id || sourceId in live
-        }, now, limit)
+        return selectRecent(withLiveOutcomeEvidence(characterId, events), now, limit)
+    }
+
+    /** A result can remain in the raw ledger after its backing observation is
+     * removed or recalled. Its payload is no longer fresh evidence. */
+    private fun withLiveOutcomeEvidence(
+        characterId: String, events: List<SharedTimelineEvent>,
+    ): List<SharedTimelineEvent> {
+        val backingByReceipt = events.mapNotNull { event ->
+            outcomeEvidenceId(event.source, event.content)
+                ?.takeUnless { it == event.id }?.let { event.id to it }
+        }.toMap()
+        if (backingByReceipt.isEmpty()) return events
+        val live = SharedExperienceTimeline.withoutRecalledGroupSpeech(
+            SharedExperienceTimeline.eventsByIds(characterId, backingByReceipt.values),
+        ).mapTo(hashSetOf()) { it.id }
+        return events.filter { event ->
+            backingByReceipt[event.id]?.let { it in live } ?: true
+        }
     }
 
     fun outcomeEvidenceId(source: String, content: String): String? {
@@ -188,13 +201,11 @@ internal object CharacterPerceptionContext {
             val page = SharedExperienceTimeline.perceptionPage(
                 characterId, now, after?.occurredAt, after?.id.orEmpty(), pageSize)
             if (page.isEmpty()) break
-            for (event in page) {
-                if (isPerceptible(event, now) &&
-                    !PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)) {
-                    unhandled.add(event)
-                    if (unhandled.size == 12) break
-                }
+            val unread = page.filter { event ->
+                isPerceptible(event, now) &&
+                    !PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)
             }
+            unhandled += withLiveOutcomeEvidence(characterId, unread).take(12 - unhandled.size)
             after = page.last()
             if (page.size < pageSize) break
         }
