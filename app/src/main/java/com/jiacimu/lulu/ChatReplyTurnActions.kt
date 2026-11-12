@@ -43,3 +43,23 @@ internal fun excludedReplyTimelineIds(
 ): Set<String> = generatedMessageIds.flatMapTo(mutableSetOf()) {
     listOf(it, "$it:group:$characterId")
 }
+
+/**
+ * A fresh reply consumes the original inbound burst exactly ONCE: the last
+ * user's messages are input, not both "history" and "new text".
+ */
+internal data class FreshReplyWindow(
+    val earlierHistory: List<LuluChatMessage>,
+    val incomingMessages: List<LuluChatMessage>,
+)
+
+internal fun freshReplyWindow(
+    messages: List<LuluChatMessage>, generatedMessageIds: Collection<String>,
+): FreshReplyWindow {
+    val before = replyHistoryBeforeTurn(messages, generatedMessageIds)
+    val incoming = before.takeLastWhile { it.sender != LuluChatMessage.Sender.Character }
+    return FreshReplyWindow(
+        earlierHistory = before.dropLast(incoming.size),
+        incomingMessages = incoming,
+    )
+}

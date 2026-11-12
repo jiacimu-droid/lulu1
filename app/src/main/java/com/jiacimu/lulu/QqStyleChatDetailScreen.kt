@@ -540,11 +540,10 @@ fun QqStyleChatDetailScreen(
         val ids = turn.generatedMessageIds.toSet()
         val roleId = message.authorCharacterId ?: characterId
         val targetRole = MigratedDomainStores.characters.get(roleId)
-        val precedingMessages = replyHistoryBeforeTurn(snapshot, turn.generatedMessageIds)
-        val history = buildBoundedHistory(precedingMessages, targetRole.displayName,
+        val window = freshReplyWindow(snapshot, turn.generatedMessageIds)
+        val history = buildBoundedHistory(window.earlierHistory, targetRole.displayName,
             characters.mapValues { it.value.displayName })
-        val originalUserText = precedingMessages
-            .takeLastWhile { it.sender != LuluChatMessage.Sender.Character }
+        val originalUserText = window.incomingMessages
             .filter { it.sender == LuluChatMessage.Sender.User }
             .joinToString("\n") { it.content }
         val observationId = "interaction-reanswer-${java.util.UUID.randomUUID()}"

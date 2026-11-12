@@ -28,6 +28,9 @@ class ChatReplyTurnActionsTest {
         val before = replyHistoryBeforeTurn(snapshot, turn.generatedMessageIds)
         assertEquals(listOf("user-5"), before.map { it.id })
         assertTrue(before.none { it.id in turn.generatedMessageIds })
+        val fresh = freshReplyWindow(snapshot, turn.generatedMessageIds)
+        assertTrue(fresh.earlierHistory.isEmpty())
+        assertEquals(listOf("user-5"), fresh.incomingMessages.map { it.id })
         assertEquals(setOf("old-bubble-1", "old-bubble-2",
             "old-bubble-1:group:role-1", "old-bubble-2:group:role-1"),
             excludedReplyTimelineIds(turn.generatedMessageIds, "role-1"))
