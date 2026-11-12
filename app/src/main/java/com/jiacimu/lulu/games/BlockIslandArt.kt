@@ -407,6 +407,27 @@ internal object BlockIslandArt {
             val p = origin(buildPreview.x, buildPreview.y)
             val ok = buildPreview.allowed
             val tint = if (ok) Color(0xFF91F0B3) else Color(0xFFFF9588)
+            if(buildPreview.action in setOf("house_warm","house_pine")) {
+                // Blueprints preview the actual 3×3 footprint instead of
+                // misleadingly highlighting only the chosen top-left cell.
+                drawRoundRect(tint.copy(alpha=.18f),
+                    topLeft=p+Offset(tile*.04f,tile*.04f),
+                    size=Size(tile*2.92f,tile*2.92f),
+                    cornerRadius=CornerRadius(tile*.12f))
+                drawRoundRect(tint.copy(alpha=.88f),
+                    topLeft=p+Offset(tile*.04f,tile*.04f),
+                    size=Size(tile*2.92f,tile*2.92f),
+                    cornerRadius=CornerRadius(tile*.12f),
+                    style=Stroke((tile*.055f).coerceAtLeast(1.4f)))
+                // Each outline is a future tile that still needs wood and a
+                // deliberate physical step; none of these are real objects yet.
+                for (dx in 0..2) for (dy in 0..2) {
+                    drawRect(tint.copy(alpha=.34f),
+                        topLeft=p+Offset(tile*(dx+.07f),tile*(dy+.07f)),
+                        size=Size(tile*.86f,tile*.86f),
+                        style=Stroke((tile*.018f).coerceAtLeast(1f)))
+                }
+            }
             drawRoundRect(tint.copy(alpha = if(ok) .26f else .20f),
                 topLeft = p + Offset(tile*.06f,tile*.06f),
                 size = Size(tile*.88f,tile*.88f), cornerRadius = CornerRadius(tile*.11f))
