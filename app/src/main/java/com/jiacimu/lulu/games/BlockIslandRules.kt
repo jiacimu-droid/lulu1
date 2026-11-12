@@ -464,16 +464,24 @@ internal object BlockIslandRules {
                 val animal=s.animals.firstOrNull { it.x==tx && it.y==ty && !it.befriended }
                     ?:return reject("这里没有等待结识的动物")
                 if (!near()) return reject("靠近小动物再送食物")
+                if (w.turns-animal.lastFedTurn<4)
+                    return reject("${IslandWildlife.name(animal.species)}刚吃饱，陪它探索至少4步再来")
                 if (!IslandWildlife.canFeed(s,animal))
                     return reject("结识${IslandWildlife.name(animal.species)}需要${IslandWildlife.feed(animal.species)}")
+                val nextTrust=(animal.trust+1).coerceAtMost(IslandWildlife.requiredFeeds(animal.species))
+                val friendsNow=nextTrust>=IslandWildlife.requiredFeeds(animal.species)
                 next=s.copy(
                     fruit=s.fruit-if(animal.species=="hare")1 else 0,
                     fish=s.fish-when(animal.species){"duck"->1;"fox"->2;else->0},
                     animals=s.animals.map { if(it.id==animal.id)
-                        it.copy(befriended=true,lastGiftTurn=w.turns) else it },
+                        it.copy(trust=nextTrust,lastFedTurn=w.turns,
+                            befriended=friendsNow,
+                            lastGiftTurn=if(friendsNow)w.turns else it.lastGiftTurn) else it },
                     discoveredSpecies=s.discoveredSpecies+animal.species,
                 )
-                message="✦ ${IslandWildlife.name(animal.species)}成为家园伙伴！以后会跟随你，陪伴一段时间可带来小礼物"
+                message=if(friendsNow)
+                    "✦ ${IslandWildlife.name(animal.species)}终于信任你了！它愿意跟随你回家"
+                else "${IslandWildlife.name(animal.species)}慢慢放下戒心（${nextTrust}/${IslandWildlife.requiredFeeds(animal.species)}），过几步再喂它"
             }
             "care" -> {
                 val animal=s.animals.firstOrNull { it.x==tx && it.y==ty && it.befriended }
