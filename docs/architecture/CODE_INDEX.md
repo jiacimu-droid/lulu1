@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dd485d09abeb75ab9d3f086848fa344aa0fbe8f9`
+- 基准提交：`6691df88d0d901ee4442ac875ce5807dd2513a05`
 - 分支：`main`
 - 已索引文件：1270
-- 已索引代码/文本行：268096
-- 已发现符号：3786
+- 已索引代码/文本行：268203
+- 已发现符号：3787
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -254,7 +254,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1018 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 844 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 871 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -1047,7 +1047,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 1983 | 38 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2063 | 39 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
