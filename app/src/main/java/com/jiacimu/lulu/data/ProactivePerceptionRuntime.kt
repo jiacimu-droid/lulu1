@@ -2711,7 +2711,9 @@ object ProactivePerceptionRuntime {
                 character.characterId, actionRequestId)
             if (frame == null && !(actionArgs.optString("action") == "start" &&
                     actual.optBoolean("success"))) return null
-            if (supersededByNewMessage()) return "后续暂缓：用户有更新消息，需要本人重新选择"
+            if (acceptedOnlineRevision != null &&
+                !OnlineChatBatchStore.isCurrent(appContext, character.characterId,
+                    acceptedOnlineRevision)) return "后续暂缓：用户有更新消息，需要本人重新选择"
             val outcome = com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation.continueFrom(
                 context = appContext, characterId = character.characterId,
                 connection = connection, title = character.displayName + "后台手机任务",
@@ -2751,10 +2753,7 @@ object ProactivePerceptionRuntime {
                 withContext(NonCancellable) { runTool() } else runTool()
         }
         if (tool == "background_phone") continueOwnedPhoneTask(
-            requestId, args, resultJson, decision.reason)?.let { phoneNote ->
-            // Added to effectNotes below, after the primary persisted receipt.
-            // A task continuation is not a new primary tool or fake delivery.
-        }
+            requestId, args, resultJson, decision.reason)
         val primaryDeliveredIds = resultJson.optJSONArray("deliveredMessageIds")?.let { ids ->
             (0 until ids.length()).mapNotNull { ids.optString(it).takeIf(String::isNotBlank) }
         }.orEmpty()
