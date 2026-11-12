@@ -15,6 +15,24 @@ class LuluScreenFrameHandoffTest {
         assertNull(LuluScreenFrameHandoff.take("role-a", "reply-a"))
     }
 
+    @Test fun abandonedFramesCannotGrowUnboundedAcrossRoles() {
+        LuluScreenFrameHandoff.clear()
+        for (i in 1..4) LuluScreenFrameHandoff.put("role-$i", "request-$i", frame)
+        assertNull(LuluScreenFrameHandoff.take("role-1", "request-1"))
+        for (i in 2..4) {
+            assertEquals(frame, LuluScreenFrameHandoff.take("role-$i", "request-$i"))
+        }
+    }
+
+    @Test fun lowMemoryEvictionDiscardsOldPixelsWithoutLeakingToNextTurn() {
+        LuluScreenFrameHandoff.clear()
+        LuluScreenFrameHandoff.put("role-a", "request-1", frame)
+        LuluScreenFrameHandoff.clear()
+        assertNull(LuluScreenFrameHandoff.take("role-a", "request-1"))
+        LuluScreenFrameHandoff.put("role-a", "request-2", frame)
+        assertEquals(frame, LuluScreenFrameHandoff.take("role-a", "request-2"))
+    }
+
     @Test fun newerObservationReplacesEarlierUnconsumedFrame() {
         LuluScreenFrameHandoff.put("role-a", "reply-old", frame)
         LuluScreenFrameHandoff.put("role-a", "reply-new", frame)

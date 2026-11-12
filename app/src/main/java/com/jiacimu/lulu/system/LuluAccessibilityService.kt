@@ -13,6 +13,7 @@ import org.json.JSONObject
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.Display
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -30,20 +31,42 @@ import java.time.Instant
  * Screen state is a readable context source only; screen changes no longer wake the AI runtime.
  */
 class LuluAccessibilityService : AccessibilityService() {
+    private val passiveEventBudget = LuluAccessibilityEventBudget()
+
     override fun onServiceConnected() {
+        passiveEventBudget.reset()
         instance = this
         mutableState.value = mutableState.value.copy(connected = true)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val packageName = event?.packageName?.toString().orEmpty()
-        if (packageName.isBlank()) return
-        val root = rootInActiveWindow
+        val source = event ?: return
+        // AccessibilityService callbacks run on the application's MAIN
+        // thread. Virtual apps can emit dozens of scroll/text/content events
+        // per second; traversing the entire tree for every one causes ANRs.
+        // Explicit role-owned observeDisplay() and owner screenshot requests
+        // are NOT throttled by this passive feed.
+        when (source.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            AccessibilityEvent.TYPE_WINDOWS_CHANGED,
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+            AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED,
+            AccessibilityEvent.TYPE_VIEW_SCROLLED,
+            AccessibilityEvent.TYPE_VIEW_CLICKED -> Unit
+            else -> return
+        }
+        val packageName = source.packageName?.toString().orEmpty()
+        if (!passiveEventBudget.shouldRead(packageName, SystemClock.uptimeMillis())) return
+        val root = rootInActiveWindow ?: return
+        // The event may originate from a different virtual display. Never
+        // label the owner's main-screen text as that virtual app's content.
+        val actualPackage = root.packageName?.toString().orEmpty()
+        if (actualPackage.isBlank() || actualPackage != packageName) return
         mutableState.value = AccessibilitySnapshot(
             connected = true,
-            packageName = packageName,
-            windowTitle = event?.contentDescription?.toString().orEmpty(),
-            visibleText = root.collectVisibleText().take(6_000),
+            packageName = actualPackage,
+            windowTitle = source.contentDescription?.toString()?.take(140).orEmpty(),
+            visibleText = root.collectVisibleText(maxNodes = 180, maxChars = 3_000),
             capturedAt = Instant.now(),
         )
     }
@@ -51,6 +74,7 @@ class LuluAccessibilityService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
+        passiveEventBudget.reset()
         if (instance === this) instance = null
         mutableState.value = AccessibilitySnapshot()
         super.onDestroy()
@@ -715,17 +739,36 @@ data class AccessibilitySnapshot(
 
 enum class LuluScreenAction { Back, Home, Recents, Notifications, QuickSettings }
 
-private fun AccessibilityNodeInfo?.collectVisibleText(): String {
-    if (this == null) return ""
+/** Hard cap both node visits AND emitted text. Some WebViews and feed
+ * pages expose thousands of unlabelled nodes: a limit on the number of unique
+ * text lines alone does not bound main-thread scanning or allocations. */
+private fun AccessibilityNodeInfo?.collectVisibleText(
+    maxNodes: Int = 420, maxChars: Int = 6_000,
+): String {
+    val root = this ?: return ""
     val lines = LinkedHashSet<String>()
-    fun walk(node: AccessibilityNodeInfo?) {
-        if (node == null || lines.size >= 300) return
-        if (node.isVisibleToUser) {
-            node.text?.toString()?.trim()?.takeIf(String::isNotBlank)?.let(lines::add)
-            node.contentDescription?.toString()?.trim()?.takeIf(String::isNotBlank)?.let(lines::add)
+    var visited = 0
+    var characters = 0
+    fun add(value: CharSequence?) {
+        if (value == null || characters >= maxChars) return
+        // Avoid materializing multi-megabyte Spannable/web text attributes.
+        val segment = value.subSequence(0, minOf(value.length, maxChars - characters + 1))
+            .toString().trim()
+        if (segment.isNotEmpty() && lines.add(segment)) {
+            characters += segment.length + 1
         }
-        for (index in 0 until node.childCount) walk(node.getChild(index))
     }
-    walk(this)
-    return lines.joinToString("\n")
+    fun walk(node: AccessibilityNodeInfo?, depth: Int) {
+        if (node == null || depth > 24 || visited++ >= maxNodes ||
+            characters >= maxChars) return
+        if (!node.isVisibleToUser) return
+        add(node.text)
+        add(node.contentDescription)
+        for (index in 0 until node.childCount) {
+            if (visited >= maxNodes || characters >= maxChars) break
+            walk(node.getChild(index), depth + 1)
+        }
+    }
+    walk(root, 0)
+    return lines.joinToString("\n").take(maxChars)
 }
