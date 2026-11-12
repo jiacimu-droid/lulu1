@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f7e83df6f4ac85d4adc73eba583607198ae8c350`
+- 基准提交：`3d3c8e50335ada827e2d279d1c868ae428605daf`
 - 分支：`main`
 - 已索引文件：1222
-- 已索引代码/文本行：262727
-- 已发现符号：3670
+- 已索引代码/文本行：262809
+- 已发现符号：3673
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -760,12 +760,12 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 370 | 20 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 419 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 184 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 61 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 467 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 480 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2348 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -779,12 +779,12 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 19 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 291 | 2 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 299 | 2 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
@@ -1218,7 +1218,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
