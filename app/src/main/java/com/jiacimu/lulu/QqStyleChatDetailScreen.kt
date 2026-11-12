@@ -183,7 +183,8 @@ fun QqStyleChatDetailScreen(
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
     val privateOnline = onlineStates[characterId]?.isOnline() == true
-    val privateExpiryReview = !privateOnline && characterId in expiryReviews
+    val privateRoleWorking = actualActivities.values.any { it.characterId == characterId }
+    val privateExpiryReview = characterId in expiryReviews
     val listState = rememberLazyListState()
     // Chat-window history window (keyboard-lag follow-up): the raw record
     // stays in the timeline and the stores; only this window is capped.
@@ -702,27 +703,32 @@ fun QqStyleChatDetailScreen(
                                     Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: chatNickname,
                                         modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                    if (showTypingIndicator) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
-                                        color = Color.Black, fontSize = 14.sp, maxLines = 1)
-                                    else if (activeFollowThrough) Text("执行后续中", modifier = Modifier.padding(start = 5.dp),
-                                        color = QqMuted, fontSize = 12.sp, maxLines = 1)
+                                    chatWorkHeaderLabel(showTypingIndicator, activeFollowThrough)
+                                        ?.let { label ->
+                                            Text(label, modifier = Modifier.padding(start = 5.dp),
+                                                color = if (showTypingIndicator) Color.Black else QqMuted,
+                                                fontSize = if (showTypingIndicator) 14.sp else 12.sp,
+                                                maxLines = 1)
+                                        }
                                 }
                                 Text(
                                     if (groupChat == null) {
                                         val onlineUntil = onlineStates[characterId]?.onlineUntil
-                                        val untilText = if (privateOnline && onlineUntil != null) {
+                                        val untilText = onlineUntil?.let {
                                             java.time.format.DateTimeFormatter.ofPattern("HH:mm")
-                                                .withZone(java.time.ZoneId.systemDefault()).format(onlineUntil)
-                                        } else ""
-                                        "${when {
-                                            privateOnline -> "在线至 $untilText"
-                                            privateExpiryReview -> "在线收尾中·正决定下一步"
-                                            else -> "离线"
-                                        }} · $activeLabel"
+                                                .withZone(java.time.ZoneId.systemDefault()).format(it)
+                                        }.orEmpty()
+                                        chatPresenceLine(
+                                            online = privateOnline,
+                                            onlineUntilText = untilText,
+                                            expiryReview = privateExpiryReview,
+                                            activeRoleWork = privateRoleWorking,
+                                            modelLabel = activeLabel,
+                                        )
                                     }
                                     else "$onlineMemberCount 人在线",
                                     fontSize = 10.sp,
-                                    color = if ((groupChat == null && (privateOnline || privateExpiryReview)) ||
+                                    color = if ((groupChat == null && privateOnline) ||
                                         (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
                                     maxLines = 1,
                                 )
