@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T06:57:04.760011+00:00",
-  "commit": "d1540f0b3ba2bc975bb2a4aa3b35af0c11616c6c",
+  "generatedAt": "2026-11-12T07:01:01.985066+00:00",
+  "commit": "4f49bc7db249a4a968a1af01621511b7a2f5ce50",
   "branch": "main",
-  "sourceFingerprint": "96fa124759754bc6b9b9bc9cac9027240c10f5f83aca1fbc5bfa33530e7c5ed6",
+  "sourceFingerprint": "a2d914d3580483bf61c3ad1430bbe1650959639fd7f34dcc53a6e2d5b470a95e",
   "summary": {
-    "files": 1244,
-    "lines": 265310,
-    "symbols": 3742
+    "files": 1246,
+    "lines": 265384,
+    "symbols": 3745
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15909,13 +15909,13 @@
     "connected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 78
+        "line": 79
       }
     ],
     "OwnerPreviewFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 87
+        "line": 88
       }
     ],
     "LuluDeviceToolBridge": [
@@ -16434,6 +16434,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt",
         "line": 22
+      }
+    ],
+    "nextStalledCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt",
+        "line": 8
+      }
+    ],
+    "exhausted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt",
+        "line": 26
       }
     ],
     "canRecoverUniqueSearchField": [
@@ -20793,6 +20805,12 @@
     "LuluVirtualHumanGateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt",
+        "line": 7
+      }
+    ],
+    "LuluVirtualNoFramePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt",
         "line": 7
       }
     ],
@@ -37097,8 +37115,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 312,
-      "sha256": "5a5d45d6af69c70506fcd62a72081d6cef5ca72e6b2a202bc47dab158408eeb3",
+      "lines": 321,
+      "sha256": "8d1fd6f9bcf6b911ad5e5caadd73653104b6aeb4b6f416bad73c4af7a8bac1a8",
       "symbols": [
         {
           "name": "Outcome",
@@ -37138,8 +37156,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 805,
-      "sha256": "1dda7b4bee9cee1998d4bfc70bb9c6ec6817e744c19ea681746275b85e9b54de",
+      "lines": 806,
+      "sha256": "2c1ae65115766063bfa5530a8b4272338c8ee3a53e63c173afe479ffc13823dd",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -37151,11 +37169,11 @@
         },
         {
           "name": "connected",
-          "line": 78
+          "line": 79
         },
         {
           "name": "OwnerPreviewFrame",
-          "line": 87
+          "line": 88
         }
       ]
     },
@@ -37752,6 +37770,21 @@
         {
           "name": "securityLabels",
           "line": 22
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt",
+      "lines": 29,
+      "sha256": "d85540aa9f3fd02369695a55e7a3846702aa4ac8bf4778a3db808f3dd90523c2",
+      "symbols": [
+        {
+          "name": "nextStalledCount",
+          "line": 8
+        },
+        {
+          "name": "exhausted",
+          "line": 26
         }
       ]
     },
@@ -44155,6 +44188,17 @@
       "symbols": [
         {
           "name": "LuluVirtualHumanGateTest",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt",
+      "lines": 35,
+      "sha256": "45989233a83d776f794e646c425c7ba86484558cf44675e2957ae94a262f53b5",
+      "symbols": [
+        {
+          "name": "LuluVirtualNoFramePolicyTest",
           "line": 7
         }
       ]
