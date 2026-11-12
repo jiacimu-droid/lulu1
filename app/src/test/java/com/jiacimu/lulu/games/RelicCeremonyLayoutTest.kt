@@ -12,6 +12,18 @@ class RelicCeremonyLayoutTest {
         assertEquals(172, relicCeremonyArtHeightDp(480f))
     }
 
+    @Test fun committedBagAndGroundReceiptsRemainDistinctAndActionable() {
+        val bag = relicCeremonyReceiptLabel(true)
+        val ground = relicCeremonyReceiptLabel(false)
+        assertTrue(bag.contains("已装入背包"))
+        assertTrue(bag.contains("成功撤离后"))
+        assertFalse(bag.contains("背包已满"))
+        assertTrue(ground.contains("背包已满"))
+        assertTrue(ground.contains("真实落在箱子旁"))
+        assertTrue(ground.contains("拾取"))
+        assertNotEquals(bag, ground)
+    }
+
     @Test fun artworkNeverGrowsWhenViewportShrinks() {
         var previous = 0
         for (height in 200..600) {
