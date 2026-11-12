@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0f460b782d4e2c3fc97f3c6011bbee14b6a0d299`
+- 基准提交：`0c8f45d557a70ed37884425c3640680f6edba4e0`
 - 分支：`main`
 - 已索引文件：1265
-- 已索引代码/文本行：267271
+- 已索引代码/文本行：267277
 - 已发现符号：3771
 
 | 文件 | 行数 | 符号数 |
@@ -261,7 +261,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1196 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1202 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
