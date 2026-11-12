@@ -156,7 +156,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(hpGain>0) "+$hpGain ❤" else "已休息"
                 }
                 "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
-                "bridge", "lantern", "pet_house", "remove" -> "✓"
+                "bridge", "lantern", "pet_house", "garden", "remove" -> "✓"
+                "sow_berries" -> "种下野果"
+                "tend_berries" -> "幼苗已照料"
+                "harvest_berries" -> "+${result.fruit-island.fruit} 果"
                 else -> ""
             }
             val targetMobId = if(action=="fight") island.world.mobs.firstOrNull {
@@ -231,7 +234,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
     val buildReady = buildPreview?.allowed == true
-    val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish"))
+    val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish",
+        "sow_berries","tend_berries","harvest_berries"))
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
     val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
     val nearbyWildlife = islandNearbyAction(island,facing,setOf("tame","care"))
@@ -271,7 +275,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandGuardianEncounter.impendingHeavyAttack(island))
             "⚠ 守卫下一回合重击 · 躲开" else "",
         status = "❤ ${world.hp}/12  饱 ${island.hunger}/10  木 ${world.wood}  石 ${world.stone}  果 ${island.fruit}  " +
-            if (night) "☾" else "☀",
+            IslandGarden.season(world.turns) + if (night) "夜" else "昼",
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -388,7 +392,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     GameHudQuickAction("退出",Color(0xFFE7D59C),
                         modifier=Modifier.weight(1f)) { buildMode=null }
                 } else {
-                    GameHudQuickAction("采集", Color(0xFFA9E5BD),
+                    GameHudQuickAction(nearbyGather?.label?.take(6) ?: "采集", Color(0xFFA9E5BD),
                         enabled = nearbyGather != null, modifier = Modifier.weight(1f)) {
                         nearbyGather?.let { perform(it.action,it.x,it.y) }
                     }
@@ -512,8 +516,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 (world.hp<12 || island.hunger<10),Modifier.fillMaxWidth()) {
                 perform("eat",world.x,world.y)
             }
-            if(island.fish>0) IslandAction("篝火烤鱼 · 恢复体力",
-                enabled=world.hp<12,Modifier.fillMaxWidth()) {
+            if(island.fish>0) IslandAction("篝火烤鱼 · 恢复体力与饱食",
+                enabled=(world.hp<12 || island.hunger<10) && island.structures.any { it.value=="campfire" },Modifier.fillMaxWidth()) {
                 perform("eat_fish",world.x,world.y)
             }
         }
@@ -771,6 +775,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         color=if(claimed)Color(0xFFB1E4CF) else Color(0xFFFFE3AE),
                         fontSize=11.sp)
                 }
+                Text("食物篇  ·  砍树找野果 / 制鱼竿钓鱼 / 建菜圃→播种→至少4步后松土→成熟收果。春夏秋冬每96回合轮换，冬季生长较慢。",
+                    color=Color(0xFFCBE9D3),fontSize=12.sp)
                 Text("探索篇  ·  寻找补给箱 → 收集4种工具 → 架起第一座桥",
                     color=Color.White,fontSize=12.sp)
                 Text("终章篇  ·  双地标 → 石剑 → 守住3夜 → 挑战南岭巨岩守卫",
@@ -818,7 +824,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Text("② 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
             Text("③ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
             Text("④ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
-            Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
+            Text("⑤ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
+            Text("⑥ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
         containerColor=Color(0xFF1A3439),
         titleContentColor=Color.White, textContentColor=Color(0xFFBDD5CC),
@@ -969,7 +976,7 @@ private fun IslandBuildChip(
 private fun islandCellTitle(tile: Int, structure: String?): String =
     when (structure) {
         "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
-        "lantern" -> "夜灯"; "pet_house" -> "宠物小屋"
+        "lantern" -> "夜灯"; "pet_house" -> "宠物小屋"; "garden" -> "小菜圃"
         else -> when (tile) {
             0 -> "草地"; 1 -> "树木"; 2 -> "石矿"; 3 -> "木墙"
             4 -> "地板"; 7 -> "营地"; 8 -> "水域"; else -> "空地"
