@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:55:20.846061+00:00",
-  "commit": "58e159f20ef2daade95b0fe4c648cb996a908321",
+  "generatedAt": "2026-11-12T08:56:23.169934+00:00",
+  "commit": "81c4952f9e1f9dc878c805afb701dfac25adb69c",
   "branch": "main",
-  "sourceFingerprint": "ef0f2a943c3eb1e73ee7f095cfa1f6bd9f9a95f83cc0fcaa03f611c41c5b505e",
+  "sourceFingerprint": "897d10d544e7c19e85a275fdfdf28d4fcbbdce16077c7f476a95234134c22569",
   "summary": {
-    "files": 1266,
-    "lines": 267431,
-    "symbols": 3772
+    "files": 1268,
+    "lines": 267508,
+    "symbols": 3779
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8062,6 +8062,50 @@
         "line": 16
       }
     ],
+    "forOnlineBatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 8
+      }
+    ],
+    "Timeline": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 12
+      }
+    ],
+    "keyOf": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 19
+      }
+    ],
+    "group": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 23
+      }
+    ],
+    "legacy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
+        "line": 30
+      }
+    ],
+    "duration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 31
+      }
+    ],
     "ChatTurnConsistencyAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
@@ -12860,12 +12904,6 @@
         "line": 21
       }
     ],
-    "legacy": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 30
-      }
-    ],
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
@@ -16276,12 +16314,6 @@
         "line": 26
       }
     ],
-    "duration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
-        "line": 31
-      }
-    ],
     "LuluScreenAwareness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
@@ -18850,6 +18882,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt",
         "line": 7
+      }
+    ],
+    "ChatTimingTraceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt",
+        "line": 5
       }
     ],
     "CommitmentAlarmRecoveryTest": [
@@ -28219,6 +28257,37 @@
         {
           "name": "initialize",
           "line": 22
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+      "lines": 42,
+      "sha256": "7aea4142adde37d3081ddeeb9f2cbfb559483611074302bd2463523d3802f663",
+      "symbols": [
+        {
+          "name": "forOnlineBatch",
+          "line": 8
+        },
+        {
+          "name": "Timeline",
+          "line": 12
+        },
+        {
+          "name": "keyOf",
+          "line": 19
+        },
+        {
+          "name": "group",
+          "line": 23
+        },
+        {
+          "name": "legacy",
+          "line": 29
+        },
+        {
+          "name": "duration",
+          "line": 32
         }
       ]
     },
@@ -41453,6 +41522,17 @@
         {
           "name": "ChatLexiconRetryPolicyTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt",
+      "lines": 35,
+      "sha256": "3ab804121493da07c393bf6a0ecf7d2017e6aa73af2387310311c1592b2c8e79",
+      "symbols": [
+        {
+          "name": "ChatTimingTraceTest",
+          "line": 5
         }
       ]
     },

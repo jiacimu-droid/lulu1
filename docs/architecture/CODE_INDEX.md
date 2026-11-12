@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`58e159f20ef2daade95b0fe4c648cb996a908321`
+- 基准提交：`81c4952f9e1f9dc878c805afb701dfac25adb69c`
 - 分支：`main`
-- 已索引文件：1266
-- 已索引代码/文本行：267431
-- 已发现符号：3772
+- 已索引文件：1268
+- 已索引代码/文本行：267508
+- 已发现符号：3779
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -414,6 +414,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 70 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 125 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt` | 42 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 79 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
@@ -1036,6 +1037,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt` | 267 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 410 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 526 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 111 | 1 |
