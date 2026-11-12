@@ -179,7 +179,7 @@ internal object IslandMilestones {
             s.supplyCaches.any { it !in s.openedSupplies } ->
                 "探险 1/3 · 搜寻补给宝箱（${s.openedSupplies.size}/${s.supplyCaches.size}）"
             !s.tools.containsAll(setOf("axe", "pickaxe", "sword", "rod")) ->
-                "探险 2/3 · 收集全套工具（${s.tools.size}/4）"
+                "探险 2/3 · 收集全套工具（${s.tools.intersect(setOf("axe","pickaxe","sword","rod")).size}/4）"
             s.structures.values.none { it == "bridge" } ->
                 "探险 3/3 · 在非边界水面搭一座木桥"
             s.animals.any { !it.befriended } ->
