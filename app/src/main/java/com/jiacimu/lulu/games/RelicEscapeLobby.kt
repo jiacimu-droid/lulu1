@@ -250,7 +250,10 @@ internal fun RelicEscapeLobby(
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                             horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                             RelicContract.values().forEach { choice ->
-                                FilterChip(selected=contract==choice,onClick={onContract(choice)},
+                                FilterChip(selected=contract==choice,onClick={
+                                onContract(choice)
+                                if(choice==RelicContract.ABYSS)onDifficulty(RelicDifficulty.HARD)
+                            },
                                     label={Text(choice.label)},
                                     colors=FilterChipDefaults.filterChipColors(
                                         selectedContainerColor=campGold,selectedLabelColor=campInk,
@@ -261,6 +264,9 @@ internal fun RelicEscapeLobby(
                             (if(contract.bonus>0)"额外获得 ◇"+contract.bonus+" 铜币"
                              else "不设奖励，可自由探索"),
                             color=campGold,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                        if(contract==RelicContract.ABYSS && difficulty!=RelicDifficulty.HARD)
+                            Text("⚠ 绝境秘藏必须选「险境」难度；当前难度无法完成。",
+                                color=Color(0xFFF3B9A9),fontSize=11.sp)
                     }
                     RelicLobbyPanel {
                         Text("我的出发装备",color=Color.White,fontSize=17.sp,
