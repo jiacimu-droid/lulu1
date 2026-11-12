@@ -17,9 +17,15 @@ object ChatGenerationActivity {
     private val mutable = MutableStateFlow<Map<String, Activity>>(emptyMap())
     val activities = mutable.asStateFlow()
 
-    fun begin(characterId: String, conversationIds: Set<String>): String {
+    fun begin(
+        characterId: String, conversationIds: Set<String>,
+        awaitingModel: Boolean = true,
+    ): String {
         val id = UUID.randomUUID().toString()
-        mutable.update { it + (id to Activity(characterId, conversationIds)) }
+        mutable.update {
+            it + (id to Activity(characterId, conversationIds,
+                awaitingModel = awaitingModel))
+        }
         return id
     }
     fun isRunning(conversationId: String) = mutable.value.values.any { conversationId in it.conversationIds }
@@ -48,9 +54,11 @@ object ChatGenerationActivity {
     }
     fun clearCharacter(characterId: String) { mutable.update { all -> all.filterValues { it.characterId != characterId } } }
     suspend fun <T> duringWithLease(
-        characterId: String, conversationIds: Set<String>, block: suspend (String) -> T,
+        characterId: String, conversationIds: Set<String>,
+        awaitingModel: Boolean = true,
+        block: suspend (String) -> T,
     ): T {
-        val id = begin(characterId, conversationIds)
+        val id = begin(characterId, conversationIds, awaitingModel)
         return try { block(id) } finally { end(id) }
     }
 
