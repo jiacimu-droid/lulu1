@@ -2180,3 +2180,6 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 新增 Robolectric `ChatHistoryPersistenceBaselineTest.rejectedArchiveRemovalRestoresFavoriteFlagAcrossReopen`：构造已收藏聊天与独立档案，注入档案 SharedPreferences 拒写，验证 `removeUserFavorite` 返回失败、聊天收藏标记补偿恢复、档案仍在、重建 Store 后仍已收藏。
 - 测试提交 [`acbd871`](https://github.com/jiacimu-droid/lulu1/commit/acbd871ab3121c2925b4df52e0250d8ba88da5e0)、夹具修正 [`a006880`](https://github.com/jiacimu-droid/lulu1/commit/a006880e8320a457316bf7f10567defbfc25c2de)。未改生产逻辑；main push APK/JVM、索引尚未验收。
 - 下一轮同 UI-02.2 先核目标测试 CI；再补收藏档案与聊天补偿同时拒写的失败反例。真机强杀和语音文件独立待验。
+
+**2026-11-13 UI-02.2 · 恢复提交再次拒写回归（新 CI 待验）**：在现有 `rejectedArchiveAndCompensationCannotReportFavoriteRemovalSuccess` 中增加独立 `ContextWrapper` 注入聊天恢复 commit 拒绝：首次重开不得向 UI 发布未落盘的已收藏标记，原 `state_v1` 仍为 false，收藏档案保留；下一次允许写入时重开应修复并在再次重开后保持。测试提交 [c73d6dc](https://github.com/jiacimu-droid/lulu1/commit/c73d6dc220ade40d53c619ed2bdac739a80d9da6)，仅测试，不改生产逻辑；新 SHA 的 APK/JVM、Refresh code index、真机强杀及语音文件仍待验。下一轮同 UI-02.2 先核该测试 JVM 首错；通过后转增量事务迁移/性能工作包，不能把单向恢复称为原子事务。
+
