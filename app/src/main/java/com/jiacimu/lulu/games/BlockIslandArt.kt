@@ -49,6 +49,7 @@ internal object BlockIslandArt {
     // Reused geometry offsets; drawing the same island must not allocate per-frame coordinate lists.
     private val houseLightOffsets = floatArrayOf(.55f, 2.44f)
     private val houseWindowOffsets = floatArrayOf(.33f, 2.37f)
+    private val cottageSupportOffsets = floatArrayOf(.27f, 2.68f)
     // Garden stalk spacing is immutable artwork geometry, reused for each visible crop.
     private val gardenStalkOffsets = floatArrayOf(.32f, .51f, .68f)
     private val neighborOffsets = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
@@ -925,7 +926,7 @@ internal object BlockIslandArt {
             p+Offset(t*.24f,t*1.69f),Size(t*2.53f,t*.055f))
         // Quiet vertical support timbers and a simple stone plinth give the
         // cottage structure and scale, without cluttering its roof silhouette.
-        for(dx in listOf(.27f,2.68f)) {
+        for(dx in cottageSupportOffsets) {
             drawRoundRect(trim,p+Offset(t*dx,t*1.62f),
                 Size(t*.075f,t*1.10f),CornerRadius(t*.02f))
         }
