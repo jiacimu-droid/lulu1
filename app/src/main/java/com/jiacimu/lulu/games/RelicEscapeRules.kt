@@ -31,7 +31,9 @@ internal object RelicCollectibles {
             "王室密匣", "冰魄竖琴", "星河沙漏", "黎明权杖",
         ),
     )
-    val names: List<String> = ordinary.values.flatten() + listOf("封印之心", CROWN_JEWEL)
+    /** Defeated-enemy relics are real physical finds, not unrecorded filler. */
+    val names: List<String> = ordinary.values.flatten() +
+        listOf("暗影碎片","锻铁徽片","祭司秘纹","哨兵之核","封印之心", CROWN_JEWEL)
     fun namesFor(tier: RelicTier): List<String> = ordinary.getValue(tier)
     fun isCrownJewel(name: String): Boolean = name == CROWN_JEWEL
     /** Display-only fourth rung for the seeded special drop. Preserve the three
