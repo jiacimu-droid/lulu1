@@ -39,7 +39,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             ?: if (args.has("durationMs") &&
                 (integer(args, "durationMs")?.let { it > 0 } != true))
                     "durationMs 必须是正整数" else null
-        "type" -> args.optString("text").let {
+        "type", "search" -> args.optString("text").let {
             if (it.isBlank() || it.length > 500) "text 必须是1到500个字符" else null
         }
         "launch" -> if (args.optString("packageName").isBlank() &&

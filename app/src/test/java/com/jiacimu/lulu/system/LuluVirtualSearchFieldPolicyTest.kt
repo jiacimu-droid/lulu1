@@ -6,6 +6,12 @@ import org.junit.Test
 
 /** Regression for Xiaohongshu-like virtual-screen search versus irreversible Enter. */
 class LuluVirtualSearchFieldPolicyTest {
+    @Test fun batchSearchWithoutPixelsRequiresVerifiedWindowAndUniqueSearchField() {
+        assertTrue(LuluVirtualSearchFieldPolicy.canActWithoutFrame("search", true, true, false, false))
+        assertFalse(LuluVirtualSearchFieldPolicy.canActWithoutFrame("search", false, true, false, false))
+        assertFalse(LuluVirtualSearchFieldPolicy.canActWithoutFrame("search", true, false, true, false))
+    }
+
     @Test fun recognizedSearchEditorCanReceiveExplicitEnter() {
         assertTrue(LuluVirtualSearchFieldPolicy.isSearchEditor(
             "android.widget.EditText", "搜索笔记和用户", "com.xingin.xhs:id/edit_search"))

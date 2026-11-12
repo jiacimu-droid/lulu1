@@ -18,7 +18,7 @@ internal object LuluVirtualSearchFieldPolicy {
         searchFocused: Boolean, typedReadbackVerified: Boolean,
     ): Boolean = when (action) {
         "start", "launch", "observe", "stop" -> true
-        "focus_search" -> targetVerified && uniqueSearch
+        "focus_search", "search" -> targetVerified && uniqueSearch
         "type" -> targetVerified && uniqueSearch && searchFocused
         "submit" -> targetVerified && uniqueSearch && searchFocused && typedReadbackVerified
         else -> false

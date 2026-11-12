@@ -79,7 +79,7 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("elementRef"))
             val capability = CapabilityRegistry.context(context, characterId)
             assertTrue("background search requires an explicit submit",
-                capability.contains("type|submit|stop"))
+                capability.contains("type|submit|search|stop"))
             assertTrue("do not call typing a completed search",
                 capability.contains("submit再由本人选择按后台屏回车提交搜索"))
             assertTrue(status.contains("绝不会把主屏截图当后台图"))

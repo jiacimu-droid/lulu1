@@ -26,7 +26,9 @@ internal fun chatPresenceLine(
 internal fun chatWorkHeaderLabel(
     awaitingReply: Boolean,
     activeFollowThrough: Boolean,
+    checkingPhone: Boolean = false,
 ): String? = when {
+    checkingPhone -> "正在查手机"
     awaitingReply -> "正在输入中"
     activeFollowThrough -> "执行后续中"
     else -> null

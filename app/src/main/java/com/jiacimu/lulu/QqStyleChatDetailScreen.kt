@@ -126,6 +126,8 @@ fun QqStyleChatDetailScreen(
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
+    val backgroundPhoneWork by com.jiacimu.lulu.system.LuluBackgroundPhoneSession.runningWork.collectAsState()
+    val checkingPhone = groupChat == null && characterId in backgroundPhoneWork
     // Do not show "typing" while the user is sending more bubbles this turn.
     // Keyboard-lag follow-up: these two scans are pure functions of messages,
     // so cache them until messages change instead of re-scanning the full
@@ -703,11 +705,11 @@ fun QqStyleChatDetailScreen(
                                     Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: chatNickname,
                                         modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                    chatWorkHeaderLabel(showTypingIndicator, activeFollowThrough)
+                                    chatWorkHeaderLabel(showTypingIndicator, activeFollowThrough, checkingPhone)
                                         ?.let { label ->
                                             Text(label, modifier = Modifier.padding(start = 5.dp),
-                                                color = if (showTypingIndicator) Color.Black else QqMuted,
-                                                fontSize = if (showTypingIndicator) 14.sp else 12.sp,
+                                                color = if (showTypingIndicator && !checkingPhone) Color.Black else QqMuted,
+                                                fontSize = if (showTypingIndicator && !checkingPhone) 14.sp else 12.sp,
                                                 maxLines = 1)
                                         }
                                 }
@@ -722,7 +724,7 @@ fun QqStyleChatDetailScreen(
                                             online = privateOnline,
                                             onlineUntilText = untilText,
                                             expiryReview = privateExpiryReview,
-                                            activeRoleWork = privateRoleWorking,
+                                            activeRoleWork = privateRoleWorking || checkingPhone,
                                             modelLabel = activeLabel,
                                         )
                                     }

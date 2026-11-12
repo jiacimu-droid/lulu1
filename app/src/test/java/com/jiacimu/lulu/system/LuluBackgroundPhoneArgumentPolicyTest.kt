@@ -52,6 +52,14 @@ class LuluBackgroundPhoneArgumentPolicyTest {
             JSONObject().put("text", "搜索内容")))
     }
 
+    @Test fun searchRequiresAnExplicitNonBlankQueryBeforeDisplayIo() {
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("search", JSONObject()))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("search",
+            JSONObject().put("text", "a".repeat(501))))
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("search",
+            JSONObject().put("text", "红米后台搜索")))
+    }
+
     @Test fun observationAndStartHaveNoInventedCoordinateRequirement() {
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("start", JSONObject()))
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("observe", JSONObject()))

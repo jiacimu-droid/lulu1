@@ -2805,7 +2805,7 @@ object ProactivePerceptionRuntime {
                 context = appContext, characterId = character.characterId,
                 connection = connection, title = character.displayName + "后台手机任务",
                 requestId = actionRequestId, userText = userText,
-                roleReason = actionReason, initialReceipt = actual.toString(),
+                roleReason = actionReason, initialArgs = actionArgs, initialReceipt = actual.toString(),
                 initialImage = frame,
                 userRequested = CharacterInitiativeRuntime.isExplicitUserToolRequest(
                     userText, "background_phone"),

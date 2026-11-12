@@ -1765,7 +1765,7 @@ object LuluDeviceToolBridge {
                 context = appContext, characterId = characterId,
                 connection = connection, title = title, requestId = requestId,
                 userText = userText, roleReason = plan.reason,
-                initialReceipt = toolResult, initialImage = roleScreenImage,
+                initialArgs = actualToolArgs, initialReceipt = toolResult, initialImage = roleScreenImage,
                 userRequested = explicitUserToolRequest,
             )
         } else null

@@ -23,6 +23,8 @@
 **2026-11-12 UI-02.2 · 会话清空/删除写入拒绝原子性（本轮待 CI）**：[426f815](https://github.com/jiacimu-droid/lulu1/commit/426f81516e66999c1e5bf881376f5827c82773f1) 修正 `InMemoryLuluChatStore.clearConversationMessages/deleteConversation` 先销毁内存投影再异步 `apply()` 的缺口，改为持久 `commit()` 失败即恢复会话与消息，且失败不得撤回时间线、清理图片或通知；[f1fd735](https://github.com/jiacimu-droid/lulu1/commit/f1fd735a9a70db402d9e24649f82219a7186c66e) 增加拒绝提交、原始消息/会话不变、重建 Store 原文不丢的 Robolectric 回归。此前 edit/delete 的 [#43177072436](https://github.com/jiacimu-droid/lulu1/actions/runs/43177072436) 被并发 push 取消，不能判成功；后继 [#43180316840](https://github.com/jiacimu-droid/lulu1/actions/runs/43180316840) 完成成功且包含该祖先，但本轮新提交仍须核其自身或后继完整 JVM/APK 与索引。下一轮直接打开 `ChatHistoryPersistenceBaselineTest.rejectedConversationRemovalPreservesOriginalAndReopenedHistory` 查首错；若通过，核 `replaceCharacterReply` 等剩余非持久编辑路径，真机进程死亡/真实模型独立待验。
 
 ### 2026-11-12 PH-01.6 · Mika 安卓手机智能体全面对标与分阶段补齐（用户明确要求，体验高优先）
+
+**PH-01.6b/g/n/t · 后台搜索往返与停滞修复**：原本的聚焦、输入、提交各占一次付费决策，重复 `observe` 还会清掉手势保护。参考 Mika `BatchRunner`、`StuckAdvice`，在原角色工具添加显式 `search`，以同一后台窗口、唯一搜索框和精确文字读回为前提合并三步，提交后再读结果。新消息、权限变化或接管页在步骤间中断。追加动作保留同页未生效的手势及明确拒绝的搜索/启动，同页反复读屏提前返回已有证据，私聊显示真实手机工作。保留原 12 次后续决策上限，角色可见剩余次数。下一步验收同一 Redmi 上小红书启动→搜索→读取与连续碰壁的调用次数、首条回复耗时和实际完成率；真实模型及 APK 由该代码提交的 Actions 和真机分别验证。
 **2026-11-12 PH-01.6h.2 · 增量界面语义匹配修正**：已定位 `LuluMikaInterfaceUpdate.between` 旧算法把不同读屏中同一个 `e1` 当相同控件，这与 Mika 原 `InterfaceDiff` 的语义对齐原则冲突；当按钮遍历顺序重排时会虚报“新界面/新内容”。改成先匹配语义+资源 ID+真实坐标、再判断移动/改名，新增“相同控件重新编号仍无变化”“同一控件位置变化应报变化”纯 JVM 回归。仅给模型的差异摘要更准，不擅自扩展旧控件点击权限；随本轮最新 CI 核，不因代码存在声称真机通过。
 
 

@@ -150,11 +150,11 @@ object CapabilityRegistry {
                 "只有实际调用工具得到新回执，才能知道这次是否成功。")
             appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
                 "应说明具体缺的是哪项，不能说没有background_phone这个工具。" +
-                "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。")
+                "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。普通公开资料查询可直接选web_search；指定App或需要操作App时再选后台屏。")
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
                 "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
-                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/focus_search/type/submit/back/stop；找不到或重名就报告，不能猜包名。" +
-                "后台搜索可自己选择focus_search精准聚焦唯一无障碍搜索框；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。随后type输入、submit提交并核对真实结果；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/back/stop；找不到或重名就报告，不能猜包名。" +
+                "目标App有唯一可核实的搜索框时，可一次选择search并传text，手机会核实焦点、读回关键词后提交，再由本人核对真实结果。搜索框还未出现时先打开搜索入口；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。也可分别选择focus_search、type、submit；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
 
@@ -166,7 +166,7 @@ object CapabilityRegistry {
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索),expectedText:可选验证文字,sendToChat:可选true发送真实后台截图到私聊,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,sendToChat:可选true发送真实后台截图到私聊,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }
