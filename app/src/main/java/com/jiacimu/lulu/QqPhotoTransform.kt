@@ -32,5 +32,10 @@ internal fun nextQqPhotoTransform(
     val limitY = max(0f, (imageHeight * fit * nextScale - viewportHeight) / 2f)
     val x = previous.x * factor + (focalX - viewportWidth / 2f) * (1f - factor) + dragX
     val y = previous.y * factor + (focalY - viewportHeight / 2f) * (1f - factor) + dragY
-    return QqPhotoTransform(nextScale, x.coerceIn(-limitX, limitX), y.coerceIn(-limitY, limitY))
+    // Zero travel has one canonical representation: +0.0f. A clamp over
+    // [-0.0f, +0.0f] can otherwise preserve signed negative zero, which is
+    // visually identical but breaks stable data-class equality/replay tests.
+    val boundedX = if (limitX == 0f) 0f else x.coerceIn(-limitX, limitX)
+    val boundedY = if (limitY == 0f) 0f else y.coerceIn(-limitY, limitY)
+    return QqPhotoTransform(nextScale, boundedX, boundedY)
 }
