@@ -85,6 +85,11 @@ internal fun relicCeremonyArtHeightDp(viewportHeightDp: Float): Int = when {
     else -> 172
 }
 
+/** A presentation-only label derived from the already committed bag/drop outcome. */
+internal fun relicCeremonyReceiptLabel(inBag: Boolean): String =
+    if (inBag) "✓ 已装入背包 · 成功撤离后才会永久收藏"
+    else "⚠ 背包已满 · 宝物真实落在箱子旁，记得拾取"
+
 /** Local, one-shot animation of an already committed physical chest reward. */
 @Composable
 internal fun RelicChestCeremony(
@@ -136,6 +141,16 @@ internal fun RelicChestCeremony(
                     else rarityCue,
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
+                // Keep the committed physical result above the artwork: short landscape
+                // screens must not hide a dropped treasure behind a scroll gesture.
+                if (reveal > .05f) {
+                    Text(
+                        relicCeremonyReceiptLabel(receipt.inBag),
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                        color = if (receipt.inBag) Color(0xFFB7EDDA) else Color(0xFFFFC7A8),
+                    )
+                }
                 Canvas(Modifier.fillMaxWidth().height(artHeight)) {
                     val h=size.height
                     val x=size.width*.5f
@@ -267,13 +282,6 @@ internal fun RelicChestCeremony(
                     Text("品质：" + rank + "  ·  鉴定价值 ◇ " + receipt.loot.value,
                         color = tint,fontSize = 12.sp,
                         fontWeight = FontWeight.Bold)
-                    Text(
-                        if (receipt.inBag) "✓ 已装入背包 · 成功撤离后才会永久收藏"
-                        else "⚠ 背包已满 · 宝物真实落在箱子旁，记得拾取",
-                        fontSize = 11.sp,
-                        lineHeight = 16.sp,
-                        color = if (receipt.inBag) Color(0xFFB7EDDA) else Color(0xFFFFC7A8),
-                    )
                 } else {
                     Text("光芒里藏着什么……", color = Color(0xFFB6C4D4), fontSize = 12.sp)
                 }
