@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:25:53.042639+00:00",
-  "commit": "459c019887d71b078e62a302fcb930acd08b166a",
+  "generatedAt": "2026-11-12T10:26:14.134669+00:00",
+  "commit": "adfebef048d74adc4016240b9920a2e5359c35a9",
   "branch": "main",
-  "sourceFingerprint": "b34c434d5456246d7b72da7bd621c29567c3b4cb0ac0a9d4e346d4c9d1e851be",
+  "sourceFingerprint": "c6470d2a5e8dd573bd8863a2cccfdc73fb87e448c24767c3f6a09a43b9cf2587",
   "summary": {
     "files": 1275,
-    "lines": 269028,
-    "symbols": 3810
+    "lines": 269055,
+    "symbols": 3811
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -745,7 +745,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 63
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -1749,7 +1749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 32
+        "line": 34
       }
     ],
     "commit": [
@@ -7937,7 +7937,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 41
+        "line": 48
       }
     ],
     "renderWithBody": [
@@ -14187,7 +14187,7 @@
     "cycle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 58
+        "line": 63
       }
     ],
     "awardCompleted": [
@@ -14818,6 +14818,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
         "line": 57
+      }
+    ],
+    "glintCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
+        "line": 42
       }
     ],
     "committed": [
@@ -35359,20 +35365,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 67,
-      "sha256": "f155651f0adbe619dfd757b8eb9b72cd2426e5f6a4ac7762e6c62a436c8170c4",
+      "lines": 72,
+      "sha256": "6cad57d4b890eb43480aa9e689a77600ab83d4b5a88446c331ac370c5827bf50",
       "symbols": [
         {
           "name": "preview",
-          "line": 32
+          "line": 34
         },
         {
           "name": "cycle",
-          "line": 58
+          "line": 63
         },
         {
           "name": "label",
-          "line": 63
+          "line": 68
         }
       ]
     },
@@ -36055,12 +36061,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 201,
-      "sha256": "d41bffbcafadf6c3fb89bc4e7270fb9b6ea9f8561ec100a7dad506729c77c898",
+      "lines": 223,
+      "sha256": "b12b7dc5e664798321b0dee245dde3a2cb342a092dff20ea1215c1a8aedac35f",
       "symbols": [
         {
+          "name": "glintCount",
+          "line": 42
+        },
+        {
           "name": "at",
-          "line": 41
+          "line": 48
         }
       ]
     },
