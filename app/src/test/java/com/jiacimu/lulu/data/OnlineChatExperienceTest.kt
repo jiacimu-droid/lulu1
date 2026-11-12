@@ -609,6 +609,29 @@ class OnlineChatExperienceTest {
             delayedUntil.isBefore(now.plusSeconds(10)))
     }
 
+    @Test fun explicitSleepWaitsUntilTheLastRealActionLeaseEnds() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "真实任务后再休眠", "答应做事就先完成").characterId
+        val now = java.time.Instant.now()
+        CompanionOnlineStore.wakeCharacter(
+            role, CompanionOnlineReason.PrivateWake,
+            "主动开始任务", perceiveNow = false, now = now)
+        val lease = ChatGenerationActivity.begin(role, setOf("work-chat"),
+            awaitingModel = false)
+        try {
+            assertTrue(CompanionOnlineStore.goOfflineByChoice(role))
+            assertEquals(CompanionOnlineReason.SelfChosenSleep,
+                CompanionOnlineStore.states.value.getValue(role).reason)
+            assertTrue("The character is still awake until this real tool ends",
+                CompanionOnlineStore.isOnline(role))
+        } finally { ChatGenerationActivity.end(lease) }
+        assertFalse("Sleep begins only AFTER real execution is finished",
+            CompanionOnlineStore.isOnline(role))
+    }
+
     @Test fun anExpiryDecisionMustNotOverwriteANewerUserWake() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
