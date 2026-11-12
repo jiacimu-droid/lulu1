@@ -2947,6 +2947,78 @@ object ProactivePerceptionRuntime {
                 else effectNotes += "已取得搜索回执，但最终回复未送达"
             }
         }
+        // A phone task is not finished when its initial "start" was accepted.
+        // Report the SAME character's actual independent-display receipts only
+        // after the continuation has finished/paused, as a new role-authored
+        // private message. No screenshot of the owner's main display is used.
+        if (hasFreshUserMessage && phoneOutcomes.isNotEmpty() &&
+            replyConversationIds.isNotEmpty() && !supersededByNewMessage()) {
+            val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
+                it.id in replyConversationIds && it.groupChat == null &&
+                    it.characterId == character.characterId
+            }
+            if (destination != null) {
+                val report = phoneOutcomes.joinToString("\n") { outcome ->
+                    "本次已执行追加动作数=${outcome.actions}；本人决定结束=${outcome.finishedByRole}\n" +
+                        outcome.notes.takeLast(3_800)
+                }.takeLast(9_000)
+                val lastImage = phoneOutcomes.lastOrNull()?.lastImage
+                val suggested = runCatching {
+                    LuluAiServices.gateway.generate(
+                        characterId = character.characterId,
+                        facts = "主人原始要求：${userText.take(900)}\n" +
+                            "你在本机独立后台虚拟屏实际执行的真实过程与回执（与主屏不同）：\n" +
+                            report + "\n之前已经对主人说过：${decision.text.take(300)}",
+                        instruction = """
+                            你本人刚刚尝试完成一项真实后台手机操作。
+                            仅凭上面的真实工具回执及本轮附上的后台虚拟屏图像自然接续汇报。
+                            如果还没有真的打开目标App、获得真实画面、或滑动未核实，就直说卡在哪儿；
+                            虚拟屏创建成功不等于刷完视频。没有本轮真实后台图片，就绝不能
+                            用主人正在聊微信/ChatGPT的主屏内容当作后台画面来描述。
+                            用户仍在等待任务结果；你可以按本人性格简短表达具体进展、失败或疑问。
+                            只输出JSON：{"text":"你此刻实际想发给主人私聊的话"}。
+                        """.trimIndent(),
+                        source = "角色本人·后台手机任务真实结果",
+                        title = character.displayName + "后台手机实况反馈",
+                        contextMode = CompanionContextMode.CharacterAndScenario,
+                        connectionOverride = connection,
+                        maxTokens = 1_100,
+                        imageDataUrls = listOfNotNull(lastImage),
+                        turnTraceId = turnTraceId,
+                    ).getOrThrow().text
+                }.getOrNull()
+                val feedbackText = suggested?.let(ModelStructuredOutput::objectOrNull)
+                    ?.optString("text")?.trim().orEmpty()
+                if (feedbackText.isNotBlank() && !supersededByNewMessage()) {
+                    val receipt = runCatching {
+                        JSONObject(ToolRouter.execute(
+                            appContext, character.characterId, "send_private_message",
+                            JSONObject().put("text", feedbackText)
+                                .put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
+                                .put("_turnTraceId", turnTraceId),
+                            requestId = requestId + ":phone-feedback",
+                            intentionId = decision.intentionId,
+                        ))
+                    }.getOrNull()
+                    val delivered = receipt?.optBoolean("success") == true &&
+                        receipt.optString("conversationId") == destination.id
+                    if (delivered) {
+                        deliveredExtra = true
+                        extraConversationId = destination.id
+                        val ids = receipt.optJSONArray("deliveredMessageIds")
+                        if (ids != null) extraDeliveredIds +=
+                            (0 until ids.length()).mapNotNull {
+                                ids.optString(it).takeIf(String::isNotBlank)
+                            }
+                    } else effectNotes += "后台任务已留下真实回执，但最后反馈尚未送达"
+                } else if (!supersededByNewMessage()) {
+                    effectNotes += "后台任务已有真实回执，但模型尚未生成可发送的结果反馈"
+                    com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(destination.id)
+                        .reportError("后台手机操作结果已记录，但本轮结果回复未生成；请查看实际工具回执")
+                }
+            }
+        }
+
         val combinedSummary = effectNotes.joinToString("；").take(350)
             .ifBlank { "工具执行未返回具体状态" }
         if ((!result.success || decision.action == Action.SILENT) && !deliveredExtra && !sideActionSucceeded)
