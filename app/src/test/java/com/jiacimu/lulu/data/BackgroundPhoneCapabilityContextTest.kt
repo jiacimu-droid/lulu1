@@ -49,6 +49,12 @@ class BackgroundPhoneCapabilityContextTest {
         }
     }
 
+    @Test fun onlineScreenVisionMustNotDescribeMainScreenshotAsVirtualScreen() {
+        val vision = CapabilityRegistry.screenVisionContext(context, characterId)
+        assertTrue(vision.contains("capture_screen 只截主人当前可见的手机主屏"))
+        assertTrue(vision.contains("必须用 background_phone"))
+    }
+
     @Test fun pairingDoesNotPretendShellOrDisplayHasBeenVerified() {
         val rolePrefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         val adbPrefs = context.getSharedPreferences("lulu_local_wireless_debug", Context.MODE_PRIVATE)
@@ -65,6 +71,8 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("已保存配对密钥≠本次已连接shell"))
             assertTrue(status.contains("action=tool,tool=background_phone"))
             assertTrue(status.contains("准确显示名称appName"))
+            assertTrue(status.contains("sendToChat"))
+            assertTrue(status.contains("不能把主屏截图当后台图"))
             assertTrue(CapabilityRegistry.find("background_phone") != null)
         } finally {
             val roleEdit = rolePrefs.edit()
