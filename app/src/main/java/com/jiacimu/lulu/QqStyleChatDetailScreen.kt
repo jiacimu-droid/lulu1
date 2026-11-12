@@ -712,7 +712,7 @@ fun QqStyleChatDetailScreen(
                                         } else ""
                                         "${when {
                                             privateOnline -> "在线至 $untilText"
-                                            privateExpiryReview -> "正在核对未完成的事"
+                                            privateExpiryReview -> "在线收尾中·正决定下一步"
                                             else -> "离线"
                                         }} · $activeLabel"
                                     }
