@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:26:48.326893+00:00",
-  "commit": "bb410d69478ca1f9aab5702254c0d06a6b3a2ea4",
+  "generatedAt": "2026-11-12T10:28:09.973183+00:00",
+  "commit": "fa4ec86f094043829599a09e13c110dbb62ef66d",
   "branch": "main",
-  "sourceFingerprint": "465278e3fd20f599aec075fc9668a6a4513a78b767f858b129807b0b6db8982e",
+  "sourceFingerprint": "99147bacf02f0ebe88a0e696fc15610be7337be4b7c243119b7b3934b3d8ff85",
   "summary": {
     "files": 1275,
-    "lines": 269059,
+    "lines": 269134,
     "symbols": 3811
   },
   "symbolIndex": {
@@ -13987,13 +13987,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 898
+        "line": 938
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1049
+        "line": 1089
       }
     ],
     "saveTurn": [
@@ -27910,8 +27910,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 831,
-      "sha256": "991351d45d8e16f5ec46a7bf981ec6fa83fa1c49de574a5780fa0d19a0640f39",
+      "lines": 845,
+      "sha256": "0c34cdfb0aa4fda6b570d8ba306f5673c41e55ef20cc4a9b0e850311ffb95e99",
       "symbols": [
         {
           "name": "groupedFields",
@@ -34844,8 +34844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 1212,
-      "sha256": "d323001878b5e92372dc9b54cff2a930604b11021c1bb0fa64791eab8e2ee253",
+      "lines": 1233,
+      "sha256": "fc69d12380e851350b92d042ca9cc146941b160219a3ae894fa955acb2d87906",
       "symbols": [
         {
           "name": "origin",
@@ -34948,8 +34948,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1094,
-      "sha256": "3220e5aca12da1b1fe2c4cfea2c5ca9ec2f57b91a04dcad260a4b59c8a489520",
+      "lines": 1134,
+      "sha256": "ab2dec7215773dbd9e327cf61db55828c1c61c6fe8fc2f8a653c1c8f24240c0f",
       "symbols": [
         {
           "name": "playSound",
@@ -34965,11 +34965,11 @@
         },
         {
           "name": "dot",
-          "line": 898
+          "line": 938
         },
         {
           "name": "targetFor",
-          "line": 1049
+          "line": 1089
         }
       ]
     },

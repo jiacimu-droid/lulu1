@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bb410d69478ca1f9aab5702254c0d06a6b3a2ea4`
+- 基准提交：`fa4ec86f094043829599a09e13c110dbb62ef66d`
 - 分支：`main`
 - 已索引文件：1275
-- 已索引代码/文本行：269059
+- 已索引代码/文本行：269134
 - 已发现符号：3811
 
 | 文件 | 行数 | 符号数 |
@@ -395,7 +395,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 306 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 831 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 845 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 56 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
@@ -655,10 +655,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1212 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1233 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 330 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 856 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1094 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1134 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
