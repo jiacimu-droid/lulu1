@@ -229,7 +229,18 @@ internal object RelicEscapeRules {
         val crownJewel = c.tier == RelicTier.PRECIOUS && roll < 5
         val names=RelicCollectibles.namesFor(c.tier)
         val name=if(crownJewel)RelicCollectibles.CROWN_JEWEL else names[roll%names.size]
-        val value=if(crownJewel)6000 else c.tier.base+roll%63
+        // The seven museum grades are not just a 50/50 recoloring of the
+        // original three chest tiers. Fine and epic appraisal bands have a
+        // distinct 15% seeded chance within their eligible chest tier.
+        // Crown remains 0.5% of precious chest rolls. No additional API/RNG.
+        val value=when {
+            crownJewel -> 6000
+            c.tier==RelicTier.COMMON && roll%100<15 -> 100+roll%33
+            c.tier==RelicTier.COMMON -> 70+roll%30
+            c.tier==RelicTier.PRECIOUS && roll%100<15 -> 460+roll%33
+            c.tier==RelicTier.PRECIOUS -> 430+roll%30
+            else -> c.tier.base+roll%63
+        }
         return RelicLoot(s.id+":chest:"+c.id,name,c.tier,value)
     }
     fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet()):RelicRun {
