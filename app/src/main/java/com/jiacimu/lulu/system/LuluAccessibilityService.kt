@@ -440,7 +440,7 @@ class LuluAccessibilityService : AccessibilityService() {
          * repeated click fallback, or untrusted off-display IME clicks. */
         fun tapVirtualUiElement(
             displayId: Int, packageName: String, expectedFingerprint: String,
-            elementRef: String,
+            elementRef: String, shoppingAllowed: Boolean = false,
         ): Boolean {
             val service = instance ?: return false
             val nodes = virtualUiNodes(service, displayId, packageName)
@@ -463,8 +463,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 for (i in 0 until n.childCount) n.getChild(i)?.let { labels(it, depth + 1) }
             }
             labels(node, 0)
-            if (!LuluVirtualUiPolicy.mayClick(chosen.label, chosen.resourceId, content.toString()))
-                return false
+            if (!LuluVirtualUiPolicy.mayClick(
+                    chosen.label, chosen.resourceId, content.toString(),
+                    shoppingAllowed = shoppingAllowed,
+                )) return false
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
 
