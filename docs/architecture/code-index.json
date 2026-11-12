@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:47:39.510120+00:00",
-  "commit": "43e7de97ab5fce494f85e09c6e13593d65fff94e",
+  "generatedAt": "2026-11-12T12:48:02.732663+00:00",
+  "commit": "7e7dd287679568bf8ab27c1a013a3c6011dd36e8",
   "branch": "main",
-  "sourceFingerprint": "412756d8a5198fa905e371661266205b79dcc34a35cf8fa8cfcdf3d83e46a33b",
+  "sourceFingerprint": "e5bc082a0c3bd8dde6607b5a840ae8763934a9e6ccaa3af711be004738090e6e",
   "summary": {
     "files": 1283,
-    "lines": 270618,
+    "lines": 270620,
     "symbols": 3834
   },
   "symbolIndex": {
@@ -12401,7 +12401,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 347
+        "line": 348
       }
     ],
     "allowedLeisureLocation": [
@@ -13921,31 +13921,31 @@
     "canPlaceBuilding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 294
+        "line": 295
       }
     ],
     "canBuild": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 313
+        "line": 314
       }
     ],
     "canPlantAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 320
+        "line": 321
       }
     ],
     "canRemoveAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 331
+        "line": 332
       }
     ],
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 343
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -13963,25 +13963,25 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 348
+        "line": 349
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 866
+        "line": 867
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 872
+        "line": 873
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 911
+        "line": 912
       }
     ],
     "playSound": [
@@ -34997,8 +34997,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 919,
-      "sha256": "eb3ad00a53fcf148fe225d881922692c1c2ef055b3c27c131eed9afc32dfa240",
+      "lines": 920,
+      "sha256": "1760fa3005103b56996de43edbd8270819a87a3b7b43d03ae6a4be273821123c",
       "symbols": [
         {
           "name": "toJson",
@@ -35034,43 +35034,43 @@
         },
         {
           "name": "canPlaceBuilding",
-          "line": 294
+          "line": 295
         },
         {
           "name": "canBuild",
-          "line": 313
+          "line": 314
         },
         {
           "name": "canPlantAt",
-          "line": 320
+          "line": 321
         },
         {
           "name": "canRemoveAt",
-          "line": 331
+          "line": 332
         },
         {
           "name": "act",
-          "line": 343
+          "line": 344
         },
         {
           "name": "reject",
-          "line": 347
-        },
-        {
-          "name": "near",
           "line": 348
         },
         {
+          "name": "near",
+          "line": 349
+        },
+        {
           "name": "nextStep",
-          "line": 866
+          "line": 867
         },
         {
           "name": "occupiedByOther",
-          "line": 872
+          "line": 873
         },
         {
           "name": "actionName",
-          "line": 911
+          "line": 912
         }
       ]
     },
@@ -35812,8 +35812,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt",
-      "lines": 116,
-      "sha256": "0509aa6891229b7968151fa1e467ac654a15989ead8a2e1affd6ab63450a1946",
+      "lines": 117,
+      "sha256": "790773889ad264e5fd96270f37ba03cea9b18453b64a2cf6a9de667cfc44048e",
       "symbols": []
     },
     {
