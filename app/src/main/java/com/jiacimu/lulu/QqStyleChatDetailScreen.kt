@@ -114,6 +114,7 @@ fun QqStyleChatDetailScreen(
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
+    val expiryReviews by CompanionOnlineStore.expiryReviews.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
     val replyTaskState = replyTaskStates[conversationId] ?: ChatReplyTaskManager.TaskState()
@@ -180,6 +181,7 @@ fun QqStyleChatDetailScreen(
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
     val privateOnline = onlineStates[characterId]?.isOnline() == true
+    val privateExpiryReview = !privateOnline && characterId in expiryReviews
     val listState = rememberLazyListState()
     // Chat-window history window (keyboard-lag follow-up): the raw record
     // stays in the timeline and the stores; only this window is capped.
@@ -708,11 +710,16 @@ fun QqStyleChatDetailScreen(
                                             java.time.format.DateTimeFormatter.ofPattern("HH:mm")
                                                 .withZone(java.time.ZoneId.systemDefault()).format(onlineUntil)
                                         } else ""
-                                        "${if (privateOnline) "在线至 $untilText" else "离线"} · $activeLabel"
+                                        "${when {
+                                            privateOnline -> "在线至 $untilText"
+                                            privateExpiryReview -> "正在核对未完成的事"
+                                            else -> "离线"
+                                        }} · $activeLabel"
                                     }
                                     else "$onlineMemberCount 人在线",
                                     fontSize = 10.sp,
-                                    color = if ((groupChat == null && privateOnline) || (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
+                                    color = if ((groupChat == null && (privateOnline || privateExpiryReview)) ||
+                                        (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
                                     maxLines = 1,
                                 )
                                 if (groupChat == null && visibleResponsibility != null) {
