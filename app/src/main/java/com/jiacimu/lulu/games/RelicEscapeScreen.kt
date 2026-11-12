@@ -514,6 +514,19 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
         }
         if(error.isNotBlank())RelicPanel {Text(error,color=relicRed)}
+        RelicPanel {
+            Text("宝物品质 · 越往右通常越珍贵",color=relicGold,
+                fontSize=12.sp,fontWeight=FontWeight.Bold)
+            Text("普通 ◇70–132  →  稀有 ◇185–247  →  珍贵 ◇430–492",
+                color=relicMuted,fontSize=11.sp,lineHeight=17.sp)
+            Text("✦ 传世秘宝「晨星之核」◇6000（珍贵箱极低概率）",
+                color=relicGold,fontSize=11.sp,fontWeight=FontWeight.Bold)
+            Text("祭坛珍藏「封印之心」另计；宝物必须成功撤离才真正入库。",
+                color=relicMuted,fontSize=10.sp,lineHeight=15.sp)
+            if(run!=null && run.allies.isNotEmpty())
+                Text("和伙伴玩：点右上「队伍与语音」，告诉他们想一起打怪、分头搜箱或请他送宝；角色自行选择、行动和承担后果。",
+                    color=relicGreen,fontSize=11.sp,lineHeight=17.sp)
+        }
         if(run==null || run.phase in listOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
             if(run!=null)RelicSettlement(run,snapshot.newDiscoveries)
             RelicPanel {
@@ -952,6 +965,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             Text("移动：左侧方向键每次走一格，点地图可选目标；点「定位你」回到自己。")
             Text("战斗：附近有可攻击的敌人会自动显示「攻击近敌」，无需反复点怪。短剑只打上下左右1格；长矛直线2格，弩弓直线4格并消耗弩箭。")
             Text("探索：靠近宝箱开箱，侦察会消耗一回合；敌人也会随你的行动移动或攻击。")
+            Text("宝物品质：普通（约◇70–132）→ 稀有（约◇185–247）→ 珍贵（约◇430–492）。特殊秘宝「晨星之核」价值◇6000，为当前宝箱最高价值的藏品；祭坛另有「封印之心」。")
+            Text("不同等级会有不同的揭晓光色、名称与展陈效果；真正开到的物品由本局宝箱决定，不能通过跳过动画重抽。")
+            Text("组队：先在营地邀请伙伴并等对方决定是否加入。进地图点右上「队伍与语音」，可以点麦克风说话、打字或点击协作提议；伙伴自己决定分头找箱、标记留箱、护卫、救援或送宝。真实动作会更新地图与背包，语音目前是逐句收发，不是不断线的实时电话。")
             Text("撤离：到绿门附近启动撤离，守住3回合才能带走战利品；没赶到门附近的伙伴可能掉队。")
             Text("重开：点画面右下「重开」并确认；会失去当前未撤离的宝物和已消耗的补给，永久仓库不清空。")
         }},
