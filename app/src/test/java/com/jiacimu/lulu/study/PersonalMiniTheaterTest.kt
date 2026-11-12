@@ -364,8 +364,10 @@ class PersonalMiniTheaterTest {
         val request = PersonalMiniTheater.request(work)
         assertTrue(request.facts.contains("水下城市"))
         assertFalse(request.facts.contains("月亮森林"))
-        assertTrue(request.instructions.contains("仅根据本篇明确选中的条目"))
-        assertTrue(request.facts.contains("【本篇明确选中的世界书｜仅本篇虚构设定】"))
+        assertFalse(request.instructions.contains("世界书"))
+        assertFalse(request.facts.contains("世界书"))
+        assertTrue(request.facts.contains("水下城市：海底的所有灯塔每天只在黎明鸣响。"))
+        assertFalse(PersonalMiniTheater.request(library.items.value.first { it.id == noBookId }).facts.contains("海底的所有灯塔"))
         assertEquals("", library.items.value.first { it.id == noBookId }.worldBookContext)
         val reopened = MiniTheaterLibrary(context, emptyList())
         val frozen = reopened.items.value.first { it.id == id }
@@ -382,6 +384,25 @@ class PersonalMiniTheaterTest {
             reopened.addPersonal(cast, PersonalMiniTheater.ideas.first(),
                 selectedWorldBookIds = setOf("deleted"), availableWorldBooks = books)
         }
+    }
+
+    @Test fun legacyWorldBookSnapshotIsWrittenAsPlainStoryFacts() {
+        val legacy = listOf(
+            "【本篇明确选中的世界书｜仅本篇虚构设定】",
+            "以下条目作为本篇的环境、社会与故事规律，不代表角色在原世界的真实经历。",
+            "保留本篇选定的原世界或平行世界模式及角色的稳定人格；遇到冲突，依用户本篇明确要求来安排剧情，不要擅自把另一个世界的身份和关系搬来。",
+            "- 水下城市：海底的灯塔在黎明鸣响。",
+        ).joinToString("\n")
+        val work = MiniTheaterItem(
+            id = "old-story", title = "旧番外", prompt = "潮汐之夜",
+            characterId = "story-role", characterName = "角色",
+            characterContext = "机智而克制", worldBookContext = legacy,
+        )
+        val generated = PersonalMiniTheater.request(work)
+        assertTrue(generated.facts.contains("水下城市：海底的灯塔在黎明鸣响。"))
+        assertFalse(generated.facts.contains("世界书"))
+        assertFalse(generated.instructions.contains("世界书"))
+        assertEquals(legacy, work.worldBookContext) // Keep persisted snapshot intact.
     }
 
     @Test fun truncatedModelArrayKeepsFinishedIdeasAndNeverPersistsIncompleteTail() {
