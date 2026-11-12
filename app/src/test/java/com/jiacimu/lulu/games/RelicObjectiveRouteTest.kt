@@ -73,4 +73,22 @@ class RelicObjectiveRouteTest {
         assertTrue(threatened.chests.none { it.opened })
     }
 
+    @Test fun completedChestIsNoLongerSelectableForMapRouteAfterRealWorldUpdate() {
+        val discovered=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
+        val target=RelicObjectiveGuide.visibleChest(discovered)!!
+        assertEquals(3,RelicObjectiveGuide.knownRouteSteps(discovered,target))
+
+        // The player may still have the old map tile selected after opening.
+        // Map route projection must resolve a live unopened objective, not
+        // reuse the stale selection as an authorization to draw a path.
+        val opened=discovered.copy(chests=discovered.chests.map { it.copy(opened=true) })
+        assertNull(RelicObjectiveGuide.visibleChest(opened))
+        val liveTarget=listOfNotNull(
+            RelicObjectiveGuide.visibleChest(opened),
+            RelicObjectiveGuide.visibleExit(opened)
+        ).firstOrNull { it.x==target.x && it.y==target.y }
+        assertNull(liveTarget)
+        assertTrue(opened.chests.all { it.opened })
+    }
+
 }
