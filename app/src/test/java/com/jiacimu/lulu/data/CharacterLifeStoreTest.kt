@@ -599,7 +599,10 @@ class CharacterLifeStoreTest {
         val prompt = CharacterRuntime.definition(stock.characterId).promptSection()
         assertTrue(prompt.contains("给用户留出接话位置"))
         assertTrue(prompt.contains("关系中的态度"))
-        assertTrue(prompt.contains("帅气鲜明"))
+        // v30 intentionally replaces the older "帅气鲜明" stock wording.
+        // Validate the actually authored youthful, confident style instead.
+        assertTrue(prompt.contains("少年感"))
+        assertTrue(prompt.contains("优雅"))
         assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
             CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
         val personalized = CharacterLifeStore.state(custom.characterId)
@@ -649,7 +652,10 @@ class CharacterLifeStoreTest {
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("继续学习AI", upgraded.getJSONObject("intention").getString("aim"))
         val prompt = CharacterRuntime.definition(stock.characterId).promptSection()
-        assertTrue(prompt.contains("帅气鲜明"))
+        // v30 intentionally replaces the older "帅气鲜明" stock wording.
+        // Validate the actually authored youthful, confident style instead.
+        assertTrue(prompt.contains("少年感"))
+        assertTrue(prompt.contains("优雅"))
         assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"),
             CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
         assertTrue(prompt.contains("认真讨论或被追问时再展开"))
