@@ -1,3 +1,5 @@
+**2026-11-12 UI-02.2 · 会话清空/删除写入拒绝原子性（本轮待 CI）**：[426f815](https://github.com/jiacimu-droid/lulu1/commit/426f81516e66999c1e5bf881376f5827c82773f1) 修正 `InMemoryLuluChatStore.clearConversationMessages/deleteConversation` 先销毁内存投影再异步 `apply()` 的缺口，改为持久 `commit()` 失败即恢复会话与消息，且失败不得撤回时间线、清理图片或通知；[f1fd735](https://github.com/jiacimu-droid/lulu1/commit/f1fd735a9a70db402d9e24649f82219a7186c66e) 增加拒绝提交、原始消息/会话不变、重建 Store 原文不丢的 Robolectric 回归。此前 edit/delete 的 [#43177072436](https://github.com/jiacimu-droid/lulu1/actions/runs/43177072436) 被并发 push 取消，不能判成功；后继 [#43180316840](https://github.com/jiacimu-droid/lulu1/actions/runs/43180316840) 完成成功且包含该祖先，但本轮新提交仍须核其自身或后继完整 JVM/APK 与索引。下一轮直接打开 `ChatHistoryPersistenceBaselineTest.rejectedConversationRemovalPreservesOriginalAndReopenedHistory` 查首错；若通过，核 `replaceCharacterReply` 等剩余非持久编辑路径，真机进程死亡/真实模型独立待验。
+
 # 人物一致性：整体因果链核查与修复
 
 ## 2026-11-12 · P-08b.1 群聊导演向本人只交接发言机会和对象
