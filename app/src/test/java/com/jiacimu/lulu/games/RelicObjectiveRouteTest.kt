@@ -119,4 +119,27 @@ class RelicObjectiveRouteTest {
     }
 
 
+    @Test fun manuallySelectedExitUsesOnlyDiscoveredSafeRouteAndNeverMovesHero() {
+        val discovered=corridor().copy(
+            chests=emptyList(),
+            exitX=6,exitY=2,
+            seen=(2..6).map { 2*12+it }.toSet()
+        )
+        val exit=RelicObjectiveGuide.selectedVisible(discovered,6,2)!!
+        assertEquals("已发现的撤离门",exit.label)
+        assertEquals(listOf(2 to 2,3 to 2,4 to 2,5 to 2),
+            RelicObjectiveGuide.knownRouteTiles(discovered,exit))
+        assertEquals(3,RelicObjectiveGuide.knownRouteSteps(discovered,exit))
+        assertEquals(2 to 2,discovered.hero.x to discovered.hero.y)
+
+        val fog=discovered.copy(seen=setOf(2*12+2))
+        assertNull(RelicObjectiveGuide.selectedVisible(fog,6,2))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(fog,exit))
+        val blocked=discovered.copy(mobs=listOf(RelicMob(93,4,2,5,0)))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(blocked,exit))
+        assertNull(RelicObjectiveGuide.selectedVisible(
+            discovered.copy(phase=RelicPhase.FAILURE),6,2))
+    }
+
+
 }
