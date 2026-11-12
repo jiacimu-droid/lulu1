@@ -41,6 +41,35 @@ class RelicEscapeRulesTest {
         assertEquals(3,RelicTier.values().size)
     }
 
+    @Test fun eliteAndPriestSkillsTelegraphTwoTileLanesButNeverHitThroughWalls() {
+        val world=RelicEscapeWorld.create(3159,1,emptyList(),0,1).copy(
+            tiles=List(18*15){0},mobs=emptyList(),chests=emptyList(),sites=emptyList(),
+            seen=(0 until 18*15).toSet())
+        val hero=world.hero.copy(x=6,y=5)
+        val enemy=RelicMob(77,8,5,5,2)
+        val inLane=world.copy(hero=hero,mobs=listOf(enemy))
+        assertEquals(2,RelicEscapeRules.enemyThreatRange(enemy))
+        assertTrue(RelicEscapeRules.canEnemyStrike(inLane,enemy,hero))
+        val warned=RelicEscapeRules.act(inLane,"wait")
+        assertTrue(warned.mobs.single().windup)
+        assertEquals(hero.hp,warned.hero.hp)
+        val hit=RelicEscapeRules.act(warned,"wait")
+        assertEquals(hero.hp-3,hit.hero.hp)
+        val blocked=RelicEscapeRules.act(warned,"defend")
+        assertEquals(hero.hp,blocked.hero.hp)
+        val middle=world.index(7,5)
+        val wall=inLane.copy(tiles=inLane.tiles.toMutableList().also{it[middle]=1})
+        assertFalse(RelicEscapeRules.canEnemyStrike(wall,enemy,hero))
+        val safe=RelicEscapeRules.act(wall,"wait")
+        assertEquals(hero.hp,safe.hero.hp)
+        assertFalse(safe.mobs.single().windup)
+        val melee=enemy.copy(kind=1)
+        assertEquals(1,RelicEscapeRules.enemyThreatRange(melee))
+        assertFalse(RelicEscapeRules.canEnemyStrike(inLane,melee,hero))
+        assertFalse(RelicEscapeRules.act(inLane.copy(mobs=listOf(melee)),"wait")
+            .mobs.single().windup)
+    }
+
     @Test fun highContractsRequireRealKillsSecuredItemsAndDifficulty() {
         val base=RelicEscapeWorld.create(5312,1,emptyList(),0,1,
             difficulty=RelicDifficulty.HARD)
