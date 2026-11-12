@@ -147,8 +147,21 @@ class InMemoryLuluChatStore : LuluChatStore {
                     }
                 }
                 .sortedWith(conversationOrdering())
+            // A crash can occur after the chat flag was durably cleared but before
+            // the independent favorite archive accepted removal. The archive keeps
+            // the irreplaceable saved content (including voice); reconcile only
+            // this conservative direction, without deleting either source.
+            val restored = loaded.second.mapValues { (_, messages) ->
+                messages.map { message ->
+                    if (!message.favorite && UserMessageFavorites.store.contains(message.id))
+                        message.copy(favorite = true)
+                    else message
+                }
+            }
+            val reconciled = restored != loaded.second &&
+                prefs?.edit()?.putString(CHAT_STATE, encode(loaded.first, restored).toString())?.commit() == true
             messageStates.clear()
-            loaded.second.forEach { (conversationId, messages) ->
+            (if (reconciled) restored else loaded.second).forEach { (conversationId, messages) ->
                 messageStates[conversationId] = MutableStateFlow(messages)
             }
         }
