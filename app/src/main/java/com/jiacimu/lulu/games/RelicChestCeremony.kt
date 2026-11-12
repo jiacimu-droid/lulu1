@@ -38,6 +38,13 @@ internal data class RelicRevealFrame(
 )
 
 internal object RelicRevealTimeline {
+    /** Rarity has a readable physical signature, without extra particle storms. */
+    fun glintCount(loot: RelicLoot): Int = when {
+        RelicCollectibles.isCrownJewel(loot.name) -> 6
+        loot.tier == RelicTier.PRECIOUS -> 4
+        loot.tier == RelicTier.RARE -> 2
+        else -> 0
+    }
     fun at(progress: Float): RelicRevealFrame {
         val p = progress.coerceIn(0f,1f)
         val lid = ((p-.09f)/.40f).coerceIn(0f,1f)
@@ -78,6 +85,7 @@ internal fun RelicChestCeremony(
     }
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
     val rank = RelicCollectibles.displayRank(receipt.loot)
+    val glints = RelicRevealTimeline.glintCount(receipt.loot)
     val rarityCue = when {
         legendary -> "✦ 传世秘宝 · 至臻之光 ✦"
         receipt.loot.tier == RelicTier.PRECIOUS -> "✧ 珍贵 · 金色辉光"
@@ -150,6 +158,19 @@ internal fun RelicChestCeremony(
                         }
                     }
                     if(reveal>0f) {
+                        // Plain finds stay quiet; rare finds glow blue-silver;
+                        // precious finds show a gold ring; the singular crown
+                        // jewel gets a second concentric halo.
+                        if(glints>0) {
+                            drawCircle(tint.copy(alpha=(.15f+.14f*reveal)*reveal),
+                                radius=h*(.34f+.10f*reveal),
+                                center=center+Offset(0f,-h*.18f),
+                                style=androidx.compose.ui.graphics.drawscope.Stroke(h*.007f))
+                            if(legendary) drawCircle(tint.copy(alpha=.34f*reveal),
+                                radius=h*(.43f+.09f*reveal),
+                                center=center+Offset(0f,-h*.18f),
+                                style=androidx.compose.ui.graphics.drawscope.Stroke(h*.012f))
+                        }
                         // The exact physical loot gets much larger as the box
                         // fades. At full reveal it is the ONLY principal object.
                         val jewelCenter=Offset(x,
@@ -159,9 +180,10 @@ internal fun RelicChestCeremony(
                             drawTreasure(receipt.loot.name,jewelCenter,diameter,
                                 tint,reveal)
                         }
-                        // Four tiny glints at most; not a noisy halo of particles.
-                        for(i in 0 until 4) {
-                            val a=i*1.5707963f+.43f
+                        // 0 / 2 / 4 / 6 tiny highlights are the rarity's
+                        // consistent reveal signature, not random visual noise.
+                        for(i in 0 until glints) {
+                            val a=i*(6.2831853f/glints)+.43f
                             val d=diameter*.60f
                             drawCircle(tint.copy(alpha=.21f*reveal),
                                 h*.014f,
