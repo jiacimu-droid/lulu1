@@ -9,7 +9,7 @@ import java.security.MessageDigest
  */
 internal object LuluVirtualUiPolicy {
     private val outward = Regex(
-        "(付款|支付|转账|购买|下单|结算|发送|发消息|评论|回复|发布|提交|确定|确认|删除|清空|注销|解绑|关注|点赞|收藏|喜欢|拨打|接听|挂断|" +
+        "(付款|支付|转账|购买|下单|结算|购物车|加购|选规格|选择规格|cart|checkout|发送|发消息|评论|回复|发布|提交|确定|确认|删除|清空|注销|解绑|关注|点赞|收藏|喜欢|拨打|接听|挂断|" +
             "password|passcode|otp|payment|checkout|order|buy|purchase|send|message|comment|reply|post|submit|confirm|delete|remove|clear|logout|unfollow|follow|like|favorite|subscribe|call)",
         RegexOption.IGNORE_CASE,
     )
