@@ -32,7 +32,8 @@ internal object IslandChallengeBoard {
         },
         IslandChallenge("home","有灯光的家","建好宠物小屋与夜灯",
             "木材 +4、石料 +2",wood=4,stone=2) { s ->
-            s.structures.values.containsAll(listOf("pet_house","lantern"))
+            "pet_house" in s.structures.values &&
+                s.structures.values.any { it=="lantern" || it=="crystal_lantern" }
         },
     ) + IslandExpeditionTrail.landmarks.map { place ->
         IslandChallenge(
