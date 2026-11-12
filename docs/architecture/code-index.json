@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T07:58:14.581687+00:00",
-  "commit": "6b653eae05f47bc3a2397565ca62beaeb3d2b5a0",
+  "generatedAt": "2026-11-12T07:59:30.119221+00:00",
+  "commit": "e001bc1ff75146432dc3ea140a21caeb2f2f50e5",
   "branch": "main",
-  "sourceFingerprint": "14c50d9458c477ca4f79078a4bf4f386ee399beaf2fd90ddfd75ef346020dd56",
+  "sourceFingerprint": "144300772e9758ad527294b24b2436d7f47cb50a044bb0e4e74fe97631ccb742",
   "summary": {
     "files": 1263,
-    "lines": 267021,
+    "lines": 267026,
     "symbols": 3768
   },
   "symbolIndex": {
@@ -20811,7 +20811,7 @@
     "LuluBackgroundPhoneArgumentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
-        "line": 11
+        "line": 16
       }
     ],
     "LuluBackgroundPhonePreviewGateTest": [
@@ -44296,12 +44296,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
-      "lines": 57,
-      "sha256": "f0e744578792bc9ae90ed3658b6499d62717a8d099755dce17108e10227dc80d",
+      "lines": 62,
+      "sha256": "50db4a430b793aaacee38a9c4bacdb6aaac2945f1719fbd7cb6af2bf7d3676bb",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneArgumentPolicyTest",
-          "line": 11
+          "line": 16
         }
       ]
     },
