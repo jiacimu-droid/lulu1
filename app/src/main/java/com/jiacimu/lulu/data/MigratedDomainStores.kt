@@ -781,10 +781,28 @@ class InMemoryLuluChatStore : LuluChatStore {
     }
 
     fun removeUserFavorite(messageId: String): Boolean = synchronized(lock) {
-        if (!UserMessageFavorites.store.remove(messageId)) return false
-        mutateMessagesContaining(messageId) { messages -> messages.map {
+        // The archive can also contain entries whose original chat was deleted.
+        // For a live message, commit its visible flag before deleting archive
+        // content (which may include a voice file that cannot be reconstructed).
+        val existing = conversationState.value.firstNotNullOfOrNull { conversation ->
+            messageStates[conversation.id]?.value?.firstOrNull { it.id == messageId }
+        }
+        if (existing == null) return UserMessageFavorites.store.remove(messageId)
+        if (!existing.favorite) return UserMessageFavorites.store.remove(messageId)
+        val changed = mutateMessagesContaining(messageId) { messages -> messages.map {
             if (it.id == messageId) it.copy(favorite = false) else it
         } }
+        if (!changed) return false
+        val removed = runCatching { UserMessageFavorites.store.remove(messageId) }.getOrDefault(false)
+        if (!removed) {
+            // Never report success when only one of the two stores changed.
+            // A failed compensating commit must propagate instead of hiding
+            // a potentially inconsistent state from the caller.
+            mutateMessagesContaining(messageId) { messages -> messages.map {
+                if (it.id == messageId) it.copy(favorite = existing.favorite) else it
+            } }
+            return false
+        }
         true
     }
 
