@@ -669,11 +669,14 @@ object ProactivePerceptionRuntime {
     ): Action? {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
-        if (unread.text.isBlank()) return evaluateCharacterWithActivity(
-            appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
-            onlineRevision,
-        )
-        return ChatGenerationActivity.duringWithLease(characterId, unread.conversationIds + conversation.id) { leaseId ->
+        // ALL genuine role decision/tool work must have an execution lease,
+        // including self-initiated phone browsing with no unread chat. A busy
+        // character cannot simultaneously be sleeping because the five-minute
+        // clock ran out. Only an actual reply turn shows "正在输入中".
+        return ChatGenerationActivity.duringWithLease(
+            characterId, unread.conversationIds + conversation.id,
+            awaitingModel = unread.text.isNotBlank(),
+        ) { leaseId ->
             try {
                 evaluateCharacterWithActivity(
                     appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
