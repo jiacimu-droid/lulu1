@@ -45,6 +45,16 @@ internal object RelicObjectiveGuide {
             RelicObjectiveTarget(run.exitX,run.exitY,"已发现的撤离门")
         else null
 
+    /** A manual map tap can target any *currently* discovered unopened chest,
+     * not just the nearest HUD suggestion. Never keep a stale opened target. */
+    fun selectedVisible(run:RelicRun,x:Int,y:Int):RelicObjectiveTarget? {
+        if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
+            !run.bounds(x,y) || !run.visible(x,y)) return null
+        if(run.chests.any { !it.opened && it.x==x && it.y==y })
+            return RelicObjectiveTarget(x,y,"已发现的宝箱")
+        return visibleExit(run)?.takeIf { it.x==x && it.y==y }
+    }
+
     fun optionLabel(run:RelicRun,target:RelicObjectiveTarget):String {
         val knownSteps=knownRouteSteps(run,target)
         return if(knownSteps==null) "路径未探明"
