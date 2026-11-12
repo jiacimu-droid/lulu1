@@ -70,6 +70,7 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("本机无线调试已保存配对密钥=true"))
             assertTrue(status.contains("已保存配对密钥≠本次已连接shell"))
             assertTrue(status.contains("action=tool,tool=background_phone"))
+            assertTrue(status.contains("launch会在必要时先建立独立屏"))
             assertTrue(status.contains("准确显示名称appName"))
             assertTrue(status.contains("sendToChat"))
             assertTrue(status.contains("tap_element"))
