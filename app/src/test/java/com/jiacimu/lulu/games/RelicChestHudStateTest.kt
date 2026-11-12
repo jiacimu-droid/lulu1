@@ -77,4 +77,24 @@ class RelicChestHudStateTest {
     }
 
 
+    @Test fun successivePhysicalChestResultsKeepOnlyLatestEvidenceAcrossSkipAndNoOp() {
+        val firstBag = receipt(chest = 7, inBag = true)
+        val secondDrop = receipt(chest = 8, inBag = false)
+        val first = RelicChestHudState().committed(firstBag).dismiss(firstBag)
+        // A saved but rejected tap cannot turn the previous real bag item into a drop.
+        assertEquals(firstBag, first.afterWorldTurn(21, 21).lastCommitted)
+        // A committed world turn clears only HUD evidence; the next chest has its own receipt.
+        val second = first.afterWorldTurn(21, 22).committed(secondDrop)
+        assertEquals(secondDrop, second.opening)
+        assertEquals(secondDrop, second.lastCommitted)
+        assertFalse(second.lastCommitted!!.inBag)
+        // Late completion from the previous chest cannot dismiss or overwrite the new one.
+        assertEquals(second, second.dismiss(firstBag))
+        val skipped = second.dismiss(secondDrop)
+        assertNull(skipped.opening)
+        assertEquals(secondDrop, skipped.lastCommitted)
+        assertFalse(skipped.lastCommitted!!.inBag)
+        assertEquals(RelicChestHudState(), skipped.afterWorldTurn(22, 23))
+    }
+
 }
