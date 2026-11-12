@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T09:43:22.429496+00:00",
-  "commit": "8c084ce1344b056fa5ae94af979fe6ae3ed17090",
+  "generatedAt": "2026-11-12T09:44:01.383222+00:00",
+  "commit": "3b982168908d81c4c15f0ddc4b60f364059e5673",
   "branch": "main",
-  "sourceFingerprint": "82cc6ce8e513089e9ce3bd4dad91322251598259c2869acc8c7aea40cc78b5b9",
+  "sourceFingerprint": "65a48f9934bcd997bf92dbea82cbf8672e8469f849c6b0c620b6fb25c8791b18",
   "summary": {
     "files": 1272,
-    "lines": 268337,
-    "symbols": 3791
+    "lines": 268372,
+    "symbols": 3792
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4689,7 +4689,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
-        "line": 45
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
@@ -15994,6 +15994,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
         "line": 168
+      }
+    ],
+    "showPaymentHandoff": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
+        "line": 52
       }
     ],
     "requireAccess": [
@@ -37511,16 +37517,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
-      "lines": 61,
-      "sha256": "ba044030d69904099ffd6eecf34627ebe86d27e132286d805bfa3dd403688908",
+      "lines": 96,
+      "sha256": "3d8127911b48a8c487c140624d12f664945d72d0006a01f727b9252eb9e2e1f8",
       "symbols": [
         {
           "name": "show",
           "line": 22
         },
         {
+          "name": "showPaymentHandoff",
+          "line": 52
+        },
+        {
           "name": "clear",
-          "line": 45
+          "line": 80
         }
       ]
     },
