@@ -122,7 +122,24 @@ internal object BlockIslandArt {
                 val base = origin(x, y)
                 when (w.cell(x, y)) {
                     1 -> drawTree(base, tile, x, y, phase)
-                    2 -> drawBoulder(base, tile, x, y)
+                    2 -> {
+                        drawBoulder(base, tile, x, y)
+                        if(IslandProgression.crystalVein(w.seed,w.index(x,y))) {
+                            val c=base+Offset(tile*.59f,tile*.39f)
+                            val crystal=Path().apply {
+                                moveTo(c.x,c.y-tile*.20f)
+                                lineTo(c.x+tile*.16f,c.y)
+                                lineTo(c.x,c.y+tile*.18f)
+                                lineTo(c.x-tile*.14f,c.y)
+                                close()
+                            }
+                            drawCircle(Color(0xFF83ECF2).copy(alpha=.17f+
+                                .11f*(.5f+.5f*sin(phase*6.28318f))),tile*.28f,c)
+                            drawPath(crystal,Color(0xFF70C9F4))
+                            drawLine(Color(0xFFD8FCFF),c+Offset(0f,-tile*.16f),
+                                c+Offset(0f,tile*.14f),strokeWidth=tile*.024f)
+                        }
+                    }
                     3 -> drawWall(base, tile)
                     7 -> drawSpawn(base, tile, phase)
                 }
@@ -133,6 +150,13 @@ internal object BlockIslandArt {
                     "bed" -> drawBed(base, tile)
                     "campfire" -> drawFire(base, tile, phase, night)
                     "lantern" -> drawIslandLantern(base, tile, phase)
+                    "crystal_lantern" -> {
+                        drawIslandLantern(base,tile,phase)
+                        val c=base+Offset(tile*.50f,tile*.29f)
+                        drawCircle(Color(0xFF97DAF7).copy(alpha=.28f),tile*.36f,c)
+                        drawCircle(Color(0xFFBDFBFF),tile*.14f,c)
+                        drawCircle(Color(0xFF57B3E5),tile*.08f,c)
+                    }
                     "pet_house" -> drawPetHouse(base, tile)
                     "garden" -> {
                         // Each visible leaf corresponds to a crop persisted in the save.
@@ -164,6 +188,22 @@ internal object BlockIslandArt {
                     }
                 }
             }
+        }
+        // Dropped supplies remain on the real map until a player recovers them.
+        island.lostPacks.forEach { (index,pack) ->
+            val x=index%w.width
+            val y=index/w.width
+            if(x !in left until left+cols || y !in top until top+rows) return@forEach
+            val p=origin(x,y)
+            val pulse=.5f+.5f*sin(phase*6.28318f)
+            drawCircle(Color(0xFFFFD8A6).copy(alpha=.13f+.12f*pulse),
+                radius=tile*.53f,center=center(x,y))
+            drawRoundRect(Color(0xFF5C413A),p+Offset(tile*.22f,tile*.29f),
+                Size(tile*.55f,tile*.53f),CornerRadius(tile*.12f))
+            drawRoundRect(Color(0xFFB88451),p+Offset(tile*.28f,tile*.30f),
+                Size(tile*.43f,tile*.39f),CornerRadius(tile*.10f))
+            drawRect(Color(0xFFF0DDB2),p+Offset(tile*.45f,tile*.49f),
+                Size(tile*.09f,tile*.08f))
         }
         island.houseProject?.takeIf { it.phase=="complete" }?.let { house ->
             if(house.left+3>=left && house.left<left+cols &&
@@ -214,13 +254,19 @@ internal object BlockIslandArt {
                 for (x in left until (left + cols).coerceAtMost(w.width)) {
                     val index = w.index(x, y)
                     val decor = island.structures[index]
-                    if (decor == "campfire" || decor == "lantern" || w.cell(x, y) == 7) {
+                    if (decor == "campfire" || decor == "lantern" ||
+                        decor == "crystal_lantern" || w.cell(x, y) == 7) {
                         val c = center(x, y)
-                        val bright=if(decor=="lantern")1.9f else 1.4f
+                        val bright=if(decor=="crystal_lantern")2.8f
+                            else if(decor=="lantern")1.9f else 1.4f
                         drawCircle(Color(0xFFFFCF87).copy(alpha = .11f), tile*bright, c)
                         drawCircle(Color(0xFFFFDB9A).copy(alpha = .19f), tile*.85f, c)
                         if(decor=="lantern")
                             drawCircle(Color(0xFFFFF0C1).copy(alpha=.18f),tile*.38f,c)
+                        if(decor=="crystal_lantern") {
+                            drawCircle(Color(0xFF9BDDF8).copy(alpha=.15f),tile*2.9f,c)
+                            drawCircle(Color(0xFFCAF6FF).copy(alpha=.24f),tile*.9f,c)
+                        }
                     }
                 }
             }
@@ -248,6 +294,7 @@ internal object BlockIslandArt {
                 } -> Color(0xFFFFDCAC)
                 w.friends.any { it.hp <= 0 && it.x == x && it.y == y } &&
                     island.fruit >= 2 -> Color(0xFFA9F4E8)
+                w.index(x,y) in island.lostPacks -> Color(0xFFFFD4A0)
                 w.cell(x, y) in 1..2 -> Color(0xFFA9EDAD)
                 w.cell(x, y) == 8 && "rod" in island.tools -> Color(0xFF8EDCF2)
                 else -> null
