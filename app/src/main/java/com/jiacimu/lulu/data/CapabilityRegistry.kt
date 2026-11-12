@@ -153,8 +153,8 @@ object CapabilityRegistry {
                 "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。")
             appendLine("实际决定使用时：action=tool,tool=background_phone," +
                 "args={\"action\":\"start\"}；启动成功后可在同一角色的工具后续流程" +
-                "选择launch/observe/tap/swipe/type/back/stop，打开应用可以传真实packageName，或传已安装App的准确显示名称appName（本机精确匹配；找不到或重名就报告，不能猜包名）。" +
-                "若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+                "选择launch/observe/tap/swipe/type/submit/back/stop，打开应用可以传真实packageName，或传已安装App的准确显示名称appName（本机精确匹配；找不到或重名就报告，不能猜包名）。" +
+                "后台搜内容需要自行选择tap搜索框、type输入、submit提交，再看真实结果；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
 
