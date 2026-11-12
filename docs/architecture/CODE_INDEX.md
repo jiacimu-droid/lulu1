@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`665ba7ba91bb29fc57d9338a4211f9c282e5d32d`
+- 基准提交：`97e68b98d69a060a625b4a6ff26b36e2f1a6689f`
 - 分支：`main`
-- 已索引文件：1209
-- 已索引代码/文本行：261082
-- 已发现符号：3651
+- 已索引文件：1210
+- 已索引代码/文本行：261131
+- 已发现符号：3652
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -568,7 +568,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 605 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 324 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 341 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
@@ -1094,6 +1094,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |

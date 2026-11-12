@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T01:51:05.831362+00:00",
-  "commit": "665ba7ba91bb29fc57d9338a4211f9c282e5d32d",
+  "generatedAt": "2026-11-12T01:53:32.811533+00:00",
+  "commit": "97e68b98d69a060a625b4a6ff26b36e2f1a6689f",
   "branch": "main",
-  "sourceFingerprint": "e2beddb6f998316543ffded93e57c83be393ad5e4986b88ef74911cfc42ff6ba",
+  "sourceFingerprint": "87281ee8816fa74718563546833b042fe6f9c290d7a2480c70d6a0c14da011e8",
   "summary": {
-    "files": 1209,
-    "lines": 261082,
-    "symbols": 3651
+    "files": 1210,
+    "lines": 261131,
+    "symbols": 3652
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19464,6 +19464,12 @@
         "line": 25
       }
     ],
+    "ReanswerMemoryBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt",
+        "line": 6
+      }
+    ],
     "RelationshipPreferenceGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
@@ -32398,8 +32404,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 324,
-      "sha256": "4664bd8af1378a7e16b367f565602989cd1bee1566e148558998c27ed9e0e773",
+      "lines": 341,
+      "sha256": "9492b92187790433f6f85bb7b0c8fc12bb763ca000d597fcfb6004facbde77cf",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -41631,6 +41637,17 @@
         {
           "name": "ReadingReactionIntegrationTest",
           "line": 25
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt",
+      "lines": 32,
+      "sha256": "8c4cd83e568c6b90d5a24bec55e78e5615057b8ac4c368171d964ab5173b6328",
+      "symbols": [
+        {
+          "name": "ReanswerMemoryBoundaryTest",
+          "line": 6
         }
       ]
     },
