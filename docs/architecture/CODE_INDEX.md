@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c9cb2fb2f0c2f4da630d651492d7f86e8076c6a5`
+- 基准提交：`483584ee6e55fa1d404709d6e7ce44bbdcb3fb71`
 - 分支：`main`
 - 已索引文件：1222
-- 已索引代码/文本行：262981
+- 已索引代码/文本行：263048
 - 已发现符号：3677
 
 | 文件 | 行数 | 符号数 |
@@ -1007,7 +1007,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt` | 267 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 118 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 185 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 526 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 88 | 1 |
