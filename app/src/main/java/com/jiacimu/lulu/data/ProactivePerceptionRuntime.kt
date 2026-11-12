@@ -3052,14 +3052,25 @@ object ProactivePerceptionRuntime {
                     }
                 ).takeLast(9_000)
                 val lastImage = phoneOutcomes.lastOrNull()?.lastImage
+                // The owner may already have seen a screenshot or a previous
+                // reply while this asynchronous phone task ran. Ground the
+                // follow-up in actually delivered bubbles, not just a draft.
+                val recentDeliveredChat = PhoneTaskNarrativeContext.render(
+                    MigratedDomainStores.chat.messages(destination.id).value,
+                    character.characterId,
+                )
                 val suggested = runCatching {
                     LuluAiServices.gateway.generate(
                         characterId = character.characterId,
                         facts = "主人原始要求：${userText.take(900)}\n" +
+                            "本会话最近真正送达的聊天记录（按时间顺序，图片只有已保存的文字描述，不代表本轮重新看到像素）：\n" +
+                            recentDeliveredChat + "\n" +
                             "你在本机独立后台虚拟屏实际执行的真实过程与回执（与主屏不同）：\n" +
-                            report + "\n之前已经对主人说过：${decision.text.take(300)}",
+                            report + "\n这次行动最初的发言计划（不一定已经送达）：${decision.text.take(300)}",
                         instruction = """
                             你本人刚刚尝试完成一项真实后台手机操作。
+                            对照同一聊天中已经实际发送的消息，承接已经分享的截图、候选或进度，
+                            不要把已经向主人展示过的结果又描述成刚开始查找；未知的效果仍应说未知。
                             仅凭上面的真实工具回执及本轮附上的后台虚拟屏图像自然接续汇报。
                             如果还没有真的打开目标App、获得真实画面、或滑动未核实，就直说卡在哪儿；
                             虚拟屏创建成功不等于刷完视频。没有本轮真实后台图片，就绝不能
