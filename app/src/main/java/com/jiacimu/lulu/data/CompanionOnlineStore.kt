@@ -1043,6 +1043,12 @@ internal object CompanionSleepHandoff {
             .filter { it.status == "planned" && it.dueAt.isAfter(now) }
             .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
         return CommitmentTaskStore.active(characterId).filter { task ->
+            // An undated ongoing responsibility lives in the durable duty
+            // ledger and returns to attention at future natural awakenings.
+            // It does not by itself authorize a forced alarm every sleep.
+            // The role can still schedule a real review or activity when it
+            // chooses an actual future step; dated promises remain protected.
+            if (task.dueAt == null) return@filter false
             // An already-running executor owns its current action. Do not race
             // it by registering an independent copy before its real receipt.
             if (task.status == CommitmentTaskStatus.Running) return@filter false
