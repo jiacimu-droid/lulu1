@@ -32,6 +32,18 @@ class QqChatImageViewerTest {
         assertEquals(100f, result.y, 0.001f)
     }
 
+    @Test fun nonScrollableAxesHaveCanonicalPositiveZeroAfterPinchAndDrag() {
+        val result = nextQqPhotoTransform(
+            QqPhotoTransform(scale = 2f, x = -10f, y = 30f),
+            0.5f, 80f, 190f, -20f, -50f,
+            500, 800, 200, 800,
+        )
+        assertEquals(1f, result.scale, 0.001f)
+        assertEquals(0f.toRawBits(), result.x.toRawBits())
+        assertEquals(0f.toRawBits(), result.y.toRawBits())
+        assertEquals(QqPhotoTransform(), result)
+    }
+
     @Test fun returningToFitResetsZoomAndPan() {
         val result = nextQqPhotoTransform(
             QqPhotoTransform(4f, 200f, -300f), 0.1f, 100f, 100f, 100f, 100f,
