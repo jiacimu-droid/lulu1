@@ -151,9 +151,9 @@ object CapabilityRegistry {
             appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
                 "应说明具体缺的是哪项，不能说没有background_phone这个工具。" +
                 "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。")
-            appendLine("实际决定使用时：action=tool,tool=background_phone," +
-                "args={\"action\":\"start\"}；启动成功后可在同一角色的工具后续流程" +
-                "选择launch/observe/tap/tap_element/swipe/focus_search/type/submit/back/stop，打开应用可以传真实packageName，或传已安装App的准确显示名称appName（本机精确匹配；找不到或重名就报告，不能猜包名）。" +
+            appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
+                "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
+                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/focus_search/type/submit/back/stop；找不到或重名就报告，不能猜包名。" +
                 "后台搜索可自己选择focus_search精准聚焦唯一无障碍搜索框；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。随后type输入、submit提交并核对真实结果；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
