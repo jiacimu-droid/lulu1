@@ -368,6 +368,33 @@ internal object BlockIslandRules {
                 message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
                 else "开采矿石 +$amount"
             }
+            "house_warm", "house_pine" -> {
+                if (!IslandHouseProjects.canStartPlayer(s,tx,ty))
+                    return reject("这里放不下完整的3×3小屋；先找附近九格连续空地")
+                val style=if(action=="house_pine")"pine" else "warm"
+                next=s.copy(houseProject=IslandHouseProject("player",tx,ty,style=style))
+                message="画好了${IslandHouseProjects.styleName(style)}蓝图！走到高亮材料格旁，分9步施工，共需17木"
+            }
+            "house_step" -> {
+                val project=s.houseProject
+                val part=IslandHouseProjects.nextPlayerPart(s)
+                    ?: return reject("还没有正在施工的个人小屋")
+                if(project==null || part.first!=index || !IslandHouseProjects.canPlayerBuildNext(s))
+                    return reject("走近下一处施工位，备足1～2木材后再施工")
+                val (cellIndex,kind)=part
+                val cost=if(kind=="floor")1 else 2
+                val newTiles=w.tiles.toMutableList().also { it[cellIndex]=if(kind=="wall")3 else 4 }
+                val placed=project.placed+cellIndex
+                next=s.copy(
+                    world=w.copy(tiles=newTiles,wood=w.wood-cost),
+                    structures=if(kind=="door")s.structures+(cellIndex to "door")else s.structures,
+                    houseProject=project.copy(placed=placed,
+                        phase=if(placed.size==9)"complete" else "building"),
+                )
+                message=if(placed.size==9)
+                    "✦ ${IslandHouseProjects.styleName(project.style)}完工！真正的屋顶和外墙已经出现在地图上"
+                else "亲手安放${if(kind=="floor")"地板" else if(kind=="door")"木门" else "墙体"} · 小屋${placed.size}/9"
+            }
             "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden" -> {
                 if (!canPlaceBuilding(s, action, tx, ty))
                     return reject("这里无法放置，靠近空地后再试")
@@ -433,6 +460,11 @@ internal object BlockIslandRules {
                         .copy(wood = w.wood + refundWood, stone = w.stone + refundStone),
                     structures = s.structures - index,
                     gardens = s.gardens - index,
+                    houseProject = s.houseProject?.let { project ->
+                        if(project.ownerId=="player" && index in project.placed)
+                            project.copy(placed=project.placed-index,phase="building")
+                        else project
+                    },
                 )
                 message = "拆除了${if (structure == null) "建筑" else actionName(structure)}，返还部分材料"
             }
