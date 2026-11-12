@@ -383,7 +383,19 @@ internal object LuluBackgroundPhoneSession {
                 args.optString("packageName").isBlank()) {
                 // A model can choose the actual installed app by its visible name;
                 // the local resolver never guesses a package or bypasses exclusions.
-                LuluInstalledAppResolver.resolve(context, args.optString("appName"))
+                // A bad or ambiguous app label is a recoverable decision
+                // error. It must not destroy a previously opened virtual App.
+                val lookup = runCatching {
+                    LuluInstalledAppResolver.resolve(context, args.optString("appName"))
+                }
+                if (lookup.isFailure) return JSONObject()
+                    .put("success", false).put("accepted", false)
+                    .put("status", "failed").put("errorCode", "app_resolution_failed")
+                    .put("mode", "independent_virtual_display")
+                    .put("sessionPreserved", connected()).put("taskCompleted", false)
+                    .put("verification", lookup.exceptionOrNull()?.message.orEmpty()
+                        .take(220)).toString()
+                lookup.getOrThrow()
             } else args.optString("packageName").trim()
             if (action == "launch") {
                 if (requestedPackage.isEmpty()) return JSONObject()
@@ -392,13 +404,19 @@ internal object LuluBackgroundPhoneSession {
                     .put("mode", "independent_virtual_display")
                     .put("sessionPreserved", connected()).put("taskCompleted", false)
                     .put("verification", "未找到唯一匹配的已安装应用；请核对应用名称或准确包名").toString()
-                check(!LuluScreenAwareness.isExcluded(context, requestedPackage)) {
-                    "该应用处于主人的隐私排除名单，不允许操作"
-                }
+                if (LuluScreenAwareness.isExcluded(context, requestedPackage))
+                    return JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "denied").put("errorCode", "excluded_app")
+                        .put("mode", "independent_virtual_display")
+                        .put("sessionPreserved", connected()).put("taskCompleted", false)
+                        .put("verification", "该应用处于主人的隐私排除名单，未启动").toString()
                 val main = withContext(Dispatchers.Main) { LuluAccessibilityService.observe() }
-                check(main.packageName != requestedPackage) {
-                    "主人正在主屏使用这个 App，不允许将它移到后台屏幕"
-                }
+                if (main.packageName == requestedPackage)
+                    return JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "unverified").put("errorCode", "owner_using_app")
+                        .put("mode", "independent_virtual_display")
+                        .put("sessionPreserved", connected()).put("taskCompleted", false)
+                        .put("verification", "主人正在主屏使用这个App，未尝试移动到后台屏幕").toString()
             }
             val id = ensureStarted(context)
             if (ownerCharacterId.isBlank()) ownerCharacterId = characterId
@@ -516,12 +534,13 @@ internal object LuluBackgroundPhoneSession {
                 // package-filtered implicit MAIN intent. Some apps have multiple
                 // launcher activities and 'am start -p pkg' is ambiguous.
                 val launch = context.packageManager.getLaunchIntentForPackage(requestedPackage)
-                    ?: error("本机未找到该包名的真实启动入口")
-                val component = launch.component
-                    ?: error("目标 App 启动入口没有明确组件")
-                check(component.packageName == requestedPackage) {
-                    "本机启动组件与已授权 App 包名不匹配"
-                }
+                val component = launch?.component
+                if (component == null || component.packageName != requestedPackage)
+                    return JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "failed").put("errorCode", "launcher_not_verified")
+                        .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("sessionPreserved", true).put("taskCompleted", false)
+                        .put("verification", "未找到与所选应用包名完全匹配的可启动组件，未执行打开").toString()
                 request.put("packageName", requestedPackage)
                     .put("launchComponent", component.flattenToString())
             }
