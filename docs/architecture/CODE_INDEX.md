@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3d78be5f386a011ca9506809cb16a00d88f22218`
+- 基准提交：`7899e12c686ff9ec8bf20956ab502bae4eac31e0`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271171
+- 已索引代码/文本行：271178
 - 已发现符号：3839
 
 | 文件 | 行数 | 符号数 |
@@ -109,7 +109,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt` | 36 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 66 | 0 |
@@ -411,7 +411,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 136 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 70 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 72 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 125 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt` | 42 | 6 |

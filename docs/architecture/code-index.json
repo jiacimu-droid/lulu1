@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T16:39:16.886787+00:00",
-  "commit": "3d78be5f386a011ca9506809cb16a00d88f22218",
+  "generatedAt": "2026-11-12T16:48:37.427236+00:00",
+  "commit": "7899e12c686ff9ec8bf20956ab502bae4eac31e0",
   "branch": "main",
-  "sourceFingerprint": "2cf2ca80ce2a403a80e1b59d638935e6b114284dc2af7ebfd76b27fac81f6fee",
+  "sourceFingerprint": "a0df72a2630c7010cc01fcc942a174678d15ee7653c1187e8fded3617c3479b3",
   "summary": {
     "files": 1283,
-    "lines": 271171,
+    "lines": 271178,
     "symbols": 3839
   },
   "symbolIndex": {
@@ -4885,7 +4885,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 19
+        "line": 21
       }
     ],
     "pause": [
@@ -6667,7 +6667,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 55
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -8069,31 +8069,31 @@
     "isRunning": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "isWorking": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 36
+        "line": 38
       }
     ],
     "markModelCompleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 38
+        "line": 40
       }
     ],
     "end": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 43
+        "line": 45
       }
     ],
     "clearConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 52
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
@@ -22332,8 +22332,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt",
-      "lines": 36,
-      "sha256": "a53f2d0bf2a3e5824cc662c0551dcd65417e3fccce7d8a9059304081d5720acc",
+      "lines": 41,
+      "sha256": "aaff4d9ba7edaca9f991194344d4f981c0e0305c881cfc80921e7a8bb57bb6c8",
       "symbols": []
     },
     {
@@ -28525,8 +28525,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-      "lines": 70,
-      "sha256": "6cd510108cc3e080c9c579ad88ab472c476fb83afb768b176a96e5a6fc1bcfeb",
+      "lines": 72,
+      "sha256": "ae93e7c1f2bf7ca43766cea7920d4c792277e3665e0ffbf8bb1835336aa4a5c8",
       "symbols": [
         {
           "name": "ChatGenerationActivity",
@@ -28538,31 +28538,31 @@
         },
         {
           "name": "begin",
-          "line": 19
+          "line": 21
         },
         {
           "name": "isRunning",
-          "line": 31
+          "line": 33
         },
         {
           "name": "isWorking",
-          "line": 36
-        },
-        {
-          "name": "markModelCompleted",
           "line": 38
         },
         {
+          "name": "markModelCompleted",
+          "line": 40
+        },
+        {
           "name": "end",
-          "line": 43
+          "line": 45
         },
         {
           "name": "clearConversation",
-          "line": 52
+          "line": 54
         },
         {
           "name": "clearCharacter",
-          "line": 55
+          "line": 57
         }
       ]
     },
