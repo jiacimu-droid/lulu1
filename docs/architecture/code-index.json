@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T16:08:45.977399+00:00",
-  "commit": "ebf511346c127d8d0bcde8da2b23b8723ac233a7",
+  "generatedAt": "2026-11-12T16:09:37.771699+00:00",
+  "commit": "2d4d5c430203df49b546751c64e8c0d8536389c0",
   "branch": "main",
-  "sourceFingerprint": "c60e0200949be50d5b66262222744b5131339a263bf9c773c314303de8777199",
+  "sourceFingerprint": "98a6b30d4de3040567f099abca538710d1c053e073310ea094b7b9c1935bd157",
   "summary": {
     "files": 1283,
-    "lines": 271044,
-    "symbols": 3837
+    "lines": 271077,
+    "symbols": 3838
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11587,7 +11587,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-        "line": 29
+        "line": 33
       }
     ],
     "PhoneXhsReadWorker": [
@@ -15393,13 +15393,13 @@
     "inspirationRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 138
+        "line": 139
       }
     ],
     "parseGeneratedIdeas": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-        "line": 171
+        "line": 172
       }
     ],
     "nextInspiration": [
@@ -15943,7 +15943,13 @@
     "requireUnchanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-        "line": 23
+        "line": 18
+      }
+    ],
+    "storyFactsFromSnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+        "line": 30
       }
     ],
     "scheduleBackup": [
@@ -36976,8 +36982,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
-      "lines": 246,
-      "sha256": "7456d73bc5a7b4d79b45ceec4dfb2f8b635ab3152e24db8f58a024ebfa16e093",
+      "lines": 247,
+      "sha256": "7eeb3a2701634bfd6c41c6a9e1c412fb52870eed91622bf670ff9ffb04f2fa9a",
       "symbols": [
         {
           "name": "Idea",
@@ -37013,11 +37019,11 @@
         },
         {
           "name": "inspirationRequest",
-          "line": 138
+          "line": 139
         },
         {
           "name": "parseGeneratedIdeas",
-          "line": 171
+          "line": 172
         }
       ]
     },
@@ -37643,8 +37649,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
-      "lines": 35,
-      "sha256": "2846a0db792697b0dc685879712e2eced10d3109def81a888a0e33b739b5599b",
+      "lines": 40,
+      "sha256": "61dfca0681290c875ea7ffcf9f63f2e5ca9f7a1aabfdeb81dbaefc85ddf77714",
       "symbols": [
         {
           "name": "promptText",
@@ -37656,11 +37662,15 @@
         },
         {
           "name": "requireUnchanged",
-          "line": 23
+          "line": 18
+        },
+        {
+          "name": "storyFactsFromSnapshot",
+          "line": 30
         },
         {
           "name": "capture",
-          "line": 29
+          "line": 33
         }
       ]
     },
@@ -44893,8 +44903,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 481,
-      "sha256": "04ef2e14af3fa12ee6e1e0ac09aa146f61fc485e8fa2ff87969982e3c12db24e",
+      "lines": 502,
+      "sha256": "f5635457df7384f51c6860629dbe0d44fd4cfc935d5b29fa921d0de7bbb857cb",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
@@ -45033,8 +45043,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt",
-      "lines": 32,
-      "sha256": "f9746458e765e460e080ff70e3c356deafb3154e5f8ccd6869c2102e0a408930",
+      "lines": 38,
+      "sha256": "58f234c1f48783ebf2dd5ecd401f8accdd90433bb6999cf479a15e5c53674435",
       "symbols": [
         {
           "name": "TheaterWorldBookContextTest",

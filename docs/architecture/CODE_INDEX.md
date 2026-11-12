@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ebf511346c127d8d0bcde8da2b23b8723ac233a7`
+- 基准提交：`2d4d5c430203df49b546751c64e8c0d8536389c0`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271044
-- 已发现符号：3837
+- 已索引代码/文本行：271077
+- 已发现符号：3838
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -740,7 +740,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 347 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 246 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 247 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 665 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
@@ -769,7 +769,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningTypography.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt` | 199 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 35 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 40 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 208 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
@@ -1238,7 +1238,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt` | 22 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 70 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 481 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 502 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
@@ -1250,7 +1250,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 210 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudgetTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 21 | 1 |
