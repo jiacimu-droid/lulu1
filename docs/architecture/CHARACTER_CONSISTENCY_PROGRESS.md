@@ -1,3 +1,9 @@
+
+## 2026-11-13 · UI-02.2 千条损坏历史真实 JVM 首错与测试修正
+
+- `9b73aa1` 的 [Lulu APK/JVM #43312582804](https://github.com/jiacimu-droid/lulu1/actions/runs/43312582804) completed/failure，2944 tests、1 failed、1 skipped；唯一失败 `ChatHistoryPersistenceBaselineTest.malformedItemInThousandMessageSnapshotCannotBeOverwritten` 第829行。对应 [Refresh code index #43312582904](https://github.com/jiacimu-droid/lulu1/actions/runs/43312582904) 成功。
+- 正式 Store `decode` 已拒绝缺失消息 ID 并标记 unreadable；原测试使用损坏快照里的会话 ID 调 `setConversationPinned`，但此会话未载入，方法提前返回 false，未触及 `persistLocked`。测试修正 [76acc35](https://github.com/jiacimu-droid/lulu1/commit/76acc35c97bb0ced77a264fbf2dd4595ff80c985) 改用实际默认且未置顶的会话 ID，确保测试真正执行拒绝覆盖的路径。不修改生产数据格式。
+- 新提交的 JVM/APK、索引未验；下轮直接查 `76acc35` 的 main push workflow 和失败日志。若通过，转 1000/10000 条持久化性能与增量兼容方案；真机、强杀和跨 Store 原子性另验。
 ## 2026-11-13 · UI-02.2 恢复拒写测试 CI 首错与修正
 
 - [main push JVM/APK #43282783369](https://github.com/jiacimu-droid/lulu1/actions/runs/43282783369) 运行 `c73d6dc` 失败：2942 测试、1 失败、1 跳过；`rejectedArchiveAndCompensationCannotReportFavoriteRemovalSuccess` 第336行 `rejectedRecoveryCommits` 预期 1、实际 0。原 [Refresh code index #43282783228](https://github.com/jiacimu-droid/lulu1/actions/runs/43282783228) 成功。失败由测试包装器未覆写 `applicationContext` 导致，正式 `InMemoryLuluChatStore.initialize` 取 `context.applicationContext.getSharedPreferences`，所以注入没有命中；并非已证生产恢复缺陷。
