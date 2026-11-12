@@ -280,15 +280,31 @@ class LuluAccessibilityService : AccessibilityService() {
 
         /** A read-only semantic UI reference, bound to the verified target app.
          * Fingerprint changes on node order, geometry, label, state or focus. */
+        private fun virtualUiFingerprint(
+            displayId: Int, packageName: String, nodes: List<VirtualUiNode>,
+        ): String {
+            if (nodes.isEmpty()) return ""
+            val observed = observeDisplay(displayId)
+            if (!observed.connected || observed.packageName != packageName) return ""
+            // Mika hashes more than clickable controls. On a scrolling feed,
+            // visually identical action buttons can point to a different post:
+            // include the actual visible page text in the snapshot identity.
+            val parts = nodes.map { it.fingerprintPart } +
+                listOf("display:$displayId", "app:$packageName",
+                    "page:" + observed.visibleText.take(5_500))
+            return LuluVirtualUiPolicy.fingerprint(parts)
+        }
+
         fun virtualUiSnapshot(displayId: Int, packageName: String): JSONObject {
             val service = instance ?: return JSONObject()
             val nodes = virtualUiNodes(service, displayId, packageName)
             if (nodes.isEmpty()) return JSONObject()
-            val parts = nodes.map { it.fingerprintPart }
+            val fingerprint = virtualUiFingerprint(displayId, packageName, nodes)
+            if (fingerprint.isBlank()) return JSONObject()
             val elements = JSONArray()
             nodes.forEach { elements.put(it.descriptor) }
             return JSONObject()
-                .put("fingerprint", LuluVirtualUiPolicy.fingerprint(parts))
+                .put("fingerprint", fingerprint)
                 .put("elements", elements)
         }
 
@@ -301,7 +317,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val service = instance ?: return false
             val nodes = virtualUiNodes(service, displayId, packageName)
             if (nodes.isEmpty() ||
-                LuluVirtualUiPolicy.fingerprint(nodes.map { it.fingerprintPart }) != expectedFingerprint)
+                virtualUiFingerprint(displayId, packageName, nodes) != expectedFingerprint)
                 return false
             val chosen = nodes.singleOrNull { it.ref == elementRef } ?: return false
             val node = chosen.node

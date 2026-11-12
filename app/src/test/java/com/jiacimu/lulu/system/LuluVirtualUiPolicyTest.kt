@@ -29,6 +29,14 @@ class LuluVirtualUiPolicyTest {
         assertTrue(kind("tap", false, before, before, false) == "not_accepted")
     }
 
+    @Test fun aDifferentFeedPostInvalidatesOldControlsEvenAtSamePositions() {
+        val identicalButtons = listOf("e1|search|720x1280", "e2|card|720x1280")
+        val old = LuluVirtualUiPolicy.fingerprint(identicalButtons + "page:旧笔记")
+        val next = LuluVirtualUiPolicy.fingerprint(identicalButtons + "page:下一条笔记")
+        assertNotEquals(old, next)
+        assertFalse(LuluVirtualUiPolicy.sameSnapshot("screen-1", "screen-1", old, next))
+    }
+
     @Test fun onlySafeNamedNavigationMayBeClicked() {
         assertTrue(LuluVirtualUiPolicy.mayClick("搜索", "search_icon", ""))
         assertTrue(LuluVirtualUiPolicy.mayClick("打开笔记", "note_card", ""))
