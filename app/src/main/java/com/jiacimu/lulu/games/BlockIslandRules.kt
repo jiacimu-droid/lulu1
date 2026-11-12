@@ -354,6 +354,15 @@ internal object BlockIslandRules {
         var next = s
         val message: String
         when (action) {
+            "recover_pack" -> {
+                val pack=s.lostPacks[index] ?: return reject("这里没有遗失的背包")
+                if(!near() || mob != null) return reject("先靠近背包并清理附近怪物")
+                next=s.copy(
+                    world=w.copy(wood=w.wood+pack.wood,stone=w.stone+pack.stone),
+                    fruit=s.fruit+pack.fruit,crystals=s.crystals+pack.crystals,
+                    lostPacks=s.lostPacks-index)
+                message="找回遗失物资：木${pack.wood}、石${pack.stone}、野果${pack.fruit}、晶石${pack.crystals}"
+            }
             "salvage" -> {
                 if (!near() || !IslandSupplyCaches.available(s, tx, ty) ||
                     mob != null || w.friends.any { it.hp <= 0 && it.x == tx && it.y == ty })
@@ -765,11 +774,13 @@ internal object BlockIslandRules {
             distance(it.x,it.y,world.x,world.y)<=2 }
         val blocked=if(playerHurt>0 && protector!=null)1 else 0
         if(blocked>0)hurtFriends[protector!!.id]=(hurtFriends[protector.id]?:0)+1
-        val realHurt=playerHurt-blocked
+        val lightGuard = if (playerHurt>blocked && IslandProgression.crystalLampProtects(s)) 1 else 0
+        val realHurt=(playerHurt-blocked-lightGuard).coerceAtLeast(0)
         val hp = (world.hp - realHurt).coerceAtLeast(0)
         val allies = world.friends.map { it.copy(hp = (it.hp - (hurtFriends[it.id] ?: 0)).coerceAtLeast(0)) }
         val logs = mutableListOf<String>()
         if(blocked>0)logs += "队友"+protector!!.id+"挡住1点伤害，自己承受1点"
+        if(lightGuard>0)logs += "护夜晶灯挡下1点夜间伤害"
         if(realHurt>0)logs += "怪物攻击，生命 -$realHurt"
         if (hurtFriends.isNotEmpty()) logs += "有队友受伤了"
         var next = s.copy(guardedBy=if(blocked>0)"" else s.guardedBy,
@@ -778,10 +789,30 @@ internal object BlockIslandRules {
             notice = world.notice + if (logs.isNotEmpty()) " · " + logs.joinToString() else "",
             events = (world.events + logs).takeLast(150)))
         if (hp == 0) {
-            next = next.copy(world = next.world.copy(x = 4.coerceAtMost(world.width - 2),
-                y = 5.coerceAtMost(world.height - 2), hp = 12,
-                notice = "在营地复活，家园和物品全部保留",
-                events = (next.world.events + "在营地复活").takeLast(150)))
+            if("charm" in next.tools) {
+                val saved="晶石护符碎裂，替你挡下致命一击，生命恢复到3"
+                next=next.copy(tools=next.tools-"charm",lastKnockoutTurn=s.lastKnockoutTurn,
+                    world=next.world.copy(hp=3,notice=saved,
+                        events=(next.world.events+saved).takeLast(150)))
+            } else {
+                // Only portable resources are dropped; buildings, skills and
+                // permanent crafted tools remain. Recovering the pack is a real
+                // world interaction and cannot be repeated to mint resources.
+                val index=world.index(world.x,world.y)
+                val lost=IslandLostPack(world.wood/2,world.stone/2,s.fruit/2,s.crystals/2)
+                val existing=next.lostPacks[index]
+                val packs=if(lost.isEmpty()) next.lostPacks else
+                    next.lostPacks+(index to (existing?.merge(lost) ?: lost))
+                val note=if(lost.isEmpty())
+                    "生命归零！返回营地，生命恢复至6；本次没有散落物资"
+                else "生命归零！返回营地，失去一半随身木石、野果、晶石；原地留有可找回的背包"
+                next=next.copy(lostPacks=packs,fruit=s.fruit-lost.fruit,
+                    crystals=s.crystals-lost.crystals,
+                    world=next.world.copy(x=4.coerceAtMost(world.width-2),
+                        y=5.coerceAtMost(world.height-2),hp=6,
+                        wood=world.wood-lost.wood,stone=world.stone-lost.stone,
+                        notice=note,events=(next.world.events+note).takeLast(150)))
+            }
         }
         return next
     }
