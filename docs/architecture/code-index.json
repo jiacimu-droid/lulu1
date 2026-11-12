@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:54:48.428656+00:00",
-  "commit": "dbde7bc84c299702d8bb2bc7e39c74f4ddeb351a",
+  "generatedAt": "2026-11-12T08:55:20.846061+00:00",
+  "commit": "58e159f20ef2daade95b0fe4c648cb996a908321",
   "branch": "main",
-  "sourceFingerprint": "0d43b7395383fa24f550557f7eb8ce024fadcd53d296d7ad598c980a43fcec6b",
+  "sourceFingerprint": "ef0f2a943c3eb1e73ee7f095cfa1f6bd9f9a95f83cc0fcaa03f611c41c5b505e",
   "summary": {
-    "files": 1265,
-    "lines": 267386,
-    "symbols": 3771
+    "files": 1266,
+    "lines": 267431,
+    "symbols": 3772
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17192,6 +17192,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt",
         "line": 5
+      }
+    ],
+    "ChatPresencePresentationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ChatPresencePresentationTest.kt",
+        "line": 11
       }
     ],
     "ChatReceiptRunsTest": [
@@ -38976,6 +38982,17 @@
         {
           "name": "ChatErrorNoticeTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ChatPresencePresentationTest.kt",
+      "lines": 45,
+      "sha256": "90c4a5bdffa68e93b2bbbdbac39e3e243261a0c1401797e23fa90603ab68cd01",
+      "symbols": [
+        {
+          "name": "ChatPresencePresentationTest",
+          "line": 11
         }
       ]
     },
