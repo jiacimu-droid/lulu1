@@ -57,8 +57,9 @@ class PerformanceAuditPersistenceTest {
         assertEquals("Full", saved.contextMode)
         assertTrue(saved.streamedRequest)
         assertEquals("opaque-turn-test-7", saved.turnTraceId)
-        assertTrue(reloaded.timingRecords.first().filter { it.stage in setOf("Prompt", "模型请求", "总耗时") }
-            .all { it.traceId == "opaque-turn-test-7" })
+        val stagesForNewCall = reloaded.timingRecords.first().take(3)
+        assertEquals(setOf("Prompt", "模型请求", "总耗时"), stagesForNewCall.map { it.stage }.toSet())
+        assertTrue(stagesForNewCall.all { it.traceId == "opaque-turn-test-7" })
         assertEquals(1, saved.breakdown.size)
     }
 
