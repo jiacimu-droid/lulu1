@@ -202,14 +202,15 @@ class ChatHistoryPersistenceBaselineTest {
             assertTrue(archiveStore.save(message, "ui02-character", "我", null, "Archive rollback"))
             assertTrue(archiveStore.contains(messageId))
             archiveField = UserMessageFavoriteStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
-            realPrefs = archiveField.get(archiveStore) as android.content.SharedPreferences
+            val actualPrefs = archiveField.get(archiveStore) as android.content.SharedPreferences
+            realPrefs = actualPrefs
             val rejecting = java.lang.reflect.Proxy.newProxyInstance(
-                realPrefs.javaClass.classLoader,
+                actualPrefs.javaClass.classLoader,
                 arrayOf(android.content.SharedPreferences::class.java),
             ) { _, method, args ->
-                if (method.name != "edit") method.invoke(realPrefs, *(args ?: emptyArray()))
+                if (method.name != "edit") method.invoke(actualPrefs, *(args ?: emptyArray()))
                 else {
-                    val editor = realPrefs.edit()
+                    val editor = actualPrefs.edit()
                     lateinit var proxy: android.content.SharedPreferences.Editor
                     proxy = java.lang.reflect.Proxy.newProxyInstance(
                         editor.javaClass.classLoader,
