@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T06:30:45.243699+00:00",
-  "commit": "efd80725c723fd0ed1770928c97fe4c58c88e05b",
+  "generatedAt": "2026-11-12T06:42:49.798162+00:00",
+  "commit": "8995206d06737e29f15934eddd171992dfb50dd0",
   "branch": "main",
-  "sourceFingerprint": "c4b129086209a2dae139b676f6f96f566a7c2a326e48e82ad05fda9af329ee2a",
+  "sourceFingerprint": "2d39c3eff3e6cf9be25245c7d46e72c419a491ecb4e4d8b44d803428b14898e8",
   "summary": {
     "files": 1237,
-    "lines": 264873,
+    "lines": 264951,
     "symbols": 3728
   },
   "symbolIndex": {
@@ -365,7 +365,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1056
+        "line": 1066
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -1023,11 +1023,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1048
+        "line": 1058
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1193
+        "line": 1203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -2961,7 +2961,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1175
+        "line": 1185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -4317,7 +4317,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1064
+        "line": 1074
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -6861,7 +6861,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1084
+        "line": 1094
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -6905,7 +6905,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1074
+        "line": 1084
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -7925,7 +7925,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1182
+        "line": 1192
       }
     ],
     "realtimeVoiceId": [
@@ -11091,55 +11091,55 @@
     "defaultConversations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 994
+        "line": 1004
       }
     ],
     "defaultMessages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1003
+        "line": 1013
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1015
+        "line": 1025
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1033
+        "line": 1043
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1042
+        "line": 1052
       }
     ],
     "defaultSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1155
+        "line": 1165
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1165
+        "line": 1175
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1171
+        "line": 1181
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1188
+        "line": 1198
       }
     ],
     "objectOrNull": [
@@ -31032,8 +31032,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 1215,
-      "sha256": "dc3a83386f25d46d402e1917f49ce3b9d121e4b6a15f40376869f4bafc8c9c36",
+      "lines": 1225,
+      "sha256": "4a951efe2a00f1f5d5921d3dbf312746c31857bb0f9dd5e63c3edb85751d7f86",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -31161,71 +31161,71 @@
         },
         {
           "name": "defaultConversations",
-          "line": 994
+          "line": 1004
         },
         {
           "name": "defaultMessages",
-          "line": 1003
+          "line": 1013
         },
         {
           "name": "CharacterContactPolicy",
-          "line": 1015
+          "line": 1025
         },
         {
           "name": "CharacterSettings",
-          "line": 1033
+          "line": 1043
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 1042
+          "line": 1052
         },
         {
           "name": "initialize",
-          "line": 1048
+          "line": 1058
         },
         {
           "name": "update",
-          "line": 1056
+          "line": 1066
         },
         {
           "name": "create",
-          "line": 1064
-        },
-        {
-          "name": "delete",
           "line": 1074
         },
         {
-          "name": "get",
+          "name": "delete",
           "line": 1084
         },
         {
-          "name": "defaultSettings",
-          "line": 1155
+          "name": "get",
+          "line": 1094
         },
         {
-          "name": "CharacterWorldBookRule",
+          "name": "defaultSettings",
           "line": 1165
         },
         {
-          "name": "CharacterWorldBookRuleStore",
-          "line": 1171
-        },
-        {
-          "name": "setEnabled",
+          "name": "CharacterWorldBookRule",
           "line": 1175
         },
         {
+          "name": "CharacterWorldBookRuleStore",
+          "line": 1181
+        },
+        {
+          "name": "setEnabled",
+          "line": 1185
+        },
+        {
           "name": "isEnabled",
-          "line": 1182
+          "line": 1192
         },
         {
           "name": "MigratedDomainStores",
-          "line": 1188
+          "line": 1198
         },
         {
           "name": "initialize",
-          "line": 1193
+          "line": 1203
         }
       ]
     },
@@ -40936,8 +40936,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
-      "lines": 185,
-      "sha256": "f8090c3ac10610cbe8780c5fdc0ac5f938c01808eebc5a6f8e9a371bf2f727df",
+      "lines": 253,
+      "sha256": "35d87be16d1786cae1382b23dfa2159e0395b5a0ce310af3ecd21cca7818152c",
       "symbols": [
         {
           "name": "ChatHistoryPersistenceBaselineTest",
