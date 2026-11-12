@@ -10,6 +10,40 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun undatedResponsibilitiesStayInFiveMinuteAttentionBehindManyScheduledTasks() {
+        val now = java.time.Instant.parse("2026-11-13T00:00:00Z")
+        val future = (1..18).map { index ->
+            CommitmentTask(id = "future-$index", characterId = "role",
+                goal = "时间明确的工作$index", status = CommitmentTaskStatus.Scheduled,
+                dueAt = now.plusSeconds(index * 120L))
+        }
+        val ongoing = (1..11).map { index ->
+            CommitmentTask(id = "ongoing-$index", characterId = "role",
+                goal = "跨日持续照顾事项$index",
+                status = CommitmentTaskStatus.WaitingForFeedback,
+                dueAt = null, completionCondition = "需要后续真实结果")
+        }
+        val all = future + ongoing
+        val first = PersistentResponsibilityAttention.select(all, now)
+        val next = PersistentResponsibilityAttention.select(all, now.plusSeconds(300))
+        assertEquals(12, first.size)
+        assertEquals(12, next.size)
+        assertTrue("Time-bound tasks must remain in attention", first.any { it.dueAt != null })
+        val firstOngoing = first.filter { it.dueAt == null }.map { it.id }.toSet()
+        val nextOngoing = next.filter { it.dueAt == null }.map { it.id }.toSet()
+        assertEquals(3, firstOngoing.size)
+        assertEquals(3, nextOngoing.size)
+        assertNotEquals("A fixed first-N list starves the rest forever",
+            firstOngoing, nextOngoing)
+        val visible = ActiveCommitmentAttention.render(all, now)
+        assertTrue("An undated promise has real relevance even without an alarm",
+            firstOngoing.any { visible.contains("taskId=$it") })
+        assertFalse("A completed task must never revive in persistent attention",
+            PersistentResponsibilityAttention.select(
+                listOf(ongoing.first().copy(status = CommitmentTaskStatus.Completed)), now)
+                .any { it.id == ongoing.first().id })
+    }
+
     @Test fun onlineExpiryPromptKeepsDecisionAndHandoffContract() {
         // Runtime now supplies only live facts for an expiring lease; static
         // instructions must retain the single model-owned decision and its
