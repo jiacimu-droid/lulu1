@@ -84,7 +84,8 @@ internal fun islandNearbyAction(
 ): IslandNearbyAction? {
     val w = state.world
     if (w.finished) return null
-    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
+    val directions = (if(w.index(w.x,w.y) in state.lostPacks) listOf(0 to 0)
+        else emptyList()) + listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx,dy) -> kotlin.math.abs(dx)+kotlin.math.abs(dy)==1 }
         .distinct()
     for ((dx,dy) in directions) {
