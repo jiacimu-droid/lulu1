@@ -675,6 +675,51 @@ class QqReplySourceWatermarkTest {
         assertEquals(actual.single().id, replayed.getString("evidenceId"))
     }
 
+    @Test fun completedPrivateToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("私聊回执重建幂等角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "私聊回执重建")
+        val source = MigratedDomainStores.chat.sendUserMessage(conversation.id, "请回复一次")
+        val requestId = "private-receipt-replay-" + java.util.UUID.randomUUID().toString()
+        val args = JSONObject().put("text", "这条私聊已经送达")
+            .put("_replyEvidenceIds", JSONArray().put(source.id))
+            .put("_turnTraceId", "before-reopen")
+        val original = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            args, requestId = requestId))
+        assertTrue(original.toString(), original.optBoolean("success"))
+        val delivered = original.getJSONArray("deliveredMessageIds")
+        assertEquals(1, delivered.length())
+
+        val prefsField = InMemoryLuluChatStore::class.java
+            .getDeclaredField("prefs").apply { isAccessible = true }
+        val savedPrefs = prefsField.get(MigratedDomainStores.chat)
+            as android.content.SharedPreferences
+        val backingContext = object : android.content.ContextWrapper(app) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getSharedPreferences(name: String, mode: Int):
+                android.content.SharedPreferences =
+                if (name == "lulu_chat_store") savedPrefs
+                else app.getSharedPreferences(name, mode)
+        }
+        val reopened = InMemoryLuluChatStore().also { it.initialize(backingContext) }
+        val beforeReplay = reopened.messages(conversation.id).value
+            .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character }
+        assertEquals(listOf(delivered.getString(0)), beforeReplay.map { it.id })
+
+        val replayed = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject(args.toString()).put("_turnTraceId", "after-reopen"),
+            requestId = requestId))
+        assertEquals(original.toString(), replayed.toString())
+        val persisted = reopened.messages(conversation.id).value
+            .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character }
+        val live = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character }
+        assertEquals(beforeReplay.map { it.id }, persisted.map { it.id })
+        assertEquals(beforeReplay.map { it.content }, persisted.map { it.content })
+        assertEquals(persisted.map { it.id }, live.map { it.id })
+        assertEquals(delivered.getString(0), replayed.getString("evidenceId"))
+    }
+
     @Test fun completedGroupToolReceiptReplaysAfterStoreReopenWithoutDuplicateBubble() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val role = MigratedDomainStores.characters.create("群聊回执重建幂等角色").characterId
