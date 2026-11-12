@@ -45,6 +45,22 @@ internal object RelicRevealTimeline {
         loot.tier == RelicTier.RARE -> 2
         else -> 0
     }
+    /** More prestigious finds get a richer, finite reveal; no perpetual GPU animation. */
+    fun beamCount(loot: RelicLoot): Int = when(RelicCollectibles.displayRank(loot)) {
+        "精良" -> 2
+        "稀有" -> 5
+        "珍贵" -> 8
+        "史诗" -> 12
+        "传说" -> 16
+        "传世秘宝" -> 22
+        else -> 0
+    }
+    fun flashStrength(progress: Float):Float {
+        val p=progress.coerceIn(0f,1f)
+        // The flash peaks as the physical lid opens, then settles before the
+        // final museum close-up. It cannot blink indefinitely.
+        return (1f-kotlin.math.abs(p-.55f)/.17f).coerceIn(0f,1f)
+    }
     fun at(progress: Float): RelicRevealFrame {
         val p = progress.coerceIn(0f,1f)
         val lid = ((p-.09f)/.40f).coerceIn(0f,1f)
@@ -78,18 +94,19 @@ internal fun RelicChestCeremony(
     val reveal = frame.jewelReveal
     val chestAlpha = frame.chestAlpha
     // Museum colors, not three competing neon flares.
-    val tint = when (receipt.loot.tier) {
-        RelicTier.COMMON -> Color(0xFFC9B9A3)
-        RelicTier.RARE -> Color(0xFFB5D5DB)
-        RelicTier.PRECIOUS -> Color(0xFFE4D0A4)
-    }
+    val tint = RelicTreasureGallery.accent(receipt.loot)
     val legendary = RelicCollectibles.isCrownJewel(receipt.loot.name)
     val rank = RelicCollectibles.displayRank(receipt.loot)
     val glints = RelicRevealTimeline.glintCount(receipt.loot)
-    val rarityCue = when {
-        legendary -> "✦ 传世秘宝 · 至臻之光 ✦"
-        receipt.loot.tier == RelicTier.PRECIOUS -> "✧ 珍贵 · 金色辉光"
-        receipt.loot.tier == RelicTier.RARE -> "✧ 稀有 · 蓝银微光"
+    val beams = RelicRevealTimeline.beamCount(receipt.loot)
+    val flash = RelicRevealTimeline.flashStrength(progress)
+    val rarityCue = when(rank) {
+        "传世秘宝" -> "✦ 传世秘宝 · 星河苏醒 ✦"
+        "传说" -> "✦ 传说 · 被封存的心跳"
+        "史诗" -> "✦ 史诗 · 千年辉光"
+        "珍贵" -> "✧ 珍贵 · 暖金华彩"
+        "稀有" -> "✧ 稀有 · 蓝银微光"
+        "精良" -> "✧ 精良 · 翡翠微辉"
         else -> "普通 · 遗迹遗物"
     }
     BoxWithConstraints(
@@ -158,6 +175,51 @@ internal fun RelicChestCeremony(
                         }
                     }
                     if(reveal>0f) {
+                        val jewelCenter=Offset(x,center.y-h*(.11f+.10f*reveal))
+                        // An authored three-beat moment: lock release, opening
+                        // flash, flying facets, then a still museum exhibit.
+                        // All coordinates depend ONLY on the committed receipt
+                        // and one-shot progress, never on additional loot rolls.
+                        val bloom=(1f-reveal).coerceIn(0f,1f)
+                        if(beams>0) {
+                            val beamAlpha=(.08f+.30f*flash+.17f*bloom)*reveal
+                            for(i in 0 until beams) {
+                                val angle=i*6.2831853f/beams + progress*.55f
+                                val inner=h*(.16f+.06f*reveal)
+                                val outer=h*(.31f+.31f*reveal)
+                                val direction=Offset(cos(angle),sin(angle))
+                                drawLine(tint.copy(alpha=beamAlpha),
+                                    jewelCenter+direction*inner,
+                                    jewelCenter+direction*outer,
+                                    strokeWidth=h*(if(legendary).010f else .006f))
+                            }
+                            // Two expanding rings make the reveal read as a
+                            // magical discovery rather than a static icon swap.
+                            for(ring in 0..1) {
+                                val radius=h*(.18f+reveal*.26f+ring*.075f)
+                                drawCircle(tint.copy(alpha=(.08f+flash*.25f)*reveal),
+                                    radius=radius,center=jewelCenter,
+                                    style=androidx.compose.ui.graphics.drawscope.Stroke(h*.006f))
+                            }
+                            val shardCount=beams.coerceAtMost(16)
+                            for(i in 0 until shardCount) {
+                                val angle=i*6.2831853f/shardCount + .22f
+                                val travel=h*(.22f+reveal*.36f)
+                                val direction=Offset(cos(angle),sin(angle))
+                                val shard=jewelCenter+direction*travel
+                                val alpha=(reveal*(1f-reveal)*3f).coerceIn(0f,1f)
+                                drawLine(tint.copy(alpha=alpha*.75f),shard,
+                                    shard+direction*h*.055f,
+                                    strokeWidth=h*.010f)
+                            }
+                        }
+                        if(flash>0f && beams>0) {
+                            drawCircle(Brush.radialGradient(
+                                listOf(Color.White.copy(alpha=flash*.31f),tint.copy(alpha=flash*.12f),
+                                    Color.Transparent),
+                                center=jewelCenter,radius=h*.58f),
+                                radius=h*.58f,center=jewelCenter)
+                        }
                         // Plain finds stay quiet; rare finds glow blue-silver;
                         // precious finds show a gold ring; the singular crown
                         // jewel gets a second concentric halo.
@@ -173,8 +235,6 @@ internal fun RelicChestCeremony(
                         }
                         // The exact physical loot gets much larger as the box
                         // fades. At full reveal it is the ONLY principal object.
-                        val jewelCenter=Offset(x,
-                            center.y-h*(.11f+.10f*reveal))
                         val diameter=h*frame.jewelDiameterFraction
                         with(RelicTreasureArt) {
                             drawTreasure(receipt.loot.name,jewelCenter,diameter,
