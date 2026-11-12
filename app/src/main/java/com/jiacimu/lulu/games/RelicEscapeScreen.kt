@@ -67,6 +67,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var confirmAbandon by remember{mutableStateOf(false)}
     var confirmRestart by remember{mutableStateOf(false)}
     var showRulesDialog by remember{mutableStateOf(false)}
+    var showTactics by remember(run?.id){mutableStateOf(false)}
     var showGuide by remember(run?.id){mutableStateOf(true)}
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(false)}
@@ -191,6 +192,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     Box(Modifier.fillMaxSize()) {
     GameSceneDeck(
         accent = relicGold,
+        compactStatus = true,
         healthFraction = run?.hero?.hp?.div(10f),
         secondaryFraction = run?.let { state ->
             state.chests.count { it.opened }.toFloat() /
@@ -198,15 +200,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         secondaryLabel = "开箱",
         toolsLabel = "背包 / 战术",
-        notice = error.ifBlank {
-            tension?.headline?.takeIf { it.isNotBlank() } ?: run?.notice.orEmpty()
-        },
-        status = if (run == null) "暗影遗迹 · 营地" else
-            "❤ ${run.hero.hp}/10   ◇ ${run.value}   第${run.turns}回合\n" +
-                if (run.phase == RelicPhase.EXTRACT)
-                    "撤离进度 ${run.extraction.coerceIn(0, 3)}/3 回合"
-                else if (run.allies.isEmpty()) "本局单人探索"
-                else "同行 ${run.allies.size} 人 · 金圈是你",
+        notice = error,
+        status = if (run == null) "遗迹营地" else
+            "❤ ${run.hero.hp}/10   ◇ ${run.value}   ${run.turns}回合" +
+                if (run.phase == RelicPhase.EXTRACT) " · 撤离 ${run.extraction}/3"
+                else "",
         scene = {
             Box(Modifier.fillMaxSize()) {
                 if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
@@ -214,11 +212,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         focus = cameraFocus ?: (run.hero.x to run.hero.y),
                          openingReceipt = openingReceipt, openingProgress = openingClock.value)
                 else RelicCampBackdrop()
-                openingReceipt?.let { receipt ->
-                    RelicChestCeremony(receipt, openingClock.value) {
-                        chestHud=chestHud.dismiss(receipt)
-                    }
-                }
             }
         },
         companionAvailable = run != null && run.allies.isNotEmpty() &&
@@ -260,6 +253,50 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         quickActions = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
+                val hero=run.hero
+                val urgent=run.mobs.firstOrNull { it.hp>0 && it.windup &&
+                    run.visible(it.x,it.y) &&
+                    RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=3 }
+                val summary=when(run.phase) {
+                    RelicPhase.DOWNED -> "等待同伴救援"
+                    RelicPhase.EXTRACT -> "撤离还需 ${(3-run.extraction).coerceAtLeast(0)} 回合"
+                    else -> if(run.carried.isEmpty()) "探索遗迹 · 寻找珍宝"
+                        else "背包 ${run.carried.size} 件 · 价值 ◇${run.value}"
+                }
+                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                    Text(summary,color=relicGold,fontSize=11.sp,maxLines=1,
+                        modifier=Modifier.weight(1f))
+                    TextButton(onClick={showTactics=!showTactics},
+                        modifier=Modifier.height(36.dp),
+                        contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
+                        Text(if(showTactics)"收起详情" else "目标 / 更多",
+                            color=relicGreen,fontSize=10.sp,maxLines=1)
+                    }
+                }
+                if(urgent!=null)
+                    Text("⚠ ${RelicArsenal.monsterName(urgent.kind)} 正在蓄力 · 注意格挡",
+                        color=relicRed,fontSize=11.sp,maxLines=1,
+                        fontWeight=FontWeight.Bold)
+                if(!showTactics) {
+                    lastChestReceipt?.let { receipt ->
+                        Text("✦ ${RelicCollectibles.displayRank(receipt.loot)} · ${receipt.loot.name} ◇${receipt.loot.value}" +
+                            if(receipt.inBag)" 已入包" else " 落地待拾",
+                            color=if(RelicCollectibles.isCrownJewel(receipt.loot.name))relicGold else relicMuted,
+                            fontSize=10.sp,maxLines=1)
+                    }
+                    run.coopPlans.entries.firstOrNull()?.let { (id,plan) ->
+                        val name=MigratedDomainStores.characters.get(id).displayName
+                        val work=when(plan.kind) {
+                            "support"->"赶去支援"
+                            "chest"->"搜寻宝箱"
+                            "deliver"->"带宝物来找你"
+                            "rescue"->"赶来救援"
+                            else->"正在集合"
+                        }
+                        Text("${name} · ${work}",color=relicGreen,fontSize=10.sp,maxLines=1)
+                    }
+                }
+                if(showTactics) {
                 val hero = run.hero
                 lastChestReceipt?.let { receipt ->
                     val loot = receipt.loot
@@ -410,38 +447,34 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
                 if (attackTarget == null) Text(relicAttackHint(run, selected),
                     color = relicMuted, fontSize = 10.sp, maxLines = 2)
+                }
             }
         },
         primaryActions = {
             if (run != null && run.phase in setOf(
-                RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
-                val hero = run.hero
-                val attackTarget = relicAttackTarget(run, selected)
-                val nearbyLoot = run.chests.firstOrNull { !it.opened &&
-                    RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 &&
-                    run.visible(it.x, it.y) }
-                val sx = selected.first
-                val sy = selected.second
-                val visible = run.visible(sx, sy)
-                val adjacent = RelicEscapeRules.distance(hero.x, hero.y, sx, sy) <= 1
-                val chest = run.chests.any { !it.opened && it.x == sx && it.y == sy }
-                val chestAtHand = if (chest && visible && adjacent) sx to sy
-                    else nearbyLoot?.let { it.x to it.y }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    GameHudQuickAction(if (attackTarget != null && selected != (attackTarget.x to attackTarget.y))
-                            "攻击近敌" else RelicArsenal.label(run.equipped)+"攻击", relicGold,
-                        attackTarget != null, Modifier.weight(1f)) {
-                        attackTarget?.let { action("attack", it.x, it.y) }
+                    RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
+                val hero=run.hero
+                val attackTarget=relicAttackTarget(run,selected)
+                val nearby=run.chests.firstOrNull { !it.opened && run.visible(it.x,it.y) &&
+                    RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
+                val chosen=run.chests.firstOrNull { !it.opened && run.visible(it.x,it.y) &&
+                    it.x==selected.first && it.y==selected.second &&
+                    RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
+                val chest=chosen ?: nearby
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
+                    GameHudQuickAction("攻击",relicGold,attackTarget!=null,
+                        Modifier.weight(1f)) {
+                        attackTarget?.let { action("attack",it.x,it.y) }
                     }
-                    GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && chestAtHand != null,
-                        Modifier.weight(1f)) { chestAtHand?.let { action("open", it.first, it.second) } }
-                }
-                Spacer(Modifier.height(4.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    GameHudQuickAction("格挡", relicGreen, run.phase != RelicPhase.DOWNED,
+                    GameHudQuickAction("开箱",relicGold,
+                        run.phase!=RelicPhase.DOWNED && chest!=null,
+                        Modifier.weight(1f)) {
+                        chest?.let { action("open",it.x,it.y) }
+                    }
+                    GameHudQuickAction("格挡",relicGreen,run.phase!=RelicPhase.DOWNED,
                         Modifier.weight(1f)) { action("defend") }
-                    GameHudQuickAction("治疗", relicGreen, run.phase != RelicPhase.DOWNED &&
-                        hero.kits > 0 && hero.hp < 10,
+                    GameHudQuickAction("治疗",relicGreen,
+                        run.phase!=RelicPhase.DOWNED && hero.kits>0 && hero.hp<10,
                         Modifier.weight(1f)) { action("heal") }
                 }
             }
@@ -865,6 +898,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     }
         },
     )
+    // Present the verified reward above the entire in-game HUD.
+    openingReceipt?.let { receipt ->
+        RelicChestCeremony(receipt,openingClock.value) {
+            chestHud=chestHud.dismiss(receipt)
+        }
+    }
     if(run.phase==RelicPhase.DOWNED) {
         Box(Modifier.fillMaxSize().background(Color(0x9C07111A)),
             contentAlignment=Alignment.Center) {
