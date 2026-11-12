@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T08:45:01.862766+00:00",
-  "commit": "36090e971427f726f349c08b201642d833f81092",
+  "generatedAt": "2026-11-12T08:48:08.061794+00:00",
+  "commit": "1cc74c777ecaa56801b17e80cbde3dd8de1b421e",
   "branch": "main",
-  "sourceFingerprint": "9e786e82ebbe8dfee1221a38864ee78bbe880b96c242c75603d27c9d1c63b905",
+  "sourceFingerprint": "e5da28cb24eb127a87c93514229eec92d47f6299812eea4a91667f3bf0bde2cd",
   "summary": {
     "files": 1265,
-    "lines": 267213,
-    "symbols": 3770
+    "lines": 267227,
+    "symbols": 3771
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6635,7 +6635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 35
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -8022,22 +8022,28 @@
         "line": 25
       }
     ],
+    "isWorking": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
+        "line": 30
+      }
+    ],
     "markModelCompleted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 26
+        "line": 32
       }
     ],
     "end": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 31
+        "line": 37
       }
     ],
     "clearConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 32
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
@@ -28139,8 +28145,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-      "lines": 48,
-      "sha256": "1b5958a63659d70ca8f5237ed32faea33951887b59c9a96b5d8da523b4008450",
+      "lines": 62,
+      "sha256": "b8ecbf471840483646058db19db9faf4045471a9b0435af1f735f8b84ad675df",
       "symbols": [
         {
           "name": "ChatGenerationActivity",
@@ -28159,20 +28165,24 @@
           "line": 25
         },
         {
+          "name": "isWorking",
+          "line": 30
+        },
+        {
           "name": "markModelCompleted",
-          "line": 26
-        },
-        {
-          "name": "end",
-          "line": 31
-        },
-        {
-          "name": "clearConversation",
           "line": 32
         },
         {
+          "name": "end",
+          "line": 37
+        },
+        {
+          "name": "clearConversation",
+          "line": 46
+        },
+        {
           "name": "clearCharacter",
-          "line": 35
+          "line": 49
         }
       ]
     },
