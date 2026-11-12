@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T03:34:08.782853+00:00",
-  "commit": "6949b5e4f7e36bdc7701bf003d33234af006fb48",
+  "generatedAt": "2026-11-12T03:36:09.997567+00:00",
+  "commit": "0b193452e3df13ccac21b78706204d08b5fd6b43",
   "branch": "main",
-  "sourceFingerprint": "84d63614351c3768a92029a791bee1d8e63ffffbd5b53775adcd59acd0785815",
+  "sourceFingerprint": "0d949e4e4a1e4d28bcd257176c244095c1aa3950e3c9325022df1827cd0c6b9c",
   "summary": {
     "files": 1216,
-    "lines": 261963,
+    "lines": 261987,
     "symbols": 3662
   },
   "symbolIndex": {
@@ -15793,19 +15793,19 @@
     "phoneDefinitionChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 505
+        "line": 506
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 508
+        "line": 509
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1567
+        "line": 1568
       }
     ],
     "LaunchableApp": [
@@ -36613,8 +36613,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2347,
-      "sha256": "a27fae14ea697d92823e598eebb1a5906f1e63f56b9e937cfe3daba3cd657d18",
+      "lines": 2348,
+      "sha256": "4a3ec1e2d3f992269a6e407be53dfa857b1cfb2253c19816f5326a9165a3c02c",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36634,15 +36634,15 @@
         },
         {
           "name": "phoneDefinitionChanged",
-          "line": 505
+          "line": 506
         },
         {
           "name": "stalePhoneTurn",
-          "line": 508
+          "line": 509
         },
         {
           "name": "staleReplyExpression",
-          "line": 1567
+          "line": 1568
         }
       ]
     },
@@ -39172,8 +39172,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
-      "lines": 89,
-      "sha256": "b5d15c823c8f05e25640dac02afa9aa3a3bcb105beb4d3a30ac2f0b6cec20a8a",
+      "lines": 90,
+      "sha256": "9a624f08f542e7067f31a987b3ff54cfbed0696b3f9ba34cbc783844597b7734",
       "symbols": [
         {
           "name": "BackgroundPhoneCapabilityContextTest",
@@ -40061,8 +40061,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterScreenShareTest.kt",
-      "lines": 100,
-      "sha256": "bd30b1f0a0f1fdf675caeff77038edf524eca9e846da6184f94d0c1ffb824f47",
+      "lines": 122,
+      "sha256": "a0935b3def6a22f2503510387bd312df1ffaf12e085740b336a9ebc0c8adce4f",
       "symbols": [
         {
           "name": "CharacterScreenShareTest",
