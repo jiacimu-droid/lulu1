@@ -132,6 +132,17 @@ object LuluShellDisplayMain {
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
         if (action == "observe") return screenFrame(id)
+        // ACTION_SET_TEXT happens in Lulu's accessibility process, not this
+        // shell helper. Mark its frame barrier BEFORE dispatch so a buffered
+        // pre-type page cannot be returned as evidence that input succeeded.
+        if (action == "prepare_type") {
+            check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
+            pendingActionFrameBarrierNanos = discardPreActionFrames()
+            pendingActionNeedsFrame = true
+            return JSONObject().put("success", false).put("accepted", true)
+                .put("displayId", id).put("targetPackage", targetPackage)
+                .put("verification", "input frame barrier prepared")
+        }
         if (action == "launch") {
             val pkg = cmd.optString("packageName")
             check(pkg.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+"))) {
