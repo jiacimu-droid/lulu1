@@ -49,6 +49,8 @@ internal object BlockIslandArt {
     // Reused geometry offsets; drawing the same island must not allocate per-frame coordinate lists.
     private val houseLightOffsets = floatArrayOf(.55f, 2.44f)
     private val houseWindowOffsets = floatArrayOf(.33f, 2.37f)
+    // Garden stalk spacing is immutable artwork geometry, reused for each visible crop.
+    private val gardenStalkOffsets = floatArrayOf(.32f, .51f, .68f)
     private val neighborOffsets = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
     private val selectionCorners = arrayOf(-1f to -1f, 1f to -1f, -1f to 1f, 1f to 1f)
     private val companionHair = listOf(
@@ -172,7 +174,7 @@ internal object BlockIslandArt {
                         if(crop!=null) {
                             val grown=crop.tendedTurn>=0
                             val ripe=IslandGarden.isReady(crop,w.turns)
-                            for(dx in listOf(.32f,.51f,.68f)) {
+                            for(dx in gardenStalkOffsets) {
                                 drawLine(Color(0xFF346E4B),
                                     base+Offset(tile*dx,tile*.65f),
                                     base+Offset(tile*dx,tile*(if(grown).37f else .53f)),
