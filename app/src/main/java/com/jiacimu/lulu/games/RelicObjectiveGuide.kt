@@ -71,7 +71,7 @@ internal object RelicObjectiveGuide {
      */
     fun knownRouteTiles(run:RelicRun,target:RelicObjectiveTarget):List<Pair<Int,Int>>? {
         if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
-            !run.visible(target.x,target.y) ||
+            selectedVisible(run,target.x,target.y)==null ||
             !run.bounds(run.hero.x,run.hero.y)) return null
         val start=run.index(run.hero.x,run.hero.y)
         val previous=IntArray(run.w*run.h){-1}
