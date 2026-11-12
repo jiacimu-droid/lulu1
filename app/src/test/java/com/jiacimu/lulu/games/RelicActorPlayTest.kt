@@ -156,6 +156,54 @@ class RelicActorPlayTest {
         assertEquals(a.rescues+1,rescued.allies.first().rescues)
     }
 
+    @Test fun companionSkillInterruptsRealWindupButDoesNotInventSecondAttack() {
+        val base=run()
+        val alice=base.allies.first { it.id=="alice" }
+        val enemy=RelicMob(72,alice.x+1,alice.y,5,2,windup=true)
+        val s=base.copy(mobs=listOf(enemy))
+        assertTrue(RelicActorPlay.options(s,"alice").any { it.id=="interrupt:${enemy.x}:${enemy.y}" })
+        val skill=RelicActorPlay.apply(s,"alice",
+            IslandActorChoice("interrupt:${enemy.x}:${enemy.y}","我来牵制！"))!!
+        assertEquals(4,skill.mobs.single().hp)
+        assertFalse(skill.mobs.single().windup)
+        assertEquals(s.turns,skill.turns)
+        assertNull(RelicActorPlay.apply(skill,"alice",
+            IslandActorChoice("attack:${enemy.x}:${enemy.y}","")))
+        assertNull(RelicActorPlay.apply(s.copy(mobs=listOf(enemy.copy(windup=false))),
+            "alice",IslandActorChoice("interrupt:${enemy.x}:${enemy.y}","")))
+    }
+
+    @Test fun teammateCombatKillLeavesPhysicalLootOnGroundAndCannotDoubleDrop() {
+        val base=run()
+        val alice=base.allies.first { it.id=="alice" }
+        val enemy=RelicMob(91,alice.x+1,alice.y,2,2)
+        val s=base.copy(mobs=listOf(enemy))
+        val killed=RelicActorPlay.apply(s,"alice",
+            IslandActorChoice("attack:${enemy.x}:${enemy.y}",""))!!
+        assertEquals(0,killed.mobs.single().hp)
+        assertEquals(1,killed.drops.size)
+        assertEquals(s.id+":mob:91",killed.drops.single().loot.id)
+        assertTrue(killed.drops.single().loot.value>=RelicTier.RARE.base)
+        assertNull(RelicActorPlay.apply(killed,"alice",
+            IslandActorChoice("attack:${enemy.x}:${enemy.y}","")))
+        assertEquals(killed.drops,RelicRun.read(killed.json())!!.drops)
+    }
+
+    @Test fun aidSkillActuallySpendsOwnPotionToHealWoundedPlayer() {
+        val base=run()
+        val alice=base.allies.first { it.id=="alice" }
+        val wounded=base.copy(hero=base.hero.copy(x=alice.x,y=alice.y,hp=3))
+        assertTrue(RelicActorPlay.options(wounded,"alice").any { it.id=="aid_player" })
+        val helped=RelicActorPlay.apply(wounded,"alice",
+            IslandActorChoice("aid_player","给你药剂"))!!
+        assertEquals(7,helped.hero.hp)
+        assertEquals(alice.kits-1,helped.allies.first().kits)
+        assertNull(RelicActorPlay.apply(helped,"alice",
+            IslandActorChoice("aid_player","")))
+        assertFalse(RelicActorPlay.options(wounded.copy(hero=wounded.hero.copy(hp=10)),
+            "alice").any{it.id=="aid_player"})
+    }
+
     @Test fun invalidStaleFinishedOrOtherActorChoicesNeverInventActions() {
         val s=run()
         assertNull(RelicActorPlay.apply(s,"unknown",IslandActorChoice("none","")))
