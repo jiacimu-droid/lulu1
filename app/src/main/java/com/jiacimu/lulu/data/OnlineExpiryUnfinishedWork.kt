@@ -39,7 +39,7 @@ internal object OnlineExpiryUnfinishedWork {
             // that the whole user goal has been achieved.
             .filter { (_, attempt, result) ->
                 attempt.optString("status") in unfinished ||
-                    result?.optString("status") in unfinished
+                    result?.optString("status").orEmpty() in unfinished
             }.take(3).toList()
         if (recent.isEmpty()) return ""
         return buildString {
