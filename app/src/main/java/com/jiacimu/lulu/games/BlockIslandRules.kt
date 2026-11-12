@@ -32,6 +32,8 @@ internal data class BlockIslandState(
     val awardedChallenges: Set<String> = emptySet(),
     /** Defeat is permanent even after the dead boss is cleaned from world.mobs. */
     val guardianCleared: Boolean = false,
+    /** Crop progress belongs to the same saved island, never UI or a timer. */
+    val gardens: Map<Int, IslandGardenCrop> = emptyMap(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -57,6 +59,9 @@ internal data class BlockIslandState(
         .put("discoveredSpecies",JSONArray(discoveredSpecies.sorted()))
         .put("awardedChallenges",JSONArray(awardedChallenges.sorted()))
         .put("guardianCleared",guardianCleared)
+        .put("gardens",JSONObject().apply {
+            gardens.forEach { (index, crop) -> put(index.toString(),crop.json()) }
+        })
         .toString()
 
     companion object {
@@ -77,7 +82,7 @@ internal data class BlockIslandState(
                 val index = key.toIntOrNull() ?: return@runCatching null
                 val kind = obj.getString(key)
                 if (index !in world.tiles.indices ||
-                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house") ||
+                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden") ||
                     (if (kind == "bridge") world.tiles[index] != 8 else world.tiles[index] !in listOf(0, 4))
                 ) return@runCatching null
                 positions[index] = kind
@@ -114,6 +119,7 @@ internal data class BlockIslandState(
                     savedAnimals?.optJSONObject(i)?.let { IslandAnimal.read(it,restored) }
                 }.distinctBy { it.id }
             restored.copy(animals=animals,
+                gardens=IslandGarden.restore(json.optJSONObject("gardens"),restored),
                 discoveredSpecies=json.optJSONArray("discoveredSpecies")?.let { a ->
                     (0 until a.length()).mapNotNull { i ->
                         a.optString(i).takeIf { it in IslandWildlife.species }
@@ -249,7 +255,7 @@ internal object BlockIslandRules {
         val structure = s.structures[w.index(x, y)]
         if (w.cell(x, y) == 8) return structure == "bridge"
         if (w.cell(x, y) !in setOf(0, 4, 7)) return false
-        return structure !in setOf("workbench", "campfire", "bed", "lantern", "pet_house")
+        return structure !in setOf("workbench", "campfire", "bed", "lantern", "pet_house", "garden")
     }
 
     private fun buildingCost(action: String): Pair<Int, Int>? = when (action) {
@@ -261,6 +267,7 @@ internal object BlockIslandRules {
         "bridge" -> 3 to 0
         "lantern" -> 2 to 1
         "pet_house" -> 4 to 2
+        "garden" -> 2 to 0
         else -> null
     }
 
@@ -361,7 +368,7 @@ internal object BlockIslandRules {
                 message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
                 else "开采矿石 +$amount"
             }
-            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house" -> {
+            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden" -> {
                 if (!canPlaceBuilding(s, action, tx, ty))
                     return reject("这里无法放置，靠近空地后再试")
                 val (woodCost, stoneCost) = checkNotNull(buildingCost(action))
@@ -373,10 +380,35 @@ internal object BlockIslandRules {
                     else -> cell
                 }
                 val updated = w.setTile(tx, ty, newTile).copy(wood = w.wood - woodCost, stone = w.stone - stoneCost)
-                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house")) s.structures + (index to action)
+                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge", "lantern", "pet_house", "garden")) s.structures + (index to action)
                     else s.structures
                 next = s.copy(world = updated, structures = added)
                 message = "建造成功：${actionName(action)}"
+            }
+            "sow_berries" -> {
+                if (!near() || s.structures[index] != "garden" || index in s.gardens)
+                    return reject("靠近一块空菜圃才能播种")
+                if (s.fruit < 1) return reject("播种需要背包中的1颗野果")
+                next = s.copy(fruit=s.fruit-1,
+                    gardens=s.gardens + (index to IslandGardenCrop(w.turns)))
+                message = "埋下1颗野果种子，至少4步后回来松土"
+            }
+            "tend_berries" -> {
+                val crop=s.gardens[index] ?: return reject("这里还没有种下野果")
+                if (!near() || s.structures[index]!="garden" ||
+                    crop.tendedTurn>=0 || w.turns-crop.plantedTurn<4)
+                    return reject("幼苗还太小，至少生长4步才能松土")
+                next=s.copy(gardens=s.gardens+(index to crop.copy(tendedTurn=w.turns)))
+                message="亲手给幼苗松土，继续探索，等待成熟"
+            }
+            "harvest_berries" -> {
+                val crop=s.gardens[index] ?: return reject("菜圃还没有果实")
+                if (!near() || s.structures[index]!="garden" ||
+                    !IslandGarden.isReady(crop,w.turns))
+                    return reject("需要先松土并等待野果成熟")
+                val amount=IslandGarden.harvestYield(w.turns)
+                next=s.copy(fruit=s.fruit+amount,gardens=s.gardens-index)
+                message="收获成熟野果 +$amount，菜圃可再次播种"
             }
             "plant" -> {
                 if (!canPlantAt(s, tx, ty)) return reject("在身边的空草地种树")
@@ -391,7 +423,7 @@ internal object BlockIslandRules {
                 val refundWood = when (structure) {
                     "workbench" -> 2
                     "campfire", "door", "bed", "lantern" -> 1
-                    "pet_house" -> 2
+                    "pet_house", "garden" -> 2
                     "bridge" -> 2
                     else -> if (cell == 3 || cell == 4) 1 else 0
                 }
@@ -400,6 +432,7 @@ internal object BlockIslandRules {
                     world = w.setTile(tx, ty, if (structure == "bridge") 8 else 0)
                         .copy(wood = w.wood + refundWood, stone = w.stone + refundStone),
                     structures = s.structures - index,
+                    gardens = s.gardens - index,
                 )
                 message = "拆除了${if (structure == null) "建筑" else actionName(structure)}，返还部分材料"
             }
