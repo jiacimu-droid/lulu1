@@ -21,6 +21,10 @@ internal suspend fun extractCommitmentTaskDrafts(
     now: Instant = Instant.now(),
     zone: ZoneId = ZoneId.systemDefault(),
     reconcileDeliveredReply: Boolean = false,
+    /** Optional source turn identity, shared by fast wake and slow recovery.
+     * Prevents a second paid request after an ambiguous 524 from the same turn.
+     */
+    recoveryTurnKey: String? = null,
 ): List<CommitmentTaskDraft> {
     val result = LuluAiServices.gateway.generate(
         characterId = characterId,
@@ -46,6 +50,7 @@ internal suspend fun extractCommitmentTaskDrafts(
         maxTokens = 2_400,
         contextMode = CompanionContextMode.Isolated,
         connectionOverride = commitmentBackgroundConnection(),
+        backgroundEvidenceKey = recoveryTurnKey?.let { "commitment-source-turn:$it" },
     )
     // A transport failure or cancelled request is NOT "no promises found".
     // Propagate it so the conversation scanner can retry without recording
