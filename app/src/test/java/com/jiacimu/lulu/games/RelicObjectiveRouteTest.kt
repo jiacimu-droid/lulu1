@@ -91,4 +91,32 @@ class RelicObjectiveRouteTest {
         assertTrue(opened.chests.all { it.opened })
     }
 
+    @Test fun manuallySelectedSecondChestUsesLiveDiscoveredTargetAndNeverStaleLoot() {
+        val base=corridor().copy(
+            chests=listOf(
+                RelicChest(31,3,2,RelicTier.COMMON),
+                RelicChest(32,6,2,RelicTier.COMMON),
+            ),
+            seen=(2..6).map { 2*12+it }.toSet()
+        )
+        // HUD suggests the nearest, but a deliberate tap on the farther box
+        // must still produce a real known route without opening anything.
+        assertEquals(3 to 2,RelicObjectiveGuide.visibleChest(base)?.let { it.x to it.y })
+        val farther=RelicObjectiveGuide.selectedVisible(base,6,2)!!
+        assertEquals(6 to 2,farther.x to farther.y)
+        assertEquals(listOf(2 to 2,3 to 2,4 to 2,5 to 2),
+            RelicObjectiveGuide.knownRouteTiles(base,farther))
+        assertTrue(base.chests.none { it.opened })
+        assertNull(RelicObjectiveGuide.selectedVisible(base,9,2)) // fog
+        assertNull(RelicObjectiveGuide.selectedVisible(base,-1,2)) // bounds
+        val opened=base.copy(chests=base.chests.map {
+            if(it.id==32) it.copy(opened=true) else it
+        })
+        assertNull(RelicObjectiveGuide.selectedVisible(opened,6,2))
+        assertEquals(3 to 2,RelicObjectiveGuide.visibleChest(opened)?.let { it.x to it.y })
+        assertNull(RelicObjectiveGuide.selectedVisible(
+            base.copy(phase=RelicPhase.FAILURE),6,2))
+    }
+
+
 }
