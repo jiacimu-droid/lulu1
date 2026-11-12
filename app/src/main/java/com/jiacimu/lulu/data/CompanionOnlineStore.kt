@@ -296,7 +296,9 @@ object CompanionOnlineStore {
     }
 
     fun isOnline(characterId: String, now: Instant = Instant.now()): Boolean =
-        mutableStates.value[characterId]?.isOnline(now) == true
+        mutableStates.value[characterId]?.isOnline(now) == true ||
+            ChatGenerationActivity.isWorking(characterId) ||
+            isExpiryReviewRunning(characterId)
 
     internal fun residentIsAwake(context: Context, characterId: String,
         now: Instant = Instant.now()): Boolean =
@@ -779,14 +781,17 @@ object CompanionOnlineStore {
         if (prefs == null || expectedUntilMs <= 0L ||
             state.onlineUntil.toEpochMilli() != expectedUntilMs ||
             now.isBefore(state.onlineUntil) ||
-            now.isAfter(state.onlineUntil.plus(Duration.ofMinutes(3))) ||
             CompanionPresenceStore.isInCall(characterId) ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return@synchronized false
         if (ChatGenerationActivity.isWorking(characterId)) {
+            // Record a real in-flight task even when Android delivers a
+            // WorkManager backup later than the normal 3-minute grace.
             if (!isExpiryReviewRunning(characterId))
                 workDeferredExpiries[characterId] = expectedUntilMs
             return@synchronized false
         }
+        if (now.isAfter(state.onlineUntil.plus(Duration.ofMinutes(3))))
+            return@synchronized false
         val key = "expiry_decision_claim:$characterId"
         if (prefs?.getLong(key, Long.MIN_VALUE) == expectedUntilMs) return@synchronized false
         val claimed = prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
