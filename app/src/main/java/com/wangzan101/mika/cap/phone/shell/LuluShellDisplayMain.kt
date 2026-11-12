@@ -38,6 +38,12 @@ object LuluShellDisplayMain {
     private var virtual: VirtualDisplay? = null
     private var reader: ImageReader? = null
     private var targetPackage = ""
+    // Never feed a pre-action ImageReader buffer back to the character as
+    // proof that a just-sent gesture changed the background display.
+    private var pendingActionFrameBarrierNanos = 0L
+    private var lastDeliveredFrameNanos = 0L
+    private const val FRAME_WAIT_MS = 1_600L
+    private const val FRAME_POLL_MS = 80L
     private const val WIDTH = 720
     private const val HEIGHT = 1280
 
@@ -122,11 +128,15 @@ object LuluShellDisplayMain {
             val component = ComponentName.unflattenFromString(
                 cmd.optString("launchComponent")) ?: error("missing explicit launcher component")
             check(component.packageName == pkg) { "launcher package mismatch" }
+            val frameBarrier = discardPreActionFrames()
             val ok = run(listOf("am", "start", "--display", id.toString(),
                 "-n", component.flattenToString(),
                 "-a", "android.intent.action.MAIN",
                 "-c", "android.intent.category.LAUNCHER"))
-            if (ok) targetPackage = pkg
+            if (ok) {
+                targetPackage = pkg
+                pendingActionFrameBarrierNanos = frameBarrier
+            }
             return JSONObject().put("success", false).put("accepted", ok)
                 .put("displayId", id).put("targetPackage", pkg)
                 .put("verification", "launch dispatched; observe actual screen next")
@@ -142,7 +152,9 @@ object LuluShellDisplayMain {
             "back" -> listOf("input", "-d", id.toString(), "keyevent", "KEYCODE_BACK")
             else -> error("unsupported virtual display operation")
         }
+        val frameBarrier = discardPreActionFrames()
         val sent = run(args)
+        if (sent) pendingActionFrameBarrierNanos = frameBarrier
         return JSONObject().put("success", false).put("accepted", sent)
             .put("displayId", id).put("targetPackage", targetPackage)
             .put("verification", "input sent only to virtual display; completion unverified")
@@ -161,17 +173,45 @@ object LuluShellDisplayMain {
         return ended && child.exitValue() == 0
     }
 
+    /**
+     * Discard queued frames BEFORE an input command, keeping only the producer
+     * timestamp. No saved image crosses the display or role boundary.
+     */
+    private fun discardPreActionFrames(): Long {
+        val queued = reader?.acquireLatestImage()
+        val timestamp = try { queued?.timestamp ?: 0L }
+            finally { queued?.close() }
+        return LuluDisplayFrameFreshness.barrier(lastDeliveredFrameNanos, timestamp)
+    }
+
     private fun screenFrame(displayId: Int): JSONObject {
         val r = reader ?: error("display buffer missing")
-        var image = r.acquireLatestImage()
-        if (image == null) {
-            Thread.sleep(300)
-            image = r.acquireLatestImage()
+        val barrier = pendingActionFrameBarrierNanos
+        val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(FRAME_WAIT_MS)
+        var acquired: android.media.Image? = null
+        while (System.nanoTime() < deadline) {
+            val next = r.acquireLatestImage()
+            if (next != null) {
+                if (LuluDisplayFrameFreshness.accepts(next.timestamp, barrier)) {
+                    acquired = next
+                    break
+                }
+                // The frame was buffered before this action; showing it could
+                // make a failed swipe appear successful. Wait for new pixels.
+                next.close()
+            }
+            Thread.sleep(FRAME_POLL_MS)
         }
-        val pixels = image ?: return JSONObject().put("success", false)
+        val pixels = acquired ?: return JSONObject().put("success", false)
             .put("status", "unverified").put("displayId", displayId)
-            .put("verification", "virtual display has no frame yet")
+            .put("frameFreshAfterAction", false)
+            .put("verification", if (barrier > 0L)
+                "未等到动作之后的新虚拟屏帧；保留真实失败，不能使用旧截图冒充"
+                else "独立虚拟屏尚未产生可读取的图像")
         try {
+            val timestamp = pixels.timestamp
+            val newerThanLast = LuluDisplayFrameFreshness.isNewer(
+                timestamp, lastDeliveredFrameNanos)
             val plane = pixels.planes[0]
             val w = plane.rowStride / plane.pixelStride
             val full = Bitmap.createBitmap(w, pixels.height, Bitmap.Config.ARGB_8888)
@@ -185,8 +225,13 @@ object LuluShellDisplayMain {
                         buffer.toByteArray()
                     }
                     check(bytes.size <= 700_000) { "image buffer too large" }
+                    lastDeliveredFrameNanos = timestamp
+                    pendingActionFrameBarrierNanos = 0L
                     return JSONObject().put("success", true).put("status", "captured")
                         .put("displayId", displayId).put("targetPackage", targetPackage)
+                        .put("frameTimestampNanos", timestamp)
+                        .put("frameFreshAfterAction", true)
+                        .put("newerThanPreviousCapture", newerThanLast)
                         .put("imageDataUrl", "data:image/jpeg;base64," +
                             Base64.getEncoder().encodeToString(bytes))
                 } finally { crop.recycle() }
@@ -196,6 +241,8 @@ object LuluShellDisplayMain {
 
     private fun release() {
         targetPackage = ""
+        pendingActionFrameBarrierNanos = 0L
+        lastDeliveredFrameNanos = 0L
         runCatching { virtual?.release() }
         runCatching { reader?.close() }
         virtual = null
