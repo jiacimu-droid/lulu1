@@ -905,6 +905,11 @@ object ProactivePerceptionRuntime {
                     appendLine("【在线窗口到期｜现场状态】原定五分钟在线窗口刚结束。续醒/休眠与本轮发言或工具动作分别由本人选择。")
                     OnlineContinuationPolicy.affectCue(characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
+                    // Include factual tool attempts before the SAME paid
+                    // expiry decision. No second model or new task ledger.
+                    OnlineExpiryUnfinishedWork.render(
+                        SharedExperienceTimeline.recentEvents(characterId, 100), now,
+                    ).takeIf(String::isNotBlank)?.let(::appendLine)
                     // Facts carry only live affect and tasks lacking handoff.
                     // The full JSON contract lives in onlineRenewalDecisionInstruction.
                     val unassigned = CompanionSleepHandoff.uncovered(appContext, characterId, now)
