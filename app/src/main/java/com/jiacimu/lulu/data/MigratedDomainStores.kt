@@ -629,12 +629,18 @@ class InMemoryLuluChatStore : LuluChatStore {
             // markRead. An already-zero counter must not serialize EVERY
             // conversation's multi-year chat history again on the UI thread.
             if (conversationState.value.any { it.id == conversationId && it.unreadCount > 0 }) {
-                conversationState.update { conversations ->
-                    conversations.map { conversation ->
-                        if (conversation.id == conversationId) conversation.copy(unreadCount = 0) else conversation
-                    }
+                val previousConversations = conversationState.value
+                conversationState.value = previousConversations.map { conversation ->
+                    if (conversation.id == conversationId) conversation.copy(unreadCount = 0) else conversation
                 }
-                persistLocked()
+                try {
+                    // Read acknowledgement must survive a restart before cancelling
+                    // its notification; otherwise unread messages silently reappear.
+                    persistLocked(durable = true)
+                } catch (failure: Throwable) {
+                    conversationState.value = previousConversations
+                    throw failure
+                }
             }
         }
         appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
