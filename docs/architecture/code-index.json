@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T05:42:59.870156+00:00",
-  "commit": "26ceaf0a570685e0686abe57069d77fe4dcf7578",
+  "generatedAt": "2026-11-12T05:49:46.049985+00:00",
+  "commit": "1d9ee2081d91a17bf69d50a567ca9b3a1885621d",
   "branch": "main",
-  "sourceFingerprint": "80dff646cf93fcf2ecdcfb4189f9175a18ef6efe6f337caf546cc4592c0003a8",
+  "sourceFingerprint": "3df0dad01d2751f3539c461ae0025e6376cde8b998ab0c9a0a7a3a9c20d5e1ef",
   "summary": {
     "files": 1224,
-    "lines": 263436,
-    "symbols": 3689
+    "lines": 263502,
+    "symbols": 3690
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16226,16 +16226,22 @@
         "line": 16
       }
     ],
+    "effectKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
+        "line": 26
+      }
+    ],
     "sameSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 22
+        "line": 38
       }
     ],
     "mayClick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 32
+        "line": 48
       }
     ],
     "LuluWirelessDebugging": [
@@ -36810,8 +36816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 590,
-      "sha256": "c2f00403ca330bf8754256c3029190be9f1e9532591a004aebdb14f0d89b71e2",
+      "lines": 627,
+      "sha256": "c77709b2a92f31b26a278fc8d159eb9b7a26c6d36c965dd3474fa9e8b17c94e5",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -37247,20 +37253,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-      "lines": 44,
-      "sha256": "152833ca8678352c008730a172a425b8641eb57301c46bdff38382dd2e8e37bf",
+      "lines": 60,
+      "sha256": "568276f4c4c346ddd8448f76cb9ce569022bc3cbbc7f8e193087e895e5a8f28d",
       "symbols": [
         {
           "name": "fingerprint",
           "line": 16
         },
         {
+          "name": "effectKind",
+          "line": 26
+        },
+        {
           "name": "sameSnapshot",
-          "line": 22
+          "line": 38
         },
         {
           "name": "mayClick",
-          "line": 32
+          "line": 48
         }
       ]
     },
@@ -43532,8 +43542,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
-      "lines": 30,
-      "sha256": "19d94a62fb1b6780fadb263625a80c758a01c4ef334fb4f5c6f8934caab41398",
+      "lines": 43,
+      "sha256": "0f08f0ce1c7daf8c3b0a3d8f2ce19dfa11d75c8c87327ba330d8ced6687d0794",
       "symbols": [
         {
           "name": "LuluVirtualUiPolicyTest",
