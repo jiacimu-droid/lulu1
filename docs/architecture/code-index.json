@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:54:10.173465+00:00",
-  "commit": "da17630e409f46434c1f4f0369987ba32e183cb6",
+  "generatedAt": "2026-11-12T12:55:38.006765+00:00",
+  "commit": "4de87c030c2925b1b5556fe3911f6fb1385b85f0",
   "branch": "main",
-  "sourceFingerprint": "92bcffc4ce9c376a22e49b09bf242537f1fa71986c321d023130e71f810f9541",
+  "sourceFingerprint": "6546b53aa025e6142b8f538aa169055f0331c07f70ea6f7fed13009b9d22ae43",
   "summary": {
     "files": 1283,
-    "lines": 270682,
+    "lines": 270697,
     "symbols": 3836
   },
   "symbolIndex": {
@@ -13957,7 +13957,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 235
+        "line": 246
       }
     ],
     "near": [
@@ -14007,13 +14007,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1012
+        "line": 1016
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1163
+        "line": 1167
       }
     ],
     "saveTurn": [
@@ -15059,25 +15059,25 @@
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 515
+        "line": 526
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 516
+        "line": 527
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 593
+        "line": 604
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 629
+        "line": 640
       }
     ],
     "change": [
@@ -35088,8 +35088,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1208,
-      "sha256": "72a595ceffe8393dbbd362a22e562cb72bd2d27d727265bbf5395cb0ca5e6d55",
+      "lines": 1212,
+      "sha256": "64ecd4db5f96d442e5dccfffaa42bc80709f2492fa40afcaffba2a6f10379ae9",
       "symbols": [
         {
           "name": "playSound",
@@ -35105,11 +35105,11 @@
         },
         {
           "name": "dot",
-          "line": 1012
+          "line": 1016
         },
         {
           "name": "targetFor",
-          "line": 1163
+          "line": 1167
         }
       ]
     },
@@ -36456,8 +36456,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 632,
-      "sha256": "9a2e443e43142a156c07c33cd4507ab8a8c201edeb21bb846d980aada247fa39",
+      "lines": 643,
+      "sha256": "68a9c8114b23d181900146c64da32f3ad5858ff2314b1d1223807f87e570cbf4",
       "symbols": [
         {
           "name": "namesFor",
@@ -36553,23 +36553,23 @@
         },
         {
           "name": "act",
-          "line": 235
+          "line": 246
         },
         {
           "name": "enemyThreatRange",
-          "line": 515
+          "line": 526
         },
         {
           "name": "canEnemyStrike",
-          "line": 516
+          "line": 527
         },
         {
           "name": "path",
-          "line": 593
+          "line": 604
         },
         {
           "name": "abandon",
-          "line": 629
+          "line": 640
         }
       ]
     },
