@@ -197,6 +197,12 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
     var autoRefresh by remember(roleId) { mutableStateOf(false) }
     var zoomOpen by remember(roleId) { mutableStateOf(false) }
     var showTechnical by remember(roleId) { mutableStateOf(false) }
+    // Only the owner can change this local permission. It is never inferred
+    // from the model's declared intent, chat text or a third-party page.
+    var shoppingEnabled by remember(roleId) {
+        mutableStateOf(com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, roleId))
+    }
+
 
     suspend fun refresh() {
         if (busy || saving) return
@@ -341,6 +347,30 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
                             }
                         }
                     }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("授权角色帮我选购", color = PhoneInk, fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium)
+                        Text("选商品、规格、购物车与进入结算；付款由你亲自完成",
+                            color = PhoneMuted, fontSize = 11.sp)
+                    }
+                    Switch(checked = shoppingEnabled,
+                        enabled = roleId.isNotBlank() && !roleId.startsWith("resident:"),
+                        onCheckedChange = { allowed ->
+                            val saved = com.jiacimu.lulu.system.LuluShoppingAssistPolicy.setEnabled(
+                                context, roleId, allowed)
+                            if (saved) shoppingEnabled = allowed
+                            else status = "购物协助授权保存失败，权限未改变"
+                        })
+                }
+                if (shoppingEnabled) {
+                    Text("仍禁止支付、免密扣款、货到付款、提交/确认订单；" +
+                        "第三方支付页可能无法直接转移到主屏，可在商家 App 的待付款订单继续。",
+                        color = PhoneMuted, fontSize = 11.sp)
                 }
             }
 
