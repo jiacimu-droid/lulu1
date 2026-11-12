@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T13:54:01.223495+00:00",
-  "commit": "a77b03b1b9979f7473a48d075b3486c4267b479f",
+  "generatedAt": "2026-11-12T14:45:52.756610+00:00",
+  "commit": "ce76df50190944685991ba3ad1960cb999ca6e6f",
   "branch": "main",
-  "sourceFingerprint": "0297083eb7561bd724c2a9fbf0a7e003c73e56fec37e4f947df6e9e6640fd5b0",
+  "sourceFingerprint": "763a13bbbb6603a3d1431497a3e5d14b0d4ff5df0f8059425d0627854a05c939",
   "summary": {
     "files": 1283,
-    "lines": 270765,
+    "lines": 270840,
     "symbols": 3836
   },
   "symbolIndex": {
@@ -42053,8 +42053,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
-      "lines": 683,
-      "sha256": "8c71fde33784fdfaac53879a2241005b566d14de6d991db76764224b67b7b85e",
+      "lines": 758,
+      "sha256": "c70cc8b10ea629311d66b1b2aea91d5a71764ae648856f45668c650e63dd796f",
       "symbols": [
         {
           "name": "ChatHistoryPersistenceBaselineTest",
