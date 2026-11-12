@@ -220,6 +220,28 @@ class LuluAccessibilityService : AccessibilityService() {
             .sortedByDescending { it.layer }.mapNotNull { it.root }
             .filter { it.packageName?.toString() == packageName }
 
+        /** Mika's descendant-label idea for clickable card containers.
+         * Do not traverse private/password nodes or unbounded WebView trees. */
+        private fun clickableDescendantLabel(container: AccessibilityNodeInfo): String {
+            var inspected = 0
+            fun find(node: AccessibilityNodeInfo, depth: Int): String {
+                if (depth > 3 || inspected++ > 24 || !node.isVisibleToUser ||
+                    node.isPassword) return ""
+                if (depth > 0) {
+                    val own = node.contentDescription?.toString().orEmpty()
+                        .ifBlank { node.text?.toString().orEmpty() }.trim()
+                    if (own.isNotBlank()) return own.take(90)
+                }
+                for (index in 0 until node.childCount) {
+                    val child = node.getChild(index) ?: continue
+                    val found = find(child, depth + 1)
+                    if (found.isNotEmpty()) return found
+                }
+                return ""
+            }
+            return find(container, 0)
+        }
+
         private data class VirtualUiNode(
             val node: AccessibilityNodeInfo,
             val ref: String,
@@ -250,10 +272,14 @@ class LuluAccessibilityService : AccessibilityService() {
                 val interactive = node.isClickable || node.isScrollable || editable
                 if (usable && interactive && collected.size < 40) {
                     // Never emit a search box's typed content as a control label.
-                    val label = (if (editable) node.hintText?.toString()
+                    val ownLabel = (if (editable) node.hintText?.toString()
                         ?: node.contentDescription?.toString()
                         else node.contentDescription?.toString()
-                            ?: node.text?.toString()).orEmpty().trim().take(90)
+                            ?: node.text?.toString()).orEmpty().trim()
+                    val label = ownLabel.ifBlank {
+                        if (node.isClickable && !editable)
+                            clickableDescendantLabel(node) else ""
+                    }.take(90)
                     val rid = node.viewIdResourceName.orEmpty().substringAfterLast('/').take(70)
                     if (label.isNotBlank() || rid.isNotBlank()) {
                         val ref = "e" + (collected.size + 1)

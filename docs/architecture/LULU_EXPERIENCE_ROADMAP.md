@@ -6,11 +6,23 @@
 
 ### 2026-11-12 PH-01.6 · Mika 安卓手机智能体全面对标与分阶段补齐（用户明确要求，体验高优先）
 
+**主人当前明确优先任务（2026-11-12）**：Mika 对标不是纯研究/未来排期。先把能在本轮安全实施的 PH-01.6 P0 直接交付源码，在下一次每小时接力继续验收、修真实首错及补下一项；其他独立人物/游戏专项互不覆盖。不得将有 commit 视为功能已经在真机接通，也不为追求 22/22 勾选而复制第二个 Agent 或冒险放开支付/外发。现有每小时任务已核仍在读取本 Roadmap。
+
+**PH-01.6 源码接力进度（与工程/真机验收分开）**
+- **a 控件树/精准点击（源码已实施，未全验）**：[26ceaf0](https://github.com/jiacimu-droid/lulu1/commit/26ceaf0a570685e0686abe57069d77fe4dcf7578) 建立角色及目标后台 App 限定的 `interactiveElements`、`screenSnapshotId`、`tap_element`、控件树指纹过期拒绝和危险点击阻断；[aa6d2bd](https://github.com/jiacimu-droid/lulu1/commit/aa6d2bd071c3759bcaee0595dfae576875f20c0e) 将可见正文计入指纹，避免信息流同坐标换页仍沿用旧 ref；同一轮追加可点容器的子控件安全标题提取，避免卡片无标签而无法点击。**仍待** JVM/APK、真机动态列表、防敏感弹窗、读取真实小红书搜索结果。
+- **b 操作效果与本机稳定等待（源码第一包已实施）**：[1d9ee20](https://github.com/jiacimu-droid/lulu1/commit/1d9ee2081d91a17bf69d50a567ca9b3a1885621d) `effectKind` 区分已接收/未接收、树变更/未变更、输入读回、未知；短暂只读等 UI 稳定且不新增模型调用。**仍待** 区分页面加载/切 App/页面主体差异、事件触发等待和自动反馈复查。
+- **d 安全搜索输入（源码局部实施）**：[b18f45f](https://github.com/jiacimu-droid/lulu1/commit/b18f45f15d583487c885186b5b9af3557b9d86f2) 只允许向同一独立屏已核实的唯一搜索输入框输入，读回必须来自该焦点框，避免误输入评论/聊天区。**仍待** Mika 原版 WebView 特殊输入、中文输入通道安全降级、原剪贴板完整恢复（涉及系统级隐私，不能无验证硬接）。
+- **f 缺帧恢复（已有基础，尚未真机验）**：仍使用独立屏本机无障碍控件证据回执，缺像素不伪造图片；新增控件 ref 只有新快照确权才可操作。
+- **其他 18 项**：仍按下表排队，不标记完成；源码同一轮多次提交的旧 APK 被并发构建取消不等于通过。最后一次本轮代码提交后核最新对应 SHA 的 `Lulu APK` 与 `Refresh code index`，成功后再 Redmi 真机复现 `launch→focus_search/tap_element→type→submit→observe→实际结果/分享或真实错误`。
+- **下一可执行子步骤**：PH-01.6c 安全节点/坐标回退与局部区域识别；PH-01.6e 系统弹窗/IME 全窗口仲裁；PH-01.6h 基于上轮已交付快照的差异回传（避免压缩掉否定与关键结果）。先修最新构建首个真实失败，再向下开发。
+
+
+
 来源：[Mika 主仓](https://github.com/wangzan101/Mika) main `106535545bfefa150e24276c6301238398ca5f88`。已实际检索其 `AndroidScreen`、`ScreenReader`、`NodeIds`、`Accuracy`、`ChangeWait`、`ClickFallback`、`MainScreenSpill`、`ScreenAccessibility`、`FrameFreshness`、`AgentDisplay`、`BuiltinShellRecovery`、`ToolDispatcher`、`ActionEffect`、`InterfaceUpdate`、`EvidenceLog` 等源码。**只复用系统交互能力，不引入第二角色、Mika AgentLoop、第二记忆体系，不改变角色自主选择。** 先核实已有原生功能，严禁因为名称类似就当作已接通。以下是可执行开发清单，未勾选表示未获得完整闭环证据，不是说对应的每一行代码都不存在。
 
 | 固定 ID / 优先级 | Mika 可学的工程能力与当前差距 | 完成定义 / 安全边界 |
 | --- | --- | --- |
-| PH-01.6a P0 | 可交互控件树、snapshotId、编号引用、过期校验、`tap_element`，原 Lulu 以图片及坐标为主；本轮在途源码工作包 | 明确目标 virtual display + App；模型收到新树；模型凭 ref 操作；界面或焦点变更后拒绝旧 ref；外发/密码/付费控件禁点；源代码、JVM/APK、真机分别验 |
+| PH-01.6a P0 | 可交互控件树、snapshotId、编号引用、过期校验、`tap_element`，原 Lulu 以图片及坐标为主；本轮源码初包已提交，工程/真机验收待办 | 明确目标 virtual display + App；模型收到新树；模型凭 ref 操作；界面或焦点变更后拒绝旧 ref；外发/密码/付费控件禁点；源代码、JVM/APK、真机分别验 |
 | PH-01.6b P0 | Mika `ActionEffect` + `ChangeWait`：每步效果分级、等界面稳定后比较控件树/画面；原 Lulu 主要证实「接受指令/新帧」，不能证明页面有变化 | 给实际结果分类 changed/unchanged/loading/switched/unknown；永不把新帧当业务完成，不重复执行不确定的外发动作 |
 | PH-01.6c P0 | Mika `ClickFallback`：安全节点点击/坐标切换，先识别不可逆及状态切换动作 | 只对纯导航可重试，原按钮状态/主屏归属及动作效果未确认时不得自动第二次点 |
 | PH-01.6d P0 | Mika `typeAndVerify`、WebView 输入、中文/剪贴板临时粘贴与精确恢复、键盘焦点 | 密码/验证码禁碰；只在唯一安全框可写；读回并区分已显示/已提交/真实搜索结果；剪贴板要原文恢复且异常可恢复 |
