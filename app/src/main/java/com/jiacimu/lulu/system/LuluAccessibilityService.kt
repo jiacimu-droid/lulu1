@@ -178,7 +178,10 @@ class LuluAccessibilityService : AccessibilityService() {
         }
 
         private fun safeEditable(node: AccessibilityNodeInfo): Boolean =
-            node.isVisibleToUser && node.isEnabled && node.isEditable && !node.isPassword
+            node.isVisibleToUser && node.isEnabled && !node.isPassword &&
+                (node.isEditable || node.actionList.any {
+                    it.id == AccessibilityNodeInfo.ACTION_SET_TEXT
+                })
 
         private fun searchEditor(node: AccessibilityNodeInfo): Boolean =
             safeEditable(node) && LuluVirtualSearchFieldPolicy.isSearchEditor(

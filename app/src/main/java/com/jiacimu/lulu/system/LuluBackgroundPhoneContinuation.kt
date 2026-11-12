@@ -75,7 +75,7 @@ internal object LuluBackgroundPhoneContinuation {
                     {"decision":"continue","args":{"action":"start|tap|swipe|type|submit|back|observe|launch|stop","packageName":"可选已核实包名","appName":"launch时可选已安装App准确显示名称","x":0,"y":0,"text":"可选输入文字","expectedText":"可选目标文字","sendToChat":false,"caption":"可选截图说明"},"reason":"为什么想走这一步"}
                     或 {"decision":"finish","reason":"任务为什么可以结束，未完成时要明确说明"}
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
-                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。没有实际画面时，不要盲点、滑动或打字；可以选择 ask/finish。
+                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。没有实际画面时，不要盲点、滑动或打字；可以先选择 observe 只读重新观察后台屏，不会触发输入或发送；若仍无法取得画面再选择 ask/finish。
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     小红书等搜索操作通常需要先tap搜索框，再type文字，再由你自行选择submit（后台屏Enter键）触发搜索；type只输入文字，不等于搜索已提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
                     遇到真的感兴趣的图文或值得给主人看的内容，你可以依据本人的心情和分享欲自行选择sendToChat，不需要等主人追问；不喜欢、尚未核实或没有分享心情也可以不分享，程序不替你规定分享次数。
