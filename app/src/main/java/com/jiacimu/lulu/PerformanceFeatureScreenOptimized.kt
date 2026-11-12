@@ -303,29 +303,82 @@ private fun FastDurationTab(onClear: () -> Unit) {
     val timings by LuluRepositories.performance.timingRecords.collectAsState(initial = emptyList())
     val durations by LuluRepositories.performance.observeDurations()
         .collectAsState(initial = DurationSummary(0, 0, 0))
-    val latest = remember(timings) {
-        timings.groupBy(PerformanceTimingRecord::stage)
-            .mapNotNull { (_, values) -> values.maxByOrNull(PerformanceTimingRecord::recordedAtMillis) }
-            .sortedByDescending(PerformanceTimingRecord::recordedAtMillis)
-    }
+    val grouped = remember(timings) { com.jiacimu.lulu.data.ChatTimingTrace.group(timings) }
+    val legacy = remember(timings) { com.jiacimu.lulu.data.ChatTimingTrace.legacy(timings) }
+    var showLegacy by rememberSaveable { mutableStateOf(false) }
     PaginatedPerformanceList(
         title = "时长监测",
-        subtitle = "每个调用阶段只显示最新记录。",
-        records = latest,
-        keyOf = PerformanceTimingRecord::id,
+        subtitle = "按真实轮次关联，不再把不同请求的最新耗时拼成一条链。",
+        records = grouped,
+        keyOf = { it.id },
         onClear = onClear,
         summary = {
             FastPerformanceCard {
-                FastMetric("学习", "${durations.studyMinutes} 分钟")
-                FastMetric("聊天", "${durations.chatMinutes} 分钟")
-                FastMetric("通话", "${durations.callMinutes} 分钟")
+                Text("真实请求时间线", fontWeight = FontWeight.SemiBold)
+                Text("首条气泡耗时包括等待、排队、模型和动作。模型及工具阶段可能嵌套，数字不可简单相加。",
+                    fontSize = 12.sp, color = FastPerformanceMuted)
+                FastMetric("学习", durations.studyMinutes.toString() + " 分钟")
+                FastMetric("聊天", durations.chatMinutes.toString() + " 分钟")
+                FastMetric("通话", durations.callMinutes.toString() + " 分钟")
+            }
+            if (legacy.isNotEmpty()) {
+                FastPerformanceCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("未关联的旧记录 · " + legacy.size + " 条",
+                            modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                        TextButton(onClick = { showLegacy = !showLegacy }) {
+                            Text(if (showLegacy) "收起" else "查看")
+                        }
+                    }
+                    Text("旧记录没有同一轮的确切身份，不能倒推归属。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                    if (showLegacy) legacy.take(16).forEach { item ->
+                        FastMetric(item.stage,
+                            com.jiacimu.lulu.data.ChatTimingTrace.duration(item.durationMillis))
+                        Text(item.recordedAtMillis.fastDateTime(),
+                            color = FastPerformanceMuted, fontSize = 11.sp)
+                    }
+                }
             }
         },
-    ) { record ->
-        FastPerformanceCard {
-            Text(record.stage, fontWeight = FontWeight.Bold)
-            FastMetric("最新耗时", "${record.durationMillis} ms")
-            if (record.detail.isNotBlank()) Text(record.detail, color = FastPerformanceMuted, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    ) { group ->
+        var expanded by rememberSaveable(group.id) { mutableStateOf(false) }
+        FastPerformanceCard(modifier = Modifier.clickable { expanded = !expanded }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(if (group.firstBubbleMillis != null) "私聊 · 首条回复已入库"
+                        else "模型 / 工具执行时间线",
+                        fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(group.latestAt.fastDateTime() + " · " + group.id.takeLast(8),
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                }
+                Icon(if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                    contentDescription = if (expanded) "收起耗时阶段" else "查看耗时阶段",
+                    tint = FastPerformanceMuted)
+            }
+            group.firstBubbleMillis?.let { elapsed ->
+                FastMetric("发消息 → 首条气泡",
+                    com.jiacimu.lulu.data.ChatTimingTrace.duration(elapsed))
+            }
+            Text("已记录 " + group.records.size + " 个阶段 · " +
+                (if (expanded) "点击收起" else "点击查看逐段耗时"),
+                color = FastPerformanceMuted, fontSize = 12.sp)
+            if (expanded) {
+                HorizontalDivider(color = FastPerformanceBorder)
+                group.records.takeLast(32).forEach { part ->
+                    val eventOnly = part.stage.startsWith("P08a") && part.durationMillis == 0L
+                    FastMetric(part.stage,
+                        if (eventOnly) "事件（非耗时）" else
+                            com.jiacimu.lulu.data.ChatTimingTrace.duration(part.durationMillis))
+                    Text(part.recordedAtMillis.fastTime() +
+                        part.detail.takeIf(String::isNotBlank)?.let { " · " + it }.orEmpty(),
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                }
+                if (group.records.size > 32) Text("仅展示最后 32 个阶段，原始记录未因此删除。",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
+                if (group.firstBubbleMillis == null) Text("尚未记录该轮首条回复；不等于已经回复。",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
+            }
         }
     }
 }
