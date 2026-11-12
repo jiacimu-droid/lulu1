@@ -115,7 +115,7 @@ internal object LuluBackgroundPhoneContinuation {
         var searchTextVerified = lastScreenReceipt?.optBoolean("inputTextReadbackVerified") == true
         var lastGesture: LuluPhoneRepeatGuard.Attempt? = null
         var duplicateRefusals = 0
-        var consecutiveNoFrames = if (initialImage == null) 1 else 0
+        var stalledWithoutEvidence = if (initialImage == null) 1 else 0
         // A failed first action is still an actual attempt. Give the SAME role
         // one bounded chance to choose a different *safe* step before telling
         // the owner what went wrong. Never quietly resubmit a failed gesture.
@@ -241,6 +241,7 @@ internal object LuluBackgroundPhoneContinuation {
             history.appendLine("下一步 " + index + "：" + action +
                 "；本人原因：" + decision.optString("reason").take(240))
             val result = runCatching { JSONObject(receipt) }.getOrNull()
+            val previousFingerprint = lastScreenReceipt?.optString("uiTreeFingerprint")
             history.appendLine("实际回执：" +
                 compactRoleReceipt(receipt, lastScreenReceipt?.optString("visibleText")))
             uiDiff(lastScreenReceipt, result).takeIf(String::isNotBlank)?.let {
@@ -292,15 +293,23 @@ internal object LuluBackgroundPhoneContinuation {
             // frame WAS returned, the same role can inspect the discrepancy
             // and choose a different next action. Unverified stays unverified.
             if (image == null) {
-                consecutiveNoFrames++
-                if (consecutiveNoFrames >= 8) {
-                    history.appendLine("连续未取得独立屏图像，停止本次尝试；无障碍回执不冒充搜索完成")
+                stalledWithoutEvidence = LuluVirtualNoFramePolicy.nextStalledCount(
+                    previous = stalledWithoutEvidence,
+                    hasFrame = false,
+                    targetWindowVerified = result.optBoolean("targetWindowVerified"),
+                    effectKind = result.optString("effectKind"),
+                    currentFingerprint = result.optString("uiTreeFingerprint"),
+                    previousFingerprint = previousFingerprint,
+                    inputReadbackVerified = result.optBoolean("inputTextReadbackVerified"),
+                )
+                if (LuluVirtualNoFramePolicy.exhausted(stalledWithoutEvidence)) {
+                    history.appendLine("连续多步既没有新截图，也没有经核实的控件/输入进展；停止空转并给主人真实阻碍")
                     return Outcome(history.toString().takeLast(5_000), image, false, count)
                 }
-                history.appendLine("无截图；下一步只允许只读观察、经核实的tap_element或安全搜索控件操作")
+                history.appendLine("无截图；只允许只读观察、经核实的tap_element或安全搜索控件操作。若控件有真实进展，不把缺像素冒充停工")
                 continue
             }
-            consecutiveNoFrames = 0
+            stalledWithoutEvidence = 0
             if (result.optString("status") == "unverified") {
                 history.appendLine("验证条件尚未满足，虽有真实后台画面也不可声称成功；由本人观察决定下一步")
             }

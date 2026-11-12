@@ -72,6 +72,7 @@ internal object LuluBackgroundPhoneSession {
         val token = java.util.UUID.randomUUID().toString().substring(0, 12)
         lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName)
         return output.put("screenSnapshotId", token)
+            .put("uiTreeFingerprint", fingerprint)
             .put("interactiveElements", elements)
             .put("uiEvidenceSource", "virtual_accessibility_tree")
     }
