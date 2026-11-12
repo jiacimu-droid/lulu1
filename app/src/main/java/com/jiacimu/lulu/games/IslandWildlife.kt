@@ -11,10 +11,13 @@ internal data class IslandAnimal(
     val y: Int,
     val befriended: Boolean = false,
     val lastGiftTurn: Int = -1,
+    val trust: Int = 0,
+    val lastFedTurn: Int = -10,
 ) {
     fun json(): JSONObject = JSONObject()
         .put("id", id).put("species", species).put("x", x).put("y", y)
         .put("befriended", befriended).put("lastGiftTurn", lastGiftTurn)
+        .put("trust",trust).put("lastFedTurn",lastFedTurn)
 
     companion object {
         fun read(json: JSONObject, state: BlockIslandState): IslandAnimal? {
@@ -27,6 +30,9 @@ internal data class IslandAnimal(
                 id = json.optInt("id", -1), species = species, x = x, y = y,
                 befriended = json.optBoolean("befriended", false),
                 lastGiftTurn = json.optInt("lastGiftTurn", -1),
+                trust = json.optInt("trust", if(json.optBoolean("befriended",false))
+                    IslandWildlife.requiredFeeds(species) else 0).coerceIn(0,IslandWildlife.requiredFeeds(species)),
+                lastFedTurn = json.optInt("lastFedTurn",-10),
             ).takeIf { it.id >= 0 }
         }
     }
@@ -40,6 +46,8 @@ internal object IslandWildlife {
         "fox" -> "赤尾狐"
         else -> "未知动物"
     }
+    fun requiredFeeds(species: String): Int = if (species=="fox") 3 else 2
+
     fun feed(species: String) = when (species) {
         "hare" -> "野果 ×1"
         "duck" -> "小鱼 ×1"
@@ -47,6 +55,7 @@ internal object IslandWildlife {
         else -> ""
     }
     fun canFeed(state: BlockIslandState, animal: IslandAnimal): Boolean =
+        !animal.befriended && state.world.turns - animal.lastFedTurn >= 4 &&
         when (animal.species) {
             "hare" -> state.fruit >= 1
             "duck" -> state.fish >= 1
