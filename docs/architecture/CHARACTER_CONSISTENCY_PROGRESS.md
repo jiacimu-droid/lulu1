@@ -2095,3 +2095,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 ## 2026-11-12 · UI-02.2 编辑/删除失败回退接力
 - 源码 [762533d](https://github.com/jiacimu-droid/lulu1/commit/762533d807205eccbb7a712177404924558403a3)：`MigratedDomainStores.kt` 中 `mutateMessagesContaining` 的消息编辑/删除先 durable commit，失败恢复旧消息和会话投影，不允许触发下游删除/撤回假回执。测试 [3ebd9ac](https://github.com/jiacimu-droid/lulu1/commit/3ebd9acd63cdd9731e8f6fa9222c75a2f9efa285)：`ChatHistoryPersistenceBaselineTest.rejectedMessageMutationPreservesOriginalAndReopenedHistory` 拒绝 commit 时原消息与 Store 重建不变。新 SHA APK/JVM、索引仍待 CI；没有本地 Gradle、真机或收费模型调用。下一轮按本测试首错继续同 ID；通过后检查会话清空/删除是否同样会在持久化拒绝时提前销毁历史。
+
+
+### 2026-11-12 · UI-02.2 重新回复持久提交失败回退（CI 待验）
+- 正式修复 [1b1c1ec](https://github.com/jiacimu-droid/lulu1/commit/1b1c1ec15c435dc13863df83b9e38b327f57b802)：`InMemoryLuluChatStore.replaceCharacterReply` 原先先替换内存、`apply()` 异步落盘，再撤销旧消息来源与时间线；提交失败可出现幽灵新回复及旧来源被撤销。现在保存前保留原消息/会话，`commit()` 拒绝时恢复，只有真实持久提交成功后才执行来源重绑及时间线变更。
+- 回归 [01a6c61](https://github.com/jiacimu-droid/lulu1/commit/01a6c61b6bc3b4d27455a80162d31b1fe0f4f9ae)：`ChatHistoryPersistenceBaselineTest.rejectedReplyRegenerationKeepsOriginalAfterStoreReopen` 模拟拒绝提交，检查旧气泡、会话投影、原始快照及重新初始化 Store 后均不变。未调用收费模型。
+- 当前无法取得 main push Actions/JVM/APK/Refresh 的真实 head SHA 结果，**不勾工程通过**。下一轮同 UI-02.2 先核 `01a6c61` 或包含它的后继 main push APK/JVM 首错与索引；若通过再检查非持久修改及其余副作用边界。真机强杀、真实模型和历史计费独立待验。
