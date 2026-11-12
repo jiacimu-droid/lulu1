@@ -650,7 +650,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         "已拆除 " else "已建造 ")+IslandHouseProjects.progress(project)+"/"+
                         IslandHouseProjects.totalSteps(project)+
                         " · 位置("+
-                        project.left+","+project.top+") · 每个真实回合施工一步",
+                        project.left+","+project.top+")",
                         color = Color(0xFFBEE8D2), fontSize = 11.sp)
                     if(project.phase=="building" ||
                         (project.phase=="paused" && project.resumePhase=="building")) {
@@ -668,9 +668,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
                         trackColor = Color(0xFF42636A))
-                    Text(if(project.ownerId=="player")
-                        "你选择房屋风格，按每块施工提示走到旁边，手动消耗木材建造9步。完工后出现真正的屋顶；拆掉房屋一块即可开始修复。"
-                        else "房屋风格由角色亲自选择；完成施工后会出现对应屋顶。想改变计划？在队伍聊天里商量暂停、继续或拆除。",
+                    Text(if(project.phase=="complete")
+                        "房屋已完工，可进入使用；受损后可按实际材料修复。"
+                        else if(project.phase=="demolishing" || project.phase=="paused" && project.resumePhase=="demolishing")
+                        if(project.phase=="paused") "拆除已暂停，恢复后按实际进度继续。" else "正在逐块拆除，拆除进度以地图真实变化为准。"
+                        else if(project.ownerId=="player")
+                        if(project.phase=="paused") "施工已暂停；恢复后走到下一块旁边，手动施工。" else "走到下一块旁边手动施工，逐块消耗真实木材。"
+                        else if(project.phase=="paused") "伙伴施工已暂停，可在队伍聊天里协商继续或调整。" else "伙伴按自己选择的计划逐步施工；可在队伍聊天里协商调整。",
                         color = Color(0xFFB5D5CD), fontSize = 11.sp)
                 }
             }
