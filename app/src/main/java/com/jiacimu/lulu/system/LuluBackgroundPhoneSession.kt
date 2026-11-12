@@ -292,24 +292,35 @@ internal object LuluBackgroundPhoneSession {
                     .toString()
             }
             val pixels = frame.optString("imageDataUrl")
-            if (pixels.startsWith("data:image/jpeg;base64,") && requestId.startsWith("reply-")) {
-                LuluScreenFrameHandoff.put(characterId, requestId, pixels)
-            }
+            // Pass the owned virtual-display frame only to the same role and
+            // exact tool request, regardless of foreground/online entry point.
+            // capture_screen remains strictly the owner's main display.
+            val hasFrame = pixels.startsWith("data:image/jpeg;base64,")
+            if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             val expected = args.optString("expectedText").trim()
-            val verified = action == "observe" ||
+            val actionConditionVerified = action == "observe" ||
                 (action == "launch" && visible.packageName == requestedPackage) ||
                 (expected.isNotBlank() && visible.visibleText.contains(expected))
-            return JSONObject().put("success", verified)
-                .put("status", if (verified) "observed" else "unverified")
+            // A real post-action frame is sufficient to let the SAME character
+            // inspect the result and select another action. It is NOT proof that
+            // a swipe changed content or that the requested task was completed.
+            // Previously a swipe without expectedText was always "unverified",
+            // so continuous browsing stopped after just one swipe.
+            val observed = hasFrame && (actionConditionVerified || expected.isBlank())
+            return JSONObject().put("success", observed)
+                .put("status", if (observed) "observed" else "unverified")
+                .put("actionConditionVerified", actionConditionVerified)
+                .put("taskCompleted", false)
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
                 .put("visibleText", visible.visibleText.take(5_000))
-                .put("imageForwardedToRole", requestId.startsWith("reply-") &&
-                    pixels.startsWith("data:image/jpeg;base64,"))
-                .put("verification", if (verified)
-                    "已核实独立屏幕的目标应用与可见控件；实际业务结果仍按目标条件判断"
-                    else "只确认输入派发和实际画面；尚未观察到预期文字，不能标记任务完成")
+                .put("imageForwardedToRole", hasFrame)
+                .put("verification", if (actionConditionVerified)
+                    "已观察到后台目标窗口与指定的验证条件；实际业务任务是否完成仍由角色依据画面判断"
+                    else if (observed)
+                        "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
+                    else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
                 .toString()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) {
