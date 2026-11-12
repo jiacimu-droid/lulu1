@@ -2698,19 +2698,26 @@ object ProactivePerceptionRuntime {
         // online chat could only execute "start" and often fell back to taking
         // a screenshot of the owner's visible screen instead.
         val phoneOutcomes = mutableListOf<com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation.Outcome>()
+        // Preserve the first real phone attempt even when helper startup or
+        // app launch fails before any image/continuation could be produced.
+        // These are execution facts, not model-authored chat or a new goal store.
+        val phoneReceipts = mutableListOf<String>()
         suspend fun continueOwnedPhoneTask(
             actionRequestId: String, actionArgs: JSONObject, actual: JSONObject,
             actionReason: String,
         ): String? {
+            phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
+                "动作=${actionArgs.optString("action")}；真实回执=${actual.toString().take(1_250)}"
             if (actual.optString("mode") != "independent_virtual_display" ||
-                actual.optString("status") in setOf("denied", "failed") ||
+                actual.optString("status") == "denied" ||
                 actionArgs.optString("action") == "stop") return null
             // Exactly this action's actual virtual display frame; NEVER use
             // capture_screen (display 0) to satisfy a background-phone task.
             val frame = com.jiacimu.lulu.system.LuluScreenFrameHandoff.take(
                 character.characterId, actionRequestId)
             if (frame == null && !(actionArgs.optString("action") == "start" &&
-                    actual.optBoolean("success"))) return null
+                    actual.optBoolean("success")) &&
+                actual.optString("status") != "failed") return null
             if (acceptedOnlineRevision != null &&
                 !OnlineChatBatchStore.isCurrent(appContext, character.characterId,
                     acceptedOnlineRevision)) return "后续暂缓：用户有更新消息，需要本人重新选择"
@@ -2951,17 +2958,20 @@ object ProactivePerceptionRuntime {
         // Report the SAME character's actual independent-display receipts only
         // after the continuation has finished/paused, as a new role-authored
         // private message. No screenshot of the owner's main display is used.
-        if (hasFreshUserMessage && phoneOutcomes.isNotEmpty() &&
+        if (hasFreshUserMessage && phoneReceipts.isNotEmpty() &&
             replyConversationIds.isNotEmpty() && !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
                 it.id in replyConversationIds && it.groupChat == null &&
                     it.characterId == character.characterId
             }
             if (destination != null) {
-                val report = phoneOutcomes.joinToString("\n") { outcome ->
-                    "本次已执行追加动作数=${outcome.actions}；本人决定结束=${outcome.finishedByRole}\n" +
-                        outcome.notes.takeLast(3_800)
-                }.takeLast(9_000)
+                val report = (
+                    phoneReceipts.joinToString("\n") +
+                    "\n" + phoneOutcomes.joinToString("\n") { outcome ->
+                        "本次已执行追加动作数=${outcome.actions}；本人决定结束=${outcome.finishedByRole}\n" +
+                            outcome.notes.takeLast(3_800)
+                    }
+                ).takeLast(9_000)
                 val lastImage = phoneOutcomes.lastOrNull()?.lastImage
                 val suggested = runCatching {
                     LuluAiServices.gateway.generate(
@@ -2975,7 +2985,10 @@ object ProactivePerceptionRuntime {
                             如果还没有真的打开目标App、获得真实画面、或滑动未核实，就直说卡在哪儿；
                             虚拟屏创建成功不等于刷完视频。没有本轮真实后台图片，就绝不能
                             用主人正在聊微信/ChatGPT的主屏内容当作后台画面来描述。
-                            用户仍在等待任务结果；你可以按本人性格简短表达具体进展、失败或疑问。
+                            用户仍在等待任务结果。若第一次尝试就失败，也要根据实际回执自然说明；
+                            如果已经亲自尝试了替代步骤，也说明新的真实结果。不要只重复“我再去看看”，
+                            更不能把模型后续尝试失败说成已经解决。下线前不留下一句空头保证。
+                            你可以按本人性格简短表达具体进展、失败或疑问。
                             只输出JSON：{"text":"你此刻实际想发给主人私聊的话"}。
                         """.trimIndent(),
                         source = "角色本人·后台手机任务真实结果",
