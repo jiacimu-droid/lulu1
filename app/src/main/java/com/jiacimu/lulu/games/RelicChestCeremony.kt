@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -117,14 +119,15 @@ internal fun RelicChestCeremony(
         val compact = maxHeight < 360.dp
         val artHeight = relicCeremonyArtHeightDp(maxHeight.value).dp
         Surface(
-            modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp),
+            modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp).heightIn(max = maxHeight),
             color = Color(0xFF171F2A),
             shape = RoundedCornerShape(18.dp),
             border = BorderStroke(1.dp, tint.copy(alpha = .33f)),
             shadowElevation = 5.dp,
         ) {
             Column(
-                Modifier.padding(horizontal = 16.dp, vertical = if (compact) 8.dp else 18.dp),
+                Modifier.verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = if (compact) 8.dp else 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 7.dp),
             ) {
