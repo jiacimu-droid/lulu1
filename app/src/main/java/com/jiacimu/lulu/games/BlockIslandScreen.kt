@@ -461,7 +461,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     GameHudQuickAction("退出",Color(0xFFE7D59C),
                         modifier=Modifier.weight(1f)) { buildMode=null }
                 } else {
-                    GameHudQuickAction(nearbyGather?.label?.take(6) ?: "采集", Color(0xFFA9E5BD),
+                    val gatherButton=nearbyGather?.let { near ->
+                        when {
+                            near.action=="gather" && world.cell(near.x,near.y)==1 ->
+                                if("axe" in island.tools) "伐木+4" else "伐木+2"
+                            near.action=="gather" && IslandProgression.crystalVein(
+                                world.seed,world.index(near.x,near.y)) -> "晶石+1"
+                            near.action=="gather" ->
+                                if("pickaxe" in island.tools) "采石+4" else "采石+2"
+                            near.action=="recover_pack" -> "取回背包"
+                            else -> near.label.take(6)
+                        }
+                    } ?: "采集"
+                    GameHudQuickAction(gatherButton, Color(0xFFA9E5BD),
                         enabled = nearbyGather != null, modifier = Modifier.weight(1f)) {
                         nearbyGather?.let { perform(it.action,it.x,it.y) }
                     }
@@ -584,7 +596,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("生命归零：回营恢复6/12生命，随身一半木石、野果、晶石掉在原地；到原地点击「找回遗失背包」取回。家园与制作的工具保留。",
                 color=Color(0xFFF3D8B5),fontSize=11.sp)
-            Text("木斧砍树4木/次 · 石镐挖矿4石/次且可采蓝色晶矿 · 石剑伤害4 · 鱼竿钓鱼 · 晶石护符消耗后抵挡一次致命伤",
+            Text("工具制作后自动生效，无需手动装备。木斧砍树4木/次 · 石镐挖矿4石/次且可采蓝色晶矿 · 石剑伤害4 · 鱼竿钓鱼 · 晶石护符消耗后抵挡一次致命伤",
                 color=Color(0xFFC8E4DD),fontSize=11.sp)
             Text("已制作："+(if(island.tools.isEmpty())"暂无" else island.tools.sorted().joinToString("、") { BlockIslandRules.actionName(it) }),
                 color=Color(0xFFB5ECD5),fontSize=11.sp)
