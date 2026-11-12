@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T10:31:35.114419+00:00",
-  "commit": "dc8f6ed2839cd88b26b2d53c650a710f4b577192",
+  "generatedAt": "2026-11-12T10:31:58.006705+00:00",
+  "commit": "17e187f7bbf63683432321a0cf09509335febe09",
   "branch": "main",
-  "sourceFingerprint": "f1097d770b1b407a8a4d331f3b01b41c40a66bd73995050c6dacc0dedb33b4ef",
+  "sourceFingerprint": "8875c379227bd6b0d54ba419a4177654c1c5f2e81add58b93ae7e583bbdff4f2",
   "summary": {
     "files": 1276,
-    "lines": 269326,
+    "lines": 269327,
     "symbols": 3813
   },
   "symbolIndex": {
@@ -40728,8 +40728,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 1016,
-      "sha256": "334e6ae566c3654a13d7fb3c1a61d3334d67552f68898ac31b5e2b77b85814c1",
+      "lines": 1017,
+      "sha256": "0c08aca9421de68a8767e77a501a9592334e083a83758749e4919dfd68f3196f",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -42966,7 +42966,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 1139,
-      "sha256": "30b94b22ec74f0d0d25d9e5e2074b7fb946ee4d9bae7311b3c2be67243dc250f",
+      "sha256": "8df76a512d859f10721d49f4f95548207d5552ed7dd150f477e3b9e7d51a3327",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
