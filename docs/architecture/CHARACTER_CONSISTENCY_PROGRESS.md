@@ -13,6 +13,14 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-13 · P-08b.1 后台未读回执复核撤回来源
+
+- 上轮 `3f58255` [原索引 #43249606941](https://github.com/jiacimu-droid/lulu1/actions/runs/43249606941) 与 [全量 JVM/APK #43249606691](https://github.com/jiacimu-droid/lulu1/actions/runs/43249606691) 复核成功。
+- 正式后台链 `ProactivePerceptionRuntime → CharacterPerceptionContext.pending → SharedExperienceTimeline.perceptionPage → 模型输入`。普通群聊角色台词本身不进入未读刺激，但关联真实结果的 `result.evidenceId` 之前只在近期入口检查，未读分页入口未复核。原始气泡可审计并不意味着它仍能支持当前判断。
+- [3aa714b](https://github.com/jiacimu-droid/lulu1/commit/3aa714bb0ee4307de7907778a931d6eb54319c3d) 让近期与未读两个入口共用关联证据复核。只对回执明确声明的结果证据做校验，复用本人时间线及 ChatStore 的撤回投影。分页在选择 12 条刺激前过滤无效结果，保留自身完整、无额外来源的工具结果及原始回执。不新增模型、Store 或重试。
+- `CharacterPerceptionContextTest.pendingPerceptionSkipsReceiptsWhoseGroupEvidenceWasRecalled` 使用真实 ChatStore 撤回和结构化回执夹具，验证两条同场结果仅保留来源有效者，撤回者既不送进渲染也不被记成已读，原记录仍可查询。本轮原索引、静态检查、全量 JVM 与 APK 待按提交 SHA 核验。 真机后台调度和真实模型表现待验。
+- 下一步沿 P-08b.1 打开 `ProactivePerceptionRuntime` 的 `observedWorld` 和 `CharacterPerceptionContext.acknowledge`，核模型请求开始后才撤回关联证据时，旧决策在执行/确认前是否重新校验。若总接力正在改后台执行器，先补能区分旧输入与新提交的现有测试，不并行改执行器。
+
 ## 2026-11-13 · P-08d / P-08a 长期责任不排期也持续进入本人注意力（源码已提交；CI/真机/真实模型待验）
 
 - **真实断点**：`CommitmentTaskStore.active` 将有日期的工作排在所有未定时责任之前，正式 `ProactivePerceptionRuntime` 对模型只传前 12 条的详情/验收证据；超过窗口时，跨日持续责任可能永远不进入同一人物的五分钟到期选择。另 `CompanionSleepHandoff.uncovered` 强制所有未定时责任在每次休眠前新建复查闹钟，把长期记挂误当作全部需要排日程。
