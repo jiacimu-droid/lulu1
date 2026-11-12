@@ -64,25 +64,19 @@ internal object LuluBackgroundPhoneSession {
     suspend fun ownerPreview(context: Context, characterId: String): OwnerPreviewFrame {
         mutex.lock()
         try {
-            check(characterId.isNotBlank() && !characterId.startsWith("resident:")) {
-                "没有可查看后台手机的真实角色"
-            }
-            check(!ownerHasPaused(context)) { "主人已暂停后台手机操作" }
-            check(LuluScreenAwareness.onDemandAllowed(context)) { "主人尚未授权按需读取屏幕" }
-            check(context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true) {
-                "手机已锁屏，不能查看后台画面"
-            }
-            check(connected() && displayId > 0) {
-                "当前没有运行中的独立后台屏；请先让角色真实打开一个应用"
-            }
-            check(ownerCharacterId == characterId) {
-                "这块后台屏属于另一角色，不能跨角色查看"
-            }
+            LuluBackgroundPhonePreviewGate.requireAccess(
+                requestedCharacterId = characterId,
+                ownerCharacterId = ownerCharacterId,
+                displayId = displayId,
+                packageName = activeApp,
+                connected = connected(),
+                ownerPaused = ownerHasPaused(context),
+                screenConsent = LuluScreenAwareness.onDemandAllowed(context),
+                deviceLocked = context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true,
+                excluded = LuluScreenAwareness.isExcluded(context, activeApp),
+            )
             val id = displayId
             val pkg = activeApp
-            check(pkg.isNotBlank() && !LuluScreenAwareness.isExcluded(context, pkg)) {
-                "后台没有已授权的可查看应用"
-            }
             val before = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.observeDisplay(id)
             }
