@@ -51,6 +51,42 @@ internal data class IslandHouseProject(
 internal object IslandHouseProjects {
     val styles=linkedMapOf("warm" to "暖灯原木屋", "pine" to "松林木屋")
     fun styleName(style:String)=styles[style] ?: styles.getValue("warm")
+    /** Player-placed blueprint uses the same nine physical parts and finished roof
+     * as a role-built house. No virtual items, scripted instant-build, or second save.
+     */
+    fun canStartPlayer(s: BlockIslandState, left: Int, top: Int): Boolean {
+        val w=s.world
+        if (s.houseProject!=null || w.finished ||
+            left !in 1 until w.width-3 || top !in 1 until w.height-3 ||
+            abs(w.x-left)+abs(w.y-top)>4) return false
+        return parts(w,left,top).all { (index,_) ->
+            w.tiles[index]==0 && index !in s.structures &&
+                index !in s.supplyCaches &&
+                index != w.index(w.x,w.y) &&
+                w.friends.none { w.index(it.x,it.y)==index } &&
+                w.mobs.none { it.hp>0 && w.index(it.x,it.y)==index } &&
+                s.animals.none { w.index(it.x,it.y)==index }
+        }
+    }
+
+    fun nextPlayerPart(s: BlockIslandState): Pair<Int,String>? {
+        val p=s.houseProject ?: return null
+        if(p.ownerId!="player" || p.phase!="building")return null
+        return parts(s.world,p.left,p.top).firstOrNull { it.first !in p.placed }
+    }
+
+    fun canPlayerBuildNext(s: BlockIslandState): Boolean {
+        val part=nextPlayerPart(s) ?: return false
+        val w=s.world
+        val (index,kind)=part
+        return abs(w.x-index%w.width)+abs(w.y-index/w.width)<=1 &&
+            w.wood>=if(kind=="floor")1 else 2 &&
+            w.tiles[index]==0 && index !in s.structures &&
+            w.friends.none { w.index(it.x,it.y)==index } &&
+            s.animals.none { w.index(it.x,it.y)==index } &&
+            w.mobs.none { it.hp>0 && w.index(it.x,it.y)==index }
+    }
+
     /** The original demolition scope is authoritative, including partially built houses. */
     fun totalSteps(project: IslandHouseProject): Int =
         if(project.phase=="demolishing" ||
