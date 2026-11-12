@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T09:05:36.231941+00:00",
-  "commit": "b09612d43a6a0bec532307d5c5ab5d0221372b50",
+  "generatedAt": "2026-11-12T09:21:08.630495+00:00",
+  "commit": "dd485d09abeb75ab9d3f086848fa344aa0fbe8f9",
   "branch": "main",
-  "sourceFingerprint": "4f48be98bc42c16bb0d7e4f0f3f6a97175b43d932b0eb4133befa2e03ed0aaf9",
+  "sourceFingerprint": "272b9054a19bdb41f4acac4639e9d965218ddbd15bff6f0383f58186575a40cf",
   "summary": {
     "files": 1270,
-    "lines": 268090,
+    "lines": 268096,
     "symbols": 3786
   },
   "symbolIndex": {
@@ -19807,7 +19807,7 @@
     "PhoneTaskNarrativeContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt",
-        "line": 7
+        "line": 14
       }
     ],
     "PositiveExpressionGuidanceTest": [
@@ -42825,12 +42825,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt",
-      "lines": 62,
-      "sha256": "20889b113b82ede6e4a573b9108aab3cf9311235f0318c8d581111322f03e98c",
+      "lines": 68,
+      "sha256": "f627b27c2ce4d405728dd9c6fa0d5c0b281584175f5be6794bb8371e5a1cf2b3",
       "symbols": [
         {
           "name": "PhoneTaskNarrativeContextTest",
-          "line": 7
+          "line": 14
         }
       ]
     },
