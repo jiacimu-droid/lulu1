@@ -3,6 +3,7 @@ package com.jiacimu.lulu.games
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -51,6 +52,8 @@ internal fun GameSceneDeck(
     secondaryLabel: String = "进度",
     /** Immersive island HUD: a single quiet status ribbon, never a map-covering card. */
     compactStatus: Boolean = false,
+    /** Minimal always-visible vital data; full status can be opened by tapping it. */
+    compactSummary: String = "",
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
     /** An explicit selection change can dismiss the tools panel without changing other games. */
@@ -71,6 +74,7 @@ internal fun GameSceneDeck(
     LaunchedEffect(closeToolsSignal) { drawer = false }
     LaunchedEffect(openToolsSignal) { if (openToolsSignal != null) drawer = true }
     var teamExpanded by remember { mutableStateOf(false) }
+    var statusExpanded by remember { mutableStateOf(false) }
     BackHandler(enabled = drawer) { drawer = false }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
@@ -93,6 +97,7 @@ internal fun GameSceneDeck(
         // Capture BoxWithConstraints dimensions before entering ColumnScope:
         // nested layout scopes cannot resolve BoxWithConstraints.maxWidth directly.
         val hudStatusWidth = if (wide) maxWidth * .48f else maxWidth * .59f
+        val compactStatusWidth = gameHudCompactStatusMaxWidthDp(maxWidth.value, wide).dp
         val hudNoticeWidth = if (wide) maxWidth * .42f else maxWidth * .56f
         // Capture BoxWithConstraints height in its own receiver scope. Inside
         // the bottom-right Column, ColumnScope shadows the constraint receiver
@@ -106,16 +111,30 @@ internal fun GameSceneDeck(
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             if (compactStatus) {
+                // The whole stat line used to permanently cover the upper-left map.
+                // Keep only health / essential progress visible; full details are one tap away.
                 Surface(
-                    modifier = Modifier.widthIn(max = hudStatusWidth),
-                    color = Color(0xB5162935),
-                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.widthIn(
+                        max = if (statusExpanded) hudStatusWidth else compactStatusWidth),
+                    color = Color(0xAA162935),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(
-                        status, color = Color.White, fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold, maxLines = 1,
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clickable { statusExpanded = !statusExpanded }
+                            .padding(horizontal = 8.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    ) {
+                        Text(
+                            if (statusExpanded || compactSummary.isBlank()) status else compactSummary,
+                            color = Color.White, fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = if (statusExpanded) 2 else 1,
+                        )
+                        Text(if (statusExpanded) "⌃" else "⌄",
+                            color = accent, fontSize = 10.sp)
+                    }
                 }
             } else {
                 Surface(
@@ -169,19 +188,21 @@ internal fun GameSceneDeck(
             Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
                 .padding(top = 5.dp, end = 8.dp)) {
                 if (!drawer) {
-                    Surface(
-                        color = Color(0xD9132932), shape = RoundedCornerShape(11.dp),
-                        border = BorderStroke(1.dp, accent.copy(alpha = .24f)),
-                    ) {
-                        Row(Modifier.fillMaxWidth().height(32.dp).padding(start = 10.dp, end = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Text("♡ 队伍与语音", modifier = Modifier.weight(1f), color = Color.White,
-                                fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                            TextButton(onClick = { teamExpanded = !teamExpanded },
-                                contentPadding = PaddingValues(horizontal = 6.dp)) {
-                                Text(if (teamExpanded) "收起" else "展开", fontSize = 10.sp,
-                                    color = accent)
-                            }
+                    // No permanent full-width top bar: a small corner tab opens
+                    // the existing live companion/voice controls on demand.
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        Surface(
+                            color = Color(0xAA132932),
+                            shape = RoundedCornerShape(14.dp),
+                        ) {
+                            Text(
+                                if (teamExpanded) "♡ 收起队伍" else "♡ 队伍",
+                                modifier = Modifier
+                                    .clickable { teamExpanded = !teamExpanded }
+                                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                                color = accent, fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
                         }
                     }
                 }
@@ -305,6 +326,11 @@ private fun GameHudConditionTrack(label:String,fraction:Float,accent:Color) {
  * Keeping this arithmetic independent of Compose makes small-landscape and
  * split-screen safety testable without opening the actual game scene.
  */
+/** Top-corner vital label stays narrow on small landscape phones. */
+internal fun gameHudCompactStatusMaxWidthDp(availableWidthDp: Float, landscape: Boolean): Float =
+    (availableWidthDp.coerceAtLeast(0f) * if (landscape) .28f else .52f)
+        .coerceAtMost(194f)
+
 internal fun gameHudInfoMaxHeightDp(availableHeightDp:Float, landscape:Boolean):Float {
     val height=availableHeightDp.coerceAtLeast(0f)
     val ratio=if(landscape) .39f else .30f
