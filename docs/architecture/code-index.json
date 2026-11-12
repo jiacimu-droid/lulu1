@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T12:41:26.883345+00:00",
-  "commit": "6fe0d80706f8071be9a752efbcac662aa2432612",
+  "generatedAt": "2026-11-12T12:45:01.223993+00:00",
+  "commit": "0dd9c9fddc83c976f1025c533776f3459c93aa43",
   "branch": "main",
-  "sourceFingerprint": "505a79fc6e99b2bf1d51133f702818a19adce7438231f64d7c24b9ae49f23353",
+  "sourceFingerprint": "7c3b0b886fd2e9c834ee2cb84dee58a067ec8f089051103cdb398944f929a6cc",
   "summary": {
     "files": 1281,
-    "lines": 270433,
+    "lines": 270508,
     "symbols": 3829
   },
   "symbolIndex": {
@@ -3421,7 +3421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 135
+        "line": 143
       }
     ],
     "userDeparted": [
@@ -14193,7 +14193,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 251
+        "line": 278
       }
     ],
     "cycle": [
@@ -34972,7 +34972,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
       "lines": 919,
-      "sha256": "2bbb8b57be24c93c4475ebe811dee51c167dffd892180c9dc47c82449ec7e4cc",
+      "sha256": "eb3ad00a53fcf148fe225d881922692c1c2ef055b3c27c131eed9afc32dfa240",
       "symbols": [
         {
           "name": "toJson",
@@ -35051,7 +35051,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
       "lines": 1208,
-      "sha256": "635c5e2846180007a8c20e88802a659ad62bbde7656c9df9608a54954448d897",
+      "sha256": "72a595ceffe8393dbbd362a22e562cb72bd2d27d727265bbf5395cb0ca5e6d55",
       "symbols": [
         {
           "name": "playSound",
@@ -36145,8 +36145,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 280,
-      "sha256": "44cdc0fb9634f41cdec9428220a5a064aea1dffdf60562de7c2d7ba2ea1dfd62",
+      "lines": 307,
+      "sha256": "f91d9200cacb5b1463fa04a998f366aec7afc3ef5ed5d187399fe9d6da2102f5",
       "symbols": [
         {
           "name": "acted",
@@ -36158,11 +36158,11 @@
         },
         {
           "name": "apply",
-          "line": 135
+          "line": 143
         },
         {
           "name": "facts",
-          "line": 251
+          "line": 278
         }
       ]
     },
@@ -44673,8 +44673,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt",
-      "lines": 178,
-      "sha256": "cd622679d1f7b4ad516ba3d88b5500b37bf29ed0ff437ab1faf78712bb6ff252",
+      "lines": 226,
+      "sha256": "cf521a5e6c48b45eb3fbd42ee7ff5d19587ba58d6d9c31f2b0b601b0d29e3a2f",
       "symbols": [
         {
           "name": "RelicActorPlayTest",
