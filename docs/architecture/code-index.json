@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T11:45:23.777944+00:00",
-  "commit": "f1804955b550aeb9896eb7b123c2c54f6da7e6af",
+  "generatedAt": "2026-11-12T12:25:50.755339+00:00",
+  "commit": "73fd43da5cc8eab9c248dac52ee84029d52cb78f",
   "branch": "main",
-  "sourceFingerprint": "ce7a4fb32c470da456e5185be8721447a13c0cb92f79034d9afcdb59861334f5",
+  "sourceFingerprint": "bab7cea29fa26aee0e7c78981bb3cc475641a3a0d668a7e71c6b1020b655c417",
   "summary": {
-    "files": 1276,
-    "lines": 269648,
-    "symbols": 3815
+    "files": 1277,
+    "lines": 269709,
+    "symbols": 3822
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4982,6 +4982,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
         "line": 52
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -14260,6 +14264,10 @@
         "line": 22
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 39
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
         "line": 17
       },
@@ -14424,6 +14432,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 139
+      }
+    ],
+    "crystalVein": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 11
+      }
+    ],
+    "crystalLampProtects": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 13
+      }
+    ],
+    "foundCrystalText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 19
+      }
+    ],
+    "isEmpty": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 36
+      }
+    ],
+    "merge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 37
       }
     ],
     "generate": [
@@ -35638,6 +35676,41 @@
         {
           "name": "parse",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+      "lines": 61,
+      "sha256": "e8651fca26654bc888b20fcf23ce65e8e8a6316653f2f95a056e059610d13d27",
+      "symbols": [
+        {
+          "name": "crystalVein",
+          "line": 11
+        },
+        {
+          "name": "crystalLampProtects",
+          "line": 13
+        },
+        {
+          "name": "foundCrystalText",
+          "line": 19
+        },
+        {
+          "name": "isEmpty",
+          "line": 36
+        },
+        {
+          "name": "merge",
+          "line": 37
+        },
+        {
+          "name": "json",
+          "line": 39
+        },
+        {
+          "name": "restore",
+          "line": 43
         }
       ]
     },
