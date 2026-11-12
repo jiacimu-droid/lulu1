@@ -81,6 +81,18 @@ class SearchReceiptFeedbackTest {
         assertEquals("search_read", receipt.operation)
     }
 
+    @Test fun privateSearchKeepsItsActualReceiptWithoutSelectingAChatReport() {
+        val result = JSONObject().put("success", true).put("summary", "实际结果")
+            .put("evidenceId", "tool-observation")
+        val args = JSONObject().put("reportToUser", false)
+        val privateReceipt = SearchReceiptFeedback.from("web_search", args, result)!!
+        assertTrue(privateReceipt.success)
+        assertEquals("tool-observation", privateReceipt.evidenceId)
+        assertFalse(privateReceipt.reportToUser)
+        assertTrue(SearchReceiptFeedback.from("web_search", JSONObject(), result)!!.reportToUser)
+        assertTrue(SearchReceiptFeedback.requestsPrivateReply(JSONObject().put("reportToUser", "false")))
+    }
+
     @Test fun failuresAndMissingProviderAreNotRewrittenIntoSuccess() {
         val failure = JSONObject().put("success", false).put("error", "搜索渠道尚未配置")
         val actual = SearchReceiptFeedback.from("web_search", JSONObject(), failure)!!

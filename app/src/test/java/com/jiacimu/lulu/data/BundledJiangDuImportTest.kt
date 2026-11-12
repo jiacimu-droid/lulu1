@@ -882,6 +882,30 @@ class BundledJiangDuImportTest {
         }
     }
 
+    @Test fun jiangDuSpeechRefreshUpgradesTheOldDefaultAndKeepsEditedOrBlankSpeech() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val before = CharacterLifeStore.state(id)
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        val peerBefore = CharacterLifeStore.state("lulu").toString()
+        try {
+            val stock = CharacterProfileSchema.jiangDuV29Overrides.getValue("speechHabits")
+            val current = CharacterProfileSchema.jiangDuCurrentSpeechHabits
+            for ((stored, expected) in listOf(stock to current, "我自己的口吻" to "我自己的口吻", "" to "")) {
+                CharacterLifeStore.setProfile(id, "speechHabits", stored)
+                CharacterLifeStore.syncBundledExpressionPresets()
+                assertEquals(expected, CharacterLifeStore.state(id)
+                    .getJSONObject("profile").getString("speechHabits"))
+            }
+            assertEquals(peerBefore, CharacterLifeStore.state("lulu").toString())
+        } finally {
+            save.invoke(CharacterLifeStore, id, before)
+        }
+    }
+
     @Test fun approvedValuesFollowUpUpdatesStockOnlyAndPreservesOwnerEditsAndIntimacy() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)

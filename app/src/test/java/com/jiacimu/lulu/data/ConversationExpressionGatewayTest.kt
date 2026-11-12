@@ -2021,9 +2021,17 @@ class ConversationExpressionGatewayTest {
         val batch = OnlineChatBatchStore.onUserBubble(context, role.characterId,
             atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
         val spoken = "你是在担心以后的生活，对吗？"
+        val favorite = JSONObject().put("tool", "favorite_user_message")
+            .put("args", JSONObject().put("messageId", current.id)
+                .put("reason", "她直接说出了刚才真正担心的事"))
+        val privateRead = JSONObject().put("tool", "web_search")
+            .put("args", JSONObject().put("op", "search").put("query", "公共图书馆藏书")
+                .put("reportToUser", false))
+        val authored = JSONObject().put("action", "message").put("text", spoken)
+            .put("reason", "想确认她现在真正担心的事")
+            .put("steps", JSONArray().put(favorite).put(privateRead))
         val answer = JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
-            JSONObject().put("content", JSONObject().put("action", "message").put("text", spoken)
-                .put("reason", "想确认她现在真正担心的事").toString())).put("finish_reason", "stop"))).toString()
+            JSONObject().put("content", authored.toString())).put("finish_reason", "stop"))).toString()
         val server = MockWebServer()
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest) = MockResponse()
@@ -2033,6 +2041,7 @@ class ConversationExpressionGatewayTest {
         try {
             val config = LuluAiServices.connectionStore.saveConfiguration(null, "test", server.url("/").toString(), "test-only")
             LuluAiServices.connectionStore.addArchive(config.id, "test")
+            assertFalse(WebSearchProvider.isConfigured(context))
             assertEquals(1, ProactivePerceptionRuntime.runDueCycle(context, "私聊新消息", role.characterId,
                 force = true, onlineRevision = batch.revision, requiresUnread = true))
             assertEquals(1, server.requestCount)
@@ -2050,6 +2059,17 @@ class ConversationExpressionGatewayTest {
                 .put("text", current.content).toString()))
             assertTrue(system.contains("从本人的性格、所知、立场与在意之处"))
             assertTrue(system.contains("选择此刻真正想对这个人说什么"))
+            assertTrue(system.contains("web_search 尚未配置"))
+            assertTrue(system.contains("身份与生活"))
+            assertTrue(system.contains("自己承担的责任"))
+            assertTrue(CharacterMessageFavorites.hasFavorite(role.characterId, current.id))
+            val receipts = SharedExperienceTimeline.all(role.characterId)
+                .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+                .map { JSONObject(it.content) }
+            assertTrue(receipts.any { it.optString("tool") == "favorite_user_message" &&
+                ToolExecutionStatus.completed(JSONObject(it.getString("result"))) })
+            assertTrue(receipts.any { it.optString("tool") == "web_search" &&
+                !JSONObject(it.getString("result")).optBoolean("success") })
             assertTrue(MigratedDomainStores.chat.messages(chat.id).value.any {
                 it.sender == LuluChatMessage.Sender.Character && it.content == spoken
             })

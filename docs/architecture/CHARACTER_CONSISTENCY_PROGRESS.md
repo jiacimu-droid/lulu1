@@ -2,6 +2,13 @@
 
 # 人物一致性：整体因果链核查与修复
 
+## 2026-11-12 · P-08d.2 / P-08c.3 私聊中的独立想法、实际副动作与江渡语气
+
+- `ProactivePerceptionRuntime` 的在线私聊原先省略了联网搜索的实时提供商状态与参数目录。主动感知也绕过了 `CharacterUnfinishedActionContext` 中已用于电话的单调感行动引导。两条真实入口现在复用对应的原有上下文。在已有决策中从身份与自己的生活、性格与价值、本轮交流、已承担的责任联想，按实际意愿选择立即行动、跨轮心事或持久日程。
+- `reportToUser=false` 只控制当前私聊追加汇报。原工具、后台屏继续操作、独立回执与本人感知照常。旧模型决定及等候结果的任务走原反馈。江渡的新默认语言习惯接入现有人设，仅更新旧默认，保留已编辑字段和其他角色。
+- 回归入口为 `ConversationExpressionGatewayTest.normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers`、`SearchReceiptFeedbackTest` 与 `BundledJiangDuImportTest`。JVM、APK、Redmi 实机与真实模型表现待验。下轮先查本提交的 push CI，再测真实角色在无消息时继续自己的探索、在私聊中收藏或独立搜索，并凭原回执决定是否分享。
+
+
 ## 2026-11-12 · P-08b.1 群聊导演等待中的用户修订与补发
 
 - 上轮导演路由隔离的后继 `dd485d09` [索引 #43190648244](https://github.com/jiacimu-droid/lulu1/actions/runs/43190648244) 与 [JVM/APK #43190648269](https://github.com/jiacimu-droid/lulu1/actions/runs/43190648269) 已成功。核对祖先关系与群聊文件，日志确认原导演隔离和两位角色设定交接回归均为 `PASSED`，APK 已发布。

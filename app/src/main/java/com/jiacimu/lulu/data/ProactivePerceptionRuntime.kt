@@ -1024,17 +1024,14 @@ object ProactivePerceptionRuntime {
                     // unless this role actually reaches/observes that place.
                     appendLine("寻找新朋友可以先亲自到公共场所；只有当前场景确实见到的居民、自己收到的消息和已知联系人，才是本人当前可确认的社会线索。")
                 }
-                // Independent turns receive learn_topic via the same live discovery
-                // catalogue below. A private reply can still discover learning
-                // without bringing in the entire independent-life tool catalogue.
+                // An online reply may also contain an independent search. Give
+                // it the same live provider state and argument contract without
+                // pulling in the full world/action catalogue.
                 if (privateDialogue.isNotEmpty()) {
                     appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
-                }
-                // The normal autonomous model previously saw generic references
-                // to search, but not the live provider/permission/argument contract.
-                // Reuse the executable registry's existing catalogue; avoid
-                // paying for this extra context on ordinary user chat turns.
-                if (privateDialogue.isEmpty()) {
+                    CompanionActionRuntime.externalSearchContext(appContext, characterId)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
+                } else {
                     appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
                         appContext, characterId))
                 }
@@ -1165,7 +1162,7 @@ object ProactivePerceptionRuntime {
                 if (privateDialogue.isEmpty()) appendLine(CharacterExpressionContinuity.guide(characterId))
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
-                appendLine(CharacterUnfinishedActionContext.render(unfinishedChoices))
+                appendLine(CharacterUnfinishedActionContext.renderWithBody(unfinishedChoices, characterId, now))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
                 // Old memories can spark an independent idea even without unread user input.
                 appendLine(CharacterAssociativeRecall.render(characterId, now,
@@ -2772,13 +2769,16 @@ object ProactivePerceptionRuntime {
         // These are execution facts, not model-authored chat or a new goal store.
         val phoneReceipts = mutableListOf<String>()
         val phoneUnverifiedFacts = mutableListOf<String>()
+        val reportablePhoneOutcomes = mutableListOf<com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation.Outcome>()
         suspend fun continueOwnedPhoneTask(
             actionRequestId: String, actionArgs: JSONObject, actual: JSONObject,
             actionReason: String,
         ): String? {
-            phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
+            val includeInPrivateReport = SearchReceiptFeedback.requestsPrivateReply(actionArgs)
+            if (includeInPrivateReport) phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
                 "动作=${actionArgs.optString("action")}；真实回执=${actual.toString().take(1_250)}"
-            if (actual.optString("status") in setOf("failed", "unverified", "denied", "waiting_user")) {
+            if (includeInPrivateReport &&
+                actual.optString("status") in setOf("failed", "unverified", "denied", "waiting_user")) {
                 val why = actual.optString("error").ifBlank {
                     actual.optString("verification").ifBlank {
                         actual.optString("summary").ifBlank { actual.optString("status") }
@@ -2811,6 +2811,7 @@ object ProactivePerceptionRuntime {
                     userText, "background_phone"),
             )
             phoneOutcomes += outcome
+            if (includeInPrivateReport) reportablePhoneOutcomes += outcome
             return "已按同一角色决定进一步执行${outcome.actions}步；" +
                 "本人主动结束=${outcome.finishedByRole}；" + outcome.notes.takeLast(450)
         }
@@ -2952,7 +2953,7 @@ object ProactivePerceptionRuntime {
                     SearchReceiptFeedback.recordedReceiptId(character.characterId, requestId)))
             }
             addAll(stepReport.searchReceipts)
-        }
+        }.filter(VerifiedSearchReceipt::reportToUser)
         // A chosen tool does not consume its own optional spoken message.
         // This text is authored by the original model decision; there is no
         // second personality/model call after tool execution.
@@ -3046,12 +3047,12 @@ object ProactivePerceptionRuntime {
             if (destination != null) {
                 val report = (
                     phoneReceipts.joinToString("\n") +
-                    "\n" + phoneOutcomes.joinToString("\n") { outcome ->
+                    "\n" + reportablePhoneOutcomes.joinToString("\n") { outcome ->
                         "本次已执行追加动作数=${outcome.actions}；本人决定结束=${outcome.finishedByRole}\n" +
                             outcome.notes.takeLast(3_800)
                     }
                 ).takeLast(9_000)
-                val lastImage = phoneOutcomes.lastOrNull()?.lastImage
+                val lastImage = reportablePhoneOutcomes.lastOrNull()?.lastImage
                 // The owner may already have seen a screenshot or a previous
                 // reply while this asynchronous phone task ran. Ground the
                 // follow-up in actually delivered bubbles, not just a draft.

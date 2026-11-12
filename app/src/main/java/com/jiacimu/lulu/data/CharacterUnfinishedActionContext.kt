@@ -117,8 +117,11 @@ internal object CharacterUnfinishedActionContext {
         append("挂心是尚未解决的在意，记忆是所依据的事实；安排日程不代表挂心已解决，也不自动把每件挂心升级为核心记忆。探索沿原goalId继续；到点重新核实参数、时机与权限，可执行、改期或取消。无需为排日程单独增加模型调用，也不必强行把每个念头变成待办。")
     }
 
-    fun context(context: Context, role: String, now: Instant = Instant.now()): String {
-        val unfinished = render(candidates(context, role, now))
+    fun context(context: Context, role: String, now: Instant = Instant.now()): String =
+        renderWithBody(candidates(context, role, now), role, now)
+
+    fun renderWithBody(cues: List<Cue>, role: String, now: Instant): String {
+        val unfinished = render(cues)
         // Bring the real embodied urge next to the actionable handoff, not only
         // deep inside the personality/memory prompt. This never chooses tools.
         val boredom = EmbodiedBodyRuntime.sensorySnapshot(role, now)?.boredom ?: return unfinished

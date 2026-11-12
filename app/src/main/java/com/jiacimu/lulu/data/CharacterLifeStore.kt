@@ -185,6 +185,11 @@ object CharacterLifeStore {
                 profile.put("dialogueExamples", examples)
                 updated = true
             }
+            if (id == BUNDLED_JIANG_DU_ID &&
+                profile.optString("speechHabits") == CharacterProfileSchema.jiangDuV29Overrides.getValue("speechHabits")) {
+                profile.put("speechHabits", CharacterProfileSchema.jiangDuCurrentSpeechHabits)
+                updated = true
+            }
             if (id == "lulu" && profile.optString("speechHabits") in setOf(
                     CharacterProfileSchema.xingHeSpeechHabitsV6,
                     CharacterProfileSchema.xingHeSpeechHabitsV7,
