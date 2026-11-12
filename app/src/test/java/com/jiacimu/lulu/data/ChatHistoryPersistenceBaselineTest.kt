@@ -796,6 +796,50 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+
+    /** UI-02.2: a single corrupt item in a large legacy snapshot cannot be silently
+     * skipped and replaced by an empty/default history on a metadata write. */
+    @Test fun malformedItemInThousandMessageSnapshotCannotBeOverwritten() {
+        val previous = prefs.getString(key, null)
+        try {
+            val messages = JSONArray()
+            repeat(1_000) { index ->
+                messages.put(JSONObject()
+                    .put("id", "ui02-migration-$index")
+                    .put("conversationId", conversationId)
+                    .put("sender", "User")
+                    .put("content", "Historical message $index")
+                    .put("createdAt", "2026-01-01T00:00:00Z")
+                    .put("status", "Sent"))
+            }
+            // One damaged row must not turn the other 999 durable rows into defaults.
+            messages.getJSONObject(731).remove("id")
+            val snapshot = JSONObject()
+                .put("conversations", JSONArray().put(JSONObject()
+                    .put("id", conversationId)
+                    .put("characterId", "ui02-character")
+                    .put("title", "Migration failure authority")
+                    .put("updatedAt", "2026-01-01T00:00:00Z")))
+                .put("messages", JSONObject().put(conversationId, messages))
+                .toString()
+            assertTrue(prefs.edit().putString(key, snapshot).commit())
+            repeat(2) {
+                val store = InMemoryLuluChatStore()
+                store.initialize(app)
+                assertTrue(runCatching {
+                    store.setConversationPinned(conversationId, true)
+                }.exceptionOrNull() is IllegalStateException)
+                assertEquals(snapshot, prefs.getString(key, null))
+            }
+            assertEquals(1_000, JSONObject(prefs.getString(key, null)!!)
+                .getJSONObject("messages").getJSONArray(conversationId).length())
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     private fun measure(count: Int) {
         val previous = prefs.getString(key, null)
         try {
