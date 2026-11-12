@@ -225,7 +225,20 @@ internal object LuluBackgroundPhoneSession {
                 }
             }
             val request = JSONObject().put("action", action)
-            if (action == "launch") request.put("packageName", requestedPackage)
+            if (action == "launch") {
+                // Pass Android's actual exported launcher component, not just a
+                // package-filtered implicit MAIN intent. Some apps have multiple
+                // launcher activities and 'am start -p pkg' is ambiguous.
+                val launch = context.packageManager.getLaunchIntentForPackage(requestedPackage)
+                    ?: error("本机未找到该包名的真实启动入口")
+                val component = launch.component
+                    ?: error("目标 App 启动入口没有明确组件")
+                check(component.packageName == requestedPackage) {
+                    "本机启动组件与已授权 App 包名不匹配"
+                }
+                request.put("packageName", requestedPackage)
+                    .put("launchComponent", component.flattenToString())
+            }
             if (action == "tap") {
                 request.put("x", args.getInt("x"))
                 request.put("y", args.getInt("y"))
