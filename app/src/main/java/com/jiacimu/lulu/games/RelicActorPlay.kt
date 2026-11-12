@@ -113,8 +113,12 @@ internal object RelicActorPlay {
         }
         for ((x, y) in listOf(a.x+1 to a.y, a.x-1 to a.y, a.x to a.y+1, a.x to a.y-1)) {
             if (!s.bounds(x, y)) continue
-            if (s.mobs.any { it.hp > 0 && it.x == x && it.y == y }) {
-                result += IslandActorOption("attack:$x:$y", "攻击($x,$y)的守卫", "attack", x, y)
+            val enemy=s.mobs.firstOrNull { it.hp>0 && it.x==x && it.y==y }
+            if (enemy!=null) {
+                result += IslandActorOption("attack:$x:$y", "攻击($x,$y)的守卫，造成2点伤害", "attack", x, y)
+                if(enemy.windup) result += IslandActorOption("interrupt:$x:$y",
+                    "牵制打断该守卫本回合的蓄力，造成1点伤害（放弃高伤害换队伍安全）",
+                    "interrupt",x,y)
             } else if (s.walk(x, y) && !(s.hero.x == x && s.hero.y == y) &&
                 s.allies.none { it.id != id && it.hp > 0 && it.x == x && it.y == y }) {
                 result += IslandActorOption("move:$x:$y", "走到($x,$y)", "move", x, y)
@@ -127,6 +131,10 @@ internal object RelicActorPlay {
         }
         if (a.kits > 0 && a.hp < 10)
             result += IslandActorOption("heal", "使用自己的药剂治疗自己", "heal")
+        if (a.kits>0 && s.hero.hp in 1..5 &&
+            RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=1)
+            result += IslandActorOption("aid_player",
+                "战地救护：消耗自己1瓶药剂，为附近受伤玩家恢复4点生命", "aid_player")
         if (a.kits > 0 && s.hero.hp <= 0 &&
             RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y) <= 1)
             result += IslandActorOption("rescue", "消耗自己的药剂救起玩家", "rescue")
@@ -216,10 +224,22 @@ internal object RelicActorPlay {
                 "前进到("+option.x+","+option.y+")"+
                     if(damage>0)"，地形伤害"+damage else ""
             }
-            "attack" -> {
-                next = s.copy(mobs=s.mobs.map { if (it.hp > 0 && it.x == option.x && it.y == option.y)
-                    it.copy(hp=(it.hp-2).coerceAtLeast(0)) else it })
-                "攻击守卫，造成2点伤害"
+            "attack", "interrupt" -> {
+                val enemy=s.mobs.firstOrNull { it.hp>0 && it.x==option.x && it.y==option.y }
+                    ?:return null
+                if(option.kind=="interrupt" && !enemy.windup)return null
+                val damage=if(option.kind=="interrupt")1 else 2
+                val defeated=enemy.hp<=damage
+                next=s.copy(
+                    mobs=s.mobs.map { if(it.id==enemy.id)
+                        it.copy(hp=(it.hp-damage).coerceAtLeast(0),
+                            windup=if(option.kind=="interrupt")false else it.windup) else it },
+                    drops=if(defeated) s.drops+RelicDrop(enemy.x,enemy.y,
+                        RelicArsenal.monsterDrop(s,enemy)) else s.drops,
+                )
+                (if(option.kind=="interrupt")"牵制打断蓄力" else "攻击守卫")+
+                    "，造成"+damage+"点伤害"+
+                    if(defeated)"，敌人倒下，真实掉落一件战利品" else ""
             }
             "open" -> {
                 val chest = s.chests.first { !it.opened && it.x == option.x && it.y == option.y }
@@ -231,6 +251,13 @@ internal object RelicActorPlay {
             "heal" -> {
                 actor = a.copy(hp=(a.hp+5).coerceAtMost(10),kits=a.kits-1)
                 "使用药剂治疗自己"
+            }
+            "aid_player" -> {
+                if(s.hero.hp<=0 || s.hero.hp>5 || a.kits<=0 ||
+                    RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1)return null
+                actor=a.copy(kits=a.kits-1)
+                next=s.copy(hero=s.hero.copy(hp=(s.hero.hp+4).coerceAtMost(10)))
+                "战地救护：消耗1瓶药剂，玩家生命恢复4点"
             }
             "rescue" -> {
                 actor = a.copy(kits=a.kits-1,rescues=a.rescues+1)
@@ -271,7 +298,7 @@ internal object RelicActorPlay {
     suspend fun decide(s: RelicRun,id: String,heard: String): Result<IslandActorChoice> =
         LuluAiServices.gateway.generate(characterId=id,facts=facts(s,id,heard),
             instruction="""你是角色本人，正在陪玩家合作探索遗迹。按自己的性格、关系与现场自主选择操作，可以分头搜宝、战斗、救援、撤退或观察；不必等玩家命令或固定跟随。自己找到的实物宝物可以选择 plan_deliver 亲自带到玩家身边交给她，或者在附近用 share 即刻交付。是否送、送哪件由你决定，不是脚本自动赠送；背包满了会如实暂存。
-只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；plan_deliver 是你亲自选定的跨回合送宝目标，移动与交付都扣真实回合，行动失败保留宝物并给回执；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。你可以自主和玩家一起围攻敌人、主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
+只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；plan_deliver 是你亲自选定的跨回合送宝目标，移动与交付都扣真实回合，行动失败保留宝物并给回执；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。你可以自主和玩家一起围攻敌人、在敌人蓄力时选择牵制interrupt牺牲伤害打断攻击，也可花自己的药剂aid_player为未倒地玩家紧急治疗；这些由你自己取舍，程序不预设你的性格。你也能主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
 只输出JSON：{"actionId":"options中的id","speech":"愿意说出口的话；沉默则为空字符串"}。实际执行结果由游戏返回。""",
             source="游戏 · 迷雾摸金自主同行",title="摸金伙伴自主决策",usage=ModelUsage.Game,
             contextMode=CompanionContextMode.CharacterAndScenario,maxTokens=260)
