@@ -371,36 +371,49 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
+        /** Never type in an arbitrary focused editor on the virtual phone.
+         * IMEs can shift focus to a comment/message box even after a search
+         * attempt. Only ONE recognisable safe search input may receive text.
+         * This also prevents a false readback from a different field. */
         fun typeOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
             if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
                 text.isEmpty() || text.length > 500) return false
-            for (root in ownedVirtualRoots(service, displayId, packageName)) {
-                val current = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                // Mika recovers focus on the actual editor. Lulu only does this
-                // when there is a single unambiguous search input in the app.
-                val field = current?.takeIf(::safeEditable)
-                    ?: uniqueSearchEditor(root)?.also {
-                        it.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
-                    } ?: continue
-                val arguments = Bundle().apply {
-                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
-                }
-                return field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            if (roots.isEmpty() || observeDisplay(displayId).packageName != packageName)
+                return false
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            if (!LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                    searches.size, editors.size - searches.size)) return false
+            val field = searches.single()
+            val currentlyFocused = roots.mapNotNull {
+                it.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+            }.firstOrNull(::safeEditable)
+            if (currentlyFocused != null && !searchEditor(currentlyFocused)) return false
+            if (!field.isFocused) field.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+            if (!field.refresh() || !safeEditable(field) || !searchEditor(field) ||
+                !field.isFocused) return false
+            val arguments = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
             }
-            return false
+            return field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
         }
 
-        /** ACTION_SET_TEXT being accepted is not proof the application kept it. */
+        /** Readback is from that verified search field, not an unrelated
+         * focused text input. Nothing is copied into the model's node list. */
         fun typedTextReadbackOnDisplay(displayId: Int, packageName: String, text: String): Boolean {
             val service = instance ?: return false
-            if (displayId <= 0 || packageName.isBlank() || text.isEmpty()) return false
-            return ownedVirtualRoots(service, displayId, packageName).any { root ->
-                val focus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
-                    ?.takeIf(::safeEditable)
-                val field = focus ?: uniqueSearchEditor(root)
-                field?.text?.toString() == text
-            }
+            if (displayId <= 0 || packageName.isBlank() || text.isEmpty() ||
+                observeDisplay(displayId).packageName != packageName) return false
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            return LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                searches.size, editors.size - searches.size) &&
+                searches.singleOrNull()?.let { field ->
+                    field.refresh() && field.isFocused && field.text?.toString() == text
+                } == true
         }
 
         /** Enter may send a message. Only a truly focused search editor on the
