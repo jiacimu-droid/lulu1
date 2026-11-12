@@ -137,12 +137,16 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("本人已选择关闭后台屏幕")
                 return Outcome(history.toString().takeLast(5_000), image, true, count)
             }
-            // Starting the owned virtual display legitimately has no frame.
-            // After any OTHER command a missing frame/unverified result is not
-            // permission to hallucinate the screen or repeat costly blind taps.
-            if (image == null || result.optString("status") == "unverified") {
-                history.appendLine("这一步尚无可核实的新画面或结果；停止盲目操作，交还真实失败原因")
+            // Never keep blindly tapping without a real frame. But if a
+            // declared expectedText is absent while a genuine owned-display
+            // frame WAS returned, the same role can inspect the discrepancy
+            // and choose a different next action. Unverified stays unverified.
+            if (image == null) {
+                history.appendLine("这一步没有可核实的后台新画面；停止盲目操作，交还真实失败原因")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
+            if (result.optString("status") == "unverified") {
+                history.appendLine("验证条件尚未满足，虽有真实后台画面也不可声称成功；由本人观察决定下一步")
             }
         }
         history.appendLine("达到本次12步保护上限；不能自动宣称完成")
