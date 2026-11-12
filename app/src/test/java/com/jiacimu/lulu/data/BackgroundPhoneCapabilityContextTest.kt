@@ -72,7 +72,8 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("action=tool,tool=background_phone"))
             assertTrue(status.contains("准确显示名称appName"))
             assertTrue(status.contains("sendToChat"))
-            assertTrue(status.contains("不能把主屏截图当后台图"))
+            assertTrue(status.contains("绝不会把主屏截图当后台图"))
+            assertTrue(status.contains("这不是capture_screen"))
             assertTrue(CapabilityRegistry.find("background_phone") != null)
         } finally {
             val roleEdit = rolePrefs.edit()
