@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T01:53:32.811533+00:00",
-  "commit": "97e68b98d69a060a625b4a6ff26b36e2f1a6689f",
+  "generatedAt": "2026-11-12T01:56:06.790142+00:00",
+  "commit": "0d4c029f23cbffbe0c4952f3cdf9e00077b9cf77",
   "branch": "main",
-  "sourceFingerprint": "87281ee8816fa74718563546833b042fe6f9c290d7a2480c70d6a0c14da011e8",
+  "sourceFingerprint": "941a712fefff1d1bd57a28b51d885f3c8bfa5505bc36b6ad5836fbb286125847",
   "summary": {
     "files": 1210,
-    "lines": 261131,
+    "lines": 261160,
     "symbols": 3652
   },
   "symbolIndex": {
@@ -465,7 +465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 114
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
@@ -847,7 +847,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1505
+        "line": 1506
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5143,19 +5143,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1260
+        "line": 1261
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1272
+        "line": 1273
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1495
+        "line": 1496
       }
     ],
     "configured": [
@@ -6283,13 +6283,13 @@
     "absorb": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "proactiveContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 160
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -24677,8 +24677,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1513,
-      "sha256": "8749358df04b409a252d5ec33d9c6b3733eadc3e540713fbea758616fcc9b4df",
+      "lines": 1514,
+      "sha256": "c376b7eaa7fd92bc7ded5d21152a9b2904bf1d509d9fb483e7ecd7f150a4cb68",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -24778,19 +24778,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1260
+          "line": 1261
         },
         {
           "name": "consumeEvent",
-          "line": 1272
+          "line": 1273
         },
         {
           "name": "LuluAiServices",
-          "line": 1495
+          "line": 1496
         },
         {
           "name": "initialize",
-          "line": 1505
+          "line": 1506
         }
       ]
     },
@@ -25775,8 +25775,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-      "lines": 179,
-      "sha256": "0f2129452decefec04181429ef9bd6167332135c02db9dd053f7e51070cd1a84",
+      "lines": 183,
+      "sha256": "5113281dea76b5ce53a9517554affd39f33362b9b61a0e6373d1629d2f195744",
       "symbols": [
         {
           "name": "snapshot",
@@ -25784,15 +25784,15 @@
         },
         {
           "name": "absorb",
-          "line": 52
+          "line": 53
         },
         {
           "name": "context",
-          "line": 114
+          "line": 116
         },
         {
           "name": "proactiveContext",
-          "line": 160
+          "line": 164
         }
       ]
     },
@@ -39312,8 +39312,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt",
-      "lines": 145,
-      "sha256": "c1b305b2454a1e8d0e960217f4c64a01f4a9d67349b58de9b49c55e51fef3e6e",
+      "lines": 169,
+      "sha256": "22b790560e077e7d414b74c1330f2c8e76f360f2fab88fab1f70229fb3627414",
       "symbols": [
         {
           "name": "CharacterContinuitySnapshotTest",
