@@ -22,6 +22,8 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
         near && downed -> IslandTargetAction(
             "revive", if (state.fruit >= 2) "救援队友" else "救援需2果", state.fruit >= 2, distance)
         near && mob -> IslandTargetAction("fight", "攻击", true, distance)
+        near && w.index(x,y) in state.lostPacks ->
+            IslandTargetAction("recover_pack", "找回遗失背包", true, distance)
         near && IslandSupplyCaches.available(state, x, y) ->
             IslandTargetAction("salvage", "打开补给", true, distance)
         near && IslandHouseProjects.nextPlayerPart(state)?.first == w.index(x,y) -> {
@@ -47,7 +49,20 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
                 IslandGarden.actionLabel(state,index),
                 IslandGarden.canInteract(state,index),distance)
         }
-        near && w.cell(x, y) in setOf(1, 2) -> IslandTargetAction("gather", "采集", true, distance)
+        near && w.cell(x, y) in setOf(1, 2) -> {
+            val wood=w.cell(x,y)==1
+            val rare=!wood && IslandProgression.crystalVein(w.seed,w.index(x,y))
+            val canMine=!rare || "pickaxe" in state.tools
+            val label=when {
+                wood && "axe" in state.tools -> "木斧伐木 +4"
+                wood -> "徒手伐木 +2"
+                rare && !canMine -> "蓝晶矿 · 需要石镐"
+                rare -> "石镐开采 · 晶石+1"
+                "pickaxe" in state.tools -> "石镐采石 +4"
+                else -> "徒手采石 +2"
+            }
+            IslandTargetAction("gather",label,canMine,distance)
+        }
         near && w.cell(x, y) == 8 -> IslandTargetAction(
             "fish", if ("rod" in state.tools) "钓鱼" else "需要鱼竿",
             "rod" in state.tools, distance)
@@ -65,7 +80,7 @@ internal data class IslandNearbyAction(val action: String, val label: String, va
 internal fun islandNearbyAction(
     state: BlockIslandState,
     facing: Pair<Int, Int>,
-    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish", "tame", "care", "sow_berries", "tend_berries", "harvest_berries"),
+    allowed: Set<String> = setOf("fight", "revive", "salvage", "recover_pack", "gather", "fish", "tame", "care", "sow_berries", "tend_berries", "harvest_berries"),
 ): IslandNearbyAction? {
     val w = state.world
     if (w.finished) return null
