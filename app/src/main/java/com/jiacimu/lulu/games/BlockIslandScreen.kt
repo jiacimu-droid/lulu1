@@ -239,7 +239,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         it.x==aimedCell.first && it.y==aimedCell.second
     }
     val targetTitle = when {
-        supplySelected -> "漂流补给箱"
+        supplySelected -> if (island.world.index(aimedCell.first,aimedCell.second) in island.rareSupplyCaches) "✦ 潮汐秘藏" else "漂流补给箱"
         animalSelected!=null -> IslandWildlife.name(animalSelected.species)
         else -> islandCellTitle(selectedCell,selectedStructure)
     }
@@ -574,7 +574,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 )
                 Text(if (IslandSupplyCaches.remaining(island) == 0)
                     "全部找齐啦！补给已经放入背包，可以继续建设家园。"
-                    else "沿着小岛探索发光的补给箱，走近后点「打开补给」领取木材、石料，有时还有野果。",
+                    else "寻找海岸补给箱；守过整夜后，偶尔会出现泛着海蓝光的潮汐秘藏。真正开箱才能拿到晶石。",
                     color = Color(0xFFB9DDCC), fontSize = 11.sp, lineHeight = 16.sp)
             }
         }
@@ -1022,7 +1022,10 @@ private fun IslandMiniMap(island: BlockIslandState) {
                         center=Offset(left+(x+.5f)*unit,top+(y+.5f)*unit))
                 }
                 island.supplyCaches.filter { it !in island.openedSupplies }.forEach {
-                    dot(it%w.width,it/w.width,Color(0xFFFFD992))
+                    val rare=it in island.rareSupplyCaches
+                    dot(it%w.width,it/w.width,
+                        if(rare)Color(0xFF9DEAF3)else Color(0xFFFFD992),
+                        if(rare)1.65f else 1f)
                 }
                 IslandExpeditionTrail.landmarks.forEach { place ->
                     val (mx,my)=IslandExpeditionTrail.position(island,place)
@@ -1041,7 +1044,7 @@ private fun IslandMiniMap(island: BlockIslandState) {
                 w.friends.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFF8BDAF3)) }
                 dot(w.x,w.y,Color(0xFFFFF0B1),1.35f)
             }
-            Text("金色大点：远航地标 / 守卫　青绿：已探索　黄：你／补给　蓝：伙伴　红：怪物",
+            Text("金色大点：远航地标 / 守卫　海蓝光：潮汐秘藏　黄：你／普通补给　蓝：伙伴　红：怪物",
                 color=Color(0xFFC5E0D3),fontSize=10.sp,maxLines=2)
         }
     }
