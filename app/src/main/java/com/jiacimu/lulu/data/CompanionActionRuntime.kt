@@ -940,11 +940,14 @@ internal object CompanionActionRuntime {
                 val gameId = args.optString("gameId").trim().lowercase()
                 require(com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId) != null) { "该游戏没有接通可核验的独自游玩引擎" }
                 LuluGames.initialize(context)
-                val played = LuluGames.store.playAutonomousGame(characterId, gameId, now,
-                    targetScore = if (args.has("targetScore")) args.optInt("targetScore") else null,
-                    focus = args.optString("focus", "explore"),
-                    sessionTurns = if (args.has("turns")) args.getInt("turns") else null)
-                    ?: error("游戏馆未能保存这段真实游戏")
+                // Dozens of physical turns plus durable JSON commits must not block
+                // the Compose main thread or a live call's subtitle rendering.
+                val played = withContext(Dispatchers.IO) {
+                    LuluGames.store.playAutonomousGame(characterId, gameId, now,
+                        targetScore = if (args.has("targetScore")) args.optInt("targetScore") else null,
+                        focus = args.optString("focus", "explore"),
+                        sessionTurns = if (args.has("turns")) args.getInt("turns") else null)
+                } ?: error("游戏馆未能保存这段真实游戏")
                 if (gameId !in setOf("relic_escape", "block_island")) {
                     MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
                 }
