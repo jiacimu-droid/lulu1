@@ -41,6 +41,7 @@ private sealed interface MomentAttachmentState {
 internal fun MomentImageAttachment(
     imageUri: String,
     modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop,
 ) {
     val context = LocalContext.current
     val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri) {
@@ -61,7 +62,7 @@ internal fun MomentImageAttachment(
                 bitmap = current.bitmap.asImageBitmap(),
                 contentDescription = "朋友圈图片",
                 modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp)),
-                contentScale = ContentScale.Crop,
+                contentScale = contentScale,
             )
             MomentAttachmentState.Failed -> Column(
                 modifier = Modifier.fillMaxSize().padding(18.dp),
