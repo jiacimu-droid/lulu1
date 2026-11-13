@@ -31,6 +31,7 @@ private data class RolePhoneApp(
 
 private val RolePhoneApps = listOf(
     RolePhoneApp("album", "相册", Icons.Outlined.PhotoLibrary, Color(0xFF8D7193)),
+    RolePhoneApp("observations", "屏幕记录", Icons.Outlined.Collections, Color(0xFF588E91)),
     RolePhoneApp("memos", "备忘录", Icons.Outlined.Description, Color(0xFFB08746)),
     RolePhoneApp("calendar", "日程", Icons.Outlined.EventNote, Color(0xFF6083AD)),
     RolePhoneApp("activity", "行动记录", Icons.Outlined.History, Color(0xFF69858F)),
