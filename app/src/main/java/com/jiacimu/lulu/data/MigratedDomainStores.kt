@@ -922,7 +922,10 @@ class InMemoryLuluChatStore : LuluChatStore {
         )
 
     private fun decode(raw: String?): Pair<List<LuluConversation>, Map<String, List<LuluChatMessage>>> {
-        if (raw.isNullOrBlank()) return emptyList<LuluConversation>() to emptyMap()
+        if (raw == null) return emptyList<LuluConversation>() to emptyMap()
+        // A present but blank state_v1 is unreadable data, not a fresh install.
+        // Route it through the existing decode failure guard so later writes
+        // cannot overwrite the only surviving snapshot.
         return runCatching {
             val root = JSONObject(raw)
             require(root.optJSONArray("conversations") != null && root.optJSONObject("messages") != null) {
