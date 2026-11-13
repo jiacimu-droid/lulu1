@@ -2227,3 +2227,6 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 发现正式 `decodeMessage` 对缺少的 `content` 使用 `optString`，会将无法确认的原始正文替换为空串；随后一次置顶等元数据写入可能把这份猜测持久化，破坏唯一旧快照。新增真实 Store 初始化→置顶→原始 SharedPreferences 字节→Store 重开的 Robolectric 反例 `ChatHistoryLegacyCompatibilityTest.missingOriginalMessageContentMustNotBeRewrittenAsEmptyText`，提交 [`dfc8640`](https://github.com/jiacimu-droid/lulu1/commit/dfc86404b9aefe34d07d5aec6e119f262c006d44)。
 - 正式修复 [`2da10ec`](https://github.com/jiacimu-droid/lulu1/commit/2da10ec2a933daa8a7eab30471ea049fda999628)：权威旧历史解码严格要求 `content` 存在、非 null 且为 JSON 字符串；合法空字符串仍允许。缺失则沿已有 unreadable 快照门禁拒写，不编造正文。路线图交接 [`ea98a32`](https://github.com/jiacimu-droid/lulu1/commit/ea98a32217fab5a485371af1fe5d067ddbb267e1)。
 - **新 JVM/APK/索引未确认成功，不勾工程通过。** 下一轮固定 UI-02.2：先查上述测试的 main push JVM 首错和索引 head SHA；通过后继续增量事务迁移中断/拒写回归。真机强杀、10 万历史性能、跨 Store 原子性与真实模型仍待验。
+
+## 2026-11-13 · UI-02.2 缺正文拒写测试有效路径
+- [432fd6e](https://github.com/jiacimu-droid/lulu1/commit/432fd6e699bc473af184e251f3c88a1434b90253) 将 `missingOriginalMessageContentMustNotBeRewrittenAsEmptyText` 从损坏快照中不存在的会话 ID 改为 Store 真实存在且未置顶的会话，两次初始化均要求触发持久化拒写异常，原始 `state_v1` 不变。未改正式代码；JVM/APK/索引尚待同 SHA 或后继完整构建验证。下一轮继续 UI-02.2 的迁移中断/拒写回归，真机强杀独立待验。
