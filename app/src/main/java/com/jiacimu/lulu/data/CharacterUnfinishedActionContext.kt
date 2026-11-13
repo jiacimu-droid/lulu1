@@ -128,7 +128,7 @@ internal object CharacterUnfinishedActionContext {
         if (boredom < 75.0) return unfinished
         val bodyCue = buildString {
             appendLine("【此刻单调感与实际选择】")
-            appendLine("当前单调感≈${boredom.toInt()}/100：缺少新体验的倾向已很明显。请在本轮真实的兴趣、精力、关系、许可和可用工具中权衡：若本人现在真的想查资料、阅读、游戏、游览或找人分享，直接在同一决策选择真实 action/steps（可与回复并行）；若需要看过搜索结果再决定，则先执行搜索，后续根据真实回执重新判断；若只是闪念、时机不合或想休息，允许保持安静或暂缓。数值不授权程序替本人选择动作，也不是已完成回执。")
+            appendLine("当前单调感≈${boredom.toInt()}/100：缺少新体验的倾向已很明显。请在本轮真实的兴趣、精力、关系、许可和可用工具中权衡：若本人现在真的想查资料、阅读、游戏、游览、替自己或主人看看感兴趣的东西、或找人分享，直接在同一决策选择真实 action/steps（可与回复并行）；若需要看过搜索结果再决定，则先执行搜索，后续根据真实回执重新判断；若只是闪念、时机不合或想休息，允许保持安静或暂缓。数值不授权程序替本人选择动作，也不是已完成回执。")
         }.trim()
         return listOf(bodyCue, unfinished).filter(String::isNotBlank).joinToString("\n")
     }
