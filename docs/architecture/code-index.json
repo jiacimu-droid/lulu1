@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:34:46.975845+00:00",
-  "commit": "1dffcfedc45f9cbf472a6de8b8bac37aa048cc87",
+  "generatedAt": "2026-11-13T05:35:30.135179+00:00",
+  "commit": "f3e4a4bef87aee7be7bfc083f6d415386f15e6c8",
   "branch": "main",
-  "sourceFingerprint": "efbd52d6465a365f8f8589d57c1f35286d3a0829478cabb61345314ba3caf8ba",
+  "sourceFingerprint": "e91c9ee01a5e65ef99a1ff87a8d885c5fde0b489a54c9e96276198e67256d9f5",
   "summary": {
-    "files": 1289,
-    "lines": 271919,
+    "files": 1290,
+    "lines": 272077,
     "symbols": 3851
   },
   "symbolIndex": {
@@ -25019,7 +25019,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt",
       "lines": 144,
-      "sha256": "99429417cb82d668d6136616aa2b915b175bd2ba083b036c94c8ad344e90dbf9",
+      "sha256": "3bf969c2a9ae361f83c9735b4a8da6c45c6f68e98b9bffbbedb7c5b0b23aa216",
       "symbols": []
     },
     {
@@ -25044,6 +25044,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt",
       "lines": 543,
       "sha256": "17f3bfe5580ae2cf1c8c0fd7bd267255c326e23e3c3d4ff85167af94cc412d96",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt",
+      "lines": 158,
+      "sha256": "6715d6980fa90d11b9d628042fe09f3e1ddc95c79df7e4f426747e37c3c3d29a",
       "symbols": []
     },
     {
