@@ -185,6 +185,9 @@ internal object RolePhotoAlbumStore {
         require(imageDataUrl.startsWith(prefix)) { "后台截图不是 JPEG 图像" }
         val jpeg = java.util.Base64.getDecoder().decode(imageDataUrl.removePrefix(prefix))
         require(jpeg.isNotEmpty() && jpeg.size.toLong() <= MAX_BYTES) { "后台截图大小无效" }
+        require(ImageSearchProvider.sniff(jpeg.copyOfRange(0, minOf(16, jpeg.size))) == "image/jpeg") {
+            "后台截图内容与 JPEG 声明不一致"
+        }
         val temporary = File.createTempFile("virtual-observed-", ".jpg", folder(context))
         try {
             temporary.outputStream().use { it.write(jpeg) }
