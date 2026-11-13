@@ -86,6 +86,9 @@ internal fun CharacterExecutionSettings(characterId: String) {
                                 } else shoppingNotice = "授权未能保存，请重试"
                             })
                     }
+                    if (shoppingEnabled && !allowed) Text("需同时打开「操作手机屏幕」",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (shoppingNotice.isNotBlank()) Text(shoppingNotice,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error)
