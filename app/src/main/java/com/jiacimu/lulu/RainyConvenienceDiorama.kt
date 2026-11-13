@@ -18,6 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -39,6 +42,7 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun RainyConvenienceDiorama(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val camera = remember { RainyDioramaOrbit() }
     val renderer = remember(camera) { RainyDioramaRenderer(camera) }
     val surface = remember(context, renderer) {
@@ -93,14 +97,31 @@ internal fun RainyConvenienceDiorama(modifier: Modifier = Modifier) {
             }
         }
     }
-    // WHEN_DIRTY avoids an unbounded 60/120Hz GPU loop while preserving rain animation.
-    LaunchedEffect(surface) {
+    // Only schedule frames while foreground and attached; rendering must stop when the
+    // user backgrounds the app, not just when Compose finally disposes this page.
+    LaunchedEffect(surface, lifecycleOwner) {
         while (true) {
-            surface.requestRender()
+            if (surface.isAttachedToWindow &&
+                lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                surface.requestRender()
+            }
             delay(33L)
         }
     }
-    DisposableEffect(surface) { onDispose { surface.onPause() } }
+    DisposableEffect(surface, lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> if (surface.isAttachedToWindow) surface.onPause()
+                Lifecycle.Event.ON_RESUME -> if (surface.isAttachedToWindow) surface.onResume()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            if (surface.isAttachedToWindow) surface.onPause()
+        }
+    }
     AndroidView(factory = { surface }, modifier = modifier.fillMaxSize())
 }
 
