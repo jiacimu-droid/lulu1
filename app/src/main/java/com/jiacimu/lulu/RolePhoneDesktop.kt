@@ -21,25 +21,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/** One chat app mirrors the owner's four-tab hub; other apps remain standalone. */
+internal val RolePhoneChatTabs = listOf("消息", "好友", "朋友圈", "我的")
+
 /** A launchable home, not a second system phone or an unverified virtual screen. */
 private data class RolePhoneApp(
     val route: String, val label: String, val icon: ImageVector, val tint: Color,
 )
 
 private val RolePhoneApps = listOf(
-    RolePhoneApp("moments", "朋友圈", Icons.Outlined.PeopleOutline, Color(0xFF527C71)),
     RolePhoneApp("album", "相册", Icons.Outlined.PhotoLibrary, Color(0xFF8D7193)),
     RolePhoneApp("memos", "备忘录", Icons.Outlined.Description, Color(0xFFB08746)),
     RolePhoneApp("calendar", "日程", Icons.Outlined.EventNote, Color(0xFF6083AD)),
-    RolePhoneApp("favorites", "收藏", Icons.Outlined.StarOutline, Color(0xFFB47765)),
     RolePhoneApp("activity", "行动记录", Icons.Outlined.History, Color(0xFF69858F)),
-    RolePhoneApp("profile", "个人", Icons.Outlined.PersonOutline, Color(0xFF747C8A)),
 )
 private val RolePhoneDock = listOf(
     RolePhoneApp("messages", "消息", Icons.Outlined.ChatBubbleOutline, Color(0xFF598B76)),
     RolePhoneApp("browser", "浏览器", Icons.Outlined.TravelExplore, Color(0xFF637FAA)),
     RolePhoneApp("screen", "操作现场", Icons.Outlined.PhoneAndroid, Color(0xFF65727F)),
 )
+
+/** Routes exposed by the phone home; internal QQ tabs must never become desktop apps. */
+internal val RolePhoneDesktopRoutes: Set<String>
+    get() = (RolePhoneApps + RolePhoneDock).map { it.route }.toSet()
 
 @Composable
 internal fun RolePhoneDesktop(
@@ -74,8 +78,7 @@ internal fun RolePhoneDesktop(
             verticalArrangement = Arrangement.spacedBy(23.dp),
         ) {
             items(RolePhoneApps, key = { it.route }) { app ->
-                RolePhoneAppTile(app, momentUnread.takeIf { app.route == "moments" } ?: 0,
-                    onOpen)
+                RolePhoneAppTile(app, 0, onOpen)
             }
         }
         Surface(
@@ -88,7 +91,9 @@ internal fun RolePhoneDesktop(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 15.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                RolePhoneDock.forEach { app -> RolePhoneAppTile(app, 0, onOpen) }
+                RolePhoneDock.forEach { app ->
+                    RolePhoneAppTile(app, if (app.route == "messages") momentUnread else 0, onOpen)
+                }
             }
         }
     }
