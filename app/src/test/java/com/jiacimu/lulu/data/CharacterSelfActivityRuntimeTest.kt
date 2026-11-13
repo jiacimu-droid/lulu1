@@ -72,9 +72,31 @@ class CharacterSelfActivityRuntimeTest {
         assertEquals("send_game_invite", parsed.tool)
         assertEquals("block_island", parsed.args.getString("gameId"))
         assertEquals("嘿，来我的小岛一起造房子？", parsed.args.getString("text"))
-        // The invitation catalogue is wider than the two games supported offscreen.
+        // Both choices are real now: an invitation uses chat, whereas the same
+        // game ID as a solo choice enters the role-owned physical world engine.
+        val solo = CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("action", "solo_game")
+                .put("focus", "build").put("turns", 18), emptySet(), false)!!
+        assertEquals("play_solo_game", solo.tool)
+        assertEquals("block_island", solo.args.getString("gameId"))
+        assertEquals("build", solo.args.getString("focus"))
+        assertEquals(18, solo.args.getInt("turns"))
+        assertTrue(solo.label.contains("一阵"))
         assertNull(CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game"), emptySet(), false))
+            JSONObject(game.toString()).put("action", "solo_game")
+                .put("focus", "treasure"), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("action", "solo_game")
+                .put("turns", 300), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("action", "solo_game")
+                .put("turns", "many"), emptySet(), false))
+        val relic = CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("action", "solo_game")
+                .put("gameId", "relic_escape").put("focus", "rare").put("turns", 96),
+            emptySet(), false)!!
+        assertEquals("rare", relic.args.getString("focus"))
+        assertEquals(96, relic.args.getInt("turns"))
         assertNull(CharacterSelfActivityRuntime.parse(
             JSONObject(game.toString()).put("gameId", "invented_game"), emptySet(), false))
         assertNull(CharacterSelfActivityRuntime.parse(
