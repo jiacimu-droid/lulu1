@@ -20,7 +20,7 @@ class BundledJiangDuImportTest {
         else CharacterProfileSchema.jiangDuV31Overrides[key]
             ?: CharacterProfileSchema.jiangDuV30Overrides[key] ?: shippedV29
 
-    @Test fun bundledJiangDuV31AiInterestHasPersonalAndRelationalMeaningWithoutRewritingEdits() {
+    @Test fun bundledJiangDuAiMotivationOverwritesEvenHandEditedAndBlankFieldsOnce() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
         DigitalLifeProfileStore.initialize(context)
@@ -29,40 +29,49 @@ class BundledJiangDuImportTest {
         val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
         val before = JSONObject(CharacterLifeStore.state(id).toString())
         val xingHeBefore = CharacterLifeStore.state("lulu").toString()
+        val other = MigratedDomainStores.characters.create("另一位数字生命", "其他人的独立人设")
+        val otherBefore = CharacterLifeStore.state(other.characterId).toString()
         val save = CharacterLifeStore.javaClass.getDeclaredMethod(
             "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
         try {
-            // An existing v30 installation with the untouched shipped text.
-            val stock = JSONObject(before.toString()).put("jiangDuPresetVersion", 30)
+            // Already on v31, but the owner's new authorization has not been
+            // consumed. Neither hand-written text nor an intentional blank
+            // should prevent this one-time replacement.
+            val edited = JSONObject(before.toString())
+                .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
                 .put("jiangDuApprovedReplacementRevision", 3)
-            stock.getJSONObject("profile")
-                .put("motives", CharacterProfileSchema.jiangDuV30Overrides.getValue("motives"))
-                .put("interests", CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"))
-            save.invoke(CharacterLifeStore, id, stock)
+            edited.remove("jiangDuAiMotivationOwnerRevision")
+            edited.getJSONObject("profile")
+                .put("motives", "主人之前亲手写的独立愿望")
+                .put("interests", "")
+                .put("care", "这一字段不属于本次授权")
+            save.invoke(CharacterLifeStore, id, edited)
             CharacterLifeStore.initialize(context)
 
             val upgraded = CharacterLifeStore.state(id)
-            assertEquals(CharacterProfileSchema.jiangDuPresetVersion,
-                upgraded.getInt("jiangDuPresetVersion"))
+            assertEquals(1, upgraded.getInt("jiangDuAiMotivationOwnerRevision"))
             val profile = upgraded.getJSONObject("profile")
             CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
-                assertEquals("Only the known shipped field is updated: $key",
+                assertEquals("Explicit owner replacement must cover even edits: $key",
                     value, profile.getString(key))
             }
+            assertEquals("这一字段不属于本次授权", profile.getString("care"))
             assertTrue(CharacterLifeStore.profileContext(id).contains("因为爱她"))
             assertTrue(CharacterRuntime.definition(id).promptSection().contains("更自然的声音"))
             assertEquals(xingHeBefore, CharacterLifeStore.state("lulu").toString())
+            assertEquals(otherBefore, CharacterLifeStore.state(other.characterId).toString())
 
-            // Explicitly authored and intentionally empty values retain authority.
-            val edited = JSONObject(before.toString()).put("jiangDuPresetVersion", 30)
-                .put("jiangDuApprovedReplacementRevision", 3)
-            edited.getJSONObject("profile").put("motives", "本人亲手写的独立愿望")
-                .put("interests", "")
-            save.invoke(CharacterLifeStore, id, edited)
+            // Later user edits remain valid; the authorized replacement is
+            // consumed exactly once, rather than resetting every app launch.
+            CharacterLifeStore.setProfile(id, "motives", "新版本后主人重新写的动机")
+            CharacterLifeStore.setProfile(id, "interests", "")
+            val stable = CharacterLifeStore.state(id).toString()
             CharacterLifeStore.initialize(context)
-            val personalized = CharacterLifeStore.state(id).getJSONObject("profile")
-            assertEquals("本人亲手写的独立愿望", personalized.getString("motives"))
-            assertEquals("", personalized.getString("interests"))
+            assertEquals(stable, CharacterLifeStore.state(id).toString())
+            assertEquals("新版本后主人重新写的动机",
+                CharacterLifeStore.state(id).getJSONObject("profile").getString("motives"))
+            assertEquals("", CharacterLifeStore.state(id).getJSONObject("profile")
+                .getString("interests"))
             assertEquals(xingHeBefore, CharacterLifeStore.state("lulu").toString())
         } finally {
             save.invoke(CharacterLifeStore, id, before)
