@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`37365d20ec77cf42c2544a120b50cbac746f2fe6`
+- 基准提交：`6dec12cf93b011775dceff1aae1e32fb35ed2824`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271638
+- 已索引代码/文本行：271676
 - 已发现符号：3842
 
 | 文件 | 行数 | 符号数 |
@@ -1121,7 +1121,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 150 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 156 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
@@ -1133,7 +1133,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 289 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 321 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 327 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 76 | 1 |
