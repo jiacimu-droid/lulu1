@@ -322,10 +322,15 @@ class ConversationExpressionGatewayTest {
                     memoryRequest = UnifiedMemoryRequest(currentInput = "小宝宝", sceneContext = "私聊"))
                     .getOrThrow()
                 val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
-                val system = request.getJSONArray("messages").getJSONObject(0).getString("content")
-                assertTrue(system.contains("全局表达约束甲"))
-                assertTrue(system.contains("仅本人表达约束乙"))
-                assertFalse(system.contains("别人的私有规则丙"))
+                val wireMessages = request.getJSONArray("messages")
+                val system = wireMessages.getJSONObject(0).getString("content")
+                val reference = wireMessages.getJSONObject(1).getString("content")
+                assertEquals("user", wireMessages.getJSONObject(1).getString("role"))
+                assertFalse(system.contains("全局表达约束甲"))
+                assertFalse(system.contains("仅本人表达约束乙"))
+                assertTrue(reference.contains("全局表达约束甲"))
+                assertTrue(reference.contains("仅本人表达约束乙"))
+                assertFalse(reference.contains("别人的私有规则丙"))
                 if (CharacterExpressionGuide.isExpressionOnly(source)) {
                     assertTrue(system.contains("【本人已经作出选择，现在对她说话】"))
                     assertTrue(system.contains("承接本轮已选的交流意图、事实、立场与感受"))
@@ -345,7 +350,7 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun worldBookTopNormalAndBottomAreActuallyPlacedInOneSharedSystemRequest() = runBlocking {
+    @Test fun worldBookPlacementStaysOrderedInReferenceMessageNotSystemRole() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
@@ -384,15 +389,21 @@ class ConversationExpressionGatewayTest {
             val wire = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
             val messages = wire.getJSONArray("messages")
             val system = messages.getJSONObject(0).getString("content")
-            assertTrue(system.startsWith("全局世界书：\n- 位置-TOP1：内容-TOP1"))
-            assertTrue(system.indexOf("内容-TOP1") < system.indexOf("内容-TOP2"))
-            assertTrue(system.indexOf("内容-TOP2") < system.indexOf("你正在以"))
-            assertTrue(system.indexOf("角色世界书：\n- 位置-MID") > system.indexOf("角色身份"))
-            assertTrue(system.indexOf("内容-MID") < system.indexOf("本轮背景确认"))
-            assertTrue(system.endsWith("- 位置-TAIL：内容-TAIL"))
-            assertFalse(system.contains("内容-OTHER"))
+            assertTrue(system.contains("你正在以"))
+            assertTrue(system.contains("本轮背景确认"))
+            assertFalse(system.contains("内容-TOP1"))
+            assertFalse(system.contains("内容-MID"))
+            assertFalse(system.contains("内容-TAIL"))
+            val reference = messages.getJSONObject(1)
+            assertEquals("user", reference.getString("role"))
+            val world = reference.getString("content")
+            assertTrue(world.contains("用户自行编辑的世界设定参考"))
+            assertTrue(world.indexOf("内容-TOP1") < world.indexOf("内容-TOP2"))
+            assertTrue(world.indexOf("内容-TOP2") < world.indexOf("内容-MID"))
+            assertTrue(world.indexOf("内容-MID") < world.indexOf("内容-TAIL"))
+            assertFalse(world.contains("内容-OTHER"))
             listOf("TOP1", "TOP2", "MID", "TAIL").forEach { id ->
-                assertEquals(1, Regex("内容-$id").findAll(system).count())
+                assertEquals(1, Regex("内容-$id").findAll(world).count())
             }
             assertEquals("user", messages.getJSONObject(messages.length() - 1).getString("role"))
             assertEquals("主人这一轮的原话",
