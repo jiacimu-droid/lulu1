@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:24:54.677093+00:00",
-  "commit": "c545cd722dc66d26fd2695e58f1b456ab0667ffb",
+  "generatedAt": "2026-11-13T02:25:15.267039+00:00",
+  "commit": "491bc972aca80e2bb96979704b4a5864218376a4",
   "branch": "main",
-  "sourceFingerprint": "8f53b8542467a390f3bbb86b856a22f3fac1bb588ce5783efeb1a92fb199f3ea",
+  "sourceFingerprint": "0dc170417ad2be1cd9517b3d0f6cfbb60af72bb9f9b73678a088bbe18efa13c7",
   "summary": {
     "files": 1287,
-    "lines": 271539,
+    "lines": 271532,
     "symbols": 3847
   },
   "symbolIndex": {
@@ -4505,7 +4505,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 639
+        "line": 632
       }
     ],
     "ready": [
@@ -4899,7 +4899,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 280
+        "line": 273
       }
     ],
     "advance": [
@@ -10039,7 +10039,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 294
+        "line": 287
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt",
@@ -13341,37 +13341,37 @@
     "setMcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 258
+        "line": 257
       }
     ],
     "mcpPrimaryEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 264
+        "line": 263
       }
     ],
     "setMcpPrimaryEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 266
+        "line": 264
       }
     ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 273
+        "line": 266
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 274
+        "line": 267
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 276
+        "line": 269
       }
     ],
     "count": [
@@ -34154,8 +34154,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 929,
-      "sha256": "641cccad8930110d3b163c797a4e7c0819c83d48ea509d4535a82088349f363f",
+      "lines": 922,
+      "sha256": "514d5932f6856eca72690d482f966f56c061d1a14f5f5b9ddb642435b8d358f3",
       "symbols": [
         {
           "name": "url",
@@ -34207,39 +34207,39 @@
         },
         {
           "name": "setMcpFallbackEnabled",
-          "line": 258
+          "line": 257
         },
         {
           "name": "mcpPrimaryEnabled",
-          "line": 264
+          "line": 263
         },
         {
           "name": "setMcpPrimaryEnabled",
-          "line": 266
+          "line": 264
         },
         {
           "name": "localEnabled",
-          "line": 273
+          "line": 266
         },
         {
           "name": "setLocalEnabled",
-          "line": 274
+          "line": 267
         },
         {
           "name": "resume",
-          "line": 276
+          "line": 269
         },
         {
           "name": "pause",
-          "line": 280
+          "line": 273
         },
         {
           "name": "available",
-          "line": 294
+          "line": 287
         },
         {
           "name": "stage",
-          "line": 639
+          "line": 632
         }
       ]
     },
