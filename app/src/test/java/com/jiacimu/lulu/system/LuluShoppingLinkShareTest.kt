@@ -71,6 +71,14 @@ class LuluShoppingLinkShareTest {
         assertEquals(url, decoded?.url)
         assertEquals("这款脆香米我觉得好吃～", decoded?.caption)
         assertNull(decodeQqShoppingProductLink("我给你找到了一个商品链接：" + url))
-        assertNull(decodeQqShoppingProductLink(encoded.replace("https://", "javascript:")))
+        // JSONObject may escape / as \\/, so replacing raw serialized text is
+        // not a real tamper test. Mutate the parsed payload field itself.
+        val marker = "[[LULU_SHOPPING_LINK_V1]]"
+        val payload = org.json.JSONObject(encoded.removePrefix(marker))
+            .put("url", "javascript:alert(1)")
+        assertNull(decodeQqShoppingProductLink(marker + payload.toString()))
+        val wrongMerchant = org.json.JSONObject(encoded.removePrefix(marker))
+            .put("merchant", "淘宝")
+        assertNull(decodeQqShoppingProductLink(marker + wrongMerchant.toString()))
     }
 }
