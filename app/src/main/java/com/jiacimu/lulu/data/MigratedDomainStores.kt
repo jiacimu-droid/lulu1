@@ -239,10 +239,18 @@ class InMemoryLuluChatStore : LuluChatStore {
                     creatorCharacterId = if (ownerIncluded) "" else members.first(),
                 ).normalized(),
             )
-            messageStates[conversation.id] = MutableStateFlow(emptyList())
-            conversationState.value = (listOf(conversation) + conversationState.value)
+            val updated = (listOf(conversation) + conversationState.value)
                 .sortedWith(conversationOrdering())
-            persistLocked()
+            // Group creation has the same durability boundary as a direct chat:
+            // no membership awareness or invitation may escape a rejected snapshot.
+            messageStates[conversation.id] = MutableStateFlow(emptyList())
+            try {
+                persistLocked(durable = true, conversations = updated)
+            } catch (failure: Throwable) {
+                messageStates.remove(conversation.id)
+                throw failure
+            }
+            conversationState.value = updated
             conversation
         }
         recordGroupMembershipAwareness(conversation)
