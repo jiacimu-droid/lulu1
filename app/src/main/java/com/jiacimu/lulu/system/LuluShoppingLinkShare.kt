@@ -22,6 +22,10 @@ internal object LuluShoppingLinkShare {
     private val merchantDomains = mapOf(
         "com.xunmeng.pinduoduo" to ("拼多多" to listOf("yangkeduo.com", "pinduoduo.com", "pdd.cn")),
         "com.taobao.taobao" to ("淘宝" to listOf("taobao.com", "tmall.com", "tb.cn")),
+        // These are different installed apps: never infer the target from a merchant nickname.
+        // Allow the confirmed share domains only, not arbitrary copied URLs.
+        "com.taobao.idlefish" to ("闲鱼" to listOf("goofish.com", "taobao.com", "tb.cn")),
+        "me.ele" to ("淘宝闪购" to listOf("ele.me", "tb.cn")),
         "com.jingdong.app.mall" to ("京东" to listOf("jd.com", "jingdong.com", "3.cn")),
     )
 
