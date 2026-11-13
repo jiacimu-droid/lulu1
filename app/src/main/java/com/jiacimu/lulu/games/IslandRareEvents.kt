@@ -15,7 +15,8 @@ internal object IslandRareEvents {
 
     fun advance(s: BlockIslandState): BlockIslandState {
         val w = s.world
-        if (!arrives(w.seed,w.turns) || s.rareSupplyCaches.size >= 3 ||
+        if (!arrives(w.seed,w.turns) || w.turns <= s.lastRareSupplyTurn ||
+            s.rareSupplyCaches.size >= 3 ||
             s.supplyCaches.size >= 8 || w.finished) return s
 
         val rng = Random(w.seed xor (w.turns * 1237) xor 0x2A45)
@@ -36,6 +37,7 @@ internal object IslandRareEvents {
         val notice="✦ 潮汐秘藏出现于(${point.first},${point.second})！需真正抵达开箱，才有机会收获晶石"
         return s.copy(supplyCaches=s.supplyCaches+index,
             rareSupplyCaches=s.rareSupplyCaches+index,
+            lastRareSupplyTurn=w.turns,
             world=w.copy(notice=w.notice+" · "+notice,
                 events=(w.events+notice).takeLast(150)))
     }
