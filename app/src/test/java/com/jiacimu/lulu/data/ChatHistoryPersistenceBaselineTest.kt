@@ -902,6 +902,16 @@ class ChatHistoryPersistenceBaselineTest {
             assertNotNull(saved)
             assertEquals(count, JSONObject(saved!!).getJSONObject("messages")
                 .getJSONArray(conversationId).length())
+            // A count-only assertion misses silent replacement or reordering of old
+            // messages during repeated metadata-only full-snapshot rewrites.
+            val persistedMessages = JSONObject(saved).getJSONObject("messages")
+                .getJSONArray(conversationId)
+            for (index in listOf(0, count / 2, count - 1)) {
+                val item = persistedMessages.getJSONObject(index)
+                assertEquals("ui02-$" + index, item.getString("id"))
+                assertEquals("History item $" + index +
+                    " with a representative short text payload", item.getString("content"))
+            }
             assertEquals("Do not discard another conversation", JSONObject(saved)
                 .getJSONObject("messages").getJSONArray(otherConversationId)
                 .getJSONObject(0).getString("content"))
@@ -913,6 +923,12 @@ class ChatHistoryPersistenceBaselineTest {
             assertEquals(count, reopened.messages(conversationId).value.size)
             assertEquals("Do not discard another conversation",
                 reopened.messages(otherConversationId).value.single().content)
+            for (index in listOf(0, count / 2, count - 1)) {
+                val item = reopened.messages(conversationId).value[index]
+                assertEquals("ui02-$" + index, item.id)
+                assertEquals("History item $" + index +
+                    " with a representative short text payload", item.content)
+            }
             assertTrue(reopened.conversations.value.first { it.id == conversationId }.pinned)
             println("UI-02.1 messages=$count snapshotBytes=${saved.toByteArray(Charsets.UTF_8).size} " +
                 "initialOpenMs=$openMillis metadataWriteMs=$writeMillis reopenMs=$reopenMillis")
