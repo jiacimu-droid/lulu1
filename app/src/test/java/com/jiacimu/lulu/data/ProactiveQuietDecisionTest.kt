@@ -158,7 +158,7 @@ class ProactiveQuietDecisionTest {
         )
         val cue = ActiveCommitmentAttention.render(listOf(promise), now)
         assertTrue(cue.contains("taskId=bedtime-commitment"))
-        assertTrue(cue.contains("真实效果尚未证实"))
+        assertTrue(cue.contains("实际效果尚未证实"))
         assertTrue(cue.contains("未安排"))
         assertTrue(cue.contains("没有新回复"))
         assertTrue(cue.contains("schedule_commitment_review"))
