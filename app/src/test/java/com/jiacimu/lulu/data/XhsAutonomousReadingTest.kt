@@ -107,7 +107,7 @@ class XhsAutonomousReadingTest {
             assertTrue("IO reading must finish using the same foreground browser", reading.isCompleted)
             val result = runBlocking { reading.await() }
             assertFalse(result.toString(), result.optBoolean("success"))
-            assertTrue(result.toString(), result.toString().contains("小红书旧阅读工具已停用"))
+            assertTrue(result.toString(), result.toString().contains("未知能力"))
             assertEquals(0, browser.submittedSearches)
             assertEquals(0, browser.openedNotes)
             assertEquals(0, server.requestCount)
