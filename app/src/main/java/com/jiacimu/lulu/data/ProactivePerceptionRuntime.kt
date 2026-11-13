@@ -1165,11 +1165,12 @@ object ProactivePerceptionRuntime {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
                     if (privateDialogue.isEmpty()) appendLine(onlineUnread.text.takeLast(5_000))
                     else {
-                        appendLine("后面真实对话末尾是用户新消息；下面仅用于引用/收藏时核对消息ID与原话，不是另一批新消息：")
-                        messages.filter { it.id in onlineUnread.messageIds }.forEach { message ->
-                            appendLine(JSONObject().put("messageId", message.id)
-                                .put("text", qqForwardContextText(message.content)).toString())
-                        }
+                        // The same exact words are already in privateDialogue's
+                        // final user turn. Preserve the ordered persistent IDs for
+                        // quote/favourite tools, not a second full text copy.
+                        appendLine("真实私聊末尾 user 已完整包含新消息。以下仅为同顺序的原始消息ID索引，供引用/收藏：")
+                        appendLine(PrivateChatExpressionContext.unreadIdIndex(
+                            messages, onlineUnread.messageIds))
                     }
                 }
                 appendLine("\n【长期上下文层】")
