@@ -2,6 +2,10 @@
 
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
+**2026-11-13 APK 构建故障排查 · 购物分享 Kotlin 插值（源码已修，CI 待验）**：对应自动故障工单 #951/#952/#953 与 run 43374151466 / 43374434355 / 43374655333 均在 `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt:380` 的 `compilePhoneKotlin` 首错：`$merchant商品链接...` 被 Kotlin 解析成不存在的变量 `merchant商品链接作为可点击卡片发给主人`。已在最新 main 将实际角色购物卡回执改成 `${merchant}商品链接...`，源码提交 [f8a8079](https://github.com/jiacimu-droid/lulu1/commit/f8a80790e686116f0c8c025ca5606c5d7f16085d)；只改 Kotlin 文本插值，不碰后台商品验证、授权、真实链接或支付。自动索引 [43375233718](https://github.com/jiacimu-droid/lulu1/actions/runs/43375233718) success；其同 SHA APK 被后续 main 提交取消，不能视为构建成功。#950 的旧 run 43373282114 已确认是 `RolePhoneActivityTest.recentRealReceiptsAreSortedAndBounded` 期望 4/实际 12，原因历史展示上限已扩到 48，最新测试在 `ebcc957` 更改为 80 输入/48 预期；待下一次完整 JVM/phone APK 成功才能关闭旧工单。**下一轮先核最新 main Lulu APK JVM 编译与全部测试**，通过后由现有 release 工作流关闭旧自动失败工单；不重新编造 Issue，不删测试，不把 pending 当成功。
+
+
+
 ### 2026-11-13 UI-04.3 · 查手机独立桌面与应用边界（源码已提交，APK/真机待验）
 
 “查手机”进入的是角色自己的 Compose 手机桌面（`RolePhoneDesktop.kt`），独立 App 有相册、浏览器、备忘录、日程、行动记录与「操作现场」后台虚拟屏。**主人 2026-11-13 最新纠正：角色聊天 App 必须复用主人现有聊天 App 的同一结构，不能把聊天内部功能拆成桌面 App。** 已再次对照 `MigratedChatHubScreenV2.kt` 主人正式四栏导航：角色聊天 App 现在同为「消息｜好友｜朋友圈｜我的」，「我的→我的收藏」使用原角色本人收藏事实；朋友圈复用既有好友可见内容与封面，消息和好友保留原真实私聊/群聊、社交信箱。手机桌面已移除「朋友圈」「收藏」「个人」三个重复快捷入口，聊天 App 显示朋友圈未读红点，切换人物仍保持每人独立数据。原独立虚拟屏只读/证据验证逻辑不变，原旧桌面 `moments/favorites/profile` 恢复状态映射进对应聊天页，避免升级后空白。修正源码 [3135b3f](https://github.com/jiacimu-droid/lulu1/commit/3135b3f10a288da6ca7f6cfbab44094dc9b54290)、[ff07a79](https://github.com/jiacimu-droid/lulu1/commit/ff07a79a3c9d698475a7ff0dd99516241bfc99bc)、[aaaf227](https://github.com/jiacimu-droid/lulu1/commit/aaaf2270f67de0eaa4c7cd5eec4bdb120851b80b)，回归 [3373b2b](https://github.com/jiacimu-droid/lulu1/commit/3373b2b13cae44d0a2b395c2c95e6d4febd6c856) 断言四栏与独立桌面应用的边界。**APK/JVM 最新 main push 与真机 UI 待验**，不得重新拆开消息里的朋友圈/收藏。
