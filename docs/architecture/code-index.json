@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:44:39.565047+00:00",
-  "commit": "9c5f966d13171a15a33674466a450b0137bffe11",
+  "generatedAt": "2026-11-13T12:45:36.901449+00:00",
+  "commit": "60a570222262b5fea93ffaf970336721f632ab3b",
   "branch": "main",
-  "sourceFingerprint": "6d4400b51e39c043b7b62419d63c0aacd15aff8a610a32d27ab9eaf1ae8d99d8",
+  "sourceFingerprint": "888ff7e043531ff340ffc3f6d061ebee378710215e3588a99b372234ec7c0bd4",
   "summary": {
     "files": 1298,
-    "lines": 273329,
+    "lines": 273330,
     "symbols": 3859
   },
   "symbolIndex": {
@@ -42129,8 +42129,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterScreenShareTest.kt",
-      "lines": 122,
-      "sha256": "a0935b3def6a22f2503510387bd312df1ffaf12e085740b336a9ebc0c8adce4f",
+      "lines": 123,
+      "sha256": "3fc99e045c35e9b5e3bcfd01169a5b4fa088cd1da8581b29fa576d48369b5da1",
       "symbols": [
         {
           "name": "CharacterScreenShareTest",
