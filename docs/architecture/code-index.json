@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:25:15.267039+00:00",
-  "commit": "491bc972aca80e2bb96979704b4a5864218376a4",
+  "generatedAt": "2026-11-13T02:26:18.484282+00:00",
+  "commit": "e7a03ad3b3ec140c1745885030399ea42d0a5579",
   "branch": "main",
-  "sourceFingerprint": "0dc170417ad2be1cd9517b3d0f6cfbb60af72bb9f9b73678a088bbe18efa13c7",
+  "sourceFingerprint": "c07e93f92134cdbbc8afe80c722e3fc1f175451edc8a415bf97ab24ac4574697",
   "summary": {
     "files": 1287,
-    "lines": 271532,
+    "lines": 271436,
     "symbols": 3847
   },
   "symbolIndex": {
@@ -20869,7 +20869,7 @@
     "XhsGoMcpHandshakeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
-        "line": 21
+        "line": 17
       }
     ],
     "XhsImagePolicyTest": [
@@ -42126,7 +42126,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt",
       "lines": 37,
-      "sha256": "d56810d5fdb88fef50c6011229e54d7e726973a0e19bf1ee90aa6b61d407aee7",
+      "sha256": "2f232a61ef8d27171179f61be41599c8210b2d6cce99bcd1f2929458c52f1149",
       "symbols": [
         {
           "name": "CharacterXhsReadPermissionTest",
@@ -44482,7 +44482,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
       "lines": 128,
-      "sha256": "a19790003845e2d29b81f24ad92c40bfaf5c2639989fa592bb762aab2b5d0e7e",
+      "sha256": "59cec02c7c34cd24b755cb76b385ec00262a991eee8cdfb4b1dfb43aa5a74fa9",
       "symbols": [
         {
           "name": "XhsAutonomousReadingTest",
@@ -44525,12 +44525,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
-      "lines": 131,
-      "sha256": "dfff0d5e6d0e1f81c4592dfac999cd2730d0e6c2ad2fba04df2dfe6964d5e22c",
+      "lines": 35,
+      "sha256": "b4fef6b383c7a14822e1c7833a6ead96291cec02581021980dc185bc03d48349",
       "symbols": [
         {
           "name": "XhsGoMcpHandshakeTest",
-          "line": 21
+          "line": 17
         }
       ]
     },
