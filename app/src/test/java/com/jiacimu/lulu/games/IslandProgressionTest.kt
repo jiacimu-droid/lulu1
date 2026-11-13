@@ -167,4 +167,29 @@ class IslandProgressionTest {
         assertEquals(savedAgain.crystals,duplicate.crystals)
     }
 
+    @Test fun guardedLostPackRequiresRealCombatBeforeRecoveryAndSurvivesReload() {
+        val base=island().copy(
+            lostPacks=mapOf(island().world.index(4,4) to IslandLostPack(3,2,1,1)),
+            world=island().world.copy(x=4,y=5,turns=1,wood=0,stone=0,
+                mobs=listOf(ExpeditionMob(88,4,4,2))))
+        val key=base.world.index(4,4)
+        val guarded=BlockIslandRules.act(base,"recover_pack",4,4)
+        assertEquals(base.world.turns,guarded.world.turns)
+        assertEquals(base.lostPacks,guarded.lostPacks)
+        assertEquals(0,guarded.world.wood)
+        val cleared=BlockIslandRules.act(guarded,"fight",4,4)
+        assertEquals(0,cleared.world.mobs.first { it.id==88 }.hp)
+        assertEquals(base.lostPacks,cleared.lostPacks)
+        val reloaded=BlockIslandState.fromJson(cleared.toJson())!!
+        val collected=BlockIslandRules.act(reloaded,"recover_pack",4,4)
+        assertFalse(key in collected.lostPacks)
+        assertEquals(3,collected.world.wood)
+        assertEquals(2,collected.world.stone)
+        assertEquals(reloaded.fruit+1,collected.fruit)
+        assertEquals(1,collected.crystals)
+        val again=BlockIslandRules.act(collected,"recover_pack",4,4)
+        assertEquals(collected.world.turns,again.world.turns)
+        assertEquals(collected.world.wood,again.world.wood)
+    }
+
 }
