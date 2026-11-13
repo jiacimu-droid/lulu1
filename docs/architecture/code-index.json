@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:57:35.907812+00:00",
-  "commit": "dfd54fa694fefc873772d08bb52694f739509402",
+  "generatedAt": "2026-11-13T05:58:55.144896+00:00",
+  "commit": "1ecd0a26537bd8234353007085f00f8c9cf158f6",
   "branch": "main",
-  "sourceFingerprint": "c6c1820612911d23e1077a45e07f5ad256d4775914256e9ed4c1308de677e2d5",
+  "sourceFingerprint": "2f3a9ab923408d5f802d3fc6a882acde71d089a6f2e8980cd4a33bed2d83ac88",
   "summary": {
     "files": 1296,
-    "lines": 272678,
+    "lines": 272679,
     "symbols": 3855
   },
   "symbolIndex": {
@@ -457,7 +457,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 162
+        "line": 163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -26694,8 +26694,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 176,
-      "sha256": "91a21927f922a2612c63441485f891426bbba231910e1088699f0f0d85ec69bc",
+      "lines": 177,
+      "sha256": "dc68758a107540ccfcf80dc65d267b791517b16f07184a3b7663549336cb9a67",
       "symbols": [
         {
           "name": "Capability",
@@ -26731,7 +26731,7 @@
         },
         {
           "name": "context",
-          "line": 162
+          "line": 163
         }
       ]
     },
@@ -26872,7 +26872,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
       "lines": 309,
-      "sha256": "a0af45ad7f866f382defe6191e73f69fbf42d4613d8daa46e8c3ca0736625bfa",
+      "sha256": "ca378676c5b8f9e61f4f05f50ce9a9d3de21f4a145152c29c562d15e7834be91",
       "symbols": [
         {
           "name": "memoryLane",
@@ -28570,7 +28570,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
       "lines": 136,
-      "sha256": "16ea5e0999d1b2ee61a2a8c86954f3270e87a8061a58933ea646617849cd4f85",
+      "sha256": "44543123acae47e8c3980128d9f164bbdfee3a4c5fb7c6bd3d52981e289aa096",
       "symbols": [
         {
           "name": "Cue",
