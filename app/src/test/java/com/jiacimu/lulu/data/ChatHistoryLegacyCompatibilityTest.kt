@@ -417,6 +417,63 @@ class ChatHistoryLegacyCompatibilityTest {
         }
     }
 
+    @Test fun rejectedMembershipNoticeMustNotPublishUndurableMessageAfterSavedRoster() {
+        val base: Context = RuntimeEnvironment.getApplication()
+        val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val original = real.getString("state_v1", null)
+        try {
+            val creator = InMemoryLuluChatStore()
+            creator.initialize(base)
+            val group = creator.createGroupConversation(
+                "Notice durability", listOf("ui02-notice-a", "ui02-notice-b"), true,
+            )
+            val initial = creator.conversations.value.single { it.id == group.id }
+            val initialMessages = creator.messages(group.id).value
+            var commits = 0
+            var applies = 0
+            val failingSecondCommit = object : android.content.SharedPreferences by real {
+                override fun edit(): android.content.SharedPreferences.Editor {
+                    val editor = real.edit()
+                    return object : android.content.SharedPreferences.Editor by editor {
+                        override fun putString(key: String?, value: String?): android.content.SharedPreferences.Editor {
+                            editor.putString(key, value)
+                            return this
+                        }
+                        override fun commit(): Boolean {
+                            commits++
+                            return if (commits == 2) false else editor.commit()
+                        }
+                        override fun apply() { applies++; editor.apply() }
+                    }
+                }
+            }
+            val context = object : android.content.ContextWrapper(base) {
+                override fun getApplicationContext(): Context = this
+                override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
+                    if (name == "lulu_chat_store") failingSecondCommit else base.getSharedPreferences(name, mode)
+            }
+            val store = InMemoryLuluChatStore()
+            store.initialize(context)
+            val changed = initial.groupChat!!.copy(
+                members = initial.groupChat.members +
+                    LuluGroupMember("ui02-notice-c"),
+            )
+            assertTrue(runCatching { store.updateGroupConversation(group.id, changed) }.isFailure)
+            assertEquals("Roster and notice must each attempt a durable write", 2, commits)
+            assertEquals("No asynchronous notice write may claim delivery", 0, applies)
+            assertEquals(changed.members, store.conversations.value.single { it.id == group.id }.groupChat!!.members)
+            assertEquals(initialMessages, store.messages(group.id).value)
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(base)
+            assertEquals(changed.members, reopened.conversations.value.single { it.id == group.id }.groupChat!!.members)
+            assertEquals(initialMessages, reopened.messages(group.id).value)
+        } finally {
+            val editor = real.edit()
+            if (original == null) editor.remove("state_v1") else editor.putString("state_v1", original)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState() {
         val base: Context = RuntimeEnvironment.getApplication()
         val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
