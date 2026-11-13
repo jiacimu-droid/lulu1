@@ -15,6 +15,29 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [28])
 class ChatHistoryLegacyCompatibilityTest {
 
+    @Test fun blankButPresentLegacySnapshotMustNotBeReplacedByDefaults() {
+        val app: Context = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val previous = prefs.getString("state_v1", null)
+        try {
+            assertTrue(prefs.edit().putString("state_v1", "   ").commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val outcome = runCatching { store.setConversationPinned("lulu-main", true) }
+            assertTrue("Present unreadable history must reject new metadata writes",
+                outcome.isFailure || outcome.getOrNull() == false)
+            assertEquals("   ", prefs.getString("state_v1", null))
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            runCatching { reopened.setConversationPinned("lulu-main", true) }
+            assertEquals("   ", prefs.getString("state_v1", null))
+        } finally {
+            val edit = prefs.edit()
+            if (previous == null) edit.remove("state_v1") else edit.putString("state_v1", previous)
+            assertTrue(edit.commit())
+        }
+    }
+
     @Test fun malformedLegacySnapshotMustNotBeSilentlyOverwritten() {
         val app: Context = RuntimeEnvironment.getApplication()
         val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
