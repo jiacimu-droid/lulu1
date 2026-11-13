@@ -31,9 +31,9 @@ class CharacterInitiativeRuntimeTest {
         assertTrue(CharacterInitiativeRuntime.isExplicitUserToolRequest("我现在在哪里？", "get_location"))
     }
 
-    @Test fun userCanExplicitlyRequestXiaohongshuSearchButNotGrantBackgroundAutonomy() {
-        assertTrue(CharacterInitiativeRuntime.isExplicitUserToolRequest("你现在试试搜小红书上的猫咪帖子", "read_xiaohongshu"))
-        assertTrue(CharacterInitiativeRuntime.isExplicitUserToolRequest("帮我阅读这个小红书笔记", "read_xiaohongshu"))
+    @Test fun retiredXiaohongshuToolCannotBorrowExplicitUserPermission() {
+        assertFalse(CharacterInitiativeRuntime.isExplicitUserToolRequest("你现在试试搜小红书上的猫咪帖子", "read_xiaohongshu"))
+        assertFalse(CharacterInitiativeRuntime.isExplicitUserToolRequest("帮我阅读这个小红书笔记", "read_xiaohongshu"))
         assertFalse(CharacterInitiativeRuntime.isExplicitUserToolRequest("我今天看到猫咪了", "read_xiaohongshu"))
     }
 
