@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:38:09.014438+00:00",
-  "commit": "cd7703cd2396f2b434849375770451fb8625ae69",
+  "generatedAt": "2026-11-13T05:39:46.561403+00:00",
+  "commit": "ebcc9579a5c59f1cc27912c2b266ec9dc957c269",
   "branch": "main",
-  "sourceFingerprint": "3d5011bfe21f9bcad9807cafc4aeea82c97ad93a008a6f65d742a4fe494df525",
+  "sourceFingerprint": "4fb784a7d7bfc928b4f420321a2630ba041c01d0cef7b639c48283f12e02673f",
   "summary": {
     "files": 1291,
-    "lines": 272165,
+    "lines": 272192,
     "symbols": 3852
   },
   "symbolIndex": {
@@ -25024,8 +25024,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt",
-      "lines": 144,
-      "sha256": "3bf969c2a9ae361f83c9735b4a8da6c45c6f68e98b9bffbbedb7c5b0b23aa216",
+      "lines": 171,
+      "sha256": "76bf9a945f185278eccafe71d11f41105c51cf8a0ef826d95284898bd0538d4f",
       "symbols": []
     },
     {
@@ -40344,7 +40344,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt",
       "lines": 76,
-      "sha256": "48d5050e1ed340826bd36eaa2be3c6608737931da038a4973e752beb3a6e56b7",
+      "sha256": "86f80596a252340a1bad05c81d8379669ad5c0d2a488a8b8f64ca9756ddcfafc",
       "symbols": [
         {
           "name": "RolePhoneActivityTest",

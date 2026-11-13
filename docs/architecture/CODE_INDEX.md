@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cd7703cd2396f2b434849375770451fb8625ae69`
+- 基准提交：`ebcc9579a5c59f1cc27912c2b266ec9dc957c269`
 - 分支：`main`
 - 已索引文件：1291
-- 已索引代码/文本行：272165
+- 已索引代码/文本行：272192
 - 已发现符号：3852
 
 | 文件 | 行数 | 符号数 |
@@ -266,7 +266,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 144 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 171 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 97 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 131 | 0 |
