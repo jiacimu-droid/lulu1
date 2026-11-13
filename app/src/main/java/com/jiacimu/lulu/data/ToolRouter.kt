@@ -76,7 +76,6 @@ object ToolRouter {
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
         mutex.withLock("$characterId:" + when (name) {
-            "read_xiaohongshu" -> "xhs"
             "web_search" -> "web"
             "image_search" -> "images"
             com.jiacimu.lulu.ai.JevDirections.TOOL -> "thought-reference"
@@ -202,9 +201,7 @@ object ToolRouter {
             // may reach the executor. Retired, unknown and newly revoked tools
             // never gain execution permission through an old request ID.
             val activeCap = cap ?: return@withLock rejected("未知能力：$name")
-            if (activeCap.retired) return@withLock rejected(if (name == "read_xiaohongshu")
-                "小红书旧阅读工具已停用；请用 background_phone 在后台虚拟屏启动已安装的小红书App，依据真实画面继续；历史记录保留"
-                else "能力已停用：$name；历史记录保留，但不能再安排或执行")
+            if (activeCap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
             if (!CapabilityRegistry.allows(context, characterId, activeCap, userRequested))
                 return@withLock rejected("此角色尚未获准主动使用 ${activeCap.permission}", "waiting_user")
             // The same policy applies to primary and ordered side steps.
@@ -457,7 +454,7 @@ object ToolRouter {
                 // replayed request ID) can ease digital monotony once.
                 if (parsed.optBoolean("success") &&
                     execution.optString("status") !in setOf("pending", "waiting_user", "requested", "running") &&
-                    name in setOf("web_search", "image_search", "read_xiaohongshu",
+                    name in setOf("web_search", "image_search",
                         "read_book", "play_solo_game")) {
                     runCatching { EmbodiedBodyRuntime.onExplorationReceipt(characterId) }
                 }
