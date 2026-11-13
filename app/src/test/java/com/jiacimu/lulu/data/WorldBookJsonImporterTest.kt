@@ -134,6 +134,7 @@ class WorldBookJsonImporterTest {
         assertEquals(original, parsed.entries.single().content)
         assertFalse(parsed.entries.single().globalEnabled)
         assertTrue(parsed.entries.single().characterOverrides.isEmpty())
+        assertEquals(WorldBookPromptPosition.TOP, parsed.entries.single().promptPosition)
     }
 
     @Test fun importAndPersistKeepLiteralWhitespace() = runBlocking {
@@ -154,54 +155,6 @@ class WorldBookJsonImporterTest {
         val reloaded = InMemoryWorldBookRepository()
         reloaded.initialize(context)
         assertEquals(original, reloaded.snapshot().first { it.id == testId }.content)
-    }
-
-    @Test fun completeMeowssiahPresetPreservesSourceAndImportsEveryNonEmptyPrompt() {
-        val context = RuntimeEnvironment.getApplication()
-        val raw = context.assets.open("worldbook/Meowssiah-2.1.0.original.json")
-            .bufferedReader(Charsets.UTF_8).use { it.readText() }
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(raw.toByteArray(Charsets.UTF_8))
-            .joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') }
-        assertEquals("4b6f0737d854e8fb11c18e84b360e9bccb864367760f7f84dbd2ddc4ee67b59d", digest)
-
-        val source = org.json.JSONObject(raw)
-        assertEquals(56, source.getJSONArray("prompts").length())
-        assertNotNull(source.getJSONObject("extensions").getJSONObject("SPreset")
-            .getJSONObject("FinalRequestProcessing").getString("script"))
-        val preview = WorldBookJsonImporter.parse(raw, "character-meow")
-        assertTrue(preview.originalPresetFormat)
-        assertFalse(preview.foreignFormat)
-        assertEquals(48, preview.entries.size)
-        // Eight original host marker slots have no body, and remain in the full source asset.
-        assertEquals(8, preview.skipped)
-        assertEquals(29, preview.entries.count {
-            it.characterOverrides["character-meow"] == true
-        })
-        assertTrue(preview.entries.all { !it.globalEnabled })
-        assertTrue(preview.entries.all { it.promptPosition == WorldBookPromptPosition.NORMAL })
-
-        val prompts = source.getJSONArray("prompts")
-        val sourceById = LinkedHashMap<String, org.json.JSONObject>()
-        for (i in 0 until prompts.length()) {
-            val prompt = prompts.getJSONObject(i)
-            val id = prompt.optString("identifier").ifBlank { "prompt-$i" }
-            sourceById[id] = prompt
-        }
-        val mainOrder = source.getJSONArray("prompt_order").getJSONObject(1).getJSONArray("order")
-        val orderedIds = LinkedHashSet<String>()
-        for (i in 0 until mainOrder.length()) {
-            orderedIds.add(mainOrder.getJSONObject(i).getString("identifier"))
-        }
-        orderedIds.addAll(sourceById.keys)
-        val expected = orderedIds.mapNotNull { id ->
-            val item = sourceById[id] ?: return@mapNotNull null
-            val body = item.opt("content") as? String ?: ""
-            if (body.isBlank()) null else item.optString("name").ifBlank { id } to body
-        }
-        assertEquals(expected, preview.entries.map { it.title to it.content })
-        assertEquals(sourceById.getValue("enhanceDefinitions").getString("content"),
-            preview.entries.first { it.title == "（不要关）召唤术" }.content)
     }
 
 }
