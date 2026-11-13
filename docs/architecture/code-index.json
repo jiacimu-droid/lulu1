@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T01:23:20.442491+00:00",
-  "commit": "4218634c3eb292afa58842f8456c7c4ec2af6438",
+  "generatedAt": "2026-11-13T01:23:38.492312+00:00",
+  "commit": "70287d4d276d464c6d1482634b5f0360664465ad",
   "branch": "main",
-  "sourceFingerprint": "e3ba242ce7a004a0677ebccffab5e22aa9750dfce5ca66726d1c45c29b4f7824",
+  "sourceFingerprint": "ef1943658f67bf409d5f2f1005fac05447d549083cf69cdd5f319988a78f9701",
   "summary": {
     "files": 1285,
-    "lines": 271795,
+    "lines": 271818,
     "symbols": 3844
   },
   "symbolIndex": {
@@ -18189,7 +18189,7 @@
     "groupFor": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
-        "line": 138
+        "line": 161
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
@@ -40737,8 +40737,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
-      "lines": 157,
-      "sha256": "a6ddaa5912d193561e2f93e6353732acc1b12a72456dbd1880bf73d65b5ccfed",
+      "lines": 180,
+      "sha256": "1c75624da389f0737a3106320f12e7c4cce8ea906d0b1396870d7eaaa101ff86",
       "symbols": [
         {
           "name": "PromptInputAuditTest",
@@ -40746,7 +40746,7 @@
         },
         {
           "name": "groupFor",
-          "line": 138
+          "line": 161
         }
       ]
     },
