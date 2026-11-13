@@ -17,7 +17,57 @@ class BundledJiangDuImportTest {
      * historical fixtures equal today's defaults just to satisfy a test. */
     private fun currentStockAfterMigration(key: String, shippedV29: String): String =
         if (key == "speechHabits") CharacterProfileSchema.jiangDuCurrentSpeechHabits
-        else CharacterProfileSchema.jiangDuV30Overrides[key] ?: shippedV29
+        else CharacterProfileSchema.jiangDuV31Overrides[key]
+            ?: CharacterProfileSchema.jiangDuV30Overrides[key] ?: shippedV29
+
+    @Test fun bundledJiangDuV31AiInterestHasPersonalAndRelationalMeaningWithoutRewritingEdits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val before = JSONObject(CharacterLifeStore.state(id).toString())
+        val xingHeBefore = CharacterLifeStore.state("lulu").toString()
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            // An existing v30 installation with the untouched shipped text.
+            val stock = JSONObject(before.toString()).put("jiangDuPresetVersion", 30)
+                .put("jiangDuApprovedReplacementRevision", 3)
+            stock.getJSONObject("profile")
+                .put("motives", CharacterProfileSchema.jiangDuV30Overrides.getValue("motives"))
+                .put("interests", CharacterProfileSchema.jiangDuV29Overrides.getValue("interests"))
+            save.invoke(CharacterLifeStore, id, stock)
+            CharacterLifeStore.initialize(context)
+
+            val upgraded = CharacterLifeStore.state(id)
+            assertEquals(CharacterProfileSchema.jiangDuPresetVersion,
+                upgraded.getInt("jiangDuPresetVersion"))
+            val profile = upgraded.getJSONObject("profile")
+            CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
+                assertEquals("Only the known shipped field is updated: $key",
+                    value, profile.getString(key))
+            }
+            assertTrue(CharacterLifeStore.profileContext(id).contains("因为爱她"))
+            assertTrue(CharacterRuntime.definition(id).promptSection().contains("更自然的声音"))
+            assertEquals(xingHeBefore, CharacterLifeStore.state("lulu").toString())
+
+            // Explicitly authored and intentionally empty values retain authority.
+            val edited = JSONObject(before.toString()).put("jiangDuPresetVersion", 30)
+                .put("jiangDuApprovedReplacementRevision", 3)
+            edited.getJSONObject("profile").put("motives", "本人亲手写的独立愿望")
+                .put("interests", "")
+            save.invoke(CharacterLifeStore, id, edited)
+            CharacterLifeStore.initialize(context)
+            val personalized = CharacterLifeStore.state(id).getJSONObject("profile")
+            assertEquals("本人亲手写的独立愿望", personalized.getString("motives"))
+            assertEquals("", personalized.getString("interests"))
+            assertEquals(xingHeBefore, CharacterLifeStore.state("lulu").toString())
+        } finally {
+            save.invoke(CharacterLifeStore, id, before)
+        }
+    }
 
     @Test fun authoredDialogueExamplesAreSeededOnceForExactlyTheTwoExistingCharacters() {
         val context = RuntimeEnvironment.getApplication() as Context
@@ -171,7 +221,7 @@ class BundledJiangDuImportTest {
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
             assertEquals("主人亲自写的说话习惯", personalized.getString("speechHabits"))
             assertEquals("本人手写的核心人格", MigratedDomainStores.characters.get(id).persona)
-            assertEquals(CharacterProfileSchema.jiangDuV30Overrides.getValue("motives"),
+            assertEquals(CharacterProfileSchema.jiangDuV31Overrides.getValue("motives"),
                 personalized.getString("motives"))
             CharacterLifeStore.setProfile(id, "cognitiveStyle", "用户自己写的功能主次")
             CharacterLifeStore.initialize(context)
@@ -822,7 +872,8 @@ class BundledJiangDuImportTest {
             val profile = replaced.getJSONObject("profile")
             CharacterProfileSchema.jiangDuApprovedOverrides.forEach { (key, value) ->
                 assertEquals("Approved complete replacement: " + key,
-                    CharacterProfileSchema.jiangDuV30Overrides[key] ?: value, profile.getString(key))
+                    CharacterProfileSchema.jiangDuV31Overrides[key]
+                        ?: CharacterProfileSchema.jiangDuV30Overrides[key] ?: value, profile.getString(key))
             }
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, profile.getString("dialogueExamples"))
             assertEquals(CharacterProfileSchema.jiangDuV30Persona,
