@@ -1156,8 +1156,13 @@ class CompanionModelGateway(
             val text = (0 until blocks.length()).mapNotNull { blocks.optJSONObject(it)?.takeIf { block -> block.optString("type") == "text" }?.optString("text") }.joinToString("")
             check(text.isNotBlank()) { "Claude没有返回正文" }
             val usage = json.optJSONObject("usage")
-            return ModelReply(text, usage?.optInt("input_tokens") ?: 0, usage?.optInt("output_tokens") ?: 0, usage?.optInt("cache_read_input_tokens") ?: 0,
-                finishReason = json.optString("stop_reason").takeIf(String::isNotBlank)).also { onStreamText?.invoke(it.text) }
+            return ModelReply(
+                text = text,
+                inputTokens = usage?.optInt("input_tokens") ?: 0,
+                outputTokens = usage?.optInt("output_tokens") ?: 0,
+                cachedTokens = usage?.optInt("cache_read_input_tokens") ?: 0,
+                finishReason = json.optString("stop_reason").takeIf(String::isNotBlank),
+            ).also { onStreamText?.invoke(it.text) }
         }
         val body = JSONObject()
             .put("model", connection.model)
