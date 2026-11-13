@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:27:19.467994+00:00",
-  "commit": "67b707df3706fb4fe239937536f0780e2f1c10ae",
+  "generatedAt": "2026-11-13T15:29:54.928348+00:00",
+  "commit": "05c2711d3db9a1770e865df969822b239fb7c07f",
   "branch": "main",
-  "sourceFingerprint": "d7860298ff157d33d6cf6a3f18a46e250707986877639f73299c767947c5bb2c",
+  "sourceFingerprint": "537f9be490af8ab7401402491263c416d123ec1e7b176833c8e93511010690f8",
   "summary": {
     "files": 1300,
     "lines": 273615,
@@ -35422,7 +35422,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
       "lines": 260,
-      "sha256": "0590142be38f0d2d5c0ed3353b2f2945dded4d6abcdda91c568c3b5d43ddfb83",
+      "sha256": "1d38523dad11a141d4192b5dc1b177c9d65dd320e82c5302306809d148ea6e56",
       "symbols": [
         {
           "name": "dist",
