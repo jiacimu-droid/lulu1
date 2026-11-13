@@ -181,4 +181,32 @@ class IslandTargetActionTest {
         assertEquals("none", self.action)
         assertFalse(islandTargetAction(s.copy(world = s.world.copy(finished = true)), 5 to 4).enabled)
     }
+    @Test fun explicitMapSelectionOverridesFacingWithoutInventingDistantActions() {
+        val s = scene()
+        val w = s.world
+        val twoEnemies = s.copy(world = w.copy(mobs = w.mobs +
+            ExpeditionMob(2, 5, 4, 3)))
+        val facingRight = islandNearbyAction(twoEnemies, 1 to 0, setOf("fight"))
+        assertEquals(5, facingRight!!.x)
+        val selectedLeft = islandNearbyAction(twoEnemies, 1 to 0, setOf("fight"), 3 to 4)
+        assertEquals(3, selectedLeft!!.x)
+        val struck = BlockIslandRules.act(twoEnemies, selectedLeft.action,
+            selectedLeft.x, selectedLeft.y)
+        assertTrue(struck.world.mobs.first { it.id == 1 }.hp <
+            twoEnemies.world.mobs.first { it.id == 1 }.hp)
+        assertEquals(twoEnemies.world.mobs.first { it.id == 2 }.hp,
+            struck.world.mobs.first { it.id == 2 }.hp)
+
+        // An invalid distant tap cannot enable a remote attack.
+        assertEquals(5, islandNearbyAction(twoEnemies, 1 to 0,
+            setOf("fight"), 8 to 8)!!.x)
+        assertNull(islandNearbyAction(twoEnemies.copy(world = w.copy(mobs = emptyList())),
+            1 to 0, setOf("fight"), 8 to 8))
+        // A selected tree is gathered even when facing another valid tree.
+        val twoTrees = s.copy(world = w.copy(mobs = emptyList(), friends = emptyList(),
+            tiles = w.tiles.toMutableList().also { it[w.index(3, 4)] = 1 }))
+        assertEquals(3, islandNearbyAction(twoTrees, 1 to 0,
+            setOf("gather"), 3 to 4)!!.x)
+    }
+
 }
