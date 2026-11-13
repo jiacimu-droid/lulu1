@@ -2247,3 +2247,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 真实 main push [APK/JVM #43380039683](https://github.com/jiacimu-droid/lulu1/actions/runs/43380039683) 2972 tests / 2 failed，目标缺正文与空白快照两项均 PASSED；全局失败为 BackgroundPhoneCapabilityContextTest 与 LuluShoppingLinkShareTest，不能称工程整体通过。
 - 新增 `ChatHistoryLegacyCompatibilityTest.nonStringOriginalMessageContentCannotBeRewrittenAsText`，测试 JSON null、数字、布尔、对象正文的真实 Store 写入拒绝、原始快照及重启保护，提交 [2b4f938](https://github.com/jiacimu-droid/lulu1/commit/2b4f938be9b279b29b69643cb0ac01472b0d458b)。无生产修改、无收费模型；新 CI 未验。
 - 下一轮固定 UI-02.2：先看新增测试 JVM 首错；若绿继续 state_v1 增量迁移中断/拒写兼容。真机强杀、100k 性能和跨 Store 原子性未验。
+
+
+## 2026-11-13 · UI-02.2 群成员变更持久提交边界
+- `updateGroupConversation` 之前先更新 `conversationState`、异步写 `state_v1`，拒写可能造成仅在本进程可见的成员变化并触发无依据通知。正式修复 [c7930a4](https://github.com/jiacimu-droid/lulu1/commit/c7930a4caea2330a17735919791809f6337cdb2c) 改为先 durable commit 后发布，失败不发送成员变更事件。
+- 新回归 [7c1b1f7](https://github.com/jiacimu-droid/lulu1/commit/7c1b1f72131f3ec24ec51d783a49bba467315641) `ChatHistoryLegacyCompatibilityTest.rejectedGroupMembershipUpdateMustNotPublishOrSurviveReopen`：注入拒写，验证 commit、禁止 apply、快照与内存/重开一致。尚无该提交 JVM/APK/Refresh 成功证据，不标工程通过；下一轮查首错后再核群通知追加失败的跨步回执。
