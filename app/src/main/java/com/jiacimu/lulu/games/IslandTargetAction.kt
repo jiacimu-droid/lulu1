@@ -81,9 +81,19 @@ internal fun islandNearbyAction(
     state: BlockIslandState,
     facing: Pair<Int, Int>,
     allowed: Set<String> = setOf("fight", "revive", "salvage", "recover_pack", "gather", "fish", "tame", "care", "sow_berries", "tend_berries", "harvest_berries"),
+    selectedTarget: Pair<Int, Int>? = null,
 ): IslandNearbyAction? {
     val w = state.world
     if (w.finished) return null
+    // A deliberate map tap takes precedence over last D-pad facing, but only
+    // when the authoritative rules still permit that exact nearby action.
+    selectedTarget?.let { (x, y) ->
+        if (w.inBounds(x, y)) {
+            val selected = islandTargetAction(state, x to y)
+            if (selected.enabled && selected.action in allowed)
+                return IslandNearbyAction(selected.action, selected.label, x, y)
+        }
+    }
     val directions = (if(w.index(w.x,w.y) in state.lostPacks) listOf(0 to 0)
         else emptyList()) + listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx,dy) -> kotlin.math.abs(dx)+kotlin.math.abs(dy)==1 }
