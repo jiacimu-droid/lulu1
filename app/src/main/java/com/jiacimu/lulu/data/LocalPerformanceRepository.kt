@@ -73,6 +73,10 @@ data class TokenConsoleRecord(
     val createdAtMillis: Long = System.currentTimeMillis(),
     val reportedInputTokens: Long,
     val reportedOutputTokens: Long,
+    /** Nullable: the provider may not disclose internal reasoning usage. */
+    val reportedReasoningTokens: Long? = null,
+    /** Visible model result includes JSON/private fields, not just sent chat bubbles. */
+    val modelOutputCharacters: Int = 0,
     val effectiveInputTokens: Long,
     val effectiveOutputTokens: Long,
     val cachedTokens: Long,
@@ -244,6 +248,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         provider: String,
         reportedInputTokens: Int,
         reportedOutputTokens: Int,
+        reportedReasoningTokens: Int? = null,
+        modelOutputCharacters: Int = 0,
         cachedTokens: Int,
         estimatedInputTokens: Int,
         estimatedOutputTokens: Int,
@@ -288,6 +294,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             createdAtMillis = now,
             reportedInputTokens = reportedInputTokens.coerceAtLeast(0).toLong(),
             reportedOutputTokens = reportedOutputTokens.coerceAtLeast(0).toLong(),
+            reportedReasoningTokens = reportedReasoningTokens?.coerceAtLeast(0)?.toLong(),
+            modelOutputCharacters = modelOutputCharacters.coerceAtLeast(0),
             effectiveInputTokens = effectiveInput.toLong(),
             effectiveOutputTokens = effectiveOutput.toLong(),
             cachedTokens = cachedTokens.coerceAtLeast(0).toLong(),
@@ -475,6 +483,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("createdAtMillis", value.createdAtMillis)
         .put("reportedInputTokens", value.reportedInputTokens)
         .put("reportedOutputTokens", value.reportedOutputTokens)
+        .put("reportedReasoningTokens", value.reportedReasoningTokens)
+        .put("modelOutputCharacters", value.modelOutputCharacters)
         .put("effectiveInputTokens", value.effectiveInputTokens)
         .put("effectiveOutputTokens", value.effectiveOutputTokens)
         .put("cachedTokens", value.cachedTokens)
@@ -515,6 +525,9 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         createdAtMillis = item.optLong("createdAtMillis", System.currentTimeMillis()),
         reportedInputTokens = item.optLong("reportedInputTokens").coerceAtLeast(0L),
         reportedOutputTokens = item.optLong("reportedOutputTokens").coerceAtLeast(0L),
+        reportedReasoningTokens = if (item.has("reportedReasoningTokens") && !item.isNull("reportedReasoningTokens"))
+            item.optLong("reportedReasoningTokens").coerceAtLeast(0L) else null,
+        modelOutputCharacters = item.optInt("modelOutputCharacters").coerceAtLeast(0),
         effectiveInputTokens = item.optLong("effectiveInputTokens").coerceAtLeast(0L),
         effectiveOutputTokens = item.optLong("effectiveOutputTokens").coerceAtLeast(0L),
         cachedTokens = item.optLong("cachedTokens").coerceAtLeast(0L),
