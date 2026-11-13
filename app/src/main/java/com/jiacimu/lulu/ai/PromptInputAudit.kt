@@ -29,7 +29,7 @@ internal object PromptInputAudit {
     // supplied heading text into the local performance log.
     private val publicHeadings = setOf(
         "【当前真实私聊】", "【当下真实私聊：一次理解、一次决定】",
-        "【本轮自主决策】", "【一次决策的动作协议】", "【可选心理与持续性】",
+        "【本轮自主决策】", "【一轮行动决定】", "【一次决策的动作协议】", "【可选心理与持续性】",
         "【实际动作参数】", "【真实数字世界】", "【生活事件不是工作报告】",
         "【角色自己的未来计划】", "【社交不依赖主人在场】",
         "【不是等待指令：角色可以主动创造对方会喜欢的体验】",
