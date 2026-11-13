@@ -33,6 +33,14 @@ class LuluShoppingLinkShareTest {
         assertNull(LuluShoppingLinkShare.verifiedChangedLink(pdd, "before", "https://user:pass@yangkeduo.com/a"))
     }
 
+    @Test fun copiedLinkRequiresNewClipboardEventAfterTheActualClickStarted() {
+        assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1200L))
+        assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1201L))
+        assertFalse(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1199L))
+        assertFalse(LuluShoppingLinkShare.freshCopyEvent(1200L, 1200L, 1200L))
+        assertFalse(LuluShoppingLinkShare.freshCopyEvent(0L, 1200L, 0L))
+    }
+
     @Test fun durableCardCodecRoundTripsWithoutTreatingOrdinaryTextAsLink() {
         val url = "https://p.pinduoduo.com/AbC123"
         val encoded = encodeQqShoppingProductLink("拼多多", url, "这款脆香米我觉得好吃～")
