@@ -34,6 +34,29 @@ class PromptInputAuditTest {
         assertTrue(audit.textUtf8Bytes > audit.textCharacters.toLong())
     }
 
+    @Test fun separatedTaskInstructionKeepsDetailedAuditAndEveryCharacter() {
+        val instruction = "【一轮行动决定】\n真的要执行才选择工具。\n【一次决策的动作协议】\n按实际回执处理。"
+        val systemSections = listOf(
+            "任务规则/工具协议" to "共同的稳定安全和角色规则",
+            "角色人设" to "可靠而主动",
+            "核心记忆" to "仍在履行的约定",
+            "本轮任务指令" to ("本次任务：" + instruction),
+            "权威现实时钟" to "2026-11-13T09:00:00+08:00",
+        )
+        val system = systemSections.joinToString("\n\n") { it.second }
+        val audit = PromptInputAudit.inspect(systemSections, system, "真实事实：无未读",
+            emptyList(), emptyList(), instruction = instruction,
+            currentIsActualUserMessage = false)
+        assertTrue(audit.coverageMatches)
+        assertTrue(audit.breakdown.any {
+            it.label.contains("本轮任务指令 / 【一轮行动决定】")
+        })
+        assertTrue(audit.breakdown.any {
+            it.label.contains("本轮任务指令 / 【一次决策的动作协议】")
+        })
+        assertEquals(system.length + "真实事实：无未读".length, audit.textCharacters)
+    }
+
     @Test fun reducedRequestReportsOnlyTheFinalSystemAndHistory() {
         val audit = PromptInputAudit.inspect(
             listOf("Relay精简后系统上下文" to "真实记忆不被删除"),
