@@ -21,7 +21,6 @@ internal object WorldBookJsonImporter {
         val skipped: Int,
         val conditionalEntries: Int,
         val foreignFormat: Boolean,
-        val originalPresetFormat: Boolean = false,
     )
 
     fun parse(json: String, selectedCharacterId: String): Preview {
@@ -33,13 +32,7 @@ internal object WorldBookJsonImporter {
             '{' -> JSONObject(source)
             else -> throw IllegalArgumentException("文件不是世界书 JSON")
         }
-        // Original SillyTavern prompt presets are not lorebook JSON. Adapt *their prompt bodies*
-        // into user-controlled world-book entries, while retaining the complete original asset
-        // (scripts, regexes, macros and all) unmodified. Do not execute foreign JavaScript.
-        val presetRoot = (root as? JSONObject)?.takeIf { it.optJSONArray("prompts") != null }
-        val (items, foreign) = if (presetRoot != null)
-            extractPresetPrompts(presetRoot, selectedCharacterId) to false
-        else extract(root)
+        val (items, foreign) = extract(root)
         require(items.isNotEmpty()) { "JSON 中没有可导入的世界书条目" }
         var skipped = 0
         var conditional = 0
@@ -102,52 +95,7 @@ internal object WorldBookJsonImporter {
             }
         }
         require(parsed.isNotEmpty()) { "没有有效条目：每条需要标题和正文" }
-        return Preview(parsed, skipped, conditional, foreign, presetRoot != null)
-    }
-
-    /**
-     * Preserve the complete source preset in assets, and project every prompt (including
-     * formerly disabled alternatives) into the existing world-book editor without rewriting
-     * the user's text. Empty host marker slots cannot be WorldBookEntry (content must be
-     * nonblank) and remain intact in the archived original preset.
-     *
-     * Enabled/order are derived from the larger character prompt_order when present;
-     * the smaller group is the template for thinking steps only. Non-text extensions
-     * remain part of the untouched source asset; these are not runnable world-book macros.
-     */
-    private fun extractPresetPrompts(root: JSONObject, characterId: String): List<JSONObject> {
-        val prompts = root.optJSONArray("prompts") ?: return emptyList()
-        val all = LinkedHashMap<String, JSONObject>()
-        for (i in 0 until prompts.length()) {
-            val item = prompts.optJSONObject(i) ?: continue
-            val id = item.optString("identifier").takeIf(String::isNotBlank) ?: "prompt-$i"
-            all[id] = item
-        }
-        val orderGroups = root.optJSONArray("prompt_order")
-        val chosen = (0 until (orderGroups?.length() ?: 0))
-            .mapNotNull { index -> orderGroups?.optJSONObject(index)?.optJSONArray("order") }
-            .maxByOrNull { it.length() }
-        val enabledFromOrder = LinkedHashMap<String, Boolean>()
-        if (chosen != null) {
-            for (i in 0 until chosen.length()) {
-                val item = chosen.optJSONObject(i) ?: continue
-                val id = item.optString("identifier")
-                if (id.isNotBlank()) enabledFromOrder[id] = item.optBoolean("enabled", false)
-            }
-        }
-        val ids = (enabledFromOrder.keys + all.keys).distinct()
-        return ids.mapNotNull { id ->
-            val prompt = all[id] ?: return@mapNotNull null
-            // A copy of the exact original prompt text is the world-book content.
-            val content = (prompt.opt("content") as? String).orEmpty()
-            val enabled = enabledFromOrder[id] ?: prompt.optBoolean("enabled", false)
-            JSONObject()
-                .put("title", prompt.optString("name").ifBlank { id })
-                .put("content", content)
-                .put("globalEnabled", false)
-                .put("characterOverrides", JSONObject().put(characterId, enabled))
-                .put("promptPosition", "NORMAL")
-        }
+        return Preview(parsed, skipped, conditional, foreign)
     }
 
     private fun keywords(item: JSONObject): List<String> =
