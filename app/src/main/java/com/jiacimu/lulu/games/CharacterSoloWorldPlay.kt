@@ -18,11 +18,12 @@ internal data class SoloWorldResult(
 )
 
 internal class CharacterSoloWorldPlay(context: Context) {
+    companion object { private val sharedSaveLock = Any() }
     private val prefs = context.applicationContext.getSharedPreferences(
         "character_solo_world_v1", Context.MODE_PRIVATE)
 
-    @Synchronized fun play(id: String, game: String, focus: String, turns: Int,
-                           now: Instant): SoloWorldResult {
+    fun play(id: String, game: String, focus: String, turns: Int,
+             now: Instant): SoloWorldResult = synchronized(sharedSaveLock) {
         require(id.isNotBlank())
         require(turns in 4..128) { "单次游戏须为4至128回合" }
         return when (game) {
@@ -32,18 +33,24 @@ internal class CharacterSoloWorldPlay(context: Context) {
         }
     }
 
-    @Synchronized fun readIsland(id: String): BlockIslandState? =
+    fun readIsland(id: String): BlockIslandState? = synchronized(sharedSaveLock) {
         prefs.getString("island:"+id,null)?.let(BlockIslandState::fromJson)
+    }
 
-    @Synchronized fun readRelic(id: String): RelicSnapshot =
+    fun readRelic(id: String): RelicSnapshot = synchronized(sharedSaveLock) {
         RelicSnapshot.read(prefs.getString("relic:"+id,null))
+    }
 
     private fun relic(id:String, focus:String, turns:Int, now:Instant):SoloWorldResult {
         require(focus in setOf("explore","treasure","rare","safe","extract"))
         val key="relic:"+id
         val raw=prefs.getString(key,null)
-        if (raw!=null) requireNotNull(runCatching { JSONObject(raw) }.getOrNull()) {
-            "摸金个人存档损坏，拒绝覆盖"
+        if (raw!=null) {
+            val stored=requireNotNull(runCatching { JSONObject(raw) }.getOrNull()) {
+                "摸金个人存档损坏，拒绝覆盖"
+            }
+            require(stored.optInt("v",-1)==1 && stored.optJSONArray("vault")!=null &&
+                stored.optJSONArray("awarded")!=null) { "角色摸金记录版本异常，拒绝覆盖" }
         }
         val old=RelicSnapshot.read(raw)
         val resume=old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
@@ -58,6 +65,9 @@ internal class CharacterSoloWorldPlay(context: Context) {
             val cmd=chooseRelic(run,focus) ?: return@repeat
             val next=RelicEscapeRules.act(run,cmd.first,cmd.second.first,cmd.second.second)
             if(next.turns>run.turns || next.phase!=run.phase)run=next
+        }
+        require(run.turns>initial || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE)) {
+            "没有合法的摸金行动发生，本段游戏不计为完成"
         }
         if(run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && run.completedAtMs==0L)
             run=run.copy(completedAtMs=now.toEpochMilli())
@@ -172,6 +182,9 @@ internal class CharacterSoloWorldPlay(context: Context) {
             val cmd=chooseIsland(s,focus)?:return@repeat
             val next=BlockIslandRules.act(s,cmd.first,cmd.second.first,cmd.second.second)
             if(next.world.turns>s.world.turns)s=next
+        }
+        require(s.world.turns>initial || s.world.finished) {
+            "没有合法的小岛行动发生，本段游玩不计为完成"
         }
         check(prefs.edit().putString(key,s.toJson()).commit()){"小岛进度未成功保存"}
         val steps=s.world.turns-initial
