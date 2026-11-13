@@ -3,7 +3,12 @@ package com.jiacimu.lulu.data
 import com.jiacimu.lulu.ai.ModelConversationMessage
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class PrivateChatExpressionContextTest {
     private fun message(id: String, sender: LuluChatMessage.Sender, content: String,
                         author: String? = null, status: LuluChatMessage.Status = LuluChatMessage.Status.Sent) =
