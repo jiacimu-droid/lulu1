@@ -66,7 +66,7 @@ class XhsAutonomousReadingTest {
         }
     }
 
-    @Test fun autonomousIoToolSearchesOpensAndLearnsWithoutAUserSharedPost() {
+    @Test fun retiredReaderNeverOpensWebViewOrStartsOldMcpPath() {
         MemoryTestEnvironment.release()
         val controller = Robolectric.buildActivity(Activity::class.java).setup()
         val activity = controller.get()
@@ -106,23 +106,11 @@ class XhsAutonomousReadingTest {
             }
             assertTrue("IO reading must finish using the same foreground browser", reading.isCompleted)
             val result = runBlocking { reading.await() }
-            assertTrue(result.toString(), result.optBoolean("success"))
-            assertEquals(1, browser.submittedSearches)
-            assertEquals(1, browser.openedNotes)
-            val evidenceId = result.getString("evidenceId")
-            val event = SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).single()
-            assertEquals("xiaohongshu-webview", event.source)
-            assertEquals("search", JSONObject(event.content).getString("discoveryMode"))
-            assertTrue(CharacterLearningLedger.hasInsight(role, evidenceId))
-            CharacterLearningAgenda.initialize(activity)
-            val goal = CharacterLearningAgenda.start(role, JSONObject().put("topic", "记者")
-                .put("question", "如何核实信息的可信程度").put("sourceEvidenceId", evidenceId), Instant.now())
-            val attached = runBlocking { AutonomousLearningRuntime.execute(activity, role,
-                JSONObject().put("op", "attach").put("goalId", goal.getString("id"))
-                    .put("sourceEvidenceId", evidenceId)) }
-            assertTrue(attached.summary, attached.success)
-            assertEquals("practice", CharacterLearningAgenda.get(role, goal.getString("id"))!!.optString("status"))
-            assertEquals("Reading and attaching reuse one actual understanding call", 1, server.requestCount)
+            assertFalse(result.toString(), result.optBoolean("success"))
+            assertTrue(result.toString(), result.toString().contains("小红书旧阅读工具已停用"))
+            assertEquals(0, browser.submittedSearches)
+            assertEquals(0, browser.openedNotes)
+            assertEquals(0, server.requestCount)
             XhsReadingEngine.pause(activity)
             assertFalse(worker.submit<Boolean> { XhsReadingEngine.available(activity) }.get(5, TimeUnit.SECONDS))
         } finally {
