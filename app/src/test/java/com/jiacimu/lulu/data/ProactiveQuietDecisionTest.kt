@@ -44,6 +44,38 @@ class ProactiveQuietDecisionTest {
                 .any { it.id == ongoing.first().id })
     }
 
+    @Test fun leanAttentionKeepsEvidenceWithoutDuplicatingAuthoritativeTaskDetails() {
+        val now = java.time.Instant.parse("2026-11-13T00:00:00Z")
+        val task = CommitmentTask(id = "attention-1", characterId = "role",
+            goal = "这条明确的长期义务只应由权威清单说明一次",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            lastActionResult = "上次已经发出提醒但是结果未确认",
+            dueAt = now.minusSeconds(60L))
+        val full = ActiveCommitmentAttention.render(listOf(task), now)
+        val compact = ActiveCommitmentAttention.render(listOf(task), now,
+            summaryAlreadyListed = true)
+        assertTrue(full.contains(task.goal))
+        assertTrue(full.contains(task.lastActionResult))
+        assertTrue(compact.contains("taskId=${task.id}"))
+        assertTrue(compact.contains("实际效果尚未证实"))
+        assertFalse(compact.contains(task.goal))
+        assertFalse(compact.contains(task.lastActionResult))
+        assertTrue(compact.contains("原定行动"))
+        assertTrue(compact.length < full.length)
+    }
+
+    @Test fun sparseDecisionOutputKeepsActionsButDoesNotForceRedundantInternalNarration() {
+        val chat = proactiveDecisionInstruction("output-delta-chat", directPrivateChat = true)
+        val life = proactiveDecisionInstruction("output-delta-life")
+        for (prompt in listOf(chat, life)) {
+            assertEquals(1, prompt.split("【输出只记录本轮新变化】").size - 1)
+            assertTrue(prompt.contains("不减少") || prompt.contains("不能为了省字漏掉该执行的事"))
+            assertTrue(prompt.contains("真实"))
+            assertTrue(prompt.contains("内心"))
+            assertTrue(prompt.contains("action"))
+        }
+    }
+
     @Test fun onlineExpiryPromptKeepsDecisionAndHandoffContract() {
         // Runtime now supplies only live facts for an expiring lease; static
         // instructions must retain the single model-owned decision and its
