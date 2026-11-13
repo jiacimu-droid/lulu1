@@ -138,14 +138,15 @@ class ChatHistoryLegacyCompatibilityTest {
             assertTrue(prefs.edit().putString("state_v1", damaged).commit())
             val store = InMemoryLuluChatStore()
             store.initialize(app)
-            val outcome = runCatching { store.setConversationPinned(conversationId, true) }
-            assertTrue("Missing content must not be accepted as a successful rewrite",
-                outcome.isFailure || outcome.getOrNull() == false)
+            val writableConversationId = store.conversations.value.first { !it.pinned }.id
+            val outcome = runCatching { store.setConversationPinned(writableConversationId, true) }
+            assertTrue("Missing content must reject a real metadata write", outcome.isFailure)
             assertEquals("Original snapshot must survive the attempted mutation",
                 damaged, prefs.getString("state_v1", null))
             val reopened = InMemoryLuluChatStore()
             reopened.initialize(app)
-            runCatching { reopened.setConversationPinned(conversationId, true) }
+            val reopenedConversationId = reopened.conversations.value.first { !it.pinned }.id
+            assertTrue(runCatching { reopened.setConversationPinned(reopenedConversationId, true) }.isFailure)
             assertEquals(damaged, prefs.getString("state_v1", null))
         } finally {
             val edit = prefs.edit()
