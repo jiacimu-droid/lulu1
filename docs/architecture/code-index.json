@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T11:47:25.940030+00:00",
-  "commit": "ad346bce0c6407c123abbd160f392581698c8a54",
+  "generatedAt": "2026-11-13T11:48:24.188607+00:00",
+  "commit": "9da8113e6dd0fea811e266b7e1821498a296d259",
   "branch": "main",
-  "sourceFingerprint": "51e4161ce716bac9566cef0bc3a560226adae302c481f01e608d2d202252ec66",
+  "sourceFingerprint": "cd154ad8551b7fb2819ee4cd5793b6e87c5dfe291e33a0831d48d4d992ba23b7",
   "summary": {
     "files": 1297,
     "lines": 273044,
@@ -327,7 +327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 234
+        "line": 196
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
@@ -541,7 +541,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 344
+        "line": 299
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -2695,11 +2695,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 104
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 183
+        "line": 151
       }
     ],
     "boundedBody": [
@@ -4913,7 +4913,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 84
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -8965,19 +8965,19 @@
     "byOrder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
-        "line": 30
+        "line": 29
       }
     ],
     "byConsume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
-        "line": 31
+        "line": 30
       }
     ],
     "locationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
-        "line": 32
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
@@ -8987,7 +8987,7 @@
     "names": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
-        "line": 35
+        "line": 34
       }
     ],
     "DigitalFurnitureKind": [
@@ -9665,7 +9665,7 @@
     "toJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 26
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -9683,7 +9683,7 @@
     "fromJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 43
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -9701,79 +9701,79 @@
     "stat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 46
+        "line": 37
       }
     ],
     "fresh": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 79
+        "line": 66
       }
     ],
     "approach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 105
+        "line": 92
       }
     ],
     "applyWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 176
+        "line": 144
       }
     ],
     "afterExploration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 226
+        "line": 188
       }
     ],
     "endWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 230
+        "line": 192
       }
     ],
     "number": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 236
+        "line": 198
       }
     ],
     "storedOrFresh": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 266
+        "line": 224
       }
     ],
     "sensorySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 279
+        "line": 234
       }
     ],
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 300
+        "line": 255
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 311
+        "line": 266
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 369
+        "line": 323
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 379
+        "line": 333
       }
     ],
     "qualifies": [
@@ -18405,13 +18405,13 @@
     "replace": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 36
+        "line": 86
       }
     ],
     "seed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 663
+        "line": 713
       }
     ],
     "CallMediaSemanticBoundaryTest": [
@@ -22520,8 +22520,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 846,
-      "sha256": "c6988dcbd229cab974b8e790d5557ac27d5ed63fb8e2619242e2b54cf9331d24",
+      "lines": 842,
+      "sha256": "94c7cc2323da765a032a2580c5bc6a021e90a1b53722a1800e6354548047b89e",
       "symbols": []
     },
     {
@@ -29654,24 +29654,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
-      "lines": 37,
-      "sha256": "6f420b8af68455eee5fc5ea672b1f4588cb8c546d9d8bc441d64b0ea9cf1d6f1",
+      "lines": 36,
+      "sha256": "1f61b970fe463772a44e43f1819eae695a7d4d2106f7f1ef0211685527809ab6",
       "symbols": [
         {
           "name": "byOrder",
-          "line": 30
+          "line": 29
         },
         {
           "name": "byConsume",
-          "line": 31
+          "line": 30
         },
         {
           "name": "locationOptions",
-          "line": 32
+          "line": 31
         },
         {
           "name": "names",
-          "line": 35
+          "line": 34
         }
       ]
     },
@@ -30387,88 +30387,88 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 387,
-      "sha256": "f17bb157a1d738ad26127efa30e8ed397ebc7a3d80009e359fa28d7e5a4419c8",
+      "lines": 341,
+      "sha256": "412b9d2b77987a0ef3b221be349b9048151a79dc739009c148b66b076f372979",
       "symbols": [
         {
           "name": "toJson",
-          "line": 26
+          "line": 23
         },
         {
           "name": "fromJson",
-          "line": 43
+          "line": 34
         },
         {
           "name": "stat",
-          "line": 46
+          "line": 37
         },
         {
           "name": "fresh",
-          "line": 79
+          "line": 66
         },
         {
           "name": "advance",
-          "line": 84
+          "line": 71
         },
         {
           "name": "bounded",
-          "line": 104
+          "line": 91
         },
         {
           "name": "approach",
-          "line": 105
+          "line": 92
         },
         {
           "name": "applyWorldActivity",
-          "line": 176
+          "line": 144
         },
         {
           "name": "bounded",
-          "line": 183
+          "line": 151
         },
         {
           "name": "afterExploration",
-          "line": 226
+          "line": 188
         },
         {
           "name": "endWorldActivity",
-          "line": 230
+          "line": 192
         },
         {
           "name": "prompt",
-          "line": 234
+          "line": 196
         },
         {
           "name": "number",
-          "line": 236
+          "line": 198
         },
         {
           "name": "storedOrFresh",
-          "line": 266
+          "line": 224
         },
         {
           "name": "sensorySnapshot",
-          "line": 279
+          "line": 234
         },
         {
           "name": "onPresenceSleep",
-          "line": 300
+          "line": 255
         },
         {
           "name": "onPresenceWake",
-          "line": 311
+          "line": 266
         },
         {
           "name": "context",
-          "line": 344
+          "line": 299
         },
         {
           "name": "onWorldActivity",
-          "line": 369
+          "line": 323
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 379
+          "line": 333
         }
       ]
     },
@@ -41191,8 +41191,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 1017,
-      "sha256": "0c08aca9421de68a8767e77a501a9592334e083a83758749e4919dfd68f3196f",
+      "lines": 1068,
+      "sha256": "8b16fa7e3266293b0cadcdbd69b657801ec2bc293ca479cd85c8b393969a3c8d",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -41200,11 +41200,11 @@
         },
         {
           "name": "replace",
-          "line": 36
+          "line": 86
         },
         {
           "name": "seed",
-          "line": 663
+          "line": 713
         }
       ]
     },
@@ -41769,7 +41769,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 1095,
-      "sha256": "8d17746c390cabe2e2a8c6e389c40db0aa1d79bf08b10439ac5a92dda5432c9a",
+      "sha256": "c4a0d645797084d49029a872c83cfb1bbed2fa6a8d01c59bbe9162d9afdcebc9",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
