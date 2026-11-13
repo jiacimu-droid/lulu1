@@ -986,7 +986,10 @@ object ProactivePerceptionRuntime {
                 val focusedCommitments = PersistentResponsibilityAttention.select(openCommitments, now)
                 if (openCommitments.size > focusedCommitments.size)
                     appendLine("【长期责任持续记挂】共有${openCommitments.size}项进行中的责任，本轮阅读其中${focusedCommitments.size}项；未展示的责任仍持久保存，下一次自然感知轮换查看，不表示已经放弃或完成。")
-                ActiveCommitmentAttention.render(focusedCommitments, now)
+                // The authoritative id/goal/condition/status/last receipt list is
+                // supplied just below. Preserve attention-specific phases and
+                // previous attempts without billing the same goal/receipt twice.
+                ActiveCommitmentAttention.render(focusedCommitments, now, summaryAlreadyListed = true)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (openCommitments.isNotEmpty()) {
                     appendLine("【当前已承担的目标与统一验收入口】")
@@ -1063,7 +1066,11 @@ object ProactivePerceptionRuntime {
                     appendLine("【本人的未来日程｜来源是实际存档，可维持、改期、取消，不要重复建立】")
                     appendLine(futurePlans)
                 }
-                if (witnessedDialogue.isNotBlank()) {
+                // A real private chat already supplies its own recent message turns
+                // through the gateway's conversation history. Keep this witnessed
+                // transcript only for independent life turns; otherwise we pay
+                // to repeat the same words and may confuse old speech with new.
+                if (privateDialogue.isEmpty() && witnessedDialogue.isNotBlank()) {
                     appendLine("【紧接上一轮的双方实际言语｜旧→新，已发出就是已发出】")
                     appendLine(witnessedDialogue)
                     appendLine("这些都是已送达的过去原话，不是未读新请求。亲亲、安慰、拒绝、玩笑等如果已经在这里发生，不要失忆般重新索要或重新声明尚未发生；若之后有新的请求或拒绝，按后来的消息更新。")
