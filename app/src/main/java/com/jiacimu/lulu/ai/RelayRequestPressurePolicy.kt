@@ -152,7 +152,7 @@ internal object RelayRequestPressurePolicy {
             remaining -= first.length + 1
         }
         val priorities = blocks.indices.filter { index ->
-            priorityBackgroundTitles.any(blocks[index]::startsWith)
+            priorityBackgroundTitles.any { title -> blocks[index].startsWith(title) }
         }
         val other = blocks.indices.filterNot { it in priorities || it in selected }
         // Do not silently lose upcoming responsibilities merely because later
