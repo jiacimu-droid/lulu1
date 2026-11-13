@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:42:33.869296+00:00",
-  "commit": "dedb788018bb04c1adc2cf8fdcf12faa8bde0aac",
+  "generatedAt": "2026-11-13T12:43:17.433786+00:00",
+  "commit": "bf09f959d0a539ac6214fc1136ff19b421f82529",
   "branch": "main",
-  "sourceFingerprint": "63be7a8f7f47006636ce5db2fce27e93d0520a0dce60d45fc94f51b30d682751",
+  "sourceFingerprint": "a36dd0bdc5977309279c35ab888c6ccd1387eae69780a807210385495750bbaa",
   "summary": {
     "files": 1297,
-    "lines": 273148,
+    "lines": 273154,
     "symbols": 3858
   },
   "symbolIndex": {
@@ -24488,8 +24488,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-      "lines": 160,
-      "sha256": "d0ab2ad3717e6b7c77dcdc9d63846992cfa57ab36d893b8f563c82d7fbc9bc30",
+      "lines": 161,
+      "sha256": "6a4c46778f3f30bbd5cc1f3bb130bc357d4bd8b273bd3760c389703a8b55d278",
       "symbols": [
         {
           "name": "Loading",
@@ -24645,8 +24645,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 856,
-      "sha256": "0fe527853616d0ff75c869bfd4e5b25c77adfa9ede250b680c764ff0aa82a4e7",
+      "lines": 859,
+      "sha256": "a4e63cdadcda17fa4c8d8b880cab7912a5baab999b771056dc075b18ee9f1515",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
@@ -25090,8 +25090,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt",
-      "lines": 136,
-      "sha256": "77f7cd65c2a3a2e657d95df9e604ef64ee0978fe88746de84d2047eba1b43d0d",
+      "lines": 137,
+      "sha256": "d9e668df5750caf7954aa015d88e68274f0a5e478c46c279917ac4125d86b889",
       "symbols": []
     },
     {
@@ -41211,8 +41211,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 1077,
-      "sha256": "10bb9bb5ba30cc127c0ac52e8aeb9af1a1fa0d80e2307a022a2426658071e584",
+      "lines": 1078,
+      "sha256": "b70d4efa57c0f1f244cc444db6017a90625f5f36998ba6fd50ca888cf442b414",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
