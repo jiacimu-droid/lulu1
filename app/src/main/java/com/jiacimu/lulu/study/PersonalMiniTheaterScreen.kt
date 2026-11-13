@@ -68,6 +68,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var showWorldBookPicker by remember { mutableStateOf(false) }
     var worldBookSearch by remember { mutableStateOf("") }
     var inspirationLoading by remember { mutableStateOf(false) }
+    var continuationDirection by rememberSaveable(opened) { mutableStateOf("") }
     var background by rememberSaveable(opened) { mutableStateOf(
         all.firstOrNull { it.id == opened }?.sceneContext.orEmpty()) }
     var error by remember { mutableStateOf("") }
@@ -313,7 +314,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(when (item.status) {
-                                "queued", "running" -> "正在创作"
+                                "queued", "running" -> if (item.continuing) "正在续写" else "正在创作"
                                 "complete" -> "点击阅读"
                                 "draft" -> "可继续写完"
                                 "failed" -> "生成失败 · 可重试"
@@ -346,11 +347,12 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         lineHeight = 21.sp)
                     if (busy) {
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 12.dp))
-                        Text("正在写，离开页面后也会保存")
+                        Text(if (work.continuing) "正在续写，已保存的原文会一直保留" else "正在写，离开页面后也会保存")
                     }
                     if (work.error.isNotBlank()) Text(work.error, color = MaterialTheme.colorScheme.error)
                 }
-                if (!busy && work.status != "complete") item {
+                if (!busy && work.status != "complete" &&
+                    (work.text.isBlank() || work.status == "draft" || work.rewriting)) item {
                     OutlinedTextField(background, { background = it }, modifier = Modifier.fillMaxWidth(),
                         label = { Text("想补充的情节（可留空）") }, minLines = 2)
                     Button(onClick = {
@@ -364,6 +366,29 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     PersonalMiniTheaterProse(work.text, fontSize)
+                }
+                if (!busy && work.text.isNotBlank() && !work.rewriting &&
+                    work.status in setOf("complete", "failed", "draft")) item {
+                    LuluEditorialPanel {
+                        Text("还想看后面的故事？", style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold)
+                        Text("接着这篇的剧情和人物关系往后写，已经保存的正文不会被覆盖。可以反复续写。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        OutlinedTextField(value = continuationDirection,
+                            onValueChange = { continuationDirection = it },
+                            label = { Text("这次想看的发展 · 可留空") },
+                            placeholder = { Text("比如：想看他们第二天醒来之后……") },
+                            minLines = 2, maxLines = 4, modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp))
+                        Button(enabled = character != null, onClick = {
+                            runCatching {
+                                MiniTheaterJobs.enqueue(context, work.id, work.sceneContext,
+                                    continueStory = true, direction = continuationDirection)
+                            }.onFailure { error = it.message ?: "续写没有开始，原文已保留" }
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(13.dp)) { Text("续写这篇") }
+                    }
                 }
                 if (!busy) item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
