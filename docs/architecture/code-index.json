@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:28:18.693472+00:00",
-  "commit": "c69119498bb2be1628ada11cd8667e48fe3ef76d",
+  "generatedAt": "2026-11-13T05:31:05.789552+00:00",
+  "commit": "2e83e70dbeb24f22ee158918f3627497012edf11",
   "branch": "main",
-  "sourceFingerprint": "f16ce8fa6335d81f9bc4875fd38365cc09c1a1d37d7c4280101176fdc1f935dc",
+  "sourceFingerprint": "e7aa777f8e8d07183d0204982f6936bad67d4cf8da9832b2a4e1dd25871c83a6",
   "summary": {
-    "files": 1288,
-    "lines": 271796,
+    "files": 1289,
+    "lines": 271927,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -25026,6 +25026,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt",
       "lines": 151,
       "sha256": "4587ef3caef5eec93a03b78ca7f44ca9dfa23ec74ba5a019c3a4da3eee37cd06",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt",
+      "lines": 131,
+      "sha256": "4ff9b95b7443a3b0ab9883ee64faa534bc1c349b05737f708107c02635cfe88c",
       "symbols": []
     },
     {
