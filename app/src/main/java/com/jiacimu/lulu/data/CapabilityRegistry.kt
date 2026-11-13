@@ -145,7 +145,7 @@ object CapabilityRegistry {
                 "；开启时可依据真实商品与后台控件，自主挑选、加购、选规格、点击进入结算；" +
                 "购买类控件只通过最新screenSnapshotId的tap_element。禁止提交/确认订单、" +
                 "免密/货到付款、支付或验证码；付款阶段主人亲自处理，" +
-                "后台第三方付款页不保证迁移到主屏，应用只提示主人手动打开商家App。")
+                "后台第三方付款页不保证迁移到主屏。若本人想把挑中的商品直接发给主人，可在商家App真实分享界面找到“复制链接”控件后用最新快照tap_element，并设置sendProductLinkToChat=true；系统只在核实本次剪贴板新增对应商家HTTPS网址后发可点击私聊商品卡片，不读取/发送其他剪贴板内容。没有真实可复制链接就说明失败，不编造链接或声称付款成功。")
             appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone 启动并观察真实后台画面；这条手机访问路径不依赖旧小红书 MCP/Termux。读到什么、能否下单都以实际回执及授权为准。")
             appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
                 "只有实际调用工具得到新回执，才能知道这次是否成功。")
@@ -156,7 +156,7 @@ object CapabilityRegistry {
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
                 "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
                 "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/back/stop；找不到或重名就报告，不能猜包名。" +
-                "目标App有唯一可核实的搜索框时，可一次选择search并传text，手机会核实焦点、读回关键词后提交，再由本人核对真实结果。搜索框还未出现时先打开搜索入口；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。也可分别选择focus_search、type、submit；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+                "目标App有唯一可核实的搜索框时，可一次选择search并传text，手机会核实焦点、读回关键词后提交，再由本人核对真实结果。搜索框还未出现时先打开搜索入口；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。也可分别选择focus_search、type、submit；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若想把选中的商品链接发给主人，先在真实商家页面找到分享/复制链接按钮，看到新的复制链接控件后选择tap_element并附sendProductLinkToChat=true、caption=本人配文；收到productLinkSent=true才算商品卡片送达，不能用商品名搜索页冒充链接。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
 
@@ -168,7 +168,7 @@ object CapabilityRegistry {
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,sendToChat:可选true发送真实后台截图到私聊,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }
