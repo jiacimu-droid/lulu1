@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:52:41.046247+00:00",
-  "commit": "1ed1a9c284cf8337bf438daaf3946c0e111fff35",
+  "generatedAt": "2026-11-13T15:53:05.728746+00:00",
+  "commit": "50b67a11993e5f04b622453ef1a04a00f452b623",
   "branch": "main",
-  "sourceFingerprint": "f933f3c1a1c3a83aeb4766f2f8fd45c9b383c65033f28e714392841b25494de6",
+  "sourceFingerprint": "0001bac135a68a63ef67b47c1f8ed2baf7464acde890a0e41a9cdc8d7a9050d1",
   "summary": {
-    "files": 1304,
-    "lines": 274615,
-    "symbols": 3876
+    "files": 1305,
+    "lines": 274652,
+    "symbols": 3877
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17980,6 +17980,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt",
         "line": 16
+      }
+    ],
+    "RainyDioramaOrbitTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RainyDioramaOrbitTest.kt",
+        "line": 6
       }
     ],
     "RolePhoneActivityTest": [
@@ -40582,6 +40588,17 @@
         {
           "name": "QqXhsShareCodecTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/RainyDioramaOrbitTest.kt",
+      "lines": 37,
+      "sha256": "f8a8f4ff06fa8cefc319e17969bf0f5ab7590962ed4bad3e74b794b348c9eb45",
+      "symbols": [
+        {
+          "name": "RainyDioramaOrbitTest",
+          "line": 6
         }
       ]
     },
