@@ -26,6 +26,24 @@ class RelayRequestPressurePolicyTest {
         assertEquals(relationship, sections.single { it.first == "当前人物关系" }.second)
     }
 
+    @Test fun cacheSuffixMigrationDoesNotTruncateLiveActionSchema() {
+        val task = "【本轮完整的行动和授权协议】" + "真实有效的后续动作参数、证据与否定条件。".repeat(350)
+        val speech = "说话习惯来自本人真实交往。".repeat(350)
+        val reduced = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            "角色人设" to "完整稳定设定",
+            "本轮任务指令" to task,
+            "本轮表达证据" to speech,
+            "本轮头像观察说明" to "只描述这次真实图片",
+            "本轮背景依据" to ("旧动态。\n".repeat(5_000)),
+        ))
+        assertEquals(task, reduced.single { it.first == "本轮任务指令" }.second)
+        assertEquals(speech, reduced.single { it.first == "本轮表达证据" }.second)
+        assertEquals("只描述这次真实图片",
+            reduced.single { it.first == "本轮头像观察说明" }.second)
+        assertTrue(reduced.single { it.first == "本轮背景依据" }.second.length <
+            "旧动态。\n".repeat(5_000).length)
+    }
+
     @Test fun onlyExplicitRelayMemory503MayUseOneSmallerBackgroundRequest() {
         assertTrue(RelayRequestPressurePolicy.isMemoryGuard(503,
             "模型请求失败（503）：Relay 请求体内存保护已触发"))
