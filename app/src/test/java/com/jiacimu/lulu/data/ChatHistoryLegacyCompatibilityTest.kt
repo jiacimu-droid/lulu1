@@ -254,6 +254,57 @@ class ChatHistoryLegacyCompatibilityTest {
     }
 
 
+    @Test fun rejectedNewConversationMustNotAppearInMemoryOrAfterReopen() {
+        val base: Context = RuntimeEnvironment.getApplication()
+        val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val previous = real.getString("state_v1", null)
+        val snapshot = JSONObject()
+            .put("conversations", JSONArray().put(JSONObject()
+                .put("id", "ui02-existing").put("characterId", "ui02-existing-role")
+                .put("updatedAt", "2026-01-01T00:00:00Z")))
+            .put("messages", JSONObject().put("ui02-existing", JSONArray())).toString()
+        try {
+            assertTrue(real.edit().putString("state_v1", snapshot).commit())
+            var attempts = 0
+            val rejecting = object : android.content.SharedPreferences by real {
+                override fun edit(): android.content.SharedPreferences.Editor {
+                    val editor = real.edit()
+                    return object : android.content.SharedPreferences.Editor by editor {
+                        override fun putString(key: String?, value: String?): android.content.SharedPreferences.Editor {
+                            editor.putString(key, value)
+                            return this
+                        }
+                        override fun commit(): Boolean {
+                            attempts++
+                            return false
+                        }
+                        override fun apply() { attempts++ }
+                    }
+                }
+            }
+            val context = object : android.content.ContextWrapper(base) {
+                override fun getApplicationContext(): Context = this
+                override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
+                    if (name == "lulu_chat_store") rejecting else base.getSharedPreferences(name, mode)
+            }
+            val store = InMemoryLuluChatStore()
+            store.initialize(context)
+            val before = store.conversations.value
+            assertTrue(runCatching { store.ensureConversation("ui02-new-role", "New chat") }.isFailure)
+            assertEquals("New conversation must reach the durable write", 1, attempts)
+            assertEquals("Rejected creation must not leak into the live projection", before, store.conversations.value)
+            assertEquals(snapshot, real.getString("state_v1", null))
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(base)
+            assertEquals(before.map { it.id }, reopened.conversations.value.map { it.id })
+            assertFalse(reopened.conversations.value.any { it.characterId == "ui02-new-role" })
+        } finally {
+            val editor = real.edit()
+            if (previous == null) editor.remove("state_v1") else editor.putString("state_v1", previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState() {
         val base: Context = RuntimeEnvironment.getApplication()
         val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
