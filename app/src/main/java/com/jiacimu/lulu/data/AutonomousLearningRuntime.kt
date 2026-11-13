@@ -14,7 +14,7 @@ internal object AutonomousLearningRuntime {
         CharacterLearningAgenda.initialize(context)
         val budget = CharacterLearningAgenda.budget(role)
         return """- learn_topic：按本人问题真实学习，不训练底座权重。新主题若现在就想学习，一次调用 args={"op":"study","topic":"具体主题","question":"想弄清什么","why":"本人动机","sourceEvidenceId":"真实观察/用户原话ID","query":"检索词"} 即可保存意向、实际读取正文并形成暂定理解，无须先调用start，也不用第二次自主决策；若只想以后研究，才用op=start保存意向。
-            已有目标用 args={"op":"search|study|understand|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"} 继续；新主题也可单次search仅获取候选。study可直接检索并读取公开正文；search只发现候选，不算已读。已有正文但尚未理解时选understand复用材料，不重复联网。通用网页读取不处理登录网站；小红书用独立 read_xiaohongshu 的 keyword 自主搜索并打开真实笔记，取得阅读回执 evidenceId 后接入目标。无通用搜索API时使用百科。今日上限${budget.limit}步、已用${budget.used}步、剩余${budget.remaining}步；失败也计入。额度为零时运用已有理解或稍后继续，勿重复请求学习工具。
+            已有目标用 args={"op":"search|study|understand|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"} 继续；新主题也可单次search仅获取候选。study可直接检索并读取公开正文；search只发现候选，不算已读。已有正文但尚未理解时选understand复用材料，不重复联网。通用网页读取不处理登录网站；若本人想在小红书等已登录App里探索，应通过 background_phone 在后台虚拟屏按真实搜索和阅读画面继续。后台手机屏幕回执不等于已完整提取网页正文，也不能把屏幕观察伪装成旧版笔记阅读证据。无通用搜索API时使用百科。今日上限${budget.limit}步、已用${budget.used}步、剩余${budget.remaining}步；失败也计入。额度为零时运用已有理解或稍后继续，勿重复请求学习工具。
             可用 op=attach、goalId、sourceEvidenceId 关联本人实际已读的书籍、小红书或网页材料；已有理解直接练习，只有原文时用understand，不再重复搜索或下载。未读书籍仍须read_book执行，搜索标题不算材料。学习成果可以在后续互动里自选learningApplication，真实用户反馈才是对用户效果的证据。
             ${CharacterLearningAgenda.prompt(role)}
         """.trimIndent()
