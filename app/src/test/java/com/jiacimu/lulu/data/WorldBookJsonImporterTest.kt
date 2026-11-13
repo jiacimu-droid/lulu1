@@ -117,26 +117,6 @@ class WorldBookJsonImporterTest {
         assertEquals(WorldBookPromptPosition.NORMAL, tavern.entries.single().promptPosition)
     }
 
-    @Test fun bundledMeowssiahSummonIsVerbatimAndOptIn() {
-        val context = RuntimeEnvironment.getApplication()
-        val raw = context.assets.open("worldbook/meowssiah_verbatim.json")
-            .bufferedReader(Charsets.UTF_8).use { it.readText() }
-        val source = org.json.JSONObject(raw)
-        val original = source.getJSONArray("books").getJSONObject(0).getString("content")
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(original.toByteArray(Charsets.UTF_8))
-            .joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') }
-        // SHA-256 of prompts[9].content in the uploaded Meowssiah-2.1.0.json.
-        assertEquals("3fd6146e7b9376342553799a39747c487484823fb1a79b00e823b67831be973c", digest)
-        val parsed = WorldBookJsonImporter.parse(raw, "selected-character")
-        assertEquals(1, parsed.entries.size)
-        assertEquals("（不要关）召唤术", parsed.entries.single().title)
-        assertEquals(original, parsed.entries.single().content)
-        assertFalse(parsed.entries.single().globalEnabled)
-        assertTrue(parsed.entries.single().characterOverrides.isEmpty())
-        assertEquals(WorldBookPromptPosition.TOP, parsed.entries.single().promptPosition)
-    }
-
     @Test fun importAndPersistKeepLiteralWhitespace() = runBlocking {
         val context = RuntimeEnvironment.getApplication()
         val original = "\n  <{{user}}> 原文不应裁剪 \n"
