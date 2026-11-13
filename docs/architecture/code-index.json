@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T11:44:28.660594+00:00",
-  "commit": "6d4370736e1fdb7433851a199fe54bbf722fb562",
+  "generatedAt": "2026-11-13T11:47:03.157043+00:00",
+  "commit": "fb6465566ccbc6901cc8ed29a109253a493060bb",
   "branch": "main",
-  "sourceFingerprint": "2d89cfc5b4350648669b636d5c66145daf823a1e2c6b90dd55f06a55e62535e8",
+  "sourceFingerprint": "51e4161ce716bac9566cef0bc3a560226adae302c481f01e608d2d202252ec66",
   "summary": {
     "files": 1297,
-    "lines": 273014,
+    "lines": 273044,
     "symbols": 3856
   },
   "symbolIndex": {
@@ -497,7 +497,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1340
+        "line": 1360
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1279,7 +1279,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 467
+        "line": 469
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -7111,7 +7111,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1300
+        "line": 1320
       }
     ],
     "cue": [
@@ -7253,37 +7253,37 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 477
+        "line": 479
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 478
+        "line": 480
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 480
+        "line": 482
       }
     ],
     "phoneMemos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 534
+        "line": 536
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 698
+        "line": 700
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1271
+        "line": 1291
       }
     ],
     "current": [
@@ -27780,8 +27780,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1389,
-      "sha256": "40b1e2a8c84a7c3079f0eb43e273ef8480d752c9402cb1d781810dfc80063c20",
+      "lines": 1409,
+      "sha256": "2b63810effe6a11db4089c3d867848f026abedd2254184edfec53a67ee613ad9",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -27789,39 +27789,39 @@
         },
         {
           "name": "state",
-          "line": 467
+          "line": 469
         },
         {
           "name": "bodyStorageReady",
-          "line": 477
+          "line": 479
         },
         {
           "name": "bodyState",
-          "line": 478
-        },
-        {
-          "name": "lastBodyChange",
           "line": 480
         },
         {
+          "name": "lastBodyChange",
+          "line": 482
+        },
+        {
           "name": "phoneMemos",
-          "line": 534
+          "line": 536
         },
         {
           "name": "afterglowContext",
-          "line": 698
+          "line": 700
         },
         {
           "name": "profileContext",
-          "line": 1271
+          "line": 1291
         },
         {
           "name": "compactContext",
-          "line": 1300
+          "line": 1320
         },
         {
           "name": "context",
-          "line": 1340
+          "line": 1360
         }
       ]
     },
@@ -28214,8 +28214,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 845,
-      "sha256": "62f5b159beaf9b91d5a928798e2ae66d9228c1844b70576190e0cc6704689cd5",
+      "lines": 855,
+      "sha256": "dc794ee8e73b24454f13d4ea7b2832a872ef03c3a788e32c02e88267cbf76761",
       "symbols": [
         {
           "name": "groupedFields",
