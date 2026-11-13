@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.ImageSearchProvider
-import com.jiacimu.lulu.data.XhsReadingEngine
 import com.jiacimu.lulu.data.XhsReadingReceipt
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -41,7 +40,6 @@ internal fun LuluIntegrationsSettingsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var localReading by remember { mutableStateOf(XhsReadingEngine.localEnabled(context)) }
     var receiptHistoryOpen by remember { mutableStateOf(false) }
     var receiptPageSize by remember { mutableIntStateOf(12) }
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
@@ -90,23 +88,6 @@ internal fun LuluIntegrationsSettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("小红书", style = MaterialTheme.typography.titleMedium)
-            IntegrationSettingsCard {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text("内置网页", modifier = Modifier.weight(1f))
-                    TextButton(onClick = onOpenBrowserProbe) { Text("打开") }
-                    Switch(
-                        checked = localReading,
-                        onCheckedChange = { enabled ->
-                            if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
-                        },
-                    )
-                }
-            }
-
             IntegrationSettingsCard {
                 Text("角色浏览手机 App", style = MaterialTheme.typography.titleMedium)
                 Text(
