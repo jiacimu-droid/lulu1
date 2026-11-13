@@ -38,13 +38,23 @@ internal object LuluShoppingLinkShare {
     ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
         label.trim().lowercase(Locale.ROOT) in copyLabels
 
-    /** Deliberately does not coerce content URI items or read any other app's files. */
-    fun clipboardText(context: Context): String? = runCatching {
-        val manager = context.getSystemService(ClipboardManager::class.java)
-        val clip = manager.primaryClip
+    /** Compare timestamps before reading any clipboard text: do NOT read
+     * pre-existing personal clipboard contents merely to look for a change. */
+    fun clipboardTimestamp(context: Context): Long = runCatching {
+        context.getSystemService(ClipboardManager::class.java)
+            .primaryClipDescription?.timestamp ?: 0L
+    }.getOrDefault(0L)
+
+    /** Deliberately does not coerce URI items or read any other app's files. */
+    private fun clipboardText(context: Context): String? = runCatching {
+        val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
         if (clip == null || clip.itemCount != 1) null
         else clip.getItemAt(0).text?.toString()?.take(6000)
     }.getOrNull()
+
+    /** The clip must have been copied by a new event after THIS role tap. */
+    internal fun freshCopyEvent(previousTimestamp: Long, tapStartedAt: Long, newTimestamp: Long): Boolean =
+        newTimestamp > previousTimestamp && newTimestamp >= tapStartedAt
 
     private val httpUrls = Regex("""https://[^\s<>"'。，；，、]+""", RegexOption.IGNORE_CASE)
 
@@ -65,11 +75,16 @@ internal object LuluShoppingLinkShare {
 
     /** A device-only wait after the accepted copy action. Never submit clipboard
      * content to a language model; only the allowlisted URL can enter chat. */
-    suspend fun awaitFreshLink(context: Context, packageName: String, before: String?): String? {
+    suspend fun awaitFreshLink(
+        context: Context, packageName: String, previousTimestamp: Long, tapStartedAt: Long,
+    ): String? {
         repeat(6) {
             delay(150)
-            val now = withContext(Dispatchers.Main) { clipboardText(context) }
-            verifiedChangedLink(packageName, before, now)?.let { return it }
+            val timestamp = withContext(Dispatchers.Main) { clipboardTimestamp(context) }
+            if (freshCopyEvent(previousTimestamp, tapStartedAt, timestamp)) {
+                val freshText = withContext(Dispatchers.Main) { clipboardText(context) }
+                return verifiedChangedLink(packageName, null, freshText)
+            }
         }
         return null
     }
