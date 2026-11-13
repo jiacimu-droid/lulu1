@@ -862,6 +862,7 @@ class CompanionModelGateway(
             val fullAudit = PromptInputAudit.inspect(
                 systemSections, systemPrompt, userPrompt, dialogueHistory, imagesForThisTurn,
                 instruction = instruction,
+                currentIsActualUserMessage = dialogueRequest,
             )
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
@@ -1035,6 +1036,7 @@ class CompanionModelGateway(
             val actualAudit = if (sentReduced) PromptInputAudit.inspect(
                 reducedSections, reducedSystem, userPrompt, reducedHistory, imagesForThisTurn,
                 instruction = instruction, reduced = true,
+                currentIsActualUserMessage = dialogueRequest,
             ) else fullAudit
             LuluRepositories.performance.recordGeneration(
                 source = source,
