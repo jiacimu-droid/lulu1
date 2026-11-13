@@ -95,6 +95,7 @@ internal object LuluExternalMcp {
      * is required before describing the Xiaohongshu account as usable.
      */
     suspend fun testService(context: Context, service: String): String = withContext(Dispatchers.IO) {
+        require(service == "health") { "旧小红书 MCP 已停用，不能发起任何旧版测试连接" }
         val url = endpoint(context, service)
         require(url.isNotBlank()) { "请先保存 MCP 地址" }
         val uri = java.net.URI(url)
