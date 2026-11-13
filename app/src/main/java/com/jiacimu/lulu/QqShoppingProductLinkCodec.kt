@@ -23,9 +23,9 @@ internal fun decodeQqShoppingProductLink(content: String): QqShoppingProductLink
     return runCatching {
         val data = JSONObject(content.removePrefix(SHOPPING_LINK_MARK))
         val url = data.getString("url")
-        val uri = java.net.URI(url)
-        if (uri.scheme != "https" || uri.host.isNullOrBlank() ||
-            uri.rawUserInfo != null || (uri.port != -1 && uri.port != 443)) return null
+        val merchant = data.optString("merchant").take(40)
+        if (!com.jiacimu.lulu.system.LuluShoppingLinkShare
+                .matchesMerchantLink(merchant, url)) return null
         QqShoppingProductLink(
             data.optString("merchant").take(40).ifBlank { "商品" },
             url,
