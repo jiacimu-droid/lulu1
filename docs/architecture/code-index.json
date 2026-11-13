@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T16:00:24.587395+00:00",
-  "commit": "b73765c930246598f8fbfb9c0a2a5a069fe7998f",
+  "generatedAt": "2026-11-13T16:00:47.740975+00:00",
+  "commit": "c36ae45c529ebf8f296eef3665eac47815d19e3e",
   "branch": "main",
-  "sourceFingerprint": "c4a4562b19c1f7e9b8c4eb60eb2da5ea1343143bae6cd41e7ab6e71859d75e5c",
+  "sourceFingerprint": "b9577c93e21fa17fcb57a40b5141c43ee93e3bf5229fce5e9b9f2b58edfaaa50",
   "summary": {
     "files": 1305,
-    "lines": 274667,
+    "lines": 274696,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -45189,8 +45189,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
-      "lines": 60,
-      "sha256": "a390f40b94614fe897c0f126ad18de5e6e9c0904aa97d19f9d2996059eee7595",
+      "lines": 89,
+      "sha256": "6ecc72e76c2ac196079d8e1c188727bfa870ee1b13c8bc066c96905aff8eed5e",
       "symbols": [
         {
           "name": "IslandRareEventsTest",

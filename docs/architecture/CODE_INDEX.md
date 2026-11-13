@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b73765c930246598f8fbfb9c0a2a5a069fe7998f`
+- 基准提交：`c36ae45c529ebf8f296eef3665eac47815d19e3e`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：274667
+- 已索引代码/文本行：274696
 - 已发现符号：3877
 
 | 文件 | 行数 | 符号数 |
@@ -1239,7 +1239,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 145 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 60 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
