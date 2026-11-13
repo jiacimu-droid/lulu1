@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:36:14.019931+00:00",
-  "commit": "d4ca90c68f8188e31af43fd666ad617c7614ae65",
+  "generatedAt": "2026-11-13T05:37:04.118580+00:00",
+  "commit": "afd02b9a1c020306d5b2af269eb94db75f401470",
   "branch": "main",
-  "sourceFingerprint": "3f2d5758a47caacfd921bd78218805481d188202c752c83c099906fb0496ea52",
+  "sourceFingerprint": "38fba202decc678c905019589de14c18f211e434e05bd7c3124902733d8eaac6",
   "summary": {
-    "files": 1290,
-    "lines": 272077,
-    "symbols": 3851
+    "files": 1291,
+    "lines": 272162,
+    "symbols": 3852
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18990,6 +18990,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt",
         "line": 15
+      }
+    ],
+    "CharacterPhoneMemoTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneMemoTest.kt",
+        "line": 16
       }
     ],
     "CharacterRecordArchitectureTest": [
@@ -41975,6 +41981,17 @@
         {
           "name": "CharacterPhoneCoverTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneMemoTest.kt",
+      "lines": 85,
+      "sha256": "f0a40a83ba998818cfd695df88c09ec0d2f86a899354b1c1c7b8a9926c52268d",
+      "symbols": [
+        {
+          "name": "CharacterPhoneMemoTest",
+          "line": 16
         }
       ]
     },
