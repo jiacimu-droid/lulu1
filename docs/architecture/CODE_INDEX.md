@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b207b9f7a142b380cfbbf3ed2cd0e5e914e031f3`
+- 基准提交：`c97e3448f501cae5edaa64bac53f6b5fcf64122a`
 - 分支：`main`
 - 已索引文件：1287
-- 已索引代码/文本行：271706
+- 已索引代码/文本行：271656
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -237,7 +237,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 498 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 932 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 885 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 70 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
@@ -265,7 +265,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 147 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 144 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 97 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 438 | 0 |
