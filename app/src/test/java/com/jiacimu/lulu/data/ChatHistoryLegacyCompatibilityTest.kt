@@ -155,6 +155,40 @@ class ChatHistoryLegacyCompatibilityTest {
         }
     }
 
+    @Test fun nonStringOriginalMessageContentCannotBeRewrittenAsText() {
+        val app: Context = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val previous = prefs.getString("state_v1", null)
+        try {
+            for (invalidContent in listOf<Any>(JSONObject.NULL, 123, true, JSONObject().put("unexpected", "object"))) {
+                val conversationId = "ui02-nonstring-content"
+                val damaged = JSONObject()
+                    .put("conversations", JSONArray().put(JSONObject()
+                        .put("id", conversationId).put("characterId", "ui02-character")
+                        .put("updatedAt", "2026-01-01T00:00:00Z")))
+                    .put("messages", JSONObject().put(conversationId, JSONArray().put(JSONObject()
+                        .put("id", "ui02-content-message").put("conversationId", conversationId)
+                        .put("sender", "User").put("content", invalidContent)
+                        .put("createdAt", "2026-01-01T00:00:00Z").put("status", "Sent"))))
+                    .toString()
+                assertTrue(prefs.edit().putString("state_v1", damaged).commit())
+                repeat(2) {
+                    val store = InMemoryLuluChatStore()
+                    store.initialize(app)
+                    val writableId = store.conversations.value.first { !it.pinned }.id
+                    assertTrue("Invalid content type must reject actual metadata persistence: $invalidContent",
+                        runCatching { store.setConversationPinned(writableId, true) }.isFailure)
+                    assertEquals("Original invalid snapshot must remain untouched", damaged,
+                        prefs.getString("state_v1", null))
+                }
+            }
+        } finally {
+            val edit = prefs.edit()
+            if (previous == null) edit.remove("state_v1") else edit.putString("state_v1", previous)
+            assertTrue(edit.commit())
+        }
+    }
+
     @Test fun malformedMessageTimestampMustNotBeRewrittenAsCurrentTime() {
         val app: Context = RuntimeEnvironment.getApplication()
         val prefs = app.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
