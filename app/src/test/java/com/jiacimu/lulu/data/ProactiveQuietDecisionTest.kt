@@ -96,7 +96,7 @@ class ProactiveQuietDecisionTest {
         val prompt = proactiveDecisionInstruction("autonomy-no-new-messages")
         for (required in listOf(
             "plan_personal_activity", "send_character_message",
-            "web_search", "read_xiaohongshu", "learn_topic",
+            "web_search", "background_phone", "learn_topic",
             "action=tool", "silent", "真实", "innerLife.motives",
         )) assertTrue("Missing autonomous capability: $required", prompt.contains(required))
         assertTrue(prompt.contains("自己确实决定暂不行动"))
@@ -105,7 +105,7 @@ class ProactiveQuietDecisionTest {
     @Test fun compiledAutonomousPromptKeepsUniqueActionContractsAfterRuleConsolidation() {
         val prompt = proactiveDecisionInstruction("prompt-assembly-test-role")
         for (field in listOf(
-            "web_search", "read_xiaohongshu", "image_search", "learn_topic",
+            "web_search", "background_phone", "image_search", "learn_topic",
             "experienceId", "innerThoughtBasis", "innerLife", "motiveRef",
             "outcomeEvidenceId", "concernId", "send_character_message",
             "plan_personal_activity", "requiresPreviousSuccess",
