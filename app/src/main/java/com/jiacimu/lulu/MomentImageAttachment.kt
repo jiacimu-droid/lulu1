@@ -42,6 +42,7 @@ internal fun MomentImageAttachment(
     imageUri: String,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
+    contentDescription: String = "图片附件",
 ) {
     val context = LocalContext.current
     val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri) {
@@ -60,7 +61,7 @@ internal fun MomentImageAttachment(
             }
             is MomentAttachmentState.Ready -> Image(
                 bitmap = current.bitmap.asImageBitmap(),
-                contentDescription = "朋友圈图片",
+                contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp)),
                 contentScale = contentScale,
             )
