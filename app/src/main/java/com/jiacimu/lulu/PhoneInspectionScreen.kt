@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -130,12 +131,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val coverPhoto = if (coverPreset == "photo") posts.firstOrNull {
         it.id == coverPhotoPostId && it.authorCharacterId == actualRole
     }?.imageUri else null
+    var phoneApp by rememberSaveable { mutableStateOf("home") }
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
-    var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
-    var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
-    var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
-    var showRoleAlbum by rememberSaveable { mutableStateOf(false) }
-    var showRoleLiveScreen by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -195,12 +192,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
 
     fun goBack() {
         when {
-            showRoleLiveScreen -> showRoleLiveScreen = false
-            showRoleCalendar -> showRoleCalendar = false
-            showRoleAlbum -> showRoleAlbum = false
-            showRoleBrowser -> showRoleBrowser = false
-            showRoleFavorites -> showRoleFavorites = false
-            selectedThreadKey != null -> selectedThreadKey = null
+            selectedThreadKey != null && phoneApp == "messages" -> selectedThreadKey = null
+            phoneApp != "home" -> phoneApp = "home"
             else -> onBack()
         }
     }
@@ -221,18 +214,18 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     // for an extra model wake. Real messages, social actions, profile edits and
     // user-avatar changes retain their own authoritative event routes.
 
-    if (showRoleLiveScreen) {
+    if (phoneApp == "screen") {
         RolePhoneLiveScreen(
             roleId = actualRole,
             roleName = identity?.displayName ?: "角色",
-            onBack = { showRoleLiveScreen = false },
+            onBack = { phoneApp = "home" },
         )
         return
     }
 
-    if (showRoleCalendar) {
+    if (phoneApp == "calendar") {
         ScheduleFeatureScreen(
-            onBack = { showRoleCalendar = false },
+            onBack = { phoneApp = "home" },
             initialCharacterId = actualRole,
             personal = true,
         )
@@ -243,7 +236,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
+            if (phoneApp == "messages" && selectedThread != null) {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -267,25 +260,21 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 )
             } else {
                 MigratedChatTopBar(
-                    title = when {
-                        showRoleFavorites -> "我的收藏"
-                        showRoleBrowser -> "浏览器"
-                        showRoleAlbum -> "相册"
-                        else -> when (phoneTab) {
-                            1 -> "好友"
-                            2 -> "朋友圈"
-                            3 -> "我的"
-                            else -> "消息"
-                        }
+                    title = when (phoneApp) {
+                        "home" -> "查手机"
+                        "messages" -> if (phoneTab == 1) "联系人" else "消息"
+                        "moments" -> "朋友圈"
+                        "album" -> "相册"
+                        "browser" -> "浏览器"
+                        "memos" -> "备忘录"
+                        "favorites" -> "收藏"
+                        "activity" -> "行动记录"
+                        "profile" -> "个人"
+                        else -> "查手机"
                     },
                     onBack = ::goBack,
                     actions = {
-                        if (!showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
-                            IconButton(onClick = { showRoleLiveScreen = true }) {
-                                Icon(Icons.Outlined.PhoneAndroid, contentDescription = "查看角色后台画面")
-                            }
-                        }
-                        if (!showRoleFavorites && !showRoleBrowser && !showRoleAlbum) Box {
+                        if (phoneApp == "home") Box {
                             TextButton(onClick = { rolesExpanded = true },
                                 enabled = roleOptions.isNotEmpty()) {
                                 Text(names[actualRole] ?: "选择手机", maxLines = 1)
@@ -299,6 +288,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                             if (person.characterId.startsWith("resident:")) " · 居民" else "") },
                                         onClick = {
                                             roleId = person.characterId
+                                            phoneTab = 0
                                             selectedThreadKey = null
                                             rolesExpanded = false
                                         },
@@ -311,7 +301,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             }
         },
         bottomBar = {
-            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
+            if (phoneApp == "messages" && selectedThread != null) {
                 RolePhoneOnBehalfComposer(
                     roleName = identity?.displayName ?: "角色",
                     roleId = actualRole, thread = selectedThread,
@@ -323,28 +313,46 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }.isSuccess
                     },
                 )
-            } else if (selectedThread == null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
+            } else if (phoneApp == "messages" && selectedThread == null) {
                 ChatHubV2Navigation(
-                    selectedTab = phoneTab,
-                    labels = listOf("消息", "好友", "朋友圈", "我的"),
+                    selectedTab = phoneTab.coerceIn(0, 1),
+                    labels = listOf("消息", "联系人"),
                     onSelect = { phoneTab = it },
-                    badgeCounts = mapOf(2 to roleMomentUnread),
                 )
             }
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            if (showRoleAlbum) {
-                RolePhoneAlbum(actualRole)
-            } else if (showRoleBrowser) {
-                RolePhoneBrowserHistory(actualRole)
-            } else if (showRoleFavorites) {
-                RolePhoneFavorites(actualRole)
-            } else if (actualRole.isBlank()) {
+            if (actualRole.isBlank()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("还没有可以查看手机的数字人物", color = QqMuted)
                 }
-            } else if (selectedThread != null) {
+            } else if (phoneApp == "home") {
+                RolePhoneDesktop(
+                    roleName = identity?.displayName ?: "角色",
+                    avatarUri = identity?.avatarUri,
+                    momentUnread = roleMomentUnread,
+                    onOpen = { app ->
+                        selectedThreadKey = null
+                        phoneTab = 0
+                        phoneApp = app
+                    },
+                )
+            } else if (phoneApp == "album") {
+                RolePhoneAlbum(actualRole)
+            } else if (phoneApp == "browser") {
+                RolePhoneBrowserHistory(actualRole)
+            } else if (phoneApp == "favorites") {
+                RolePhoneFavorites(actualRole)
+            } else if (phoneApp == "memos") {
+                RolePhoneMemoScreen(actualRole)
+            } else if (phoneApp == "activity") {
+                Column(Modifier.fillMaxSize()
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                    .padding(horizontal = 16.dp)) {
+                    RolePhoneActivitySection(actualRole)
+                }
+            } else if (phoneApp == "messages" && selectedThread != null) {
                 if (selectedThread.conversationId != null) {
                     val original = allChats.firstOrNull { it.id == selectedThread.conversationId }
                     if (original != null) {
@@ -367,22 +375,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         names = names,
                     )
                 }
-            } else if (phoneTab == 0) {
+            } else if (phoneApp == "messages" && phoneTab == 0) {
                 LazyColumn(
                     contentPadding = PaddingValues(top = 12.dp, bottom = 22.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
-                    item("phone-live-now") {
-                        RolePhoneLiveEntry(
-                            roleId = actualRole,
-                            onOpen = { showRoleLiveScreen = true },
-                        )
-                    }
-                    item("phone-chat-label") {
-                        Text("聊天", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 20.dp, top = 10.dp, bottom = 4.dp))
-                    }
                     if (threads.isEmpty()) item("phone-empty") {
                         Box(Modifier.fillMaxWidth().padding(vertical = 54.dp),
                             contentAlignment = Alignment.Center) {
@@ -431,7 +428,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }
                     }
                 }
-            } else if (phoneTab == 1) {
+            } else if (phoneApp == "messages" && phoneTab == 1) {
                 LazyColumn(contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     item("friends-heading") {
@@ -482,7 +479,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         item { Text("还没有确认的好友", color = QqMuted) }
                     }
                 }
-            } else if (phoneTab == 2) {
+            } else if (phoneApp == "moments") {
                 LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                     item("moments-header") {
                         MomentsHeader(
@@ -527,15 +524,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }
                     }
                 }
-            } else {
+            } else if (phoneApp == "profile") {
                 RolePhoneMyPage(
                     roleId = actualRole,
                     roleName = identity?.displayName ?: "角色",
                     roleAvatarUri = identity?.avatarUri,
-                    onFavorites = { showRoleFavorites = true },
-                    onCalendar = { showRoleCalendar = true },
-                    onBrowser = { showRoleBrowser = true },
-                    onAlbum = { showRoleAlbum = true },
                 )
             }
         }
@@ -621,8 +614,6 @@ internal fun rolePhoneCoverPalette(preset: String): List<Color> = when (preset) 
 @Composable
 private fun RolePhoneMyPage(
     roleId: String, roleName: String, roleAvatarUri: String?,
-    onFavorites: () -> Unit, onCalendar: () -> Unit, onBrowser: () -> Unit,
-    onAlbum: () -> Unit,
 ) {
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val life = remember(roleId, lifeStates) { CharacterLifeStore.state(roleId) }
@@ -631,94 +622,41 @@ private fun RolePhoneMyPage(
     val profile = life.optJSONObject("profile")
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(13.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item("profile-hero") {
+        item("identity") {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
+                Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     ChatHubV2Avatar(socialName.take(1).ifBlank { "角" }, 60, roleAvatarUri)
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(socialName, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface)
-                        Text("个人主页", fontSize = 12.sp,
+                        Text(socialName, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                        Text("个人名片", fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         }
-        item("phone-app-links") {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            ) {
-                Column {
-                    RolePhoneMyLink(Icons.Outlined.StarOutline, "收藏", onFavorites)
-                    HorizontalDivider(Modifier.padding(start = 54.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant)
-                    RolePhoneMyLink(Icons.Outlined.EventNote, "日历", onCalendar)
-                    HorizontalDivider(Modifier.padding(start = 54.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant)
-                    RolePhoneMyLink(Icons.Outlined.TravelExplore, "浏览器", onBrowser)
-                    HorizontalDivider(Modifier.padding(start = 54.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant)
-                    RolePhoneMyLink(Icons.Outlined.PhotoLibrary, "相册", onAlbum)
-                }
-            }
-        }
-        item("remark") {
+        val remark = life.optJSONObject("socialNames")?.optString("userRemark").orEmpty()
+        if (remark.isNotBlank()) item("remark") {
             ChatHubV2Card {
-                Text("给主人设置的备注", fontWeight = FontWeight.SemiBold)
-                Text(life.optJSONObject("socialNames")?.optString("userRemark")
-                    .orEmpty().ifBlank { "还没有设置" })
+                Text("给主人的备注", color = LuluColors.Muted, fontSize = 12.sp)
+                Text(remark, fontSize = 16.sp)
             }
         }
-        item("profile") {
+        val bio = profile?.optString("summary").orEmpty()
+        if (bio.isNotBlank()) item("bio") {
             ChatHubV2Card {
-                Text("个人资料", style = MaterialTheme.typography.titleMedium)
-                HorizontalDivider(color = LuluColors.Border)
-                Text("名字", color = LuluColors.Muted, fontSize = 12.sp)
-                Text(roleName)
-                val bio = profile?.optString("summary").orEmpty()
-                if (bio.isNotBlank()) {
-                    Text("个人介绍", fontWeight = FontWeight.SemiBold)
-                    Text(bio)
-                }
+                Text("个人介绍", color = LuluColors.Muted, fontSize = 12.sp)
+                Text(bio)
             }
         }
-        item("recent-activity") {
-            RolePhoneActivitySection(roleId)
-        }
-    }
-}
-
-@Composable
-private fun RolePhoneMyLink(icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String, onClick: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 54.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 17.dp, vertical = 11.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Icon(icon, contentDescription = null,
-            modifier = Modifier.size(21.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(label, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface)
-        Icon(Icons.Outlined.ChevronRight, contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(19.dp))
     }
 }
 
