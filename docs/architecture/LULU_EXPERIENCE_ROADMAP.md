@@ -9,6 +9,13 @@
 
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
+### 2026-11-13 G-02 · 角色独自游玩与潮汐秘藏（本批源码/回归已提交，CI/真机待验）
+
+主人明确要求**角色能自主独玩两款与主人同规则的实体游戏**，不止快艇骰子。新增 `CharacterSoloWorldPlay.kt` 接通已有 `play_solo_game`（`LuluGameStore` / `CompanionActionRuntime`）：江渡/居民自己决定玩 `relic_escape` 或 `block_island`，并在行动工具选择偏好 `focus` 与每段 `turns`（4–128）；程序只负责合法动作、单角色独立物理存档和持久结算，不替角色硬指定玩什么，不新增逐格 LLM 调用。摸金使用原 `RelicEscapeWorld` + `RelicEscapeRules.act`，未撤离的背包不进入藏品仓，失败不凭文本授奖；角色专属 `RelicSnapshot` 与主人 `relic_escape_v2` 隔离；角色小岛使用原 `BlockIslandRules.act` + `BlockIslandState.toJson/fromJson`，每次玩一段并保留永久世界、生命、材料、建筑、探索进度，不覆盖主人存档。统一存入游戏回放记录，真实事件在回放中可读；角色独玩不强制向主人私聊报备。多回合引擎切 IO；独玩共享进程锁、失败拒写与0合法回合拦截已追加。核心提交 `ecba910`、`8e378f7`、`67b707d`、`05c2711`、`065aaa3`、`a51218c`、`dbf9e7b`。
+
+基于原有收藏图鉴/委托/守夜/生态里程碑，新增**小岛真实概率事件「潮汐秘藏」**：每48真实世界回合根据持久种子低概率刷新一次可达的实体宝箱（最多三次），可在当前地图定位、海蓝色发光箱体和小地图区分；不开箱不获得晶石，合法开箱才一次性消耗并真实加物资，重读存档不能刷奖。源码 `b128080`、`ef26ee1`、`76593c5`、`03e28e3`；回归 `CharacterSoloWorldPlayTest`、`IslandRareEventsTest`。该原创轻量 Canvas 宝箱光效已进入真实 Android 图层，但**尚未执行真机截图视觉验收**，不能宣称两款全局美术重制完成。下一轮优先核后继最新 main 的 `Lulu APK/JVM` build/test 和索引，若失败按首错修，随后实机验证独玩不干扰主档、摸金物理撤离、单人生存复进、稀有箱概率/可达/一次性奖励，继续扩大真正可玩的长期内容与原创高质量场景美术（含低端机帧率/美术层次），不要仅堆 UI 文案或自动送物。
+
+
 **2026-11-13 UI-02.2 · 缺正文回归夹具真实写入路径**：核查 `ChatHistoryLegacyCompatibilityTest.missingOriginalMessageContentMustNotBeRewrittenAsEmptyText` 发现旧断言允许 `setConversationPinned` 对不存在的损坏会话返回 `false`，没有进入正式 `persistLocked` 拒写门禁。已在 [432fd6e](https://github.com/jiacimu-droid/lulu1/commit/432fd6e699bc473af184e251f3c88a1434b90253) 改为对重建 Store 实际存在且未置顶的会话执行元数据写入，两次初始化均必须抛错且 `state_v1` 原文不变。生产解码修复 `2da10ec` 不重复改动。**本测试提交 JVM/APK/索引尚未取得成功结果，不勾完成**。下一轮同 UI-02.2 先核 `432fd6e` 或包含它的后继 main push `ChatHistoryLegacyCompatibilityTest` JVM 首错；绿后再补增量迁移中断/拒写回归；真机强杀及跨 Store 原子性待验。
 
 **2026-11-13 APK 构建故障排查 · 购物分享 Kotlin 插值（源码已修，CI 待验）**：对应自动故障工单 #951/#952/#953 与 run 43374151466 / 43374434355 / 43374655333 均在 `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt:380` 的 `compilePhoneKotlin` 首错：`$merchant商品链接...` 被 Kotlin 解析成不存在的变量 `merchant商品链接作为可点击卡片发给主人`。已在最新 main 将实际角色购物卡回执改成 `${merchant}商品链接...`，源码提交 [f8a8079](https://github.com/jiacimu-droid/lulu1/commit/f8a80790e686116f0c8c025ca5606c5d7f16085d)；只改 Kotlin 文本插值，不碰后台商品验证、授权、真实链接或支付。自动索引 [43375233718](https://github.com/jiacimu-droid/lulu1/actions/runs/43375233718) success；其同 SHA APK 被后续 main 提交取消，不能视为构建成功。#950 的旧 run 43373282114 已确认是 `RolePhoneActivityTest.recentRealReceiptsAreSortedAndBounded` 期望 4/实际 12，原因历史展示上限已扩到 48，最新测试在 `ebcc957` 更改为 80 输入/48 预期；待下一次完整 JVM/phone APK 成功才能关闭旧工单。**下一轮先核最新 main Lulu APK JVM 编译与全部测试**，通过后由现有 release 工作流关闭旧自动失败工单；不重新编造 Issue，不删测试，不把 pending 当成功。
