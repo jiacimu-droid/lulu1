@@ -77,7 +77,8 @@ class CharacterDecisionProtocolTest {
     @Test fun autonomousLifeOffersExplorationWithoutPretendingSearchHasHappened() {
         val p = proactiveDecisionInstruction("independent-topic-test")
         assertTrue(p.contains("web_search"))
-        assertTrue(p.contains("read_xiaohongshu"))
+        assertTrue(p.contains("background_phone"))
+        assertFalse(p.contains("read_xiaohongshu"))
         assertTrue(p.contains("image_search"))
         assertTrue(p.contains("搜索结果标题不是已读"))
         assertTrue(p.contains("不必等用户问到这个话题"))
@@ -87,7 +88,8 @@ class CharacterDecisionProtocolTest {
         val catalog = listOf(
             "- web_search：已接通外部文本检索",
             "- image_search 目前没有配置密钥",
-            "- read_xiaohongshu：已允许读取小红书",
+            "- background_phone：已注册的真实手机操作",
+            "- read_xiaohongshu：旧版已停用",
             "  当前可复用阅读会话=false",
             "- send_private_message：向用户发消息",
             "- capture_screen：需要授权",
@@ -95,8 +97,9 @@ class CharacterDecisionProtocolTest {
         val rendered = CompanionActionRuntime.discoveryToolLines(catalog)
         assertTrue(rendered.contains("web_search"))
         assertTrue(rendered.contains("image_search 目前没有配置"))
-        assertTrue(rendered.contains("read_xiaohongshu"))
-        assertTrue(rendered.contains("当前可复用阅读会话=false"))
+        assertTrue(rendered.contains("background_phone"))
+        assertFalse(rendered.contains("read_xiaohongshu"))
+        assertFalse(rendered.contains("当前可复用阅读会话=false"))
         assertFalse(rendered.contains("send_private_message"))
         assertFalse(rendered.contains("capture_screen"))
         assertEquals("", CompanionActionRuntime.discoveryToolLines("- send_private_message"))
