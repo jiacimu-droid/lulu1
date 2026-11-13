@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T17:05:29.866007+00:00",
-  "commit": "a56479bf8fe9142bed143cc8e6f5177c4353360b",
+  "generatedAt": "2026-11-13T17:10:39.968354+00:00",
+  "commit": "5b511bde37762954fc7a6f2088009f33131c013c",
   "branch": "main",
-  "sourceFingerprint": "56330e9872e9ecba05319084c7e9d897210a04a0b09775ef5eee47ea9e194f9d",
+  "sourceFingerprint": "a170ea8cccf93ec0399600cea3e30651ee194272b79095d1deb071b3c34f27bd",
   "summary": {
     "files": 1305,
-    "lines": 274879,
+    "lines": 274950,
     "symbols": 3879
   },
   "symbolIndex": {
@@ -5415,25 +5415,25 @@
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 117
+        "line": 186
       }
     ],
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 133
+        "line": 202
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 147
+        "line": 218
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 150
+        "line": 221
       }
     ],
     "ScopedModelSelections": [
@@ -26315,8 +26315,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 154,
-      "sha256": "2e60b9c11b15196f099d2b8303694d6abb962ec796252cf136370b837f8b3bdd",
+      "lines": 225,
+      "sha256": "463717f11877292c4fb2537630cbc9b08006a4f8b11c279492a322dc29380e56",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -26336,19 +26336,19 @@
         },
         {
           "name": "compactHistory",
-          "line": 117
+          "line": 186
         },
         {
           "name": "compactSectionPairs",
-          "line": 133
+          "line": 202
         },
         {
           "name": "compactSections",
-          "line": 147
+          "line": 218
         },
         {
           "name": "savesEnough",
-          "line": 150
+          "line": 221
         }
       ]
     },
