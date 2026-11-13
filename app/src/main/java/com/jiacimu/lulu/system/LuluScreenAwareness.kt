@@ -29,6 +29,8 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.VisionModelService
 import java.time.Instant
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import org.json.JSONObject
 
@@ -259,6 +261,22 @@ object LuluScreenAwareness {
                 if (!userRequested) preferences(context).edit()
                     .putLong(LAST_AUTO, System.currentTimeMillis()).apply()
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
+                // The owner asked to inspect the actual pictures the role saw.
+                // Archive only a consented, verified frame, before optional vision
+                // or chat delivery. A failed model call must not erase the picture;
+                // an archive I/O error must not falsify the screen observation.
+                val screenRecord = if (characterId.isNotBlank()) runCatching {
+                    withContext(Dispatchers.IO) {
+                        com.jiacimu.lulu.RolePhotoAlbumStore.recordScreenObservation(
+                            context, characterId, bitmap, fresh.packageName, capturedAt,
+                            studyWatch = sessionId.isNotBlank())
+                    }
+                } else null
+                fun withScreenRecord(result: JSONObject): JSONObject =
+                    result.put("screenRecordSaved", screenRecord?.isSuccess == true)
+                        .put("screenRecordId", screenRecord?.getOrNull()?.id.orEmpty())
+                        .put("screenRecordError",
+                            screenRecord?.exceptionOrNull()?.message.orEmpty().take(100))
                 report(context, if (sendToChat) "已取得截图，准备作为私聊图片发送"
                     else "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
@@ -297,7 +315,7 @@ object LuluScreenAwareness {
                             .put("albumError", photo.exceptionOrNull()?.message.orEmpty().take(100))
                     }
                     report(context, "已截图，并真正发出一条私聊图片消息")
-                    return result.toString()
+                    return withScreenRecord(result).toString()
                 }
                 // A normal chat tool call can hand this real frame to the SAME
                 // character's immediate next model request, beside accessibility text.
@@ -307,13 +325,13 @@ object LuluScreenAwareness {
                     val dataUrl = VisionModelService.screenFrameDataUrl(bitmap)
                     LuluScreenFrameHandoff.put(characterId, requestId, dataUrl)
                     report(context, "已取得截图；交给同一角色的下一轮模型直接理解")
-                    return JSONObject().put("success", true).put("status", "observed")
+                    return withScreenRecord(JSONObject().put("success", true).put("status", "observed")
                         .put("summary", "真实截图已经交给角色本轮模型输入，尚未完成内容理解")
                         .put("packageName", fresh.packageName)
                         .put("capturedAt", capturedAt.toString())
                         .put("visibleText", fresh.visibleText.take(4500))
-                        .put("verification", "只取得真实单帧；原始图片不写入工具回执和长期记录，之后的角色模型负责结合可见文字理解")
-                        .toString()
+                        .put("verification", "只取得真实单帧；原始图片不写入模型工具回执，独立截图记录可在查手机查看")
+                        ).toString()
                 }
                 val description = VisionModelService.describeScreenFrame(
                     context, bitmap, studyWatch = sessionId.isNotBlank(),
@@ -330,12 +348,12 @@ object LuluScreenAwareness {
                         com.jiacimu.lulu.RolePhotoAlbumStore.saveCapture(
                             context, characterId, bitmap, description)
                     }
-                    return JSONObject(evidence).put("albumSaved", photo.isSuccess)
+                    return withScreenRecord(JSONObject(evidence).put("albumSaved", photo.isSuccess)
                         .put("albumPhotoId", photo.getOrNull()?.id.orEmpty())
-                        .put("albumError", photo.exceptionOrNull()?.message.orEmpty().take(100))
+                        .put("albumError", photo.exceptionOrNull()?.message.orEmpty().take(100)))
                         .toString()
                 }
-                return evidence
+                return withScreenRecord(JSONObject(evidence)).toString()
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
