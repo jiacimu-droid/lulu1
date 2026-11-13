@@ -762,10 +762,6 @@ private fun CharacterVitalsPanel(characterId: String, now: Instant, revision: Lo
                 val vitals = buildList {
                     add(Triple("精力", body.energy, "energy"))
                     add(Triple("睡眠压力", body.sleepPressure, "sleepPressure"))
-                    if (body.tracksFoodAndWater) {
-                        add(Triple("饥饿", body.hunger, "hunger"))
-                        add(Triple("口渴", body.thirst, "thirst"))
-                    }
                     add(Triple("舒适", body.comfort, "comfort"))
                     add(Triple("单调感", body.boredom, "boredom"))
                 }
