@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:53:05.728746+00:00",
-  "commit": "50b67a11993e5f04b622453ef1a04a00f452b623",
+  "generatedAt": "2026-11-13T15:55:55.352855+00:00",
+  "commit": "c0cbe7fe1cf8dbeceb0be905cb3d71766319c64f",
   "branch": "main",
-  "sourceFingerprint": "0001bac135a68a63ef67b47c1f8ed2baf7464acde890a0e41a9cdc8d7a9050d1",
+  "sourceFingerprint": "57cae39312bbf948b22cca835e5dcb7ccb7bebaaaf2beed91c06c1fbf3691a5b",
   "summary": {
     "files": 1305,
-    "lines": 274652,
+    "lines": 274656,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -1567,25 +1567,25 @@
     "sceneLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 90
+        "line": 91
       }
     ],
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 105
+        "line": 106
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 110
+        "line": 111
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -22836,24 +22836,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 751,
-      "sha256": "73a8b06b037b5b9c95b55a7cac1d3088315571c8f459c537eb94429ccd4fe850",
+      "lines": 755,
+      "sha256": "2f1bf561dc8001608f97a468c758aff120c698de5fa58a0e280246b7db82e624",
       "symbols": [
         {
           "name": "sceneLabel",
-          "line": 90
+          "line": 91
         },
         {
           "name": "openScene",
-          "line": 105
+          "line": 106
         },
         {
           "name": "talkTo",
-          "line": 110
+          "line": 111
         },
         {
           "name": "toggleVoice",
-          "line": 120
+          "line": 121
         }
       ]
     },
