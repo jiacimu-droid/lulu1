@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`daaef58c704a000e5c59cada07604a769e6abf60`
+- 基准提交：`a56479bf8fe9142bed143cc8e6f5177c4353360b`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：274868
+- 已索引代码/文本行：274879
 - 已发现符号：3879
 
 | 文件 | 行数 | 符号数 |
@@ -1070,7 +1070,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2246 | 40 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2257 | 40 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
