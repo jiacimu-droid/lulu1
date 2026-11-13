@@ -378,19 +378,10 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                             onOpen = { showRoleLiveScreen = true },
                         )
                     }
-                    item("phone-recent-tool-activity") {
-                        RolePhoneActivitySection(actualRole)
-                    }
-                    item("phone-summary") {
-                        RolePhoneHomeHeader(
-                            name = identity?.displayName ?: "角色",
-                            avatarUri = identity?.avatarUri,
-                            threads = threads.size,
-                            friends = availableFriends.size,
-                            groups = allChats.count {
-                                it.groupChat?.members?.any { member -> member.characterId == actualRole } == true
-                            },
-                        )
+                    item("phone-chat-label") {
+                        Text("聊天", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 20.dp, top = 10.dp, bottom = 4.dp))
                     }
                     if (threads.isEmpty()) item("phone-empty") {
                         Box(Modifier.fillMaxWidth().padding(vertical = 54.dp),
@@ -551,54 +542,6 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
 }
 
-@Composable
-private fun RolePhoneHomeHeader(
-    name: String, avatarUri: String?, threads: Int, friends: Int, groups: Int,
-) {
-    Column(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(13.dp),
-    ) {
-        Box(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
-                .background(Brush.linearGradient(listOf(
-                    Color(0xFF303A48), Color(0xFF566474), Color(0xFF788595))))
-                .padding(19.dp),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ChatHubV2Avatar(name.take(1).ifBlank { "角" }, 56, avatarUri)
-                    Column(Modifier.weight(1f)) {
-                        Text(name, fontWeight = FontWeight.SemiBold,
-                            fontSize = 19.sp, color = Color.White)
-                        Text("私人的小小世界", fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.75f))
-                    }
-                    Icon(Icons.Outlined.Smartphone, null,
-                        tint = Color.White.copy(alpha = 0.72f))
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    RolePhoneMetric("聊天", threads)
-                    RolePhoneMetric("好友", friends)
-                    RolePhoneMetric("群聊", groups)
-                }
-            }
-        }
-        Text("最近消息", fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(start = 4.dp), color = LuluColors.Muted)
-    }
-}
-
-@Composable
-private fun RolePhoneMetric(label: String, count: Int) {
-    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(count.toString(), fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold, color = Color.White)
-        Text(label, fontSize = 11.sp, color = Color.White.copy(alpha = 0.72f))
-    }
-}
-
 /** A user-triggered real send, attributed in the original evidence timeline to
  * the owner's intervention. Never route a forged action through the character's
  * autonomy planner or claim that the person decided to send it. */
@@ -692,44 +635,44 @@ private fun RolePhoneMyPage(
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         item("profile-hero") {
-            Box(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
-                    .background(Brush.linearGradient(listOf(
-                        Color(0xFF303A48), Color(0xFF596474), Color(0xFF747D8D))))
-                    .padding(20.dp),
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-                    ChatHubV2Avatar(socialName.take(1).ifBlank { "角" }, 68, roleAvatarUri)
-                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(socialName, fontSize = 22.sp, fontWeight = FontWeight.Bold,
-                            color = Color.White)
-                        Text("我的个人主页", fontSize = 12.sp, color = Color.White.copy(alpha = 0.72f))
+                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    ChatHubV2Avatar(socialName.take(1).ifBlank { "角" }, 60, roleAvatarUri)
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(socialName, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface)
+                        Text("个人主页", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         }
-        item("favorites") {
-            Surface(onClick = onFavorites, modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
+        item("phone-app-links") {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.StarOutline, null)
-                    Spacer(Modifier.width(12.dp))
-                    Text("我的收藏", modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
-                    Icon(Icons.Outlined.ChevronRight, null)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Column {
+                    RolePhoneMyLink(Icons.Outlined.StarOutline, "收藏", onFavorites)
+                    HorizontalDivider(Modifier.padding(start = 54.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant)
+                    RolePhoneMyLink(Icons.Outlined.EventNote, "日历", onCalendar)
+                    HorizontalDivider(Modifier.padding(start = 54.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant)
+                    RolePhoneMyLink(Icons.Outlined.TravelExplore, "浏览器", onBrowser)
+                    HorizontalDivider(Modifier.padding(start = 54.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant)
+                    RolePhoneMyLink(Icons.Outlined.PhotoLibrary, "相册", onAlbum)
                 }
             }
-        }
-        item("calendar") {
-            RolePhoneMyLink(Icons.Outlined.EventNote, "日历", onCalendar)
-        }
-        item("browser") {
-            RolePhoneMyLink(Icons.Outlined.TravelExplore, "浏览器", onBrowser)
-        }
-        item("album") {
-            RolePhoneMyLink(Icons.Outlined.PhotoLibrary, "相册", onAlbum)
         }
         item("remark") {
             ChatHubV2Card {
@@ -751,21 +694,31 @@ private fun RolePhoneMyPage(
                 }
             }
         }
+        item("recent-activity") {
+            RolePhoneActivitySection(roleId)
+        }
     }
 }
 
 @Composable
 private fun RolePhoneMyLink(icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null)
-            Spacer(Modifier.width(12.dp))
-            Text(label, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            Icon(Icons.Outlined.ChevronRight, null)
-        }
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 54.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 17.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Icon(icon, contentDescription = null,
+            modifier = Modifier.size(21.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, fontSize = 15.sp, fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface)
+        Icon(Icons.Outlined.ChevronRight, contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(19.dp))
     }
 }
 
