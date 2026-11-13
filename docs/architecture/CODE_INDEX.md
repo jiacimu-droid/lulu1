@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b5185c26d865ca614fcc0877e5c86dceca27aa70`
+- 基准提交：`9c5f966d13171a15a33674466a450b0137bffe11`
 - 分支：`main`
-- 已索引文件：1297
-- 已索引代码/文本行：273251
-- 已发现符号：3858
+- 已索引文件：1298
+- 已索引代码/文本行：273329
+- 已发现符号：3859
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -921,9 +921,10 @@
 | `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 876 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt` | 76 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt` | 27 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 52 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 147 | 2 |

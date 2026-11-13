@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:43:50.562713+00:00",
-  "commit": "b5185c26d865ca614fcc0877e5c86dceca27aa70",
+  "generatedAt": "2026-11-13T12:44:39.565047+00:00",
+  "commit": "9c5f966d13171a15a33674466a450b0137bffe11",
   "branch": "main",
-  "sourceFingerprint": "02187642d4452cc9bb5917a0e21a0f6a462bd8b769577564496e25b30f9b4073",
+  "sourceFingerprint": "6d4400b51e39c043b7b62419d63c0aacd15aff8a610a32d27ab9eaf1ae8d99d8",
   "summary": {
-    "files": 1297,
-    "lines": 273251,
-    "symbols": 3858
+    "files": 1298,
+    "lines": 273329,
+    "symbols": 3859
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17928,6 +17928,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
         "line": 17
+      }
+    ],
+    "RoleScreenObservationArchiveTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt",
+        "line": 20
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -40421,8 +40427,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt",
-      "lines": 27,
-      "sha256": "1b8b53b2ce996a04f414a52ed33a2577fe46b0e1ae601f4b4b8fc5545ec637dc",
+      "lines": 28,
+      "sha256": "888b96131793d1b6e0427396aacef6fad11ce988834dcbad6164d83b70ffda35",
       "symbols": [
         {
           "name": "RolePhoneAppPlacementTest",
@@ -40449,6 +40455,17 @@
         {
           "name": "RolePhotoAlbumStoreTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt",
+      "lines": 77,
+      "sha256": "b2619de260028f8d6f0dbb5772b6419491a6fc99e4d3118cd08602aa78235790",
+      "symbols": [
+        {
+          "name": "RoleScreenObservationArchiveTest",
+          "line": 20
         }
       ]
     },
