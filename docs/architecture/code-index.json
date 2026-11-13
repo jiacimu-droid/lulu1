@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T17:02:01.651356+00:00",
-  "commit": "f4e919c7183dbca2c4e46b456fd619cf7fa22099",
+  "generatedAt": "2026-11-13T17:02:32.306516+00:00",
+  "commit": "2ce4c6a6f7d16506cd70ea09ef246632a1efd6a1",
   "branch": "main",
-  "sourceFingerprint": "ed8f1c3ab32703d61da423bd3a3d476f4d6ecf0de51bfcae6e15dc43a9d11504",
+  "sourceFingerprint": "39374d7ddf07c08f4f7d318683ea48d76b983c6bfce1ed6d90aa860ac04a7480",
   "summary": {
     "files": 1305,
-    "lines": 274821,
+    "lines": 274831,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -5393,31 +5393,31 @@
     "shouldCompactBeforeSend": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 47
+        "line": 53
       }
     ],
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 111
+        "line": 117
       }
     ],
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 127
+        "line": 133
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 141
+        "line": 147
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 144
+        "line": 150
       }
     ],
     "ScopedModelSelections": [
@@ -26297,8 +26297,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 148,
-      "sha256": "811520a87e4009a316c3b5935b3cd42f0e384f5cce68f8fbb689ceb9bfd32aab",
+      "lines": 154,
+      "sha256": "2e60b9c11b15196f099d2b8303694d6abb962ec796252cf136370b837f8b3bdd",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -26314,23 +26314,23 @@
         },
         {
           "name": "shouldCompactBeforeSend",
-          "line": 47
+          "line": 53
         },
         {
           "name": "compactHistory",
-          "line": 111
+          "line": 117
         },
         {
           "name": "compactSectionPairs",
-          "line": 127
+          "line": 133
         },
         {
           "name": "compactSections",
-          "line": 141
+          "line": 147
         },
         {
           "name": "savesEnough",
-          "line": 144
+          "line": 150
         }
       ]
     },
@@ -41139,8 +41139,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 222,
-      "sha256": "4d949cd307f94dfac6f72a1c374409fb10ee96b8e066d3bf1bae246d42880e17",
+      "lines": 226,
+      "sha256": "f2df2fb3fcb21ee698b43ddd315ea2e17f802f2b41d5740ade594ad6a2949653",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
