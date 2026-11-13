@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -144,10 +145,13 @@ internal fun DigitalWorldMapLobby(
         ?.takeIf { it.startsWith("home:") }
         ?.removePrefix("home:")
 
-    // Reserve the actual system status-bar inset at the screen boundary.
-    // A nested scene/canvas must never paint or intercept the back-button row.
-    Column(modifier.fillMaxSize().statusBarsPadding().background(LuluColors.Paper).clipToBounds()) {
-        TopAppBar(
+    // The collectible is a clean fullscreen model: Android back returns to the map.
+    val immersiveDiorama = activeSceneCode == "preview:rainy-konbini"
+    BackHandler(enabled = immersiveDiorama) { openSceneCode = null }
+    Column(modifier.fillMaxSize()
+        .then(if (immersiveDiorama) Modifier else Modifier.statusBarsPadding())
+        .background(LuluColors.Paper).clipToBounds()) {
+        if (!immersiveDiorama) TopAppBar(
             modifier = Modifier.zIndex(20f).fillMaxWidth(),
             title = {
                 Text(
