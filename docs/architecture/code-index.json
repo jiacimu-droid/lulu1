@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:31:22.926517+00:00",
-  "commit": "b128080ec2ba98aa7413db31b3f89a7396d778bf",
+  "generatedAt": "2026-11-13T15:31:45.754823+00:00",
+  "commit": "ef26ee184ff97af46e82a663a8fa536ecf638967",
   "branch": "main",
-  "sourceFingerprint": "7dc9a6c5886a411e29f3da2093cd5c23531330b989498c345120815f2c2db3e3",
+  "sourceFingerprint": "e1276735fa8c9356e8d20ee48167e8b0f200f647f7f75dc6802c7df693b3b072",
   "summary": {
-    "files": 1300,
-    "lines": 273630,
-    "symbols": 3863
+    "files": 1301,
+    "lines": 273673,
+    "symbols": 3865
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4934,6 +4934,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 206
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt",
+        "line": 15
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -14536,6 +14540,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
         "line": 37
+      }
+    ],
+    "arrives": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt",
+        "line": 12
       }
     ],
     "generate": [
@@ -36035,6 +36045,21 @@
         {
           "name": "restore",
           "line": 43
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt",
+      "lines": 43,
+      "sha256": "46c12d3dc70315828c656d27a1a6c2b1fdd653ade555f20f4136abe47826953b",
+      "symbols": [
+        {
+          "name": "arrives",
+          "line": 12
+        },
+        {
+          "name": "advance",
+          "line": 15
         }
       ]
     },
