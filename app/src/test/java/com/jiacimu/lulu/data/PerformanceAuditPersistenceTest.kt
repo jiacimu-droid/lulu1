@@ -23,6 +23,8 @@ class PerformanceAuditPersistenceTest {
             provider = "example.invalid",
             reportedInputTokens = 70000,
             reportedOutputTokens = 55,
+            reportedReasoningTokens = 21,
+            modelOutputCharacters = 147,
             cachedTokens = 100,
             estimatedInputTokens = 40000,
             estimatedOutputTokens = 55,
@@ -46,6 +48,8 @@ class PerformanceAuditPersistenceTest {
         val reloaded = LocalPerformanceRepository(app)
         val saved = reloaded.consoleRecords.first().first()
         assertEquals(70000L, saved.reportedInputTokens)
+        assertEquals(21L, saved.reportedReasoningTokens)
+        assertEquals(147, saved.modelOutputCharacters)
         assertEquals(1, saved.auditVersion)
         assertEquals(72000L, saved.coveredTextCharacters)
         assertEquals(2, saved.imageCount)
@@ -142,6 +146,8 @@ class PerformanceAuditPersistenceTest {
         )
         val saved = LocalPerformanceRepository(app).consoleRecords.first().first()
         assertEquals(0, saved.auditVersion)
+        assertNull(saved.reportedReasoningTokens)
+        assertEquals(0, saved.modelOutputCharacters)
         assertEquals(0, saved.textCharacters)
         assertEquals(0L, saved.requestBodyBytes)
         assertEquals("", saved.turnTraceId)
