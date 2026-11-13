@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T01:24:23.940560+00:00",
-  "commit": "6a446709d0a07f44b21a0b5d763a7f975ccc933d",
+  "generatedAt": "2026-11-13T01:25:31.092580+00:00",
+  "commit": "76342f4154a8e6e7083d4ba4a2342f6873f9d4a1",
   "branch": "main",
-  "sourceFingerprint": "b905f541ac808a0b35b4fcf988c0978226817fb5ee97d26b380fc455b0ce8ecd",
+  "sourceFingerprint": "49ece832a38ccd66510cd624c63e3b35d63f78fb769792fb7faccd7e5f00a86f",
   "summary": {
     "files": 1285,
-    "lines": 271832,
+    "lines": 271823,
     "symbols": 3844
   },
   "symbolIndex": {
@@ -2751,7 +2751,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1440
+        "line": 1435
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -5883,7 +5883,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 151
+        "line": 150
       }
     ],
     "Attempt": [
@@ -8495,49 +8495,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1333
+        "line": 1328
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1391
+        "line": 1386
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1402
+        "line": 1397
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1409
+        "line": 1404
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1423
+        "line": 1418
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1433
+        "line": 1428
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1487
+        "line": 1482
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1863
+        "line": 1858
       }
     ],
     "age": [
@@ -11805,7 +11805,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3547
+        "line": 3544
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -12943,7 +12943,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 491
+        "line": 493
       }
     ],
     "allowsExpansion": [
@@ -26393,7 +26393,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 113,
-      "sha256": "bef5cd71b1880878a4c63983b7cb2b7fa5d03d5165231ac04725b3cb4dae8e2e",
+      "sha256": "f411ae4ed20dbc2c619aa03db10dfac5397d571a43e14784c89a32be4384bf0e",
       "symbols": [
         {
           "name": "render",
@@ -27392,8 +27392,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-      "lines": 204,
-      "sha256": "bdac68faa0ebc756b0d2f14cb12970c3fd1e397013b023f7a1534917a5c3d229",
+      "lines": 201,
+      "sha256": "64c173dadf36904a89a4bd55eb1aee249136c299a81c003207a0095b6aff5891",
       "symbols": [
         {
           "name": "detect",
@@ -29071,8 +29071,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1911,
-      "sha256": "58f3a86f38b95a823fb4657edc4e70a6d4d1e7604d9bf2de4ebeb413d35be9e7",
+      "lines": 1906,
+      "sha256": "c00bb315130440c12adc76d2e7b326226564da846015a4e85523e6794bc8365f",
       "symbols": [
         {
           "name": "asJson",
@@ -29084,43 +29084,43 @@
         },
         {
           "name": "capabilityContext",
-          "line": 151
+          "line": 150
         },
         {
           "name": "world",
-          "line": 1333
+          "line": 1328
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1391
+          "line": 1386
         },
         {
           "name": "recordedReceiptId",
-          "line": 1402
+          "line": 1397
         },
         {
           "name": "completedEvidence",
-          "line": 1409
+          "line": 1404
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1423
+          "line": 1418
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1433
+          "line": 1428
         },
         {
           "name": "from",
-          "line": 1440
+          "line": 1435
         },
         {
           "name": "requiresCompletion",
-          "line": 1487
+          "line": 1482
         },
         {
           "name": "availableContext",
-          "line": 1863
+          "line": 1858
         }
       ]
     },
@@ -32347,7 +32347,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 220,
-      "sha256": "bdd1a9243d7ab18c0d4b5e0981aec6f8215f9aa9d5b13f63ecbccd1b8dbcd591",
+      "sha256": "d98576bb0cdf5d5cd50eb212509f56fe4953c9cbd79e85d76788e7984fe0b0e1",
       "symbols": []
     },
     {
@@ -32507,8 +32507,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3614,
-      "sha256": "f5226f36f7ae0156c3be16bef0cdf1bce8365f99f64fad2948142ae3294ae34f",
+      "lines": 3611,
+      "sha256": "685a9ca95145e87ee84a7650871a8d7c7dc579f9de70217017d8e42c6cd83c5d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32540,7 +32540,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3547
+          "line": 3544
         }
       ]
     },
@@ -33560,8 +33560,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 605,
-      "sha256": "fca39e76bb69d22302610b7105e6f2b102382b9a664f3da35d6cceea978bc801",
+      "lines": 607,
+      "sha256": "c64d60f1cdba54d3e9cd3f42e7cb1c9ded514d54ba4fbeced1b0c28fbe2d76f7",
       "symbols": [
         {
           "name": "completed",
@@ -33589,7 +33589,7 @@
         },
         {
           "name": "project",
-          "line": 491
+          "line": 493
         }
       ]
     },
