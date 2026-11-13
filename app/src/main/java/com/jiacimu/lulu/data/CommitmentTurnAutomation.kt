@@ -471,7 +471,10 @@ internal fun wakeScheduleReceipt(task: CommitmentTask?): String? {
         CommitmentTaskStatus.NeedsClarification ->
             "叫醒还未登记：${task.lastActionResult.take(110)}。请先明确叫醒方式或时间。"
         CommitmentTaskStatus.Blocked ->
-            "叫醒登记失败：${task.lastActionResult.take(110)}。请查看日程和相关权限。"
+            if (task.lastAlarmReceivedAt != null)
+                "叫醒到点执行异常：${task.lastActionResult.take(110)}。请查看日程与设备回执；本次是否真的响铃或来电尚未确认。"
+            else
+                "叫醒登记失败：${task.lastActionResult.take(110)}。请查看日程和相关权限。"
         else -> null
     }
 }
