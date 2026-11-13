@@ -1,3 +1,10 @@
+## 2026-11-13 · UI-02.2 新会话创建持久拒写回退
+
+- 源码断点：`InMemoryLuluChatStore.ensureConversation` 在新会话尚未持久保存前就写入 `messageStates`/`conversationState`，然后 `persistLocked()` 默认 `apply()`；拒写会发布重启即消失的假会话。
+- 正式代码 [93460cd](https://github.com/jiacimu-droid/lulu1/commit/93460cdd5ef7e2a50484d57ba2e5f7581f4f0ce0) 改为暂存新消息流，先 `persistLocked(durable=true, conversations=updated)`，异常撤回暂存，成功才发布新会话。既有会话返回路径不变。
+- Robolectric [9eb4b6c](https://github.com/jiacimu-droid/lulu1/commit/9eb4b6c0a70ba5a365bc69f8816b8df0e24b4b60) 的 `rejectedNewConversationMustNotAppearInMemoryOrAfterReopen` 用真实 Store 与拒写代理，断言尝试 commit、拒绝创建、原 JSON 不变、重开不出现假会话。**本 SHA JVM/APK 与索引未验**；不能标工程通过。
+- 下一轮：直接核此测试的 main push 首错，再检查 `createGroupConversation` 的同类写入次序；真机强杀与增量存储迁移仍未验。
+
 
 ## 2026-11-13 · UI-02.2 空白但存在的旧聊天快照防覆盖
 
