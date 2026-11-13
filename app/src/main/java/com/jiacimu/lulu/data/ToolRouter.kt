@@ -276,7 +276,7 @@ object ToolRouter {
                         }
                         JSONObject().put("success", true).put("status", "succeeded")
                             .put("photoId", saved.id).put("summary",
-                                "照片已真正保存到本角色手机相册（${saved.source}），可在查手机→我的→相册查看")
+                                "照片已真正保存到本角色手机相册（${saved.source}），可在查手机→相册查看")
                             .toString()
                     } else if (name == "write_phone_memo") {
                         val note = CharacterLifeStore.writePhoneMemo(
