@@ -133,6 +133,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }?.imageUri else null
     var phoneApp by rememberSaveable { mutableStateOf("home") }
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
+    var showMessageFavorites by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -192,6 +193,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
 
     fun goBack() {
         when {
+            phoneApp == "messages" && showMessageFavorites -> showMessageFavorites = false
             selectedThreadKey != null && phoneApp == "messages" -> selectedThreadKey = null
             phoneApp != "home" -> phoneApp = "home"
             else -> onBack()
@@ -236,7 +238,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            if (phoneApp == "messages" && selectedThread != null) {
+            if (phoneApp == "messages" && selectedThread != null && !showMessageFavorites) {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -262,14 +264,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 MigratedChatTopBar(
                     title = when (phoneApp) {
                         "home" -> "查手机"
-                        "messages" -> if (phoneTab == 1) "联系人" else "消息"
-                        "moments" -> "朋友圈"
+                        "messages" -> if (showMessageFavorites) "我的收藏" else "聊天"
                         "album" -> "相册"
                         "browser" -> "浏览器"
                         "memos" -> "备忘录"
-                        "favorites" -> "收藏"
                         "activity" -> "行动记录"
-                        "profile" -> "个人"
                         else -> "查手机"
                     },
                     onBack = ::goBack,
@@ -301,7 +300,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             }
         },
         bottomBar = {
-            if (phoneApp == "messages" && selectedThread != null) {
+            if (phoneApp == "messages" && selectedThread != null && !showMessageFavorites) {
                 RolePhoneOnBehalfComposer(
                     roleName = identity?.displayName ?: "角色",
                     roleId = actualRole, thread = selectedThread,
@@ -313,10 +312,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }.isSuccess
                     },
                 )
-            } else if (phoneApp == "messages" && selectedThread == null) {
+            } else if (phoneApp == "messages" && selectedThread == null && !showMessageFavorites) {
                 ChatHubV2Navigation(
-                    selectedTab = phoneTab.coerceIn(0, 1),
-                    labels = listOf("消息", "联系人"),
+                    selectedTab = phoneTab.coerceIn(0, 3),
+                    labels = RolePhoneChatTabs,
+                    badgeCounts = mapOf(2 to roleMomentUnread),
                     onSelect = { phoneTab = it },
                 )
             }
@@ -334,6 +334,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     momentUnread = roleMomentUnread,
                     onOpen = { app ->
                         selectedThreadKey = null
+                        showMessageFavorites = false
                         phoneTab = 0
                         phoneApp = app
                     },
@@ -342,8 +343,6 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 RolePhoneAlbum(actualRole)
             } else if (phoneApp == "browser") {
                 RolePhoneBrowserHistory(actualRole)
-            } else if (phoneApp == "favorites") {
-                RolePhoneFavorites(actualRole)
             } else if (phoneApp == "memos") {
                 RolePhoneMemoScreen(actualRole)
             } else if (phoneApp == "activity") {
@@ -352,6 +351,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     .padding(horizontal = 16.dp)) {
                     RolePhoneActivitySection(actualRole)
                 }
+            } else if (phoneApp == "messages" && showMessageFavorites) {
+                RolePhoneFavorites(actualRole)
             } else if (phoneApp == "messages" && selectedThread != null) {
                 if (selectedThread.conversationId != null) {
                     val original = allChats.firstOrNull { it.id == selectedThread.conversationId }
@@ -479,7 +480,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         item { Text("还没有确认的好友", color = QqMuted) }
                     }
                 }
-            } else if (phoneApp == "moments") {
+            } else if (phoneApp == "messages" && phoneTab == 2) {
                 LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                     item("moments-header") {
                         MomentsHeader(
@@ -524,11 +525,12 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }
                     }
                 }
-            } else if (phoneApp == "profile") {
+            } else if (phoneApp == "messages" && phoneTab == 3) {
                 RolePhoneMyPage(
                     roleId = actualRole,
                     roleName = identity?.displayName ?: "角色",
                     roleAvatarUri = identity?.avatarUri,
+                    onFavorites = { showMessageFavorites = true },
                 )
             }
         }
@@ -614,6 +616,7 @@ internal fun rolePhoneCoverPalette(preset: String): List<Color> = when (preset) 
 @Composable
 private fun RolePhoneMyPage(
     roleId: String, roleName: String, roleAvatarUri: String?,
+    onFavorites: () -> Unit,
 ) {
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val life = remember(roleId, lifeStates) { CharacterLifeStore.state(roleId) }
@@ -625,6 +628,23 @@ private fun RolePhoneMyPage(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        item("favorites") {
+            Surface(
+                onClick = onFavorites,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.StarOutline, null)
+                    Spacer(Modifier.width(12.dp))
+                    Text("我的收藏", fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f))
+                    Icon(Icons.Outlined.ChevronRight, null)
+                }
+            }
+        }
         item("identity") {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
