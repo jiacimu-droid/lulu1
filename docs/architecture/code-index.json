@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T07:48:43.272241+00:00",
-  "commit": "dc999eae638d9f5e1dc76ab9dd9ee623392c8560",
+  "generatedAt": "2026-11-13T08:44:57.467137+00:00",
+  "commit": "058159b14777ad275b284a239bbf2f65e0450072",
   "branch": "main",
-  "sourceFingerprint": "7cc539b1a7982d9f37ca8410adec8148236baab62afbe27bad7dbb60f9210d36",
+  "sourceFingerprint": "f501ae3bea00bd08ad4a3ea97f9eb636a8598e61d37959370a78668051599094",
   "summary": {
     "files": 1296,
-    "lines": 272783,
+    "lines": 272808,
     "symbols": 3855
   },
   "symbolIndex": {
@@ -16015,7 +16015,7 @@
     "CommitmentAlarmWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-        "line": 181
+        "line": 184
       }
     ],
     "CommitmentAlarmService": [
@@ -29159,8 +29159,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 478,
-      "sha256": "15743d8fe60bbe8a525b30ddedb8fa24fb4199e261ece1c29ed06f3d3998a6e1",
+      "lines": 481,
+      "sha256": "af9b3def16608a2c6a31aad4623459d8c08bc6b3d8376093436e675c738eb85e",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -37840,8 +37840,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-      "lines": 208,
-      "sha256": "8ebf9389ed34be2f047103560732c43f2f4b60e0f5f7156ea02cadbf76104499",
+      "lines": 211,
+      "sha256": "bd7313ab24be6dc0e3ebad144926a06ab70555fc530e96b09dabf14f6960c97e",
       "symbols": [
         {
           "name": "scheduleBackup",
@@ -37857,7 +37857,7 @@
         },
         {
           "name": "CommitmentAlarmWorker",
-          "line": 181
+          "line": 184
         }
       ]
     },
@@ -42361,8 +42361,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
-      "lines": 111,
-      "sha256": "38abd0c4542f4d6a7cf8f608ee59fc3795bc83b34f363b3d35e8b9e8c92699a8",
+      "lines": 130,
+      "sha256": "8681a5be30c3a18b93e0829b37b11bf6e13d740bd3abb04f63c0945a31d24579",
       "symbols": [
         {
           "name": "CommitmentDecisionProtocolTest",
