@@ -11,7 +11,7 @@ import org.json.JSONObject
  */
 internal object OnlineExpiryUnfinishedWork {
     private val actionable = setOf(
-        "background_phone", "phone_ui", "read_xiaohongshu",
+        "background_phone", "phone_ui",
         "web_search", "image_search", "read_book", "learn_topic",
     )
     private val unfinished = setOf("failed", "unverified", "waiting_user", "pending")
