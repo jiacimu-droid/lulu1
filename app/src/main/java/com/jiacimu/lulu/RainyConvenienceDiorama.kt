@@ -402,7 +402,7 @@ private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSu
             box(x, .07, 4.46, .045, .012, 2.0, 0xD8E0E1, 1)
         }
         box(4.46, .07, 5.49, 1.36, .012, .04, 0xD8E0E1, 1)
-        box(4.48, .08, 4.6, .42, .012, .045, cyan, 1, .2, .6f)
+        box(4.48, .08, 4.6, .42, .012, .045, cyan, 1, .2f, .6f)
         // Store floor and its warm counter / believable merchandise rows.
         box(.77, .22, -1.55, 6.37, .18, 5.87, 0xD6D4C6, 3)
         box(.77, .30, -1.55, 6.25, .018, 5.7, 0xE8E1CE, 3)
