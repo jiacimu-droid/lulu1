@@ -1010,7 +1010,8 @@ class BundledJiangDuImportTest {
             val actual = current.getJSONObject("profile")
             assertEquals(3, current.getInt("jiangDuApprovedReplacementRevision"))
             for (key in listOf("values", "motives", "respect")) {
-                assertEquals(key, CharacterProfileSchema.jiangDuV30Overrides[key]
+                assertEquals(key, CharacterProfileSchema.jiangDuV31Overrides[key]
+                    ?: CharacterProfileSchema.jiangDuV30Overrides[key]
                     ?: CharacterProfileSchema.jiangDuApprovedOverrides.getValue(key), actual.getString(key))
             }
             assertEquals("用户后来自己写的理解方式", actual.getString("perception"))
