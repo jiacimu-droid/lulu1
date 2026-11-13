@@ -40,6 +40,8 @@ internal data class BlockIslandState(
     val lostPacks: Map<Int,IslandLostPack> = emptyMap(),
     /** Rare tidal chests remain physical world entities until actually opened. */
     val rareSupplyCaches: Set<Int> = emptySet(),
+    /** A seeded tide can materialize only one chest per world turn, across reloads. */
+    val lastRareSupplyTurn: Int = 0,
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -57,6 +59,7 @@ internal data class BlockIslandState(
         .put("supplyCaches", JSONArray(supplyCaches))
         .put("openedSupplies", JSONArray(openedSupplies.sorted()))
         .put("rareSupplyCaches", JSONArray(rareSupplyCaches.sorted()))
+        .put("lastRareSupplyTurn", lastRareSupplyTurn)
         .put("houseProject", houseProject?.json() ?: JSONObject.NULL)
         .put("guardedBy",guardedBy)
         .put("hunger",hunger).put("nightsSurvived",nightsSurvived)
@@ -143,6 +146,12 @@ internal data class BlockIslandState(
                     }.toSet()
                 } ?: emptySet(),
                 guardianCleared=json.optBoolean("guardianCleared",false),
+                // Existing saves lack this marker; a chest already present on the
+                // current tide turn must not be regenerated immediately on reload.
+                lastRareSupplyTurn=json.optInt("lastRareSupplyTurn",
+                    if (json.optJSONArray("rareSupplyCaches")?.length() ?: 0 > 0 &&
+                        world.turns > 0 && world.turns % 48 == 0) world.turns else 0)
+                    .coerceIn(0,world.turns.coerceAtLeast(0)),
                 rareSupplyCaches=json.optJSONArray("rareSupplyCaches")?.let { a ->
                     (0 until a.length()).mapNotNull { i ->
                         a.optInt(i,-1).takeIf { it in caches }
