@@ -64,10 +64,33 @@ internal object CharacterSelfActivityRuntime {
             "solo_game" -> {
                 val gameId = input.optString("gameId").trim().lowercase()
                 val gameTitle = com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId)
-                if (gameTitle == null || (gameId != "memory_match" && input.has("targetScore"))) null
-                else Proposal("play_solo_game", JSONObject().put("gameId", gameId).apply {
-                    if (gameId == "memory_match" && input.has("targetScore")) put("targetScore", input.optInt("targetScore"))
-                }, "独自玩一局$gameTitle")
+                    ?: return null
+                val worldGame = gameId in setOf("relic_escape", "block_island")
+                if (!worldGame && (input.has("focus") || input.has("turns"))) return null
+                if (gameId != "memory_match" && input.has("targetScore")) return null
+                if (gameId == "memory_match" && input.has("targetScore") &&
+                    input.optInt("targetScore", -1) !in 120..1200) return null
+                val focus = input.optString("focus", "explore")
+                if (worldGame) {
+                    val allowed = if (gameId == "block_island")
+                        setOf("explore", "gather", "build", "survive", "wildlife")
+                    else setOf("explore", "treasure", "rare", "safe", "extract")
+                    if (focus !in allowed) return null
+                    if (input.has("turns") &&
+                        (input.opt("turns") !is Number ||
+                            input.optInt("turns", -1) !in 4..128)) return null
+                }
+                val args = JSONObject().put("gameId", gameId)
+                if (gameId == "memory_match" && input.has("targetScore"))
+                    args.put("targetScore", input.getInt("targetScore"))
+                if (worldGame) {
+                    if (input.has("focus")) args.put("focus", focus)
+                    if (input.has("turns")) args.put("turns", input.getInt("turns"))
+                }
+                Proposal("play_solo_game", args,
+                    if (gameId == "block_island") "独自到方块小岛玩一阵"
+                    else if (gameId == "relic_escape") "独自在遗迹摸金"
+                    else "独自玩一局$gameTitle")
             }
             "digital_world" -> {
                 if (!digitalLife) return null
