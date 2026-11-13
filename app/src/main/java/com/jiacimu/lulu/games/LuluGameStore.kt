@@ -49,13 +49,17 @@ object GameInvitationCatalog {
     fun title(gameId: String): String? = titles[gameId.trim().lowercase()]
 }
 
-/** Autonomous games are a subset of the games playable with the user. */
+/** Games whose real solo execution is connected to the character action runtime. */
 object AutonomousGameCatalog {
     const val MEMORY_MATCH = "memory_match"
     const val YACHT_DICE = "yacht_dice"
+    const val BLOCK_ISLAND = "block_island"
+    const val RELIC_ESCAPE = "relic_escape"
     val gameNames: Map<String, String> = linkedMapOf(
         MEMORY_MATCH to "记忆配对",
         YACHT_DICE to "快艇骰子",
+        BLOCK_ISLAND to "方块小岛",
+        RELIC_ESCAPE to "迷雾摸金",
     )
     fun title(gameId: String): String? = gameNames[gameId.trim().lowercase()]
 }
@@ -143,6 +147,7 @@ data class LuluGameState(
 )
 
 class LuluGameStore internal constructor(context: Context) {
+    private val applicationContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutableState = MutableStateFlow(loadState())
@@ -336,9 +341,24 @@ class LuluGameStore internal constructor(context: Context) {
         gameId: String,
         now: Instant = Instant.now(),
         targetScore: Int? = null,
+        focus: String = "explore",
+        sessionTurns: Int? = null,
     ): AutonomousGameResult? {
         if (characterId.isBlank()) return null
         val normalized = gameId.trim().lowercase()
+        if (normalized in setOf(AutonomousGameCatalog.RELIC_ESCAPE, AutonomousGameCatalog.BLOCK_ISLAND)) {
+            require(targetScore == null) { "此游戏不接受记忆配对目标分数" }
+            val played = CharacterSoloWorldPlay(applicationContext).play(
+                characterId, normalized, focus,
+                sessionTurns ?: if (normalized == AutonomousGameCatalog.RELIC_ESCAPE) 96 else 18, now)
+            val id = recordExternalGame(
+                type = played.type, title = played.title, score = played.score,
+                reward = 0, summary = played.summary, detailsJson = played.details,
+                characterIdOverride = characterId, playedWithCharacterOverride = false,
+                createdAtOverride = now)
+            return AutonomousGameResult(id, normalized, played.title, played.score,
+                played.summary, played.details)
+        }
         if (normalized == AutonomousGameCatalog.MEMORY_MATCH) {
             require(targetScore == null || targetScore in 120..1200) { "记忆配对目标分数必须在120至1200之间" }
         } else {
