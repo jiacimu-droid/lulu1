@@ -2832,7 +2832,7 @@ object ProactivePerceptionRuntime {
                 "本人主动结束=${outcome.finishedByRole}；" + outcome.notes.takeLast(450)
         }
 
-        val resultBearingTools = setOf("web_search", "image_search", "read_xiaohongshu", "read_self_todo")
+        val resultBearingTools = setOf("web_search", "image_search", "read_self_todo")
         val resultJson = if (tool.isBlank()) {
             JSONObject().put("success", true).put("status", "skipped")
                 .put("summary", "本轮不发言，继续执行角色实际选定的步骤")
