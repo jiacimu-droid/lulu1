@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:41:05.156737+00:00",
-  "commit": "c524eae3fcda6d18a838ed4a882813d720603bc6",
+  "generatedAt": "2026-11-13T05:45:26.496570+00:00",
+  "commit": "a877efacdf52d2cf0640c1d263d85b504725600d",
   "branch": "main",
-  "sourceFingerprint": "ea21d6248881b4bd53f27db1bced52c2ef8e1cf30f111543cf7f39e9b4c92e65",
+  "sourceFingerprint": "c8a8103c49ad62c76414f24c9da6ed0407ce3c150c7e10342679db6fee745751",
   "summary": {
-    "files": 1291,
-    "lines": 272230,
-    "symbols": 3852
+    "files": 1295,
+    "lines": 272444,
+    "symbols": 3854
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16784,6 +16784,12 @@
         "line": 47
       }
     ],
+    "clipboardText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
+        "line": 36
+      }
+    ],
     "canObserve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -21368,6 +21374,12 @@
         "line": 6
       }
     ],
+    "LuluShoppingLinkShareTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
+        "line": 7
+      }
+    ],
     "LuluStudyWatchTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
@@ -24945,6 +24957,18 @@
       "path": "app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt",
       "lines": 42,
       "sha256": "833ac015285e3edd38fd1706f6a980a1012d0eeea624bd42b0298e556a8fa431",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCard.kt",
+      "lines": 65,
+      "sha256": "329d13ba0dc57172f75e822517f7587a0df6c606ef66c2700668905e131d08b5",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt",
+      "lines": 36,
+      "sha256": "cbd86d4a9ad55e118f7166a13303da8003275eedb7f2b8342e3ee0113c511ac7",
       "symbols": []
     },
     {
@@ -38691,6 +38715,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
+      "lines": 71,
+      "sha256": "1117df407ea0786b340b16586105a087ef28ca6aa0a0c540be9072d31d06ba8d",
+      "symbols": [
+        {
+          "name": "clipboardText",
+          "line": 36
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
       "lines": 486,
       "sha256": "d687ba15850581c2785aeac64dc71220e9a608b0c91e0846aca7e28db7aa73d5",
@@ -45463,6 +45498,17 @@
         {
           "name": "LuluShoppingAssistPolicyTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
+      "lines": 42,
+      "sha256": "712b18857fb3c9e41816e988fa82a8e080f45bcfaeb2e0a8277ecef4692c42a0",
+      "symbols": [
+        {
+          "name": "LuluShoppingLinkShareTest",
+          "line": 7
         }
       ]
     },
