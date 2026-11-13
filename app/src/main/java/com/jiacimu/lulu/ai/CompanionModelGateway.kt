@@ -1177,6 +1177,7 @@ class CompanionModelGateway(
         val headers = mapOf("Authorization" to "Bearer ${connection.apiKey}")
         if (streamResponse) {
             body.put("stream", true)
+            GeminiUsageRequestPolicy.addStreamingUsageWhenSupported(connection.baseUrl, body)
             onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             try {
                 return requestPostStreamingReply(
