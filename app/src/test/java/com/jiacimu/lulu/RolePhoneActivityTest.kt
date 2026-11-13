@@ -66,10 +66,10 @@ class RolePhoneActivityTest {
     }
 
     @Test fun recentRealReceiptsAreSortedAndBounded() {
-        val rows = inspectedPhoneActions((1L..12L).map {
+        val rows = inspectedPhoneActions((1L..80L).map {
             tool("web_search", "succeeded", it)
         })
-        assertEquals(4, rows.size)
+        assertEquals(48, rows.size)
         assertEquals(now.minusSeconds(1), rows.first().occurredAt)
     }
 }
