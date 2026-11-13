@@ -27,9 +27,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
     var shoppingNotice by remember(characterId) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("操作授权", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Text("这里决定他能用哪些手机能力。关闭后，角色无法继续使用对应权限。",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
 
         val permissionGroups = listOf(
             "手机与应用" to listOf(
@@ -100,7 +97,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
         // The per-character "screen" toggle above still gates actual actions.
         var advancedPhoneOpen by remember { mutableStateOf(false) }
         TextButton(onClick = { advancedPhoneOpen = !advancedPhoneOpen }) {
-            Text(if (advancedPhoneOpen) "收起后台手机操作设置" else "后台手机操作（无线调试）")
+            Text(if (advancedPhoneOpen) "收起设备连接与调试" else "设备连接与调试")
         }
         if (advancedPhoneOpen) {
             val debug = com.jiacimu.lulu.system.LuluWirelessDebugging
