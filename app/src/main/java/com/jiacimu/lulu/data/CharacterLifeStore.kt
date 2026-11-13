@@ -528,6 +528,45 @@ object CharacterLifeStore {
         return true
     }
 
+    /** The character's own memo pad is a section of the existing durable life record.
+     * These notes are neither executed tasks nor proof of real-world events.
+     * The caller decides what to write; no automatic note generation. */
+    fun phoneMemos(characterId: String): List<JSONObject> {
+        val notes = state(characterId).optJSONArray("phoneMemos")
+        return (0 until (notes?.length() ?: 0))
+            .mapNotNull { index -> notes?.optJSONObject(index) }
+    }
+
+    @Synchronized fun writePhoneMemo(
+        characterId: String, title: String, content: String,
+        kind: String = "memo", memoId: String = "",
+    ): JSONObject {
+        require(prefs != null && characterId.isNotBlank()) { "角色备忘录尚未初始化" }
+        val heading = title.trim()
+        val body = content.trim()
+        require(heading.isNotBlank() && heading.length <= 90) { "备忘录标题须为1至90字" }
+        require(body.isNotBlank() && body.length <= 5_000) { "备忘录正文须为1至5000字" }
+        require(kind in setOf("memo", "life", "responsibility")) { "备忘录类型无效" }
+        val root = state(characterId)
+        val notes = root.optJSONArray("phoneMemos") ?: JSONArray()
+        val index = (0 until notes.length()).firstOrNull { i ->
+            notes.optJSONObject(i)?.optString("id") == memoId && memoId.isNotBlank()
+        }
+        require(memoId.isBlank() || index != null) { "无法修改不属于本角色的备忘录" }
+        val previous = index?.let(notes::optJSONObject)
+        val timestamp = Instant.now().toString()
+        val note = JSONObject()
+            .put("id", previous?.optString("id") ?: java.util.UUID.randomUUID().toString())
+            .put("title", heading).put("content", body).put("kind", kind)
+            .put("createdAt", previous?.optString("createdAt")?.ifBlank { timestamp } ?: timestamp)
+            .put("updatedAt", timestamp)
+            .put("author", "character")
+        if (index != null) notes.put(index, note) else notes.put(note)
+        root.put("phoneMemos", notes)
+        save(characterId, root)
+        return JSONObject(note.toString())
+    }
+
     /** User-authored per-person relationship baseline. It is separate from the
      * evidence-backed, changeable subjective bonds in CharacterInnerLifeStore.
      * An empty saved entry is intentional and must not be reseeded on launch.
