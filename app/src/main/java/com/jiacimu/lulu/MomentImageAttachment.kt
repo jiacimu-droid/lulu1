@@ -43,11 +43,14 @@ internal fun MomentImageAttachment(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
     contentDescription: String = "图片附件",
+    previewMaxEdge: Int = MOMENT_IMAGE_MAX_EDGE,
 ) {
     val context = LocalContext.current
-    val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri) {
+    val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri, previewMaxEdge) {
         value = MomentAttachmentState.Loading
-        val bitmap = withContext(Dispatchers.IO) { loadMomentAttachmentBitmap(context, imageUri) }
+        val bitmap = withContext(Dispatchers.IO) {
+            loadMomentAttachmentBitmap(context, imageUri, previewMaxEdge)
+        }
         value = bitmap?.let { MomentAttachmentState.Ready(it) } ?: MomentAttachmentState.Failed
     }
     Surface(
@@ -84,27 +87,27 @@ internal fun MomentImageAttachment(
     }
 }
 
-private fun loadMomentAttachmentBitmap(context: Context, value: String): Bitmap? {
+private fun loadMomentAttachmentBitmap(context: Context, value: String, maxEdge: Int): Bitmap? {
     val uri = runCatching { Uri.parse(value) }.getOrNull() ?: return null
     return when (uri.scheme?.lowercase()) {
-        "https" -> loadMomentRemoteBitmap(value)
+        "https" -> loadMomentRemoteBitmap(value, maxEdge)
         "http" -> null
-        else -> decodeMomentContentUri(context, uri)
+        else -> decodeMomentContentUri(context, uri, maxEdge)
     }
 }
 
-private fun decodeMomentContentUri(context: Context, uri: Uri): Bitmap? = runCatching {
+private fun decodeMomentContentUri(context: Context, uri: Uri, maxEdge: Int): Bitmap? = runCatching {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     context.contentResolver.openInputStream(uri)?.use { input -> BitmapFactory.decodeStream(input, null, bounds) }
     if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@runCatching null
     val options = BitmapFactory.Options().apply {
-        inSampleSize = momentSampleSize(bounds.outWidth, bounds.outHeight)
+        inSampleSize = momentSampleSize(bounds.outWidth, bounds.outHeight, maxEdge)
         inPreferredConfig = Bitmap.Config.ARGB_8888
     }
     context.contentResolver.openInputStream(uri)?.use { input -> BitmapFactory.decodeStream(input, null, options) }
 }.getOrNull()
 
-private fun loadMomentRemoteBitmap(value: String): Bitmap? {
+private fun loadMomentRemoteBitmap(value: String, maxEdge: Int): Bitmap? {
     val connection = runCatching { URL(value).openConnection() as? HttpsURLConnection }.getOrNull() ?: return null
     return try {
         connection.connectTimeout = 7_000
@@ -114,7 +117,7 @@ private fun loadMomentRemoteBitmap(value: String): Bitmap? {
         if (connection.responseCode !in 200..299) return null
         if (connection.contentLengthLong > MOMENT_IMAGE_MAX_BYTES) return null
         val bytes = connection.inputStream.use(::readMomentBytes) ?: return null
-        decodeMomentBytes(bytes)
+        decodeMomentBytes(bytes, maxEdge)
     } catch (_: Throwable) {
         null
     } finally {
@@ -122,7 +125,7 @@ private fun loadMomentRemoteBitmap(value: String): Bitmap? {
     }
 }
 
-private fun decodeMomentBytes(bytes: ByteArray): Bitmap? = runCatching {
+private fun decodeMomentBytes(bytes: ByteArray, maxEdge: Int): Bitmap? = runCatching {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
     if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@runCatching null
@@ -131,15 +134,16 @@ private fun decodeMomentBytes(bytes: ByteArray): Bitmap? = runCatching {
         0,
         bytes.size,
         BitmapFactory.Options().apply {
-            inSampleSize = momentSampleSize(bounds.outWidth, bounds.outHeight)
+            inSampleSize = momentSampleSize(bounds.outWidth, bounds.outHeight, maxEdge)
             inPreferredConfig = Bitmap.Config.ARGB_8888
         },
     )
 }.getOrNull()
 
-private fun momentSampleSize(width: Int, height: Int): Int {
+private fun momentSampleSize(width: Int, height: Int, maxEdge: Int): Int {
+    val edge = maxEdge.coerceIn(64, MOMENT_IMAGE_MAX_EDGE)
     var sample = 1
-    while (width / sample > MOMENT_IMAGE_MAX_EDGE * 2 || height / sample > MOMENT_IMAGE_MAX_EDGE * 2) sample *= 2
+    while (width / sample > edge * 2 || height / sample > edge * 2) sample *= 2
     return sample.coerceAtLeast(1)
 }
 
