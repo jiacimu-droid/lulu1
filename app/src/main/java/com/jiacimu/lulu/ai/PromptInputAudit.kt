@@ -183,6 +183,8 @@ internal object PromptInputAudit {
         images: List<String>,
         instruction: String? = null,
         reduced: Boolean = false,
+        /** The API user role is also used to carry autonomous facts, not just owner speech. */
+        currentIsActualUserMessage: Boolean = true,
     ): Snapshot {
         val parts = mutableListOf<Pair<String, String>>()
         systemSections.forEach { (label, content) -> parts += detailed(label, content, instruction) }
@@ -192,7 +194,14 @@ internal object PromptInputAudit {
         history.forEachIndexed { index, turn ->
             parts += ("历史对话 #" + (index + 1) + " / " + turn.role.wire) to turn.content
         }
-        parts += "本轮完整输入 / user" to user
+        if (currentIsActualUserMessage) {
+            parts += "本轮完整输入 / user" to user
+        } else {
+            // An autonomous request places a large assembled scene in the HTTP
+            // user role. It is not something the owner typed. Split known section
+            // headings to reveal the actual sources, never logging private prose.
+            parts += splitHeadings("本轮背景依据（后台事实输入，非用户发言）", user)
+        }
         val rendered = parts.filter { it.second.isNotEmpty() }.map { (label, value) ->
             TokenBreakdownItem(label, value.length, estimateTokens(value.length))
         }
