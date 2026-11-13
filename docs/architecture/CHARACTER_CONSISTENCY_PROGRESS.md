@@ -1,3 +1,10 @@
+
+## 2026-11-13 · UI-02.2 空白但存在的旧聊天快照防覆盖
+
+- 实际源码断点：`InMemoryLuluChatStore.decode` 将 `raw.isNullOrBlank()` 同时当作新安装与可疑空白快照，后续默认会话元数据写入可能覆盖唯一 `state_v1`。此前损坏 JSON/缺字段保护没有覆盖这一条件。
+- 回归 [dff2a03](https://github.com/jiacimu-droid/lulu1/commit/dff2a037ce63eae6828a3f172ad8a4d2e0a7bce5)：`ChatHistoryLegacyCompatibilityTest.blankButPresentLegacySnapshotMustNotBeReplacedByDefaults` 注入存在的空白值，核置顶拒写、重启再次拒写、原始偏好原样保留。
+- 正式修复 [47acac4](https://github.com/jiacimu-droid/lulu1/commit/47acac4a4c5418359f2d93ff18cf632790cc86b9)：仅 `null` 表示不存在历史；空白但存在的值交给既有严格 JSON 解码及 `unreadableChatSnapshot` 防覆盖机制。旧正常 JSON 与人设不改。
+- **CI 未验**：提交后需按包含 `47acac4` 的 main push head SHA 查 Lulu APK/JVM 和 Refresh code index；当前只观察到测试提交 `dff2a03` 的工作流启动，不能声称修复通过。真机强杀与事务性增量迁移另验。下一轮仍 UI-02.2：直接核新测试 JVM 首错；通过后转旧 `state_v1` 增量迁移的拒写/中断兼容工作包。
 ## 2026-11-13 · UI-02.2 大历史元数据重写身份回归交接
 
 - 当前 `MigratedDomainStores.kt:InMemoryLuluChatStore.persistLocked` 仍以 `encode(conversations, messageStates.mapValues(...))` 全量重写 `state_v1`，不是增量事务存储。已有 1000/10000 条 Robolectric 基线测量读写与重启，但只检查数量和另一会话正文，无法识别同数量历史 ID/正文替换。
