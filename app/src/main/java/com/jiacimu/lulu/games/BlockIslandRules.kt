@@ -38,6 +38,8 @@ internal data class BlockIslandState(
     val crystals: Int = 0,
     /** Lost resources on knockout persist until physically reclaimed. */
     val lostPacks: Map<Int,IslandLostPack> = emptyMap(),
+    /** Rare tidal chests remain physical world entities until actually opened. */
+    val rareSupplyCaches: Set<Int> = emptySet(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -54,6 +56,7 @@ internal data class BlockIslandState(
         .put("fish", fish).put("lastFishTurn", lastFishTurn)
         .put("supplyCaches", JSONArray(supplyCaches))
         .put("openedSupplies", JSONArray(openedSupplies.sorted()))
+        .put("rareSupplyCaches", JSONArray(rareSupplyCaches.sorted()))
         .put("houseProject", houseProject?.json() ?: JSONObject.NULL)
         .put("guardedBy",guardedBy)
         .put("hunger",hunger).put("nightsSurvived",nightsSurvived)
@@ -139,7 +142,12 @@ internal data class BlockIslandState(
                         a.optString(i).takeIf { it in IslandChallengeBoard.ids }
                     }.toSet()
                 } ?: emptySet(),
-                guardianCleared=json.optBoolean("guardianCleared",false))
+                guardianCleared=json.optBoolean("guardianCleared",false),
+                rareSupplyCaches=json.optJSONArray("rareSupplyCaches")?.let { a ->
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optInt(i,-1).takeIf { it in caches }
+                    }.toSet()
+                } ?: emptySet())
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -371,13 +379,19 @@ internal object BlockIslandRules {
                 val woodFound = 2 + index % 3
                 val stoneFound = 1 + index % 2
                 val berryFound = if (((index xor w.seed) and 1) == 0) 1 else 0
+                val rare = index in s.rareSupplyCaches
+                val rareWood = if(rare)4 else 0
+                val rareStone = if(rare)3 else 0
                 next = s.copy(
                     openedSupplies = s.openedSupplies + index,
-                    world = w.copy(wood = w.wood + woodFound, stone = w.stone + stoneFound),
+                    world = w.copy(wood = w.wood + woodFound + rareWood,
+                        stone = w.stone + stoneFound + rareStone),
                     fruit = s.fruit + berryFound,
+                    crystals = s.crystals + if(rare)1 else 0,
                 )
-                message = "找到野外补给：木材+$woodFound、石料+$stoneFound" +
-                    if (berryFound > 0) "、野果+$berryFound" else ""
+                message = if(rare) "✦ 开启潮汐秘藏！晶石+1、额外木材+4、石料+3，箱子已经消耗"
+                    else "找到野外补给：木材+$woodFound、石料+$stoneFound" +
+                        if (berryFound > 0) "、野果+$berryFound" else ""
             }
             "move" -> {
                 if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) ||
@@ -673,6 +687,7 @@ internal object BlockIslandRules {
         }
         result = respawnMonsters(result)
         result = replenishResources(result)
+        result = IslandRareEvents.advance(result)
         result = IslandGuardianEncounter.spawnIfReady(result)
         result = IslandWildlife.advance(result)
         val newSpecies=result.animals.filter { animal ->
