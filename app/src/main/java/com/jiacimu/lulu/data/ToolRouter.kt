@@ -278,6 +278,16 @@ object ToolRouter {
                             .put("photoId", saved.id).put("summary",
                                 "照片已真正保存到本角色手机相册（${saved.source}），可在查手机→我的→相册查看")
                             .toString()
+                    } else if (name == "write_phone_memo") {
+                        val note = CharacterLifeStore.writePhoneMemo(
+                            characterId, args.optString("title"), args.optString("content"),
+                            args.optString("kind", "memo").ifBlank { "memo" },
+                            args.optString("memoId"),
+                        )
+                        JSONObject().put("success", true).put("status", "succeeded")
+                            .put("memoId", note.getString("id"))
+                            .put("summary", "已经保存到自己的备忘录：${note.getString("title")}")
+                            .toString()
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
                             saveToAlbum = args.optBoolean("saveToAlbum", false),
