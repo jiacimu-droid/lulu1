@@ -9,8 +9,20 @@ import android.opengl.GLSurfaceView
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.os.SystemClock
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.MotionEvent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -44,7 +56,15 @@ internal fun RainyConvenienceDiorama(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val camera = remember { RainyDioramaOrbit() }
-    val renderer = remember(camera) { RainyDioramaRenderer(camera) }
+    val mainHandler = remember { Handler(Looper.getMainLooper()) }
+    // "waiting" becomes "ready" ONLY after a real GL frame. An unsupported GPU
+    // surface must never look like a successfully opened but empty world.
+    val startup = remember { mutableStateOf("waiting") }
+    val renderer = remember(camera) {
+        RainyDioramaRenderer(camera) { result ->
+            mainHandler.post { startup.value = result }
+        }
+    }
     val surface = remember(context, renderer) {
         var previousX = 0f
         var previousY = 0f
@@ -53,7 +73,9 @@ internal fun RainyConvenienceDiorama(modifier: Modifier = Modifier) {
         var lastTap = 0L
         GLSurfaceView(context).apply {
             setEGLContextClientVersion(2)
-            setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            // Use the same widely supported default RGB/depth config as the
+            // already-shipped DigitalWorld3DTrialRoom. Requesting alpha=8 for an
+            // opaque SurfaceView can make EGL window-surface creation fail on OEMs.
             setRenderer(renderer)
             renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
             setOnTouchListener { _, event ->
@@ -122,7 +144,27 @@ internal fun RainyConvenienceDiorama(modifier: Modifier = Modifier) {
             if (surface.isAttachedToWindow) surface.onPause()
         }
     }
-    AndroidView(factory = { surface }, modifier = modifier.fillMaxSize())
+    val timedOut = remember(surface) { mutableStateOf(false) }
+    LaunchedEffect(surface) {
+        delay(3500L)
+        if (startup.value == "waiting") timedOut.value = true
+    }
+    Box(modifier.fillMaxSize().background(Color(0xFF09121D))) {
+        AndroidView(factory = { surface }, modifier = Modifier.fillMaxSize())
+        if (startup.value != "ready" && (timedOut.value || startup.value != "waiting")) {
+            val message = if (startup.value == "waiting")
+                "3D 渲染未启动。请确认设备支持 OpenGL ES 2.0，重新进入或查看应用日志。"
+            else "3D 渲染失败：${startup.value}"
+            Text(
+                message,
+                color = Color.White,
+                fontSize = 13.sp,
+                modifier = Modifier.align(Alignment.Center)
+                    .background(Color(0xED182736))
+                    .padding(18.dp),
+            )
+        }
+    }
 }
 
 private fun fingerSpan(event: MotionEvent): Float {
@@ -164,7 +206,19 @@ private data class DioramaPart(
     val rz: Float = 0f, val rx: Float = 0f, val ry: Float = 0f,
 )
 
-private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSurfaceView.Renderer {
+private class RainyDioramaRenderer(
+    private val camera: RainyDioramaOrbit,
+    private val reportStartup: (String) -> Unit,
+) : GLSurfaceView.Renderer {
+    private var glFailed = false
+    private var firstFrameReported = false
+
+    private fun reportError(phase: String, error: Throwable) {
+        glFailed = true
+        Log.e("RainyDiorama", "OpenGL $phase failed", error)
+        reportStartup("$phase: ${error.message ?: error.javaClass.simpleName}")
+    }
+
     private val projection = FloatArray(16)
     private val view = FloatArray(16)
     private val vp = FloatArray(16)
@@ -203,6 +257,11 @@ private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSu
     fun replay() { started = SystemClock.elapsedRealtime() }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        try { initializeGl()
+        } catch (error: Throwable) { reportError("初始化", error) }
+    }
+
+    private fun initializeGl() {
         program = link(
             "uniform mat4 uMvp; uniform mat4 uModel; attribute vec3 aPosition; attribute vec3 aNormal;" +
                 "varying vec3 vNormal; void main() { gl_Position = uMvp * vec4(aPosition,1.0);" +
@@ -255,6 +314,22 @@ private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSu
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        if (glFailed) return
+        try {
+            drawScene()
+            if (!firstFrameReported) {
+                val error = GLES20.glGetError()
+                if (error == GLES20.GL_NO_ERROR) {
+                    firstFrameReported = true
+                    reportStartup("ready")
+                } else {
+                    reportError("绘制", IllegalStateException("OpenGL error 0x${error.toString(16)}"))
+                }
+            }
+        } catch (error: Throwable) { reportError("绘制", error) }
+    }
+
+    private fun drawScene() {
         val time = SystemClock.elapsedRealtime()
         val elapsed = ((time - started) / 1000f).coerceAtLeast(0f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
