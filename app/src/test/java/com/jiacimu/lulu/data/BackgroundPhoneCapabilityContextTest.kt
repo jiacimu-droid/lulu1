@@ -79,6 +79,15 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("elementRef"))
             assertTrue(status.contains("任何已安装App"))
             assertTrue(status.contains("小红书、抖音、网易云音乐、购物App"))
+            // A device affordance isn't a script: both role-owned wishes and
+            // owner-helpful choices are options even without a fresh shopping request.
+            assertTrue(status.contains("不必等主人先提出代购任务"))
+            assertTrue(status.contains("因自己的真实兴趣想收藏或拥有"))
+            assertTrue(status.contains("想让主人买给自己也可以直接说出愿望"))
+            assertTrue(status.contains("闲鱼、淘宝闪购、拼多多"))
+            assertTrue(status.contains("程序不替你规定购物频率"))
+            assertTrue(status.contains("未同意") || status.contains("主人已同意") == false)
+
             assertFalse(status.contains("read_xiaohongshu"))
             val capability = CapabilityRegistry.context(context, characterId)
             assertTrue("background search requires an explicit submit",
