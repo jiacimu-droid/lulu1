@@ -1333,9 +1333,19 @@ class CompanionModelGateway(
                     "response.output_text.delta" ->
                         content.append(modelTextValue(chunk.opt("delta")))
                     "response.completed" -> {
+                        val response = chunk.optJSONObject("response")
+                        response?.optJSONObject("usage")?.let { usage ->
+                            inputTokens = usage.optInt("input_tokens", inputTokens)
+                            outputTokens = usage.optInt("output_tokens", outputTokens)
+                            cachedTokens = usage.optJSONObject("input_tokens_details")
+                                ?.optInt("cached_tokens", cachedTokens) ?: cachedTokens
+                            usage.optJSONObject("output_tokens_details")?.let { details ->
+                                if (details.has("reasoning_tokens") && !details.isNull("reasoning_tokens"))
+                                    reasoningTokens = details.optInt("reasoning_tokens").coerceAtLeast(0)
+                            }
+                        }
                         if (content.isEmpty()) {
-                            content.append(modelTextValue(
-                                chunk.optJSONObject("response")?.opt("output")))
+                            content.append(modelTextValue(response?.opt("output")))
                         }
                         streamFinished = true
                         sawTerminalMarker = true
