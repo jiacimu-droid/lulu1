@@ -235,7 +235,7 @@ internal object PersistentResponsibilityAttention {
 }
 
 internal object ActiveCommitmentAttention {
-    fun render(tasks: List<CommitmentTask>, now: Instant): String {
+    fun render(tasks: List<CommitmentTask>, now: Instant, summaryAlreadyListed: Boolean = false): String {
         val active = PersistentResponsibilityAttention.select(tasks, now)
         val needsAttention = active.filter { task ->
             task.status == CommitmentTaskStatus.WaitingForFeedback ||
@@ -255,9 +255,18 @@ internal object ActiveCommitmentAttention {
                     else -> "约定已到期或尚无具体行动时刻"
                 }
                 val next = task.nextCheckAt?.takeIf { it.isAfter(now) }
-                appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
-                    "nextReview=${next ?: "未安排"}; nextDaily=${task.dailyNextDueAt ?: "未登记"}; priorUnverified=${task.dailyAttempts.count { it.status != "Completed" }}; last=${task.readableLastResult().take(150)};" +
-                    " ${CommitmentClockFacts.render(task, now)}")
+                val line = if (summaryAlreadyListed) {
+                    // The caller already delivered the complete goal, condition,
+                    // status and last result for this exact task ID. Do not repeat.
+                    "taskId=${task.id}; phase=$phase; " +
+                        "nextDaily=${task.dailyNextDueAt ?: "未登记"}; priorUnverified=${task.dailyAttempts.count { it.status != "Completed" }}; " +
+                        CommitmentClockFacts.render(task, now)
+                } else {
+                    "taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
+                        "nextReview=${next ?: "未安排"}; nextDaily=${task.dailyNextDueAt ?: "未登记"}; priorUnverified=${task.dailyAttempts.count { it.status != "Completed" }}; last=${task.readableLastResult().take(150)};" +
+                        " ${CommitmentClockFacts.render(task, now)}"
+                }
+                appendLine(line)
                 task.dailyAttempts.takeLast(3).forEach { old ->
                     appendLine("  旧轮次=${old.dueAt}; 状态=${old.status}; 已尝试=${old.attemptCount}; " +
                         "未确认的结果=${old.result.take(160)}; 原复查=${old.reviewAt ?: "无"}; " +
