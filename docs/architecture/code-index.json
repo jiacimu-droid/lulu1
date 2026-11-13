@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:23:40.688279+00:00",
-  "commit": "b69f8c9df709055d3f0afe382c322f707cb657f3",
+  "generatedAt": "2026-11-13T02:24:37.266163+00:00",
+  "commit": "82a44fae1cc4a3045d59322f7efe553feb0b2ddb",
   "branch": "main",
-  "sourceFingerprint": "519f176ca93dd5fa240931f56452ed966723bcbe339e88d5a6e06a8eef7f8035",
+  "sourceFingerprint": "4303e1bf77201463752b8ddc39b65b3773261deee99cc71f7f926336c7cc9272",
   "summary": {
     "files": 1287,
-    "lines": 271593,
+    "lines": 271538,
     "symbols": 3847
   },
   "symbolIndex": {
@@ -4945,7 +4945,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
-        "line": 27
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
@@ -4993,7 +4993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
-        "line": 31
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -11599,7 +11599,7 @@
     "capture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
-        "line": 20
+        "line": 11
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
@@ -11613,7 +11613,7 @@
     "PhoneXhsReadWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
-        "line": 42
+        "line": 37
       }
     ],
     "unreadIdIndex": [
@@ -20123,7 +20123,7 @@
     "PrivateChatExpressionContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "PrivateChatModelFailurePolicyTest": [
@@ -32320,24 +32320,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
-      "lines": 100,
-      "sha256": "b7de2695f287893011a0593fd079c2f3f5ba9bf9f32ab7c5800cd979b2b15561",
+      "lines": 40,
+      "sha256": "2c42ccb7d2d1e5fb7abaf72eddbbabc19e66b8cbe230087a5e9adf7684e02792",
       "symbols": [
         {
           "name": "capture",
-          "line": 20
+          "line": 11
         },
         {
           "name": "encode",
-          "line": 27
+          "line": 18
         },
         {
           "name": "restore",
-          "line": 31
+          "line": 22
         },
         {
           "name": "PhoneXhsReadWorker",
-          "line": 42
+          "line": 37
         }
       ]
     },
@@ -43482,12 +43482,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
-      "lines": 91,
-      "sha256": "942d7f988de277597df2cca091497897f82a7722c72c7d7bbb92ea12c3028875",
+      "lines": 96,
+      "sha256": "c5cdbd94c8fb44184e4ec4718a6434b9010100eb521b248bbb5e785e405757f1",
       "symbols": [
         {
           "name": "PrivateChatExpressionContextTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
