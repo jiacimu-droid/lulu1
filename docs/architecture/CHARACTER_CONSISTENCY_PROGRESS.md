@@ -1,3 +1,9 @@
+## 2026-11-13 · UI-02.2 大历史元数据重写身份回归交接
+
+- 当前 `MigratedDomainStores.kt:InMemoryLuluChatStore.persistLocked` 仍以 `encode(conversations, messageStates.mapValues(...))` 全量重写 `state_v1`，不是增量事务存储。已有 1000/10000 条 Robolectric 基线测量读写与重启，但只检查数量和另一会话正文，无法识别同数量历史 ID/正文替换。
+- [d50ce11](https://github.com/jiacimu-droid/lulu1/commit/d50ce11bd6a938ad2b7ecd9dcd7028fe59f9b207) 对基线增加首、中、尾消息 ID/正文在持久 JSON 与重开 Store 的一致性检查，仍使用原真实 Store、无收费模型。新 SHA 的 APK/JVM/索引尚未取得成功结果，不能标工程已验。
+- 下一轮固定 UI-02.2：直接核 `ChatHistoryPersistenceBaselineTest.thousandAndTenThousandMessagesWriteAndReopenWithoutLoss` 的 JVM 首错；通过后建立可恢复增量迁移的失败/中断兼容夹具。真机 ANR、强杀及 10 万条另验。
+
 
 ## 2026-11-13 · UI-02.2 千条损坏历史真实 JVM 首错与测试修正
 
