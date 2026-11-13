@@ -483,21 +483,6 @@ object LuluDeviceToolBridge {
         val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
             com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
         else com.jiacimu.lulu.QqPreparedChatPhotos(emptyList(), 0, 0)
-        // Explicit requests are dispatched through the actual tool router. Do
-        // not let a hallucinated model capability list veto a real app feature.
-        val directXhsRequest = if (!rewriting && !sceneContext.contains("电话"))
-            com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(userText)
-        else null
-        val directXhsResult = directXhsRequest?.let { request ->
-            val actualArgs = JSONObject()
-            if (request.url.isNotBlank()) actualArgs.put("url", request.url)
-            else actualArgs.put("keyword", request.keyword)
-            com.jiacimu.lulu.data.ToolRouter.execute(
-                appContext, characterId, "read_xiaohongshu", actualArgs,
-                requestId = directXhsRequestId(groundingEvidenceId, turnTraceId),
-                userRequested = true, causeEvidenceId = groundingEvidenceId,
-            )
-        }
         com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "角色=$characterId；会话=$currentSessionId")
@@ -572,36 +557,12 @@ object LuluDeviceToolBridge {
                     userText, history, includeExamples = false,
                 ))
                 if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
-                // The built-in Reality Window's Bangumi / Google News sources
-                // are not a capability inventory for the independent Xiaohongshu
-                // reader. Only an actual tool invocation can prove search outcome.
-                if (userText.contains("小红书") || userText.contains("红薯") ||
-                    userText.contains("xhs", ignoreCase = true) ||
-                    history.takeLast(500).contains("小红书")) {
-                    val xhsCapability = com.jiacimu.lulu.data.CapabilityRegistry.find("read_xiaohongshu")
-                    val hasReader = xhsCapability != null
-                    val permitted = xhsCapability != null &&
-                        com.jiacimu.lulu.data.CapabilityRegistry.allows(
-                            appContext, characterId, xhsCapability, false,
-                        )
-                    val currentlyAvailable = com.jiacimu.lulu.data.XhsReadingEngine.available(appContext)
-                    appendLine("【程序核实的小红书能力状态｜与现实窗口来源列表无关】")
-                    appendLine("独立 read_xiaohongshu 工具已注册=$hasReader；角色有只读授权=$permitted；当前前台浏览会话可尝试读取=$currentlyAvailable。")
-                    appendLine("这三项仅表示能力/运行条件，不是已经搜索成功、拿到正文、页面网络正常或曾核对过后台。")
-                    appendLine("不能因为现实窗口只列出 Bangumi/Google News 就断言小红书搜索没接入；也不能谎称刚去后台核实。")
-                    appendLine("除非同轮提供真实工具回执，否则只能如实说明是否可尝试、仍未验证实际搜索结果。")
-                }
                 // Phone speech is persisted as an actual user message. Provide
                 // real, role-visible IDs so the same existing favorite tool
                 // can run during the call instead of becoming a deferred wish.
                 if (sceneContext.contains("电话") && !callSilence && !rewriting)
                     appendLine(com.jiacimu.lulu.data.CharacterSocialActionOpportunities.prompt(characterId))
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
-                if (directXhsResult != null) {
-                    appendLine("【本轮已由真实执行器尝试小红书读取｜不可重复执行】")
-                    appendLine(directXhsResult.take(3_700))
-                    appendLine("应根据实际 success/status 和正文证据回应用户。失败须承认，不能说没有注册这个工具，也不能把首页读到的另一篇说成搜索成功。此轮已调用，不要再次选择 read_xiaohongshu。")
-                }
                 // Existing obligations are already delivered by CharacterRuntime
                 // in the gateway. Only the current-message challenge is local.
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
@@ -664,11 +625,7 @@ object LuluDeviceToolBridge {
                 位置只用工具返回的 readableAddress；定位老旧/模糊要说明，不能猜具体建筑。
                 需要闹钟/操作/设备实时状态时调用工具，不假装完成；日期不明时追问，禁止自行猜时间。
                 屏幕操作必须有真实授权；前台动作按操作回执验证，独立后台屏可在同一角色的已选任务内依据每步新观察连续操作。不能把“工具已注册”“无线已配对”“操作执行成功”混成同一个事实。当前已经在私聊/群聊时直接 reply，不要重复调用向当前会话发送同样的话。
-                【小红书真实阅读能力】
-                露露机已实现 read_xiaohongshu 工具，角色可以按关键词搜索、看首页推荐或按用户给的具体链接读帖。一轮工具调用只核实并打开一篇帖子，**这不是每天只能读一篇的限额**；后续有新的真实阅读理由时可以再次调用。不能声称应用没有该工具，也不能自创每天阅读数量限制。未实际调用时不得说“刚在后台检查过能力列表”。
-                工具始终已注册，浏览器当前是否能访问网页是一次调用的执行结果，不是角色有无此能力。只读小红书搜索可以按自己的兴趣选择 action=tool, tool=read_xiaohongshu，args={"keyword":"自己想搜的内容"}；读用户指定原帖则 args={"url":"真实原帖官方链接"}。搜索网页失败后说清楚“这次网页没搜出来”就够，不要编造“我没有工具权限/系统没接入/我在后台查过权限”等没有实际回执的结论。
-                ${if (com.jiacimu.lulu.data.XhsReadingEngine.available(appContext)) "当前存在可复用的阅读会话，实际搜索仍以搜索结果和笔记正文为准。" else "当前暂未确认可复用的阅读会话；角色仍有工具入口，可以按真实意图尝试一次，失败只依据工具回执说明具体原因，必要时请用户打开内置小红书页面。"}
-                未获得正文/图片读取成功回执时，不能编造某篇帖子或图片的内容。用户给的链接只是用户分享了网址，不能据此说已经看过全文；如果分享卡片携带真实已提取正文，你可根据提供的原文回应，但尚未输入的图片、评论仍不能装作看过。对外部内容形成的是自己的感想，不是自己的亲身经历。
+                想浏览已安装的App、阅读实际帖子、视频或协助选购时，使用上方已注册的 background_phone；旧小红书MCP读取已停用。只有后台屏真实回执才算看到内容，主人本人付款。
                 $companionActionContext
 
                 【生活、社交与责任】
@@ -1684,7 +1641,7 @@ object LuluDeviceToolBridge {
             plan.args.toString().hashCode().toUInt().toString(16)
         // A precomputed XHS read has already executed on its own request ID;
         // do not invent a second execution receipt for that legacy path.
-        val trackToolChoice = !(plan.tool == "read_xiaohongshu" && directXhsResult != null)
+        val trackToolChoice = true // Unified ToolRouter receives every new character tool choice.
         if (trackToolChoice) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId, decisionId = toolDecisionId,
@@ -1708,9 +1665,7 @@ object LuluDeviceToolBridge {
             // screen content. Other capture callers retain their old receipts.
             JSONObject(plan.args.toString()).put("_handoffToRole", true)
         } else plan.args
-        val toolResult = if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
-            directXhsResult // The same real receipt: no second navigation/search.
-        } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, actualToolArgs,
+        val toolResult = com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, actualToolArgs,
             requestId = requestId,
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId,
             learningApplication = plan.learningApplication,
@@ -1726,22 +1681,6 @@ object LuluDeviceToolBridge {
                 characterId, toolDecisionId, requestId, executedSummary, executedSuccess,
             )
         }
-        // Ordinary actions are now projected once by ToolRouter from the
-        // persisted executor receipt, including crash-replay recovery. A
-        // pre-computed XHS read may predate this request; keep its existing
-        // compatibility projection without running navigation a second time.
-        if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
-                characterId, plan.motiveId, actionReceipt, plan.tool, executedSuccess, executedSummary,
-            )
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
-                characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
-            )
-            if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
-                characterId, plan.curiosity, plan.tool, executedSummary,
-            )
-        }
-
         // The executor has already settled this attempt. A configuration change
         // can invalidate its pending expression, not the historical tool result.
         currentCoroutineContext().ensureActive()
