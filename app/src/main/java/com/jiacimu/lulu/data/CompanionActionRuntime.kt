@@ -185,7 +185,7 @@ internal object CompanionActionRuntime {
                 if (ownedItems.isEmpty()) "尚未添加家具" else
                     ownedItems.take(12).joinToString("；") { "itemId=${it.id}，${it.name}，${it.position}" })
             appendLine("家具不是要定期打卡的义务。想让家更舒适、方便接待朋友或改变布置时，可以自主决定先回家、再建设或移动；每一步必须取得真实工具回执。")
-            appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：本人在游戏馆完成一局可核验的真实游戏；也可以将 gameId 设为 yacht_dice 玩13轮快艇骰子。")
+            appendLine("- play_solo_game：可选gameId=memory_match/yacht_dice/relic_escape/block_island。摸金会真实探索、战斗与撤离，只有成功撤离才收藏战利品；小岛每次玩一阵，持续保存自己的世界。可选focus（摸金explore/treasure/rare/safe/extract；小岛explore/gather/build/survive/wildlife）、turns=4至128。是否玩、玩什么、玩多久和目标由你自己决定，不能自报虚构结果。")
             appendLine("- reschedule_personal_activity，args={\"planId\":\"本人已有日程ID\",\"expectedDueAt\":\"上下文原时间版本\",\"dueAt\":\"自己新选的未来ISO时间\",\"reason\":\"本人理由\"}：新时刻须超过当前时间60秒；可提前安排复议，不代表活动已执行或对方已答应。")
             appendLine("- cancel_personal_activity，args={\"planId\":\"本人已有日程ID\",\"expectedDueAt\":\"上下文原时间版本\",\"reason\":\"本人理由\"}：仅取消本人的原安排，不取消其他人的意愿。")
             appendLine("- go_offline：仅调整通信在线状态，不代替程序保存的日常起居和身体睡眠。")
@@ -225,7 +225,7 @@ internal object CompanionActionRuntime {
             appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(context))
         }
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
-        appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：记忆配对可选 targetScore=120至1200；也可将 gameId 设为 yacht_dice（13轮快艇骰子，没有目标分数字段）。游戏馆保存真实过程与结算，不能自己编输赢。")
+        appendLine("- play_solo_game，args={\"gameId\":\"relic_escape\",\"focus\":\"treasure\",\"turns\":96}：也可选block_island（长期个人生存存档）、memory_match、yacht_dice；小岛focus=explore/gather/build/survive/wildlife，摸金focus=explore/treasure/rare/safe/extract，turns=4至128。自己选择玩哪个与何时停；角色实际操作同一游戏规则，摸金成功撤离后才归仓，小岛出入不清空存档。记忆配对独有targetScore。是否要把实况告诉主人另行自己决定，不自动当成聊天回复。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是仅好友可见的生活分享（QQ空间式）；好友可看全部点赞、评论，不限共同好友。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
@@ -938,12 +938,16 @@ internal object CompanionActionRuntime {
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "play_solo_game" -> {
                 val gameId = args.optString("gameId").trim().lowercase()
-                require(com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId) != null) { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
+                require(com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId) != null) { "该游戏没有接通可核验的独自游玩引擎" }
                 LuluGames.initialize(context)
                 val played = LuluGames.store.playAutonomousGame(characterId, gameId, now,
-                    targetScore = if (args.has("targetScore")) args.optInt("targetScore") else null)
-                    ?: error("游戏馆未能完成这局游戏")
-                MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
+                    targetScore = if (args.has("targetScore")) args.optInt("targetScore") else null,
+                    focus = args.optString("focus", "explore"),
+                    sessionTurns = if (args.has("turns")) args.getInt("turns") else null)
+                    ?: error("游戏馆未能保存这段真实游戏")
+                if (gameId !in setOf("relic_escape", "block_island")) {
+                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
+                }
                 CompanionActionResult(true, played.summary, evidenceId = "game-solo-${played.recordId}")
             }
             "start_call" -> {
