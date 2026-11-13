@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:43:17.433786+00:00",
-  "commit": "bf09f959d0a539ac6214fc1136ff19b421f82529",
+  "generatedAt": "2026-11-13T12:43:50.562713+00:00",
+  "commit": "b5185c26d865ca614fcc0877e5c86dceca27aa70",
   "branch": "main",
-  "sourceFingerprint": "a36dd0bdc5977309279c35ab888c6ccd1387eae69780a807210385495750bbaa",
+  "sourceFingerprint": "02187642d4452cc9bb5917a0e21a0f6a462bd8b769577564496e25b30f9b4073",
   "summary": {
     "files": 1297,
-    "lines": 273154,
+    "lines": 273251,
     "symbols": 3858
   },
   "symbolIndex": {
@@ -25078,8 +25078,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt",
-      "lines": 97,
-      "sha256": "380b8ac6f711d70fbb1d08aebab6c438251f7de26ae96f0c3f514276a0ffcd82",
+      "lines": 194,
+      "sha256": "6218d00935f4a94a825c57d1f4a72b41972ac63b9a5d9f1050f1a2170203ac37",
       "symbols": []
     },
     {
