@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:38:38.912523+00:00",
-  "commit": "dbf9e7b12ddc3eacee018c9458c7dd87944e0b2c",
+  "generatedAt": "2026-11-13T15:51:01.280054+00:00",
+  "commit": "8bf574f8862af2b4e98285c166645c8a8fcaecf1",
   "branch": "main",
-  "sourceFingerprint": "67cd590486be227658d59ce7736d19cafe7c2f55349cb9dde797e5e297205faa",
+  "sourceFingerprint": "107fa129c9c9d9e47afeff7603856e95fab447461fb2522bb84b549c74dca403",
   "summary": {
-    "files": 1303,
-    "lines": 273868,
-    "symbols": 3870
+    "files": 1304,
+    "lines": 274607,
+    "symbols": 3876
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4102,6 +4102,40 @@
         "line": 547
       }
     ],
+    "drag": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 121
+      }
+    ],
+    "pinch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 127
+      }
+    ],
+    "replay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 181
+      }
+    ],
+    "shader": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 598
+      }
+    ],
+    "push": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 651
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+        "line": 671
+      }
+    ],
     "saveChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
@@ -4545,7 +4579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 263
+        "line": 286
       }
     ],
     "recordCurrent": [
@@ -7837,19 +7871,19 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 138
+        "line": 161
       }
     ],
     "latestConsideration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 242
+        "line": 265
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 329
+        "line": 352
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -21137,7 +21171,7 @@
     "IslandRareEventsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "IslandTargetActionTest": [
@@ -25131,6 +25165,37 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
+      "lines": 686,
+      "sha256": "471ca885444f7c5f263be04888d939254199c9e72b7678330458e746dc6c7bc3",
+      "symbols": [
+        {
+          "name": "drag",
+          "line": 121
+        },
+        {
+          "name": "pinch",
+          "line": 127
+        },
+        {
+          "name": "replay",
+          "line": 181
+        },
+        {
+          "name": "shader",
+          "line": 598
+        },
+        {
+          "name": "push",
+          "line": 651
+        },
+        {
+          "name": "push",
+          "line": 671
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
       "lines": 196,
       "sha256": "033905a26350a2a42e4cd2278176f4189fc5bca12a77dcbf25efdbf0b5b1530e",
@@ -28450,8 +28515,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 400,
-      "sha256": "6f9e46e4625035793ab8556971d8bb708d80270c4462b321825d97c8ed9fdd70",
+      "lines": 423,
+      "sha256": "74bc9c27bc646ace5f0060e94e085a08d033722a7ee10f6f75673e299b43d630",
       "symbols": [
         {
           "name": "parse",
@@ -28459,19 +28524,19 @@
         },
         {
           "name": "offer",
-          "line": 138
+          "line": 161
         },
         {
           "name": "latestConsideration",
-          "line": 242
+          "line": 265
         },
         {
           "name": "latest",
-          "line": 263
+          "line": 286
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 329
+          "line": 352
         }
       ]
     },
@@ -42246,8 +42311,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 264,
-      "sha256": "ac3a45b7a013070c976a090f4eb76df4ce94ef962e5be8c90de766be103887a1",
+      "lines": 286,
+      "sha256": "6db160c0f611820fb721cdbb2214b152d0207aef9117e23ed7ca01dd727467be",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
@@ -44953,8 +45018,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 52,
-      "sha256": "63c324c70692e12730f61a1e57716f6c97a0b97d12f94db13e51f2bb10ced6b6",
+      "lines": 55,
+      "sha256": "4dff571e70e12134672bcec72882f4c3ffd73a7e1aee9e4e690fb9b3f99deaf6",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
@@ -45107,12 +45172,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
-      "lines": 55,
-      "sha256": "f7cab33e5bf509763721eefdb4aef18d1a9bf0956217e967abc93575dc9f9bf0",
+      "lines": 60,
+      "sha256": "a390f40b94614fe897c0f126ad18de5e6e9c0904aa97d19f9d2996059eee7595",
       "symbols": [
         {
           "name": "IslandRareEventsTest",
-          "line": 5
+          "line": 11
         }
       ]
     },

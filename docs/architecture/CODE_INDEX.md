@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dbf9e7b12ddc3eacee018c9458c7dd87944e0b2c`
+- 基准提交：`8bf574f8862af2b4e98285c166645c8a8fcaecf1`
 - 分支：`main`
-- 已索引文件：1303
-- 已索引代码/文本行：273868
-- 已发现符号：3870
+- 已索引文件：1304
+- 已索引代码/文本行：274607
+- 已发现符号：3876
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -267,6 +267,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1233 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 686 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 171 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 206 | 0 |
@@ -408,7 +409,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 238 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 400 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 423 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 73 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 427 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 55 | 1 |
@@ -1046,7 +1047,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterScreenShareTest.kt` | 123 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 264 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 286 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 230 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 257 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 782 | 3 |
@@ -1223,7 +1224,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 36 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
@@ -1237,7 +1238,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 145 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 55 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
