@@ -218,6 +218,13 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 if (diagnosticsExpanded) {
                     HorizontalDivider(color = FastPerformanceBorder)
                     FastMetric("缓存 Token", record.cachedTokens.toString())
+                    if (record.reportedInputTokens > 0L) {
+                        val cacheRate = (record.cachedTokens.toDouble() * 100.0 /
+                            record.reportedInputTokens.toDouble()).coerceIn(0.0, 100.0)
+                        FastMetric("输入缓存命中占比", "%.1f%%".format(cacheRate))
+                        Text("占比基于本次接口上报的输入量与缓存量；如果中转站未透传缓存统计，零值不代表 Google 没有命中。",
+                            color = FastPerformanceMuted, fontSize = 11.sp)
+                    }
                     FastMetric("归类明细项数", record.breakdown.size.toString())
                     val groupChars = groups.sumOf { it.chars }
                     val groupEstimated = groups.sumOf { it.estimatedTokens }
