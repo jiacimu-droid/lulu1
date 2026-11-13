@@ -25,6 +25,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.design.LuluColors
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /** Per-character durable media, not a global/shared memory gallery. */
 @Composable
@@ -75,11 +78,12 @@ internal fun RolePhoneAlbum(characterId: String, observationsOnly: Boolean = fal
                             if (observationsOnly) {
                                 MomentImageAttachment(photo.uri,
                                     modifier = Modifier.fillMaxWidth().height(150.dp),
-                                    contentScale = ContentScale.Fit)
+                                    contentScale = ContentScale.Fit,
+                                    contentDescription = "历史屏幕截图")
                             } else {
                                 LuluProfileAvatar(photo.uri, "图", 100)
                             }
-                            Text(if (observationsOnly) photo.savedAt.take(16).substringAfter("T")
+                            Text(if (observationsOnly) screenRecordLocalTime(photo.savedAt)
                                 else photo.source.substringBefore(" · "),
                                 maxLines = 1, fontSize = 11.sp,
                                 color = LuluColors.Muted,
@@ -171,12 +175,14 @@ private fun ScreenRecordViewer(
                                 translationY = shiftY
                             },
                         contentScale = ContentScale.Fit,
+                        contentDescription = "可缩放的真实屏幕截图",
                     )
                 }
                 Text("双指缩放可放大查看 · 这是真实截屏，不是实时画面",
                     fontSize = 11.sp, color = LuluColors.Muted)
-                if (photo.caption.isNotBlank()) Text(photo.caption, maxLines = 2,
-                    style = MaterialTheme.typography.bodySmall)
+                if (photo.caption.isNotBlank()) Text(
+                    screenRecordLocalTime(photo.savedAt) + " · " + photo.caption,
+                    maxLines = 2, style = MaterialTheme.typography.bodySmall)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onDelete) { Text("删除这张") }
@@ -191,3 +197,8 @@ private fun ScreenRecordViewer(
         }
     }
 }
+
+private val ScreenRecordTimeFormat = DateTimeFormatter.ofPattern("M/d HH:mm")
+private fun screenRecordLocalTime(iso: String): String = runCatching {
+    Instant.parse(iso).atZone(ZoneId.systemDefault()).format(ScreenRecordTimeFormat)
+}.getOrDefault(iso.take(16).replace('T', ' '))
