@@ -279,6 +279,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         "home" -> "查手机"
                         "messages" -> if (showMessageFavorites) "我的收藏" else "聊天"
                         "album" -> "相册"
+                        "observations" -> "屏幕记录"
                         "browser" -> "浏览器"
                         "memos" -> "备忘录"
                         "activity" -> "行动记录"
@@ -354,6 +355,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 )
             } else if (phoneApp == "album") {
                 RolePhoneAlbum(actualRole)
+            } else if (phoneApp == "observations") {
+                RolePhoneAlbum(actualRole, observationsOnly = true)
             } else if (phoneApp == "browser") {
                 RolePhoneBrowserHistory(actualRole)
             } else if (phoneApp == "memos") {
