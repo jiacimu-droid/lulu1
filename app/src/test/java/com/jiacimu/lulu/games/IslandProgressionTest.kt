@@ -141,4 +141,30 @@ class IslandProgressionTest {
         assertEquals(0,restored.crystals)
         assertEquals(emptyMap<Int,IslandLostPack>(),restored.lostPacks)
     }
+
+    @Test fun repeatedKnockoutAtSameTileMergesSavedPacksAndRecoveryIsIdempotent() {
+        val base=island().copy(fruit=6,crystals=4)
+        val deathTile=base.world.index(4,4)
+        val existing=IslandLostPack(2,3,1,1)
+        val exposed=base.copy(
+            lostPacks=mapOf(deathTile to existing),
+            world=base.world.copy(x=4,y=5,hp=1,turns=10,wood=10,stone=8,
+                mobs=listOf(ExpeditionMob(10,4,3,4))))
+        val knocked=BlockIslandRules.act(exposed,"move",4,4)
+        assertEquals(IslandLostPack(7,7,4,3),knocked.lostPacks[deathTile])
+        val reloaded=BlockIslandState.fromJson(knocked.toJson())!!
+        assertEquals(knocked.lostPacks,reloaded.lostPacks)
+        val recovered=BlockIslandRules.act(reloaded,"recover_pack",4,4)
+        assertFalse(deathTile in recovered.lostPacks)
+        assertEquals(12,recovered.world.wood)
+        assertEquals(11,recovered.world.stone)
+        assertEquals(7,recovered.fruit)
+        assertEquals(5,recovered.crystals)
+        val savedAgain=BlockIslandState.fromJson(recovered.toJson())!!
+        val duplicate=BlockIslandRules.act(savedAgain,"recover_pack",4,4)
+        assertEquals(savedAgain.world.turns,duplicate.world.turns)
+        assertEquals(savedAgain.world.wood,duplicate.world.wood)
+        assertEquals(savedAgain.crystals,duplicate.crystals)
+    }
+
 }
