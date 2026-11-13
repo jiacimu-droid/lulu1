@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:26:18.484282+00:00",
-  "commit": "e7a03ad3b3ec140c1745885030399ea42d0a5579",
+  "generatedAt": "2026-11-13T02:32:12.063321+00:00",
+  "commit": "434ecc56a4d836c664d491e02412a2608111f110",
   "branch": "main",
-  "sourceFingerprint": "c07e93f92134cdbbc8afe80c722e3fc1f175451edc8a415bf97ab24ac4574697",
+  "sourceFingerprint": "0e2667deb4550403a416efd969615f8786c183cddc7741dbfa53ed697c723619",
   "summary": {
     "files": 1287,
-    "lines": 271436,
+    "lines": 271420,
     "symbols": 3847
   },
   "symbolIndex": {
@@ -457,7 +457,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 161
+        "line": 162
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -10625,19 +10625,19 @@
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 338
+        "line": 339
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 357
+        "line": 358
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 390
+        "line": 391
       }
     ],
     "MeetingProseLength": [
@@ -23854,8 +23854,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt",
-      "lines": 380,
-      "sha256": "615ceff3274028ba3cc4ef95067fb92b2a01915af1d3d17d43bb03cbdd4d5238",
+      "lines": 361,
+      "sha256": "7a0860928300fd7512271b93e162fde88e1853955ffcf825a65a561b44d7c876",
       "symbols": []
     },
     {
@@ -26420,7 +26420,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 113,
-      "sha256": "f411ae4ed20dbc2c619aa03db10dfac5397d571a43e14784c89a32be4384bf0e",
+      "sha256": "c13c371449275f6487dc71f06f4f5212acb142aca649a4e0a49d47efc297dc52",
       "symbols": [
         {
           "name": "render",
@@ -26618,8 +26618,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 175,
-      "sha256": "dd2f7e114934f2fb55f49804809ed0f7b0f7c5c49b06af9605fc8b1930e9c18c",
+      "lines": 176,
+      "sha256": "806d905bd1628de9abf740fbff855f8a376f90d6fb6be97943bd8c7193728711",
       "symbols": [
         {
           "name": "Capability",
@@ -26655,7 +26655,7 @@
         },
         {
           "name": "context",
-          "line": 161
+          "line": 162
         }
       ]
     },
@@ -31209,8 +31209,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 572,
-      "sha256": "f64386c1c529d7948219547f9ef2cb6f8e9598d3c573b077acc6d411a096b62c",
+      "lines": 573,
+      "sha256": "ba646e2ab9e51ae49c8335b97367651d8a549dda7dfd01d30b6f31b640cc279a",
       "symbols": [
         {
           "name": "configured",
@@ -31234,15 +31234,15 @@
         },
         {
           "name": "XhsLoginQr",
-          "line": 338
+          "line": 339
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 357
+          "line": 358
         },
         {
           "name": "healthContext",
-          "line": 390
+          "line": 391
         }
       ]
     },
@@ -41061,7 +41061,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
       "lines": 103,
-      "sha256": "897fc074310499a5f09ca59cf9ad35f2bfd03a2547624af883ee493d82e7b6e5",
+      "sha256": "a42e982684a6fdc5c53b6b1139ddfa6da73f4f596c65ff18e9cdcfa79bb517af",
       "symbols": [
         {
           "name": "BackgroundPhoneCapabilityContextTest",
@@ -44525,8 +44525,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
-      "lines": 35,
-      "sha256": "b4fef6b383c7a14822e1c7833a6ead96291cec02581021980dc185bc03d48349",
+      "lines": 36,
+      "sha256": "20a1354398a5298c04be51952e703d6f3775eadc63edc4d70ac8e14f5cbdc30d",
       "symbols": [
         {
           "name": "XhsGoMcpHandshakeTest",

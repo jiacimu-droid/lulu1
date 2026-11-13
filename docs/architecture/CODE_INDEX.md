@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e7a03ad3b3ec140c1745885030399ea42d0a5579`
+- 基准提交：`434ecc56a4d836c664d491e02412a2608111f110`
 - 分支：`main`
 - 已索引文件：1287
-- 已索引代码/文本行：271436
+- 已索引代码/文本行：271420
 - 已发现符号：3847
 
 | 文件 | 行数 | 符号数 |
@@ -195,7 +195,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 380 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 361 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 584 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
@@ -341,7 +341,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 175 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 176 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -505,7 +505,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 572 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 573 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 613 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 96 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 124 | 0 |
@@ -1198,7 +1198,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpCompatibilityTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 35 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
