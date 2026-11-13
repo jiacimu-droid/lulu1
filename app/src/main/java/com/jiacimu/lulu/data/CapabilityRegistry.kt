@@ -33,7 +33,7 @@ object CapabilityRegistry {
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", it == "read_self_todo", retired = it == "write_journal") }
     val external = listOf(
         Capability(com.jiacimu.lulu.ai.JevDirections.TOOL, "analysis", "jev", "native TypeSafe response, named probabilities and actual usage; no action chosen", false),
-        Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
+        Capability("read_xiaohongshu", "external", "xhs_read", "Legacy reader for old receipts only; new App browsing uses background_phone", false, retired = true),
         Capability("read_health_mcp", "external", "health_read", "authenticated read-only health_read response", true),
     )
     /** Historical recognition is not permission to offer or run a retired ability. */
@@ -74,11 +74,6 @@ object CapabilityRegistry {
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (userRequested) return true
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        // This is read-only discovery in the user's already-authorized XHS
-        // browser, not screen control or account posting. Characters may
-        // explore by default; an explicit OFF preference still wins.
-        if (capability.name == "read_xiaohongshu")
-            return prefs.getBoolean("$characterId:xhs_read", true)
         // Authorizing media transport reasonably includes inspecting the
         // media session it will control, without granting all device_read data.
         if (capability.name == "list_media_sessions" &&
@@ -152,6 +147,7 @@ object CapabilityRegistry {
                 "购买类控件只通过最新screenSnapshotId的tap_element。禁止提交/确认订单、" +
                 "免密/货到付款、支付或验证码；付款阶段主人亲自处理，" +
                 "后台第三方付款页不保证迁移到主屏，应用只提示主人手动打开商家App。")
+            appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone 启动并观察真实后台画面；旧 read_xiaohongshu 已停用，不需要 Termux/MCP。读到什么、能否下单都以实际回执及授权为准。")
             appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
                 "只有实际调用工具得到新回执，才能知道这次是否成功。")
             appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
