@@ -152,6 +152,11 @@ internal object PromptInputAudit {
 
     private fun detailed(label: String, content: String, instruction: String?): List<Pair<String, String>> {
         if (content.isBlank()) return emptyList()
+        if (label == "本轮任务指令" && instruction != null &&
+            content == "本次任务：" + instruction) {
+            return listOf("本轮任务指令 / 前缀" to "本次任务：") +
+                splitHeadings("本轮任务指令", instruction)
+        }
         if (label == "任务规则/工具协议" && instruction != null) {
             val suffix = "本次任务：" + instruction
             // An attached new-avatar photo adds authored observation guidance
