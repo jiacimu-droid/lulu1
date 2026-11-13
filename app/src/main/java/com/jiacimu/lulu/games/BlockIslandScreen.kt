@@ -245,11 +245,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
     val buildReady = buildPreview?.allowed == true
+    val deliberateTarget = target.takeIf { mapAim }
     val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","recover_pack","fish",
-        "sow_berries","tend_berries","harvest_berries"))
-    val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
-    val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
-    val nearbyWildlife = islandNearbyAction(island,facing,setOf("tame","care"))
+        "sow_berries","tend_berries","harvest_berries"),deliberateTarget)
+    val nearbyFight = islandNearbyAction(island,facing,setOf("fight"),deliberateTarget)
+    val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"),deliberateTarget)
+    val nearbyWildlife = islandNearbyAction(island,facing,setOf("tame","care"),deliberateTarget)
     val nearbyPrimary = nearbyFight ?: nearbyRescue ?: nearbyWildlife ?: nearbyGather
     val directionLabel = when(facing) {
         0 to -1 -> "↑"; 1 to 0 -> "→"; -1 to 0 -> "←"; else -> "↓"
