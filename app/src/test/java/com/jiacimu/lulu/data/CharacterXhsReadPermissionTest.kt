@@ -15,18 +15,18 @@ class CharacterXhsReadPermissionTest {
     private val role = "xhs-permission-role"
     private val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
 
-    @Test fun legacyXhsReaderIsRetiredEvenWithOldGrantOrExplicitRequest() {
-        val cap = CapabilityRegistry.find("read_xiaohongshu")!!
+    @Test fun legacyXhsCapabilityIsNotRegisteredEvenWithSavedOldConsent() {
         val key = "$role:xhs_read"
-        val before = prefs.getBoolean(key, false)
         val existed = prefs.contains(key)
+        val before = prefs.getBoolean(key, false)
         try {
-            assertTrue(cap.retired)
-            assertFalse(CapabilityRegistry.canChoose("read_xiaohongshu"))
             prefs.edit().putBoolean(key, true).commit()
-            assertFalse(CapabilityRegistry.allows(context, role, cap, false))
-            assertFalse(CapabilityRegistry.allows(context, role, cap, true))
+            assertNull(CapabilityRegistry.find("read_xiaohongshu"))
+            assertFalse(CapabilityRegistry.canChoose("read_xiaohongshu"))
             assertTrue(CapabilityRegistry.canChoose("background_phone"))
+            val prompt = CapabilityRegistry.phoneOperationContext(context, role)
+            assertFalse(prompt.contains("read_xiaohongshu"))
+            assertTrue(prompt.contains("background_phone"))
         } finally {
             val editor = prefs.edit()
             if (existed) editor.putBoolean(key, before) else editor.remove(key)
