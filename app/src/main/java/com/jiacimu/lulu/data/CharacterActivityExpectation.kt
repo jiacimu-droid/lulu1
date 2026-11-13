@@ -7,7 +7,7 @@ import java.time.Instant
 
 /** A small projection inside the canonical inner-life state, never a second emotion engine. */
 internal object CharacterActivityExpectation {
-    val tools = setOf("read_book", "read_xiaohongshu", "play_solo_game", "digital_world_action", "write_journal")
+    val tools = setOf("read_book", "background_phone", "play_solo_game", "digital_world_action", "write_journal")
 
     fun begin(previous: JSONArray?, id: String, tool: String, proposal: JSONObject?, now: Instant): JSONArray? {
         if (tool !in tools || id.isBlank() || proposal == null) return null
