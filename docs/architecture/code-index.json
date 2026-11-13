@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:51:01.507276+00:00",
-  "commit": "58d6ab98d54b5f222b2f232ce8d8ddad5b83590d",
+  "generatedAt": "2026-11-13T05:54:11.209909+00:00",
+  "commit": "39c2d0ad8ec8aad7f08843e0d5ffbe1c1a19a74f",
   "branch": "main",
-  "sourceFingerprint": "2c414a85a751f53945eee9cfd44ca2e102ee40fe35f76e194f1e20d7e165c4bc",
+  "sourceFingerprint": "04f17e3fa9a57e0e7c882550cf20b29b9bee28734f005a690b27fe877b5d06c5",
   "summary": {
     "files": 1296,
-    "lines": 272626,
+    "lines": 272652,
     "symbols": 3855
   },
   "symbolIndex": {
@@ -16784,10 +16784,10 @@
         "line": 47
       }
     ],
-    "clipboardText": [
+    "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "canObserve": [
@@ -38149,8 +38149,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1093,
-      "sha256": "d1796114aa90e601bfcf4a4c51828e74b43e63988c0a31bdf134c2eb3afd20bd",
+      "lines": 1096,
+      "sha256": "e7cf06fcd42e7aba0b88583092ce65c0d61bdfe9f1fc258583bb6f8ef90d52c9",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -38722,12 +38722,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 77,
-      "sha256": "f02e38ba44079a531f0b074e6e26c96d6a4f4e1a09e7616fa032860932111e10",
+      "lines": 92,
+      "sha256": "c206aadea94e20d68db56e1c087e2d092161e33a4ea2e9939ca0e3f46f2e2280",
       "symbols": [
         {
-          "name": "clipboardText",
-          "line": 42
+          "name": "clipboardTimestamp",
+          "line": 43
         }
       ]
     },
@@ -45520,8 +45520,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
-      "lines": 47,
-      "sha256": "595be86b27f0a8435c446f5294186f9f87ea2090c8a97760b7e6c200718645af",
+      "lines": 55,
+      "sha256": "ac4e8bccb360aba37e85956ade82fa1db421bcb3a29eb17300a9db8912a30b5b",
       "symbols": [
         {
           "name": "LuluShoppingLinkShareTest",
