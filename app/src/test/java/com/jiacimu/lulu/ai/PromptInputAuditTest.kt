@@ -104,4 +104,53 @@ class PromptInputAuditTest {
         assertFalse(audit.breakdown.any { it.label.contains("敏感标题") || it.label.contains("私密细节") })
     }
 
+    @Test fun autonomousFactsInApiUserRoleAreNotMislabelledAsOwnerMessage() {
+        val privateHeading = "【私人真实姓名或其他秘密】"
+        val facts = listOf(
+            "真实事实：",
+            "【用户现实设备与用户状态感知层】",
+            "实际设备观察",
+            "【当前实际同场】",
+            "真实数字世界状态",
+            "【本轮仍未回应的真实新消息】",
+            "确实未读的一句话",
+            privateHeading,
+            "不写入统计明细的私密内容",
+        ).joinToString("\n")
+        val audit = PromptInputAudit.inspect(
+            systemSections = emptyList(),
+            system = "",
+            user = facts,
+            history = emptyList(),
+            images = emptyList(),
+            currentIsActualUserMessage = false,
+        )
+        assertTrue(audit.coverageMatches)
+        assertEquals(facts.length, audit.textCharacters)
+        assertFalse(audit.breakdown.any { it.label == "本轮完整输入 / user" })
+        assertTrue(audit.breakdown.any { it.label.contains("本轮背景依据（后台事实输入，非用户发言）") })
+        assertTrue(audit.breakdown.any { it.label.endsWith("【当前实际同场】") })
+        assertTrue(audit.breakdown.any { it.label.endsWith("【本轮仍未回应的真实新消息】") })
+        assertFalse(audit.breakdown.any {
+            it.label.contains("私人真实姓名") || it.label.contains("私密内容")
+        })
+        val groups = com.jiacimu.lulu.data.TokenConsolePresentation.groups(audit.breakdown)
+        fun groupFor(section: String) = groups.single { group ->
+            group.items.any { it.label.endsWith(section) }
+        }.title
+        assertEquals("世界书与世界状态", groupFor("【当前实际同场】"))
+        assertEquals("真实聊天与历史", groupFor("【本轮仍未回应的真实新消息】"))
+        assertFalse(groups.any { it.title == "本轮新消息与回执" && it.chars == facts.length.toLong() })
+        assertEquals(audit.textCharacters.toLong(), groups.sumOf { it.chars })
+    }
+
+    @Test fun actualDialogueStillHasItsOwnUserMessageLabel() {
+        val audit = PromptInputAudit.inspect(
+            systemSections = emptyList(), system = "", user = "主人真正输入的消息",
+            history = emptyList(), images = emptyList(), currentIsActualUserMessage = true,
+        )
+        assertEquals(listOf("本轮完整输入 / user"), audit.breakdown.map { it.label })
+        assertTrue(audit.coverageMatches)
+    }
+
 }
