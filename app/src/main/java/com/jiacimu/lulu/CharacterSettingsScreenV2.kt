@@ -8,10 +8,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.*
@@ -113,7 +116,11 @@ fun CharacterSettingsScreenV2(
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var section by remember(characterId) { mutableIntStateOf(0) }
-    LaunchedEffect(characterId, section) {
+    var managementPage by remember(characterId) { mutableIntStateOf(0) }
+    val listState = rememberLazyListState()
+    BackHandler(section == 3 && managementPage != 0) { managementPage = 0 }
+    LaunchedEffect(section, managementPage) { listState.scrollToItem(0) }
+    LaunchedEffect(characterId, section, managementPage) {
         pageFocusRequester.requestFocus()
         keyboard?.hide()
     }
@@ -168,12 +175,22 @@ fun CharacterSettingsScreenV2(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("${original.displayName}的设置", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                actions = {
-                    IconButton(enabled = !clearingRecords, onClick = { confirmClearRecords = true }) {
-                        Icon(Icons.Outlined.DeleteOutline, "清空经历与记忆", tint = MaterialTheme.colorScheme.error)
-                    }
+                title = {
+                    Text(if (section == 3) when (managementPage) {
+                        1 -> "后台连接"
+                        2 -> "操作权限"
+                        3 -> "学习与成长"
+                        4 -> "居民运行"
+                        5 -> "记录管理"
+                        else -> "管理"
+                    } else original.displayName + " · 设置",
+                    fontWeight = FontWeight.SemiBold)
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        if (section == 3 && managementPage != 0) managementPage = 0
+                        else onBack()
+                    }) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
@@ -181,7 +198,8 @@ fun CharacterSettingsScreenV2(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
+            state = listState,
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
@@ -191,6 +209,7 @@ fun CharacterSettingsScreenV2(
                         pageFocusManager.clearFocus(force = true)
                         keyboard?.hide()
                         section = index
+                        managementPage = 0
                     })
             }
 
@@ -363,8 +382,29 @@ fun CharacterSettingsScreenV2(
                 }
             }
             }
-            if (section == 3 || section == 4) {
-            if (nativeResident != null) item {
+            if (section == 3) {
+                if (managementPage == 0) {
+                    item("manage-connect") {
+                        CharacterManageEntry(
+                            "后台连接",
+                            if (com.jiacimu.lulu.system.LuluWirelessDebugging.hasPriorPairing(context))
+                                "已保存配对" else "未配对",
+                        ) { managementPage = 1 }
+                    }
+                    item("manage-permission") {
+                        CharacterManageEntry("操作权限", "设备、闹钟和音乐") { managementPage = 2 }
+                    }
+                    item("manage-learning") {
+                        CharacterManageEntry("学习与成长", "计划与额度") { managementPage = 3 }
+                    }
+                    if (nativeResident != null) item("manage-resident") {
+                        CharacterManageEntry("居民运行", "工作与行程") { managementPage = 4 }
+                    }
+                    item("manage-records") {
+                        CharacterManageEntry("记录管理", "清除历史记录") { managementPage = 5 }
+                    }
+                }
+            if (nativeResident != null && managementPage == 4) item {
                 CharacterV2Card {
                     Text("工作与身体", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     Text("固定职责 · ${nativeResident.identity}")
@@ -446,11 +486,17 @@ fun CharacterSettingsScreenV2(
                     }
                 }
             }
-            item { CharacterV2Card { CharacterLearningSettings(characterId) } }
-            item {
+            if (managementPage == 1) item("manage-wireless") {
+                CharacterWirelessDebuggingSettings()
+            }
+            if (managementPage == 2) item("manage-authorization") {
+                CharacterV2Card { CharacterExecutionSettings(characterId) }
+            }
+            if (managementPage == 3) item("manage-growth") {
+                CharacterV2Card { CharacterLearningSettings(characterId) }
+            }
+            if (managementPage == 5) item("manage-clear") {
                 CharacterV2Card {
-                    CharacterExecutionSettings(characterId)
-                    Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     OutlinedButton(
                         onClick = { confirmClearRecords = true },
                         enabled = !clearingRecords,
@@ -461,7 +507,8 @@ fun CharacterSettingsScreenV2(
                         Spacer(Modifier.width(6.dp))
                         Text(if (clearingRecords) "正在清除…" else "清除所有记录")
                     }
-                    if (recordNotice.isNotBlank()) Text(recordNotice, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                    if (recordNotice.isNotBlank())
+                        Text(recordNotice, style = MaterialTheme.typography.bodySmall)
                 }
             }
             }
@@ -611,5 +658,28 @@ private fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
         shape = RoundedCornerShape(20.dp),
     ) {
         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+    }
+}
+
+@Composable
+private fun CharacterManageEntry(label: String, summary: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.55f)),
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(label, style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold)
+                Text(summary, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Icon(Icons.Outlined.ChevronRight, contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }

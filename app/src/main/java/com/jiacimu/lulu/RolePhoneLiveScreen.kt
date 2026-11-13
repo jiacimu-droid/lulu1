@@ -187,10 +187,17 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
     var saving by remember(roleId) { mutableStateOf(false) }
     var autoRefresh by remember(roleId) { mutableStateOf(false) }
     var zoomOpen by remember(roleId) { mutableStateOf(false) }
+    var paused by remember(roleId) {
+        mutableStateOf(LuluBackgroundPhoneSession.ownerHasPaused(context))
+    }
+    var testing by remember(roleId) { mutableStateOf(false) }
+    var testDialog by remember(roleId) { mutableStateOf(false) }
+    var testName by remember(roleId) { mutableStateOf("") }
 
 
     suspend fun refresh() {
         if (busy || saving) return
+        paused = LuluBackgroundPhoneSession.ownerHasPaused(context)
         busy = true
         try {
             picture = loadInspectedPicture(context, roleId)
@@ -370,7 +377,105 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
                         maxLines = 1)
                 }
             }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    enabled = !busy && !testing && roleId.isNotBlank() &&
+                        !roleId.startsWith("resident:"),
+                    onClick = { testDialog = true },
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                ) { Text("自测打开应用") }
+                OutlinedButton(
+                    enabled = !busy && !testing,
+                    onClick = {
+                        scope.launch {
+                            if (paused) {
+                                LuluBackgroundPhoneSession.resumeByOwner(context)
+                                paused = LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                status = "已允许新后台任务"
+                            } else {
+                                try {
+                                    LuluBackgroundPhoneSession.stop(context)
+                                    paused = LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                    picture = null
+                                    autoRefresh = false
+                                    status = "后台操作已暂停"
+                                } catch (error: Exception) {
+                                    status = "停止失败：" + error.message.orEmpty().take(110)
+                                }
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                ) { Text(if (paused) "允许后台操作" else "暂停后台操作") }
+            }
+
         }
+    }
+    if (testDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!testing) testDialog = false },
+            title = { Text("自测后台应用") },
+            text = {
+                OutlinedTextField(
+                    value = testName, onValueChange = { testName = it.take(80) },
+                    label = { Text("应用名称") },
+                    placeholder = { Text("例如：抖音") },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !testing && testName.trim().isNotEmpty(),
+                    onClick = {
+                        val app = testName.trim()
+                        testDialog = false
+                        testing = true
+                        scope.launch {
+                            try {
+                                val id = "owner-virtual-test-" + java.util.UUID.randomUUID()
+                                val started = org.json.JSONObject(
+                                    com.jiacimu.lulu.data.ToolRouter.execute(
+                                        context, roleId, "background_phone",
+                                        org.json.JSONObject().put("action", "start"),
+                                        requestId = id + ":start", userRequested = true))
+                                if (!started.optBoolean("success")) {
+                                    status = "无法开启后台屏：" +
+                                        started.optString("error").ifBlank {
+                                            started.optString("verification", started.optString("status"))
+                                        }.take(110)
+                                } else {
+                                    val launched = org.json.JSONObject(
+                                        com.jiacimu.lulu.data.ToolRouter.execute(
+                                            context, roleId, "background_phone",
+                                            org.json.JSONObject().put("action", "launch")
+                                                .put("appName", app)
+                                                .put("sendToChat", true)
+                                                .put("caption", "主人后台屏自测 · " + app),
+                                            requestId = id + ":launch", userRequested = true))
+                                    if (launched.optBoolean("success")) {
+                                        refresh()
+                                        status = if (launched.optBoolean("sentToChat"))
+                                            "已核实并发至私聊"
+                                        else "画面已启动，截图未发送：" +
+                                            launched.optString("shareError").take(90)
+                                    } else {
+                                        status = "自测失败：" +
+                                            launched.optString("error").ifBlank {
+                                                launched.optString("verification", launched.optString("status"))
+                                            }.take(110)
+                                    }
+                                }
+                            } catch (error: Exception) {
+                                status = "自测失败：" + error.message.orEmpty().take(110)
+                            } finally { testing = false }
+                        }
+                    },
+                ) { Text("打开并截图") }
+            },
+            dismissButton = {
+                TextButton(onClick = { testDialog = false }) { Text("取消") }
+            },
+        )
     }
     if (zoomOpen && picture != null) {
         RolePhoneZoomDialog(picture!!.bitmap) { zoomOpen = false }
