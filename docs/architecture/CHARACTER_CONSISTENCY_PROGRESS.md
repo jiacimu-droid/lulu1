@@ -1,3 +1,8 @@
+## 2026-11-13 · UI-02.2 群成员通知写入拒绝（总接力）
+- 正式 [9a9e0b7](https://github.com/jiacimu-droid/lulu1/commit/9a9e0b7feb1d2ee223ad0a63ed92cc60f1e486c0) 将群成员变更通知从异步 apply 改为 durable commit，通知提交失败时原 append 回滚消息投影，不触发后续邀请/移除意识回执。
+- 回归 [1b9b211](https://github.com/jiacimu-droid/lulu1/commit/1b9b21102f5e60c0d658cc4cc76f6f9d04b946af) `ChatHistoryLegacyCompatibilityTest.rejectedMembershipNoticeMustNotPublishUndurableMessageAfterSavedRoster`：首笔群成员提交成功、第二笔通知提交失败，检查内存/重开均不出现幽灵通知，成员变更仍存在。**JVM/APK/Refresh 尚未核实**；不称跨提交原子性。
+- 下一轮直接检查该测试 JVM 首错；随后判断成员已改、通知未发是否需可靠待发事件。真机强杀独立待验。
+
 ## 2026-11-13 · UI-02.2 群聊创建拒写（总接力）
 - 生产 [eb8b4c8](https://github.com/jiacimu-droid/lulu1/commit/eb8b4c8294ab43db15222059f8221a6b70508751) 修复先发布群聊、异步写入造成的幽灵群；改为 durable commit 成功后才发布，拒写撤回临时消息流，成员通知不提前产生。
 - 回归 [dd843a0](https://github.com/jiacimu-droid/lulu1/commit/dd843a0113d87349bf24c44b85115ffb2b5bb3b2) `rejectedGroupCreationMustNotPublishMembersOrSurviveReopen` 注入拒写，检查 commit/no apply、内存与重启无幽灵群、原快照不变。新增 JVM/APK/索引待验；真机、增量迁移及跨 Store 原子性待验。
