@@ -291,11 +291,15 @@ internal fun RelicChestCeremony(
                 }
                 Text("出货已真实结算，撤离前仍可能遗失",
                     color = Color(0xFFB6C4D4), fontSize = 10.sp)
-                Text("跳过动画 / 关闭展示",
-                    modifier = Modifier.clickable(onClick = onFinished)
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    color = tint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
+                // Keep dismissal reachable even when a short landscape viewport
+                // requires scrolling the collectible's full description.
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("跳过动画 / 关闭展示",
+                        modifier = Modifier.clickable(onClick = onFinished)
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
+                        color = tint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
