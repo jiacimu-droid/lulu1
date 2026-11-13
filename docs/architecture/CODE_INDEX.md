@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f4868aaf437dcad0bd492b6c2589159cd1dd9079`
+- 基准提交：`34f7621f5a868b1fb04ac27a2a79b43192449048`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：274717
+- 已索引代码/文本行：274740
 - 已发现符号：3877
 
 | 文件 | 行数 | 符号数 |
@@ -275,7 +275,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 543 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 213 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 216 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 235 | 0 |
@@ -927,7 +927,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 82 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |

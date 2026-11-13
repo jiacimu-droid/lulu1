@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T16:11:00.884153+00:00",
-  "commit": "f4868aaf437dcad0bd492b6c2589159cd1dd9079",
+  "generatedAt": "2026-11-13T16:45:26.517900+00:00",
+  "commit": "34f7621f5a868b1fb04ac27a2a79b43192449048",
   "branch": "main",
-  "sourceFingerprint": "385a3cfa209fa2f105b188da5507c2d3f821e5b99f5f82b3eb101c122589da6e",
+  "sourceFingerprint": "e339d6075f675d5db70dacf700f751089a9b5729a98a14e0b5080ddc16644017",
   "summary": {
     "files": 1305,
-    "lines": 274717,
+    "lines": 274740,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -25245,8 +25245,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-      "lines": 213,
-      "sha256": "6fa4875975080c1b2b697a13f028b386895e2cfdc7b99513e75cdad8cc13b36e",
+      "lines": 216,
+      "sha256": "ce5150523bc7f497420561afb52c8856e87a677b6f177a649748fefd4c412ef6",
       "symbols": [
         {
           "name": "saveChatMessage",
@@ -40637,8 +40637,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
-      "lines": 82,
-      "sha256": "172e902f0d7e18335ececc5abfc14bad69a74e3fe2a5a4f9e3bf649dfb57e5f7",
+      "lines": 102,
+      "sha256": "b7e0f0320ef35dafe806d7fc48d30bb014fb21feb3be40d1be7f2d767ad9a0bd",
       "symbols": [
         {
           "name": "RolePhotoAlbumStoreTest",
