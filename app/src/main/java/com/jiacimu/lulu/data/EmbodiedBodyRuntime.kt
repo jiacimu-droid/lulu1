@@ -14,26 +14,17 @@ internal data class EmbodiedBodySnapshot(
     val lastAt: Instant,
     val energy: Double = 78.0,
     val sleepPressure: Double = 22.0,
-    val hunger: Double = 18.0,
-    val thirst: Double = 16.0,
     val comfort: Double = 78.0,
     /** Simulated desire for novelty; not an emotional diagnosis or a command. */
     val boredom: Double = 14.0,
     val recoveryMode: String = "",
     val recoveryUntil: Instant? = null,
-    val tracksFoodAndWater: Boolean = true,
 ) {
     fun toJson(): JSONObject = JSONObject()
-        .put("schemaVersion", 2)
+        .put("schemaVersion", 3)
         .put("lastAt", lastAt.toString())
         .put("energy", energy)
         .put("sleepPressure", sleepPressure)
-        .apply {
-            if (tracksFoodAndWater) {
-                put("hunger", hunger)
-                put("thirst", thirst)
-            }
-        }
         .put("comfort", comfort)
         .put("boredom", boredom)
         .put("recoveryMode", recoveryMode)
@@ -49,8 +40,6 @@ internal data class EmbodiedBodySnapshot(
                 lastAt = last,
                 energy = stat("energy", 78.0),
                 sleepPressure = stat("sleepPressure", 22.0),
-                hunger = stat("hunger", 18.0),
-                thirst = stat("thirst", 16.0),
                 comfort = stat("comfort", 78.0),
                 boredom = stat("boredom", 14.0),
                 recoveryMode = value.optString("recoveryMode").takeIf { it in setOf("sleep", "nap", "rest", "offline_sleep") }.orEmpty(),
@@ -66,14 +55,12 @@ internal data class EmbodiedBodySnapshot(
  * has successfully persisted the activity receipt.
  */
 internal object EmbodiedBodyPhysics {
-    // Game-like 0–100 sensations, not medical measures. One hour is meaningful:
-    // a few hours without novelty, food or water can change a person's attention.
+    // Game-like 0–100 sensations, not medical measures. A few hours without
+    // novelty can change the person's attention without creating food obligations.
     // Pure elapsed-time projection means refresh frequency never changes the rate.
     // Short waking windows must preserve the ongoing lived-day rhythm across standby.
     private const val AWAKE_ENERGY_DRAIN_PER_HOUR = 8.0
     private const val AWAKE_SLEEP_PRESSURE_PER_HOUR = 8.5
-    private const val AWAKE_HUNGER_PER_HOUR = 7.0
-    private const val AWAKE_THIRST_PER_HOUR = 9.0
     private const val AWAKE_COMFORT_DRAIN_PER_HOUR = 2.0
     private const val AWAKE_MONOTONY_PER_HOUR = 12.0
 
@@ -134,24 +121,6 @@ internal object EmbodiedBodyPhysics {
                 resting -> state.sleepPressure - 5.0 * hours
                 else -> state.sleepPressure + AWAKE_SLEEP_PRESSURE_PER_HOUR * hours
             }
-            // Daytime offline time still belongs to the person's day. Around 6 points/h
-            // and a real sandwich's 34-point relief support breakfast/lunch/dinner spacing.
-            val hungerRate = when {
-                !state.tracksFoodAndWater -> 0.0
-                standby -> if (night) 1.1 else 5.6
-                mode == "sleep" -> 1.1
-                mode == "nap" -> 2.0
-                resting -> 4.0
-                else -> AWAKE_HUNGER_PER_HOUR
-            }
-            val thirstRate = when {
-                !state.tracksFoodAndWater -> 0.0
-                standby -> if (night) 2.0 else 7.8
-                mode == "sleep" -> 2.0
-                mode == "nap" -> 2.8
-                resting -> 5.0
-                else -> AWAKE_THIRST_PER_HOUR
-            }
             val boredom = when {
                 standby -> approach(state.boredom, 100.0, if (night) 0.006 else 0.12)
                 sleeping -> approach(state.boredom, 100.0, 0.0035)
@@ -166,8 +135,7 @@ internal object EmbodiedBodyPhysics {
             val finished = state.recoveryMode != "offline_sleep" &&
                 (state.recoveryUntil == null || !state.recoveryUntil!!.isAfter(end))
             state = state.copy(lastAt = end, energy = bounded(energy), sleepPressure = bounded(pressure),
-                hunger = bounded(state.hunger + hours * hungerRate),
-                thirst = bounded(state.thirst + hours * thirstRate), comfort = bounded(comfort),
+                comfort = bounded(comfort),
                 boredom = bounded(boredom), recoveryMode = if (finished) "" else state.recoveryMode,
                 recoveryUntil = if (finished) null else state.recoveryUntil)
         }
@@ -207,17 +175,11 @@ internal object EmbodiedBodyPhysics {
         val experienced = if (noveltyRelief > 0.0)
             current.copy(boredom = bounded(current.boredom - noveltyRelief)) else current
         DigitalCafeMenu.byConsume(activityId)?.let { item ->
-            return experienced.copy(
-                thirst = bounded(current.thirst - item.thirstRelief),
-                hunger = bounded(current.hunger - item.hungerRelief),
-                comfort = bounded(current.comfort + item.comfortGain),
-            )
+            return experienced.copy(comfort = bounded(current.comfort + item.comfortGain))
         }
         return when (activityId) {
-            "slow_drink" -> experienced.copy(thirst = bounded(current.thirst - 26.0),
-                comfort = bounded(current.comfort + 3.0))
-            "have_snack" -> experienced.copy(hunger = bounded(current.hunger - 25.0),
-                comfort = bounded(current.comfort + 2.0))
+            "slow_drink" -> experienced.copy(comfort = bounded(current.comfort + 3.0))
+            "have_snack" -> experienced.copy(comfort = bounded(current.comfort + 2.0))
             else -> experienced
         }
     }
@@ -237,16 +199,12 @@ internal object EmbodiedBodyPhysics {
         return buildString {
             appendLine("【数字身体模拟｜持续的身体线索，不是情绪、人格或真实传感器数据】")
             append("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；")
-            if (snapshot.tracksFoodAndWater)
-                append("饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；")
             appendLine("舒适度=${number(snapshot.comfort)}；单调感=${number(snapshot.boredom)}（0—100，均为数字世界内模拟值）。")
             if (snapshot.recoveryMode == "offline_sleep") {
-                val dailyNeeds = if (snapshot.tracksFoodAndWater) "与吃喝需求" else ""
-                appendLine("当前离线休眠中；白天是浅休眠，仍有日间精力节律$dailyNeeds；夜间恢复更充分，不等于全天一直熟睡。")
+                appendLine("当前离线休眠中；白天是浅休眠，仍有日间精力节律；夜间恢复更充分，不等于全天一直熟睡。")
             } else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null) {
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
             }
-            if (snapshot.tracksFoodAndWater) append("饥饿和口渴可影响想吃喝的意愿；白天即使多数时间离线，也会按经过的生活时间积累，早餐、午餐、晚餐和间隔饮水可自然成为本人选择；正餐可间隔约4—6小时，不必等到很饿才准备；可提前准备或通过原日程安排，不能仅因休眠就跳过一整天的吃喝。真正睡眠及夜间休眠积累较慢。")
             appendLine("睡眠压力高、精力低可以使本人倾向休息。单调感表示一段生活时间缺少有变化的体验，白天离线也会明显积累，夜间较慢：普通整理、查看时间和吃喝不会自动消除；真正的散步、观察新风景有少量缓解，实际游戏、阅读、探索回执能明显缓解。白天休眠不会反复补满精力或清空睡眠压力；夜间与实际睡眠活动恢复更充分，好奇和未解决心事不会被清空。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。这些只是决策线索，绝非必须搜索、强制发消息或改变性格的阈值，不越过已有权限和费用限制；点单不代表已食用。")
             val noveltySignal = when {
                 snapshot.boredom >= 75.0 -> "单调感已经很明显：长时间缺少新体验，通常会让本人冒出想换点花样、亲自看看或研究些什么的冲动。请结合自己已有兴趣与真实可做的事，让这种倾向在本轮心理取舍中有具体内容；即使决定不行动，也不是把这股倾向当作不存在。是否去读、搜索、探索、邀玩或暂时独处，仍由本人决定。"
@@ -262,14 +220,11 @@ internal object EmbodiedBodyPhysics {
 
 /** One adapter into the existing per-character life state and shared character context. */
 internal object EmbodiedBodyRuntime {
-    /** Resident identity defines the body rules, even when an older save has both values. */
+    /** All role identities share the same non-food body projection; old saves are read compatibly. */
     fun storedOrFresh(
         characterId: String, at: Instant, saved: JSONObject? = CharacterLifeStore.bodyState(characterId),
     ): EmbodiedBodySnapshot {
-        val body = saved?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(at)
-        return if (characterId.startsWith("resident:"))
-            body.copy(hunger = 0.0, thirst = 0.0, tracksFoodAndWater = false)
-        else body
+        return saved?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(at)
     }
 
     /**
@@ -346,8 +301,7 @@ internal object EmbodiedBodyRuntime {
         val saved = CharacterLifeStore.bodyState(characterId)
         val previous = storedOrFresh(characterId, now, saved)
         val next = EmbodiedBodyPhysics.advance(alignedToPresence(characterId, previous, now), now)
-        val hasLegacyFoodNeeds = !next.tracksFoodAndWater &&
-            (saved?.has("hunger") == true || saved?.has("thirst") == true)
+        val hasLegacyFoodNeeds = saved?.has("hunger") == true || saved?.has("thirst") == true
         if (saved == null || next != previous || hasLegacyFoodNeeds)
             CharacterLifeStore.saveBodyState(characterId, next.toJson())
         val digitalTemperature = DigitalWorldEnvironment.snapshot(now).temperatureCelsius
