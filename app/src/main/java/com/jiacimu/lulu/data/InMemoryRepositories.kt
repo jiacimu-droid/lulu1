@@ -540,7 +540,8 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                 for (index in 0 until array.length()) {
                     val item = array.optJSONObject(index) ?: continue
                     val title = item.optString("title").trim()
-                    val content = item.optString("content").trim()
+                    // Preserve the exact text through persistence; whitespace belongs to the original preset.
+                    val content = item.optString("content")
                     if (title.isBlank() || content.isBlank()) continue
                     val createdAt = item.optString("createdAt").toInstantOrNow()
                     val overrides = item.optJSONObject("characterOverrides")
