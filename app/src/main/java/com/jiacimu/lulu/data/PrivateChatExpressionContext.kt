@@ -6,6 +6,22 @@ import com.jiacimu.lulu.recalledMessageIds
 
 /** Build dialogue only from the current private chat's persisted messages, never parse a transcript. */
 internal object PrivateChatExpressionContext {
+    /**
+     * The gateway already sends the *complete* pending user words as the last
+     * real conversation turn. When the decision needs persistent message IDs
+     * for quoting/favouriting, ship only the ordered ID index, not a second
+     * copy of every word (which can be thousands of tokens for voice input).
+     * The index is factual routing metadata, not a paraphrase of user speech.
+     */
+    fun unreadIdIndex(messages: List<LuluChatMessage>, unreadIds: Set<String>): String =
+        messages.asSequence()
+            .filter { it.id in unreadIds && it.sender == LuluChatMessage.Sender.User }
+            .mapIndexed { index, message ->
+                org.json.JSONObject().put("messageId", message.id)
+                    .put("indexInCurrentUserTurn", index + 1).toString()
+            }
+            .joinToString("\n")
+
     /** Mixed scenes stay in the autonomous multi-scene path; never attribute a group turn to the user. */
     fun unreadConversation(
         characterId: String,
