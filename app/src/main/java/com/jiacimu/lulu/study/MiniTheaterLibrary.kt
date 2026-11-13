@@ -29,7 +29,34 @@ internal data class MiniTheaterItem(
     val worldBookIds: List<String> = emptyList(), val worldBookContext: String = "",
     /** Frozen at enqueue so the worker never silently changes a paid model mid-job. */
     val generationArchiveId: String = "",
+    /** A continuation is an append-only new scene, never a rewrite of an existing completed story. */
+    val continuing: Boolean = false,
+    val continuationDirection: String = "",
 )
+
+/** Keep a finished edition intact unless a complete new installment has arrived. */
+internal object MiniTheaterContinuation {
+    private const val endMarker = "【小剧场已完】"
+
+    fun priorTextForPrompt(text: String): String = if (text.length <= 20_000) text else
+        text.take(3_500) + "\n\n【已有正文中段较长，以下跳转至最近剧情；被省略的部分不得自行编造】\n\n" +
+            text.takeLast(14_000)
+
+    fun append(previous: String, generated: String): String {
+        require(previous.isNotBlank()) { "没有已保存的正文，无法续写" }
+        require(generated.contains(endMarker)) { "续写尚未完整完成，原文已保留" }
+        var addition = generated.substringBefore(endMarker).trim()
+        // A model may repeat the story title; keep the original one, not a second cover.
+        val firstLine = addition.lineSequence().firstOrNull().orEmpty().trim()
+        if (firstLine.startsWith("《") && firstLine.endsWith("》") && firstLine.length <= 100) {
+            addition = addition.substringAfter('\n', "").trim()
+        }
+        require(addition.isNotBlank() && !previous.trimEnd().endsWith(addition)) {
+            "没有得到新的续写正文，原文已保留"
+        }
+        return previous.trimEnd() + "\n\n" + addition
+    }
+}
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
 internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniTheaterItem>? = null) {
@@ -137,13 +164,23 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     }
 
     @Synchronized fun begin(id: String, background: String, rewrite: Boolean,
-        modelArchiveId: String = ""): String {
+        modelArchiveId: String = "", continueStory: Boolean = false,
+        continuationDirection: String = ""): String {
         val entry = items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
         check(entry.status !in setOf("queued", "running")) { "这篇已经在生成中" }
-        check(entry.status != "complete" || rewrite) { "已完结作品不可静默覆盖" }
+        check(!rewrite || !continueStory) { "重新创作与续写不能同时进行" }
+        check(!continueStory || (entry.text.isNotBlank() && !entry.rewriting)) {
+            "只有已保存正文的作品才能续写；正在重写的旧版先完成或重试"
+        }
+        check(entry.status != "complete" || rewrite || continueStory) { "已完结作品不可静默覆盖" }
         val token = UUID.randomUUID().toString()
         save(items.value.map {
-            if (it.id == id) it.copy(sceneContext = background, generationToken = token,
+            if (it.id == id) it.copy(
+                // The original scene setup belongs to the existing story. A new
+                // installment has its own optional direction and must not replace it.
+                sceneContext = if (continueStory) it.sceneContext else background,
+                continuationDirection = if (continueStory) continuationDirection.trim().take(1000) else "",
+                continuing = continueStory, generationToken = token,
                 generationArchiveId = modelArchiveId,
                 status = "queued", error = "", rewriting = rewrite || it.rewriting)
             else it
@@ -159,6 +196,7 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
         save(items.value.map {
             if (it.id == id) it.copy(status = status, text = text ?: it.text,
                 rewriting = if (status == "complete") false else it.rewriting,
+                continuing = if (status in setOf("queued", "running")) it.continuing else false,
                 error = error.take(300)) else it
         })
         return true
@@ -176,7 +214,9 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 .put("characterName", it.characterName).put("characterContext", it.characterContext)
                 .put("variationContext", it.variationContext).put("worldMode", it.worldMode)
                 .put("worldBookIds", JSONArray(it.worldBookIds)).put("worldBookContext", it.worldBookContext)
-                .put("generationArchiveId", it.generationArchiveId))
+                .put("generationArchiveId", it.generationArchiveId)
+                .put("continuing", it.continuing)
+                .put("continuationDirection", it.continuationDirection))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -198,7 +238,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                     (0 until ids.length()).mapNotNull { j -> ids.optString(j).takeIf(String::isNotBlank) }
                 }.orEmpty(),
                 o.optString("worldBookContext"),
-                o.optString("generationArchiveId"))
+                o.optString("generationArchiveId"),
+                o.optBoolean("continuing"), o.optString("continuationDirection"))
         }
     }.getOrDefault(emptyList())
 
@@ -236,9 +277,10 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
 
 /** Keep the request alive through UI navigation or process recreation. */
 internal object MiniTheaterJobs {
-    fun enqueue(context: Context, id: String, background: String, rewrite: Boolean = false) {
+    fun enqueue(context: Context, id: String, background: String, rewrite: Boolean = false,
+        continueStory: Boolean = false, direction: String = "") {
         val store = MiniTheaterLibrary.get(context)
-        if (rewrite) {
+        if (rewrite || continueStory) {
             val item = store.items.value.firstOrNull { it.id == id } ?: error("小剧场已不存在")
             check(item.characterId.isBlank() || com.jiacimu.lulu.data.MigratedDomainStores.characters.settings.value.containsKey(item.characterId)) { "角色已移除，保留已保存的作品" }
         }
@@ -251,7 +293,8 @@ internal object MiniTheaterJobs {
         require(!archiveId.isNullOrBlank()) { "请先为番外选择可用模型" }
         // The model used for a background paid request is frozen once queued.
         LuluAiServices.connectionStore.resolveConnection(archiveId)
-        val token = store.begin(id, background, rewrite, modelArchiveId = archiveId)
+        val token = store.begin(id, background, rewrite, modelArchiveId = archiveId,
+            continueStory = continueStory, continuationDirection = direction)
         try {
             WorkManager.getInstance(context).enqueueUniqueWork(
                 "single-theater-$id", ExistingWorkPolicy.REPLACE,
@@ -304,15 +347,25 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
                 appendLine("标题：${snapshot.title}")
                 appendLine("用户为这一篇提供的前情或特殊要求：${snapshot.sceneContext.ifBlank { "无" }}")
                 if (originalDraft.isNotBlank())
-                    appendLine("这篇已保存的正文末尾：\n${originalDraft.takeLast(10_000)}")
+                    appendLine("这篇已保存的正文（以前文为已发生事实）：\n${if (snapshot.continuing) MiniTheaterContinuation.priorTextForPrompt(originalDraft) else originalDraft.takeLast(10_000)}")
+                if (snapshot.continuing) appendLine("本次续写方向（可自由发挥但不可推翻前文）：${snapshot.continuationDirection.ifBlank { "顺着既有剧情自然发展" }}")
             }
-            val personal = if (snapshot.characterId.isNotBlank()) PersonalMiniTheater.request(snapshot) else null
+            val personal = if (snapshot.characterId.isNotBlank()) {
+                if (snapshot.continuing) PersonalMiniTheater.continuationRequest(snapshot)
+                else PersonalMiniTheater.request(snapshot)
+            } else null
+            val continuationInstructions = if (!snapshot.continuing) instructions else """
+                续写同一部已保存的番外，不是重写、复述或另起独立短篇。保留全部已发生的剧情事实、关系进展与世界设定。
+                先接上原文结尾，让新一段事件由人物自身选择与当前局面自然发展，不照着原始故事灵感重演开头，也不突然撤销原结局。
+                用户的续写方向只是本次偏好，不得覆盖前文既定事实。约1000—1800字，注重场景、动作、对白、心理与连续因果。
+                不重写标题，不重复原文，不解释创作过程，只写新正文；末尾独立一行【小剧场已完】。
+            """.trimIndent()
             val generated = LuluAiServices.gateway.generate(
                 characterId = "theater",
                 facts = personal?.facts ?: facts,
-                instruction = personal?.instructions ?: instructions,
-                source = "剧场·单篇小剧场",
-                title = "${snapshot.title} · 单篇",
+                instruction = personal?.instructions ?: continuationInstructions,
+                source = if (snapshot.continuing) "剧场·番外续写" else "剧场·单篇小剧场",
+                title = "${snapshot.title} · ${if (snapshot.continuing) "续写" else "单篇"}",
                 contextMode = CompanionContextMode.Isolated,
                 connectionOverride = LuluAiServices.connectionStore.resolveConnection(
                     snapshot.generationArchiveId.takeIf(String::isNotBlank)
@@ -325,9 +378,14 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
             check(generated.isNotBlank()) { "没有生成正文" }
             val marker = "【小剧场已完】"
             val isComplete = generated.contains(marker)
-            val full = (if (originalDraft.isBlank()) "" else originalDraft + "\n") +
+            val full = if (snapshot.continuing && isComplete)
+                MiniTheaterContinuation.append(originalDraft, generated)
+            else (if (originalDraft.isBlank()) "" else originalDraft + "\n") +
                 generated.substringBefore(marker).trim()
-            if (snapshot.rewriting && !isComplete) {
+            if (snapshot.continuing && !isComplete) {
+                store.finish(id, token, "failed",
+                    error = "续写没有完整生成，原文已保留；可以重试续写")
+            } else if (snapshot.rewriting && !isComplete) {
                 // A partial replacement must never erase a finished edition.
                 store.finish(id, token, "failed",
                     error = "新版本尚未完整写完，旧版正文已保留；可以重试")
