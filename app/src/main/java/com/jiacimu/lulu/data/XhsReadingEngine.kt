@@ -253,23 +253,16 @@ internal object XhsReadingEngine {
         return requested
     }
 
-    fun mcpFallbackEnabled(context: Context): Boolean =
-        prefs(context).getBoolean("xiaohongshu:mcp-fallback-enabled", false)
+    fun mcpFallbackEnabled(context: Context): Boolean = false // Historical pref is not an active transport.
     fun setMcpFallbackEnabled(context: Context, enabled: Boolean): Boolean =
-        prefs(context).edit().putBoolean("xiaohongshu:mcp-fallback-enabled", enabled)
-            .apply { if (!enabled) putBoolean("xiaohongshu:mcp-primary", false) }.commit()
+        !enabled && prefs(context).edit().putBoolean("xiaohongshu:mcp-fallback-enabled", false)
+            .putBoolean("xiaohongshu:mcp-primary", false).commit()
     /** An explicitly configured remote browser can be the primary source for
      * autonomous searches; manual UI probes can still force localOnly=true.
      * Never silently promote an unreachable saved localhost into primary mode. */
-    fun mcpPrimaryEnabled(context: Context): Boolean =
-        prefs(context).getBoolean("xiaohongshu:mcp-primary", false)
-    fun setMcpPrimaryEnabled(context: Context, enabled: Boolean): Boolean {
-        require(!enabled || LuluExternalMcp.configured(context, "xiaohongshu")) {
-            "先保存可访问的 MCP 地址和 Token，再开启远端优先"
-        }
-        return prefs(context).edit().putBoolean("xiaohongshu:mcp-primary", enabled)
-            .apply { if (enabled) putBoolean("xiaohongshu:mcp-fallback-enabled", true) }.commit()
-    }
+    fun mcpPrimaryEnabled(context: Context): Boolean = false
+    fun setMcpPrimaryEnabled(context: Context, enabled: Boolean): Boolean =
+        !enabled && prefs(context).edit().putBoolean("xiaohongshu:mcp-primary", false).commit()
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
