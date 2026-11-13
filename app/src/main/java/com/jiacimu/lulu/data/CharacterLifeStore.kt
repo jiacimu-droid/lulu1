@@ -487,7 +487,7 @@ object CharacterLifeStore {
         if (prefs == null || characterId.isBlank()) return
         val root = state(characterId)
         val previous = root.optJSONObject("embodiedBody")
-        if (previous != null && listOf("energy", "sleepPressure", "hunger", "thirst", "comfort")
+        if (previous != null && listOf("energy", "sleepPressure", "comfort", "boredom")
                 .any { kotlin.math.abs(previous.optDouble(it) - value.optDouble(it)) >= 0.5 }) {
             root.put("embodiedBodyChange", JSONObject()
                 .put("before", JSONObject(previous.toString()))
