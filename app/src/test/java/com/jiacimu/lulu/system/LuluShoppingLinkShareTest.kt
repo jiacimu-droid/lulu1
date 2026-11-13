@@ -33,6 +33,28 @@ class LuluShoppingLinkShareTest {
         assertNull(LuluShoppingLinkShare.verifiedChangedLink(pdd, "before", "https://user:pass@yangkeduo.com/a"))
     }
 
+    @Test fun userPreferredMarketplacesAreSeparateVerifiedSources() {
+        val fish = "com.taobao.idlefish"
+        val delivery = "me.ele"
+        assertEquals("闲鱼", LuluShoppingLinkShare.merchantName(fish))
+        assertEquals("淘宝闪购", LuluShoppingLinkShare.merchantName(delivery))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(fish, "复制链接", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(delivery, "复制链接", true, true))
+        assertEquals("https://h5.m.goofish.com/item?id=12",
+            LuluShoppingLinkShare.verifiedChangedLink(fish, "old",
+                "https://h5.m.goofish.com/item?id=12"))
+        assertEquals("https://u.ele.me/Abc123",
+            LuluShoppingLinkShare.verifiedChangedLink(delivery, "old", "https://u.ele.me/Abc123"))
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(delivery, "old",
+            "https://evil-ele.me/path"))
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(fish, "old",
+            "https://goofish.com.evil.tld/item"))
+        assertFalse(LuluShoppingLinkShare.matchesMerchantLink("闲鱼",
+            "https://u.ele.me/Abc123"))
+        assertFalse(LuluShoppingLinkShare.matchesMerchantLink("淘宝闪购",
+            "https://h5.m.goofish.com/item?id=12"))
+    }
+
     @Test fun copiedLinkRequiresNewClipboardEventAfterTheActualClickStarted() {
         assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1200L))
         assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1201L))
