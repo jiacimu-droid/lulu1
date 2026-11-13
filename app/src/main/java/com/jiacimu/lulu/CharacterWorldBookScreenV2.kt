@@ -55,7 +55,6 @@ fun CharacterWorldBookScreenV2(
     val scope = rememberCoroutineScope()
     val notices = remember { SnackbarHostState() }
     var importBusy by remember { mutableStateOf(false) }
-    var importMenuExpanded by remember { mutableStateOf(false) }
     var importRole by remember { mutableStateOf(initialCharacterId) }
     var importPreview by remember { mutableStateOf<WorldBookJsonImporter.Preview?>(null) }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -163,47 +162,13 @@ fun CharacterWorldBookScreenV2(
                 title = { Text("世界书", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
-                    Box {
-                        IconButton(
-                            enabled = !importBusy,
-                            onClick = { importMenuExpanded = true },
-                        ) { Icon(Icons.Outlined.UploadFile, "导入世界书") }
-                        DropdownMenu(
-                            expanded = importMenuExpanded,
-                            onDismissRequest = { importMenuExpanded = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("选择 JSON 文件") },
-                                onClick = {
-                                    importMenuExpanded = false
-                                    importRole = selectedCharacterId
-                                    importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Meowssiah · 破限原文（轻量）") },
-                                onClick = {
-                                    importMenuExpanded = false
-                                    importRole = selectedCharacterId
-                                    scope.launch {
-                                        importBusy = true
-                                        try {
-                                            importPreview = withContext(Dispatchers.IO) {
-                                                val raw = context.assets.open("worldbook/meowssiah_verbatim.json")
-                                                    .bufferedReader(Charsets.UTF_8).use { it.readText() }
-                                                WorldBookJsonImporter.parse(raw, importRole)
-                                            }
-                                        } catch (failure: Exception) {
-                                            if (failure is kotlinx.coroutines.CancellationException) throw failure
-                                            notices.showSnackbar(failure.message ?: "读取内置原文失败")
-                                        } finally {
-                                            importBusy = false
-                                        }
-                                    }
-                                },
-                            )
-                        }
-                    }
+                    IconButton(
+                        enabled = !importBusy,
+                        onClick = {
+                            importRole = selectedCharacterId
+                            importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                        },
+                    ) { Icon(Icons.Outlined.UploadFile, "导入 JSON") }
                     IconButton(onClick = { openFolderEditor() }) { Icon(Icons.Outlined.CreateNewFolder, "新建分类") }
                     IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新建世界书") }
                 },
