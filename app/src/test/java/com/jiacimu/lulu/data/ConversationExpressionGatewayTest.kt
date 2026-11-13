@@ -2215,7 +2215,10 @@ class ConversationExpressionGatewayTest {
             assertEquals(current.content, messages.getJSONObject(3).getString("content"))
             val system = messages.getJSONObject(0).getString("content")
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
-            assertTrue(system.contains(JSONObject().put("messageId", current.id)
+            // The current words are already in the real user turn. The system
+            // now carries only their durable message ID for quote/favorite tools.
+            assertTrue(system.contains(current.id))
+            assertFalse(system.contains(JSONObject().put("messageId", current.id)
                 .put("text", current.content).toString()))
             assertTrue(system.contains("从本人的性格、所知、立场与在意之处"))
             assertTrue(system.contains("选择此刻真正想对这个人说什么"))
