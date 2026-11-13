@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`63035eeeef121a74de323a4b2e31d2149a474bd9`
+- 基准提交：`3f8089abda6c499e68ca3cc2c0b70a6339e8f374`
 - 分支：`main`
 - 已索引文件：1287
-- 已索引代码/文本行：271747
+- 已索引代码/文本行：271706
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -268,7 +268,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 97 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 479 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 438 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 180 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
