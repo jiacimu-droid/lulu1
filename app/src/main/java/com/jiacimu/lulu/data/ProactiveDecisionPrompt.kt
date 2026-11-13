@@ -1,5 +1,11 @@
 package com.jiacimu.lulu.data
 
+/** Single sparse-delta contract for private and independent decisions.
+ * Less JSON narration, never less actual agency, changes, or mandatory receipts. */
+private val conciseDecisionOutputGuide = """
+【输出只记录本轮新变化】JSON 必须保留 action、真实动作参数、必要理由、明确的责任与证据字段。可选的情绪/心声/想法/状态/目标只写本轮确实新产生或改变的内容，不重复历史、整段事实、执行协议，也不为凑字段虚构变化；没有新增内容就省略相应可选字段。reason 与执行依据简洁具体，不写一篇报告。真实复杂的内心、多个独立行动和必要完整答复仍可充分表达；不能为了省字漏掉该执行的事。单独协议明确要求 [] 或必填字段时照做。
+""".trimIndent()
+
 /** Single static online-lease decision contract. Live facts are separate. */
 /** One inexpensive typed handoff within the already-paid private/chat
  * decision, rather than another commitment-extraction request afterwards. */
@@ -105,6 +111,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
             当前数字世界中的阅读、家具、居民、活动、社交仅使用现场明确提供的有效 ID；世界移动、读书、见面和外部阅读不能凭独白冒充经历。书中角色及虚构作品不是用户的真实喜好或暗示。
             与对方已经说开的事承接后续真实反馈与新的共同理解；对方当前感受依据她的新原话和实际观察判断，未知之处保留未知。对方此前说过的话与已发送回复只作为历史，不冒充新消息。若因刚收到的新消息而回复，直接自然接话，必要时再选择工具。
         """.trimIndent())
+        appendLine(conciseDecisionOutputGuide)
     }.trim()
 
     val digital = DigitalLifeProfileStore.isEnabled(characterId)
@@ -147,6 +154,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
         PromptRuleAssemblyPolicy.Rule("character-causal", CharacterDecisionProtocol.runtimePrinciples),
         PromptRuleAssemblyPolicy.Rule("autonomous-channel", CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)),
         PromptRuleAssemblyPolicy.Rule("inner-voice", spontaneousInnerVoiceGuide),
+        PromptRuleAssemblyPolicy.Rule("concise-output-delta", conciseDecisionOutputGuide),
         PromptRuleAssemblyPolicy.Rule("spontaneity", CharacterSpontaneityGuide.autonomousPrinciples),
         PromptRuleAssemblyPolicy.Rule("autonomous-decision", """
 
