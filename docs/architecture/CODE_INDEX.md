@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`60a570222262b5fea93ffaf970336721f632ab3b`
+- 基准提交：`9e9769d768cb9a5ec28e9ea746ec1025906ef23a`
 - 分支：`main`
 - 已索引文件：1298
-- 已索引代码/文本行：273330
+- 已索引代码/文本行：273343
 - 已发现符号：3859
 
 | 文件 | 行数 | 符号数 |
@@ -226,7 +226,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 161 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 162 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |
@@ -269,7 +269,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 171 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 194 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 205 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 543 | 0 |
@@ -805,7 +805,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuard.kt` | 51 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 604 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 605 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 57 | 3 |
