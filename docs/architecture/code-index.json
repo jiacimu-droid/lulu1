@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T14:41:29.499075+00:00",
-  "commit": "5476f12e8c28326d4876c890c645552feb6d6027",
+  "generatedAt": "2026-11-13T14:56:23.195895+00:00",
+  "commit": "d3e41c4dcdafd4f5bdbce40dc3b14d75b797537b",
   "branch": "main",
-  "sourceFingerprint": "537c9733e1bfa83942b46f0d27ea5cf6a113f93a06e9aad17cec6943b235fdd3",
+  "sourceFingerprint": "ae831ffffd488e50e9717c025368e62d8d2301744e9bbe10bd333ce1c685a443",
   "summary": {
     "files": 1298,
-    "lines": 273418,
-    "symbols": 3859
+    "lines": 273486,
+    "symbols": 3860
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4124,6 +4124,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
         "line": 169
+      }
+    ],
+    "recordVirtualScreenObservation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+        "line": 181
       }
     ],
     "ScheduleFeatureScreen": [
@@ -25085,7 +25091,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt",
       "lines": 206,
-      "sha256": "aab1fed3c290f72ba929d8d328e7ad1ec5eb777dcb25393032be466e6000e33b",
+      "sha256": "a025660b33f1727c93c37f80554b71a169253241ae00a10a192545c587ba5c36",
       "symbols": []
     },
     {
@@ -25114,8 +25120,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-      "lines": 195,
-      "sha256": "6c677a91d13e28322d6351e18bb29457ec1a92d1d9e42a1efa9da2a7aac5c339",
+      "lines": 213,
+      "sha256": "6fa4875975080c1b2b697a13f028b386895e2cfdc7b99513e75cdad8cc13b36e",
       "symbols": [
         {
           "name": "saveChatMessage",
@@ -25132,6 +25138,10 @@
         {
           "name": "recordScreenObservation",
           "line": 169
+        },
+        {
+          "name": "recordVirtualScreenObservation",
+          "line": 181
         }
       ]
     },
@@ -38177,8 +38187,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1096,
-      "sha256": "e7cf06fcd42e7aba0b88583092ce65c0d61bdfe9f1fc258583bb6f8ef90d52c9",
+      "lines": 1116,
+      "sha256": "2116bd3bceb72c3757296ae5a320a8a258eb98f8bca09624dd26ae70e36fd4b8",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -40449,8 +40459,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
-      "lines": 52,
-      "sha256": "5629519ec5d96d338203dcb1610646c05b61a9e1e9ca977b2bd0f132587e1ede",
+      "lines": 82,
+      "sha256": "172e902f0d7e18335ececc5abfc14bad69a74e3fe2a5a4f9e3bf649dfb57e5f7",
       "symbols": [
         {
           "name": "RolePhotoAlbumStoreTest",

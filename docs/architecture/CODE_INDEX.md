@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5476f12e8c28326d4876c890c645552feb6d6027`
+- 基准提交：`d3e41c4dcdafd4f5bdbce40dc3b14d75b797537b`
 - 分支：`main`
 - 已索引文件：1298
-- 已索引代码/文本行：273418
-- 已发现符号：3859
+- 已索引代码/文本行：273486
+- 已发现符号：3860
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -274,7 +274,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 543 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 195 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 213 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 235 | 0 |
@@ -787,7 +787,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 443 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1096 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1116 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2301 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -923,7 +923,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 52 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
