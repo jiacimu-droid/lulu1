@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T16:01:42.937759+00:00",
-  "commit": "f24acdc51186396d620c5b4b02155a436cc96480",
+  "generatedAt": "2026-11-13T16:11:00.884153+00:00",
+  "commit": "f4868aaf437dcad0bd492b6c2589159cd1dd9079",
   "branch": "main",
-  "sourceFingerprint": "6fbba7f40e76c94cbf9499c287040915aa7613cc72835f5f1cbf59e815117fb4",
+  "sourceFingerprint": "385a3cfa209fa2f105b188da5507c2d3f821e5b99f5f82b3eb101c122589da6e",
   "summary": {
     "files": 1305,
-    "lines": 274696,
+    "lines": 274717,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -4105,35 +4105,35 @@
     "drag": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 121
+        "line": 142
       }
     ],
     "pinch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 127
+        "line": 148
       }
     ],
     "replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 181
+        "line": 202
       }
     ],
     "shader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 598
+        "line": 619
       }
     ],
     "push": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 651
+        "line": 672
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-        "line": 671
+        "line": 692
       }
     ],
     "saveChatMessage": [
@@ -25172,32 +25172,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt",
-      "lines": 686,
-      "sha256": "d1325144043d4ece04200a828736801d5fc780d121d09d689322e398c474ba7b",
+      "lines": 707,
+      "sha256": "d5d31db0fe096cdff82bef39de7991debea9a9b5ac6e52c3463ee0f686d35fdb",
       "symbols": [
         {
           "name": "drag",
-          "line": 121
+          "line": 142
         },
         {
           "name": "pinch",
-          "line": 127
+          "line": 148
         },
         {
           "name": "replay",
-          "line": 181
+          "line": 202
         },
         {
           "name": "shader",
-          "line": 598
+          "line": 619
         },
         {
           "name": "push",
-          "line": 651
+          "line": 672
         },
         {
           "name": "push",
-          "line": 671
+          "line": 692
         }
       ]
     },
