@@ -108,56 +108,47 @@ internal fun RolePhoneLiveEntry(roleId: String, onOpen: () -> Unit) {
     }
     Surface(
         onClick = onOpen,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(22.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, PhoneBorder),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
     ) {
         Row(
-            Modifier.fillMaxWidth().padding(14.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(13.dp),
         ) {
             Box(
-                Modifier.width(98.dp).height(126.dp)
-                    .clip(RoundedCornerShape(14.dp)).background(PhoneCanvas),
+                Modifier.width(64.dp).height(82.dp)
+                    .clip(RoundedCornerShape(12.dp)).background(Color(0xFF1C1D21)),
                 contentAlignment = Alignment.Center,
             ) {
                 if (picture != null) {
-                    Image(picture!!.bitmap, contentDescription = "角色真实后台屏预览",
+                    Image(picture!!.bitmap, contentDescription = "角色当前手机画面缩略图",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit)
                 } else Icon(Icons.Outlined.PhoneAndroid, null,
-                    tint = PhoneMuted, modifier = Modifier.size(34.dp))
+                    tint = Color.White.copy(alpha = 0.72f), modifier = Modifier.size(27.dp))
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text("正在看的屏幕", fontSize = 17.sp, fontWeight = FontWeight.SemiBold,
-                        color = PhoneInk, modifier = Modifier.weight(1f))
-                    Icon(Icons.Outlined.ChevronRight, null, tint = PhoneMuted)
-                }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("正在使用", fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     when {
                         picture != null -> inspectedRunningAppName(picture!!.frame.packageName)
-                        busy -> "正在读取后台画面…"
-                        unavailable -> "当前没有可查看的后台画面"
-                        else -> "暂无画面"
+                        busy -> "正在查看…"
+                        unavailable -> "暂时没有画面"
+                        else -> "没有画面"
                     },
-                    color = if (picture != null) PhoneInk else PhoneMuted,
-                    fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    if (picture != null) "更新于 ${picture!!.checkedAt}"
-                    else "打开查看状态和原因",
-                    fontSize = 12.sp, color = PhoneMuted,
-                )
-                Surface(shape = RoundedCornerShape(12.dp),
-                    color = PhoneCanvas) {
-                    Text("查看大图", modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        fontSize = 13.sp, fontWeight = FontWeight.Medium, color = PhoneInk)
-                }
+                if (picture != null) Text("最近更新 " + picture!!.checkedAt.substringBeforeLast(':'),
+                    fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            Icon(Icons.Outlined.ChevronRight, contentDescription = "打开手机画面",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
