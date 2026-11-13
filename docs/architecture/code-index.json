@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:45:26.496570+00:00",
-  "commit": "a877efacdf52d2cf0640c1d263d85b504725600d",
+  "generatedAt": "2026-11-13T05:45:58.886654+00:00",
+  "commit": "ba153e8c1d986f32527e818e5f729dd42f6d675c",
   "branch": "main",
-  "sourceFingerprint": "c8a8103c49ad62c76414f24c9da6ed0407ce3c150c7e10342679db6fee745751",
+  "sourceFingerprint": "3f5d08961a751491f10bd9acf5fc7cacac6bbdce680ba67b3d4fb287fe87d60c",
   "summary": {
     "files": 1295,
-    "lines": 272444,
+    "lines": 272473,
     "symbols": 3854
   },
   "symbolIndex": {
@@ -2755,7 +2755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1442
+        "line": 1464
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -3931,7 +3931,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 892
+        "line": 899
       }
     ],
     "import": [
@@ -8515,49 +8515,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1335
+        "line": 1357
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1393
+        "line": 1415
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1404
+        "line": 1426
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1411
+        "line": 1433
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1425
+        "line": 1447
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1435
+        "line": 1457
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1489
+        "line": 1511
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1865
+        "line": 1887
       }
     ],
     "age": [
@@ -24886,12 +24886,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1018,
-      "sha256": "6137b3517ad06db8852ae98574b91a0431b08a044be9b1f5bbd176bf8448fe6f",
+      "lines": 1025,
+      "sha256": "ef9c614b1c3c5111719637b7e1b789031553549dd85e29def46a5723e8af114a",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 892
+          "line": 899
         }
       ]
     },
@@ -29172,8 +29172,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1913,
-      "sha256": "9857a47cebb87e800e8583d0418219a3685194fcee1d8c9e1a8e52bc6c7dacf0",
+      "lines": 1935,
+      "sha256": "8d6bda8884c2528a958cbc03098ba3cafe42c9b7d8fefb8a27fba5fb108a0a94",
       "symbols": [
         {
           "name": "asJson",
@@ -29189,39 +29189,39 @@
         },
         {
           "name": "world",
-          "line": 1335
+          "line": 1357
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1393
+          "line": 1415
         },
         {
           "name": "recordedReceiptId",
-          "line": 1404
+          "line": 1426
         },
         {
           "name": "completedEvidence",
-          "line": 1411
+          "line": 1433
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1425
+          "line": 1447
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1435
+          "line": 1457
         },
         {
           "name": "from",
-          "line": 1442
+          "line": 1464
         },
         {
           "name": "requiresCompletion",
-          "line": 1489
+          "line": 1511
         },
         {
           "name": "availableContext",
-          "line": 1865
+          "line": 1887
         }
       ]
     },
