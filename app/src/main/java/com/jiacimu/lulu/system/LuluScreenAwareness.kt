@@ -340,8 +340,9 @@ object LuluScreenAwareness {
                 }
                 val evidence = describedCapture(context, userRequested, characterId, sessionId,
                     fresh.packageName, capturedAt, description)
-                // Only an authorized, successfully analyzed frame may be retained.
-                // Ordinary screenshots remain ephemeral unless the role opted in.
+                // The owner's screen-history copy is independent of an explicit
+                // character choice to add a second copy to their own album.
+                // Do not claim this branch performed another capture.
                 if (saveToAlbum && characterId.isNotBlank() &&
                     runCatching { JSONObject(evidence).optBoolean("success") }.getOrDefault(false)) {
                     val photo = runCatching {
