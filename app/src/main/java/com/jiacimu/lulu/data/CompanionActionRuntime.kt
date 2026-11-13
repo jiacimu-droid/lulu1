@@ -377,7 +377,7 @@ internal object CompanionActionRuntime {
             MigratedDomainStores.chat.appendCharacterMessage(conversation.id, payload, characterId)
         }
         return CompanionActionResult(
-            true, "已将真实复制到的$merchant商品链接作为可点击卡片发给主人；未下单或付款",
+            true, "已将真实复制到的${merchant}商品链接作为可点击卡片发给主人；未下单或付款",
             conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id),
         )
     }
