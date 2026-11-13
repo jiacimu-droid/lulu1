@@ -614,7 +614,6 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
                     evidenceId = "native-mail-${sent.id}-viewer-$characterId")
             }
-            "read_xiaohongshu" -> CompanionActionResult(false, "旧小红书读取已停用；请由角色选择 background_phone 操作已安装App，保留原始阅读历史")
             "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
