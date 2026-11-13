@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`03e28e3bf911b53a5e2343cc77f3faddaf12e259`
+- 基准提交：`9e6b0ca265971f325a9666a250be7a9140098526`
 - 分支：`main`
-- 已索引文件：1301
-- 已索引代码/文本行：273699
-- 已发现符号：3865
+- 已索引文件：1303
+- 已索引代码/文本行：273835
+- 已发现符号：3867
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1210,13 +1210,14 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpCompatibilityTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 719 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
@@ -1236,6 +1237,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 145 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 185 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |

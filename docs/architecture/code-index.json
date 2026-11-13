@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:32:20.912559+00:00",
-  "commit": "03e28e3bf911b53a5e2343cc77f3faddaf12e259",
+  "generatedAt": "2026-11-13T15:33:23.287358+00:00",
+  "commit": "9e6b0ca265971f325a9666a250be7a9140098526",
   "branch": "main",
-  "sourceFingerprint": "f8bbdcdcbcac0776467249dc8a6dcf54b9674cedaafb4634ae7bc8b5fd05fac5",
+  "sourceFingerprint": "5ce860c29c820ae59ec099e2e461e7e2778d8b0f9d650957586b20912b48923f",
   "summary": {
-    "files": 1301,
-    "lines": 273699,
-    "symbols": 3865
+    "files": 1303,
+    "lines": 273835,
+    "symbols": 3867
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20998,6 +20998,12 @@
         "line": 12
       }
     ],
+    "CharacterSoloWorldPlayTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
+        "line": 14
+      }
+    ],
     "CompanionCoopCombatTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt",
@@ -21110,6 +21116,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt",
         "line": 11
+      }
+    ],
+    "IslandRareEventsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
+        "line": 5
       }
     ],
     "IslandTargetActionTest": [
@@ -44770,8 +44782,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
-      "lines": 36,
-      "sha256": "20a1354398a5298c04be51952e703d6f3775eadc63edc4d70ac8e14f5cbdc30d",
+      "lines": 39,
+      "sha256": "ccf2f7a4c720563907863928f4df9116e5454b1d7d55367fd4db9a7741dbd59e",
       "symbols": [
         {
           "name": "XhsGoMcpHandshakeTest",
@@ -44842,6 +44854,17 @@
         {
           "name": "BlockIslandRulesTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
+      "lines": 78,
+      "sha256": "1fc2b0d6f21491e4e3e2fd2c24887f9b97a04a586e2fbbefa7053ebb4bcf4715",
+      "symbols": [
+        {
+          "name": "CharacterSoloWorldPlayTest",
+          "line": 14
         }
       ]
     },
@@ -45051,6 +45074,17 @@
         {
           "name": "IslandProgressionTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
+      "lines": 55,
+      "sha256": "f7cab33e5bf509763721eefdb4aef18d1a9bf0956217e967abc93575dc9f9bf0",
+      "symbols": [
+        {
+          "name": "IslandRareEventsTest",
+          "line": 5
         }
       ]
     },
