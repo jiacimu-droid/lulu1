@@ -90,13 +90,14 @@ internal fun RolePhoneActivitySection(roleId: String) {
             inspectedPhoneActions(SharedExperienceTimeline.recentEvents(roleId, 120))
         } else emptyList()
     }
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+    if (history.isEmpty()) return
+    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("最近手机动态", fontSize = 18.sp,
+            Text("最近使用", fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold, color = Color(0xFF1D1D1F),
                 modifier = Modifier.weight(1f))
-            Text("真实工具记录", fontSize = 12.sp, color = Color(0xFF7A7A7E))
+            // Technical receipts remain available below the actions, not in the chat feed.
         }
         Surface(
             shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface,
@@ -104,11 +105,7 @@ internal fun RolePhoneActivitySection(roleId: String) {
         ) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (history.isEmpty()) {
-                    Text("目前没有可核实的手机操作记录",
-                        fontSize = 14.sp, color = Color(0xFF73767C),
-                        modifier = Modifier.padding(vertical = 14.dp))
-                } else (if (expanded) history else history.take(2)).forEachIndexed { index, item ->
+                (if (expanded) history else history.take(2)).forEachIndexed { index, item ->
                     if (index > 0) HorizontalDivider(color = Color(0xFFEEEEF0))
                     Row(verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
