@@ -120,6 +120,8 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // Preserve later profile edits, but update the owner's still-stock AI motivation.
+        upgradeBundledJiangDuAiInterest(profile)
         root.put("profile", profile)
             .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
             .put("jiangDuApprovedReplacement20261104", true)
@@ -922,6 +924,7 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        if (characterId == BUNDLED_JIANG_DU_ID) upgradeBundledJiangDuAiInterest(profile)
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -998,6 +1001,23 @@ object CharacterLifeStore {
         // substantive rewrite: their history survives but cannot undo it.
         root.put("profile", profile).put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
         save(characterId, root)
+    }
+
+    /**
+     * Only the built-in Jiang Du is covered by the new, individual preference.
+     * Exact prior factory text is the migration key. A user's authored value,
+     * including an intentionally empty field, remains untouched.
+     */
+    private fun upgradeBundledJiangDuAiInterest(profile: JSONObject) {
+        val legacy = mapOf(
+            "motives" to CharacterProfileSchema.jiangDuV30Overrides.getValue("motives"),
+            "interests" to CharacterProfileSchema.jiangDuV29Overrides.getValue("interests")
+        )
+        CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
+            if (profile.has(key) && profile.optString(key) == legacy[key]) {
+                profile.put(key, value)
+            }
+        }
     }
 
     /** A pending intention survives new rounds; a model cannot silently overwrite it. */
