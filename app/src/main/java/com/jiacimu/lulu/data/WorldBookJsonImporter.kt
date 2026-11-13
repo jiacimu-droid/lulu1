@@ -43,7 +43,8 @@ internal object WorldBookJsonImporter {
                     skipped++
                     return@forEachIndexed
                 }
-                val body = (item.opt("content") as? String)?.trim().orEmpty()
+                // Keep the original body byte-for-byte through import; only reject whitespace-only entries.
+                val body = (item.opt("content") as? String).orEmpty()
                 val native = !foreign && (item.has("globalEnabled") || item.has("characterOverrides"))
                 val title = if (foreign) {
                     listOf("comment", "name", "title").asSequence()
