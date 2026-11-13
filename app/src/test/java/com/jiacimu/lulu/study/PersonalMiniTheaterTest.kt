@@ -30,6 +30,85 @@ class PersonalMiniTheaterTest {
         context.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE).edit().clear().commit()
     }
 
+    @Test fun finishedPersonalStoryCanBeContinuedRepeatedlyWithoutOverwritingPreviousPages() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val id = library.addPersonal(
+            PersonalMiniTheater.Cast("continue-role", "江渡", "有主见又会照顾人"),
+            PersonalMiniTheater.Idea("continue", "一个夜晚", "彼此在雨夜相遇。"))
+        val opening = library.begin(id, "本篇最初的补充设定", rewrite = false)
+        val original = "《一个夜晚》\n\n他撑开了伞。\n\n“和我走吧。”"
+        assertTrue(library.finish(id, opening, "complete", text = original))
+        assertTrue(runCatching { library.begin(id, "", rewrite = false) }.isFailure)
+
+        val continuation = library.begin(id, "必须忽略的新背景", rewrite = false,
+            modelArchiveId = "model-frozen", continueStory = true,
+            continuationDirection = "第二天一起去看海")
+        val queued = library.items.value.first { it.id == id }
+        assertEquals(original, queued.text)
+        assertEquals("本篇最初的补充设定", queued.sceneContext)
+        assertEquals("第二天一起去看海", queued.continuationDirection)
+        assertEquals("model-frozen", queued.generationArchiveId)
+        assertTrue(queued.continuing)
+        assertTrue(runCatching {
+            library.begin(id, "", rewrite = false, continueStory = true)
+        }.isFailure)
+
+        val next = MiniTheaterContinuation.append(original,
+            "《一个夜晚》\n\n第二天，他们在海边看到了日出。\n\n【小剧场已完】")
+        assertEquals(1, next.split("《一个夜晚》").size - 1)
+        assertTrue(library.finish(id, continuation, "complete", text = next))
+        val after = library.items.value.first { it.id == id }
+        assertFalse(after.continuing)
+        assertEquals("complete", after.status)
+        assertTrue(after.text.startsWith(original))
+        assertTrue(after.text.contains("第二天，他们在海边看到了日出。"))
+        val reopened = MiniTheaterLibrary(context, emptyList()).items.value.first { it.id == id }
+        assertEquals(after.text, reopened.text)
+        val nextToken = library.begin(id, "", rewrite = false, continueStory = true)
+        val third = MiniTheaterContinuation.append(reopened.text,
+            "这次他们踏上了去往山城的火车。\n\n【小剧场已完】")
+        assertTrue(library.finish(id, nextToken, "complete", text = third))
+        assertTrue(library.items.value.first { it.id == id }.text.startsWith(next))
+    }
+
+    @Test fun unfinishedContinuationOrLateResultCannotDamageAnExistingEdition() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val id = library.addPersonal(PersonalMiniTheater.Cast("safe", "江渡", "冷静"),
+            PersonalMiniTheater.Idea("safe", "原稿", "一场夜谈"))
+        val opening = library.begin(id, "", rewrite = false)
+        assertTrue(library.finish(id, opening, "complete", text = "《原稿》\n\n最喜欢的原始版本"))
+        val old = library.items.value.first { it.id == id }.text
+        val first = library.begin(id, "", rewrite = false, continueStory = true)
+        assertTrue(runCatching { MiniTheaterContinuation.append(old, "只有半截续写") }.isFailure)
+        assertTrue(library.finish(id, first, "failed", error = "未完整生成"))
+        assertEquals(old, library.items.value.first { it.id == id }.text)
+        val second = library.begin(id, "", rewrite = false, continueStory = true)
+        assertFalse(library.finish(id, first, "complete", text = "迟到的旧请求"))
+        assertTrue(library.finish(id, second, "complete",
+            text = MiniTheaterContinuation.append(old, "后续新剧情\n【小剧场已完】")))
+        assertFalse(library.items.value.first { it.id == id }.text.contains("迟到的旧请求"))
+    }
+
+    @Test fun continuationPromptKeepsActualHistoryAndWorldRulesWithoutReplayingOriginalPlot() {
+        val item = MiniTheaterItem("story", "新世界", "两人在魔法学院初见",
+            characterId = "theater-role", characterName = "江渡",
+            characterContext = "独立且主动",
+            worldMode = "alternate",
+            worldBookContext = "学院规则：魔法仅在午夜生效",
+            text = "《新世界》\n\n两人已经毕业，他终于说出了自己的秘密。",
+            continuing = true, continuationDirection = "想看毕业旅行")
+        val request = PersonalMiniTheater.continuationRequest(item)
+        assertTrue(request.facts.contains("两人已经毕业"))
+        assertTrue(request.facts.contains("学院规则：魔法仅在午夜生效"))
+        assertTrue(request.facts.contains("毕业旅行"))
+        assertTrue(request.instructions.contains("不得抹去或重写").not() ||
+            request.instructions.contains("已经发生"))
+        assertTrue(request.instructions.contains("不要重复《篇名》"))
+        assertFalse(request.instructions.contains("第一行写《篇名》"))
+        assertFalse(request.facts.contains("世界书"))
+        assertTrue(request.instructions.contains("续写"))
+    }
+
     @Test fun bodyCharacterCountExcludesTitleMarkersPunctuationAndWhitespace() {
         val story = "《第一页》\n\n你来了，Hi 2026！\n\n“好呀。”\n\n【小剧场已完】"
         assertEquals(11, PersonalTheaterTypography.wordCount(story))
