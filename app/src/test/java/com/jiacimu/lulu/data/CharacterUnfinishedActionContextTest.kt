@@ -103,6 +103,40 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(1)).isEmpty())
     }
 
+    @Test fun newlyHeldPersonalWishCanBeRevisitedWithoutBecomingAnAutomaticPurchase() {
+        val text = "看见一件适合自己的小东西，有点想要，也许先问问主人愿不愿意"
+        val evidence = "fresh-private-idea-$role"
+        SharedExperienceTimeline.record(evidence, role, "独自探索", "本人",
+            "自己看过的真实展示页面", now.minusSeconds(20), triggerExtraction = false,
+            source = "self-exploration", evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.observe(role, evidence, "真实页面引发本人念头",
+            JSONObject().put("thoughts", JSONArray().put(
+                JSONObject().put("thought", text)
+                    .put("impulse", "想了解")
+                    .put("hesitation", "还没确定是否值得买"))),
+            now = now.minusSeconds(10))
+        val before = CharacterInnerLifeStore.snapshot(role).toString()
+        val options = CharacterUnfinishedActionContext.candidates(context, role, now)
+        assertTrue("a private wish is a normal decision cue",
+            options.any { it.kind == "私人念头" && it.title == text })
+        assertEquals("context projection must never create or promote a motive",
+            before, CharacterInnerLifeStore.snapshot(role).toString())
+        assertTrue(CharacterUnfinishedActionContext.render(options)
+            .contains("不代表已经决定联系、购买或安排"))
+
+        val changed = "wish-dismissed-$role"
+        SharedExperienceTimeline.record(changed, role, "独自探索", "本人",
+            "本人重新考虑暂且放下", now, triggerExtraction = false,
+            source = "self-exploration", evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.observe(role, changed, "本人重新考虑暂且放下",
+            JSONObject().put("thoughtUpdates", JSONArray().put(
+                JSONObject().put("thought", text).put("op", "discard"))),
+            now = now.plusSeconds(1))
+        assertFalse("discarded thoughts must stop competing for attention",
+            CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(2))
+                .any { it.kind == "私人念头" && it.title == text })
+    }
+
     @Test fun oldFocusUsesEvidenceTimeEvenWhenShortListStartsWithOldest() {
         val older = CharacterUnfinishedActionContext.Cue(
             "好奇", "old-question", "一直想核对的资料", "", Instant.parse("2026-10-01T00:00:00Z"))
