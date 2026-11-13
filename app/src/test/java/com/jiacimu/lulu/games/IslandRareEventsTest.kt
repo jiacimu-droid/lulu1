@@ -23,10 +23,21 @@ class IslandRareEventsTest {
         val rare=s.rareSupplyCaches.single()
         assertTrue(rare in s.supplyCaches)
         assertTrue(rare !in s.openedSupplies)
-        assertEquals(s.rareSupplyCaches,BlockIslandState.fromJson(s.toJson())?.rareSupplyCaches)
-        assertEquals(s.supplyCaches,BlockIslandState.fromJson(s.toJson())?.supplyCaches)
+        assertEquals(48,s.lastRareSupplyTurn)
+        val reloaded=checkNotNull(BlockIslandState.fromJson(s.toJson()))
+        assertEquals(s.rareSupplyCaches,reloaded.rareSupplyCaches)
+        assertEquals(s.supplyCaches,reloaded.supplyCaches)
+        assertEquals(s.lastRareSupplyTurn,reloaded.lastRareSupplyTurn)
         val replay=IslandRareEvents.advance(s)
-        assertEquals(1,replay.rareSupplyCaches.size) // same turn may not duplicate the chest
+        assertEquals(s.rareSupplyCaches,replay.rareSupplyCaches) // same turn cannot mint more chests
+        val reloadedReplay=IslandRareEvents.advance(reloaded)
+        assertEquals(s.rareSupplyCaches,reloadedReplay.rareSupplyCaches)
+        assertEquals(48,reloadedReplay.lastRareSupplyTurn)
+        // A save written before the turn marker existed must also be safe to reload.
+        val legacy=org.json.JSONObject(s.toJson()).apply { remove("lastRareSupplyTurn") }.toString()
+        val legacyReload=checkNotNull(BlockIslandState.fromJson(legacy))
+        assertEquals(48,legacyReload.lastRareSupplyTurn)
+        assertEquals(s.rareSupplyCaches,IslandRareEvents.advance(legacyReload).rareSupplyCaches)
         val w=s.world
         val x=rare%w.width
         val y=rare/w.width
@@ -46,6 +57,24 @@ class IslandRareEventsTest {
         val twice=BlockIslandRules.act(opened,"salvage",x,y)
         assertEquals(opened.crystals,twice.crystals)
         assertEquals(opened.openedSupplies,twice.openedSupplies)
+    }
+
+    @Test fun laterEligibleTideCanSpawnAgainButNeverTwiceOnThatTurn() {
+        val pair=(0..800).firstNotNullOfOrNull { seed ->
+            if(!IslandRareEvents.arrives(seed,48) || !IslandRareEvents.arrives(seed,96))
+                return@firstNotNullOfOrNull null
+            val start=BlockIslandRules.newWorld(seed,emptyList())
+            val first=IslandRareEvents.advance(start.copy(world=start.world.copy(turns=48)))
+            if(first.rareSupplyCaches.size!=1)return@firstNotNullOfOrNull null
+            val next=IslandRareEvents.advance(first.copy(world=first.world.copy(turns=96)))
+            next.takeIf{it.rareSupplyCaches.size==2}
+        }
+        val s=checkNotNull(pair)
+        assertEquals(96,s.lastRareSupplyTurn)
+        assertEquals(2,s.rareSupplyCaches.size)
+        assertEquals(2,IslandRareEvents.advance(s).rareSupplyCaches.size)
+        assertEquals(2,IslandRareEvents.advance(checkNotNull(BlockIslandState.fromJson(s.toJson())))
+            .rareSupplyCaches.size)
     }
 
     @Test fun noRareChestAndNoGemOnOrdinaryTurn() {
