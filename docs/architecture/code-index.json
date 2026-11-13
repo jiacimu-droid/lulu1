@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:01:43.240082+00:00",
-  "commit": "3214391a5d6b27f26f1f431b149c90ccc109cbdc",
+  "generatedAt": "2026-11-13T04:03:47.753130+00:00",
+  "commit": "aa3391cfb00fcaf9b126ac1b15fc41687a3397db",
   "branch": "main",
-  "sourceFingerprint": "f7c6e3501003b96eb26f2d79d6aa7116f6a8d5a7f997338d19684c9e7279fb9f",
+  "sourceFingerprint": "6b1ace5b00e4b431e6cc7ae387feb4fbdaabbcbadced1faf678aed3a155b09c7",
   "summary": {
-    "files": 1287,
-    "lines": 271623,
+    "files": 1288,
+    "lines": 271639,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -21773,6 +21773,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/worldbook/meowssiah_verbatim.json",
+      "lines": 15,
+      "sha256": "93623ce46e8d1a1483caf67ee4ab1b3813c42a441d5a1d34beda1541f1257947",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/xhs-browser-route.js",
       "lines": 92,
       "sha256": "d9ac3c8ade47959e8de0e5ba9a8a366a0fe54755f87b97a6671ef23200585f13",
@@ -33978,8 +33984,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-      "lines": 138,
-      "sha256": "ff91ff2c591c273d8c86654c65f69714b66861badb9199e7167e9eaba9276516",
+      "lines": 139,
+      "sha256": "3512c9d3ab3518207682393a68acb39e5575000a5ebbf808071b767967523c4e",
       "symbols": [
         {
           "name": "Preview",

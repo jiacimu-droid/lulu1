@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3214391a5d6b27f26f1f431b149c90ccc109cbdc`
+- 基准提交：`aa3391cfb00fcaf9b126ac1b15fc41687a3397db`
 - 分支：`main`
-- 已索引文件：1287
-- 已索引代码/文本行：271623
+- 已索引文件：1288
+- 已索引代码/文本行：271639
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -65,6 +65,7 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/theater/wanxiang_mini_scenes.json` | 180 | 0 |
+| `app/src/main/assets/worldbook/meowssiah_verbatim.json` | 15 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
 | `app/src/main/cpp/cubism_native_probe.cpp` | 33 | 0 |
@@ -594,7 +595,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 124 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 220 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt` | 138 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt` | 139 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 326 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 232 | 6 |
