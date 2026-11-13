@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:59:38.672829+00:00",
-  "commit": "893c039068dbdfd633e46b3de65d329442216c3d",
+  "generatedAt": "2026-11-13T06:01:09.950913+00:00",
+  "commit": "1ef2a437e0fb07c37b8edbadb518f3ac8a6d1583",
   "branch": "main",
-  "sourceFingerprint": "9d073b5fa131335162ead332755a33c27fc1806f9efd583e307e799969e3125d",
+  "sourceFingerprint": "fb6a85af401831f8adfe96833f67aa43146e4764c7a625e2470338b1ebada34b",
   "summary": {
     "files": 1296,
-    "lines": 272688,
+    "lines": 272714,
     "symbols": 3855
   },
   "symbolIndex": {
@@ -513,7 +513,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 119
+        "line": 145
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -3993,7 +3993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 98
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
@@ -7997,7 +7997,7 @@
     "renderWithBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 122
+        "line": 148
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -28569,8 +28569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-      "lines": 136,
-      "sha256": "44543123acae47e8c3980128d9f164bbdfee3a4c5fb7c6bd3d52981e289aa096",
+      "lines": 162,
+      "sha256": "1011afc3f733c283085a765bd9ba33fd612137b75a8e91d6232cd08fc9f1c5f9",
       "symbols": [
         {
           "name": "Cue",
@@ -28590,15 +28590,15 @@
         },
         {
           "name": "render",
-          "line": 98
+          "line": 124
         },
         {
           "name": "context",
-          "line": 119
+          "line": 145
         },
         {
           "name": "renderWithBody",
-          "line": 122
+          "line": 148
         }
       ]
     },
