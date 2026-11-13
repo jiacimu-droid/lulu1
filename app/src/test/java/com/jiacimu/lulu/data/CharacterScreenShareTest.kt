@@ -102,6 +102,7 @@ class CharacterScreenShareTest {
             sendToChat = true, chatCaption = "未经授权不得发送"))
         assertFalse(response.optBoolean("success"))
         assertFalse(response.optBoolean("sentToChat"))
+        assertTrue(com.jiacimu.lulu.RolePhotoAlbumStore.list(context, role.characterId).isEmpty())
         assertEquals("waiting_user", response.optString("status"))
         assertEquals(before, MigratedDomainStores.chat.conversations.value.size)
     }
