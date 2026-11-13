@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:36:54.723434+00:00",
-  "commit": "a51218ce1a71a908789496026eb901cfb3e6bf1f",
+  "generatedAt": "2026-11-13T15:37:27.681353+00:00",
+  "commit": "065aaa390f4fd1122e3d1fd325f94f065cdc8ad6",
   "branch": "main",
-  "sourceFingerprint": "bfd9e8a6d8394cd24393d6ac1480a6937169a2ab3e3b3557244e7f03682605a3",
+  "sourceFingerprint": "25b688b2ccfb18e5aafbaeb240fb1e07c7e28431c6f58b2b97637a40de28b0b8",
   "summary": {
     "files": 1303,
-    "lines": 273852,
-    "symbols": 3867
+    "lines": 273865,
+    "symbols": 3870
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4668,6 +4668,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
         "line": 768
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt",
@@ -14136,14 +14140,26 @@
         "line": 684
       }
     ],
+    "readIsland": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 35
+      }
+    ],
+    "readRelic": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 39
+      }
+    ],
     "dist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 104
+        "line": 114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 195
+        "line": 208
       }
     ],
     "partyFor": [
@@ -35443,16 +35459,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-      "lines": 260,
-      "sha256": "1d38523dad11a141d4192b5dc1b177c9d65dd320e82c5302306809d148ea6e56",
+      "lines": 273,
+      "sha256": "5e5f66c4c54097d1f3243fd59b29e41605f6c85ec777af8531c16ab39c0e525a",
       "symbols": [
         {
-          "name": "dist",
-          "line": 104
+          "name": "play",
+          "line": 24
+        },
+        {
+          "name": "readIsland",
+          "line": 35
+        },
+        {
+          "name": "readRelic",
+          "line": 39
         },
         {
           "name": "dist",
-          "line": 195
+          "line": 114
+        },
+        {
+          "name": "dist",
+          "line": 208
         }
       ]
     },
