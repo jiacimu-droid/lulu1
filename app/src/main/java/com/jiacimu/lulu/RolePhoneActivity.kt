@@ -74,7 +74,7 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
             val authored = attempt.optString("reason").replace("\n", " ").take(84)
             InspectedPhoneAction(label, authored, outcome, event.occurredAt,
                 status !in setOf("succeeded", "completed", "observed", "captured"))
-        }.take(4).toList()
+        }.take(48).toList()
 }
 
 private val ActivityTime = DateTimeFormatter.ofPattern("HH:mm")
@@ -83,18 +83,18 @@ private val ActivityTime = DateTimeFormatter.ofPattern("HH:mm")
 internal fun RolePhoneActivitySection(roleId: String) {
     // Keep the chat list close to the first viewport. The owner can reveal
     // the remaining real action receipts instead of scrolling past them.
-    var expanded by remember(roleId) { mutableStateOf(false) }
+    var expanded by remember(roleId) { mutableStateOf(true) }
     val version by SharedExperienceTimeline.revisions.collectAsState()
     val history by produceState<List<InspectedPhoneAction>>(emptyList(), roleId, version) {
         value = if (roleId.isNotBlank()) withContext(Dispatchers.IO) {
-            inspectedPhoneActions(SharedExperienceTimeline.recentEvents(roleId, 120))
+            inspectedPhoneActions(SharedExperienceTimeline.recentEvents(roleId, 350))
         } else emptyList()
     }
     if (history.isEmpty()) return
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("最近使用", fontSize = 16.sp,
+            Text("真实操作记录", fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold, color = Color(0xFF1D1D1F),
                 modifier = Modifier.weight(1f))
             // Technical receipts remain available below the actions, not in the chat feed.
