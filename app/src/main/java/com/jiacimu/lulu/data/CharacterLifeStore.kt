@@ -54,6 +54,7 @@ object CharacterLifeStore {
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
         applyOwnerApprovedJiangDuProfileOnce()
+        applyOwnerClarifiedJiangDuAiMotivationOnce()
         syncBundledExpressionPresets()
         unlockBundledAutonomousContactOnce()
     }
@@ -126,6 +127,29 @@ object CharacterLifeStore {
             .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
             .put("jiangDuApprovedReplacement20261104", true)
             .put("jiangDuApprovedReplacementRevision", 3)
+        save(id, root)
+    }
+
+    /**
+     * 2026-11-13 explicit owner authorization: replace the built-in Jiang Du's
+     * AI-interest and corresponding core motive EVEN IF either field was hand
+     * edited or deliberately cleared. A prior v31 install is not evidence that
+     * this newer permission was applied. Scope by immutable bundled identity,
+     * and consume this authorization exactly once so later edits remain editable.
+     */
+    @Synchronized private fun applyOwnerClarifiedJiangDuAiMotivationOnce() {
+        if (prefs == null) return
+        val id = BUNDLED_JIANG_DU_ID
+        val character = MigratedDomainStores.characters.settings.value[id] ?: return
+        val root = state(id)
+        if (root.optInt("jiangDuAiMotivationOwnerRevision") >= 1 ||
+            root.optInt("xingHeProfileVersion") > 0 ||
+            DigitalLifeProfileStore.lifeForm(id) == CharacterLifeForm.REAL_WORLD) return
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
+            profile.put(key, value)
+        }
+        root.put("profile", profile).put("jiangDuAiMotivationOwnerRevision", 1)
         save(id, root)
     }
 
