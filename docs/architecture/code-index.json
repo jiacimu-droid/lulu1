@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T00:47:03.430228+00:00",
-  "commit": "5f7e6fd73214ebe043b248a67f116bb68542ae98",
+  "generatedAt": "2026-11-13T00:47:51.294257+00:00",
+  "commit": "8818918c309925323a84116b2d48879584eebeed",
   "branch": "main",
-  "sourceFingerprint": "60aa3ea8bf03d3628cb83f84538a88b21303888e252fec810258d09f94197a63",
+  "sourceFingerprint": "68bf2b613af0169379f671ec95142cddc976064f38ea78a14d253080d89a67e2",
   "summary": {
     "files": 1283,
-    "lines": 271616,
+    "lines": 271642,
     "symbols": 3842
   },
   "symbolIndex": {
@@ -10253,37 +10253,37 @@
     "PerformanceTimingRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 97
+        "line": 101
       }
     ],
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 106
+        "line": 110
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 116
+        "line": 120
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 129
+        "line": 133
       }
     ],
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 225
+        "line": 229
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 356
+        "line": 364
       }
     ],
     "Key": [
@@ -24502,8 +24502,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 481,
-      "sha256": "7ea0e2aa24d2c85cedc68f001a07dfc5924a375bce6282dcddb169efb6997963",
+      "lines": 491,
+      "sha256": "114825ec7ad85555858132b6fdaaa2aa55ddeb9bfc9fed32708f0a063fde8c62",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
@@ -30814,8 +30814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 597,
-      "sha256": "8778fb847c6d88c4bf55df0dc94f01c5befd1bc548e1c875f666427f656d1608",
+      "lines": 610,
+      "sha256": "862b5118d11421925fe3933cb9d8b046916a0fe6672d07e7f2d86850c85faf49",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -30847,27 +30847,27 @@
         },
         {
           "name": "PerformanceTimingRecord",
-          "line": 97
+          "line": 101
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 106
+          "line": 110
         },
         {
           "name": "List",
-          "line": 116
+          "line": 120
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 129
+          "line": 133
         },
         {
           "name": "recordModelHandoff",
-          "line": 225
+          "line": 229
         },
         {
           "name": "updateDurations",
-          "line": 356
+          "line": 364
         }
       ]
     },
@@ -36279,8 +36279,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 294,
-      "sha256": "33da5d69640c342357f1d060c548faa098df83480d9c72e425ab82605f672e27",
+      "lines": 297,
+      "sha256": "cde3124a76d3598e9f7f8cd645d99df4de10a16dc91f734aa19f83a58f2b2f11",
       "symbols": [
         {
           "name": "glintCount",
