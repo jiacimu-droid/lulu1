@@ -360,6 +360,28 @@ internal object CompanionActionRuntime {
         }
     }
 
+    /**
+     * Persist an actually copied merchant share link as a role-owned chat card.
+     * Only the virtual-display executor calls this after checking the fresh
+     * clipboard change, verified merchant and currently authorized copy node.
+     * Model prose and arbitrary clipboard contents cannot invoke this path.
+     */
+    internal suspend fun sendShoppingProductLink(
+        characterId: String, merchant: String, url: String, caption: String,
+    ): CompanionActionResult {
+        require(characterId.isNotBlank() && !characterId.startsWith("resident:"))
+        val character = MigratedDomainStores.characters.get(characterId)
+        val conversation = privateConversation(characterId, character.displayName)
+        val payload = com.jiacimu.lulu.encodeQqShoppingProductLink(merchant, url, caption)
+        val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+            MigratedDomainStores.chat.appendCharacterMessage(conversation.id, payload, characterId)
+        }
+        return CompanionActionResult(
+            true, "已将真实复制到的$merchant商品链接作为可点击卡片发给主人；未下单或付款",
+            conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id),
+        )
+    }
+
     private suspend fun sendSearchedImage(
         characterId: String,
         characterName: String,
