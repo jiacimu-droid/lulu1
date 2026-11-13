@@ -34,8 +34,8 @@ class PromptCacheSectionOrderTest {
 
     @Test fun sectionReorderingPreservesEveryOriginalLabelAndValue() {
         val all = render("现在", "任务")
-        assertEquals(11, all.size)
-        assertEquals(11, all.map { it.first }.toSet().size)
+        assertEquals(12, all.size)
+        assertEquals(12, all.map { it.first }.toSet().size)
         assertEquals(1, all.count { it.first == "核心记忆" })
         assertEquals("已接受且仍需核实的职责",
             all.single { it.first == "未完成责任" }.second)
