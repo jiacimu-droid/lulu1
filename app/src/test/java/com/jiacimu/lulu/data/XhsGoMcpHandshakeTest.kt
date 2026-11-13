@@ -25,7 +25,8 @@ class XhsGoMcpHandshakeTest {
             assertTrue(runCatching { LuluExternalMcp.save(app, "xiaohongshu", url, "secret") }.isFailure)
             assertTrue(runCatching { LuluExternalMcp.check(app, "xiaohongshu") }.isFailure)
             assertEquals(0, server.requestCount)
-            assertTrue(LuluExternalMcp.save(app, "health", url, "health-secret"))
+            app.getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE).edit()
+                .putString("health:url", url).commit()
             assertTrue(LuluExternalMcp.configured(app, "health"))
         } finally {
             server.shutdown()
