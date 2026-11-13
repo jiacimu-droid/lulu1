@@ -556,6 +556,8 @@
 - 本轮新回归 [61edfb8](https://github.com/jiacimu-droid/lulu1/commit/61edfb8932b43b9f60ffbd0b3d70f3c8fa49a362) 验证旧 `state_v1` 在合法消息后混入非 JSONObject 项时，置顶/重启不应默默丢弃该项后覆盖原文；正式修复 [0816307](https://github.com/jiacimu-droid/lulu1/commit/0816307cba77e8aac08546ff93cf7019377704be) 仅在 ChatStore 权威解码路径要求数组项完整可解析，保留共享宽容导入 helper 给其他非权威调用；不改人设、费用或旧格式。提交后 CI 尚未取得 `0816307` 对应 head SHA 成功证明，**不勾 UI-02.2**。
 - 下一固定 **UI-02.2**：直接查 `ChatHistoryLegacyCompatibilityTest.partiallyMalformedLegacyMessagesMustNotLoseOtherHistoryOnWrite` 的 main push JVM/APK 和索引；通过后继续验证字段缺失/类型异常、写入失败与重启原文保护，随后推进事务性增量迁移。真机/强杀/10 万条仍外部待验。
 
+**2026-11-13 UI-02.2 · 1千/1万条元数据全量重写身份回归（待 CI）**：在现有 `ChatHistoryPersistenceBaselineTest.measure` 的真实 Store 测量中增加首/中/尾消息 ID 与正文的落盘 JSON、重开 Store 双重核对，避免只检查条数漏掉重排/替换；提交 [`d50ce11`](https://github.com/jiacimu-droid/lulu1/commit/d50ce11bd6a938ad2b7ecd9dcd7028fe59f9b207)。正式 `persistLocked` 仍每次 `encode` 全量 JSON，尚未改增量格式。新测试 JVM/APK/索引待按提交 SHA 验证，不标完成；下一轮查 `thousandAndTenThousandMessagesWriteAndReopenWithoutLoss` 首错，再推进可恢复事务迁移夹具。真机 ANR/强杀独立待验。
+
 ### UI-02 长历史聊天写入
 - **2026-11-10 UI-02.2 损坏快照防覆盖**：失败复现 [`65e3029`](https://github.com/jiacimu-droid/lulu1/commit/65e3029d92a47f318eb131f310c1adf0840d223a)；正式修复 [`6e5bd7d`](https://github.com/jiacimu-droid/lulu1/commit/6e5bd7deb9eebcc11b62267b74a96fd63cd524b4)。旧 `state_v1` JSON 无法解析或缺核心结构时标记不可写，拒绝后续默认会话写回覆盖原始快照；有效旧格式照常读取。**新提交 JVM/APK/索引、真机尚未验；UI-02.2 不勾完成。** 下一轮直接查 `ChatHistoryLegacyCompatibilityTest.malformedLegacySnapshotMustNotBeSilentlyOverwritten` 的 CI 首错，再补格式局部损坏/重启恢复反例；后续事务迁移仍待做。
 
