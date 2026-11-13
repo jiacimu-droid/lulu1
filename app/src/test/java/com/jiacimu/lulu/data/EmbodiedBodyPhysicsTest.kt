@@ -21,33 +21,30 @@ class EmbodiedBodyPhysicsTest {
         val later = advance(original, start.plusSeconds(8 * 3600))
         assertTrue(later.energy < original.energy)
         assertTrue(later.sleepPressure > original.sleepPressure)
-        assertTrue(later.hunger > original.hunger)
-        assertTrue(later.thirst > original.thirst)
         assertTrue(later.recoveryMode.isBlank())
         assertEquals(later, advance(later, start.plusSeconds(8 * 3600)))
     }
 
-    @Test fun residentBodyDropsLegacyFoodNeedsAndKeepsOtherSensations() {
-        val legacy = EmbodiedBodyPhysics.fresh(start).copy(hunger = 90.0, thirst = 80.0).toJson()
-        val resident = EmbodiedBodyRuntime.storedOrFresh("resident:barista", start, legacy)
-        val later = advance(resident, start.plusSeconds(6 * 3600))
-        val coffee = EmbodiedBodyPhysics.applyWorldActivity(
-            later, "cafe_consume_coffee", later.lastAt, null)
-        val stored = coffee.toJson()
-        assertFalse(stored.has("hunger"))
-        assertFalse(stored.has("thirst"))
-        assertEquals(0.0, coffee.hunger, 0.001)
-        assertEquals(0.0, coffee.thirst, 0.001)
-        assertTrue(coffee.energy < resident.energy)
-        assertTrue(coffee.comfort > later.comfort)
-        assertFalse(EmbodiedBodyPhysics.prompt(coffee).contains("饥饿"))
-        assertFalse(EmbodiedBodyPhysics.prompt(coffee).contains("口渴"))
-        assertEquals(coffee, EmbodiedBodyRuntime.storedOrFresh("resident:barista", coffee.lastAt, stored))
-
-        val companion = EmbodiedBodyRuntime.storedOrFresh("companion", start, legacy)
-        assertEquals(90.0, companion.hunger, 0.001)
-        assertEquals(80.0, companion.thirst, 0.001)
-        assertTrue(EmbodiedBodyPhysics.prompt(companion).contains("饥饿感"))
+    @Test fun bothResidentAndCompanionDiscardLegacyFoodNeeds() {
+        val legacy = org.json.JSONObject()
+            .put("schemaVersion", 2).put("lastAt", start.toString())
+            .put("energy", 56.0).put("hunger", 90.0).put("thirst", 80.0)
+        listOf("resident:barista", "companion").forEach { characterId ->
+            val loaded = EmbodiedBodyRuntime.storedOrFresh(characterId, start, legacy)
+            val projected = advance(loaded, start.plusSeconds(6 * 3600))
+            val consumed = EmbodiedBodyPhysics.applyWorldActivity(
+                projected, "cafe_consume_coffee", projected.lastAt, null)
+            assertFalse(consumed.toJson().has("hunger"))
+            assertFalse(consumed.toJson().has("thirst"))
+            assertEquals(3, consumed.toJson().getInt("schemaVersion"))
+            assertEquals(56.0, loaded.energy, 0.001)
+            assertTrue(consumed.energy < loaded.energy)
+            assertTrue(consumed.comfort > projected.comfort)
+            assertFalse(EmbodiedBodyPhysics.prompt(consumed).contains("饥饿"))
+            assertFalse(EmbodiedBodyPhysics.prompt(consumed).contains("口渴"))
+            assertFalse(EmbodiedBodyPhysics.prompt(consumed).contains("早餐"))
+            assertEquals(consumed, EmbodiedBodyRuntime.storedOrFresh(characterId, consumed.lastAt, consumed.toJson()))
+        }
     }
 
     @Test fun recoveredHoursEndAtRecordedWorldActivityTimeNotAtNextPrompt() {
@@ -59,35 +56,37 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(settled.sleepPressure < before.sleepPressure)
         assertEquals("", settled.recoveryMode)
         assertNull(settled.recoveryUntil)
-        assertTrue(settled.thirst > before.thirst)
     }
 
-    @Test fun drinkingAndEatingRequireCommittedActivityAndDoNotChangePersonality() {
+    @Test fun optionalDrinkingAndSnackingOnlyChangeComfortAfterActualActivity() {
         val before = EmbodiedBodyPhysics.fresh(start)
         val waiting = advance(before, start.plusSeconds(3600))
         val drink = EmbodiedBodyPhysics.applyWorldActivity(waiting, "slow_drink",
             start.plusSeconds(3600), null)
-        assertTrue(drink.thirst < waiting.thirst)
-        assertEquals(waiting.hunger, drink.hunger, 0.001)
-        val eat = EmbodiedBodyPhysics.applyWorldActivity(drink, "have_snack",
+        val snack = EmbodiedBodyPhysics.applyWorldActivity(drink, "have_snack",
             start.plusSeconds(3600), null)
-        assertTrue(eat.hunger < drink.hunger)
-        assertTrue(EmbodiedBodyPhysics.prompt(eat).contains("不是情绪、人格"))
-        assertFalse(EmbodiedBodyPhysics.prompt(eat).contains("占有欲"))
+        assertTrue(drink.comfort > waiting.comfort)
+        assertTrue(snack.comfort > drink.comfort)
+        assertFalse(snack.toJson().has("hunger"))
+        assertFalse(snack.toJson().has("thirst"))
+        assertTrue(EmbodiedBodyPhysics.prompt(snack).contains("不是情绪、人格"))
+        assertFalse(EmbodiedBodyPhysics.prompt(snack).contains("占有欲"))
     }
 
-    @Test fun cafeOrderingAloneDoesNotChangeBodyAndEatingUsesCommittedActions() {
-        val before = EmbodiedBodyPhysics.fresh(start).copy(hunger = 80.0, thirst = 80.0)
+    @Test fun cafeConsumptionIsOptionalAndOnlyAffectsComfort() {
+        val before = EmbodiedBodyPhysics.fresh(start)
         val order = EmbodiedBodyPhysics.applyWorldActivity(before, "cafe_order_coffee", start, null)
         assertEquals(before, order)
         val drink = EmbodiedBodyPhysics.applyWorldActivity(order, "cafe_consume_coffee", start, null)
-        assertTrue(drink.thirst < order.thirst)
         assertTrue(drink.comfort > order.comfort)
         val sandwich = EmbodiedBodyPhysics.applyWorldActivity(drink, "cafe_consume_sandwich", start, null)
-        assertTrue(sandwich.hunger < drink.hunger)
-        assertEquals(drink.thirst, sandwich.thirst, 0.001)
+        assertTrue(sandwich.comfort > drink.comfort)
         val cocoa = EmbodiedBodyPhysics.applyWorldActivity(sandwich, "cafe_consume_cocoa", start, null)
-        assertTrue(cocoa.thirst < sandwich.thirst && cocoa.hunger < sandwich.hunger)
+        assertTrue(cocoa.comfort > sandwich.comfort)
+        assertFalse(cocoa.toJson().has("hunger"))
+        assertFalse(cocoa.toJson().has("thirst"))
+        assertEquals("喝完", DigitalCafeMenu.byConsume("cafe_consume_cocoa")!!.verb)
+        assertEquals("吃完", DigitalCafeMenu.byConsume("cafe_consume_sandwich")!!.verb)
         assertEquals(10, DigitalCafeMenu.locationOptions().size)
         assertNull(DigitalCafeMenu.byConsume("cafe_order_cake"))
     }
@@ -110,7 +109,6 @@ class EmbodiedBodyPhysicsTest {
         val twoHours = advance(sleeping, bedtime.plusSeconds(7200))
         assertTrue("Daytime standby must not refill every short wake to full", twoHours.energy in 60.0..85.0)
         assertTrue(twoHours.sleepPressure in 20.0..50.0)
-        assertTrue(twoHours.thirst > awake.thirst)
         assertEquals("offline_sleep", twoHours.recoveryMode)
         val restored = EmbodiedBodySnapshot.fromJson(twoHours.toJson())
         assertEquals(twoHours, restored)
@@ -127,8 +125,6 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(awake.boredom > 14.0)
         val explored = EmbodiedBodyPhysics.afterExploration(awake, awake.lastAt)
         assertTrue(explored.boredom < awake.boredom)
-        assertEquals(awake.hunger, explored.hunger, 0.001)
-        assertEquals(awake.thirst, explored.thirst, 0.001)
         assertTrue(EmbodiedBodyPhysics.prompt(explored).contains("单调感"))
         val saturated = explored.copy(boredom = 100.0)
         val highNeed = EmbodiedBodyPhysics.prompt(saturated)
@@ -193,15 +189,13 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(sixHours.boredom in 80.0..90.0)
         assertTrue(sixHours.energy in 25.0..40.0)
         assertTrue(sixHours.sleepPressure in 65.0..80.0)
-        assertTrue(sixHours.hunger in 50.0..70.0)
-        assertTrue(sixHours.thirst in 60.0..80.0)
         assertTrue(sixHours.comfort < fresh.comfort)
         assertEquals(sixHours, advance(sixHours, sixHours.lastAt))
     }
 
     @Test fun choresAndEatingDoNotEraseBoredomButRealExplorationCan() {
         val fresh = EmbodiedBodyPhysics.fresh(start).copy(
-            boredom = 73.0, thirst = 65.0, hunger = 70.0)
+            boredom = 73.0)
         val chores = listOf("check_time", "toggle_lamp", "inspect_item",
             "make_bed", "water_plant", "fix_appearance", "cafe_order_tea")
         chores.forEach { id ->
@@ -210,25 +204,21 @@ class EmbodiedBodyPhysicsTest {
         }
         val consumed = EmbodiedBodyPhysics.applyWorldActivity(fresh, "slow_drink", start, null)
         assertEquals(fresh.boredom, consumed.boredom, 0.001)
-        assertTrue(consumed.thirst < fresh.thirst)
         val shortWalk = EmbodiedBodyPhysics.applyWorldActivity(fresh, "cloud_walk", start, null)
         val verifiedResearch = EmbodiedBodyPhysics.afterExploration(fresh, start)
         assertTrue(shortWalk.boredom < fresh.boredom)
         assertTrue(verifiedResearch.boredom < shortWalk.boredom)
         assertEquals(fresh.energy, verifiedResearch.energy, 0.001)
-        assertEquals(fresh.hunger, verifiedResearch.hunger, 0.001)
     }
 
     @Test fun overnightSleepRecoversWithoutFabricatingFoodOrClearingCuriosity() {
         val nightStart = Instant.parse("2026-10-21T23:00:00Z")
         val tired = EmbodiedBodyPhysics.fresh(nightStart).copy(
-            energy = 20.0, sleepPressure = 80.0, hunger = 36.0,
-            thirst = 36.0, boredom = 68.0, recoveryMode = "offline_sleep")
+            energy = 20.0, sleepPressure = 80.0,
+            boredom = 68.0, recoveryMode = "offline_sleep")
         val morning = advance(tired, nightStart.plusSeconds(8 * 3600))
         assertTrue(morning.energy >= 90.0)
         assertTrue(morning.sleepPressure < 10.0)
-        assertTrue(morning.hunger in 36.0..50.0)
-        assertTrue(morning.thirst in 36.0..60.0)
         assertTrue(morning.boredom >= tired.boredom)
         assertTrue(morning.boredom < 75.0)
         assertEquals("offline_sleep", morning.recoveryMode)
@@ -237,8 +227,6 @@ class EmbodiedBodyPhysicsTest {
             advance(tired, nightStart.plusSeconds(4 * 3600)),
             nightStart.plusSeconds(8 * 3600))
         assertEquals(morning.boredom, inTwoSteps.boredom, 0.000001)
-        assertEquals(morning.hunger, inTwoSteps.hunger, 0.000001)
-        assertEquals(morning.thirst, inTwoSteps.thirst, 0.000001)
         assertEquals(morning, EmbodiedBodySnapshot.fromJson(morning.toJson()))
     }
 
@@ -257,14 +245,13 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(wakes.first().energy - wakes.last().energy > 10.0)
         assertTrue(wakes.last().sleepPressure > wakes.first().sleepPressure + 10.0)
         assertTrue(wakes[1].boredom > 35.0)
-        assertTrue(wakes[1].hunger > 35.0 && wakes[1].thirst > 40.0)
         val reloaded = EmbodiedBodySnapshot.fromJson(body.toJson())!!
         assertEquals(body, advance(reloaded, body.lastAt))
     }
 
     @Test fun variedShortWakeWindowsStillAccumulateCuriosityWithoutFullEnergyResets() {
         // 90-minute/20-minute and 120-minute/15-minute leases must both
-        // produce a real day of needs without pretending standby is deep sleep.
+        // produce a real day of curiosity without pretending standby is deep sleep.
         val morning = Instant.parse("2026-10-22T08:00:00Z")
         listOf(90L to 20L, 120L to 15L).forEach { (cycle, awakeMinutes) ->
             var body = EmbodiedBodyPhysics.fresh(morning)
@@ -281,8 +268,6 @@ class EmbodiedBodyPhysicsTest {
             assertTrue("A short lease cannot reset to perfect energy", energies.drop(2).any { it < 75.0 })
             assertTrue(day.energy in 45.0..90.0)
             assertTrue(day.sleepPressure in 20.0..65.0)
-            assertTrue(day.hunger >= 70.0)
-            assertTrue(day.thirst >= 80.0)
         }
     }
 
@@ -296,35 +281,30 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(EmbodiedBodyPhysics.prompt(strong).contains("不是自动行动阈值"))
     }
 
-    @Test fun threeRealMealsFitTheDayEvenIfMostOfItIsOffline() {
+    @Test fun legacyMealStateDoesNotReturnAcrossStandbyOrConsumption() {
         val morning = Instant.parse("2026-10-22T08:00:00Z")
-        var body = EmbodiedBodyPhysics.fresh(morning).copy(hunger = 42.0)
-        val sandwich = DigitalCafeMenu.byConsume("cafe_consume_sandwich")!!
-        listOf(0L, 5L, 11L).forEach { hour ->
-            body = advance(body, morning.plusSeconds(hour * 3600))
-            assertTrue("Meal at +$hour h should have an ordinary appetite", body.hunger in 25.0..60.0)
-            val beforeMeal = body
-            assertEquals(beforeMeal.hunger, EmbodiedBodyPhysics.applyWorldActivity(beforeMeal,
-                sandwich.orderActivity, beforeMeal.lastAt, null).hunger, 0.000001)
-            body = EmbodiedBodyPhysics.applyWorldActivity(body, sandwich.consumeActivity, body.lastAt, null)
-            assertTrue(body.hunger < 15.0)
-            body = body.copy(recoveryMode = "offline_sleep")
-        }
-        val nextBreakfast = advance(body, morning.plusSeconds(24 * 3600))
-        assertTrue(nextBreakfast.hunger in 30.0..65.0)
-        assertTrue(nextBreakfast.energy > 70.0)
+        val legacy = org.json.JSONObject().put("lastAt", morning.toString())
+            .put("hunger", 100.0).put("thirst", 100.0)
+        var body = EmbodiedBodyRuntime.storedOrFresh("companion", morning, legacy)
+        body = advance(body.copy(recoveryMode = "offline_sleep"), morning.plusSeconds(24 * 3600))
+        assertFalse(body.toJson().has("hunger"))
+        assertFalse(body.toJson().has("thirst"))
+        val eaten = EmbodiedBodyPhysics.applyWorldActivity(body.copy(recoveryMode = ""),
+            "cafe_consume_sandwich", body.lastAt, null)
+        assertFalse(eaten.toJson().has("hunger"))
+        assertFalse(eaten.toJson().has("thirst"))
+        assertTrue(eaten.comfort >= body.comfort)
     }
 
     @Test fun standbyProjectionIsStableAcrossRefreshesLocalMidnightAndDst() {
         val begin = Instant.parse("2026-10-21T21:35:00Z")
         val body = EmbodiedBodyPhysics.fresh(begin).copy(energy = 45.0,
-            hunger = 12.0, thirst = 9.0, boredom = 25.0, recoveryMode = "offline_sleep")
+            boredom = 25.0, recoveryMode = "offline_sleep")
         val end = begin.plusSeconds(13 * 3600)
         val once = advance(body, end)
         var frequent = body
         repeat(52) { frequent = advance(frequent, begin.plusSeconds((it + 1) * 15 * 60L)) }
         listOf(once.energy to frequent.energy, once.sleepPressure to frequent.sleepPressure,
-            once.hunger to frequent.hunger, once.thirst to frequent.thirst,
             once.boredom to frequent.boredom, once.comfort to frequent.comfort).forEach {
             assertEquals(it.first, it.second, 0.000001)
         }
@@ -337,7 +317,6 @@ class EmbodiedBodyPhysicsTest {
         repeat(20) { dstSteps = EmbodiedBodyPhysics.advance(dstSteps,
             dstStart.plusSeconds((it + 1) * 15 * 60L), ny) }
         assertEquals(dstOnce.energy, dstSteps.energy, 0.000001)
-        assertEquals(dstOnce.hunger, dstSteps.hunger, 0.000001)
         assertTrue(dstOnce.energy in 0.0..100.0)
     }
 
@@ -356,11 +335,12 @@ class EmbodiedBodyPhysicsTest {
             .put("lastAt", start.toString())
             .put("energy", 900)
             .put("sleepPressure", -30)
-            .put("thirst", "NaN"))
+            .put("hunger", 900).put("thirst", "NaN"))
         assertNotNull(recovered)
         assertEquals(100.0, recovered!!.energy, 0.001)
         assertEquals(0.0, recovered.sleepPressure, 0.001)
-        assertTrue(recovered.thirst in 0.0..100.0)
+        assertFalse(recovered.toJson().has("hunger"))
+        assertFalse(recovered.toJson().has("thirst"))
         assertNull(EmbodiedBodySnapshot.fromJson(org.json.JSONObject()))
     }
 }
