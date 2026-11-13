@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`976347903ee0a74dc359ae2af4a1fb9026c074b4`
+- 基准提交：`4d3f337f135633b79ca442c0b89d496eda5c698e`
 - 分支：`main`
-- 已索引文件：1288
-- 已索引代码/文本行：271699
+- 已索引文件：1287
+- 已索引代码/文本行：271684
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -65,7 +65,6 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/theater/wanxiang_mini_scenes.json` | 180 | 0 |
-| `app/src/main/assets/worldbook/meowssiah_verbatim.json` | 15 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
 | `app/src/main/cpp/cubism_native_probe.cpp` | 33 | 0 |
