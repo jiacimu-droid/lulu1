@@ -134,6 +134,19 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     var phoneApp by rememberSaveable { mutableStateOf("home") }
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
     var showMessageFavorites by rememberSaveable { mutableStateOf(false) }
+    // Preserve state restored from the earlier desktop where QQ tabs were
+    // mistakenly separate apps. Navigate to the same content inside chat.
+    LaunchedEffect(phoneApp) {
+        when (phoneApp) {
+            "moments" -> { phoneTab = 2; phoneApp = "messages" }
+            "favorites" -> {
+                phoneTab = 3
+                showMessageFavorites = true
+                phoneApp = "messages"
+            }
+            "profile" -> { phoneTab = 3; phoneApp = "messages" }
+        }
+    }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
