@@ -99,6 +99,25 @@ class CommitmentDecisionProtocolTest {
         )))
     }
 
+    @Test fun timedWakeReceiptSeparatesAlarmRegistrationFromExecutionFailure() {
+        val task = CommitmentTask(
+            characterId = "role", goal = "二十分钟后叫醒我",
+            dueAt = Instant.now().minusSeconds(180),
+            status = CommitmentTaskStatus.Blocked,
+            lastActionResult = "系统闹钟 执行中断：Timed out waiting for 150000 ms；未确认目标完成",
+        )
+        val registrationFailure = wakeScheduleReceipt(task)
+        assertTrue(registrationFailure?.contains("登记失败") == true)
+        val executionFailure = wakeScheduleReceipt(task.copy(lastAlarmReceivedAt = Instant.now()))
+        assertTrue(executionFailure?.contains("到点执行异常") == true)
+        assertFalse(executionFailure.orEmpty().contains("登记失败"))
+        assertTrue(executionFailure?.contains("尚未确认") == true)
+        assertNull(wakeScheduleReceipt(task.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            lastAlarmReceivedAt = Instant.now(),
+        )))
+    }
+
     @Test fun ongoingResponsibilityDoesNotRequireClockGuessingAndEmptyMeansNoTask() {
         val changes = JSONArray("""[{"action":"create","goal":"留意这个进展","promiseKind":"long_term_supervision","needsClarification":false}]""")
         val draft = CommitmentDecisionProtocol.drafts(changes, emptyList()).single()
