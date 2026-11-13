@@ -272,10 +272,8 @@ class InMemoryLuluChatStore : LuluChatStore {
             val normalizedIds = normalized.members.map(LuluGroupMember::characterId).toSet()
             val added = normalizedIds - previousIds
             val removed = previousIds - normalizedIds
-            var changed = false
-            conversationState.value = conversationState.value.map { conversation ->
+            val updated = conversationState.value.map { conversation ->
                 if (conversation.id == conversationId && conversation.groupChat != null) {
-                    changed = true
                     conversation.copy(
                         characterId = normalized.members.first().characterId,
                         title = normalized.name,
@@ -286,8 +284,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                     conversation
                 }
             }.sortedWith(conversationOrdering())
-            if (changed) persistLocked()
-            if (changed) added to removed else emptySet<String>() to emptySet()
+            // A membership change must be durable before it becomes visible or
+            // generates an invitation/removal receipt.
+            persistLocked(durable = true, conversations = updated)
+            conversationState.value = updated
+            added to removed
         }
         val (addedMemberIds, removedMemberIds) = membershipChanges
         if (addedMemberIds.isNotEmpty() || removedMemberIds.isNotEmpty()) {
