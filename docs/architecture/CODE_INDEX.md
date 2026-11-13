@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`38d1e792b57189eb830f29aef7ba92ae6941fd21`
+- 基准提交：`5704e2178f9c8a6b5a42cef24d789f0e4488c150`
 - 分支：`main`
 - 已索引文件：1297
-- 已索引代码/文本行：273106
-- 已发现符号：3856
+- 已索引代码/文本行：273130
+- 已发现符号：3857
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -274,7 +274,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 136 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 543 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 180 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 195 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 235 | 0 |
@@ -983,7 +983,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 114 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 1068 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 1077 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 117 | 1 |

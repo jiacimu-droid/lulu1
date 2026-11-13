@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:41:24.124018+00:00",
-  "commit": "38d1e792b57189eb830f29aef7ba92ae6941fd21",
+  "generatedAt": "2026-11-13T12:41:49.761504+00:00",
+  "commit": "5704e2178f9c8a6b5a42cef24d789f0e4488c150",
   "branch": "main",
-  "sourceFingerprint": "9e8fab75fcf425d2ae76cc82458ad223def4b2014942e6e8bea74748a3239fe6",
+  "sourceFingerprint": "79095ce0a5ea31b7d9e5fe996197dfae1a41f9a1258a9a6a4230c525bf8e6636",
   "summary": {
     "files": 1297,
-    "lines": 273106,
-    "symbols": 3856
+    "lines": 273130,
+    "symbols": 3857
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4105,19 +4105,25 @@
     "saveChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-        "line": 126
+        "line": 129
       }
     ],
     "saveSearchResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-        "line": 142
+        "line": 145
       }
     ],
     "saveCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-        "line": 149
+        "line": 152
+      }
+    ],
+    "recordScreenObservation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+        "line": 169
       }
     ],
     "ScheduleFeatureScreen": [
@@ -18405,13 +18411,13 @@
     "replace": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 86
+        "line": 95
       }
     ],
     "seed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 713
+        "line": 722
       }
     ],
     "CallMediaSemanticBoundaryTest": [
@@ -25096,20 +25102,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
-      "lines": 180,
-      "sha256": "a39b4ee002e6f861dc0ed25504d1c03e9dfe3cb1c567131556d217411d8e8932",
+      "lines": 195,
+      "sha256": "6c677a91d13e28322d6351e18bb29457ec1a92d1d9e42a1efa9da2a7aac5c339",
       "symbols": [
         {
           "name": "saveChatMessage",
-          "line": 126
+          "line": 129
         },
         {
           "name": "saveSearchResult",
-          "line": 142
+          "line": 145
         },
         {
           "name": "saveCapture",
-          "line": 149
+          "line": 152
+        },
+        {
+          "name": "recordScreenObservation",
+          "line": 169
         }
       ]
     },
@@ -41191,8 +41201,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 1068,
-      "sha256": "8b16fa7e3266293b0cadcdbd69b657801ec2bc293ca479cd85c8b393969a3c8d",
+      "lines": 1077,
+      "sha256": "10bb9bb5ba30cc127c0ac52e8aeb9af1a1fa0d80e2307a022a2426658071e584",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -41200,11 +41210,11 @@
         },
         {
           "name": "replace",
-          "line": 86
+          "line": 95
         },
         {
           "name": "seed",
-          "line": 713
+          "line": 722
         }
       ]
     },
