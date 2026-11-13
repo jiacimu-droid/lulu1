@@ -21,15 +21,78 @@ import java.time.format.DateTimeFormatter
 internal fun CharacterExecutionSettings(characterId: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("主动执行授权", style = MaterialTheme.typography.titleMedium)
-        listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "media" to "主动控制手机音乐", "xhs_read" to "主动逛小红书（只读）", "health_read" to "读取手环健康 MCP（只读）", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
-            var allowed by remember(characterId, key) { mutableStateOf(prefs.getBoolean("$characterId:$key", key == "xhs_read")) }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text(label, modifier = Modifier.weight(1f))
-                Switch(allowed, { allowed = it; prefs.edit().putBoolean("$characterId:$key", it).commit() })
+    var shoppingEnabled by remember(characterId) {
+        mutableStateOf(com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId))
+    }
+    var shoppingNotice by remember(characterId) { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Text("操作授权", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("这里决定他能用哪些手机能力。关闭后，角色无法继续使用对应权限。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+        val permissionGroups = listOf(
+            "手机与应用" to listOf(
+                "screen" to "操作手机屏幕",
+                "device_read" to "读取设备状态",
+            ),
+            "日常协助" to listOf(
+                "alarm" to "设置闹钟",
+                "media" to "控制手机音乐",
+            ),
+            "其他能力" to listOf(
+                "health_read" to "读取健康数据",
+                "cloud" to "提交云端任务",
+            ),
+        )
+        permissionGroups.forEachIndexed { groupIndex, (groupTitle, permissions) ->
+            if (groupIndex > 0) HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+            Text(groupTitle, style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp))
+            permissions.forEach { (key, title) ->
+                var allowed by remember(characterId, key) {
+                    mutableStateOf(prefs.getBoolean("$"+"characterId:$"+"key", false))
+                }
+                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text(title, modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium)
+                    Switch(checked = allowed, onCheckedChange = { next ->
+                        if (prefs.edit().putBoolean("$"+"characterId:$"+"key", next).commit()) {
+                            allowed = next
+                        }
+                    })
+                }
+                if (key == "screen") {
+                    Row(Modifier.fillMaxWidth().heightIn(min = 58.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("帮我挑选商品", style = MaterialTheme.typography.bodyMedium)
+                            Text("可选规格、加购物车；付款必须由我完成",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(checked = shoppingEnabled,
+                            enabled = characterId.isNotBlank() &&
+                                !characterId.startsWith("resident:"),
+                            onCheckedChange = { next ->
+                                if (com.jiacimu.lulu.system.LuluShoppingAssistPolicy.setEnabled(
+                                        context, characterId, next)) {
+                                    shoppingEnabled = next
+                                    shoppingNotice = ""
+                                } else shoppingNotice = "授权未能保存，请重试"
+                            })
+                    }
+                    if (shoppingNotice.isNotBlank()) Text(shoppingNotice,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error)
+                }
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
         // Device-wide local shell consent belongs to the owner, never to a character model.
         // The per-character "screen" toggle above still gates actual actions.
         var advancedPhoneOpen by remember { mutableStateOf(false) }
