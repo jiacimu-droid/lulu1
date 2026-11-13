@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c0cbe7fe1cf8dbeceb0be905cb3d71766319c64f`
+- 基准提交：`b73765c930246598f8fbfb9c0a2a5a069fe7998f`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：274656
+- 已索引代码/文本行：274667
 - 已发现符号：3877
 
 | 文件 | 行数 | 符号数 |
@@ -665,7 +665,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1306 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 330 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 937 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 946 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1215 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
@@ -702,7 +702,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt` | 61 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt` | 43 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 117 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |

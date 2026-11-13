@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:55:55.352855+00:00",
-  "commit": "c0cbe7fe1cf8dbeceb0be905cb3d71766319c64f",
+  "generatedAt": "2026-11-13T16:00:24.587395+00:00",
+  "commit": "b73765c930246598f8fbfb9c0a2a5a069fe7998f",
   "branch": "main",
-  "sourceFingerprint": "57cae39312bbf948b22cca835e5dcb7ccb7bebaaaf2beed91c06c1fbf3691a5b",
+  "sourceFingerprint": "c4a4562b19c1f7e9b8c4eb60eb2da5ea1343143bae6cd41e7ab6e71859d75e5c",
   "summary": {
     "files": 1305,
-    "lines": 274656,
+    "lines": 274667,
     "symbols": 3877
   },
   "symbolIndex": {
@@ -7735,7 +7735,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 152
+        "line": 161
       }
     ],
     "remembered": [
@@ -9723,7 +9723,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 44
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -9741,7 +9741,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 78
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -12495,7 +12495,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 356
+        "line": 365
       }
     ],
     "allowedLeisureLocation": [
@@ -13971,7 +13971,7 @@
     "next": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 165
+        "line": 174
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -13985,55 +13985,55 @@
     "newWorld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 212
+        "line": 221
       }
     ],
     "BlockIslandState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 257
+        "line": 266
       }
     ],
     "setCompanionMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 268
+        "line": 277
       }
     ],
     "isWalkable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 277
+        "line": 286
       }
     ],
     "canPlaceBuilding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 303
+        "line": 312
       }
     ],
     "canBuild": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 322
+        "line": 331
       }
     ],
     "canPlantAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 329
+        "line": 338
       }
     ],
     "canRemoveAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 340
+        "line": 349
       }
     ],
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 352
+        "line": 361
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -14051,25 +14051,25 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 357
+        "line": 366
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 884
+        "line": 893
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 890
+        "line": 899
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 929
+        "line": 938
       }
     ],
     "playSound": [
@@ -35338,80 +35338,80 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 937,
-      "sha256": "ca3f34e6899d4b78e3258b3143adf0cf0f5cbabee430fd362bc9450043859bba",
+      "lines": 946,
+      "sha256": "de0197ed338df3d49457149b3d213175de07e243caf5f633c54babf20e0d6501",
       "symbols": [
         {
           "name": "toJson",
-          "line": 44
+          "line": 46
         },
         {
           "name": "fromJson",
-          "line": 78
+          "line": 81
         },
         {
           "name": "fromLegacy",
-          "line": 152
+          "line": 161
         },
         {
           "name": "next",
-          "line": 165
+          "line": 174
         },
         {
           "name": "newWorld",
-          "line": 212
+          "line": 221
         },
         {
           "name": "BlockIslandState",
-          "line": 257
+          "line": 266
         },
         {
           "name": "setCompanionMode",
-          "line": 268
-        },
-        {
-          "name": "isWalkable",
           "line": 277
         },
         {
+          "name": "isWalkable",
+          "line": 286
+        },
+        {
           "name": "canPlaceBuilding",
-          "line": 303
+          "line": 312
         },
         {
           "name": "canBuild",
-          "line": 322
+          "line": 331
         },
         {
           "name": "canPlantAt",
-          "line": 329
+          "line": 338
         },
         {
           "name": "canRemoveAt",
-          "line": 340
+          "line": 349
         },
         {
           "name": "act",
-          "line": 352
+          "line": 361
         },
         {
           "name": "reject",
-          "line": 356
+          "line": 365
         },
         {
           "name": "near",
-          "line": 357
+          "line": 366
         },
         {
           "name": "nextStep",
-          "line": 884
+          "line": 893
         },
         {
           "name": "occupiedByOther",
-          "line": 890
+          "line": 899
         },
         {
           "name": "actionName",
-          "line": 929
+          "line": 938
         }
       ]
     },
@@ -36161,8 +36161,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt",
-      "lines": 43,
-      "sha256": "46c12d3dc70315828c656d27a1a6c2b1fdd653ade555f20f4136abe47826953b",
+      "lines": 45,
+      "sha256": "4618503086ed82a64b4195eb17dc4dea232864a0d606fceae9457f1b3450d170",
       "symbols": [
         {
           "name": "arrives",
