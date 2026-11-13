@@ -123,6 +123,11 @@ class AutonomousAffordanceContextTest {
         val context = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
         )
+        assertTrue(context.contains("游戏意愿先于入口"))
+        assertTrue(context.contains("方块小岛建造"))
+        assertTrue(context.contains("迷雾摸金寻宝"))
+        assertTrue(context.contains("不要因为独自入口不支持就一律改玩快艇骰子"))
+        assertTrue(context.contains("可以真心喜欢同一款而重玩"))
         assertTrue(context.contains("action=game_invite"))
         assertTrue(context.contains("appraisal.ownActivity={stage:decided,action:game_invite"))
         assertTrue(context.contains("无须再写相同 ownActivity"))
