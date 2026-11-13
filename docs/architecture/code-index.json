@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:40:53.796979+00:00",
-  "commit": "b141f56b116138048b5993231894402cc1d416be",
+  "generatedAt": "2026-11-13T04:46:59.189277+00:00",
+  "commit": "a32cdefe27775b543a72c24c743af50ff5166469",
   "branch": "main",
-  "sourceFingerprint": "9ab27354189dbc62df137586c1a08e8c0382c6b970ed0064a7e53fee8fbbdc47",
+  "sourceFingerprint": "1cc9280bc42eb57756ec5e4789c92b3108c0a11c4e3c9962887459b9605eb03b",
   "summary": {
     "files": 1289,
-    "lines": 273353,
+    "lines": 273290,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -5853,7 +5853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 26
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
@@ -21781,7 +21781,7 @@
     {
       "path": "app/src/main/assets/worldbook/meowssiah_verbatim.json",
       "lines": 15,
-      "sha256": "93623ce46e8d1a1483caf67ee4ab1b3813c42a441d5a1d34beda1541f1257947",
+      "sha256": "786ddb3a6402aacfabe41d25d7f3c8982fbe2b82a241c02d29845881ff1fd0ff",
       "symbols": []
     },
     {
@@ -22313,8 +22313,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 762,
-      "sha256": "900eca3682a0a6c37750ccbaca2fe471d673a767a07c20e75f5d5782b75ddda5",
+      "lines": 751,
+      "sha256": "0686132b40bf27effcbbe7273dcc60f9809c15a95f8f8fb2ecfbecb810ae4e73",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -33990,8 +33990,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-      "lines": 191,
-      "sha256": "be3eb560680a127f0408f24d1555f10a13b49ce9124ef1d9dbe0422b45a790b6",
+      "lines": 139,
+      "sha256": "3512c9d3ab3518207682393a68acb39e5575000a5ebbf808071b767967523c4e",
       "symbols": [
         {
           "name": "Preview",
@@ -33999,7 +33999,7 @@
         },
         {
           "name": "parse",
-          "line": 26
+          "line": 25
         }
       ]
     },

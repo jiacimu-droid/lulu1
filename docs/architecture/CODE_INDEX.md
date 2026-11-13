@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b141f56b116138048b5993231894402cc1d416be`
+- 基准提交：`a32cdefe27775b543a72c24c743af50ff5166469`
 - 分支：`main`
 - 已索引文件：1289
-- 已索引代码/文本行：273353
+- 已索引代码/文本行：273290
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -107,7 +107,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 513 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 616 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 762 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 751 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -596,7 +596,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 124 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 220 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt` | 191 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt` | 139 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 326 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 232 | 6 |
