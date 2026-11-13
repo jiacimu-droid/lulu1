@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T08:45:17.544422+00:00",
-  "commit": "ea8bf5021fe4cfbc49cbffc92747d26b8487a999",
+  "generatedAt": "2026-11-13T08:46:40.806260+00:00",
+  "commit": "6a7902b7ff7825ba878ae946bb2e893672535e1d",
   "branch": "main",
-  "sourceFingerprint": "f501ae3bea00bd08ad4a3ea97f9eb636a8598e61d37959370a78668051599094",
+  "sourceFingerprint": "742ba14cc4a23222ccf97b142a245a23f445ec5409888efdfdc12dc42e66caa9",
   "summary": {
     "files": 1296,
-    "lines": 272808,
+    "lines": 272818,
     "symbols": 3855
   },
   "symbolIndex": {
@@ -41174,8 +41174,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
-      "lines": 112,
-      "sha256": "a0ddee494abd126197c553ed889e1ef2d693eb8ec421a0e2a3fff30a73bf8034",
+      "lines": 114,
+      "sha256": "db8088e243959c10db7f5667572f1494e5510e88300314f3122f4075098159b9",
       "symbols": [
         {
           "name": "BackgroundPhoneCapabilityContextTest",
@@ -45520,8 +45520,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
-      "lines": 77,
-      "sha256": "0735b805153fd84618f357a39c82ef2beec0e9305e42ca0065fe657395f10f1f",
+      "lines": 85,
+      "sha256": "5f8b89d29c05b40dcd77a69f299378d41b3b0578760a35a65e6bede26b703273",
       "symbols": [
         {
           "name": "LuluShoppingLinkShareTest",
