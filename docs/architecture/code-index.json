@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:31:22.689606+00:00",
-  "commit": "901b4373758fe19eba187a00c7e70fac314cf8e1",
+  "generatedAt": "2026-11-13T04:33:43.503419+00:00",
+  "commit": "1a423754504449a5bf38de2f6ce19620639526d5",
   "branch": "main",
-  "sourceFingerprint": "e19f6f88ee8c4bf5e38ea4427fa606787fd22dd312d5c90113aa8e835ea83a17",
+  "sourceFingerprint": "4b617c5c1064672d060a1f77397d88538017e3b801bbe49247aa2111aa20ddde",
   "summary": {
     "files": 1289,
-    "lines": 273216,
+    "lines": 273268,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -5853,7 +5853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 25
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
@@ -33990,8 +33990,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-      "lines": 139,
-      "sha256": "3512c9d3ab3518207682393a68acb39e5575000a5ebbf808071b767967523c4e",
+      "lines": 191,
+      "sha256": "be3eb560680a127f0408f24d1555f10a13b49ce9124ef1d9dbe0422b45a790b6",
       "symbols": [
         {
           "name": "Preview",
@@ -33999,7 +33999,7 @@
         },
         {
           "name": "parse",
-          "line": 25
+          "line": 26
         }
       ]
     },
