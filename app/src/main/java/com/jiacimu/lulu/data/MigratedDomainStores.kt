@@ -957,6 +957,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                     val conversationId = keys.next()
                     put(conversationId, decodeAll(messagesObject.getJSONArray(conversationId)) { item ->
                         require(item.optString("id").isNotBlank()) { "消息缺少原始 ID" }
+                        // A missing/null body is not an intentionally empty message. The
+                        // permissive decoder would replace it with "", destroying evidence.
+                        require(item.has("content") && !item.isNull("content") && item.opt("content") is String) {
+                            "消息原始正文缺失或类型无效"
+                        }
                         require(item.optString("conversationId") == conversationId) { "消息归属与会话不一致" }
                         require(item.optString("sender") in LuluChatMessage.Sender.entries.map { it.name }) {
                             "消息发送者无效"
