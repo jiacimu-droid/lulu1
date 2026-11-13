@@ -105,8 +105,7 @@ internal object CompanionActionRuntime {
                 val clean = line.trimStart()
                 clean.startsWith("- web_search") ||
                     clean.startsWith("- image_search") ||
-                    clean.startsWith("- read_xiaohongshu") ||
-                    clean.startsWith("当前可复用阅读会话=") ||
+                    clean.startsWith("- background_phone") ||
                     clean.startsWith("- learn_topic")
             }.joinToString("\n").trim()
 
@@ -250,10 +249,6 @@ internal object CompanionActionRuntime {
         appendLine(CapabilityRegistry.screenVisionContext(context, characterId))
         appendLine("- read_self_todo，args={\"scope\":\"today|all\",\"offset\":0}：只读主人自序→所行的原始待办、今天完成记录、逾期/今日未完成及未来安排；today只列今天与逾期，all连以后任务也列出，每次最多30项可用nextOffset翻页。只有真实ToolRouter回执才能说已查看；不擅自编辑、勾选或转成角色自己的日程。清单未勾选不证明没学习，需结合真实计时和获主人本时段许可的start_study_watch核实。")
         appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(context))
-        if (CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
-            appendLine("- read_xiaohongshu：读用户分享的指定笔记时传 args={\"url\":\"聊天里实际分享的官方链接\"}；自己寻找资料时才传 args={\"keyword\":\"自己好奇的具体主题，可留空看推荐\"}。不能把关键词搜索到的另一篇当成用户分享的原帖；要真实打开正文并取得回执后才声称已读。可以形成独立兴趣与感想；是否分享给用户/朋友圈须另选真实发送动作。博主经历不是自己的经历。")
-            appendLine("  当前可复用阅读会话=${XhsReadingEngine.available(context)}；这是本轮运行条件，不是有无搜索能力。只有真实回执证明搜到、读到或形成理解；会话不可用时保留兴趣，不反复盲目重试。已有学习目标可用 learn_topic 的 attach 关联阅读回执 evidenceId，复用原文与理解。")
-        }
         if (LuluExternalMcp.configured(context, "health") &&
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
@@ -619,7 +614,7 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
                     evidenceId = "native-mail-${sent.id}-viewer-$characterId")
             }
-            "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
+            "read_xiaohongshu" -> CompanionActionResult(false, "旧小红书读取已停用；请由角色选择 background_phone 操作已安装App，保留原始阅读历史")
             "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
@@ -1863,7 +1858,7 @@ internal object XhsRoleShare {
 
     fun availableContext(characterId: String): String {
         val notes = recentNotes(characterId)
-        if (notes.isEmpty()) return "【本人可分享的小红书】暂无真实已读笔记；先实际使用 read_xiaohongshu 并等成功回执。"
+        if (notes.isEmpty()) return "【本人可分享的小红书】暂无可供分享卡片的旧版阅读记录。新浏览请用 background_phone 读取真实App画面；可按实际观察自行选择发送后台截图，不会自动伪造旧卡片证据。"
         return buildString {
             appendLine("【本人已读、可用卡片分享的小红书｜仅事实，不要求自动发送】")
             notes.forEach { (event, note) ->
