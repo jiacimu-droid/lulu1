@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:05:27.223184+00:00",
-  "commit": "3ac3f20be26a0329389ec71e77b39c292c18b1ca",
+  "generatedAt": "2026-11-13T04:31:22.689606+00:00",
+  "commit": "901b4373758fe19eba187a00c7e70fac314cf8e1",
   "branch": "main",
-  "sourceFingerprint": "80ace03a52897610b49b421f22ccb53860702601901924a4f5c2045d46a75884",
+  "sourceFingerprint": "e19f6f88ee8c4bf5e38ea4427fa606787fd22dd312d5c90113aa8e835ea83a17",
   "summary": {
-    "files": 1288,
-    "lines": 271721,
+    "files": 1289,
+    "lines": 273216,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -21770,6 +21770,12 @@
       "path": "app/src/main/assets/theater/wanxiang_mini_scenes.json",
       "lines": 180,
       "sha256": "a7c171eb97d3703ab60a22744d80d2814a1232aa998156699eac7c76643dff5a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/worldbook/Meowssiah-2.1.0.original.json",
+      "lines": 1495,
+      "sha256": "4b6f0737d854e8fb11c18e84b360e9bccb864367760f7f84dbd2ddc4ee67b59d",
       "symbols": []
     },
     {
