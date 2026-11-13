@@ -908,8 +908,8 @@ class ChatHistoryPersistenceBaselineTest {
                 .getJSONArray(conversationId)
             for (index in listOf(0, count / 2, count - 1)) {
                 val item = persistedMessages.getJSONObject(index)
-                assertEquals("ui02-$" + index, item.getString("id"))
-                assertEquals("History item $" + index +
+                assertEquals("ui02-$index", item.getString("id"))
+                assertEquals("History item $index" +
                     " with a representative short text payload", item.getString("content"))
             }
             assertEquals("Do not discard another conversation", JSONObject(saved)
@@ -925,8 +925,8 @@ class ChatHistoryPersistenceBaselineTest {
                 reopened.messages(otherConversationId).value.single().content)
             for (index in listOf(0, count / 2, count - 1)) {
                 val item = reopened.messages(conversationId).value[index]
-                assertEquals("ui02-$" + index, item.id)
-                assertEquals("History item $" + index +
+                assertEquals("ui02-$index", item.id)
+                assertEquals("History item $index" +
                     " with a representative short text payload", item.content)
             }
             assertTrue(reopened.conversations.value.first { it.id == conversationId }.pinned)
