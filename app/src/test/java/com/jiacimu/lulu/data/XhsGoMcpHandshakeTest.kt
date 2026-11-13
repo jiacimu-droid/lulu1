@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class XhsGoMcpHandshakeTest {
-    @Test fun oldXhsSetupCannotConnectWhileHealthRemainsConfigurable() = runBlocking {
+    @Test fun retiredMcpCredentialsNeverReactivateXhsOrHealth() = runBlocking {
         val server = MockWebServer()
         server.start()
         try {
@@ -27,7 +27,10 @@ class XhsGoMcpHandshakeTest {
             assertEquals(0, server.requestCount)
             app.getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE).edit()
                 .putString("health:url", url).commit()
-            assertTrue(LuluExternalMcp.configured(app, "health"))
+            assertFalse(LuluExternalMcp.configured(app, "health"))
+            assertTrue(runCatching { LuluExternalMcp.check(app, "health") }.isFailure)
+            assertEquals(url, LuluExternalMcp.endpoint(app, "health"))
+            assertEquals(0, server.requestCount)
         } finally {
             server.shutdown()
         }
