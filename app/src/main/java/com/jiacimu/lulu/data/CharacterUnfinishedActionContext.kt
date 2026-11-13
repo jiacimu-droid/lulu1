@@ -73,6 +73,32 @@ internal object CharacterUnfinishedActionContext {
                     "真选搜索/阅读时可附curiosity=$inquiry，按真实回执继续原问题",
                 at(q, "updatedAt", "at"))
         }
+        // A thought is not yet a commitment or even a lasting goal. Previously
+        // it existed in the private reservoir but never reached ordinary
+        // action selection unless the once-a-day life review happened. Expose a
+        // rotating older thought and the latest one as READ-ONLY choices.
+        // The person decides whether to speak, investigate, grow a motive,
+        // keep it private or dismiss it. No shopping-specific state/trigger.
+        val heldThoughts = CharacterLifeSelfReview.thoughtCandidates(mind, now)
+        (heldThoughts.take(1) + heldThoughts.takeLast(1)).distinctBy {
+            it.optString("at") + ":" + it.optString("thought")
+        }.forEach { thought ->
+            val original = thought.optString("thought")
+            val source = thought.optString("evidenceId")
+            val evidenceRevision = thought.optLong("evidenceRevision", 0L)
+            val sourceStillValid = evidenceRevision <= 0L ||
+                SharedExperienceTimeline.eventsByIds(role, listOf(source)).any {
+                    it.revision == evidenceRevision && !it.occurredAt.isAfter(now)
+                }
+            if (original.isNotBlank() && sourceStillValid) {
+                cues += Cue("私人念头", "thought:${thought.optString("at")}:${original.hashCode()}",
+                    original.take(150),
+                    "此刻未必仍想做；原本冲动=${thought.optString("impulse")}；原本犹豫=${thought.optString("hesitation")}；" +
+                        "只是一条本人曾经持有的念头，不代表已经决定联系、购买或安排。可自行放下/修订/保留；" +
+                        "若真想长期推进，才在原innerLife.motives里提出实际目标；若想立刻行动，选择现有工具并等真实回执",
+                    at(thought, "at"))
+            }
+        }
         // Use the SAME sources as the sharing-urge gauge, not only 'held'.
         // An open experience that contributes to a saturated urge must have a
         // chance to enter the next real decision. This is a cue, not auto-send.
