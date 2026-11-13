@@ -305,7 +305,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                             else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}将 $names 移出了群聊")
                     }
                 }
-                val actualNotice = appendSystemMessage(conversationId,
+                val actualNotice = appendSystemMessageDurably(conversationId,
                     "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + if (normalized.ownerIncluded) 1 else 0} 人。")
                 // A character can leave and rejoin the SAME group. This real, persisted
                 // membership change message is the unique evidence for the new invitation,
@@ -625,6 +625,19 @@ class InMemoryLuluChatStore : LuluChatStore {
             sender = LuluChatMessage.Sender.System,
             content = clean,
         ).also { message -> append(effectiveConversationId, message, incrementUnread = false) }
+    }
+
+    // Membership evidence must be on disk before invitation/removal receipts are emitted.
+    // A failed commit rolls back the message projection in append(), and callers must
+    // not publish awareness or removal events for an undelivered notice.
+    private fun appendSystemMessageDurably(conversationId: String, content: String): LuluChatMessage {
+        val message = LuluChatMessage(
+            conversationId = conversationId,
+            sender = LuluChatMessage.Sender.System,
+            content = content.trim().also { require(it.isNotEmpty()) },
+        )
+        append(conversationId, message, incrementUnread = false, durable = true)
+        return message
     }
 
     override fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String?): LuluChatMessage {
