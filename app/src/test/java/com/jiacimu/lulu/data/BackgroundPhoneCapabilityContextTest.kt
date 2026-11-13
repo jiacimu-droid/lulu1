@@ -86,7 +86,9 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("想让主人买给自己也可以直接说出愿望"))
             assertTrue(status.contains("闲鱼、淘宝闪购、拼多多"))
             assertTrue(status.contains("程序不替你规定购物频率"))
-            assertTrue(status.contains("未同意") || status.contains("主人已同意") == false)
+            // This is a negated claim, not an assertion that consent was granted.
+            assertTrue(status.contains("愿望不等于实际购物、主人已同意或订单已支付"))
+            assertTrue(status.contains("付款阶段主人亲自处理"))
 
             assertFalse(status.contains("read_xiaohongshu"))
             val capability = CapabilityRegistry.context(context, characterId)
