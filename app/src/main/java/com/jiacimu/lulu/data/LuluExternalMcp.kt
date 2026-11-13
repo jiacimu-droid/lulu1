@@ -50,13 +50,13 @@ internal object LuluExternalMcp {
          else url.openConnection()) as HttpURLConnection
 
     fun configured(context: Context, service: String): Boolean =
-        endpoint(context, service).isNotBlank()
+        service == "health" && endpoint(context, service).isNotBlank()
 
     fun endpoint(context: Context, service: String): String =
         prefs(context).getString("$service:url", "").orEmpty()
 
     fun save(context: Context, service: String, url: String, token: String): Boolean {
-        require(service in setOf("xiaohongshu", "health")) { "未知外部连接" }
+        require(service == "health") { "小红书 MCP 已下线：角色使用 background_phone；仅健康 MCP 继续提供服务" }
         val clean = url.trim().trimEnd('/')
         val parsed = runCatching { java.net.URI(clean) }.getOrNull()
         val local = parsed?.scheme == "http" &&
@@ -457,6 +457,7 @@ internal object LuluExternalMcp {
 
     private suspend fun callResult(context: Context, service: String, name: String, arguments: JSONObject): JSONObject =
         withContext(Dispatchers.IO) {
+            require(service == "health") { "旧小红书 MCP 连接已停用，不再发起网络请求" }
             require(
                 when (service) {
                     "xiaohongshu" -> name in xhsReadOnlyTools
