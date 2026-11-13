@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T17:02:32.306516+00:00",
-  "commit": "2ce4c6a6f7d16506cd70ea09ef246632a1efd6a1",
+  "generatedAt": "2026-11-13T17:04:58.627856+00:00",
+  "commit": "daaef58c704a000e5c59cada07604a769e6abf60",
   "branch": "main",
-  "sourceFingerprint": "39374d7ddf07c08f4f7d318683ea48d76b983c6bfce1ed6d90aa860ac04a7480",
+  "sourceFingerprint": "1e4852d3435da672764ab150ab3b0efc8e552977cd82813544cd3c6b26647795",
   "summary": {
     "files": 1305,
-    "lines": 274831,
-    "symbols": 3877
+    "lines": 274868,
+    "symbols": 3879
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -855,7 +855,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1565
+        "line": 1602
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5254,40 +5254,56 @@
         "line": 404
       }
     ],
+    "project": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 420
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 500
+      }
+    ],
+    "asUserMessages": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 434
+      }
+    ],
     "CompanionModelGateway": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 410
+        "line": 439
       }
     ],
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 723
+        "line": 752
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 729
+        "line": 758
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1305
+        "line": 1342
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1317
+        "line": 1354
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1555
+        "line": 1592
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -13012,12 +13028,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
         "line": 84
-      }
-    ],
-    "project": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 500
       }
     ],
     "allowsExpansion": [
@@ -26043,8 +26053,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1573,
-      "sha256": "9f22e61bbc209c65701255850a0a8570e70054a0208966af9ac332cfc526fdce",
+      "lines": 1610,
+      "sha256": "e4782aafa0207752fd573334a4866dc31182ed8dd940f40b1b6a2ca792e9708c",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -26131,32 +26141,40 @@
           "line": 406
         },
         {
+          "name": "project",
+          "line": 420
+        },
+        {
+          "name": "asUserMessages",
+          "line": 434
+        },
+        {
           "name": "CompanionModelGateway",
-          "line": 410
+          "line": 439
         },
         {
           "name": "worldBookSection",
-          "line": 723
+          "line": 752
         },
         {
           "name": "positionedBooks",
-          "line": 729
+          "line": 758
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1305
+          "line": 1342
         },
         {
           "name": "consumeEvent",
-          "line": 1317
+          "line": 1354
         },
         {
           "name": "LuluAiServices",
-          "line": 1555
+          "line": 1592
         },
         {
           "name": "initialize",
-          "line": 1565
+          "line": 1602
         }
       ]
     },
