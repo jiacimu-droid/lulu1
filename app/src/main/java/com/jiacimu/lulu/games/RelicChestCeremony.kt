@@ -117,10 +117,12 @@ internal fun RelicChestCeremony(
         else -> "普通 · 遗迹遗物"
     }
     BoxWithConstraints(
-        Modifier.fillMaxSize().background(Color(0xC909101D))
-            .clickable(onClick = onFinished),
+        Modifier.fillMaxSize().background(Color(0xC909101D)),
         contentAlignment = Alignment.Center,
     ) {
+        // Only the dimmed backdrop or the explicit skip control dismisses the reveal.
+        // The scrollable treasure card must not inherit a full-screen tap-to-skip handler.
+        Box(Modifier.matchParentSize().clickable(onClick = onFinished))
         val compact = maxHeight < 360.dp
         val artHeight = relicCeremonyArtHeightDp(maxHeight.value).dp
         Surface(
@@ -287,8 +289,12 @@ internal fun RelicChestCeremony(
                 } else {
                     Text("光芒里藏着什么……", color = Color(0xFFB6C4D4), fontSize = 12.sp)
                 }
-                Text("轻点画面跳过 · 出货已真实结算，撤离前仍可能遗失",
+                Text("出货已真实结算，撤离前仍可能遗失",
                     color = Color(0xFFB6C4D4), fontSize = 10.sp)
+                Text("跳过动画 / 关闭展示",
+                    modifier = Modifier.clickable(onClick = onFinished)
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    color = tint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             }
         }
