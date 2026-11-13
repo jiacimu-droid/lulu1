@@ -79,7 +79,8 @@ internal fun RolePhoneAlbum(characterId: String, observationsOnly: Boolean = fal
                                 MomentImageAttachment(photo.uri,
                                     modifier = Modifier.fillMaxWidth().height(150.dp),
                                     contentScale = ContentScale.Fit,
-                                    contentDescription = "历史屏幕截图")
+                                    contentDescription = "历史屏幕截图",
+                                    previewMaxEdge = 320)
                             } else {
                                 LuluProfileAvatar(photo.uri, "图", 100)
                             }
