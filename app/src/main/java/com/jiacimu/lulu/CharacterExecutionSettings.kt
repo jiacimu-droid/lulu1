@@ -53,14 +53,14 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 modifier = Modifier.padding(top = 5.dp, bottom = 2.dp))
             permissions.forEach { (key, title) ->
                 var allowed by remember(characterId, key) {
-                    mutableStateOf(prefs.getBoolean("$"+"characterId:$"+"key", false))
+                    mutableStateOf(prefs.getBoolean("$characterId:$key", false))
                 }
                 Row(Modifier.fillMaxWidth().heightIn(min = 52.dp),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Text(title, modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyMedium)
                     Switch(checked = allowed, onCheckedChange = { next ->
-                        if (prefs.edit().putBoolean("$"+"characterId:$"+"key", next).commit()) {
+                        if (prefs.edit().putBoolean("$characterId:$key", next).commit()) {
                             allowed = next
                         }
                     })
