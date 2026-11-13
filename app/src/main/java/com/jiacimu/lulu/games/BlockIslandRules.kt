@@ -149,7 +149,7 @@ internal data class BlockIslandState(
                 // Existing saves lack this marker; a chest already present on the
                 // current tide turn must not be regenerated immediately on reload.
                 lastRareSupplyTurn=json.optInt("lastRareSupplyTurn",
-                    if (json.optJSONArray("rareSupplyCaches")?.length() ?: 0 > 0 &&
+                    if ((json.optJSONArray("rareSupplyCaches")?.length() ?: 0) > 0 &&
                         world.turns > 0 && world.turns % 48 == 0) world.turns else 0)
                     .coerceIn(0,world.turns.coerceAtLeast(0)),
                 rareSupplyCaches=json.optJSONArray("rareSupplyCaches")?.let { a ->
