@@ -163,7 +163,7 @@ internal object CharacterInitiativeRuntime {
      * only receive the shortcut when the user's current utterance itself asks for that operation.
      */
     fun isExplicitUserToolRequest(userText: String, toolName: String): Boolean {
-        val capability = CapabilityRegistry.find(toolName) ?: return false
+        val capability = CapabilityRegistry.find(toolName)?.takeUnless { it.retired } ?: return false
         if (capability.domain == "app" || capability.domain == "world") return false
         val text = userText.replace("\n", " ").trim().lowercase()
         if (text.isBlank()) return false
@@ -184,12 +184,9 @@ internal object CharacterInitiativeRuntime {
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
             "background_phone" -> Regex("后台.*(手机|屏幕|app)|独立屏|帮我.*(操作手机|逛.*app|打开.*应用)|接管.*手机").containsMatchIn(text)
             "cloud_task" -> Regex("研究|ppt|pptx|文档|docx|云端任务").containsMatchIn(text)
-            "read_xiaohongshu" -> Regex("小红书|红薯|xhs|笔记|帖子").containsMatchIn(text)
             else -> false
         }
         if (!topicMatches) return false
-
-        if (toolName == "read_xiaohongshu") return Regex("搜|搜索|找|看看|看下|阅读|读|刷|查|试试|帮我|分享|给你|这个帖子").containsMatchIn(text)
 
         if (toolName in setOf(
                 "get_battery", "get_location", "get_current_app",
