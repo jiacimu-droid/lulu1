@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d3e41c4dcdafd4f5bdbce40dc3b14d75b797537b`
+- 基准提交：`2441b20f624a404fae2b08158aa208eb8482b1f0`
 - 分支：`main`
-- 已索引文件：1298
-- 已索引代码/文本行：273486
-- 已发现符号：3860
+- 已索引文件：1299
+- 已索引代码/文本行：273331
+- 已发现符号：3861
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -196,7 +196,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 361 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 584 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
@@ -443,7 +443,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 578 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1935 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1930 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 649 | 21 |
@@ -510,7 +510,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 573 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 456 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 613 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 96 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 124 | 0 |
@@ -553,7 +553,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3612 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3608 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
@@ -738,11 +738,11 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 169 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 216 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 582 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 187 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 405 | 5 |
@@ -1171,6 +1171,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 402 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 486 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt` | 200 | 1 |

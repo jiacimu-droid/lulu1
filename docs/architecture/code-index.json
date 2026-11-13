@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T14:56:23.195895+00:00",
-  "commit": "d3e41c4dcdafd4f5bdbce40dc3b14d75b797537b",
+  "generatedAt": "2026-11-13T15:18:29.041428+00:00",
+  "commit": "2441b20f624a404fae2b08158aa208eb8482b1f0",
   "branch": "main",
-  "sourceFingerprint": "ae831ffffd488e50e9717c025368e62d8d2301744e9bbe10bd333ce1c685a443",
+  "sourceFingerprint": "ab94327a5053978ee8f9953e54aae62f7939afb993b246de3853965ba397d04e",
   "summary": {
-    "files": 1298,
-    "lines": 273486,
-    "symbols": 3860
+    "files": 1299,
+    "lines": 273331,
+    "symbols": 3861
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -557,7 +557,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 115
+        "line": 113
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -1087,7 +1087,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 61
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -1509,7 +1509,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 57
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -2755,7 +2755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1464
+        "line": 1459
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -5265,7 +5265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 51
+        "line": 48
       }
     ],
     "longContext": [
@@ -5977,7 +5977,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 39
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -6007,31 +6007,31 @@
     "canChoose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 40
+        "line": 39
       }
     ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 48
+        "line": 47
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 59
+        "line": 58
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 88
+        "line": 87
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 125
+        "line": 124
       }
     ],
     "isWakeExplanation": [
@@ -8527,49 +8527,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1357
+        "line": 1352
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1415
+        "line": 1410
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1426
+        "line": 1421
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1433
+        "line": 1428
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1447
+        "line": 1442
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1457
+        "line": 1452
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1511
+        "line": 1506
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1887
+        "line": 1882
       }
     ],
     "age": [
@@ -10629,37 +10629,37 @@
     "endpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 54
+        "line": 49
       }
     ],
     "scheduleHealth": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 76
+        "line": 57
       }
     ],
     "savedToken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 88
+        "line": 60
       }
     ],
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 339
+        "line": 234
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 358
+        "line": 253
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 391
+        "line": 288
       }
     ],
     "MeetingProseLength": [
@@ -11843,7 +11843,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3545
+        "line": 3541
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -15369,25 +15369,25 @@
     "recentSleeps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 65
+        "line": 63
       }
     ],
     "latestSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 80
+        "line": 78
       }
     ],
     "sleepJudgmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 102
+        "line": 100
       }
     ],
     "recordLatestSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 169
+        "line": 165
       }
     ],
     "LuluReadingScreen": [
@@ -20670,6 +20670,12 @@
         "line": 20
       }
     ],
+    "RetiredHealthMcpRouteTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt",
+        "line": 18
+      }
+    ],
     "RoleDayScheduleStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
@@ -23936,8 +23942,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt",
-      "lines": 361,
-      "sha256": "7a0860928300fd7512271b93e162fde88e1853955ffcf825a65a561b44d7c876",
+      "lines": 299,
+      "sha256": "c5a3597733fb5e32cb13886ea6d8ec4808a55c74eb3249cc775a1872d9ace59a",
       "symbols": []
     },
     {
@@ -26733,7 +26739,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 177,
-      "sha256": "dc68758a107540ccfcf80dc65d267b791517b16f07184a3b7663549336cb9a67",
+      "sha256": "8cdb0f2026d7dbbdf8bce9253599c7cce0c6caeed898e29e6b454add16d14bdb",
       "symbols": [
         {
           "name": "Capability",
@@ -26745,27 +26751,27 @@
         },
         {
           "name": "find",
-          "line": 39
+          "line": 38
         },
         {
           "name": "canChoose",
-          "line": 40
+          "line": 39
         },
         {
           "name": "scheduledActionName",
-          "line": 48
+          "line": 47
         },
         {
           "name": "allows",
-          "line": 59
+          "line": 58
         },
         {
           "name": "screenVisionContext",
-          "line": 88
+          "line": 87
         },
         {
           "name": "phoneOperationContext",
-          "line": 125
+          "line": 124
         },
         {
           "name": "context",
@@ -29216,8 +29222,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1935,
-      "sha256": "0c3d386ff0fda060ad48a6c81aaae25c2c33d563acd6dbac42aa8619730b3872",
+      "lines": 1930,
+      "sha256": "b596fad7ebf157e272992ed773413ab75efe0de4f564ea9225171514a28baf37",
       "symbols": [
         {
           "name": "asJson",
@@ -29233,39 +29239,39 @@
         },
         {
           "name": "world",
-          "line": 1357
+          "line": 1352
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1415
+          "line": 1410
         },
         {
           "name": "recordedReceiptId",
-          "line": 1426
+          "line": 1421
         },
         {
           "name": "completedEvidence",
-          "line": 1433
+          "line": 1428
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1447
+          "line": 1442
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1457
+          "line": 1452
         },
         {
           "name": "from",
-          "line": 1464
+          "line": 1459
         },
         {
           "name": "requiresCompletion",
-          "line": 1511
+          "line": 1506
         },
         {
           "name": "availableContext",
-          "line": 1887
+          "line": 1882
         }
       ]
     },
@@ -31327,40 +31333,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 573,
-      "sha256": "ba646e2ab9e51ae49c8335b97367651d8a549dda7dfd01d30b6f31b640cc279a",
+      "lines": 456,
+      "sha256": "a16400aadf277a6157e9c871138adc2d2a6fc3914f582e34fd3870cf83a5e5a8",
       "symbols": [
         {
           "name": "configured",
-          "line": 51
+          "line": 48
         },
         {
           "name": "endpoint",
-          "line": 54
+          "line": 49
         },
         {
           "name": "save",
-          "line": 57
+          "line": 52
         },
         {
           "name": "scheduleHealth",
-          "line": 76
+          "line": 57
         },
         {
           "name": "savedToken",
-          "line": 88
+          "line": 60
         },
         {
           "name": "XhsLoginQr",
-          "line": 339
+          "line": 234
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 358
+          "line": 253
         },
         {
           "name": "healthContext",
-          "line": 391
+          "line": 288
         }
       ]
     },
@@ -32656,8 +32662,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3612,
-      "sha256": "eceb23afc42ceb9588de46129f0d79c80edde456392fc0f5d4f69d91c02c46e9",
+      "lines": 3608,
+      "sha256": "4c731e86c3036afd8c7f57df6c577d92b93f497e772dd61d0a1b299a07568eac",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32689,7 +32695,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3545
+          "line": 3541
         }
       ]
     },
@@ -36980,8 +36986,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
-      "lines": 666,
-      "sha256": "0ae047acfe08bb2326e6ac03b06ef5d19f0aae7f325f01faf99ef77a462789dc",
+      "lines": 660,
+      "sha256": "c89d96795acabadc89fa1565713c50ff06f981bfccd4b2722e8e0c48810503d6",
       "symbols": []
     },
     {
@@ -37087,8 +37093,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-      "lines": 191,
-      "sha256": "979c74496329679cb5ece48c462c915b01b9d994834886c6c988148881bf4cf7",
+      "lines": 187,
+      "sha256": "35da217e18bc571266b72eea564f3cb290b3ce86d958e05ef0ce1ea85cac07de",
       "symbols": [
         {
           "name": "clock",
@@ -37104,27 +37110,27 @@
         },
         {
           "name": "initialize",
-          "line": 61
+          "line": 60
         },
         {
           "name": "recentSleeps",
-          "line": 65
+          "line": 63
         },
         {
           "name": "latestSleep",
-          "line": 80
+          "line": 78
         },
         {
           "name": "sleepJudgmentContext",
-          "line": 102
+          "line": 100
         },
         {
           "name": "context",
-          "line": 115
+          "line": 113
         },
         {
           "name": "recordLatestSleep",
-          "line": 169
+          "line": 165
         }
       ]
     },
@@ -44226,6 +44232,17 @@
         {
           "name": "ResidentSocialMailboxWakeTest",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt",
+      "lines": 43,
+      "sha256": "20b420a527de072478b7ccf74216a48d9562367a305b7b6c2c73c785e3edecfe",
+      "symbols": [
+        {
+          "name": "RetiredHealthMcpRouteTest",
+          "line": 18
         }
       ]
     },
