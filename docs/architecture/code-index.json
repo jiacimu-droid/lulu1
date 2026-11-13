@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T15:19:11.858783+00:00",
-  "commit": "c7490d2e570985352ceab47b872c0124960a6511",
+  "generatedAt": "2026-11-13T15:25:45.600188+00:00",
+  "commit": "ecba910235260e2194fc3887f3376b615af1ac53",
   "branch": "main",
-  "sourceFingerprint": "2dc3ad2482805c0900c73608c1ae32c7a693a64392db7c7f40b5ac7feac7d7df",
+  "sourceFingerprint": "1335c50d79d6bd089eaa3e059ecfb7b6cc62d63b331f06591ee74336300724c5",
   "summary": {
-    "files": 1299,
-    "lines": 273331,
-    "symbols": 3861
+    "files": 1300,
+    "lines": 273591,
+    "symbols": 3863
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14130,6 +14130,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
         "line": 684
+      }
+    ],
+    "dist": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 104
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 195
       }
     ],
     "partyFor": [
@@ -35406,6 +35416,21 @@
         {
           "name": "play",
           "line": 768
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+      "lines": 260,
+      "sha256": "0590142be38f0d2d5c0ed3353b2f2945dded4d6abcdda91c568c3b5d43ddfb83",
+      "symbols": [
+        {
+          "name": "dist",
+          "line": 104
+        },
+        {
+          "name": "dist",
+          "line": 195
         }
       ]
     },
