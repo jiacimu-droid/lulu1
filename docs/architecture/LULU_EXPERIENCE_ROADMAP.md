@@ -2,6 +2,8 @@
 
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
+**2026-11-13 UI-02.2 · 缺正文回归夹具真实写入路径**：核查 `ChatHistoryLegacyCompatibilityTest.missingOriginalMessageContentMustNotBeRewrittenAsEmptyText` 发现旧断言允许 `setConversationPinned` 对不存在的损坏会话返回 `false`，没有进入正式 `persistLocked` 拒写门禁。已在 [432fd6e](https://github.com/jiacimu-droid/lulu1/commit/432fd6e699bc473af184e251f3c88a1434b90253) 改为对重建 Store 实际存在且未置顶的会话执行元数据写入，两次初始化均必须抛错且 `state_v1` 原文不变。生产解码修复 `2da10ec` 不重复改动。**本测试提交 JVM/APK/索引尚未取得成功结果，不勾完成**。下一轮同 UI-02.2 先核 `432fd6e` 或包含它的后继 main push `ChatHistoryLegacyCompatibilityTest` JVM 首错；绿后再补增量迁移中断/拒写回归；真机强杀及跨 Store 原子性待验。
+
 **2026-11-13 APK 构建故障排查 · 购物分享 Kotlin 插值（源码已修，CI 待验）**：对应自动故障工单 #951/#952/#953 与 run 43374151466 / 43374434355 / 43374655333 均在 `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt:380` 的 `compilePhoneKotlin` 首错：`$merchant商品链接...` 被 Kotlin 解析成不存在的变量 `merchant商品链接作为可点击卡片发给主人`。已在最新 main 将实际角色购物卡回执改成 `${merchant}商品链接...`，源码提交 [f8a8079](https://github.com/jiacimu-droid/lulu1/commit/f8a80790e686116f0c8c025ca5606c5d7f16085d)；只改 Kotlin 文本插值，不碰后台商品验证、授权、真实链接或支付。自动索引 [43375233718](https://github.com/jiacimu-droid/lulu1/actions/runs/43375233718) success；其同 SHA APK 被后续 main 提交取消，不能视为构建成功。#950 的旧 run 43373282114 已确认是 `RolePhoneActivityTest.recentRealReceiptsAreSortedAndBounded` 期望 4/实际 12，原因历史展示上限已扩到 48，最新测试在 `ebcc957` 更改为 80 输入/48 预期；待下一次完整 JVM/phone APK 成功才能关闭旧工单。**下一轮先核最新 main Lulu APK JVM 编译与全部测试**，通过后由现有 release 工作流关闭旧自动失败工单；不重新编造 Issue，不删测试，不把 pending 当成功。
 
 
