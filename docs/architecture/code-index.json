@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:27:28.285447+00:00",
-  "commit": "382414b71250145b32b43959471506e3e4e35693",
+  "generatedAt": "2026-11-13T05:28:18.693472+00:00",
+  "commit": "c69119498bb2be1628ada11cd8667e48fe3ef76d",
   "branch": "main",
-  "sourceFingerprint": "7c7823c32cbc736aa7a67f45790e2762c7c9192f5a9175babf816d4c2d4b1942",
+  "sourceFingerprint": "f16ce8fa6335d81f9bc4875fd38365cc09c1a1d37d7c4280101176fdc1f935dc",
   "summary": {
-    "files": 1287,
-    "lines": 271656,
+    "files": 1288,
+    "lines": 271796,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -801,19 +801,19 @@
     "CharacterSettingsScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "persistDefinition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 134
+        "line": 141
       }
     ],
     "setPerceptionEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 145
+        "line": 152
       }
     ],
     "CharacterWorldBookScreenV2": [
@@ -22218,8 +22218,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 405,
-      "sha256": "82e4bdf53778852bdaea72eb8cf8ccd621fe094779b562c2d22d6521e4b0532a",
+      "lines": 231,
+      "sha256": "1e0cc807121b82fcb5277c170f6b85ae317284061c6e64212d6b719c822e6356",
       "symbols": []
     },
     {
@@ -22282,22 +22282,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 616,
-      "sha256": "7b342501a6af3412416b59c79027a1f092bfe01821016713abe415c6eb3e0ee8",
+      "lines": 686,
+      "sha256": "70144617dd3845e4fc4d83ca8e4b8a84913549cf291db03a4aa9d08a88b7e4d0",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
-          "line": 56
+          "line": 59
         },
         {
           "name": "persistDefinition",
-          "line": 134
+          "line": 141
         },
         {
           "name": "setPerceptionEnabled",
-          "line": 145
+          "line": 152
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CharacterWirelessDebuggingSettings.kt",
+      "lines": 139,
+      "sha256": "387cfeffcce33ef27f270939a08015768e9667da7caa5caa919b35d38a842e3d",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
@@ -25024,8 +25030,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt",
-      "lines": 438,
-      "sha256": "3357991a3562ddd4e85973262c3d7b5c4b0dab048cbaba687f4d3c975544680e",
+      "lines": 543,
+      "sha256": "17f3bfe5580ae2cf1c8c0fd7bd267255c326e23e3c3d4ff85167af94cc412d96",
       "symbols": []
     },
     {
