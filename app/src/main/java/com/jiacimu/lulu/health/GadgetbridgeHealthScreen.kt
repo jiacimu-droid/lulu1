@@ -60,17 +60,11 @@ internal fun GadgetbridgeHealthScreen() {
     var refreshedOnOpen by remember { mutableStateOf(false) }
     var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(state.connected, refreshedOnOpen) {
-        if (!refreshedOnOpen && (state.sourceUri.isNotBlank() ||
-                com.jiacimu.lulu.data.LuluExternalMcp.configured(context, "health"))) {
+    LaunchedEffect(state.sourceUri, refreshedOnOpen) {
+        // Local file imports still refresh; Health no longer calls legacy MCP.
+        if (!refreshedOnOpen && state.sourceUri.isNotBlank()) {
             refreshedOnOpen = true
-            scope.launch {
-                if (state.sourceUri.isNotBlank()) GadgetbridgeHealthStore.refresh(context)
-                else runCatching {
-                    com.jiacimu.lulu.data.LuluExternalMcp.healthRead(context,
-                        org.json.JSONObject().put("data_type", "daily_summary").put("days", 7))
-                }
-            }
+            scope.launch { GadgetbridgeHealthStore.refresh(context) }
         }
     }
 

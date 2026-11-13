@@ -57,9 +57,7 @@ internal data class HealthSleepObservation(
 
 /** A single role-readable source for Health app facts across chat, perception, and Study. */
 internal object HealthRolePerception {
-    @Volatile private var appContext: Context? = null
     fun initialize(context: Context) {
-        appContext = context.applicationContext
         GadgetbridgeHealthStore.initialize(context.applicationContext)
     }
 
@@ -115,8 +113,7 @@ internal object HealthRolePerception {
 
     fun context(now: Instant = Instant.now()): String {
         val state = GadgetbridgeHealthStore.state.value
-        val remote = appContext?.let { com.jiacimu.lulu.data.LuluExternalMcp.healthContext(it) }.orEmpty()
-        if (!state.connected) return remote
+        if (!state.connected) return ""
         val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
         val day = state.days.firstOrNull { it.date == today } ?: state.latest
         val sleep = latestSleep()
@@ -163,8 +160,7 @@ internal object HealthRolePerception {
             ?.format(DateTimeFormatter.ofPattern("M-d HH:mm"))
             ?: "未知"
         return facts.joinToString("；") +
-            "；健康 App最后同步=$sync。手环再次导出前，数据可能保持不变。" +
-            (if (remote.isNotBlank()) "；$remote" else "")
+            "；健康 App最后同步=$sync。手环再次导出前，数据可能保持不变。"
     }
 
     fun recordLatestSleep(characterId: String): HealthSleepObservation? {

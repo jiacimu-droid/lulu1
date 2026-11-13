@@ -1,11 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -14,7 +10,6 @@ import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.ai.ModelUsage
 import kotlinx.coroutines.CancellationException
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -49,41 +44,18 @@ internal object LuluExternalMcp {
         (if (localLoopback(url)) url.openConnection(Proxy.NO_PROXY)
          else url.openConnection()) as HttpURLConnection
 
-    fun configured(context: Context, service: String): Boolean =
-        service == "health" && endpoint(context, service).isNotBlank()
+    /** Old credentials remain for history but never make the retired health MCP active. */
+    fun configured(context: Context, service: String): Boolean = false
 
     fun endpoint(context: Context, service: String): String =
         prefs(context).getString("$service:url", "").orEmpty()
 
-    fun save(context: Context, service: String, url: String, token: String): Boolean {
-        require(service == "health") { "小红书 MCP 已下线：角色使用 background_phone；仅健康 MCP 继续提供服务" }
-        val clean = url.trim().trimEnd('/')
-        val parsed = runCatching { java.net.URI(clean) }.getOrNull()
-        val local = parsed?.scheme == "http" &&
-            parsed.host?.lowercase() in setOf("localhost", "127.0.0.1") &&
-            parsed.userInfo == null && parsed.fragment == null && parsed.rawQuery == null
-        val secure = parsed?.scheme == "https" && !parsed.host.isNullOrBlank() &&
-            parsed.userInfo == null && parsed.fragment == null
-        require(clean.isBlank() || local || secure) {
-            "远程 MCP 必须使用 HTTPS；手机本机 Termux 可以使用 http://127.0.0.1:端口/mcp"
-        }
-        val normalized = if (clean.isNotBlank() && !clean.endsWith("/mcp")) "$clean/mcp" else clean
-        val saved = prefs(context).edit().putString("$service:url", normalized)
-            .putString("$service:token", token.trim()).commit()
-        if (saved && service == "health") scheduleHealth(context)
-        return saved
-    }
+    fun save(context: Context, service: String, url: String, token: String): Boolean =
+        error("旧版 MCP 连接已停用；请使用 background_phone 打开真实已安装 App")
 
+    /** Cancel old scheduled sync on every startup; never re-enqueue it. */
     fun scheduleHealth(context: Context) {
-        val work = WorkManager.getInstance(context.applicationContext)
-        if (!configured(context, "health")) {
-            work.cancelUniqueWork("lulu-health-mcp-sync")
-            return
-        }
-        val task = PeriodicWorkRequestBuilder<LuluHealthMcpSyncWorker>(1, TimeUnit.HOURS)
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .build()
-        work.enqueueUniquePeriodicWork("lulu-health-mcp-sync", ExistingPeriodicWorkPolicy.KEEP, task)
+        WorkManager.getInstance(context.applicationContext).cancelUniqueWork("lulu-health-mcp-sync")
     }
 
     fun savedToken(context: Context, service: String): String =
@@ -94,72 +66,11 @@ internal object LuluExternalMcp {
      * The local /health confirms the Node bridge process only; a separate login test
      * is required before describing the Xiaohongshu account as usable.
      */
-    suspend fun testService(context: Context, service: String): String = withContext(Dispatchers.IO) {
-        require(service == "health") { "旧小红书 MCP 已停用，不能发起任何旧版测试连接" }
-        val url = endpoint(context, service)
-        require(url.isNotBlank()) { "请先保存 MCP 地址" }
-        val uri = java.net.URI(url)
-        if (service == "xiaohongshu" && uri.scheme == "http" &&
-            uri.host in setOf("127.0.0.1", "localhost")) {
-            // Legacy Node bridge exposes /health, but the official Go MCP in
-            // the user's ARM64/proot tutorial has ONLY /mcp and returns 405
-            // for a bare GET. A missing /health must not reject the Go server.
-            val legacyHealth = runCatching {
-                val healthUrl = java.net.URL(uri.scheme, uri.host, uri.port, "/health")
-                val connection = mcpConnection(healthUrl)
-                try {
-                    connection.requestMethod = "GET"
-                    connection.connectTimeout = 2_500
-                    connection.readTimeout = 4_000
-                    if (connection.responseCode != 200) null else {
-                        val data = JSONObject(connection.inputStream.bufferedReader()
-                            .use { it.readText().take(500) })
-                        if (data.optBoolean("ready") && data.optBoolean("readOnly")) true else null
-                    }
-                } finally { connection.disconnect() }
-            }.getOrNull()
-            if (legacyHealth == true) {
-                return@withContext "本机旧版只读 MCP 已响应（未检测浏览器登录和实际笔记）"
-            }
-            // Continue below: validate a real authenticated MCP initialize.
-        }
-        val init = send(url, savedToken(context, service), null, JSONObject()
-            .put("jsonrpc", "2.0").put("id", 1).put("method", "initialize")
-            .put("params", JSONObject().put("protocolVersion", "2025-03-26")
-                .put("capabilities", JSONObject())
-                .put("clientInfo", JSONObject().put("name", "lulu-android").put("version", "1.0"))),
-            timeoutMillis = 8_000)
-        require(init.first.has("result")) {
-            "MCP 初始化失败：${init.first.optJSONObject("error")?.optString("message").orEmpty()}"
-        }
-        "MCP 服务已响应（尚未测试小红书账号或健康数据）"
-    }
+    suspend fun testService(context: Context, service: String): String =
+        error("旧版 MCP 测试连接已停用")
 
-    suspend fun check(context: Context, service: String): String = withContext(Dispatchers.IO) {
-        if (service == "health") {
-            return@withContext healthRead(context,
-                JSONObject().put("data_type", "daily_summary").put("days", 7)).summary.take(500)
-        }
-        val raw = call(context, "xiaohongshu", "check_login_status", JSONObject())
-        val status = runCatching { JSONObject(raw) }.getOrNull()
-        // xpzouying/xiaohongshu-mcp returns a human-readable MCP text block,
-        // not JSON: "✅ 已登录\\n用户名: ...". The old JSON-only decoder
-        // incorrectly marked a genuinely logged-in browser as incompatible.
-        val state = XhsMcpLoginStatus.fromToolText(raw)
-        val message = status?.optString("message").orEmpty().trim().take(180)
-        when {
-            state.loggedIn -> "MCP 已连接，小红书已登录" +
-                state.displayName.takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
-            state.explicitlyLoggedOut ->
-                "MCP 已连接，小红书尚未登录；请获取二维码后使用小红书 App 扫码"
-            message.contains("Failed to launch", ignoreCase = true) ||
-                message.contains("CANNOT LINK EXECUTABLE", ignoreCase = true) ||
-                message.contains("cannot locate symbol", ignoreCase = true) ->
-                "MCP 已连接，但 Termux Chromium 启动失败：请更新 C++ 运行库后重试"
-            else -> "MCP 已连接，但小红书登录状态未证实：" +
-                message.ifBlank { state.detail.take(140).ifBlank { "请获取二维码扫码或检测浏览器日志" } }
-        }
-    }
+    suspend fun check(context: Context, service: String): String =
+        error("旧版 MCP 检查已停用")
 
     /** One real browse = discover candidates + fetch ONE actual article, not a fabricated reading receipt. */
     suspend fun browse(context: Context, characterId: String, args: JSONObject): CompanionActionResult =
@@ -317,25 +228,9 @@ internal object LuluExternalMcp {
                 "外部作者的经历不等于你的亲历。分享给用户需要另行决定和真正发送。", evidenceId = event)
         }
 
-    /** A read-only optional health MCP path; local Gadgetbridge data remains intact. */
-    suspend fun healthRead(context: Context, args: JSONObject): CompanionActionResult = withContext(Dispatchers.IO) {
-        require(configured(context, "health")) { "尚未配置华为手环健康 MCP" }
-        val dataType = args.optString("data_type", "current_status").ifBlank { "current_status" }
-        require(dataType in setOf("current_status", "steps", "heart_rate", "sleep", "daily_summary")) {
-            "只支持读取步数、心率、睡眠和每日概览"
-        }
-        val request = JSONObject().put("data_type", dataType)
-        if (args.has("days")) request.put("days", args.optInt("days", 3).coerceIn(1, 7))
-        val result = call(context, "health", "health_read", request)
-        require(result.isNotBlank()) { "健康 MCP 没有返回数据" }
-        // The MCP returns a stable daily_summary schema, merge it without erasing historical GB data.
-        if (dataType == "daily_summary") {
-            GadgetbridgeHealthStore.mergeHealthMcp(context, JSONObject(result))
-        }
-        prefs(context).edit().putString("health:last", result.take(4_000))
-            .putLong("health:lastAt", System.currentTimeMillis()).commit()
-        CompanionActionResult(true, "健康 MCP 实际返回：${result.take(2_200)}；数据属于用户本人，不属于角色的身体。")
-    }
+    /** Historical API name only; all new health reads use real App observation. */
+    suspend fun healthRead(context: Context, args: JSONObject): CompanionActionResult =
+        error("旧版华为健康 MCP 已停用；请用 background_phone 打开华为运动健康 App")
 
     data class XhsLoginQr(val description: String, val pngBase64: String)
 
@@ -389,14 +284,8 @@ internal object LuluExternalMcp {
         }
     }
 
-    fun healthContext(context: Context): String {
-        val p = prefs(context)
-        val at = p.getLong("health:lastAt", 0L)
-        if (at <= 0L) return ""
-        val age = System.currentTimeMillis() - at
-        if (age < 0 || age > 6 * 60 * 60_000L) return "华为健康 MCP 数据超过6小时未刷新，不要当作实时数据"
-        return "华为健康 MCP 最近同步(${(age / 60_000L)}分钟前)：${p.getString("health:last", "").orEmpty().take(2000)}"
-    }
+    /** Never inject the abandoned remote snapshot as a live health fact. */
+    fun healthContext(context: Context): String = ""
 
     internal suspend fun xhsRead(context: Context, name: String, args: JSONObject): String =
         call(context, "xiaohongshu", name, args)
@@ -458,6 +347,7 @@ internal object LuluExternalMcp {
 
     private suspend fun callResult(context: Context, service: String, name: String, arguments: JSONObject): JSONObject =
         withContext(Dispatchers.IO) {
+            require(service != "health") { "旧华为健康 MCP 已停用" }
             require(service == "health") { "旧小红书 MCP 连接已停用，不再发起网络请求" }
             require(
                 when (service) {
@@ -559,14 +449,7 @@ internal object LuluExternalMcp {
     }
 }
 
-/** Automatic background health refresh; one read-only HTTP MCP query per hour when network is available. */
+/** Keep the old WorkManager class name to safely retire persisted jobs from prior APKs. */
 internal class LuluHealthMcpSyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-    override suspend fun doWork(): Result {
-        if (!LuluExternalMcp.configured(applicationContext, "health")) return Result.success()
-        return runCatching {
-            LuluExternalMcp.healthRead(applicationContext,
-                JSONObject().put("data_type", "daily_summary").put("days", 7))
-        }.fold(onSuccess = { if (it.success) Result.success() else Result.retry() },
-            onFailure = { if (runAttemptCount < 2) Result.retry() else Result.failure() })
-    }
+    override suspend fun doWork(): Result = Result.success() // Never contact MCP.
 }

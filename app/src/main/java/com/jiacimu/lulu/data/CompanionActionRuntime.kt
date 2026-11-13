@@ -257,10 +257,6 @@ internal object CompanionActionRuntime {
         appendLine(CapabilityRegistry.screenVisionContext(context, characterId))
         appendLine("- read_self_todo，args={\"scope\":\"today|all\",\"offset\":0}：只读主人自序→所行的原始待办、今天完成记录、逾期/今日未完成及未来安排；today只列今天与逾期，all连以后任务也列出，每次最多30项可用nextOffset翻页。只有真实ToolRouter回执才能说已查看；不擅自编辑、勾选或转成角色自己的日程。清单未勾选不证明没学习，需结合真实计时和获主人本时段许可的start_study_watch核实。")
         appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(context))
-        if (LuluExternalMcp.configured(context, "health") &&
-            CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
-            appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
-        }
         appendLine("【本人日程工具的时间基准】本机现在为 ${java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}。dueAt 须由本人真实选择未来时刻，使用含时区偏移的 ISO8601 日期时间；不可把提示里的日期示例当固定作息。")
         appendLine("- plan_personal_activity，args={\"title\":\"自己真想安排的具体活动\",\"intent\":\"本人动机\",\"dueAt\":\"本人决定的真实未来ISO8601时间\",\"activityAction\":\"已注册工具名\",\"activityArgs\":{},\"commitmentTaskId\":\"可选，已接受的未定时持续约定ID\",\"repeat\":\"once|daily\"}：可以现在做、也可以真的想留到稍后、今晚或某个合适时刻再做；选定未来时间后才调用，不能照抄示意 dueAt。关联既有持续意愿时在args附准确motiveId；来自挂心的日程附准确concernId；学习目标的goalId放进activityArgs。放下或暂停原目标不等于计划已经执行，可由本人复议取消。一次性计划不清楚日后具体执行器时可省略 activityAction；daily 必须指定真实执行动作。不需每日重新计划，也不要机械排满日程。用户已明确要求具体时间的叫醒、监督学习、提醒睡觉等约定走本轮 commitmentChanges 唯一真实闹钟，不要使用本工具重复排程；只有本人自发的独立生活安排，或尚未定时的持续约定发展出的下一步，才使用这个工具。")
         appendLine("想以后联系熟人：在日程里提供 targetCharacterId=真实角色ID、activityAction=send_character_message；想亲自找居民则可提供 targetResidentId=已登记居民ID、locationCode=真实公共地点码、activityAction=digital_world_action。到点前可改期或取消。出门不是已见面；只在最终真实发信/交流的动作附上 planId，不能靠标题、心声和路过就算完成。")
@@ -644,7 +640,6 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
                     evidenceId = "native-mail-${sent.id}-viewer-$characterId")
             }
-            "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
                 val reason = args.optString("reason").trim().take(180)
@@ -1126,7 +1121,7 @@ internal object CompanionActionRuntime {
             }
         }
         if (result.success && normalizedAction !in setOf(
-                "digital_world_action", "play_solo_game", "read_health_mcp", "read_book",
+                "digital_world_action", "play_solo_game", "read_book",
                 "write_journal", "plan_personal_activity", "reschedule_personal_activity",
                 "cancel_personal_activity",
             )) {

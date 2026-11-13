@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.ImageSearchProvider
 import com.jiacimu.lulu.data.XhsReadingReceipt
@@ -54,11 +53,6 @@ internal fun LuluIntegrationsSettingsScreen(
     val receiptDateFormat = remember {
         DateTimeFormatter.ofPattern("MM-dd HH:mm").withZone(ZoneId.systemDefault())
     }
-    var healthExpanded by remember { mutableStateOf(false) }
-    var healthUrl by remember { mutableStateOf(LuluExternalMcp.endpoint(context, "health")) }
-    var healthToken by remember { mutableStateOf(LuluExternalMcp.savedToken(context, "health")) }
-    var healthStatus by remember { mutableStateOf("") }
-
     var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
     var tavilyKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
     var searchStatus by remember { mutableStateOf("") }
@@ -91,7 +85,7 @@ internal fun LuluIntegrationsSettingsScreen(
             IntegrationSettingsCard {
                 Text("角色浏览手机 App", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "角色打开小红书、抖音、网易云音乐或购物 App，统一通过「查手机→后台画面」的独立虚拟屏操作。旧小红书 MCP 路径已停用，无需再启动 Termux/Chromium；操作前仍须无线调试配对与角色授权，具体结果以真实屏幕回执为准。",
+                    "角色打开小红书、抖音、网易云音乐、华为运动健康或购物 App，统一通过「查手机→后台画面」的独立虚拟屏操作。旧版 MCP 路径已停用，无需再启动 Termux/Chromium；操作前仍须无线调试配对与角色授权，具体结果以真实屏幕回执为准。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -270,63 +264,7 @@ internal fun LuluIntegrationsSettingsScreen(
                 }
             }
 
-            IntegrationSettingsCard {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("华为健康 MCP", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { healthExpanded = !healthExpanded }) {
-                        Text(if (healthExpanded) "收起" else "设置")
-                    }
-                }
-                if (healthExpanded) {
-                    OutlinedTextField(
-                        value = healthUrl,
-                        onValueChange = { healthUrl = it },
-                        label = { Text("MCP 地址") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                    )
-                    OutlinedTextField(
-                        value = healthToken,
-                        onValueChange = { healthToken = it },
-                        label = { Text("Token") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                    )
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = {
-                            healthStatus = runCatching {
-                                check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
-                                "已保存"
-                            }.getOrElse { "保存失败：" + it.message.orEmpty() }
-                        }, modifier = Modifier.weight(1f)) { Text("保存") }
-                        Button(
-                            enabled = healthUrl.isNotBlank(),
-                            onClick = {
-                                healthStatus = "连接中…"
-                                scope.launch {
-                                    healthStatus = runCatching {
-                                        check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
-                                        LuluExternalMcp.testService(context, "health")
-                                    }.fold(
-                                        { "MCP 已响应" },
-                                        { "连接失败：" + it.message.orEmpty().take(180) },
-                                    )
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                        ) { Text("测试连接") }
-                        TextButton(onClick = {
-                            healthStatus = if (LuluExternalMcp.save(context, "health", "", "")) {
-                                healthUrl = ""
-                                healthToken = ""
-                                "已断开"
-                            } else "断开失败"
-                        }) { Text("断开") }
-                    }
-                    IntegrationFeedback(healthStatus)
-                }
-            }
+
         }
     }
 }
