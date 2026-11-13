@@ -135,6 +135,35 @@ internal object PersonalMiniTheater {
             """.trimIndent()
         )
     }
+    /**
+     * A new installment is part of the *same* saved fiction. The stored cast,
+     * world rules and actual prose are authoritative; the initial premise is
+     * only background, not a new plot outline to perform again.
+     */
+    fun continuationRequest(item: MiniTheaterItem): WritingRequest {
+        require(item.text.isNotBlank()) { "这篇没有正文，不能续写" }
+        val existingSetup = request(item.copy(text = "", rewriting = false))
+        return WritingRequest(
+            facts = buildString {
+                append(existingSetup.facts)
+                appendLine()
+                appendLine("【这篇番外已经写出的真实剧情；它们是本篇内的事实，不得抹去或重写】")
+                appendLine(MiniTheaterContinuation.priorTextForPrompt(item.text))
+                appendLine("【这一回可选的续写方向】")
+                appendLine(item.continuationDirection.ifBlank { "沿着人物的选择与当前因果自然发展，不限定走向。" })
+            },
+            instructions = """
+                你写的是这篇番外的下一段正文，而非全新番外、相似故事、原篇修订或剧情梗概。
+                前文里的相遇、行动、事件后果、关系变化、称呼、身份、规则与人物已做出的选择都已经发生，必须连续承接；尤其要从前文最后真实局面开始，而不是重新演一次灵感开头。
+                这可以是已有短篇结局之后自然发生的新一天、新事件或新的转折；尊重原有收束，但无需为了续写强行制造反转、误会、灾难或新人物。由人物已有性格、愿望、处境与当前因果推动下一段，能细腻、甜蜜、幽默、悬疑、冒险或克制，不走固定故事模板。
+                人物认知方式、表达与举止延续本篇已展现的个性，可以成长与转变，但必须有事件原因。不将原世界的人设、聊天记忆或真实关系塞入平行世界。该篇故事仍是独立虚构，不写回实际生活。
+                已提供的设定与人物材料是理解世界和性格的来源，不是应重复输出的知识点。续写方向仅引导本轮喜好，不能覆盖已保存的剧情。
+                采用适合手机阅读的自然短段落；独立对白与连贯动作交替，保持场景、情绪、心理和事件推进，不写成诗句、报告或机械流水账。约1000—1800字，把本轮发生的事件充分写出来，不必彻底终结整个故事。
+                只输出本轮新增的故事正文，不要重复《篇名》、已保存的段落、前情摘要、章节安排、提示词解释或“下一集预告”。最后单独一行【小剧场已完】，仅作为这一次续写完整返回的标识，不代表整部故事再也不能续写。
+            """.trimIndent(),
+        )
+    }
+
     /** One paid ideation call returns a reusable batch, without real chat context. */
     fun inspirationRequest(used: List<Idea>, works: List<MiniTheaterItem>): WritingRequest =
         WritingRequest(
