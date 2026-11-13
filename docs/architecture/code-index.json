@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:04:37.549311+00:00",
-  "commit": "b3dacd0dd5d3aaaca8b5cd98d4f268cda047e178",
+  "generatedAt": "2026-11-13T04:05:27.223184+00:00",
+  "commit": "3ac3f20be26a0329389ec71e77b39c292c18b1ca",
   "branch": "main",
-  "sourceFingerprint": "ac0c70b33a478c589dcaaccb1dc842e84b0423752b84217f3eb5cbb1cfe3f5b3",
+  "sourceFingerprint": "80ace03a52897610b49b421f22ccb53860702601901924a4f5c2045d46a75884",
   "summary": {
     "files": 1288,
-    "lines": 271682,
+    "lines": 271721,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -44445,8 +44445,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
-      "lines": 121,
-      "sha256": "ebfa5b3c9e688990a0e289458ee696e1bc6baf32b7df59eb304dd9ea147f56b1",
+      "lines": 160,
+      "sha256": "a66c9f128ec71c4667cec1c678797bac0607d57af4e7978da97e160a8c33d178",
       "symbols": [
         {
           "name": "WorldBookJsonImporterTest",
