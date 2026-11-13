@@ -111,8 +111,12 @@ class RelayRequestPressurePolicyTest {
             "后台主动感知", 196_618))
         assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 220_000))
-        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 160_000))
+        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 100_001))
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 100_000))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "电话生成", 500_000))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
@@ -173,6 +177,28 @@ class RelayRequestPressurePolicyTest {
         assertTrue(selected.startsWith(top))
         assertTrue(selected.endsWith(bottom))
         assertTrue(selected.contains("【本轮 Relay 请求压力保护"))
+    }
+
+    @Test fun sourceAwareCompactionKeepsUrgentResponsibilityAndNewestMessages() {
+        val oldReading = "【旧的阅读碎片】\\n" + "旧阅读小片段。\\n".repeat(2_000)
+        val liveCommitment = "【当前已承担的目标与统一验收入口】\\n" +
+            "taskId=due-234，仍需按最新结果核查真正完成，不能把已发送当作已履约。"
+        val olderLife = "【旧的生活回顾】\\n" + "旧的生活文字。\\n".repeat(1_500)
+        val unread = "【本轮仍未回应的真实新消息】\\n" +
+            "messageId=fresh-user-id; 用户刚刚明确说：不要擅自替我取消计划"
+        val latest = "【最近自己经历的生活】\\n" + "今天刚刚真实读到的最后一条记录。"
+        val facts = listOf("现场来源：真实设备\\n权限：只在获授权范围内操作",
+            oldReading, liveCommitment, olderLife, unread, latest).joinToString("\\n")
+        val reduced = RelayRequestPressurePolicy.compactSectionPairs(
+            listOf("本轮背景依据" to facts)).single().second
+        assertTrue(reduced.length < facts.length)
+        assertTrue(reduced.contains("taskId=due-234"))
+        assertTrue(reduced.contains("messageId=fresh-user-id"))
+        assertTrue(reduced.contains("不要擅自替我取消计划"))
+        assertTrue(reduced.contains("今天刚刚真实读到的最后一条记录"))
+        assertTrue(reduced.contains("其他较早材料暂未提供"))
+        assertFalse(reduced.contains("旧阅读小片段。\\n".repeat(1_000)))
+        assertTrue(reduced.indexOf("taskId=due-234") < reduced.indexOf("messageId=fresh-user-id"))
     }
 
     @Test fun titleMentioningRawEvidenceDoesNotTurnMemorySummariesIntoNewestFirst() {
