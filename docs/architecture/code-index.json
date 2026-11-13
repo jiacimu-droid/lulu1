@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:47:15.691343+00:00",
-  "commit": "7c0599f84a7bb41379e821814e5fbb55114ce478",
+  "generatedAt": "2026-11-13T05:48:05.521313+00:00",
+  "commit": "3135b3f10a288da6ca7f6cfbab44094dc9b54290",
   "branch": "main",
-  "sourceFingerprint": "426f3449687b897274f8b344856171d604d1e67ebf835e9833211157b287d38d",
+  "sourceFingerprint": "bb375d261e809ed38db42b895ad3fead6706c388ec9d44f64dfb695d553fd49b",
   "summary": {
     "files": 1295,
-    "lines": 272550,
+    "lines": 272570,
     "symbols": 3854
   },
   "symbolIndex": {
@@ -3691,7 +3691,7 @@
     "goBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 191
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -24621,8 +24621,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 823,
-      "sha256": "36d7ba74686a22ccae949231420a55781463f4db0d158174f8babff6ce2205c2",
+      "lines": 843,
+      "sha256": "63f4f4a32afe5cfa38eb61894d74c2d7466679e6c741cbdaab596bac96d57979",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
@@ -24630,7 +24630,7 @@
         },
         {
           "name": "goBack",
-          "line": 191
+          "line": 192
         }
       ]
     },
@@ -26689,7 +26689,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 176,
-      "sha256": "4f53cc003ab4b669fb0f0b546dca345e7fccc9d79b0ef881e18445db64c14a30",
+      "sha256": "91a21927f922a2612c63441485f891426bbba231910e1088699f0f0d85ec69bc",
       "symbols": [
         {
           "name": "Capability",
@@ -38091,7 +38091,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 443,
-      "sha256": "2bbe67b3f327e1cd6acf92c5d7af4ed1076b494b588e0e8f2f94d6db9ab01d52",
+      "sha256": "c30c7bbe77d6921fa5baf790b44317b9db03885d287476c64ab4b52fe285748d",
       "symbols": [
         {
           "name": "Outcome",
