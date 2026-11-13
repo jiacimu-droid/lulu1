@@ -27,6 +27,12 @@ internal object LuluShoppingLinkShare {
 
     internal fun merchantName(packageName: String): String? = merchantDomains[packageName]?.first
 
+    /** Also used when restoring a persisted chat card: reject arbitrary-site links. */
+    internal fun matchesMerchantLink(merchant: String, url: String): Boolean =
+        merchantDomains.any { (pkg, details) ->
+            details.first == merchant && verifiedChangedLink(pkg, null, url) == url
+        }
+
     internal fun eligibleCopy(
         packageName: String, label: String, clickable: Boolean, ownerApproved: Boolean,
     ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
