@@ -248,7 +248,7 @@ internal object ActiveCommitmentAttention {
             appendLine("【已接受且尚待履行或核实的主人约定｜比普通关心的猜测更有依据】")
             needsAttention.take(12).forEach { task ->
                 val phase = when (task.status) {
-                    CommitmentTaskStatus.WaitingForFeedback -> "已尝试一步，真实效果尚未证实"
+                    CommitmentTaskStatus.WaitingForFeedback -> "已尝试一步，实际效果尚未证实"
                     CommitmentTaskStatus.Blocked -> "执行受阻，仍需本人处理失败"
                     CommitmentTaskStatus.NeedsClarification -> "尚待决定可执行的下一步"
                     CommitmentTaskStatus.Running -> "执行中，先等真实执行回执"
