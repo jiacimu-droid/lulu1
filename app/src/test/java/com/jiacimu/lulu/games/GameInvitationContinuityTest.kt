@@ -45,7 +45,10 @@ class GameInvitationContinuityTest {
         assertTrue(SharedExperienceTimeline.eventsByIds("unrelated-character", listOf(
             "game-invite-accepted-$role-$messageId")).isEmpty())
         assertNull(GameInvitationCatalog.title("unknown"))
-        assertEquals(2, AutonomousGameCatalog.gameNames.size)
+        // Two real world engines are now solo-playable as well; the invitation
+        // catalogue is still separate and never proves the owner accepted.
+        assertEquals(setOf("memory_match","yacht_dice","block_island","relic_escape"),
+            AutonomousGameCatalog.gameNames.keys)
         assertEquals(6, GameInvitationCatalog.titles.size)
     }
 }
