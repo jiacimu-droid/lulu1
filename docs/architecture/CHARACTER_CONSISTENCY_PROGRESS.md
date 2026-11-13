@@ -2230,3 +2230,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 ## 2026-11-13 · UI-02.2 缺正文拒写测试有效路径
 - [432fd6e](https://github.com/jiacimu-droid/lulu1/commit/432fd6e699bc473af184e251f3c88a1434b90253) 将 `missingOriginalMessageContentMustNotBeRewrittenAsEmptyText` 从损坏快照中不存在的会话 ID 改为 Store 真实存在且未置顶的会话，两次初始化均要求触发持久化拒写异常，原始 `state_v1` 不变。未改正式代码；JVM/APK/索引尚待同 SHA 或后继完整构建验证。下一轮继续 UI-02.2 的迁移中断/拒写回归，真机强杀独立待验。
+
+## 2026-11-13 · UI-02.2 非字符串旧正文拒写回归
+- 真实 main push [APK/JVM #43380039683](https://github.com/jiacimu-droid/lulu1/actions/runs/43380039683) 2972 tests / 2 failed，目标缺正文与空白快照两项均 PASSED；全局失败为 BackgroundPhoneCapabilityContextTest 与 LuluShoppingLinkShareTest，不能称工程整体通过。
+- 新增 `ChatHistoryLegacyCompatibilityTest.nonStringOriginalMessageContentCannotBeRewrittenAsText`，测试 JSON null、数字、布尔、对象正文的真实 Store 写入拒绝、原始快照及重启保护，提交 [2b4f938](https://github.com/jiacimu-droid/lulu1/commit/2b4f938be9b279b29b69643cb0ac01472b0d458b)。无生产修改、无收费模型；新 CI 未验。
+- 下一轮固定 UI-02.2：先看新增测试 JVM 首错；若绿继续 state_v1 增量迁移中断/拒写兼容。真机强杀、100k 性能和跨 Store 原子性未验。
