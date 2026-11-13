@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T02:32:12.063321+00:00",
-  "commit": "434ecc56a4d836c664d491e02412a2608111f110",
+  "generatedAt": "2026-11-13T03:35:26.701906+00:00",
+  "commit": "ee6f9e603dbe932e92a21d5651551ac008a04131",
   "branch": "main",
-  "sourceFingerprint": "0e2667deb4550403a416efd969615f8786c183cddc7741dbfa53ed697c723619",
+  "sourceFingerprint": "d3b28b95b4a19272d5d3be0454c90bf35dbc745f5add36bd8ddc86eaa8547917",
   "summary": {
     "files": 1287,
-    "lines": 271420,
-    "symbols": 3847
+    "lines": 271478,
+    "symbols": 3849
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -580,6 +580,10 @@
         "line": 93
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 44
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 33
       }
@@ -1137,7 +1141,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 239
+        "line": 280
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -5869,7 +5873,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 218
+        "line": 259
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -6933,7 +6937,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 207
+        "line": 248
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -15372,6 +15376,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
         "line": 26
+      }
+    ],
+    "priorTextForPrompt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 40
       }
     ],
     "Idea": [
@@ -37029,20 +37039,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 347,
-      "sha256": "643d5efb12e9ae6cb3e9d30ca7f21f574c072c996f72c7024f04dd4b24b9f4ef",
+      "lines": 405,
+      "sha256": "0db301b84eb610cf6146263d7109d12f49246363b29a47ec726b4faf71435c55",
       "symbols": [
         {
+          "name": "priorTextForPrompt",
+          "line": 40
+        },
+        {
+          "name": "append",
+          "line": 44
+        },
+        {
           "name": "get",
-          "line": 207
+          "line": 248
         },
         {
           "name": "parse",
-          "line": 218
+          "line": 259
         },
         {
           "name": "enqueue",
-          "line": 239
+          "line": 280
         }
       ]
     },
