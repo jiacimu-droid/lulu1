@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bf7a6f05d79e522628e8aa915d9a74aabda903c3`
+- 基准提交：`a52421dd57ebf9bb513ddb29203b1e22fc7c6653`
 - 分支：`main`
 - 已索引文件：1283
-- 已索引代码/文本行：271503
-- 已发现符号：3841
+- 已索引代码/文本行：271563
+- 已发现符号：3842
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -310,7 +310,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1536 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1538 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -319,7 +319,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 79 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 216 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 225 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 147 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 208 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 411 | 7 |
@@ -948,7 +948,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 418 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
-| `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 108 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 157 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 204 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |

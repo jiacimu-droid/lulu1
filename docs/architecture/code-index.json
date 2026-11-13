@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-12T23:49:04.452211+00:00",
-  "commit": "bf7a6f05d79e522628e8aa915d9a74aabda903c3",
+  "generatedAt": "2026-11-13T00:37:08.776312+00:00",
+  "commit": "a52421dd57ebf9bb513ddb29203b1e22fc7c6653",
   "branch": "main",
-  "sourceFingerprint": "3193e98be3d2f348d3769f2b330b0c40452f012d87fa2542b995e52aeb91d293",
+  "sourceFingerprint": "89bd47e09ca40816c1777d92dbd01b3e8b6a226bf9ac5cb388c825b24e6a5a84",
   "summary": {
     "files": 1283,
-    "lines": 271503,
-    "symbols": 3841
+    "lines": 271563,
+    "symbols": 3842
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -851,7 +851,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1528
+        "line": 1530
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5217,19 +5217,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1283
+        "line": 1285
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1295
+        "line": 1297
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1518
+        "line": 1520
       }
     ],
     "configured": [
@@ -18174,6 +18174,16 @@
         "line": 5
       }
     ],
+    "groupFor": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
+        "line": 138
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
+        "line": 86
+      }
+    ],
     "RelayRequestPressurePolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
@@ -20664,12 +20674,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
         "line": 5
-      }
-    ],
-    "groupFor": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
-        "line": 86
       }
     ],
     "ToolExecutionStatusTest": [
@@ -25772,8 +25776,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1536,
-      "sha256": "9bedc5d4c34042c9de1a3e12430da32243eb776c687d86d673709659e96e866d",
+      "lines": 1538,
+      "sha256": "056e93be9cc366ce6bfda1d2b9bb8f4e3f9fe20b186f6126f8a65f9c75eaf82f",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -25873,19 +25877,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1283
+          "line": 1285
         },
         {
           "name": "consumeEvent",
-          "line": 1295
+          "line": 1297
         },
         {
           "name": "LuluAiServices",
-          "line": 1518
+          "line": 1520
         },
         {
           "name": "initialize",
-          "line": 1528
+          "line": 1530
         }
       ]
     },
@@ -25989,8 +25993,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
-      "lines": 216,
-      "sha256": "b9910fddf2c80341c3e5f90ee1870d19e1346eb823e57d0c13fccffa034b34ff",
+      "lines": 225,
+      "sha256": "c6cde1942ccc601035d01d91c1d9da1118554abd3dadec100f7802181568581e",
       "symbols": [
         {
           "name": "Snapshot",
@@ -40699,12 +40703,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
-      "lines": 108,
-      "sha256": "ea111ff26fddc8b7a1e80e6659fd144cc75010be48cd42e5caf528e5a5732753",
+      "lines": 157,
+      "sha256": "a6ddaa5912d193561e2f93e6353732acc1b12a72456dbd1880bf73d65b5ccfed",
       "symbols": [
         {
           "name": "PromptInputAuditTest",
           "line": 5
+        },
+        {
+          "name": "groupFor",
+          "line": 138
         }
       ]
     },
