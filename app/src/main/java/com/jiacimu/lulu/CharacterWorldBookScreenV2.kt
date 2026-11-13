@@ -181,7 +181,7 @@ fun CharacterWorldBookScreenV2(
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("Meowssiah 完整原预设（原文）") },
+                                text = { Text("Meowssiah · 破限原文（轻量）") },
                                 onClick = {
                                     importMenuExpanded = false
                                     importRole = selectedCharacterId
@@ -189,7 +189,7 @@ fun CharacterWorldBookScreenV2(
                                         importBusy = true
                                         try {
                                             importPreview = withContext(Dispatchers.IO) {
-                                                val raw = context.assets.open("worldbook/Meowssiah-2.1.0.original.json")
+                                                val raw = context.assets.open("worldbook/meowssiah_verbatim.json")
                                                     .bufferedReader(Charsets.UTF_8).use { it.readText() }
                                                 WorldBookJsonImporter.parse(raw, importRole)
                                             }
@@ -591,18 +591,7 @@ fun CharacterWorldBookScreenV2(
                         Text("其中 ${disabledCount} 条默认关闭；导入后可手动选择角色启用。",
                             color = LuluColors.Muted, fontSize = 12.sp)
                     }
-                    if (preview.originalPresetFormat) {
-                        Text("原始预设完整保存在安装包中。可导入的是有正文的提示词，按原始顺序和开关状态保留。",
-                            color = LuluColors.Muted, fontSize = 12.sp)
-                        Text("宿主请求改写脚本、工具模拟和界面扩展不会作为世界书执行。",
-                            color = LuluColors.Muted, fontSize = 12.sp)
-                    }
-                    if (preview.skipped > 0) Text(
-                        if (preview.originalPresetFormat)
-                            "原预设另有 ${preview.skipped} 个空正文占位；原文件完整保留"
-                        else "无效条目 ${preview.skipped} 条已跳过",
-                        color = LuluColors.Muted,
-                    )
+                    if (preview.skipped > 0) Text("无效条目 ${preview.skipped} 条已跳过", color = LuluColors.Muted)
                     if (preview.foreignFormat) {
                         Text("仅导入所选角色；关键词型 ${preview.conditionalEntries} 条默认关闭。", color = LuluColors.Muted)
                     }
