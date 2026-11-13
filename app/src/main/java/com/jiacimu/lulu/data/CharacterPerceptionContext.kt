@@ -134,7 +134,11 @@ internal object CharacterPerceptionContext {
         // Surface these *executor-authored* outcomes to the original perception
         // loop; a pending consent or cloud job is NOT a completed experience.
         val unsuccessful = status in setOf("failed", "waiting_user", "denied", "requested_unverified")
-        if ((CapabilityRegistry.find(tool) == null && !unsuccessful) ||
+        // Historical successful XHS ToolResult events are still part of real
+        // character memory even though the legacy tool is no longer registered.
+        // Recognizing a stored receipt never grants permission to execute it.
+        val historicalXhsReceipt = tool == "read_xiaohongshu" && status == "succeeded"
+        if ((CapabilityRegistry.find(tool) == null && !historicalXhsReceipt && !unsuccessful) ||
             (!completedLifeAction && !unsuccessful) ||
             status !in setOf("succeeded", "observed", "verified", "failed",
                 "waiting_user", "denied", "requested_unverified")) return null
