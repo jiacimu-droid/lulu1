@@ -172,6 +172,9 @@ internal object CompanionActionRuntime {
             appendLine("- respond_friend_request，args={\"requestId\":\"本人收到的真实申请ID\",\"decision\":\"accept|decline\"}：决定是否同意好友申请，系统才生成QQ式好友确认消息。")
         appendLine("- write_phone_memo，args={\"title\":\"自己写的标题\",\"content\":\"本人真正想保存的内容\",\"kind\":\"memo|life|responsibility\",\"memoId\":\"修改已有备忘录时才填写真实ID\"}：把本人选择记录的随手想法、生活片段或责任提示保存在自己的手机备忘录，真实保存后才能说已记下。备忘录不自动变为日程、闹钟或完成凭据；若真想安排行动，另用已有日程/承诺工具。")
             appendLine("【角色手机】" + CharacterPhoneInbox.summary(characterId))
+            CharacterLifeStore.phoneMemos(characterId).takeLast(4).forEach { memo ->
+                appendLine("本人手机备忘录：memoId=${memo.optString("id")}；${memo.optString("title")}；原文=${memo.optString("content").take(240)}")
+            }
             ResidentSocialMailbox.initialize(context)
             val contacts = ResidentSocialMailbox.visibleContacts(characterId)
             if (contacts.isNotEmpty()) appendLine("真实可联系：${contacts.joinToString("、") { id -> "$id=${MigratedDomainStores.characters.get(id).displayName}" }}")
@@ -199,8 +202,8 @@ internal object CompanionActionRuntime {
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
         appendLine("- save_photo：你自己的手机有独立相册。确实想收藏用户发来的某张图片，可用 args={\"messageId\":\"这张真实聊天图片的消息ID\"}；若是你刚通过 image_search 搜到的照片，用 args={\"searchId\":\"本人真实搜图返回的searchId\",\"index\":0}，执行器才下载并真正保存。不可编造消息ID/搜索ID，不能替别的角色保存，也不能只说一句‘收藏啦’冒充执行成功。\u0020")
         appendLine("- write_phone_memo，args={\"title\":\"自己写的标题\",\"content\":\"本人真正想保存的内容\",\"kind\":\"memo|life|responsibility\",\"memoId\":\"修改已有备忘录时才填写真实ID\"}：把本人选择记录的随手想法、生活片段或责任提示保存在自己的手机备忘录，真实保存后才能说已记下。备忘录不自动变为日程、闹钟或完成凭据；若真想安排行动，另用已有日程/承诺工具。")
-        CharacterLifeStore.phoneMemos(characterId).takeLast(5).forEach { memo ->
-            appendLine("【本人备忘录】memoId=${memo.optString("id")}；${memo.optString("title")}；类别=${memo.optString("kind")}")
+        CharacterLifeStore.phoneMemos(characterId).takeLast(4).forEach { memo ->
+            appendLine("【本人备忘录】memoId=${memo.optString("id")}；${memo.optString("title")}；类别=${memo.optString("kind")}；原文=${memo.optString("content").take(240)}")
         }
         appendLine("- share_xiaohongshu，args={\"evidenceId\":\"本人已读小红书的真实阅读证据ID\",\"comment\":\"可选、自己想对用户说的话\"}：把本人确实读过的笔记作为可点击的小红书分享卡片发进私聊，也可明确填 latest=true 选择最近一篇真实已读笔记。只凭搜索结果、链接、他人的口头描述不能冒充已读；分享不是自动义务，可在读完后下一轮自行决定，也可与其他行动同时选择。")
         appendLine(XhsRoleShare.availableContext(characterId))
