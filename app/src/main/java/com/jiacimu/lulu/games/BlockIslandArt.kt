@@ -397,15 +397,38 @@ internal object BlockIslandArt {
             if (x !in left until left + cols || y !in top until top + rows) continue
             val p = origin(x,y)
             val c = center(x,y)
-            drawCircle(Color(0xFFD8EFC0).copy(alpha = .12f + .12f * sin(phase * 6.28318f)),
-                tile * .48f, c)
+            val rare = index in island.rareSupplyCaches
+            val pulse = (.15f + .12f * sin(phase * 6.28318f)).coerceIn(.03f,.30f)
+            drawCircle((if(rare) Color(0xFF9CEAF9) else Color(0xFFD8EFC0))
+                .copy(alpha=pulse), tile * (if(rare).72f else .48f), c)
+            if(rare) {
+                // Layered sea-glass halo and diamond glint belong only to a
+                // real unclaimed rare chest; no fake particles/reward animation.
+                drawCircle(Color(0xFFB2ECF3).copy(alpha=.46f),tile*.54f,c,
+                    style=Stroke((tile*.045f).coerceAtLeast(1.2f)))
+                val crest=c+Offset(tile*.02f,-tile*.29f)
+                val jewel=Path().apply {
+                    moveTo(crest.x,crest.y-tile*.17f)
+                    lineTo(crest.x+tile*.13f,crest.y)
+                    lineTo(crest.x,crest.y+tile*.17f)
+                    lineTo(crest.x-tile*.13f,crest.y)
+                    close()
+                }
+                drawPath(jewel,Color(0xFFDAF9F7))
+                drawLine(Color.White.copy(alpha=.85f),
+                    crest+Offset(-tile*.22f,0f),crest+Offset(tile*.22f,0f),
+                    strokeWidth=(tile*.028f).coerceAtLeast(.8f))
+            }
             drawRoundRect(Color(0xFF403B38), p + Offset(tile*.15f,tile*.30f),
                 Size(tile*.72f,tile*.54f),CornerRadius(tile*.11f))
-            drawRoundRect(Color(0xFFD9AD72), p + Offset(tile*.17f,tile*.26f),
+            drawRoundRect(if(rare)Color(0xFF7EC6C6)else Color(0xFFD9AD72),
+                p + Offset(tile*.17f,tile*.26f),
                 Size(tile*.66f,tile*.48f),CornerRadius(tile*.09f))
-            drawRect(Color(0xFF76594C), p + Offset(tile*.43f,tile*.27f),
+            drawRect(if(rare)Color(0xFF356A7A)else Color(0xFF76594C),
+                p + Offset(tile*.43f,tile*.27f),
                 Size(tile*.13f,tile*.46f))
-            drawCircle(Color(0xFFFFE6A8),tile*.10f,c + Offset(0f,tile*.04f))
+            drawCircle(if(rare)Color(0xFFE2FFFF)else Color(0xFFFFE6A8),
+                tile*.10f,c+Offset(0f,tile*.04f))
         }
         // Build-plan footprints are only a projection of the saved character project;
         // empty tiles remain empty until actual wood is consumed and a real action succeeds.
