@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9e9769d768cb9a5ec28e9ea746ec1025906ef23a`
+- 基准提交：`99511209b726e31761126dd0e6f385468c9fa811`
 - 分支：`main`
 - 已索引文件：1298
-- 已索引代码/文本行：273343
+- 已索引代码/文本行：273348
 - 已发现符号：3859
 
 | 文件 | 行数 | 符号数 |
@@ -226,7 +226,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 162 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 166 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |
@@ -269,7 +269,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 171 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 205 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 206 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 543 | 0 |

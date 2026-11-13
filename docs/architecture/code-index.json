@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T12:47:11.897779+00:00",
-  "commit": "9e9769d768cb9a5ec28e9ea746ec1025906ef23a",
+  "generatedAt": "2026-11-13T12:48:22.963223+00:00",
+  "commit": "99511209b726e31761126dd0e6f385468c9fa811",
   "branch": "main",
-  "sourceFingerprint": "5945a911140094622ccb59476de98a73ace26f97ba1d61a1a6b6b453801a3944",
+  "sourceFingerprint": "849651181daeef026abd2847570a8eb821149ea89016ae9133b83b118406c96e",
   "summary": {
     "files": 1298,
-    "lines": 273343,
+    "lines": 273348,
     "symbols": 3859
   },
   "symbolIndex": {
@@ -24494,8 +24494,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-      "lines": 162,
-      "sha256": "a9de148b020089e21d54d5f7781933ba6959275a4f357a57febdab951d20edb3",
+      "lines": 166,
+      "sha256": "2a29c4f044021e3a99781db8e0990857af69107da0e23979df735c7290980083",
       "symbols": [
         {
           "name": "Loading",
@@ -25084,8 +25084,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt",
-      "lines": 205,
-      "sha256": "d529a2a18de3357161e5d42903af00b476127e214547e4032d89d454a1cb2dda",
+      "lines": 206,
+      "sha256": "aab1fed3c290f72ba929d8d328e7ad1ec5eb777dcb25393032be466e6000e33b",
       "symbols": []
     },
     {
