@@ -303,7 +303,7 @@ internal object AutonomousActionWireProtocol {
             result.optString("tool").isNotBlank()) {
             result.put("tool", result.optString("tool").trim().lowercase())
         }
-        // Some models return {"action":"tool","args":{"tool":"read_xiaohongshu",...}}
+        // Some models return {"action":"tool","args":{"tool":"background_phone",...}}
         // instead of the top-level name. Normalize the explicit name; NEVER
         // guess a tool merely from an unrelated piece of reply text.
         if (specified == "tool" && result.optString("tool").isBlank()) {
