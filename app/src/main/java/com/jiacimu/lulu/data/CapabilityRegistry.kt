@@ -152,6 +152,7 @@ object CapabilityRegistry {
             appendLine("角色自主操作需屏幕授权；若仅有配对、缺角色自主授权，" +
                 "应说明具体缺的是哪项，不能说没有background_phone这个工具。" +
                 "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。普通公开资料查询可直接选web_search；指定App或需要操作App时再选后台屏。")
+            appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
                 "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
                 "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/back/stop；找不到或重名就报告，不能猜包名。" +
