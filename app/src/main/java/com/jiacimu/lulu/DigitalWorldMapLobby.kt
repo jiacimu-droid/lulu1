@@ -90,6 +90,7 @@ internal fun DigitalWorldMapLobby(
 
     fun sceneLabel(code: String): String {
         if (code == "preview:3d-room") return "3D 体验间"
+        if (code == "preview:rainy-konbini") return "雨夜便利店 · 3D"
         if (code == DigitalWorldStore.ARRIVAL) return "世界入口"
         if (code == DigitalWorldStore.CLOUD_MEADOW) return "云眠原"
         DigitalWorldPublicPlaces.label(code)?.let { return it }
@@ -213,6 +214,9 @@ internal fun DigitalWorldMapLobby(
         } else if (activeSceneCode == "preview:3d-room") {
             // Completely isolated visual sandbox: does not impersonate persistent world props.
             DigitalWorld3DTrialRoom(Modifier.fillMaxWidth().weight(1f))
+        } else if (activeSceneCode == "preview:rainy-konbini") {
+            // Original 3D collectible: no UI overlay, no network and no changes to world state.
+            RainyConvenienceDiorama(Modifier.fillMaxWidth().weight(1f))
         } else {
             Box(
                 modifier = Modifier.fillMaxWidth().weight(1f).clipToBounds().background(Color(0xFF091311)),
@@ -460,6 +464,10 @@ private fun DigitalWorldMapPage(
         item {
             MapPlaceCard(Modifier.fillMaxWidth(), "3D 体验间", "独立空间效果预览", Icons.Outlined.ViewInAr,
                 emptyList(), { onOpenScene("preview:3d-room") }, "preview:3d-room")
+        }
+        item {
+            MapPlaceCard(Modifier.fillMaxWidth(), "雨夜便利店 · 3D", "微缩街角 · 旋转 / 双指缩放 / 双击重演", Icons.Outlined.ViewInAr,
+                emptyList(), { onOpenScene("preview:rainy-konbini") }, "preview:rainy-konbini")
         }
         item { Spacer(Modifier.navigationBarsPadding().height(12.dp)) }
     }
