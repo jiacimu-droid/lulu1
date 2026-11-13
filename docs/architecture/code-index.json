@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T21:49:44.771231+00:00",
-  "commit": "b89258a81c2792301b7a9b4ab6a27887572d4c8d",
+  "generatedAt": "2026-11-13T22:52:03.312077+00:00",
+  "commit": "76d44e5c3d8c3883231c0798f1d394578454acbf",
   "branch": "main",
-  "sourceFingerprint": "0c9a341bf3ae845ad8be18fad679251ec333ecb29a935dd43f3dffa490d34e89",
+  "sourceFingerprint": "38a969e59b24c418453e5705d49ff3ad4d74e6d9d55e188743457008dcf156cc",
   "summary": {
     "files": 1305,
-    "lines": 275007,
+    "lines": 275032,
     "symbols": 3879
   },
   "symbolIndex": {
@@ -45196,8 +45196,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt",
-      "lines": 171,
-      "sha256": "f97fe225039ab80b4780e6da302a87258da8fd4afc2c39552feba13d1008d23d",
+      "lines": 196,
+      "sha256": "a699f275d58faed5350c156e665b750377b68a601ec9780a7ee0f85bf244225c",
       "symbols": [
         {
           "name": "IslandProgressionTest",
