@@ -83,7 +83,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
             RelicPhase.FAILURE->"探险失败，本局没有入馆战利品"
             else->"暂时结束本段游玩，背包战利品尚未撤离归仓"
         }
-        val summary="独自玩《迷雾摸金》：$" + "text；本段真实行动${run.turns-initial}回合。" +
+        val summary="独自玩《迷雾摸金》：${text}；本段真实行动${run.turns-initial}回合。" +
             " 个人藏宝馆共有${snapshot.vault.size}件实物；当前背包${run.hero.bag.size}件。" +
             if(earned.isNotEmpty())" 新入馆：${earned.joinToString("、"){it.name}}。"else""
         val details=JSONObject().put("game","relic_escape").put("runId",run.id)
@@ -205,7 +205,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
             for(kind in listOf("workbench","campfire","lantern")){
                 if(kind in s.structures.values)continue
                 for((x,y) in listOf(w.x+1 to w.y,w.x-1 to w.y,w.x to w.y+1,w.x to w.y-1))
-                    if(BlockIslandRules.canPlaceBuilding(s,kind,x,y))
+                    if(BlockIslandRules.canBuild(s,kind,x,y))
                         return kind to (x to y)
             }
             val workbench=s.structures.any{(i,kind)->
