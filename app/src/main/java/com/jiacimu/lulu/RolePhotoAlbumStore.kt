@@ -29,6 +29,9 @@ internal data class RoleAlbumPhoto(
 internal object RolePhotoAlbumStore {
     private const val PREF = "lulu_role_photo_album_v1"
     private const val MAX_BYTES = 12L * 1024 * 1024
+    /** Owner-visible evidence of a successful, consented main-screen capture.
+     * This is NOT the character's deliberate photo collection or a cognition log. */
+    const val SCREEN_OBSERVATION = "屏幕观察记录"
     private val updates = MutableStateFlow(0L)
     val revisions = updates.asStateFlow()
 
@@ -148,7 +151,7 @@ internal object RolePhotoAlbumStore {
     }
 
     fun saveCapture(context: Context, characterId: String, bitmap: Bitmap,
-        description: String): RoleAlbumPhoto {
+        description: String, source: String = "本人已授权的屏幕截图"): RoleAlbumPhoto {
         require(characterId.isNotBlank()) { "截图未绑定角色" }
         val temporary = File.createTempFile("captured-", ".jpg", folder(context))
         try {
@@ -156,8 +159,20 @@ internal object RolePhotoAlbumStore {
                 check(bitmap.compress(Bitmap.CompressFormat.JPEG, 88, output)) { "截图编码失败" }
             }
             return saveUri(context, characterId, Uri.fromFile(temporary).toString(),
-                "本人已授权的屏幕截图", description)
+                source, description)
         } finally { temporary.delete() }
+    }
+
+    /** An archive projection for the owner, persisted exactly once per validated frame
+     * independently of whether the character elects to add it to their own album.
+     * Caller is the checked capture_screen executor, after consent/app/lock checks. */
+    fun recordScreenObservation(context: Context, characterId: String, bitmap: Bitmap,
+        packageName: String, capturedAt: Instant, studyWatch: Boolean): RoleAlbumPhoto {
+        require(packageName.isNotBlank()) { "屏幕来源未确认" }
+        val purpose = if (studyWatch) "学习监督" else "角色查看"
+        return saveCapture(context, characterId, bitmap,
+            "$purpose · 主屏 · $packageName · ${capturedAt}",
+            source = SCREEN_OBSERVATION)
     }
 
     @Synchronized fun delete(context: Context, characterId: String, photoId: String): Boolean {
