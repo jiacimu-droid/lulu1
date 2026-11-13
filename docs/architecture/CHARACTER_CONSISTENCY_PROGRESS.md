@@ -1,3 +1,8 @@
+## 2026-11-13 · UI-02.2 群聊创建拒写（总接力）
+- 生产 [eb8b4c8](https://github.com/jiacimu-droid/lulu1/commit/eb8b4c8294ab43db15222059f8221a6b70508751) 修复先发布群聊、异步写入造成的幽灵群；改为 durable commit 成功后才发布，拒写撤回临时消息流，成员通知不提前产生。
+- 回归 [dd843a0](https://github.com/jiacimu-droid/lulu1/commit/dd843a0113d87349bf24c44b85115ffb2b5bb3b2) `rejectedGroupCreationMustNotPublishMembersOrSurviveReopen` 注入拒写，检查 commit/no apply、内存与重启无幽灵群、原快照不变。新增 JVM/APK/索引待验；真机、增量迁移及跨 Store 原子性待验。
+- 先前单聊 [APK/JVM #43411086916](https://github.com/jiacimu-droid/lulu1/actions/runs/43411086916) 与 [索引 #43411086891](https://github.com/jiacimu-droid/lulu1/actions/runs/43411086891) 已成功。下一轮 UI-02.2 核新测试 CI，随后审 `updateGroupConversation` 成员通知拒写因果。
+
 ## 2026-11-13 · UI-02.2 新会话创建持久拒写回退
 
 - 源码断点：`InMemoryLuluChatStore.ensureConversation` 在新会话尚未持久保存前就写入 `messageStates`/`conversationState`，然后 `persistLocked()` 默认 `apply()`；拒写会发布重启即消失的假会话。
