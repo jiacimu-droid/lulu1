@@ -107,6 +107,8 @@ data class ModelReply(
     val text: String,
     val inputTokens: Int = 0,
     val outputTokens: Int = 0,
+    /** Provider-reported hidden reasoning, if explicitly given; never inferred. */
+    val reasoningTokens: Int? = null,
     val cachedTokens: Int = 0,
     /** Provider stop reason: length/max_tokens means output was cut off. */
     val finishReason: String? = null,
@@ -1045,6 +1047,8 @@ class CompanionModelGateway(
                 provider = runCatching { URL(connection.baseUrl).host }.getOrDefault(connection.baseUrl),
                 reportedInputTokens = reply.inputTokens,
                 reportedOutputTokens = reply.outputTokens,
+                reportedReasoningTokens = reply.reasoningTokens,
+                modelOutputCharacters = reply.text.length,
                 cachedTokens = reply.cachedTokens,
                 estimatedInputTokens = actualAudit.estimatedTextTokens,
                 estimatedOutputTokens = estimateTokens(reply.text.length),
@@ -1209,6 +1213,9 @@ class CompanionModelGateway(
             text = text,
             inputTokens = usage?.optInt("prompt_tokens") ?: 0,
             outputTokens = usage?.optInt("completion_tokens") ?: 0,
+            reasoningTokens = usage?.optJSONObject("completion_tokens_details")
+                ?.takeIf { it.has("reasoning_tokens") && !it.isNull("reasoning_tokens") }
+                ?.optInt("reasoning_tokens")?.coerceAtLeast(0),
             cachedTokens = promptDetails?.optInt("cached_tokens") ?: 0,
             finishReason = json.optJSONArray("choices")?.optJSONObject(0)?.optString("finish_reason")?.takeIf(String::isNotBlank)
                 ?: json.optString("stop_reason").takeIf(String::isNotBlank),
@@ -1274,6 +1281,7 @@ class CompanionModelGateway(
             val plainResponse = StringBuilder()
             var inputTokens = 0
             var outputTokens = 0
+            var reasoningTokens: Int? = null
             var cachedTokens = 0
             var finishReason: String? = null
             var streamFinished = false
@@ -1359,6 +1367,10 @@ class CompanionModelGateway(
                 chunk.optJSONObject("usage")?.let { usage ->
                     inputTokens = usage.optInt("prompt_tokens", inputTokens)
                     outputTokens = usage.optInt("completion_tokens", outputTokens)
+                    usage.optJSONObject("completion_tokens_details")?.let { detail ->
+                        if (detail.has("reasoning_tokens") && !detail.isNull("reasoning_tokens"))
+                            reasoningTokens = detail.optInt("reasoning_tokens").coerceAtLeast(0)
+                    }
                     cachedTokens = usage.optJSONObject("prompt_tokens_details")
                         ?.optInt("cached_tokens", cachedTokens)
                         ?: cachedTokens
@@ -1430,6 +1442,7 @@ class CompanionModelGateway(
                 text = text,
                 inputTokens = inputTokens,
                 outputTokens = outputTokens,
+                reasoningTokens = reasoningTokens,
                 cachedTokens = cachedTokens,
                 finishReason = finishReason,
             )
