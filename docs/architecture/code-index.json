@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T08:57:16.907193+00:00",
-  "commit": "208be9da9d7abb66608077c819adc5a8762f5940",
+  "generatedAt": "2026-11-13T09:53:56.545735+00:00",
+  "commit": "6d8d7d341cdf8210ef183b0e02f4f17adb94cdfe",
   "branch": "main",
-  "sourceFingerprint": "4b2f9696ee3cc60235ade6b914a59b68f4830bdc6a7eabe2167719ad96303d11",
+  "sourceFingerprint": "40664c9a1d5df67aa635d641ad4c162838af92f8000861d2e89f5f21fb70248e",
   "summary": {
     "files": 1297,
-    "lines": 272864,
+    "lines": 272891,
     "symbols": 3856
   },
   "symbolIndex": {
@@ -45111,8 +45111,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRouteThreatRecoveryTest.kt",
-      "lines": 46,
-      "sha256": "549b444e3ab7d13a568df916ca600b7700543909bded160793abc42263865360",
+      "lines": 73,
+      "sha256": "10716694c89e7de4b19dadc79ac5797f98a1a4860385296f71c05541e4a12c31",
       "symbols": [
         {
           "name": "RelicRouteThreatRecoveryTest",
