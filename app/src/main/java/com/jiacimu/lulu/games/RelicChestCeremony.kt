@@ -130,8 +130,20 @@ internal fun RelicChestCeremony(
             border = BorderStroke(1.dp, tint.copy(alpha = .33f)),
             shadowElevation = 5.dp,
         ) {
+            Column {
+                // The physical receipt stays pinned while the long treasure description
+                // scrolls. A short landscape viewport must never scroll away the truth.
+                if (reveal > .05f) {
+                    Text(
+                        relicCeremonyReceiptLabel(receipt.inBag),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                        color = if (receipt.inBag) Color(0xFFB7EDDA) else Color(0xFFFFC7A8),
+                    )
+                }
             Column(
-                Modifier.verticalScroll(rememberScrollState())
+                Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp, vertical = if (compact) 8.dp else 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 7.dp),
@@ -141,16 +153,6 @@ internal fun RelicChestCeremony(
                     else rarityCue,
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
-                // Keep the committed physical result above the artwork: short landscape
-                // screens must not hide a dropped treasure behind a scroll gesture.
-                if (reveal > .05f) {
-                    Text(
-                        relicCeremonyReceiptLabel(receipt.inBag),
-                        fontSize = 11.sp,
-                        lineHeight = 16.sp,
-                        color = if (receipt.inBag) Color(0xFFB7EDDA) else Color(0xFFFFC7A8),
-                    )
-                }
                 Canvas(Modifier.fillMaxWidth().height(artHeight)) {
                     val h=size.height
                     val x=size.width*.5f
@@ -287,6 +289,7 @@ internal fun RelicChestCeremony(
                 }
                 Text("轻点画面跳过 · 出货已真实结算，撤离前仍可能遗失",
                     color = Color(0xFFB6C4D4), fontSize = 10.sp)
+            }
             }
         }
     }
