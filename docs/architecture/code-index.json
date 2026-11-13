@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T08:46:40.806260+00:00",
-  "commit": "6a7902b7ff7825ba878ae946bb2e893672535e1d",
+  "generatedAt": "2026-11-13T08:57:16.907193+00:00",
+  "commit": "208be9da9d7abb66608077c819adc5a8762f5940",
   "branch": "main",
-  "sourceFingerprint": "742ba14cc4a23222ccf97b142a245a23f445ec5409888efdfdc12dc42e66caa9",
+  "sourceFingerprint": "4b2f9696ee3cc60235ade6b914a59b68f4830bdc6a7eabe2167719ad96303d11",
   "summary": {
-    "files": 1296,
-    "lines": 272818,
-    "symbols": 3855
+    "files": 1297,
+    "lines": 272864,
+    "symbols": 3856
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21150,6 +21150,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt",
         "line": 7
+      }
+    ],
+    "RelicRouteThreatRecoveryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRouteThreatRecoveryTest.kt",
+        "line": 9
       }
     ],
     "RelicSceneIndexTest": [
@@ -45100,6 +45106,17 @@
         {
           "name": "RelicRevealTimelineContinuityTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicRouteThreatRecoveryTest.kt",
+      "lines": 46,
+      "sha256": "549b444e3ab7d13a568df916ca600b7700543909bded160793abc42263865360",
+      "symbols": [
+        {
+          "name": "RelicRouteThreatRecoveryTest",
+          "line": 9
         }
       ]
     },
