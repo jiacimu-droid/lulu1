@@ -123,6 +123,8 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f)) {
                 Text(record.title, fontWeight = FontWeight.Bold)
+                if (!record.playedWithCharacter) Text("角色独自游玩 · 真实行动记录",
+                    color = LuluColors.BlueGray, fontSize = 11.sp)
                 Text(record.summary, color = LuluColors.Muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(
                     record.createdAt.atZone(ZoneId.systemDefault()).format(ReplayDateFormatter),
@@ -131,7 +133,7 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("${record.score}分", fontWeight = FontWeight.Bold)
+                Text(record.replayScoreLabel(), fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -163,7 +165,7 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
                 Text(record.title, style = MaterialTheme.typography.titleLarge)
                 Text("步骤 ${visibleSteps.coerceAtMost(steps.size)}/${steps.size}", color = LuluColors.Muted)
             }
-            Text("${record.score}分", fontWeight = FontWeight.Bold)
+            Text(record.replayScoreLabel(), fontWeight = FontWeight.Bold)
         }
 
         when {
@@ -253,6 +255,12 @@ private data class ReplayStep(
     val value: String,
 )
 
+private fun LuluGameRecord.replayScoreLabel(): String = when {
+    type == LuluGameType.BlockIsland && !playedWithCharacter -> "${score}回合"
+    type == LuluGameType.RelicEscape -> "带回价值${score}"
+    else -> "${score}分"
+}
+
 private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
     parseMemoryReplay(detailsJson)?.let { replay ->
         val captions = replay.turns.mapIndexed { index, turn ->
@@ -267,14 +275,23 @@ private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
         return captions.mapIndexed { index, (label, value) -> ReplayStep("$id-$index", index + 1, label, value) }
     }
     if (type == LuluGameType.BlockIsland || type == LuluGameType.RelicEscape) {
-        val events = runCatching { JSONObject(detailsJson).optJSONArray("events") }.getOrNull()
+        val gameData = runCatching { JSONObject(detailsJson) }.getOrNull()
+        val events = gameData?.optJSONArray("events")
         val readable = if (events == null) emptyList() else
             (0 until events.length()).mapNotNull { index ->
-                events.optString(index).takeIf(String::isNotBlank)
+                when (val event = events.opt(index)) {
+                    is JSONObject -> event.optString("text").takeIf(String::isNotBlank)?.let { text ->
+                        "第${event.optInt("turn")}回合 · ${event.optString("action")}：$text"
+                    }
+                    is String -> event.takeIf(String::isNotBlank)
+                    else -> null
+                }
             }
+        val terminal = gameData?.optString("phase") in setOf("SUCCESS", "FAILURE")
         val caption = (readable + summary).mapIndexed { index, description ->
             ReplayStep("$id-$index", index + 1,
-                if (index == readable.size) "本次结算" else "行动 ${index + 1}", description)
+                if (index == readable.size) if (terminal) "真实结算" else "本次进度"
+                else "实况 ${index + 1}", description)
         }
         return caption.ifEmpty { listOf(ReplayStep("$id-summary",1,"本次冒险",summary)) }
     }
