@@ -37,7 +37,13 @@ internal object RelayRequestPressurePolicy {
      * action protocol and an image in the same request. Two measured requests
      * around 360 KB reached the read timeout while the old 440 KB gate was
      * never entered. A further real interrupted body write contained about
-     * 263 KB, just below the former 280 KB preflight gate. Preserve the same
+     * 263 KB, just below the former 280 KB preflight gate. A 2026-11-14
+     * proactive request also failed upstream with HTTP 500 at 196,618
+     * preflight bytes (199,237 JSON bytes) despite an available 142,688-byte
+     * projection. The relay did not explicitly attribute that 500 to size;
+     * proactively send the already available, lower-pressure projection for
+     * this background source instead of assuming a generic 500 is retry-safe.
+     * Preserve the same
      * protected persona/relationships/tool rules and current user input while
      * projecting older, optional context BEFORE a large background POST.
      *
@@ -45,7 +51,7 @@ internal object RelayRequestPressurePolicy {
      * are left unchanged, as are other model entry points.
      */
     fun shouldCompactBeforeSend(source: String, payloadBytes: Int): Boolean =
-        canRecover(source) && payloadBytes > 220_000
+        canRecover(source) && payloadBytes > 160_000
 
     /**
      * These aren't local-memory quotas. A relay failure may justify omitting
