@@ -235,10 +235,10 @@ class AutonomousActionWireProtocolTest {
         assertEquals("message", bubbles.getString("action"))
 
         val directTool = AutonomousActionWireProtocol.normalize(
-            JSONObject().put("tool", "read_xiaohongshu")
-                .put("args", JSONObject().put("keyword", "第五人格")))
+            JSONObject().put("tool", "background_phone")
+                .put("args", JSONObject().put("action", "launch").put("appName", "小红书")))
         assertEquals("tool", directTool.getString("action"))
-        assertEquals("read_xiaohongshu", directTool.getString("tool"))
+        assertEquals("background_phone", directTool.getString("tool"))
 
         val thoughtsOnly = AutonomousActionWireProtocol.normalize(
             JSONObject().put("innerThought", "好想读书"))
