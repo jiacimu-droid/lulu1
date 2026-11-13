@@ -2,7 +2,12 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class IslandRareEventsTest {
     @Test fun rareTideEventSpawnsPhysicalReachableSaveAndAwardsOnlyWhenOpened() {
         val spawned=(0..500).firstNotNullOfOrNull { seed ->
