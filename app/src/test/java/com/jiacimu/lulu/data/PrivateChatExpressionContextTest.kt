@@ -50,6 +50,29 @@ class PrivateChatExpressionContextTest {
         assertTrue(PrivateChatExpressionContext.conversation("role", messages, setOf("missing"), current).isEmpty())
     }
 
+    @Test fun duplicatePrivateInputIsReplacedByOrderedPersistentIdsOnly() {
+        val longVoiceTranscript = "这是我的真实语音输入，应该只给模型一次。".repeat(500)
+        val messages = listOf(
+            message("old", LuluChatMessage.Sender.User, "已经处理的旧消息"),
+            message("a", LuluChatMessage.Sender.User, longVoiceTranscript),
+            message("status", LuluChatMessage.Sender.System, "后台回执不是新消息"),
+            message("b", LuluChatMessage.Sender.User, "我还有个新问题"),
+        )
+        val ids = setOf("a", "b")
+        val live = PrivateChatExpressionContext.conversation(
+            "role", messages, ids, "$longVoiceTranscript\n我还有个新问题",
+        )
+        val index = PrivateChatExpressionContext.unreadIdIndex(messages, ids)
+        assertEquals("$longVoiceTranscript\n我还有个新问题", live.last().content)
+        val lines = index.lines().map { org.json.JSONObject(it) }
+        assertEquals(listOf("a", "b"), lines.map { it.getString("messageId") })
+        assertEquals(listOf(1, 2), lines.map { it.getInt("indexInCurrentUserTurn") })
+        assertFalse(index.contains(longVoiceTranscript.take(80)))
+        assertFalse(index.contains("后台回执"))
+        assertTrue("Only lightweight IDs should be transmitted twice", index.length < 180)
+        assertEquals("", PrivateChatExpressionContext.unreadIdIndex(messages, emptySet()))
+    }
+
     @Test fun onlineUnreadConversationUsesOnlyOnePrivateSceneAndActualUserSenders() {
         val messages = listOf(
             message("a", LuluChatMessage.Sender.Character, "刚才的话", "role"),
