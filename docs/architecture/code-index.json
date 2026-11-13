@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T05:48:33.758165+00:00",
-  "commit": "ff07a79a3c9d698475a7ff0dd99516241bfc99bc",
+  "generatedAt": "2026-11-13T05:48:50.123927+00:00",
+  "commit": "3373b2b13cae44d0a2b395c2c95e6d4febd6c856",
   "branch": "main",
-  "sourceFingerprint": "45728c900d8a311fd6e56af33dfd602d9681c162b54c618f57ab7040f96f87cc",
+  "sourceFingerprint": "3efb7fbe52120696b5e7d0d48fa957cce167813987160b7195571ede3d10c73c",
   "summary": {
-    "files": 1295,
-    "lines": 272575,
-    "symbols": 3854
+    "files": 1296,
+    "lines": 272602,
+    "symbols": 3855
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17898,6 +17898,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt",
         "line": 17
+      }
+    ],
+    "RolePhoneAppPlacementTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt",
+        "line": 9
       }
     ],
     "RolePhoneBrowserHistoryTest": [
@@ -40384,6 +40390,17 @@
         {
           "name": "RolePhoneActivityTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt",
+      "lines": 27,
+      "sha256": "1b8b53b2ce996a04f414a52ed33a2577fe46b0e1ae601f4b4b8fc5545ec637dc",
+      "symbols": [
+        {
+          "name": "RolePhoneAppPlacementTest",
+          "line": 9
         }
       ]
     },
