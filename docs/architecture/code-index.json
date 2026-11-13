@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T17:10:39.968354+00:00",
-  "commit": "5b511bde37762954fc7a6f2088009f33131c013c",
+  "generatedAt": "2026-11-13T17:11:30.385683+00:00",
+  "commit": "1a9c23479fd1bf50ff7d17c563e99881d7d0fd3d",
   "branch": "main",
-  "sourceFingerprint": "a170ea8cccf93ec0399600cea3e30651ee194272b79095d1deb071b3c34f27bd",
+  "sourceFingerprint": "91ab99a19f354b3d17264dcb42cff6e1e69702cf5e36863b42d4c80e8641453f",
   "summary": {
     "files": 1305,
-    "lines": 274950,
+    "lines": 274976,
     "symbols": 3879
   },
   "symbolIndex": {
@@ -26316,7 +26316,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
       "lines": 225,
-      "sha256": "463717f11877292c4fb2537630cbc9b08006a4f8b11c279492a322dc29380e56",
+      "sha256": "0a19f22a41fd8c4723df0b0d08f4549d1e9d97abfb394da0de9223de4fd52a78",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -41157,8 +41157,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 226,
-      "sha256": "f2df2fb3fcb21ee698b43ddd315ea2e17f802f2b41d5740ade594ad6a2949653",
+      "lines": 252,
+      "sha256": "7650f466e45f9a69ae8fb768751c1bdc8ea00eb473bbcb4ad31e54c9c0c9a60f",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
