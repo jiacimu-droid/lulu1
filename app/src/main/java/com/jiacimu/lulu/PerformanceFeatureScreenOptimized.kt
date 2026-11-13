@@ -160,6 +160,16 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 HorizontalDivider(color = FastPerformanceBorder)
                 FastMetric("接口输入（实测）", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
                 FastMetric("接口输出（实测）", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
+                if (record.modelOutputCharacters > 0) {
+                    FastMetric("模型返回正文（含结构化 JSON）", "${record.modelOutputCharacters} 字符")
+                    Text("这里计入 action、工具参数、心声和其他未发送的 JSON 字段，并非仅聊天气泡文字。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                }
+                record.reportedReasoningTokens?.let { reported ->
+                    FastMetric("供应商明确上报的推理", "$reported tok")
+                    Text("只显示供应商明确返回的推理统计；未返回不代表模型没有推理。不能由剩余 Token 推断都是推理。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                }
                 val totalEstimate = record.breakdown.sumOf { it.estimatedTokens.toLong() }
                 // The provider returns only ONE real count. Make reconciliation
                 // visible before any rough estimate, so 70k real vs 44k rough
