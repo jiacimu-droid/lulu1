@@ -15,19 +15,18 @@ class CharacterXhsReadPermissionTest {
     private val role = "xhs-permission-role"
     private val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
 
-    @Test fun roleCanAutonomouslyReadFromAlreadyAuthorizedXhsWithoutSeparateHiddenGrant() {
+    @Test fun legacyXhsReaderIsRetiredEvenWithOldGrantOrExplicitRequest() {
         val cap = CapabilityRegistry.find("read_xiaohongshu")!!
         val key = "$role:xhs_read"
         val before = prefs.getBoolean(key, false)
         val existed = prefs.contains(key)
         try {
-            prefs.edit().remove(key).commit()
-            assertTrue(CapabilityRegistry.allows(context, role, cap, false))
-            prefs.edit().putBoolean(key, false).commit()
+            assertTrue(cap.retired)
+            assertFalse(CapabilityRegistry.canChoose("read_xiaohongshu"))
+            prefs.edit().putBoolean(key, true).commit()
             assertFalse(CapabilityRegistry.allows(context, role, cap, false))
-            // Explicit user request remains permitted even if autonomous browsing
-            // is switched off. Browser availability is checked by execution.
-            assertTrue(CapabilityRegistry.allows(context, role, cap, true))
+            assertFalse(CapabilityRegistry.allows(context, role, cap, true))
+            assertTrue(CapabilityRegistry.canChoose("background_phone"))
         } finally {
             val editor = prefs.edit()
             if (existed) editor.putBoolean(key, before) else editor.remove(key)
