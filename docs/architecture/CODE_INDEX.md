@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d29d5129b3d73d6549a11e2c189e1c77a8825ef6`
+- 基准提交：`4218634c3eb292afa58842f8456c7c4ec2af6438`
 - 分支：`main`
-- 已索引文件：1283
-- 已索引代码/文本行：271741
-- 已发现符号：3842
+- 已索引文件：1285
+- 已索引代码/文本行：271795
+- 已发现符号：3844
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -310,7 +310,8 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1569 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1570 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -941,6 +942,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterClockAuthorityTest.kt` | 30 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 184 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 179 | 1 |

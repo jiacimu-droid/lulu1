@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T01:22:23.745774+00:00",
-  "commit": "d29d5129b3d73d6549a11e2c189e1c77a8825ef6",
+  "generatedAt": "2026-11-13T01:23:20.442491+00:00",
+  "commit": "4218634c3eb292afa58842f8456c7c4ec2af6438",
   "branch": "main",
-  "sourceFingerprint": "a06c327853aa48b8050f89d022a642fbb1a7113721d7b2bab9632d7c1eedfc14",
+  "sourceFingerprint": "e3ba242ce7a004a0677ebccffab5e22aa9750dfce5ca66726d1c45c29b4f7824",
   "summary": {
-    "files": 1283,
-    "lines": 271741,
-    "symbols": 3842
+    "files": 1285,
+    "lines": 271795,
+    "symbols": 3844
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -851,7 +851,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1561
+        "line": 1562
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5217,19 +5217,25 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1301
+        "line": 1302
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1313
+        "line": 1314
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1551
+        "line": 1552
+      }
+    ],
+    "addStreamingUsageWhenSupported": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt",
+        "line": 12
       }
     ],
     "configured": [
@@ -18114,6 +18120,12 @@
         "line": 7
       }
     ],
+    "GeminiUsageRequestPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt",
+        "line": 6
+      }
+    ],
     "JevDirectionsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
@@ -25776,8 +25788,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1569,
-      "sha256": "5fbce8ded7b053f8ce82e3c2921159731eb0e9f0cdbee3f4420e4ee637ef8919",
+      "lines": 1570,
+      "sha256": "11db48e4b2a7b503de34941805198c7e0a81a3abee7277a6846ef045fb8c678f",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -25877,19 +25889,30 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1301
+          "line": 1302
         },
         {
           "name": "consumeEvent",
-          "line": 1313
+          "line": 1314
         },
         {
           "name": "LuluAiServices",
-          "line": 1551
+          "line": 1552
         },
         {
           "name": "initialize",
-          "line": 1561
+          "line": 1562
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt",
+      "lines": 21,
+      "sha256": "3eede6f74f11bb2ed53f9f18120f8f0e373b6e1441489487faa548cfe4fc0815",
+      "symbols": [
+        {
+          "name": "addStreamingUsageWhenSupported",
+          "line": 12
         }
       ]
     },
@@ -40609,6 +40632,17 @@
         {
           "name": "CharacterClockAuthorityTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt",
+      "lines": 32,
+      "sha256": "61f769355386cf3ae05f21ceaaa1acf3698b66ce5ea35373110ab0aaa095b926",
+      "symbols": [
+        {
+          "name": "GeminiUsageRequestPolicyTest",
+          "line": 6
         }
       ]
     },
