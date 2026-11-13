@@ -107,8 +107,12 @@ class RelayRequestPressurePolicyTest {
             "后台主动感知", 263_226))
         assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 280_000))
-        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 196_618))
+        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 220_000))
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 160_000))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "电话生成", 500_000))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
