@@ -79,7 +79,7 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("elementRef"))
             assertTrue(status.contains("任何已安装App"))
             assertTrue(status.contains("小红书、抖音、网易云音乐、购物App"))
-            assertTrue(status.contains("旧 read_xiaohongshu 已停用"))
+            assertFalse(status.contains("read_xiaohongshu"))
             val capability = CapabilityRegistry.context(context, characterId)
             assertTrue("background search requires an explicit submit",
                 capability.contains("type|submit|search|stop"))
