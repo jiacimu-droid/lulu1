@@ -18,6 +18,47 @@ import org.robolectric.annotation.Config
 class ModelVisibleOutputTest {
     private val privateText = "PRIVATE_ANALYSIS_MUST_NEVER_BECOME_SPEECH"
 
+    @Test fun outputAuditSeparatesJsonPayloadFromExplicitReasoningUsage() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val server = MockWebServer()
+        val jsonText = """{"action":"message","text":"在呢"}"""
+        val delta = JSONObject().put("choices", org.json.JSONArray().put(
+            JSONObject().put("delta", JSONObject().put("content", jsonText)))).toString()
+        val terminal = JSONObject()
+            .put("choices", org.json.JSONArray().put(
+                JSONObject().put("delta", JSONObject())
+                    .put("finish_reason", "stop")))
+            .put("usage", JSONObject().put("prompt_tokens", 12)
+                .put("completion_tokens", 700)
+                .put("completion_tokens_details",
+                    JSONObject().put("reasoning_tokens", 640))).toString()
+        server.enqueue(MockResponse()
+            .setHeader("Content-Type", "text/event-stream")
+            .setBody("data: $delta\n\ndata: $terminal\n\ndata: [DONE]\n\n"))
+        server.start()
+        try {
+            val result = CompanionModelGateway(ModelConnectionStore.create(app)).generate(
+                "output-audit-test", "一次状态观察", "只需回复", "输出组成审计测试", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            ).getOrThrow()
+            assertEquals(jsonText, result.text)
+            assertEquals(700, result.outputTokens)
+            assertEquals(640, result.reasoningTokens)
+            val record = LuluRepositories.performance.consoleRecords.first()
+                .first { it.requestSource == "输出组成审计测试" }
+            assertEquals(jsonText.length, record.modelOutputCharacters)
+            assertEquals(640L, record.reportedReasoningTokens)
+            assertEquals(700L, record.reportedOutputTokens)
+            assertFalse("No private model reply text in performance record",
+                record.breakdown.any { it.label.contains("在呢") })
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+
     @Test fun prohibitedContent400DoesNotResendTheSameStreamingPrompt() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
