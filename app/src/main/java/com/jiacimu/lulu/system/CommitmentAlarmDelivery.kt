@@ -138,21 +138,24 @@ internal object CommitmentAlarmDelivery {
                     }
                     CommitmentExecutor.onAlarm(context, task, alarm.characterName, now, shown)
                 }
-                // Keep the process alive while this real incoming call rings. Also reconcile
-                // timeout without relying on a foreground Compose timer to mark a missed call.
-                val pending = ProactiveIncomingCallStore.pending.value
-                    ?.takeIf { it.commitmentTaskId == task.id && it.active() }
-                if (pending != null) {
-                    withTimeoutOrNull(Duration.between(Instant.now(), pending.expiresAt).toMillis().coerceAtLeast(1L)) {
-                        combine(ProactiveIncomingCallStore.pending, CommitmentTaskStore.tasks) { call, tasks ->
-                            call != pending || tasks.none { it.id == task.id && it.status == CommitmentTaskStatus.WaitingForFeedback }
-                        }.first { it }
-                    }
-                    if (CommitmentTaskStore.snapshot().none {
-                            it.id == task.id && it.status == CommitmentTaskStatus.WaitingForFeedback
-                        }) ProactiveIncomingCallStore.clear(pending)
-                    ProactiveIncomingCallStore.reconcileExpired()
+            }
+            // The 150-second watchdog covers dispatch, not the time a real
+            // incoming call is ringing. A cold start plus the character's
+            // bounded decision may already use part of that budget; awaiting
+            // the full two-minute call here must not falsely mark dispatch
+            // as timed out. Preserve this separately bounded outcome wait.
+            val pending = ProactiveIncomingCallStore.pending.value
+                ?.takeIf { it.commitmentTaskId == task.id && it.active() }
+            if (pending != null) {
+                withTimeoutOrNull(Duration.between(Instant.now(), pending.expiresAt).toMillis().coerceAtLeast(1L)) {
+                    combine(ProactiveIncomingCallStore.pending, CommitmentTaskStore.tasks) { call, tasks ->
+                        call != pending || tasks.none { it.id == task.id && it.status == CommitmentTaskStatus.WaitingForFeedback }
+                    }.first { it }
                 }
+                if (CommitmentTaskStore.snapshot().none {
+                        it.id == task.id && it.status == CommitmentTaskStatus.WaitingForFeedback
+                    }) ProactiveIncomingCallStore.clear(pending)
+                ProactiveIncomingCallStore.reconcileExpired()
             }
         } catch (error: Exception) {
             if (isCurrent(task)) CommitmentTaskStore.update(task.id) { old -> old.copy(
