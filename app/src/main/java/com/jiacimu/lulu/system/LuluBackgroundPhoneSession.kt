@@ -973,6 +973,23 @@ internal object LuluBackgroundPhoneSession {
                 pixels,
                 frame.optBoolean("frameBlack", false),
             )
+            // Archive real NEW virtual-display frames in the same per-role
+            // owner-inspection album as consented main-screen captures.
+            // No second screenshot, model call, synthetic pixels or chat post.
+            val screenArchive = if (hasFrame &&
+                frame.optBoolean("newerThanPreviousCapture", false) &&
+                LuluScreenAwareness.onDemandAllowed(context) &&
+                !LuluScreenAwareness.isExcluded(context, visible.packageName) &&
+                !ownerHasPaused(context) &&
+                context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true) {
+                runCatching {
+                    withContext(Dispatchers.IO) {
+                        com.jiacimu.lulu.RolePhotoAlbumStore.recordVirtualScreenObservation(
+                            context, characterId, pixels, visible.packageName, id,
+                            java.time.Instant.now())
+                    }
+                }
+            } else null
             if (hasFrame) LuluScreenFrameHandoff.put(characterId, requestId, pixels)
             val searchStatus = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
@@ -1037,6 +1054,9 @@ internal object LuluBackgroundPhoneSession {
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
                 .put("visibleText", visible.visibleText.take(5_000))
+                .put("screenRecordSaved", screenArchive?.isSuccess == true)
+                .put("screenRecordId", screenArchive?.getOrNull()?.id.orEmpty())
+                .put("screenRecordError", screenArchive?.exceptionOrNull()?.message.orEmpty().take(100))
                 .put("imageForwardedToRole", hasFrame)
                 .put("frameFreshAfterAction", frameFresh)
                 .put("frameValidated", hasFrame)

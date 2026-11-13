@@ -175,6 +175,24 @@ internal object RolePhotoAlbumStore {
             source = SCREEN_OBSERVATION)
     }
 
+    /** Save only real, verified independent-display JPEG bytes. The caller
+     * must have checked ownership, consent, target app and frame freshness.
+     * This is an owner-visible observation, not a character-saved photo. */
+    fun recordVirtualScreenObservation(context: Context, characterId: String, imageDataUrl: String,
+        packageName: String, displayId: Int, capturedAt: Instant): RoleAlbumPhoto {
+        require(displayId > 0 && packageName.isNotBlank()) { "后台截图来源未核实" }
+        val prefix = "data:image/jpeg;base64,"
+        require(imageDataUrl.startsWith(prefix)) { "后台截图不是 JPEG 图像" }
+        val jpeg = java.util.Base64.getDecoder().decode(imageDataUrl.removePrefix(prefix))
+        require(jpeg.isNotEmpty() && jpeg.size.toLong() <= MAX_BYTES) { "后台截图大小无效" }
+        val temporary = File.createTempFile("virtual-observed-", ".jpg", folder(context))
+        try {
+            temporary.outputStream().use { it.write(jpeg) }
+            return saveUri(context, characterId, Uri.fromFile(temporary).toString(),
+                SCREEN_OBSERVATION,
+                "角色查看 · 后台独立屏 #$displayId · $packageName · $capturedAt")
+        } finally { temporary.delete() }
+    }
     @Synchronized fun delete(context: Context, characterId: String, photoId: String): Boolean {
         val own = list(context, characterId).firstOrNull { it.id == photoId } ?: return false
         val file = Uri.parse(own.uri).path?.let(::File)?.canonicalFile ?: return false

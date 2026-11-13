@@ -48,4 +48,34 @@ class RolePhotoAlbumStoreTest {
                 Uri.fromFile(File("/sdcard/Download/private.png")).toString(), "外部文件")
         }
     }
+    @Test fun verifiedVirtualScreenFrameIsArchivedAsAnObservationWithoutCrossRoleLeakage() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val first = "virtual-a-" + UUID.randomUUID()
+        val second = "virtual-b-" + UUID.randomUUID()
+        val pixels = Bitmap.createBitmap(24, 32, Bitmap.Config.ARGB_8888)
+        try {
+            val buffer = java.io.ByteArrayOutputStream()
+            assertTrue(pixels.compress(Bitmap.CompressFormat.JPEG, 80, buffer))
+            val jpeg = buffer.toByteArray()
+            val frame = "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(jpeg)
+            val capturedAt = java.time.Instant.parse("2026-11-13T12:00:00Z")
+            val saved = RolePhotoAlbumStore.recordVirtualScreenObservation(
+                context, first, frame, "com.huawei.health", 7, capturedAt)
+            assertEquals(RolePhotoAlbumStore.SCREEN_OBSERVATION, saved.source)
+            assertTrue(saved.caption.contains("后台独立屏 #7"))
+            assertTrue(saved.caption.contains("com.huawei.health"))
+            assertArrayEquals(jpeg, File(Uri.parse(saved.uri).path!!).readBytes())
+            assertEquals(saved.id, RolePhotoAlbumStore.list(context, first).single().id)
+            assertTrue(RolePhotoAlbumStore.list(context, second).isEmpty())
+            assertTrue(RolePhotoAlbumStore.delete(context, first, saved.id))
+            assertTrue(RolePhotoAlbumStore.list(context, first).isEmpty())
+            assertThrows(IllegalArgumentException::class.java) {
+                RolePhotoAlbumStore.recordVirtualScreenObservation(
+                    context, first, frame, "com.huawei.health", 0, capturedAt)
+            }
+            assertTrue(RolePhotoAlbumStore.list(context, first).isEmpty())
+        } finally {
+            pixels.recycle()
+        }
+    }
 }

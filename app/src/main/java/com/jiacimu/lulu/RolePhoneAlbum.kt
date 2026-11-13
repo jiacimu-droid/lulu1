@@ -50,7 +50,7 @@ internal fun RolePhoneAlbum(characterId: String, observationsOnly: Boolean = fal
                 style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(10.dp))
             Text(if (observationsOnly)
-                "角色获授权查看主人主屏后，实际取得的截图会出现在这里。没有记录不代表角色没有使用手机。"
+                "角色获授权查看主人主屏或操作后台虚拟屏后，真实且已验证的截图会出现在这里。没有记录不代表角色没有使用手机。"
                 else "这里是角色自己保存的聊天图片、网络图片与照片。",
                 color = LuluColors.Muted, fontSize = 13.sp)
         }
@@ -132,7 +132,7 @@ internal fun RolePhoneAlbum(characterId: String, observationsOnly: Boolean = fal
     }
 }
 
-/** The owner's full-size, pinch-to-zoom view of the verified main display.
+/** The owner's full-size, pinch-to-zoom view of a verified captured display.
  * Never replace the retained image with a textual model description. */
 @Composable
 private fun ScreenRecordViewer(
