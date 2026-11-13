@@ -55,6 +55,7 @@ fun CharacterWorldBookScreenV2(
     val scope = rememberCoroutineScope()
     val notices = remember { SnackbarHostState() }
     var importBusy by remember { mutableStateOf(false) }
+    var importMenuExpanded by remember { mutableStateOf(false) }
     var importRole by remember { mutableStateOf(initialCharacterId) }
     var importPreview by remember { mutableStateOf<WorldBookJsonImporter.Preview?>(null) }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -162,13 +163,47 @@ fun CharacterWorldBookScreenV2(
                 title = { Text("世界书", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
-                    IconButton(
-                        enabled = !importBusy,
-                        onClick = {
-                            importRole = selectedCharacterId
-                            importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-                        },
-                    ) { Icon(Icons.Outlined.UploadFile, "导入 JSON") }
+                    Box {
+                        IconButton(
+                            enabled = !importBusy,
+                            onClick = { importMenuExpanded = true },
+                        ) { Icon(Icons.Outlined.UploadFile, "导入世界书") }
+                        DropdownMenu(
+                            expanded = importMenuExpanded,
+                            onDismissRequest = { importMenuExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("选择 JSON 文件") },
+                                onClick = {
+                                    importMenuExpanded = false
+                                    importRole = selectedCharacterId
+                                    importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Meowssiah 召唤术原文（可选）") },
+                                onClick = {
+                                    importMenuExpanded = false
+                                    importRole = selectedCharacterId
+                                    scope.launch {
+                                        importBusy = true
+                                        try {
+                                            importPreview = withContext(Dispatchers.IO) {
+                                                val raw = context.assets.open("worldbook/meowssiah_verbatim.json")
+                                                    .bufferedReader(Charsets.UTF_8).use { it.readText() }
+                                                WorldBookJsonImporter.parse(raw, importRole)
+                                            }
+                                        } catch (failure: Exception) {
+                                            if (failure is kotlinx.coroutines.CancellationException) throw failure
+                                            notices.showSnackbar(failure.message ?: "读取内置原文失败")
+                                        } finally {
+                                            importBusy = false
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                    }
                     IconButton(onClick = { openFolderEditor() }) { Icon(Icons.Outlined.CreateNewFolder, "新建分类") }
                     IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新建世界书") }
                 },
@@ -549,6 +584,13 @@ fun CharacterWorldBookScreenV2(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("可导入 ${preview.entries.size} 条")
+                    val disabledCount = preview.entries.count { entry ->
+                        !entry.globalEnabled && entry.characterOverrides.values.none { it }
+                    }
+                    if (disabledCount > 0) {
+                        Text("其中 ${disabledCount} 条默认关闭；导入后可手动选择角色启用。",
+                            color = LuluColors.Muted, fontSize = 12.sp)
+                    }
                     if (preview.skipped > 0) Text("无效条目 ${preview.skipped} 条已跳过", color = LuluColors.Muted)
                     if (preview.foreignFormat) {
                         Text("仅导入所选角色；关键词型 ${preview.conditionalEntries} 条默认关闭。", color = LuluColors.Muted)
