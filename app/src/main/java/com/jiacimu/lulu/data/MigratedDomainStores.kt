@@ -200,10 +200,19 @@ class InMemoryLuluChatStore : LuluChatStore {
                 lastMessage = "",
                 updatedAt = Instant.now(),
             )
-            messageStates[conversation.id] = MutableStateFlow(emptyList())
-            conversationState.value = (listOf(conversation) + conversationState.value)
+            val updated = (listOf(conversation) + conversationState.value)
                 .sortedByDescending(LuluConversation::updatedAt)
-            persistLocked()
+            // Do not expose a newly created conversation until its first durable
+            // snapshot is accepted. A rejected write must not create a phantom
+            // conversation that disappears after process restart.
+            messageStates[conversation.id] = MutableStateFlow(emptyList())
+            try {
+                persistLocked(durable = true, conversations = updated)
+            } catch (failure: Throwable) {
+                messageStates.remove(conversation.id)
+                throw failure
+            }
+            conversationState.value = updated
             return conversation
         }
     }
