@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d989d88adf757f4b2a059b7c314695267bcc2df9`
+- 基准提交：`b69f8c9df709055d3f0afe382c322f707cb657f3`
 - 分支：`main`
 - 已索引文件：1287
-- 已索引代码/文本行：271558
-- 已发现符号：3846
+- 已索引代码/文本行：271593
+- 已发现符号：3847
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -341,7 +341,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 176 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 175 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -438,7 +438,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 578 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 478 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1906 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1905 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 649 | 21 |
@@ -540,7 +540,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 75 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 91 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 140 | 5 |
@@ -548,7 +548,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3611 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3612 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
@@ -578,7 +578,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 607 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 604 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 344 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -1133,7 +1133,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 218 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
