@@ -601,7 +601,8 @@ internal object LuluBackgroundPhoneSession {
             // the freshly observed merchant copy-link control. Never read or
             // forward arbitrary clipboard content for an ordinary tap.
             val wantsProductLink = args.optBoolean("sendProductLinkToChat", false)
-            var beforeProductCopy: String? = null
+            var beforeProductCopyTimestamp = 0L
+            var productCopyStartedAt = 0L
             if (wantsProductLink && action != "tap_element") {
                 return JSONObject().put("success", false).put("status", "denied")
                     .put("accepted", false).put("productLinkSent", false)
@@ -647,9 +648,10 @@ internal object LuluBackgroundPhoneSession {
                             .put("verification", "当前复制链接控件或购物授权无法核实；没有读取剪贴板或发送商品")
                             .toString()
                     }
-                    beforeProductCopy = withContext(Dispatchers.Main) {
-                        LuluShoppingLinkShare.clipboardText(context)
+                    beforeProductCopyTimestamp = withContext(Dispatchers.Main) {
+                        LuluShoppingLinkShare.clipboardTimestamp(context)
                     }
+                    productCopyStartedAt = System.currentTimeMillis()
                 }
             }
             if (action == "submit") {
@@ -794,7 +796,8 @@ internal object LuluBackgroundPhoneSession {
                 // This is a terminal receipt for the copy/share step, not
                 // proof that the goods were added to cart or purchased.
                 val link = if (applied?.optBoolean("accepted") == true)
-                    LuluShoppingLinkShare.awaitFreshLink(context, activeApp, beforeProductCopy)
+                    LuluShoppingLinkShare.awaitFreshLink(
+                        context, activeApp, beforeProductCopyTimestamp, productCopyStartedAt)
                 else null
                 var deliveryError = ""
                 val sent = if (link != null &&
