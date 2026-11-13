@@ -360,6 +360,63 @@ class ChatHistoryLegacyCompatibilityTest {
         }
     }
 
+    @Test fun rejectedGroupMembershipUpdateMustNotPublishOrSurviveReopen() {
+        val base: Context = RuntimeEnvironment.getApplication()
+        val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
+        val original = real.getString("state_v1", null)
+        try {
+            val creator = InMemoryLuluChatStore()
+            creator.initialize(base)
+            val group = creator.createGroupConversation(
+                "Before", listOf("ui02-member-a", "ui02-member-b"), true,
+            )
+            val snapshot = real.getString("state_v1", null)!!
+            var commits = 0
+            var applies = 0
+            val rejecting = object : android.content.SharedPreferences by real {
+                override fun edit(): android.content.SharedPreferences.Editor {
+                    val editor = real.edit()
+                    return object : android.content.SharedPreferences.Editor by editor {
+                        override fun putString(key: String?, value: String?): android.content.SharedPreferences.Editor {
+                            editor.putString(key, value)
+                            return this
+                        }
+                        override fun commit(): Boolean { commits++; return false }
+                        override fun apply() { applies++ }
+                    }
+                }
+            }
+            val context = object : android.content.ContextWrapper(base) {
+                override fun getApplicationContext(): Context = this
+                override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences =
+                    if (name == "lulu_chat_store") rejecting else base.getSharedPreferences(name, mode)
+            }
+            val store = InMemoryLuluChatStore()
+            store.initialize(context)
+            val before = store.conversations.value.single { it.id == group.id }
+            val beforeMessages = store.messages(group.id).value
+            val changed = before.groupChat!!.copy(
+                name = "After",
+                members = before.groupChat.members.dropLast(1) +
+                    com.jiacimu.lulu.data.LuluGroupMember("ui02-member-c"),
+            )
+            assertTrue(runCatching { store.updateGroupConversation(group.id, changed) }.isFailure)
+            assertEquals("Membership edit must reach durable commit", 1, commits)
+            assertEquals("No asynchronous write may acknowledge membership", 0, applies)
+            assertEquals(before, store.conversations.value.single { it.id == group.id })
+            assertEquals(beforeMessages, store.messages(group.id).value)
+            assertEquals(snapshot, real.getString("state_v1", null))
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(base)
+            assertEquals(before, reopened.conversations.value.single { it.id == group.id })
+            assertEquals(beforeMessages, reopened.messages(group.id).value)
+        } finally {
+            val editor = real.edit()
+            if (original == null) editor.remove("state_v1") else editor.putString("state_v1", original)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun failedPreferencesWriteMustNotAcknowledgePinOrChangeLiveState() {
         val base: Context = RuntimeEnvironment.getApplication()
         val real = base.getSharedPreferences("lulu_chat_store", Context.MODE_PRIVATE)
