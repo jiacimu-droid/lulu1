@@ -42,4 +42,31 @@ class RelicRouteThreatRecoveryTest {
         val respawned = defeated.copy(mobs = defeated.mobs.map { it.copy(hp = 5) })
         assertNull(RelicObjectiveGuide.knownRouteTiles(respawned, target))
     }
+    @Test fun openedChestInvalidatesPreviouslyDiscoveredRouteWithoutChangingInventory() {
+        val original = RelicEscapeWorld.create(916, 2, emptyList(), 1, 1)
+        val width = 12
+        val y = 2
+        val corridor = original.copy(
+            w = width,
+            h = 10,
+            tiles = List(width * 10) { index ->
+                if (index / width == y && index % width in 2..6) 0 else 1
+            },
+            hero = original.hero.copy(x = 2, y = y),
+            chests = listOf(RelicChest(32, 6, y, RelicTier.COMMON)),
+            mobs = emptyList(),
+            sites = emptyList(),
+            seen = (2..6).map { y * width + it }.toSet()
+        )
+        val target = RelicObjectiveGuide.visibleChest(corridor)!!
+        assertEquals(3, RelicObjectiveGuide.knownRouteSteps(corridor, target))
+        val opened = corridor.copy(chests = corridor.chests.map { it.copy(opened = true) })
+        assertNull(RelicObjectiveGuide.selectedVisible(opened, target.x, target.y))
+        assertNull(RelicObjectiveGuide.visibleChest(opened))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(opened, target))
+        assertEquals("路径未探明", RelicObjectiveGuide.optionLabel(opened, target))
+        assertEquals(corridor.carried, opened.carried)
+        assertEquals(corridor.hero, opened.hero)
+    }
+
 }
