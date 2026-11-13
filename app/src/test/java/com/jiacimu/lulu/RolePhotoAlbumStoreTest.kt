@@ -78,4 +78,24 @@ class RolePhotoAlbumStoreTest {
             pixels.recycle()
         }
     }
+    @Test fun mislabeledVirtualFrameMustNotBeArchivedAsVerifiedJpeg() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val characterId = "virtual-mime-" + UUID.randomUUID()
+        val pixels = Bitmap.createBitmap(24, 32, Bitmap.Config.ARGB_8888)
+        try {
+            val buffer = java.io.ByteArrayOutputStream()
+            assertTrue(pixels.compress(Bitmap.CompressFormat.PNG, 100, buffer))
+            val disguised = "data:image/jpeg;base64," +
+                java.util.Base64.getEncoder().encodeToString(buffer.toByteArray())
+            assertThrows(IllegalArgumentException::class.java) {
+                RolePhotoAlbumStore.recordVirtualScreenObservation(
+                    context, characterId, disguised, "com.example.target", 7,
+                    java.time.Instant.parse("2026-11-14T00:00:00Z"))
+            }
+            assertTrue(RolePhotoAlbumStore.list(context, characterId).isEmpty())
+        } finally {
+            pixels.recycle()
+        }
+    }
+
 }
