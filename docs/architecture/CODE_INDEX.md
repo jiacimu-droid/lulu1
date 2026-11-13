@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ebcc9579a5c59f1cc27912c2b266ec9dc957c269`
+- 基准提交：`c524eae3fcda6d18a838ed4a882813d720603bc6`
 - 分支：`main`
 - 已索引文件：1291
-- 已索引代码/文本行：272192
+- 已索引代码/文本行：272230
 - 已发现符号：3852
 
 | 文件 | 行数 | 符号数 |
@@ -527,7 +527,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 115 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 106 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1318 | 48 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1323 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
@@ -1049,7 +1049,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatGenerationActivityPhaseTest.kt` | 31 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt` | 290 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt` | 323 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 942 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt` | 35 | 1 |
