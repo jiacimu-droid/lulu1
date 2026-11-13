@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a32cdefe27775b543a72c24c743af50ff5166469`
+- 基准提交：`e7327fc9077bb2fe9bc43a2750d284d8b5f6f8b9`
 - 分支：`main`
-- 已索引文件：1289
-- 已索引代码/文本行：273290
+- 已索引文件：1288
+- 已索引代码/文本行：271748
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -65,7 +65,6 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/theater/wanxiang_mini_scenes.json` | 180 | 0 |
-| `app/src/main/assets/worldbook/Meowssiah-2.1.0.original.json` | 1495 | 0 |
 | `app/src/main/assets/worldbook/meowssiah_verbatim.json` | 15 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
@@ -1190,7 +1189,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 200 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 366 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 208 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 161 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 190 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 231 | 1 |

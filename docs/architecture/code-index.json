@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T04:46:59.189277+00:00",
-  "commit": "a32cdefe27775b543a72c24c743af50ff5166469",
+  "generatedAt": "2026-11-13T04:47:37.666810+00:00",
+  "commit": "e7327fc9077bb2fe9bc43a2750d284d8b5f6f8b9",
   "branch": "main",
-  "sourceFingerprint": "1cc9280bc42eb57756ec5e4789c92b3108c0a11c4e3c9962887459b9605eb03b",
+  "sourceFingerprint": "491defbafcfc5dd8049bddc1a572051b85c9aeefe22532196a06b7e61006ab7d",
   "summary": {
-    "files": 1289,
-    "lines": 273290,
+    "files": 1288,
+    "lines": 271748,
     "symbols": 3850
   },
   "symbolIndex": {
@@ -21770,12 +21770,6 @@
       "path": "app/src/main/assets/theater/wanxiang_mini_scenes.json",
       "lines": 180,
       "sha256": "a7c171eb97d3703ab60a22744d80d2814a1232aa998156699eac7c76643dff5a",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/assets/worldbook/Meowssiah-2.1.0.original.json",
-      "lines": 1495,
-      "sha256": "4b6f0737d854e8fb11c18e84b360e9bccb864367760f7f84dbd2ddc4ee67b59d",
       "symbols": []
     },
     {
@@ -44451,8 +44445,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
-      "lines": 208,
-      "sha256": "d2c48247e71b3acde85bcc6ff45a872f4d41da621a61eefebe9862b292581253",
+      "lines": 161,
+      "sha256": "672293736385f72c739503c677c9db64e025866d8a0dca2bd4369328adc8453a",
       "symbols": [
         {
           "name": "WorldBookJsonImporterTest",
