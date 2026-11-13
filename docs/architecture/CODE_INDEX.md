@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c3a0af048fc0054e20fe9650b56411e15a11a8f1`
+- 基准提交：`976347903ee0a74dc359ae2af4a1fb9026c074b4`
 - 分支：`main`
 - 已索引文件：1288
-- 已索引代码/文本行：271754
+- 已索引代码/文本行：271699
 - 已发现符号：3850
 
 | 文件 | 行数 | 符号数 |
@@ -106,7 +106,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 513 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 616 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 751 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 716 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -1189,7 +1189,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 200 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 366 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 161 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 141 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 190 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 231 | 1 |
