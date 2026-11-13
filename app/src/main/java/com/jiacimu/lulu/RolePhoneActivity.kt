@@ -53,7 +53,27 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
             val attempt = runCatching { JSONObject(event.content) }.getOrNull()
                 ?: return@mapNotNull null
             val tool = attempt.optString("tool")
-            val label = names[tool] ?: return@mapNotNull null
+            val category = names[tool] ?: return@mapNotNull null
+            val args = runCatching {
+                JSONObject(attempt.optString("fingerprint").substringAfter(':'))
+            }.getOrDefault(JSONObject())
+            val operation = when (args.optString("action").ifBlank { args.optString("op") }) {
+                "start" -> "启动"
+                "launch" -> "打开应用"
+                "observe", "inspect" -> "查看屏幕"
+                "tap_element" -> "点按控件"
+                "tap" -> "点按"
+                "swipe", "scroll" -> "滑动"
+                "back" -> "返回"
+                "type" -> "输入"
+                "focus_search" -> "定位搜索框"
+                "submit" -> "提交搜索"
+                "search" -> "搜索"
+                "stop" -> "停止"
+                else -> ""
+            }
+            val label = if (operation.isNotBlank() && tool in setOf("background_phone", "phone_ui"))
+                "$category · $operation" else category
             val result = attempt.optString("result").takeIf { it.isNotBlank() }?.let {
                 runCatching { JSONObject(it) }.getOrNull()
             }
@@ -68,7 +88,8 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                     "尚未确认成功 · " + result?.optString("verification")
                         .orEmpty().take(62).replace("\n", " ")
                 "observed", "captured" -> "已取得画面，任务结果仍需核实"
-                "succeeded", "completed" -> "工具已返回成功回执"
+                "succeeded", "completed" -> result?.optString("summary").orEmpty()
+                    .take(110).replace("\n", " ").ifBlank { "本步工具已返回成功回执" }
                 else -> "已留下工具执行回执 · ${status.ifBlank { "状态未知" }}"
             }
             val authored = attempt.optString("reason").replace("\n", " ").take(84)
@@ -81,8 +102,7 @@ private val ActivityTime = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
 internal fun RolePhoneActivitySection(roleId: String) {
-    // Keep the chat list close to the first viewport. The owner can reveal
-    // the remaining real action receipts instead of scrolling past them.
+    // This is an independent activity app. Do not hide the receipts in chat.
     var expanded by remember(roleId) { mutableStateOf(true) }
     val version by SharedExperienceTimeline.revisions.collectAsState()
     val history by produceState<List<InspectedPhoneAction>>(emptyList(), roleId, version) {
@@ -90,7 +110,14 @@ internal fun RolePhoneActivitySection(roleId: String) {
             inspectedPhoneActions(SharedExperienceTimeline.recentEvents(roleId, 350))
         } else emptyList()
     }
-    if (history.isEmpty()) return
+    if (history.isEmpty()) {
+        Box(Modifier.fillMaxWidth().padding(vertical = 45.dp),
+            contentAlignment = Alignment.Center) {
+            Text("还没有真实的手机操作记录",
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
