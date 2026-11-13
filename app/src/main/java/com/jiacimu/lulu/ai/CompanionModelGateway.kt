@@ -828,8 +828,10 @@ class CompanionModelGateway(
                 effectiveMode == CompanionContextMode.Ensemble)
                 CharacterClockAuthority.render(java.time.Instant.now(), java.time.ZoneId.systemDefault())
             else ""
+            // Keep variable wall-clock text AFTER stable persona, rules and memory
+            // for automatic provider/relay prefix caches. A changing clock at byte
+            // zero invalidates every otherwise-identical cached prefix each turn.
             val fixedSections = listOf(
-                "权威现实时钟" to authoritativeClock,
                 "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
                 "当前人物关系" to relationshipSection,
@@ -848,7 +850,8 @@ class CompanionModelGateway(
             // conversation/user messages still follow system, on all providers.
             val systemSections = topWorldBooks + fixedSections.dropLast(1) +
                 middleWorldBooks + fixedSections.takeLast(1) +
-                memorySections + conversationMaterials + bottomWorldBooks
+                memorySections + conversationMaterials +
+                listOf("权威现实时钟" to authoritativeClock) + bottomWorldBooks
             val systemPrompt = systemSections.map { it.second }.filter(String::isNotBlank).joinToString("\n\n")
             if (working == null) unifiedMemory.recordActualPrompt(renderedMemories)
             val userPrompt = if (dialogueRequest) conversation.last().content
