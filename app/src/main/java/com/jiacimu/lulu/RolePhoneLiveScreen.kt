@@ -196,12 +196,6 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
     var saving by remember(roleId) { mutableStateOf(false) }
     var autoRefresh by remember(roleId) { mutableStateOf(false) }
     var zoomOpen by remember(roleId) { mutableStateOf(false) }
-    var showTechnical by remember(roleId) { mutableStateOf(false) }
-    // Only the owner can change this local permission. It is never inferred
-    // from the model's declared intent, chat text or a third-party page.
-    var shoppingEnabled by remember(roleId) {
-        mutableStateOf(com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, roleId))
-    }
 
 
     suspend fun refresh() {
@@ -266,14 +260,12 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
     }
 
     Scaffold(
-        containerColor = PhoneCanvas,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("后台画面", fontWeight = FontWeight.SemiBold, fontSize = 19.sp)
-                        Text("$roleName · 只读查看", fontSize = 12.sp, color = PhoneMuted)
-                    }
+                    Text("$roleName 的屏幕", fontWeight = FontWeight.SemiBold, fontSize = 18.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
@@ -281,136 +273,112 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface),
+                    containerColor = MaterialTheme.colorScheme.background),
             )
         },
     ) { innerPadding ->
         Column(
-            Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
+            Modifier.fillMaxSize().padding(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(picture?.let { inspectedRunningAppName(it.frame.packageName) }
-                        ?: "当前画面", fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold, color = PhoneInk)
-                    Text(status, fontSize = 13.sp, color = PhoneMuted, maxLines = 2,
-                        overflow = TextOverflow.Ellipsis)
+                        ?: "此刻的画面", fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground)
+                    Text(if (busy) "正在读取…" else status,
+                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
-                TextButton(enabled = !busy && !saving, onClick = {
-                    scope.launch { refresh() }
-                }) {
-                    Icon(Icons.Outlined.Refresh, null, modifier = Modifier.size(19.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("刷新")
+                if (picture != null) {
+                    Text(picture!!.checkedAt.substringBeforeLast(':'),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
-
-            Surface(Modifier.fillMaxWidth().weight(1f),
-                color = Color(0xFF191B20), shape = RoundedCornerShape(22.dp)) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // The actual verified virtual screen is the visual centre, not a
+            // settings dashboard. Tapping it only zooms; it never taps the App.
+            Surface(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                shape = RoundedCornerShape(30.dp),
+                color = Color(0xFF16181D),
+            ) {
+                Box(Modifier.fillMaxSize().padding(7.dp),
+                    contentAlignment = Alignment.Center) {
                     if (picture != null) {
                         Image(
-                            picture!!.bitmap, contentDescription = "后台屏幕截图，点按全屏放大",
-                            modifier = Modifier.fillMaxSize().clickable { zoomOpen = true },
+                            bitmap = picture!!.bitmap,
+                            contentDescription = "角色正在使用的手机画面，点按可放大查看",
+                            modifier = Modifier.fillMaxSize()
+                                .clip(RoundedCornerShape(24.dp))
+                                .clickable { zoomOpen = true },
                             contentScale = ContentScale.Fit,
                         )
                         Surface(
                             onClick = { zoomOpen = true },
                             modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
+                            shape = RoundedCornerShape(50),
                             color = Color.Black.copy(alpha = 0.78f),
-                            shape = RoundedCornerShape(12.dp),
                         ) {
-                            Row(Modifier.padding(horizontal = 13.dp, vertical = 11.dp),
-                                verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Icon(Icons.Outlined.Fullscreen, null, tint = Color.White,
-                                    modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(5.dp))
-                                Text("放大查看", fontSize = 13.sp, color = Color.White)
+                                    modifier = Modifier.size(19.dp))
+                                Text("放大", color = Color.White, fontSize = 13.sp)
                             }
                         }
                     } else {
-                        Column(Modifier.padding(28.dp),
+                        Column(
+                            Modifier.padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
                             Icon(Icons.Outlined.PhoneAndroid, null,
-                                modifier = Modifier.size(47.dp), tint = Color.White.copy(alpha = 0.72f))
-                            Text(if (busy) "正在读取画面" else "暂时看不到后台屏",
-                                fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                            Text(
-                                if (busy) "正在核实独立虚拟屏…"
-                                else "需要角色已打开后台 App，且设备允许独立屏截图",
-                                fontSize = 13.sp, color = Color.White.copy(alpha = 0.68f),
-                            )
-                            if (!busy) Button(onClick = { scope.launch { refresh() } }) {
-                                Text("再试一次")
+                                modifier = Modifier.size(42.dp),
+                                tint = Color.White.copy(alpha = 0.65f))
+                            Text(if (busy) "正在打开画面" else "暂时没有可看的屏幕",
+                                color = Color.White, fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium)
+                            if (!busy) TextButton(onClick = { scope.launch { refresh() } }) {
+                                Text("重新查看", color = Color.White)
                             }
                         }
                     }
                 }
             }
-
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("授权角色帮我选购", color = PhoneInk, fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium)
-                        Text("选商品、规格、购物车与进入结算；付款由你亲自完成",
-                            color = PhoneMuted, fontSize = 11.sp)
-                    }
-                    Switch(checked = shoppingEnabled,
-                        enabled = roleId.isNotBlank() && !roleId.startsWith("resident:"),
-                        onCheckedChange = { allowed ->
-                            val saved = com.jiacimu.lulu.system.LuluShoppingAssistPolicy.setEnabled(
-                                context, roleId, allowed)
-                            if (saved) shoppingEnabled = allowed
-                            else status = "购物协助授权保存失败，权限未改变"
-                        })
-                }
-                if (shoppingEnabled) {
-                    Text("仍禁止支付、免密扣款、货到付款、提交/确认订单；" +
-                        "第三方支付页可能无法直接转移到主屏，可在商家 App 的待付款订单继续。",
-                        color = PhoneMuted, fontSize = 11.sp)
-                }
-            }
-
-            Row(Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically) {
-                Text("每 3 秒更新画面", color = PhoneInk, fontSize = 14.sp,
-                    modifier = Modifier.weight(1f))
-                Switch(checked = autoRefresh, enabled = !busy && picture != null,
-                    onCheckedChange = { autoRefresh = it })
-            }
-            Button(
-                enabled = picture != null && !busy && !saving,
-                onClick = { scope.launch { saveCurrent() } },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                shape = RoundedCornerShape(15.dp),
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(Icons.Outlined.SaveAlt, null, modifier = Modifier.size(19.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(if (saving) "保存中…" else "保存这张图到私聊")
+                IconButton(
+                    onClick = { scope.launch { refresh() } },
+                    enabled = !busy && !saving,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(Icons.Outlined.Refresh, contentDescription = "刷新当前屏幕")
+                }
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Text("连续查看", fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f), maxLines = 1)
+                    Switch(checked = autoRefresh,
+                        enabled = !busy && picture != null,
+                        onCheckedChange = { autoRefresh = it })
+                }
+                Button(
+                    enabled = picture != null && !busy && !saving,
+                    onClick = { scope.launch { saveCurrent() } },
+                    shape = RoundedCornerShape(15.dp),
+                    contentPadding = PaddingValues(horizontal = 13.dp, vertical = 12.dp),
+                ) {
+                    Icon(Icons.Outlined.SaveAlt, null, modifier = Modifier.size(17.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(if (saving) "保存中" else "存到聊天", fontSize = 13.sp,
+                        maxLines = 1)
+                }
             }
-            Text("主人保存的图片会单独标记，不代表角色主动分享。",
-                fontSize = 12.sp, color = PhoneMuted)
-            TextButton(onClick = { showTechnical = !showTechnical },
-                modifier = Modifier.fillMaxWidth()) {
-                Text(if (showTechnical) "收起技术信息" else "查看技术信息")
-                Icon(if (showTechnical) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                    null)
-            }
-            if (showTechnical) {
-                val current = picture?.frame
-                Text(
-                    if (current == null) "独立后台屏未核实；调试授权和连接请到角色设置查看。"
-                    else "屏幕 ID ${current.displayId} · ${current.packageName}\n" +
-                        "捕获时间 ${picture!!.checkedAt} · " +
-                        (if (current.newerThanPreviousCapture) "新帧" else "当前帧"),
-                    fontSize = 12.sp, color = PhoneMuted,
-                    modifier = Modifier.padding(bottom = 10.dp),
-                )
-            }
-            Spacer(Modifier.height(4.dp))
         }
     }
     if (zoomOpen && picture != null) {
