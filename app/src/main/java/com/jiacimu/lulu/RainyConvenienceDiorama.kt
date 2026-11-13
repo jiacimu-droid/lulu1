@@ -252,8 +252,8 @@ private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSu
         if (elapsed > 0.95f) drawRain(time)
         GLES20.glDepthMask(true)
         if (elapsed > 2.45f) {
-            drawImage(signTexture, 0.82f, 3.62f, 1.25f, 6.23f, 0.60f)
-            drawImage(vendingTexture, -3.31f, 1.13f, 2.92f, 0.85f, 2.05f)
+            drawImage(signTexture, 0.82f, 3.62f, 2.035f, 6.23f, 0.60f)
+            drawImage(vendingTexture, -3.31f, 1.13f, 2.971f, 0.85f, 2.05f)
         }
     }
 
@@ -364,7 +364,7 @@ private class RainyDioramaRenderer(private val camera: RainyDioramaOrbit) : GLSu
     ) = add(DioramaMesh.CYLINDER,x,y,z,diameter,height,diameter,c,stage,glow,rz = rz,rx = rx)
 
     private fun wheel(x: Number,y: Number,z: Number,diameter: Number,c: Int) =
-        add(DioramaMesh.RING,x,y,z,diameter,diameter,diameter,c,2,ry = 90f)
+        add(DioramaMesh.RING,x,y,z,diameter,diameter,diameter,c,2)
 
     private fun createScene() {
         val navy = 0x162636
