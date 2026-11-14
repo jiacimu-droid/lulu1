@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:09:36.367209+00:00",
-  "commit": "3bcca0954d69cb4fc26b9ef1d98a32df46348137",
+  "generatedAt": "2026-11-14T05:10:31.860962+00:00",
+  "commit": "e18729d43599b5890172dd2d6872ea8281c440e8",
   "branch": "main",
-  "sourceFingerprint": "aa936a7e7be920841b8427f9d64ef830bc5c8cba82d4f4906a9c440f0738ff63",
+  "sourceFingerprint": "d865a3cad966e64037470c7d426400693a45a268ecf807d9d89520ee73881951",
   "summary": {
-    "files": 1308,
-    "lines": 276097,
-    "symbols": 3895
+    "files": 1311,
+    "lines": 276315,
+    "symbols": 3906
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1075,7 +1075,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 645
+        "line": 692
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -9254,6 +9254,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
         "line": 94
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
+        "line": 42
       }
     ],
     "beginReading": [
@@ -9756,6 +9760,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
         "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
+        "line": 22
       }
     ],
     "fromJson": [
@@ -9774,6 +9782,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
         "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
+        "line": 53
       }
     ],
     "stat": [
@@ -14792,88 +14804,118 @@
         "line": 148
       }
     ],
-    "setPlayWithCharacter": [
+    "yachtMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 155
+        "line": 158
       }
     ],
-    "selectCharacter": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 157
-      }
-    ],
-    "selectCharacters": [
+    "openYachtMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
         "line": 162
       }
     ],
+    "saveYachtMatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 175
+      }
+    ],
+    "restartYachtMatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 183
+      }
+    ],
+    "activeGameContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 196
+      }
+    ],
+    "setPlayWithCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 198
+      }
+    ],
+    "selectCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 200
+      }
+    ],
+    "selectCharacters": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 205
+      }
+    ],
     "openMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 173
+        "line": 216
       }
     ],
     "openCharacterMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 178
+        "line": 221
       }
     ],
     "closeUnmatchedCards": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 226
+        "line": 269
       }
     ],
     "resetMemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 242
+        "line": 285
       }
     ],
     "answerMood": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 244
+        "line": 287
       }
     ],
     "resetMoodGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 258
+        "line": 301
       }
     ],
     "recordExternalGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 260
+        "line": 303
       }
     ],
     "playAutonomousGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 338
+        "line": 384
       }
     ],
     "attachCharacterReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 497
+        "line": 543
       }
     ],
     "clearRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 515
+        "line": 561
       }
     ],
     "LuluGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 640
+        "line": 687
       }
     ],
     "Home": [
@@ -15224,6 +15266,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
         "line": 19
+      }
+    ],
+    "forPhase": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt",
+        "line": 11
+      }
+    ],
+    "defaultFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt",
+        "line": 14
       }
     ],
     "nextVisible": [
@@ -16933,7 +16987,7 @@
     "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 54
+        "line": 67
       }
     ],
     "canObserve": [
@@ -21344,6 +21398,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
         "line": 5
+      }
+    ],
+    "RelicMenuSectionsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMenuSectionsTest.kt",
+        "line": 7
       }
     ],
     "RelicObjectiveRouteTest": [
@@ -36469,8 +36529,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 650,
-      "sha256": "b248264fe2f77372e2566380575d404e5a7be1684b56053794d598634a733334",
+      "lines": 697,
+      "sha256": "24b40838f7e62ef990786a091b9add905e19ac10f563b22a9e6074c3d2b973e0",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -36521,64 +36581,84 @@
           "line": 148
         },
         {
-          "name": "setPlayWithCharacter",
-          "line": 155
+          "name": "yachtMatch",
+          "line": 158
         },
         {
-          "name": "selectCharacter",
-          "line": 157
-        },
-        {
-          "name": "selectCharacters",
+          "name": "openYachtMatch",
           "line": 162
         },
         {
+          "name": "saveYachtMatch",
+          "line": 175
+        },
+        {
+          "name": "restartYachtMatch",
+          "line": 183
+        },
+        {
+          "name": "activeGameContext",
+          "line": 196
+        },
+        {
+          "name": "setPlayWithCharacter",
+          "line": 198
+        },
+        {
+          "name": "selectCharacter",
+          "line": 200
+        },
+        {
+          "name": "selectCharacters",
+          "line": 205
+        },
+        {
           "name": "openMemoryCard",
-          "line": 173
+          "line": 216
         },
         {
           "name": "openCharacterMemoryCard",
-          "line": 178
+          "line": 221
         },
         {
           "name": "closeUnmatchedCards",
-          "line": 226
+          "line": 269
         },
         {
           "name": "resetMemoryMatch",
-          "line": 242
+          "line": 285
         },
         {
           "name": "answerMood",
-          "line": 244
+          "line": 287
         },
         {
           "name": "resetMoodGuess",
-          "line": 258
+          "line": 301
         },
         {
           "name": "recordExternalGame",
-          "line": 260
+          "line": 303
         },
         {
           "name": "playAutonomousGame",
-          "line": 338
+          "line": 384
         },
         {
           "name": "attachCharacterReply",
-          "line": 497
+          "line": 543
         },
         {
           "name": "clearRecords",
-          "line": 515
+          "line": 561
         },
         {
           "name": "LuluGames",
-          "line": 640
+          "line": 687
         },
         {
           "name": "initialize",
-          "line": 645
+          "line": 692
         }
       ]
     },
@@ -37105,6 +37185,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt",
+      "lines": 17,
+      "sha256": "1af9d4dc33c6d4711be7c72fc6c4ccce6eb0fa576bdf8ffb17d3cf7538355d7f",
+      "symbols": [
+        {
+          "name": "forPhase",
+          "line": 11
+        },
+        {
+          "name": "defaultFor",
+          "line": 14
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
       "lines": 130,
       "sha256": "5d7c1840191052b598bd3511ff276a158d972527770a1a786e948294eb3aca34",
@@ -37250,6 +37345,25 @@
         {
           "name": "clear",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
+      "lines": 89,
+      "sha256": "b1b7125fb457f2734ce89d132cda514b738781f8c19d06fcda5cbb1e98e0fe4c",
+      "symbols": [
+        {
+          "name": "toJson",
+          "line": 22
+        },
+        {
+          "name": "contextFor",
+          "line": 42
+        },
+        {
+          "name": "fromJson",
+          "line": 53
         }
       ]
     },
@@ -38491,7 +38605,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
       "lines": 1186,
-      "sha256": "0e32c66138ca4b35f69aacc461c05632564d462c7854a16ab9a740589bcc751e",
+      "sha256": "59210c41eb25ee667fd660c051d31fff6404ce5e098cbd2c765b2d79430f3380",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -39067,12 +39181,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 112,
-      "sha256": "ca32e8390ecfa1cbe1fbb43b3601d53fe8ff759ef313112c15d85d032615e1b9",
+      "lines": 125,
+      "sha256": "221cb4d7791688bbc95e1124c407044001bdbe29ce863fa0b1fb90b7a9d01ffb",
       "symbols": [
         {
           "name": "clipboardTimestamp",
-          "line": 54
+          "line": 67
         }
       ]
     },
@@ -45517,6 +45631,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMenuSectionsTest.kt",
+      "lines": 28,
+      "sha256": "004df9aae70719cf2ac7a090dbaca2152ac02564d730da1859a1e49f7d46dd6d",
+      "symbols": [
+        {
+          "name": "RelicMenuSectionsTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
       "lines": 172,
       "sha256": "9f1ed76f822faa5978d23dc13c5ae917067d2ffb90c7caa93ed8d490ae8f41cf",
@@ -45977,8 +46102,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
-      "lines": 142,
-      "sha256": "e27759b5eea3ab5352def94eebdbe30fab83641a6de740ab78a5e06534103b11",
+      "lines": 166,
+      "sha256": "6f8188385963dc961cd22121ad8945ebe9a6ff0a8e4eba3e8e2dc92f510be1ee",
       "symbols": [
         {
           "name": "LuluShoppingLinkShareTest",
