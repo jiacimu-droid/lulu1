@@ -266,6 +266,16 @@ internal object RelicEscapeRules {
 
     /** Player opening takes multiple persisted, dangerous world turns. */
     fun openSteps(chest:RelicChest):Int = 4+(chest.visibleGrade/2)
+    /** Only genuine saved pry turns may advance an exceptional violet→gold→red→prism reveal. */
+    fun openingGlowGrade(run:RelicRun,chest:RelicChest):Int {
+        val baseline=chest.visibleGrade
+        val progress=run.chestProgress[chest.id] ?: 0
+        val midpoint=openSteps(chest)/2
+        if(progress<midpoint)return baseline
+        val result=treasure(run,chest).grade
+        if(result !in 0..6 || result<=baseline)return baseline
+        return (baseline+progress-midpoint+1).coerceAtMost(result)
+    }
     fun treasure(s:RelicRun,c:RelicChest):RelicLoot {
         if(c.grade in 0..6) {
             // The grade rises only on a seeded exceptional draw, never rerolls on taps/restart.
