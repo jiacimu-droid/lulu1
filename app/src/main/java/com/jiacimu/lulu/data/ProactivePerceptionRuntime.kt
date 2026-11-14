@@ -1845,9 +1845,9 @@ object ProactivePerceptionRuntime {
                 "source=${onlineUnread.messageIds.lastOrNull().orEmpty()};" +
                 "action=${decision.action.name};bubbles=${decision.text.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank)};" +
                 "textChars=${decision.text.length};plannerJson=${initialDecision != null};repaired=${recoveredDecision != null}")
-        // The very SAME autonomous decision chooses attention and outward action.
-        // Commit the online choice first so a chosen message is sent while awake;
-        // a new user wake or call supersedes this older expiry atomically.
+        // The online choice can include several ordered tools. Settle actual
+        // sleep only AFTER those tools have returned independent receipts.
+        var settleSleepAfterActions = false
         if (onlineExpiryAtMillis > 0L) {
             val currentGoal = CharacterLifeStore.state(characterId).optJSONObject("intention")
             val hasContinuingGoal = CharacterMotiveState.active(
@@ -1896,12 +1896,9 @@ object ProactivePerceptionRuntime {
             val newerWindow = !keptAwake &&
                 CompanionOnlineStore.states.value[characterId]
                     ?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
-            if (!keptAwake && !newerWindow && decision.onlineChoice == "sleep" &&
-                decision.onlineChoiceReason.isNotBlank() && sleepHandoff.ok) {
-                // This records the role's own decision, but actual resting is
-                // settled only after the ongoing tool/expiry work has ended.
-                CompanionOnlineStore.acceptSleepAtExpiry(characterId, onlineExpiryAtMillis)
-            }
+            settleSleepAfterActions = !keptAwake && !newerWindow &&
+                decision.onlineChoice == "sleep" &&
+                decision.onlineChoiceReason.isNotBlank() && sleepHandoff.ok
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 when {
@@ -2324,6 +2321,20 @@ object ProactivePerceptionRuntime {
                 (System.nanoTime() - actionStartedNanos) / 1_000_000L,
                 "含实际设备动作、工具后续和可能的气泡入库",
                 traceId = turnTraceId)
+        }
+        if (settleSleepAfterActions) {
+            val requestedHome = OnlineContinuationPolicy.requestedReturnHome(
+                if (decision.action == Action.DIGITAL_WORLD) decision.worldAction else "",
+                decision.sideActions)
+            val home = DigitalWorldStore.homeLocation(characterId)
+            val actual = DigitalWorldStore.locationOf(characterId)
+            if (OnlineContinuationPolicy.maySettleRestAtLocation(requestedHome, actual, home)) {
+                CompanionOnlineStore.acceptSleepAtExpiry(characterId, onlineExpiryAtMillis)
+            } else {
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "本人选了先回家再休眠，但实际回家动作未完成；不得记作已回家休息。",
+                    Instant.now())
+            }
         }
         // The SAME paid role decision already interpreted the fresh user's
         // commitments. Only model-authored, typed, source-grounded changes
