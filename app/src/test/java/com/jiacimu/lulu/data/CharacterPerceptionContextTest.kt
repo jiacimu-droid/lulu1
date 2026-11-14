@@ -410,6 +410,50 @@ class CharacterPerceptionContextTest {
         assertTrue(actual.single().content.contains("不能由挂断单独推断"))
     }
 
+
+    @Test fun roleHangupIsSavedButNeverCountsAsNewOwnerPerception() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        val role = "own-call-end-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        val ownCall = "own-" + java.util.UUID.randomUUID()
+        val userCall = "owner-" + java.util.UUID.randomUUID()
+        val ownId = "interaction-call-end-$ownCall"
+        val userId = "interaction-call-end-$userCall"
+        try {
+            assertFalse(InteractionSignalBridge.shouldStartPostCallPerception(true))
+            assertTrue(InteractionSignalBridge.shouldStartPostCallPerception(false))
+            InteractionSignalBridge.recordCallEnd(role, ownCall, true, 120, 2, 10, now.minusSeconds(10))
+            val own = SharedExperienceTimeline.eventsByIds(role, listOf(ownId)).single()
+            assertEquals(EventEvidenceKind.Observation, own.evidenceKind)
+            assertEquals("角色挂断通话", own.speaker)
+            assertTrue(InteractionSignalBridge.isRoleInitiatedCallEnd(own))
+            assertFalse(CharacterCausalAppraisalStage.eligible(own))
+            assertFalse(ownId in CharacterPerceptionContext.selectRecent(listOf(own), now).map { it.id })
+            assertFalse(ownId in CharacterPerceptionContext.pending(app, role, now).map { it.id })
+            assertTrue(CharacterPerceptionContext.stimulus(own).socialIds.isEmpty())
+            // An older APK saved the same device fact with a generic speaker.
+            // Upgrading must not buy a belated appraisal for that old hangup.
+            val legacy = own.copy(speaker = "通话操作")
+            assertTrue(InteractionSignalBridge.isRoleInitiatedCallEnd(legacy))
+            assertFalse(CharacterCausalAppraisalStage.eligible(legacy))
+            assertTrue(CharacterPerceptionContext.selectRecent(listOf(legacy), now).isEmpty())
+
+            InteractionSignalBridge.recordCallEnd(role, userCall, false, 130, 2, 4, now.minusSeconds(5))
+            val owner = SharedExperienceTimeline.eventsByIds(role, listOf(userId)).single()
+            assertEquals("用户挂断通话", owner.speaker)
+            assertFalse(InteractionSignalBridge.isRoleInitiatedCallEnd(owner))
+            assertTrue(CharacterCausalAppraisalStage.eligible(owner))
+            assertEquals(listOf(userId), CharacterPerceptionContext.pending(app, role, now).map { it.id })
+            assertEquals(setOf("user"), CharacterPerceptionContext.stimulus(owner).socialIds)
+            assertEquals(listOf(ownId, userId),
+                SharedExperienceTimeline.eventsByIds(role, listOf(ownId, userId)).map { it.id })
+        } finally {
+            SharedExperienceTimeline.deleteEvent(ownId)
+            SharedExperienceTimeline.deleteEvent(userId)
+        }
+    }
+
     @Test fun connectedVideoReceiptsPersistWithoutClaimingAccessToTheUsersCamera() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         UserProfileContext.initialize(app)
