@@ -2232,16 +2232,19 @@ internal object LuluVoiceCallSession {
             mutableState.value.callExperienceId == id &&
             mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         val selectedSttEngine = CallVoiceConfiguration.sttEngine(context)
-        val selectedElevenPath = CallVoiceConfiguration.elevenInputPath(
-            selectedSttEngine,
+        val selectedElevenModel = CallVoiceConfiguration.elevenSttModel(
             context.getSharedPreferences("lulu_advanced_settings", 0)
                 .getString("eleven_asr_model", null),
+        )
+        val selectedElevenPath = CallVoiceConfiguration.elevenInputPath(
+            selectedSttEngine, selectedElevenModel,
         )
         val scribeRealtime =
             selectedElevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME
         providerInput = ProviderCallInput(context, scope,
             sttEngine = selectedSttEngine,
             elevenPath = selectedElevenPath,
+            elevenModel = selectedElevenModel,
             // Listen throughout model/TTS preparation. Audible playback owns
             // its turn on all output routes, as requested by the user.
             accept = {
