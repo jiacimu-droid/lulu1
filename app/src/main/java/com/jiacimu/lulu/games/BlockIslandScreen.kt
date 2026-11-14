@@ -95,6 +95,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
     var showIslandGuideDialog by remember { mutableStateOf(false) }
+    // Only the very first arrival shows the walkthrough; every later visit can
+    // reopen it using the fixed HUD guide without interrupting gameplay.
+    LaunchedEffect(world.seed) {
+        if(!preferences.getBoolean("island_first_play_guide_shown_v1",false)) {
+            showIslandGuideDialog=true
+            preferences.edit().putBoolean("island_first_play_guide_shown_v1",true).apply()
+        }
+    }
     var islandGuideTab by rememberSaveable { mutableStateOf("入门") }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
