@@ -223,25 +223,50 @@ internal object LuluBackgroundPhoneSession {
         return if (checked.needsHuman) checked.takeoverReason ?: "manual_verification" else null
     }
 
-    private suspend fun windowGate(displayId: Int, targetApp: String): JSONObject =
-        withContext(Dispatchers.Main) {
+    /** Resolve brief Android window handoffs locally, without charging another
+     * model call or issuing any input. Never wait through a system dialog or
+     * different application's window: those must go back to the role/user. */
+    private suspend fun windowGate(displayId: Int, targetApp: String): JSONObject {
+        var gate = withContext(Dispatchers.Main) {
             LuluAccessibilityService.virtualWindowStatus(displayId, targetApp)
         }
+        repeat(4) {
+            if (!LuluVirtualWindowPolicy.canRetryReadOnly(
+                    gate.optString("kind"), gate.optString("windowDiagnostic"))) return gate
+            kotlinx.coroutines.delay(200)
+            gate = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualWindowStatus(displayId, targetApp)
+            }
+        }
+        return gate
+    }
 
     /** A picker, permission layer or another app is not permission to
      * click an underlying window. We never move the owner's task ourselves. */
     private fun pausedWindowReceipt(displayId: Int, gate: JSONObject): String {
         val kind = gate.optString("kind", "unknown")
         val manual = kind == "system_dialog" || kind == "other_app"
+        val diagnostic = gate.optString("windowDiagnostic")
         val reason = when (kind) {
             "system_dialog" -> "后台屏有系统选择器、权限或其他覆盖弹窗，不能点击底下的目标 App；需要主人确认"
             "other_app" -> "目标 App 已跳转到其他应用，未核实同一任务归属；已暂停以防触碰主屏"
-            else -> "后台当前窗口暂时不可核实；未执行操作，可稍后只读观察"
+            else -> when (diagnostic) {
+                "accessibility_disconnected" -> "无障碍服务未连接；后台屏内容不可核实，请检查本机服务状态"
+                "unsupported_sdk", "invalid_display" -> "独立后台屏不可用；请检查设备或显示会话"
+                "target_unspecified" -> "尚未确认目标应用，不能读取其他应用的窗口"
+                "no_window" -> "独立屏暂时没有可观察的应用窗口；可以稍后只读观察"
+                "root_unreadable", "package_unreadable" -> "独立屏有窗口但暂时不能核实应用归属；可以稍后只读观察"
+                else -> "后台窗口归属暂时不可核实；不可点击或输入，可再只读观察"
+            }
         }
         return JSONObject().put("success", false)
             .put("status", if (manual) "waiting_user" else "unverified")
+            .put("errorCode", if (manual) "window_takeover" else "window_unverified")
             .put("mode", "independent_virtual_display").put("displayId", displayId)
             .put("windowKind", kind)
+            .put("windowDiagnostic", diagnostic)
+            .put("readOnlyReobserveAllowed",
+                LuluVirtualWindowPolicy.canRetryReadOnly(kind, diagnostic))
             .put("actualPackage", gate.optString("actualPackage").take(160))
             .put("needsHuman", manual)
             .put("targetWindowVerified", false).put("accepted", false)
