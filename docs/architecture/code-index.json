@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:54:55.735567+00:00",
-  "commit": "05c916f2ae706b7794e4838f3b3097c206c30d0b",
+  "generatedAt": "2026-11-14T15:56:35.692337+00:00",
+  "commit": "ff754c4041f7934406b2b8c346b0ce0e8efee7b5",
   "branch": "main",
-  "sourceFingerprint": "7fd98e9c113e14ba60ae64e5e7683c764020e326dcf2bd99e6e8229fca75800c",
+  "sourceFingerprint": "33ecc627efc75dba037aab9c1a10fe89e5101ffd94caf35cea8298682b0ecac3",
   "summary": {
-    "files": 1318,
-    "lines": 279578,
-    "symbols": 3937
+    "files": 1319,
+    "lines": 279604,
+    "symbols": 3939
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16950,6 +16950,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
         "line": 26
+      }
+    ],
+    "isGranted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt",
+        "line": 14
+      }
+    ],
+    "setGranted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt",
+        "line": 19
       }
     ],
     "LuluScreenAwareness": [
@@ -39293,6 +39305,21 @@
         {
           "name": "duration",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt",
+      "lines": 26,
+      "sha256": "98c154cad92de4737479d75a2bbc0b9a5516e8bbd1c67c9c50668ba73388579a",
+      "symbols": [
+        {
+          "name": "isGranted",
+          "line": 14
+        },
+        {
+          "name": "setGranted",
+          "line": 19
         }
       ]
     },
