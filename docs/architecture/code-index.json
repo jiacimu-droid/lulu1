@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:16:25.832852+00:00",
-  "commit": "b0831e1c3f7787e32feb8258a178724194467c59",
+  "generatedAt": "2026-11-14T05:17:36.077149+00:00",
+  "commit": "29a474283c89a5376df6401f57ee2e63348dde33",
   "branch": "main",
-  "sourceFingerprint": "d92e1d9363fe56d0c95ed9622a0df8ac28186f2d5ff2a30414f95c071ecbfb58",
+  "sourceFingerprint": "14e849d5504086f643ba622047aff92e909333d0de781b22e8faf49972ac54b6",
   "summary": {
     "files": 1311,
-    "lines": 276655,
+    "lines": 276766,
     "symbols": 3911
   },
   "symbolIndex": {
@@ -403,7 +403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 501
+        "line": 559
       }
     ],
     "replyTextPrefix": [
@@ -2443,7 +2443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 544
+        "line": 602
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
@@ -14161,7 +14161,7 @@
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 520
+        "line": 578
       }
     ],
     "nextRound": [
@@ -15035,7 +15035,7 @@
     "LuluGamesAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "acted": [
@@ -25299,8 +25299,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1235,
-      "sha256": "4352862b7f90c949ef6dbc550f8c31c474a090c73937b46daa1ca34491a79eb8",
+      "lines": 1239,
+      "sha256": "d1abcb2852e4f05c9871b3ea03cacd24709d26fc978b33a886678b1b06bc0863",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -35530,8 +35530,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 335,
-      "sha256": "5dc88e2d99f589bc4f2f8887192484dfe4cf6c059042380d254e68b7a7cc4f4d",
+      "lines": 341,
+      "sha256": "cf039bd79dab4c6fd4569b5e084ecbf3172cbaaa9b7f802ecc0313bf8c0d5b7b",
       "symbols": []
     },
     {
@@ -35642,8 +35642,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 647,
-      "sha256": "fc9972c4676f76c75070f8a20e74b14c0430178741a998bf006b2ddd6392ab9e",
+      "lines": 705,
+      "sha256": "d061dbb5289597df1756db79453096f60787fb0833333d81644facff94704698",
       "symbols": [
         {
           "name": "persistMatch",
@@ -35667,15 +35667,15 @@
         },
         {
           "name": "finish",
-          "line": 501
+          "line": 559
         },
         {
           "name": "place",
-          "line": 520
+          "line": 578
         },
         {
           "name": "reset",
-          "line": 544
+          "line": 602
         }
       ]
     },
@@ -36777,12 +36777,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 674,
-      "sha256": "7edf94889aa7d8f969b93cbde3be7fc8e0f2f6eefa3ffdc5aa39afeffdfc58c2",
+      "lines": 676,
+      "sha256": "1af57ec82b7c9e61f75f9ce233bee82c473f3059a07425106d98b11db7b02780",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
-          "line": 31
+          "line": 33
         }
       ]
     },
@@ -37055,8 +37055,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
-      "lines": 401,
-      "sha256": "c293fa0851fe9e1a87a039ab86a9803e857c5e592a68590557f924d03afcdf56",
+      "lines": 442,
+      "sha256": "d5545eafb3ad93554080a57264355f15b166b45c6eb2111df4a8a00d57ef956e",
       "symbols": []
     },
     {
