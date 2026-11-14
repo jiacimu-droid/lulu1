@@ -982,7 +982,11 @@ internal object LuluVoiceCallSession {
                     (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1_000L
                     else current.elapsedSeconds,
             )
-            appContext?.let { context ->
+            // A role-initiated end completes its own earlier decision; it is
+            // not another owner interaction requiring a new paid appraisal.
+            // Keep the timeline receipt, but only an OWNER hangup schedules
+            // immediate perception or a durable WorkManager fallback.
+            if (InteractionSignalBridge.shouldStartPostCallPerception(endedByCharacter)) appContext?.let { context ->
                 ProactivePerceptionScheduler.scheduleInteractionReflection(context, current.characterId, cueId)
                 // The app is still alive immediately after the user hangs up.
                 // Run the same authoritative pipeline now so that opening the
