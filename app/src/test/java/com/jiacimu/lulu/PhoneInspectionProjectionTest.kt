@@ -64,10 +64,12 @@ class PhoneInspectionProjectionTest {
         assertEquals("公开昵称", inspectedOwnerContactName("", "公开昵称"))
         assertEquals("主人", inspectedOwnerContactName(" ", ""))
 
-        val renamed = inspectedThreads("a", chats, nativeMail, emptyMap(), "佳辞")
+        val renamed = inspectedThreads("a", chats, nativeMail, emptyMap(),
+            inspectedOwnerContactName("佳辞", "主人"))
         assertEquals("佳辞（主人）", renamed.single { it.key == "chat:owner-a" }.title)
         assertEquals("好友群", renamed.single { it.key == "chat:group" }.title)
-        val unchanged = inspectedThreads("a", chats, nativeMail, emptyMap(), "另一个备注")
+        val unchanged = inspectedThreads("a", chats, nativeMail, emptyMap(),
+            inspectedOwnerContactName("另一个备注", "主人"))
         assertEquals("另一个备注（主人）", unchanged.single { it.key == "chat:owner-a" }.title)
         assertEquals("佳辞（主人）", renamed.single { it.key == "chat:owner-a" }.title)
         assertEquals("阿辞", inspectedOwnerContactName("阿辞", "阿辞"))
