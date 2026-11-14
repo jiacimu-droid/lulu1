@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:00:31.135523+00:00",
-  "commit": "9285d59c1e5fd51185c78feaf1b5edd2f83bba16",
+  "generatedAt": "2026-11-14T04:01:03.546288+00:00",
+  "commit": "90183f7df35c989a14d58a9e39c45341d56f9558",
   "branch": "main",
-  "sourceFingerprint": "0919600cbb367984903f7f0b349a2fbaca3438155fc154f6defc038aac16d6c0",
+  "sourceFingerprint": "de46657638f6e643d891fa7c2e97f5ff99de46a797b007fb885a0a1cb80c4e55",
   "summary": {
     "files": 1306,
     "lines": 275302,
@@ -39091,7 +39091,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
       "lines": 56,
-      "sha256": "e076e95df50469184eb00903646dbd43ac1fd56f22660a0fd8778266a1dbe51e",
+      "sha256": "dfb99cd1792e66d9c64148e38aba72decf2f0a2789ef624a135dc7db751d2e45",
       "symbols": [
         {
           "name": "isEnabled",
