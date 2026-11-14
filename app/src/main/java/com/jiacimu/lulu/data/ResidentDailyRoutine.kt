@@ -59,6 +59,13 @@ internal object ResidentDailyRoutine {
         return planWithDaily(person, at, zone, daily)
     }
 
+    /** Keep an already visited home overnight; it is a location fact, not proof of
+     * the host agreeing to a sleepover or the resident actually falling asleep. */
+    private fun defaultNightLocation(person: DigitalWorldResident): String =
+        person.currentLocationCode.takeIf {
+            it.startsWith("home:") || it.startsWith("resident-home:")
+        } ?: person.homeLocationCode
+
     /** Pure planner used by the world clock and tests. Duty is a world fact,
      * leisure belongs to the resident. An absent decision cannot invent
      * a wish to visit the cafe or create an encounter. */
@@ -79,7 +86,7 @@ internal object ResidentDailyRoutine {
             // may now select a lunch break or evening outing instead of being
             // discarded by the all-day-shift early return.
             return when {
-                minute < 9 * 60 -> Plan("home", person.homeLocationCode, "下班休息")
+                minute < 9 * 60 -> Plan("home", defaultNightLocation(person), "下班休息")
                 minute < 12 * 60 + offset -> Plan("morning", DigitalWorldPublicPlaces.CAFE,
                     "经营咖啡角、接待真实在场的顾客")
                 minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
@@ -89,21 +96,19 @@ internal object ResidentDailyRoutine {
                     "进入下班后的自由活动时段", intendedActivity = eveningActivity)
                 minute < 21 * 60 -> Plan("late_shift", DigitalWorldPublicPlaces.CAFE,
                     "回到咖啡角继续工作")
-                else -> Plan("home", person.homeLocationCode, "下班休息")
+                else -> Plan("home", defaultNightLocation(person), "下班休息")
             }
         }
         // Stable duty hours coexist with self-chosen leisure; different
         // resident breaks remain staggered without simulating extra dialogue.
         return when {
-            minute < 8 * 60 -> Plan("night", person.homeLocationCode, "在家休息")
+            minute < 8 * 60 -> Plan("night", defaultNightLocation(person), "在真实所在住宅休息")
             minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), shiftActivity(person))
             minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
             minute < 18 * 60 -> Plan("afternoon", dutyPlace(person), shiftActivity(person))
             minute < 19 * 60 + offset -> Plan("evening", eveningPlace,
                 "进入下班后的自由活动时段", intendedActivity = eveningActivity)
-            else -> Plan("home", if (person.currentLocationCode.startsWith("home:") ||
-                person.currentLocationCode.startsWith("resident-home:"))
-                person.currentLocationCode else person.homeLocationCode,
+            else -> Plan("home", defaultNightLocation(person),
                 "结束当日工作；在真实所在住宅休息，不能把休眠等同于瞬移")
         }
     }
