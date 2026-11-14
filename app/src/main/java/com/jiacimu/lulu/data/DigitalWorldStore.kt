@@ -206,11 +206,15 @@ object DigitalWorldStore {
         if (!characterId.startsWith("resident:") ||
             !DigitalWorldExpansionStore.isExistingLocation(nativeLocation)) return false
         synchronized(lock) {
-            if (mutable.value.characterLocations[characterId] == nativeLocation) return true
+            val from = mutable.value.characterLocations[characterId]
+            if (from == nativeLocation) return true
             mutable.value = mutable.value.copy(characterLocations =
                 mutable.value.characterLocations + (characterId to nativeLocation))
+            val name = MigratedDomainStores.characters.settings.value[characterId]?.displayName
+                ?: DigitalWorldExpansionStore.residents().firstOrNull { "resident:${it.id}" == characterId }?.name
+                ?: "原住民"
             appendEventLocked(characterId, "native_resident_location",
-                "原住民的真实位置更新：$nativeLocation", at)
+                "$name 从${from?.let(::locationLabel) ?: "未记录地点"}到了${locationLabel(nativeLocation)}。", at)
             persistLocked()
             return true
         }
@@ -283,21 +287,22 @@ object DigitalWorldStore {
         val character = MigratedDomainStores.characters.get(characterId)
         ensureHome(characterId, character.displayName, now)
         val summary = synchronized(lock) {
+            val from = locationLabel(locationOf(characterId))
             when (normalizedAction) {
                 "go_home" -> {
                     setLocationLocked(characterId, homeLocation(characterId))
-                    "${character.displayName}回到了自己的空中家园。"
+                    "${character.displayName}从$from 回到了自己的空中家园。"
                 }
                 "visit_cloud_meadow" -> {
                     setLocationLocked(characterId, CLOUD_MEADOW)
-                    "${character.displayName}来到了共享区域云眠原。"
+                    "${character.displayName}从$from 来到了共享区域云眠原。"
                 }
                 "visit_public_place" -> {
                     val requested = args.optString("locationCode").trim()
                     val place = DigitalWorldPublicPlaces.all.firstOrNull { it.code == requested || it.label == requested }
                         ?: error("没有找到这个数字世界公共地点")
                     setLocationLocked(characterId, place.code)
-                    "${character.displayName}去了${place.label}，准备${place.subtitle.replace(" · ", "、")}。"
+                    "${character.displayName}从$from 去了${place.label}，准备${place.subtitle.replace(" · ", "、")}。"
                 }
                 "build_home_item" -> {
                     require(locationOf(characterId) == homeLocation(characterId)) { "只有回到自己家中才能建设家具" }
