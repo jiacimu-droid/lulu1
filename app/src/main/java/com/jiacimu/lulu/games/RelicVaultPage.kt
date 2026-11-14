@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -102,12 +103,20 @@ internal fun RelicVaultPage(
             }
             items(inventory,key={it.id}) { item ->
                 val color=RelicTreasureGallery.accent(item)
-                Surface(onClick={selectedId=item.id},color=Color(0xFF1C2A36),
+                Surface(onClick={selectedId=item.id},
+                    color=if(selected?.id==item.id) Color(0xFF283A46) else Color(0xFF1C2A36),
                     shape=RoundedCornerShape(11.dp),
                     border=BorderStroke(1.dp,color.copy(
                         alpha=if(selected?.id==item.id).78f else .18f))) {
-                    Row(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=10.dp),
+                    Row(Modifier.fillMaxWidth().heightIn(min=72.dp)
+                        .padding(horizontal=10.dp,vertical=8.dp),
                         verticalAlignment=Alignment.CenterVertically) {
+                        // A gallery is for looking: show each *owned* item's real
+                        // authored silhouette before its title and price.
+                        Box(Modifier.size(53.dp).clip(RoundedCornerShape(10.dp))) {
+                            RelicTreasureGalleryThumbnail(item,Modifier.fillMaxSize())
+                        }
+                        Spacer(Modifier.width(11.dp))
                         Column(Modifier.weight(1f)) {
                             Text((if(item.id==snapshot.featuredLootId)"✦ " else "")+item.name,
                                 fontSize=13.sp,color=museumInk,maxLines=1,
