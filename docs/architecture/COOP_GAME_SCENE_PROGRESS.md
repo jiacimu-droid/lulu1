@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-15 · G-03.5 · 地图点选与摇杆中心互动一致（源码/回归已提交，CI/真机待验）
+
+- **根因**：正式地图点击相邻宝箱后，中心互动仍只读旧摇杆朝向；若朝向另一只箱，玩家点选目标与真实撬锁对象不一致。既有 `relicQuickAction` 已具备合法目标与物理动作判定，不另建规则。
+- **本轮**：`7822e74` 在 `RelicQuickAction.kt` 让已选中的合法近距离实体互动优先，远距离/空地不越权；`09a12c0` 将 `RelicEscapeScreen.kt` 的真实 `selected` 接入中心键；`b95ffdc` 新增双宝箱不同朝向、真实撬锁只推进选中箱、远处选择回退的回归。源码 blob `e14d19ad`、`637136b8`；测试 blob `abf5c3a9`。不改变掉率、实体结算、模型自主性或长按摇杆纯移动。
+- **CI 与下一入口**：`09a12c0` 对应 main push Lulu APK [#43655340356](https://github.com/jiacimu-droid/lulu1/actions/runs/43655340356) 查询时 pending；`b95ffdc` 尚无可确认的 JVM/APK/index 成功证据。下一轮先查该测试 `centerInteractionHonorsTappedNearbyChestBeforeJoystickFacing` 的 JVM 首错，再在 Redmi 横屏检查点击左侧箱→中心互动不误撬右侧箱、触控/遮挡/FPS；真机与真实模型未验。
+
 ### 2026-11-14 · G-02/G-03 · 原世界游戏语音和队伍对话接入统一时间线（源码及回归已提交，CI/真机待验）
 
 - **现状核验**：快艇骰子有真实结算入 `SharedExperienceTimeline`，小岛和摸金有邀请/开局/部分执行及结算证据；但 `IslandCompanionPanel` / `RelicCompanionPanel` 的玩家队伍发言及角色回应以前仅进局内临时状态，`CharacterAndScenario` 游戏模型不会自动召回普通 `Full` 上下文的近期时间线。现阶段麦克风是 `RecognizerIntent` 按次发言，不是免按键全双工电话。
