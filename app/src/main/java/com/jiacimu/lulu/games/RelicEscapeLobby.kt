@@ -239,16 +239,11 @@ internal fun RelicEscapeLobby(
                         RelicLobbyPanel {
                             Text("七档珍宝 · 从常见到传世",
                                 color=campGold,fontSize=16.sp,fontWeight=FontWeight.Bold)
-                            listOf(
-                                "普通" to "◇70–99",
-                                "精良" to "◇100–132",
-                                "稀有" to "◇185–247",
-                                "珍贵" to "◇430–459",
-                                "史诗" to "◇460–492",
-                                "传说" to "封印之心 ◇650起",
-                                "传世秘宝" to "晨星之核 ◇6000"
-                            ).forEach { (rank,value) ->
-                                val tone=RelicTreasureGallery.rankAccent(rank)
+                            RelicQuality.entries.forEachIndexed { index, quality ->
+                                val rank=quality.label
+                                val value="◇"+quality.minimum+
+                                    (if(quality.spread==1)"" else "–"+(quality.minimum+quality.spread-1))
+                                val tone=relicGradeColor(index)
                                 Row(Modifier.fillMaxWidth().padding(vertical=2.dp),
                                     verticalAlignment=Alignment.CenterVertically) {
                                     Text("◆ "+rank,color=tone,fontSize=12.sp,
@@ -257,7 +252,7 @@ internal fun RelicEscapeLobby(
                                     Text(value,color=campMuted,fontSize=11.sp)
                                 }
                             }
-                            Text("七档是藏品展示价值，不是七种宝箱。宝箱仍按普通、稀有、珍贵三类生成；成功撤离才永久入库。",
+                            Text("新探险真实生成七色宝箱；连续撬锁时有机会升阶变光，但敌人也会行动。撤离成功才能永久入库。",
                                 color=campMuted,fontSize=11.sp,lineHeight=17.sp)
                         }
                     }
