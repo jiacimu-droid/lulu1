@@ -12,6 +12,19 @@ import java.time.Instant
 internal object InteractionSignalBridge {
     const val SOURCE = "interaction-signal"
 
+    /** A role's completed hangup is an action receipt, not a fresh user stimulus.
+     * Old releases wrote both initiators under the same generic speaker, so
+     * recognize that fixed historical device wording without interpreting chat.
+     */
+    fun isRoleInitiatedCallEnd(event: SharedTimelineEvent): Boolean =
+        event.source == SOURCE && event.id.startsWith("interaction-call-end-") &&
+            (event.speaker == "角色挂断通话" || event.content.startsWith("这通电话由角色结束。"))
+
+    /** A user-initiated disconnect is new witnessed input. The role's own
+     * already-decided hangup must not purchase another complete model decision.
+     */
+    fun shouldStartPostCallPerception(endedByCharacter: Boolean): Boolean = !endedByCharacter
+
     /**
      * "Not transcribed" is a technical observation. It does not prove the user
      * was intentionally silent, sleeping, upset or away from the device.
@@ -292,7 +305,7 @@ internal object InteractionSignalBridge {
             eventId = id,
             characterId = characterId,
             channel = "电话互动",
-            speaker = "通话操作",
+            speaker = if (endedByCharacter) "角色挂断通话" else "用户挂断通话",
             content = callEndDescription(
                 endedByCharacter, elapsedSeconds, confirmedUserSpeechCount, secondsSinceConfirmedSpeech,
             ) + callMediaSummary(characterId, callId, endsInVideo),
