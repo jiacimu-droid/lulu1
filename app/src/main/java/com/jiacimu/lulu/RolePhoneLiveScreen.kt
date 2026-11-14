@@ -226,6 +226,9 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
     }
 
     suspend fun saveCurrent() {
+        // Multiple queued taps can start separate coroutines before Compose disables
+        // the button. Only the first may commit a chat attachment.
+        if (saving || busy) return
         val selected = picture ?: return
         saving = true
         try {
