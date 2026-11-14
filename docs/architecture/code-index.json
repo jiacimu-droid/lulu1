@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T11:35:59.948838+00:00",
-  "commit": "34d084f9ad40bfaa4bfa5936a53c24c7182899a8",
+  "generatedAt": "2026-11-14T11:36:34.477909+00:00",
+  "commit": "ef61ab6aa7eada991ccc2621bef9605beca3ae42",
   "branch": "main",
-  "sourceFingerprint": "f6b27c8e65a16c6946a89ee07afbf75f664803a9998d126ea6e3a6d5e9de4ab1",
+  "sourceFingerprint": "0d230a44715be15ed526a58f800133a3e2ec6230308e083d58b73c8dafdc83e5",
   "summary": {
-    "files": 1314,
-    "lines": 278224,
-    "symbols": 3926
+    "files": 1315,
+    "lines": 278288,
+    "symbols": 3927
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21360,6 +21360,12 @@
         "line": 14
       }
     ],
+    "GameTeamConversationTimelineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt",
+        "line": 16
+      }
+    ],
     "IslandActorPlayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
@@ -29636,7 +29642,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1943,
-      "sha256": "98933ff057d1acaef7de4e75e1f4c92bc03a01c3ea0f003013d87f3b393d429d",
+      "sha256": "8ebb6d2751ee727611698419ae64b6e8d5778c7f8bc392623ccaec2da2a67bdc",
       "symbols": [
         {
           "name": "asJson",
@@ -45555,6 +45561,17 @@
         {
           "name": "GameOrientationPolicyTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt",
+      "lines": 64,
+      "sha256": "2bfff2f7014fe700226268498a7189dd8fc44f9a73a34a669c691caeb6b5a6e9",
+      "symbols": [
+        {
+          "name": "GameTeamConversationTimelineTest",
+          "line": 16
         }
       ]
     },
