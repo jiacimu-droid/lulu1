@@ -110,4 +110,41 @@ class YachtMatchContinuityTest {
         assertEquals(match.id, id)
         assertEquals(1, store.state.value.records.size)
     }
+    @Test fun onlyCharacterOwnedSoloPlayOffersProcessReplay() {
+        fun record(shared: Boolean = false, autonomous: Boolean = false, summary: String = "结果已结算") =
+            LuluGameRecord(
+                type = LuluGameType.YachtDice,
+                title = "快艇骰子",
+                score = 99,
+                rewardCoins = 0,
+                characterId = "jiangdu",
+                playedWithCharacter = shared,
+                characterSolo = autonomous,
+                summary = summary,
+            )
+
+        assertFalse(record(shared = true).canWatchCharacterSoloProcess())
+        assertFalse(record(shared = true, autonomous = true).canWatchCharacterSoloProcess())
+        // A human's own single-player game is not evidence of a character's actions.
+        assertFalse(record().canWatchCharacterSoloProcess())
+        assertTrue(record(autonomous = true).canWatchCharacterSoloProcess())
+        // Old autonomous Yacht records predate the explicit provenance flag.
+        assertTrue(record(summary = "独自完成一局快艇骰子：13轮").canWatchCharacterSoloProcess())
+        assertFalse(record(summary = "你自己玩完了快艇骰子").canWatchCharacterSoloProcess())
+    }
+
+    @Test fun characterSoloProvenancePersistsAcrossAppReload() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        context.getSharedPreferences("lulu_games", 0).edit().clear().commit()
+        val store = LuluGameStore(context)
+        val role = "role-" + java.util.UUID.randomUUID()
+        val result = store.playAutonomousGame(characterId = role, gameId = "yacht_dice")
+        assertNotNull(result)
+        val stored = LuluGameStore(context).state.value.records.single { it.id == result!!.recordId }
+        assertTrue(stored.characterSolo)
+        assertFalse(stored.playedWithCharacter)
+        assertTrue(stored.canWatchCharacterSoloProcess())
+    }
+
+
 }
