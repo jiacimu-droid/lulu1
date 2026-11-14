@@ -70,6 +70,16 @@ class RelicQuickActionTest {
             quick.x,quick.y,quick.id)
         assertTrue(opened.chests.first { it.id==chest.id }.opened)
         assertTrue(opened.hero.bag.any { it.id==nearby.id+":chest:"+chest.id })
+        // The reveal must be backed by the same committed physical loot,
+        // not merely by the chest animation or a previous inventory item.
+        val receipt = RelicChestPresentation.committed(current, opened, chest.id)
+        assertNotNull(receipt)
+        assertEquals(opened.id, receipt!!.runId)
+        assertEquals(chest.id, receipt.chestId)
+        assertTrue(receipt.inBag)
+        assertTrue(opened.hero.bag.contains(receipt.loot))
+        assertTrue(RelicChestPresentation.isCurrentOpening(opened, chest.id, receipt))
+        assertNull(RelicChestPresentation.committed(opened, opened, chest.id))
         assertNotEquals("open",relicQuickAction(opened,chest.x to chest.y)?.action)
         assertEquals("open",RelicChestPresentation.playerAction(opened,
             "open",chest.x,chest.y))
