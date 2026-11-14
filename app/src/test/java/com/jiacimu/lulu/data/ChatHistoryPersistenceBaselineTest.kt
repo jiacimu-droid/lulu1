@@ -49,6 +49,74 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+    /**
+     * UI-02.2: updating an existing incident must not acknowledge an edit
+     * that SharedPreferences refused to persist. The previous receipt remains
+     * visible both in the active store and after reopening.
+     */
+    @Test fun rejectedIncidentUpdatePreservesOriginalReceiptAndReopenedHistory() {
+        val previous = prefs.getString(key, null)
+        try {
+            assertTrue(prefs.edit().remove(key).commit())
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val original = store.appendPrivateActivityNotice(
+                "ui02-character", "原始事件回执", "incident-rejected-ui02"
+            )
+            val durableBefore = prefs.getString(key, null)
+            val field = InMemoryLuluChatStore::class.java.getDeclaredField("prefs")
+                .apply { isAccessible = true }
+            val actual = field.get(store) as android.content.SharedPreferences
+            val rejecting = java.lang.reflect.Proxy.newProxyInstance(
+                actual.javaClass.classLoader,
+                arrayOf(android.content.SharedPreferences::class.java),
+            ) { _, method, args ->
+                if (method.name != "edit") method.invoke(actual, *(args ?: emptyArray()))
+                else {
+                    val editor = actual.edit()
+                    lateinit var proxy: android.content.SharedPreferences.Editor
+                    proxy = java.lang.reflect.Proxy.newProxyInstance(
+                        editor.javaClass.classLoader,
+                        arrayOf(android.content.SharedPreferences.Editor::class.java),
+                    ) { _, editorMethod, editorArgs ->
+                        when (editorMethod.name) {
+                            "commit" -> false
+                            "apply" -> error("Incident updates must commit durably")
+                            else -> {
+                                val value = editorMethod.invoke(editor, *(editorArgs ?: emptyArray()))
+                                if (value === editor) proxy else value
+                            }
+                        }
+                    } as android.content.SharedPreferences.Editor
+                    proxy
+                }
+            } as android.content.SharedPreferences
+            field.set(store, rejecting)
+            try {
+                assertTrue(runCatching {
+                    store.appendPrivateActivityNotice(
+                        "ui02-character", "未持久化的新事件", "incident-rejected-ui02"
+                    )
+                }.isFailure)
+                assertEquals(original, store.messages(original.conversationId).value.first {
+                    it.id == original.id
+                })
+                assertEquals(durableBefore, prefs.getString(key, null))
+            } finally {
+                field.set(store, actual)
+            }
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertEquals(original.content, reopened.messages(original.conversationId).value.first {
+                it.id == original.id
+            }.content)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            assertTrue(editor.commit())
+        }
+    }
+
     @Test fun thousandAndTenThousandMessagesWriteAndReopenWithoutLoss() {
         for (count in listOf(1_000, 10_000)) measure(count)
     }
