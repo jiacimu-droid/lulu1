@@ -142,6 +142,11 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             onBack = { pendingRoute = null },
             onConfirm = { selected ->
                 store.selectCharacters(selected)
+                if (target == GameRoute.YachtDice) {
+                    // Choosing a new roster explicitly starts a new match; incomplete
+                    // matches bypass the picker above and always retain their data.
+                    store.restartYachtMatch(selected)
+                }
                 pendingRoute = null
                 route = target
             },
@@ -233,8 +238,11 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route !in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
-                    if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape) route = target
-                    else pendingRoute = target
+                    // A notification/chat jump is never a concession: resume the exact same
+                    // player roster and scores instead of opening a new participant picker.
+                    if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape ||
+                        (target == GameRoute.YachtDice && store.yachtMatch()?.completed == false)
+                    ) route = target else pendingRoute = target
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.BlockIsland -> BlockIslandEntry(store)
@@ -375,6 +383,7 @@ private fun GameHome(
         GameLauncher("yacht_dice", "快艇骰子", "五颗骰子掷三次，可单人也可多人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
     )
     var showClassics by remember { mutableStateOf(true) }
+    val unfinishedYacht = LuluGames.store.yachtMatch()?.takeUnless { it.completed }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(Color(0xFF111620)),
@@ -382,6 +391,33 @@ private fun GameHome(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         item { GameHallHero() }
+        if (unfinishedYacht != null) {
+            item {
+                val played = unfinishedYacht.scores["user"].orEmpty().size
+                val opponentCount = unfinishedYacht.companionIds.size
+                Surface(
+                    onClick = { onOpen(GameRoute.YachtDice) },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFF233A3D),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, Color(0xFF9BE6D8).copy(alpha = .45f)),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("未完待续 · 快艇骰子", color = Color(0xFF9BE6D8),
+                                fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("你已完成 $played/13 轮 · ${if (opponentCount == 0) "单人" else "与 $opponentCount 位角色对战"}",
+                                color = Color.White, fontSize = 12.sp)
+                        }
+                        Text("继续对局 ›", color = Color(0xFF9BE6D8),
+                            fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
+                }
+            }
+        }
         item { DeepSeaFeaturedEntry(deepSea, onOpen) }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
