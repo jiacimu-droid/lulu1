@@ -153,6 +153,49 @@ class LuluGameStore internal constructor(context: Context) {
     private val mutableState = MutableStateFlow(loadState())
     val state: StateFlow<LuluGameState> = mutableState.asStateFlow()
 
+    /** Unfinished Yacht play survives chat navigation, activity recreation and process death. */
+    @Synchronized
+    fun yachtMatch(): YachtMatchSnapshot? =
+        YachtMatchSnapshot.fromJson(prefs.getString(KEY_YACHT_MATCH, null))
+
+    @Synchronized
+    fun openYachtMatch(): YachtMatchSnapshot {
+        yachtMatch()?.let { return it }
+        val snapshot = mutableState.value
+        val companions = if (snapshot.playWithCharacter) snapshot.selectedCharacterIds.distinct().take(3)
+            else emptyList()
+        val match = YachtMatchSnapshot(companionIds = companions)
+        check(prefs.edit().putString(KEY_YACHT_MATCH, match.toJson()).commit()) {
+            "无法保存快艇对局，已拒绝开始以避免丢失进度"
+        }
+        return match
+    }
+
+    @Synchronized
+    fun saveYachtMatch(next: YachtMatchSnapshot) {
+        if (yachtMatch()?.id != next.id) return
+        check(prefs.edit().putString(KEY_YACHT_MATCH, next.toJson()).commit()) {
+            "快艇对局保存失败，请勿退出当前游戏"
+        }
+    }
+
+    @Synchronized
+    fun restartYachtMatch(): YachtMatchSnapshot {
+        val previous = yachtMatch()
+        val match = YachtMatchSnapshot(
+            companionIds = previous?.companionIds
+                ?: mutableState.value.selectedCharacterIds.takeIf { mutableState.value.playWithCharacter }.orEmpty(),
+        )
+        check(prefs.edit().putString(KEY_YACHT_MATCH, match.toJson()).commit()) {
+            "新对局保存失败"
+        }
+        return match
+    }
+
+    /** Read-only, participant-scoped live state; never invent a completed result. */
+    fun activeGameContext(characterId: String): String =
+        yachtMatch()?.contextFor(characterId).orEmpty()
+
     fun setPlayWithCharacter(enabled: Boolean) = mutate { it.copy(playWithCharacter = enabled) }
 
     fun selectCharacter(characterId: String) {
@@ -268,9 +311,12 @@ class LuluGameStore internal constructor(context: Context) {
         characterIdOverride: String? = null,
         playedWithCharacterOverride: Boolean? = null,
         createdAtOverride: Instant? = null,
+        recordIdOverride: String? = null,
     ): String {
+        if (recordIdOverride != null && mutableState.value.records.any { it.id == recordIdOverride }) return recordIdOverride
         val snapshot = mutableState.value
         val record = LuluGameRecord(
+            id = recordIdOverride ?: UUID.randomUUID().toString(),
             type = type,
             title = title,
             score = score.coerceAtLeast(0),
@@ -615,6 +661,7 @@ class LuluGameStore internal constructor(context: Context) {
 
     private companion object {
         const val PREFS_NAME = "lulu_games"
+        const val KEY_YACHT_MATCH = "yacht_match_snapshot_v1"
         const val KEY_STATE = "state"
         const val MAX_RECORDS = 200
     }
