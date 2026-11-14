@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Phone-specific Scribe v2 Realtime transport. It is NOT an ElevenLabs Agent,
+ * Phone-specific Scribe v2 Realtime / v3 Live transport. It is NOT an ElevenLabs Agent,
  * a TTS engine, or a delayed /speech-to-text upload disguised as realtime.
  *
  * Continuous 16 kHz PCM reaches Scribe, including quiet syllables and silence.
@@ -40,6 +40,7 @@ internal class ElevenLabsRealtimeStt(
     private val onPartial: (String) -> Unit,
     private val onText: (String) -> Unit,
     private val onError: (String) -> Unit,
+    private val modelId: String = CallVoiceConfiguration.SCRIBE_V2_REALTIME,
     private val endpoint: String = "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
     private val socketFactory: WebSocket.Factory? = null,
 ) {
@@ -72,10 +73,11 @@ internal class ElevenLabsRealtimeStt(
 
     fun start() {
         check(apiKey.isNotBlank()) { "请先配置 ElevenLabs API Key" }
+        require(CallVoiceConfiguration.isElevenRealtime(modelId)) { "不支持的实时识别模型：$modelId" }
         val request = Request.Builder()
             .url(endpoint +
-                "?model_id=scribe_v2_realtime&audio_format=pcm_16000" +
-                "&language_code=zh&commit_strategy=vad&keepalive_interval_ms=3000" +
+                "?model_id=$modelId&audio_format=pcm_16000" +
+                "&language_code=zh&commit_strategy=${CallVoiceConfiguration.realtimeCommitStrategy(modelId)}&keepalive_interval_ms=3000" +
                 "&vad_threshold=0.3&vad_silence_threshold_secs=${endSilenceMs.coerceIn(1450, 3000) / 1000.0}" +
                 "&min_speech_duration_ms=100&min_silence_duration_ms=100")
             .header("xi-api-key", apiKey)
