@@ -310,6 +310,21 @@ class RelicQuickActionTest {
         assertTrue(relicAttackHint(scene, distant.x to distant.y).contains("靠近"))
     }
 
+    @Test fun explicitlySelectedEmptyTileNeverRedirectsAttackToNearbyEnemy() {
+        val base = run()
+        val h = base.hero
+        val near = RelicMob(805, h.x + 1, h.y, 5, 0)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            mobs = listOf(near),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val empty = h.x to (h.y + 1)
+        assertTrue(scene.mobs.none { it.x == empty.first && it.y == empty.second })
+        assertNull(relicAttackTarget(scene, empty))
+        assertEquals(near.id, relicAttackTarget(scene, h.x to h.y)?.id)
+        assertEquals(near.id, relicAttackTarget(scene, near.x to near.y)?.id)
+    }
+
     @Test fun defeatedSelectedEnemyNeverRedirectsAttackToAnotherLivingEnemy() {
         val base = run()
         val h = base.hero
