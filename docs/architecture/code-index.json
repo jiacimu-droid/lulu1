@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:31:50.184541+00:00",
-  "commit": "53d7855fbf6961766cf20a8e239348ead95c5ceb",
+  "generatedAt": "2026-11-14T05:32:22.635096+00:00",
+  "commit": "b0fe5eb086a3b5640b941945f6eb1e861a576380",
   "branch": "main",
-  "sourceFingerprint": "bdaa9850672b51606315b09a6c7353f008241bd19f1fd13122fb426d575a913b",
+  "sourceFingerprint": "63cc7623c924766872df0a89af5e0b65792e80231f3eb7d77b6661f267fdd218",
   "summary": {
     "files": 1312,
-    "lines": 276976,
-    "symbols": 3909
+    "lines": 277013,
+    "symbols": 3910
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2296,6 +2296,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
         "line": 121
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
+        "line": 114
       }
     ],
     "attemptReload": [
@@ -45735,12 +45739,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
-      "lines": 114,
-      "sha256": "49f71f208924b90aea8673c0d21b510aaa40d0898b3b216603120a85b3e29ba2",
+      "lines": 151,
+      "sha256": "7b16cab478a8c352246f2ee65a3584d677e0fa7fb348880e97c52c29dd823c48",
       "symbols": [
         {
           "name": "YachtMatchContinuityTest",
           "line": 13
+        },
+        {
+          "name": "record",
+          "line": 114
         }
       ]
     },
