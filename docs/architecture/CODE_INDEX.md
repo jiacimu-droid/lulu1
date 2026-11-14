@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9a4c537279769639bff159bd567dbac98944cb19`
+- 基准提交：`e06e7f61cc64cc33e5104e7ac11e1ec9b08c264c`
 - 分支：`main`
 - 已索引文件：1312
-- 已索引代码/文本行：276899
+- 已索引代码/文本行：276924
 - 已发现符号：3908
 
 | 文件 | 行数 | 符号数 |
@@ -400,7 +400,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 138 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 377 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 321 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 324 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 855 | 1 |
@@ -1229,7 +1229,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 36 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |

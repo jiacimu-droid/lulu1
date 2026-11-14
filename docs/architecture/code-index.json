@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:20:55.460407+00:00",
-  "commit": "9a4c537279769639bff159bd567dbac98944cb19",
+  "generatedAt": "2026-11-14T05:21:48.063495+00:00",
+  "commit": "e06e7f61cc64cc33e5104e7ac11e1ec9b08c264c",
   "branch": "main",
-  "sourceFingerprint": "c23342ddd9c1636be1caf8fc46e21b1c37a1fe2a8fafe9f8b277d952dcb7f74d",
+  "sourceFingerprint": "33e9a2622eb005370829c2d328a10eaf230d8696393df9320195bf1b7c8c00fd",
   "summary": {
     "files": 1312,
-    "lines": 276899,
+    "lines": 276924,
     "symbols": 3908
   },
   "symbolIndex": {
@@ -3989,7 +3989,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 305
+        "line": 308
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -4335,7 +4335,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 188
+        "line": 191
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -7701,13 +7701,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 181
+        "line": 184
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 289
+        "line": 292
       }
     ],
     "keepOrBlank": [
@@ -21247,7 +21247,7 @@
     "GameInvitationContinuityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "GameJoystickDirectionTest": [
@@ -28466,8 +28466,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 321,
-      "sha256": "52053cd63585da1f1f73ce428b623cc5243511ea15104ea57d54fcc2af8887f4",
+      "lines": 324,
+      "sha256": "b163de52c8385e84c2032f9015517a49fcd9ee680db2b3a2d957e0a35cd4d7d7",
       "symbols": [
         {
           "name": "integrate",
@@ -28495,19 +28495,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 181
+          "line": 184
         },
         {
           "name": "pending",
-          "line": 188
+          "line": 191
         },
         {
           "name": "stimulus",
-          "line": 289
+          "line": 292
         },
         {
           "name": "render",
-          "line": 305
+          "line": 308
         }
       ]
     },
@@ -35625,7 +35625,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
       "lines": 720,
-      "sha256": "8c51a1a02881343b0dec2a2fcd3f9fdfe22b21757f19fd5ef9969d64d185c7b2",
+      "sha256": "db3ba4e0600afd0e49e4d69f5fdf147a257cd71f902dd646be101c8113480621",
       "symbols": [
         {
           "name": "persistMatch",
@@ -45347,12 +45347,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 72,
-      "sha256": "a379338eea6a00d9f8310d5f86e9aa982169646bbe54021b4778bcc3ce821cf7",
+      "lines": 94,
+      "sha256": "c969b89c12e820bdf05dd99f40a69cfc1dd88b1491c8f9a28b3f47ce01515465",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
-          "line": 16
+          "line": 17
         }
       ]
     },
