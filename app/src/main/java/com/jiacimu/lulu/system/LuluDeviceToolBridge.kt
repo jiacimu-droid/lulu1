@@ -529,6 +529,8 @@ object LuluDeviceToolBridge {
                 }
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(characterId, observedWorld))
+                runCatching { com.jiacimu.lulu.games.LuluGames.store.activeGameContext(characterId) }
+                    .getOrDefault("").takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.briefContext(characterId, now))
                 appendLine(com.jiacimu.lulu.data.CharacterUnfinishedActionContext.context(appContext, characterId, now))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
