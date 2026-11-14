@@ -9,6 +9,25 @@ import org.json.JSONObject
  * This policy only validates transport fields; it never chooses an action.
  */
 internal object LuluBackgroundPhoneArgumentPolicy {
+    // The action contract is shared by the model's main turn and the background
+    // continuation loop. Unknown actions are rejected as model arguments,
+    // never as broken shell transport (which would discard a valid display).
+    private val supportedActions = setOf(
+        "start", "launch", "tap", "tap_element", "swipe", "back",
+        "type", "focus_search", "submit", "search", "send_chat_message",
+        "observe", "stop",
+    )
+
+    fun isSupportedAction(action: String): Boolean = action in supportedActions
+
+    private fun unsupportedActionReason(action: String): String =
+        "后台手机 args.action=${action.ifBlank { "（缺失）" }.take(64)} 不在支持的操作中。" +
+            "要打开微信等已安装App，请明确选择 " +
+            "args={\"action\":\"launch\",\"appName\":\"微信\"}；" +
+            "只创建虚拟屏用start，读取已有页面用observe；" +
+            "其他可选操作为tap/tap_element/swipe/back/type/focus_search/submit/search/" +
+            "send_chat_message/stop。动作不合法时没有操作手机，保留已有会话。" 
+
     private fun integer(args: JSONObject, key: String): Int? {
         val raw = args.opt(key)
         return when (raw) {
@@ -33,7 +52,9 @@ internal object LuluBackgroundPhoneArgumentPolicy {
                 "；请根据当前后台画面重新给出完整坐标"
     }
 
-    fun invalidReason(action: String, args: JSONObject): String? = when (action) {
+    fun invalidReason(action: String, args: JSONObject): String? {
+        if (!isSupportedAction(action)) return unsupportedActionReason(action)
+        return when (action) {
         "tap" -> coordinateError(args, listOf("x", "y"))
         "swipe" -> coordinateError(args, listOf("startX", "startY", "endX", "endY"))
             ?: if (args.has("durationMs") &&
@@ -55,5 +76,6 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             args.optString("appName").isBlank())
             "launch 必须提供已安装应用的准确 packageName 或 appName" else null
         else -> null
+        }
     }
 }
