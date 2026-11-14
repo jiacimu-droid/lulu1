@@ -86,7 +86,8 @@ internal object CharacterEverydaySocialContext {
         // decision, not a second social model request or a fabricated memory.
         val accessibleThreads = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
             .asSequence().filter { it.comments.isNotEmpty() }
-            .sortedByDescending { it.lastActivityAt }.toList()
+            .sortedByDescending { it.lastActivityAt }
+            .take(24).toList() // Read-only prompt candidates; never truncates stored posts or action rights.
         // ACL visibility is not firsthand knowledge. Keep earlier conversations
         // only if the viewer actually read the post, owns it, or personally
         // authored a still-valid comment. Batch the original timeline IDs so
