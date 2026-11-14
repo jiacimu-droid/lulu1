@@ -157,18 +157,22 @@ object LuluShellDisplayMain {
                 cmd.optString("launchComponent")) ?: error("missing explicit launcher component")
             check(component.packageName == pkg) { "launcher package mismatch" }
             val frameBarrier = discardPreActionFrames()
-            val ok = run(listOf("am", "start", "--display", id.toString(),
+            val launchResult = run(listOf("am", "start", "--display", id.toString(),
                 "-n", component.flattenToString(),
                 "-a", "android.intent.action.MAIN",
                 "-c", "android.intent.category.LAUNCHER"))
-            if (ok) {
+            if (launchResult.accepted) {
                 targetPackage = pkg
                 pendingActionFrameBarrierNanos = frameBarrier
                 pendingActionNeedsFrame = true
             }
-            return JSONObject().put("success", false).put("accepted", ok)
+            return JSONObject().put("success", false).put("accepted", launchResult.accepted)
                 .put("displayId", id).put("targetPackage", pkg)
-                .put("verification", "launch dispatched; observe actual screen next")
+                .put("errorCode", if (launchResult.accepted) "" else "shell_launch_rejected")
+                .put("error", if (launchResult.accepted) "" else launchResult.failure)
+                .put("verification", if (launchResult.accepted)
+                    "launch dispatched; observe actual screen next"
+                    else "虚拟屏启动应用被系统拒绝：${launchResult.failure}")
         }
         check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
         val args = when (action) {
@@ -186,14 +190,18 @@ object LuluShellDisplayMain {
             else -> error("unsupported virtual display operation")
         }
         val frameBarrier = discardPreActionFrames()
-        val sent = run(args)
-        if (sent) {
+        val dispatched = run(args)
+        if (dispatched.accepted) {
             pendingActionFrameBarrierNanos = frameBarrier
             pendingActionNeedsFrame = true
         }
-        return JSONObject().put("success", false).put("accepted", sent)
+        return JSONObject().put("success", false).put("accepted", dispatched.accepted)
             .put("displayId", id).put("targetPackage", targetPackage)
-            .put("verification", "input sent only to virtual display; completion unverified")
+            .put("errorCode", if (dispatched.accepted) "" else "shell_input_rejected")
+            .put("error", if (dispatched.accepted) "" else dispatched.failure)
+            .put("verification", if (dispatched.accepted)
+                "input sent only to virtual display; completion unverified"
+                else "虚拟屏输入未被系统接受：${dispatched.failure}")
     }
 
     private fun point(json: JSONObject, key: String, dimension: Int): Int {
@@ -202,11 +210,37 @@ object LuluShellDisplayMain {
         return ((dimension - 1L) * n / 1000).toInt()
     }
 
-    private fun run(args: List<String>): Boolean {
+    private data class ShellDispatch(val accepted: Boolean, val failure: String = "")
+
+    /** Android's am sometimes exits 0 while printing "Error: Activity class
+     * does not exist". Never claim the launch was accepted in that case. */
+    internal fun shellCommandSucceeded(exitCode: Int, output: String): Boolean =
+        exitCode == 0 && !Regex(
+            "(?im)^\\s*(?:Error:|Error type\\s+\\d+|Exception occurred|" +
+                "SecurityException:|Permission Denial:|Failure \\[)"
+        ).containsMatchIn(output)
+
+    private fun run(args: List<String>): ShellDispatch {
         val child = ProcessBuilder(args).redirectErrorStream(true).start()
         val ended = child.waitFor(7, TimeUnit.SECONDS)
-        if (!ended) child.destroyForcibly()
-        return ended && child.exitValue() == 0
+        if (!ended) {
+            child.destroyForcibly()
+            child.waitFor(1, TimeUnit.SECONDS)
+        }
+        // All commands are fixed shell actions without user text; preserve the
+        // bounded Android failure detail, never the user's screen or chat body.
+        val output = runCatching {
+            child.inputStream.bufferedReader().use { it.readText().take(400) }
+        }.getOrDefault("")
+        val exitCode = if (ended) child.exitValue() else -1
+        val accepted = ended && shellCommandSucceeded(exitCode, output)
+        val diagnostic = when {
+            accepted -> ""
+            !ended -> "shell subprocess timed out"
+            output.isNotBlank() -> "exit=$exitCode；${output.replace('\\n', ' ').take(280)}"
+            else -> "shell subprocess exit=$exitCode"
+        }
+        return ShellDispatch(accepted, diagnostic)
     }
 
     /**
