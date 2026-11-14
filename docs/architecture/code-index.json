@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:02:06.041086+00:00",
-  "commit": "ba97475e10e4c2781d3738134f4e3e5f0abe6d5b",
+  "generatedAt": "2026-11-14T16:03:49.507421+00:00",
+  "commit": "dff6e56f938b1b769be2fe55816714d4d5bffe9e",
   "branch": "main",
-  "sourceFingerprint": "9ee1b828c02701330cd3e35a4c693b3f1282d096b6c79991da78089eab3c9385",
+  "sourceFingerprint": "9c1da7aa2c42f21f944bd5070fcc97b434ab9f4d381fc4022cff40d375a6d461",
   "summary": {
     "files": 1321,
-    "lines": 279613,
+    "lines": 279628,
     "symbols": 3944
   },
   "symbolIndex": {
@@ -465,7 +465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 165
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -5331,7 +5331,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 500
+        "line": 501
       }
     ],
     "asUserMessages": [
@@ -6153,13 +6153,13 @@
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 84
+        "line": 86
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 121
+        "line": 123
       }
     ],
     "isWakeExplanation": [
@@ -27269,8 +27269,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 179,
-      "sha256": "184cd3c7356a4c8ab165e5ec25afae402b6cafeee682d613bf8ec0ce8c0f29e6",
+      "lines": 181,
+      "sha256": "200f4e5b6d99282f25f106365b65e81605b5e516bfcb916ce61b6754a1e59c9f",
       "symbols": [
         {
           "name": "Capability",
@@ -27298,15 +27298,15 @@
         },
         {
           "name": "screenVisionContext",
-          "line": 84
+          "line": 86
         },
         {
           "name": "phoneOperationContext",
-          "line": 121
+          "line": 123
         },
         {
           "name": "context",
-          "line": 165
+          "line": 167
         }
       ]
     },
@@ -34250,8 +34250,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 614,
-      "sha256": "abd39a936673e9d2e49c304281277bd888f2829549942be8b41f4a116cf5a0c6",
+      "lines": 620,
+      "sha256": "5321e67703ca5d196486d0fd55949efeef537d3af0869ca0edc557a6b0fcd1aa",
       "symbols": [
         {
           "name": "completed",
@@ -34279,7 +34279,7 @@
         },
         {
           "name": "project",
-          "line": 500
+          "line": 501
         }
       ]
     },
@@ -34523,8 +34523,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
-      "lines": 169,
-      "sha256": "8eeddd239e7a8318ac70b796cfc3fbd6ef005d0585c23ec8cb116bd197951000",
+      "lines": 171,
+      "sha256": "596c78b0e5bf3d1b46e29ef83cb44f2f08a76fc710ce63a059f719694d704ea7",
       "symbols": [
         {
           "name": "Cue",
@@ -34572,8 +34572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt",
-      "lines": 120,
-      "sha256": "486b94c285c96db954d9563ee066512f5df19d9c4a7e592de37dd6bb30977543",
+      "lines": 124,
+      "sha256": "cc2b981251810699c315c8bca0f0f3ea8c5e6d1cf5630f45abb753bfd8ccf05a",
       "symbols": []
     },
     {
@@ -39087,8 +39087,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
-      "lines": 110,
-      "sha256": "11f7770421133522e090f3136c556706ba47a6b9452ebf9a554289fc84edb407",
+      "lines": 111,
+      "sha256": "1ff9985edfe45cc5775447360f1ef15cabf28a617dd40623d7c9ad978eed1f9e",
       "symbols": [
         {
           "name": "control",
