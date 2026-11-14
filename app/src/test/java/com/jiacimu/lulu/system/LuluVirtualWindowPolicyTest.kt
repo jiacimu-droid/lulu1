@@ -31,6 +31,19 @@ class LuluVirtualWindowPolicyTest {
             cls(target,target,LuluVirtualWindowPolicy.TYPE_APPLICATION)))
     }
 
+    @Test fun onlyTemporaryUnknownWindowCanBeReobservedLocally() {
+        for (reason in listOf("no_window", "root_unreadable", "package_unreadable")) {
+            assertTrue(LuluVirtualWindowPolicy.canRetryReadOnly("unknown", reason))
+        }
+        for (reason in listOf("accessibility_disconnected", "unsupported_sdk",
+            "invalid_display", "target_unspecified", "window_identity_unknown", "")) {
+            assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("unknown", reason))
+        }
+        assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("system_dialog", "no_window"))
+        assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("other_app", "no_window"))
+        assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("target", "no_window"))
+    }
+
     @Test fun mikaClassifierOnlyMarksProvenTaskRelation() {
         assertTrue(LuluMikaAppSwitch.switchedTo(target,"com.android.browser",
             sameTask = { false }, partOfTask = emptySet(), settingsPage = { false })?.byTarget == false)
