@@ -11,7 +11,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-/** One source of truth for all role phone tools, despite legacy per-action flags. */
+/** Virtual-screen consent covers in-screen operations, not native media/device tools. */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class LuluRolePhoneAuthorizationTest {
