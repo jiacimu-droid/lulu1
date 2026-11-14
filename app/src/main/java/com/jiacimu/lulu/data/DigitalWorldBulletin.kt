@@ -25,7 +25,7 @@ internal object DigitalWorldBulletin {
             notices += DigitalWorldNotice(
                 id = "resident:${resident.id}",
                 title = "新居民 · ${resident.name}",
-                detail = "数字世界迎来了有固定身份的居民「${resident.name}」：${resident.identity}。可以在世界里真正遇见他/她。",
+                detail = "数字世界迎来了有固定身份的居民「${resident.name}」：${resident.identity}。可以在世界里真正遇见这位居民。",
                 occurredAt = resident.createdAt,
                 category = "居民",
             )
@@ -66,7 +66,8 @@ internal object DigitalWorldBulletin {
                     "home_created", "build_home_item", "home_item_built",
                     "item_built", "item_created", "item_removed",
                     "remove_home_item", "visit_received", "visit_character_home",
-                    "handle_incident",
+                    "handle_incident", "go_home", "visit_cloud_meadow",
+                    "visit_public_place", "visit_character_home", "visit_resident_home",
                     "location_discovered", "new_location",
                 ) || event.kind.startsWith("resident_") ||
                     event.kind.startsWith("world_expansion")
@@ -76,6 +77,12 @@ internal object DigitalWorldBulletin {
                     id = "event:${event.id}",
                     title = when {
                         event.kind == "home_created" -> "新家落成"
+                        event.kind in setOf("go_home", "visit_cloud_meadow", "visit_public_place",
+                            "visit_character_home", "visit_resident_home", "native_resident_location") ->
+                            "世界行程 · " + (MigratedDomainStores.characters.settings.value[event.characterId]
+                                ?.displayName ?: residents.firstOrNull { resident ->
+                                "resident:${resident.id}" == event.characterId
+                            }?.name ?: "数字人物")
                         event.kind.contains("resident") -> "世界居民动态"
                         event.kind.contains("location") -> "世界地点变化"
                         else -> "世界建设动态"
