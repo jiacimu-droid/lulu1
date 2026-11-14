@@ -320,6 +320,8 @@ internal object IslandActorPlay {
             .put("nearby",JSONArray(nearby))
             .put("recentEvents",JSONArray(w.events.takeLast(10)))
             .put("playerSpeech",heard)
+            .put("recentTeamTalk",JSONArray(GameTeamConversationTimeline.recentLines(
+                id, "block_island", w.seed.toString())))
             .put("options",JSONArray(options(s,id,canAct).map {
                 JSONObject().put("id",it.id).put("meaning",it.name)
             })).toString()
