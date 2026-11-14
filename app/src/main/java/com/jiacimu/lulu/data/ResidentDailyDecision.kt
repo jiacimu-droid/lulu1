@@ -1717,7 +1717,7 @@ internal object ResidentDailyDecision {
                 DigitalWorldStore.locationOf(it.characterId) == native.currentLocationCode
         }.take(6).joinToString("、") { "${it.displayName} (${it.characterId})" }
         return """
-            【这是你本人所在的世界，而非用户手机】${native.name}，身份=${native.identity}。
+            【这是你本人所在的世界，而非用户手机】${native.name}，明确性别=${native.gender.ifBlank { "未说明" }}，身份=${native.identity}。
             今天=${date(at)}，现居=${native.homeLocationCode}，所在地点=${native.currentLocationCode}，当前职责=${native.dutyActivity}。
             原住民只亲自感知自己所在地点和过去真实接触的人；你看不到现实世界里的用户手机、屏幕、私聊，也不能推知其他角色的私人心声。
             实际在场的原住民：${witnesses.ifBlank { "未遇见" }}。
