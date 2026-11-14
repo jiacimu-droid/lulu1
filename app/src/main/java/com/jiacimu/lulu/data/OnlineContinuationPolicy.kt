@@ -48,13 +48,6 @@ internal object OnlineContinuationPolicy {
         previousReason: String,
         minutesSincePrevious: Long,
     ): Boolean = choice == "continue" && contractIssue(choice, reason) == null
-    /**
-     * When an online lease cannot be renewed, a still-unassigned accepted duty
-     * needs a bounded recovery opportunity regardless of whether the role
-     * selected sleep, continue, or returned an invalid online decision.
-     * This checks execution ownership only; it never selects the next time,
-     * channel or action on behalf of the character.
-     */
     /** The model may choose a sequence before resting. A chosen return-home
      * action must really reach home; a five-minute boundary cannot finish it. */
     internal fun requestedReturnHome(primaryWorldAction: String,
@@ -69,6 +62,7 @@ internal object OnlineContinuationPolicy {
         actual: String, ownHome: String): Boolean =
         !choseReturnHome || actual == ownHome
 
+    /** A failed lease cannot swallow an accepted unfinished duty. */
     fun needsCommitmentRecovery(
         keptAwake: Boolean,
         superseded: Boolean,
