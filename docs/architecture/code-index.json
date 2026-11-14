@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:48:06.070818+00:00",
-  "commit": "0203562c2ba8248f5e9834ba7756eef8cf21f319",
+  "generatedAt": "2026-11-14T13:50:24.689815+00:00",
+  "commit": "a7479a94fd4441ce63bcd9049118d51ec0a944ca",
   "branch": "main",
-  "sourceFingerprint": "8c910e85e21f38ebf1dbc72c5be743d2dd39457e20b181cc90704e26da98aa01",
+  "sourceFingerprint": "82b37117290b968f8b4a05448a803f587b57d2fabe3671840c01b51a05994621",
   "summary": {
     "files": 1318,
     "lines": 279184,
@@ -28625,7 +28625,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
       "lines": 324,
-      "sha256": "b163de52c8385e84c2032f9015517a49fcd9ee680db2b3a2d957e0a35cd4d7d7",
+      "sha256": "092e37fab93808341cb34986397ef062f6f5b30625193b405c6f7f0570570294",
       "symbols": [
         {
           "name": "integrate",
@@ -35656,7 +35656,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
       "lines": 264,
-      "sha256": "cbc7e9cded731984f50aca9ea0a678d2511132075ed2200eb5de7473344ca9c4",
+      "sha256": "50f4ae41d6d2375487a1f789ad91792182d62b3daead771850ef3b419305d4d4",
       "symbols": [
         {
           "name": "Match",
