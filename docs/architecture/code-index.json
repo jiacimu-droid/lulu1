@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:21:58.368242+00:00",
-  "commit": "45428f2d105858f0a2bab1e031d5a2c7a055dd5b",
+  "generatedAt": "2026-11-14T13:23:15.864805+00:00",
+  "commit": "309aeef5cd5ea07c42d03dfc1ba05e6a0ce8e8de",
   "branch": "main",
-  "sourceFingerprint": "e80cb4b4113567213af0995499d3a593a6003413c739cf54bfb02654cd8cbd40",
+  "sourceFingerprint": "3dbe8be78694f5d42d4a6f426e4889574873f53ea84a0125ab40657f99b92bff",
   "summary": {
     "files": 1315,
-    "lines": 278389,
+    "lines": 278395,
     "symbols": 3928
   },
   "symbolIndex": {
@@ -33592,7 +33592,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2445,
-      "sha256": "439f903f43c7950a102ab7593473567db22d16700039bedc75c979e173b84e0f",
+      "sha256": "b95832314603fed2b8316884650cd45c087cc3b7610c389f791dbf24015c1008",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -34574,7 +34574,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
       "lines": 326,
-      "sha256": "ea0ae86883b2fb75753da28cfc2f027e49c02055a7ba65fd7fd70d26568ff330",
+      "sha256": "89e7080f9f12aea8e36dc5c502fd4fe664a6aff5c389dc736c4602d194d6202a",
       "symbols": []
     },
     {
@@ -40958,8 +40958,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt",
-      "lines": 108,
-      "sha256": "94d2d9990e4c49a6434dee8084fc69eae91b95b56839f4d7088ddcafcf9a8813",
+      "lines": 114,
+      "sha256": "36537754519214b2e7d8cef3a247c65edc687ada934a2e4bcdb1264b95ffabbe",
       "symbols": [
         {
           "name": "PhoneInspectionProjectionTest",
@@ -42848,7 +42848,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
       "lines": 230,
-      "sha256": "a3b4802dadbeba5b18c03d36fa2e8721813dd14b89af0a91c10717aa3ffb7549",
+      "sha256": "5e2408af5cb335784888da16f744f2ef7b20832ba07fb9d0724511a1bb32b7a6",
       "symbols": [
         {
           "name": "CharacterSocialActionOpportunitiesTest",
