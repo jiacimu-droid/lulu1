@@ -12,6 +12,20 @@ internal data class RelicChestReceipt(
 )
 
 internal object RelicChestPresentation {
+    /**
+     * Single player-input adapter for the HUD, map selection and D-pad.
+     * The rules still own rewards, the ledger still owns persistence, and an AI
+     * companion's separate physical action is not silently reinterpreted.
+     * With no valid chest the original action reaches the rules' failure reply.
+     */
+    fun playerAction(run: RelicRun?, action: String, x: Int, y: Int): String {
+        if(action!="open" || run==null)return action
+        val chest=run.chests.firstOrNull { !it.opened && it.x==x && it.y==y }
+            ?:return action
+        val steps=RelicEscapeRules.openSteps(chest)
+        return if((run.chestProgress[chest.id] ?: 0)<steps-1)"pry" else "open"
+    }
+
     fun isCurrentOpening(run: RelicRun, chestId: Int, receipt: RelicChestReceipt?): Boolean =
         receipt != null && receipt.runId == run.id && receipt.chestId == chestId &&
             run.chests.any { it.id == chestId && it.opened }
