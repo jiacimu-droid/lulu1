@@ -237,7 +237,7 @@ object LuluShellDisplayMain {
         val diagnostic = when {
             accepted -> ""
             !ended -> "shell subprocess timed out"
-            output.isNotBlank() -> "exit=$exitCode；${output.replace('\\n', ' ').take(280)}"
+            output.isNotBlank() -> "exit=$exitCode；${output.replace(10.toChar(), ' ').take(280)}"
             else -> "shell subprocess exit=$exitCode"
         }
         return ShellDispatch(accepted, diagnostic)
