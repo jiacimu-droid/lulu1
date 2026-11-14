@@ -11,10 +11,6 @@ internal object LuluVirtualChatSendPolicy {
     fun isEnabled(context: Context, characterId: String): Boolean =
         LuluRolePhoneAuthorization.isGranted(context, characterId)
 
-    /** Compatibility for older callers: there is no independent chat consent. */
-    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean =
-        LuluRolePhoneAuthorization.setGranted(context, characterId, enabled)
-
     fun validRecipient(recipient: String): Boolean =
         recipient.isNotBlank() && recipient == recipient.trim() &&
             recipient.length <= 80 && recipient.none { it.code == 10 || it.code == 13 }
