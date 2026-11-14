@@ -11,6 +11,18 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CommitmentDecisionProtocolTest {
+    @Test fun sleepingOwnerWakeUsesExistingIncomingCallRatherThanAlarmAudio() {
+        val contract = CommitmentDecisionProtocol.instruction
+        val recovery = CommitmentDecisionProtocol.deliveredReplyReconciliation
+        val foreground = onlineTurnCommitmentInstruction()
+        assertTrue(contract.contains("睡眠叫醒任务：统一选真实主动来电 start_call"))
+        assertTrue(contract.contains("alarm_only、普通通知、聊天消息"))
+        assertTrue(recovery.contains("补正为经授权的真实来电 start_call"))
+        assertTrue(foreground.contains("睡眠叫醒必须选择 deliveryAction=start_call"))
+        assertTrue(foreground.contains("不能因手机息屏或未回复"))
+        assertEquals("start_call", CommitmentCallRetryPolicy.wakeContactAction(
+            1, "start_call", null, callsEnabled = true))
+    }
     @Test fun modelCanChooseObservationOnlyReviewOnTheOriginalTask() {
         val task = CommitmentTask(id = "wake", characterId = "role", goal = "叫醒")
         val draft = CommitmentDecisionProtocol.drafts(JSONArray(
