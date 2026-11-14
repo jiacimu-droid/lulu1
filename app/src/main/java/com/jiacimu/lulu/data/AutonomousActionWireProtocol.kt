@@ -50,7 +50,7 @@ internal object AutonomousActionWireProtocol {
         // Existing social tools accept these as authored executor arguments.
         // Missing keys previously vanished when the model used the allowed
         // flat step form, turning an explicit accept/decline into empty args.
-        "postId", "requestId", "decision", "greeting",
+        "postId", "requestId", "challengeId", "decision", "greeting",
         "replyToCommentId", "groupName", "memberIds",
     )
 
