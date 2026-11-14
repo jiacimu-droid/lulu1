@@ -60,6 +60,13 @@ class MomentConversationContinuationTest {
         val reader = role()
         val outsider = role()
         val eligibleButUnaware = role()
+        // Ordinary social continuity is a digital-life affordance. Register
+        // the exact four test participants before asserting its model context.
+        DigitalLifeProfileStore.initialize(app)
+        for (id in listOf(author, reader, outsider, eligibleButUnaware)) {
+            DigitalLifeProfileStore.registerNewLife(id,
+                MigratedDomainStores.characters.get(id).displayName, "测试创建者")
+        }
         assertTrue(MomentFriendAccess.setFriends(author, reader, true))
         assertTrue(MomentFriendAccess.setFriends(author, eligibleButUnaware, true))
         val original = post(author)
