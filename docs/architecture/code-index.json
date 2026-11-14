@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:00:53.989899+00:00",
-  "commit": "69fe2712fa416ef79abad2c70c78e98a81bd996e",
+  "generatedAt": "2026-11-14T16:01:38.296431+00:00",
+  "commit": "b0ad9659bd10ccd0e0676df859abbf08f2baaf3f",
   "branch": "main",
-  "sourceFingerprint": "c6aa720977aa7fbfbf5e1774957d7a35c1775270a10331157e5c76ef3d85076a",
+  "sourceFingerprint": "798cc8dd183dbaf1cc6cfffc64d94b03420447fd66c49618cb4a90497dd29fff",
   "summary": {
-    "files": 1320,
-    "lines": 279531,
-    "symbols": 3941
+    "files": 1321,
+    "lines": 279613,
+    "symbols": 3944
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5134,6 +5134,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
+        "line": 63
       }
     ],
     "stamp": [
@@ -21828,6 +21832,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt",
         "line": 6
+      }
+    ],
+    "LuluRolePhoneAuthorizationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
+        "line": 17
+      }
+    ],
+    "autonomous": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
+        "line": 36
       }
     ],
     "LuluScreenAwarenessTest": [
@@ -46452,6 +46468,25 @@
         {
           "name": "LuluPhoneUiGeometryTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
+      "lines": 82,
+      "sha256": "4d39dee9ba17f1b6a0d01883b3ca9be10e96de6c387749d374ab7edd17b41221",
+      "symbols": [
+        {
+          "name": "LuluRolePhoneAuthorizationTest",
+          "line": 17
+        },
+        {
+          "name": "autonomous",
+          "line": 36
+        },
+        {
+          "name": "restore",
+          "line": 63
         }
       ]
     },
