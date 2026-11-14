@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`02bd0f8754cc0e80d9b3bed1422bce5776a282b2`
+- 基准提交：`2cb927d30adeeaa98e32531bfaec2f48e1b84142`
 - 分支：`main`
 - 已索引文件：1316
-- 已索引代码/文本行：278473
+- 已索引代码/文本行：278506
 - 已发现符号：3929
 
 | 文件 | 行数 | 符号数 |
@@ -466,12 +466,12 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 265 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 323 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt` | 14 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 93 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 100 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 329 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 324 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 233 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 425 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 434 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 785 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 61 | 7 |
@@ -480,7 +480,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 243 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1210 | 37 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1215 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 341 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
@@ -572,7 +572,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2445 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 165 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 182 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 236 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 922 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
