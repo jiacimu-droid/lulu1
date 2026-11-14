@@ -83,6 +83,30 @@ class LuluShoppingLinkShareTest {
             "com.taobao.idlefish", "复制", true, true))
     }
 
+    @Test fun flashInsideMainTaobaoAppHasCorrectMerchantAndLinkHandoff() {
+        val taobaoApp = "com.taobao.taobao"
+        val normalGoods = "https://m.tb.cn/h.Abc123"
+        val flashGoods = "https://u.ele.me/Flash123"
+        assertEquals("淘宝", LuluShoppingLinkShare.merchantName(taobaoApp))
+        assertEquals("淘宝", LuluShoppingLinkShare.merchantNameForLink(taobaoApp, normalGoods))
+        assertEquals("淘宝闪购", LuluShoppingLinkShare.merchantNameForLink(taobaoApp, flashGoods))
+        assertEquals(flashGoods, LuluShoppingLinkShare.verifiedChangedLink(
+            taobaoApp, null, "看一下这个 " + flashGoods))
+        assertTrue(LuluShoppingLinkShare.matchesMerchantLink("淘宝闪购", flashGoods))
+        assertEquals("淘宝闪购", decodeQqShoppingProductLink(
+            encodeQqShoppingProductLink(
+                requireNotNull(LuluShoppingLinkShare.merchantNameForLink(taobaoApp, flashGoods)),
+                flashGoods, "这个从淘宝里的闪购入口分享"
+            )
+        )?.merchant)
+        assertNull(LuluShoppingLinkShare.merchantNameForLink(
+            taobaoApp, "https://fake-ele.me/Flash123"))
+        assertNull(LuluShoppingLinkShare.merchantNameForLink(
+            taobaoApp, "https://ele.me.evil.test/Flash123"))
+        assertNull(LuluShoppingLinkShare.merchantNameForLink(
+            "com.taobao.idlefish", flashGoods))
+    }
+
     @Test fun meituanAndWaimaiShareOnlyTheirVerifiedOfficialHttpsLinks() {
         val meituan = "com.sankuai.meituan"
         val waimai = "com.sankuai.meituan.takeoutnew"
