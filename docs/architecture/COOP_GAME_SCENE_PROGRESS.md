@@ -1,5 +1,13 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-14 · G-03.5 · 玩家开箱动作与随机品级断言继续修正
+
+- 后继 APK run [#43568418919](https://github.com/jiacimu-droid/lulu1/actions/runs/43568418919) 在 3028 测试中仅 `generatedMapHasRealReachableChestsAndExitOnEverySeed` 失败（第 782 行），是旧固定种子必须包含高档箱的断言，不代表真实地图路径不可达。另一轮 `44e2791` 虽换成七档品级断言，却把换行写成字面 `\\n`，同一行 `//` 吞掉全部校验；提交 [7218b55](https://github.com/jiacimu-droid/lulu1/commit/7218b550fa962489e24e30e86f7c37166245edda) 恢复真实执行的 `grade 0..6`、`grade ↔ tier`、同 seed 一致性断言，不改概率和原奖励。
+- 核心玩家交互 `RelicEscapeScreen.action` 原来临时转译 `open → pry`，但已有 `RelicQuickActionTest` 直接调用 `RelicEscapeRules.act(open)` 并断言一次开箱，完全未验新 UX。生产 [1b0c2d3](https://github.com/jiacimu-droid/lulu1/commit/1b0c2d3a670f4803b68cfd34dbcb32bda9f6f784) / [c894c35](https://github.com/jiacimu-droid/lulu1/commit/c894c35cbc1d61b8afca3ab6c3d44deaf2bd02b5) 收敛为唯一 `RelicChestPresentation.playerAction` 纯逻辑，供地图、HUD、中央摇杆复用；角色独玩和同伴动作仍不被此玩家输入适配器偷偷改写。
+- [3530b4e](https://github.com/jiacimu-droid/lulu1/commit/3530b4ef640c4abe86e8bfbdb409293295fae3b0) 替换两处“一次开箱即获奖”的旧测试，检查玩家实际需要多次撬锁、没有提前获得战利品、最后才一次入包、重复点不刷；[ba461d5](https://github.com/jiacimu-droid/lulu1/commit/ba461d5734aa0c091177eb4868f013c8607765f2) 进一步通过真实 `RelicEscapeLedger`、相邻宝箱目标坐标与重建 Store 检查每轮保存、断点继续及一次性回执。
+- **当前分层**：最新源码/测试已提交 `main`；本轮新的完整 APK/JVM CI 与手机横屏手感、紫→金/红/彩过程、怪物真实反击仍待核验。旧失败 run 与后继待测 SHA 不能混记。下一入口核最新运行中是否有新增 Robolectric 首错，成功后才进行 Redmi 真机逐步开箱/警戒钟楼/长局撤离的实际试玩。
+
+
 ### 2026-11-14 · G-03 玩家反馈：低威胁战斗／缺少互动开箱／七档宝箱与探索决策
 
 本轮直接在 main 改真实规则、地图、HUD 和单测，不另建重复 Issue：
