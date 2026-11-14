@@ -270,3 +270,10 @@
 - 正式 `RelicQuickAction.kt` 原先在同格未开宝箱前返回 `open`，导致满包开箱或其他合法掉落与另一未开宝箱重叠时，地面物品无法通过主操作拾取。提交 `54e9e68d8fcbf5b1b74a8b8d618839faf4746714` 将可容纳的真实 `RelicDrop` 放在宝箱判断前，仍由 `RelicEscapeRules.act` 负责容量、距离、唯一 ID 和实物扣除，不伪造奖励。源码 blob `dd39856d208b646b7d334fd4d0f928a4ce275276`。
 - `457f87020af43323f156cf51a72d35d1bce6f8ea` 新增 `RelicQuickActionTest.droppedTreasureOverlappingUnopenedChestRemainsRecoverable`：优先拾取同格地面物品、背包获得唯一实物、地面消失、箱子未被误开、之后可继续开箱，存档重读一致。测试 blob `a80adba43c1c4dc3cf429d6b25e4e5a20a4d7a4c`。
 - 查询该测试提交 head_sha 的 Actions runs 返回 0 项，**JVM/APK/index 均未确认成功**；无真机横屏、帧率、模型协作或新美术验收。下一入口：`RelicQuickActionTest.kt` 最新 main push JVM 首错；随后验证满包同格多掉落时的可见容量提示与 `RelicEscapeScreen.kt` 正式地图操作。
+
+
+## 2026-11-15 G-03.5 · 方向键脚下实物优先拾取（新 CI 待验）
+
+- 正式 `RelicQuickAction.kt` 的 `relicNearbyAction` 之前先检查面朝方向及相邻格的宝箱/地标，最后才看玩家脚下；因此即使脚下已有真实掉落，面对邻格宝箱按中心键仍会撬邻格箱子。`3f261e476dffb30852aa753aef1d3f9132b62858` 只将脚下合法 `pickup` 提前，仍调用原 `RelicEscapeRules.act` 进行物理距离、容量、实体 ID、回合和存档结算；脚下无可拾取物时仍保持面朝方向优先。源码 blob `4c85e1fc4b67f9b90539c72d8a80dbc5441e996f`。
+- `f1950d27261028e4dab81047acc3533d35266450` 新增 `RelicQuickActionTest.dpadPicksUpPhysicalLootUnderfootBeforeFacingAnotherChest`：面对相邻未开宝箱时先拾取脚下实体、背包唯一 ID、地面消失、邻箱不误开，随后能继续开箱并重读存档；测试 blob `76d073ba2e5994cbdc31bac8ce8fae7a13fe7f71`。没有改变掉率/角色选择/美术。
+- 已确认旧 `457f870` 的 main push `Lulu APK #43623479963` 和索引 `#43623479961` 均 completed/success；较新 `28adf80` 的 `Lulu APK #43628014586`、索引 `#43628014598` 均 completed/success。**这些不是本轮测试 SHA**。本轮查询时生产提交 `3f261e4` 的 APK #43629400242 / 索引 #43629400264 仍 in_progress，测试 `f1950d2` 的新 push 结果尚未出现，故 JVM/APK/index 不能标绿。下一实际入口：`RelicQuickActionTest.kt` 新测试 JVM 首错，`RelicEscapeScreen.kt` 的 D-pad 交互与满包提示；真机横屏、帧率、真实模型协作仍待独立验收。
