@@ -243,3 +243,8 @@
 - main `8ed351d` 的 [Lulu APK/JVM #43568418919](https://github.com/jiacimu-droid/lulu1/actions/runs/43568418919) 实际 **failure**：3028 tests、1 failed、1 skipped；唯一失败 `RelicEscapeRulesTest.generatedMapHasRealReachableChestsAndExitOnEverySeed` 第 782 行。此前索引 #43568418916 success **不能替代 APK**。失败根因是旧测试要求每个固定 seed 必有 `PRECIOUS` 箱，与现有 `RelicEscapeWorld` 七档概率真实随机生成相冲突；并非地图不可达，也不能为通过测试强塞保底稀有奖励。
 - 测试提交 [`44e2791`](https://github.com/jiacimu-droid/lulu1/commit/44e2791fb2d0571eb707b3bbbef6b8b188d351b4)，`RelicEscapeRulesTest.kt` blob `29bed525`：保留多 seed 的地图、出口与所有宝箱路径验证；改验 0..6 合法品级、`RelicQuality.at(grade)` 对应真实 tier、相同 seed 的箱子品级一致。**只改根因级旧断言，不改真实掉落概率/库存/角色决策。**
 - 下一轮：查询包含 `44e2791` 的 main push JVM/APK/index 对应 head SHA；失败查首错，成功后继续 `RelicVaultPage.kt` 筛选→展出/出售→重新进入的 Compose 交互与横屏真机截图，检查真实实体库存和稀有展品。此轮无真机、真实模型与 FPS 证据。
+
+## 2026-11-14 G-03.5 · 开箱演出实物凭证回归
+
+- `593b8cad` 在既有 `RelicQuickActionTest.chestUsesRealActionAndCannotOpenTwice` 中验证多次撬锁后的最终开箱必须产生 `RelicChestPresentation.committed` 实体回执，回执 run/chest 与真实背包物件一致，`isCurrentOpening` 仅承认已开箱，重复对同一前后状态不产生第二份凭证；不修改掉率、游戏物理规则或 UI 演出。
+- 测试 blob `de4c2518fae9ef8e29f5db60f3f346fd57b22063`，生产 `RelicChestPresentation.kt` blob `d09b4d1a3dbe836c59ed98d6262da0825ef4ba09`（未改）。本次 CI JVM/APK/index 尚未确认，不能宣称回归通过；真机横屏/帧率、实物落地与撤离入库另验。下一入口：`RelicQuickActionTest.kt` 失败首错或 `RelicChestPresentation.committed` 掉地分支与撤离库存闭环。
