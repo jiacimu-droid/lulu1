@@ -31,6 +31,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.system.LuluBackgroundPhoneSession
 import com.jiacimu.lulu.system.LuluScreenAwareness
+import com.jiacimu.lulu.system.LuluRolePhoneAuthorization
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -241,7 +242,7 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
             check(verifiedNow.displayId == selected.frame.displayId &&
                 verifiedNow.packageName == selected.frame.packageName &&
                 !LuluBackgroundPhoneSession.ownerHasPaused(context) &&
-                LuluScreenAwareness.onDemandAllowed(context) &&
+                LuluRolePhoneAuthorization.isGranted(context, roleId) &&
                 !LuluScreenAwareness.isExcluded(context, selected.frame.packageName)) {
                 "后台应用或查看权限已改变，请重新获取画面"
             }
