@@ -174,7 +174,7 @@ internal object CharacterPerceptionContext {
                     "group-membership", "phone:friend",
                     "game-invitation-accepted", "game-party-joined",
                     "game-party-started", "game-party-left",
-                    "game-match-result") ||
+                    "game-match-result", "duel-game", "duel-invite") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
             (event.evidenceKind == EventEvidenceKind.ToolResult &&
