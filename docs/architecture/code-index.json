@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:04:48.432903+00:00",
-  "commit": "8ed6607f360aefe602e47986e6b95b014cf5c746",
+  "generatedAt": "2026-11-14T16:05:56.995699+00:00",
+  "commit": "89c6f8cc20c16b87b98cc99365a0ef95096256c7",
   "branch": "main",
-  "sourceFingerprint": "18d97d424b67691bf654504818770886caf5b57dc43ccf689f100ed04b5c5fd1",
+  "sourceFingerprint": "0492ea8b1293eff98b7ca237805b1eaeaf86e2b5baaee7d83f32f3bad82835d3",
   "summary": {
     "files": 1321,
-    "lines": 279682,
+    "lines": 279714,
     "symbols": 3944
   },
   "symbolIndex": {
@@ -5137,7 +5137,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
-        "line": 63
+        "line": 76
       }
     ],
     "stamp": [
@@ -16623,19 +16623,19 @@
     "connected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "OwnerPreviewFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 106
+        "line": 107
       }
     ],
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 433
+        "line": 440
       }
     ],
     "LuluDeviceToolBridge": [
@@ -21843,7 +21843,7 @@
     "autonomous": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
-        "line": 36
+        "line": 38
       }
     ],
     "LuluScreenAwarenessTest": [
@@ -38941,8 +38941,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1186,
-      "sha256": "f426774ba653faff81fc2ccefaa571960c837436304c2608af116edf2914d637",
+      "lines": 1203,
+      "sha256": "b2c2a3ac01ba84655a4c84364d5c55dfe4bcaa07a40376ef04ceaa0e6eeba272",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -38954,15 +38954,15 @@
         },
         {
           "name": "connected",
-          "line": 97
+          "line": 98
         },
         {
           "name": "OwnerPreviewFrame",
-          "line": 106
+          "line": 107
         },
         {
           "name": "stopped",
-          "line": 433
+          "line": 440
         }
       ]
     },
@@ -45359,8 +45359,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
-      "lines": 125,
-      "sha256": "9eba201dcfd37c6daa480d521a04a11f48d17e7600d62571ef1c0e2f870d7f68",
+      "lines": 127,
+      "sha256": "635d18f0d6935abf51cad352c2ea1d54c7837ef4c60e69142c942309074e2146",
       "symbols": [
         {
           "name": "WakeActionPlannerTest",
@@ -46473,8 +46473,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
-      "lines": 82,
-      "sha256": "4d39dee9ba17f1b6a0d01883b3ca9be10e96de6c387749d374ab7edd17b41221",
+      "lines": 95,
+      "sha256": "bc7a169b8bb22166e5cf422766a447ed32513099ee95d8a09926fef28768c392",
       "symbols": [
         {
           "name": "LuluRolePhoneAuthorizationTest",
@@ -46482,11 +46482,11 @@
         },
         {
           "name": "autonomous",
-          "line": 36
+          "line": 38
         },
         {
           "name": "restore",
-          "line": 63
+          "line": 76
         }
       ]
     },
