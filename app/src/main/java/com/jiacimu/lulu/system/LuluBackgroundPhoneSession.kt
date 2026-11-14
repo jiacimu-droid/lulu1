@@ -924,9 +924,17 @@ internal object LuluBackgroundPhoneSession {
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted") &&
                 action !in setOf("type", "focus_search", "tap_element", "search")) {
+                // A rejected Android shell command is a REAL execution
+                // failure, not an ordinary awaiting-screen observation.
+                // Preserve am/input stderr instead of erasing it with a
+                // generic unverified receipt that performance logs suppress.
+                val rejectedByShell = applied.optString("errorCode") in setOf(
+                    "shell_launch_rejected", "shell_input_rejected")
                 return applied.put("mode", "independent_virtual_display")
-                    .put("status", "unverified")
-                    .put("verification", "该后台操作未被设备接受，不得声称成功").toString()
+                    .put("status", if (rejectedByShell) "failed" else "unverified")
+                    .put("verification", applied.optString("verification").ifBlank {
+                        "该后台操作未被设备接受，不得声称成功"
+                    }).toString()
             }
             // Android launches apps asynchronously. Wait briefly for this exact
             // package to own the virtual screen before taking a new screenshot.
