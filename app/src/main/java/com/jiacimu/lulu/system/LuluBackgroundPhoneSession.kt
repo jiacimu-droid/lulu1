@@ -510,8 +510,18 @@ internal object LuluBackgroundPhoneSession {
             check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
                 "后台屏幕由另一角色使用中；请先由主人停止该会话"
             }
-            check(action in setOf("start", "launch", "tap", "tap_element", "swipe", "back", "type", "focus_search", "submit", "search", "send_chat_message", "observe", "stop")) {
-                "不支持此后台屏幕操作"
+            // A mistaken/missing model action is an argument rejection, NOT
+            // a shell failure. Preserve the already-running virtual display
+            // so the same role can choose a corrected action from this receipt.
+            LuluBackgroundPhoneArgumentPolicy.invalidReason(action, args)?.let { reason ->
+                return JSONObject().put("success", false).put("accepted", false)
+                    .put("status", "failed")
+                    .put("errorCode", if (LuluBackgroundPhoneArgumentPolicy.isSupportedAction(action))
+                        "invalid_action_arguments" else "unsupported_action")
+                    .put("action", action).put("taskCompleted", false)
+                    .put("mode", "independent_virtual_display")
+                    .put("sessionPreserved", connected())
+                    .put("verification", reason).toString()
             }
             if (action == "stop") {
                 if (!connected()) return JSONObject().put("success", true)
@@ -521,17 +531,6 @@ internal object LuluBackgroundPhoneSession {
                         .put("mode", "independent_virtual_display")
                         .put("verification", "后台屏幕已收到关闭请求").toString()
                 } finally { forgetTransport() }
-            }
-            // Reject incomplete model actions before ensureStarted or any input.
-            // A missing swipe startX is NOT a shell failure: keep the current
-            // virtual display and its verified App/session ownership intact.
-            LuluBackgroundPhoneArgumentPolicy.invalidReason(action, args)?.let { reason ->
-                return JSONObject().put("success", false).put("accepted", false)
-                    .put("status", "failed").put("errorCode", "invalid_action_arguments")
-                    .put("action", action).put("taskCompleted", false)
-                    .put("mode", "independent_virtual_display")
-                    .put("sessionPreserved", connected())
-                    .put("verification", reason).toString()
             }
             if (action == "send_chat_message" &&
                 !LuluVirtualChatSendPolicy.isEnabled(context, characterId)) {
