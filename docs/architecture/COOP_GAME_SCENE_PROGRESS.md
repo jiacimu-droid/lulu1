@@ -253,3 +253,8 @@
 
 - `RelicQuickActionTest.fullSatchelOpeningProducesOnlyGroundReceiptAndSurvivesReload` 以真实规则多次撬锁后开箱，验证已满背包不凭空增加物品、真实珍宝掉在箱位、`RelicChestPresentation.committed` 返回 `inBag=false` 且与权威掉落一致、重复提交不产生凭证、JSON 存档重载仍保留箱盖开启与地面实物。只改测试，未修改概率、奖励、AI 决策或渲染。
 - 测试提交 `27208707`、nullable 恢复夹具修正 `794cb4dc`；测试 blob `301107eac7b06b86d723964c8f5d6a953061dbb4`，正式 `RelicChestPresentation.kt` blob `d09b4d1a3dbe836c59ed98d6262da0825ef4ba09`（未改）。当前 GitHub commit status 与 PR workflow 查询未取得有效 push JVM/APK/index 终态，不能标绿；真机掉地拾取、撤离入库、横屏帧率与美术仍待验。下一实际文件 `RelicQuickActionTest.kt` / `RelicEscapeRules.kt`，先核本测试 JVM 首错，再补从地面拾取到真实撤离仓库的完整实体链。
+
+
+## 2026-11-15 G-03.5 · 地面珍宝拾取后撤离实体回归（CI 待验）
+
+- 新增 `RelicQuickActionTest.groundTreasureMustBePickedUpBeforeItCanLeaveTheRun`：真实满包开箱落地→不拾取直接撤离仅记遗失→真实丢包腾容量→存档重读→拾取同一物品 ID→重复拾取无奖励→撤离成功 `secured` 唯一包含实物且重读保持。测试提交 `d7bb48939845543b8c401d0a92c1b63ad79aaa32`，测试 blob `aae4b416e390480288577320e3dd1727038a1ce0`；生产规则未改。该提交的 Lulu APK/JVM run #43612226879 查询时 pending，索引同 SHA 待终态，不能标通过。下轮先查 JVM 首错与拾取/撤离回归，再进入正式 `RelicEscapeScreen.kt` 的掉地交互与藏宝馆重进；真机/真实模型/FPS 独立待验。
