@@ -105,6 +105,13 @@ private fun TreasureMuseumStage(
     }
 }
 
+/** The actual collected treasure silhouette at list scale, not a placeholder glyph.
+ * The plinth, material accent and jewel geometry match the zoomable exhibit. */
+@Composable
+internal fun RelicTreasureGalleryThumbnail(loot: RelicLoot, modifier: Modifier = Modifier) {
+    TreasureMuseumStage(loot, RelicTreasureGallery.accent(loot), modifier)
+}
+
 @Composable
 internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
     // This local-only view state never changes the collection or the displayed
