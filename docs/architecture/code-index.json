@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:02:05.121873+00:00",
-  "commit": "7218b550fa962489e24e30e86f7c37166245edda",
+  "generatedAt": "2026-11-14T08:02:57.542555+00:00",
+  "commit": "c894c35cbc1d61b8afca3ab6c3d44deaf2bd02b5",
   "branch": "main",
-  "sourceFingerprint": "33f596d6c9ecf4c50f4e092b826be61305fffb4afffb5b943e8758528521174d",
+  "sourceFingerprint": "eaebd8754c5788dc9e9d35d99cc5c6d9c7ec668e02aade4720e9da4cc4599b49",
   "summary": {
     "files": 1312,
-    "lines": 277427,
-    "symbols": 3913
+    "lines": 277439,
+    "symbols": 3914
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15095,7 +15095,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 18
+        "line": 32
       }
     ],
     "dismiss": [
@@ -15130,10 +15130,16 @@
         "line": 24
       }
     ],
+    "playerAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
+        "line": 21
+      }
+    ],
     "isCurrentOpening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 15
+        "line": 28
       }
     ],
     "owned": [
@@ -36898,16 +36904,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-      "lines": 40,
-      "sha256": "20301a802843f076843985198ab23904324c2522f8ae07dcdb224b3b436bf0bb",
+      "lines": 54,
+      "sha256": "fbf8942ce644d072720c9fc71b1ab47f048f6538e08223544c5aebb1a22792e1",
       "symbols": [
         {
+          "name": "playerAction",
+          "line": 21
+        },
+        {
           "name": "isCurrentOpening",
-          "line": 15
+          "line": 28
         },
         {
           "name": "committed",
-          "line": 18
+          "line": 32
         }
       ]
     },
@@ -37188,8 +37198,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1271,
-      "sha256": "0d8c8cda79717a843ea5b312b8e109ae0525e951e1456e67bc5de2aea910f95c",
+      "lines": 1269,
+      "sha256": "6e6b4da6c67c08da728be933558d0271eede12dbacf541cca96ebf715a46b8a0",
       "symbols": [
         {
           "name": "change",
