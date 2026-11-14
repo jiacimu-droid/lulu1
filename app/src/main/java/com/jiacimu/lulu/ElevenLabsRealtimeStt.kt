@@ -44,7 +44,7 @@ internal class ElevenLabsRealtimeStt(
     private val endpoint: String = "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
     private val socketFactory: WebSocket.Factory? = null,
 ) {
-    private data class Packet(val pcm: ByteArray, val keepalive: Boolean = false)
+    private data class Packet(val pcm: ByteArray, val keepalive: Boolean = false, val commit: Boolean = false)
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .pingInterval(20, TimeUnit.SECONDS)
@@ -61,6 +61,14 @@ internal class ElevenLabsRealtimeStt(
     private val lastWireSendAt = AtomicLong(SystemClock.elapsedRealtime())
     private val sentPcmBytes = AtomicLong(0L)
     private val sentKeepaliveBytes = AtomicLong(0L)
+    private val capturedPcmBytes = AtomicLong(0L)
+    private val muteFinishing = AtomicBoolean(false)
+    private var muteFinishJob: Job? = null
+    private var onMuteDrained: (() -> Unit)? = null
+    private var muteHadSpeechEvidence = false
+
+    /** Audio sent before an explicit mute may not yet have produced any partial. */
+    val hasCapturedAudio: Boolean get() = capturedPcmBytes.get() > 0L
 
     fun sentAudioMillis(): Long = sentPcmBytes.get() / 32L
     fun sentKeepaliveMillis(): Long = sentKeepaliveBytes.get() / 32L
@@ -69,7 +77,7 @@ internal class ElevenLabsRealtimeStt(
      * the continuation window expires. Call opening and STT hot-swap must not
      * treat this quiet interval as a free microphone. */
     val hasPendingUtterance: Boolean
-        get() = synchronized(lock) { transcript.pendingCommittedText().isNotBlank() }
+        get() = synchronized(lock) { transcript.hasPendingText() }
 
     fun start() {
         check(apiKey.isNotBlank()) { "请先配置 ElevenLabs API Key" }
@@ -99,8 +107,9 @@ internal class ElevenLabsRealtimeStt(
                         dispatch {
                             if (!synchronized(lock) { transcript.acceptPartial(partial) }) return@dispatch
                             turnDelay?.cancel()
-                            onSpeech()
+                            if (!muteFinishing.get()) onSpeech()
                             onPartial(synchronized(lock) { transcript.preview(partial) })
+                            if (muteFinishing.get()) scheduleMuteFinish(1_100L)
                         }
                     }
                     "committed_transcript" -> {
@@ -108,10 +117,11 @@ internal class ElevenLabsRealtimeStt(
                         if (committed.isNotBlank()) dispatch {
                             val rendered = synchronized(lock) { transcript.commit(committed) }
                             // Short speech can be committed without a preceding partial.
-                            onSpeech()
+                            if (!muteFinishing.get()) onSpeech()
                             onPartial(rendered)
                             onCaptureFinished()
-                            completeAfterBreath()
+                            if (muteFinishing.get()) scheduleMuteFinish(650L)
+                            else completeAfterBreath()
                         }
                     }
                     "auth_error", "scribe_auth_error", "quota_exceeded", "scribe_quota_exceeded_error",
@@ -142,9 +152,10 @@ internal class ElevenLabsRealtimeStt(
                 // Keep the same session alive with a small real silent PCM
                 // chunk, without fabricating user speech or a commit.
                 val keepalive = launch {
-                    while (!closed.get() && active()) {
+                    while (!closed.get() && !muteFinishing.get() && active()) {
                         delay(4_000L)
-                        if (SystemClock.elapsedRealtime() - lastWireSendAt.get() >= 3_500L) {
+                        if (!muteFinishing.get() &&
+                            SystemClock.elapsedRealtime() - lastWireSendAt.get() >= 3_500L) {
                             outgoing.trySend(Packet(ByteArray(3_200), keepalive = true))
                         }
                     }
@@ -156,6 +167,7 @@ internal class ElevenLabsRealtimeStt(
                             .put("message_type", "input_audio_chunk")
                             .put("audio_base_64", Base64.encodeToString(packet.pcm, Base64.NO_WRAP))
                             .put("sample_rate", 16_000)
+                        if (packet.commit) body.put("commit", true)
                         check(webSocket.send(body.toString())) { "识别连接无法发送音频" }
                         sentPcmBytes.addAndGet(packet.pcm.size.toLong())
                         if (packet.keepalive) sentKeepaliveBytes.addAndGet(packet.pcm.size.toLong())
@@ -174,8 +186,52 @@ internal class ElevenLabsRealtimeStt(
 
     /** Every real capture frame, including low-volume speech and silence. */
     fun audioFrame(pcm: ByteArray) {
-        if (closed.get() || !active()) return
+        if (closed.get() || muteFinishing.get() || !active()) return
+        capturedPcmBytes.addAndGet(pcm.size.toLong())
         enqueue(Packet(pcm))
+    }
+
+    /**
+     * Explicit mute is the end of capture, not a request to erase the speech
+     * currently on the wire. Commit the last queued PCM in order, wait for a
+     * stable server transcript, and release the socket within a bounded window.
+     * Never send keepalives or listen to new microphone frames while muted.
+     */
+    fun finishCaptureOnMute(onDrained: () -> Unit) {
+        if (closed.get()) { onDrained(); return }
+        if (!muteFinishing.compareAndSet(false, true)) return
+        onMuteDrained = onDrained
+        muteHadSpeechEvidence = hasPendingUtterance
+        turnDelay?.cancel()
+        if (!hasCapturedAudio && !muteHadSpeechEvidence) {
+            finishMuteDrain()
+            return
+        }
+        // ElevenLabs documents commit=true on input_audio_chunk; a short silent
+        // tail is sent AFTER the already queued speech, not as a keepalive.
+        enqueue(Packet(ByteArray(3_200), commit = true))
+        scheduleMuteFinish(7_000L)
+    }
+
+    private fun scheduleMuteFinish(waitMs: Long) {
+        muteFinishJob?.cancel()
+        muteFinishJob = scope.launch(Dispatchers.Main) {
+            delay(waitMs)
+            finishMuteDrain()
+        }
+    }
+
+    private fun finishMuteDrain() {
+        if (!muteFinishing.compareAndSet(true, false)) return
+        muteFinishJob?.cancel()
+        turnDelay?.cancel()
+        val hadPending = synchronized(lock) { transcript.hasPendingText() } || muteHadSpeechEvidence
+        val stable = synchronized(lock) { transcript.takeFinal() }
+        if (stable.isNotBlank()) onText(stable)
+        else if (hadPending) onError("Scribe 实时识别未返回最终文字，已停止收音，请重试")
+        val finished = onMuteDrained
+        onMuteDrained = null
+        finished?.invoke()
     }
 
     private fun enqueue(packet: Packet) {
@@ -209,16 +265,23 @@ internal class ElevenLabsRealtimeStt(
 
     private fun fail(message: String) {
         if (closed.get() || !active() || !reported.compareAndSet(false, true)) return
-        // An error must remain visible even though stop() closes the socket.
-        scope.launch(Dispatchers.Main) {
-            if (active()) onError(message)
+        // An explicit mute may still own committed words. Deliver what is
+        // stable and release the socket even when the remote connection fails.
+        if (muteFinishing.get()) {
+            scope.launch(Dispatchers.Main) {
+                if (active()) onError(message)
+                finishMuteDrain()
+            }
+        } else {
+            scope.launch(Dispatchers.Main) { if (active()) onError(message) }
+            stop()
         }
-        stop()
     }
 
     fun stop() {
         if (!closed.compareAndSet(false, true)) return
         turnDelay?.cancel()
+        muteFinishJob?.cancel()
         outgoing.close()
         worker?.cancel()
         socket?.close(1000, "call finished")
@@ -247,6 +310,8 @@ internal class ScribeRealtimeTranscriptState {
     }
 
     fun pendingCommittedText(): String = stable.trim()
+
+    fun hasPendingText(): Boolean = stable.isNotBlank() || partial.isNotBlank()
 
     fun takeFinal(): String = stable.trim().also { stable = ""; partial = "" }
 }
