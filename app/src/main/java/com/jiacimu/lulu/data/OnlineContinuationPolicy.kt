@@ -55,6 +55,20 @@ internal object OnlineContinuationPolicy {
      * This checks execution ownership only; it never selects the next time,
      * channel or action on behalf of the character.
      */
+    /** The model may choose a sequence before resting. A chosen return-home
+     * action must really reach home; a five-minute boundary cannot finish it. */
+    internal fun requestedReturnHome(primaryWorldAction: String,
+        steps: org.json.JSONArray?): Boolean = primaryWorldAction == "go_home" ||
+        (0 until (steps?.length() ?: 0)).any { index ->
+            val step = steps?.optJSONObject(index)
+            step?.optString("tool") == "digital_world_action" &&
+                step.optJSONObject("args")?.optString("worldAction") == "go_home"
+        }
+
+    internal fun maySettleRestAtLocation(choseReturnHome: Boolean,
+        actual: String, ownHome: String): Boolean =
+        !choseReturnHome || actual == ownHome
+
     fun needsCommitmentRecovery(
         keptAwake: Boolean,
         superseded: Boolean,
