@@ -121,7 +121,7 @@ internal object LuluBackgroundPhoneSession {
                 packageName = activeApp,
                 connected = connected(),
                 ownerPaused = ownerHasPaused(context),
-                screenConsent = LuluScreenAwareness.onDemandAllowed(context),
+                screenConsent = LuluRolePhoneAuthorization.isGranted(context, characterId),
                 deviceLocked = context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true,
                 excluded = LuluScreenAwareness.isExcluded(context, activeApp),
             )
