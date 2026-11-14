@@ -148,9 +148,12 @@ class IslandProgressionTest {
         val existing=IslandLostPack(2,3,1,1)
         val exposed=base.copy(
             lostPacks=mapOf(deathTile to existing),
-            world=base.world.copy(x=4,y=5,hp=1,turns=10,wood=10,stone=8,
+            // Simulate a legacy/reloaded player already standing on an old
+            // dropped pack tile. Normal movement intentionally cannot step
+            // onto an unrecovered pack; combat is a real advancing action.
+            world=base.world.copy(x=4,y=4,hp=1,turns=10,wood=10,stone=8,
                 mobs=listOf(ExpeditionMob(10,4,3,4))))
-        val knocked=BlockIslandRules.act(exposed,"move",4,4)
+        val knocked=BlockIslandRules.act(exposed,"fight",4,3)
         assertEquals(IslandLostPack(7,7,4,3),knocked.lostPacks[deathTile])
         val reloaded=BlockIslandState.fromJson(knocked.toJson())!!
         assertEquals(knocked.lostPacks,reloaded.lostPacks)
