@@ -7,6 +7,23 @@ class RelicQuickActionTest {
     private fun run() = RelicEscapeWorld.create(915, 2, emptyList(), 2, 2)
         .copy(mobs = emptyList())
 
+    @Test fun explicitDistantChestNeverOpensAdjacentChest() {
+        val base = run()
+        val h = base.hero
+        val near = RelicChest(991, h.x, h.y, RelicTier.COMMON)
+        val far = RelicChest(992, h.x + 3, h.y, RelicTier.PRECIOUS)
+        val scene = base.copy(chests = listOf(near, far),
+            seen = (0 until base.w * base.h).toSet())
+        assertEquals(near.id, RelicChestPresentation.actionableChest(
+            scene, h.x to h.y)?.id)
+        assertNull(RelicChestPresentation.actionableChest(scene, far.x to far.y))
+        val atFar = scene.copy(hero = h.copy(x = far.x, y = far.y))
+        assertEquals(far.id, RelicChestPresentation.actionableChest(
+            atFar, far.x to far.y)?.id)
+        assertNull(RelicChestPresentation.actionableChest(
+            scene.copy(seen = emptySet()), far.x to far.y))
+    }
+
     @Test fun fogNeverBecomesFreeMovementOrTreasure() {
         val map = run().copy(seen = emptySet())
         val chest = map.chests.first()
