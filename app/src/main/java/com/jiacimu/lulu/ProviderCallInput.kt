@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong
 internal class ProviderCallInput(private val context: Context, private val scope: CoroutineScope,
     private val sttEngine: String,
     private val elevenPath: CallVoiceConfiguration.ElevenInputPath,
+    private val elevenModel: String,
     private val accept: () -> Boolean, private val onReady: () -> Unit,
     private val onLevel: (Float) -> Unit, private val onSpeech: () -> Unit,
     private val onCaptureFinished: () -> Unit = {},
@@ -37,7 +38,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         running.stop()
         val elapsed = (SystemClock.elapsedRealtime() - realtimeStartedAtElapsed).coerceAtLeast(0L)
         VoiceUsageAudit.record(context, "ElevenLabs", "stt_realtime_session", 0,
-            "scribe_v2_realtime", audioMs = running.sentAudioMillis(), durationMs = elapsed)
+            elevenModel, audioMs = running.sentAudioMillis(), durationMs = elapsed)
         realtimeStartedAtElapsed = 0L
     }
     private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
@@ -57,7 +58,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturingVoice || queuedChunks.get() > 0 || finalTranscriptPending ||
             currentPhrase.isNotBlank() || realtime?.hasPendingUtterance == true
 
-    /** Realtime streams live PCM; ordinary Scribe v2 automatically uploads
+    /** Realtime streams live PCM; batch Scribe automatically uploads
      * finished PCM segments through the existing ordered cloud-ASR queue. */
     val usesServerVad: Boolean get() = realtime != null
 
@@ -85,7 +86,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 // No per-turn buttons: local speech activity captures PCM and
                 // the upload endpoint receives it only AFTER a bounded chunk or
                 // natural end of phrase. Keep one ordered transcript per turn.
-                onStatus("Scribe v2 已选择 · 自动收音，停顿后上传识别")
+                onStatus("${CallVoiceConfiguration.elevenSttLabel(elevenModel)} 已选择 · 停顿后上传识别")
             }
             CallVoiceConfiguration.ElevenInputPath.OTHER -> Unit
         }
@@ -197,6 +198,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         val recognizer = ElevenLabsRealtimeStt(
             scope = scope,
             apiKey = key,
+            modelId = elevenModel,
             active = { epoch == generation },
             onSpeech = {
                 if (epoch == generation) {
@@ -219,7 +221,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         realtime = recognizer
         realtimeStartedAtElapsed = SystemClock.elapsedRealtime()
         recognizer.start()
-        onStatus("Scribe v2 Realtime 已选择，正在连接实时识别…")
+        onStatus("${CallVoiceConfiguration.elevenSttLabel(elevenModel)} 已选择，正在连接实时识别…")
         startRealtimeMicrophone(epoch, prefs, recognizer)
     }
 
@@ -348,7 +350,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         }
 
     /**
-     * ElevenLabs Scribe V2 batch STT (not ElevenLabs TTS nor its Agent).
+     * ElevenLabs Scribe batch STT (not ElevenLabs TTS nor its Agent).
      * Real 16 kHz PCM is encapsulated in a WAV and submitted after the
      * existing mic endpoint detector finishes an utterance/chunk.
      */
@@ -372,7 +374,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 fun field(name: String, value: String) {
                     output.write("--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n".toByteArray())
                 }
-                field("model_id", "scribe_v2")
+                field("model_id", elevenModel)
                 field("language_code", "zh")
                 field("diarize", "false")
                 output.write("--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"speech.wav\"\r\nContent-Type: audio/wav\r\n\r\n".toByteArray())
@@ -380,7 +382,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 output.write("\r\n--$boundary--\r\n".toByteArray())
             }
             VoiceUsageAudit.record(context, "ElevenLabs", "stt_segment_sent", 0,
-                "scribe_v2", audioMs = pcm.size.toLong() / 32L)
+                elevenModel, audioMs = pcm.size.toLong() / 32L)
             val status = connection.responseCode
             check(status in 200..299) {
                 when (status) {
