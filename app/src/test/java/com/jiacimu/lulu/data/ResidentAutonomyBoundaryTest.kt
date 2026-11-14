@@ -102,6 +102,57 @@ class ResidentAutonomyBoundaryTest {
         assertEquals(worker.homeLocationCode, planAt("18:40", null).location)
     }
 
+    @Test fun threeDistinctJobsAndNightVisitsKeepTheirActualVenues() {
+        val home = "resident-home:arcade-keeper"
+        val gameKeeper = DigitalWorldResident(
+            id = "arcade-keeper", name = "青禾", templateName = "青禾",
+            identity = "游戏馆机台管理员", homeLocationCode = home,
+            currentLocationCode = DigitalWorldPublicPlaces.GAME_HALL,
+        )
+        val caretaker = DigitalWorldResident(
+            id = "yard-keeper", name = "闻澜", templateName = "闻澜",
+            identity = "公共区域维护员", homeLocationCode = "resident-home:yard-keeper",
+        )
+        val barista = DigitalWorldResident(
+            id = "cafe-keeper", name = "岑灯", templateName = "岑灯",
+            identity = "浮光咖啡角店员", homeLocationCode = "resident-home:cafe-keeper",
+        )
+        fun at(time: String) = Instant.parse("2026-11-14T${time}:00Z")
+        val gameShift = ResidentDailyRoutine.planWithDaily(gameKeeper, at("10:00"), ZoneOffset.UTC, null)
+        assertEquals(DigitalWorldPublicPlaces.GAME_HALL, gameShift.location)
+        assertTrue(gameShift.activity.contains("机台"))
+        assertEquals(DigitalWorldPublicPlaces.COURTYARD,
+            ResidentDailyRoutine.planWithDaily(caretaker, at("10:00"), ZoneOffset.UTC, null).location)
+        assertEquals(DigitalWorldPublicPlaces.CAFE,
+            ResidentDailyRoutine.planWithDaily(barista, at("10:00"), ZoneOffset.UTC, null).location)
+        // A real earlier visit can remain an overnight stay, rather than
+        // midnight duty logic forcibly wiping the persisted location.
+        val guest = gameKeeper.copy(currentLocationCode = "resident-home:friend")
+        assertEquals("resident-home:friend",
+            ResidentDailyRoutine.planWithDaily(guest, at("22:00"), ZoneOffset.UTC, null).location)
+        assertEquals("resident-home:friend",
+            ResidentDailyRoutine.planWithDaily(guest, at("01:00"), ZoneOffset.UTC, null).location)
+        // A resident finishing work in a public area defaults home, leaving
+        // an actual relocation to be committed and broadcast by the world clock.
+        assertEquals(home,
+            ResidentDailyRoutine.planWithDaily(gameKeeper, at("22:00"), ZoneOffset.UTC, null).location)
+    }
+
+    @Test fun worldBulletinShowsSavedJourneyWithoutInventingAnyGameResults() {
+        val at = Instant.parse("2026-11-14T20:00:00Z")
+        val state = DigitalWorldState(events = listOf(DigitalWorldEvent(
+            "journey-test", "resident:arcade-keeper", "native_resident_location",
+            "青禾 从自己的家到了游戏馆。", at)))
+        val notices = DigitalWorldBulletin.collect(
+            state, emptyList(), emptyList(), emptyList())
+        val journey = notices.single { it.id == "event:journey-test" }
+        assertEquals("世界", journey.category)
+        assertTrue(journey.title.startsWith("世界行程"))
+        assertEquals("青禾 从自己的家到了游戏馆。", journey.detail)
+        assertEquals(at, journey.occurredAt)
+        assertFalse(notices.any { it.detail.contains("赢得比赛") })
+    }
+
     @Test fun dailyLeisureChoicesRecognizeOnlySavedNewPublicPlaces() {
         val app = RuntimeEnvironment.getApplication()
         DigitalWorldExpansionStore.initialize(app)
