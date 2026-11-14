@@ -1,5 +1,10 @@
 # 自主社交专项进度
 
+## 2026-11-14 S-01 · 已读朋友圈讨论在下一次自然决策中可继续（源码/回归已提交，真机待验）
+- **反馈与根因**：主人认可原有「少量正式行程 + 一次醒来可自主做多项即时互动」的自然社交体验。现有居民每日决定/到点/通知已有 `steps` 和独立 ToolRouter 回执，不改为固定轮换或强制额外模型调用；但 `CharacterEverydaySocialContext` 原仅提供本人最近发帖，已经读过的朋友帖在手机未读游标前进后，下一次日常决策不一定能再次拿到可回复的 `commentId`，容易让真实讨论断线。
+- **源码**：[e5abcd8](https://github.com/jiacimu-droid/lulu1/commit/e5abcd842764edb1916c44325325041a3a6a8cd3) 在角色/居民共用的日常社交上下文里只读投影最多三条仍有权限的近期评论帖、每帖最多四条真实评论（`postId/commentId/replyToCommentId`），支持本人继续旧话题或顺手评论，不新增任务槽、自动回复、发帖/唤醒或 API 请求；好友解除、帖文删除立即按现有 `visiblePosts` 权限移除投影。
+- **回归**：[0644a2d](https://github.com/jiacimu-droid/lulu1/commit/0644a2d43571bd4b88f1e06eb1cddc2a67979725) 补 `MomentConversationContinuationTest.everydaySocialDecisionKeepsVisibleCommentIdsAfterReadAndRevokesOnUnfriend`，验已读游标后仍可定位讨论、未授权角色不可见、撤销好友后不可见。**尚无新提交的 JVM/APK 通过证据**；Android 真机和真实模型自然接话、成本/活跃度仍待验证。代码索引自动生成头部已核至 `0644a2d`；下一次按最新 main 检查本测试 CI 与朋友圈真实回复。
+
 ## 2026-11-14 S-01 · 群聊导演误阻断与自由接话（源码已提交，最新 APK/真机待验）
 - **根因**：群聊导演空 `characterId` 被 `ResidentDailyPolicy.activityEnabled(context, "")` 误当居民开关，导致「居民活动已暂停」和无请求；无 @ 参与者时失败 fallback 静默。网关改用 `permitsModelRequest`，只阻断真正 `resident:`，不影响全局居民管理开关的读取；`4d51484`、`0acf720`、回归 `afa970f`。
 - **群聊自主发言**：导演不再去重 speakerId，允许 A→B→A 等至多群配置 `maxAutoReplies` 的多轮独立决定；角色可读本群最近已送达的完整说话对象及消息 ID，自选回复较早的群友或主人，不把群聊固定为每人回复主人一次，也不强迫发言；`bb662eb`、`31363a7`、`7bffb4a`、`f504b92`、回归 `bd2528e`。
