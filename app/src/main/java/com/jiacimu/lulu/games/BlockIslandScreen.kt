@@ -95,6 +95,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
     var showIslandGuideDialog by remember { mutableStateOf(false) }
+    var islandGuideTab by rememberSaveable { mutableStateOf("入门") }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
@@ -372,15 +373,25 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         quickActions = {
             // Show one actionable objective instead of a permanent stack of
             // quest, tracker, direction, protector and construction cards.
-            Surface(
-                onClick = { goalsOpen = true },
-                color = Color(0xBB263E39),
-                shape = RoundedCornerShape(10.dp),
-            ) {
-                Text("☑ " + survivalGoal.substringAfter(" · ", survivalGoal) + "  ›",
-                    color = Color(0xFFFFE3A7), fontWeight = FontWeight.SemiBold,
-                    fontSize = 10.sp, maxLines = 1,
-                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp))
+
+            // The quest and help share one short ribbon; never add another map-covering row.
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                Surface(
+                    onClick={goalsOpen=true},
+                    modifier=Modifier.weight(1f),
+                    color=Color(0xBB263E39),shape=RoundedCornerShape(10.dp),
+                ) {
+                    Text("☑ " + survivalGoal.substringAfter(" · ", survivalGoal) + "  ›",
+                        color=Color(0xFFFFE3A7),fontWeight=FontWeight.SemiBold,
+                        fontSize=10.sp,maxLines=1,
+                        modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp))
+                }
+                Surface(onClick={islandGuideTab="入门";showIslandGuideDialog=true},
+                    color=Color(0xBB263E39),shape=RoundedCornerShape(10.dp)) {
+                    Text("？指南",color=Color(0xFFC9F2D9),
+                        fontSize=10.sp,fontWeight=FontWeight.SemiBold,
+                        modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp))
+                }
             }
             island.houseProject?.takeIf { it.ownerId=="player" }?.let { home ->
                 val nextPart=IslandHouseProjects.nextPlayerPart(island)
@@ -933,24 +944,77 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         confirmButton={ TextButton(onClick={goalsOpen=false}) { Text("继续冒险") } },
     )
 
+
     if (showIslandGuideDialog) AlertDialog(
         onDismissRequest = { showIslandGuideDialog = false },
-        title = { Text("方块小岛 · 怎么玩") },
-        text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
-            Text("开局只是一片可建设的空地，不是已经拥有房子。")
-            Text("① 方向键只移动与转向，撞树/矿不会自动挖掉。靠近资源点采集键、打怪点攻击键；徒手也能采普通木石。")
-            Text("② 木斧伐木从2到4、石镐采石从2到4，并能开采闪蓝光的晶矿；晶石造护夜晶灯或工作台做一次性救命护符。")
-            Text("③ 收集4木2石，点右手「建造」选择工作台。地图绿色可放，红色代表材料或位置不满足。")
-            Text("④ 站在工作台2格内，用方向盘中心的互动键或右侧「制作」直接使用工作台。")
-            Text("⑤ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
-            Text("⑥ 想盖完整小屋：在建造里选暖灯木屋或松林木屋，点地图放3×3蓝图，再走到提示位置一步一步施工，总共17木9步。")
-            Text("⑦ 想吃得更丰富：工作台做鱼竿，在水边钓鱼；靠篝火吃烤鱼。建菜圃后，用1颗野果播种，幼苗长4步再松土，成熟后收获；冬季生长更慢。")
-            Text("⑧ 生命清零自动回营，恢复半血，随身木石/野果/晶石各有一半留在倒下地点，需要找到背包亲手取回。护符可替你挡一次致命伤。")
-            Text("⑨ 世界、建筑、作物、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
-        }},
+        title = { Text("方块小岛 · 冒险手册") },
+        text = {
+            val guideMaxHeight=(LocalConfiguration.current.screenHeightDp*.36f)
+                .coerceIn(96f,320f).dp
+            Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                Text("生存 · 探索 · 建造自己的家",
+                    color=Color(0xFFBCEBCC),fontSize=12.sp,fontWeight=FontWeight.SemiBold)
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    listOf("入门","家园","生存").forEach { tab ->
+                        FilterChip(selected=islandGuideTab==tab,
+                            onClick={islandGuideTab=tab},
+                            label={Text(tab,fontSize=11.sp)},
+                            modifier=Modifier.weight(1f))
+                    }
+                }
+                Column(Modifier.fillMaxWidth().heightIn(max=guideMaxHeight)
+                    .verticalScroll(rememberScrollState()),
+                    verticalArrangement=Arrangement.spacedBy(9.dp)) {
+                    when(islandGuideTab) {
+                        "家园" -> {
+                            Text("建造和生产是长期留在自己存档里的成果。",
+                                color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                            Text("工作台：收集4木2石，点右侧「建造」选择工作台。绿色位置可放置，红色位置不可放置。",
+                                fontSize=12.sp)
+                            Text("制作：走到工作台2格内，用方向盘中心互动键或右侧「制作」打开配方；工具制作后自动生效。",
+                                fontSize=12.sp)
+                            Text("盖屋：在建造中选择暖灯木屋或松林木屋，点地图放置3×3蓝图，再到提示的相邻位置施工9步，共用17木。",
+                                fontSize=12.sp)
+                            Text("食物：鱼竿靠水钓鱼，篝火烤鱼；菜圃播种野果，至少4回合后松土，成熟后收获，冬天更慢。",
+                                fontSize=12.sp)
+                            Text("动物：靠近兔、鸭或狐狸多次喂食，建立信任后才能成为家园伙伴。",
+                                fontSize=12.sp)
+                        }
+                        "生存" -> {
+                            Text("白天收集资源，夜晚准备食物、营火和武器。",
+                                color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                            Text("木斧：伐木从2木提升到4木；石镐：采石从2石提升到4石，还能采蓝色晶矿。",
+                                fontSize=12.sp)
+                            Text("晶石：可以制作护夜晶灯，让附近夜间伤害降低；也可做一次性晶石护符挡住致命伤害。",
+                                fontSize=12.sp)
+                            Text("倒地：回营只恢复6/12生命，随身约半数木石、野果和晶石留在原地；要找到遗失背包亲手取回。",
+                                fontSize=12.sp)
+                            Text("进度：房屋、装备、作物与探索自动保存。选择「新岛屿」会清空当前家园，开始新世界。",
+                                color=Color(0xFFFFE3AE),fontSize=12.sp)
+                        }
+                        else -> {
+                            Text("初到小岛，先完成这四步就能生存下去。",
+                                color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                            Text("① 左手按住摇杆行走，拖动改方向。走路不会自动挖掉树或矿石。",
+                                fontSize=12.sp)
+                            Text("② 靠近树或石头，按右侧「采集」。遇到怪物按「攻击」，地图上点选可指定目标。",
+                                fontSize=12.sp)
+                            Text("③ 收集4木2石，按「建造」放置工作台；走近工作台再按「制作」打造斧头和石镐。",
+                                fontSize=12.sp)
+                            Text("④ 做篝火、石剑，准备食物，探索补给箱，再试着守过第一个夜晚。",
+                                fontSize=12.sp)
+                            Text("右侧「行囊 / 更多」可查看地图、资源、伙伴、图鉴和设置；任务条可打开完整阶段目标。",
+                                color=Color(0xFFC9F2D9),fontSize=11.sp)
+                        }
+                    }
+                }
+            }
+        },
         containerColor=Color(0xFF1A3439),
-        titleContentColor=Color.White, textContentColor=Color(0xFFBDD5CC),
-        confirmButton={TextButton(onClick={showIslandGuideDialog=false}){Text("明白啦")}},
+        titleContentColor=Color.White,textContentColor=Color(0xFFBDD5CC),
+        confirmButton={TextButton(onClick={showIslandGuideDialog=false}){
+            Text("返回小岛")
+        }},
     )
     if (confirmReset) {
         AlertDialog(
