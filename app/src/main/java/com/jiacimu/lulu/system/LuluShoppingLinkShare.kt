@@ -23,7 +23,9 @@ internal object LuluShoppingLinkShare {
 
     private val merchantDomains = mapOf(
         "com.xunmeng.pinduoduo" to ("拼多多" to listOf("yangkeduo.com", "pinduoduo.com", "pdd.cn")),
-        "com.taobao.taobao" to ("淘宝" to listOf("taobao.com", "tmall.com", "tb.cn")),
+        // Taobao's first-level Taobao Flash entry can share ele.me URLs
+        // without switching to the standalone me.ele package.
+        "com.taobao.taobao" to ("淘宝" to listOf("taobao.com", "tmall.com", "tb.cn", "ele.me")),
         // Verified Android package IDs for Meituan and Meituan Waimai.
         // Only official HTTPS domains are eligible for a chat handoff;
         // other redirects/short links require separate source verification.
@@ -37,6 +39,17 @@ internal object LuluShoppingLinkShare {
     )
 
     internal fun merchantName(packageName: String): String? = merchantDomains[packageName]?.first
+
+    /** Distinguish Flash inside the main Taobao app from an ordinary Taobao link.
+     * Never infer the product kind from a caption or the character's prose. */
+    internal fun merchantNameForLink(packageName: String, url: String): String? {
+        if (verifiedChangedLink(packageName, null, url) != url) return null
+        if (packageName == "com.taobao.taobao") {
+            val host = runCatching { URI(url).host?.lowercase(Locale.ROOT) }.getOrNull()
+            if (host == "ele.me" || host?.endsWith(".ele.me") == true) return "淘宝闪购"
+        }
+        return merchantName(packageName)
+    }
 
     /** Also used when restoring a persisted chat card: reject arbitrary-site links. */
     internal fun matchesMerchantLink(merchant: String, url: String): Boolean =
