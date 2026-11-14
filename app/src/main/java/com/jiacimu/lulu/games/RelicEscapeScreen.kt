@@ -205,6 +205,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         secondaryLabel = "开箱",
         toolsLabel = "背包 / 战术",
+        helpAction = { rulesTab = "入门"; showRulesDialog = true },
         notice = error,
         status = if (run == null) "遗迹营地" else
             "❤ ${run.hero.hp}/10   ◇ ${run.value}   ${run.turns}回合" +
@@ -976,7 +977,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     }
 
     // Keep the first-play guide available at any time without occupying map/HUD space.
-    // The seven display ranks are derived from existing loot values; no loot is granted here.
+    // The read-only seven-rank legend mirrors the existing value bands; it never grants loot.
     if(showRulesDialog)AlertDialog(
         onDismissRequest={showRulesDialog=false},containerColor=relicInk,
         titleContentColor=Color.White,textContentColor=relicMuted,
