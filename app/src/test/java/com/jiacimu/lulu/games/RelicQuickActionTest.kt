@@ -102,6 +102,59 @@ class RelicQuickActionTest {
         assertNull(relicQuickAction(map.copy(seen = emptySet()), x to y))
     }
 
+    @Test fun joystickNeverAutoPriesEvenWhenHeldTowardAChest() {
+        val base=run()
+        val chest=base.chests.first()
+        val scene=RelicEscapeRules.reveal(base.copy(
+            hero=base.hero.copy(x=chest.x-1,y=chest.y),
+            sites=emptyList(),mobs=emptyList(),
+            seen=(0 until base.w*base.h).toSet()))
+        val command=relicDirectionAction(scene,1,0)!!
+        assertEquals("move",command.action)
+        assertEquals(chest.x to chest.y,command.x to command.y)
+        assertNull(relicDirectionAction(scene,1,1))
+        assertNull(relicDirectionAction(scene.copy(phase=RelicPhase.DOWNED),1,0))
+
+        val walking=RelicEscapeRules.act(scene,command.action,command.x,command.y)
+        assertEquals(scene.turns+1,walking.turns)
+        assertEquals(chest.x to chest.y,walking.hero.x to walking.hero.y)
+        assertFalse(walking.chests.first { it.id==chest.id }.opened)
+        assertTrue(walking.chestProgress.isEmpty())
+        assertTrue(walking.hero.bag.isEmpty())
+
+        // Standing right on the chest must NOT strand the player:
+        // only the separate centre control starts real, persisted prying.
+        val interact=relicNearbyAction(walking,1 to 0)!!
+        assertEquals("open",interact.action)
+        assertEquals(chest.x to chest.y,interact.x to interact.y)
+        val pry=RelicChestPresentation.playerAction(
+            walking,interact.action,interact.x,interact.y)
+        assertEquals("pry",pry)
+        val started=RelicEscapeRules.act(walking,pry,interact.x,interact.y)
+        assertEquals(1,started.chestProgress[chest.id])
+        assertFalse(started.chests.first { it.id==chest.id }.opened)
+    }
+
+    @Test fun joystickNeverAutoInvokesOrDisablesLandmarks() {
+        val base=run()
+        val altar=RelicSite(456,base.hero.x+1,base.hero.y,"altar")
+        val tower=altar.copy(kind="alarm")
+        for(site in listOf(altar,tower)) {
+            val scene=RelicEscapeRules.reveal(base.copy(
+                sites=listOf(site),mobs=emptyList(),
+                tiles=List(base.w*base.h){0},
+                seen=(0 until base.w*base.h).toSet()))
+            val step=relicDirectionAction(scene,1,0)!!
+            val moved=RelicEscapeRules.act(scene,step.action,step.x,step.y)
+            assertEquals(scene.turns+1,moved.turns)
+            assertFalse(moved.sites.single().spent)
+            assertEquals(scene.tools,moved.tools)
+            assertEquals(scene.hero.bag,moved.hero.bag)
+            assertTrue(relicNearbyAction(moved,1 to 0)?.action in
+                setOf("invoke","silence"))
+        }
+    }
+
     @Test fun dpadCanOpenAdjacentTreasureWithoutSelectingMapCell() {
         val base = run()
         val chest = base.chests.first()
