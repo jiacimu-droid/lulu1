@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.mapCompanionCharacters
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -127,6 +128,29 @@ class NativeResidentLifeIntegrationTest {
         MigratedDomainStores.characters.update(account.copy(persona = "主人认真改过的独立性格"))
         ResidentCharacterBridge.sync(context)
         assertEquals("主人认真改过的独立性格", MigratedDomainStores.characters.get(id).persona)
+    }
+
+    @Test fun meetingMapKeepsResidentHomesSeparateFromOwnerCompanionHomes() {
+        val companionId = "world-companion"
+        val nativeId = "resident:street-neighbor"
+        val realityId = "reality-only"
+        val companion = CharacterSettings(characterId = companionId, displayName = "世界角色")
+        val native = CharacterSettings(characterId = nativeId, displayName = "街区居民")
+        val reality = CharacterSettings(characterId = realityId, displayName = "现实角色")
+        val profiles = mapOf(
+            companionId to DigitalLifeProfile(companionId, CharacterLifeForm.DIGITAL),
+            nativeId to DigitalLifeProfile(nativeId, CharacterLifeForm.DIGITAL),
+            realityId to DigitalLifeProfile(realityId, CharacterLifeForm.REAL_WORLD),
+        )
+        // Residents deliberately have digital character brains, but not a second
+        // companion-home card or map shortcut. Real-world roles have no digital home.
+        val companions = mapCompanionCharacters(listOf(native, reality, companion), profiles)
+        assertEquals(listOf(companionId), companions.map { it.characterId })
+        val companionHomes = companions.map { DigitalWorldStore.homeLocation(it.characterId) }
+        val residentHomes = listOf(DigitalWorldStore.homeLocation(nativeId))
+        assertEquals(listOf("home:world-companion"), companionHomes)
+        assertEquals(listOf("resident-home:street-neighbor"), residentHomes)
+        assertEquals(2, (companionHomes + residentHomes).distinct().size)
     }
 
     @Test fun repeatedRealTimeSlotDoesNotWriteSecondDutyTransition() {
