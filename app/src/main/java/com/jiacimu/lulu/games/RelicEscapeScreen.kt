@@ -271,16 +271,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 onHoldChange = { joystickHeld = it },
                 onInteract = { adjacentAction?.let { action(it.action, it.x, it.y, it.id) } }) { dx, dy ->
                 facing = dx to dy
-                run?.hero?.let { hero ->
-                    val x = hero.x + dx
-                    val y = hero.y + dy
-                    val nearby = run?.let { relicQuickAction(it, x to y) }
-                    // Stepping toward usable objects interacts; fighting requires attack.
-                    if (nearby?.action in setOf("open", "pickup", "resupply",
-                            "fountain", "disarm", "invoke", "silence", "revive", "extract")) {
-                        action(nearby!!.action, nearby.x, nearby.y, nearby.id)
-                    } else {
-                        action("move", x, y)
+                // Walking is not looting. A held joystick previously could
+                // auto-pry an entire chest in a few repeat ticks, defeating
+                // the player's deliberate reveal and creating accidental turns.
+                run?.let { state ->
+                    relicDirectionAction(state, dx, dy)?.let { step ->
+                        action(step.action, step.x, step.y)
                     }
                 }
             }
