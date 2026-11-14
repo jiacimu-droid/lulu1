@@ -38,6 +38,17 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sin
 
+/** One art legend for chest shells, mid-opening glow and treasure appraisals. */
+internal fun relicGradeColor(grade:Int):Color=when(grade) {
+    0->Color(0xFFB7ADA3) // weathered silver
+    1->Color(0xFF7EDCC1) // mint
+    2->Color(0xFF70CFFF) // azure
+    3->Color(0xFFC69BFF) // violet
+    4->Color(0xFFFFD37A) // gold
+    5->Color(0xFFFF7783) // crimson
+    else->Color(0xFFFFB6F5) // prismatic
+}
+
 /** Local procedural art: no remote images, font downloads, or expensive per-frame textures. */
 @Composable
 internal fun RelicEscapeWorldMap(
@@ -213,17 +224,26 @@ internal fun RelicEscapeWorldMap(
                             t*.74f,c,style=Stroke(t*.080f))
                         drawCircle(Color(0xFFFFE4A8),t*.10f,c+Offset(t*.29f,-t*.31f))
                     }
-                    val glow=when(chest.tier) {
-                        RelicTier.COMMON->Color(0xFFD4A770)
-                        RelicTier.RARE->Color(0xFF78D9FF)
-                        RelicTier.PRECIOUS->Color(0xFFFFDB84)
-                    }
+                    val progress=run.chestProgress[chest.id] ?: 0
+                    val required=RelicEscapeRules.openSteps(chest)
+                    // A higher-rarity beam is revealed only after genuine persisted effort.
+                    // Until halfway, the treasure's grade remains concealed from the player.
+                    val revealUpgrade=!chest.opened && progress>=required/2
+                    val revealedGrade=if(revealUpgrade)
+                        RelicEscapeRules.treasure(run,chest).grade.takeIf{it in 0..6}
+                        else null
+                    val committedGrade=if(chest.opened && openingReceipt?.chestId==chest.id)
+                        openingReceipt.loot.grade.takeIf{it in 0..6} else null
+                    val glow=relicGradeColor(committedGrade ?: revealedGrade ?: chest.visibleGrade)
                     if(!chest.opened) {
                         // Show recognizable, tier-specific treasure instead of one generic brown box.
-                        val metal = when(chest.tier) {
-                            RelicTier.COMMON -> Color(0xFF6A4B39)
-                            RelicTier.RARE -> Color(0xFF274C65)
-                            RelicTier.PRECIOUS -> Color(0xFF655034)
+                        val metal = when(chest.visibleGrade) {
+                            0,1 -> Color(0xFF495864)
+                            2 -> Color(0xFF25495D)
+                            3 -> Color(0xFF493C68)
+                            4 -> Color(0xFF645036)
+                            5 -> Color(0xFF663747)
+                            else -> Color(0xFF654B70)
                         }
                         drawCircle(Brush.radialGradient(
                             listOf(glow.copy(alpha=.19f+shimmer*.19f),Color.Transparent),
@@ -239,9 +259,22 @@ internal fun RelicEscapeWorldMap(
                         drawLine(glow.copy(alpha=.85f),p+Offset(t*.20f,t*.69f),
                             p+Offset(t*.81f,t*.69f),strokeWidth=t*.025f)
                         drawRelicFacet(c+Offset(0f,t*.065f),
-                            t*(if(chest.tier==RelicTier.PRECIOUS).25f else .18f),
-                            glow, chest.tier==RelicTier.PRECIOUS)
-                        if(chest.tier==RelicTier.PRECIOUS) {
+                            t*(if(chest.visibleGrade>=4).25f else .18f),
+                            glow, chest.visibleGrade>=4)
+                        if(progress>0) {
+                            // Real opening progress follows the stored world action count.
+                            drawRoundRect(Color(0xE3131C2A),p+Offset(t*.12f,t*.82f),
+                                Size(t*.77f,t*.11f),CornerRadius(t*.04f))
+                            drawRoundRect(glow,p+Offset(t*.14f,t*.84f),
+                                Size(t*.73f*progress.toFloat()/required,t*.07f),
+                                CornerRadius(t*.025f))
+                            if(revealUpgrade && revealedGrade!=null &&
+                                revealedGrade>chest.visibleGrade) {
+                                drawCircle(glow.copy(alpha=.30f+shimmer*.26f),t*.73f,c,
+                                    style=Stroke(t*.065f))
+                            }
+                        }
+                        if(chest.visibleGrade>=4) {
                             // Crown finials make the rarest chest identifiable even while moving.
                             for(i in -1..1) {
                                 val x0=c.x+i*t*.23f
@@ -394,8 +427,8 @@ internal fun RelicEscapeWorldMap(
                 drawRelicMonsterSprite(p,t,mob.kind,shimmer)
                 // The monster silhouette and its bar reflect its *real* kind
                 // and difficulty; the old generic circles used a wrong 5/9 HP cap.
-                val maxHp=(if(mob.kind==3)9+run.level
-                    else 2+mob.kind*2+run.level/2)+run.difficulty.monsterHp
+                val maxHp=(if(mob.kind==3)12+run.level*2
+                    else 7+mob.kind*3+run.level)+run.difficulty.monsterHp
                 drawRoundRect(Color(0xE30B1420),p+Offset(-t*.32f,-t*.49f),
                     Size(t*.64f,t*.095f),CornerRadius(t*.025f))
                 drawRoundRect(if(mob.windup)Color(0xFFFF667B) else Color(0xFFE49C83),
