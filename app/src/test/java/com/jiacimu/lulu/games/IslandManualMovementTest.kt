@@ -67,6 +67,8 @@ class IslandManualMovementTest {
             friends=listOf(ExpeditionFriend("ally",5,5,hp=0))))
         assertNull(IslandManualMovement.destination(ally,1,0))
         assertTrue(IslandManualMovement.blockedHint(ally,1,0)!!.contains("2枚野果"))
+        assertTrue(IslandManualMovement.blockedHint(
+            ally.copy(fruit=2),1,0)!!.contains("点「救援」"))
         val unready=clear.copy(world=w.copy(tiles=w.tiles.toMutableList().also{
             it[w.index(5,5)]=8
         }))
