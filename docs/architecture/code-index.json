@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:14:25.477633+00:00",
-  "commit": "f433d4bb73d64815ffa970e2a593fc0b2fc02b92",
+  "generatedAt": "2026-11-14T08:16:19.965440+00:00",
+  "commit": "afa970f6f695562de5b607afafe0d31126543162",
   "branch": "main",
-  "sourceFingerprint": "b58c75aaa71d2b01deff71cf2b13b411c6235a5244d1748e230df547c5a338ea",
+  "sourceFingerprint": "446d497b3a75741ef2ebb2240021e533c9eb8ef9846c108dcc703bb6f9de6fd7",
   "summary": {
     "files": 1313,
-    "lines": 277641,
-    "symbols": 3917
+    "lines": 277664,
+    "symbols": 3918
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12628,16 +12628,22 @@
         "line": 62
       }
     ],
+    "permitsModelRequest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 72
+      }
+    ],
     "isIndividuallyPaused": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 77
+        "line": 82
       }
     ],
     "modelDecisionsUsed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-        "line": 84
+        "line": 89
       }
     ],
     "plan": [
@@ -26262,7 +26268,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1610,
-      "sha256": "e4782aafa0207752fd573334a4866dc31182ed8dd940f40b1b6a2ca792e9708c",
+      "sha256": "1c343a1b3b0c65d8b22cf913d192180c93523b30146caa9ebe82a9b1e3088491",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -33602,8 +33608,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
-      "lines": 127,
-      "sha256": "c9126319de5af86de571febf57e2e460f20381465ab0f4247e292d7f6af303f2",
+      "lines": 132,
+      "sha256": "e3d8206ba5861374178644522ccd2e67a09c28cfe0306a12dfa689b26a2ed7c8",
       "symbols": [
         {
           "name": "maxResidents",
@@ -33646,12 +33652,16 @@
           "line": 62
         },
         {
+          "name": "permitsModelRequest",
+          "line": 72
+        },
+        {
           "name": "isIndividuallyPaused",
-          "line": 77
+          "line": 82
         },
         {
           "name": "modelDecisionsUsed",
-          "line": 84
+          "line": 89
         }
       ]
     },
@@ -44729,8 +44739,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 142,
-      "sha256": "7a9e1ab2b0e86da43e59daad4feee4e73f0435865447ef7eaf5413812f96ec6f",
+      "lines": 160,
+      "sha256": "3825d1823ed476494e339069b81775967d7b400c92bc09409d1694c88452d10e",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
