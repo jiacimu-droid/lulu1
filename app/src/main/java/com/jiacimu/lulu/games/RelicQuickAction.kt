@@ -31,6 +31,15 @@ internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMo
         }.thenBy { it.id })
 }
 
+/** Keep the implicit attack cursor attached to the player after a real move.
+ * Explicitly tapped map targets stay selected; failed movement changes nothing.
+ */
+internal fun relicSelectionAfterMove(
+    selected: Pair<Int, Int>,
+    before: Pair<Int, Int>,
+    after: Pair<Int, Int>,
+): Pair<Int, Int> = if (before != after && selected == before) after else selected
+
 /** Explain a disabled attack key without inventing a successful hit. */
 internal fun relicAttackHint(run: RelicRun, selected: Pair<Int, Int>): String {
     if (run.phase == RelicPhase.DOWNED) return "已倒地，无法攻击；等待伙伴救援"
