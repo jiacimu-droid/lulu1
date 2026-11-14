@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:42:24.144980+00:00",
-  "commit": "b79c3275b9f9217956c3e9787f83d3b052138237",
+  "generatedAt": "2026-11-14T08:43:18.843011+00:00",
+  "commit": "cbe5a752aa7d6c8d900410d8bdcc638d2c974a9d",
   "branch": "main",
-  "sourceFingerprint": "33ef0a43252f31db963db2e883cbc6ac32b2f5d6397a7486422023dde7e23ce1",
+  "sourceFingerprint": "65768ebbc340149f1a58e839b24ddb072ca630266f8a24ec322e013eda2ff45a",
   "summary": {
     "files": 1313,
-    "lines": 277823,
+    "lines": 277830,
     "symbols": 3919
   },
   "symbolIndex": {
@@ -1861,7 +1861,7 @@
     "publicContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 84
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
@@ -23345,8 +23345,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 190,
-      "sha256": "1ad2bebb448a426cb90580d6dcbf5d119cfe2da682a4d36f9e1dbb09f2d5601f",
+      "lines": 193,
+      "sha256": "46bdd6ef4797ee80353a70a597122bdf65922cd8b1e18f14afe5a055fecd84fc",
       "symbols": [
         {
           "name": "hintFor",
@@ -23366,7 +23366,7 @@
         },
         {
           "name": "publicContext",
-          "line": 84
+          "line": 87
         }
       ]
     },
@@ -40516,8 +40516,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
-      "lines": 304,
-      "sha256": "30e25bdaf2fb1275309222668382b69b878db156e2e5d2030ba96bfb77dc2529",
+      "lines": 308,
+      "sha256": "0e6ad5bba217d2347f84cab66b853b538995657740e197b4ef1957fecf190b9e",
       "symbols": [
         {
           "name": "GroupChatTurnPlannerTest",
