@@ -71,12 +71,9 @@ object CapabilityRegistry {
             else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (userRequested) return true
-        val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        // Authorizing media transport reasonably includes inspecting the
-        // media session it will control, without granting all device_read data.
-        if (capability.name == "list_media_sessions" &&
-            prefs.getBoolean("$characterId:media", false)) return true
-        return prefs.getBoolean("$characterId:${capability.permission}", false)
+        // The screen grant is now the ONE owner toggle for all autonomous
+        // phone/device/cloud tools, including alarms, media and observation.
+        return com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
     }
 
     /**
@@ -125,9 +122,8 @@ object CapabilityRegistry {
         if (characterId.startsWith("resident:")) return ""
         val foreground = find("phone_ui")
         val background = find("background_phone")
-        val roleScreenGrant = context.getSharedPreferences(
-            "lulu_execution_policy", Context.MODE_PRIVATE)
-            .getBoolean("$characterId:screen", false)
+        val roleScreenGrant =
+            com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
         val screenConsent = com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
         val adbPaired = com.jiacimu.lulu.system.LuluWirelessDebugging.hasPriorPairing(context)
         val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.ownerHasPaused(context)
@@ -139,13 +135,13 @@ object CapabilityRegistry {
             appendLine("主人全局按需屏幕授权=$screenConsent；本角色自主操作屏幕授权=$roleScreenGrant；" +
                 "本机无线调试已保存配对密钥=$adbPaired；主人已暂停后台操作=$stopped；" +
                 "当前系统支持独立焦点屏的版本要求=$supported。")
-            appendLine("主人对本角色的微信发送授权=" +
+            appendLine("主人统一手机操作授权涵盖微信消息=" +
                 com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId) +
                 "；若已开启，可由本人自主选择是否在微信给谁发什么消息；必须先真实导航至唯一聊天对象，" +
                 "用最新screenSnapshotId调用send_chat_message并提供recipient和text。只有核实的" +
                 "聊天标题、非搜索输入框读回、发送按钮单次点击才会派发；点击不代表对方送达。" +
-                "未授权时可浏览或提出授权，不要把一刀切禁发当成人物性格。")
-            appendLine("主人对本角色的购物前置操作授权=" +
+                "总授权未开启时请提出开启虚拟屏幕总授权，不要把一刀切禁发当成人物性格。")
+            appendLine("主人统一手机操作授权涵盖购物导航=" +
                 com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId) +
                 "；开启时可依据真实商品与后台控件，自主挑选、加购、选规格、点击进入结算；" +
                 "购买类控件只通过最新screenSnapshotId的tap_element。禁止提交/确认订单、" +
@@ -175,7 +171,7 @@ object CapabilityRegistry {
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|send_chat_message|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,text:send_chat_message必填的正文(微信发消息需主人额外授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|send_chat_message|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,text:send_chat_message必填的正文(微信发消息需统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }
