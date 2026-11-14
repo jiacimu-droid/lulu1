@@ -49,7 +49,15 @@ internal object RelicArsenal {
             "bow"->if(s.weapon>=2)5 else 4
             else->if(s.weapon>=2)4 else 2
         }
-        return (base-if(target.kind==1 || target.kind==3)1 else 0).coerceAtLeast(1)
+        // Armor punishes the starter blade; polearms can keep distance and crossbows
+        // penetrate armor but spend a scarce bolt. An upgrade remains worthwhile.
+        val armored=target.kind==1 || target.kind==3
+        val armorPenalty=if(!armored)0 else when(s.equipped) {
+            "blade"->2
+            "spear"->1
+            else->0
+        }
+        return (base-armorPenalty).coerceAtLeast(1)
     }
     fun monsterName(kind: Int): String = when(kind) {
         0->"洞穴徘徊者"; 1->"铠甲守卫"; 2->"狂热祭司"; else->"遗迹哨兵"
