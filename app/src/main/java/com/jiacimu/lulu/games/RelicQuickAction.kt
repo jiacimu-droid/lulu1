@@ -68,6 +68,9 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
         if (site?.kind == "altar") return RelicQuickAction("invoke", "唤醒古老祭坛",
             "可获取珍宝，也会惊动守卫", x, y)
+        if(site?.kind=="alarm")return RelicQuickAction("silence",
+            "拆除遗迹钟楼"+if(run.tools>0)" · 工具-1" else " · 缺少工具",
+            "拆除后开箱不再触发追兵；保留工具也可冒险继续搜宝", x, y)
         if (site?.kind == "supply") return RelicQuickAction("resupply", "搜寻战地补给",
             "拾取药剂和弩箭，储备有限", x, y)
         if (site?.kind == "fountain" && hero.hp<10) return RelicQuickAction("fountain", "汲取恢复灵泉",
