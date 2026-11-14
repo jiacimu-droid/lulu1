@@ -122,6 +122,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         val openingRun=run
         // A rejected action must not erase the last committed physical loot receipt.
         if (!change{ledger.perform(effectiveType,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
+        // A successful walk must carry the implicit cursor with the hero.
+        // Do not erase a deliberate map selection or move the cursor on rejection.
+        if (effectiveType == "move") {
+            val previousHero = openingRun?.hero
+            val currentHero = snapshot.run?.hero
+            if (previousHero != null && currentHero != null) {
+                selected = relicSelectionAfterMove(
+                    selected, previousHero.x to previousHero.y,
+                    currentHero.x to currentHero.y)
+            }
+        }
         // A persisted no-op (for example, an invalid tap) is not a committed world action.
         chestHud=chestHud.afterWorldTurn(before, snapshot.run?.turns)
         if(effectiveType=="open" && openingRun!=null && unopened!=null) {
