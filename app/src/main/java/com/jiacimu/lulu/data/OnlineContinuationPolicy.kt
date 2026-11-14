@@ -61,8 +61,8 @@ internal object OnlineContinuationPolicy {
         steps: org.json.JSONArray?): Boolean = primaryWorldAction == "go_home" ||
         (0 until (steps?.length() ?: 0)).any { index ->
             val step = steps?.optJSONObject(index)
-            step?.optString("tool") == "digital_world_action" &&
-                step.optJSONObject("args")?.optString("worldAction") == "go_home"
+            step?.takeIf { it.optString("tool") == "digital_world_action" }
+                ?.optJSONObject("args")?.optString("worldAction") == "go_home"
         }
 
     internal fun maySettleRestAtLocation(choseReturnHome: Boolean,
