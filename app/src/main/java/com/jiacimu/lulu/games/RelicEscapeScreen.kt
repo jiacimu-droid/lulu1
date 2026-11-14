@@ -513,10 +513,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val attackTarget=relicAttackTarget(run,selected)
                 val nearby=run.chests.firstOrNull { !it.opened && run.visible(it.x,it.y) &&
                     RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
-                val chosen=run.chests.firstOrNull { !it.opened && run.visible(it.x,it.y) &&
-                    it.x==selected.first && it.y==selected.second &&
-                    RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
-                val chest=chosen ?: nearby
+                // An explicit chest selection must never silently open another nearby chest.
+                // The selected chest may be distant; keep the button disabled until approached.
+                val selectedChest=run.chests.firstOrNull { !it.opened &&
+                    run.visible(it.x,it.y) && it.x==selected.first && it.y==selected.second }
+                val chest=if(selectedChest!=null) {
+                    selectedChest.takeIf {
+                        RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1
+                    }
+                } else nearby
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
                     GameHudQuickAction("攻击",relicGold,attackTarget!=null,
                         Modifier.weight(1f)) {
