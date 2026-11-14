@@ -277,3 +277,9 @@
 - 正式 `RelicQuickAction.kt` 的 `relicNearbyAction` 之前先检查面朝方向及相邻格的宝箱/地标，最后才看玩家脚下；因此即使脚下已有真实掉落，面对邻格宝箱按中心键仍会撬邻格箱子。`3f261e476dffb30852aa753aef1d3f9132b62858` 只将脚下合法 `pickup` 提前，仍调用原 `RelicEscapeRules.act` 进行物理距离、容量、实体 ID、回合和存档结算；脚下无可拾取物时仍保持面朝方向优先。源码 blob `4c85e1fc4b67f9b90539c72d8a80dbc5441e996f`。
 - `f1950d27261028e4dab81047acc3533d35266450` 新增 `RelicQuickActionTest.dpadPicksUpPhysicalLootUnderfootBeforeFacingAnotherChest`：面对相邻未开宝箱时先拾取脚下实体、背包唯一 ID、地面消失、邻箱不误开，随后能继续开箱并重读存档；测试 blob `76d073ba2e5994cbdc31bac8ce8fae7a13fe7f71`。没有改变掉率/角色选择/美术。
 - 已确认旧 `457f870` 的 main push `Lulu APK #43623479963` 和索引 `#43623479961` 均 completed/success；较新 `28adf80` 的 `Lulu APK #43628014586`、索引 `#43628014598` 均 completed/success。**这些不是本轮测试 SHA**。本轮查询时生产提交 `3f261e4` 的 APK #43629400242 / 索引 #43629400264 仍 in_progress，测试 `f1950d2` 的新 push 结果尚未出现，故 JVM/APK/index 不能标绿。下一实际入口：`RelicQuickActionTest.kt` 新测试 JVM 首错，`RelicEscapeScreen.kt` 的 D-pad 交互与满包提示；真机横屏、帧率、真实模型协作仍待独立验收。
+
+
+## 2026-11-15 G-03.5 · 明确选中远处敌人不得误伤旁边敌人（新 CI 待验）
+
+- 正式 `RelicQuickAction.kt` 的 `relicAttackTarget` 原先在选中的活敌人不可攻击时，退而选取其他可攻击敌人，导致玩家明确点远处目标后攻击键可能误打近处另一只。生产 `53456def43d0f5a286cec6953c5fdede04155a6e` 仅在明确选中活敌人但不可攻击时返回不可用；点主角位置时的附近敌人快捷攻击保持原状，不自动攻击、不花回合、不更改角色选择或敌人掉落。源码 blob `194fa6ddf01bf060fc3375773408be9b41e0f48f`。
+- 回归 `db8edfa905b3fe62cc5d4fb4ffe0ce3d130c7156` 在 `RelicQuickActionTest.explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy` 检查远处选中不可重定向、附近快捷攻击仍可用、明确选择近敌有效、射程提示真实。测试 blob `d98bb2d2114786e55224699312ad9fe06e7c6255`。提交后 main HEAD 与测试提交一致；GitHub combined statuses 为空，PR-only workflow 查询无记录，**不能据此判定 main push JVM/APK/index 成功或失败**。下一入口：核后继 main push 的真实 Actions JVM/APK/index 与 `RelicQuickActionTest.kt` 首错，再查 `RelicEscapeScreen.kt` 攻击按钮禁用提示及 360dp/412dp 真机横屏触控。真实模型、帧率与视觉另验。
