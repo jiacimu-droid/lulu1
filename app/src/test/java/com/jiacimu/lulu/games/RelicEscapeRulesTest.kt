@@ -67,6 +67,34 @@ class RelicEscapeRulesTest {
         assertEquals(opened.turns,replay.turns)
     }
 
+    @Test fun discoveringAndDisablingTheRealBellPreventsGreedyChestReinforcements() {
+        val base=RelicEscapeWorld.create(1991,2,emptyList(),2,1)
+        val older=RelicChest(91,4,4,RelicTier.RARE,opened=true,grade=2)
+        val current=RelicChest(92,7,6,RelicTier.PRECIOUS,grade=4)
+        val tower=RelicSite(19,10,10,"alarm")
+        val scene=base.copy(tiles=List(base.w*base.h){0},
+            seen=(0 until base.w*base.h).toSet(),
+            hero=base.hero.copy(x=6,y=6),mobs=emptyList(),
+            chests=listOf(older,current),sites=listOf(tower))
+        val loot=RelicEscapeRules.act(scene,"open",current.x,current.y)
+        assertTrue(loot.chests.last().opened)
+        assertEquals("A noisy second high-grade box summons a physical pursuer",
+            1,loot.mobs.count { it.hp>0 })
+        assertTrue(loot.events.any { it.action=="alarm" })
+        val disable=scene.copy(hero=scene.hero.copy(x=9,y=10))
+        assertEquals("silence",relicNearbyAction(disable,1 to 0)?.action)
+        val silenced=RelicEscapeRules.act(disable,"silence",10,10)
+        assertEquals(1,silenced.tools)
+        assertTrue(silenced.sites.single().spent)
+        val resumed=silenced.copy(hero=silenced.hero.copy(x=6,y=6))
+        val safer=RelicEscapeRules.act(resumed,"open",current.x,current.y)
+        assertTrue(safer.chests.last().opened)
+        assertTrue(safer.mobs.isEmpty())
+        val persisted=RelicRun.read(JSONObject(safer.json().toString()))!!
+        assertTrue(persisted.sites.single().spent)
+        assertTrue(persisted.chests.last().opened)
+    }
+
     @Test fun spammingStarterSwordCannotPermanentlyStunlockThreats() {
         val base=RelicEscapeWorld.create(618,1,emptyList(),0,1)
         val world=base.copy(tiles=List(base.w*base.h){0},
