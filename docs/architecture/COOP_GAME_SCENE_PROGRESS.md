@@ -283,3 +283,9 @@
 
 - 正式 `RelicQuickAction.kt` 的 `relicAttackTarget` 原先在选中的活敌人不可攻击时，退而选取其他可攻击敌人，导致玩家明确点远处目标后攻击键可能误打近处另一只。生产 `53456def43d0f5a286cec6953c5fdede04155a6e` 仅在明确选中活敌人但不可攻击时返回不可用；点主角位置时的附近敌人快捷攻击保持原状，不自动攻击、不花回合、不更改角色选择或敌人掉落。源码 blob `194fa6ddf01bf060fc3375773408be9b41e0f48f`。
 - 回归 `db8edfa905b3fe62cc5d4fb4ffe0ce3d130c7156` 在 `RelicQuickActionTest.explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy` 检查远处选中不可重定向、附近快捷攻击仍可用、明确选择近敌有效、射程提示真实。测试 blob `d98bb2d2114786e55224699312ad9fe06e7c6255`。提交后 main HEAD 与测试提交一致；GitHub combined statuses 为空，PR-only workflow 查询无记录，**不能据此判定 main push JVM/APK/index 成功或失败**。下一入口：核后继 main push 的真实 Actions JVM/APK/index 与 `RelicQuickActionTest.kt` 首错，再查 `RelicEscapeScreen.kt` 攻击按钮禁用提示及 360dp/412dp 真机横屏触控。真实模型、帧率与视觉另验。
+
+## 2026-11-15 G-03.5 · 已击败的手动选中敌人不得重定向攻击
+
+- `RelicQuickAction.kt` 修复手动选中已死亡敌人时错误改打附近活敌人的目标归属缺口；明确选中活敌但超出射程的既有保护保持。`eb9c910220f208f50ec83acfc539c6b5911678db`，源码 blob `4d52c20628f5107dc01ff3f93faa94d371c874ba`。
+- `RelicQuickActionTest.defeatedSelectedEnemyNeverRedirectsAttackToAnotherLivingEnemy` 覆盖已击败目标不重定向、未指定目标仍能攻击近敌、指定近敌可攻击；`e92f7235bf0fbd3935f68f9c1a74c19ea5bb9198`，测试 blob `6843ffd9f7102f9ae632ea2849864a748a3cb3c8`。不更改怪物掉落、生命、角色自主意愿或物理回合。
+- 已核此前 `db8edfa` 的 Lulu APK/JVM #43634622678 与索引 #43634622606 均 success；**这不代表新测试已通过**。本轮新 push 的 JVM/APK/index 需按 `e92f723` 或后继包含该提交的 head_sha 复核；真机触控、横屏、帧率、美术、模型协作仍未验。下一入口 `RelicQuickActionTest.kt` 新测试 CI 首错、`RelicEscapeScreen.kt` 攻击键禁用状态与实际点选后重进场景。
