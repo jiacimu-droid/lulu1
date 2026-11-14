@@ -415,7 +415,7 @@ internal object LuluBackgroundPhoneSession {
         unreadAtStart: Set<String>, text: String,
     ): SearchDispatch {
         suspend fun interruption(): JSONObject? {
-            if (ownerHasPaused(context) || !LuluScreenAwareness.onDemandAllowed(context) ||
+            if (ownerHasPaused(context) || !LuluRolePhoneAuthorization.isGranted(context, characterId) ||
                 LuluScreenAwareness.isExcluded(context, packageName) ||
                 context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true) {
                 return JSONObject().put("status", "denied")
@@ -500,8 +500,8 @@ internal object LuluBackgroundPhoneSession {
             check(!ownerHasPaused(context)) {
                 "主人已停止后台手机操作；必须由主人在设置中重新允许"
             }
-            check(LuluScreenAwareness.onDemandAllowed(context)) {
-                "主人尚未授权手机屏幕访问"
+            check(LuluRolePhoneAuthorization.isGranted(context, characterId)) {
+                "请先开启本角色的虚拟屏幕总授权"
             }
             val userLocked = context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true
             check(!userLocked) { "手机处于锁屏状态，后台屏幕操作暂不可用" }
@@ -537,7 +537,7 @@ internal object LuluBackgroundPhoneSession {
                 return JSONObject().put("success", false).put("accepted", false)
                     .put("status", "denied").put("errorCode", "chat_send_owner_permission_missing")
                     .put("taskCompleted", false).put("mode", "independent_virtual_display")
-                    .put("verification", "请先在角色管理里开启本角色的微信发消息授权，尚未发送任何消息")
+                    .put("verification", "请先开启本角色的虚拟屏幕总授权，尚未发送任何消息")
                     .toString()
             }
             val requestedPackage = if (action == "launch" &&
@@ -824,7 +824,7 @@ internal object LuluBackgroundPhoneSession {
                     ) {
                         LuluVirtualChatSendPolicy.isEnabled(context, characterId) &&
                             !ownerHasPaused(context) &&
-                            LuluScreenAwareness.onDemandAllowed(context) &&
+                            LuluRolePhoneAuthorization.isGranted(context, characterId) &&
                             context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
                             !LuluScreenAwareness.isExcluded(context, activeApp)
                     }
@@ -1048,7 +1048,7 @@ internal object LuluBackgroundPhoneSession {
             // No second screenshot, model call, synthetic pixels or chat post.
             val screenArchive = if (hasFrame &&
                 frame.optBoolean("newerThanPreviousCapture", false) &&
-                LuluScreenAwareness.onDemandAllowed(context) &&
+                LuluRolePhoneAuthorization.isGranted(context, characterId) &&
                 !LuluScreenAwareness.isExcluded(context, visible.packageName) &&
                 !ownerHasPaused(context) &&
                 context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true) {
