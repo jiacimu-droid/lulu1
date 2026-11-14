@@ -994,10 +994,13 @@ function activatePendingSpeechMoment() {
   // An audible next clip should take over the *current* physical motion,
   // not force Cubism to an idle frame before the next authored clip loads.
   // Explicit interruption, model disposal and motionless replies still stop it.
+  // A motion scheduled for a later, audible score beat must not take over
+  // the previous kiss at the FIRST syllable of this new fragment.
+  // The beat's real motion() call will hand off the camera when it executes.
   if (parts?.replace) clearSpeechMoment({
-    preserveCurrentMotion: !!(parts?.motion || parts?.hasMotionBeats),
-    cancelKiss: !!(parts?.motion || parts?.hasMotionBeats),
-    softenKiss: !!(parts?.motion || parts?.hasMotionBeats),
+    preserveCurrentMotion: !!parts?.motion,
+    cancelKiss: !!parts?.motion,
+    softenKiss: !!parts?.motion,
   })
   if (parts?.motion) motion(parts.motion.group, parts.motion.index, true,
     'character', parts.motionOptions || {})
@@ -1924,11 +1927,15 @@ function perform(cue, immediatePreview = false) {
     scoreVisualSequence !== audioVisualSequence
   const hasChosenNextMotion = !!cue.motion ||
     (Array.isArray(cue.beats) && cue.beats.some(beat => !!beat?.motion))
+  // The next turn's decision may reach the WebView long before its TTS
+  // first audio sample. Keep the prior kiss's bounded lease intact until
+  // the exact new voice begins; pending Motion3 has not taken the stage yet.
+  const nextMotionCanStartNow = hasChosenNextMotion && !awaitingOwnVoice
   if (playing || immediatePreview)
     clearSpeechMoment({
       preserveCurrentMotion: hasChosenNextMotion,
-      cancelKiss: immediatePreview || hasChosenNextMotion,
-      softenKiss: !immediatePreview && hasChosenNextMotion,
+      cancelKiss: immediatePreview || nextMotionCanStartNow,
+      softenKiss: !immediatePreview && nextMotionCanStartNow,
     })
   else speechMotionFollowUps = []
   if (!playing && !immediatePreview) pendingSpeechParts = { queuedAt: Date.now(), replace: true }
