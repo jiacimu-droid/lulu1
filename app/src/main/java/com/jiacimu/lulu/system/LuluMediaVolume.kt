@@ -15,9 +15,10 @@ internal object LuluMediaVolume {
         targetPercent: Int = 0, deltaPercent: Int = 0,
     ): String {
         val result = JSONObject()
-        val authorized = LuluRolePhoneAuthorization.isGranted(context, characterId)
+        val authorized = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+            .getBoolean("$characterId:media", false)
         if (!authorized) return result.put("success", false)
-            .put("error", "角色尚未取得虚拟屏幕总授权").toString()
+            .put("error", "角色尚未取得媒体音量操作授权").toString()
         return runCatching {
             val manager = context.getSystemService(AudioManager::class.java)
             val max = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
