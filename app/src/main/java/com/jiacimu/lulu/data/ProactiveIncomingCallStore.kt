@@ -147,7 +147,7 @@ object ProactiveIncomingCallStore {
             "replaced" -> "未接通（被下一通来电替换）"
             else -> "未接通（来电邀请超时，无接听记录）"
         }
-        val fact = "[共同活动] $time ${conversation.title}发起的$media来电$detail；手机来电通知实际显示与否尚未确认"
+        val fact = "[共同活动] $time ${conversation.title}发起的${media}来电${detail}；手机来电通知实际显示与否尚未确认"
         MigratedDomainStores.chat.appendSystemReceipt(
             call.conversationId,
             "incoming-call-unconnected-${call.characterId}-${call.createdAt.toEpochMilli()}",
