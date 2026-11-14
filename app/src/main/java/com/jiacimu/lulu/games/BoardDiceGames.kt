@@ -133,7 +133,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         )
         // The canonical record belongs to the invited role; other participants must
         // receive their own truthful outcome observation rather than remain unaware.
-        players.mapNotNull { it.characterId }.drop(1).forEach { participantId ->
+        players.mapNotNull { it.characterId }.forEach { participantId ->
             com.jiacimu.lulu.data.SharedExperienceTimeline.record(
                 eventId = "game-raw-$recordId-participant-$participantId",
                 characterId = participantId,
