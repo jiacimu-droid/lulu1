@@ -155,11 +155,11 @@ class LuluGameStore internal constructor(context: Context) {
 
     /** Unfinished Yacht play survives chat navigation, activity recreation and process death. */
     @Synchronized
-    fun yachtMatch(): YachtMatchSnapshot? =
+    internal fun yachtMatch(): YachtMatchSnapshot? =
         YachtMatchSnapshot.fromJson(prefs.getString(KEY_YACHT_MATCH, null))
 
     @Synchronized
-    fun openYachtMatch(): YachtMatchSnapshot {
+    internal fun openYachtMatch(): YachtMatchSnapshot {
         yachtMatch()?.let { return it }
         val snapshot = mutableState.value
         val companions = if (snapshot.playWithCharacter) snapshot.selectedCharacterIds.distinct().take(3)
@@ -172,7 +172,7 @@ class LuluGameStore internal constructor(context: Context) {
     }
 
     @Synchronized
-    fun saveYachtMatch(next: YachtMatchSnapshot) {
+    internal fun saveYachtMatch(next: YachtMatchSnapshot) {
         if (yachtMatch()?.id != next.id) return
         check(prefs.edit().putString(KEY_YACHT_MATCH, next.toJson()).commit()) {
             "快艇对局保存失败，请勿退出当前游戏"
@@ -180,7 +180,7 @@ class LuluGameStore internal constructor(context: Context) {
     }
 
     @Synchronized
-    fun restartYachtMatch(companionIds: List<String>? = null): YachtMatchSnapshot {
+    internal fun restartYachtMatch(companionIds: List<String>? = null): YachtMatchSnapshot {
         val previous = yachtMatch()
         val match = YachtMatchSnapshot(
             companionIds = companionIds?.distinct()?.take(3) ?: previous?.companionIds
