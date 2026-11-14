@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:29:16.473001+00:00",
-  "commit": "8ad38f98578b7feac2e8735b1d39640a3d953426",
+  "generatedAt": "2026-11-14T16:36:43.854360+00:00",
+  "commit": "8100ec67dfbd9520383bf69b3197e3e35bdf1eeb",
   "branch": "main",
-  "sourceFingerprint": "d80b4b909676875907c4f7b0defa26b2ef48a7f94e657a2769cbe5c2ebb0084c",
+  "sourceFingerprint": "62eed96fd750caa6483c42a5537a226a2a483514bd81abc2c5b6e42f420e885a",
   "summary": {
     "files": 1322,
-    "lines": 279829,
-    "symbols": 3943
+    "lines": 279849,
+    "symbols": 3945
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3315,37 +3315,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1734
+        "line": 1738
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1736
+        "line": 1740
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1755
+        "line": 1759
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2247
+        "line": 2251
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2408
+        "line": 2412
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2548
+        "line": 2552
       }
     ],
     "returnToList": [
@@ -4039,7 +4039,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 308
+        "line": 310
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -4385,7 +4385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 191
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4589,7 +4589,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 202
+        "line": 203
       }
     ],
     "install": [
@@ -6411,31 +6411,31 @@
     "latestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 77
+        "line": 78
       }
     ],
     "hasCompletedDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "hasDecisionReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 84
+        "line": 85
       }
     ],
     "hasAppraisalReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 89
+        "line": 90
       }
     ],
     "resumeCommitted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 100
+        "line": 101
       }
     ],
     "provenanceProblem": [
@@ -7759,13 +7759,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 184
+        "line": 185
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 292
+        "line": 293
       }
     ],
     "keepOrBlank": [
@@ -10102,94 +10102,106 @@
         "line": 325
       }
     ],
-    "callEndDescription": [
+    "isRoleInitiatedCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
         "line": 19
       }
     ],
+    "shouldStartPostCallPerception": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 26
+      }
+    ],
+    "callEndDescription": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 32
+      }
+    ],
     "callQuietDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 36
+        "line": 49
       }
     ],
     "recordUserActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 51
+        "line": 64
       }
     ],
     "recordCallStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 84
+        "line": 97
       }
     ],
     "recordVideoSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 101
+        "line": 114
       }
     ],
     "recordVideoRendered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 118
+        "line": 131
       }
     ],
     "recordCallMediaSwitch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 136
+        "line": 149
       }
     ],
     "avatarContactDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 157
+        "line": 170
       }
     ],
     "recordAvatarTouches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 188
+        "line": 201
       }
     ],
     "recordAvatarTouch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 226
+        "line": 239
       }
     ],
     "hasRenderedVideo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 234
+        "line": 247
       }
     ],
     "hasSelectedVideo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 238
+        "line": 251
       }
     ],
     "callMediaSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 243
+        "line": 256
       }
     ],
     "recordCallQuiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 254
+        "line": 267
       }
     ],
     "recordCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 279
+        "line": 292
       }
     ],
     "reviewAt": [
@@ -24592,8 +24604,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2694,
-      "sha256": "32076923a9b7732baecfcae28ed4cc79f079304f00124ecdb5499677909bdc6e",
+      "lines": 2698,
+      "sha256": "2674ce30227457eb69e47c655080fe32b8a1246b225d7cb2ce098ef48429a519",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -24665,27 +24677,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1734
+          "line": 1738
         },
         {
           "name": "clearWhenHeard",
-          "line": 1736
+          "line": 1740
         },
         {
           "name": "enqueueSpoken",
-          "line": 1755
+          "line": 1759
         },
         {
           "name": "sameSession",
-          "line": 2247
+          "line": 2251
         },
         {
           "name": "retryListening",
-          "line": 2408
+          "line": 2412
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2548
+          "line": 2552
         }
       ]
     },
@@ -27507,8 +27519,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 217,
-      "sha256": "d3dc78c1dd2d1d775f20a5913d2d2a120c6c8a21885c793ed7b3317692e04e1f",
+      "lines": 218,
+      "sha256": "e183b0ba1af4b2428d5f57effabca9e259f27184ac71d45c6cb39ebaf798b5ef",
       "symbols": [
         {
           "name": "hasExhaustedAttempts",
@@ -27528,27 +27540,27 @@
         },
         {
           "name": "latestPending",
-          "line": 77
+          "line": 78
         },
         {
           "name": "hasCompletedDecision",
-          "line": 82
+          "line": 83
         },
         {
           "name": "hasDecisionReceipt",
-          "line": 84
+          "line": 85
         },
         {
           "name": "hasAppraisalReceipt",
-          "line": 89
+          "line": 90
         },
         {
           "name": "resumeCommitted",
-          "line": 100
+          "line": 101
         },
         {
           "name": "instruction",
-          "line": 202
+          "line": 203
         }
       ]
     },
@@ -28696,8 +28708,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 324,
-      "sha256": "092e37fab93808341cb34986397ef062f6f5b30625193b405c6f7f0570570294",
+      "lines": 326,
+      "sha256": "d9a3e520c6ebea1b9d8f79109e16ebeec5e1cc8b5ae0d0689b2ac39c06469a22",
       "symbols": [
         {
           "name": "integrate",
@@ -28725,19 +28737,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 184
+          "line": 185
         },
         {
           "name": "pending",
-          "line": 191
+          "line": 192
         },
         {
           "name": "stimulus",
-          "line": 292
+          "line": 293
         },
         {
           "name": "render",
-          "line": 308
+          "line": 310
         }
       ]
     },
@@ -31242,68 +31254,76 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-      "lines": 308,
-      "sha256": "d7a23a862a38be16c5c8689843fb757364e1fe16f8fe962f8cb2f5e2844c7e16",
+      "lines": 321,
+      "sha256": "ad7638f88ccb1f3640777fc536c57bd457a7fa5f76da94ce80292a9412c41e05",
       "symbols": [
         {
-          "name": "callEndDescription",
+          "name": "isRoleInitiatedCallEnd",
           "line": 19
         },
         {
+          "name": "shouldStartPostCallPerception",
+          "line": 26
+        },
+        {
+          "name": "callEndDescription",
+          "line": 32
+        },
+        {
           "name": "callQuietDescription",
-          "line": 36
+          "line": 49
         },
         {
           "name": "recordUserActivity",
-          "line": 51
+          "line": 64
         },
         {
           "name": "recordCallStart",
-          "line": 84
+          "line": 97
         },
         {
           "name": "recordVideoSelected",
-          "line": 101
+          "line": 114
         },
         {
           "name": "recordVideoRendered",
-          "line": 118
+          "line": 131
         },
         {
           "name": "recordCallMediaSwitch",
-          "line": 136
+          "line": 149
         },
         {
           "name": "avatarContactDescription",
-          "line": 157
+          "line": 170
         },
         {
           "name": "recordAvatarTouches",
-          "line": 188
+          "line": 201
         },
         {
           "name": "recordAvatarTouch",
-          "line": 226
+          "line": 239
         },
         {
           "name": "hasRenderedVideo",
-          "line": 234
+          "line": 247
         },
         {
           "name": "hasSelectedVideo",
-          "line": 238
+          "line": 251
         },
         {
           "name": "callMediaSummary",
-          "line": 243
+          "line": 256
         },
         {
           "name": "recordCallQuiet",
-          "line": 254
+          "line": 267
         },
         {
           "name": "recordCallEnd",
-          "line": 279
+          "line": 292
         }
       ]
     },

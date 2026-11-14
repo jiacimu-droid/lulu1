@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8ad38f98578b7feac2e8735b1d39640a3d953426`
+- 基准提交：`8100ec67dfbd9520383bf69b3197e3e35bdf1eeb`
 - 分支：`main`
 - 已索引文件：1322
-- 已索引代码/文本行：279829
-- 已发现符号：3943
+- 已索引代码/文本行：279849
+- 已发现符号：3945
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -207,7 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2694 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2698 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -358,7 +358,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSet.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 217 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 218 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt` | 795 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 183 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
@@ -400,7 +400,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 138 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 377 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 324 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 326 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 855 | 1 |
@@ -490,7 +490,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 665 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 308 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 321 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt` | 21 | 4 |
