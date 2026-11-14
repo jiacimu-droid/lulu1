@@ -2,25 +2,18 @@ package com.jiacimu.lulu.system
 
 import android.content.Context
 
-/**
- * Owner-controlled virtual-phone messaging permission. A screen grant alone
- * does not authorize sending messages in an unrelated third-party account.
- * This grants an affordance, never a scripted character action.
+/** Chat sending follows the owner's single virtual-phone grant.
+ * Recipient, input and send-button verification still apply to each action.
  */
 internal object LuluVirtualChatSendPolicy {
     const val WECHAT = "com.tencent.mm"
-    private const val PREFS = "lulu_virtual_chat_send_owner_v1"
 
     fun isEnabled(context: Context, characterId: String): Boolean =
-        characterId.isNotBlank() && !characterId.startsWith("resident:") &&
-            context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getBoolean(characterId, false)
+        LuluRolePhoneAuthorization.isGranted(context, characterId)
 
-    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean {
-        if (characterId.isBlank() || characterId.startsWith("resident:")) return false
-        return context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putBoolean(characterId, enabled).commit()
-    }
+    /** Compatibility for older callers: there is no independent chat consent. */
+    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean =
+        LuluRolePhoneAuthorization.setGranted(context, characterId, enabled)
 
     fun validRecipient(recipient: String): Boolean =
         recipient.isNotBlank() && recipient == recipient.trim() &&
