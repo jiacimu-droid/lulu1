@@ -56,16 +56,20 @@ internal fun IslandCompanionPanel(
     var error by remember { mutableStateOf("") }
     val speaker = rememberIslandCompanionVoice { error = it }
     var dialogue by rememberSaveable(island.world.seed) { mutableStateOf(emptyList<String>()) }
-    fun submitPlayerMessage(raw: String) {
+    fun submitPlayerMessage(raw: String, fromSpeech: Boolean = false) {
         val message = raw.trim()
         if (message.isBlank()) return
         // Preserve every player message that arrives while the model is busy;
         // the conflated wake signal does not mean conflated conversation content.
         teamInbox = teamInbox.enqueue(message)
+        GameTeamConversationTimeline.recordOwner(
+            context, "block_island", island.world.seed.toString(),
+            island.world.friends.map { it.id }, message, fromSpeech,
+        )
         dialogue = (dialogue + ("你： " + message)).takeLast(6)
         speechIndex += 1
     }
-    val microphone = rememberGameSpeechInput { heard -> submitPlayerMessage(heard) }
+    val microphone = rememberGameSpeechInput { heard -> submitPlayerMessage(heard, fromSpeech = true) }
     val readCurrentIsland by rememberUpdatedState(readIsland)
     val currentSave by rememberUpdatedState(onSave)
     val currentPing by rememberUpdatedState(onPing)
@@ -156,6 +160,10 @@ internal fun IslandCompanionPanel(
                 }
                 if (choice.speech.isNotBlank()) {
                     dialogue = (dialogue + (name + "： " + choice.speech)).takeLast(6)
+                    GameTeamConversationTimeline.recordCompanion(
+                        context, "block_island", workingState.world.seed.toString(),
+                        members, id, choice.speech,
+                    )
                     speaker.enqueue(id, choice.speech)
                 } else if (!alreadyActed) {
                     val event = workingState.world.events.lastOrNull().orEmpty()
