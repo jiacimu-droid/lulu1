@@ -274,7 +274,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         movement = {
             val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
-            val adjacentAction = run?.let { relicNearbyAction(it, facing) }
+            val adjacentAction = run?.let { relicNearbyAction(it, facing, selected) }
             GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 340L,
                 stopWhen = run?.hero?.hp to run?.phase,
                 interactLabel = adjacentAction?.label ?: "附近互动",
