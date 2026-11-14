@@ -9,10 +9,6 @@ internal object LuluShoppingAssistPolicy {
     fun isEnabled(context: Context, characterId: String): Boolean =
         LuluRolePhoneAuthorization.isGranted(context, characterId)
 
-    /** Compatibility for older callers: no independent shopping consent exists. */
-    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean =
-        LuluRolePhoneAuthorization.setGranted(context, characterId, enabled)
-
     // A prepayment merchant control can open an SKU picker, cart or checkout.
     // This does NOT authorize completing a charge or any binding order.
     // Only the chosen, named node qualifies; an enclosing card/prose doesn't.
