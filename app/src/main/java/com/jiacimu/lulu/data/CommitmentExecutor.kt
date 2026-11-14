@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.system.LuluAlarmSystem
+import com.jiacimu.lulu.system.LuluAudibleWakeRinger
 import com.jiacimu.lulu.system.LuluMediaVolume
 import org.json.JSONObject
 import java.time.Instant
@@ -113,6 +114,13 @@ internal object CommitmentExecutor {
             }
             return
         }
+        // The first locally promised wake cue must be audible even when the
+        // model is slow/unavailable. Notification channel sound is not proof.
+        // Later rounds remain the character's own decision.
+        val firstLocalRing = wake && !sameCall &&
+            claimedTask.deliveryAction == "alarm_only" &&
+            claimedTask.attemptCount == 0 &&
+            LuluAudibleWakeRinger.start(appContext, claimedTask.id)
         val selected = if (wake)
             WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
         else WakeActionPlanner.Choice(WakeActionPlanner.Cue.RING)
@@ -157,7 +165,18 @@ internal object CommitmentExecutor {
 
         // A local alarm is NOT permission to place a new phone call. In a live
         // bedtime call the same reminder may use its existing audio session.
-        if (claimedTask.deliveryAction == "alarm_only") {
+        // After the first local alarm, a character may independently choose
+        // a real phone call or message to follow up. Do not trap every retry
+        // in the notification-only route. The initial alarm-only promise
+        // must not be silently converted into an unsolicited first call.
+        val audibleFollowUpContact = wake && !sameCall &&
+            claimedTask.attemptCount > 0 &&
+            selected.cue != WakeActionPlanner.Cue.WAIT &&
+            (selected.contact == WakeActionPlanner.Contact.MESSAGE ||
+                (selected.contact == WakeActionPlanner.Contact.CALL &&
+                    MigratedDomainStores.characters.get(claimedTask.characterId)
+                        .contactPolicy.proactiveCallsEnabled))
+        if (claimedTask.deliveryAction == "alarm_only" && !audibleFollowUpContact) {
             val attempt = claimedTask.attemptCount + 1
             if (wake && attempt > CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) {
                 CommitmentTaskStore.update(claimedTask.id) { old ->
@@ -174,31 +193,35 @@ internal object CommitmentExecutor {
                         it.executionToken == claimedTask.executionToken
                 }) return
             val playing = playChosenMusic()
-            val delivered = if (selected.cue == WakeActionPlanner.Cue.WAIT &&
-                !selected.systemFallback) true else if (playing) {
-                if (sameCall) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
-                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
-                }
-                true
-            } else if (sameCall) {
+            val waiting = selected.cue == WakeActionPlanner.Cue.WAIT && !selected.systemFallback
+            val connectedWakeQueued = if (!waiting && !playing && sameCall)
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                     com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                         claimedTask.characterId, wakeSpeechContext(attempt), claimedTask.id,
                         ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
                         ringSeconds = selected.ringSeconds,
                     )
+                } else false
+            if (playing && sameCall) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
                 }
-            } else {
+            }
+            val localRing = if (!waiting && !playing && !sameCall)
+                (firstLocalRing || LuluAudibleWakeRinger.start(appContext, claimedTask.id)) else false
+            val notificationPosted = if (!waiting && !playing && !sameCall)
                 androidx.core.app.NotificationManagerCompat.from(appContext).areNotificationsEnabled() &&
                     runCatching {
-                        LuluAlarmSystem.showAlarmNotification(appContext,
-                            claimedTask.linkedAlarmId ?: claimedTask.id,
+                        LuluAlarmSystem.showAlarmNotification(appContext, claimedTask.id,
                             claimedTask.characterId, characterName, claimedTask.goal)
-                    }.isSuccess
-            }
+                    }.isSuccess else false
+            // A posted notification is NOT proof that an alarm stream played.
+            val delivered = waiting || playing || connectedWakeQueued || localRing
             val reviewSeconds = if (wake) selected.reviewAfterSeconds ?: CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt)
                 else 10L * 60L
-            val review = if (delivered && reviewSeconds != null)
+            // Even an audio failure remains an unfulfilled wake duty and gets a
+            // bounded recovery decision instead of silently terminating.
+            val review = if ((delivered || notificationPosted) && reviewSeconds != null)
                 LuluAlarmSystem.create(
                     claimedTask.characterId, characterName, now.plusSeconds(reviewSeconds),
                     "${claimedTask.goal}（下一阶段或最终复查）", silentCallback = true,
@@ -207,7 +230,7 @@ internal object CommitmentExecutor {
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 if (old.status != CommitmentTaskStatus.Running ||
                     old.executionToken != claimedTask.executionToken) old else old.copy(
-                    status = if (delivered) CommitmentTaskStatus.WaitingForFeedback
+                    status = if (delivered || review != null) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
                     linkedAlarmId = review?.id, nextCheckAt = review?.triggerAt,
                     followUpKind = if (wake)
@@ -216,17 +239,21 @@ internal object CommitmentExecutor {
                     attemptCount = attempt,
                     wakeAttemptHistory = if (!wake) old.wakeAttemptHistory else
                         (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}；" +
-                            (if (playing) "播放器确认音乐开始" else if (delivered) "已安排铃声/提醒与语音，尚待播放回执" else "投递失败") +
+                            (if (playing) "播放器确认音乐开始" else if (localRing) "Android 闹钟音频已启动"
+                             else if (connectedWakeQueued) "已排入原电话待播放" else if (waiting) "角色明确选择等待"
+                             else if (notificationPosted) "仅通知送达，未确认任何闹钟音频" else "声音及通知投递失败") +
                             "；${selectionEvidence()}").takeLast(6),
-                    lastActionResult = if (!delivered)
-                        "叫醒声音未成功触发；${selectionEvidence()}"
-                        else if (selected.cue == WakeActionPlanner.Cue.WAIT)
-                            "角色选择暂时等待下一次复查；本轮没有发出声音；尚未确认已醒"
+                    lastActionResult = if (waiting)
+                        "角色选择暂时等待下一次复查；本轮没有发出声音；尚未确认已醒"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
-                        else if (sameCall) "在原电话安排本轮${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "自然说话" else "一次铃声后自然说话"}，不是连续响多遍；等待真实播放与叫醒反馈"
-                        else "本机闹钟已发出通知；未证明目标已经达成；" +
-                            (if (review != null) "已安排后续客观复查" else "复查未能安排") +
-                            selected.reason.takeIf { it.isNotBlank() }?.let { "；角色决定：$it" }.orEmpty(),
+                        else if (sameCall && connectedWakeQueued)
+                            "在原电话排入自然说话/铃声，等待实际播放回执；尚未确认已醒"
+                        else if (localRing)
+                            "Android 闹钟音频已开始播放；${if (notificationPosted) "已同步显示通知" else "通知未成功显示"}；尚未确认已醒" +
+                                (if (review != null) "；后续复查已安排" else "；后续复查未安排")
+                        else "闹钟音频未成功播放；${if (notificationPosted) "只有普通通知" else "通知也未确认"}；" +
+                            (if (review != null) "已安排有限重试" else "后续重试调度失败") +
+                            "；${selectionEvidence()}",
                 )
             }
             return
