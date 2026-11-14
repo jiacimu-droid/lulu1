@@ -21,12 +21,12 @@ class LuluShoppingAssistConsentTest {
         try {
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, a))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, b))
-            assertTrue(LuluShoppingAssistPolicy.setEnabled(ctx, a, true))
+            assertTrue(LuluRolePhoneAuthorization.setGranted(ctx, a, true))
             assertTrue(LuluShoppingAssistPolicy.isEnabled(ctx, a))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, b))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, "resident:someone"))
-            assertFalse(LuluShoppingAssistPolicy.setEnabled(ctx, "resident:someone", true))
-            assertTrue(LuluShoppingAssistPolicy.setEnabled(ctx, a, false))
+            assertFalse(LuluRolePhoneAuthorization.setGranted(ctx, "resident:someone", true))
+            assertTrue(LuluRolePhoneAuthorization.setGranted(ctx, a, false))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, a))
         } finally { prefs.edit().remove("$a:screen").remove("$b:screen").commit() }
     }
