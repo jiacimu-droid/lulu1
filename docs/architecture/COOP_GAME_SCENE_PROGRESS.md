@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-14 · 即时私聊中的角色邀玩能力认知补强（源码/测试已提交；真机/真实模型待验）
+
+- **真实反馈**：主人在江渡私聊说《迷雾摸金》时，角色回答“我这边发不了邀请”，把内置游戏误当成需要主人自己打开的外部游戏。截图只证明这一轮实际回答错误，不证明已取得原模型输出、当前安装 APK 版本或执行日志。
+- **事实核查**：主分支已有 `CompanionActionRuntime.send_game_invite` → `[游戏邀约|gameId|title]` 真实私聊消息 → 接受并跳转真实游戏的路径；`GameInvitationCatalog` 支持六款。旧前台 `capabilityContext` 只提到 `send_game_invite(gameId,text)`，没有提供准确游戏名称→ID，而在线即时私聊只列通用 `game_invite/solo_game` 参数，容易使模型混淆“手机游戏/外部App”与内置游戏馆能力（属于风险点，非已证明单次推理根因）。
+- **本次改动**：[c86090c](https://github.com/jiacimu-droid/lulu1/commit/c86090c21e57de8ddb4fdf55db001e32abdcb5a0) 与转义纠正 [ef61ab6](https://github.com/jiacimu-droid/lulu1/commit/ef61ab6aa7eada991ccc2621bef9605beca3ae42) 在同一 `GameInvitationCatalog` 上生成 `send_game_invite` 可执行说明及六款游戏名称/ID；[54f0b80](https://github.com/jiacimu-droid/lulu1/commit/54f0b80bca985d69b59ba26d8dbba914fb6b65d8) 让在线私聊也读取此单一能力说明，明确 `action=game_invite` 或 `steps.send_game_invite` 可生成真实卡片，角色仍自己决定要不要邀请；[0f2019c](https://github.com/jiacimu-droid/lulu1/commit/0f2019c5f49edd4095f5a01d0a1e93833376f016) 回归逐项检查六个真实 ID 一致和非口头代办。
+- **验证边界/下一步**：仅已提交代码及测试；当前 commit status 未返回 checks，`fetch_commit_workflow_runs` 未返回 push runs，**尚不能称编译/CI/真机验收成功**。下一轮查覆盖 [ef61ab6](https://github.com/jiacimu-droid/lulu1/commit/ef61ab6aa7eada991ccc2621bef9605beca3ae42) 的真实 main push Actions `testPhoneUnitTest`/APK；随后 Redmi 私聊说“我们玩摸金吧”→同一角色自行选择发送《迷雾摸金》可点邀约→接受→进入同一局，读回真实回执，不得再误称“发不了邀请”。若仍失败，抓当轮模型 JSON、工具回执、安装版本，继续查真实执行和认知断点，不以追加固定话术代替。
+
 ### 2026-11-14 · G-02/G-03 · 双游戏玩家操作闭环自主检查（源码/测试已提交，CI/真机待验）
 
 - **目标**：主人要求在两款游戏中主动发现手感缺口，以真实玩家的“进入→方向操作→互动→结果/继续”而非仅截图/文案验收；对应唯一看板 G-02.1/6 与 G-03.1/5。本轮不扩独立状态源，也不增加任何逐帧模型调用。
