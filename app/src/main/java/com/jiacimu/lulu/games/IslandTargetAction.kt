@@ -90,11 +90,14 @@ internal fun islandNearbyAction(
     // A deliberate map tap takes precedence over last D-pad facing, but only
     // when the authoritative rules still permit that exact nearby action.
     selectedTarget?.let { (x, y) ->
-        if (w.inBounds(x, y)) {
-            val selected = islandTargetAction(state, x to y)
-            if (selected.enabled && selected.action in allowed)
-                return IslandNearbyAction(selected.action, selected.label, x, y)
-        }
+        // An explicit target is an instruction, not a hint. If it is out of
+        // reach, blocked or not valid for this button, do not silently attack
+        // or harvest a different neighbor instead.
+        if (!w.inBounds(x, y)) return null
+        val selected = islandTargetAction(state, x to y)
+        return if (selected.enabled && selected.action in allowed)
+            IslandNearbyAction(selected.action, selected.label, x, y)
+        else null
     }
     val directions = (if(w.index(w.x,w.y) in state.lostPacks) listOf(0 to 0)
         else emptyList()) + listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
