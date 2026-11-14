@@ -59,8 +59,10 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         if (ally != null && hero.kits > 0) return RelicQuickAction("revive", "使用药剂救援队友",
             "消耗一瓶药剂救起附近倒地伙伴", id = ally.id)
         val chest = run.chests.firstOrNull { it.x == x && it.y == y && !it.opened }
-        if (chest != null) return RelicQuickAction("open", "开启${chest.tier.label}宝箱",
-            "先放进背包，成功撤离后才能入库", x, y)
+        if (chest != null) return RelicQuickAction("open",
+            "撬开"+RelicQuality.at(chest.visibleGrade).label+"宝箱 "+
+                (run.chestProgress[chest.id] ?: 0)+"/"+RelicEscapeRules.openSteps(chest),
+            "需要多次互动，每次世界都会行动；成功撤离才能永久收藏", x, y)
         val site = run.sites.firstOrNull { it.x == x && it.y == y && !it.spent }
         if (site?.kind == "trap" && run.tools > 0) return RelicQuickAction("disarm",
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
