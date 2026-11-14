@@ -73,6 +73,18 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var confirmRestart by remember{mutableStateOf(false)}
     var showRulesDialog by remember{mutableStateOf(false)}
     var rulesTab by rememberSaveable { mutableStateOf("入门") }
+    // A single optional first-entry walkthrough: not a repeating pop-up per run.
+    val firstPlayGuidePrefs=remember(context) {
+        context.getSharedPreferences("lulu_relic_first_play_guide",0)
+    }
+    LaunchedEffect(run?.id,lobbyOpen) {
+        if(!lobbyOpen && run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) &&
+            !firstPlayGuidePrefs.getBoolean("shown_v1",false)) {
+            rulesTab="入门"
+            showRulesDialog=true
+            firstPlayGuidePrefs.edit().putBoolean("shown_v1",true).apply()
+        }
+    }
     var showTactics by remember(run?.id){mutableStateOf(false)}
     var showGuide by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(true)}
