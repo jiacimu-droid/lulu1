@@ -836,7 +836,8 @@ private fun GameRecordsScreen(
                         }
                     }
                     Text(record.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")), color = GameDesign.muted, fontSize = 12.sp)
-                    Text("查看回放 ›", color = GameDesign.muted)
+                    Text(if (record.canWatchCharacterSoloProcess()) "查看结果 · 可看角色操作 ›"
+                        else "查看结果 ›", color = GameDesign.muted)
                 }
             }
         }
@@ -848,7 +849,12 @@ private fun GameReplayScreen(record: LuluGameRecord?, onBack: () -> Unit) {
     if (record == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("这条记录不存在或已被清除") }
     } else {
-        UniversalGameReplay(record, onBack)
+        var watchingCharacter by remember(record.id) { mutableStateOf(false) }
+        if (watchingCharacter && record.canWatchCharacterSoloProcess()) {
+            UniversalGameReplay(record, onBack = { watchingCharacter = false })
+        } else {
+            UniversalGameResult(record, onBack = onBack, onReplay = { watchingCharacter = true })
+        }
     }
 }
 
