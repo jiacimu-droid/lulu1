@@ -63,7 +63,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
 
     /** Realtime streams live PCM; batch Scribe automatically uploads
      * finished PCM segments through the existing ordered cloud-ASR queue. */
-    val usesServerVad: Boolean get() = realtime != null
+    val usesServerVad: Boolean get() =
+        elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME
+    /** Audio may have reached Scribe before its first partial callback arrives. */
+    val hasBufferedRealtimeAudio: Boolean get() = realtime?.hasCapturedAudio == true
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start(startMuted: Boolean = false) {
