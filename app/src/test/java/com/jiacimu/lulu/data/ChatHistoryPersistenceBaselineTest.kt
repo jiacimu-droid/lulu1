@@ -29,6 +29,26 @@ class ChatHistoryPersistenceBaselineTest {
     private val conversationId = "ui02-history-baseline"
     private val otherConversationId = "ui02-unrelated-history"
 
+    @Test fun incidentNoticeUpdateReturnsTheActuallyPersistedMessage() {
+        val previous = prefs.getString(key, null)
+        try {
+            prefs.edit().remove(key).commit()
+            val store = InMemoryLuluChatStore()
+            store.initialize(app)
+            val first = store.appendPrivateActivityNotice("ui02-character", "首次真实记录", "incident-ui02")
+            val updated = store.appendPrivateActivityNotice("ui02-character", "修正后的真实记录", "incident-ui02")
+            assertEquals(first.id, updated.id)
+            assertEquals(updated, store.messages(first.conversationId).value.first { it.id == first.id })
+            val reopened = InMemoryLuluChatStore()
+            reopened.initialize(app)
+            assertEquals(updated.content, reopened.messages(first.conversationId).value.first { it.id == first.id }.content)
+        } finally {
+            val editor = prefs.edit()
+            if (previous == null) editor.remove(key) else editor.putString(key, previous)
+            editor.commit()
+        }
+    }
+
     @Test fun thousandAndTenThousandMessagesWriteAndReopenWithoutLoss() {
         for (count in listOf(1_000, 10_000)) measure(count)
     }
