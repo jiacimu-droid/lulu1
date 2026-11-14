@@ -142,7 +142,7 @@ internal fun RelicEscapeLobby(
         }
         val tools: @Composable () -> Unit = {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                listOf("整备" to "prep","商店" to "shop","藏宝馆" to "vault")
+                listOf("整备" to "prep","商店" to "shop","藏宝馆" to "vault","指南" to "guide")
                     .forEach { (label,page) ->
                         OutlinedButton(onClick={detailPage=page},
                             modifier=Modifier.weight(1f),
@@ -212,6 +212,7 @@ internal fun RelicEscapeLobby(
                     Text(when(detailPage) {
                         "prep"->"出发整备"
                         "shop"->"营地商店"
+                        "guide"->"遗迹入门指南"
                         else->"我的藏宝馆"
                     },color=campGold,fontSize=21.sp,fontWeight=FontWeight.Black,
                         modifier=Modifier.weight(1f))
@@ -220,6 +221,46 @@ internal fun RelicEscapeLobby(
                     }
                 }
                 when(detailPage) {
+                    "guide" -> {
+                        RelicLobbyPanel {
+                            Text("第一次摸金，从这四步开始",
+                                color=campGold,fontSize=17.sp,fontWeight=FontWeight.Bold)
+                            listOf(
+                                "01 · 按住左侧摇杆移动，拖动改方向；地图点选只用于查看目标。",
+                                "02 · 靠近宝箱按「开箱」；遇到守卫用攻击、格挡和治疗。",
+                                "03 · 宝物要带回绿色撤离门，守住3回合才算真正收入仓库。",
+                                "04 · 下一局可换装备、补给和挑战，收藏进度不会因失败清空。"
+                            ).forEach { step ->
+                                Text(step,color=Color.White,fontSize=12.sp,lineHeight=18.sp)
+                            }
+                            Text("入场后左上「指南」可随时查具体操作；不会每局强制重放教程。",
+                                color=campMint,fontSize=11.sp)
+                        }
+                        RelicLobbyPanel {
+                            Text("七档珍宝 · 从常见到传世",
+                                color=campGold,fontSize=16.sp,fontWeight=FontWeight.Bold)
+                            listOf(
+                                "普通" to "◇70–99",
+                                "精良" to "◇100–132",
+                                "稀有" to "◇185–247",
+                                "珍贵" to "◇430–459",
+                                "史诗" to "◇460–492",
+                                "传说" to "封印之心 ◇650起",
+                                "传世秘宝" to "晨星之核 ◇6000"
+                            ).forEach { (rank,value) ->
+                                val tone=RelicTreasureGallery.rankAccent(rank)
+                                Row(Modifier.fillMaxWidth().padding(vertical=2.dp),
+                                    verticalAlignment=Alignment.CenterVertically) {
+                                    Text("◆ "+rank,color=tone,fontSize=12.sp,
+                                        fontWeight=FontWeight.Bold,
+                                        modifier=Modifier.weight(1f))
+                                    Text(value,color=campMuted,fontSize=11.sp)
+                                }
+                            }
+                            Text("七档是藏品展示价值，不是七种宝箱。宝箱仍按普通、稀有、珍贵三类生成；成功撤离才永久入库。",
+                                color=campMuted,fontSize=11.sp,lineHeight=17.sp)
+                        }
+                    }
                     "prep" -> {
 
                     RelicLobbyPanel {
