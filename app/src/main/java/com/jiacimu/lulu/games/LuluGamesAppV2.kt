@@ -53,7 +53,10 @@ private fun UniversalReplayCenter(
     onDismiss: () -> Unit,
 ) {
     var selected by remember { mutableStateOf<LuluGameRecord?>(null) }
-    BackHandler(enabled = selected != null) { selected = null }
+    var showReplay by remember(selected?.id) { mutableStateOf(false) }
+    BackHandler(enabled = selected != null) {
+        if (showReplay) showReplay = false else selected = null
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = LuluColors.Paper,
@@ -65,8 +68,8 @@ private fun UniversalReplayCenter(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
-                        Text("游戏回放", style = MaterialTheme.typography.headlineMedium)
-                        Text("所有游戏记录都可以按步骤回看；旧记录缺少步骤时会按结算字段依次展开。", color = LuluColors.Muted)
+                        Text("游戏战绩", style = MaterialTheme.typography.headlineMedium)
+                        Text("先看最终得分与胜负，回放过程可按需打开。", color = LuluColors.Muted)
                     }
                     if (records.isNotEmpty()) {
                         TextButton(onClick = onClear) { Text("清空", color = MaterialTheme.colorScheme.error) }
@@ -77,7 +80,7 @@ private fun UniversalReplayCenter(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Outlined.History, null, modifier = Modifier.size(44.dp), tint = LuluColors.BlueGray)
                             Spacer(Modifier.height(10.dp))
-                            Text("还没有可回放的游戏记录", fontWeight = FontWeight.Bold)
+                            Text("还没有已结算的游戏", fontWeight = FontWeight.Bold)
                             Text("完成一局后会自动保存。", color = LuluColors.Muted)
                         }
                     }
@@ -93,11 +96,11 @@ private fun UniversalReplayCenter(
                     }
                 }
             }
+        } else if (showReplay) {
+            UniversalGameReplay(record = selected!!, onBack = { showReplay = false })
         } else {
-            UniversalGameReplay(
-                record = selected!!,
-                onBack = { selected = null },
-            )
+            UniversalGameResult(record = selected!!,
+                onBack = { selected = null }, onReplay = { showReplay = true })
         }
     }
 }
@@ -138,6 +141,166 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
         }
     }
 }
+
+
+/** Results first. Replays are a deliberate secondary action, never the history default. */
+@Composable
+private fun UniversalGameResult(record: LuluGameRecord, onBack: () -> Unit, onReplay: () -> Unit) {
+    val yachtSheets = remember(record.id, record.detailsJson) { parseYachtScoreSheets(record.detailsJson) }
+    val details = remember(record.id, record.detailsJson) {
+        runCatching { JSONObject(record.detailsJson) }.getOrElse { JSONObject() }
+    }
+    val competitive = yachtSheets.size > 1 || details.optString("mode") == "competitive"
+    val winner = details.optString("winner")
+    val accent = Color(0xFF9BE6D8)
+    val ink = Color(0xFF102333)
+    Column(
+        Modifier.fillMaxWidth().fillMaxHeight(.88f).background(Color(0xFF101B27))
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
+                Icon(Icons.Outlined.ArrowBack, "返回游戏记录", tint = Color.White)
+            }
+            Column(Modifier.weight(1f)) {
+                Text(record.title, color = Color.White, style = MaterialTheme.typography.titleLarge)
+                Text(if (competitive) "竞技结算 · 已分胜负" else "本局结算 · 真实成绩",
+                    color = Color(0xFFB0C0C8), fontSize = 12.sp)
+            }
+            Text(record.createdAt.atZone(ZoneId.systemDefault()).format(ReplayDateFormatter),
+                color = Color(0xFF9BB0BC), fontSize = 10.sp)
+        }
+        Surface(
+            color = Color(0xFF193440), shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, accent.copy(alpha = .26f)),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                Modifier.padding(horizontal = 20.dp, vertical = 23.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(if (competitive) (if (winner == "平局") "◇ 平局" else "✦ 胜者 · ${winner.ifBlank { "查看排名" }}")
+                    else "✦ 本局得分", color = accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("${record.score}", color = Color.White,
+                    fontWeight = FontWeight.Black, fontSize = 44.sp)
+                Text(if (competitive) "你的得分 · 分数表在下方" else "最终成绩",
+                    color = Color(0xFFB5C9D3), fontSize = 12.sp)
+            }
+        }
+        LazyColumn(
+            Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(bottom = 8.dp),
+        ) {
+            if (record.type == LuluGameType.YachtDice && yachtSheets.isNotEmpty()) {
+                item {
+                    Text(if (competitive) "双方完整计分表" else "13 项最终计分",
+                        color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                }
+                item {
+                    Column(
+                        Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState())
+                    ) {
+                        val firstWidth = 86.dp
+                        val scoreWidth = 86.dp
+                        Row(
+                            Modifier.background(Color(0xFF294050), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                                .padding(vertical = 12.dp),
+                        ) {
+                            Text("项目", Modifier.width(firstWidth).padding(start = 12.dp),
+                                color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            yachtSheets.forEach { sheet ->
+                                Text(sheet.name, Modifier.width(scoreWidth),
+                                    color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                        YachtCategory.entries.forEachIndexed { index, category ->
+                            Row(
+                                Modifier.background(if (index % 2 == 0) Color(0xFF1A2A38) else Color(0xFF223342))
+                                    .padding(vertical = 11.dp),
+                            ) {
+                                Text(category.label, Modifier.width(firstWidth).padding(start = 12.dp),
+                                    color = Color(0xFFD5E1EA), fontSize = 12.sp)
+                                yachtSheets.forEach { sheet ->
+                                    Text(sheet.categories[category]?.toString() ?: "—",
+                                        Modifier.width(scoreWidth),
+                                        color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                }
+                            }
+                        }
+                        Row(Modifier.background(Color(0xFF24473E), RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+                            .padding(vertical = 13.dp)) {
+                            Text("合计", Modifier.width(firstWidth).padding(start = 12.dp),
+                                color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            yachtSheets.forEach { sheet ->
+                                Text("${sheet.total}", Modifier.width(scoreWidth),
+                                    color = accent, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                            }
+                        }
+                    }
+                }
+            } else {
+                item {
+                    Text(record.summary, color = Color(0xFFD5E1EA),
+                        fontSize = 14.sp, lineHeight = 22.sp)
+                }
+            }
+        }
+        OutlinedButton(
+            onClick = onReplay,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
+        ) {
+            Icon(Icons.Outlined.PlayCircleOutline, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text("想看过程？回放本局")
+        }
+        Spacer(Modifier.height(12.dp))
+    }
+}
+
+internal data class YachtRecordedScore(
+    val playerId: String,
+    val name: String,
+    val total: Int,
+    val categories: Map<YachtCategory, Int>,
+)
+
+/** New multiplayer sheets plus historical solo step logs, without inventing missing scores. */
+internal fun parseYachtScoreSheets(raw: String): List<YachtRecordedScore> = runCatching {
+    val details = JSONObject(raw)
+    if (details.optString("game") != "yacht_dice") return@runCatching emptyList()
+    val sheets = details.optJSONObject("scoreSheets")
+    if (sheets != null) {
+        val results = mutableListOf<YachtRecordedScore>()
+        val ids = sheets.keys()
+        while (ids.hasNext()) {
+            val id = ids.next()
+            val item = sheets.optJSONObject(id) ?: continue
+            val categoriesJson = item.optJSONObject("categories") ?: JSONObject()
+            val categories = YachtCategory.entries.filter { categoriesJson.has(it.name) &&
+                !categoriesJson.isNull(it.name) }.associateWith { categoriesJson.getInt(it.name) }
+            results += YachtRecordedScore(id, item.optString("name", id), item.optInt("total"), categories)
+        }
+        return@runCatching results.sortedBy { if (it.playerId == "user") 0 else 1 }
+    }
+    val categories = buildMap<YachtCategory, Int> {
+        val sheet = details.optJSONObject("scoreSheet")
+        if (sheet != null) {
+            YachtCategory.entries.forEach { if (sheet.has(it.name)) put(it, sheet.getInt(it.name)) }
+        } else {
+            val turns = details.optJSONArray("turns")
+            if (turns != null) for (index in 0 until turns.length()) {
+                val turn = turns.optJSONObject(index) ?: continue
+                val category = runCatching { YachtCategory.valueOf(turn.optString("category")) }.getOrNull()
+                if (category != null) put(category, turn.optInt("points"))
+            }
+        }
+    }
+    listOf(YachtRecordedScore("solo", "本局", details.optInt("total", categories.values.sum()), categories))
+}.getOrDefault(emptyList())
 
 @Composable
 internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
