@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7bffb4aca5118cd38dc9ae7fd5d0ef80e694e2fa`
+- 基准提交：`bd2528e89bfe4e388a0692930de00c0325d8e124`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：277721
+- 已索引代码/文本行：277774
 - 已发现符号：3919
 
 | 文件 | 行数 | 符号数 |
@@ -884,7 +884,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 217 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 270 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
