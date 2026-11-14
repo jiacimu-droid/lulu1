@@ -372,9 +372,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 facing = dx to dy
                 mapAim = false
                 navigateTo = null
-                val x = world.x + dx
-                val y = world.y + dy
-                val front = islandTargetAction(island, x to y)
                 // Movement NEVER performs a resource action. The player chooses
                 // gathering/opening separately; gear is thus meaningful and
                 // a held D-pad cannot accidentally destroy a crystal vein.
