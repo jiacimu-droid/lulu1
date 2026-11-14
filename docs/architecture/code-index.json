@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:44:43.050950+00:00",
-  "commit": "27febeb2b74c639c3222ec711ca01a5c359d297f",
+  "generatedAt": "2026-11-14T13:45:38.311994+00:00",
+  "commit": "78e54c55b0c6cb4dcaf83c17f3c6fc133c22425e",
   "branch": "main",
-  "sourceFingerprint": "1a349ad391e112106c75a05b0f07913965bfffef3e0d7a762c3480b718d986da",
+  "sourceFingerprint": "cf87f584f61736d1dc78cdff5f7bdaf507b796f8ed7865d5d6e821c95cee79af",
   "summary": {
     "files": 1317,
-    "lines": 279034,
+    "lines": 279038,
     "symbols": 3933
   },
   "symbolIndex": {
@@ -25557,8 +25557,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt",
-      "lines": 543,
-      "sha256": "17f3bfe5580ae2cf1c8c0fd7bd267255c326e23e3c3d4ff85167af94cc412d96",
+      "lines": 547,
+      "sha256": "32dbd98ce679fb03f6b3793b053f56cb8371fd74d34cf5ec1ded38994ec607d9",
       "symbols": []
     },
     {
