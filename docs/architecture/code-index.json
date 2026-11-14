@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:53:00.745662+00:00",
-  "commit": "cde3525b664c639d77897e85f6de1760c671f4eb",
+  "generatedAt": "2026-11-14T15:54:09.702941+00:00",
+  "commit": "3daff5ede69c220d82c64bea5c1f92d8d23ef776",
   "branch": "main",
-  "sourceFingerprint": "d88c98c17ba0ac36014b157f9b6f2218f7ebc2d0b6e311230c193921f6f8ed4f",
+  "sourceFingerprint": "451bae70534400eeaeff67b2b61c75fe7ee31e759cd79ec34df1d0c09b674b1f",
   "summary": {
     "files": 1318,
-    "lines": 279488,
-    "symbols": 3936
+    "lines": 279514,
+    "symbols": 3937
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 280
+        "line": 282
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 528
+        "line": 531
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -1759,25 +1759,25 @@
     "audioFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 188
+        "line": 190
       }
     ],
     "finishCaptureOnMute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 200
+        "line": 202
       }
     ],
     "acceptPartial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 297
+        "line": 299
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 303
+        "line": 305
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -1791,7 +1791,7 @@
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 305
+        "line": 307
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
@@ -1805,19 +1805,19 @@
     "pendingCommittedText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 311
+        "line": 313
       }
     ],
     "hasPendingText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 313
+        "line": 315
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 315
+        "line": 317
       }
     ],
     "close": [
@@ -3826,16 +3826,22 @@
         "line": 59
       }
     ],
+    "shouldQueueCapturedSegment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 67
+      }
+    ],
     "finalizeOnMute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 65
+        "line": 73
       }
     ],
     "uploadChunkFull": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 67
+        "line": 75
       }
     ],
     "leaksInternalAnalysis": [
@@ -3937,27 +3943,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 317
+        "line": 320
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 343
+        "line": 346
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 395
+        "line": 398
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 442
+        "line": 445
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 484
+        "line": 487
       }
     ],
     "payload": [
@@ -23371,8 +23377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 318,
-      "sha256": "d6f366ed0afbfcfc067addfdcd3c0c35a2d12a60e70da362932972d50938b547",
+      "lines": 320,
+      "sha256": "58391d64d9fe89347ebaf1277bfabb594753fa79677ba88467a89e4889d8a2b1",
       "symbols": [
         {
           "name": "sentAudioMillis",
@@ -23388,39 +23394,39 @@
         },
         {
           "name": "audioFrame",
-          "line": 188
+          "line": 190
         },
         {
           "name": "finishCaptureOnMute",
-          "line": 200
+          "line": 202
         },
         {
           "name": "stop",
-          "line": 280
+          "line": 282
         },
         {
           "name": "acceptPartial",
-          "line": 297
+          "line": 299
         },
         {
           "name": "preview",
-          "line": 303
-        },
-        {
-          "name": "commit",
           "line": 305
         },
         {
-          "name": "pendingCommittedText",
-          "line": 311
+          "name": "commit",
+          "line": 307
         },
         {
-          "name": "hasPendingText",
+          "name": "pendingCommittedText",
           "line": 313
         },
         {
-          "name": "takeFinal",
+          "name": "hasPendingText",
           "line": 315
+        },
+        {
+          "name": "takeFinal",
+          "line": 317
         }
       ]
     },
@@ -25116,8 +25122,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-      "lines": 70,
-      "sha256": "c199c20f3a8f0d564b467589239168ecd4398e9deb712386403edecaf2f3ea91",
+      "lines": 78,
+      "sha256": "d0aa5cdd9a3993f3ad805282e76d46a35c9fe4e4e47ba4caf88bbfcedb7d24d3",
       "symbols": [
         {
           "name": "silenceMs",
@@ -25164,12 +25170,16 @@
           "line": 59
         },
         {
+          "name": "shouldQueueCapturedSegment",
+          "line": 67
+        },
+        {
           "name": "finalizeOnMute",
-          "line": 65
+          "line": 73
         },
         {
           "name": "uploadChunkFull",
-          "line": 67
+          "line": 75
         }
       ]
     },
@@ -25281,8 +25291,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 553,
-      "sha256": "03be7cbf6c4ddebb5382a107e930acf259b2b283de9c5f6fa527dd2b107f9e66",
+      "lines": 556,
+      "sha256": "968017aaa587c87ab8bc7b579318b9d9daec158e0856e1bfecc6b4420eb8b1a7",
       "symbols": [
         {
           "name": "start",
@@ -25290,27 +25300,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 317
+          "line": 320
         },
         {
           "name": "resumeCapture",
-          "line": 343
+          "line": 346
         },
         {
           "name": "field",
-          "line": 395
+          "line": 398
         },
         {
           "name": "field",
-          "line": 442
+          "line": 445
         },
         {
           "name": "field",
-          "line": 484
+          "line": 487
         },
         {
           "name": "stop",
-          "line": 528
+          "line": 531
         }
       ]
     },
@@ -41040,8 +41050,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
-      "lines": 47,
-      "sha256": "41a8d3a87d00068a0b5a073fc4612c77cbc724420752225e4f66e7dd2d20ec95",
+      "lines": 60,
+      "sha256": "55eae2a04886ebdf7b33a6f151ad15977c4f92cbe54f1e432375a5cf9fb63b35",
       "symbols": [
         {
           "name": "PhoneMicSegmentPolicyTest",

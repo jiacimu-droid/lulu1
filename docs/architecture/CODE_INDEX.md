@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cde3525b664c639d77897e85f6de1760c671f4eb`
+- 基准提交：`3daff5ede69c220d82c64bea5c1f92d8d23ef776`
 - 分支：`main`
 - 已索引文件：1318
-- 已索引代码/文本行：279488
-- 已发现符号：3936
+- 已索引代码/文本行：279514
+- 已发现符号：3937
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -150,7 +150,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 318 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 320 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
@@ -239,14 +239,14 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 898 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 70 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 78 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 553 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 556 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 317 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
@@ -918,7 +918,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt` | 114 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 47 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt` | 97 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 37 | 1 |
