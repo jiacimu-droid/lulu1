@@ -199,6 +199,31 @@ class RelicQuickActionTest {
         assertFalse(after.sites.single().spent)
     }
 
+
+    @Test fun droppedTreasureOverlappingUnopenedChestRemainsRecoverable() {
+        val base = run()
+        val h = base.hero
+        val chest = RelicChest(718, h.x, h.y, RelicTier.PRECIOUS)
+        val loot = RelicLoot("overlap:physical:1", "地面珍宝", RelicTier.RARE, 100)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(chest), mobs = emptyList(), sites = emptyList(),
+            drops = listOf(RelicDrop(h.x, h.y, loot)),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val command = relicQuickAction(scene, h.x to h.y)!!
+        assertEquals("pickup", command.action)
+        assertEquals(loot.id, command.id)
+        val after = RelicEscapeRules.act(scene, command.action, lootId = command.id)
+        assertEquals(1, after.hero.bag.count { it.id == loot.id })
+        assertFalse(after.drops.any { it.loot.id == loot.id })
+        assertFalse(after.chests.single().opened)
+        val next = relicQuickAction(after, h.x to h.y)!!
+        assertEquals("open", next.action)
+        val restored = RelicRun.read(after.json())!!
+        assertEquals(after.hero.bag, restored.hero.bag)
+        assertFalse(restored.chests.single().opened)
+    }
+
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
         val map = run().let { it.copy(seen = (0 until it.w * it.h).toSet()) }
         val quick = relicQuickAction(map, map.exitX to map.exitY)!!
