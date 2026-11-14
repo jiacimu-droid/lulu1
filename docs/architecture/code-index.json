@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:36:43.854360+00:00",
-  "commit": "8100ec67dfbd9520383bf69b3197e3e35bdf1eeb",
+  "generatedAt": "2026-11-14T16:37:22.565744+00:00",
+  "commit": "3978e165a09bb7a6cb61cef4ee1e3f5aa12f8b9a",
   "branch": "main",
-  "sourceFingerprint": "62eed96fd750caa6483c42a5537a226a2a483514bd81abc2c5b6e42f420e885a",
+  "sourceFingerprint": "b0c330303a4b7ef76390b2e3608f3c1384295c4490f091683faf1abc92fe886c",
   "summary": {
     "files": 1322,
-    "lines": 279849,
+    "lines": 279893,
     "symbols": 3945
   },
   "symbolIndex": {
@@ -1805,7 +1805,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 735
+        "line": 779
       }
     ],
     "pendingCommittedText": [
@@ -4393,7 +4393,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 612
+        "line": 656
       }
     ],
     "section": [
@@ -18065,7 +18065,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 481
+        "line": 525
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
@@ -18963,7 +18963,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 599
+        "line": 643
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -42876,8 +42876,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 785,
-      "sha256": "c4f3d5cf9522e24f278ef3a35dd6a4c109e6ad9fd28897f9883abaff30cf84ec",
+      "lines": 829,
+      "sha256": "6fbb2fb8be51a21ec8fc234f6b03d83c0fd2c7127f5e539c7c097bdf7977a321",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -42909,19 +42909,19 @@
         },
         {
           "name": "event",
-          "line": 481
+          "line": 525
         },
         {
           "name": "recordReceipt",
-          "line": 599
+          "line": 643
         },
         {
           "name": "pending",
-          "line": 612
+          "line": 656
         },
         {
           "name": "commit",
-          "line": 735
+          "line": 779
         }
       ]
     },
