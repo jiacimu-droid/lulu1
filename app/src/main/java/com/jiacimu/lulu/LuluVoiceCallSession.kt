@@ -491,6 +491,9 @@ internal object LuluVoiceCallSession {
     // window may reach the user-message pipeline. Cloud callbacks can arrive
     // well after the character began loudspeaker playback.
     private var cloudCaptureTurnAllowed = false
+    // Permission belongs to the actual audio captured before mute, not the
+    // current microphone toggle observed when the async Scribe reply arrives.
+    private var elevenSpeechCapturedBeforeMute = false
     private var userSpeechInProgress = false
     private fun confirmedSpeechInProgress() = userSpeechInProgress &&
         (systemSpeechConfirmed || providerSpeechConfirmed)
@@ -689,6 +692,10 @@ internal object LuluVoiceCallSession {
         val pendingSystemSpeech = if (nextMuted && providerInput == null)
             SystemSpeechTurnPolicy.wordsToSubmitOnMute(systemUtteranceBuffer, systemPartialCandidate)
         else ""
+        if (nextMuted) {
+            elevenSpeechCapturedBeforeMute = cloudCaptureTurnAllowed &&
+                providerInput?.hasPendingUtterance == true
+        }
         mutableState.update {
             it.copy(
                 microphoneMuted = nextMuted,
@@ -2227,6 +2234,7 @@ internal object LuluVoiceCallSession {
         providerInput?.stop()
         activeSttConfiguration = sttConfiguration(context)
         cloudCaptureTurnAllowed = false
+        elevenSpeechCapturedBeforeMute = false
         val id = mutableState.value.callExperienceId
         fun sameSession() = inputGeneration == sttInputGeneration &&
             mutableState.value.callExperienceId == id &&
@@ -2336,9 +2344,12 @@ internal object LuluVoiceCallSession {
                     val previouslyCapturedBatch = !scribeRealtime &&
                         !userSpeechInProgress &&
                         providerRecognitionPendingUntilMillis > SystemClock.elapsedRealtime()
-                    val safeCapture = cloudCaptureTurnAllowed && !call.microphoneMuted &&
-                        (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
-                            previouslyCapturedBatch)
+                    val safeCapture = cloudCaptureTurnAllowed &&
+                        ((call.microphoneMuted && elevenSpeechCapturedBeforeMute) ||
+                            (!call.microphoneMuted &&
+                                (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
+                                    previouslyCapturedBatch)))
+                    elevenSpeechCapturedBeforeMute = false
                     cloudCaptureTurnAllowed = false
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false
@@ -2375,6 +2386,7 @@ internal object LuluVoiceCallSession {
             onError = { error -> if (sameSession()) {
                 userSpeechInProgress = false
                 cloudCaptureTurnAllowed = false
+                elevenSpeechCapturedBeforeMute = false
                 providerSpeechConfirmed = false
                 providerSpeechStartedMillis = 0L
                 providerRecognitionPendingUntilMillis = 0L
