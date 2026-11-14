@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:35:22.994372+00:00",
-  "commit": "76d344847efeafece7abd4a2d92bcfd6e3afe078",
+  "generatedAt": "2026-11-14T05:51:24.847560+00:00",
+  "commit": "35649dc3557d36bc022ff48d0906dfb2054b57e2",
   "branch": "main",
-  "sourceFingerprint": "379ab77170676b4d26eb33246e2b531e5ee8e8b11b84c8a63f37bc8ab3be5c41",
+  "sourceFingerprint": "3fc98697d52288480398ce940f18036b3a7bcd44f5bfc5b992fa6c139f352dd6",
   "summary": {
     "files": 1312,
-    "lines": 277075,
-    "symbols": 3910
+    "lines": 277160,
+    "symbols": 3912
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2377,7 +2377,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 154
+        "line": 185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -8070,6 +8070,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
         "line": 66
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 28
       }
     ],
     "renderWithBody": [
@@ -10637,7 +10641,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 126
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -14079,7 +14083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 246
+        "line": 307
       }
     ],
     "near": [
@@ -14211,7 +14215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 207
+        "line": 249
       }
     ],
     "answer": [
@@ -14273,7 +14277,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 123
+        "line": 151
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -14415,7 +14419,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 205
+        "line": 247
       }
     ],
     "reached": [
@@ -14471,19 +14475,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 55
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 62
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 69
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 74
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -14491,15 +14483,27 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 84
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 89
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 132
+        "line": 106
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 110
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 115
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 160
       }
     ],
     "season": [
@@ -15181,31 +15185,31 @@
     "namesFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 37
+        "line": 51
       }
     ],
     "isCrownJewel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 38
+        "line": 52
       }
     ],
     "displayRank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 41
+        "line": 55
       }
     ],
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 124
+        "line": 152
       }
     ],
     "tile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 125
+        "line": 153
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
@@ -15215,55 +15219,61 @@
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 127
+        "line": 155
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 130
+        "line": 158
       }
     ],
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 204
+        "line": 246
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 217
+        "line": 259
+      }
+    ],
+    "openSteps": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 268
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 224
+        "line": 269
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 526
+        "line": 611
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 527
+        "line": 612
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 604
+        "line": 689
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 640
+        "line": 725
       }
     ],
     "change": [
@@ -37041,36 +37051,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 643,
-      "sha256": "68a9c8114b23d181900146c64da32f3ad5858ff2314b1d1223807f87e570cbf4",
+      "lines": 728,
+      "sha256": "6a2ef3681f0067f79e1632a2ee3e89baad247fb1d3b44a3d2448349a366d3629",
       "symbols": [
         {
+          "name": "at",
+          "line": 28
+        },
+        {
           "name": "namesFor",
-          "line": 37
+          "line": 51
         },
         {
           "name": "isCrownJewel",
-          "line": 38
+          "line": 52
         },
         {
           "name": "displayRank",
-          "line": 41
-        },
-        {
-          "name": "json",
           "line": 55
         },
         {
           "name": "json",
-          "line": 62
-        },
-        {
-          "name": "json",
-          "line": 69
-        },
-        {
-          "name": "json",
-          "line": 74
+          "line": 71
         },
         {
           "name": "json",
@@ -37078,83 +37080,99 @@
         },
         {
           "name": "json",
-          "line": 84
+          "line": 91
         },
         {
           "name": "json",
-          "line": 89
+          "line": 99
+        },
+        {
+          "name": "json",
+          "line": 106
+        },
+        {
+          "name": "json",
+          "line": 110
+        },
+        {
+          "name": "json",
+          "line": 115
         },
         {
           "name": "index",
-          "line": 123
+          "line": 151
         },
         {
           "name": "bounds",
-          "line": 124
+          "line": 152
         },
         {
           "name": "tile",
-          "line": 125
+          "line": 153
         },
         {
           "name": "walk",
-          "line": 126
-        },
-        {
-          "name": "visible",
-          "line": 127
-        },
-        {
-          "name": "log",
-          "line": 130
-        },
-        {
-          "name": "json",
-          "line": 132
-        },
-        {
-          "name": "read",
           "line": 154
         },
         {
+          "name": "visible",
+          "line": 155
+        },
+        {
+          "name": "log",
+          "line": 158
+        },
+        {
+          "name": "json",
+          "line": 160
+        },
+        {
+          "name": "read",
+          "line": 185
+        },
+        {
           "name": "heroCapacity",
-          "line": 204
-        },
-        {
-          "name": "distance",
-          "line": 205
-        },
-        {
-          "name": "reveal",
-          "line": 207
-        },
-        {
-          "name": "canSurvey",
-          "line": 217
-        },
-        {
-          "name": "treasure",
-          "line": 224
-        },
-        {
-          "name": "act",
           "line": 246
         },
         {
+          "name": "distance",
+          "line": 247
+        },
+        {
+          "name": "reveal",
+          "line": 249
+        },
+        {
+          "name": "canSurvey",
+          "line": 259
+        },
+        {
+          "name": "openSteps",
+          "line": 268
+        },
+        {
+          "name": "treasure",
+          "line": 269
+        },
+        {
+          "name": "act",
+          "line": 307
+        },
+        {
           "name": "enemyThreatRange",
-          "line": 526
+          "line": 611
         },
         {
           "name": "canEnemyStrike",
-          "line": 527
+          "line": 612
         },
         {
           "name": "path",
-          "line": 604
+          "line": 689
         },
         {
           "name": "abandon",
-          "line": 640
+          "line": 725
         }
       ]
     },
