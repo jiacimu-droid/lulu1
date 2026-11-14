@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:53:08.560336+00:00",
-  "commit": "7e274b686c80ba75c62aa14e9ac71eb5c3e571df",
+  "generatedAt": "2026-11-14T13:54:03.669132+00:00",
+  "commit": "3ab52327ed1f33dbc14f6d1a7ef4710128d1389f",
   "branch": "main",
-  "sourceFingerprint": "fdc33707a2bd3450ec3aa142d9675aa9d83001c11d4ad76221cb9f76b22c9959",
+  "sourceFingerprint": "6a5ced23cf9145346ea93b9bad1e26cba7581b2cfcba4c538237b977b022a3a4",
   "summary": {
     "files": 1318,
-    "lines": 279237,
+    "lines": 279283,
     "symbols": 3934
   },
   "symbolIndex": {
@@ -1843,7 +1843,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2392
+        "line": 2393
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11709,7 +11709,7 @@
     "needsCommitmentRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-        "line": 71
+        "line": 66
       }
     ],
     "ranked": [
@@ -12589,13 +12589,13 @@
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2246
+        "line": 2247
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2386
+        "line": 2387
       }
     ],
     "maxResidents": [
@@ -32795,8 +32795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-      "lines": 79,
-      "sha256": "6184f3f6e21db62185829b173435e83ed671ec0a53b437af36afe260a2478bb6",
+      "lines": 73,
+      "sha256": "75b003f2c2aa82582a382a82ae8e3fb32d4d31223805948888f9e6b870f83535",
       "symbols": [
         {
           "name": "signed",
@@ -32812,7 +32812,7 @@
         },
         {
           "name": "needsCommitmentRecovery",
-          "line": 71
+          "line": 66
         }
       ]
     },
@@ -33623,8 +33623,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2458,
-      "sha256": "ae8d6d508c1c718ff46dd25cabeb4dbe912657763b390579fafa54a29e91f9ee",
+      "lines": 2459,
+      "sha256": "43bb256e98ceb61db6c811c893bafb9583749416a175b6dcf3355e3fd66effee",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -33700,15 +33700,15 @@
         },
         {
           "name": "errorOf",
-          "line": 2246
+          "line": 2247
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2386
+          "line": 2387
         },
         {
           "name": "schedule",
-          "line": 2392
+          "line": 2393
         }
       ]
     },
@@ -44217,8 +44217,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 340,
-      "sha256": "e9c9bd4c416693a141ee9fed8e5ab632d3a8f74386ff36b4f805bf012039ed2d",
+      "lines": 380,
+      "sha256": "3998879ef75214dbc58c0f56f9fc60fc23ecb901c8a398a3eae5edaf19ed777f",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
@@ -44769,8 +44769,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 268,
-      "sha256": "c8a93661e996a92de3c503a20e02cd2a7e356e92580a8543c6c6be6ef9d74859",
+      "lines": 279,
+      "sha256": "1e1240d99dc3e1493e55310b9525c74a4892f6c0a3a4f5536bda496eb4f89b89",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
