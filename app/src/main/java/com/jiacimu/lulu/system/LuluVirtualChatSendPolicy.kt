@@ -24,7 +24,7 @@ internal object LuluVirtualChatSendPolicy {
 
     fun validRecipient(recipient: String): Boolean =
         recipient.isNotBlank() && recipient == recipient.trim() &&
-            recipient.length <= 80 && recipient.none { it == '\\n' || it == '\\r' }
+            recipient.length <= 80 && recipient.none { it.code == 10 || it.code == 13 }
 
     fun validMessage(message: String): Boolean =
         message.isNotBlank() && message.length <= 500
