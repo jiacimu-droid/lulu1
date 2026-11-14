@@ -80,8 +80,16 @@ internal object CharacterEverydaySocialContext {
         val at = DigitalWorldStore.locationOf(characterId)
         val ownPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
             .sortedByDescending { it.createdAt }.take(3)
+        // The unread cursor is not the end of a conversation. A post already
+        // seen yesterday can receive a reply today; give the same character a
+        // small, live, ACL-filtered view of those threads in their next normal
+        // decision, not a second social model request or a fabricated memory.
+        val visibleThreads = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+            .asSequence().filter { it.comments.isNotEmpty() }
+            .sortedByDescending { it.lastActivityAt }.take(3).toList()
         if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
-            recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty()) return ""
+            recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty() &&
+            visibleThreads.isEmpty()) return ""
         return buildString {
             appendLine("【自己的数字世界来往｜真实事件与可选的下一步】")
             if (pending.isNotEmpty()) {
@@ -196,6 +204,24 @@ internal object CharacterEverydaySocialContext {
                 appendLine("- postId=${post.id}；${post.createdAt}：${post.content.take(180)}")
             }
             if (ownPosts.isEmpty()) appendLine("当前存档里还没有本人发布的动态。")
+            if (visibleThreads.isNotEmpty()) {
+                appendLine("【此刻仍可查看的朋友圈讨论｜已读也能自然接话】")
+                visibleThreads.forEach { post ->
+                    val authorId = post.authorCharacterId
+                    val authorName = authorId?.let {
+                        MigratedDomainStores.characters.get(it).displayName
+                    } ?: UserProfileContext.displayLabel()
+                    appendLine("- postId=${post.id}；作者=${authorName}；最近活动=${post.lastActivityAt}；正文=${post.content.take(140)}")
+                    post.comments.takeLast(4).forEach { comment ->
+                        val speaker = if (comment.characterId == "__user__")
+                            UserProfileContext.displayLabel()
+                        else MigratedDomainStores.characters.get(comment.characterId).displayName
+                        appendLine("  commentId=${comment.id}；作者Id=${comment.characterId}；${speaker}：${comment.content.take(125)}" +
+                            comment.replyToCommentId?.let { "；回复 commentId=$it" }.orEmpty())
+                    }
+                }
+                appendLine("如果本人想接某句评论，可选择 comment_moment 的 postId/text/replyToCommentId；回复只指向该帖子真实存在的 commentId，不填就是评论原帖。可以在同一次决定里做其他即时动作，也可以不回应；这些不是要占用未来行程的任务。")
+            }
             appendLine("若确实想分享自己亲历的小事、刚读到的材料或一个想法，可用 publish_moment，args={text:本人此刻想发布的内容}；不必给主人汇报，也不用等别人先发。只想私下留着也可以；不要把计划、未执行工具或别人的经历写成自己的亲历。")
             append("一次真实来往可以让本人产生再见、继续话题、避开或暂时不联系的念头；" +
                 "只有本人想把这件事留到以后，才用 plan_personal_activity 保存时间、对象与真实可执行的活动。现在时间=$now。")
