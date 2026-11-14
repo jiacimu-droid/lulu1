@@ -36,6 +36,23 @@ class GameInvitationContinuityTest {
         assertEquals(first.occurredAt, repeated.occurredAt)
     }
 
+    @Test fun acceptedInviteCanEnterCompanionModeAfterOwnerPlayedSolo() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        LuluGames.initialize(context)
+        val role = "invite-party-" + UUID.randomUUID()
+        val store = LuluGames.store
+        store.setPlayWithCharacter(false)
+        assertFalse(store.state.value.playWithCharacter)
+        // A valid invitation must use selectCharacters rather than selectCharacter:
+        // the latter leaves an earlier solo session in solo mode.
+        assertTrue(GameInvitationContinuity.recordAccepted(
+            context, role, "invite-" + UUID.randomUUID(), "block_island"))
+        store.selectCharacters(listOf(role))
+        assertEquals(listOf(role), store.state.value.selectedCharacterIds)
+        assertEquals(role, store.state.value.selectedCharacterId)
+        assertTrue(store.state.value.playWithCharacter)
+    }
+
     @Test fun invitingOtherCharacterCannotClaimOwnersResponse() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         val role = "invite-scope-${UUID.randomUUID()}"
