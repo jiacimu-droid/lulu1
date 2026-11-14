@@ -114,6 +114,12 @@ internal object RelicEscapeWorld {
             occupied+=x to y
             sites+=RelicSite(sites.size,x,y,"fountain")
         }
+        // Optional route-choice landmark, never a fake map annotation:
+        // taking it down costs a tool but prevents extra pursuit after repeat looting.
+        possibleSites.firstOrNull { it !in occupied }?.let { (x,y)->
+            occupied+=x to y
+            sites+=RelicSite(sites.size,x,y,"alarm")
+        }
         val allies=companions.distinct().filter{it.isNotBlank()}.take(3).mapIndexed{index,id->
             val positions=listOf(3 to 2,2 to 3,3 to 3)
             val (x,y)=positions[index]
