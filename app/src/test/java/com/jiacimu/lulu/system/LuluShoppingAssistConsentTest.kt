@@ -14,10 +14,10 @@ import org.robolectric.annotation.Config
 class LuluShoppingAssistConsentTest {
     @Test fun ownerConsentIsDefaultOffRoleScopedAndRevocable() {
         val ctx = RuntimeEnvironment.getApplication()
-        val prefs = ctx.getSharedPreferences("lulu_virtual_shopping_owner_v1", Context.MODE_PRIVATE)
+        val prefs = ctx.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         val a = "shopping-test-role-a"
         val b = "shopping-test-role-b"
-        prefs.edit().remove(a).remove(b).commit()
+        prefs.edit().remove("$a:screen").remove("$b:screen").commit()
         try {
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, a))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, b))
@@ -28,6 +28,6 @@ class LuluShoppingAssistConsentTest {
             assertFalse(LuluShoppingAssistPolicy.setEnabled(ctx, "resident:someone", true))
             assertTrue(LuluShoppingAssistPolicy.setEnabled(ctx, a, false))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(ctx, a))
-        } finally { prefs.edit().remove(a).remove(b).commit() }
+        } finally { prefs.edit().remove("$a:screen").remove("$b:screen").commit() }
     }
 }
