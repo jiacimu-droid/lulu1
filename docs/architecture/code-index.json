@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:50:21.456692+00:00",
-  "commit": "235f3ea7e9ce6fd5a20786fdb0c9627ff513193f",
+  "generatedAt": "2026-11-14T04:52:20.160138+00:00",
+  "commit": "92575b84d608f2b5e7103c6b96a5288460373781",
   "branch": "main",
-  "sourceFingerprint": "9df45c00445e177c0554bb3d1d0e6238fc0befc89a9a5d0971c4c928b194aaf0",
+  "sourceFingerprint": "de9381d67c9d29d45ba56b56e51dca2c87cd27c01ed150009aca0ac6fe8e329c",
   "summary": {
     "files": 1307,
-    "lines": 275657,
+    "lines": 275715,
     "symbols": 3894
   },
   "symbolIndex": {
@@ -5831,7 +5831,7 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 273
+        "line": 289
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -26745,8 +26745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 382,
-      "sha256": "4e403b271d1ef8dc90021a9ba9ec82703679799809c0c5f2c3eff92ae094d02b",
+      "lines": 398,
+      "sha256": "149349b799ed577196cd25776d2913c1f32f3781ae81dfadbe027665f95a01d8",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -26754,7 +26754,7 @@
         },
         {
           "name": "normalize",
-          "line": 273
+          "line": 289
         }
       ]
     },
@@ -41382,8 +41382,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 358,
-      "sha256": "cc47fdfea321db05fdd45cb57c81e0357cf055dd3fb5bb3de434deae8c9918e5",
+      "lines": 400,
+      "sha256": "1a0eba3b55927e8269ae193a7f1797f7b68a5df2953faf3ce0471226ca51d3fb",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
