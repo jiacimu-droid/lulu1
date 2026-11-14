@@ -320,7 +320,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         movement = {
-            val center = islandNearbyAction(island, facing)
+            val center = islandNearbyAction(island, facing, selectedTarget = deliberateTarget)
             // Workbench interaction should remain discoverable near resources.
             val workstationAction = workbenchNear && center?.action !in setOf(
                 "fight", "revive", "tame", "care", "salvage", "recover_pack", "gather", "fish")
