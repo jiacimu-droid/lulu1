@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:13:52.694638+00:00",
-  "commit": "c84ce4a838ac42afca38e5d34df1f063ca1bfd59",
+  "generatedAt": "2026-11-14T16:15:09.455256+00:00",
+  "commit": "bb9194bc04c856ba8518ef5d7808a32b0da92d23",
   "branch": "main",
-  "sourceFingerprint": "3ea92a08de3168581e07c0418f1f5821979a89d8be6a9a877e6e7eb094347014",
+  "sourceFingerprint": "2b0f19804138437c10412de0676814460322873d53693515084c2b42fb9f6540",
   "summary": {
     "files": 1322,
-    "lines": 279785,
+    "lines": 279795,
     "symbols": 3943
   },
   "symbolIndex": {
@@ -38939,8 +38939,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1203,
-      "sha256": "b2c2a3ac01ba84655a4c84364d5c55dfe4bcaa07a40376ef04ceaa0e6eeba272",
+      "lines": 1211,
+      "sha256": "9dc0e787e703456c06996e570dd158cbf92dbbca91d5e08570063b35496d3d89",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -40729,7 +40729,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt",
       "lines": 19,
-      "sha256": "d0a334739f45b4ec811bcd10b90018ba3679538d3bc162f6d963e68249f15378",
+      "sha256": "c7a32745477fcfdfa00b220719f3d37cf999fec1df1762c01865ed249b9f52c5",
       "symbols": [
         {
           "name": "ElevenLabsBatchLatencyPolicyTest",
@@ -41099,8 +41099,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt",
-      "lines": 114,
-      "sha256": "36537754519214b2e7d8cef3a247c65edc687ada934a2e4bcdb1264b95ffabbe",
+      "lines": 116,
+      "sha256": "85044a06869721442c77eafd2322a83a3f9460c96f975caabfc1fae8762cc6cb",
       "symbols": [
         {
           "name": "PhoneInspectionProjectionTest",
@@ -43622,7 +43622,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt",
       "lines": 62,
-      "sha256": "11b7af842a80264b8ed5f95aa20b24c0b65f4e28fd7cf3b68961dd49fba1a8a7",
+      "sha256": "b831ab6265c65d4d6d175d8ba0e0c110932ff10e3df1a0139f508413d0ae67d5",
       "symbols": [
         {
           "name": "DigitalWorldBulletinTest",

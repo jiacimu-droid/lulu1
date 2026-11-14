@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c84ce4a838ac42afca38e5d34df1f063ca1bfd59`
+- 基准提交：`bb9194bc04c856ba8518ef5d7808a32b0da92d23`
 - 分支：`main`
 - 已索引文件：1322
-- 已索引代码/文本行：279785
+- 已索引代码/文本行：279795
 - 已发现符号：3943
 
 | 文件 | 行数 | 符号数 |
@@ -795,7 +795,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 471 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1203 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1211 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2339 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -919,7 +919,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt` | 116 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt` | 97 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |
