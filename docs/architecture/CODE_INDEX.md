@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f788566c8a9d0cfc0f085fd1acae9f58932ce1f0`
+- 基准提交：`71959239fc5c20ec72df850ceffb7edce2ebb7be`
 - 分支：`main`
 - 已索引文件：1322
-- 已索引代码/文本行：279913
+- 已索引代码/文本行：279940
 - 已发现符号：3945
 
 | 文件 | 行数 | 符号数 |
@@ -737,7 +737,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt` | 17 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt` | 130 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 145 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt` | 188 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 214 | 4 |
@@ -1266,7 +1266,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMenuSectionsTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt` | 172 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 354 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 379 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicRevealTimelineContinuityTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicRouteThreatRecoveryTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt` | 22 | 1 |
