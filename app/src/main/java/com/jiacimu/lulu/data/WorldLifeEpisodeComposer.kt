@@ -210,7 +210,7 @@ internal object WorldLifeEpisodeComposer {
                             appendLine("【角色已知的实际关系印象（仅本人主观）】\n${actualSocialContext.take(1000)}")
                         appendLine("【当前真实地点】$locationName（$location）")
                         appendLine("【现场实际登记的物品】${items.ifBlank { "无可核实的已登记物品" }}")
-                        appendLine("【角色】${character.displayName}；尊重他已有的个性、关系经历与语言习惯。")
+                        appendLine("【主角】${character.displayName}；尊重此人已设定的性别、身份、个性、关系经历与语言习惯，不套用男性称谓。")
                         appendLine("【排程时保存的个人心境与意愿｜不可用补写时的新情绪替代过去】")
                         appendLine(experiencedContext.ifBlank { "旧任务未保存当时心理；只依据原始事件，不推断当时内心。" })
                         if (suppliedTitle.isNotBlank() || suppliedScene.isNotBlank()) {
