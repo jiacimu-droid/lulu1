@@ -112,6 +112,18 @@ interface LuluChatStore {
     fun toggleFavorite(messageId: String): Boolean
 }
 
+/** Only the owner-targeted speech may be repaired with owner-specific
+ * address preferences. Group peers can quote one another freely without
+ * inheriting the sender's private relationship preferences toward the owner. */
+internal fun shouldApplyOwnerRelationshipRepair(
+    group: LuluGroupChat?,
+    quotedMessageId: String?,
+    publicMessages: List<LuluChatMessage>,
+): Boolean = group == null || quotedMessageId != null && publicMessages.any { message ->
+    message.id == quotedMessageId && message.sender == LuluChatMessage.Sender.User &&
+        message.status == LuluChatMessage.Status.Sent
+}
+
 /** Retains the old class name while using persistent local storage. */
 class InMemoryLuluChatStore : LuluChatStore {
     private val conversationState = MutableStateFlow(defaultConversations())
@@ -514,17 +526,20 @@ class InMemoryLuluChatStore : LuluChatStore {
         val rawClean = content.replace(quoteRegex, "").replace(favoriteRegex, "").trim()
         val conversation = conversationState.value.firstOrNull { it.id == conversationId }
         val actualAuthor = authorCharacterId ?: conversation?.characterId ?: "lulu"
-        val directedAtUser = conversation?.groupChat == null || replyToMessageId != null || markerQuoteId != null
+        val originalMessages = messageStates[conversationId]?.value.orEmpty()
+        val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
+            originalMessages.any { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
+        }
+        // A group reply quoting another CHARACTER is not a direct address to the owner.
+        // Their private relationship preferences must never rewrite peer-directed speech.
+        val directedAtUser = shouldApplyOwnerRelationshipRepair(
+            conversation?.groupChat, effectiveReplyId, originalMessages)
         // An LLM may insert a formatting newline mid-word. Neither that nor
         // a paragraph newline is a new message; smooth only mid-Han fragments.
         val readableBody = ModelStructuredOutput.smoothInlineBreaks(rawClean)
         val clean = if (directedAtUser && !onBehalfByOwner)
             RelationshipExpressionGuard.apply(actualAuthor, readableBody) else readableBody
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
-        val originalMessages = messageStates[conversationId]?.value.orEmpty()
-        val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
-            originalMessages.any { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
-        }
         val favoriteTarget = markerFavoriteId?.let { candidateId ->
             originalMessages.firstOrNull { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
         }
