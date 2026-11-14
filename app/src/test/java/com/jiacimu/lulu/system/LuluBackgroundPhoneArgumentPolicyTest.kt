@@ -60,6 +60,23 @@ class LuluBackgroundPhoneArgumentPolicyTest {
             JSONObject().put("text", "红米后台搜索")))
     }
 
+    @Test fun unknownOrMissingActionIsExplainedWithoutGuessingWhatCharacterWanted() {
+        val missing = LuluBackgroundPhoneArgumentPolicy.invalidReason("", JSONObject().put("appName", "微信"))
+        assertNotNull(missing)
+        assertTrue(missing!!.contains("args.action"))
+        assertTrue(missing.contains("缺失"))
+        assertTrue(missing.contains("launch"))
+        val unsupported = LuluBackgroundPhoneArgumentPolicy.invalidReason(
+            "open", JSONObject().put("appName", "微信"))
+        assertNotNull(unsupported)
+        assertTrue(unsupported!!.contains("open"))
+        assertTrue(unsupported.contains("launch"))
+        assertTrue(!LuluBackgroundPhoneArgumentPolicy.isSupportedAction("open"))
+        assertTrue(LuluBackgroundPhoneArgumentPolicy.isSupportedAction("launch"))
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason(
+            "launch", JSONObject().put("appName", "微信")))
+    }
+
     @Test fun observationAndStartHaveNoInventedCoordinateRequirement() {
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("start", JSONObject()))
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("observe", JSONObject()))
