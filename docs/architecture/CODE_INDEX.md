@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5e61a4835958996536f2a2dcdb3413734bf8df03`
+- 基准提交：`2eaf97164f7e6052f95ede782d6bdc6766986465`
 - 分支：`main`
 - 已索引文件：1311
-- 已索引代码/文本行：276407
-- 已发现符号：3908
+- 已索引代码/文本行：276632
+- 已发现符号：3911
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -666,7 +666,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1306 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 330 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 946 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1283 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1291 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 647 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 273 | 5 |
@@ -680,7 +680,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 82 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 275 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 559 | 0 |
@@ -712,9 +712,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 38 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 697 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 700 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 958 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 511 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 674 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 307 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 66 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
@@ -729,7 +729,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 224 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 401 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 643 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1214 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1226 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 30 | 1 |
@@ -739,7 +739,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt` | 188 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 214 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 169 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 170 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 216 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |

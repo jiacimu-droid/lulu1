@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:14:28.686767+00:00",
-  "commit": "5e61a4835958996536f2a2dcdb3413734bf8df03",
+  "generatedAt": "2026-11-14T05:15:50.107819+00:00",
+  "commit": "2eaf97164f7e6052f95ede782d6bdc6766986465",
   "branch": "main",
-  "sourceFingerprint": "762b156f0a9de637ecbad859fa6ec1476a8be23f855531d505893949640f65e8",
+  "sourceFingerprint": "9963a31b33ce626775b98ef29eef3dd0c447572a0c8e317e40b65109eae0376d",
   "summary": {
     "files": 1311,
-    "lines": 276407,
-    "symbols": 3908
+    "lines": 276632,
+    "symbols": 3911
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1075,7 +1075,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 692
+        "line": 695
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -1541,7 +1541,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 121
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -14111,7 +14111,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 126
+        "line": 134
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -14125,13 +14125,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1084
+        "line": 1092
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1238
+        "line": 1246
       }
     ],
     "persistMatch": [
@@ -14304,10 +14304,22 @@
         "line": 132
       }
     ],
+    "recordPartyJoined": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
+        "line": 15
+      }
+    ],
+    "recordPartyStarted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
+        "line": 22
+      }
+    ],
     "recordAccepted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
-        "line": 14
+        "line": 51
       }
     ],
     "attach": [
@@ -14511,7 +14523,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 103
+        "line": 115
       }
     ],
     "canInteract": [
@@ -14915,19 +14927,19 @@
     "attachCharacterReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 543
+        "line": 546
       }
     ],
     "clearRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 561
+        "line": 564
       }
     ],
     "LuluGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 687
+        "line": 690
       }
     ],
     "Home": [
@@ -15271,7 +15283,7 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 96
+        "line": 108
       }
     ],
     "carve": [
@@ -15400,16 +15412,22 @@
         "line": 59
       }
     ],
-    "accent": [
+    "rankAccent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
         "line": 67
       }
     ],
-    "shareText": [
+    "accent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
         "line": 76
+      }
+    ],
+    "shareText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
+        "line": 77
       }
     ],
     "walkable": [
@@ -35597,8 +35615,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1283,
-      "sha256": "2141cb547b87d93f4e72c9a1a29d23e894d383778c7e7e1b509b66ae58fce19b",
+      "lines": 1291,
+      "sha256": "bb6d40d0b0b855954a8df111ccc562c2ee1be9a7b785cd625b5cfe2a8f33d2c2",
       "symbols": [
         {
           "name": "playSound",
@@ -35606,19 +35624,19 @@
         },
         {
           "name": "save",
-          "line": 121
+          "line": 129
         },
         {
           "name": "perform",
-          "line": 126
+          "line": 134
         },
         {
           "name": "dot",
-          "line": 1084
+          "line": 1092
         },
         {
           "name": "targetFor",
-          "line": 1238
+          "line": 1246
         }
       ]
     },
@@ -35923,12 +35941,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
-      "lines": 44,
-      "sha256": "ea9f0b6c0a5317169255012a38ab4d46d26e5892872efe0409d7291694fb5647",
+      "lines": 82,
+      "sha256": "42a928655c8031bb0d67836a27704a86952f74c762956a4fb9fe22278eaf074a",
       "symbols": [
         {
+          "name": "recordPartyJoined",
+          "line": 15
+        },
+        {
+          "name": "recordPartyStarted",
+          "line": 22
+        },
+        {
           "name": "recordAccepted",
-          "line": 14
+          "line": 51
         }
       ]
     },
@@ -36549,8 +36575,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 697,
-      "sha256": "24b40838f7e62ef990786a091b9add905e19ac10f563b22a9e6074c3d2b973e0",
+      "lines": 700,
+      "sha256": "9b4dc1cccd0b94c5931722a1bae42150a4fbc3d7d567548d0e6e1a5670b88fa5",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -36666,19 +36692,19 @@
         },
         {
           "name": "attachCharacterReply",
-          "line": 543
+          "line": 546
         },
         {
           "name": "clearRecords",
-          "line": 561
+          "line": 564
         },
         {
           "name": "LuluGames",
-          "line": 687
+          "line": 690
         },
         {
           "name": "initialize",
-          "line": 692
+          "line": 695
         }
       ]
     },
@@ -36751,8 +36777,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 511,
-      "sha256": "bd7378764c96bec242531ff37a6d66161bd9e2a6f040b82b4cd60c5ee631f92b",
+      "lines": 674,
+      "sha256": "7edf94889aa7d8f969b93cbde3be7fc8e0f2f6eefa3ffdc5aa39afeffdfc58c2",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
@@ -37154,16 +37180,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1214,
-      "sha256": "08ee609b1921b8fe01b729ac151c5d90ee246fd4ba387890f9948cfd1d531d1c",
+      "lines": 1226,
+      "sha256": "037b46273a69a8acf42af5c958446c59518c3c7b06442e3d6d680af9f05e9e48",
       "symbols": [
         {
           "name": "change",
-          "line": 96
+          "line": 108
         },
         {
           "name": "action",
-          "line": 103
+          "line": 115
         }
       ]
     },
@@ -37326,8 +37352,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
-      "lines": 169,
-      "sha256": "71d69fbbd98a6271994b2152cfdc498c7d29d0eff37d1c84e8335fdc60137886",
+      "lines": 170,
+      "sha256": "26ca50625d607e5749f0e0a7e0bab3bfbc955401af009253cb4762837e04662c",
       "symbols": [
         {
           "name": "identity",
@@ -37338,12 +37364,16 @@
           "line": 59
         },
         {
-          "name": "accent",
+          "name": "rankAccent",
           "line": 67
         },
         {
-          "name": "shareText",
+          "name": "accent",
           "line": 76
+        },
+        {
+          "name": "shareText",
+          "line": 77
         }
       ]
     },
