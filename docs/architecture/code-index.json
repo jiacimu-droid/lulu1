@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:32:22.635096+00:00",
-  "commit": "b0fe5eb086a3b5640b941945f6eb1e861a576380",
+  "generatedAt": "2026-11-14T05:32:48.721300+00:00",
+  "commit": "3c4f97544c4cbc7d8ac379422da92cb195dbca17",
   "branch": "main",
-  "sourceFingerprint": "63cc7623c924766872df0a89af5e0b65792e80231f3eb7d77b6661f267fdd218",
+  "sourceFingerprint": "33ebae8368f44837d411a8b56c34487aec8373a8613dcb35cd708e5898ced28f",
   "summary": {
     "files": 1312,
-    "lines": 277013,
+    "lines": 277017,
     "symbols": 3910
   },
   "symbolIndex": {
@@ -1075,7 +1075,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 702
+        "line": 706
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -14913,19 +14913,19 @@
     "attachCharacterReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 551
+        "line": 555
       }
     ],
     "clearRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 569
+        "line": 573
       }
     ],
     "LuluGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 697
+        "line": 701
       }
     ],
     "Home": [
@@ -36571,8 +36571,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 707,
-      "sha256": "13d3a8a481b2bc653c9a1fbcfd1ee3907583211331ed4f0034021e3269bb6d67",
+      "lines": 711,
+      "sha256": "2c89dada9e267b8697a53fade701769635a2e20eaad0989f06ab60b7b8d6c6f2",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -36672,19 +36672,19 @@
         },
         {
           "name": "attachCharacterReply",
-          "line": 551
+          "line": 555
         },
         {
           "name": "clearRecords",
-          "line": 569
+          "line": 573
         },
         {
           "name": "LuluGames",
-          "line": 697
+          "line": 701
         },
         {
           "name": "initialize",
-          "line": 702
+          "line": 706
         }
       ]
     },
