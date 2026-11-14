@@ -76,10 +76,19 @@ internal object DigitalWorldExpansionStore {
         val storedResidents = prefs?.getString(KEY_RESIDENTS, null)
         residents = decodeResidents(storedResidents)
         retiredTemplates = prefs?.getStringSet(KEY_RETIRED_RESIDENTS, emptySet())?.toSet().orEmpty()
+        // A one-time default-duty migration; never reset an owner-edited identity,
+        // gender, name or any established encounter/social relationship.
+        val revised = residents.map { resident ->
+            if (!resident.profileEdited && resident.templateName == "青禾" &&
+                resident.identity == "公共设施看护员")
+                resident.copy(identity = "游戏馆机台管理员") else resident
+        }
+        val dutyMigrated = revised != residents
+        if (dutyMigrated) residents = revised
         // Legacy residents used public squares as a 'home'. Give each one a private address once.
-        if (storedResidents != null && residents.any { resident ->
+        if (storedResidents != null && (dutyMigrated || residents.any { resident ->
             !storedResidents.contains("\"homeLocationCode\":\"${resident.homeLocationCode}\"")
-        }) persist()
+        })) persist()
     }
 
     @Synchronized
