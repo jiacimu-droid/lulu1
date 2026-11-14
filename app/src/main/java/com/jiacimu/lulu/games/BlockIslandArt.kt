@@ -1028,13 +1028,41 @@ internal object BlockIslandArt {
     }
 
     private fun DrawScope.drawWorkbench(p: Offset, t: Float) {
-        drawOval(Color.Black.copy(alpha = .25f), p + Offset(t * .11f, t * .67f),
-            Size(t * .8f, t * .19f))
-        drawRect(Color(0xFF583F35), p + Offset(t * .15f, t * .40f), Size(t * .68f, t * .43f))
-        drawRect(Color(0xFFD8B27D), p + Offset(t * .09f, t * .31f), Size(t * .82f, t * .19f))
-        drawRect(Color(0xFFF4CE9B), p + Offset(t * .11f, t * .27f), Size(t * .75f, t * .08f))
-        drawRect(Color(0xFF8A6457), p + Offset(t * .20f, t * .51f), Size(t * .16f, t * .20f))
-        drawRect(Color(0xFF6B93A2), p + Offset(t * .58f, t * .15f), Size(t * .10f, t * .20f))
+        // Real crafted furniture: visible legs, chamfered work surface and
+        // miniature hand tools. One tile of deterministic artwork, no new items.
+        drawOval(Color(0xFF263B32).copy(alpha = .27f),
+            p + Offset(t * .08f, t * .73f), Size(t * .86f, t * .17f))
+        drawRoundRect(Color(0xFF6D5141),p + Offset(t*.20f,t*.43f),
+            Size(t*.14f,t*.40f),CornerRadius(t*.018f))
+        drawRoundRect(Color(0xFF74543F),p + Offset(t*.72f,t*.43f),
+            Size(t*.13f,t*.39f),CornerRadius(t*.018f))
+        drawRect(Color(0xFFB58B63),p+Offset(t*.25f,t*.59f),Size(t*.49f,t*.09f))
+        val tabletop=Path().apply {
+            moveTo(p.x+t*.13f,p.y+t*.31f)
+            lineTo(p.x+t*.80f,p.y+t*.28f)
+            lineTo(p.x+t*.93f,p.y+t*.42f)
+            lineTo(p.x+t*.07f,p.y+t*.45f)
+            close()
+        }
+        drawPath(tabletop,Color(0xFFE4BC84))
+        drawLine(Color(0xFFFFE7B1),p+Offset(t*.14f,t*.32f),
+            p+Offset(t*.80f,t*.29f),strokeWidth=t*.026f)
+        drawLine(Color(0xFFAA7855),p+Offset(t*.08f,t*.46f),
+            p+Offset(t*.92f,t*.43f),strokeWidth=t*.053f)
+        drawLine(Color(0xFFBD926B),p+Offset(t*.23f,t*.37f),
+            p+Offset(t*.72f,t*.35f),strokeWidth=t*.014f)
+        // A readable steel hammer and an open carving chisel at small map scale.
+        drawLine(Color(0xFF9B6748),p+Offset(t*.42f,t*.12f),
+            p+Offset(t*.51f,t*.31f),strokeWidth=t*.045f)
+        drawRoundRect(Color(0xFF9EC2BF),p+Offset(t*.31f,t*.09f),
+            Size(t*.26f,t*.075f),CornerRadius(t*.02f))
+        drawLine(Color(0xFF526F72),p+Offset(t*.69f,t*.14f),
+            p+Offset(t*.62f,t*.30f),strokeWidth=t*.03f)
+        drawLine(Color(0xFFD6E3DB),p+Offset(t*.70f,t*.12f),
+            p+Offset(t*.69f,t*.15f),strokeWidth=t*.035f)
+        // Two brass pins signal a finished station instead of a plain crate.
+        drawCircle(Color(0xFFEBD29B),t*.024f,p+Offset(t*.17f,t*.42f))
+        drawCircle(Color(0xFFEBD29B),t*.024f,p+Offset(t*.84f,t*.40f))
     }
 
     private fun DrawScope.drawBed(p: Offset, t: Float) {
