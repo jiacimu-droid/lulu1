@@ -1,5 +1,12 @@
 # 自主社交专项进度
 
+## 2026-11-14 S-01 · 群聊导演误阻断与自由接话（源码已提交，最新 APK/真机待验）
+- **根因**：群聊导演空 `characterId` 被 `ResidentDailyPolicy.activityEnabled(context, "")` 误当居民开关，导致「居民活动已暂停」和无请求；无 @ 参与者时失败 fallback 静默。网关改用 `permitsModelRequest`，只阻断真正 `resident:`，不影响全局居民管理开关的读取；`4d51484`、`0acf720`、回归 `afa970f`。
+- **群聊自主发言**：导演不再去重 speakerId，允许 A→B→A 等至多群配置 `maxAutoReplies` 的多轮独立决定；角色可读本群最近已送达的完整说话对象及消息 ID，自选回复较早的群友或主人，不把群聊固定为每人回复主人一次，也不强迫发言；`bb662eb`、`31363a7`、`7bffb4a`、`f504b92`、回归 `bd2528e`。
+- **后续发现并修复**：引用群友原话不能套用主人专属 `RelationshipExpressionGuard`，仅确实指向用户已送达消息才启用；导演非空但全无效 speakerId 必须报告规划错误而不是伪称自然沉默。源码 `e7c567a`、`3718d21`，测试 `b79c327`、`cbe5a75`。
+- **CI 证据**：`f504b92` 的 [Lulu APK #43575432235](https://github.com/jiacimu-droid/lulu1/actions/runs/43575432235) 已执行 3032 测试：上述群聊/居民回归 PASSED、全体仅 `RelicEscapeRulesTest.persistedLedgerForwardsAdjacentChestCoordinatesAndNeverMintsEarlyLoot`（G-03 游戏专项）失败，完整 APK 未产出；不能冒称群聊真机验通。最新群聊回归 `cbe5a75` 的 [索引 #43577130340](https://github.com/jiacimu-droid/lulu1/actions/runs/43577130340) 成功，[APK/JVM #43577130387](https://github.com/jiacimu-droid/lulu1/actions/runs/43577130387) 查询时仍 pending。待最新 main CI、正式群聊实机 A/B/主人连续跨消息引用、撤回和自然停止、失败回显与收费验收；G-03 按双游戏任务职责处理，不重复改游戏。
+
+
 ## 2026-11-05 S-01.1 CI 错误修复：社交发信回归的合法关系前置条件
 
 - **真实日志**：[Lulu APK #41879637273](https://github.com/jiacimu-droid/lulu1/actions/runs/41879637273) 在 1814b36 上已完成且 failure；编译完成后 `testPhoneUnitTest` 共 2441 项、6 失败，不是 NDK/构建器不可用。其中 `CharacterCreatedGroupTest.outboxContextRequiresReallyAuthoredDeliveredMailNotOwnerImpersonation` 在 `ResidentSocialMailbox.send` 的 `canContact` 被拒，报「双方尚未真实认识或同处现场」。其余五项见人物专项 CI 记录，不因 S-01 测试修复而擅改人物关系规则。
