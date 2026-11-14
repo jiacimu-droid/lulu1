@@ -42,6 +42,15 @@ internal object LuluBackgroundPhoneArgumentPolicy {
         "type", "search" -> args.optString("text").let {
             if (it.isBlank() || it.length > 500) "text 必须是1到500个字符" else null
         }
+        "send_chat_message" -> when {
+            !LuluVirtualChatSendPolicy.validRecipient(args.optString("recipient")) ->
+                "发送聊天消息需要明确的收件人（1到80字符）"
+            !LuluVirtualChatSendPolicy.validMessage(args.optString("text")) ->
+                "聊天正文必须为1到500个字符"
+            args.optString("screenSnapshotId").isBlank() ->
+                "发送聊天消息必须提供最近一次真实聊天界面的screenSnapshotId"
+            else -> null
+        }
         "launch" -> if (args.optString("packageName").isBlank() &&
             args.optString("appName").isBlank())
             "launch 必须提供已安装应用的准确 packageName 或 appName" else null
