@@ -107,6 +107,40 @@ class GroupChatTurnPlannerTest {
         assertEquals("", groupChatLiveReplyAnchor(listOf(failed, system), names, "我"))
     }
 
+    @Test fun quotedGroupPeerNeverReceivesOwnerOnlyAddressRepair() {
+        val group = com.jiacimu.lulu.data.LuluGroupChat(
+            name = "聊天", members = listOf(
+                com.jiacimu.lulu.data.LuluGroupMember("a"),
+                com.jiacimu.lulu.data.LuluGroupMember("b"),
+            ),
+        )
+        val owner = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "group", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.User,
+            content = "主人第三条",
+        )
+        val peer = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "group", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "b", content = "B的第二条",
+        )
+        val failedOwner = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "group", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.User,
+            content = "发送失败", status = com.jiacimu.lulu.data.LuluChatMessage.Status.Failed,
+        )
+        val messages = listOf(peer, owner, failedOwner)
+        assertTrue(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            null, peer.id, messages))
+        assertTrue(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            group, owner.id, messages))
+        assertFalse(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            group, peer.id, messages))
+        assertFalse(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            group, failedOwner.id, messages))
+        assertFalse(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            group, null, messages))
+        assertFalse(com.jiacimu.lulu.data.shouldApplyOwnerRelationshipRepair(
+            group, "unknown", messages))
+    }
+
     @Test fun groupRolesCanAnswerEarlierDeliveredSpeechOrLaterMemberReplies() {
         val group = com.jiacimu.lulu.data.LuluGroupChat(
             name = "小群", members = listOf(
