@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.mapCompanionCharacters
 import com.jiacimu.lulu.worldCompanionsAt
+import com.jiacimu.lulu.worldArrivalWitnessIds
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -166,6 +167,20 @@ class NativeResidentLifeIntegrationTest {
             companions, world, arrived,
         ).map { it.characterId })
         assertTrue(worldCompanionsAt(listOf(native), world, arrived).isEmpty())
+
+        // Drawing NPCs once must not silence actual co-present citizen eyewitnesses.
+        val onsite = DigitalWorldResident(
+            id = "street-neighbor", name = native.displayName,
+            identity = "街区居民", homeLocationCode = residentHomes.single(),
+            currentLocationCode = arrived,
+        )
+        val away = onsite.copy(id = "away", currentLocationCode = onsite.homeLocationCode)
+        assertEquals(listOf(companionId, nativeId), worldArrivalWitnessIds(
+            listOf(native, reality, companion), profiles, world, arrived, listOf(onsite, away),
+        ))
+        assertEquals(listOf(nativeId), worldArrivalWitnessIds(
+            listOf(native), profiles, world, arrived, listOf(onsite),
+        ))
     }
 
     @Test fun repeatedRealTimeSlotDoesNotWriteSecondDutyTransition() {
