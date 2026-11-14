@@ -58,16 +58,18 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         val ally = run.allies.firstOrNull { it.hp <= 0 && it.x == x && it.y == y }
         if (ally != null && hero.kits > 0) return RelicQuickAction("revive", "使用药剂救援队友",
             "消耗一瓶药剂救起附近倒地伙伴", id = ally.id)
-        val chest = run.chests.firstOrNull { it.x == x && it.y == y && !it.opened }
-        if (chest != null) return RelicQuickAction("open",
-            "撬开"+RelicQuality.at(chest.visibleGrade).label+"宝箱 "+
-                (run.chestProgress[chest.id] ?: 0)+"/"+RelicEscapeRules.openSteps(chest),
-            "需要多次互动，每次世界都会行动；成功撤离才能永久收藏", x, y)
+        // Ground loot is a committed physical object. Never hide it beneath an
+        // unopened chest occupying the same tile, or it becomes unreachable.
         val drop = run.drops.firstOrNull {
             it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.CAPACITY
         }
         if (drop != null) return RelicQuickAction("pickup", "拾取 ${drop.loot.name}",
             "拾取进背包，不会立即增加永久仓库", id = drop.loot.id)
+        val chest = run.chests.firstOrNull { it.x == x && it.y == y && !it.opened }
+        if (chest != null) return RelicQuickAction("open",
+            "撬开"+RelicQuality.at(chest.visibleGrade).label+"宝箱 "+
+                (run.chestProgress[chest.id] ?: 0)+"/"+RelicEscapeRules.openSteps(chest),
+            "需要多次互动，每次世界都会行动；成功撤离才能永久收藏", x, y)
         val site = run.sites.firstOrNull { it.x == x && it.y == y && !it.spent }
         if (site?.kind == "trap" && run.tools > 0) return RelicQuickAction("disarm",
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
