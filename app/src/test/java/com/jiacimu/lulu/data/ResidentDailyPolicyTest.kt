@@ -119,6 +119,24 @@ class ResidentDailyPolicyTest {
         assertTrue(ResidentDailyPolicy.recordModelAttemptIfEnabled(ctx, paused))
     }
 
+    @Test fun pausedResidentsNeverBlockAnonymousGroupDirectorOrFormalCharacters() {
+        val ctx = context()
+        val original = ResidentDailyPolicy.activityEnabled(ctx)
+        try {
+            assertTrue(ResidentDailyPolicy.setActivityEnabled(ctx, false))
+            assertFalse(ResidentDailyPolicy.activityEnabled(ctx))
+            assertFalse(ResidentDailyPolicy.permitsModelRequest(ctx, "resident:paused"))
+            // One-shot group director calls use a blank identity, not a resident.
+            assertTrue(ResidentDailyPolicy.permitsModelRequest(ctx, ""))
+            assertTrue(ResidentDailyPolicy.permitsModelRequest(ctx, "character:formal"))
+            assertTrue(ResidentDailyPolicy.recordModelAttemptIfEnabled(ctx, ""))
+            assertTrue(ResidentDailyPolicy.recordModelAttemptIfEnabled(ctx, "character:formal"))
+            assertFalse(ResidentDailyPolicy.recordModelAttemptIfEnabled(ctx, "resident:paused"))
+        } finally {
+            ResidentDailyPolicy.setActivityEnabled(ctx, original)
+        }
+    }
+
     @Test fun fiveMinuteResidentWindowExtendsOnlyOnFreshActivityAndEndsWhenPaused() {
         val ctx = context()
         val role = "resident:lease-${java.util.UUID.randomUUID()}"
