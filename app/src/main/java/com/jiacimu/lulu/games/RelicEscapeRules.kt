@@ -14,6 +14,20 @@ internal enum class RelicDifficulty(val label:String,val extraMobs:Int,val monst
 internal enum class RelicTier(val label:String,val base:Int,val weight:Int) {
     COMMON("普通",70,1), RARE("稀有",185,2), PRECIOUS("珍贵",430,3)
 }
+
+/** Seven visible appraised grades. The original three physical weight/save tiers remain readable. */
+internal enum class RelicQuality(val label:String,val minimum:Int,val spread:Int,val tier:RelicTier) {
+    COMMON("普通",70,30,RelicTier.COMMON),
+    FINE("精良",105,35,RelicTier.COMMON),
+    RARE("稀有",185,63,RelicTier.RARE),
+    VIOLET("珍贵",300,90,RelicTier.RARE),
+    GOLD("史诗",460,170,RelicTier.PRECIOUS),
+    CRIMSON("传说",900,380,RelicTier.PRECIOUS),
+    PRISM("传世秘宝",6000,1,RelicTier.PRECIOUS);
+    companion object {
+        fun at(rank:Int):RelicQuality = entries[rank.coerceIn(0,entries.lastIndex)]
+    }
+}
 /** 永久收集图鉴与战利品掉落共用一个目录，避免 UI 列出实际无法获得的宝物。 */
 internal object RelicCollectibles {
     const val CROWN_JEWEL = "晨星之核"
@@ -39,6 +53,7 @@ internal object RelicCollectibles {
     /** Display-only fourth rung for the seeded special drop. Preserve the three
      * persisted RelicTier enum values so existing saves remain readable. */
     fun displayRank(loot: RelicLoot): String = when {
+        loot.grade in 0..6 -> RelicQuality.at(loot.grade).label
         isCrownJewel(loot.name) -> "传世秘宝"
         loot.name == "封印之心" -> "传说"
         loot.tier == RelicTier.PRECIOUS && loot.value >= 460 -> "史诗"
@@ -50,11 +65,14 @@ internal object RelicCollectibles {
 
 }
 
-internal data class RelicLoot(val id:String,val name:String,val tier:RelicTier,val value:Int) {
+internal data class RelicLoot(val id:String,val name:String,val tier:RelicTier,val value:Int,
+    val grade:Int=-1) {
     val weight get()=tier.weight
     fun json()=JSONObject().put("id",id).put("name",name).put("tier",tier.name).put("value",value)
+        .put("grade",grade)
     companion object { fun read(j:JSONObject)=RelicLoot(j.getString("id"),j.getString("name"),
-        RelicTier.valueOf(j.getString("tier")),j.getInt("value")) }
+        RelicTier.valueOf(j.getString("tier")),j.getInt("value"),
+        j.optInt("grade",-1).takeIf{it in 0..6} ?: -1) }
 }
 internal data class RelicActor(val id:String,val x:Int,val y:Int,val hp:Int=10,val kits:Int=0,
     val bag:List<RelicLoot> = emptyList(), val rescues:Int=0,val downs:Int=0) {
@@ -65,16 +83,24 @@ internal data class RelicActor(val id:String,val x:Int,val y:Int,val hp:Int=10,v
         j.getInt("hp"),j.getInt("kits"),j.getJSONArray("bag").lootList(),
         j.optInt("rescues"),j.optInt("downs")) }
 }
-internal data class RelicChest(val id:Int,val x:Int,val y:Int,val tier:RelicTier,val opened:Boolean=false) {
-    fun json()=JSONObject().put("id",id).put("x",x).put("y",y).put("tier",tier.name).put("opened",opened)
+internal data class RelicChest(val id:Int,val x:Int,val y:Int,val tier:RelicTier,
+    val opened:Boolean=false,val grade:Int=-1) {
+    val visibleGrade:Int get()=grade.takeIf{it in 0..6} ?: when(tier) {
+        RelicTier.COMMON->0;RelicTier.RARE->2;RelicTier.PRECIOUS->4
+    }
+    fun json()=JSONObject().put("id",id).put("x",x).put("y",y).put("tier",tier.name)
+        .put("opened",opened).put("grade",grade)
     companion object { fun read(j:JSONObject)=RelicChest(j.getInt("id"),j.getInt("x"),j.getInt("y"),
-        RelicTier.valueOf(j.getString("tier")),j.getBoolean("opened")) }
+        RelicTier.valueOf(j.getString("tier")),j.getBoolean("opened"),
+        j.optInt("grade",-1).takeIf{it in 0..6} ?: -1) }
 }
-internal data class RelicMob(val id:Int,val x:Int,val y:Int,val hp:Int,val kind:Int,val alert:Int=0,val windup:Boolean=false) {
+internal data class RelicMob(val id:Int,val x:Int,val y:Int,val hp:Int,val kind:Int,
+    val alert:Int=0,val windup:Boolean=false,val staggered:Boolean=false) {
     fun json()=JSONObject().put("id",id).put("x",x).put("y",y).put("hp",hp).put("kind",kind)
-        .put("alert",alert).put("windup",windup)
+        .put("alert",alert).put("windup",windup).put("staggered",staggered)
     companion object { fun read(j:JSONObject)=RelicMob(j.getInt("id"),j.getInt("x"),j.getInt("y"),
-        j.getInt("hp"),j.getInt("kind"),j.getInt("alert"),j.getBoolean("windup")) }
+        j.getInt("hp"),j.getInt("kind"),j.getInt("alert"),j.getBoolean("windup"),
+        j.optBoolean("staggered",false)) }
 }
 internal data class RelicDrop(val x:Int,val y:Int,val loot:RelicLoot) {
     fun json()=JSONObject().put("x",x).put("y",y).put("loot",loot.json())
@@ -119,6 +145,8 @@ internal data class RelicRun(
     val satchelLevel:Int = 0,
     val difficulty:RelicDifficulty = RelicDifficulty.NORMAL,
     val contract:RelicContract = RelicContract.NONE,
+    /** Real, persisted manual-opening effort; each press advances the enemy world turn. */
+    val chestProgress:Map<Int,Int> = emptyMap(),
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -149,6 +177,9 @@ internal data class RelicRun(
         .put("guardedBy",guardedBy)
         .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
         .put("contract",contract.name)
+        .put("chestProgress",JSONObject().apply {
+            chestProgress.forEach { (id,progress) -> put(id.toString(),progress) }
+        })
         .put("coopPlans",JSONObject().apply { coopPlans.forEach { (id,p) -> put(id,p.json()) } })
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
@@ -193,7 +224,18 @@ internal data class RelicRun(
                 difficulty=runCatching { RelicDifficulty.valueOf(j.optString("difficulty","NORMAL")) }
                     .getOrDefault(RelicDifficulty.NORMAL),
                 contract=runCatching { RelicContract.valueOf(j.optString("contract","NONE")) }
-                    .getOrDefault(RelicContract.NONE))
+                    .getOrDefault(RelicContract.NONE),
+                chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
+                    val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
+                    buildMap {
+                        val keys=progress.keys()
+                        while(keys.hasNext()) {
+                            val id=keys.next().toIntOrNull() ?: continue
+                            val turns=progress.optInt(id.toString(),0)
+                            if(id in available && turns in 1..12)put(id,turns)
+                        }
+                    }
+                } ?: emptyMap())
         }.getOrNull()
     }
 }
@@ -222,7 +264,26 @@ internal object RelicEscapeRules {
                 abs(dx)+abs(dy) in 4..5 && s.bounds(x,y) && !s.visible(x,y)
             } }
 
+    /** Player opening takes multiple persisted, dangerous world turns. */
+    fun openSteps(chest:RelicChest):Int = 4+(chest.visibleGrade/2)
     fun treasure(s:RelicRun,c:RelicChest):RelicLoot {
+        if(c.grade in 0..6) {
+            // The grade rises only on a seeded exceptional draw, never rerolls on taps/restart.
+            val roll=java.util.Random(s.seed.toLong()*1103515245L+c.id*7919L).nextInt(1000)
+            val lift=when {
+                roll<4 -> 3  // A violet chest can flash all the way to prismatic.
+                roll<18 -> 2
+                roll<105 -> 1
+                else -> 0
+            }
+            val quality=RelicQuality.at(c.grade+lift)
+            val names=RelicCollectibles.namesFor(quality.tier)
+            val name=if(quality==RelicQuality.PRISM)RelicCollectibles.CROWN_JEWEL
+                else names[roll%names.size]
+            val value=quality.minimum+roll%quality.spread
+            return RelicLoot(s.id+":chest:"+c.id,name,quality.tier,value,quality.ordinal)
+        }
+        // Pre-grade saves and manually constructed chests retain their original seeded odds.
         val roll=abs((s.seed.toLong()*31+c.id*97)%1000).toInt()
         // 真实的低概率秘宝，不增加货币付费抽取。由种子与宝箱 ID 唯一决定；
         // 重复读取同一箱子不会重新掷骰，也不能通过退出重进刷结果。
@@ -310,12 +371,30 @@ internal object RelicEscapeRules {
                 next=s.copy(
                     tools=s.tools-1,
                     chests=s.chests.map {
-                        if(it.id==chest.id)it.copy(tier=RelicTier.PRECIOUS) else it
+                        if(it.id==chest.id)it.copy(tier=RelicTier.PRECIOUS,
+                            grade=if(it.grade<0)-1 else (it.grade+1).coerceAtLeast(4).coerceAtMost(6))
+                        else it
                     },
                     mobs=s.mobs+guardian,
                 ).log("player","channel",
                     "破封成功！稀有箱已升为珍贵箱，但守卫被唤醒。工具-1 · 请自行决定开箱或撤离")
                 noise=3
+            }
+            "pry"->{
+                val chest=s.chests.firstOrNull{it.x==x && it.y==y && !it.opened}
+                    ?:return s.copy(notice="宝箱已经打开，或这里没有宝箱")
+                if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="先接近宝箱")
+                val progress=(s.chestProgress[chest.id] ?: 0)
+                val required=openSteps(chest)
+                if(progress>=required-1)return s.copy(notice="封印已经松动，再按一次开箱即可结算")
+                val updated=progress+1
+                val upgraded=updated>=required/2 &&
+                    treasure(s,chest).grade>chest.visibleGrade
+                next=s.copy(chestProgress=s.chestProgress+(chest.id to updated))
+                    .log("player","pry","正在撬开"+RelicQuality.at(chest.visibleGrade).label+
+                        "宝箱（$updated/$required）"+
+                        if(upgraded)" · 光芒突然升阶！继续或撤离？" else " · 声响会引来守卫")
+                noise=2
             }
             "open"->{
                 val chest=s.chests.firstOrNull{it.x==x && it.y==y && !it.opened}
@@ -325,6 +404,7 @@ internal object RelicEscapeRules {
                 val unlocked=RelicArsenal.chestUnlock(chest)?.takeUnless { it in s.weapons }
                 val ammo=if(chest.tier==RelicTier.COMMON)1 else 2
                 next=s.copy(chests=s.chests.map{if(it.id==chest.id)it.copy(opened=true) else it},
+                    chestProgress=s.chestProgress-chest.id,
                     hero=if(fits)hero.copy(bag=hero.bag+loot) else hero,
                     drops=if(fits)s.drops else s.drops+RelicDrop(x,y,loot),
                     weapons=if(unlocked==null)s.weapons else s.weapons+unlocked,
@@ -413,15 +493,20 @@ internal object RelicEscapeRules {
                     return s.copy(notice="目标不在"+RelicArsenal.label(s.equipped)+"的有效射程，或被阻挡")
                 val damage=RelicArsenal.damage(s,mob)
                 val defeated=mob.hp<=damage
+                // An unarmored wanderer can be staggered ONCE by a short blade.
+                // Repeated cheap attacks must not permanently cancel the same windup.
+                val interrupted=mob.windup && s.equipped=="blade" &&
+                    mob.kind==0 && !mob.staggered && !defeated
                 next=s.copy(mobs=s.mobs.map{if(it.id==mob.id)it.copy(
                     hp=(it.hp-damage).coerceAtLeast(0),
-                    windup=if(s.equipped=="blade")false else it.windup) else it},
+                    windup=if(interrupted)false else it.windup,
+                    staggered=it.staggered || interrupted) else it},
                     bolts=if(s.equipped=="bow")s.bolts-1 else s.bolts,
                     drops=if(defeated)s.drops+RelicDrop(x,y,RelicArsenal.monsterDrop(s,mob)) else s.drops)
                     .log("player","attack",
                         RelicArsenal.label(s.equipped)+"造成"+damage+"伤害"+
                         if(defeated)" · 击败"+RelicArsenal.monsterName(mob.kind)+"，掉落战利品！"
-                        else if(mob.windup && s.equipped=="blade")" · 打断蓄力！" else "")
+                        else if(interrupted)" · 打断一次蓄力！" else if(mob.windup)" · 对手仍会反击！" else "")
                 noise=if(s.equipped=="bow")3 else 2
             }
             "defend"->{
