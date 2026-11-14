@@ -168,22 +168,33 @@ class LuluAccessibilityService : AccessibilityService() {
          * permission/picker dialogs are barriers even if the same package. */
         fun virtualWindowStatus(displayId: Int, targetPackage: String): JSONObject {
             val service = instance
-            val unknown = JSONObject().put("kind", "unknown")
-                .put("targetWindowVerified", false)
-            if (service == null || displayId <= 0 || targetPackage.isBlank() ||
-                Build.VERSION.SDK_INT < 30) return unknown
+            fun unknown(reason: String): JSONObject = JSONObject()
+                .put("kind", "unknown").put("targetWindowVerified", false)
+                .put("windowDiagnostic", reason)
+            if (service == null) return unknown("accessibility_disconnected")
+            if (Build.VERSION.SDK_INT < 30) return unknown("unsupported_sdk")
+            if (displayId <= 0) return unknown("invalid_display")
+            if (targetPackage.isBlank()) return unknown("target_unspecified")
             val window = service.windowsOnAllDisplays.get(displayId).orEmpty()
                 .filterNot {
                     it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD ||
                         it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY ||
                         it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
                         it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
-                }.maxByOrNull { it.layer } ?: return unknown
-            val pkg = window.root?.packageName?.toString().orEmpty()
+                }.maxByOrNull { it.layer } ?: return unknown("no_window")
+            val root = window.root
+            val pkg = root?.packageName?.toString().orEmpty()
             val kind = LuluVirtualWindowPolicy.classify(targetPackage, pkg, window.type)
+            val diagnostic = when {
+                kind != LuluVirtualWindowPolicy.Kind.UNKNOWN -> ""
+                root == null -> "root_unreadable"
+                pkg.isBlank() -> "package_unreadable"
+                else -> "window_identity_unknown"
+            }
             return JSONObject().put("kind", kind.name.lowercase())
                 .put("actualPackage", pkg.take(160))
                 .put("windowType", window.type)
+                .put("windowDiagnostic", diagnostic)
                 .put("targetWindowVerified", kind == LuluVirtualWindowPolicy.Kind.TARGET)
         }
 
