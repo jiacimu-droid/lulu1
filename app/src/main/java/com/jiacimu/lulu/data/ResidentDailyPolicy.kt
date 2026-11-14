@@ -67,6 +67,11 @@ internal object ResidentDailyPolicy {
         return enabled && !prefs.getBoolean("paused:$role", false)
     }
 
+    /** Anonymous infrastructure calls and formal characters are not residents.
+     * activityEnabled(context) remains the owner-facing global setting reader. */
+    fun permitsModelRequest(context: Context, role: String): Boolean =
+        !role.startsWith("resident:") || activityEnabled(context, role)
+
     @Synchronized fun setActivityEnabled(context: Context, enabled: Boolean, role: String = ""): Boolean {
         require(role.isBlank() || role.startsWith("resident:"))
         val editor = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
