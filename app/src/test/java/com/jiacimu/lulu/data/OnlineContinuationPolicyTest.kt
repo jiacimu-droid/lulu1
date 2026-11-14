@@ -104,4 +104,24 @@ class OnlineContinuationPolicyTest {
             keptAwake = false, superseded = false, hasUncoveredCommitment = false))
     }
 
+    @Test fun chosenPostThenReturnHomeMustFinishBeforeRestIsRecorded() {
+        val steps = org.json.JSONArray()
+            .put(org.json.JSONObject().put("tool", "publish_moment")
+                .put("args", org.json.JSONObject().put("text", "今天的好心情")))
+            .put(org.json.JSONObject().put("tool", "digital_world_action")
+                .put("args", org.json.JSONObject().put("worldAction", "go_home")))
+        assertTrue(OnlineContinuationPolicy.requestedReturnHome("", steps))
+        assertFalse(OnlineContinuationPolicy.maySettleRestAtLocation(
+            true, DigitalWorldPublicPlaces.GAME_HALL, "home:test"))
+        assertTrue(OnlineContinuationPolicy.maySettleRestAtLocation(
+            true, "home:test", "home:test"))
+        // No explicit journey home: the offline attention state must NOT
+        // teleport an actor who chose to remain in a real friend's home.
+        assertFalse(OnlineContinuationPolicy.requestedReturnHome("", org.json.JSONArray()))
+        assertTrue(OnlineContinuationPolicy.maySettleRestAtLocation(
+            false, "resident-home:friend", "home:test"))
+        assertTrue(OnlineContinuationPolicy.requestedReturnHome("go_home", null))
+        assertFalse(OnlineContinuationPolicy.requestedReturnHome("", null))
+    }
+
 }
