@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T10:57:02.940814+00:00",
-  "commit": "73d8dc5ec081e1a704d23bed2e5425f9553c0835",
+  "generatedAt": "2026-11-14T10:58:11.088966+00:00",
+  "commit": "bf64ace8d9b3b5b7c3538fda8db63d4dfc0782b5",
   "branch": "main",
-  "sourceFingerprint": "eae01ec4b7ef5bcbbb0f32ed3bf2a96893eca2277bf7d613d23bb901e85ed74a",
+  "sourceFingerprint": "a593173a87fd8306ebc6de83abc0f2b0a951e47a782dec16eea17e20d829b2f2",
   "summary": {
     "files": 1313,
-    "lines": 278065,
+    "lines": 278100,
     "symbols": 3923
   },
   "symbolIndex": {
@@ -18273,7 +18273,7 @@
     "receive": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-        "line": 129
+        "line": 155
       }
     ],
     "SelfThoughtNotebookTest": [
@@ -40265,8 +40265,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 256,
-      "sha256": "816663de8fbc927ed4335cc1a87e5d820a5f3475b9db518c20e11084236a4fae",
+      "lines": 265,
+      "sha256": "1035bbfbe3b367a67faa6d94949a8dd2240bde8d84a3b5422ededdd7490deaf6",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -41136,8 +41136,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-      "lines": 147,
-      "sha256": "2604ff149a70415f12872a17088c76cb1f4504870cc4ebb4d42f32b0959d36cd",
+      "lines": 173,
+      "sha256": "a6a233af5965c0a65124ef66a5148991b60be55295df6a382bcaa7af7906356e",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",
@@ -41145,7 +41145,7 @@
         },
         {
           "name": "receive",
-          "line": 129
+          "line": 155
         }
       ]
     },

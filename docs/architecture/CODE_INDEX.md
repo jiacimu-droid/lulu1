@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`73d8dc5ec081e1a704d23bed2e5425f9553c0835`
+- 基准提交：`bf64ace8d9b3b5b7c3538fda8db63d4dfc0782b5`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：278065
+- 已索引代码/文本行：278100
 - 已发现符号：3923
 
 | 文件 | 行数 | 符号数 |
@@ -859,7 +859,7 @@
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 256 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
@@ -936,7 +936,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 147 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 173 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 175 | 2 |
