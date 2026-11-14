@@ -119,6 +119,61 @@ class RelicQuickActionTest {
         assertTrue(restored.chests.first { it.id == chest.id }.opened)
     }
 
+
+    @Test fun groundTreasureMustBePickedUpBeforeItCanLeaveTheRun() {
+        val base = run()
+        val chest = base.chests.first()
+        val carried = (1..40).map {
+            RelicLoot("full:$it", "占位实物", RelicTier.PRECIOUS, 430)
+        }
+        var state = RelicEscapeRules.reveal(base.copy(
+            hero = base.hero.copy(x = chest.x, y = chest.y, bag = carried),
+            mobs = emptyList(), sites = emptyList(), allies = emptyList(),
+        ))
+        repeat(RelicEscapeRules.openSteps(chest) - 1) {
+            state = RelicEscapeRules.act(state, "pry", chest.x, chest.y)
+        }
+        state = RelicEscapeRules.act(state, "open", chest.x, chest.y)
+        val treasure = state.drops.single { it.loot.id == state.id + ":chest:" + chest.id }.loot
+        assertFalse(state.hero.bag.contains(treasure))
+
+        // A dropped object is not secured merely because its chest was opened.
+        val leftBehind = state.copy(
+            hero = state.hero.copy(x = state.exitX, y = state.exitY),
+            mobs = emptyList(), allies = emptyList(),
+        )
+        var withoutPickup = RelicEscapeRules.act(leftBehind, "extract")
+        repeat(3) { withoutPickup = RelicEscapeRules.act(withoutPickup, "wait") }
+        assertEquals(RelicPhase.SUCCESS, withoutPickup.phase)
+        assertFalse(withoutPickup.secured.contains(treasure))
+        assertTrue(withoutPickup.lost.contains(treasure))
+
+        // Free capacity through real drop actions, then recover the same physical ID.
+        for (item in carried) {
+            state = RelicEscapeRules.act(state, "drop", lootId = item.id)
+        }
+        val restored = RelicRun.read(state.json())!!
+        assertTrue(restored.drops.any { it.loot == treasure })
+        state = RelicEscapeRules.act(restored, "pickup", lootId = treasure.id)
+        assertTrue(state.hero.bag.contains(treasure))
+        assertFalse(state.drops.any { it.loot.id == treasure.id })
+        val duplicate = RelicEscapeRules.act(state, "pickup", lootId = treasure.id)
+        assertEquals(state.hero.bag, duplicate.hero.bag)
+        assertEquals(state.turns, duplicate.turns)
+
+        var escaping = state.copy(
+            hero = state.hero.copy(x = state.exitX, y = state.exitY),
+            mobs = emptyList(), allies = emptyList(),
+        )
+        escaping = RelicEscapeRules.act(escaping, "extract")
+        repeat(3) { escaping = RelicEscapeRules.act(escaping, "wait") }
+        assertEquals(RelicPhase.SUCCESS, escaping.phase)
+        assertEquals(1, escaping.secured.count { it.id == treasure.id })
+        assertFalse(escaping.lost.any { it.id == treasure.id })
+        val reopened = RelicRun.read(escaping.json())!!
+        assertEquals(escaping.secured, reopened.secured)
+    }
+
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
         val map = run().let { it.copy(seen = (0 until it.w * it.h).toSet()) }
         val quick = relicQuickAction(map, map.exitX to map.exitY)!!
