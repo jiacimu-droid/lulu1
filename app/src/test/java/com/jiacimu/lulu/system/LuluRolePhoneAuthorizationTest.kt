@@ -27,10 +27,12 @@ class LuluRolePhoneAuthorizationTest {
         val shopOld = legacyShop.all.toMap()
         try {
             policy.edit().remove("$first:screen").remove("$second:screen")
-                .putBoolean("$first:media", true)
-                .putBoolean("$first:device_read", true)
-                .putBoolean("$first:alarm", true)
+                .putBoolean("$first:media", false)
+                .putBoolean("$first:device_read", false)
+                .putBoolean("$first:alarm", false)
+                .putBoolean("$first:cloud", false)
                 .putBoolean("$first:wake_music_enabled", true).commit()
+            // Old independent chat/shopping toggles must never bypass the screen grant.
             legacyChat.edit().putBoolean(first, true).commit()
             legacyShop.edit().putBoolean(first, true).commit()
 
@@ -40,25 +42,36 @@ class LuluRolePhoneAuthorizationTest {
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(context, first))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(context, first))
             assertFalse(WakeActionPlanner.musicAllowed(context, first))
-            for (tool in listOf("background_phone", "get_battery", "control_music",
-                "create_alarm", "cloud_task")) assertFalse(tool, autonomous(tool))
+            assertFalse(autonomous("background_phone"))
 
             assertTrue(LuluRolePhoneAuthorization.setGranted(context, first, true))
             assertTrue(LuluRolePhoneAuthorization.isGranted(context, first))
             assertTrue(LuluVirtualChatSendPolicy.isEnabled(context, first))
             assertTrue(LuluShoppingAssistPolicy.isEnabled(context, first))
-            assertTrue(WakeActionPlanner.musicAllowed(context, first))
-            for (tool in listOf("background_phone", "get_battery", "control_music",
-                "create_alarm", "cloud_task")) assertTrue(tool, autonomous(tool))
+            assertTrue(autonomous("background_phone"))
+            // Virtual-screen authorization must NEVER authorize native device tools.
+            for (tool in listOf("get_battery", "control_music",
+                "create_alarm", "cloud_task")) assertFalse(tool, autonomous(tool))
+            assertFalse(WakeActionPlanner.musicAllowed(context, first))
             assertFalse(LuluRolePhoneAuthorization.isGranted(context, second))
             assertFalse(LuluRolePhoneAuthorization.setGranted(context, "resident:test", true))
 
+            // Native media authorization is separate and remains enabled after
+            // the virtual-screen grant is revoked.
+            policy.edit().putBoolean("$first:media", true).commit()
+            assertTrue(autonomous("control_music"))
+            assertTrue(WakeActionPlanner.musicAllowed(context, first))
+            assertFalse(autonomous("get_battery"))
             assertTrue(LuluRolePhoneAuthorization.setGranted(context, first, false))
+            assertFalse(autonomous("background_phone"))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(context, first))
             assertFalse(LuluShoppingAssistPolicy.isEnabled(context, first))
+            assertTrue(autonomous("control_music"))
+            assertTrue(WakeActionPlanner.musicAllowed(context, first))
+
+            policy.edit().putBoolean("$first:media", false).commit()
+            assertFalse(autonomous("control_music"))
             assertFalse(WakeActionPlanner.musicAllowed(context, first))
-            for (tool in listOf("background_phone", "get_battery", "control_music",
-                "create_alarm", "cloud_task")) assertFalse(tool, autonomous(tool))
         } finally {
             fun restore(p: android.content.SharedPreferences, snapshot: Map<String, *>) {
                 val e = p.edit().clear()
