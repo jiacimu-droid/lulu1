@@ -322,9 +322,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         movement = {
             val center = islandNearbyAction(island, facing, selectedTarget = deliberateTarget)
             // Workbench interaction should remain discoverable near resources.
-            val workstationAction = workbenchNear && center?.action !in setOf(
+            val workstationAction = deliberateTarget == null && workbenchNear && center?.action !in setOf(
                 "fight", "revive", "tame", "care", "salvage", "recover_pack", "gather", "fish")
-            val restingAction = campRestAvailable && !workstationAction && center == null
+            // A map selection is deliberate: a blocked or distant target must
+            // not silently turn the center button into resting or crafting.
+            val restingAction = deliberateTarget == null && campRestAvailable && !workstationAction && center == null
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
                 interactLabel = if (buildMode != null) "确认建造" else
@@ -332,7 +334,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else if (restingAction) "在营地休息"
                     else center?.label ?: "附近互动",
                 interactEnabled = if (buildMode != null) buildReady
-                    else center != null || workbenchNear || restingAction,
+                    else center != null || workstationAction || restingAction,
                 onHoldChange = { joystickHeld = it },
                 onInteract = {
                     when {
