@@ -113,7 +113,7 @@ class RelicQuickActionTest {
         assertEquals(expected, receipt.loot)
         assertTrue(RelicChestPresentation.isCurrentOpening(opened, chest.id, receipt))
         assertNull(RelicChestPresentation.committed(opened, opened, chest.id))
-        val restored = RelicRun.read(opened.json())
+        val restored = RelicRun.read(opened.json())!!
         assertEquals(opened.hero.bag, restored.hero.bag)
         assertEquals(opened.drops, restored.drops)
         assertTrue(restored.chests.first { it.id == chest.id }.opened)
