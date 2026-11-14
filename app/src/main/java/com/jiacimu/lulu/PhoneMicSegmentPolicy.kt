@@ -59,6 +59,14 @@ internal object PhoneMicSegmentPolicy {
     fun onsetFrames(rms: Double, threshold: Double): Int =
         if (rms >= threshold * 1.65) 1 else 2
 
+    /**
+     * Capture eligibility is evaluated when speech is recorded. A completed
+     * PCM segment emitted as mute takes effect must not be discarded just
+     * because the new microphone state forbids capturing *future* audio.
+     */
+    fun shouldQueueCapturedSegment(isFinal: Boolean, muted: Boolean, acceptsNewAudio: Boolean): Boolean =
+        (isFinal && muted) || (!muted && acceptsNewAudio)
+
     /** Even an empty PCM buffer needs a final marker when earlier chunks
      * already left the recorder and the user pressed mute.
      */
