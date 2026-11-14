@@ -20,9 +20,7 @@ internal object WakeMusicCoordinator {
 
     /** Immediate music is only called for a verified character-selected action. */
     suspend fun playImmediately(context: Context, characterId: String, taskId: String): Boolean {
-        val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
-            !permission.getBoolean("$characterId:media", false)) return false
+        if (!com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)) return false
         val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }
             .getOrNull() ?: return false
         if (!result.optBoolean("accepted") && !result.optBoolean("success")) return false
@@ -67,9 +65,7 @@ internal object WakeMusicCoordinator {
         context: Context, characterId: String, taskId: String, defer: Boolean,
         volumePercent: Int? = null,
     ): String {
-        val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
-            !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
+        if (!com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)) return "未开启虚拟屏幕总授权"
         val callActive = LuluVoiceCallSession.state.value.connected
         if (defer || callActive) {
             // Only an explicitly selected music cue can create this pending
