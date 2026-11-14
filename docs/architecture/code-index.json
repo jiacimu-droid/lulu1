@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:51:24.847560+00:00",
-  "commit": "35649dc3557d36bc022ff48d0906dfb2054b57e2",
+  "generatedAt": "2026-11-14T05:51:46.598708+00:00",
+  "commit": "51728583d811438b313add5de28503a96f19930c",
   "branch": "main",
-  "sourceFingerprint": "3fc98697d52288480398ce940f18036b3a7bcd44f5bfc5b992fa6c139f352dd6",
+  "sourceFingerprint": "eca14b42b1bd13717e2d163960c7b0dc96e3be4dd1b835a71fa2a8fa37d31fa2",
   "summary": {
     "files": 1312,
-    "lines": 277160,
+    "lines": 277169,
     "symbols": 3912
   },
   "symbolIndex": {
@@ -37193,8 +37193,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 123,
-      "sha256": "378e6dfb5e6ff97b4ff39dd2f99d63f13bccc675cefa756c0f9d9063f20f9c27",
+      "lines": 132,
+      "sha256": "73f02be5fd475f43746bfcf36fb8013d7d8c0c79c7cd1562e8d3d26af9352e13",
       "symbols": [
         {
           "name": "create",
