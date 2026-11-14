@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae621b2a3d20cbe59f35de2fe777711756e969a8`
+- 基准提交：`799708fc30b090f2d01bb93a1e9e571ae866850e`
 - 分支：`main`
 - 已索引文件：1322
-- 已索引代码/文本行：279735
+- 已索引代码/文本行：279739
 - 已发现符号：3943
 
 | 文件 | 行数 | 符号数 |
@@ -792,7 +792,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 467 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 471 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1203 | 5 |
