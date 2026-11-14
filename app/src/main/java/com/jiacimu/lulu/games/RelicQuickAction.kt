@@ -11,7 +11,7 @@ internal data class RelicQuickAction(
 )
 
 /** Deterministic target for the combat key and the primary action.
- * The selected enemy wins when attackable; otherwise a hittable nearby threat is used.
+ * An explicitly selected enemy is never silently replaced, even if defeated or out of range.
  * This never spends a turn or attacks automatically.
  */
 internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMob? {
@@ -23,7 +23,7 @@ internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMo
     if (chosen != null) return chosen
     // An explicit living enemy selection must never redirect an attack to
     // another nearby enemy when the selected target is out of range.
-    if (run.mobs.any { it.hp > 0 && it.x == selected.first && it.y == selected.second })
+    if (run.mobs.any { it.x == selected.first && it.y == selected.second })
         return null
     return run.mobs.filter { it.hp > 0 && RelicArsenal.canHit(run, it.x, it.y) }
         .minWithOrNull(compareBy<RelicMob> {
