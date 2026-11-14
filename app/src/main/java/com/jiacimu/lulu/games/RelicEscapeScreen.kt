@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -67,6 +68,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var confirmAbandon by remember{mutableStateOf(false)}
     var confirmRestart by remember{mutableStateOf(false)}
     var showRulesDialog by remember{mutableStateOf(false)}
+    var rulesTab by rememberSaveable { mutableStateOf("入门") }
     var showTactics by remember(run?.id){mutableStateOf(false)}
     var showGuide by remember(run?.id){mutableStateOf(true)}
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
@@ -323,8 +325,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     TextButton(onClick = { cameraFocus = null; selected = hero.x to hero.y }) {
                         Text("定位你", color = relicGold, fontSize = 11.sp)
                     }
-                    TextButton(onClick = { showRulesDialog = true }) {
-                        Text("玩法", color = relicGreen, fontSize = 11.sp)
+                    TextButton(onClick = { rulesTab = "入门"; showRulesDialog = true }) {
+                        Text("教程", color = relicGreen, fontSize = 11.sp)
                     }
                     TextButton(onClick = { lobbyOpen = true }) {
                         Text("回营地", color = relicGold, fontSize = 11.sp)
@@ -532,7 +534,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 color=relicMuted,fontSize=11.sp,lineHeight=17.sp)
             Text("✦ 传世秘宝「晨星之核」◇6000（珍贵箱极低概率）",
                 color=relicGold,fontSize=11.sp,fontWeight=FontWeight.Bold)
-            Text("品质和实际鉴定价值来自同一件实物；成功撤离才真正入库。",
+            TextButton(onClick={rulesTab="品级";showRulesDialog=true},
+                contentPadding=PaddingValues(horizontal=4.dp,vertical=0.dp)) {
+                Text("查看七档品级图鉴 ›",color=relicGold,fontSize=12.sp)
+            }
+            Text("品级按已获取实物的真实价值鉴定；成功撤离才真正入库。",
                 color=relicMuted,fontSize=10.sp,lineHeight=15.sp)
             if(run!=null && run.allies.isNotEmpty())
                 Text("和伙伴玩：点右上「队伍与语音」，告诉他们想一起打怪、分头搜箱或请他送宝；角色自行选择、行动和承担后果。",
@@ -968,21 +974,89 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         }
     }
     }
+
+    // Keep the first-play guide available at any time without occupying map/HUD space.
+    // The seven display ranks are derived from existing loot values; no loot is granted here.
     if(showRulesDialog)AlertDialog(
-        onDismissRequest={showRulesDialog=false}, containerColor=relicInk,
-        titleContentColor=Color.White, textContentColor=relicMuted,
-        title={Text("迷雾摸金 · 怎么玩")},
-        text={Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
-            Text("移动：左侧方向键每次走一格，点地图可选目标；点「定位你」回到自己。")
-            Text("战斗：附近有可攻击的敌人会自动显示「攻击近敌」，无需反复点怪。短剑只打上下左右1格；长矛直线2格，弩弓直线4格并消耗弩箭。")
-            Text("探索：靠近宝箱开箱，侦察会消耗一回合；敌人也会随你的行动移动或攻击。")
-            Text("宝物品级：普通70–99、精良100–132、稀有185–247、珍贵430–459、史诗460–492、传说「封印之心」650起、传世秘宝「晨星之核」6000。怪物掉落与宝箱物件都按统一鉴定价值分级。")
-            Text("不同等级会有不同的揭晓光色、名称与展陈效果；真正开到的物品由本局宝箱决定，不能通过跳过动画重抽。")
-            Text("组队：先在营地邀请伙伴并等对方决定是否加入。进地图点右上「队伍与语音」，可以点麦克风说话、打字或点击协作提议；伙伴自己决定分头找箱、标记留箱、护卫、救援或送宝。真实动作会更新地图与背包，语音目前是逐句收发，不是不断线的实时电话。")
-            Text("撤离：到绿门附近启动撤离，守住3回合才能带走战利品；没赶到门附近的伙伴可能掉队。")
-            Text("重开：点画面右下「重开」并确认；会失去当前未撤离的宝物和已消耗的补给，永久仓库不清空。")
+        onDismissRequest={showRulesDialog=false},containerColor=relicInk,
+        titleContentColor=Color.White,textContentColor=relicMuted,
+        title={Text("迷雾摸金 · 冒险手册")},
+        text={
+            val guideMaxHeight=(LocalConfiguration.current.screenHeightDp*.36f)
+                .coerceIn(96f,320f).dp
+            Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                Text("搜宝 → 生还 → 撤离 → 收藏",
+                    color=relicGold,fontSize=12.sp,fontWeight=FontWeight.SemiBold)
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    listOf("入门","品级","合作").forEach { tab ->
+                        FilterChip(selected=rulesTab==tab,onClick={rulesTab=tab},
+                            label={Text(if(tab=="品级")"七档品级" else tab,fontSize=11.sp,maxLines=1)},
+                            modifier=Modifier.weight(1f))
+                    }
+                }
+                Column(Modifier.fillMaxWidth().heightIn(max=guideMaxHeight)
+                    .verticalScroll(rememberScrollState()),
+                    verticalArrangement=Arrangement.spacedBy(9.dp)) {
+                    when(rulesTab) {
+                        "品级" -> {
+                            Text("七档从低到高 · ◇为宝物鉴定价值",
+                                color=Color.White,fontWeight=FontWeight.Bold,fontSize=13.sp)
+                            val ranks=listOf(
+                                "01  普通" to "◇70–99 · 常见旧物",
+                                "02  精良" to "◇100–132 · 较好的普通藏品",
+                                "03  稀有" to "◇185–247 · 蓝银珍宝",
+                                "04  珍贵" to "◇430–459 · 高价值藏品",
+                                "05  史诗" to "◇460–492 · 顶级珍贵藏品",
+                                "06  传说" to "◇650起 · 封印之心",
+                                "07  传世秘宝" to "◇6000 · 晨星之核"
+                            )
+                            ranks.forEach { (rank,detail) ->
+                                Row(Modifier.fillMaxWidth(),
+                                    horizontalArrangement=Arrangement.spacedBy(8.dp),
+                                    verticalAlignment=Alignment.CenterVertically) {
+                                    Text(rank,color=relicGold,fontSize=12.sp,
+                                        fontWeight=FontWeight.SemiBold,
+                                        modifier=Modifier.weight(1f))
+                                    Text(detail,color=relicMuted,fontSize=11.sp)
+                                }
+                                HorizontalDivider(color=Color.White.copy(alpha=.10f))
+                            }
+                            Text("注意：七档是鉴定展示品级，不是七种宝箱。宝箱和存档仍使用普通、稀有、珍贵三大类别。",
+                                color=relicMuted,fontSize=11.sp)
+                            Text("高品级不等于一定掉落；祭坛与特殊宝物另有条件。必须成功撤离，藏品才会进入永久仓库。",
+                                color=relicGreen,fontSize=11.sp)
+                        }
+                        "合作" -> {
+                            Text("出发前在营地邀请伙伴，角色本人决定是否加入。",
+                                color=Color.White,fontSize=12.sp)
+                            Text("进入遗迹后，打开右上队伍面板，打字或点麦克风发出协作提议；伙伴根据实际局势自行决定搜箱、战斗、救援或送宝。",
+                                color=relicMuted,fontSize=12.sp)
+                            Text("每位伙伴的行动要真实改变地图、背包或生命，不能把口头答应当成已经完成。",
+                                color=relicMuted,fontSize=12.sp)
+                            Text("语音目前逐句收发，不是持续免按键实时通话。",
+                                color=relicMuted,fontSize=12.sp)
+                        }
+                        else -> {
+                            Text("① 左手按住方向键移动，拖动可以转向；点地图只选择目标，不会自动移动。",
+                                color=Color.White,fontSize=12.sp)
+                            Text("② 走到宝箱附近按右侧「开箱」或中心互动键；稀有箱可选择稳妥开箱，或消耗工具破封并面对额外守卫。",
+                                color=relicMuted,fontSize=12.sp)
+                            Text("③ 怪物会随回合行动。右手「攻击／格挡／治疗」固定可见；蓄力敌人要躲避、格挡或打断。",
+                                color=relicMuted,fontSize=12.sp)
+                            Text("④ 带着宝物走到绿色撤离门附近，启动撤离并守住3回合。倒地失败会失去本局未带出的东西。",
+                                color=relicMuted,fontSize=12.sp)
+                            Text("武器距离：短剑相邻1格、长矛直线2格、弩弓直线4格（消耗弩箭）。侦察消耗1回合。",
+                                color=relicGreen,fontSize=11.sp)
+                            Text("右侧「行囊／更多」是背包、战术与收藏；点「七档品级」可随时查看什么最珍贵。",
+                                color=relicGold,fontSize=11.sp)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton={TextButton(onClick={showRulesDialog=false}) {
+            Text("返回游戏",color=relicGold)
         }},
-        confirmButton={TextButton(onClick={showRulesDialog=false}) { Text("开始探索",color=relicGold) }},
     )
     if(confirmRestart)AlertDialog(
         onDismissRequest={confirmRestart=false}, containerColor=relicInk,
