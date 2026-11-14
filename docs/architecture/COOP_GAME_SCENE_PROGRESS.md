@@ -1,5 +1,14 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-14 · G-02/G-03 · 双游戏玩家操作闭环自主检查（源码/测试已提交，CI/真机待验）
+
+- **目标**：主人要求在两款游戏中主动发现手感缺口，以真实玩家的“进入→方向操作→互动→结果/继续”而非仅截图/文案验收；对应唯一看板 G-02.1/6 与 G-03.1/5。本轮不扩独立状态源，也不增加任何逐帧模型调用。
+- **G-03 玩家真实开箱路径**：正式 `RelicEscapeScreen` 原有长按方向键反复执行 `relicQuickAction(open/altar/silence/...)`，可在摇杆持续行走时无意中把新设计的多回合箱子自动撬完。生产 [8870caf](https://github.com/jiacimu-droid/lulu1/commit/8870caf6c5faa99bb235a5aa18f310f92e3b9dfa) 将摇杆定义为纯 `relicDirectionAction("move")`，并修复角色站上宝箱/祭坛本格时中心互动失效；界面接线 [13ab308](https://github.com/jiacimu-droid/lulu1/commit/13ab308b12e334597933d449c2c76f984e14c1b2)。回归 [9133f3a](https://github.com/jiacimu-droid/lulu1/commit/9133f3a2524a429791126e2f9c33c88e26309bdc) 覆盖撞上/站上宝箱仍未被自动开，必须中心按钮主动继续撬锁；祭坛/钟楼不被长按移动直接触发。物理 `RelicEscapeRules` 的一次性战利品和角色独立游戏规则保持不变。
+- **G-02 撞墙体验和回合性能**：正式 `BlockIslandScreen` 对无效方向碰撞反复 `save(island.copy(world=...notice))`，长按摇杆每195ms 有潜在多次无意义 SharedPreferences apply()；树、矿、怪、动物、倒地同伴与建筑阻挡又常不清楚该做什么。[f9575e8](https://github.com/jiacimu-droid/lulu1/commit/f9575e8beb3543dbe15cf205270e94c65acbd7ae) 提供只读 `IslandManualMovement.blockedHint`，[41d9e3f](https://github.com/jiacimu-droid/lulu1/commit/41d9e3fe7cbedf247839bba4e7d9e8621df878d5) 将阻挡提示改为 2.3 秒局内暂态，移动/选择/行动可清除，不影响存档及角色动作；救援提示按真实野果数 [4b866e5](https://github.com/jiacimu-droid/lulu1/commit/4b866e588c0601acfbb3c872249bc5e19343b247) 显示行动或缺料。回归 [29b614d](https://github.com/jiacimu-droid/lulu1/commit/29b614d021d693a204f9f25fc7d1ccef6016e217)、[ed8d5ec](https://github.com/jiacimu-droid/lulu1/commit/ed8d5ec3f9df278423ac3452e5440b6f4e5260e2) 覆盖方向无效、树林/怪物/救援/水域，提示不增回合/资源/存档值。
+- **CI 首错接力**：旧 [APK/JVM #43575432235](https://github.com/jiacimu-droid/lulu1/actions/runs/43575432235) 在 Kotlin 编译后 `testPhoneUnitTest` 的 `persistedLedgerForwardsAdjacentChestCoordinatesAndNeverMintsEarlyLoot` 失败；根因：旧测试对重新开启已开箱要求整个 snapshot 对象相等，然而无效操作应显示“已开”错误文本，确实只有 `notice` 不同，金币/回合/真实实物无变化。[4395e95](https://github.com/jiacimu-droid/lulu1/commit/4395e95bbac874abeff36a2c405631a59541be5d) 改为直接验证无新增回合/战利品/掉落/仓库/事件/结算，仍要求唯一奖励，不删防重回归。**此提交后仍未有覆盖所有新增 UX 改动的 APK/JVM success 或 Redmi 横屏真实手指长按/FPS/节奏实测证据；不能宣称已验通。**
+- **下一轮入口**：查最新 main 的 `RelicQuickActionTest.joystickNeverAutoPriesEvenWhenHeldTowardAChest`、`joystickNeverAutoInvokesOrDisablesLandmarks` 与 `IslandManualMovementTest.blockedWalkingExplainsAnActionWithoutModifyingWorld` 及上面防重测试的真实 `testPhoneUnitTest` 状态。若首错就修；绿色后用 Redmi 360/412dp 先试玩小岛撞怪/采矿/救援、摸金摇杆经过紫箱不自动开奖→中心按钮逐步揭晓→真实撤离。只有真机截图和实测才算美术/手感验收；继续体验推进长期资源目标与敌人威胁。
+
+
 ### 2026-11-14 · G-03.5 · 玩家开箱动作与随机品级断言继续修正
 
 - 后继 APK run [#43568418919](https://github.com/jiacimu-droid/lulu1/actions/runs/43568418919) 在 3028 测试中仅 `generatedMapHasRealReachableChestsAndExitOnEverySeed` 失败（第 782 行），是旧固定种子必须包含高档箱的断言，不代表真实地图路径不可达。另一轮 `44e2791` 虽换成七档品级断言，却把换行写成字面 `\\n`，同一行 `//` 吞掉全部校验；提交 [7218b55](https://github.com/jiacimu-droid/lulu1/commit/7218b550fa962489e24e30e86f7c37166245edda) 恢复真实执行的 `grade 0..6`、`grade ↔ tier`、同 seed 一致性断言，不改概率和原奖励。
