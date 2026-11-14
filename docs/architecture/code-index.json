@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T22:48:27.210442+00:00",
-  "commit": "0f3d16242491faed2bb9a56dc84c3a20adf446a5",
+  "generatedAt": "2026-11-14T23:45:18.393601+00:00",
+  "commit": "812684339652b03c93457c1719a4a9386b41e6c6",
   "branch": "main",
-  "sourceFingerprint": "8996abf01e4ed1995a2d8be12a4b3c85946c9caa90e25d5673a889dd4b202960",
+  "sourceFingerprint": "f805f5beb21a9b84e1669ccfd4d7599f7228b3596eb4fe09cbe8e65acb9acdcb",
   "summary": {
     "files": 1322,
-    "lines": 280165,
+    "lines": 280205,
     "symbols": 3945
   },
   "symbolIndex": {
@@ -1071,7 +1071,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 37
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
@@ -6757,7 +6757,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 22
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
@@ -11831,19 +11831,19 @@
     "ProactiveIncomingCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 10
+        "line": 12
       }
     ],
     "ProactiveIncomingCallStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 26
+        "line": 28
       }
     ],
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 74
+        "line": 83
       }
     ],
     "ProactiveMessageAutomation": [
@@ -33056,28 +33056,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 140,
-      "sha256": "6f3683fb17f5e3d25cda2c85c24269c9bc15b0f4027864c43c1fd67a3969a7f7",
+      "lines": 180,
+      "sha256": "8ae27b6818be312ebafc6eb89160e604ed3aeff65ca0a55e9ca8a9e8776a7181",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
-          "line": 10
+          "line": 12
         },
         {
           "name": "active",
-          "line": 22
+          "line": 24
         },
         {
           "name": "ProactiveIncomingCallStore",
-          "line": 26
+          "line": 28
         },
         {
           "name": "initialize",
-          "line": 37
+          "line": 39
         },
         {
           "name": "activeFor",
-          "line": 74
+          "line": 83
         }
       ]
     },
