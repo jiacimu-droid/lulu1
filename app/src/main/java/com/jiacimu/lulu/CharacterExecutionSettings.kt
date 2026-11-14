@@ -25,6 +25,10 @@ internal fun CharacterExecutionSettings(characterId: String) {
         mutableStateOf(com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId))
     }
     var shoppingNotice by remember(characterId) { mutableStateOf("") }
+    var chatSendEnabled by remember(characterId) {
+        mutableStateOf(com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId))
+    }
+    var chatSendNotice by remember(characterId) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("操作授权", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         val permissionGroups = listOf(
@@ -83,6 +87,29 @@ internal fun CharacterExecutionSettings(characterId: String) {
                             })
                     }
                     if (shoppingNotice.isNotBlank()) Text(shoppingNotice,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error)
+                    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("允许微信发消息", style = MaterialTheme.typography.bodyMedium)
+                            Text("角色自主选择聊天内容与对象；需核实当前会话，随时可关闭",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(checked = chatSendEnabled,
+                            enabled = characterId.isNotBlank() &&
+                                !characterId.startsWith("resident:"),
+                            onCheckedChange = { next ->
+                                if (com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.setEnabled(
+                                        context, characterId, next)) {
+                                    chatSendEnabled = next
+                                    chatSendNotice = ""
+                                } else chatSendNotice = "微信发消息授权未能保存，请重试"
+                            })
+                    }
+                    if (chatSendNotice.isNotBlank()) Text(chatSendNotice,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error)
                 }
