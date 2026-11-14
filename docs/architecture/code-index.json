@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:07:38.093162+00:00",
-  "commit": "d078b7fb19a554a7fba98584b3b5511d59e77154",
+  "generatedAt": "2026-11-14T04:18:09.728939+00:00",
+  "commit": "8d57fad1d7faa40ab4f6f279d9dcafe640edc1a0",
   "branch": "main",
-  "sourceFingerprint": "c88b9dbc11a06f4c5f7d4112adbbfa8873d6a8a5a27c3086ca25efaae30758d0",
+  "sourceFingerprint": "b5760f83be492c2d5a3420659a2b1030e0b51d5e27cf2111bcc15f2d5ebe6e0a",
   "summary": {
     "files": 1307,
     "lines": 275596,
@@ -41561,7 +41561,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
       "lines": 114,
-      "sha256": "db8088e243959c10db7f5667572f1494e5510e88300314f3122f4075098159b9",
+      "sha256": "65f8e80d34d263368c63e0601ad2301c2acd57a57f5918edf22e438995e07c7f",
       "symbols": [
         {
           "name": "BackgroundPhoneCapabilityContextTest",
