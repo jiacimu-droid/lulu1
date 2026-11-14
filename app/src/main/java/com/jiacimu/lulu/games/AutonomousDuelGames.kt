@@ -254,6 +254,12 @@ internal object AutonomousDuelGames {
                     match.points[index] == match.points.maxOrNull()
                 }))
                 .put("playerIndex", i)
+            if (gameId == "yacht_dice") {
+                val sheets = details.getJSONObject("scoreSheets")
+                names.forEachIndexed { index, name ->
+                    sheets.getJSONObject("player$index").put("name", name)
+                }
+            }
             LuluGames.store.recordExternalGame(
                 if (gameId == "memory_match") LuluGameType.MemoryMatch else LuluGameType.YachtDice,
                 title, match.points[i], 0, summary, details.toString(),
