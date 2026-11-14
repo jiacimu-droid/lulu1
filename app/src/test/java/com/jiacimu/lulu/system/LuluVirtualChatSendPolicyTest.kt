@@ -21,12 +21,12 @@ class LuluVirtualChatSendPolicyTest {
         try {
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, a))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, b))
-            assertTrue(LuluVirtualChatSendPolicy.setEnabled(ctx, a, true))
+            assertTrue(LuluRolePhoneAuthorization.setGranted(ctx, a, true))
             assertTrue(LuluVirtualChatSendPolicy.isEnabled(ctx, a))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, b))
-            assertFalse(LuluVirtualChatSendPolicy.setEnabled(ctx, "resident:foo", true))
+            assertFalse(LuluRolePhoneAuthorization.setGranted(ctx, "resident:foo", true))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, "resident:foo"))
-            assertTrue(LuluVirtualChatSendPolicy.setEnabled(ctx, a, false))
+            assertTrue(LuluRolePhoneAuthorization.setGranted(ctx, a, false))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, a))
         } finally { prefs.edit().remove("$a:screen").remove("$b:screen").commit() }
     }
