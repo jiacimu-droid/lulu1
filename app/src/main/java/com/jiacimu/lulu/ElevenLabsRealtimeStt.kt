@@ -109,7 +109,9 @@ internal class ElevenLabsRealtimeStt(
                             turnDelay?.cancel()
                             if (!muteFinishing.get()) onSpeech()
                             onPartial(synchronized(lock) { transcript.preview(partial) })
-                            if (muteFinishing.get()) scheduleMuteFinish(1_100L)
+                            // A partial is not a final transcript. Do not close
+                            // early while Scribe is still processing the manual commit.
+                            if (muteFinishing.get()) scheduleMuteFinish(7_000L)
                         }
                     }
                     "committed_transcript" -> {
