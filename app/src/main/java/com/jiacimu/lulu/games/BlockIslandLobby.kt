@@ -177,7 +177,13 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
         }
     }
     val launchButton: @Composable () -> Unit = {
-        Button(onClick={onStart(selected.take(3))},enabled=inviting==null,
+        Button(onClick={
+            val companions = selected.take(3)
+            onStart(companions)
+            companions.forEach { id ->
+                GameInvitationContinuity.recordPartyStarted(context, id, "block_island", lobbySessionId)
+            }
+        },enabled=inviting==null,
             modifier=Modifier.fillMaxWidth().height(65.dp)
                 .clip(RoundedCornerShape(17.dp))
                 .background(Brush.horizontalGradient(listOf(
