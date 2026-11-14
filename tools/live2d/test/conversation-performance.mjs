@@ -6,6 +6,7 @@ import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createMotionTransition } from '../src/motion-transition.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
+import { KISS_CAMERA_DURATION_MS } from '../src/kiss-camera.mjs'
 import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
@@ -42,8 +43,9 @@ const bridge = {
   touchExpressionNames: ['star', 'heart'],
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
-  // Stage camera is renderer-only; this VM exercises the same audio/motion bridge.
-  cancelKissCamera: () => {},
+  // Renderer-only lease: the test still exercises the REAL stage cancellation.
+  kissCameraLease: null, KISS_CAMERA_DURATION_MS,
+  cancelKissCamera: () => { bridge.kissCameraLease = null },
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
   pendingExpressionName: null, pendingSpeechParts: null,
@@ -990,6 +992,35 @@ assert.equal(bridge.playing, false,
   bridge.motionTransition.begin = originalBegin
   manager.stopAllMotions = originalStop
   manager.isFinished = originalFinished
+}
+
+// Regression: a selected kiss has its own bounded camera/face lease. The
+// following spoken phrase (even a new visualSequence) cannot yank it back to
+// normal framing; a genuinely selected replacement or interruption still can.
+{
+  bridge.playing = true
+  bridge.kissCameraLease = { model: bridge.model, revision: 555,
+    startedAt: clock - 1200 }
+  bridge.authoredMotion = { model: bridge.model, revision: 555,
+    group: 'LuluWolf', index: 48, started: true, source: 'character' }
+  bridge.perform({ visualSequence: 94001, expression: 'star' })
+  assert.equal(bridge.kissCameraLease?.revision, 555,
+    'an expression-only next phrase must preserve the ongoing kiss')
+  assert.equal(bridge.authoredMotion?.index, 48,
+    'the active kiss Motion3 must not be hard-stopped by a new voice cue')
+  bridge.perform({ visualSequence: 94002, face: { smile: .2 } })
+  assert.equal(bridge.kissCameraLease?.revision, 555,
+    'a second speech-only fragment cannot instantly withdraw the kiss')
+  bridge.perform({ visualSequence: 94003, motion: { group: 'Gesture', index: 12 } })
+  assert.equal(bridge.kissCameraLease, null,
+    'a new explicitly chosen action takes over from the kiss')
+  bridge.kissCameraLease = { model: bridge.model, revision: 556,
+    startedAt: clock - 1400 }
+  bridge.authoredMotion = { model: bridge.model, revision: 556,
+    group: 'LuluWolf', index: 48, started: true, source: 'character' }
+  bridge.clearSpeechMoment({ cancelKiss: true })
+  assert.equal(bridge.kissCameraLease, null,
+    'a genuine interruption or hidden call releases the kiss immediately')
 }
 
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
