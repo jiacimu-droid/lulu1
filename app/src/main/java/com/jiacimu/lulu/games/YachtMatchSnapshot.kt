@@ -46,7 +46,7 @@ internal data class YachtMatchSnapshot(
         val current = playerIds.getOrElse(currentPlayerIndex) { "user" }
         return "【真实进行中的游戏：快艇骰子】主人和你已开始同一局13轮竞技对抗；" +
             "你已完成$played/13轮，当前行动方=$current，累计得分：$totals。" +
-            "必须所有玩家各完成13个计分格后才能分出胜负；跳转聊天不代表退出、拒绝或尚未开局。"
+            "必须所有玩家各完成13个计分格后才能结算，目前尚未分出胜负；跳转聊天不代表退出、拒绝或尚未开局。"
     }
 
     companion object {
