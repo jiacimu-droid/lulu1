@@ -403,8 +403,26 @@ internal object RelicEscapeRules {
                 val loot=treasure(s,chest);val fits=hero.load+loot.weight<=heroCapacity(s)
                 val unlocked=RelicArsenal.chestUnlock(chest)?.takeUnless { it in s.weapons }
                 val ammo=if(chest.tier==RelicTier.COMMON)1 else 2
+                // Real map choice: spend a dismantling tool on the distant bell first,
+                // or risk a pursuing guard after repeatedly raiding valuable rooms.
+                val bellActive=s.sites.any{it.kind=="alarm" && !it.spent}
+                val summons=if(bellActive && s.chests.any{it.opened} && chest.visibleGrade>=2) {
+                    val occupied=s.mobs.filter{it.hp>0}.map{it.x to it.y}.toSet()+
+                        s.allies.filter{it.hp>0}.map{it.x to it.y}+
+                        (hero.x to hero.y)
+                    listOf(x+1 to y,x-1 to y,x to y+1,x to y-1,
+                        x+2 to y,x-2 to y,x to y+2,x to y-2)
+                        .firstOrNull{(mx,my)->
+                            s.walk(mx,my) && (mx to my) !in occupied &&
+                                s.chests.none{!it.opened && it.x==mx && it.y==my} &&
+                                s.sites.none{!it.spent && it.x==mx && it.y==my} &&
+                                (mx!=s.exitX || my!=s.exitY)
+                        }?.let{(mx,my)->RelicMob((s.mobs.maxOfOrNull{it.id}?:0)+1,
+                            mx,my,8+s.level*2+s.difficulty.monsterHp,2,alert=4)}
+                } else null
                 next=s.copy(chests=s.chests.map{if(it.id==chest.id)it.copy(opened=true) else it},
                     chestProgress=s.chestProgress-chest.id,
+                    mobs=if(summons==null)s.mobs else s.mobs+summons,
                     hero=if(fits)hero.copy(bag=hero.bag+loot) else hero,
                     drops=if(fits)s.drops else s.drops+RelicDrop(x,y,loot),
                     weapons=if(unlocked==null)s.weapons else s.weapons+unlocked,
@@ -413,6 +431,8 @@ internal object RelicEscapeRules {
                         (if(fits)"（入包）" else "（背包已满，留在原地）")+
                         (if(unlocked!=null)" · 解锁"+RelicArsenal.label(unlocked) else "")+
                         " · 弩箭+$ammo")
+                if(summons!=null)next=next.log("world","alarm",
+                    "警戒钟楼响起！新的祭司追兵正在逼近。下次可先拆除钟楼再搜宝")
                 noise=2
             }
             "invoke"->{
@@ -434,6 +454,17 @@ internal object RelicEscapeRules {
                         (s.mobs.maxOfOrNull{it.id}?:0)+1,spawn.first,spawn.second,6+s.level,2,alert=4))
                     .log("player","invoke","祭坛苏醒！获得珍贵封印之心"+if(fits)"（已入包）" else "（掉落在地）")
                 noise=3
+            }
+            "silence"->{
+                val bell=s.sites.firstOrNull{it.x==x && it.y==y &&
+                    it.kind=="alarm" && !it.spent}
+                    ?:return s.copy(notice="这里没有仍在警戒的遗迹钟楼")
+                if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="需要靠近钟楼机关")
+                if(s.tools<=0)return s.copy(notice="拆除钟楼警报需要一套工具")
+                next=s.copy(tools=s.tools-1,
+                    sites=s.sites.map{if(it.id==bell.id)it.copy(spent=true) else it})
+                    .log("player","silence","拆除了警戒钟楼！工具 -1，后续开箱不再召来钟楼追兵")
+                noise=1
             }
             "resupply"->{
                 val station=s.sites.firstOrNull{it.x==x && it.y==y && it.kind=="supply" && !it.spent}
