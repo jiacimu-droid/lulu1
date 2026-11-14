@@ -125,6 +125,19 @@ class AutonomousDuelGamesTest {
         assertTrue(AutonomousDuelGames.pendingFor(app, target).isEmpty())
     }
 
+    @Test fun withdrawnInvitationCannotBeAcceptedEvenIfSavedAsPending() {
+        val (sender, target) = realPair()
+        val invite = AutonomousDuelGames.invite(app, sender, target, "memory_match", "来试试十二对记忆牌")
+        val letter = ResidentSocialMailbox.inbox(target).last {
+            it.content.contains("[游戏馆邀约|${invite.id}|memory_match]")
+        }
+        SharedExperienceTimeline.deleteEvent(ResidentSocialMailbox.evidenceId(letter, target))
+        assertTrue(AutonomousDuelGames.pendingFor(app, target).none { it.id == invite.id })
+        assertThrows(IllegalArgumentException::class.java) {
+            AutonomousDuelGames.respond(app, target, invite.id, "accept")
+        }
+    }
+
     @Test fun acceptedMatchSettlesOnceAndBothParticipantsHaveSameWinner() {
         val (sender, target) = realPair()
         val offer = AutonomousDuelGames.invite(app, sender, target, "yacht_dice", "来比快艇骰子吧")
@@ -134,6 +147,10 @@ class AutonomousDuelGamesTest {
         val records = LuluGames.store.state.value.records.filter { it.id.startsWith("duel-${offer.id}-") }
         assertEquals(2, records.size)
         assertEquals(setOf(sender, target), records.map { it.characterId }.toSet())
+        val sheet = JSONObject(records.first().detailsJson).getJSONObject("scoreSheets")
+        val names = records.associate { it.characterId to MigratedDomainStores.characters.get(it.characterId).displayName }
+        assertEquals(names[sender], sheet.getJSONObject("player0").getString("name"))
+        assertEquals(names[target], sheet.getJSONObject("player1").getString("name"))
         val winnerLists = records.map { JSONObject(it.detailsJson).getJSONArray("winnerIds").toString() }
         assertEquals(winnerLists.first(), winnerLists.last())
         assertEquals(setOf(0, 1), records.map { JSONObject(it.detailsJson).getInt("playerIndex") }.toSet())
