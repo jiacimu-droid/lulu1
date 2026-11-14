@@ -67,7 +67,8 @@ internal object CharacterCausalAppraisalStage {
     fun eligible(event: SharedTimelineEvent): Boolean =
         event.evidenceKind == EventEvidenceKind.Observation && when {
             event.source == InteractionSignalBridge.SOURCE ->
-                event.id.startsWith("interaction-call-end-")
+                event.id.startsWith("interaction-call-end-") &&
+                    !InteractionSignalBridge.isRoleInitiatedCallEnd(event)
             // Genuine touch and visits also change social context without a new text bubble.
             event.id.startsWith("world-touch-") || event.id.startsWith("world-visit-") ||
                 event.id.startsWith("world-behavior-") ->
