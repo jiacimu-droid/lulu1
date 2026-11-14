@@ -140,6 +140,45 @@ class ResidentAutonomyBoundaryTest {
             from.characterId, to.characterId, "第一次聊天").content)
     }
 
+    @Test fun confirmedCompanionAndFemaleCafeResidentCanExchangeMailWhileApart() {
+        val context = RuntimeEnvironment.getApplication()
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        ResidentSocialMailbox.initialize(context)
+        MomentFriendAccess.initialize(context)
+
+        val role = MigratedDomainStores.characters.create("朋友主角-" + UUID.randomUUID())
+        val residentId = "resident:cafe-" + UUID.randomUUID()
+        MigratedDomainStores.characters.update(CharacterSettings(
+            characterId = residentId, displayName = "岑灯", persona = "女性咖啡店员"))
+        DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "数字生命")
+        DigitalLifeProfileStore.registerNewLife(residentId, "岑灯", "数字世界原住民")
+
+        assertFalse(ResidentSocialMailbox.canContact(role.characterId, residentId))
+        try {
+            assertTrue(MomentFriendAccess.setFriends(role.characterId, residentId, true))
+            assertTrue(ResidentSocialMailbox.canContact(role.characterId, residentId))
+            assertTrue(ResidentSocialMailbox.canContact(residentId, role.characterId))
+            assertTrue(ResidentSocialMailbox.visibleContacts(role.characterId).contains(residentId))
+            assertTrue(ResidentSocialMailbox.visibleContacts(residentId).contains(role.characterId))
+            // No location or same-day encounter is required once friendship is confirmed.
+            val hello = ResidentSocialMailbox.send(role.characterId, residentId,
+                "今天到咖啡角没遇见你，最近怎么样？", requestPeerReview = false)
+            val reply = ResidentSocialMailbox.send(residentId, role.characterId,
+                "我今天换了班，改天见。", requestPeerReview = false)
+            assertEquals(listOf(hello.id, reply.id),
+                ResidentSocialMailbox.historyForInspection(role.characterId)
+                    .filter { it.id == hello.id || it.id == reply.id }.map { it.id })
+            assertEquals(listOf(hello.id, reply.id),
+                ResidentSocialMailbox.historyForInspection(residentId)
+                    .filter { it.id == hello.id || it.id == reply.id }.map { it.id })
+        } finally {
+            MomentFriendAccess.setFriends(role.characterId, residentId, false)
+        }
+    }
+
     @Test fun privateSocialContactsRequireRealWorldProximityOrHistoricalExchange() {
         val context = RuntimeEnvironment.getApplication()
         MigratedDomainStores.initialize(context)
