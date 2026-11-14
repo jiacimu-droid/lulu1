@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:03:49.507421+00:00",
-  "commit": "dff6e56f938b1b769be2fe55816714d4d5bffe9e",
+  "generatedAt": "2026-11-14T16:04:20.023805+00:00",
+  "commit": "37821f59d691ba88fec8f46824eadbe06735e9e5",
   "branch": "main",
-  "sourceFingerprint": "9c1da7aa2c42f21f944bd5070fcc97b434ab9f4d381fc4022cff40d375a6d461",
+  "sourceFingerprint": "4719a3be6f86de13c7a93fecef823c3e690c01d309cba841de3df3ed1de9ab34",
   "summary": {
     "files": 1321,
-    "lines": 279628,
+    "lines": 279662,
     "symbols": 3944
   },
   "symbolIndex": {
@@ -39837,8 +39837,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 318,
-      "sha256": "dc0bfe6df9fbced05b97c46dfbe523c2b2348506a6d0b157f1429d69d17d2fca",
+      "lines": 352,
+      "sha256": "26c56c79ff0a30ec2a25c6b0efddcce4bee3924c94cc8f74dfac22587d1220f6",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
