@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`219f1d942e55738c9ad8ce7cffd585921eb08af1`
+- 基准提交：`0cd414a23e1e3dee619c4dbcc4db28ed8f0bf95e`
 - 分支：`main`
 - 已索引文件：1322
-- 已索引代码/文本行：279795
+- 已索引代码/文本行：279813
 - 已发现符号：3943
 
 | 文件 | 行数 | 符号数 |
@@ -792,7 +792,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 471 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 479 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1211 | 5 |
@@ -1288,7 +1288,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudgetTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 87 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 21 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluInstalledAppResolverTest.kt` | 52 | 1 |
