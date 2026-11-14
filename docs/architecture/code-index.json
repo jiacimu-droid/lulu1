@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T12:43:16.076738+00:00",
-  "commit": "b3d586e9ffe9404c0201fc254b13a4ae6d4f0c52",
+  "generatedAt": "2026-11-14T12:56:34.985503+00:00",
+  "commit": "20cfca8f4d6cb59a487fa0e5607f771bc865564e",
   "branch": "main",
-  "sourceFingerprint": "fb396bae3c29dd3db93a2deab36477265f783a487ea49b42ccb17271f17447c0",
+  "sourceFingerprint": "39efbcc86ff3deb4784a65038d392963813fecf1fa1ed867cd4654ca59aa66b6",
   "summary": {
     "files": 1315,
-    "lines": 278310,
+    "lines": 278328,
     "symbols": 3928
   },
   "symbolIndex": {
@@ -15155,7 +15155,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 42
+        "line": 48
       }
     ],
     "dismiss": [
@@ -15199,13 +15199,13 @@
     "playerAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 31
+        "line": 37
       }
     ],
     "isCurrentOpening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-        "line": 38
+        "line": 44
       }
     ],
     "owned": [
@@ -37025,8 +37025,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
-      "lines": 64,
-      "sha256": "2a3ba4d55399d56f324f61b8401c8561d7447b34be759da6ad67ead8376cb88b",
+      "lines": 70,
+      "sha256": "3fc1fcd2a3f1c7d482efdef1a991da80211fd7345be70bba068429bbf79ed5a2",
       "symbols": [
         {
           "name": "actionableChest",
@@ -37034,15 +37034,15 @@
         },
         {
           "name": "playerAction",
-          "line": 31
+          "line": 37
         },
         {
           "name": "isCurrentOpening",
-          "line": 38
+          "line": 44
         },
         {
           "name": "committed",
-          "line": 42
+          "line": 48
         }
       ]
     },
@@ -45877,8 +45877,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 219,
-      "sha256": "f4c00ff893b3aaf33bb07144c62a490718204ee5d22dd5460cf31b3d9e6cf24f",
+      "lines": 231,
+      "sha256": "e3a87e4d57caa2b783c8f9483463671fde6303b38a9fe2d904ab5b4376ff9490",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
