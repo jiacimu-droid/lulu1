@@ -48,13 +48,22 @@ internal object RelicEscapeWorld {
         }
         val chestPositions=targets.dropLast(1)
         val chests=chestPositions.mapIndexed { index,(x,y)->
-            val tier=when {
-                index==count-1 && level>=3->RelicTier.PRECIOUS
-                rng.nextInt(100)<(8+level*8)->RelicTier.PRECIOUS
-                rng.nextInt(100)<(35+level*8)->RelicTier.RARE
-                else->RelicTier.COMMON
+            // Real seven-colour chest catalogue: common to prismatic, with
+            // higher floors and danger improving the odds, never a fixed payout.
+            val roll=rng.nextInt(100)
+            val baseline=when {
+                roll<23->0
+                roll<46->1
+                roll<67->2
+                roll<83->3
+                roll<94->4
+                roll<99->5
+                else->6
             }
-            RelicChest(index,x,y,tier)
+            val boost=(if(level>=3 && index==count-1)1 else 0)+
+                (if(difficulty==RelicDifficulty.HARD && rng.nextInt(100)<20)1 else 0)
+            val grade=(baseline+boost).coerceAtMost(6)
+            RelicChest(index,x,y,RelicQuality.at(grade).tier,grade=grade)
         }
         // Only populate connected walkable cells, otherwise enemies/side objectives can
         // spawn in sealed-off pockets and become impossible to reach.
@@ -81,7 +90,7 @@ internal object RelicEscapeWorld {
             val kind=if((level>=2 || difficulty==RelicDifficulty.HARD) &&
                 index==(2+level.coerceIn(1,5)+difficulty.extraMobs)-1)3
                 else if(level<=1)index%2 else rng.nextInt(3)
-            mobs+=RelicMob(index,x,y,(if(kind==3)9+level else 2+kind*2+level/2)+difficulty.monsterHp,kind)
+            mobs+=RelicMob(index,x,y,(if(kind==3)12+level*2 else 7+kind*3+level)+difficulty.monsterHp,kind)
         }
         // Optional danger rooms and one-use traps are world entities, not narrative rewards.
         val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
