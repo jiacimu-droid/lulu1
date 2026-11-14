@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T06:02:53.468735+00:00",
-  "commit": "67d4da3021b45fffcabd78bf7f958f5701707e17",
+  "generatedAt": "2026-11-14T06:03:26.033654+00:00",
+  "commit": "269cfcde4292294a34c2c163425229c40a0b3846",
   "branch": "main",
-  "sourceFingerprint": "83f484ea678e6fa3d91b5fa311cb2994df186b460f27140e22995862b142dd61",
+  "sourceFingerprint": "0c6afaeb1c23165c46373ce2255d3e9a80e98deed912f23eb8b6861ed43efc30",
   "summary": {
     "files": 1312,
-    "lines": 277390,
-    "symbols": 3912
+    "lines": 277406,
+    "symbols": 3913
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -757,7 +757,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 487
+        "line": 493
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -14083,7 +14083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 307
+        "line": 317
       }
     ],
     "near": [
@@ -15246,34 +15246,40 @@
         "line": 268
       }
     ],
+    "openingGlowGrade": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 270
+      }
+    ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 269
+        "line": 279
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 642
+        "line": 652
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 643
+        "line": 653
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 720
+        "line": 730
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 756
+        "line": 766
       }
     ],
     "change": [
@@ -37003,8 +37009,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 670,
-      "sha256": "9c1f7525385a21ecf6a9c1b529a2dbf01fd4402d7356ad6f7e28f091d9fbfa49",
+      "lines": 676,
+      "sha256": "c0bbf673b157a298465245c678e15f5286bc561ee562bd1fc026d99d429f35b1",
       "symbols": [
         {
           "name": "cell",
@@ -37016,7 +37022,7 @@
         },
         {
           "name": "label",
-          "line": 487
+          "line": 493
         }
       ]
     },
@@ -37051,8 +37057,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 759,
-      "sha256": "42d3a2aec85854a0ac9cef84c5a72bf1442f73edb4aec2e65170dcb413d3230d",
+      "lines": 769,
+      "sha256": "0e697b72a730a11ae6e5c258c94462f9b77e4a17505aafb448572bbce0cd77ed",
       "symbols": [
         {
           "name": "at",
@@ -37151,28 +37157,32 @@
           "line": 268
         },
         {
+          "name": "openingGlowGrade",
+          "line": 270
+        },
+        {
           "name": "treasure",
-          "line": 269
+          "line": 279
         },
         {
           "name": "act",
-          "line": 307
+          "line": 317
         },
         {
           "name": "enemyThreatRange",
-          "line": 642
+          "line": 652
         },
         {
           "name": "canEnemyStrike",
-          "line": 643
+          "line": 653
         },
         {
           "name": "path",
-          "line": 720
+          "line": 730
         },
         {
           "name": "abandon",
-          "line": 756
+          "line": 766
         }
       ]
     },
