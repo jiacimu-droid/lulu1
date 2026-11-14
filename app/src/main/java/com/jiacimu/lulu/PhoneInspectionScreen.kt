@@ -89,10 +89,16 @@ internal fun inspectedThreads(
     return (existing + native).sortedByDescending(InspectedThread::updatedAt)
 }
 
-/** The contact name stored by this role takes precedence over the owner's
- * public profile name; both views project the same role-owned socialNames. */
-internal fun inspectedOwnerContactName(privateRemark: String, ownerProfileName: String): String =
-    privateRemark.trim().ifBlank { ownerProfileName.trim().ifBlank { "主人" } }
+/** Keep a role's independent private remark without hiding a change to the
+ * owner's real profile name. Both message and contact lists use this projection. */
+internal fun inspectedOwnerContactName(privateRemark: String, ownerProfileName: String): String {
+    val profile = ownerProfileName.trim().ifBlank { "主人" }
+    val remark = privateRemark.trim()
+    return when {
+        remark.isBlank() || remark == profile -> profile
+        else -> "$remark（$profile）"
+    }
+}
 
 /** A one-to-one chat in this hub is with the OWNER, not a peer in the
  * digital-character registry. Group and native mail have separate sources. */
