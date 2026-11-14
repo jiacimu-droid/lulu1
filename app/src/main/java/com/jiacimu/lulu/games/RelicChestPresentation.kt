@@ -15,7 +15,15 @@ internal object RelicChestPresentation {
     /** A distant explicit target must not silently redirect the opening action. */
     fun actionableChest(run: RelicRun, selected: Pair<Int, Int>): RelicChest? {
         val hero = run.hero
-        // A selected physical chest remains the target even after it was opened.\n        // Never redirect a second press to another nearby unopened chest.\n        val selectedPhysicalChest = run.chests.firstOrNull {\n            it.x == selected.first && it.y == selected.second\n        }\n        if (selectedPhysicalChest != null &&\n            (selectedPhysicalChest.opened || !run.visible(selected.first, selected.second))) return null\n        val selectedChest = selectedPhysicalChest\n        val candidate = selectedChest ?: run.chests.firstOrNull { !it.opened &&
+        // A selected physical chest remains the target even after it was opened.
+        // Never redirect a second press to another nearby unopened chest.
+        val selectedPhysicalChest = run.chests.firstOrNull {
+            it.x == selected.first && it.y == selected.second
+        }
+        if (selectedPhysicalChest != null &&
+            (selectedPhysicalChest.opened || !run.visible(selected.first, selected.second))) return null
+        val selectedChest = selectedPhysicalChest
+        val candidate = selectedChest ?: run.chests.firstOrNull { !it.opened &&
             run.visible(it.x, it.y) && RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 }
         return candidate?.takeIf { RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 }
     }
