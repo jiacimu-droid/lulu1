@@ -49,6 +49,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     val game by store.state.collectAsState()
     var snapshot by remember{mutableStateOf(ledger.read())}
     val run=snapshot.run
+    val menuSections=RelicMenuSections.forPhase(run?.phase)
+    var menuSection by rememberSaveable(run?.id,menuSections.first()) {
+        mutableStateOf(menuSections.first())
+    }
     var kits by remember{mutableIntStateOf(1)}
     var lobbyOpen by rememberSaveable { mutableStateOf(true) }
     var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -70,9 +74,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var showRulesDialog by remember{mutableStateOf(false)}
     var rulesTab by rememberSaveable { mutableStateOf("入门") }
     var showTactics by remember(run?.id){mutableStateOf(false)}
-    var showGuide by remember(run?.id){mutableStateOf(true)}
-    var showAdvanced by remember(run?.id){mutableStateOf(false)}
-    var showBag by remember(run?.id){mutableStateOf(false)}
+    var showGuide by remember(run?.id){mutableStateOf(false)}
+    var showBag by remember(run?.id){mutableStateOf(true)}
     var showAlbum by remember{mutableStateOf(false)}
     var chestHud by remember(run?.id){mutableStateOf(RelicChestHudState())}
     val openingReceipt = chestHud.opening
@@ -204,7 +207,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 state.chests.size.coerceAtLeast(1)
         },
         secondaryLabel = "开箱",
-        toolsLabel = "背包 / 战术",
+        toolsLabel = "☰ 游戏菜单",
         helpAction = { rulesTab = "入门"; showRulesDialog = true },
         notice = error,
         status = if (run == null) "遗迹营地" else
@@ -511,11 +514,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         tools = {
     Column(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(
         Color(0xFF241D29),Color(0xFF101A25),relicInk)))
-        .verticalScroll(rememberScrollState())
-        .padding(12.dp), verticalArrangement=Arrangement.spacedBy(12.dp)) {
+        .padding(10.dp), verticalArrangement=Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("迷雾摸金",fontSize=24.sp,fontWeight=FontWeight.Black,color=Color.White)
+                Text("迷雾摸金",fontSize=18.sp,fontWeight=FontWeight.Bold,color=Color.White)
                 Text("暗影遗迹 · 随机宝藏 · 战术撤离",fontSize=11.sp,color=relicMuted)
             }
             Surface(color=relicGold.copy(alpha=.12f),shape=RoundedCornerShape(14.dp),
@@ -526,7 +528,20 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
         }
         if(error.isNotBlank())RelicPanel {Text(error,color=relicRed)}
-        RelicPanel {
+        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+            menuSections.forEach { section ->
+                FilterChip(selected=menuSection==section,onClick={menuSection=section},
+                    label={Text(section,fontSize=11.sp,maxLines=1)},
+                    modifier=Modifier.weight(1f),
+                    colors=FilterChipDefaults.filterChipColors(
+                        selectedContainerColor=relicGold,
+                        selectedLabelColor=relicInk,
+                        labelColor=relicMuted))
+            }
+        }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            verticalArrangement=Arrangement.spacedBy(10.dp)) {
+        if(menuSection=="图鉴")RelicPanel {
             Text("收藏品级 · 品级越高价值越高",color=relicGold,
                 fontSize=12.sp,fontWeight=FontWeight.Bold)
             Text("普通 ◇70–99 → 精良 ◇100–132 → 稀有 ◇185–247",
@@ -546,8 +561,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     color=relicGreen,fontSize=11.sp,lineHeight=17.sp)
         }
         if(run==null || run.phase in listOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
-            if(run!=null)RelicSettlement(run,snapshot.newDiscoveries)
-            RelicPanel {
+            if(menuSection=="准备" && run!=null)RelicSettlement(run,snapshot.newDiscoveries)
+            if(menuSection=="准备")RelicPanel {
                 Text("出发准备",color=Color.White,fontWeight=FontWeight.Black,fontSize=19.sp)
                 Text("出发自带2枚照明弹、1枚声响诱饵和2套机关工具。祭坛有更贵重的藏品，也会唤醒守卫。成功撤离才将宝物入库；倒地失败只丢失本局战利品。",
                     color=relicMuted,fontSize=12.sp)
@@ -569,7 +584,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 },modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=relicGold,
                     contentColor=relicInk)) {Text("进入遗迹 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层")}
             }
-            RelicPanel {
+            if(menuSection=="仓库")RelicPanel {
                 Row(verticalAlignment=Alignment.CenterVertically) {
                     Text("补给与永久仓库",color=Color.White,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
                     Text("铜币 "+snapshot.coins,color=relicGold)
@@ -604,7 +619,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             }
-            RelicPanel {
+            if(menuSection=="图鉴")RelicPanel {
                 val all=RelicCollectibles.names
                 val found=all.count{it in snapshot.discovered}
                 Row(verticalAlignment=Alignment.CenterVertically) {
@@ -658,7 +673,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
         } else {
             val hero=run.hero
-            RelicPanel {
+            if(menuSection=="现场")RelicPanel {
                 Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                     RelicValue("生命",hero.hp.toString()+"/10",relicRed)
                     RelicValue("负重",hero.load.toString()+"/"+RelicEscapeRules.heroCapacity(run),relicGold)
@@ -688,7 +703,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     "   ⚒ 拆解工具 "+run.tools+"     ·     "+run.sites.count{!it.spent && it.kind=="altar"}+" 处未知秘藏",
                     color=relicMuted,fontSize=11.sp)
             }
-            Surface(color = Color(0xFF192738), shape = RoundedCornerShape(18.dp),
+            if(menuSection=="现场")Surface(color = Color(0xFF192738), shape = RoundedCornerShape(18.dp),
                 border = BorderStroke(1.dp, relicGold.copy(alpha = .21f))) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -707,7 +722,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             }
-            RelicPanel {
+            if(menuSection=="现场" || menuSection=="战术")RelicPanel {
                 val sx=selected.first;val sy=selected.second
                 val visible=run.visible(sx,sy)
                 val chest=run.chests.firstOrNull{it.x==sx && it.y==sy && !it.opened}
@@ -769,15 +784,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         }
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("高级操作", color = relicGold, fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { showAdvanced = !showAdvanced }) {
-                        Text(if (showAdvanced) "收起操作" else "战术 / 道具",
-                            color = relicGold, fontSize = 12.sp)
-                    }
-                }
-                if (showAdvanced) {
+                if(menuSection=="战术") {
+                    Text("战术与道具",color=relicGold,
+                        fontWeight=FontWeight.Bold,fontSize=13.sp)
                 if(run.phase!=RelicPhase.DOWNED) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Row(horizontalArrangement=Arrangement.spacedBy(5.dp)) {
@@ -867,7 +876,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     OutlinedButton(onClick={confirmAbandon=true}){Text("放弃本局")}
                 }
             }
-            RelicPanel {
+            if(menuSection=="背包")RelicPanel {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("战利品 · ${hero.bag.size} 件 · ${hero.load}/${RelicEscapeRules.heroCapacity(run)} 格",
                         modifier = Modifier.weight(1f), color = Color.White, fontWeight = FontWeight.Bold)
@@ -896,7 +905,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             }
-            if(run.allies.isNotEmpty())RelicPanel {
+            if(menuSection=="现场" && run.allies.isNotEmpty())RelicPanel {
                 Text("同行伙伴 · 现场实际状态",color=Color.White,fontWeight=FontWeight.Bold)
                 run.allies.forEach{ally->
                     Row(verticalAlignment=Alignment.CenterVertically) {
@@ -914,7 +923,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             }
-            RelicPanel {
+            if(menuSection=="记录")RelicPanel {
                 Text("现场动静",color=Color.White,fontWeight=FontWeight.Bold)
                 run.events.takeLast(5).reversed().forEach{
                     Text("· "+it.text,color=when(it.action){
@@ -926,6 +935,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
             }
         }
+        } // Keep menu categories pinned while their contents scroll.
     }
         },
     )
