@@ -53,7 +53,12 @@ class DigitalWorldBulletinTest {
             DigitalWorldEvent("furniture", "r", "build_home_item", "新建了一把椅子", at),
             DigitalWorldEvent("home", "r", "home_created", "建造了一处真正的家", at.minusSeconds(60)),
         ))
-        val notices = DigitalWorldBulletin.collect(world, emptyList(), emptyList())
+        // This test verifies ONLY the explicitly supplied persisted world
+        // events. The default friendships argument reads a mutable global
+        // store, so unrelated accepted friendships from earlier tests must
+        // not inflate this isolated notice count.
+        val notices = DigitalWorldBulletin.collect(
+            world, emptyList(), emptyList(), friendships = emptyList())
         assertEquals(2, notices.size)
         assertFalse(notices.any { it.detail.contains("普通走动") })
         assertTrue(notices.any { it.detail.contains("椅子") })
