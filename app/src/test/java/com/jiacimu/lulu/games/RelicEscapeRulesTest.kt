@@ -55,6 +55,49 @@ class RelicEscapeRulesTest {
         assertEquals(6,glows.last())
     }
 
+    @Test fun persistedLedgerForwardsAdjacentChestCoordinatesAndNeverMintsEarlyLoot() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val world=RelicEscapeWorld.create(3428,2,emptyList(),0,1)
+        val chest=world.chests.first()
+        val adjacent=listOf(1 to 0,-1 to 0,0 to 1,0 to -1)
+            .map { (dx,dy)->(chest.x+dx) to (chest.y+dy) }
+            .first { (x,y)->world.walk(x,y) }
+        val placed=RelicEscapeRules.reveal(world.copy(
+            hero=world.hero.copy(x=adjacent.first,y=adjacent.second),
+            mobs=emptyList(),sites=emptyList()))
+        assertTrue(prefs.edit().putString("ledger",
+            RelicSnapshot(run=placed).json().toString()).commit())
+        var ledger=RelicEscapeLedger(context)
+        var snapshot=ledger.read()
+        val required=RelicEscapeRules.openSteps(chest)
+        repeat(required-1) { press ->
+            val before=checkNotNull(snapshot.run)
+            val playerAction=RelicChestPresentation.playerAction(
+                before,"open",chest.x,chest.y)
+            assertEquals("pry",playerAction)
+            snapshot=ledger.perform(playerAction,chest.x,chest.y)
+            val progressed=checkNotNull(snapshot.run)
+            assertEquals(before.turns+1,progressed.turns)
+            assertEquals(press+1,progressed.chestProgress[chest.id])
+            assertFalse(progressed.chests.first { it.id==chest.id }.opened)
+            assertTrue(progressed.hero.bag.isEmpty())
+            ledger=RelicEscapeLedger(context)
+            assertEquals(progressed,ledger.read().run)
+        }
+        val beforeOpen=checkNotNull(snapshot.run)
+        assertEquals("open",RelicChestPresentation.playerAction(
+            beforeOpen,"open",chest.x,chest.y))
+        val opened=ledger.perform("open",chest.x,chest.y)
+        val after=checkNotNull(opened.run)
+        assertTrue(after.chests.first { it.id==chest.id }.opened)
+        assertEquals(1,after.hero.bag.count { it.id==after.id+":chest:"+chest.id })
+        assertNotNull(RelicChestPresentation.committed(beforeOpen,after,chest.id))
+        assertEquals(after,RelicEscapeLedger(context).read().run)
+        val retry=ledger.perform("open",chest.x,chest.y)
+        assertEquals(opened,retry)
+    }
+
     @Test fun openingNeedsPersistedPressesAndEnemyTurnsBeforeRealLoot() {
         val initial=RelicEscapeWorld.create(6221,2,emptyList(),0,1)
         val chest=initial.chests.first()
