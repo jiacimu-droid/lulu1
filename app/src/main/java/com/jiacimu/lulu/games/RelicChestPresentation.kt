@@ -12,6 +12,16 @@ internal data class RelicChestReceipt(
 )
 
 internal object RelicChestPresentation {
+    /** A distant explicit target must not silently redirect the opening action. */
+    fun actionableChest(run: RelicRun, selected: Pair<Int, Int>): RelicChest? {
+        val hero = run.hero
+        val selectedChest = run.chests.firstOrNull { !it.opened &&
+            run.visible(it.x, it.y) && it.x == selected.first && it.y == selected.second }
+        val candidate = selectedChest ?: run.chests.firstOrNull { !it.opened &&
+            run.visible(it.x, it.y) && RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 }
+        return candidate?.takeIf { RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 }
+    }
+
     /**
      * Single player-input adapter for the HUD, map selection and D-pad.
      * The rules still own rewards, the ledger still owns persistence, and an AI
