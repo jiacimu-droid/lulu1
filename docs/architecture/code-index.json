@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:01:27.802566+00:00",
-  "commit": "352b0c07c54669e826b0b91421fd32dbe175bbc5",
+  "generatedAt": "2026-11-14T04:02:07.311641+00:00",
+  "commit": "dffc683054f19e6edf240ff4e2d6f3df28e32302",
   "branch": "main",
-  "sourceFingerprint": "aa8b2e599646562502ece8569d2412b01b28160c6bdd58f6e091453669d9b1c4",
+  "sourceFingerprint": "5707bd57f88498a285ed487fb5082c0705e13387e8d7ad16ee31b01da6817bbb",
   "summary": {
     "files": 1306,
-    "lines": 275387,
+    "lines": 275396,
     "symbols": 3891
   },
   "symbolIndex": {
@@ -38394,8 +38394,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-      "lines": 51,
-      "sha256": "13faf7614e0fa47bb74e558694b28add7533eb793e931dcef0d5c16348a09cbf",
+      "lines": 60,
+      "sha256": "e82993b6a7500bf8bd24bd89b4860920826082bee8bf61d4c51a744196cad624",
       "symbols": [
         {
           "name": "invalidReason",
