@@ -39,6 +39,7 @@ class ScribeRealtimeTransportTest {
             // RMS=19, far below the old phone-side 195 gate.
             val quiet = ByteArray(3200) { if (it % 2 == 0) 19 else 0 }
             recognizer.audioFrame(quiet)
+            assertEquals("scribe_v2_realtime", wire.request.url.queryParameter("model_id"))
             assertEquals("vad", wire.request.url.queryParameter("commit_strategy"))
             val packet = JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!)
             assertArrayEquals(quiet, Base64.decode(packet.getString("audio_base_64"), Base64.NO_WRAP))
@@ -64,6 +65,31 @@ class ScribeRealtimeTransportTest {
             scope.cancel()
         }
     }
+    @Test fun v3LiveRequestsTurnPredictionAndKeepsPartialsOutOfCharacterTurns() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val partials = mutableListOf<String>()
+        val finals = mutableListOf<String>()
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            modelId = CallVoiceConfiguration.SCRIBE_V3_LIVE,
+            onPartial = { partials += it }, onText = { finals += it }, onError = { fail(it) },
+            socketFactory = wire)
+        try {
+            recognizer.start()
+            assertEquals("scribe_v3_live", wire.request.url.queryParameter("model_id"))
+            assertEquals("turn_prediction", wire.request.url.queryParameter("commit_strategy"))
+            wire.receive("partial_transcript", "我说到一半")
+            pumpUntil { partials.isNotEmpty() }
+            assertTrue("Partial text is not a finished user turn", finals.isEmpty())
+            wire.receive("committed_transcript", "我说到一半啦")
+            pumpUntil { finals.isNotEmpty() }
+            assertEquals(listOf("我说到一半啦"), finals)
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
     @Test fun breathingPauseBetweenCommittedPhrasesDoesNotStartTwoModelTurns() {
         val wire = FakeWire()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
