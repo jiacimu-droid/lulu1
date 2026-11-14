@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:51:34.969103+00:00",
-  "commit": "021f0cb77d6e0b38a99f9d6d25c233c3336bdac4",
+  "generatedAt": "2026-11-14T15:52:21.503774+00:00",
+  "commit": "fbd104fe43ebb7464aeb01d0d84d1fea60160be4",
   "branch": "main",
-  "sourceFingerprint": "e50ea24746e406d27787604c6923c86961b570741052e93a32890bca392487ce",
+  "sourceFingerprint": "9c6f9decc47b119015dd6192fe75f318c00f6da87d366e7dd681c0b8d0f70ce6",
   "summary": {
     "files": 1318,
-    "lines": 279469,
+    "lines": 279481,
     "symbols": 3936
   },
   "symbolIndex": {
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 66
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 517
+        "line": 528
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -3937,27 +3937,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 309
+        "line": 317
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 332
+        "line": 343
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 384
+        "line": 395
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 431
+        "line": 442
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 473
+        "line": 484
       }
     ],
     "payload": [
@@ -25281,36 +25281,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 541,
-      "sha256": "eae39ed9a1955c9608982e5c11966c66efac200dbb9ed0bc18e23fae1fe385e6",
+      "lines": 553,
+      "sha256": "03be7cbf6c4ddebb5382a107e930acf259b2b283de9c5f6fa527dd2b107f9e66",
       "symbols": [
         {
           "name": "start",
-          "line": 66
+          "line": 72
         },
         {
           "name": "pauseCapture",
-          "line": 309
+          "line": 317
         },
         {
           "name": "resumeCapture",
-          "line": 332
+          "line": 343
         },
         {
           "name": "field",
-          "line": 384
+          "line": 395
         },
         {
           "name": "field",
-          "line": 431
+          "line": 442
         },
         {
           "name": "field",
-          "line": 473
+          "line": 484
         },
         {
           "name": "stop",
-          "line": 517
+          "line": 528
         }
       ]
     },
