@@ -11,6 +11,8 @@
 
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
+**2026-11-15 电话挂断不重复付费感知（源码及回归已提交，CI/真机待验）**：主人纠正“角色自己挂断”和“用户主动挂断”在感知来源上的根本区别。`LuluVoiceCallSession.finishCall` 现在两者均保存真实结束事实，但仅用户发起者安排即时自主感知与 WorkManager 延迟恢复；角色已决定的挂断不再购买第二轮完整上下文。`InteractionSignalBridge.isRoleInitiatedCallEnd` 使用权威事件来源/ID/当事人标记与旧版固定操作回执兼容识别；`CharacterPerceptionContext`、`CharacterCausalAppraisalStage` 均排除本人挂断回执成为新的用户感知刺激，仍保留历史供后续自然召回。回归 `CharacterPerceptionContextTest.roleHangupIsSavedButNeverCountsAsNewOwnerPerception` 验角色/用户两种结束分支、旧存档、持久历史和主动感知队列。实际提交 `c84dab8`、`0b27b07`、`546407e`、`8100ec6`、`3978e16`；新主线 CI 与手机真机费用面板待验。代码索引由现有 `code-index.yml` 流水线自动生成，不手工伪造。
+
 
 **2026-11-14 S-01.2 / S-02.4 / P-08a.1g · 世界居民职业、可追踪行程及休眠前多动作（源码/回归已提交，CI/真机未验）**：主人反馈当前三位原住民一人经营、两人维护，岗位重复、游戏馆缺乏活跃人物；并要求世界公告展示从家到公共地点和回家的实际移动，五分钟在线期满不得自动瞬移，允许主人/角色自己先发动态、再回家、最后自主休眠，也可在朋友家留宿。已在 main 更新 `DigitalWorldEvolutionRuntime` 的内置岗位（咖啡、庭院维修、游戏馆机台、游戏馆活动、社区迎新等分工），`DigitalWorldExpansionStore` 仅迁移未手改的旧模板职业，保留 ID、姓名、性别、私人住宅、人物经历和编辑档案；`ResidentDailyRoutine` 将游戏馆工作落实到真实场所，分开岗位描述，夜晚有此前真实到访的他人住宅时不擅自传送回自宅，删除 `DigitalWorldEvolutionRuntime` 另一条强制咖啡营业瞬移路线。原 `DigitalWorldStore` 持久行动与原住民地点同步记录起点、终点，`DigitalWorldBulletin` 展示真实出门/回家事件与时间；此为实际变更，不虚构游戏比赛、在场者和维修完成。`ProactivePerceptionRuntime` 将在线选择的自主休眠真正结算移至 `performAction` 有序步骤执行后，选定先回家时只有真实到了自宅才允许记作已回家休眠；5 分钟到期本身不会移动世界地点。主要提交：`9eb3057`—`ddb8a5b`（岗位与移动），`a23babf`—`fa719e9`（休眠顺序），`2e20b57`、`4b1f871`（回归）。**未完成的体验验收**：最新主线 JVM/APK 首错、真机多角色跨夜位置持久化、真实模型是否自然选择先发动态→回家→休眠；目前没有直接读取主人手机里三位实际居民的人名/编辑档案。双人快艇骰子必须有双方同意、真实 13 轮与结算回执，不能把“去游戏馆”或个人独玩称作两人比赛；新增相关工具仍需独立完整工程验收。索引由既有 `code-index.yml` 自动刷新，不新建工作流。
 
