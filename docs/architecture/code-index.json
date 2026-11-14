@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:43:04.198456+00:00",
-  "commit": "6eacb9d5ad423e19f526998bf4e6b4be89f64c88",
+  "generatedAt": "2026-11-14T15:48:19.129652+00:00",
+  "commit": "48bbcc4928f489c974c4b2507268b96dad03bb9c",
   "branch": "main",
-  "sourceFingerprint": "3454a35b885efb294fc34864ddd48ed9da30f901e3d17e11527803764ca6bea9",
+  "sourceFingerprint": "034a7d34b148619ba142e468929a117bc7463c7607fa1de9bee64fe94a11d33e",
   "summary": {
     "files": 1318,
-    "lines": 279327,
+    "lines": 279337,
     "symbols": 3934
   },
   "symbolIndex": {
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 507
+        "line": 517
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -3925,27 +3925,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 299
+        "line": 309
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 322
+        "line": 332
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 374
+        "line": 384
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 421
+        "line": 431
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 463
+        "line": 473
       }
     ],
     "payload": [
@@ -25261,8 +25261,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 531,
-      "sha256": "ec185786767f7ee6f326a424ed637d95fd38b1cdd18dd35fc5d5fbd55e7253c4",
+      "lines": 541,
+      "sha256": "eae39ed9a1955c9608982e5c11966c66efac200dbb9ed0bc18e23fae1fe385e6",
       "symbols": [
         {
           "name": "start",
@@ -25270,27 +25270,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 299
+          "line": 309
         },
         {
           "name": "resumeCapture",
-          "line": 322
+          "line": 332
         },
         {
           "name": "field",
-          "line": 374
+          "line": 384
         },
         {
           "name": "field",
-          "line": 421
+          "line": 431
         },
         {
           "name": "field",
-          "line": 463
+          "line": 473
         },
         {
           "name": "stop",
-          "line": 507
+          "line": 517
         }
       ]
     },
