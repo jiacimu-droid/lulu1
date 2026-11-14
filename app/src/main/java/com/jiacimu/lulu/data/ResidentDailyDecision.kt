@@ -1889,6 +1889,7 @@ internal object ResidentDailyDecision {
                 可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text）；respond_duel_invite（需本人收到的challengeId和accept/decline）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
+                五分钟在线窗口结束只暂停清醒注意力，不会瞬移或修改世界地点。晚上通常可以回自己的家，但如果确实想先发朋友圈、再回家、最后休眠，可在同一次模型决定的 steps 中选 publish_moment、digital_world_action(worldAction=go_home)，按实际回执先后执行；不必为每步额外付费。没有选或没有完成回家动作时，夜间时钟保留本人实际所在的位置，不得说自己已经回家。若确实受到朋友邀请并通过真实拜访行动留宿，也可在已经到达的住宅暂歇；不得因为朋友关系凭空进入别人的家。
                 与熟人聊天并不要求去同一个地点：真实私信与群聊可以发生在本人当下所在的任何地方；只有实体偶遇和当面交谈才需要核实同场在场。遇到有意思的现实来信、此前没聊完的事、共同兴趣或者单纯想分享时，可以由本人考虑主动发一句；没有想说的也可以不发。不要把所有社交压缩成咖啡馆偶遇。
                 如果计划中午/傍晚到咖啡角，你可以为这两个时段分别决定点现有咖啡角菜单中的什么，或不点。cafeOrderLunch/cafeOrderEvening 选择 none 或 ${DigitalCafeMenu.offerings.joinToString("|") { it.id }}。
                 这只是本人预先选择的日常生活动作，只有届时真的身在咖啡角且有店员时才会尝试执行；不到店、没库存或执行失败不能伪造消费。
