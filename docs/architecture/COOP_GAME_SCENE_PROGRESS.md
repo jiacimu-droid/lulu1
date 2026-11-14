@@ -296,3 +296,9 @@
 - 根因：`relicAttackTarget` 之前只排除了“选中格仍有怪物”的重定向；玩家明确选中空地（包括怪物移走后的旧位置）时，攻击键仍会自动选附近另一只怪。生产提交 `f0c95e523148addaf5f9870873ecea502962a3df`，blob `69a22aee3f69e535579519797469b4ab31f10d54`：仅当光标位于主角本人格时允许附近快捷攻击，任何其他明确选中的格子都不重定向；不改变攻击伤害、怪物 AI、角色选择、掉率或物理结算。
 - `RelicQuickActionTest.explicitlySelectedEmptyTileNeverRedirectsAttackToNearbyEnemy` 新增空地/主角格/近敌格三种目标断言；提交 `a33994fae563931f0b4effbb5a0d31c1832a9375`，blob `af81dd84c48efcee5478cf747bd26ed561307724`。之前 `e92f723` 对应 APK/JVM #43640173370、索引 #43640173377 均 completed/success；本轮测试 SHA 的 APK/JVM #43645324149 pending、索引 #43645324165 queued，**不可标新测试/APK 已通过**。
 - 下一实际入口：先核 `a33994f` 的 JVM 首错与 APK 产物，再在 `RelicEscapeScreen.kt` 验证空格选择/主角快捷攻击/战斗 HUD 禁用提示，360/412dp 横屏与真实帧率仍需真机。美术与模型协作未在本轮改动。
+
+## 2026-11-15 G-03.5 · 移动后隐式攻击光标跟随主角（CI 待验）
+
+正式 RelicEscapeScreen.kt 原先仅在开局初始化 selected 为主角格。方向键移动后 selected 仍停旧坐标，先前仅主角格允许自动近敌攻击的修复因此会误禁用正常快捷攻击。现在仅在 ledger 成功提交 move 且主角实际改变位置时，使用 relicSelectionAfterMove 将原本指向旧主角格的隐式光标移动到新主角格；手动点选的其他目标保持不变，失败移动不移动光标。
+
+生产 RelicQuickAction.kt commit f0c5bbed / blob c8d1f0f4；RelicEscapeScreen.kt commit c47f885b / blob ab0d0eb2；测试 RelicQuickActionTest.kt commit b8453c56 / blob ec59e9ca。回归覆盖成功移动、手动目标保持、未移动不变、真实近敌攻击。测试提交的 main push Actions 查询返回零项，JVM/APK/index 未确认通过；真机横屏、帧率、美术和模型协作仍待验。下一入口：按 b8453c56 或后继 main push SHA 查 testPhoneUnitTest/assemblePhone/index 首错，再实测方向键移动后的攻击键和目标光标。
