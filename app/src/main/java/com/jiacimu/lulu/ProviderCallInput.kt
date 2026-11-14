@@ -37,9 +37,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
 
     private fun closeRealtimeSession(running: ElevenLabsRealtimeStt? = realtime) {
         val target = running ?: return
+        val started = realtimeStartedAtElapsed.remove(target) ?: return
         if (realtime === target) realtime = null
         target.stop()
-        val started = realtimeStartedAtElapsed.remove(target) ?: SystemClock.elapsedRealtime()
         val elapsed = (SystemClock.elapsedRealtime() - started).coerceAtLeast(0L)
         VoiceUsageAudit.record(context, "ElevenLabs", "stt_realtime_session", 0,
             elevenModel, audioMs = target.sentAudioMillis(), durationMs = elapsed)
@@ -163,17 +163,14 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     }
                     queuedChunks.decrementAndGet()
                     if (!chunk.isFinal) continue
-                    // Cloud ASR may finish a PCM fragment before the human finishes
-                    // the sentence. Reuse the adaptive continuation window from
-                    // system STT; a fixed 500ms gap caused a second paid LLM turn
-                    // when the user only took a breath. New captured PCM keeps
-                    // the same phrase until the final segment is actually ready.
-                    // Explicit mute ends capture; do not add an unrelated 0.9–3.2s
-                    // conversational pause after the last cloud response arrived.
-                    // Automatic VAD completion still preserves natural breathing.
-                    if (!capturePaused) {
-                        delay(SystemSpeechTurnPolicy.continuationMillis(phrase.toString()))
-                    }
+                    // ElevenLabs batch Scribe already waited for the configured
+                    // microphone VAD silence BEFORE uploading this final chunk.
+                    // Adding a second 0.9–3.2s breath timer after network ASR
+                    // made even healthy requests feel stuck. Other providers
+                    // retain their original continuation policy.
+                    val extraWait = CallVoiceConfiguration.postAsrContinuationMillis(
+                        sttEngine, capturePaused, phrase.toString())
+                    if (extraWait > 0L) delay(extraWait)
                     if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
                     val acousticNote = phraseAcoustics?.finish()
                     try {
