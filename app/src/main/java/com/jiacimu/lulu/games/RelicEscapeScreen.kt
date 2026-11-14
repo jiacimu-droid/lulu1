@@ -1057,19 +1057,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         "品级" -> {
                             Text("七档从低到高 · ◇为宝物鉴定价值",
                                 color=Color.White,fontWeight=FontWeight.Bold,fontSize=13.sp)
-                            val ranks=listOf(
-                                "01  普通" to "◇70–99 · 常见旧物",
-                                "02  精良" to "◇100–132 · 较好的普通藏品",
-                                "03  稀有" to "◇185–247 · 蓝银珍宝",
-                                "04  珍贵" to "◇430–459 · 高价值藏品",
-                                "05  史诗" to "◇460–492 · 顶级珍贵藏品",
-                                "06  传说" to "◇650起 · 封印之心",
-                                "07  传世秘宝" to "◇6000 · 晨星之核"
-                            )
-                            ranks.forEach { (rank,detail) ->
-                                // The legend and actual owned treasures share a single
-                                // restrained metal/gemstone palette.
-                                val tone=RelicTreasureGallery.rankAccent(rank.substringAfter("  "))
+                            RelicQuality.entries.forEachIndexed { index, quality ->
+                                val rank=(index+1).toString().padStart(2,'0')+
+                                    "  "+quality.label
+                                val detail="◇"+quality.minimum+
+                                    (if(quality.spread==1)"" else "–"+(quality.minimum+quality.spread-1))+
+                                    " · "+when(index) {
+                                        0->"银灰";1->"薄荷";2->"天蓝";3->"紫晶"
+                                        4->"金辉";5->"赤焰";else->"幻彩"
+                                    }
+                                val tone=relicGradeColor(index)
                                 Surface(
                                     color=tone.copy(alpha=.10f),
                                     shape=RoundedCornerShape(10.dp),
@@ -1088,7 +1085,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                     }
                                 }
                             }
-                            Text("注意：七档是鉴定展示品级，不是七种宝箱。宝箱和存档仍使用普通、稀有、珍贵三大类别。",
+                            Text("新一局会出现七档实体宝箱，紫箱也有低概率升金、赤焰或幻彩。每次撬锁都会推进危险回合。旧存档仍可继续。",
                                 color=relicMuted,fontSize=11.sp)
                             Text("高品级不等于一定掉落；祭坛与特殊宝物另有条件。必须成功撤离，藏品才会进入永久仓库。",
                                 color=relicGreen,fontSize=11.sp)
