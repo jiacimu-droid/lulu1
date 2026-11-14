@@ -90,6 +90,16 @@ internal object CompanionActionRuntime {
             "可邀游戏（名称=gameId）：${gameTitles.entries.joinToString("、") { "${it.value}=${it.key}" }}。" +
             "发送、主人接受、游戏开局各有独立真实回执，不能凭口头说法当成已经邀请或已经开局。"
 
+    /** A real match offer goes to another digital person's inbox, never the owner's chat. */
+    private fun duelCapabilityContext(context: Context, characterId: String): String {
+        ResidentSocialMailbox.initialize(context)
+        return buildString {
+            appendLine("- invite_duel_game，args={\"gameId\":\"yacht_dice|memory_match\",\"targetCharacterId\":\"真实认识的数字角色ID\",\"text\":\"本人亲自写的邀约\"}：邀请角色或居民真实对抗；对方尚未接受时绝不能当作比赛已经开始。")
+            appendLine("- respond_duel_invite，args={\"challengeId\":\"本人实际收到的邀请ID\",\"decision\":\"accept|decline\"}：本人自行接受或拒绝；接受后双方按同一套真实游戏规则对战并分别获得战绩。")
+            appendLine(com.jiacimu.lulu.games.AutonomousDuelGames.contextFor(context, characterId))
+        }.trim()
+    }
+
     /**
      * One authority for search/read availability: filter the normal live tool
      * catalogue instead of maintaining a second, potentially stale, permission
@@ -161,6 +171,7 @@ internal object CompanionActionRuntime {
         includeWorldContext: Boolean = true,
     ): String = buildString {
         MomentFriendAccess.initialize(context)
+        appendLine(duelCapabilityContext(context, characterId))
         if (characterId.startsWith("resident:")) {
             appendLine("【数字世界原住民专用能力】你生活在数字世界，只能感知亲历的所在地点、社交记录与真正发布的世界公告。")
             appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|interact_resident\",\"locationCode\":\"公共地点准确代码\",\"itemId\":\"真实家具或居民ID\",\"activityId\":\"真实活动ID\",\"itemType\":\"家具类型\",\"name\":\"自己起的家具名\",\"appearance\":\"明确外观\",\"position\":\"自己选择的固定摆放位置\"}：在真实地点移动、与实际在场居民交流，或回到自己的家后布置家具；改家具前必须在自己家，有空间和真实物品。")
@@ -436,7 +447,8 @@ internal object CompanionActionRuntime {
             require(normalizedAction in setOf(
                 "digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment",
                 "send_friend_request", "respond_friend_request", "send_private_message",
-                "send_group_message", "create_group_chat", "send_character_message", "play_solo_game", "go_offline",
+                "send_group_message", "create_group_chat", "send_character_message", "play_solo_game",
+                "invite_duel_game", "respond_duel_invite", "go_offline",
                 "reschedule_personal_activity", "cancel_personal_activity",
             )) { "数字世界原住民不能调用现实设备、联网、健康或用户私人数据工具" }
         }
@@ -815,6 +827,25 @@ internal object CompanionActionRuntime {
                     else if (deliveredId.isNotBlank()) "部分群聊气泡已送达，但整轮尚未完成"
                     else "群聊原消息已变化、被撤回或发送中断；本轮没有送达消息",
                     conversation.id, deliveredId, deliveredMessageIds = delivery.messageIds)
+            }
+            "invite_duel_game" -> {
+                val gameId = args.optString("gameId").trim().lowercase()
+                val target = args.optString("targetCharacterId").trim()
+                val text = args.optString("text").trim()
+                val offered = com.jiacimu.lulu.games.AutonomousDuelGames.invite(
+                    context, characterId, target, gameId, text, now)
+                CompanionActionResult(true,
+                    "《${com.jiacimu.lulu.games.AutonomousDuelRules.games[gameId]}》邀约已送达${MigratedDomainStores.characters.get(target).displayName}，等待对方自己答复",
+                    evidenceId = "duel-offer-${offered.id}")
+            }
+            "respond_duel_invite" -> {
+                val inviteId = args.optString("challengeId").trim()
+                val decision = args.optString("decision").trim().lowercase()
+                val result = withContext(Dispatchers.IO) {
+                    com.jiacimu.lulu.games.AutonomousDuelGames.respond(
+                        context, characterId, inviteId, decision, now)
+                }
+                CompanionActionResult(true, result, evidenceId = "duel-$inviteId-$characterId")
             }
             "send_game_invite" -> {
                 val gameId = args.optString("gameId").trim()
