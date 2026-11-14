@@ -204,41 +204,50 @@ internal fun GameLobbyPartySlot(
     allowRemove:Boolean=false,
     onRemove:()->Unit={},
     compact:Boolean=false,
+    islandStyle:Boolean=false,
 ) {
     // An RPG-style standee, not a settings checkbox. The actual user/character
     // avatar still comes from the same profile and invitation state.
     Surface(modifier=Modifier.width(if(compact)88.dp else 112.dp),shape=RoundedCornerShape(15.dp),
-        color=Color(0xF0253035),
+        color=if(islandStyle) Color(0xFFF3F4E9) else Color(0xF0253035),
         border=BorderStroke(1.dp,
-            accent.copy(alpha=if(isPlayer).58f else .31f)),
-        shadowElevation=2.dp) {
-        Column(Modifier.background(Brush.verticalGradient(listOf(
-            if(isPlayer)Color(0xFF54695F) else Color(0xFF414D55),
-            Color(0xFF293B42),Color(0xFF202F37)))),
+            if(islandStyle) Color(0xFF98B39C) else accent.copy(alpha=if(isPlayer).58f else .31f)),
+        shadowElevation=if(islandStyle) 1.dp else 2.dp) {
+        // Sunny carved-paper diorama for the island; dark stone only for relic camp.
+        Column(Modifier.background(Brush.verticalGradient(
+            if(islandStyle) listOf(
+                Color(0xFFF7F2DB),Color(0xFFE5EDDA),Color(0xFFBECEB3))
+            else listOf(
+                if(isPlayer)Color(0xFF54695F) else Color(0xFF414D55),
+                Color(0xFF293B42),Color(0xFF202F37)))),
             horizontalAlignment=Alignment.CenterHorizontally) {
             Box(Modifier.fillMaxWidth().height(if(compact)65.dp else 111.dp),
                 contentAlignment=Alignment.Center) {
                 Canvas(Modifier.matchParentSize()) {
                     // Quiet backlighting keeps the actual avatar as the focal
                     // point instead of adding two competing glowing halos.
-                    drawCircle(accent.copy(alpha=.08f),size.minDimension*.37f,
+                    drawCircle((if(islandStyle) Color(0xFF8CAD8E) else accent).copy(alpha=if(islandStyle).17f else .08f),
+                        size.minDimension*.37f,
                         center=Offset(size.width*.50f,size.height*.47f))
                 }
                 GameCharacterPawn(avatarUri=avatarUri,fallback=fallback,
                     moving=false,facingX=1f,player=isPlayer,
                     coat=if(isPlayer)Color(0xFF608C7D) else Color(0xFF6D6B80))
-                Text(if(isPlayer)"♛" else "✓",color=accent,fontSize=18.sp,
+                Text(if(isPlayer)"♛" else "✓",
+                    color=if(islandStyle)Color(0xFF3D745E) else accent,fontSize=18.sp,
                     fontWeight=FontWeight.Bold,
                     modifier=Modifier.align(Alignment.TopEnd).padding(end=7.dp,top=4.dp))
             }
-            Text(name,color=Color.White,fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold,
+            Text(name,color=if(islandStyle)Color(0xFF243C33) else Color.White,
+                fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold,
                 maxLines=1,modifier=Modifier.padding(horizontal=6.dp))
-            if(!compact)Text(if(isPlayer)"队长" else "已加入队伍",color=accent,fontSize=10.sp,
+            if(!compact)Text(if(isPlayer)"队长" else "已加入队伍",
+                color=if(islandStyle)Color(0xFF416851) else accent,fontSize=10.sp,
                 modifier=Modifier.padding(vertical=3.dp))
             if(allowRemove)TextButton(onClick=onRemove,
                 modifier=Modifier.height(if(compact)24.dp else 28.dp),
                 contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
-                Text("移出队伍",color=accent,fontSize=10.sp)
+                Text("移出队伍",color=if(islandStyle)Color(0xFF416851) else accent,fontSize=10.sp)
             }
         }
     }
@@ -249,26 +258,30 @@ internal fun GameLobbyInviteSlot(
     accent:Color,
     enabled:Boolean,
     compact:Boolean=false,
+    islandStyle:Boolean=false,
     onClick:()->Unit,
 ) {
     Surface(onClick=onClick,enabled=enabled,
         modifier=Modifier.width(if(compact)88.dp else 112.dp)
             .height(if(compact)105.dp else 170.dp),
-        color=Color(0xC52A3F43),shape=RoundedCornerShape(15.dp),
-        border=BorderStroke(1.dp,accent.copy(alpha=.38f)),
-        shadowElevation=2.dp) {
+        color=if(islandStyle) Color(0xFFEEF1E1) else Color(0xC52A3F43),
+        shape=RoundedCornerShape(15.dp),
+        border=BorderStroke(1.dp,if(islandStyle) Color(0xFF91B49D) else accent.copy(alpha=.38f)),
+        shadowElevation=if(islandStyle)1.dp else 2.dp) {
+        val ink=if(islandStyle)Color(0xFF3D7259) else accent
         Column(Modifier.fillMaxSize().background(Brush.verticalGradient(
-            listOf(Color(0xD03C5050),Color(0xD0233338)))).padding(9.dp),
+            if(islandStyle) listOf(Color(0xFFF3F2DD),Color(0xFFD2E1CF))
+            else listOf(Color(0xD03C5050),Color(0xD0233338)))).padding(9.dp),
             horizontalAlignment=Alignment.CenterHorizontally,
             verticalArrangement=Arrangement.Center) {
-            Surface(shape=RoundedCornerShape(99.dp),color=accent.copy(alpha=.16f),
-                border=BorderStroke(1.dp,accent.copy(alpha=.72f))) {
-                Text("＋",color=accent,fontSize=if(compact)25.sp else 36.sp,fontWeight=FontWeight.Light,
+            Surface(shape=RoundedCornerShape(99.dp),color=ink.copy(alpha=.13f),
+                border=BorderStroke(1.dp,ink.copy(alpha=.65f))) {
+                Text("＋",color=ink,fontSize=if(compact)25.sp else 36.sp,fontWeight=FontWeight.Light,
                     modifier=Modifier.padding(horizontal=11.dp,vertical=0.dp))
             }
             Spacer(Modifier.height(if(compact)4.dp else 10.dp))
-            Text("邀请新伙伴",color=Color.White,fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold)
-            if(!compact)Text("由角色自己决定",color=accent,fontSize=9.sp)
+            Text("邀请新伙伴",color=if(islandStyle)Color(0xFF284A3C) else Color.White,fontSize=if(compact)10.sp else 12.sp,fontWeight=FontWeight.Bold)
+            if(!compact)Text("由角色自己决定",color=ink,fontSize=9.sp)
         }
     }
 }
