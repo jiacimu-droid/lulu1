@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:23:15.864805+00:00",
-  "commit": "309aeef5cd5ea07c42d03dfc1ba05e6a0ce8e8de",
+  "generatedAt": "2026-11-14T13:25:25.168601+00:00",
+  "commit": "8b01e1dfcd688722939e87871414368ae20af59f",
   "branch": "main",
-  "sourceFingerprint": "3dbe8be78694f5d42d4a6f426e4889574873f53ea84a0125ab40657f99b92bff",
+  "sourceFingerprint": "8b01829515b638c2c7c3a7a2ac5eb5aa98a85c1134272373d200fe127a2ad121",
   "summary": {
-    "files": 1315,
-    "lines": 278395,
-    "symbols": 3928
+    "files": 1316,
+    "lines": 278434,
+    "symbols": 3929
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21244,6 +21244,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt",
         "line": 9
+      }
+    ],
+    "WorldSceneParticipantProfileGenderTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldSceneParticipantProfileGenderTest.kt",
+        "line": 8
       }
     ],
     "XhsAutonomousReadingTest": [
@@ -45351,6 +45357,17 @@
         {
           "name": "WorldLifeNarrativeGuideTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldSceneParticipantProfileGenderTest.kt",
+      "lines": 39,
+      "sha256": "02af320592e31788a517525871f2d2d7f609fde80370b6db40fecc8188f04ea9",
+      "symbols": [
+        {
+          "name": "WorldSceneParticipantProfileGenderTest",
+          "line": 8
         }
       ]
     },
