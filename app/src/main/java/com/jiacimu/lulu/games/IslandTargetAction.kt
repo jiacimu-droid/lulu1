@@ -19,9 +19,11 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
     val downed = w.friends.any { it.hp <= 0 && it.x == x && it.y == y }
     val mob = w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
     return when {
+        // A living guard physically occupies this tile. Clear the threat before
+        // exposing the downed ally or a lost pack underneath it.
+        near && mob -> IslandTargetAction("fight", "攻击", true, distance)
         near && downed -> IslandTargetAction(
             "revive", if (state.fruit >= 2) "救援队友" else "救援需2果", state.fruit >= 2, distance)
-        near && mob -> IslandTargetAction("fight", "攻击", true, distance)
         near && w.index(x,y) in state.lostPacks ->
             IslandTargetAction("recover_pack", "找回遗失背包", true, distance)
         near && IslandSupplyCaches.available(state, x, y) ->
