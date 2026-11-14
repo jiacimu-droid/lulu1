@@ -24,6 +24,13 @@ internal object LuluBackgroundPhoneContinuation {
         startedWith: Set<String>, currentlyUnread: Set<String>,
     ): Boolean = currentlyUnread.any { it !in startedWith }
 
+    /** A voice-call revision is an owner update even without a new unread
+     * chat message. Only inspect this at safe action boundaries. */
+    internal fun shouldYieldToOwner(
+        startedWith: Set<String>, currentlyUnread: Set<String>,
+        voiceTurnInvalidated: Boolean,
+    ): Boolean = voiceTurnInvalidated || hasNewUnreadInput(startedWith, currentlyUnread)
+
     data class Outcome(
         val notes: String,
         val lastImage: String?,
@@ -147,8 +154,9 @@ internal object LuluBackgroundPhoneContinuation {
     ): Outcome {
         var image = initialImage
         val unreadAtStart = CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet()
-        fun ownerHasNewInput(): Boolean = shouldYield() || hasNewUnreadInput(
+        fun ownerHasNewInput(): Boolean = shouldYieldToOwner(
             unreadAtStart, CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet(),
+            shouldYield(),
         )
         val history = StringBuilder()
         history.appendLine("本人刚才的选择与目标：" + roleReason.take(900))
