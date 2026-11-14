@@ -93,7 +93,10 @@ object ProactiveIncomingCallStore {
     @Synchronized fun respond(call: ProactiveIncomingCall, answered: Boolean) {
         if (mutablePending.value != call) return
         // User refusal is not a timeout, nor a successfully connected call.
-        if (!answered) recordUnconnectedCall(call, "declined")
+        // A storage error must never trap the owner behind an unclosable
+        // incoming-call overlay. Other outcomes retry before clearing instead.
+        if (!answered) runCatching { recordUnconnectedCall(call, "declined") }
+            .onFailure { android.util.Log.w("LuluIncomingCall", "未能保存拒接回执", it) }
         call.commitmentTaskId?.let { resolvedTaskCalls[it] = answered }
         clear(call)
         call.commitmentTaskId?.let { CommitmentCallFeedback.onResponse(it, answered) }
@@ -109,7 +112,9 @@ object ProactiveIncomingCallStore {
         val call = mutablePending.value?.takeIf { !it.active(now) } ?: return
         // Persist a deduplicated real outcome BEFORE deleting the only pending
         // snapshot. If chat storage fails, leave the expired offer for retry.
-        recordUnconnectedCall(call, "expired")
+        if (runCatching { recordUnconnectedCall(call, "expired") }
+                .onFailure { android.util.Log.w("LuluIncomingCall", "未能保存未接来电，保留待恢复", it) }
+                .isFailure) return
         clear(call)
         call.commitmentTaskId?.let(CommitmentCallFeedback::onMissed)
         WakeMusicCoordinator.onMissedCall(application, call.characterId, call.commitmentTaskId)
