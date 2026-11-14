@@ -161,17 +161,22 @@ internal fun CharacterExecutionSettings(characterId: String) {
         var wakeMusic by remember(characterId) { mutableStateOf(prefs.getBoolean("$characterId:wake_music_enabled", false)) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text("允许角色自主选择音乐叫醒", modifier = Modifier.weight(1f))
-            Switch(wakeMusic, {
-                wakeMusic = it
-                prefs.edit().putBoolean("$characterId:wake_music_enabled", it).commit()
+            Switch(checked = wakeMusic, onCheckedChange = { next ->
+                if (prefs.edit().putBoolean("$characterId:wake_music_enabled", next).commit()) {
+                    wakeMusic = next
+                }
             })
         }
         Text("开启表示允许选择，并不意味着每次叫醒都放音乐。角色会依据当时情况选择铃声、自然叫醒或已有播放器；正在通话时优先沿用原电话。媒体音量会受安全上限约束。",
             style = MaterialTheme.typography.bodySmall)
         CharacterMusicSensingSettings(characterId)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
-        OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
-            label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+        // Non-critical notification filters: avoid synchronous disk writes on each IME keystroke.
+        OutlinedTextField(packages, { next ->
+            packages = next
+            prefs.edit().putString("$characterId:notification_packages", next).apply()
+        }, label = { Text("重要通知的 App 包名，逗号分隔") },
+            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
 
 
 
