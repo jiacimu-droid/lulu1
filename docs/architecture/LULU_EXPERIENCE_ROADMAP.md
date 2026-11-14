@@ -728,6 +728,8 @@
 - **2026-11-13 G-03.5 路线旧目标失效回归（CI 待验）**：此前守卫击败路线恢复测试 `89c0d11` 对应 [Lulu APK/JVM #43397250271](https://github.com/jiacimu-droid/lulu1/actions/runs/43397250271) 已 success（head_sha 精确匹配），索引 #43397250277 success；这只验证该 SHA 的工程测试，不代表真机通过。新增 `RelicRouteThreatRecoveryTest.openedChestInvalidatesPreviouslyDiscoveredRouteWithoutChangingInventory`，验证已经打开的宝箱不再能被手动选中、自动推荐或沿旧路线引导，且不会由地图提示生成实物或移动玩家；提交 `25506567`，新 SHA JVM/APK 待验。下一轮直接查 `25506567` 的 Lulu APK head_sha 与该测试结果，若绿继续 G-03.5 正式 Compose 触屏/地图箱盖同事件回归；真机 240–360dp、大字体与低端帧耗时仍待验。
 - [ ] **G-03.5 开箱美术与奖励仪式（未实现）**：画面必须从独立地点、箱体绘制→开箱动作/音效/闪光→实际结果卡片→入包状态→撤离入仓/图鉴的真实状态驱动序列，区分普通/稀有/珍贵/秘藏而不提前透露随机结果；失败、背包已满、掉地与重入均不伪造得宝。对比现有 RelicEscapeArt/Screen 检查画质、比例、手机横屏 HUD、易读性和帧率，用原创素材和程序绘制。
 
+- **2026-11-14 G-04.1 快艇对局断裂／战绩结果优先（源码已提交，CI 与真机待验）**：依据用户真机反馈「邀约接受后还说没开局、摸金入队未被感知、快艇第12/13回合切聊天丢局、竞技战绩只想先看分数和胜负」。定位：`BoardDiceGames.YachtDiceScreen` 原先 `remember` 临时存储全部回合，页面离开即重置；`CharacterPerceptionContext.isPerceptible` 曾排除 `game-invitation-accepted` 等游戏观察，导致真实事件写入但角色看不见。新增 `YachtMatchSnapshot` + `LuluGameStore` SharedPreferences 同步保存局号、队友、骰面/保留、轮次、13类得分和状态；游戏馆未完成局可直接继续、聊天往返保存 Compose 路由，13格/人全部填满才结算且用局号幂等落记录。私人聊天/自主感知读取本局比分；游戏角色当回合收到真实成绩。游戏记录改为**默认最终成绩、胜者/平局、13类分数表**，步骤回放需主动点；独自快艇生成真实分类分数。小岛/摸金角色主动接受入队、正式开局、被移出均记录对本人可见的观察，统一感知白名单已经接通；对抗结算独立通知所有真实参战角色。源码回归 `YachtMatchContinuityTest`、`GameInvitationContinuityTest` 覆盖12轮保存/恢复、分数解析、幂等与游戏感知。**验收边界**：早期 APK [#43560850951](https://github.com/jiacimu-droid/lulu1/actions/runs/43560850951) 的 Kotlin `internal` 可见性报错已在后继 main 源码修正，最终主分支 APK/JVM 仍须以最新 SHA 的运行结果实核；360dp/412dp、红米真机通知切换、完整13轮、实际模型连续性及结算画面截图均未验，不能标为交付验收完成。
+
 - [ ] **G-04.1** 邀请决策→通知→玩家加入/拒绝/无回应→实际对局→独立回执核完整 ID 与状态；失败不伪造接受。
 - [ ] **G-04.2** 真机/真实模型测自主邀约与拒绝后续，频率由角色本人选择而非硬编码刷邀请。
 
