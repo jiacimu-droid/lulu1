@@ -1,7 +1,8 @@
 import { installPhysicsFrameControl } from './physics-frame-control.mjs'
 import {
-  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissCameraHorizontalPosition,
-  kissMouthLocalOffsetX, WOLF_KISS_MOTION_INDEX, KISS_CAMERA_DURATION_MS,
+  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
+  kissCameraHorizontalPosition, kissMouthLocalOffsetX,
+  WOLF_KISS_MOTION_INDEX, KISS_CAMERA_DURATION_MS,
 } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
@@ -343,8 +344,10 @@ function applyKissCameraPose(now = performance.now()) {
   const base = cameraBasePose
   if (!base || !model || base.model !== model) return
   const active = kissCameraLease?.model === model ? kissCameraLease : null
-  const frame = active ? kissCameraFrame(now - active.startedAt) :
-    { zoom: 1, finished: true }
+  const frame = active?.handoff
+    ? kissHandoffFrame(active.handoff.zoom, now - active.handoff.at)
+    : active ? kissCameraFrame(now - active.startedAt) :
+      { zoom: 1, finished: true }
   if (frame.finished) {
     // The renderer-only soft exit outlives the 3.35s authored Motion3.
     // A stale static face preset must not linger after the exit finishes.
@@ -361,14 +364,28 @@ function applyKissCameraPose(now = performance.now()) {
   // from the model's calibrated mouth, or the wolf-specific visual fallback.
   const focusY = base.height * 0.42
   model.scale.set(base.scale * zoom)
-  const nuzzle = active ? kissNuzzleFrame(now - active.startedAt) : null
+  const nuzzle = active && !active.handoff
+    ? kissNuzzleFrame(now - active.startedAt) : null
   // Subtle screen-space contact comes from neck sway, not a sprite shake.
   const slideX = nuzzle ? base.width * nuzzle.yaw * .005 : 0
   model.position.set(kissCameraHorizontalPosition(base, zoom,
     active?.mouthLocalX ?? 0) + slideX, focusY + (base.y - focusY) * zoom)
 }
-function cancelKissCamera() {
-  if (!kissCameraLease) return
+function cancelKissCamera(soft = false) {
+  const active = kissCameraLease
+  if (!active) return
+  if (soft && active.model === model) {
+    // Next character-selected body motion may start immediately; the camera
+    // must not teleport backwards just because another sentence has a Motion3.
+    if (active.handoff) return
+    const now = performance.now()
+    const atHandoff = kissCameraFrame(now - active.startedAt)
+    if (!atHandoff.finished && atHandoff.zoom > 1.01) {
+      active.handoff = { at: now, zoom: atHandoff.zoom }
+      applyKissCameraPose(now)
+      return
+    }
+  }
   kissCameraLease = null
   applyKissCameraPose()
 }
@@ -598,7 +615,8 @@ function applyFinalParameters(core, deltaMs) {
   } : faceRequest
   // Only the verified wolf's actual kiss clip can acquire this temporary
   // physical close-eye/pursed-lip score. It shares the camera's real clock.
-  const kissFrame = wolfRigActive && kissCameraLease?.model === model
+  const kissFrame = wolfRigActive && kissCameraLease?.model === model &&
+    !kissCameraLease.handoff
     ? kissFaceFrame(tactileNow - kissCameraLease.startedAt) : null
   const stagedFace = kissFrame
     ? { ...(visibleFace || {}), ...kissFrame.face } : visibleFace
@@ -977,6 +995,7 @@ function activatePendingSpeechMoment() {
   if (parts?.replace) clearSpeechMoment({
     preserveCurrentMotion: !!(parts?.motion || parts?.hasMotionBeats),
     cancelKiss: !!(parts?.motion || parts?.hasMotionBeats),
+    softenKiss: !!(parts?.motion || parts?.hasMotionBeats),
   })
   if (parts?.motion) motion(parts.motion.group, parts.motion.index, true,
     'character', parts.motionOptions || {})
@@ -1751,7 +1770,9 @@ function resetSpeechExpression() {
   activeExpressionStartedAt = 0
   activeExpressionIsPreview = false
 }
-function clearSpeechMoment({ preserveCurrentMotion = false, cancelKiss = false } = {}) {
+function clearSpeechMoment({
+  preserveCurrentMotion = false, cancelKiss = false, softenKiss = false,
+} = {}) {
   // An audible next phrase isn't a command to break an already-started kiss.
   // Hold the bounded physical lease through speech-only/expression-only cues;
   // explicit new Motion3, interruption, hide and disposal always release it.
@@ -1761,7 +1782,7 @@ function clearSpeechMoment({ preserveCurrentMotion = false, cancelKiss = false }
   const carryMotion = (preserveCurrentMotion || carryKiss) && authoredMotion?.started &&
     authoredMotion.model === model && authoredMotion.source === 'character' &&
     model?.internalModel?.motionManager?.isFinished?.() !== true
-  if (cancelKiss) cancelKissCamera()
+  if (cancelKiss) cancelKissCamera(softenKiss)
   motionTransition.cancel()
   resetSpeechExpression()
   mouthExpressionGate.reset()
@@ -1905,6 +1926,7 @@ function perform(cue, immediatePreview = false) {
     clearSpeechMoment({
       preserveCurrentMotion: hasChosenNextMotion,
       cancelKiss: immediatePreview || hasChosenNextMotion,
+      softenKiss: !immediatePreview && hasChosenNextMotion,
     })
   else speechMotionFollowUps = []
   if (!playing && !immediatePreview) pendingSpeechParts = { queuedAt: Date.now(), replace: true }
@@ -1961,7 +1983,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       authoredMotion.index === index &&
       (!authoredMotion.started ||
         target.internalModel?.motionManager?.isFinished?.() !== true)) return
-  cancelKissCamera()
+  cancelKissCamera(source === 'character')
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source,
     visualSequence: scoreVisualSequence, segmentId: options.segmentId || '',
@@ -1988,7 +2010,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
         authoredMotion !== chosen) return
     stopRejectedHandoff()
     authoredMotion = null
-    cancelKissCamera()
+    cancelKissCamera(true)
     speechMotionFollowUps = []
     if (source === 'character') notify('motion-failed', JSON.stringify({
       sequence: chosen.visualSequence, group, index,
@@ -2022,7 +2044,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     if (ok === false) {
       stopRejectedHandoff()
       authoredMotion = null
-      cancelKissCamera()
+      cancelKissCamera(true)
       speechMotionFollowUps = []
       if (source === 'character') notify('motion-failed', receipt)
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
