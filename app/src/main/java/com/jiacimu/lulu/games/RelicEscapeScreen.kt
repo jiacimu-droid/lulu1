@@ -56,6 +56,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var kits by remember{mutableIntStateOf(1)}
     var lobbyOpen by rememberSaveable { mutableStateOf(true) }
     var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    val partySessionId = rememberSaveable { java.util.UUID.randomUUID().toString() }
     var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
     var startingWeapon by rememberSaveable { mutableStateOf("blade") }
     var chosenContract by rememberSaveable { mutableStateOf(RelicContract.FIRST_HAUL) }
@@ -176,6 +177,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                 choice==null -> name+"的邀请尚未完成："+(result.exceptionOrNull()?.message ?: "请重试")
                                 choice.accepted -> {
                                     acceptedInvites=(acceptedInvites+id).distinct().take(3)
+                                    GameInvitationContinuity.recordPartyJoined(context, id, "relic_escape", partySessionId)
                                     name+"接受了邀请"+if(choice.speech.isBlank())"" else " · "+choice.speech
                                 }
                                 else -> name+"这次没有加入"+if(choice.speech.isBlank())"" else " · "+choice.speech
@@ -188,7 +190,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             onStart={
                 store.selectCharacters(acceptedInvites)
                 if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon,chosenContract) }) {
-                    if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) lobbyOpen=false
+                    if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) {
+                        acceptedInvites.forEach { id ->
+                            GameInvitationContinuity.recordPartyStarted(context, id, "relic_escape", partySessionId)
+                        }
+                        lobbyOpen=false
+                    }
                 }
             },
             onContinue={lobbyOpen=false},
