@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.mapCompanionCharacters
+import com.jiacimu.lulu.worldCompanionsAt
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -151,6 +152,20 @@ class NativeResidentLifeIntegrationTest {
         assertEquals(listOf("home:world-companion"), companionHomes)
         assertEquals(listOf("resident-home:street-neighbor"), residentHomes)
         assertEquals(2, (companionHomes + residentHomes).distinct().size)
+
+        // Resident records share the digital-world state but must never be
+        // painted or notified as an extra owner-companion in any map/scene entry.
+        val arrived = "shared:arrival"
+        val world = DigitalWorldState(characterLocations = mapOf(
+            companionId to arrived, nativeId to arrived, realityId to arrived,
+        ))
+        assertEquals(listOf(realityId, companionId), worldCompanionsAt(
+            listOf(native, reality, companion), world, arrived,
+        ).map { it.characterId })
+        assertEquals(listOf(companionId), worldCompanionsAt(
+            companions, world, arrived,
+        ).map { it.characterId })
+        assertTrue(worldCompanionsAt(listOf(native), world, arrived).isEmpty())
     }
 
     @Test fun repeatedRealTimeSlotDoesNotWriteSecondDutyTransition() {
