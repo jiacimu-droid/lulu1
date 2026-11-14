@@ -107,6 +107,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
+    // Transient local feedback only. Repeated joystick collisions never rewrite a save.
+    var blockedMoveHint by remember(world.seed) { mutableStateOf("") }
+    LaunchedEffect(blockedMoveHint) {
+        if(blockedMoveHint.isNotEmpty()) {
+            delay(2300)
+            blockedMoveHint=""
+        }
+    }
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }
     var previousHp by remember(world.seed) { mutableIntStateOf(world.hp) }
@@ -133,6 +141,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     fun perform(action: String, x: Int = target.first, y: Int = target.second) {
         navigateTo = null
+        blockedMoveHint=""
         val result = BlockIslandRules.act(island, action, x, y, autonomousIds)
         if (result.world.turns > island.world.turns) {
             val label = when(action) {
@@ -302,10 +311,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
-                onSelect = { x, y -> target = x to y; mapAim=true; navigateTo = null },
+                onSelect = { x, y ->
+                    target=x to y; mapAim=true; navigateTo=null; blockedMoveHint=""
+                },
                 onNavigate = { x, y ->
                     target = x to y
                     mapAim = true
+                    blockedMoveHint=""
                     // Long-press must only aim while building. It must not walk away
                     // from the work area or spend a turn on an unexpected move.
                     navigateTo = if(buildMode!=null) null
@@ -368,14 +380,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 // a held D-pad cannot accidentally destroy a crystal vein.
                 val nextCell=IslandManualMovement.destination(island,dx,dy)
                 if(nextCell!=null) {
+                    blockedMoveHint=""
                     perform("move",nextCell.first,nextCell.second)
-                } else if(buildMode==null &&
-                    front.action in setOf("gather","salvage","recover_pack")) {
-                    // One hint, not repeated disk writes on every held-key tick.
-                    val hint=if(front.enabled)
-                        "前方是资源 · 点右侧采集键或方向盘中心互动；制作工具能提高产量"
-                        else front.label
-                    if(world.notice!=hint) save(island.copy(world=world.copy(notice=hint)))
+                } else if(buildMode==null) {
+                    // Do not publish collision text into persisted world.notice:
+                    // a held joystick can repeat every 195ms on a solid object.
+                    blockedMoveHint=IslandManualMovement.blockedHint(island,dx,dy).orEmpty()
                 }
             }
         },
@@ -459,9 +469,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color = if (buildReady) Color(0xFFBDF4D3) else Color(0xFFFFD0B6),
                     fontSize = 10.sp, maxLines = 1)
             }
-            if (world.notice.isNotBlank() && world.notice != "走到了 (${world.x},${world.y})") {
-                Text(worldNotice, color = Color(0xFFE7F4E6),
-                    fontSize = 10.sp, maxLines = 1)
+            if(blockedMoveHint.isNotEmpty()) {
+                Text(blockedMoveHint,color=Color(0xFFFFD5AD),
+                    fontSize=10.sp,maxLines=2)
+            } else if(world.notice.isNotBlank() &&
+                world.notice != "走到了 (${world.x},${world.y})") {
+                Text(worldNotice,color=Color(0xFFE7F4E6),
+                    fontSize=10.sp,maxLines=1)
             }
         },
         primaryActions = {
