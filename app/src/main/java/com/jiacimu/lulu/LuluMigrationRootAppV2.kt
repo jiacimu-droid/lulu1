@@ -101,6 +101,8 @@ fun LuluMigrationRootAppV2(
     // Preserve each conversation's lazy-list position without keeping the
     // entire chat UI and its many Flow collectors alive behind other routes.
     val chatUiStateHolder = rememberSaveableStateHolder()
+    // Keep a game's saveable route/UI state while the owner briefly opens chat.
+    val gamesUiStateHolder = rememberSaveableStateHolder()
     var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
         mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
     }
@@ -417,13 +419,15 @@ fun LuluMigrationRootAppV2(
                                         meetingInvitationId = null
                                     },
                                 )
-                                MigrationRoute.Games -> LuluGamesAppV2(
-                                    onBack = {
-                                        initialGameId = null
-                                        popRoute()
-                                    },
-                                    initialGameId = initialGameId,
-                                )
+                                MigrationRoute.Games -> gamesUiStateHolder.SaveableStateProvider("games") {
+                                    LuluGamesAppV2(
+                                        onBack = {
+                                            initialGameId = null
+                                            popRoute()
+                                        },
+                                        initialGameId = initialGameId,
+                                    )
+                                }
                                 MigrationRoute.ApocalypseSurvival -> ApocalypseSurvivalAppV5(
                                     gameStore = LuluGames.store,
                                     onBack = ::popRoute,
