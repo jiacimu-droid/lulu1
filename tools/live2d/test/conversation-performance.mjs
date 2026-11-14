@@ -1016,11 +1016,41 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.kissCameraLease?.revision, 555,
     'a second speech-only fragment cannot instantly withdraw the kiss')
   bridge.perform({ visualSequence: 94003, motion: { group: 'Gesture', index: 12 } })
+  assert.equal(bridge.kissCameraLease?.revision, 555,
+    'a selected next Motion3 cannot withdraw the kiss before its own TTS starts')
+  assert.equal(bridge.kissCameraLease?.handoff, undefined,
+    'TTS network latency is not an authored camera handoff')
+  assert.equal(bridge.pendingSpeechParts?.motion?.index, 12,
+    'next chosen Motion3 remains queued for its own audible fragment')
+  bridge.onPlaybackEvent('playing', 0, 94003)
   assert.equal(bridge.kissCameraLease?.handoff?.zoom, 2.1,
-    'a new chosen Motion3 eases the camera back instead of snapping')
+    'the next audible Motion3 eases the camera away instead of snapping')
+  await Promise.resolve()
+
+  // A timed Motion3 beat does not occur at the first syllable. Let the
+  // previous kiss remain until the character's actual beat fires.
   bridge.kissCameraLease = { model: bridge.model, revision: 556,
     startedAt: clock - 1400 }
   bridge.authoredMotion = { model: bridge.model, revision: 556,
+    group: 'LuluWolf', index: 48, started: true, source: 'character' }
+  bridge.perform({ visualSequence: 94004, beats: [
+    { atMs: 1200, motion: { group: 'Gesture', index: 14 }, durationMs: 900 },
+  ] })
+  assert.equal(bridge.kissCameraLease?.handoff, undefined,
+    'a deferred score beat must not withdraw the kiss while TTS is queued')
+  bridge.onPlaybackEvent('playing', 0, 94004)
+  assert.equal(bridge.kissCameraLease?.handoff, undefined,
+    'first syllable must not preempt a later authored Motion3 beat')
+  clock += 1220
+  assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1,
+    'scheduled beat runs against real audio time')
+  assert.equal(bridge.kissCameraLease?.handoff?.zoom, 2.1,
+    'actual Motion3 beat takes the kiss camera with a soft handoff')
+  await Promise.resolve()
+
+  bridge.kissCameraLease = { model: bridge.model, revision: 557,
+    startedAt: clock - 1400 }
+  bridge.authoredMotion = { model: bridge.model, revision: 557,
     group: 'LuluWolf', index: 48, started: true, source: 'character' }
   bridge.clearSpeechMoment({ cancelKiss: true })
   assert.equal(bridge.kissCameraLease, null,
