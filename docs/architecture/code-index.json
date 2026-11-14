@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:22:10.856758+00:00",
-  "commit": "f70d96d9bd0554b424319df0538bf4e43912acce",
+  "generatedAt": "2026-11-14T05:23:50.937153+00:00",
+  "commit": "23c9378a64b67dfaca0cf34a4cf18378c158fee0",
   "branch": "main",
-  "sourceFingerprint": "33e9a2622eb005370829c2d328a10eaf230d8696393df9320195bf1b7c8c00fd",
+  "sourceFingerprint": "9ce060e9ba949b57998a6229f1eec0984a9aa030d1174af25628a08b5d806e8c",
   "summary": {
     "files": 1312,
-    "lines": 276924,
-    "symbols": 3908
+    "lines": 276937,
+    "symbols": 3909
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14310,16 +14310,22 @@
         "line": 15
       }
     ],
-    "recordPartyStarted": [
+    "recordPartyLeft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
         "line": 22
       }
     ],
+    "recordPartyStarted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
+        "line": 29
+      }
+    ],
     "recordAccepted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
-        "line": 51
+        "line": 58
       }
     ],
     "attach": [
@@ -35512,8 +35518,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 341,
-      "sha256": "cf039bd79dab4c6fd4569b5e084ecbf3172cbaaa9b7f802ecc0313bf8c0d5b7b",
+      "lines": 344,
+      "sha256": "2f0820415eadaa548b3e1e354e7757586a0d5f2aa97b5316605bb0ea5e93d75e",
       "symbols": []
     },
     {
@@ -35923,20 +35929,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
-      "lines": 82,
-      "sha256": "42a928655c8031bb0d67836a27704a86952f74c762956a4fb9fe22278eaf074a",
+      "lines": 89,
+      "sha256": "6d37ca77903b5875c35530f0a2cdf16597c2945258fcb0220842b9b94d096575",
       "symbols": [
         {
           "name": "recordPartyJoined",
           "line": 15
         },
         {
-          "name": "recordPartyStarted",
+          "name": "recordPartyLeft",
           "line": 22
         },
         {
+          "name": "recordPartyStarted",
+          "line": 29
+        },
+        {
           "name": "recordAccepted",
-          "line": 51
+          "line": 58
         }
       ]
     },
@@ -37146,8 +37156,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1244,
-      "sha256": "4ec01dcc9856410a3097bd813695105434fc33361289d798961e31baa4129596",
+      "lines": 1247,
+      "sha256": "857e5927f30a59d1a675af221e0fa2b4886c5f6dcb0498d7a18f4ebf867111af",
       "symbols": [
         {
           "name": "change",
