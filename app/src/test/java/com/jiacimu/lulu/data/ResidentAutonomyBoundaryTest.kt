@@ -132,10 +132,21 @@ class ResidentAutonomyBoundaryTest {
             ResidentDailyRoutine.planWithDaily(guest, at("22:00"), ZoneOffset.UTC, null).location)
         assertEquals("resident-home:friend",
             ResidentDailyRoutine.planWithDaily(guest, at("01:00"), ZoneOffset.UTC, null).location)
-        // A resident finishing work in a public area defaults home, leaving
-        // an actual relocation to be committed and broadcast by the world clock.
-        assertEquals(home,
+        // An expired five-minute window and the night clock do not create a
+        // fictitious trip from the game hall to a private house.
+        assertEquals(DigitalWorldPublicPlaces.GAME_HALL,
             ResidentDailyRoutine.planWithDaily(gameKeeper, at("22:00"), ZoneOffset.UTC, null).location)
+        assertEquals(DigitalWorldPublicPlaces.GAME_HALL,
+            ResidentDailyRoutine.planWithDaily(gameKeeper, at("01:00"), ZoneOffset.UTC, null).location)
+        assertTrue(ResidentDailyRoutine.planWithDaily(gameKeeper,
+            at("22:00"), ZoneOffset.UTC, null).activity.contains("原地点"))
+        assertEquals(DigitalWorldPublicPlaces.GAME_HALL,
+            ResidentDailyRoutine.planWithDaily(gameKeeper, at("12:50"), ZoneOffset.UTC, null).location)
+        // Once the character actually reaches their own home, the next time
+        // projection reflects that real movement without producing another one.
+        assertEquals(home, ResidentDailyRoutine.planWithDaily(
+            gameKeeper.copy(currentLocationCode = home),
+            at("22:00"), ZoneOffset.UTC, null).location)
     }
 
     @Test fun worldBulletinShowsSavedJourneyWithoutInventingAnyGameResults() {
