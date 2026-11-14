@@ -86,6 +86,39 @@ class RelicQuickActionTest {
         assertEquals(opened.turns,RelicEscapeRules.act(opened,"open",chest.x,chest.y).turns)
     }
 
+    @Test fun fullSatchelOpeningProducesOnlyGroundReceiptAndSurvivesReload() {
+        val base = run()
+        val chest = base.chests.first()
+        val heavy = (1..40).map {
+            RelicLoot("existing:$it", "已携带珍宝", RelicTier.PRECIOUS, 430)
+        }
+        val nearby = RelicEscapeRules.reveal(base.copy(
+            hero = base.hero.copy(x = chest.x, y = chest.y, bag = heavy),
+            mobs = emptyList(), sites = emptyList(),
+        ))
+        var current = nearby
+        repeat(RelicEscapeRules.openSteps(chest) - 1) {
+            current = RelicEscapeRules.act(current, "pry", chest.x, chest.y)
+        }
+        val opened = RelicEscapeRules.act(current, "open", chest.x, chest.y)
+        val expected = RelicEscapeRules.treasure(current, chest)
+        assertTrue(opened.chests.first { it.id == chest.id }.opened)
+        assertEquals(heavy, opened.hero.bag)
+        assertTrue(opened.drops.any {
+            it.x == chest.x && it.y == chest.y && it.loot == expected
+        })
+        val receipt = RelicChestPresentation.committed(current, opened, chest.id)
+        assertNotNull(receipt)
+        assertFalse(receipt!!.inBag)
+        assertEquals(expected, receipt.loot)
+        assertTrue(RelicChestPresentation.isCurrentOpening(opened, chest.id, receipt))
+        assertNull(RelicChestPresentation.committed(opened, opened, chest.id))
+        val restored = RelicRun.read(opened.json())
+        assertEquals(opened.hero.bag, restored.hero.bag)
+        assertEquals(opened.drops, restored.drops)
+        assertTrue(restored.chests.first { it.id == chest.id }.opened)
+    }
+
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
         val map = run().let { it.copy(seen = (0 until it.w * it.h).toSet()) }
         val quick = relicQuickAction(map, map.exitX to map.exitY)!!
