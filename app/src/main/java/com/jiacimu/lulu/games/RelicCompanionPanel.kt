@@ -41,13 +41,16 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     val speaker = rememberIslandCompanionVoice { failure = it }
     var inbox by rememberSaveable(run.id,stateSaver=relicInboxSaver) { mutableStateOf(IslandTeamInbox()) }
     var speechVersion by remember { mutableIntStateOf(0) }
-    fun send(raw:String) {
+    fun send(raw:String, fromSpeech:Boolean=false) {
         val message=raw.trim()
         if(message.isBlank())return
         inbox=inbox.enqueue(message)
+        GameTeamConversationTimeline.recordOwner(
+            context, "relic_escape", run.id, run.allies.map { it.id }, message, fromSpeech,
+        )
         speechVersion++
     }
-    val mic = rememberGameSpeechInput { send(it) }
+    val mic = rememberGameSpeechInput { send(it, fromSpeech = true) }
     val currentRun by rememberUpdatedState(readRun)
     val latestChoice by rememberUpdatedState(onChoice)
     val latestInbox by rememberUpdatedState(inbox)
@@ -116,6 +119,9 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     line = name + "：" + choice.speech.ifBlank {
                         currentRun().events.lastOrNull { it.who == id && it.action == "decision" }?.text.orEmpty()
                     }
+                    if (choice.speech.isNotBlank()) GameTeamConversationTimeline.recordCompanion(
+                        context, "relic_escape", snapshot.id, members, id, choice.speech,
+                    )
                     speaker.enqueue(id,choice.speech)
                 }
                 inbox=inbox.compact(members)
