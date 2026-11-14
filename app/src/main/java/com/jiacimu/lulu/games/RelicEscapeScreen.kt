@@ -116,10 +116,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     fun action(type:String,x:Int=0,y:Int=0,id:String="") {
         val unopened=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}
         val tier=unopened?.tier
-        // The owner actually pries a chest in dangerous, persisted turns.
-        val effectiveType=if(type=="open" && unopened!=null &&
-            (run?.chestProgress?.get(unopened.id) ?: 0)<RelicEscapeRules.openSteps(unopened)-1)
-            "pry" else type
+        // All three player controls share one tested action contract.
+        val effectiveType=RelicChestPresentation.playerAction(run,type,x,y)
         val before=run?.turns
         val openingRun=run
         // A rejected action must not erase the last committed physical loot receipt.
