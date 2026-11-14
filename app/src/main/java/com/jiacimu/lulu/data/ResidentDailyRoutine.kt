@@ -47,6 +47,10 @@ internal object ResidentDailyRoutine {
             "组织游戏馆活动、向到场玩家介绍游戏；不虚构玩家和比赛结果"
         person.templateName == "闻澜" && person.identity == "公共区域维护员" ->
             "检查庭院座椅与照明状况；实际维修须另有执行证据"
+        person.templateName == "洛芽" && person.identity == "社区活动布置师" ->
+            "整理庭院活动场地和展示区域；没有真实活动不能编造来宾"
+        person.templateName == "南汐" && person.identity == "社区迎新接待员" ->
+            "在庭院接待真正到访的新人、整理公开生活信息"
         else -> "履行${person.identity}的日常职责"
     }
 
