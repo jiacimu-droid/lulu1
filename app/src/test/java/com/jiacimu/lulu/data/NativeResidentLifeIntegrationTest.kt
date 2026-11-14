@@ -100,6 +100,10 @@ class NativeResidentLifeIntegrationTest {
         val at = java.time.LocalDate.of(2026, 11, 14).atTime(22, 0)
             .atZone(java.time.ZoneId.systemDefault()).toInstant()
         try {
+            // Registration provisions a private home; physically move to the
+            // game hall first instead of assuming constructor coordinates survived.
+            assertNotNull(DigitalWorldExpansionStore.moveResident(
+                native.id, DigitalWorldPublicPlaces.GAME_HALL, at.minusSeconds(60)))
             ResidentDailyRoutine.refresh(context, at)
             assertEquals(DigitalWorldPublicPlaces.GAME_HALL,
                 DigitalWorldExpansionStore.residents().single { it.id == native.id }.currentLocationCode)
