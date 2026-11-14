@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:19:55.144226+00:00",
-  "commit": "2825c87e646f968fbf13f65d180f3cf95e54c29f",
+  "generatedAt": "2026-11-14T04:50:21.456692+00:00",
+  "commit": "235f3ea7e9ce6fd5a20786fdb0c9627ff513193f",
   "branch": "main",
-  "sourceFingerprint": "bf4e708f352ecf03ab08152881fbda3a2521e7b934011f82a3e5dbd4125dfe6e",
+  "sourceFingerprint": "9df45c00445e177c0554bb3d1d0e6238fc0befc89a9a5d0971c4c928b194aaf0",
   "summary": {
     "files": 1307,
-    "lines": 275619,
-    "symbols": 3893
+    "lines": 275657,
+    "symbols": 3894
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16354,10 +16354,16 @@
         "line": 304
       }
     ],
+    "isSupportedAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
+        "line": 20
+      }
+    ],
     "invalidReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 35
+        "line": 54
       }
     ],
     "decodeDecision": [
@@ -38410,12 +38416,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-      "lines": 60,
-      "sha256": "e82993b6a7500bf8bd24bd89b4860920826082bee8bf61d4c51a744196cad624",
+      "lines": 82,
+      "sha256": "266d24013385776be1177cf83604367afc43b8539673923264621df066c84b1d",
       "symbols": [
         {
+          "name": "isSupportedAction",
+          "line": 20
+        },
+        {
           "name": "invalidReason",
-          "line": 35
+          "line": 54
         }
       ]
     },
@@ -38474,8 +38484,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1187,
-      "sha256": "6721ac13fc7e5666203c253cae43334ba60c2dfb24213d0d94045cc8265cd72f",
+      "lines": 1186,
+      "sha256": "0e32c66138ca4b35f69aacc461c05632564d462c7854a16ab9a740589bcc751e",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -45730,8 +45740,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
-      "lines": 70,
-      "sha256": "966f6116bc7750b85931c9b086d120d391dcb38d3591b96dc03e95b42d8ba319",
+      "lines": 87,
+      "sha256": "d6a921b1fea6104aca45c8c8be55f2f09bb08747e57c8dd0d7e7a8bb9ba7367a",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneArgumentPolicyTest",
