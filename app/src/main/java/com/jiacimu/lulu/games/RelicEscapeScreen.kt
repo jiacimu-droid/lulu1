@@ -324,14 +324,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     openingChest?.let { chest ->
                         val progress=run.chestProgress[chest.id] ?: 0
                         val result=RelicEscapeRules.treasure(run,chest)
-                        val upgraded=progress>=RelicEscapeRules.openSteps(chest)/2 &&
-                            result.grade>chest.visibleGrade
+                        val glowGrade=RelicEscapeRules.openingGlowGrade(run,chest)
+                        val upgraded=glowGrade>chest.visibleGrade
                         Text(
-                            if(upgraded) "✦ 箱内光芒升为"+RelicCollectibles.displayRank(result)+
-                                "色！继续撬锁可能引来敌人"
+                            if(upgraded) "✦ 宝箱光芒转为"+RelicQuality.at(glowGrade).label+
+                                "！继续撬锁，还有惊喜与危险"
                             else "撬锁 "+progress+"/"+RelicEscapeRules.openSteps(chest)+
                                 " · 每次操作敌人都会行动",
-                            color=if(upgraded)relicGradeColor(result.grade) else relicGold,
+                            color=if(upgraded)relicGradeColor(glowGrade) else relicGold,
                             fontSize=11.sp,fontWeight=FontWeight.Bold,maxLines=2)
                     }
                     lastChestReceipt?.let { receipt ->
