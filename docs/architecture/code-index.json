@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:20:41.960149+00:00",
-  "commit": "12459390005d6288ef9a2e8c730f28cb33c99a53",
+  "generatedAt": "2026-11-14T13:21:58.368242+00:00",
+  "commit": "45428f2d105858f0a2bab1e031d5a2c7a055dd5b",
   "branch": "main",
-  "sourceFingerprint": "2713d7dedca2e47a1e4c588204a3c26a3880f40d89cc11504dd802a450795752",
+  "sourceFingerprint": "e80cb4b4113567213af0995499d3a593a6003413c739cf54bfb02654cd8cbd40",
   "summary": {
     "files": 1315,
-    "lines": 278383,
+    "lines": 278389,
     "symbols": 3928
   },
   "symbolIndex": {
@@ -3723,13 +3723,13 @@
     "PhoneInspectionScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 123
+        "line": 129
       }
     ],
     "goBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 236
+        "line": 242
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -25049,16 +25049,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 892,
-      "sha256": "8f1100be0764a096c84fa45b1b69c676e084879ad9cbe11849303356d76ef734",
+      "lines": 898,
+      "sha256": "e66864eaff886a3013e220020cf95cb45cc670f34b0ce4dd53a9cd2cf718445f",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
-          "line": 123
+          "line": 129
         },
         {
           "name": "goBack",
-          "line": 236
+          "line": 242
         }
       ]
     },
