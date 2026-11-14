@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f504b92ce2f589939f09169a2e60bf83c3e916ae`
+- 基准提交：`b79c3275b9f9217956c3e9787f83d3b052138237`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：277774
+- 已索引代码/文本行：277823
 - 已发现符号：3919
 
 | 文件 | 行数 | 符号数 |
@@ -530,7 +530,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 115 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 106 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1354 | 48 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1369 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
@@ -884,7 +884,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 270 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 304 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
