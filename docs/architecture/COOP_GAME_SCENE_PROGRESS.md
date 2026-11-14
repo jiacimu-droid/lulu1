@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-14 · G-02/G-03 · 原世界游戏语音和队伍对话接入统一时间线（源码及回归已提交，CI/真机待验）
+
+- **现状核验**：快艇骰子有真实结算入 `SharedExperienceTimeline`，小岛和摸金有邀请/开局/部分执行及结算证据；但 `IslandCompanionPanel` / `RelicCompanionPanel` 的玩家队伍发言及角色回应以前仅进局内临时状态，`CharacterAndScenario` 游戏模型不会自动召回普通 `Full` 上下文的近期时间线。现阶段麦克风是 `RecognizerIntent` 按次发言，不是免按键全双工电话。
+- **真实改动**：新增 [GameTeamConversationTimeline.kt](https://github.com/jiacimu-droid/lulu1/commit/8faaa2882535a31e0edf69048d83a4fae2c705f3)，将玩家文字/语音识别结果和模型实际选择且被场景接纳的角色发言写进**现有原始时间线**，按真实游戏存档/局 ID 归档并分别发送给在场参与者；不建立影子聊天 Store、不替角色编造话、不把语音识别当原始录音。两款局内入口接线见 [小岛](https://github.com/jiacimu-droid/lulu1/commit/bc6bd04970b225c92abc50030f031182bff32087)、[摸金](https://github.com/jiacimu-droid/lulu1/commit/3c883e8a506407b517458a7a5f1254a5e418f842)。每次原游戏模型选择读取同局该角色可见的最近八条队伍交流，沿原 `ModelUsage.Game` 一次调用，不增加第二个付费对话模型；见 [小岛事实](https://github.com/jiacimu-droid/lulu1/commit/625d7ca686bcf312fe8dc957019cfa3391f3f528)、[摸金事实](https://github.com/jiacimu-droid/lulu1/commit/34d084f9ad40bfaa4bfa5936a53c24c7182899a8)。
+- **边界与回归**：[GameTeamConversationTimelineTest](https://github.com/jiacimu-droid/lulu1/commit/460093f93a68086aae6db091f3bfcdd2371b0982) 覆盖每位真实在场者都有各自来源事件、非在场者隔离、跨局隔离、玩家语音识别标记、迟到回调同 ID 不修订历史，以及非队员不能冒充发言。尚需以包含测试提交的真实 main push APK/JVM 和真机/真实游戏模型验证；本连接器无法可靠列出 main push 的 Actions 结果，**不宣称成功**。**未实现**：免按键实时双向语音、后台游戏与电话打通；本次仍为现有按麦克风说话 + 人物 TTS 发声。方块小岛没有自动将每一步场景动作写入原时间线，旅程总结仍沿既有「记录旅程」；继续按真实玩家场次验收完善，不以当前对话补丁冒充完整活动结算。
+
 ### 2026-11-14 · 即时私聊中的角色邀玩能力认知补强（源码/测试已提交；真机/真实模型待验）
 
 - **真实反馈**：主人在江渡私聊说《迷雾摸金》时，角色回答“我这边发不了邀请”，把内置游戏误当成需要主人自己打开的外部游戏。截图只证明这一轮实际回答错误，不证明已取得原模型输出、当前安装 APK 版本或执行日志。
