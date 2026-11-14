@@ -24,7 +24,9 @@ internal object IslandManualMovement {
         val interaction=islandTargetAction(s,x to y)
         return when {
             mob!=null -> "怪物挡住了去路 · 点「攻击」战斗或绕行"
-            friend!=null && friend.hp<=0 -> "伙伴倒地了 · 需要2枚野果才能救援"
+            friend!=null && friend.hp<=0 -> if(s.fruit>=2)
+                "伙伴倒地了 · 点「救援」扶起伙伴"
+                else "伙伴倒地了 · 救援还需要2枚野果"
             friend!=null -> "伙伴就在前面 · 换个方向走"
             animal!=null -> "前方是"+IslandWildlife.name(animal.species)+
                 " · 可用互动键接近它"
