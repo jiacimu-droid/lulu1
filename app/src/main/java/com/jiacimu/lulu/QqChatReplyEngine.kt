@@ -359,6 +359,27 @@ internal data class RoleReplyDeliveryReceipt(
     val superseded: Boolean = false,
 )
 
+/** Group quotes may refer to any actually delivered public turn, not only the
+ * owner's newest message. Private-chat quotes retain their original user-only
+ * and current-turn restriction. Recalled and failed lines are never targets. */
+internal fun validatedCharacterQuoteTarget(
+    before: List<LuluChatMessage>,
+    group: LuluGroupChat?,
+    authorCharacterId: String,
+    actionableUserMessageIds: Set<String>,
+    proposedId: String?,
+): String? {
+    val id = proposedId?.trim()?.takeIf(String::isNotBlank) ?: return null
+    val target = before.firstOrNull { it.id == id } ?: return null
+    if (target.status != LuluChatMessage.Status.Sent ||
+        target.sender == LuluChatMessage.Sender.System ||
+        id in recalledMessageIds(before)) return null
+    if (group != null && group.members.any { it.characterId == authorCharacterId }) return id
+    return id.takeIf {
+        it in actionableUserMessageIds && target.sender == LuluChatMessage.Sender.User
+    }
+}
+
 internal suspend fun appendRoleReplyWithPacing(
     conversationId: String,
     characterId: String,
@@ -393,7 +414,11 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     if (bubbles.isEmpty()) return RoleReplyDeliveryReceipt()
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val allowed = actionableUserMessageIds ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)
-    val quoteId = presentation.quoteMessageId?.takeIf { id -> id in allowed && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User } }
+    val replyGroup = MigratedDomainStores.chat.conversations.value
+        .firstOrNull { it.id == conversationId }?.groupChat
+    val quoteId = validatedCharacterQuoteTarget(
+        before, replyGroup, characterId, allowed, presentation.quoteMessageId,
+    )
     val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowed }?.let { id -> before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val spoken = mutableListOf<LuluChatMessage>()
     val replyBatchId = UUID.randomUUID().toString()
