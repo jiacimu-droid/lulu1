@@ -131,19 +131,23 @@ internal object LuluBackgroundPhoneContinuation {
         initialReceipt: String,
         initialImage: String?,
         userRequested: Boolean,
+        // Phone-call revisions are not necessarily unread chat messages.
+        // Reuse the caller's existing invalidation signal at every safe step.
+        shouldYield: () -> Boolean = { false },
     ): Outcome = LuluBackgroundPhoneSession.duringWork(characterId) {
         runContinuation(context, characterId, connection, title, requestId, userText, roleReason,
-            initialArgs, initialReceipt, initialImage, userRequested)
+            initialArgs, initialReceipt, initialImage, userRequested, shouldYield)
     }
 
     private suspend fun runContinuation(
         context: Context, characterId: String, connection: ModelConnection, title: String,
         requestId: String, userText: String, roleReason: String, initialArgs: JSONObject,
         initialReceipt: String, initialImage: String?, userRequested: Boolean,
+        shouldYield: () -> Boolean,
     ): Outcome {
         var image = initialImage
         val unreadAtStart = CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet()
-        fun ownerHasNewInput(): Boolean = hasNewUnreadInput(
+        fun ownerHasNewInput(): Boolean = shouldYield() || hasNewUnreadInput(
             unreadAtStart, CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet(),
         )
         val history = StringBuilder()
@@ -202,7 +206,7 @@ internal object LuluBackgroundPhoneContinuation {
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             if (ownerHasNewInput()) {
-                history.appendLine("主人已发送更新消息，手机任务在本次安全边界暂缓；当前已执行动作保留，交回同一角色先理解新消息")
+                history.appendLine("主人有新消息或通话轮次已变化，手机任务在本次安全边界暂缓；当前已执行动作保留，交回同一角色先理解新消息")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             val response = LuluAiServices.gateway.generate(
@@ -256,7 +260,7 @@ internal object LuluBackgroundPhoneContinuation {
             // The model may have spent minutes waiting for this reply.
             // Before ANY additional side effect, re-check newer user input.
             if (ownerHasNewInput()) {
-                history.appendLine("等待下一步模型期间主人发来更新消息；未执行旧决定，手机任务暂缓并保留已有回执")
+                history.appendLine("等待下一步模型期间主人有新消息或通话轮次变化；未执行旧决定，手机任务暂缓并保留已有回执")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             val decision = decodeDecision(response.text)
