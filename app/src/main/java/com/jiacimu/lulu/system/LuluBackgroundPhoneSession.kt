@@ -62,6 +62,7 @@ internal object LuluBackgroundPhoneSession {
     private var ownerCharacterId = ""
     private var appContext: Context? = null
     private val replies = LinkedBlockingQueue<String>()
+    @Volatile private var lastHelperDiagnostic = ""
 
     private data class ObservedUi(
         val token: String,
@@ -309,6 +310,7 @@ internal object LuluBackgroundPhoneSession {
         stream = null
         adb = null
         replies.clear()
+        lastHelperDiagnostic = ""
     }
 
     private suspend fun ensureStarted(context: Context): Int {
@@ -330,11 +332,13 @@ internal object LuluBackgroundPhoneSession {
             adb = conn
             stream = pipe
             replies.clear()
+            lastHelperDiagnostic = ""
             thread(isDaemon = true, name = "lulu-background-display-replies") {
                 try {
                     pipe.inputStream.bufferedReader().useLines { lines ->
                         lines.forEach { line ->
                             if (line.startsWith(REPLY_MARK)) replies.offer(line.removePrefix(REPLY_MARK))
+                            else if (line.isNotBlank()) lastHelperDiagnostic = line.take(220)
                         }
                     }
                 } catch (_: Exception) {
@@ -359,7 +363,10 @@ internal object LuluBackgroundPhoneSession {
     private suspend fun command(args: JSONObject): JSONObject = withContext(Dispatchers.IO) {
         val pipe = stream ?: error("shell helper disconnected")
         pipe.write((args.toString() + "\n").toByteArray(Charsets.UTF_8))
-        val line = replies.poll(13, TimeUnit.SECONDS) ?: error("shell helper did not reply")
+        val line = replies.poll(13, TimeUnit.SECONDS) ?: error(
+            "shell helper did not reply for ${args.optString("action")}" +
+                lastHelperDiagnostic.takeIf(String::isNotBlank)?.let { "；helper: $it" }.orEmpty()
+        )
         val response = JSONObject(line)
         // Only start/stop may omit an owned display identifier.
         if (args.optString("action") !in setOf("start", "stop")) {
@@ -496,6 +503,7 @@ internal object LuluBackgroundPhoneSession {
             CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet() else emptySet()
         mutex.lock()
         var searchReceipt: JSONObject? = null
+        var failureStage = "owner_authorization"
         try {
             check(!ownerHasPaused(context)) {
                 "主人已停止后台手机操作；必须由主人在设置中重新允许"
@@ -540,6 +548,7 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "请先开启本角色的虚拟屏幕总授权，尚未发送任何消息")
                     .toString()
             }
+            failureStage = "app_resolution"
             val requestedPackage = if (action == "launch" &&
                 args.optString("packageName").isBlank()) {
                 // A model can choose the actual installed app by its visible name;
@@ -579,7 +588,9 @@ internal object LuluBackgroundPhoneSession {
                         .put("sessionPreserved", connected()).put("taskCompleted", false)
                         .put("verification", "主人正在主屏使用这个App，未尝试移动到后台屏幕").toString()
             }
+            failureStage = "display_start"
             val id = ensureStarted(context)
+            failureStage = "window_and_action"
             if (ownerCharacterId.isBlank()) ownerCharacterId = characterId
             appContext = context.applicationContext
             LuluBackgroundPhoneNotice.show(context)
@@ -755,6 +766,7 @@ internal object LuluBackgroundPhoneSession {
                 }
                 request.put("durationMs", args.optInt("durationMs", 400))
             }
+            failureStage = "command_" + action
             val applied = when (action) {
                 "observe" -> null
                 "tap" -> {
@@ -933,6 +945,7 @@ internal object LuluBackgroundPhoneSession {
             val uiSettled = if (applied?.optBoolean("accepted") == true &&
                 action in setOf("tap", "tap_element", "swipe", "submit", "search", "back"))
                 awaitStableUi(id, activeApp, beforeUiFingerprint) else false
+            failureStage = "read_virtual_frame"
             val frame = command(JSONObject().put("action", "observe"))
             if (!frame.optBoolean("success")) {
                 val top = windowGate(id, activeApp)
@@ -1175,9 +1188,13 @@ internal object LuluBackgroundPhoneSession {
             // An unknown transport/display state must never be retried with
             // an old action ID; release before the next request.
             forgetTransport()
+            val detail = error.message?.takeIf(String::isNotBlank)
+                ?: error::class.java.simpleName
             return JSONObject().put("success", false).put("status", "failed")
                 .put("mode", "independent_virtual_display")
-                .put("error", error.message.orEmpty().take(220))
+                .put("errorCode", "virtual_phone_" + failureStage)
+                .put("diagnosticStage", failureStage)
+                .put("error", detail.take(220))
                 .put("accepted", searchReceipt?.optBoolean("searchSubmitted") == true)
                 .attachSearchReceipt(searchReceipt).toString()
         } finally { mutex.unlock() }
