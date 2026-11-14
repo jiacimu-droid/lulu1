@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:50:24.689815+00:00",
-  "commit": "a7479a94fd4441ce63bcd9049118d51ec0a944ca",
+  "generatedAt": "2026-11-14T13:51:18.935234+00:00",
+  "commit": "ce28c58c2f42badf63780c27375ffef6e83c28b6",
   "branch": "main",
-  "sourceFingerprint": "82b37117290b968f8b4a05448a803f587b57d2fabe3671840c01b51a05994621",
+  "sourceFingerprint": "5da4758f709f98dc95225ead0f782c3781f5fd3ac27a468fc4964b5ccc9834c6",
   "summary": {
     "files": 1318,
-    "lines": 279184,
+    "lines": 279201,
     "symbols": 3934
   },
   "symbolIndex": {
@@ -35655,8 +35655,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
-      "lines": 264,
-      "sha256": "50f4ae41d6d2375487a1f789ad91792182d62b3daead771850ef3b419305d4d4",
+      "lines": 281,
+      "sha256": "fde3238be37275f2b2c8d3943523d90d1cac09efd286805233c58a5b791787b7",
       "symbols": [
         {
           "name": "Match",
