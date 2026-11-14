@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:53:31.191422+00:00",
-  "commit": "ccfa851d7944b6769a9f453814b7179e56a314c2",
+  "generatedAt": "2026-11-14T05:54:05.343321+00:00",
+  "commit": "91ba71be59bf56781453d7c815bd84236022fc26",
   "branch": "main",
-  "sourceFingerprint": "7ee1f8e2be9aea2d3b6ce5ab9ca954fca1149dc7b933d2b6fe1135d12e98c851",
+  "sourceFingerprint": "c29d9a8e8f2c90404515ed808e2b7fa73fc6e25daeb06452fc22c44a49a3bc94",
   "summary": {
     "files": 1312,
-    "lines": 277225,
+    "lines": 277233,
     "symbols": 3912
   },
   "symbolIndex": {
@@ -15061,13 +15061,13 @@
     "monsterName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-        "line": 54
+        "line": 62
       }
     ],
     "monsterDrop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-        "line": 57
+        "line": 65
       }
     ],
     "glintCount": [
@@ -36801,8 +36801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-      "lines": 66,
-      "sha256": "61f1b7d08b1c209481e23159b83cdefda3494d31d97221518b85cc1f3240ccc6",
+      "lines": 74,
+      "sha256": "50d3b97e0759abb5668eab76e9aa2da00c88f5b0ddd593fb174a76984019def4",
       "symbols": [
         {
           "name": "label",
@@ -36826,11 +36826,11 @@
         },
         {
           "name": "monsterName",
-          "line": 54
+          "line": 62
         },
         {
           "name": "monsterDrop",
-          "line": 57
+          "line": 65
         }
       ]
     },
