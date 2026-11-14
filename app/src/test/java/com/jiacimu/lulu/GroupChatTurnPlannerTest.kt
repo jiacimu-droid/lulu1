@@ -20,11 +20,11 @@ class GroupChatTurnPlannerTest {
             listOf("second"), listOf("first", "second"), 0).beats.isEmpty())
     }
 
-    @Test fun onlyListedMembersCanReceiveAnOpportunity() {
+    @Test fun onlyListedMembersCanReceiveRepeatedOpportunities() {
         val ids = listOf("role-a", "role-b", "role-c")
         val raw = """{"speakerIds":["role-b","intruder","role-b","role-a","role-c"]}"""
-        assertEquals(listOf("role-b", "role-a"), GroupChatTurnPlanner.decode(raw, ids, 2))
-        assertEquals(listOf("role-b", "role-a", "role-c"),
+        assertEquals(listOf("role-b", "role-b"), GroupChatTurnPlanner.decode(raw, ids, 2))
+        assertEquals(listOf("role-b", "role-b", "role-a", "role-c"),
             GroupChatTurnPlanner.decode(raw, ids, 8))
     }
 
@@ -38,7 +38,7 @@ class GroupChatTurnPlannerTest {
     }
 
 
-    @Test fun directorPlanKeepsOnlyDistinctSpeakersAndTheirTargets() {
+    @Test fun directorPlanKeepsMultipleTurnsForSameSpeakerWithTheirOwnTargets() {
         val raw = """{"sceneFocus":"用户刚介绍两位群友","beats":[
           {"speakerId":"a","targetId":"user","focus":"回应介绍","direction":"一句话接住"},
           {"speakerId":"b","targetId":"a","focus":"接刚才的真实发言","direction":"按本人立场回应"},
@@ -46,10 +46,14 @@ class GroupChatTurnPlannerTest {
           {"speakerId":"intruder","direction":"不能插入"}
         ],"ending":"留给主人插话"}"""
         val plan = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 5)!!
-        assertEquals(listOf("a", "b"), plan.beats.map { it.speakerId })
+        assertEquals(listOf("a", "b", "a"), plan.beats.map { it.speakerId })
         assertEquals("a", plan.beats[1].targetId)
-        assertEquals("与用户互动", plan.hintFor("a", emptyMap()))
-        assertEquals("与星禾互动", plan.hintFor("b", mapOf("a" to "星禾")))
+        assertEquals("与用户互动", plan.hintFor(plan.beats[0], emptyMap()))
+        assertEquals("与星禾互动", plan.hintFor(plan.beats[1], mapOf("a" to "星禾")))
+        assertEquals("", plan.hintFor(plan.beats[2], emptyMap()))
+        assertEquals(listOf("a", "b", "a"), GroupChatTurnPlanner.decode(
+            """{"beats":[{"speakerId":"a"},{"speakerId":"b"},{"speakerId":"a"}]}""",
+            listOf("a", "b"), 3))
     }
 
     @Test fun invalidTargetCannotInjectUnknownParticipantAndPauseIsPreserved() {
@@ -101,6 +105,55 @@ class GroupChatTurnPlannerTest {
         assertEquals("当前群里最后一条真实送达的发言（不要求你一定回复）：我：大家今天怎么样？",
             groupChatLiveReplyAnchor(listOf(owner, failed, system), names, "我"))
         assertEquals("", groupChatLiveReplyAnchor(listOf(failed, system), names, "我"))
+    }
+
+    @Test fun groupRolesCanAnswerEarlierDeliveredSpeechOrLaterMemberReplies() {
+        val group = com.jiacimu.lulu.data.LuluGroupChat(
+            name = "小群", members = listOf(
+                com.jiacimu.lulu.data.LuluGroupMember("a"),
+                com.jiacimu.lulu.data.LuluGroupMember("b"),
+            ),
+        )
+        val first = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "a", content = "第一句由A说",
+        )
+        val second = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "b", content = "第二句由B说",
+        )
+        val owner = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.User,
+            content = "第三句我说",
+        )
+        val fourth = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "a", content = "第四句A回答我",
+        )
+        val failed = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.Character,
+            authorCharacterId = "b", content = "草稿不能当事实",
+            status = com.jiacimu.lulu.data.LuluChatMessage.Status.Failed,
+        )
+        val system = com.jiacimu.lulu.data.LuluChatMessage(
+            conversationId = "room", sender = com.jiacimu.lulu.data.LuluChatMessage.Sender.System,
+            content = "系统提示",
+        )
+        val messages = listOf(first, second, owner, fourth, failed, system)
+        val choices = groupChatRecentReplyOptions(messages, mapOf("a" to "甲", "b" to "乙"), "我")
+        listOf("甲：第一句由A说", "乙：第二句由B说", "我：第三句我说",
+            "甲：第四句A回答我").forEach { assertTrue(choices, choices.contains(it)) }
+        assertFalse(choices.contains("草稿不能当事实"))
+        assertFalse(choices.contains("系统提示"))
+        // B may answer A's fourth line; A may still choose B's second line.
+        assertEquals(fourth.id, validatedCharacterQuoteTarget(messages, group, "b", setOf(owner.id), fourth.id))
+        assertEquals(second.id, validatedCharacterQuoteTarget(messages, group, "a", setOf(owner.id), second.id))
+        assertEquals(owner.id, validatedCharacterQuoteTarget(messages, group, "a", emptySet(), owner.id))
+        assertNull(validatedCharacterQuoteTarget(messages, group, "a", setOf(owner.id), failed.id))
+        assertNull(validatedCharacterQuoteTarget(messages, group, "a", setOf(owner.id), system.id))
+        assertNull(validatedCharacterQuoteTarget(messages, group, "stranger", setOf(owner.id), fourth.id))
+        assertNull(validatedCharacterQuoteTarget(messages, null, "a", setOf(owner.id), fourth.id))
+        assertEquals(owner.id, validatedCharacterQuoteTarget(messages, null, "a", setOf(owner.id), owner.id))
     }
 
     @Test fun modelAuthoredGroupBubblesAreRealSendBoundariesNotPostHocSentenceSplits() {
