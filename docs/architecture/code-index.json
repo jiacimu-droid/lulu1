@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T20:57:31.264604+00:00",
-  "commit": "c479940aeafacc1373fd47e44c52760465523b69",
+  "generatedAt": "2026-11-14T21:39:57.938300+00:00",
+  "commit": "755d5da206e5654843d8034bc4f0ad06a1232728",
   "branch": "main",
-  "sourceFingerprint": "05efe5848db4fe6ae34c99e788b99edc4bc8384042f2a89f2423f704e7ddb4f4",
+  "sourceFingerprint": "820c2e0a1184991c2ee1787f4a24037ef8c7eb12182c88423bdeba3a9d8b8403",
   "summary": {
     "files": 1322,
-    "lines": 280037,
+    "lines": 280105,
     "symbols": 3945
   },
   "symbolIndex": {
@@ -19661,7 +19661,7 @@
     "intercept": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
-        "line": 305
+        "line": 373
       }
     ],
     "ChatLexiconRetryPolicyTest": [
@@ -43202,8 +43202,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
-      "lines": 962,
-      "sha256": "2fc7b76a0db376eb79e764b002c775bad7acd80c147c052ab91eaf2a3c17a3e8",
+      "lines": 1030,
+      "sha256": "1208f2d5f1cbe927b147c4c25bdebfb5b9ad32babcdc08f35dde085109263feb",
       "symbols": [
         {
           "name": "ChatHistoryPersistenceBaselineTest",
@@ -43211,7 +43211,7 @@
         },
         {
           "name": "intercept",
-          "line": 305
+          "line": 373
         }
       ]
     },
