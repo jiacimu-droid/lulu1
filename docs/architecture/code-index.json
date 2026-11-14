@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:41:43.087631+00:00",
-  "commit": "fa719e902ed0678bf13e29d4b3ad40fdd27079a4",
+  "generatedAt": "2026-11-14T13:42:30.045547+00:00",
+  "commit": "cdb4526041e1af81ea5e4997c2be2266387c9326",
   "branch": "main",
-  "sourceFingerprint": "12edf475a46d4bfd5c2102a937236f33c6f1bdd8791f184337b173a085abc12d",
+  "sourceFingerprint": "569b093263ce7b047b626817ef6e1fdc5420cd371a53c35811434efd915256ab",
   "summary": {
-    "files": 1316,
-    "lines": 278669,
-    "symbols": 3930
+    "files": 1317,
+    "lines": 278933,
+    "symbols": 3933
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4736,6 +4736,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
         "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -14018,6 +14022,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt",
         "line": 483
+      }
+    ],
+    "Match": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
+        "line": 20
+      }
+    ],
+    "Invite": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
+        "line": 108
       }
     ],
     "origin": [
@@ -35630,6 +35646,25 @@
       "lines": 94,
       "sha256": "c04cff2dec37536e71acec2f0b7a3bf967a4b57764230c3dccab326cb7175857",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
+      "lines": 264,
+      "sha256": "7eb7e812337c3208bfb502a9b1a96b560410ea82f4d97f925674d3640d7689b3",
+      "symbols": [
+        {
+          "name": "Match",
+          "line": 20
+        },
+        {
+          "name": "play",
+          "line": 23
+        },
+        {
+          "name": "Invite",
+          "line": 108
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
