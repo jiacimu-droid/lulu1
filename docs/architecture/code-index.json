@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:59:24.433723+00:00",
-  "commit": "b7d341f74d604c2ea1f6ba557412cb377620ffcb",
+  "generatedAt": "2026-11-14T16:00:53.989899+00:00",
+  "commit": "69fe2712fa416ef79abad2c70c78e98a81bd996e",
   "branch": "main",
-  "sourceFingerprint": "971fc57b8f668fd67eea0b2c46c2e00544679f61a8f987eb847f88dd755fec99",
+  "sourceFingerprint": "c6aa720977aa7fbfbf5e1774957d7a35c1775270a10331157e5c76ef3d85076a",
   "summary": {
     "files": 1320,
-    "lines": 279530,
+    "lines": 279531,
     "symbols": 3941
   },
   "symbolIndex": {
@@ -25621,8 +25621,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt",
-      "lines": 554,
-      "sha256": "9b36551363af55bb32f2235517f60945a2d7db56d95aa538b816f164363d58f7",
+      "lines": 555,
+      "sha256": "34d946527c3a325d79bd8fb61daf899e401ecc9ec3b9a900db519cf23df818da",
       "symbols": []
     },
     {
@@ -38873,7 +38873,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 467,
-      "sha256": "86f9e9abb93270458d43802edfe125a403442151efe1520dd870089f2862a46a",
+      "sha256": "7ac9d883276ce78dcda07adc67fa51a06262ad69e975504e6a538f9eb7d51bc3",
       "symbols": [
         {
           "name": "Outcome",
@@ -38926,7 +38926,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
       "lines": 1186,
-      "sha256": "0a2c0d66207cad8141fdc7b827bb98c9f48fb894129b2e9a498e4945ece8f0dd",
+      "sha256": "f426774ba653faff81fc2ccefaa571960c837436304c2608af116edf2914d637",
       "symbols": [
         {
           "name": "resumeByOwner",
