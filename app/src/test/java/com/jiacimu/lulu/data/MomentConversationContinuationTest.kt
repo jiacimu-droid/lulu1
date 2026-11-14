@@ -26,6 +26,8 @@ class MomentConversationContinuationTest {
         // Bind writes AND the reload assertion to this test's actual backing file.
         MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
             .set(MomentsStore, null)
+        CharacterPhoneInbox.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterPhoneInbox, null)
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
         LuluRepositories.initialize(app)
@@ -57,11 +59,23 @@ class MomentConversationContinuationTest {
         val author = role()
         val reader = role()
         val outsider = role()
+        val eligibleButUnaware = role()
         assertTrue(MomentFriendAccess.setFriends(author, reader, true))
+        assertTrue(MomentFriendAccess.setFriends(author, eligibleButUnaware, true))
         val original = post(author)
         val comment = speak(reader, original.id, "这段结尾很意外")
         assertTrue(comment.toString(), comment.optBoolean("success"))
         val commentId = live(original.id).comments.single().id
+
+        // Being allowed to view a thread is not the same as having read it.
+        // The commenter has their own original action evidence, while a
+        // different friend must first actually read the post.
+        assertFalse(CharacterEverydaySocialContext.render(
+            eligibleButUnaware, java.time.Instant.now(), emptyList())
+            .contains("postId=${original.id}"))
+        assertTrue(CharacterEverydaySocialContext.render(
+            reader, java.time.Instant.now(), emptyList())
+            .contains("commentId=$commentId"))
 
         // Reading the post must not erase its conversation from the next
         // normal resident/character life decision. No new model request or
@@ -73,6 +87,11 @@ class MomentConversationContinuationTest {
         assertTrue(nextDecision.contains("postId=${original.id}"))
         assertTrue(nextDecision.contains("commentId=$commentId"))
         assertTrue(nextDecision.contains("replyToCommentId"))
+        assertTrue(CharacterPhoneInbox.acknowledge(
+            eligibleButUnaware, listOf(original.id)))
+        assertTrue(CharacterEverydaySocialContext.render(
+            eligibleButUnaware, java.time.Instant.now(), emptyList())
+            .contains("commentId=$commentId"))
 
         // The same actual thread must not leak to someone without the
         // author's current feed permission, including after friendship ends.
