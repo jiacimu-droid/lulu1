@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:57:37.989843+00:00",
-  "commit": "2f325116b9b486cb44ce85500fb1593660516cc8",
+  "generatedAt": "2026-11-14T05:58:09.850882+00:00",
+  "commit": "89b596fbcdcceaf8d6a093dc3e5651a88028a7c0",
   "branch": "main",
-  "sourceFingerprint": "925c8bd8ba5825a14b06a790de146f91815997cbb06dc9ddf0d61ab4d5ee71d3",
+  "sourceFingerprint": "d3542d5e90c566d824113760007247480bf33bef851149238be60c41f08aab9f",
   "summary": {
     "files": 1312,
-    "lines": 277310,
+    "lines": 277347,
     "symbols": 3912
   },
   "symbolIndex": {
@@ -15255,25 +15255,25 @@
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 611
+        "line": 642
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 612
+        "line": 643
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 689
+        "line": 720
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 725
+        "line": 756
       }
     ],
     "change": [
@@ -37051,8 +37051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 728,
-      "sha256": "6a2ef3681f0067f79e1632a2ee3e89baad247fb1d3b44a3d2448349a366d3629",
+      "lines": 759,
+      "sha256": "42d3a2aec85854a0ac9cef84c5a72bf1442f73edb4aec2e65170dcb413d3230d",
       "symbols": [
         {
           "name": "at",
@@ -37160,19 +37160,19 @@
         },
         {
           "name": "enemyThreatRange",
-          "line": 611
+          "line": 642
         },
         {
           "name": "canEnemyStrike",
-          "line": 612
+          "line": 643
         },
         {
           "name": "path",
-          "line": 689
+          "line": 720
         },
         {
           "name": "abandon",
-          "line": 725
+          "line": 756
         }
       ]
     },
@@ -37193,8 +37193,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 132,
-      "sha256": "73f02be5fd475f43746bfcf36fb8013d7d8c0c79c7cd1562e8d3d26af9352e13",
+      "lines": 138,
+      "sha256": "c919a7cd117025f8ea92355c9bcd1523bea776f75ac1cd6c4f0cd71f8a9202cc",
       "symbols": [
         {
           "name": "create",
