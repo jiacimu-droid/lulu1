@@ -89,6 +89,8 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
             PromptRuleAssemblyPolicy.Rule("private-channel", CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)),
             PromptRuleAssemblyPolicy.Rule("inner-voice", spontaneousInnerVoiceGuide),
         )))
+        appendLine("【可执行的共同游戏邀请】" + CompanionActionRuntime.gameInvitationCapabilityGuide +
+            " 想邀请时可选 action=game_invite，填写有效 gameId 和本人实际想说的 text；也可以一边正常回复，一边在 steps 里选 send_game_invite。是否邀请与邀请语由本人决定；不能把纯文字陪玩或尚未发送的打算说成已经发出邀请。")
         appendLine("""
             【当下真实私聊：一次理解、一次决定】
             最后的 user 是这次收到的消息。你仍拥有完整人格、关系、情绪、兴趣、长期愿望与现实工具能力，也有权主动分享、玩笑、分歧、思考、选择行动或安静。以本人的性格、经历和关系理解对方这次真正想表达什么，再选择此刻愿意传达的意思；展开程度随本人兴趣、真实语境与必要答案自然决定。
