@@ -263,3 +263,10 @@
 
 - 正式 `RelicQuickAction.kt` 原先在选中地格时先执行祭坛/钟楼/补给等地标判断，才检查同格真实掉落。开箱满包后宝物若落在仍可互动的地标格，地图主按钮无法直接拾取；玩家只能打开深层背包菜单。`5010cf8` 将有容量的真实 `RelicDrop` 拾取判断移到地标前，仍由 `RelicEscapeRules.act("pickup", lootId)` 验证近距/容量/实体并扣世界回合；无实物时地标仍可操作。没有改变掉率或自动拾取。
 - `ae95fe6` 在 `RelicQuickActionTest.physicalGroundLootWinsOverOverlappingActiveLandmark` 加入真实地面珍宝与未消耗祭坛同格的回归：地图按钮必须选择实体拾取，权威背包新增同一 ID、地面消失，祭坛保持未消耗。源码 blob `146a28f9d5fe22da46c471cf2d9e1d828efac469`，测试 blob `04256568b3693e42e5390f16ca2396d73a5c796a`。对应 main push 的 JVM/APK/index 尚未取得终态；不能声称测试或 APK 成功。下一步先看 `ae95fe6` 对应 push JVM 首错，再检查正式地图同格多掉落、背包满容量提示和真机小屏 HUD/拾取/撤离入库；真实模型与帧率独立待验。
+
+
+## 2026-11-15 G-03.5 · 宝箱与地面实物同格的可拾取闭环（CI 待验）
+
+- 正式 `RelicQuickAction.kt` 原先在同格未开宝箱前返回 `open`，导致满包开箱或其他合法掉落与另一未开宝箱重叠时，地面物品无法通过主操作拾取。提交 `54e9e68d8fcbf5b1b74a8b8d618839faf4746714` 将可容纳的真实 `RelicDrop` 放在宝箱判断前，仍由 `RelicEscapeRules.act` 负责容量、距离、唯一 ID 和实物扣除，不伪造奖励。源码 blob `dd39856d208b646b7d334fd4d0f928a4ce275276`。
+- `457f87020af43323f156cf51a72d35d1bce6f8ea` 新增 `RelicQuickActionTest.droppedTreasureOverlappingUnopenedChestRemainsRecoverable`：优先拾取同格地面物品、背包获得唯一实物、地面消失、箱子未被误开、之后可继续开箱，存档重读一致。测试 blob `a80adba43c1c4dc3cf429d6b25e4e5a20a4d7a4c`。
+- 查询该测试提交 head_sha 的 Actions runs 返回 0 项，**JVM/APK/index 均未确认成功**；无真机横屏、帧率、模型协作或新美术验收。下一入口：`RelicQuickActionTest.kt` 最新 main push JVM 首错；随后验证满包同格多掉落时的可见容量提示与 `RelicEscapeScreen.kt` 正式地图操作。
