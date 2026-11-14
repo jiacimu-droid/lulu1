@@ -47,6 +47,7 @@ internal fun BlockIslandEntry(store: LuluGameStore) {
 @Composable
 private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val lobbySessionId = rememberSaveable { java.util.UUID.randomUUID().toString() }
     val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
         it.screenWidthDp > it.screenHeightDp
     }
@@ -294,8 +295,12 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                                                         answer.speech.ifBlank {
                                                             if (answer.accepted) "我来啦" else "这次先不去了"
                                                         }
-                                                    if (answer.accepted && id !in selected && selected.size < 3)
+                                                    if (answer.accepted && id !in selected && selected.size < 3) {
                                                         selected = selected + id
+                                                        GameInvitationContinuity.recordPartyJoined(
+                                                            context, id, "block_island", lobbySessionId,
+                                                        )
+                                                    }
                                                 }.onFailure { error ->
                                                     invitationResult = c.displayName + "还没有给出有效答复：" +
                                                         (error.message ?: "请检查游戏模型后重试")
