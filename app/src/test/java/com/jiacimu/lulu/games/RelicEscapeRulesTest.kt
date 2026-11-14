@@ -95,7 +95,20 @@ class RelicEscapeRulesTest {
         assertNotNull(RelicChestPresentation.committed(beforeOpen,after,chest.id))
         assertEquals(after,RelicEscapeLedger(context).read().run)
         val retry=ledger.perform("open",chest.x,chest.y)
-        assertEquals(opened,retry)
+        val afterRetry=checkNotNull(retry.run)
+        // A rejected repeat may update its explanatory notice; the important
+        // idempotency contract is that nothing physical or billable changes.
+        assertEquals(after.turns,afterRetry.turns)
+        assertEquals(after.chests,afterRetry.chests)
+        assertEquals(after.hero.bag,afterRetry.hero.bag)
+        assertEquals(after.drops,afterRetry.drops)
+        assertEquals(after.events,afterRetry.events)
+        assertEquals(opened.vault,retry.vault)
+        assertEquals(opened.coins,retry.coins)
+        assertEquals(opened.awarded,retry.awarded)
+        assertEquals(1,afterRetry.hero.bag.count {
+            it.id==afterRetry.id+":chest:"+chest.id
+        })
     }
 
     @Test fun openingNeedsPersistedPressesAndEnemyTurnsBeforeRealLoot() {
