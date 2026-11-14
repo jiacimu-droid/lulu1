@@ -46,45 +46,104 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val scope = rememberCoroutineScope()
-    val opponentIds = remember(state.selectedCharacterIds, state.selectedCharacterId) {
-        state.selectedCharacterIds.take(3)
-    }
-    val players = remember(opponentIds, characters) {
-        listOf(YachtPlayer("user", "你")) + opponentIds.distinct().take(3).map { id ->
+
+    // The match identity and participants live in durable storage, never in the screen lifecycle.
+    var session by remember { mutableStateOf(store.openYachtMatch()) }
+    val players = remember(session.id, characters) {
+        listOf(YachtPlayer("user", "你")) + session.companionIds.map { id ->
             val character = characters[id] ?: MigratedDomainStores.characters.get(id)
             YachtPlayer("role:$id", character.displayName, id)
         }
     }
-    var scores by remember { mutableStateOf<Map<String, Map<YachtCategory, Int>>>(emptyMap()) }
-    var currentPlayerIndex by remember { mutableIntStateOf(0) }
-    var dice by remember { mutableStateOf(emptyList<Int>()) }
-    var held by remember { mutableStateOf(emptySet<Int>()) }
-    var rolls by remember { mutableIntStateOf(0) }
-    var rolling by remember { mutableStateOf(false) }
-    var lastResult by remember { mutableStateOf("") }
-    var turnLog by remember { mutableStateOf(emptyList<String>()) }
-    var matchLog by remember { mutableStateOf(emptyList<String>()) }
-    var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
-    var responseSpeaker by remember { mutableStateOf("") }
+    var scores by remember(session.id) { mutableStateOf(session.scores) }
+    var currentPlayerIndex by remember(session.id) { mutableIntStateOf(session.currentPlayerIndex) }
+    var dice by remember(session.id) { mutableStateOf(session.dice) }
+    var held by remember(session.id) { mutableStateOf(session.held) }
+    var rolls by remember(session.id) { mutableIntStateOf(session.rolls) }
+    var rolling by remember(session.id) { mutableStateOf(false) }
+    var lastResult by remember(session.id) { mutableStateOf(session.lastResult) }
+    var turnLog by remember(session.id) { mutableStateOf(session.turnLog) }
+    var matchLog by remember(session.id) { mutableStateOf(session.matchLog) }
+    var roleResponse by remember(session.id) { mutableStateOf(GameRoleResponse()) }
+    var responseSpeaker by remember(session.id) { mutableStateOf("") }
     val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
     val currentScores = scores[currentPlayer.id].orEmpty()
     val gameOver = players.all { scores[it.id].orEmpty().size == YachtCategory.entries.size }
 
+    fun persistMatch(completed: Boolean = gameOver) {
+        val next = session.copy(
+            scores = scores,
+            currentPlayerIndex = currentPlayerIndex,
+            dice = dice,
+            held = held,
+            rolls = rolls,
+            lastResult = lastResult,
+            turnLog = turnLog,
+            matchLog = matchLog,
+            completed = completed,
+        )
+        store.saveYachtMatch(next)
+        session = next
+    }
+
     fun reset() {
-        scores = emptyMap()
-        currentPlayerIndex = 0
-        dice = emptyList()
-        held = emptySet()
-        rolls = 0
-        rolling = false
-        lastResult = ""
-        turnLog = emptyList()
-        matchLog = emptyList()
-        roleResponse = GameRoleResponse()
-        responseSpeaker = ""
+        session = store.restartYachtMatch()
+        // The remember(session.id) state resets automatically with the new match ID.
+    }
+
+    fun recordFinalResult(finalScores: Map<String, Map<YachtCategory, Int>>, finalLog: List<String>) {
+        val ranked = players.sortedByDescending { finalScores[it.id].orEmpty().values.sum() }
+        val highest = ranked.firstOrNull()?.let { finalScores[it.id].orEmpty().values.sum() } ?: 0
+        val winners = ranked.filter { finalScores[it.id].orEmpty().values.sum() == highest }
+        val outcome = if (winners.size == 1) "胜者：${winners.first().name}" else "平局：${winners.joinToString("、") { it.name }}"
+        val rankingSummary = ranked.joinToString("；") { "${it.name}${finalScores[it.id].orEmpty().values.sum()}分" }
+        val sheet = JSONObject().apply {
+            players.forEach { player ->
+                put(player.id, JSONObject().apply {
+                    put("name", player.name)
+                    put("total", finalScores[player.id].orEmpty().values.sum())
+                    put("categories", JSONObject().apply {
+                        YachtCategory.entries.forEach { category ->
+                            put(category.name, finalScores[player.id]?.get(category) ?: JSONObject.NULL)
+                        }
+                    })
+                })
+            }
+        }
+        val recordId = store.recordExternalGame(
+            LuluGameType.YachtDice,
+            "快艇骰子",
+            finalScores["user"].orEmpty().values.sum(),
+            0,
+            "13轮完整结束：$rankingSummary；$outcome。",
+            JSONObject()
+                .put("game", "yacht_dice")
+                .put("mode", if (session.companionIds.isEmpty()) "solo" else "competitive")
+                .put("completed", true)
+                .put("ranking", rankingSummary)
+                .put("winner", if (winners.size == 1) winners.first().name else "平局")
+                .put("winnerIds", JSONArray(winners.map { it.id }))
+                .put("roundCountPerPlayer", YachtCategory.entries.size)
+                .put("scoreSheets", sheet)
+                .put("turns", JSONArray(finalLog))
+                .toString(),
+            characterIdOverride = session.companionIds.firstOrNull().orEmpty(),
+            playedWithCharacterOverride = session.companionIds.isNotEmpty(),
+            recordIdOverride = session.id,
+        )
+        if (session.companionIds.isNotEmpty()) saveGameAsSharedMemory(scope, store, recordId)
+    }
+
+    LaunchedEffect(session.id, session.completed) {
+        // After a crash between saving the thirteenth round and recording the result,
+        // the deterministic record ID makes settlement safe to retry.
+        if (session.completed && gameOver && store.state.value.records.none { it.id == session.id }) {
+            recordFinalResult(scores, matchLog)
+        }
     }
 
     fun saveTurn(player: YachtPlayer, category: YachtCategory, scoredDice: List<Int>, points: Int) {
+        if (category in scores[player.id].orEmpty()) return
         val nextPlayerScores = scores[player.id].orEmpty() + (category to points)
         val nextScores = scores + (player.id to nextPlayerScores)
         scores = nextScores
@@ -92,8 +151,15 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         val nextMatchLog = matchLog + "${player.name}第${nextPlayerScores.size}轮：$lastResult"
         matchLog = nextMatchLog
 
-        // A round is only an internal step of this one match. The role may react, but the round does
-        // not become a game-history row, raw timeline event or long-term memory by itself.
+        val finished = players.all { nextScores[it.id].orEmpty().size == YachtCategory.entries.size }
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+        dice = emptyList()
+        held = emptySet()
+        rolls = 0
+        turnLog = emptyList()
+        // The committed turn exists before any model commentary, navigation or settlement.
+        persistMatch(completed = finished)
+
         if (player.characterId != null) {
             responseSpeaker = player.name
             requestGameRoleResponse(
@@ -101,42 +167,14 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 store = store,
                 recordId = null,
                 facts = lastResult,
-                instruction = "你刚刚亲自完成了这一回合。根据真实骰面和计分类别，以角色自己的语气回应1-2句，不得修改分数。",
+                instruction = "你刚刚亲自完成了这一回合。依据真实骰面及累计比分，以本人的语气自然回应；尚未结束不得声称获胜。",
                 title = "快艇骰子 · ${player.name}",
                 onState = { roleResponse = it },
                 maxTokens = 180,
                 characterIdOverride = player.characterId,
             )
         }
-
-        val finished = players.all { candidate ->
-            val count = if (candidate.id == player.id) nextPlayerScores.size else nextScores[candidate.id].orEmpty().size
-            count == YachtCategory.entries.size
-        }
-        if (finished) {
-            val ranking = players.sortedByDescending { nextScores[it.id].orEmpty().values.sum() }
-            val rankingSummary = ranking.joinToString("；") { "${it.name}${nextScores[it.id].orEmpty().values.sum()}分" }
-            val winner = ranking.firstOrNull()?.name ?: "未知"
-            val recordId = store.recordExternalGame(
-                LuluGameType.YachtDice,
-                "快艇骰子",
-                nextScores["user"].orEmpty().values.sum(),
-                0,
-                "完整一局结束：$rankingSummary；胜者：$winner。",
-                JSONObject()
-                    .put("completed", true)
-                    .put("ranking", rankingSummary)
-                    .put("winner", winner)
-                    .put("roundCountPerPlayer", YachtCategory.entries.size)
-                    .put("turns", JSONArray(nextMatchLog))
-                    .toString(),
-            )
-            saveGameAsSharedMemory(scope, store, recordId)
-        }
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size
-        dice = emptyList()
-        held = emptySet()
-        rolls = 0
+        if (finished) recordFinalResult(nextScores, nextMatchLog)
     }
 
     fun rollForUser() {
@@ -151,10 +189,11 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             rolls += 1
             turnLog = turnLog + "第${rolls}掷：${dice.joinToString("、")}${if (held.isEmpty()) "" else "（保留${held.size}颗）"}"
             rolling = false
+            persistMatch(completed = false)
         }
     }
 
-    LaunchedEffect(currentPlayerIndex, scores, gameOver) {
+    LaunchedEffect(session.id, currentPlayerIndex, scores, gameOver) {
         if (gameOver || currentPlayer.characterId == null || currentScores.size == YachtCategory.entries.size) return@LaunchedEffect
         turnLog = emptyList()
         held = emptySet()
@@ -252,7 +291,10 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                             val locked = index in held
                             val selectable = currentPlayer.id == "user" && value != null && !rolling && rolls in 1..2
                             Surface(
-                                onClick = { held = if (locked) held - index else held + index },
+                                onClick = {
+                                    held = if (locked) held - index else held + index
+                                    persistMatch(completed = false)
+                                },
                                 enabled = selectable,
                                 modifier = Modifier.weight(1f).aspectRatio(.79f),
                                 shape = RoundedCornerShape(15.dp),
