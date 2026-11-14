@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:54:03.669132+00:00",
-  "commit": "3ab52327ed1f33dbc14f6d1a7ef4710128d1389f",
+  "generatedAt": "2026-11-14T13:55:13.071187+00:00",
+  "commit": "235a99078a5a7bb404e97cf3de8e8c73f4596801",
   "branch": "main",
-  "sourceFingerprint": "6a5ced23cf9145346ea93b9bad1e26cba7581b2cfcba4c538237b977b022a3a4",
+  "sourceFingerprint": "eb7c9cbf2a6f67fdd843d9e750872e248421a994f9a6bd1d571a64741b168933",
   "summary": {
     "files": 1318,
-    "lines": 279283,
+    "lines": 279287,
     "symbols": 3934
   },
   "symbolIndex": {
@@ -21335,7 +21335,7 @@
     "AutonomousDuelGamesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "BlockIslandRulesTest": [
@@ -45532,12 +45532,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
-      "lines": 161,
-      "sha256": "d93794be780a4007a5be93dedbee16e50d75070bce506be7a2e24ee3fca30cec",
+      "lines": 165,
+      "sha256": "346010987060d7f4bf9618c8fca5d34145272c7fb0a3aa9df1f85db8f80df62b",
       "symbols": [
         {
           "name": "AutonomousDuelGamesTest",
-          "line": 23
+          "line": 24
         }
       ]
     },
