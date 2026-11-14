@@ -1,6 +1,6 @@
 # Live2D 面对面表现专项进度（L1–L3）
 
-更新：2026-10-29。仅负责真实 Motion 逐句编排、实际 TTS 同步、倾听/停顿/打断、触摸/表情/嘴型/物理协调、模型库校准复用与低帧率。遵守 `AGENTS.md`、统一人物契约及 2026-10-29 大纲；不另建人物状态或付费模型循环。
+更新：2026-11-14。仅负责真实 Motion 逐句编排、实际 TTS 同步、倾听/停顿/打断、触摸/表情/嘴型/物理协调、模型库校准复用与低帧率。遵守 `AGENTS.md`、统一人物契约及 2026-10-29 大纲；不另建人物状态或付费模型循环。
 
 ## 基线与分类
 
@@ -193,3 +193,10 @@
 - **语音所有权**：`tools/live2d/src/stage.js` 将亲吻租约与相邻普通语音片段解耦：语音/表情-only 新段不抢断已启动的亲吻；角色确实另选 Motion3 则动作接手且镜头柔和退场；真实 `interrupted`、隐藏、换模型仍立刻硬清理。亲吻时视觉闭眼覆盖旧 exp3 眼型门禁；可听 TTS 仍优先负责嘴型，未有真实语音发声时保留嘟嘴收合。没有新增一次角色决策、动作提示词或模型费用。
 - **提交证据**：`15cd255`、`4fddd88`、`cb44ef5`、`fea2331`、`2b64dad`、`2d7374f`、`4023926`、`c8bf322`、`077102d` 均直接写入原 `main`；测试为 `tools/live2d/test/parameters.mjs` 的镜头、面部、颈部与交接曲线断言，以及 `tools/live2d/test/conversation-performance.mjs` 的真实 stage 函数 VM 中下一句/下一动作/真实取消回归。原代码索引脚本只覆盖 app/scripts/preview，本轮仅改 tools/live2d，不手写索引生成物。
 - **验收分层**：本轮各次 push 的 APK 流水因其他并行提交触发新 run 而多次 cancelled；取消不算失败也不算成功。须在包含 `077102d`、`c8bf322` 的后继 main SHA 的 **Lulu APK** 核 `Build bundled Live2D stage`、JVM、assemblePhone 与发布结果，失败按首错修复。**真机仍待**：真实模型小狼贴屏的两侧轻蹭、是否正对嘴唇、眼睑/嘴形视觉是否显著；紧邻五段 TTS 和不同 TTS、15/30 FPS、换动作与挂断/切后台是否平顺；真实手机体验不能以数值曲线替代。
+
+## 2026-11-14 · V-01.2 新句实际开声前的亲吻镜头过早交接（Issue #1014，JS CI 通过，Android/真机待验）
+
+- **本轮实证根因**：原 V-01.2 已完成闭眼、嘟嘴、轻蹭与缓慢退场，但 `stage.js` 的 `perform(cue)` 在新句有 Motion3 且 `awaitingOwnVoice` 时，仍在收到新模型决定的瞬间触发 `cancelKissCamera(true)`；新 Motion3 却被排队等待 TTS 真正开声，导致镜头与发声时钟脱节。仅有后续 Motion3 beat 时，原 `activatePendingSpeechMoment` 还会在新句首音直接撤镜头，而非等该 beat 实际执行。
+- **生产修复**：`perform` 仅在新动作能立即执行（或显式预览）时接管镜头；TTS 尚未开声时保留原 4.45s 有界租约。音频开始后，顶层 Motion3 柔和接管；若新句只安排晚些时候的 Motion3 beat，保留原动作所有权、由真实 beat 触发镜头交接。真实用户打断、隐藏和模型切换仍立即硬清理，不新增动作、角色决策或 TTS 调用。
+- **回归/提交**：`tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 覆盖：带新 Motion3 的下一句在开声前不退、开声后交接、延迟 beat 在首音不退而实际触发时交接、真正取消仍硬清。生产提交 [698f102](https://github.com/jiacimu-droid/lulu1/commit/698f1025044f98681c13e2e35c172202b221f83b)，回归 [0b09997](https://github.com/jiacimu-droid/lulu1/commit/0b09997eff789491ed562ddc3f8fd55252ac0b1c)，首轮 CI [43608991823](https://github.com/jiacimu-droid/lulu1/actions/runs/43608991823) 在旧动作所有权断言（2≠1）失败，已据原始日志补正为既保留当前 Motion3、又不提前取消 kiss 的 [395bb4d](https://github.com/jiacimu-droid/lulu1/commit/395bb4d4ad3ca6b3754eb9e34457d45dc0a9ae4b)。
+- **验收分层**：修复版 [Lulu APK #43609178045](https://github.com/jiacimu-droid/lulu1/actions/runs/43609178045) 的 `Build bundled Live2D stage` 已 success；截至记录时 Android `Test and build phone APK` 尚在运行，不提前宣布 APK/JVM 或发布成功。Redmi 真机仍需：新句 TTS 排队/连续五段语音、靠近中心与眼嘴可见度、15/30 FPS、晚些时候的动作 beat、挂断和后台中断；数值/JS 测试不能替代主观视觉手感。
