@@ -521,7 +521,9 @@ class LuluAccessibilityService : AccessibilityService() {
                         node.getChild(i)?.let { visit(it, depth + 1) }
                     }
                 }
-                roots.forEach { visit(it, 0) }
+                // Re-acquire real roots after the editor changes; an old
+                // AccessibilityNodeInfo may refer to a detached page.
+                ownedVirtualRoots(service, displayId, packageName).forEach { visit(it, 0) }
                 return count == 1
             }
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
