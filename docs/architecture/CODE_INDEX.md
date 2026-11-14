@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`afa970f6f695562de5b607afafe0d31126543162`
+- 基准提交：`bb662eb84a8822e225f3e74a8eac37a76de96257`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：277664
-- 已发现符号：3918
+- 已索引代码/文本行：277670
+- 已发现符号：3919
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -154,7 +154,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 184 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 190 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 713 | 1 |

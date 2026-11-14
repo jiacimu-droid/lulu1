@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:16:19.965440+00:00",
-  "commit": "afa970f6f695562de5b607afafe0d31126543162",
+  "generatedAt": "2026-11-14T08:17:44.659433+00:00",
+  "commit": "bb662eb84a8822e225f3e74a8eac37a76de96257",
   "branch": "main",
-  "sourceFingerprint": "446d497b3a75741ef2ebb2240021e533c9eb8ef9846c108dcc703bb6f9de6fd7",
+  "sourceFingerprint": "2c645d1c0bdbfa22313aace03b1468d4b8134ff5d5b7845c6d3f60d9a431f7fd",
   "summary": {
     "files": 1313,
-    "lines": 277664,
-    "symbols": 3918
+    "lines": 277670,
+    "symbols": 3919
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1835,13 +1835,17 @@
     "hintFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 30
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
+        "line": 38
       }
     ],
     "decode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 41
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/Ed25519.kt",
@@ -1851,13 +1855,13 @@
     "decodePlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 43
+        "line": 48
       }
     ],
     "publicContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 80
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
@@ -23341,24 +23345,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 184,
-      "sha256": "136c2ac5a5d6e3e26845c81fc5376d24c9dc8da3b1542b8eb5c6ccf1a823254c",
+      "lines": 190,
+      "sha256": "1ad2bebb448a426cb90580d6dcbf5d119cfe2da682a4d36f9e1dbb09f2d5601f",
       "symbols": [
         {
           "name": "hintFor",
-          "line": 30
+          "line": 32
+        },
+        {
+          "name": "hintFor",
+          "line": 38
         },
         {
           "name": "decode",
-          "line": 41
+          "line": 46
         },
         {
           "name": "decodePlan",
-          "line": 43
+          "line": 48
         },
         {
           "name": "publicContext",
-          "line": 80
+          "line": 84
         }
       ]
     },
