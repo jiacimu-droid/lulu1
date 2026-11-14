@@ -289,3 +289,10 @@
 - `RelicQuickAction.kt` 修复手动选中已死亡敌人时错误改打附近活敌人的目标归属缺口；明确选中活敌但超出射程的既有保护保持。`eb9c910220f208f50ec83acfc539c6b5911678db`，源码 blob `4d52c20628f5107dc01ff3f93faa94d371c874ba`。
 - `RelicQuickActionTest.defeatedSelectedEnemyNeverRedirectsAttackToAnotherLivingEnemy` 覆盖已击败目标不重定向、未指定目标仍能攻击近敌、指定近敌可攻击；`e92f7235bf0fbd3935f68f9c1a74c19ea5bb9198`，测试 blob `6843ffd9f7102f9ae632ea2849864a748a3cb3c8`。不更改怪物掉落、生命、角色自主意愿或物理回合。
 - 已核此前 `db8edfa` 的 Lulu APK/JVM #43634622678 与索引 #43634622606 均 success；**这不代表新测试已通过**。本轮新 push 的 JVM/APK/index 需按 `e92f723` 或后继包含该提交的 head_sha 复核；真机触控、横屏、帧率、美术、模型协作仍未验。下一入口 `RelicQuickActionTest.kt` 新测试 CI 首错、`RelicEscapeScreen.kt` 攻击键禁用状态与实际点选后重进场景。
+
+
+## 2026-11-15 G-03.5 · 选中空地不得误打另一只怪（生产+回归已提交）
+
+- 根因：`relicAttackTarget` 之前只排除了“选中格仍有怪物”的重定向；玩家明确选中空地（包括怪物移走后的旧位置）时，攻击键仍会自动选附近另一只怪。生产提交 `f0c95e523148addaf5f9870873ecea502962a3df`，blob `69a22aee3f69e535579519797469b4ab31f10d54`：仅当光标位于主角本人格时允许附近快捷攻击，任何其他明确选中的格子都不重定向；不改变攻击伤害、怪物 AI、角色选择、掉率或物理结算。
+- `RelicQuickActionTest.explicitlySelectedEmptyTileNeverRedirectsAttackToNearbyEnemy` 新增空地/主角格/近敌格三种目标断言；提交 `a33994fae563931f0b4effbb5a0d31c1832a9375`，blob `af81dd84c48efcee5478cf747bd26ed561307724`。之前 `e92f723` 对应 APK/JVM #43640173370、索引 #43640173377 均 completed/success；本轮测试 SHA 的 APK/JVM #43645324149 pending、索引 #43645324165 queued，**不可标新测试/APK 已通过**。
+- 下一实际入口：先核 `a33994f` 的 JVM 首错与 APK 产物，再在 `RelicEscapeScreen.kt` 验证空格选择/主角快捷攻击/战斗 HUD 禁用提示，360/412dp 横屏与真实帧率仍需真机。美术与模型协作未在本轮改动。
