@@ -12,6 +12,85 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+
+    @Test fun newExpeditionsUseSevenPhysicalRanksWithDistinctRealPriceBands() {
+        val base=RelicEscapeWorld.create(816,3,emptyList(),0,1)
+        val seen=mutableSetOf<Int>()
+        for(quality in RelicQuality.entries) {
+            val chest=RelicChest(7,5,5,quality.tier,grade=quality.ordinal)
+            val loot=RelicEscapeRules.treasure(base,chest)
+            assertTrue("Opening never downgrades the displayed chest",
+                loot.grade in quality.ordinal..6)
+            val appraised=RelicQuality.at(loot.grade)
+            assertEquals(appraised.label,RelicCollectibles.displayRank(loot))
+            assertTrue(loot.value in appraised.minimum until
+                (appraised.minimum+appraised.spread))
+            assertEquals(appraised.tier,loot.tier)
+            assertEquals(loot,RelicLoot.read(loot.json()))
+            assertEquals(chest,RelicChest.read(chest.json()))
+            seen+=loot.grade
+        }
+        assertTrue(seen.size>=4)
+        val purple=RelicChest(4,5,5,RelicTier.RARE,grade=3)
+        val upgrading=(1..5000).firstOrNull { seed ->
+            RelicEscapeRules.treasure(base.copy(seed=seed),purple).grade>=4
+        }
+        assertNotNull("A violet chest can genuinely turn gold or better",upgrading)
+        val fixed=base.copy(seed=upgrading!!)
+        assertEquals(RelicEscapeRules.treasure(fixed,purple),
+            RelicEscapeRules.treasure(fixed,purple))
+    }
+
+    @Test fun openingNeedsPersistedPressesAndEnemyTurnsBeforeRealLoot() {
+        val initial=RelicEscapeWorld.create(6221,2,emptyList(),0,1)
+        val chest=initial.chests.first()
+        var run=RelicEscapeRules.reveal(initial.copy(
+            hero=initial.hero.copy(x=chest.x,y=chest.y),
+            mobs=emptyList(),sites=emptyList()))
+        val required=RelicEscapeRules.openSteps(chest)
+        repeat(required-1) { i ->
+            val before=run
+            run=RelicEscapeRules.act(run,"pry",chest.x,chest.y)
+            assertEquals(before.turns+1,run.turns)
+            assertEquals(i+1,run.chestProgress[chest.id])
+            assertFalse(run.chests.first { it.id==chest.id }.opened)
+            assertTrue(run.hero.bag.none { it.id.endsWith(":chest:"+chest.id) })
+            assertNull(RelicChestPresentation.committed(before,run,chest.id))
+        }
+        val saved=RelicRun.read(JSONObject(run.json().toString()))!!
+        assertEquals(run.chestProgress,saved.chestProgress)
+        val opened=RelicEscapeRules.act(saved,"open",chest.x,chest.y)
+        assertTrue(opened.chests.first { it.id==chest.id }.opened)
+        assertFalse(chest.id in opened.chestProgress)
+        assertNotNull(RelicChestPresentation.committed(saved,opened,chest.id))
+        val replay=RelicEscapeRules.act(opened,"open",chest.x,chest.y)
+        assertEquals(opened.turns,replay.turns)
+    }
+
+    @Test fun spammingStarterSwordCannotPermanentlyStunlockThreats() {
+        val base=RelicEscapeWorld.create(618,1,emptyList(),0,1)
+        val world=base.copy(tiles=List(base.w*base.h){0},
+            hero=base.hero.copy(x=6,y=5),seen=(0 until base.w*base.h).toSet(),
+            mobs=listOf(RelicMob(17,7,5,12,0,windup=true)),
+            chests=emptyList(),sites=emptyList())
+        val first=RelicEscapeRules.act(world,"attack",7,5)
+        assertEquals(10,first.hero.hp)
+        assertTrue(first.mobs.single().staggered)
+        assertTrue(first.mobs.single().windup)
+        val second=RelicEscapeRules.act(first,"attack",7,5)
+        assertTrue("Enemy gets a real attack after its one stagger",second.hero.hp<10)
+        assertEquals(2,second.turns)
+        val armored=world.copy(mobs=listOf(RelicMob(19,7,5,14,1,windup=true)))
+        val armoredHit=RelicEscapeRules.act(armored,"attack",7,5)
+        assertTrue(armoredHit.hero.hp<10)
+        assertEquals(1,RelicArsenal.damage(armored,armored.mobs.single()))
+        assertEquals(2,RelicArsenal.damage(
+            armored.copy(equipped="spear",weapons=setOf("blade","spear")),
+            armored.mobs.single()))
+        assertEquals(4,RelicArsenal.damage(
+            armored.copy(equipped="bow",weapons=setOf("blade","bow")),
+            armored.mobs.single()))
+    }
     @Test fun treasureRarityLegendDistinguishesTheSecretWithoutBreakingSaveTiers() {
         val ordinary=RelicLoot("a","旧王银币",RelicTier.COMMON,80)
         val rare=RelicLoot("b","月银胸针",RelicTier.RARE,200)
