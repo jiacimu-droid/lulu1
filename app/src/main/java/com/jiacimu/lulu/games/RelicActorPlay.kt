@@ -292,6 +292,8 @@ internal object RelicActorPlay {
         .put("mobs",JSONArray(s.mobs.filter { it.hp > 0 && s.visible(it.x,it.y) }.map { it.json() }))
         .put("events",JSONArray(s.events.takeLast(10).map { it.json() }))
         .put("playerSpeech",heard)
+        .put("recentTeamTalk",JSONArray(GameTeamConversationTimeline.recentLines(
+            id, "relic_escape", s.id)))
         .put("options",JSONArray(options(s,id).map { JSONObject().put("id",it.id).put("meaning",it.name) }))
         .toString()
 
