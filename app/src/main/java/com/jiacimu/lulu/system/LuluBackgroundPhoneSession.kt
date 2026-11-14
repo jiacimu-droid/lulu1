@@ -510,7 +510,7 @@ internal object LuluBackgroundPhoneSession {
             check(ownerCharacterId.isBlank() || ownerCharacterId == characterId) {
                 "后台屏幕由另一角色使用中；请先由主人停止该会话"
             }
-            check(action in setOf("start", "launch", "tap", "tap_element", "swipe", "back", "type", "focus_search", "submit", "search", "observe", "stop")) {
+            check(action in setOf("start", "launch", "tap", "tap_element", "swipe", "back", "type", "focus_search", "submit", "search", "send_chat_message", "observe", "stop")) {
                 "不支持此后台屏幕操作"
             }
             if (action == "stop") {
@@ -532,6 +532,14 @@ internal object LuluBackgroundPhoneSession {
                     .put("mode", "independent_virtual_display")
                     .put("sessionPreserved", connected())
                     .put("verification", reason).toString()
+            }
+            if (action == "send_chat_message" &&
+                !LuluVirtualChatSendPolicy.isEnabled(context, characterId)) {
+                return JSONObject().put("success", false).put("accepted", false)
+                    .put("status", "denied").put("errorCode", "chat_send_owner_permission_missing")
+                    .put("taskCompleted", false).put("mode", "independent_virtual_display")
+                    .put("verification", "请先在角色管理里开启本角色的微信发消息授权，尚未发送任何消息")
+                    .toString()
             }
             val requestedPackage = if (action == "launch" &&
                 args.optString("packageName").isBlank()) {
@@ -636,13 +644,13 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "分享商品链接必须选择刚观察到的复制链接控件，不能通过坐标或其他动作读取剪贴板")
                     .toString()
             }
-            if (action == "tap_element") {
+            if (action == "tap_element" || action == "send_chat_message") {
                 val snapshot = lastObservedUi
                 val requestedSnapshot = args.optString("screenSnapshotId")
                 val requestedElement = args.optString("elementRef")
                 val owned = snapshot != null && snapshot.characterId == characterId &&
                     snapshot.displayId == id && snapshot.packageName == activeApp
-                if (!owned || requestedElement.isBlank() ||
+                if (!owned || (action == "tap_element" && requestedElement.isBlank()) ||
                     !LuluVirtualUiPolicy.sameSnapshot(
                         requestedSnapshot, snapshot?.token.orEmpty(),
                         snapshot?.fingerprint.orEmpty(), snapshot?.fingerprint.orEmpty())) {
@@ -810,6 +818,18 @@ internal object LuluBackgroundPhoneSession {
                         .put("inputVerification", verified.wire)
                         .put("displayId", id)
                 }
+                "send_chat_message" -> withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.sendVirtualChatMessage(
+                        id, activeApp, args.getString("recipient"), args.getString("text"),
+                        checkNotNull(lastObservedUi).fingerprint,
+                    ) {
+                        LuluVirtualChatSendPolicy.isEnabled(context, characterId) &&
+                            !ownerHasPaused(context) &&
+                            LuluScreenAwareness.onDemandAllowed(context) &&
+                            context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
+                            !LuluScreenAwareness.isExcluded(context, activeApp)
+                    }
+                }
                 "search" -> search(context, id, activeApp, characterId, unreadAtStart, args.getString("text"))
                     .let { dispatch ->
                         beforeUiFingerprint = dispatch.beforeSubmitTree.orEmpty()
@@ -855,6 +875,32 @@ internal object LuluBackgroundPhoneSession {
                     else if (deliveryError.isNotBlank())
                         "商品链接发送失败：$deliveryError；未声称送达"
                     else "没有读取到新复制的商家HTTPS链接、授权已撤回或剪贴板受系统限制；未发送商品，不能凭旧链接冒充本次选品")
+                    .toString()
+            }
+            if (action == "send_chat_message") {
+                // The sole irreversible click was already attempted inside
+                // the verified accessibility flow. Do not automatically
+                // repeat it when pixels/UI acknowledgement are unavailable.
+                lastObservedUi = null
+                val dispatched = applied?.optBoolean("messageSendClicked") == true
+                return JSONObject().put("success", false)
+                    .put("accepted", dispatched)
+                    .put("status", "unverified")
+                    .put("mode", "independent_virtual_display").put("displayId", id)
+                    .put("packageName", activeApp)
+                    .put("messageInputReadbackVerified",
+                        applied?.optBoolean("messageInputReadbackVerified") == true)
+                    .put("chatRecipientVerified",
+                        applied?.optBoolean("chatRecipientVerified") == true)
+                    .put("messageSendClicked", dispatched)
+                    .put("messageDeliveryVerified", false)
+                    .put("taskCompleted", false)
+                    .put("errorCode", applied?.optString("errorCode").orEmpty())
+                    .put("verification", if (dispatched)
+                        "当前微信聊天对象和正文已核实，并且发送按钮已被设备接受一次；尚无服务器送达证据，禁止以不确定为理由再次点击发送"
+                    else if (applied?.optBoolean("messageInputReadbackVerified") == true)
+                        "聊天文字已写入并读回，但发送按钮或收件人未能再次核实；没有确认发送，请先只读观察"
+                    else "本次微信聊天发送未执行；没有确切收件人、唯一输入框或有效授权，详情见errorCode")
                     .toString()
             }
             if (action == "search") searchReceipt = applied
