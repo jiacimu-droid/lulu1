@@ -14,10 +14,10 @@ import org.robolectric.annotation.Config
 class LuluVirtualChatSendPolicyTest {
     @Test fun roleGrantIsOptInScopedRevocableAndNeverForResident() {
         val ctx = RuntimeEnvironment.getApplication()
-        val prefs = ctx.getSharedPreferences("lulu_virtual_chat_send_owner_v1", Context.MODE_PRIVATE)
+        val prefs = ctx.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         val a = "wechat-test-a"
         val b = "wechat-test-b"
-        prefs.edit().remove(a).remove(b).commit()
+        prefs.edit().remove("$a:screen").remove("$b:screen").commit()
         try {
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, a))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, b))
@@ -28,7 +28,7 @@ class LuluVirtualChatSendPolicyTest {
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, "resident:foo"))
             assertTrue(LuluVirtualChatSendPolicy.setEnabled(ctx, a, false))
             assertFalse(LuluVirtualChatSendPolicy.isEnabled(ctx, a))
-        } finally { prefs.edit().remove(a).remove(b).commit() }
+        } finally { prefs.edit().remove("$a:screen").remove("$b:screen").commit() }
     }
 
     @Test fun acceptsOnlyExactSendControlNotGenericSubmitOrPost() {
