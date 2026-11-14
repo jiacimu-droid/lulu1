@@ -1780,7 +1780,8 @@ internal object ResidentDailyDecision {
         val facts = context(native, at, pending, evidence) + "\n" + homeOptions + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
             CharacterPhoneInbox.requestContext(id) + "\n" +
-            appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty()
+            appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty() + "\n" +
+            appContext?.let { com.jiacimu.lulu.games.AutonomousDuelGames.contextFor(it, id) }.orEmpty()
         val memory = CharacterRuntime.actionMemory(id, UnifiedMemoryRequest(
             currentInput = pending.joinToString("\n") { it.content },
             sceneContext = "原住民自己的日常生活与熟人来往",
