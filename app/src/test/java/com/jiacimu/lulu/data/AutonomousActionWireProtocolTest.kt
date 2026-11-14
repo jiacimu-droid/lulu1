@@ -147,6 +147,48 @@ class AutonomousActionWireProtocolTest {
         assertEquals("原木书架", step.getJSONObject("args").getString("name"))
     }
 
+    @Test fun flatBackgroundPhoneStepKeepsExplicitLaunchAndWechatTarget() {
+        val step = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("tool", "background_phone")
+                .put("action", "launch").put("appName", "微信"))
+        assertEquals("background_phone", step.getString("tool"))
+        assertEquals("launch", step.getJSONObject("args").getString("action"))
+        assertEquals("微信", step.getJSONObject("args").getString("appName"))
+
+        val selected = CharacterThoughtActionHandoff.actions(
+            JSONObject().put("action", "message").put("text", "我去打开微信")
+                .put("steps", org.json.JSONArray().put(JSONObject()
+                    .put("tool", "background_phone").put("action", "launch")
+                    .put("appName", "微信"))))!!
+        assertEquals("launch", selected.getJSONObject(0)
+            .getJSONObject("args").getString("action"))
+        assertEquals("微信", selected.getJSONObject(0)
+            .getJSONObject("args").getString("appName"))
+    }
+
+    @Test fun phoneStepPreservesExplicitNestedArgumentsWithoutInventingLaunch() {
+        val nested = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "launch").put("tool", "background_phone")
+                .put("appName", "微信")
+                .put("args", JSONObject().put("action", "observe")
+                    .put("appName", "已验证的其它App")))
+        assertEquals("observe", nested.getJSONObject("args").getString("action"))
+        assertEquals("已验证的其它App", nested.getJSONObject("args").getString("appName"))
+
+        val missing = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "tool").put("tool", "background_phone")
+                .put("appName", "微信"))
+        assertFalse(missing.getJSONObject("args").has("action"))
+        assertEquals("微信", missing.getJSONObject("args").getString("appName"))
+
+        val withControls = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("tool", "background_phone").put("action", "tap_element")
+                .put("screenSnapshotId", "snapshot-1").put("elementRef", "e4"))
+        assertEquals("tap_element", withControls.getJSONObject("args").getString("action"))
+        assertEquals("snapshot-1", withControls.getJSONObject("args").getString("screenSnapshotId"))
+        assertEquals("e4", withControls.getJSONObject("args").getString("elementRef"))
+    }
+
     @Test fun socialStepAndPrimaryToolKeepAuthoredIdsAndDecisionFields() {
         val acceptedStep = AutonomousActionWireProtocol.normalizeStep(
             JSONObject().put("tool", "respond_friend_request")
