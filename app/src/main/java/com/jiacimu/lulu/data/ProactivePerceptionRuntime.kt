@@ -2324,7 +2324,12 @@ object ProactivePerceptionRuntime {
         }
         if (settleSleepAfterActions) {
             val requestedHome = OnlineContinuationPolicy.requestedReturnHome(
-                if (decision.action == Action.DIGITAL_WORLD) decision.worldAction else "",
+                when {
+                    decision.action == Action.DIGITAL_WORLD -> decision.worldAction
+                    decision.action == Action.TOOL && decision.tool == "digital_world_action" ->
+                        decision.toolArgs.optString("worldAction")
+                    else -> ""
+                },
                 decision.sideActions)
             val home = DigitalWorldStore.homeLocation(characterId)
             val actual = DigitalWorldStore.locationOf(characterId)
