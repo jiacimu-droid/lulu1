@@ -18,6 +18,13 @@ internal object GameInvitationContinuity {
     ): Boolean = recordPartyFact(context, characterId, gameId, partySessionId,
         "joined", "你刚刚自行决定接受主人的组队邀请，已经进入游戏大厅的队伍；目前只是入队，尚未证明已经开局。", at)
 
+    /** A removed teammate is no longer in the pending lobby party. */
+    fun recordPartyLeft(
+        context: Context, characterId: String, gameId: String, partySessionId: String,
+        at: Instant = Instant.now(),
+    ): Boolean = recordPartyFact(context, characterId, gameId, partySessionId,
+        "left", "主人已将你从当前游戏大厅的待出发队伍中移出；此前的入队不再意味着你仍在队伍里。", at)
+
     /** Only call after the game engine confirms starting the actual shared run. */
     fun recordPartyStarted(
         context: Context, characterId: String, gameId: String, partySessionId: String,
