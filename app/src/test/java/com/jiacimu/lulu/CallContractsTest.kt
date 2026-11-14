@@ -31,6 +31,11 @@ class CallContractsTest {
         assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("unknown"))
         assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("scribe_v2"))
         assertEquals("scribe_v2_realtime", CallVoiceConfiguration.elevenSttModel("scribe_v2_realtime"))
+        assertEquals("scribe_v3", CallVoiceConfiguration.elevenSttModel("scribe_v3"))
+        assertEquals("scribe_v3_live", CallVoiceConfiguration.elevenSttModel("scribe_v3_live"))
+        assertEquals(4, CallVoiceConfiguration.elevenSttOptions.size)
+        assertEquals("turn_prediction", CallVoiceConfiguration.realtimeCommitStrategy("scribe_v3_live"))
+        assertEquals("vad", CallVoiceConfiguration.realtimeCommitStrategy("scribe_v2_realtime"))
     }
     @Test fun hotSwitchWaitsForRealUtteranceBoundaryWithoutRedial() {
         val now = 100_000L
@@ -47,6 +52,10 @@ class CallContractsTest {
             CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2"))
         assertEquals(CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME,
             CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2_realtime"))
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
+            CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v3"))
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME,
+            CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v3_live"))
         assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
             CallVoiceConfiguration.elevenInputPath("elevenlabs", null))
         assertEquals(CallVoiceConfiguration.ElevenInputPath.OTHER,
