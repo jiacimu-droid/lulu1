@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:58:09.850882+00:00",
-  "commit": "89b596fbcdcceaf8d6a093dc3e5651a88028a7c0",
+  "generatedAt": "2026-11-14T05:59:26.603917+00:00",
+  "commit": "ae31abba4c56fb5267b833998668a224dc32071f",
   "branch": "main",
-  "sourceFingerprint": "d3542d5e90c566d824113760007247480bf33bef851149238be60c41f08aab9f",
+  "sourceFingerprint": "15b8fdc89c8e00ccbcc2d8904ae3f76b7276fbdf58cbdcd81c371bc8f7c50c01",
   "summary": {
     "files": 1312,
-    "lines": 277347,
+    "lines": 277369,
     "symbols": 3912
   },
   "symbolIndex": {
@@ -757,7 +757,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 472
+        "line": 487
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -37003,8 +37003,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 655,
-      "sha256": "8e5c02e79f39390e39e14ddef9672a2340fc9cf033dc79c01ddbd9dc13fcdcfb",
+      "lines": 670,
+      "sha256": "9c1f7525385a21ecf6a9c1b529a2dbf01fd4402d7356ad6f7e28f091d9fbfa49",
       "symbols": [
         {
           "name": "cell",
@@ -37016,7 +37016,7 @@
         },
         {
           "name": "label",
-          "line": 472
+          "line": 487
         }
       ]
     },
@@ -37178,8 +37178,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1267,
-      "sha256": "62fe460fa2c009456c485af0ee9cfe168dae741bd879e5c45cc92be8c868bf7c",
+      "lines": 1271,
+      "sha256": "e96162342b37e22c3996ee4c856759ab81c2473c621e715ff81edf0b71c8e188",
       "symbols": [
         {
           "name": "change",
@@ -37284,8 +37284,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt",
-      "lines": 128,
-      "sha256": "611605280b5421d41ef3be07914f373dab3fb49c3864d560179dff505d6916f0",
+      "lines": 131,
+      "sha256": "b41561f733aed4839b7ab046c8acd60595bdba5334ee566a897c5fa5ad1ba7bb",
       "symbols": []
     },
     {
