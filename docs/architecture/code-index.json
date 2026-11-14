@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T06:01:51.101591+00:00",
-  "commit": "0af7cb1c45c8f108a1a5f0b4e806195adb781665",
+  "generatedAt": "2026-11-14T06:02:53.468735+00:00",
+  "commit": "67d4da3021b45fffcabd78bf7f958f5701707e17",
   "branch": "main",
-  "sourceFingerprint": "7b6fc88de93d35cb877ddd2dc84ff759ad105681b6993fbe3211eb1828828aa1",
+  "sourceFingerprint": "83f484ea678e6fa3d91b5fa311cb2994df186b460f27140e22995862b142dd61",
   "summary": {
     "files": 1312,
-    "lines": 277397,
+    "lines": 277390,
     "symbols": 3912
   },
   "symbolIndex": {
@@ -15417,13 +15417,13 @@
     "accent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
-        "line": 76
+        "line": 69
       }
     ],
     "shareText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
-        "line": 77
+        "line": 70
       }
     ],
     "walkable": [
@@ -37350,8 +37350,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
-      "lines": 181,
-      "sha256": "0c546a8aa2aeba091095592a2a8ff630e67e8261e0b89f85425c48d880a3a1e1",
+      "lines": 174,
+      "sha256": "5ea0d07a83bed3c21e104f82bf8cdabc99001e34517ba212216f5651b53b3405",
       "symbols": [
         {
           "name": "identity",
@@ -37367,11 +37367,11 @@
         },
         {
           "name": "accent",
-          "line": 76
+          "line": 69
         },
         {
           "name": "shareText",
-          "line": 77
+          "line": 70
         }
       ]
     },
