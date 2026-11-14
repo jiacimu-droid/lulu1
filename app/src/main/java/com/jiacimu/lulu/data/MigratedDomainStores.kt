@@ -669,8 +669,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                     it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动] $marker")
                 }
                 if (existing != null) {
-                    editMessage(existing.id, notice)
-                    return existing.copy(content = notice)
+                    // An incident update is not delivered until the chat snapshot accepts it.
+                    // Never return a fabricated updated receipt when the edit was rejected.
+                    check(editMessage(existing.id, notice)) { "生活事件回执未能更新" }
+                    return recordedMessage(conversation.id, existing.id)
+                        ?: error("生活事件回执更新后无法读取")
                 }
             }
         }
