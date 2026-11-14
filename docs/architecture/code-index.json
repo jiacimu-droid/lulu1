@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:16:23.252969+00:00",
-  "commit": "0cd414a23e1e3dee619c4dbcc4db28ed8f0bf95e",
+  "generatedAt": "2026-11-14T16:17:54.223902+00:00",
+  "commit": "8c84b0b07573f79db5949ced1fa97410323f3efe",
   "branch": "main",
-  "sourceFingerprint": "a12c99cc4f4f0955f2a5df09f1ac0ceee42406e8df8fd91fe2a9adb2a85d54e3",
+  "sourceFingerprint": "f51291bb09bc42fdbf956c7e755bc52e5b07a1794697872ee5912648c0cc6334",
   "summary": {
     "files": 1322,
-    "lines": 279813,
+    "lines": 279824,
     "symbols": 3943
   },
   "symbolIndex": {
@@ -30473,7 +30473,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
       "lines": 100,
-      "sha256": "a54e49f63dd3255538448858afedd339a4efd34cc4067c33f547bd4c98a14d1b",
+      "sha256": "e1c394a43b05eb3f93c1f60ad862a0a7636b885368ba79f20630b6c7d93b7cd3",
       "symbols": [
         {
           "name": "collect",
@@ -44248,8 +44248,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 358,
-      "sha256": "613482018793e4890c45768e97d27dee4868c78250e1ff536168436e7591d50b",
+      "lines": 365,
+      "sha256": "e478992cffbbfd3b4c9203361424e4bb7ce4e45016c1c85834b83b325c449f06",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
@@ -44307,8 +44307,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 380,
-      "sha256": "3998879ef75214dbc58c0f56f9fc60fc23ecb901c8a398a3eae5edaf19ed777f",
+      "lines": 384,
+      "sha256": "981d3c9b1e19a568f7b57003cbef670968998dbe7247a378430d10f3fc11aa78",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
