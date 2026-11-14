@@ -15,16 +15,32 @@ internal object CallVoiceConfiguration {
     }
 
     const val SCRIBE_V2 = "scribe_v2"
+    const val SCRIBE_V3 = "scribe_v3"
     const val SCRIBE_V2_REALTIME = "scribe_v2_realtime"
+    const val SCRIBE_V3_LIVE = "scribe_v3_live"
+
+    /** Use only documented API model IDs. Older installs retain their original v2 choice. */
+    val elevenSttOptions: List<Pair<String, String>> = listOf(
+        SCRIBE_V3_LIVE to "Scribe v3 Live · 实时识别",
+        SCRIBE_V3 to "Scribe v3 · 录音转写",
+        SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 实时识别",
+        SCRIBE_V2 to "Scribe v2 · 录音转写",
+    )
+    fun elevenSttModel(raw: String?): String = when (raw) {
+        SCRIBE_V2, SCRIBE_V3, SCRIBE_V2_REALTIME, SCRIBE_V3_LIVE -> raw
+        else -> SCRIBE_V2
+    }
+    fun elevenSttLabel(model: String): String =
+        elevenSttOptions.firstOrNull { it.first == model }?.second ?: "Scribe v2 · 录音转写"
+    fun isElevenRealtime(model: String): Boolean =
+        model == SCRIBE_V2_REALTIME || model == SCRIBE_V3_LIVE
+    fun realtimeCommitStrategy(model: String): String =
+        if (model == SCRIBE_V3_LIVE) "turn_prediction" else "vad"
     internal enum class ElevenInputPath { SEGMENTED_UPLOAD, CONTINUOUS_REALTIME, OTHER }
     fun elevenInputPath(sttEngine: String, model: String?): ElevenInputPath =
         if (sttEngine != "elevenlabs") ElevenInputPath.OTHER
-        else if (elevenSttModel(model) == SCRIBE_V2_REALTIME) ElevenInputPath.CONTINUOUS_REALTIME
+        else if (isElevenRealtime(elevenSttModel(model))) ElevenInputPath.CONTINUOUS_REALTIME
         else ElevenInputPath.SEGMENTED_UPLOAD
-
-    /** Existing installs keep Scribe v2; invalid/obsolete preferences cannot select arbitrary APIs. */
-    fun elevenSttModel(raw: String?): String =
-        if (raw == SCRIBE_V2_REALTIME) SCRIBE_V2_REALTIME else SCRIBE_V2
 
     /** An active utterance or unfinished cloud transcript must keep its original decoder. */
     fun canSwitchSttNow(
