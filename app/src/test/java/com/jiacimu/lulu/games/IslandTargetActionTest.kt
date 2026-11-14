@@ -216,8 +216,19 @@ class IslandTargetActionTest {
             struck.world.mobs.first { it.id == 2 }.hp)
 
         // An invalid distant tap cannot enable a remote attack.
+        // A distant explicit selection must not redirect an attack to the
+        // unrelated adjacent enemy; clearing the selection restores auto-target.
+        assertNull(islandNearbyAction(twoEnemies, 1 to 0,
+            setOf("fight"), 8 to 8))
         assertEquals(5, islandNearbyAction(twoEnemies, 1 to 0,
-            setOf("fight"), 8 to 8)!!.x)
+            setOf("fight"))!!.x)
+        val guarded = twoEnemies.copy(world = twoEnemies.world.copy(
+            mobs = twoEnemies.world.mobs + ExpeditionMob(3, 4, 3, 2),
+            friends = listOf(ExpeditionFriend("ally", 4, 3, hp = 0))))
+        assertNull(islandNearbyAction(guarded, 1 to 0,
+            setOf("revive"), 4 to 3))
+        assertNull(islandNearbyAction(twoEnemies, 1 to 0,
+            setOf("gather"), 3 to 4))
         assertNull(islandNearbyAction(twoEnemies.copy(world = w.copy(mobs = emptyList())),
             1 to 0, setOf("fight"), 8 to 8))
         // A selected tree is gathered even when facing another valid tree.
