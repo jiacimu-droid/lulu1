@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ec1ea81948180b56a6c5ba54babdfb43f0009723`
+- 基准提交：`6e7178208ffaffe675207b4f688240fd1b23545a`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：275190
-- 已发现符号：3879
+- 已索引代码/文本行：275208
+- 已发现符号：3881
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -784,7 +784,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 779 | 35 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 790 | 36 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 443 | 4 |
@@ -821,7 +821,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 68 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 28 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 35 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
