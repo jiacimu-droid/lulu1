@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:08:09.104827+00:00",
-  "commit": "afcb516d05d5b28152f8fcc809fc20c323c4ae84",
+  "generatedAt": "2026-11-14T05:09:36.367209+00:00",
+  "commit": "3bcca0954d69cb4fc26b9ef1d98a32df46348137",
   "branch": "main",
-  "sourceFingerprint": "48e3c2314ed7e57ac2c37c6ff9f7f7e5d3a2b9a6d5e2ae6354d154e02040179a",
+  "sourceFingerprint": "aa936a7e7be920841b8427f9d64ef830bc5c8cba82d4f4906a9c440f0738ff63",
   "summary": {
     "files": 1308,
     "lines": 276097,
@@ -25117,7 +25117,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
       "lines": 1052,
-      "sha256": "181993ea5f579a86c4cfc350c272bef79a4d267ae230b1d5bb8c63555ff96756",
+      "sha256": "1f5c2b8677fbd4072bffe50bbb262f3b327b1708a1c2ea70f206f42746773ba5",
       "symbols": [
         {
           "name": "openReceiptLink",
