@@ -53,8 +53,14 @@ class PhoneCallMediaSafetyTest {
         val unknown = JSONObject().put("success", false)
         assertTrue(ToolRouter.failureDetail("control_music", unknown)
             .contains("control_music"))
-        assertEquals("waiting_user",
-            ToolRouter.failureDetail("screen_action",
-                JSONObject().put("status", "waiting_user")))
+        assertTrue(ToolRouter.failureDetail("screen_action",
+            JSONObject().put("status", "waiting_user")).contains("screen_action"))
+        val virtual = JSONObject().put("status", "failed")
+            .put("errorCode", "virtual_phone_display_start")
+            .put("diagnosticStage", "display_start")
+        assertEquals("阶段=display_start；virtual_phone_display_start",
+            ToolRouter.failureDetail("background_phone", virtual))
+        assertFalse(ToolRouter.failureDetail("background_phone",
+            JSONObject().put("status", "failed")).equals("failed"))
     }
 }
