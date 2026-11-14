@@ -24,6 +24,18 @@ class RelicQuickActionTest {
             scene.copy(seen = emptySet()), far.x to far.y))
     }
 
+    @Test fun openedSelectedChestNeverRedirectsToAnotherNearbyChest() {
+        val base = run()
+        val h = base.hero
+        val opened = RelicChest(993, h.x, h.y, RelicTier.COMMON, opened = true)
+        val unopened = RelicChest(994, h.x + 1, h.y, RelicTier.PRECIOUS)
+        val scene = base.copy(chests = listOf(opened, unopened),
+            seen = (0 until base.w * base.h).toSet())
+        assertNull(RelicChestPresentation.actionableChest(scene, opened.x to opened.y))
+        assertEquals(unopened.id, RelicChestPresentation.actionableChest(
+            scene, unopened.x to unopened.y)?.id)
+    }
+
     @Test fun fogNeverBecomesFreeMovementOrTreasure() {
         val map = run().copy(seen = emptySet())
         val chest = map.chests.first()
