@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:11:30.833806+00:00",
-  "commit": "6ee103fd16c136c5b3de131d003295e9d2dd8793",
+  "generatedAt": "2026-11-14T05:11:53.261125+00:00",
+  "commit": "f6d3b915886427e0bdfa0b208a3091a5fa1bfa4a",
   "branch": "main",
-  "sourceFingerprint": "e17fb6ffa548eaa15139a42e26937db04d13387447cc24938f971aa9641ebfc9",
+  "sourceFingerprint": "769b58da5ec3688c32a5c32c8df6c02ca2bbe47e46ea3cf87e6433277a7795f8",
   "summary": {
     "files": 1311,
-    "lines": 276357,
+    "lines": 276371,
     "symbols": 3908
   },
   "symbolIndex": {
@@ -11921,7 +11921,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3541
+        "line": 3543
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14511,7 +14511,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 100
+        "line": 103
       }
     ],
     "canInteract": [
@@ -15271,7 +15271,7 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 93
+        "line": 96
       }
     ],
     "carve": [
@@ -16537,7 +16537,7 @@
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1535
+        "line": 1537
       }
     ],
     "LaunchableApp": [
@@ -32961,8 +32961,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3608,
-      "sha256": "4c731e86c3036afd8c7f57df6c577d92b93f497e772dd61d0a1b299a07568eac",
+      "lines": 3610,
+      "sha256": "762162c21d698c741e058b0b677c1efc70d0b148141f6de363c22a5c0830d8c2",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -32994,7 +32994,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3541
+          "line": 3543
         }
       ]
     },
@@ -37154,16 +37154,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1204,
-      "sha256": "c3f3e83d09a075963524fa8fc84f4061a3f6271e627337f8eb3ca83640f9e9a3",
+      "lines": 1214,
+      "sha256": "08ee609b1921b8fe01b729ac151c5d90ee246fd4ba387890f9948cfd1d531d1c",
       "symbols": [
         {
           "name": "change",
-          "line": 93
+          "line": 96
         },
         {
           "name": "action",
-          "line": 100
+          "line": 103
         }
       ]
     },
@@ -38651,8 +38651,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2301,
-      "sha256": "65693b60d5ade5c39e92aa39d0f98c2ec72960b3ac3aad108fec4146de79bc89",
+      "lines": 2303,
+      "sha256": "d60f023f88018d9f6f737f323945576cea75ae2ddb68f4a88cb8d96f4c6c6702",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -38688,7 +38688,7 @@
         },
         {
           "name": "staleReplyExpression",
-          "line": 1535
+          "line": 1537
         }
       ]
     },
