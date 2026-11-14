@@ -1034,15 +1034,26 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                 "07  传世秘宝" to "◇6000 · 晨星之核"
                             )
                             ranks.forEach { (rank,detail) ->
-                                Row(Modifier.fillMaxWidth(),
-                                    horizontalArrangement=Arrangement.spacedBy(8.dp),
-                                    verticalAlignment=Alignment.CenterVertically) {
-                                    Text(rank,color=relicGold,fontSize=12.sp,
-                                        fontWeight=FontWeight.SemiBold,
-                                        modifier=Modifier.weight(1f))
-                                    Text(detail,color=relicMuted,fontSize=11.sp)
+                                // The legend and actual owned treasures share a single
+                                // restrained metal/gemstone palette.
+                                val tone=RelicTreasureGallery.rankAccent(rank.substringAfter("  "))
+                                Surface(
+                                    color=tone.copy(alpha=.10f),
+                                    shape=RoundedCornerShape(10.dp),
+                                    border=BorderStroke(1.dp,tone.copy(alpha=.30f))
+                                ) {
+                                    Row(Modifier.fillMaxWidth().padding(
+                                            horizontal=9.dp,vertical=8.dp),
+                                        horizontalArrangement=Arrangement.spacedBy(6.dp),
+                                        verticalAlignment=Alignment.CenterVertically) {
+                                        Text(rank,color=tone,fontSize=12.sp,
+                                            fontWeight=FontWeight.SemiBold,
+                                            modifier=Modifier.weight(1f))
+                                        Text(detail,color=relicMuted,fontSize=11.sp,
+                                            modifier=Modifier.weight(1.25f),
+                                            lineHeight=16.sp)
+                                    }
                                 }
-                                HorizontalDivider(color=Color.White.copy(alpha=.10f))
                             }
                             Text("注意：七档是鉴定展示品级，不是七种宝箱。宝箱和存档仍使用普通、稀有、珍贵三大类别。",
                                 color=relicMuted,fontSize=11.sp)
