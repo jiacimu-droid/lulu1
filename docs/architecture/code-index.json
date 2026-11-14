@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T21:39:57.938300+00:00",
-  "commit": "755d5da206e5654843d8034bc4f0ad06a1232728",
+  "generatedAt": "2026-11-14T21:55:26.980049+00:00",
+  "commit": "01fd288333d71008537627d0c992abb6ce7e1869",
   "branch": "main",
-  "sourceFingerprint": "820c2e0a1184991c2ee1787f4a24037ef8c7eb12182c88423bdeba3a9d8b8403",
+  "sourceFingerprint": "982dca2d5e57243500b9709612390c2aa12d227bc09d593140bc8125a4821209",
   "summary": {
     "files": 1322,
-    "lines": 280105,
+    "lines": 280120,
     "symbols": 3945
   },
   "symbolIndex": {
@@ -37573,7 +37573,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt",
       "lines": 155,
-      "sha256": "cf81ef00ab91d30e36afc8b32fb46a40c00793ed63590d0984dcb5a35576a982",
+      "sha256": "a0cfd65e7241721aced36d5e1e0ac52fe14ab694d636a181648de37497cdd34c",
       "symbols": []
     },
     {
@@ -46064,8 +46064,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 436,
-      "sha256": "5fc3e5e0a70818486a8b89e328a21e4e7e30b4726a16369236e89b6590b5baad",
+      "lines": 451,
+      "sha256": "2ebc5dd0c23f7694a3ba20884382d2bd7ac9fab5db22345512ac6cc026dec7f3",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
