@@ -554,6 +554,22 @@ internal fun parseGroupReplyFlow(text: String): GroupReplyFlow {
  * of existing facts, not a new memory, role assignment or scripted intention.
  * Deliberately do not treat drafts, failed sends or system notices as speech.
  */
+internal fun groupChatRecentReplyOptions(
+    messages: List<LuluChatMessage>,
+    names: Map<String, String>,
+    ownerLabel: String,
+): String {
+    val recalled = recalledMessageIds(messages)
+    return messages.asSequence().filter {
+        it.status == LuluChatMessage.Status.Sent && it.id !in recalled &&
+            it.sender in setOf(LuluChatMessage.Sender.User, LuluChatMessage.Sender.Character)
+    }.toList().takeLast(8).joinToString("\n") { message ->
+        val speaker = if (message.sender == LuluChatMessage.Sender.User) ownerLabel
+            else message.authorCharacterId?.let(names::get).orEmpty().ifBlank { "群友" }
+        "消息ID=${message.id}；${speaker}：${qqForwardContextText(message.content).take(250)}"
+    }
+}
+
 internal fun groupChatLiveReplyAnchor(
     messages: List<LuluChatMessage>,
     names: Map<String, String>,
@@ -674,10 +690,17 @@ internal suspend fun runGroupReplies(
             .filterNot { it.characterId == first.characterId }.toMutableList()
         else mutableListOf()
     val replyLimit = if (isGroupPhone) group.maxAutoReplies.coerceIn(1, 8) else queue.size
+    if (!isGroupPhone && queue.isEmpty() && scenePlan?.planningFailure != null) {
+        onError(scenePlan.planningFailure)
+        onSpeakerChange(null)
+        return
+    }
     var index = 0
+    var beatCursor = 0
 
     while (index < replyLimit && queue.isNotEmpty()) {
         val member = queue.removeAt(0)
+        val plannedBeat = if (isGroupPhone) null else scenePlan?.beats?.getOrNull(beatCursor++)
         if (!currentCoroutineContext().isActive) return
         if (!isAvailable(member.characterId)) continue
         // The owner has already spoken again while a planning/previous role
@@ -714,6 +737,8 @@ internal suspend fun runGroupReplies(
             }
         val memberList = known.joinToString("、") { it.groupNickname.ifBlank { characterNames[it.characterId] ?: it.characterId } }
         val quotable = latest.filter { it.sender == LuluChatMessage.Sender.User && it.id in pendingUserIds }
+        val replyOptions = if (isGroupPhone) "" else
+            groupChatRecentReplyOptions(latest, characterNames, group.userGroupNickname)
         val prompt = buildString {
             val participants = if (group.ownerIncluded)
                 "${group.userGroupNickname}、$memberList" else memberList
@@ -723,11 +748,15 @@ internal suspend fun runGroupReplies(
             if (!isGroupPhone) {
                 // The only direction this character sees is their OWN; it is
                 // a suggestion, not a fact, instruction, or another's private mind.
-                scenePlan?.hintFor(member.characterId, characterNames)
+                plannedBeat?.let { scenePlan?.hintFor(it, characterNames) }
                     ?.takeIf(String::isNotBlank)?.let { ownDirection ->
                         appendLine("[本轮群聊导演提供的可选接话方向（非事实/非命令）：$ownDirection]")
                     }
-                appendLine("[群聊里这一拍只需带来自己真正想增加的反应或新信息，不是重新完整回答整轮所有问题。一个字、简单附和、反问或不说话都可能是真实选择；重要分歧、复杂问题或想认真分享时也可以充分展开。可直接接群友刚说的那一句，不用每个人都对用户作总结，不解释笑点、群名或自己的设定。别把一篇分析分成许多气泡。导演方向不是命令，以本人的实际判断和最新已送达消息为准。]")
+                appendLine("[群聊里这一拍只需带来自己真正想增加的反应或新信息，不是重新完整回答整轮所有问题。一个字、简单附和、反问或不说话都可能是真实选择；重要分歧、复杂问题或想认真分享时也可以充分展开。不用每个人都对用户作总结，不解释笑点、群名或自己的设定。别把一篇分析分成许多气泡。导演方向不是命令，以本人的实际判断和最新已送达消息为准。]")
+                if (replyOptions.isNotBlank()) {
+                    appendLine("[近期真实送达的群消息（按时间先后，消息ID可供引用；你可以自己接其中任何一句，绝不只能回最后一条，也不必须回复用户）：\n$replyOptions]")
+                    appendLine("[要明确引用其中一条可用 ⟪QUOTE:消息ID⟫；不需要引用也可以自然接话。只能引用实际在本群送达、你看得见的消息。]")
+                }
             }
             if (group.ownerIncluded) {
                 appendLine("[本人对用户自己的可追溯看法：\n" +
@@ -741,11 +770,8 @@ internal suspend fun runGroupReplies(
                 quotable.forEach { appendLine("[消息ID=${it.id} 内容=${qqForwardContextText(it.content).take(300)}]") }
                 appendLine("[收藏是低频强意图，不是点赞；只有真的想长期留住并以后重看时才 ⟪FAVORITE:消息ID⟫。引用只用真实ID。]")
             }
-            if (index > 0) groupChatLiveReplyAnchor(
-                latest, characterNames, group.userGroupNickname,
-            ).takeIf(String::isNotBlank)?.let { liveAnchor ->
-                appendLine("[$liveAnchor。你的判断以当前现场为准；可以只顺手接一个反应、直接问群友、改变话题或沉默，不要回头逐项点评用户最初那句话。]")
-            }
+            // Earlier public speech remains available after new bubbles arrive.
+            // Do not bias the actor to the single newest line.
             appendLine("[像真人即时通讯：一个表达动作一个气泡；气泡边界由系统结构化处理，不要输出 BUBBLE 或其他气泡控制串。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
             if (group.allowCharacterConversation) appendLine("[你无需替其他成员指定下一位发言者。程序会让其他真实在场者各自独立判断是否接话；你只负责自己的内容，沉默可直接选择 action=silent。]")
             if (index == 0) {
@@ -791,7 +817,7 @@ internal suspend fun runGroupReplies(
             if (flow.content.isNotBlank()) {
                 val delivery = appendRoleReplyWithPacingReceipt(
                     conversationId, member.characterId, label,
-                    CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser,
+                    CharacterReplyPresentation(visibleContent, flow.quoteMessageId, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser,
                         preserveAuthoredBubbleBoundaries = flow.authoredBubbleBoundaries),
                     pendingUserIds,
                     interactionReceipt = reply.interactionReceipt,
