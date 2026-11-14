@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:06:44.493159+00:00",
-  "commit": "55b73f298c732120bffb1b1e44f4e4da5743f30c",
+  "generatedAt": "2026-11-14T08:14:25.477633+00:00",
+  "commit": "f433d4bb73d64815ffa970e2a593fc0b2fc02b92",
   "branch": "main",
-  "sourceFingerprint": "1c7ce73f14ccdf0e94f5669d2113c94a086683d47f10bf8060c8aa54d740ba01",
+  "sourceFingerprint": "b58c75aaa71d2b01deff71cf2b13b411c6235a5244d1748e230df547c5a338ea",
   "summary": {
     "files": 1313,
-    "lines": 277628,
+    "lines": 277641,
     "symbols": 3917
   },
   "symbolIndex": {
@@ -29331,7 +29331,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 80,
-      "sha256": "03bbe7bf7906e00dc496bf9347c9f61fa28672f55decad6fc672977880264b20",
+      "sha256": "485aa02923080e652b9606011c5451027ec728cb6b0fd8e4956fa14289347cc7",
       "symbols": [
         {
           "name": "context",
@@ -32846,8 +32846,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 220,
-      "sha256": "d98576bb0cdf5d5cd50eb212509f56fe4953c9cbd79e85d76788e7984fe0b0e1",
+      "lines": 221,
+      "sha256": "da4a67a99f85797857f2496b1fc725d880ab3b6ce24248af97a7c390bd12bb08",
       "symbols": []
     },
     {
@@ -34334,7 +34334,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
       "lines": 171,
-      "sha256": "a4dfa4ba4668c817e3d181b60c72137b1f2c3cd3452ec3f483aabe2f00a282b2",
+      "sha256": "596c78b0e5bf3d1b46e29ef83cb44f2f08a76fc710ce63a059f719694d704ea7",
       "symbols": [
         {
           "name": "Cue",
@@ -42989,8 +42989,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
-      "lines": 130,
-      "sha256": "8681a5be30c3a18b93e0829b37b11bf6e13d740bd3abb04f63c0945a31d24579",
+      "lines": 142,
+      "sha256": "34b4100bfdf15b24d801128931e11d48d50dcf4297395467a346f4322cc08815",
       "symbols": [
         {
           "name": "CommitmentDecisionProtocolTest",

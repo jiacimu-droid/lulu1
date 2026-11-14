@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`55b73f298c732120bffb1b1e44f4e4da5743f30c`
+- 基准提交：`f433d4bb73d64815ffa970e2a593fc0b2fc02b92`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：277628
+- 已索引代码/文本行：277641
 - 已发现符号：3917
 
 | 文件 | 行数 | 符号数 |
@@ -548,7 +548,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 40 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 91 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 220 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 221 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 140 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
@@ -1069,7 +1069,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 526 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 88 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 130 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 572 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
