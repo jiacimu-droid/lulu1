@@ -16,6 +16,8 @@ import java.util.Locale
 internal object LuluShoppingLinkShare {
     private val copyLabels = setOf(
         "复制链接", "复制商品链接", "复制分享链接", "复制网址",
+        // Some marketplace share sheets use these explicit link-only labels.
+        "复制宝贝链接", "复制链接到剪贴板", "复制商品网址",
         "copy link", "copy product link", "copy url",
     )
 
@@ -87,14 +89,23 @@ internal object LuluShoppingLinkShare {
     suspend fun awaitFreshLink(
         context: Context, packageName: String, previousTimestamp: Long, tapStartedAt: Long,
     ): String? {
-        repeat(6) {
+        // On Android 10+ a fresh clipboard event can be visible before its
+        // text becomes readable (or the read may remain blocked by focus).
+        // Retry only the SAME verified event. A second clipboard update could
+        // belong to another app/user action and must never be forwarded.
+        var freshEventTimestamp: Long? = null
+        repeat(12) {
             delay(150)
             val timestamp = withContext(Dispatchers.Main) { clipboardTimestamp(context) }
-            if (freshCopyEvent(previousTimestamp, tapStartedAt, timestamp)) {
-                val freshText = withContext(Dispatchers.Main) { clipboardText(context) }
+            if (!freshCopyEvent(previousTimestamp, tapStartedAt, timestamp)) return@repeat
+            if (freshEventTimestamp != null && freshEventTimestamp != timestamp) return null
+            freshEventTimestamp = timestamp
+            val freshText = withContext(Dispatchers.Main) { clipboardText(context) }
+            if (!freshText.isNullOrBlank()) {
                 return verifiedChangedLink(packageName, null, freshText)
             }
         }
+        // No validated merchant link; do not reuse old clipboard data.
         return null
     }
 }
