@@ -21,10 +21,30 @@ class RelicQuickActionTest {
             original.copy(hero = original.hero.copy(x = chest.x, y = chest.y)))
         val quick = relicQuickAction(nearby, chest.x to chest.y)!!
         assertEquals("open", quick.action)
-        val opened = RelicEscapeRules.act(nearby, quick.action, quick.x, quick.y, quick.id)
-        assertTrue(opened.chests.first { it.id == chest.id }.opened)
-        assertTrue(opened.hero.bag.any { it.id == nearby.id + ":chest:" + chest.id })
-        assertNotEquals("open", relicQuickAction(opened, chest.x to chest.y)?.action)
+        var current=nearby
+        repeat(RelicEscapeRules.openSteps(chest)-1) { press ->
+            assertEquals("pry",RelicChestPresentation.playerAction(
+                current,quick.action,quick.x,quick.y))
+            val advanced=RelicEscapeRules.act(current,
+                RelicChestPresentation.playerAction(current,quick.action,quick.x,quick.y),
+                quick.x,quick.y,quick.id)
+            assertEquals(current.turns+1,advanced.turns)
+            assertFalse(advanced.chests.first { it.id==chest.id }.opened)
+            assertEquals(press+1,advanced.chestProgress[chest.id])
+            assertFalse(advanced.hero.bag.any { it.id==nearby.id+":chest:"+chest.id })
+            current=advanced
+        }
+        assertEquals("open",RelicChestPresentation.playerAction(
+            current,quick.action,quick.x,quick.y))
+        val opened=RelicEscapeRules.act(current,
+            RelicChestPresentation.playerAction(current,quick.action,quick.x,quick.y),
+            quick.x,quick.y,quick.id)
+        assertTrue(opened.chests.first { it.id==chest.id }.opened)
+        assertTrue(opened.hero.bag.any { it.id==nearby.id+":chest:"+chest.id })
+        assertNotEquals("open",relicQuickAction(opened,chest.x to chest.y)?.action)
+        assertEquals("open",RelicChestPresentation.playerAction(opened,
+            "open",chest.x,chest.y))
+        assertEquals(opened.turns,RelicEscapeRules.act(opened,"open",chest.x,chest.y).turns)
     }
 
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
@@ -94,9 +114,24 @@ class RelicQuickActionTest {
         assertEquals("open", quick.action)
         assertEquals(chest.x, quick.x)
         assertEquals(chest.y, quick.y)
-        val opened = RelicEscapeRules.act(adjacent, quick.action, quick.x, quick.y)
-        assertTrue(opened.chests.first { it.id == chest.id }.opened)
-        assertNotEquals("open", relicNearbyAction(opened, 1 to 0)?.action)
+        val first=RelicEscapeRules.act(adjacent,
+            RelicChestPresentation.playerAction(adjacent,quick.action,quick.x,quick.y),
+            quick.x,quick.y)
+        assertFalse(first.chests.first { it.id==chest.id }.opened)
+        assertEquals(1,first.chestProgress[chest.id])
+        // D-pad continues to select the same physical chest from the adjacent tile.
+        assertEquals(chest.id,first.chests.first { it.id==chest.id }.id)
+        assertEquals("open",relicNearbyAction(first,1 to 0)?.action)
+        var current=first
+        repeat(RelicEscapeRules.openSteps(chest)-1) {
+            val nearbyAction=relicNearbyAction(current,1 to 0)!!
+            current=RelicEscapeRules.act(current,
+                RelicChestPresentation.playerAction(
+                    current,nearbyAction.action,nearbyAction.x,nearbyAction.y),
+                nearbyAction.x,nearbyAction.y)
+        }
+        assertTrue(current.chests.first { it.id==chest.id }.opened)
+        assertNotEquals("open",relicNearbyAction(current,1 to 0)?.action)
     }
 
     @Test fun contextInteractionNeverAutoAttacksEnemyOrActsThroughFog() {
