@@ -536,13 +536,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     Column(
         Modifier.fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF123C43), Color(0xFF102931), Color(0xFF101C26))))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
+                Text("方块小岛", fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
                 Text("砍树挖矿 · 建房搭桥 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
             }
             TextButton(onClick = { showIslandGuideDialog=true }) {
@@ -553,21 +552,21 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color = Color(0xFFEBFBEC), fontSize = 12.sp)
             }
         }
-        Column(verticalArrangement=Arrangement.spacedBy(2.dp)) {
-            listOf("地图","行囊","伙伴","图鉴","设置").chunked(3).forEach { sections ->
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-                    sections.forEach { section ->
-                        FilterChip(selected=menuSection==section,onClick={menuSection=section},
-                            label={Text(section,fontSize=11.sp)},
-                            colors=FilterChipDefaults.filterChipColors(
-                                selectedContainerColor=Color(0xFFA9E5BD),
-                                selectedLabelColor=Color(0xFF12342D),
-                                labelColor=Color(0xFFD0E8DB)),
-                            modifier=Modifier.height(34.dp))
-                    }
-                }
+        // Navigation stays visible while large inventories, maps or animal records scroll.
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+            listOf("地图","行囊","伙伴","图鉴","设置").forEach { section ->
+                FilterChip(selected=menuSection==section,onClick={menuSection=section},
+                    label={Text(section,fontSize=11.sp,maxLines=1)},
+                    colors=FilterChipDefaults.filterChipColors(
+                        selectedContainerColor=Color(0xFFA9E5BD),
+                        selectedLabelColor=Color(0xFF12342D),
+                        labelColor=Color(0xFFD0E8DB)),
+                    modifier=Modifier.height(34.dp).widthIn(min=61.dp))
             }
         }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            verticalArrangement=Arrangement.spacedBy(10.dp)) {
         if (menuSection=="地图" || menuSection=="行囊") {
         if (menuSection == "地图") Surface(shape = RoundedCornerShape(16.dp),
             color = Color(0xFF1C4445),
@@ -819,9 +818,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         }
         Text("创建新岛屿会清空当前家园，记录旅程不会清空。",
-            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
             fontSize = 10.sp, color = Color(0xFF9AC0BA))
         }
+        } // End of current island section; navigation stays fixed above it.
     }
 
         },
