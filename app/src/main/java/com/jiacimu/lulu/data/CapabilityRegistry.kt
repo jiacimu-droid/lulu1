@@ -71,9 +71,11 @@ object CapabilityRegistry {
             else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (userRequested) return true
-        // The screen grant is now the ONE owner toggle for all autonomous
-        // phone/device/cloud tools, including alarms, media and observation.
-        return com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
+        val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        // Media playback inspection belongs to the media grant, not virtual-screen access.
+        if (capability.name == "list_media_sessions" &&
+            prefs.getBoolean("$characterId:media", false)) return true
+        return prefs.getBoolean("$characterId:${capability.permission}", false)
     }
 
     /**
