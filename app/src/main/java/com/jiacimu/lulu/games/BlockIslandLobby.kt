@@ -104,7 +104,7 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                     horizontalArrangement=Arrangement.spacedBy(10.dp),
                     verticalAlignment=Alignment.CenterVertically) {
                     GameLobbyPartySlot(playerAvatar,playerName,"你 · 岛主",true,mint,
-                        compact=compactLobby)
+                        compact=compactLobby,islandStyle=true)
                     selected.forEach { id ->
                         characters[id]?.let { c ->
                             GameLobbyPartySlot(c.avatarUri,c.displayName.take(1),c.displayName,
@@ -112,10 +112,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                                 onRemove={
                                     selected = selected - id
                                     GameInvitationContinuity.recordPartyLeft(context, id, "block_island", lobbySessionId)
-                                },compact=compactLobby)
+                                },compact=compactLobby,islandStyle=true)
                         }
                     }
-                    if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null,compact=compactLobby) {
+                    if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null,
+                        compact=compactLobby,islandStyle=true) {
                         choosing=!choosing
                     }
                 }
