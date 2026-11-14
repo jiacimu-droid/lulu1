@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T23:45:18.393601+00:00",
-  "commit": "812684339652b03c93457c1719a4a9386b41e6c6",
+  "generatedAt": "2026-11-14T23:45:52.369299+00:00",
+  "commit": "fc08448429264b8f88dfc564319de932558235af",
   "branch": "main",
-  "sourceFingerprint": "f805f5beb21a9b84e1669ccfd4d7599f7228b3596eb4fe09cbe8e65acb9acdcb",
+  "sourceFingerprint": "1516f31ae033581573fb2d6e3e5738544260e52a15d2554a2a6f060db6d4f2f5",
   "summary": {
-    "files": 1322,
-    "lines": 280205,
-    "symbols": 3945
+    "files": 1323,
+    "lines": 280295,
+    "symbols": 3946
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20598,6 +20598,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt",
         "line": 10
+      }
+    ],
+    "ProactiveIncomingCallHistoryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt",
+        "line": 16
       }
     ],
     "ProactiveMessageGateTest": [
@@ -44524,6 +44530,17 @@
         {
           "name": "PrivateChatModelFailurePolicyTest",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt",
+      "lines": 90,
+      "sha256": "a7be9f82fc443745e52f217126488b9bf160a0cb2e1d9c5d26a98c1e44010f63",
+      "symbols": [
+        {
+          "name": "ProactiveIncomingCallHistoryTest",
+          "line": 16
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`812684339652b03c93457c1719a4a9386b41e6c6`
+- 基准提交：`fc08448429264b8f88dfc564319de932558235af`
 - 分支：`main`
-- 已索引文件：1322
-- 已索引代码/文本行：280205
-- 已发现符号：3945
+- 已索引文件：1323
+- 已索引代码/文本行：280295
+- 已发现符号：3946
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1157,6 +1157,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 335 | 1 |
