@@ -483,6 +483,91 @@ class LuluAccessibilityService : AccessibilityService() {
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
 
+        /** An explicit, owner-authorized WeChat send is a separate atomic
+         * action, never a search Enter or a generic permissive tap. This makes
+         * ONE attempt after verifying the actual conversation and readback.
+         * ACTION_CLICK acceptance does not establish server delivery. */
+        fun sendVirtualChatMessage(
+            displayId: Int, packageName: String, recipient: String, message: String,
+            expectedFingerprint: String, stillAuthorized: () -> Boolean,
+        ): JSONObject {
+            fun denied(reason: String): JSONObject = JSONObject()
+                .put("accepted", false).put("messageSendClicked", false)
+                .put("errorCode", reason).put("taskCompleted", false)
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+                !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
+                !LuluVirtualChatSendPolicy.validMessage(message) || !stillAuthorized())
+                return denied("chat_send_not_authorized")
+            val service = instance ?: return denied("accessibility_disconnected")
+            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return denied("chat_window_unverified")
+            val nodes = virtualUiNodes(service, displayId, packageName)
+            if (expectedFingerprint.isBlank() ||
+                virtualUiFingerprint(displayId, packageName, nodes) != expectedFingerprint)
+                return denied("chat_snapshot_expired")
+            val dimensions = virtualDimensions(service, displayId)
+                ?: return denied("chat_display_unavailable")
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            fun uniqueRecipientInHeader(): Boolean {
+                var count = 0
+                var visited = 0
+                fun visit(node: AccessibilityNodeInfo, depth: Int) {
+                    if (depth > 24 || visited++ > 460 || !node.isVisibleToUser ||
+                        node.isPassword) return
+                    val bounds = Rect().also(node::getBoundsInScreen)
+                    if (bounds.top >= 0 && bounds.top < dimensions.second * 3 / 10 &&
+                        !node.isEditable && node.text?.toString()?.trim() == recipient) count++
+                    for (i in 0 until node.childCount) {
+                        node.getChild(i)?.let { visit(it, depth + 1) }
+                    }
+                }
+                roots.forEach { visit(it, 0) }
+                return count == 1
+            }
+            if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
+            val editors = roots.flatMap(::visibleEditors)
+            if (editors.size != 1) return denied("chat_editor_ambiguous")
+            val editor = editors.single()
+            if (!LuluVirtualChatSendPolicy.chatEditorCandidate(
+                    editor.className?.toString(), editor.hintText?.toString(),
+                    editor.viewIdResourceName) ||
+                !safeEditable(editor)) return denied("chat_editor_unverified")
+            val input = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, message)
+            }
+            if (!editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
+                return denied("chat_input_rejected")
+            // A failed readback leaves only an unsent draft; never click Send.
+            if (!editor.refresh() || editor.text?.toString() != message)
+                return denied("chat_input_unverified")
+                    .put("messageInputReadbackVerified", false)
+            if (!stillAuthorized() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                !uniqueRecipientInHeader())
+                return denied("chat_changed_before_send")
+                    .put("messageInputReadbackVerified", true)
+            // The Send control can appear only AFTER text was entered. Locate
+            // it again in the real app, not by stale reference or coordinate.
+            val fresh = virtualUiNodes(service, displayId, packageName)
+            val buttons = fresh.filter {
+                it.node.isClickable && !it.node.isPassword &&
+                    it.bounds.centerY() > dimensions.second / 2 &&
+                    LuluVirtualChatSendPolicy.sendButton(it.label, it.resourceId)
+            }
+            if (buttons.size != 1) return denied("chat_send_button_ambiguous")
+                .put("messageInputReadbackVerified", true)
+            // Do not retry a click whose outcome is uncertain.
+            val clicked = buttons.single().node.performAction(
+                AccessibilityNodeInfo.ACTION_CLICK)
+            return JSONObject().put("accepted", clicked)
+                .put("messageInputReadbackVerified", true)
+                .put("chatRecipientVerified", true)
+                .put("messageSendClicked", clicked)
+                .put("messageDeliveryVerified", false)
+                .put("taskCompleted", false)
+                .put("errorCode", if (clicked) "" else "chat_send_click_unverified")
+        }
+
         /** Mika-style target discovery based on the verified virtual app.
          * Only editor metadata/geometry, never entered text or display 0. */
         fun virtualSearchFieldStatus(displayId: Int, packageName: String): JSONObject {
