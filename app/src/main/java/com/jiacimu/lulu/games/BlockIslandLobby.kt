@@ -109,7 +109,10 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
                         characters[id]?.let { c ->
                             GameLobbyPartySlot(c.avatarUri,c.displayName.take(1),c.displayName,
                                 false,mint,allowRemove=inviting==null,
-                                onRemove={selected=selected-id},compact=compactLobby)
+                                onRemove={
+                                    selected = selected - id
+                                    GameInvitationContinuity.recordPartyLeft(context, id, "block_island", lobbySessionId)
+                                },compact=compactLobby)
                         }
                     }
                     if(selected.size<3) GameLobbyInviteSlot(mint,inviting==null,compact=compactLobby) {
