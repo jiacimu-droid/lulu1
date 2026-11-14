@@ -29,11 +29,25 @@ internal object ResidentDailyRoutine {
             ?.consumeActivity
     }
 
-    private fun dutyPlace(person: DigitalWorldResident): String = when (person.templateName) {
-        "苏弦" -> DigitalWorldPublicPlaces.GAME_HALL
-        "闻澜", "弥砂", "椿铃", "南汐", "迟墨", "洛芽",
-        "栖迟", "青禾", "言溪", "岚序", "照野" -> DigitalWorldPublicPlaces.COURTYARD
+    private fun dutyPlace(person: DigitalWorldResident): String = when {
+        person.templateName == "苏弦" && person.identity == "活动与游戏协助员" ->
+            DigitalWorldPublicPlaces.GAME_HALL
+        person.templateName == "青禾" && person.identity == "游戏馆机台管理员" ->
+            DigitalWorldPublicPlaces.GAME_HALL
+        person.templateName in setOf("闻澜", "弥砂", "椿铃", "南汐", "迟墨", "洛芽",
+            "栖迟", "言溪", "岚序", "照野") -> DigitalWorldPublicPlaces.COURTYARD
         else -> person.neighborhoodCode
+    }
+
+    /** A job identifies work that can be observed, not a fictional completed repair. */
+    private fun shiftActivity(person: DigitalWorldResident): String = when {
+        person.templateName == "青禾" && person.identity == "游戏馆机台管理员" ->
+            "照看游戏馆机台、核对设备状态与玩法说明；未实际开局就没有成绩"
+        person.templateName == "苏弦" && person.identity == "活动与游戏协助员" ->
+            "组织游戏馆活动、向到场玩家介绍游戏；不虚构玩家和比赛结果"
+        person.templateName == "闻澜" && person.identity == "公共区域维护员" ->
+            "检查庭院座椅与照明状况；实际维修须另有执行证据"
+        else -> "履行${person.identity}的日常职责"
     }
 
     fun plan(person: DigitalWorldResident, at: Instant,
@@ -82,12 +96,15 @@ internal object ResidentDailyRoutine {
         // resident breaks remain staggered without simulating extra dialogue.
         return when {
             minute < 8 * 60 -> Plan("night", person.homeLocationCode, "在家休息")
-            minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), "履行${person.identity}的日常职责")
+            minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), shiftActivity(person))
             minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
-            minute < 18 * 60 -> Plan("afternoon", dutyPlace(person), "继续完成${person.identity}的工作")
+            minute < 18 * 60 -> Plan("afternoon", dutyPlace(person), shiftActivity(person))
             minute < 19 * 60 + offset -> Plan("evening", eveningPlace,
                 "进入下班后的自由活动时段", intendedActivity = eveningActivity)
-            else -> Plan("home", person.homeLocationCode, "回家休息")
+            else -> Plan("home", if (person.currentLocationCode.startsWith("home:") ||
+                person.currentLocationCode.startsWith("resident-home:"))
+                person.currentLocationCode else person.homeLocationCode,
+                "结束当日工作；在真实所在住宅休息，不能把休眠等同于瞬移")
         }
     }
 
