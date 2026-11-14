@@ -447,4 +447,29 @@ class RelicQuickActionTest {
         assertEquals("attack", relicQuickAction(RelicEscapeRules.reveal(field),
             enemy.x to enemy.y)?.action)
     }
+
+    @Test fun implicitAttackCursorFollowsOnlyCommittedHeroMovement() {
+        val base = run()
+        val h = base.hero
+        val start = h.x to h.y
+        val next = h.x + 1 to h.y
+        val far = h.x + 2 to h.y
+        assertEquals(next, relicSelectionAfterMove(start, start, next))
+        assertEquals(far, relicSelectionAfterMove(far, start, next))
+        assertEquals(start, relicSelectionAfterMove(start, start, start))
+
+        // A successful physical move leaves the player able to use nearby attack
+        // without selecting the new hero tile manually.
+        val scene = RelicEscapeRules.reveal(base.copy(
+            tiles = List(base.w * base.h) { 0 },
+            chests = emptyList(), sites = emptyList(), mobs = emptyList(),
+            seen = (0 until base.w * base.h).toSet()))
+        val moved = RelicEscapeRules.act(scene, "move", next.first, next.second)
+        assertEquals(next, moved.hero.x to moved.hero.y)
+        val cursor = relicSelectionAfterMove(start, start, moved.hero.x to moved.hero.y)
+        val enemy = RelicMob(986, moved.hero.x + 1, moved.hero.y, 5, 0)
+        val encounter = RelicEscapeRules.reveal(moved.copy(mobs = listOf(enemy)))
+        assertEquals(enemy.id, relicAttackTarget(encounter, cursor)?.id)
+        assertNull(relicAttackTarget(encounter, start))
+    }
 }
