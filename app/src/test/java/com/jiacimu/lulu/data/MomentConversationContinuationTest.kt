@@ -53,6 +53,36 @@ class MomentConversationContinuationTest {
                 target?.let { put("replyToCommentId", it) }
             }, requestId = request))
 
+    @Test fun everydaySocialDecisionKeepsVisibleCommentIdsAfterReadAndRevokesOnUnfriend() = runBlocking {
+        val author = role()
+        val reader = role()
+        val outsider = role()
+        assertTrue(MomentFriendAccess.setFriends(author, reader, true))
+        val original = post(author)
+        val comment = speak(reader, original.id, "这段结尾很意外")
+        assertTrue(comment.toString(), comment.optBoolean("success"))
+        val commentId = live(original.id).comments.single().id
+
+        // Reading the post must not erase its conversation from the next
+        // normal resident/character life decision. No new model request or
+        // future calendar slot is needed for a voluntary follow-up.
+        assertTrue(CharacterPhoneInbox.acknowledge(reader, listOf(original.id)))
+        assertTrue(CharacterPhoneInbox.unreadMoments(reader).none { it.id == original.id })
+        val nextDecision = CharacterEverydaySocialContext.render(
+            reader, java.time.Instant.now(), emptyList())
+        assertTrue(nextDecision.contains("postId=${original.id}"))
+        assertTrue(nextDecision.contains("commentId=$commentId"))
+        assertTrue(nextDecision.contains("replyToCommentId"))
+
+        // The same actual thread must not leak to someone without the
+        // author's current feed permission, including after friendship ends.
+        assertFalse(CharacterEverydaySocialContext.render(
+            outsider, java.time.Instant.now(), emptyList()).contains("postId=${original.id}"))
+        assertTrue(MomentFriendAccess.setFriends(author, reader, false))
+        assertFalse(CharacterEverydaySocialContext.render(
+            reader, java.time.Instant.now(), emptyList()).contains("postId=${original.id}"))
+    }
+
     @Test fun ownerPostReplyReminderSurvivesReloadReplayAndStaleAcknowledgement() = runBlocking {
         val actor = role()
         MomentsStore.markVisiblePostsSeen(MomentsStore.posts.value)
