@@ -132,17 +132,17 @@ internal object AutonomousDuelGames {
             it.optString("status") in setOf("preparing", "pending", "accepted") }
         return buildString {
             appendLine("【游戏馆真人物对抗｜是否邀请、接受或拒绝完全由本人决定】")
-            appendLine("可邀真正认识的数字人物：\${ResidentSocialMailbox.visibleContacts(role).joinToString("、") { "\$it=\${MigratedDomainStores.characters.get(it).displayName}" }.ifBlank { "当前没有可邀请的熟人" }}")
+            appendLine("可邀真正认识的数字人物：${ResidentSocialMailbox.visibleContacts(role).joinToString("、") { "$it=${MigratedDomainStores.characters.get(it).displayName}" }.ifBlank { "当前没有可邀请的熟人" }}")
             if (pending.isNotEmpty()) {
                 appendLine("本人收到尚未回答的对局邀请：")
                 pending.forEach { invite ->
-                    appendLine("- challengeId=\${invite.id}；游戏=\${AutonomousDuelRules.games[invite.gameId]}；邀请者=\${invite.from}；原话=\${invite.text.take(120)}")
+                    appendLine("- challengeId=${invite.id}；游戏=${AutonomousDuelRules.games[invite.gameId]}；邀请者=${invite.from}；原话=${invite.text.take(120)}")
                 }
             }
             if (outgoing.isNotEmpty()) {
                 appendLine("本人已发出、尚未结算的邀请：")
                 outgoing.takeLast(5).forEach {
-                    appendLine("- challengeId=\${it.optString("id")}；收件人=\${it.optString("to")}；状态=\${it.optString("status")}")
+                    appendLine("- challengeId=${it.optString("id")}；收件人=${it.optString("to")}；状态=${it.optString("status")}")
                 }
             }
             append("邀请送达不是应邀；对方明确接受后才开始同一局真实游戏，结束后双方各自得知胜负和成绩。")
@@ -173,7 +173,7 @@ internal object AutonomousDuelGames {
             // Same durable character↔character QQ mailbox and its wake/observations.
             // Never create a fake owner-chat invitation or speak for the recipient.
             ResidentSocialMailbox.send(from, to,
-                "[游戏馆邀约|\$id|\$gameId] \${text.trim().take(240)}",
+                "[游戏馆邀约|$id|$gameId] ${text.trim().take(240)}",
                 at = now)
         } catch (error: Exception) {
             row.put("status", "delivery_failed")
@@ -205,7 +205,7 @@ internal object AutonomousDuelGames {
         if (decision == "decline") {
             row.put("status", "declined")
             commit(context, all)
-            val summary = "\${MigratedDomainStores.characters.get(role).displayName}拒绝了《\${AutonomousDuelRules.games[gameId]}》邀约；没有开局。"
+            val summary = "${MigratedDomainStores.characters.get(role).displayName}拒绝了《${AutonomousDuelRules.games[gameId]}》邀约；没有开局。"
             recordOutcome(id, listOf(from, role), summary, now, "duel-invite")
             return summary
         }
@@ -218,13 +218,13 @@ internal object AutonomousDuelGames {
         val names = actors.map { MigratedDomainStores.characters.get(it).displayName }
         val title = requireNotNull(AutonomousDuelRules.games[gameId])
         val outcome = when {
-            match.points[0] > match.points[1] -> "胜者：\${names[0]}"
-            match.points[1] > match.points[0] -> "胜者：\${names[1]}"
+            match.points[0] > match.points[1] -> "胜者：${names[0]}"
+            match.points[1] > match.points[0] -> "胜者：${names[1]}"
             else -> "平局"
         }
         val units = if (gameId == "memory_match") "对" else "分"
-        val summary = "\${names[0]} \${match.points[0]}\$units，\${names[1]} \${match.points[1]}\$units；\$outcome。" +
-            if (gameId == "memory_match") "全场\${match.turns}次翻牌回合，12对全部找齐。"
+        val summary = "${names[0]} ${match.points[0]}$units，${names[1]} ${match.points[1]}$units；$outcome。" +
+            if (gameId == "memory_match") "全场${match.turns}次翻牌回合，12对全部找齐。"
             else "双方各完成13轮计分。"
         LuluGames.initialize(context)
         actors.forEachIndexed { i, actor ->
@@ -241,7 +241,7 @@ internal object AutonomousDuelGames {
                 if (gameId == "memory_match") LuluGameType.MemoryMatch else LuluGameType.YachtDice,
                 title, match.points[i], 0, summary, details.toString(),
                 characterIdOverride = actor, playedWithCharacterOverride = false,
-                recordIdOverride = "duel-\$id-\$actor")
+                recordIdOverride = "duel-$id-$actor")
         }
         recordOutcome(id, actors, summary, now, "duel-game")
         row.put("status", "finished").put("result", summary)
@@ -253,7 +253,7 @@ internal object AutonomousDuelGames {
         now: Instant, source: String) {
         actors.forEach { actor ->
             SharedExperienceTimeline.record(
-                eventId = "\$source-\$id-\$actor", characterId = actor,
+                eventId = "$source-$id-$actor", characterId = actor,
                 channel = "游戏馆人物对战", speaker = "游戏馆",
                 content = summary, source = source,
                 occurredAt = now, evidenceKind = EventEvidenceKind.ToolResult,
