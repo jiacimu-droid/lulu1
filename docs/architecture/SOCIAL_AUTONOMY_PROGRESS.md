@@ -1,5 +1,11 @@
 # 自主社交专项进度
 
+## 2026-11-14 S-01 · 朋友圈讨论见证门禁复核（源码/测试已修，CI/真机待验）
+- **根因**：上一轮 `e5abcd8` 虽然使用 `MomentFriendAccess.visiblePosts` 保障好友权限，但把「能看到」错误提升成「本人已经看过」；普通日常感知可能预先得知其他人的未读讨论。
+- **生产修复**：[89819f6](https://github.com/jiacimu-droid/lulu1/commit/89819f6532a4d95343b06199b4b7184af068fc81) 现在仅让本人原创帖、本人确实通过 `moment:phone-read` 读过的帖、或本人留有原始评论行动证据的帖进入旧话题上下文；仍以当前好友 ACL 严格过滤，被删除/撤权的时间线证据不再成为知情凭据。此门禁只筛选上下文，不自动发布、不限制 `steps` 多动作、不更改日程额度、不额外唤醒和收费。后继 [bfee6e5](https://github.com/jiacimu-droid/lulu1/commit/bfee6e51b917fec9ea4a53f40e7713a1f18e2bb0) 只在近期 24 条真实活跃讨论里批量查证，避免多年帖子导致每次感知无界扫描证据；全部历史与真实评论仍保留在原 Store。
+- **回归**：[74b1c6e](https://github.com/jiacimu-droid/lulu1/commit/74b1c6e65b0ea789c25de54695a475b136691fee) 验同一作者的已确认好友尚未读帖时不知评论、本人原创评论者可继续接话、手机真实已读后可接话、陌生人与取消好友不可见，同时重置 Robolectric `CharacterPhoneInbox` 静态 prefs 防止跨测试应用引用旧文件。
+- **验收限制**：最新 main 自动代码索引已超过上述源码/测试提交（当前检索基准 `4fddd88`），但 GitHub 连接器的 commit-workflow 查询只返回 PR 触发，未获得这组提交对应的 push JVM/APK 终态或 Android 真机与真实模型证据。旧失败工单 #1004 的 `02bd0f8` 日志首错是 `PhoneInspectionProjectionTest.savedPrivateOwnerRemarkOverridesLegacyContactNameInPhoneAndThreads`，不属于本轮朋友圈修复，不据旧红灯判定本轮失败。下一轮直接核真实 push CI + 本用例，真机复核实际角色连续评论的对象/回执/费用与未读保留。
+
 ## 2026-11-14 S-01 · 已读朋友圈讨论在下一次自然决策中可继续（源码/回归已提交，真机待验）
 - **反馈与根因**：主人认可原有「少量正式行程 + 一次醒来可自主做多项即时互动」的自然社交体验。现有居民每日决定/到点/通知已有 `steps` 和独立 ToolRouter 回执，不改为固定轮换或强制额外模型调用；但 `CharacterEverydaySocialContext` 原仅提供本人最近发帖，已经读过的朋友帖在手机未读游标前进后，下一次日常决策不一定能再次拿到可回复的 `commentId`，容易让真实讨论断线。
 - **源码**：[e5abcd8](https://github.com/jiacimu-droid/lulu1/commit/e5abcd842764edb1916c44325325041a3a6a8cd3) 在角色/居民共用的日常社交上下文里只读投影最多三条仍有权限的近期评论帖、每帖最多四条真实评论（`postId/commentId/replyToCommentId`），支持本人继续旧话题或顺手评论，不新增任务槽、自动回复、发帖/唤醒或 API 请求；好友解除、帖文删除立即按现有 `visiblePosts` 权限移除投影。
