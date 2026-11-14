@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:13:00.918453+00:00",
-  "commit": "e24e5d58a8d789ed32500840e85710de6fbf7eb0",
+  "generatedAt": "2026-11-14T16:13:52.694638+00:00",
+  "commit": "c84ce4a838ac42afca38e5d34df1f063ca1bfd59",
   "branch": "main",
-  "sourceFingerprint": "03bb9aeae52743f4e8764c64a39b08c44d214149ddf95e1cb51d00754eca3b9c",
+  "sourceFingerprint": "3ea92a08de3168581e07c0418f1f5821979a89d8be6a9a877e6e7eb094347014",
   "summary": {
     "files": 1322,
-    "lines": 279775,
+    "lines": 279785,
     "symbols": 3943
   },
   "symbolIndex": {
@@ -20501,7 +20501,7 @@
     "OnlineContinuationPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "OnlineExpiryUnfinishedWorkTest": [
@@ -21601,7 +21601,7 @@
     "RelicQuickActionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "RelicRevealTimelineContinuityTest": [
@@ -44344,12 +44344,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
-      "lines": 128,
-      "sha256": "9d5e63617399386118aef989a58b585db676391ea63561eb763bb0ac701bd949",
+      "lines": 133,
+      "sha256": "e10739e1845ea8e292a25603dd12879b7c252b8ffce267f12b52ab42064bb4d6",
       "symbols": [
         {
           "name": "OnlineContinuationPolicyTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
@@ -46044,12 +46044,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 329,
-      "sha256": "bc57abdb5aa1c43b827fb3f3ab50eef69ed3bc13ddec864fedcd81e5e9c6662c",
+      "lines": 334,
+      "sha256": "551c0575dbbe0960ba2156d1137d9be12d0e86cdd769d731c8a1d97cd2b189b6",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
