@@ -74,6 +74,28 @@ class PhoneInspectionProjectionTest {
             .single { it.key == "chat:owner-a" }.title)
     }
 
+    @Test fun inspectedPhoneUsesOwnerSavedAvatarOnlyForOwnerPrivateChat() {
+        val ownerThread = inspectedThreads("a", chats, nativeMail, mapOf("resident:one" to "阿一"))
+            .single { it.key == "chat:owner-a" }
+        val groupThread = inspectedThreads("a", chats, nativeMail, emptyMap())
+            .single { it.key == "chat:group" }
+        val residentThread = inspectedThreads("a", chats, nativeMail, emptyMap())
+            .single { it.key == "mail:resident:one" }
+
+        assertEquals("content://owner/new-photo", inspectedThreadAvatarUri(
+            ownerThread, "content://owner/new-photo", "content://character/other",
+            "content://group/photo"))
+        assertEquals("content://group/photo", inspectedThreadAvatarUri(
+            groupThread, "content://owner/new-photo", "content://character/other",
+            "content://group/photo"))
+        assertEquals("content://resident/photo", inspectedThreadAvatarUri(
+            residentThread, "content://owner/new-photo", "content://resident/photo", null))
+        // Reprojection after a profile change never relies on a cached role avatar.
+        assertEquals("content://owner/next-photo", inspectedThreadAvatarUri(
+            ownerThread, "content://owner/next-photo", null, null))
+        assertEquals(null, inspectedThreadAvatarUri(ownerThread, null, null, null))
+    }
+
     @Test fun onlyActualGroupAuthorCountsAsSelf() {
         val group = chats.last()
         val fromB = LuluChatMessage(conversationId = group.id,
