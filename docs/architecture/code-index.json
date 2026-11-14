@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T10:51:04.758222+00:00",
-  "commit": "fe7fc9b292d93d410421f0a12286436d9f81184a",
+  "generatedAt": "2026-11-14T10:55:27.122549+00:00",
+  "commit": "2012e43ae23d50c166d2c1e99c37ae19c3861219",
   "branch": "main",
-  "sourceFingerprint": "a7652ce7ce71f936607853021c28b4223008ed9b8edf9ce5b5efa226c075269d",
+  "sourceFingerprint": "f769640acdab1c78d5ccd2ece444e635a8223ce3bedf7cb3e109d9b495415fa2",
   "summary": {
     "files": 1313,
-    "lines": 277994,
-    "symbols": 3920
+    "lines": 278014,
+    "symbols": 3923
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 72
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 65
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 216
+        "line": 218
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 505
+        "line": 507
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -702,46 +702,64 @@
         "line": 11
       }
     ],
-    "elevenInputPath": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 20
-      }
-    ],
     "elevenSttModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 26
+        "line": 29
       }
     ],
-    "canSwitchSttNow": [
+    "elevenSttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 30
+        "line": 33
       }
     ],
-    "resolveSttEngine": [
+    "isElevenRealtime": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 35
+      }
+    ],
+    "realtimeCommitStrategy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 37
+      }
+    ],
+    "elevenInputPath": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
         "line": 40
       }
     ],
+    "canSwitchSttNow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 46
+      }
+    ],
+    "resolveSttEngine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 56
+      }
+    ],
     "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 41
+        "line": 57
       }
     ],
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 45
+        "line": 61
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 52
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
@@ -779,19 +797,19 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 53
+        "line": 69
       }
     ],
     "sttPreflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 59
+        "line": 75
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 77
+        "line": 93
       }
     ],
     "CharacterMemoryFeatureScreen": [
@@ -1729,31 +1747,31 @@
     "sentAudioMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "sentKeepaliveMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 65
+        "line": 66
       }
     ],
     "audioFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 174
+        "line": 176
       }
     ],
     "acceptPartial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 232
+        "line": 234
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 238
+        "line": 240
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -1767,7 +1785,7 @@
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 240
+        "line": 242
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
@@ -1781,13 +1799,13 @@
     "pendingCommittedText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 246
+        "line": 248
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 248
+        "line": 250
       }
     ],
     "close": [
@@ -3907,27 +3925,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 297
+        "line": 299
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 320
+        "line": 322
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 372
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 419
+        "line": 421
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 461
+        "line": 463
       }
     ],
     "payload": [
@@ -22545,8 +22563,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 90,
-      "sha256": "f0d2d830746a47963828b575dd82628eca4b49dd2989b2630219fa43ab1fc4ca",
+      "lines": 106,
+      "sha256": "ce631bc495b749a17f844fc5a73dc56f660da54171c15b4e55830a79145e5769",
       "symbols": [
         {
           "name": "provider",
@@ -22557,44 +22575,56 @@
           "line": 11
         },
         {
-          "name": "elevenInputPath",
-          "line": 20
-        },
-        {
           "name": "elevenSttModel",
-          "line": 26
+          "line": 29
         },
         {
-          "name": "canSwitchSttNow",
-          "line": 30
+          "name": "elevenSttLabel",
+          "line": 33
         },
         {
-          "name": "resolveSttEngine",
+          "name": "isElevenRealtime",
+          "line": 35
+        },
+        {
+          "name": "realtimeCommitStrategy",
+          "line": 37
+        },
+        {
+          "name": "elevenInputPath",
           "line": 40
         },
         {
+          "name": "canSwitchSttNow",
+          "line": 46
+        },
+        {
+          "name": "resolveSttEngine",
+          "line": 56
+        },
+        {
           "name": "sttEngine",
-          "line": 41
+          "line": 57
         },
         {
           "name": "sttLabel",
-          "line": 45
+          "line": 61
         },
         {
           "name": "label",
-          "line": 52
+          "line": 68
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 53
+          "line": 69
         },
         {
           "name": "sttPreflight",
-          "line": 59
+          "line": 75
         },
         {
           "name": "preflight",
-          "line": 77
+          "line": 93
         }
       ]
     },
@@ -23267,48 +23297,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 251,
-      "sha256": "cf12adfcd0fab88004d6657a564a7dca572fc2bc8ceb0805eef5a3c4ea4cb344",
+      "lines": 253,
+      "sha256": "4a6e58d1757c584f40d6e7e5d20cc13652acbbaaf49cbb2119c6d22df5c3261f",
       "symbols": [
         {
           "name": "sentAudioMillis",
-          "line": 63
+          "line": 64
         },
         {
           "name": "sentKeepaliveMillis",
-          "line": 65
+          "line": 66
         },
         {
           "name": "start",
-          "line": 72
+          "line": 73
         },
         {
           "name": "audioFrame",
-          "line": 174
+          "line": 176
         },
         {
           "name": "stop",
-          "line": 216
+          "line": 218
         },
         {
           "name": "acceptPartial",
-          "line": 232
+          "line": 234
         },
         {
           "name": "preview",
-          "line": 238
-        },
-        {
-          "name": "commit",
           "line": 240
         },
         {
+          "name": "commit",
+          "line": 242
+        },
+        {
           "name": "pendingCommittedText",
-          "line": 246
+          "line": 248
         },
         {
           "name": "takeFinal",
-          "line": 248
+          "line": 250
         }
       ]
     },
@@ -25169,36 +25199,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 529,
-      "sha256": "5601dc0b4b93590e69dc166ca034e9bf29a91dc8658ba038f00dc7da2d358fc1",
+      "lines": 531,
+      "sha256": "ec185786767f7ee6f326a424ed637d95fd38b1cdd18dd35fc5d5fbd55e7253c4",
       "symbols": [
         {
           "name": "start",
-          "line": 65
+          "line": 66
         },
         {
           "name": "pauseCapture",
-          "line": 297
+          "line": 299
         },
         {
           "name": "resumeCapture",
-          "line": 320
+          "line": 322
         },
         {
           "name": "field",
-          "line": 372
+          "line": 374
         },
         {
           "name": "field",
-          "line": 419
+          "line": 421
         },
         {
           "name": "field",
-          "line": 461
+          "line": 463
         },
         {
           "name": "stop",
-          "line": 505
+          "line": 507
         }
       ]
     },
