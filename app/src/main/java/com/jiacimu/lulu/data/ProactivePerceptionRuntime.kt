@@ -1019,6 +1019,8 @@ object ProactivePerceptionRuntime {
                 com.jiacimu.lulu.system.LuluStudyWatch.context(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(CharacterPerceptionContext.render(characterId, observedWorld))
+                runCatching { com.jiacimu.lulu.games.LuluGames.store.activeGameContext(characterId) }
+                    .getOrDefault("").takeIf(String::isNotBlank)?.let(::appendLine)
                 // One shared app tool, available to both active private chats
                 // and self-initiated life turns. Reading a link never sends it.
                 appendLine(XhsRoleShare.availableContext(characterId))
