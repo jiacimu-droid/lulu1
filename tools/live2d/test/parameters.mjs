@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import {
-  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissCameraHorizontalPosition,
+  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
+  KISS_HANDOFF_MS, kissCameraHorizontalPosition,
   kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
   KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
 } from '../src/kiss-camera.mjs'
@@ -170,6 +171,16 @@ assert.ok(rubLeft?.yaw > 1.0 && rubRight?.yaw < -1.0,
 assert.ok(Math.abs(rubLeft.roll) < 4 && Math.abs(rubRight.roll) < 4)
 assert.equal(kissNuzzleFrame(4000), null, 'nuzzle ends before slow withdrawal')
 assert.equal(kissNuzzleFrame(Number.NaN), null)
+const changingGestureZoom = kissCameraFrame(1750).zoom
+assert.equal(kissHandoffFrame(changingGestureZoom, 0).zoom, changingGestureZoom,
+  'a new chosen Motion3 cannot snap the kiss camera on its first frame')
+assert.ok(kissHandoffFrame(changingGestureZoom, 500).zoom > 1.4,
+  'the kiss still retreats visibly across low-FPS video frames')
+assert.ok(kissHandoffFrame(changingGestureZoom, 1100).zoom > 1 &&
+  kissHandoffFrame(changingGestureZoom, 1100).zoom < 1.3)
+assert.deepEqual(kissHandoffFrame(changingGestureZoom, KISS_HANDOFF_MS),
+  { zoom: 1, finished: true })
+assert.equal(kissHandoffFrame(1, Number.NaN).finished, true)
 assert.ok(Math.abs(kissCameraFrame(4449).zoom - 1) < .005,
   'camera must not cut back in its last rendered frame')
 
