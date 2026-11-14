@@ -63,8 +63,8 @@ internal object RelicTreasureGallery {
             "可在藏宝馆展出并分享；乐器互动功能仍待接入"
         else -> "可在藏宝馆展出、鉴赏并分享"
     }
-    /** A stable material accent for the item, shared by reveal and permanent gallery. */
-    fun accent(loot:RelicLoot):Color = when(RelicCollectibles.displayRank(loot)) {
+    /** One consistent material accent for the in-game legend and the real museum. */
+    fun rankAccent(rank:String):Color = when(rank) {
         "精良" -> Color(0xFFB6D9C8)
         "稀有" -> Color(0xFFB5D5E8)
         "珍贵" -> Color(0xFFE9D0A1)
@@ -73,6 +73,7 @@ internal object RelicTreasureGallery {
         "传世秘宝" -> Color(0xFFFFE4A3)
         else -> Color(0xFFC8C4B9)
     }
+    fun accent(loot:RelicLoot):Color=rankAccent(RelicCollectibles.displayRank(loot))
     fun shareText(loot:RelicLoot):String =
         "我在《迷雾摸金》带回了「${loot.name}」！\n"+
         identity(loot.name)+"\n"+
