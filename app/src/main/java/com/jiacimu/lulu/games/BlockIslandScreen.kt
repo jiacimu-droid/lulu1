@@ -283,6 +283,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         compactStatus = true,
         compactSummary = "❤ ${world.hp}/12 · 饱 ${island.hunger}/10",
         toolsLabel = "☰ 行囊 / 更多",
+        helpAction = { islandGuideTab = "入门"; showIslandGuideDialog = true },
         closeToolsSignal = dismissToolsVersion,
         notice = if (activeGuardian != null &&
             abs(activeGuardian.x - world.x) + abs(activeGuardian.y - world.y) <= 2 &&
