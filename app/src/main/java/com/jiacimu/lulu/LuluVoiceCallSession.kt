@@ -693,8 +693,16 @@ internal object LuluVoiceCallSession {
             SystemSpeechTurnPolicy.wordsToSubmitOnMute(systemUtteranceBuffer, systemPartialCandidate)
         else ""
         if (nextMuted) {
-            elevenSpeechCapturedBeforeMute = cloudCaptureTurnAllowed &&
-                providerInput?.hasPendingUtterance == true
+            val input = providerInput
+            val pendingCapturedAudio = input?.hasPendingUtterance == true ||
+                input?.hasBufferedRealtimeAudio == true
+            // A realtime server may not send its first partial until AFTER mute.
+            // The mic was eligible at capture time; validate the later stable
+            // server text for actual speech and echo before handing it to AI.
+            elevenSpeechCapturedBeforeMute = pendingCapturedAudio &&
+                (cloudCaptureTurnAllowed ||
+                    (input?.usesServerVad == true &&
+                        PhoneBargeInPolicy.shouldCapture(false, current.speaking, privateCallOutput())))
         }
         mutableState.update {
             it.copy(
@@ -2344,11 +2352,10 @@ internal object LuluVoiceCallSession {
                     val previouslyCapturedBatch = !scribeRealtime &&
                         !userSpeechInProgress &&
                         providerRecognitionPendingUntilMillis > SystemClock.elapsedRealtime()
-                    val safeCapture = cloudCaptureTurnAllowed &&
-                        ((call.microphoneMuted && elevenSpeechCapturedBeforeMute) ||
-                            (!call.microphoneMuted &&
-                                (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
-                                    previouslyCapturedBatch)))
+                    val safeCapture = elevenSpeechCapturedBeforeMute ||
+                        (cloudCaptureTurnAllowed && !call.microphoneMuted &&
+                            (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
+                                previouslyCapturedBatch))
                     elevenSpeechCapturedBeforeMute = false
                     cloudCaptureTurnAllowed = false
                     userSpeechInProgress = false
