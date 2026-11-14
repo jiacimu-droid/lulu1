@@ -40,14 +40,17 @@ internal fun RelicVaultPage(
     var museumTab by remember { mutableStateOf("藏品") }
     var selectedId by remember { mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id) }
     var pendingSale by remember { mutableStateOf<RelicLoot?>(null) }
-    val selected=snapshot.vault.firstOrNull { it.id==selectedId }
-        ?: snapshot.vault.firstOrNull { it.id==snapshot.featuredLootId }
-        ?: snapshot.vault.lastOrNull()
     val inventory=remember(snapshot.vault,grade) {
         snapshot.vault.asReversed().filter {
             grade=="全部" || RelicCollectibles.displayRank(it)==grade
         }
     }
+    // The exhibit and its actions must belong to the visible filtered collection.
+    // A remembered selection from another rank must not appear as an owned
+    // item of the newly selected rank, especially when that rank is empty.
+    val selected=inventory.firstOrNull { it.id==selectedId }
+        ?: inventory.firstOrNull { it.id==snapshot.featuredLootId }
+        ?: inventory.firstOrNull()
     val share:(RelicLoot)->Unit = { item ->
         val intent=Intent(Intent.ACTION_SEND).apply {
             type="text/plain"
