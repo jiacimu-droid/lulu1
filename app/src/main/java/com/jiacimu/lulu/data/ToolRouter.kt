@@ -419,7 +419,8 @@ object ToolRouter {
                         source = "角色行动",
                         title = "${MigratedDomainStores.characters.get(characterId).displayName} · $name",
                         message = "角色ID=$characterId；执行ID=$requestId\n" +
-                            parsed.optString("summary").ifBlank { parsed.optString("error").ifBlank { "执行器未确认成功" } },
+                            failureDetail(name, parsed) +
+                            parsed.optString("errorCode").takeIf { it.isNotBlank() }?.let { "；代码=$it" }.orEmpty(),
                     )
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
@@ -581,10 +582,15 @@ object ToolRouter {
     /** Human-readable diagnostics even when native tools return status/verification only. */
     internal fun failureDetail(name: String, result: JSONObject): String {
         val available = listOf("error", "summary", "verification", "message",
-            "detail", "reason", "status").firstNotNullOfOrNull { key ->
+            "detail", "reason", "errorCode", "windowDiagnostic").firstNotNullOfOrNull { key ->
             result.optString(key).takeIf { it.isNotBlank() }
         }
-        return (available ?: "工具${name}执行未成功，且执行器没有提供诊断字段").take(250)
+        // A bare status=failed is not a diagnosis. It used to be copied
+        // verbatim into the performance error log, masking the Android/ADB
+        // failure underneath consecutive background_phone attempts.
+        val stage = result.optString("diagnosticStage").takeIf { it.isNotBlank() }
+        val detail = available ?: "工具${name}执行未成功，执行器没有提供具体异常"
+        return listOfNotNull(stage?.let { "阶段=$it" }, detail).joinToString("；").take(250)
     }
 
     private fun failure(message: String, status: String = "failed"): String = JSONObject().put("success", false).put("status", status).put("error", message).toString()
