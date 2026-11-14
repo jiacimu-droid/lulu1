@@ -139,14 +139,14 @@ internal fun relicDirectionAction(run:RelicRun,dx:Int,dy:Int):RelicQuickAction? 
  * Nearby-object interaction for the D-pad. Direction wins, then the other
  * adjacent cells. Combat remains explicit so holding movement cannot spam it.
  */
-internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>): RelicQuickAction? {
+internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>, selected: Pair<Int, Int>? = null): RelicQuickAction? {
     if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
     val h = run.hero
     // A physical drop underfoot must not be hidden by a different adjacent
     // chest or landmark merely because the D-pad still faces that direction.
     val underfoot = relicQuickAction(run, h.x to h.y)
     if (underfoot?.action == "pickup") return underfoot
-    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
+    // A deliberate map tap takes precedence over the last joystick direction.\n    // Only actual nearby physical interactions qualify; distant taps cannot act.\n    val selectedAction = selected?.let { relicQuickAction(run, it) }\n    val interactions = setOf("open", "pickup", "resupply", "fountain",\n        "disarm", "invoke", "silence", "revive", "extract")\n    if (selectedAction?.action in interactions) return selectedAction\n    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
     val interactions = setOf("open", "pickup", "resupply", "fountain",
         "disarm", "invoke", "silence", "revive", "extract")
