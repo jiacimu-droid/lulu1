@@ -188,7 +188,7 @@ internal fun QqMessageRow(
                 }
                 if (gameInvite != null) {
                     MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
-                        GameInviteMessageCard(gameInvite, { onAcceptGame(gameInvite.gameId) }, bubbleModifier)
+                        GameInviteMessageCard(gameInvite, characterName, { onAcceptGame(gameInvite.gameId) }, bubbleModifier)
                     }
                     Spacer(Modifier.height(5.dp))
                 }
@@ -762,56 +762,83 @@ private fun WorldInviteMessageCard(
     }
 }
 
-private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
+internal data class GameInviteMessage(val gameId: String, val title: String, val message: String)
 
-private fun parseGameInvite(content: String): GameInviteMessage? {
+/** Only routes from the actual game hall may produce an actionable invitation. */
+internal fun parseGameInvite(content: String): GameInviteMessage? {
     val match = Regex(
         "^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$",
         RegexOption.DOT_MATCHES_ALL,
     ).find(content.trim()) ?: return null
-    return GameInviteMessage(
-        match.groupValues[1].trim(),
-        match.groupValues[2].trim().ifBlank { "一起玩游戏" },
-        match.groupValues[3].trim(),
-    )
+    val gameId = match.groupValues[1].trim().lowercase()
+    // Do not let a stale or malformed message override the real catalogue's title,
+    // and never turn an unknown game ID into a seemingly valid launch button.
+    val title = com.jiacimu.lulu.games.GameInvitationCatalog.title(gameId) ?: return null
+    return GameInviteMessage(gameId, title, match.groupValues[3].trim())
 }
 
 @Composable
-private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit, modifier: Modifier = Modifier) {
+private fun GameInviteMessageCard(
+    invite: GameInviteMessage,
+    inviterName: String,
+    onAccept: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val accent = when (invite.gameId) {
+        "block_island" -> Color(0xFF4A8367)
+        "relic_escape" -> Color(0xFFAD8755)
+        "deep_sea_journey" -> Color(0xFF417D8D)
+        else -> QqMine
+    }
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, QqBorder),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, QqBorder.copy(alpha = 0.45f)),
         shape = RoundedCornerShape(20.dp),
         modifier = modifier,
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            Box(
-                Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) }
+        Column(
+            Modifier.fillMaxWidth().padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = accent.copy(alpha = 0.13f),
+                    modifier = Modifier.size(46.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.SportsEsports, null, tint = accent, modifier = Modifier.size(25.dp))
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
-                        Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    }
+                }
+                Spacer(Modifier.width(11.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(
+                        "$inviterName邀请你一起玩",
+                        color = QqMuted, fontSize = 11.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        invite.title, color = QqInk, fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
-            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
-                Button(
-                    onAccept,
-                    Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
-                    shape = RoundedCornerShape(14.dp),
-                ) {
-                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
-                    Spacer(Modifier.width(5.dp))
-                    Text("接受邀约")
-                }
+            if (invite.message.isNotBlank()) {
+                Text(
+                    invite.message, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp,
+                    maxLines = 4, overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Button(
+                onClick = onAccept,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = QqMineInk),
+                shape = RoundedCornerShape(13.dp),
+            ) {
+                Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("接受并进入", fontWeight = FontWeight.SemiBold)
             }
         }
     }
