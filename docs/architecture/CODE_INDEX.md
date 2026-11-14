@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3c4f97544c4cbc7d8ac379422da92cb195dbca17`
+- 基准提交：`c11c9a87ed271a31801e9aabe9aaa87057667071`
 - 分支：`main`
 - 已索引文件：1312
-- 已索引代码/文本行：277017
+- 已索引代码/文本行：277033
 - 已发现符号：3910
 
 | 文件 | 行数 | 符号数 |
@@ -739,8 +739,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt` | 188 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 214 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 170 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 216 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt` | 177 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
