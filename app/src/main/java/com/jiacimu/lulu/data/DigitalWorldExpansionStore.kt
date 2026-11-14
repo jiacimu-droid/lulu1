@@ -83,7 +83,7 @@ internal object DigitalWorldExpansionStore {
                 resident.templateName == "青禾" && resident.identity == "公共设施看护员" ->
                     "游戏馆机台管理员"
                 resident.templateName == "洛芽" && resident.identity == "公共空间维护居民" ->
-                    "社区活动布置师"
+                    "游戏馆活动策划师"
                 resident.templateName == "南汐" && resident.identity == "公共空间值守员" ->
                     "社区迎新接待员"
                 else -> null
