@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d9a45a76cdc0b0bdb81fc7272428a290ae2319f0`
+- 基准提交：`df23b63c00b3c64cdabf34c6c03dbfcf2f90172c`
 - 分支：`main`
-- 已索引文件：1306
-- 已索引代码/文本行：275493
-- 已发现符号：3891
+- 已索引文件：1307
+- 已索引代码/文本行：275565
+- 已发现符号：3892
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1296,6 +1296,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt` | 35 | 1 |
