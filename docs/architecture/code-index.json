@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:24:11.506243+00:00",
-  "commit": "31bd741f80441918426f2c004085a4eca40e9860",
+  "generatedAt": "2026-11-14T05:25:37.450603+00:00",
+  "commit": "f40995445852bb203e083b6b4816343e518fbbc5",
   "branch": "main",
-  "sourceFingerprint": "9ce060e9ba949b57998a6229f1eec0984a9aa030d1174af25628a08b5d806e8c",
+  "sourceFingerprint": "6b463e9453032b8f5d8aea2ef1760e07c8c9d5d8c4fdc77af7c5bbdb66d3595a",
   "summary": {
     "files": 1312,
-    "lines": 276937,
+    "lines": 276941,
     "symbols": 3909
   },
   "symbolIndex": {
@@ -403,7 +403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 574
+        "line": 578
       }
     ],
     "replyTextPrefix": [
@@ -2443,7 +2443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 617
+        "line": 621
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
@@ -14149,19 +14149,19 @@
     "saveTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 159
+        "line": 163
       }
     ],
     "rollForUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 194
+        "line": 198
       }
     ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 593
+        "line": 597
       }
     ],
     "nextRound": [
@@ -35630,8 +35630,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 720,
-      "sha256": "db3ba4e0600afd0e49e4d69f5fdf147a257cd71f902dd646be101c8113480621",
+      "lines": 724,
+      "sha256": "dafe72a3886d804d3318fa4298bb7d0f39695e2bbc8a3263ce5e545fc086576f",
       "symbols": [
         {
           "name": "persistMatch",
@@ -35647,23 +35647,23 @@
         },
         {
           "name": "saveTurn",
-          "line": 159
+          "line": 163
         },
         {
           "name": "rollForUser",
-          "line": 194
+          "line": 198
         },
         {
           "name": "finish",
-          "line": 574
+          "line": 578
         },
         {
           "name": "place",
-          "line": 593
+          "line": 597
         },
         {
           "name": "reset",
-          "line": 617
+          "line": 621
         }
       ]
     },
