@@ -113,6 +113,22 @@ internal object AutonomousActionWireProtocol {
                     key in setOf("journalTitle", "journalContent")) return@forEach
                 if (!args.has(key) && step.has(key)) args.put(key, step.opt(key))
             }
+            if (candidate == "background_phone") {
+                // A secondary step may explicitly say:
+                // {tool:background_phone,action:launch,appName:微信}.
+                // Generic argumentKeys deliberately excludes the *outer* action
+                // (normally "tool"), but phone verbs are executor arguments.
+                // Carry only the verb the model actually chose; never infer
+                // "launch" merely from an appName and never replace nested args.
+                if (!args.has("action") && action !in setOf("", "tool", "background_phone"))
+                    args.put("action", action)
+                setOf("packageName", "appName", "screenSnapshotId", "elementRef",
+                    "x", "y", "startX", "startY", "endX", "endY", "durationMs",
+                    "expectedText", "sendToChat", "sendProductLinkToChat",
+                    "caption", "recipient").forEach { key ->
+                    if (!args.has(key) && step.has(key)) args.put(key, step.opt(key))
+                }
+            }
             if (worldVerb.isNotBlank() && args.optString("worldAction").isBlank())
                 args.put("worldAction", worldVerb)
             if (candidate == "digital_world_action" &&
