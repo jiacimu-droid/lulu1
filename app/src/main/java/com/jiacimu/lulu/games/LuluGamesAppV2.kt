@@ -28,7 +28,19 @@ import org.json.JSONObject
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** Keeps migrated games unchanged and adds the shared replay entry point. */
+/**
+ * Playback answers "how did this character play while I was away?".
+ * Owner-only games and games experienced together expose outcomes, not a replay CTA.
+ * Historical autonomous Yacht/Memory runs have an unambiguous original summary prefix.
+ */
+internal fun LuluGameRecord.canWatchCharacterSoloProcess(): Boolean =
+    !playedWithCharacter && characterId.isNotBlank() &&
+        (characterSolo || (
+            type in setOf(LuluGameType.YachtDice, LuluGameType.MemoryMatch) &&
+                summary.startsWith("独自完成一局")
+        ))
+
+/** Game hall history: outcomes for all, optional process only for real character solo runs. */
 @Composable
 fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val store = LuluGames.store
@@ -71,7 +83,7 @@ private fun UniversalReplayCenter(
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("游戏战绩", style = MaterialTheme.typography.headlineMedium)
-                        Text("先看最终得分与胜负，回放过程可按需打开。", color = LuluColors.Muted)
+                        Text("一起玩只记结果；角色独自玩才可以看他的实际操作。", color = LuluColors.Muted)
                     }
                     if (records.isNotEmpty()) {
                         TextButton(onClick = onClear) { Text("清空", color = MaterialTheme.colorScheme.error) }
@@ -99,7 +111,12 @@ private fun UniversalReplayCenter(
                 }
             }
         } else if (showReplay) {
-            UniversalGameReplay(record = selected!!, onBack = { showReplay = false })
+            if (selected!!.canWatchCharacterSoloProcess()) {
+                UniversalGameReplay(record = selected!!, onBack = { showReplay = false })
+            } else {
+                UniversalGameResult(record = selected!!,
+                    onBack = { selected = null }, onReplay = { })
+            }
         } else {
             UniversalGameResult(record = selected!!,
                 onBack = { selected = null }, onReplay = { showReplay = true })
@@ -128,8 +145,11 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f)) {
                 Text(record.title, fontWeight = FontWeight.Bold)
-                if (!record.playedWithCharacter) Text("角色独自游玩 · 真实行动记录",
+                if (record.canWatchCharacterSoloProcess()) Text("角色独自游玩 · 可看他的操作",
                     color = LuluColors.BlueGray, fontSize = 11.sp)
+                if (!record.playedWithCharacter && !record.canWatchCharacterSoloProcess()) {
+                    Text("我的单人对局", color = LuluColors.BlueGray, fontSize = 11.sp)
+                }
                 Text(record.summary, color = LuluColors.Muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(
                     record.createdAt.atZone(ZoneId.systemDefault()).format(ReplayDateFormatter),
@@ -147,7 +167,7 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
 
 /** Results first. Replays are a deliberate secondary action, never the history default. */
 @Composable
-private fun UniversalGameResult(record: LuluGameRecord, onBack: () -> Unit, onReplay: () -> Unit) {
+internal fun UniversalGameResult(record: LuluGameRecord, onBack: () -> Unit, onReplay: () -> Unit) {
     val yachtSheets = remember(record.id, record.detailsJson) { parseYachtScoreSheets(record.detailsJson) }
     val details = remember(record.id, record.detailsJson) {
         runCatching { JSONObject(record.detailsJson) }.getOrElse { JSONObject() }
@@ -250,14 +270,16 @@ private fun UniversalGameResult(record: LuluGameRecord, onBack: () -> Unit, onRe
                 }
             }
         }
-        OutlinedButton(
-            onClick = onReplay,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
-        ) {
-            Icon(Icons.Outlined.PlayCircleOutline, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("想看过程？回放本局")
+        if (record.canWatchCharacterSoloProcess()) {
+            OutlinedButton(
+                onClick = onReplay,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
+            ) {
+                Icon(Icons.Outlined.PlayCircleOutline, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("看看他这局怎么玩的")
+            }
         }
         Spacer(Modifier.height(12.dp))
     }
