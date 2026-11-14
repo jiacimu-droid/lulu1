@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:17:36.077149+00:00",
-  "commit": "29a474283c89a5376df6401f57ee2e63348dde33",
+  "generatedAt": "2026-11-14T05:18:17.133694+00:00",
+  "commit": "e68e0fc6112817aab3a40fe69689cf7ec08cf086",
   "branch": "main",
-  "sourceFingerprint": "14e849d5504086f643ba622047aff92e909333d0de781b22e8faf49972ac54b6",
+  "sourceFingerprint": "8f8da45518f409022393fa63e360deb3d62d7bf525baae75b1f2aea8ac86dc49",
   "summary": {
-    "files": 1311,
-    "lines": 276766,
-    "symbols": 3911
+    "files": 1312,
+    "lines": 276880,
+    "symbols": 3912
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21470,6 +21470,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt",
         "line": 7
+      }
+    ],
+    "YachtMatchContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
+        "line": 13
       }
     ],
     "MiniTheaterLibraryTest": [
@@ -45754,6 +45760,17 @@
         {
           "name": "RelicTensionPresentationTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
+      "lines": 114,
+      "sha256": "49f71f208924b90aea8673c0d21b510aaa40d0898b3b216603120a85b3e29ba2",
+      "symbols": [
+        {
+          "name": "YachtMatchContinuityTest",
+          "line": 13
         }
       ]
     },
