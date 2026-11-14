@@ -116,13 +116,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     fun action(type:String,x:Int=0,y:Int=0,id:String="") {
         val unopened=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}
         val tier=unopened?.tier
+        // The owner actually pries a chest in dangerous, persisted turns.
+        val effectiveType=if(type=="open" && unopened!=null &&
+            (run?.chestProgress?.get(unopened.id) ?: 0)<RelicEscapeRules.openSteps(unopened)-1)
+            "pry" else type
         val before=run?.turns
         val openingRun=run
         // A rejected action must not erase the last committed physical loot receipt.
-        if (!change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
+        if (!change{ledger.perform(effectiveType,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
         // A persisted no-op (for example, an invalid tap) is not a committed world action.
         chestHud=chestHud.afterWorldTurn(before, snapshot.run?.turns)
-        if(type=="open" && openingRun!=null && unopened!=null) {
+        if(effectiveType=="open" && openingRun!=null && unopened!=null) {
             // Draw no win animation unless the actual saved world has an opened chest
             // and an exact corresponding item in the player's bag or on the ground.
             val receipt=snapshot.run?.let {
@@ -133,7 +137,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
         }
         if(before!=snapshot.run?.turns) {
-            val sound=when(type) {
+            val sound=when(effectiveType) {
                 "open"->when(tier){
                     RelicTier.COMMON->GameSoundEffect.Interact
                     RelicTier.RARE->GameSoundEffect.Collect
@@ -142,6 +146,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
                 "attack","extract","invoke","channel","flare"->GameSoundEffect.Objective
                 "pickup","heal","revive","disarm"->GameSoundEffect.Collect
+                "pry"->GameSoundEffect.Interact
                 "move","sneak"->GameSoundEffect.Move
                 "lure"->GameSoundEffect.Interact
                 else->GameSoundEffect.Interact
@@ -309,6 +314,22 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         color=relicRed,fontSize=11.sp,maxLines=1,
                         fontWeight=FontWeight.Bold)
                 if(!showTactics) {
+                    val openingChest=run.chests.firstOrNull { !it.opened &&
+                        (run.chestProgress[it.id] ?: 0)>0 &&
+                        RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
+                    openingChest?.let { chest ->
+                        val progress=run.chestProgress[chest.id] ?: 0
+                        val result=RelicEscapeRules.treasure(run,chest)
+                        val upgraded=progress>=RelicEscapeRules.openSteps(chest)/2 &&
+                            result.grade>chest.visibleGrade
+                        Text(
+                            if(upgraded) "✦ 箱内光芒升为"+RelicCollectibles.displayRank(result)+
+                                "色！继续撬锁可能引来敌人"
+                            else "撬锁 "+progress+"/"+RelicEscapeRules.openSteps(chest)+
+                                " · 每次操作敌人都会行动",
+                            color=if(upgraded)relicGradeColor(result.grade) else relicGold,
+                            fontSize=11.sp,fontWeight=FontWeight.Bold,maxLines=2)
+                    }
                     lastChestReceipt?.let { receipt ->
                         Text("✦ ${RelicCollectibles.displayRank(receipt.loot)} · ${receipt.loot.name} ◇${receipt.loot.value}" +
                             if(receipt.inBag)" 已入包" else " 落地待拾",
@@ -337,7 +358,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         border=BorderStroke(1.dp,if(RelicCollectibles.isCrownJewel(loot.name))
                             Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
                         Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
-                            loot.tier.label+"「"+loot.name+"」 · 估值"+loot.value+
+                            RelicCollectibles.displayRank(loot)+"「"+loot.name+"」 · 估值"+loot.value+
                             (if(receipt.inBag) " · 已入包，撤离后收录"
                             else " · 背包已满，拾起并撤离后收录"),
                             modifier=Modifier.fillMaxWidth().padding(10.dp),
@@ -503,7 +524,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         Modifier.weight(1f)) {
                         attackTarget?.let { action("attack",it.x,it.y) }
                     }
-                    GameHudQuickAction("开箱",relicGold,
+                    GameHudQuickAction(chest?.let {
+                        "开箱 "+(run.chestProgress[it.id] ?: 0)+"/"+RelicEscapeRules.openSteps(it)
+                    } ?: "开箱",chest?.let{relicGradeColor(it.visibleGrade)} ?: relicGold,
                         run.phase!=RelicPhase.DOWNED && chest!=null,
                         Modifier.weight(1f)) {
                         chest?.let { action("open",it.x,it.y) }
