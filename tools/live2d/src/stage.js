@@ -998,7 +998,9 @@ function activatePendingSpeechMoment() {
   // the previous kiss at the FIRST syllable of this new fragment.
   // The beat's real motion() call will hand off the camera when it executes.
   if (parts?.replace) clearSpeechMoment({
-    preserveCurrentMotion: !!parts?.motion,
+    // A timed beat can follow the currently playing clip, but should not
+    // preempt the camera until its actual authored Motion3 starts.
+    preserveCurrentMotion: !!(parts?.motion || parts?.hasMotionBeats),
     cancelKiss: !!parts?.motion,
     softenKiss: !!parts?.motion,
   })
