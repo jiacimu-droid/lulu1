@@ -1,9 +1,9 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -74,21 +74,17 @@ internal fun VoiceCallSettings(provider: String) {
             })
         }
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
-        Text("明确选择识别渠道，不自动切换；电话始终使用这里选择的识别渠道。",
-            style = MaterialTheme.typography.bodySmall)
-        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("local" to "本地 Whisper", "elevenlabs" to "ElevenLabs Scribe",
-                "groq" to "Groq Whisper", "minimax" to "MiniMax").forEach { (id, title) ->
-                FilterChip(selected = sttMode == id, onClick = {
-                    sttMode = id
-                    prefs.edit().putString("call_stt_mode", id).apply()
-                }, label = { Text(title) })
-            }
-        }
+        SttSettingsDropdown(
+            label = "识别服务",
+            selectedId = sttMode,
+            options = listOf("local" to "本地 Whisper · 离线", "elevenlabs" to "ElevenLabs Scribe",
+                "groq" to "Groq Whisper", "minimax" to "MiniMax"),
+            onSelect = { id ->
+                sttMode = id
+                prefs.edit().putString("call_stt_mode", id).apply()
+            },
+        )
         val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode)
-        Text("当前识别：${CallVoiceConfiguration.sttLabel(activeEngine)}",
-            style = MaterialTheme.typography.bodySmall)
         if (sttMode == "groq") {
             OutlinedTextField(value = groqKey, onValueChange = {
                 groqKey = it
@@ -96,40 +92,42 @@ internal fun VoiceCallSettings(provider: String) {
             }, label = { Text("Groq API Key") },
                 visualTransformation = PasswordVisualTransformation(), singleLine = true,
                 modifier = Modifier.fillMaxWidth())
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                listOf("whisper-large-v3-turbo" to "Turbo · 更省",
-                    "whisper-large-v3" to "V3 · 更准").forEach { (id, label) ->
-                    FilterChip(groqModel == id, {
-                        groqModel = id
-                        prefs.edit().putString("groq_asr_model", id).apply()
-                    }, label = { Text(label) })
-                }
-            }
+            SttSettingsDropdown(
+                label = "Groq 识别模型",
+                selectedId = groqModel,
+                options = listOf("whisper-large-v3-turbo" to "Whisper Large v3 Turbo",
+                    "whisper-large-v3" to "Whisper Large v3"),
+                onSelect = { id ->
+                    groqModel = id
+                    prefs.edit().putString("groq_asr_model", id).apply()
+                },
+            )
             Text("Groq 提供有限免费层；用量超过免费限额后的扣费规则取决于你的账号。只有使用 Groq 时才向它上传录音片段。",
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "elevenlabs") {
-            Text("ElevenLabs 识别模型", style = MaterialTheme.typography.titleSmall)
-            Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                listOf(
-                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 自动分段上传",
-                    CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 实时转写",
-                ).forEach { (id, label) ->
-                    FilterChip(selected = elevenSttModel == id, onClick = {
-                        elevenSttModel = id
-                        prefs.edit().putString("eleven_asr_model", id).apply()
-                    }, label = { Text(label) })
-                }
-            }
+            SttSettingsDropdown(
+                label = "ElevenLabs 识别模型",
+                selectedId = elevenSttModel,
+                options = CallVoiceConfiguration.elevenSttOptions,
+                onSelect = { id ->
+                    elevenSttModel = id
+                    prefs.edit().putString("eleven_asr_model", id).apply()
+                },
+            )
             Text(
-                if (elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
-                    "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
-                else "普通 Scribe v2：接通后直接讲话，手机自动检测自然停顿、分段录音后上传转写；长句分段按顺序拼接，不用每句话点击录音按钮。它不是流式识别，字幕会等上传返回后出现。",
+                when (elevenSttModel) {
+                    CallVoiceConfiguration.SCRIBE_V3_LIVE ->
+                        "新版实时识别 · 边说边显示字幕，并尝试判断你是否真正说完。"
+                    CallVoiceConfiguration.SCRIBE_V2_REALTIME ->
+                        "实时识别 · 边说边显示字幕，按停顿识别发言。"
+                    else -> "普通录音识别 · 自动检测停顿后上传语音片段，不是实时字幕。"
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text("官方 API 标价：普通 v2 / v3 均 $0.20/小时；实时 v2 / v3 Live 均 $0.22/小时。额外功能与账户优惠另计。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需手动发送录音；切换后从下一段收音生效。",
+            Text("使用已配置的 ElevenLabs API Key，无需 Voice ID；正在识别的语音不会被中途改到另一个模型。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {
@@ -142,6 +140,15 @@ internal fun VoiceCallSettings(provider: String) {
         if (sttMode == "local") {
             Text("完全离线识别，不上传你的录音，不扣除 ElevenLabs 识别额度。模型只需下载一次。",
                 style = MaterialTheme.typography.bodySmall)
+            SttSettingsDropdown(
+                label = "本地 Whisper 模型",
+                selectedId = selectedLocalModel.id,
+                options = LocalWhisperModels.Model.entries.map { it.id to "${it.title} · ${it.sizeLabel}" },
+                onSelect = { id ->
+                    selectedLocalModel = LocalWhisperModels.Model.from(id)
+                    prefs.edit().putString("local_whisper_model", selectedLocalModel.id).apply()
+                },
+            )
             LocalWhisperModels.Model.entries.forEach { model ->
                 val installed = remember(modelFilesRevision, model) {
                     LocalWhisperModels.installedFile(context, model) != null
@@ -149,13 +156,6 @@ internal fun VoiceCallSettings(provider: String) {
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    RadioButton(
-                        selected = selectedLocalModel == model,
-                        onClick = {
-                            selectedLocalModel = model
-                            prefs.edit().putString("local_whisper_model", model.id).apply()
-                        },
-                    )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(model.title, style = MaterialTheme.typography.bodyMedium)
                         Text("${model.sizeLabel} · ${if (installed) "已下载" else "未下载"}",
@@ -233,12 +233,60 @@ internal fun VoiceCallSettings(provider: String) {
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
                 }, valueRange = 1_450f..4_500f)
-            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2) {
-            Text("本地分段收音灵敏度（普通 Scribe v2 也使用；调低可能更容易拾取轻声，但也可能捕获噪声）")
+            if (sttMode != "elevenlabs" || !CallVoiceConfiguration.isElevenRealtime(elevenSttModel)) {
+            Text("本地分段收音灵敏度（普通 Scribe 也使用；调低可能更容易拾取轻声，但也可能捕获噪声）")
             Slider(value = threshold, onValueChange = { threshold = it },
                 onValueChangeFinished = {
                     prefs.edit().putFloat("voice_vad_threshold", threshold).apply()
                 }, valueRange = 80f..1200f)
+            }
+        }
+    }
+}
+
+/** One quiet selector replaces scrolling chips while retaining explicit, persisted choices. */
+@Composable
+private fun SttSettingsDropdown(
+    label: String,
+    selectedId: String,
+    options: List<Pair<String, String>>,
+    onSelect: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedName = options.firstOrNull { it.first == selectedId }?.second
+        ?: options.firstOrNull()?.second.orEmpty()
+    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(label, style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                shape = RoundedCornerShape(14.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+            ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(selectedName, style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface)
+                    Text("⌄", style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                options.forEach { (id, name) ->
+                    DropdownMenuItem(
+                        text = { Text(name, style = MaterialTheme.typography.bodyMedium) },
+                        onClick = { expanded = false; onSelect(id) },
+                        trailingIcon = if (id == selectedId) {
+                            { Text("✓", color = MaterialTheme.colorScheme.primary) }
+                        } else null,
+                    )
+                }
             }
         }
     }
