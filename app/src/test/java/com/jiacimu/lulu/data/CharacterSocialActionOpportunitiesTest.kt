@@ -106,7 +106,7 @@ class CharacterSocialActionOpportunitiesTest {
         assertEquals("佳辞", actual)
         assertTrue(receipt.summary.contains("佳辞"))
         val ownerContact = com.jiacimu.lulu.inspectedOwnerContactName(actual, "主人")
-        assertEquals("佳辞", com.jiacimu.lulu.inspectedThreads(
+        assertEquals("佳辞（主人）", com.jiacimu.lulu.inspectedThreads(
             character.characterId, listOf(chat), emptyList(), emptyMap(), ownerContact
         ).single().title)
         val repeated = CompanionActionRuntime.execute(ctx, character.characterId,
