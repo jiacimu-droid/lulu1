@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ad24e5ee0879dabe091ed92c66b5affb62932f84`
+- 基准提交：`50d5d7796375b9fc3b6eb9c50b7d4c27bbb2fec6`
 - 分支：`main`
 - 已索引文件：1320
-- 已索引代码/文本行：279541
+- 已索引代码/文本行：279536
 - 已发现符号：3941
 
 | 文件 | 行数 | 符号数 |
@@ -347,7 +347,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 183 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 179 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -801,7 +801,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 110 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaAppSwitch.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaChangeWait.kt` | 80 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaClickFallback.kt` | 122 | 3 |
