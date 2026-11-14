@@ -157,6 +157,11 @@ internal object CommitmentAlarmDelivery {
                     }) ProactiveIncomingCallStore.clear(pending)
                 ProactiveIncomingCallStore.reconcileExpired()
             }
+            // Keep the real alarm sound alive while this foreground service /
+            // expedited worker still owns the dispatch. A quick model decision
+            // must not end the process and cut off the 30-second local cue.
+            val remainingRingMs = LuluAudibleWakeRinger.remainingMs(task.id)
+            if (remainingRingMs > 0L) kotlinx.coroutines.delay(remainingRingMs)
         } catch (error: Exception) {
             if (isCurrent(task)) CommitmentTaskStore.update(task.id) { old -> old.copy(
                 status = CommitmentTaskStatus.Blocked,
@@ -164,6 +169,7 @@ internal object CommitmentAlarmDelivery {
             ) }
             if (error is CancellationException) throw error
         } finally {
+            LuluAudibleWakeRinger.stop(task.id)
             // Each already-accepted daily occurrence is independently scheduled.
             // Tomorrow never changes today's unknown outcome into completed.
             CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken,
