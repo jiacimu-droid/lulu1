@@ -171,7 +171,10 @@ internal object CharacterPerceptionContext {
             (event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting",
                     InteractionSignalBridge.SOURCE, "xiaohongshu-webview", "xiaohongshu-mcp",
-                    "group-membership", "phone:friend") ||
+                    "group-membership", "phone:friend",
+                    "game-invitation-accepted", "game-party-joined",
+                    "game-party-started", "game-party-left",
+                    "game-match-result") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
             (event.evidenceKind == EventEvidenceKind.ToolResult &&
