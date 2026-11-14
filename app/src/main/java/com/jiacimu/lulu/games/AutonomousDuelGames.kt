@@ -256,7 +256,7 @@ internal object AutonomousDuelGames {
                 eventId = "$source-$id-$actor", characterId = actor,
                 channel = "游戏馆人物对战", speaker = "游戏馆",
                 content = summary, source = source,
-                occurredAt = now, evidenceKind = EventEvidenceKind.ToolResult,
+                occurredAt = now, evidenceKind = EventEvidenceKind.Observation,
                 triggerExtraction = false)
         }
     }
