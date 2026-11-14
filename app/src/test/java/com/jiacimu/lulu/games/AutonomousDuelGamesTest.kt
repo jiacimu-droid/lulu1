@@ -2,6 +2,7 @@ package com.jiacimu.lulu.games
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.data.CharacterPerceptionContext
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
 import com.jiacimu.lulu.data.DigitalWorldStore
@@ -156,5 +157,8 @@ class AutonomousDuelGamesTest {
         assertEquals(setOf(0, 1), records.map { JSONObject(it.detailsJson).getInt("playerIndex") }.toSet())
         assertTrue(SharedExperienceTimeline.eventsByIds(sender, listOf("duel-game-${offer.id}-$sender")).isNotEmpty())
         assertTrue(SharedExperienceTimeline.eventsByIds(target, listOf("duel-game-${offer.id}-$target")).isNotEmpty())
+        val observed = SharedExperienceTimeline.eventsByIds(sender, listOf("duel-game-${offer.id}-$sender"))
+        assertTrue(CharacterPerceptionContext.selectRecent(observed, Instant.now().plusSeconds(1)).any { it.content.contains("胜者") || it.content.contains("平局") })
+        assertTrue(SharedExperienceTimeline.eventsByIds("uninvited-third-party", listOf("duel-game-${offer.id}-$sender")).isEmpty())
     }
 }
