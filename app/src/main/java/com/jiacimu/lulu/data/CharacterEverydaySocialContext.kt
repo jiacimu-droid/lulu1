@@ -84,9 +84,34 @@ internal object CharacterEverydaySocialContext {
         // seen yesterday can receive a reply today; give the same character a
         // small, live, ACL-filtered view of those threads in their next normal
         // decision, not a second social model request or a fabricated memory.
-        val visibleThreads = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+        val accessibleThreads = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
             .asSequence().filter { it.comments.isNotEmpty() }
-            .sortedByDescending { it.lastActivityAt }.take(3).toList()
+            .sortedByDescending { it.lastActivityAt }.toList()
+        // ACL visibility is not firsthand knowledge. Keep earlier conversations
+        // only if the viewer actually read the post, owns it, or personally
+        // authored a still-valid comment. Batch the original timeline IDs so
+        // ordinary chat/social context cannot silently reveal every friend's
+        // unread comment thread (or pay for a second perception).
+        val latestOwnComments = accessibleThreads.associate { post ->
+            post.id to post.comments.lastOrNull { it.characterId == characterId }?.id
+        }
+        val originalEvidence = SharedExperienceTimeline.eventsByIds(characterId,
+            accessibleThreads.flatMap { post ->
+                listOfNotNull(
+                    "moment-${post.id}-$characterId",
+                    latestOwnComments[post.id]?.let { "moment-public-comment-$it-$characterId" },
+                )
+            }).associateBy { it.id }
+        val visibleThreads = accessibleThreads.asSequence().filter { post ->
+            post.authorCharacterId == characterId ||
+                originalEvidence["moment-${post.id}-$characterId"]?.let {
+                    it.source == "moment:phone-read" &&
+                        it.evidenceKind == EventEvidenceKind.Observation
+                } == true ||
+                latestOwnComments[post.id]?.let { commentId ->
+                    originalEvidence.containsKey("moment-public-comment-$commentId-$characterId")
+                } == true
+        }.take(3).toList()
         if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
             recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty() &&
             visibleThreads.isEmpty()) return ""
