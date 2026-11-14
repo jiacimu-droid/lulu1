@@ -550,17 +550,40 @@ class LuluAccessibilityService : AccessibilityService() {
                     .put("messageInputReadbackVerified", true)
             // The Send control can appear only AFTER text was entered. Locate
             // it again in the real app, not by stale reference or coordinate.
-            val fresh = virtualUiNodes(service, displayId, packageName)
-            val buttons = fresh.filter {
-                it.node.isClickable && !it.node.isPassword &&
-                    it.bounds.centerY() > dimensions.second / 2 &&
-                    LuluVirtualChatSendPolicy.sendButton(it.label, it.resourceId)
+            // The generic read-only UI inventory exposes at most 40 nodes.
+            // Long chat histories can fill that quota before the bottom send
+            // button, so inspect the live target tree directly here.
+            val buttons = mutableListOf<AccessibilityNodeInfo>()
+            var inspected = 0
+            fun locate(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 25 || inspected++ >= 640 || !node.isVisibleToUser ||
+                    !node.isEnabled || node.isPassword) return
+                val bounds = Rect().also(node::getBoundsInScreen)
+                if (node.isClickable && bounds.centerY() > dimensions.second / 2) {
+                    val label = (node.contentDescription?.toString()
+                        ?: node.text?.toString()).orEmpty().ifBlank {
+                        clickableDescendantLabel(node)
+                    }
+                    if (LuluVirtualChatSendPolicy.sendButton(label, node.viewIdResourceName))
+                        buttons.add(node)
+                }
+                for (i in 0 until node.childCount) {
+                    node.getChild(i)?.let { locate(it, depth + 1) }
+                }
             }
-            if (buttons.size != 1) return denied("chat_send_button_ambiguous")
-                .put("messageInputReadbackVerified", true)
-            // Do not retry a click whose outcome is uncertain.
-            val clicked = buttons.single().node.performAction(
-                AccessibilityNodeInfo.ACTION_CLICK)
+            ownedVirtualRoots(service, displayId, packageName).forEach { locate(it, 0) }
+            if (buttons.size != 1 || !stillAuthorized() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                !uniqueRecipientInHeader())
+                return denied("chat_send_button_or_context_unverified")
+                    .put("messageInputReadbackVerified", true)
+            val button = buttons.single()
+            if (!button.refresh() || !button.isClickable || !button.isEnabled ||
+                !button.isVisibleToUser)
+                return denied("chat_send_button_expired")
+                    .put("messageInputReadbackVerified", true)
+            // One click only; never retry an uncertain external side effect.
+            val clicked = button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             return JSONObject().put("accepted", clicked)
                 .put("messageInputReadbackVerified", true)
                 .put("chatRecipientVerified", true)
