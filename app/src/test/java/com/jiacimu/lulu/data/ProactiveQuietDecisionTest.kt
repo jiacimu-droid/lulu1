@@ -10,6 +10,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun livePrivateChatAndExecutorShareActualInviteableGameIds() {
+        val instruction = proactiveDecisionInstruction("game-invite-online", directPrivateChat = true)
+        val toolGuide = CompanionActionRuntime.gameInvitationCapabilityGuide
+        assertTrue(instruction.contains("action=game_invite"))
+        assertTrue(instruction.contains("send_game_invite"))
+        assertTrue(instruction.contains("steps"))
+        assertTrue(instruction.contains("不用主人先打开游戏"))
+        assertTrue(toolGuide.contains("真实回执"))
+        com.jiacimu.lulu.games.GameInvitationCatalog.titles.forEach { (id, title) ->
+            assertTrue("Live chat missing invite for $id", instruction.contains("$title=$id"))
+            assertTrue("Tool context missing invite for $id", toolGuide.contains("$title=$id"))
+        }
+    }
+
     @Test fun undatedResponsibilitiesStayInFiveMinuteAttentionBehindManyScheduledTasks() {
         val now = java.time.Instant.parse("2026-11-13T00:00:00Z")
         val future = (1..18).map { index ->
