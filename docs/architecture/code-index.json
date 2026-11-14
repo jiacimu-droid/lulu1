@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:52:21.826038+00:00",
-  "commit": "fcccf7691c81bccb23be420fe15616440e72de73",
+  "generatedAt": "2026-11-14T13:53:08.560336+00:00",
+  "commit": "7e274b686c80ba75c62aa14e9ac71eb5c3e571df",
   "branch": "main",
-  "sourceFingerprint": "a4ea64396c8fdc8e8ce3158bbf8ffed6b1a286d585f4817e8daad00e73cbef85",
+  "sourceFingerprint": "fdc33707a2bd3450ec3aa142d9675aa9d83001c11d4ad76221cb9f76b22c9959",
   "summary": {
     "files": 1318,
-    "lines": 279210,
+    "lines": 279237,
     "symbols": 3934
   },
   "symbolIndex": {
@@ -45532,8 +45532,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
-      "lines": 144,
-      "sha256": "acbc28daf905882c4736651d0dd764f6de30760ff98f4e1949b6c45ac497552e",
+      "lines": 161,
+      "sha256": "d93794be780a4007a5be93dedbee16e50d75070bce506be7a2e24ee3fca30cec",
       "symbols": [
         {
           "name": "AutonomousDuelGamesTest",
@@ -45954,8 +45954,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 231,
-      "sha256": "e3a87e4d57caa2b783c8f9483463671fde6303b38a9fe2d904ab5b4376ff9490",
+      "lines": 241,
+      "sha256": "95bd4e47c914f61c5d75f53b7efae62bda881c209cebd4a68151261c34f37bd8",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
