@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T05:20:27.344893+00:00",
-  "commit": "13ccfa2df82061f45628ece272736a0e2da804ce",
+  "generatedAt": "2026-11-14T05:20:55.460407+00:00",
+  "commit": "9a4c537279769639bff159bd567dbac98944cb19",
   "branch": "main",
-  "sourceFingerprint": "06155b68dc598e820dad21b74156bea955308b4e080d22f5f8bf168a7d1c4b36",
+  "sourceFingerprint": "c23342ddd9c1636be1caf8fc46e21b1c37a1fe2a8fafe9f8b277d952dcb7f74d",
   "summary": {
     "files": 1312,
     "lines": 276899,
-    "symbols": 3912
+    "symbols": 3908
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14826,30 +14826,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
         "line": 148
-      }
-    ],
-    "yachtMatch": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 158
-      }
-    ],
-    "openYachtMatch": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 162
-      }
-    ],
-    "saveYachtMatch": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 175
-      }
-    ],
-    "restartYachtMatch": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 183
       }
     ],
     "activeGameContext": [
@@ -36582,7 +36558,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 700,
-      "sha256": "9b4dc1cccd0b94c5931722a1bae42150a4fbc3d7d567548d0e6e1a5670b88fa5",
+      "sha256": "a182608952dcc31327b022919fd21d0bd4ffd2dec43a880f00a9a6cb931c50d4",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -36631,22 +36607,6 @@
         {
           "name": "LuluGameStore",
           "line": 148
-        },
-        {
-          "name": "yachtMatch",
-          "line": 158
-        },
-        {
-          "name": "openYachtMatch",
-          "line": 162
-        },
-        {
-          "name": "saveYachtMatch",
-          "line": 175
-        },
-        {
-          "name": "restartYachtMatch",
-          "line": 183
         },
         {
           "name": "activeGameContext",

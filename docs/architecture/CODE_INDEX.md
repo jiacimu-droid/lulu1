@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`13ccfa2df82061f45628ece272736a0e2da804ce`
+- 基准提交：`9a4c537279769639bff159bd567dbac98944cb19`
 - 分支：`main`
 - 已索引文件：1312
 - 已索引代码/文本行：276899
-- 已发现符号：3912
+- 已发现符号：3908
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -712,7 +712,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 38 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 700 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 700 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 958 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 676 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 307 | 4 |
