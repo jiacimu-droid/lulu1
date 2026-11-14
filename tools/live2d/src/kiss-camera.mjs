@@ -105,3 +105,15 @@ export function kissNuzzleFrame(elapsedMs) {
     pitch: -1.25 * strength,
   }
 }
+
+// An explicitly selected next Motion3 can take the body immediately while
+// the camera eases away from the previous kiss. This handoff is distinct from
+// a real call cancellation, which must clear the camera without a lingering tail.
+export const KISS_HANDOFF_MS = 1450
+export function kissHandoffFrame(startZoom, elapsedMs) {
+  if (!Number.isFinite(startZoom) || startZoom < 1 ||
+      !Number.isFinite(elapsedMs) || elapsedMs >= KISS_HANDOFF_MS)
+    return { zoom: 1, finished: true }
+  const recovery = smooth(Math.max(0, elapsedMs) / KISS_HANDOFF_MS)
+  return { zoom: 1 + (startZoom - 1) * (1 - recovery), finished: false }
+}
