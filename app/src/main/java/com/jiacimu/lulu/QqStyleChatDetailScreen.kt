@@ -1028,13 +1028,15 @@ fun QqStyleChatDetailScreen(
                             onSwipeReply = { if (multiSelectMode) toggleSelected(message.id) else beginReply(message) },
                             onAcceptGame = { gameId ->
                                 val inviterId = message.authorCharacterId ?: author.characterId
-                                com.jiacimu.lulu.games.LuluGames.store.selectCharacter(inviterId)
-                                // The owner's real tap is evidence of acceptance, not evidence of
-                                // playing or winning. Store it under the inviter's own timeline.
-                                com.jiacimu.lulu.games.GameInvitationContinuity.recordAccepted(
-                                    context, inviterId, message.id, gameId,
-                                )
-                                onOpenGame(gameId)
+                                // Only an accepted catalogue-backed invite may navigate; entering
+                                // the game must turn on companion mode, even after the owner's last
+                                // solo run. selectCharacter() only changes the selected ID.
+                                if (com.jiacimu.lulu.games.GameInvitationContinuity.recordAccepted(
+                                        context, inviterId, message.id, gameId,
+                                    )) {
+                                    com.jiacimu.lulu.games.LuluGames.store.selectCharacters(listOf(inviterId))
+                                    onOpenGame(gameId)
+                                }
                             },
                         )
                     }
