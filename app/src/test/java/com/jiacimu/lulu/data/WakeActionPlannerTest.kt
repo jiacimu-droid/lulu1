@@ -58,7 +58,8 @@ class WakeActionPlannerTest {
         val characterId = "wake-music-handoff-test"
         val taskId = "morning-t123"
         val permissions = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        permissions.edit().putBoolean("$characterId:screen", true).commit()
+        permissions.edit().putBoolean("$characterId:media", true)
+            .putBoolean("$characterId:wake_music_enabled", true).commit()
         WakeMusicCoordinator.cancelPending(context, characterId)
         try {
             val staged = WakeMusicCoordinator.onScheduledWake(
@@ -75,7 +76,8 @@ class WakeActionPlannerTest {
             assertNull(WakeMusicCoordinator.takeAnsweredMusicPlan(context, characterId, "missed"))
         } finally {
             WakeMusicCoordinator.cancelPending(context, characterId)
-            permissions.edit().remove("$characterId:screen").commit()
+            permissions.edit().remove("$characterId:media")
+                .remove("$characterId:wake_music_enabled").commit()
         }
     }
 
