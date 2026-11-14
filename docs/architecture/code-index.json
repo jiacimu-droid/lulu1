@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:01:38.296431+00:00",
-  "commit": "b0ad9659bd10ccd0e0676df859abbf08f2baaf3f",
+  "generatedAt": "2026-11-14T16:02:06.041086+00:00",
+  "commit": "ba97475e10e4c2781d3738134f4e3e5f0abe6d5b",
   "branch": "main",
-  "sourceFingerprint": "798cc8dd183dbaf1cc6cfffc64d94b03420447fd66c49618cb4a90497dd29fff",
+  "sourceFingerprint": "9ee1b828c02701330cd3e35a4c693b3f1282d096b6c79991da78089eab3c9385",
   "summary": {
     "files": 1321,
     "lines": 279613,
@@ -45360,7 +45360,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
       "lines": 125,
-      "sha256": "5f7cf8844195e5855042c6c2ab560b8f1ec02c25bf273712c7259dd2040b7c2f",
+      "sha256": "9eba201dcfd37c6daa480d521a04a11f48d17e7600d62571ef1c0e2f870d7f68",
       "symbols": [
         {
           "name": "WakeActionPlannerTest",
@@ -46515,7 +46515,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt",
       "lines": 34,
-      "sha256": "775fbc2de510270de36e42ff22f24690eb622cde2c1a046c98cbc9c32b30a7f2",
+      "sha256": "77b99bfc651fdfccfce200236251750ce51e55e537a0c603d5bd5a21b43a0f94",
       "symbols": [
         {
           "name": "LuluShoppingAssistConsentTest",
@@ -46559,7 +46559,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
       "lines": 72,
-      "sha256": "959571b350e38d7b4dc50b2ba1cdcdfa4b30e961610d7ceb24aaa9bf57f14aee",
+      "sha256": "c64c1dd34f8ea79cd0d636414083f1c696e7b36e711a4e467f01b437f52ba948",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
