@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.DigitalWorldResident
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
-import com.jiacimu.lulu.data.DigitalWorldState
 import com.jiacimu.lulu.data.DigitalWorldStore
 
 /**
@@ -39,7 +38,6 @@ import com.jiacimu.lulu.data.DigitalWorldStore
 internal fun DigitalWorldAtlas(
     characters: List<CharacterSettings>,
     nativeResidents: List<DigitalWorldResident>,
-    world: DigitalWorldState,
     onOpenScene: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -88,7 +86,7 @@ internal fun DigitalWorldAtlas(
             shape = RoundedCornerShape(99.dp),
             color = Color.White.copy(alpha = .78f),
         ) {
-            Text("${characters.size + nativeResidents.size} 座家 · ${world.characterLocations.size + nativeResidents.size} 位居民",
+            Text("${characters.size} 座角色家 · ${nativeResidents.size} 座居民家",
                 color = Color(0xFF547263), fontSize = 8.sp,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp))
         }
