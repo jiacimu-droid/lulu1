@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import com.jiacimu.lulu.data.EventEvidenceKind
+import com.jiacimu.lulu.data.CharacterPerceptionContext
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import org.junit.Assert.*
 import org.junit.Test
@@ -34,6 +35,27 @@ class GameInvitationContinuityTest {
         val repeated = SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).single()
         assertEquals(first.revision, repeated.revision)
         assertEquals(first.occurredAt, repeated.occurredAt)
+    }
+
+    @Test fun actualInvitationAndPartyFactsReachTheCharacterPerceptionPipeline() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val role = "game-aware-" + UUID.randomUUID()
+        val invitation = "chat-" + UUID.randomUUID()
+        val partyId = UUID.randomUUID().toString()
+        val now = Instant.now()
+        assertTrue(GameInvitationContinuity.recordAccepted(context, role, invitation, "yacht_dice", now))
+        assertTrue(GameInvitationContinuity.recordPartyJoined(
+            context, role, "relic_escape", partyId, now.plusSeconds(1)))
+        assertTrue(GameInvitationContinuity.recordPartyStarted(
+            context, role, "relic_escape", partyId, now.plusSeconds(2)))
+        val perceived = CharacterPerceptionContext.selectRecent(
+            SharedExperienceTimeline.recentEvents(role, 160), now.plusSeconds(3),
+            limit = 20,
+        )
+        assertTrue(perceived.any { it.source == "game-invitation-accepted" })
+        assertTrue(perceived.any { it.source == "game-party-joined" })
+        assertTrue(perceived.any { it.source == "game-party-started" })
+        assertTrue(SharedExperienceTimeline.eventsByIds("other-role", perceived.map { it.id }).isEmpty())
     }
 
     @Test fun acceptedInviteCanEnterCompanionModeAfterOwnerPlayedSolo() {
