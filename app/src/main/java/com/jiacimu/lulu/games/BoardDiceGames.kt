@@ -95,7 +95,11 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         val ranked = players.sortedByDescending { finalScores[it.id].orEmpty().values.sum() }
         val highest = ranked.firstOrNull()?.let { finalScores[it.id].orEmpty().values.sum() } ?: 0
         val winners = ranked.filter { finalScores[it.id].orEmpty().values.sum() == highest }
-        val outcome = if (winners.size == 1) "胜者：${winners.first().name}" else "平局：${winners.joinToString("、") { it.name }}"
+        val outcome = when {
+            players.size == 1 -> "单人模式，完整完成13轮，没有对抗胜负"
+            winners.size == 1 -> "胜者：${winners.first().name}"
+            else -> "平局：${winners.joinToString("、") { it.name }}"
+        }
         val rankingSummary = ranked.joinToString("；") { "${it.name}${finalScores[it.id].orEmpty().values.sum()}分" }
         val sheet = JSONObject().apply {
             players.forEach { player ->
@@ -121,8 +125,8 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 .put("mode", if (session.companionIds.isEmpty()) "solo" else "competitive")
                 .put("completed", true)
                 .put("ranking", rankingSummary)
-                .put("winner", if (winners.size == 1) winners.first().name else "平局")
-                .put("winnerIds", JSONArray(winners.map { it.id }))
+                .put("winner", if (players.size == 1) JSONObject.NULL else if (winners.size == 1) winners.first().name else "平局")
+                .put("winnerIds", JSONArray(if (players.size == 1) emptyList() else winners.map { it.id }))
                 .put("roundCountPerPlayer", YachtCategory.entries.size)
                 .put("scoreSheets", sheet)
                 .put("turns", JSONArray(finalLog))
@@ -396,9 +400,9 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                     ) {
                         Text("MATCH COMPLETE  ·  13 / 13", color = mint,
                             fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        Text(if (winners.size == 1) "✦ ${winners.first().name} 获胜" else "◇ 本局平局",
+                        Text(if (players.size == 1) "✦ 13轮完成" else if (winners.size == 1) "✦ ${winners.first().name} 获胜" else "◇ 本局平局",
                             color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Black)
-                        Text(if (winners.size == 1) "以 $highest 分赢下这一局" else "最高分同为 $highest 分",
+                        Text(if (players.size == 1) "最终获得 $highest 分" else if (winners.size == 1) "以 $highest 分赢下这一局" else "最高分同为 $highest 分",
                             color = Color(0xFFB5CDDA), fontSize = 13.sp)
                         ranking.forEachIndexed { index, player ->
                             val total = scores[player.id].orEmpty().values.sum()
