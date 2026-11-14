@@ -215,11 +215,11 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine(history.toString().takeLast(9_000))
                     appendLine("可选择的本机工具：background_phone")
                     appendLine(if (LuluVirtualChatSendPolicy.isEnabled(context, characterId))
-                        "主人已开启本角色微信发送消息权限：可自行判断是否、向谁和说什么，但必须先真实打开微信与目标对话，取得screenSnapshotId；只有实际匹配收件人标题、唯一非搜索聊天输入框与发送按钮时才可调用send_chat_message(recipient,text,screenSnapshotId)。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
-                        else "主人未开启本角色微信发消息授权：可浏览微信，但send_chat_message会被拒绝；如想发送，可以自然提出让主人在角色管理打开授权。")
+                        "主人已开启本角色虚拟屏幕总授权（包括微信发送）：可自行判断是否、向谁和说什么，但必须先真实打开微信与目标对话，取得screenSnapshotId；只有实际匹配收件人标题、唯一非搜索聊天输入框与发送按钮时才可调用send_chat_message(recipient,text,screenSnapshotId)。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
+                        else "主人未开启本角色虚拟屏幕总授权：可浏览微信，但send_chat_message会被拒绝；如想发送，可以自然提出让主人开启虚拟屏幕总授权。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
-                        "主人已在查手机明确授权你自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendProductLinkToChat=true执行；只有productLinkSent=true说明链接已发私聊。付款阶段停下交给主人。"
-                        else "主人尚未打开角色的购物协助授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
+                        "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendProductLinkToChat=true执行；只有productLinkSent=true说明链接已发私聊。付款阶段停下交给主人。"
+                        else "主人尚未开启本角色虚拟屏幕总授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
                     appendLine("还可作出 ${MAX_ACTIONS - index + 1} 次下一步决定；要给当前目标留出阅读和收尾机会。")
                 },
                 instruction = """
