@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:49:11.176105+00:00",
-  "commit": "cf5636471b470db83390d2de3c892bfd82d934ae",
+  "generatedAt": "2026-11-14T08:50:24.666454+00:00",
+  "commit": "ed8d5ec3f9df278423ac3452e5440b6f4e5260e2",
   "branch": "main",
-  "sourceFingerprint": "43b3078642dfb66d48a69c73cf9c56144227d43622db2599dec1ab0d587102f5",
+  "sourceFingerprint": "070db322af5d9c436c1b158e9b57a873d978bc24c2bbf0db88d122375dfbaf08",
   "summary": {
     "files": 1313,
-    "lines": 277985,
+    "lines": 277989,
     "symbols": 3920
   },
   "symbolIndex": {
@@ -14651,7 +14651,7 @@
     "destination": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
-        "line": 39
+        "line": 41
       }
     ],
     "crystalVein": [
@@ -36385,8 +36385,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
-      "lines": 53,
-      "sha256": "62d8ef8bfcc6235d61c6108e072f607bd7eb2875e0a18811382b6854be020086",
+      "lines": 55,
+      "sha256": "11e8b023a6372b89b777c906ca4c436bb2b84bde3635f45570e63d7467d0f4e8",
       "symbols": [
         {
           "name": "blockedHint",
@@ -36394,7 +36394,7 @@
         },
         {
           "name": "destination",
-          "line": 39
+          "line": 41
         }
       ]
     },
@@ -45581,8 +45581,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt",
-      "lines": 86,
-      "sha256": "a896502f96c179b4628beb0cc3b4ed0ad86edd8f48daac3b4bee1c7af28ea4be",
+      "lines": 88,
+      "sha256": "6d55a0d9f47f5cddb1ab5ae03d81bfcf0e9c21b8266ad986a1fa64f3baa1fccf",
       "symbols": [
         {
           "name": "IslandManualMovementTest",
