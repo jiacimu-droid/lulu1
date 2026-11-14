@@ -72,6 +72,8 @@ data class LuluGameRecord(
     val rewardCoins: Int,
     val characterId: String,
     val playedWithCharacter: Boolean,
+    /** True only for real character-owned autonomous runs, not owner-only games. */
+    val characterSolo: Boolean = false,
     val summary: String,
     val detailsJson: String = "{}",
     val characterReply: String = "",
@@ -312,6 +314,7 @@ class LuluGameStore internal constructor(context: Context) {
         playedWithCharacterOverride: Boolean? = null,
         createdAtOverride: Instant? = null,
         recordIdOverride: String? = null,
+        characterSoloOverride: Boolean = false,
     ): String {
         if (recordIdOverride != null && mutableState.value.records.any { it.id == recordIdOverride }) return recordIdOverride
         val snapshot = mutableState.value
@@ -323,6 +326,7 @@ class LuluGameStore internal constructor(context: Context) {
             rewardCoins = reward.coerceAtLeast(0),
             characterId = characterIdOverride ?: snapshot.selectedCharacterId,
             playedWithCharacter = playedWithCharacterOverride ?: snapshot.playWithCharacter,
+            characterSolo = characterSoloOverride,
             summary = summary,
             detailsJson = detailsJson,
             createdAt = createdAtOverride ?: Instant.now(),
@@ -401,7 +405,7 @@ class LuluGameStore internal constructor(context: Context) {
                 type = played.type, title = played.title, score = played.score,
                 reward = 0, summary = played.summary, detailsJson = played.details,
                 characterIdOverride = characterId, playedWithCharacterOverride = false,
-                createdAtOverride = now)
+                createdAtOverride = now, characterSoloOverride = true)
             return AutonomousGameResult(id, normalized, played.title, played.score,
                 played.summary, played.details)
         }
@@ -533,6 +537,7 @@ class LuluGameStore internal constructor(context: Context) {
             characterIdOverride = characterId,
             playedWithCharacterOverride = false,
             createdAtOverride = now,
+            characterSoloOverride = true,
         )
         return AutonomousGameResult(
             recordId = recordId,
@@ -597,6 +602,7 @@ class LuluGameStore internal constructor(context: Context) {
                                 .put("rewardCoins", record.rewardCoins)
                                 .put("characterId", record.characterId)
                                 .put("playedWithCharacter", record.playedWithCharacter)
+                                .put("characterSolo", record.characterSolo)
                                 .put("summary", record.summary)
                                 .put("detailsJson", record.detailsJson)
                                 .put("characterReply", record.characterReply)
@@ -626,6 +632,7 @@ class LuluGameStore internal constructor(context: Context) {
                         rewardCoins = item.optInt("rewardCoins"),
                         characterId = item.optString("characterId", "lulu"),
                         playedWithCharacter = item.optBoolean("playedWithCharacter", true),
+                        characterSolo = item.optBoolean("characterSolo", false),
                         summary = item.optString("summary"),
                         detailsJson = item.optString("detailsJson", "{}"),
                         characterReply = item.optString("characterReply"),
