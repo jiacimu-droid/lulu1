@@ -245,11 +245,11 @@ internal fun RelicEscapeWorldMap(
                     // Until halfway, the treasure's grade remains concealed from the player.
                     val revealUpgrade=!chest.opened && progress>=required/2
                     val revealedGrade=if(revealUpgrade)
-                        RelicEscapeRules.treasure(run,chest).grade.takeIf{it in 0..6}
-                        else null
+                        RelicEscapeRules.openingGlowGrade(run,chest) else null
                     val committedGrade=if(chest.opened && openingReceipt?.chestId==chest.id)
                         openingReceipt.loot.grade.takeIf{it in 0..6} else null
-                    val glow=relicGradeColor(committedGrade ?: revealedGrade ?: chest.visibleGrade)
+                    val glowGrade=committedGrade ?: revealedGrade ?: chest.visibleGrade
+                    val glow=relicGradeColor(glowGrade)
                     if(!chest.opened) {
                         // Show recognizable, tier-specific treasure instead of one generic brown box.
                         val metal = when(chest.visibleGrade) {
@@ -276,6 +276,12 @@ internal fun RelicEscapeWorldMap(
                         drawRelicFacet(c+Offset(0f,t*.065f),
                             t*(if(chest.visibleGrade>=4).25f else .18f),
                             glow, chest.visibleGrade>=4)
+                        if(glowGrade==6) {
+                            drawCircle(Brush.sweepGradient(listOf(
+                                Color(0xFFFFB6F5),Color(0xFF8DDBFF),
+                                Color(0xFFFFE097),Color(0xFFFFB6F5)),center=c),
+                                t*.65f,c,style=Stroke(t*.07f))
+                        }
                         if(progress>0) {
                             // Real opening progress follows the stored world action count.
                             drawRoundRect(Color(0xE3131C2A),p+Offset(t*.12f,t*.82f),
