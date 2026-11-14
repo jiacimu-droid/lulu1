@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:54:26.568337+00:00",
-  "commit": "97f92dcd59eec87f58742b0ef807265f64285d2e",
+  "generatedAt": "2026-11-14T15:54:55.735567+00:00",
+  "commit": "05c916f2ae706b7794e4838f3b3097c206c30d0b",
   "branch": "main",
-  "sourceFingerprint": "451bae70534400eeaeff67b2b61c75fe7ee31e759cd79ec34df1d0c09b674b1f",
+  "sourceFingerprint": "7fd98e9c113e14ba60ae64e5e7683c764020e326dcf2bd99e6e8229fca75800c",
   "summary": {
     "files": 1318,
-    "lines": 279514,
+    "lines": 279578,
     "symbols": 3937
   },
   "symbolIndex": {
@@ -18335,7 +18335,7 @@
     "receive": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-        "line": 155
+        "line": 219
       }
     ],
     "SelfThoughtNotebookTest": [
@@ -41270,8 +41270,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-      "lines": 173,
-      "sha256": "a6a233af5965c0a65124ef66a5148991b60be55295df6a382bcaa7af7906356e",
+      "lines": 237,
+      "sha256": "3855535893d0727453994ae63f5b42bfa110bdca8e7ee0fbd88462f1b88bb904",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",
@@ -41279,7 +41279,7 @@
         },
         {
           "name": "receive",
-          "line": 155
+          "line": 219
         }
       ]
     },

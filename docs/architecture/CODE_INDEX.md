@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`97f92dcd59eec87f58742b0ef807265f64285d2e`
+- 基准提交：`05c916f2ae706b7794e4838f3b3097c206c30d0b`
 - 分支：`main`
 - 已索引文件：1318
-- 已索引代码/文本行：279514
+- 已索引代码/文本行：279578
 - 已发现符号：3937
 
 | 文件 | 行数 | 符号数 |
@@ -938,7 +938,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 173 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 237 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 175 | 2 |
