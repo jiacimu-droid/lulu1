@@ -1275,6 +1275,42 @@ object LuluDeviceToolBridge {
                 previousStepCompleted =
                     com.jiacimu.lulu.data.ToolExecutionStatus.completed(result)
                 if (!previousStepCompleted) phoneSideAllCompleted = false
+                // Call-side actions previously stopped after a single tool
+                // dispatch. Even a successful WeChat launch could not lead
+                // into observing, navigating and composing on that SAME
+                // virtual display. Reuse the established same-role visual
+                // continuation, but only after the LAST planned side step;
+                // never interleave it with the role's already ordered actions.
+                val virtualContinuation = if (tool == "background_phone" &&
+                    i == phoneSteps.length() - 1 &&
+                    effectArgs.optString("action") != "stop" &&
+                    result.optString("mode") == "independent_virtual_display" &&
+                    result.optString("status") != "denied" &&
+                    !phoneDecisionInvalidated()) {
+                    LuluBackgroundPhoneContinuation.continueFrom(
+                        context = appContext,
+                        characterId = characterId,
+                        connection = connection,
+                        title = title,
+                        requestId = "$phoneSideRequestBase-$i",
+                        userText = userText,
+                        roleReason = effect.optString("reason").ifBlank { plan.reason },
+                        initialArgs = effectArgs,
+                        initialReceipt = result.toString(),
+                        initialImage = LuluScreenFrameHandoff.take(
+                            characterId, "$phoneSideRequestBase-$i"),
+                        userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
+                            .isExplicitUserToolRequest(userText, tool),
+                        shouldYield = { phoneDecisionInvalidated() },
+                    )
+                } else null
+                if (virtualContinuation != null) {
+                    notes += "后台手机同一角色后续${virtualContinuation.actions}步：" +
+                        virtualContinuation.notes.takeLast(220)
+                    // A role deciding to stop is not evidence that the
+                    // user's app task was actually completed on Android.
+                    if (!virtualContinuation.finishedByRole) phoneSideAllCompleted = false
+                }
                 val command = result.optString("command")
                     .ifBlank { effectArgs.optString("command") }
                 if (result.optBoolean("success") &&
