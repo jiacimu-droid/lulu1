@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:45:38.311994+00:00",
-  "commit": "78e54c55b0c6cb4dcaf83c17f3c6fc133c22425e",
+  "generatedAt": "2026-11-14T13:46:18.275247+00:00",
+  "commit": "4fddd882a1de01e9bb65b591deca347b66d88d26",
   "branch": "main",
-  "sourceFingerprint": "cf87f584f61736d1dc78cdff5f7bdaf507b796f8ed7865d5d6e821c95cee79af",
+  "sourceFingerprint": "3238baf9a20cbc2aa9c7dd7c3ffdabf49310f05cfa5a8583b1cb5a41594027bc",
   "summary": {
     "files": 1317,
-    "lines": 279038,
+    "lines": 279039,
     "symbols": 3933
   },
   "symbolIndex": {
@@ -27769,8 +27769,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 256,
-      "sha256": "9112eaa694ecff0f28e628d34d89ec143afa77948fba414bf3481d97c2c9594f",
+      "lines": 257,
+      "sha256": "b98a69b93206ad9ea309218179ce2a49749b60fa73330e79ba0368291082f978",
       "symbols": [
         {
           "name": "render",
