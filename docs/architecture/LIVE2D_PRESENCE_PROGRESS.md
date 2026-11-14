@@ -184,3 +184,12 @@
 - **试验场**：`c03f694` 直接在原 `Live2DPreviewPlaygroundDialog` 动作面板加入 A/B 比较。先选动作 A、再选 B，反复“播放 A / 播放 B”且保持控制面板展开；仍调用既有 `playMotion` 与真实资源，不添加电话通话中的人工亲密动作按钮、不增加 AI 请求。不改变 49 原始 ID 与当前 24 日常优先目录。
 - **回归**：`b09cb2b`、`ae91a9d` 在原 `tools/live2d/test/conversation-performance.mjs` 用真实 stage VM 路径核对已有已启动旧 Motion3 被新角色动作承接不调用 `stopAllMotions`、top-level 和音频待开始的真实 metadata 传递、beats-only 下一片段不强停、真实 interrupted 清理以及新 Motion3 拒绝时不会留下旧动作。此前长期语音 followUps、老版 unversioned 兼容与低 FPS 模拟测试保留。以上回归是否完全通过要以最终 #7491 记录为准。
 - **真实体验验收仍缺**：小狼实机 A/B 测各情绪的脸/动作与回正、连读至少五句带 followUps、突然打断/从新音频启动、触摸打断和额外的官方 exp3、15/30 FPS p95 与最终 Android 实际可见性。不能用一次源码通过或 60 FPS JS ticker 冒充真机自然度。此前提出的任意时间的非中性表情姿态保持与词级 TTS 运动是可选增强，未在本轮实现；下一轮先按真实录屏排除节点叠加或节拍时序问题，再动 Motion3 骨骼。
+
+
+## 2026-11-14 · V-01.2 小狼亲吻动作与下一句音频的视觉交接（源码/回归已提交，待 CI 与真机）
+
+- **反馈与根因**：视频中角色已选 `LuluWolf#48 贴屏亲亲`，但下一段 TTS/视觉选择通过 `clearSpeechMoment()` 无条件执行 `cancelKissCamera()`，镜头直接从贴屏倍率归 1；旧 3.35 秒退回节奏偏急，语音嘴型与 exp3 眼型也可能覆盖接吻的闭眼/嘟嘴。并非缺少亲吻动作，更不能用下一句话的模型调用再“补亲”掩盖执行器断点。
+- **生产改动**：`tools/live2d/src/kiss-camera.mjs` 为已成功启动的狼模型亲吻提供完整 4.45s 本地物理表现（靠近→闭眼嘟嘴→轻触/左右小幅蹭屏→嘴唇回收→慢速退出），保留原导入 Motion3 3.35s，不复制/篡改主人模型资源。新 `kissNuzzleFrame` 驱动真实头颈 yaw/roll/pitch，缩放围绕已校准嘴部中心；选其他 Motion3 时新增约 1.45s 镜头回退交接，不瞬间跳归零。
+- **语音所有权**：`tools/live2d/src/stage.js` 将亲吻租约与相邻普通语音片段解耦：语音/表情-only 新段不抢断已启动的亲吻；角色确实另选 Motion3 则动作接手且镜头柔和退场；真实 `interrupted`、隐藏、换模型仍立刻硬清理。亲吻时视觉闭眼覆盖旧 exp3 眼型门禁；可听 TTS 仍优先负责嘴型，未有真实语音发声时保留嘟嘴收合。没有新增一次角色决策、动作提示词或模型费用。
+- **提交证据**：`15cd255`、`4fddd88`、`cb44ef5`、`fea2331`、`2b64dad`、`2d7374f`、`4023926`、`c8bf322`、`077102d` 均直接写入原 `main`；测试为 `tools/live2d/test/parameters.mjs` 的镜头、面部、颈部与交接曲线断言，以及 `tools/live2d/test/conversation-performance.mjs` 的真实 stage 函数 VM 中下一句/下一动作/真实取消回归。原代码索引脚本只覆盖 app/scripts/preview，本轮仅改 tools/live2d，不手写索引生成物。
+- **验收分层**：本轮各次 push 的 APK 流水因其他并行提交触发新 run 而多次 cancelled；取消不算失败也不算成功。须在包含 `077102d`、`c8bf322` 的后继 main SHA 的 **Lulu APK** 核 `Build bundled Live2D stage`、JVM、assemblePhone 与发布结果，失败按首错修复。**真机仍待**：真实模型小狼贴屏的两侧轻蹭、是否正对嘴唇、眼睑/嘴形视觉是否显著；紧邻五段 TTS 和不同 TTS、15/30 FPS、换动作与挂断/切后台是否平顺；真实手机体验不能以数值曲线替代。
