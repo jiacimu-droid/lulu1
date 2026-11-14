@@ -12,6 +12,31 @@ class RelicQuickActionTest {
     private fun run() = RelicEscapeWorld.create(915, 2, emptyList(), 2, 2)
         .copy(mobs = emptyList())
 
+    @Test fun centerInteractionHonorsTappedNearbyChestBeforeJoystickFacing() {
+        val base = run()
+        val h = base.hero
+        val east = RelicChest(981, h.x + 1, h.y, RelicTier.COMMON)
+        val south = RelicChest(982, h.x, h.y + 1, RelicTier.PRECIOUS)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(east, south), sites = emptyList(),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val facing = 1 to 0
+        val chosen = relicNearbyAction(scene, facing, south.x to south.y)!!
+        assertEquals("open", chosen.action)
+        assertEquals(south.x, chosen.x)
+        assertEquals(south.y, chosen.y)
+        val next = RelicEscapeRules.act(scene,
+            RelicChestPresentation.playerAction(scene, chosen.action, chosen.x, chosen.y),
+            chosen.x, chosen.y)
+        assertEquals(0, next.chestProgress[east.id] ?: 0)
+        assertEquals(1, next.chestProgress[south.id] ?: 0)
+        // A distant or empty tap must not manufacture a remote interaction.
+        val fallback = relicNearbyAction(scene, facing, h.x + 8 to h.y + 8)!!
+        assertEquals(east.x, fallback.x)
+        assertEquals(east.y, fallback.y)
+    }
+
     @Test fun explicitDistantChestNeverOpensAdjacentChest() {
         val base = run()
         val h = base.hero
