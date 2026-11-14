@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:56:35.692337+00:00",
-  "commit": "ff754c4041f7934406b2b8c346b0ce0e8efee7b5",
+  "generatedAt": "2026-11-14T15:57:55.993791+00:00",
+  "commit": "ad24e5ee0879dabe091ed92c66b5affb62932f84",
   "branch": "main",
-  "sourceFingerprint": "33ecc627efc75dba037aab9c1a10fe89e5101ffd94caf35cea8298682b0ecac3",
+  "sourceFingerprint": "704ad8425941f1bf5a4091fa0c22770233f0ea9f1e113f7d659e2f9d07a33b7e",
   "summary": {
-    "files": 1319,
-    "lines": 279604,
-    "symbols": 3939
+    "files": 1320,
+    "lines": 279541,
+    "symbols": 3941
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 531
+        "line": 528
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -738,28 +738,34 @@
         "line": 46
       }
     ],
-    "resolveSttEngine": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 56
-      }
-    ],
-    "sttEngine": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 57
-      }
-    ],
-    "sttLabel": [
+    "postAsrContinuationMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
         "line": 61
       }
     ],
+    "resolveSttEngine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 66
+      }
+    ],
+    "sttEngine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 67
+      }
+    ],
+    "sttLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 71
+      }
+    ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 68
+        "line": 78
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
@@ -797,19 +803,19 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 69
+        "line": 79
       }
     ],
     "sttPreflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 75
+        "line": 85
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 93
+        "line": 103
       }
     ],
     "CharacterMemoryFeatureScreen": [
@@ -3041,11 +3047,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-        "line": 17
+        "line": 13
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 18
+        "line": 15
       }
     ],
     "setBlocked": [
@@ -3943,27 +3949,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 320
+        "line": 317
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 346
+        "line": 343
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 398
+        "line": 395
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 445
+        "line": 442
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 487
+        "line": 484
       }
     ],
     "payload": [
@@ -8159,11 +8165,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-        "line": 12
+        "line": 9
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 13
+        "line": 10
       }
     ],
     "realtimeVoiceId": [
@@ -17141,7 +17147,7 @@
     "mayNavigate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-        "line": 47
+        "line": 39
       }
     ],
     "clipboardTimestamp": [
@@ -17201,25 +17207,25 @@
     "validRecipient": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 24
+        "line": 17
       }
     ],
     "validMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 28
+        "line": 21
       }
     ],
     "chatEditorCandidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 40
+        "line": 33
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 49
+        "line": 42
       }
     ],
     "canSendToRole": [
@@ -17976,6 +17982,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
         "line": 14
+      }
+    ],
+    "ElevenLabsBatchLatencyPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt",
+        "line": 5
       }
     ],
     "GameInviteMessageParserTest": [
@@ -22655,8 +22667,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 106,
-      "sha256": "ce631bc495b749a17f844fc5a73dc56f660da54171c15b4e55830a79145e5769",
+      "lines": 116,
+      "sha256": "2409f8bfaa0a28d9676361a295eecc26d57cd8c9a9b0cc73c0b4e706272f16ec",
       "symbols": [
         {
           "name": "provider",
@@ -22691,32 +22703,36 @@
           "line": 46
         },
         {
-          "name": "resolveSttEngine",
-          "line": 56
-        },
-        {
-          "name": "sttEngine",
-          "line": 57
-        },
-        {
-          "name": "sttLabel",
+          "name": "postAsrContinuationMillis",
           "line": 61
         },
         {
+          "name": "resolveSttEngine",
+          "line": 66
+        },
+        {
+          "name": "sttEngine",
+          "line": 67
+        },
+        {
+          "name": "sttLabel",
+          "line": 71
+        },
+        {
           "name": "label",
-          "line": 68
+          "line": 78
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 69
+          "line": 79
         },
         {
           "name": "sttPreflight",
-          "line": 75
+          "line": 85
         },
         {
           "name": "preflight",
-          "line": 93
+          "line": 103
         }
       ]
     },
@@ -22728,8 +22744,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 263,
-      "sha256": "daa4e55bea5f02baedb425ec6830e859f2b7481b61a7bbd38bc7ac76c05f54ce",
+      "lines": 189,
+      "sha256": "8774582720db0d28cfa58523412fc0fe4da75f145f367b38d033e3c93bc23bc3",
       "symbols": []
     },
     {
@@ -25303,8 +25319,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 556,
-      "sha256": "968017aaa587c87ab8bc7b579318b9d9daec158e0856e1bfecc6b4420eb8b1a7",
+      "lines": 553,
+      "sha256": "d0258d7cb2e10bca1e2b0a9531509dea657adc025b24affba6b83be944a5fd3c",
       "symbols": [
         {
           "name": "start",
@@ -25312,27 +25328,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 320
+          "line": 317
         },
         {
           "name": "resumeCapture",
-          "line": 346
+          "line": 343
         },
         {
           "name": "field",
-          "line": 398
+          "line": 395
         },
         {
           "name": "field",
-          "line": 445
+          "line": 442
         },
         {
           "name": "field",
-          "line": 487
+          "line": 484
         },
         {
           "name": "stop",
-          "line": 531
+          "line": 528
         }
       ]
     },
@@ -39482,20 +39498,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-      "lines": 57,
-      "sha256": "23085359820d88678796c8a16ba7768860bc9cbce7bc026a0daa05e9b1a8066f",
+      "lines": 49,
+      "sha256": "ff67b3b2e5a19749d60835d5876c96ecbd748b42d29a039d807c3298416e7563",
       "symbols": [
         {
           "name": "isEnabled",
-          "line": 12
+          "line": 9
         },
         {
           "name": "setEnabled",
-          "line": 17
+          "line": 13
         },
         {
           "name": "mayNavigate",
-          "line": 47
+          "line": 39
         }
       ]
     },
@@ -39594,32 +39610,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 56,
-      "sha256": "dfb99cd1792e66d9c64148e38aba72decf2f0a2789ef624a135dc7db751d2e45",
+      "lines": 49,
+      "sha256": "629dde04d7a540cb0184dbc6704d0b6fd67b0cfb74491f370808a818c14d82d6",
       "symbols": [
         {
           "name": "isEnabled",
-          "line": 13
+          "line": 10
         },
         {
           "name": "setEnabled",
-          "line": 18
+          "line": 15
         },
         {
           "name": "validRecipient",
-          "line": 24
+          "line": 17
         },
         {
           "name": "validMessage",
-          "line": 28
+          "line": 21
         },
         {
           "name": "chatEditorCandidate",
-          "line": 40
+          "line": 33
         },
         {
           "name": "sendButton",
-          "line": 49
+          "line": 42
         }
       ]
     },
@@ -40701,6 +40717,17 @@
         {
           "name": "ElevenLabsAudioContractsTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt",
+      "lines": 19,
+      "sha256": "d0a334739f45b4ec811bcd10b90018ba3679538d3bc162f6d963e68249f15378",
+      "symbols": [
+        {
+          "name": "ElevenLabsBatchLatencyPolicyTest",
+          "line": 5
         }
       ]
     },

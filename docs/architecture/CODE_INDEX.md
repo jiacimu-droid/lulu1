@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff754c4041f7934406b2b8c346b0ce0e8efee7b5`
+- 基准提交：`ad24e5ee0879dabe091ed92c66b5affb62932f84`
 - 分支：`main`
-- 已索引文件：1319
-- 已索引代码/文本行：279604
-- 已发现符号：3939
+- 已索引文件：1320
+- 已索引代码/文本行：279541
+- 已发现符号：3941
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,9 +93,9 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallTimeFacts.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt` | 14 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 106 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 116 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 66 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 263 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLearningPlans.kt` | 101 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 295 | 0 |
@@ -246,7 +246,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 556 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 553 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 317 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
@@ -817,11 +817,11 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 605 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 57 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 49 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 56 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 49 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
@@ -886,6 +886,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
