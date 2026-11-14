@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import {
-  kissCameraFrame, kissFaceFrame, kissCameraHorizontalPosition,
+  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissCameraHorizontalPosition,
   kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
   KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
 } from '../src/kiss-camera.mjs'
@@ -136,13 +136,18 @@ assert.ok(Math.max(...valuesOf(readWolf('35_bright_ear_bounce.motion3.json'),
 assert.equal(WOLF_KISS_MOTION_INDEX, 48)
 const kissMotion = JSON.parse(readFileSync(
   new URL('48_kiss_close.motion3.json', wolfMotionDir), 'utf8'))
-assert.equal(kissMotion.Meta.Duration * 1000, KISS_CAMERA_DURATION_MS)
+assert.ok(KISS_CAMERA_DURATION_MS - kissMotion.Meta.Duration * 1000 >= 750 &&
+  KISS_CAMERA_DURATION_MS - kissMotion.Meta.Duration * 1000 <= 1800,
+  'a short independent renderer tail softens the original Motion3 withdrawal')
 assert.ok(kissMotion.Curves.some(c => c.Id === 'ParamBodyAngleY'))
 assert.ok(kissMotion.Curves.some(c => c.Id === 'ParamAngleZ'))
 assert.equal(kissCameraFrame(0).zoom, 1)
 assert.ok(kissCameraFrame(1200).zoom > 1.8, 'kiss approaches the camera closely')
 assert.ok(kissCameraFrame(2150).zoom > 1.8, 'kiss lingers close to the screen')
-assert.ok(kissCameraFrame(3000).zoom < 1.25, 'kiss withdraws smoothly')
+assert.ok(kissCameraFrame(3000).zoom > 1.8, 'the kiss must not rush away at 3s')
+assert.ok(kissCameraFrame(3900).zoom < 1.4, 'late withdrawal eases back naturally')
+assert.ok(kissCameraFrame(3351).zoom < kissCameraFrame(3349).zoom,
+  'the camera tail continues smoothly across the actual Motion3 ending')
 assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).zoom, 1)
 assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).finished, true)
 assert.equal(kissCameraFrame(Number.NaN).finished, true)
@@ -154,9 +159,18 @@ assert.ok(kissFaceFrame(200).face.eyeOpen > .85, 'the character starts with eye 
 assert.ok(kissFaceFrame(1650).face.eyeOpen < .08, 'eyes close at contact')
 assert.ok(kissFaceFrame(1650).face.pout > .92, 'lips actually purse at contact')
 assert.ok(kissFaceFrame(1650).face.smile < 0, 'smiling mouth cannot override the kiss')
-assert.ok(kissFaceFrame(3100).face.eyeOpen > .85, 'eyes reopen on withdrawal')
-assert.ok(kissFaceFrame(3100).face.pout < .09, 'lips relax before the camera exits')
-assert.ok(Math.abs(kissCameraFrame(3349).zoom - 1) < .005,
+assert.ok(kissFaceFrame(4050).face.eyeOpen > .85, 'eyes reopen on withdrawal')
+assert.ok(kissFaceFrame(4050).face.pout < .09, 'lips relax before the camera exits')
+assert.ok(kissFaceFrame(1650).face.pout > kissFaceFrame(3100).face.pout,
+  'the lips pucker at contact and gradually withdraw')
+const rubLeft = kissNuzzleFrame(1750)
+const rubRight = kissNuzzleFrame(2250)
+assert.ok(rubLeft?.yaw > 1.0 && rubRight?.yaw < -1.0,
+  'real head joints nuzzle both ways without flinging the entire avatar')
+assert.ok(Math.abs(rubLeft.roll) < 4 && Math.abs(rubRight.roll) < 4)
+assert.equal(kissNuzzleFrame(4000), null, 'nuzzle ends before slow withdrawal')
+assert.equal(kissNuzzleFrame(Number.NaN), null)
+assert.ok(Math.abs(kissCameraFrame(4449).zoom - 1) < .005,
   'camera must not cut back in its last rendered frame')
 
 // The wolf's screen-space lips are slightly right of the model pivot. When
