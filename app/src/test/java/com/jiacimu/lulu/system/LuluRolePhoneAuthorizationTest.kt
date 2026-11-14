@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class LuluRolePhoneAuthorizationTest {
-    @Test fun singleVirtualScreenGrantEnablesAllAndRevokesAllWithoutLegacyBypass() {
+    @Test fun virtualScreenGrantCoversChatAndShoppingButNotNativeMediaOrDeviceTools() {
         val context = RuntimeEnvironment.getApplication()
         val first = "single-phone-grant-first"
         val second = "single-phone-grant-second"
