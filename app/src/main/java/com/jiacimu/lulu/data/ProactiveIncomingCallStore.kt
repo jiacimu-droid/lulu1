@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 data class ProactiveIncomingCall(
     val characterId: String,
@@ -56,6 +58,13 @@ object ProactiveIncomingCallStore {
         require(mediaMode == "voice" || mediaMode == "video") { "来电类型必须是 voice 或 video" }
         initialize(context)
         reconcileExpired(now)
+        // Never silently erase a previous invitation when two calls overlap.
+        mutablePending.value?.let { previous ->
+            check(previous.active(now)) { "过期来电未能保存回执，不能覆盖原始记录" }
+            recordUnconnectedCall(previous, "replaced")
+            clear(previous)
+            previous.commitmentTaskId?.let(CommitmentCallFeedback::onMissed)
+        }
         commitmentTaskId?.let(resolvedTaskCalls::remove)
         val call = ProactiveIncomingCall(
             characterId = characterId,
@@ -83,6 +92,8 @@ object ProactiveIncomingCallStore {
 
     @Synchronized fun respond(call: ProactiveIncomingCall, answered: Boolean) {
         if (mutablePending.value != call) return
+        // User refusal is not a timeout, nor a successfully connected call.
+        if (!answered) recordUnconnectedCall(call, "declined")
         call.commitmentTaskId?.let { resolvedTaskCalls[it] = answered }
         clear(call)
         call.commitmentTaskId?.let { CommitmentCallFeedback.onResponse(it, answered) }
@@ -96,6 +107,9 @@ object ProactiveIncomingCallStore {
     /** Reconciled both by the visible UI and when a background alarm fires. */
     @Synchronized fun reconcileExpired(now: Instant = Instant.now()) {
         val call = mutablePending.value?.takeIf { !it.active(now) } ?: return
+        // Persist a deduplicated real outcome BEFORE deleting the only pending
+        // snapshot. If chat storage fails, leave the expired offer for retry.
+        recordUnconnectedCall(call, "expired")
         clear(call)
         call.commitmentTaskId?.let(CommitmentCallFeedback::onMissed)
         WakeMusicCoordinator.onMissedCall(application, call.characterId, call.commitmentTaskId)
@@ -108,6 +122,32 @@ object ProactiveIncomingCallStore {
         prefs?.edit()?.remove(KEY_PENDING)?.commit()
         current?.let { active -> application?.let { ProactivePerceptionRuntime.cancelCallNotification(it, active.conversationId) } }
         com.jiacimu.lulu.LuluCallRingtone.stopIncoming()
+    }
+
+    /** A phone offer never proves the Android banner or ringtone was delivered.
+     * A system receipt enters the existing chat + shared experience timeline,
+     * without paying for another autonomous model turn.
+     */
+    private fun recordUnconnectedCall(call: ProactiveIncomingCall, outcome: String) {
+        val context = application ?: error("主动来电上下文未初始化")
+        MigratedDomainStores.chat.initialize(context)
+        val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull {
+            it.id == call.conversationId && it.groupChat == null && it.characterId == call.characterId
+        } ?: return // Do not resurrect a deleted conversation.
+        val time = DateTimeFormatter.ofPattern("M月d日 HH:mm")
+            .withZone(ZoneId.systemDefault()).format(call.createdAt)
+        val media = if (call.mediaMode == "video") "视频" else "语音"
+        val detail = when (outcome) {
+            "declined" -> "已拒接（用户选择拒接，未建立通话）"
+            "replaced" -> "未接通（被下一通来电替换）"
+            else -> "未接通（来电邀请超时，无接听记录）"
+        }
+        val fact = "[共同活动] $time ${conversation.title}发起的$media来电$detail；手机来电通知实际显示与否尚未确认"
+        MigratedDomainStores.chat.appendSystemReceipt(
+            call.conversationId,
+            "incoming-call-unconnected-${call.characterId}-${call.createdAt.toEpochMilli()}",
+            fact,
+        )
     }
 
     private fun encode(call: ProactiveIncomingCall): String = JSONObject()
