@@ -83,6 +83,46 @@ class NativeResidentLifeIntegrationTest {
             ResidentDailyRoutine.plan(employee, Instant.parse("2026-10-23T22:00:00Z"), ZoneOffset.UTC).location)
     }
 
+    @Test fun nightClockLeavesGameHallResidentInPlaceUntilRealGoHome() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldExpansionStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "夜间行程" + UUID.randomUUID().toString().take(6),
+            identity = "游戏馆机台管理员",
+            homeLocationCode = DigitalWorldPublicPlaces.GAME_HALL,
+            currentLocationCode = DigitalWorldPublicPlaces.GAME_HALL,
+        ))
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val at = java.time.LocalDate.of(2026, 11, 14).atTime(22, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        try {
+            ResidentDailyRoutine.refresh(context, at)
+            assertEquals(DigitalWorldPublicPlaces.GAME_HALL,
+                DigitalWorldExpansionStore.residents().single { it.id == native.id }.currentLocationCode)
+            assertEquals(DigitalWorldPublicPlaces.GAME_HALL, DigitalWorldStore.locationOf(actor))
+            // Repeating the same slot never backfills a made-up return journey.
+            ResidentDailyRoutine.refresh(context, at.plusSeconds(1))
+            assertFalse(DigitalWorldStore.state.value.events.any {
+                it.characterId == actor && it.kind == "go_home"
+            })
+            val back = DigitalWorldStore.performAction(actor, "go_home",
+                org.json.JSONObject(), at.plusSeconds(60))
+            assertTrue(back.summary, back.success)
+            assertEquals(DigitalWorldStore.homeLocation(actor), DigitalWorldStore.locationOf(actor))
+            assertEquals(DigitalWorldStore.homeLocation(actor),
+                DigitalWorldExpansionStore.residents().single { it.id == native.id }.currentLocationCode)
+            assertTrue(DigitalWorldBulletin.collect(
+                DigitalWorldStore.state.value, emptyList(), emptyList(), emptyList()
+            ).any { it.title.startsWith("世界行程") && it.detail.contains("回到了自己的空中家园") })
+        } finally {
+            DigitalWorldExpansionStore.removeResident(native.id)
+        }
+    }
+
     @Test fun independentResidentsHaveJobsLunchBreaksAndSleep() {
         val worker = person("照野")
         val morning = ResidentDailyRoutine.plan(worker, Instant.parse("2026-10-23T09:00:00Z"), ZoneOffset.UTC)
