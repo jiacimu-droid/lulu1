@@ -66,7 +66,7 @@ internal object DigitalWorldBulletin {
                     "home_created", "build_home_item", "home_item_built",
                     "item_built", "item_created", "item_removed",
                     "remove_home_item", "visit_received", "visit_character_home",
-                    "handle_incident", "go_home", "visit_cloud_meadow",
+                    "handle_incident", "go_home", "native_resident_location", "visit_cloud_meadow",
                     "visit_public_place", "visit_character_home", "visit_resident_home",
                     "location_discovered", "new_location",
                 ) || event.kind.startsWith("resident_") ||
