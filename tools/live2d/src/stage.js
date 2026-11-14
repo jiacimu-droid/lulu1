@@ -1,7 +1,7 @@
 import { installPhysicsFrameControl } from './physics-frame-control.mjs'
 import {
-  kissCameraFrame, kissFaceFrame, kissCameraHorizontalPosition,
-  kissMouthLocalOffsetX, WOLF_KISS_MOTION_INDEX,
+  kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissCameraHorizontalPosition,
+  kissMouthLocalOffsetX, WOLF_KISS_MOTION_INDEX, KISS_CAMERA_DURATION_MS,
 } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
@@ -346,8 +346,8 @@ function applyKissCameraPose(now = performance.now()) {
   const frame = active ? kissCameraFrame(now - active.startedAt) :
     { zoom: 1, finished: true }
   if (frame.finished) {
-    // A preview's static face preset otherwise outlives its 3.35s Motion3
-    // and reappears for another second with frozen kiss lips/closed eyes.
+    // The renderer-only soft exit outlives the 3.35s authored Motion3.
+    // A stale static face preset must not linger after the exit finishes.
     // Complete only this exact clip's short facial lease.
     if (active && authoredMotion?.model === model &&
         authoredMotion.revision === active.revision &&
@@ -361,8 +361,11 @@ function applyKissCameraPose(now = performance.now()) {
   // from the model's calibrated mouth, or the wolf-specific visual fallback.
   const focusY = base.height * 0.42
   model.scale.set(base.scale * zoom)
+  const nuzzle = active ? kissNuzzleFrame(now - active.startedAt) : null
+  // Subtle screen-space contact comes from neck sway, not a sprite shake.
+  const slideX = nuzzle ? base.width * nuzzle.yaw * .005 : 0
   model.position.set(kissCameraHorizontalPosition(base, zoom,
-    active?.mouthLocalX ?? 0), focusY + (base.y - focusY) * zoom)
+    active?.mouthLocalX ?? 0) + slideX, focusY + (base.y - focusY) * zoom)
 }
 function cancelKissCamera() {
   if (!kissCameraLease) return
@@ -599,6 +602,9 @@ function applyFinalParameters(core, deltaMs) {
     ? kissFaceFrame(tactileNow - kissCameraLease.startedAt) : null
   const stagedFace = kissFrame
     ? { ...(visibleFace || {}), ...kissFrame.face } : visibleFace
+  // The nuzzle follows the kiss's clock, never a new TTS phrase clock.
+  const kissNuzzle = kissFrame
+    ? kissNuzzleFrame(tactileNow - kissCameraLease.startedAt) : null
   // Keep an already-chosen sequence alive after its first clip naturally
   // finishes. The next Motion3 is NOT scheduled by guessed speech speed.
   advanceSpeechMotionIfFinished()
@@ -607,7 +613,7 @@ function applyFinalParameters(core, deltaMs) {
   const motionActive = !!authoredMotion?.started && authoredMotion.model === model &&
     manager?.isFinished?.() === false
   visualLayers.update(core, {
-    deltaMs, head: headRequest, body: bodyRequest, face: stagedFace,
+    deltaMs, head: kissNuzzle || headRequest, body: bodyRequest, face: stagedFace,
     authoredMotion: motionActive,
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     touchMotionActive: motionActive && authoredMotion?.source === 'touch',
@@ -675,7 +681,7 @@ function applyFinalParameters(core, deltaMs) {
   // The wolf's modeled lip narrowing is independent from ParamMouthForm:
   // a smile-shaped mouth with closed eyes still looks like a zoomed photo.
   // During audible speech TTS retains authority over lip articulation.
-  if (kissFrame && !playing && hasParameter(core, 'ParamMouthPuckerWiden'))
+  if (kissFrame && !audibleMouth && hasParameter(core, 'ParamMouthPuckerWiden'))
     setParameter(core, 'ParamMouthPuckerWiden', -.38 * kissFrame.pucker)
   motionTransition.capture(core, core.getModel?.()?.parameters?.ids || [])
 }
@@ -870,7 +876,7 @@ async function load(modelURL) {
     }
     if (sequence !== loadSequence) return
     if (model) {
-      clearSpeechMoment()
+      clearSpeechMoment({ cancelKiss: true })
       pendingExpressionName = null
       pendingSpeechParts = null
       app.stage.removeChild(model)
@@ -968,8 +974,10 @@ function activatePendingSpeechMoment() {
   // An audible next clip should take over the *current* physical motion,
   // not force Cubism to an idle frame before the next authored clip loads.
   // Explicit interruption, model disposal and motionless replies still stop it.
-  if (parts?.replace) clearSpeechMoment({ preserveCurrentMotion: !!(
-    parts?.motion || parts?.hasMotionBeats) })
+  if (parts?.replace) clearSpeechMoment({
+    preserveCurrentMotion: !!(parts?.motion || parts?.hasMotionBeats),
+    cancelKiss: !!(parts?.motion || parts?.hasMotionBeats),
+  })
   if (parts?.motion) motion(parts.motion.group, parts.motion.index, true,
     'character', parts.motionOptions || {})
   if (selected) startSpeechExpression(selected)
@@ -1107,7 +1115,7 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
   pendingExpressionName = null
   pendingSpeechParts = null
   if (phase === 'interrupted') {
-    clearSpeechMoment()
+    clearSpeechMoment({ cancelKiss: true })
     scoredBeats = []
     scoreVisualSequence = 0
   } else {
@@ -1714,7 +1722,7 @@ function setPaused(value) {
     if (discardedSequence > 0 &&
         (!finalizedAudio || discardedSequence >= finalizedAudio.sequence))
       finalizedAudio = { sequence: discardedSequence, segmentIndex: 0, interrupted: true }
-    clearSpeechMoment()
+    clearSpeechMoment({ cancelKiss: true })
     mouthExpressionGate.reset()
     touchReflex = null
     cancelTactileMotion()
@@ -1743,14 +1751,17 @@ function resetSpeechExpression() {
   activeExpressionStartedAt = 0
   activeExpressionIsPreview = false
 }
-function clearSpeechMoment({ preserveCurrentMotion = false } = {}) {
-  // Only the already-started, same-model character motion may survive a
-  // planned motion-to-motion handoff. Never preserve touch, stale async load,
-  // finished motion or an unvalidated new decision by accident.
-  const carryMotion = preserveCurrentMotion && authoredMotion?.started &&
+function clearSpeechMoment({ preserveCurrentMotion = false, cancelKiss = false } = {}) {
+  // An audible next phrase isn't a command to break an already-started kiss.
+  // Hold the bounded physical lease through speech-only/expression-only cues;
+  // explicit new Motion3, interruption, hide and disposal always release it.
+  const carryKiss = !cancelKiss && kissCameraLease?.model === model &&
+    authoredMotion?.started && authoredMotion?.revision === kissCameraLease.revision &&
+    performance.now() - kissCameraLease.startedAt < KISS_CAMERA_DURATION_MS
+  const carryMotion = (preserveCurrentMotion || carryKiss) && authoredMotion?.started &&
     authoredMotion.model === model && authoredMotion.source === 'character' &&
     model?.internalModel?.motionManager?.isFinished?.() !== true
-  cancelKissCamera()
+  if (cancelKiss) cancelKissCamera()
   motionTransition.cancel()
   resetSpeechExpression()
   mouthExpressionGate.reset()
@@ -1891,7 +1902,10 @@ function perform(cue, immediatePreview = false) {
   const hasChosenNextMotion = !!cue.motion ||
     (Array.isArray(cue.beats) && cue.beats.some(beat => !!beat?.motion))
   if (playing || immediatePreview)
-    clearSpeechMoment({ preserveCurrentMotion: hasChosenNextMotion })
+    clearSpeechMoment({
+      preserveCurrentMotion: hasChosenNextMotion,
+      cancelKiss: immediatePreview || hasChosenNextMotion,
+    })
   else speechMotionFollowUps = []
   if (!playing && !immediatePreview) pendingSpeechParts = { queuedAt: Date.now(), replace: true }
   if (awaitingOwnVoice) {
