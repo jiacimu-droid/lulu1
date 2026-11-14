@@ -151,7 +151,10 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
                 shape=RoundedCornerShape(18.dp),
                 border=BorderStroke(1.dp,accent.copy(alpha=.45f)),
             ) {
-                Column(Modifier.fillMaxWidth()
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val compact = maxHeight < 380.dp
+                    Column(Modifier.fillMaxWidth()
+                    .heightIn(max=maxHeight)
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                     horizontalAlignment=Alignment.CenterHorizontally,
@@ -160,7 +163,7 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
                     Text(loot.name,color=Color(0xFFF1EEE7),fontSize=23.sp,
                         fontWeight=FontWeight.Bold)
                     TreasureMuseumStage(loot,accent,
-                        Modifier.fillMaxWidth().height(256.dp))
+                        Modifier.fillMaxWidth().height(if (compact) 144.dp else 256.dp))
                     Text(RelicTreasureGallery.identity(loot.name),
                         color=Color(0xFFCCD6D6),fontSize=13.sp,
                         lineHeight=19.sp)
@@ -169,6 +172,7 @@ internal fun RelicTreasureGalleryCard(loot:RelicLoot,featured:Boolean) {
                     TextButton(onClick={inspecting=false}) {
                         Text("收起鉴赏",color=accent,fontSize=13.sp)
                     }
+                }
                 }
             }
         }
