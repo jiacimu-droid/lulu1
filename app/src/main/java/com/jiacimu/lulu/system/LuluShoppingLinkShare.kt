@@ -22,6 +22,11 @@ internal object LuluShoppingLinkShare {
     private val merchantDomains = mapOf(
         "com.xunmeng.pinduoduo" to ("拼多多" to listOf("yangkeduo.com", "pinduoduo.com", "pdd.cn")),
         "com.taobao.taobao" to ("淘宝" to listOf("taobao.com", "tmall.com", "tb.cn")),
+        // Verified Android package IDs for Meituan and Meituan Waimai.
+        // Only official HTTPS domains are eligible for a chat handoff;
+        // other redirects/short links require separate source verification.
+        "com.sankuai.meituan" to ("美团" to listOf("meituan.com")),
+        "com.sankuai.meituan.takeoutnew" to ("美团外卖" to listOf("meituan.com")),
         // These are different installed apps: never infer the target from a merchant nickname.
         // Allow the confirmed share domains only, not arbitrary copied URLs.
         "com.taobao.idlefish" to ("闲鱼" to listOf("goofish.com", "taobao.com", "tb.cn")),
