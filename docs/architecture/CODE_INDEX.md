@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6e2059cbe53d517c30246f9a3c399f30603e6664`
+- 基准提交：`88dad61d40f3b0d20214b3f6634273452bbfe180`
 - 分支：`main`
 - 已索引文件：1305
-- 已索引代码/文本行：275105
+- 已索引代码/文本行：275125
 - 已发现符号：3879
 
 | 文件 | 行数 | 符号数 |
@@ -704,7 +704,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 127 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 129 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTerrainPalette.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 231 | 8 |
@@ -1240,7 +1240,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 196 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 213 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 231 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 74 | 1 |
