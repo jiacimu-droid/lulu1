@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:04:23.207301+00:00",
-  "commit": "880d001e4a2323d27a9cbbcb175fe4ee2b5e0f3d",
+  "generatedAt": "2026-11-14T08:06:14.780042+00:00",
+  "commit": "ba461d5734aa0c091177eb4868f013c8607765f2",
   "branch": "main",
-  "sourceFingerprint": "aa6b240ce53d522b6a9c653639d7983f93f9cc416a135a962eb18627022a6bde",
+  "sourceFingerprint": "1e8107cbbccb6b682d227b4bde4a88dfab93b8a90157ce4eaa1055c52ad4c27c",
   "summary": {
     "files": 1313,
-    "lines": 277552,
+    "lines": 277622,
     "symbols": 3917
   },
   "symbolIndex": {
@@ -8479,13 +8479,13 @@
     "wakeSpeechContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 123
+        "line": 131
       }
     ],
     "selectionEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 136
+        "line": 144
       }
     ],
     "CommitmentLexiconSync": [
@@ -29356,16 +29356,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 517,
-      "sha256": "090f313d40fe050490237647e724f1d39cc7279e98fcb11f5d784537b7aba405",
+      "lines": 544,
+      "sha256": "169ef7ad26b110434adff48747441c015a260becf567cd8bb26082549f849bfe",
       "symbols": [
         {
           "name": "wakeSpeechContext",
-          "line": 123
+          "line": 131
         },
         {
           "name": "selectionEvidence",
-          "line": 136
+          "line": 144
         }
       ]
     },
@@ -45700,8 +45700,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 1022,
-      "sha256": "dced4e208dce7dfc42eba3f6c60b0ffc59de9eaf86ef0d6446ed1e05fbc3fc85",
+      "lines": 1065,
+      "sha256": "2c8c6f3cbbcd94e4ce9e60302d869ba8ce937160fba2757f7234170ef97c2d7e",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
