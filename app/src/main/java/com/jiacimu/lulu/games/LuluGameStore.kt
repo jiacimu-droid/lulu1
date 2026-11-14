@@ -368,7 +368,7 @@ class LuluGameStore internal constructor(context: Context) {
                     if (item.id == record.id) item.copy(activityMessageId = activityMessage.id) else item
                 })
             }
-        } else if (record.characterId.isNotBlank()) {
+        } else if (record.characterSolo && record.characterId.isNotBlank()) {
             SharedExperienceTimeline.record(
                 eventId = "game-solo-${record.id}",
                 characterId = record.characterId,
@@ -416,6 +416,10 @@ class LuluGameStore internal constructor(context: Context) {
         }
         val previousBest = mutableState.value.records.filter {
             it.characterId == characterId && !it.playedWithCharacter &&
+                (it.characterSolo || (
+                    it.type in setOf(LuluGameType.MemoryMatch, LuluGameType.YachtDice) &&
+                        it.summary.startsWith("独自完成一局")
+                )) &&
                 it.type == when (normalized) {
                     AutonomousGameCatalog.MEMORY_MATCH -> LuluGameType.MemoryMatch
                     AutonomousGameCatalog.YACHT_DICE -> LuluGameType.YachtDice
