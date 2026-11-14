@@ -150,12 +150,8 @@ internal fun DigitalWorldGameScene(
     val density = LocalDensity.current
     val sceneKey = remember(sceneCode, homeCharacterId) { "$sceneCode:${homeCharacterId.orEmpty()}" }
     val residents = remember(characters, world.characterLocations, sceneCode) {
-        // Native residents render through nativeResidents below. Their bridged character
-        // records must not spawn a second companion body at the same address.
-        characters.filter {
-            !it.characterId.startsWith("resident:") &&
-                world.characterLocations[it.characterId] == sceneCode
-        }
+        // Native residents use nativeResidents below, not a second companion body.
+        worldCompanionsAt(characters, world, sceneCode)
     }
     var nativeResidents by remember(sceneCode) {
         mutableStateOf(DigitalWorldExpansionStore.residentsAt(sceneCode))
