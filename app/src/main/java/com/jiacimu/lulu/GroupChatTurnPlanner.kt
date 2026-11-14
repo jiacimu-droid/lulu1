@@ -67,6 +67,9 @@ internal object GroupChatTurnPlanner {
             legacy.optString(index).trim().takeIf { it in allowed }
                 ?.let(::GroupChatSceneBeat)
         }
+        // [] is a valid choice to pause. Invalid nonempty output is not.
+        if (beats.isEmpty() && ((directed?.length() ?: legacy?.length() ?: 0) > 0))
+            return null
         return GroupChatScenePlan(beats.take(limit.coerceAtLeast(1)))
     }
 
