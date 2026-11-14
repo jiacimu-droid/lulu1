@@ -167,7 +167,8 @@ internal object CharacterPerceptionContext {
      * unacknowledged evidence. Model dialogue and routine self-movement remain
      * outside this factual stimulus stream. */
     private fun isPerceptible(event: SharedTimelineEvent, now: Instant): Boolean =
-        !event.occurredAt.isAfter(now) && (
+        !event.occurredAt.isAfter(now) &&
+            !InteractionSignalBridge.isRoleInitiatedCallEnd(event) && (
             (event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting",
                     InteractionSignalBridge.SOURCE, "xiaohongshu-webview", "xiaohongshu-mcp",
@@ -299,6 +300,7 @@ internal object CharacterPerceptionContext {
         else if (event.source == "phone:friend")
             CharacterFriendRequests.counterpartForNotice(event.characterId, event.id)
                 ?.let(::setOf) ?: emptySet()
+        else if (InteractionSignalBridge.isRoleInitiatedCallEnd(event)) emptySet()
         else if (event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
             event.source == InteractionSignalBridge.SOURCE) setOf("user")
