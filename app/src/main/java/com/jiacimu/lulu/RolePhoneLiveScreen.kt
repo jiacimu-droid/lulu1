@@ -249,9 +249,13 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
                     ?: error("图片数据解码失败")
             }
             try {
-                val sent = CompanionActionRuntime.sendCapturedScreenshot(
-                    context, roleId, result, "主人保存的后台屏截图",
-                    selected.frame.packageName, sourceDisplay = "virtual")
+                // Saving JPEG and committing the chat attachment may perform disk I/O.
+                // Keep both off Compose's main dispatcher, just like frame capture.
+                val sent = withContext(Dispatchers.IO) {
+                    CompanionActionRuntime.sendCapturedScreenshot(
+                        context, roleId, result, "主人保存的后台屏截图",
+                        selected.frame.packageName, sourceDisplay = "virtual")
+                }
                 status = if (sent.success) "已保存到私聊（主人操作）" else sent.summary
             } finally { result.recycle() }
         } catch (cancel: CancellationException) {
