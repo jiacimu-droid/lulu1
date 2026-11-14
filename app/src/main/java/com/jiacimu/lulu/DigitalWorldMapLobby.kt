@@ -56,6 +56,20 @@ internal fun worldCompanionsAt(
         world.characterLocations[character.characterId] == code
 }
 
+/** Native eyewitnesses are separate identities, not duplicate companion avatars. */
+internal fun worldArrivalWitnessIds(
+    characters: List<CharacterSettings>,
+    profiles: Map<String, DigitalLifeProfile>,
+    world: DigitalWorldState,
+    code: String,
+    nativeResidents: List<DigitalWorldResident>,
+): List<String> = (
+    worldCompanionsAt(mapCompanionCharacters(characters, profiles), world, code)
+        .map(CharacterSettings::characterId) +
+    nativeResidents.filter { it.currentLocationCode == code }
+        .map { ResidentCharacterBridge.characterId(it.id) }
+).distinct()
+
 @Composable
 internal fun DigitalWorldMapLobby(
     modifier: Modifier,
@@ -146,8 +160,8 @@ internal fun DigitalWorldMapLobby(
     val activeSceneCode = openSceneCode
     val activeSceneLabel = activeSceneCode?.let(::sceneLabel)
     val sceneResidents = activeSceneCode?.let { scene ->
-        worldCompanionsAt(mapCompanionCharacters(characters, profiles), world, scene)
-            .map { it.characterId }
+        worldArrivalWitnessIds(characters, profiles, world, scene,
+            DigitalWorldExpansionStore.residentsAt(scene))
     }.orEmpty()
     DisposableEffect(activeSceneCode) {
         val code = activeSceneCode
