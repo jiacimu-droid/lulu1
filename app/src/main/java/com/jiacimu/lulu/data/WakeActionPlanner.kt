@@ -29,9 +29,7 @@ internal object WakeActionPlanner {
     )
 
     fun musicAllowed(context: Context, characterId: String): Boolean {
-        val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        return prefs.getBoolean("$characterId:media", false) &&
-            prefs.getBoolean("$characterId:wake_music_enabled", false)
+        return com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
     }
 
     suspend fun choose(
