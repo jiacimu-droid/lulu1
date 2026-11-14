@@ -206,3 +206,10 @@
 - G-03 实际美化：`8f3ac1e` + `c11c9a8` 让藏宝馆每件真实收入的藏品条目显示对应原始 `RelicTreasureArt` 造型和 `RelicTreasureGallery.accent` 品级材质，而非只有文字、通用菱形和估价；当前选择通过相同 ID 高亮，原展出/分享/出售回调不变。复用原鉴赏展台渲染，无重复物品源、网络资源或额外模型请求。
 - 工程核对：五个修改文件从当前 main 重新读取，目标入口分别存在且花括号数量配平；`Refresh code index #43562243156`（源 `76d3448`）success 并产生 `a21e2c9` 索引提交。此静态检查不是 Kotlin/Compose 编译或测试。新的 [Lulu APK/JVM #43562243159](https://github.com/jiacimu-droid/lulu1/actions/runs/43562243159) 当前 pending，先前连续 push 的取消运行不算编译失败；后续须查覆盖上述五个提交的完整有效 success/首错。
 - 视觉限制与下一证据：本轮没有安卓实机运行截图、360/412dp 横竖屏、放大字体或低端机 FPS 记录。需在真机检查：海岛浅色席位在真实插画上可辨、紧凑席位可正常移除/邀请、工作台小尺寸工具轮廓能认出；摸金珍宝缩略画不裁切、稀有品级颜色与放大鉴赏一致。没有新增生成图的原因是既有海岛原创背景/地表图集和珍宝原创矢量已被正式打包，先把真正存在的素材用于真实页面，避免替代掉已获认可画风。
+
+
+## 2026-11-14 G-03.5 · 七档随机宝箱与地图可达性回归修正
+
+- main `8ed351d` 的 [Lulu APK/JVM #43568418919](https://github.com/jiacimu-droid/lulu1/actions/runs/43568418919) 实际 **failure**：3028 tests、1 failed、1 skipped；唯一失败 `RelicEscapeRulesTest.generatedMapHasRealReachableChestsAndExitOnEverySeed` 第 782 行。此前索引 #43568418916 success **不能替代 APK**。失败根因是旧测试要求每个固定 seed 必有 `PRECIOUS` 箱，与现有 `RelicEscapeWorld` 七档概率真实随机生成相冲突；并非地图不可达，也不能为通过测试强塞保底稀有奖励。
+- 测试提交 [`44e2791`](https://github.com/jiacimu-droid/lulu1/commit/44e2791fb2d0571eb707b3bbbef6b8b188d351b4)，`RelicEscapeRulesTest.kt` blob `29bed525`：保留多 seed 的地图、出口与所有宝箱路径验证；改验 0..6 合法品级、`RelicQuality.at(grade)` 对应真实 tier、相同 seed 的箱子品级一致。**只改根因级旧断言，不改真实掉落概率/库存/角色决策。**
+- 下一轮：查询包含 `44e2791` 的 main push JVM/APK/index 对应 head SHA；失败查首错，成功后继续 `RelicVaultPage.kt` 筛选→展出/出售→重新进入的 Compose 交互与横屏真机截图，检查真实实体库存和稀有展品。此轮无真机、真实模型与 FPS 证据。
