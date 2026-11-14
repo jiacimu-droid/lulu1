@@ -49,13 +49,13 @@ class DigitalWorldBulletinTest {
     @Test fun ambientAndOrdinaryMovementDoNotFloodTheAnnouncementBoard() {
         val at = Instant.parse("2026-10-11T08:00:00Z")
         val world = DigitalWorldState(events = listOf(
-            DigitalWorldEvent("walk", "r", "go_home", "只是回家", at),
+            DigitalWorldEvent("walk", "r", "walk", "普通走动", at),
             DigitalWorldEvent("furniture", "r", "build_home_item", "新建了一把椅子", at),
             DigitalWorldEvent("home", "r", "home_created", "建造了一处真正的家", at.minusSeconds(60)),
         ))
         val notices = DigitalWorldBulletin.collect(world, emptyList(), emptyList())
         assertEquals(2, notices.size)
-        assertFalse(notices.any { it.detail.contains("只是回家") })
+        assertFalse(notices.any { it.detail.contains("普通走动") })
         assertTrue(notices.any { it.detail.contains("椅子") })
     }
 }
