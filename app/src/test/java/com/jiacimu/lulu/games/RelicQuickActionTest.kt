@@ -2,7 +2,12 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [33])
 class RelicQuickActionTest {
     private fun run() = RelicEscapeWorld.create(915, 2, emptyList(), 2, 2)
         .copy(mobs = emptyList())
