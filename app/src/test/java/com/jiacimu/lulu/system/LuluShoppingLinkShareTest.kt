@@ -55,6 +55,34 @@ class LuluShoppingLinkShareTest {
             "https://h5.m.goofish.com/item?id=12"))
     }
 
+    @Test fun preferredFourMarketplacesCanHandOffRealShareUrls() {
+        val common = listOf(
+            Triple("com.taobao.taobao", "淘宝", "https://m.tb.cn/h.abc123?tk=AB12"),
+            Triple("me.ele", "淘宝闪购", "https://u.ele.me/5zX9"),
+            Triple("com.xunmeng.pinduoduo", "拼多多",
+                "https://mobile.yangkeduo.com/goods.html?goods_id=123"),
+            Triple("com.taobao.idlefish", "闲鱼", "https://h5.m.goofish.com/item?id=12"),
+        )
+        common.forEach { (pkg, merchant, url) ->
+            assertEquals(merchant, LuluShoppingLinkShare.merchantName(pkg))
+            assertTrue(LuluShoppingLinkShare.eligibleCopy(pkg, "复制链接", true, true))
+            assertEquals(url, LuluShoppingLinkShare.verifiedChangedLink(
+                pkg, null, "分享给你：" + url + "。"))
+            assertTrue(LuluShoppingLinkShare.matchesMerchantLink(merchant, url))
+            assertEquals(url, decodeQqShoppingProductLink(
+                encodeQqShoppingProductLink(merchant, url, "我选的这个")
+            )?.url)
+            assertFalse(LuluShoppingLinkShare.eligibleCopy(pkg, "复制链接", true, false))
+            assertFalse(LuluShoppingLinkShare.eligibleCopy(pkg, "立即购买", true, true))
+        }
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
+            "com.taobao.taobao", "复制宝贝链接", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
+            "com.xunmeng.pinduoduo", "复制链接到剪贴板", true, true))
+        assertFalse(LuluShoppingLinkShare.eligibleCopy(
+            "com.taobao.idlefish", "复制", true, true))
+    }
+
     @Test fun meituanAndWaimaiShareOnlyTheirVerifiedOfficialHttpsLinks() {
         val meituan = "com.sankuai.meituan"
         val waimai = "com.sankuai.meituan.takeoutnew"
