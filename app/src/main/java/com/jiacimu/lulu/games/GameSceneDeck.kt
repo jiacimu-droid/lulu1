@@ -56,6 +56,8 @@ internal fun GameSceneDeck(
     compactSummary: String = "",
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
+    /** Optional small always-reachable guide, independent of scrolling tactical intel. */
+    helpAction: (() -> Unit)? = null,
     /** An explicit selection change can dismiss the tools panel without changing other games. */
     closeToolsSignal: Any? = null,
     /** An explicit nearby-workbench interaction may open the existing menu. */
@@ -98,6 +100,10 @@ internal fun GameSceneDeck(
         // nested layout scopes cannot resolve BoxWithConstraints.maxWidth directly.
         val hudStatusWidth = if (wide) maxWidth * .48f else maxWidth * .59f
         val compactStatusWidth = gameHudCompactStatusMaxWidthDp(maxWidth.value, wide).dp
+        // In portrait, keep room for the right-side team tab when a guide sits
+        // beside the compact vital ribbon. This is a width cap, not extra HUD height.
+        val compactTopLeftWidth = if (helpAction != null && !wide)
+            (maxWidth - sideWidth - 70.dp).coerceAtLeast(95.dp) else maxWidth
         val hudNoticeWidth = if (wide) maxWidth * .42f else maxWidth * .56f
         // Capture BoxWithConstraints height in its own receiver scope. Inside
         // the bottom-right Column, ColumnScope shadows the constraint receiver
@@ -110,30 +116,47 @@ internal fun GameSceneDeck(
                 .padding(start = 9.dp, top = 5.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
+
             if (compactStatus) {
-                // The whole stat line used to permanently cover the upper-left map.
-                // Keep only health / essential progress visible; full details are one tap away.
-                Surface(
-                    modifier = Modifier.widthIn(
-                        max = if (statusExpanded) hudStatusWidth else compactStatusWidth),
-                    color = Color(0xAA162935),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clickable { statusExpanded = !statusExpanded }
-                            .padding(horizontal = 8.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                // Always-visible help has an independent 44dp touch surface. The
+                // guide never pushes attack/build buttons out of the thumb zone.
+                Row(verticalAlignment=Alignment.CenterVertically,
+                    horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    Surface(
+                        modifier=Modifier.widthIn(max=minOf(
+                            if(statusExpanded) hudStatusWidth else compactStatusWidth,
+                            compactTopLeftWidth)),
+                        color=Color(0xAA162935),shape=RoundedCornerShape(12.dp),
                     ) {
-                        Text(
-                            if (statusExpanded || compactSummary.isBlank()) status else compactSummary,
-                            color = Color.White, fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = if (statusExpanded) 2 else 1,
-                        )
-                        Text(if (statusExpanded) "⌃" else "⌄",
-                            color = accent, fontSize = 10.sp)
+                        Row(
+                            modifier=Modifier.clickable { statusExpanded=!statusExpanded }
+                                .padding(horizontal=8.dp,vertical=5.dp),
+                            verticalAlignment=Alignment.CenterVertically,
+                            horizontalArrangement=Arrangement.spacedBy(5.dp),
+                        ) {
+                            Text(if(statusExpanded || compactSummary.isBlank()) status
+                                else compactSummary,
+                                color=Color.White,fontSize=11.sp,
+                                fontWeight=FontWeight.SemiBold,
+                                maxLines=if(statusExpanded)2 else 1)
+                            Text(if(statusExpanded)"⌃" else "⌄",
+                                color=accent,fontSize=10.sp)
+                        }
+                    }
+                    if(helpAction!=null) {
+                        Surface(
+                            onClick=helpAction,
+                            modifier=Modifier.size(44.dp).semantics {
+                                contentDescription="查看游戏玩法指南"
+                            },
+                            color=Color(0xAA162935),
+                            shape=RoundedCornerShape(12.dp),
+                        ) {
+                            Box(contentAlignment=Alignment.Center) {
+                                Text("指南",color=accent,fontSize=11.sp,
+                                    fontWeight=FontWeight.SemiBold)
+                            }
+                        }
                     }
                 }
             } else {
