@@ -248,3 +248,8 @@
 
 - `593b8cad` 在既有 `RelicQuickActionTest.chestUsesRealActionAndCannotOpenTwice` 中验证多次撬锁后的最终开箱必须产生 `RelicChestPresentation.committed` 实体回执，回执 run/chest 与真实背包物件一致，`isCurrentOpening` 仅承认已开箱，重复对同一前后状态不产生第二份凭证；不修改掉率、游戏物理规则或 UI 演出。
 - 测试 blob `de4c2518fae9ef8e29f5db60f3f346fd57b22063`，生产 `RelicChestPresentation.kt` blob `d09b4d1a3dbe836c59ed98d6262da0825ef4ba09`（未改）。本次 CI JVM/APK/index 尚未确认，不能宣称回归通过；真机横屏/帧率、实物落地与撤离入库另验。下一入口：`RelicQuickActionTest.kt` 失败首错或 `RelicChestPresentation.committed` 掉地分支与撤离库存闭环。
+
+## 2026-11-14 G-03.5 · 满包开箱实体掉地与存档回归（工程待验）
+
+- `RelicQuickActionTest.fullSatchelOpeningProducesOnlyGroundReceiptAndSurvivesReload` 以真实规则多次撬锁后开箱，验证已满背包不凭空增加物品、真实珍宝掉在箱位、`RelicChestPresentation.committed` 返回 `inBag=false` 且与权威掉落一致、重复提交不产生凭证、JSON 存档重载仍保留箱盖开启与地面实物。只改测试，未修改概率、奖励、AI 决策或渲染。
+- 测试提交 `27208707`、nullable 恢复夹具修正 `794cb4dc`；测试 blob `301107eac7b06b86d723964c8f5d6a953061dbb4`，正式 `RelicChestPresentation.kt` blob `d09b4d1a3dbe836c59ed98d6262da0825ef4ba09`（未改）。当前 GitHub commit status 与 PR workflow 查询未取得有效 push JVM/APK/index 终态，不能标绿；真机掉地拾取、撤离入库、横屏帧率与美术仍待验。下一实际文件 `RelicQuickActionTest.kt` / `RelicEscapeRules.kt`，先核本测试 JVM 首错，再补从地面拾取到真实撤离仓库的完整实体链。
