@@ -118,7 +118,7 @@ internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>): RelicQuic
     val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
     val interactions = setOf("open", "pickup", "resupply", "fountain",
-        "disarm", "invoke", "revive", "extract")
+        "disarm", "invoke", "silence", "revive", "extract")
     for ((dx, dy) in directions) {
         val x = h.x + dx
         val y = h.y + dy
