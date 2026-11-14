@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:06:52.415714+00:00",
-  "commit": "1f494acdd84ff3e30f4a24c32fcd5bc7d1013b85",
+  "generatedAt": "2026-11-14T16:07:15.139404+00:00",
+  "commit": "4332fd462bf3cd79015d0dc7e16667b3ea8225f4",
   "branch": "main",
-  "sourceFingerprint": "dee2b2062e7a0c41d0275ce57bb1282a3cbd81e30a338d2ab39ac0f508509334",
+  "sourceFingerprint": "f2e1f6459768c2b6f8f3109df4a6503a833907ad7397985e7503c24c41850a90",
   "summary": {
     "files": 1322,
     "lines": 279735,
@@ -46464,7 +46464,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
       "lines": 95,
-      "sha256": "003a150718fd81ea9d9b2c377800e12fd574e71d17b3d234376af5fc20c79565",
+      "sha256": "7eeef2925eeb6bebc1979f3e0a4880c6fa88bc041448c49bd8f6452be4f66b8c",
       "symbols": [
         {
           "name": "LuluRolePhoneAuthorizationTest",
