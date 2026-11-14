@@ -25,14 +25,19 @@ internal data class GroupChatSceneBeat(
 
 internal data class GroupChatScenePlan(
     val beats: List<GroupChatSceneBeat>,
+    /** Infrastructure failure is not a character's decision to stay silent. */
+    val planningFailure: String? = null,
 ) {
-    /** Only validated routing crosses from the director into a person's prompt. */
-    fun hintFor(speakerId: String, names: Map<String, String>): String =
-        when (val target = beats.firstOrNull { it.speakerId == speakerId }?.targetId) {
+    /** The same actor may be offered several turns with different live targets. */
+    fun hintFor(beat: GroupChatSceneBeat, names: Map<String, String>): String =
+        when (val target = beat.targetId) {
             null -> ""
             "user" -> "与用户互动"
             else -> "与" + (names[target] ?: "当前群友") + "互动"
         }
+
+    fun hintFor(speakerId: String, names: Map<String, String>): String =
+        beats.firstOrNull { it.speakerId == speakerId }?.let { hintFor(it, names) }.orEmpty()
 }
 
 internal object GroupChatTurnPlanner {
@@ -49,18 +54,17 @@ internal object GroupChatTurnPlanner {
         val legacy = obj.optJSONArray("speakerIds")
         if (directed == null && legacy == null) return null
         val allowed = allowedIds.toSet()
-        val seen = mutableSetOf<String>()
         val beats = if (directed != null) (0 until directed.length()).mapNotNull { index ->
             val candidate = directed.optJSONObject(index) ?: return@mapNotNull null
             val id = candidate.optString("speakerId").trim()
-            if (id !in allowed || !seen.add(id)) return@mapNotNull null
+            if (id !in allowed) return@mapNotNull null
             GroupChatSceneBeat(
                 speakerId = id,
                 targetId = candidate.optString("targetId").trim()
                     .takeIf { it in allowed || (allowUserTarget && it == "user") },
             )
         } else (0 until legacy!!.length()).mapNotNull { index ->
-            legacy.optString(index).trim().takeIf { it in allowed && seen.add(it) }
+            legacy.optString(index).trim().takeIf { it in allowed }
                 ?.let(::GroupChatSceneBeat)
         }
         return GroupChatScenePlan(beats.take(limit.coerceAtLeast(1)))
@@ -116,8 +120,8 @@ internal object GroupChatTurnPlanner {
             ?: library.archiveIdFor(ModelUsage.Chat)
         val connection = runCatching {
             archiveId?.let(LuluAiServices.connectionStore::resolveConnection)
-        }.getOrNull() ?: return fallback
-        if (connection.model.startsWith("jev-")) return fallback
+        }.getOrNull() ?: return fallback.copy(planningFailure = "未找到群聊规划模型连接")
+        if (connection.model.startsWith("jev-")) return fallback.copy(planningFailure = "群聊规划模型不可用")
 
         // The director can read user-configured cast descriptions to propose a scene.
         // The response only hands off validated speaker/target IDs, never director prose.
@@ -150,15 +154,16 @@ internal object GroupChatTurnPlanner {
             可以是一人短接、一个人对另一个人说的话产生反应、轻微误会/冲突/调侃，也可以认真、尴尬或自然冷场。
             根据每个人可能对谁的话有兴趣，安排不同的互动对象；避免所有成员分别向用户回答同一个问题。
             不为了好笑强迫造梗，不要求一定有人抖包袱，不限制谁话多话少：有分量的话可充分说，简单接话一两句就够。
-            你有权提议 0 到 $limit 个角色获得独立决定发言或沉默的机会；多数普通消息不需要全员接力。
+            你有权提议 0 到 $limit 次独立发言机会，不是每人只能有一次；多数普通消息不需要全员接力。
             有明确 @ 的成员优先考虑，但如果全场已经说到位也可以收住；不要无限续聊抢掉用户的发言空间。
-            每个 beats 项只提议谁获得接话机会，以及可选的互动对象。具体立场、表达意图与台词由角色本人决定。
+            每个 beats 项只提议谁获得接话机会，以及可选的互动对象。可以 A→B→A 或 A→B→A→B，也可以 A→A 或只有 B；无需轮流，也不强制任何人说话。
+            角色可以回看近期每一条真实群消息，自主选择回应较早的 A/B/用户任意一句，或对刚送达的新发言产生反应；不是只能回复最后一条或只能回应用户。具体意图、目标消息与台词由角色本人决定。
             下一位必须在上一位实际发言后自己重新观察；前一人未按计划说时，后面的预案可自行放弃。
             人设、私下关系说明只供导演理解人物，不意味着其他成员知道这件事。不要泄露其他角色私聊、心理、秘事或编造共同经历。
             本导演没有替人判断心理/替人发言/批准工具/强制说话的权力。每位角色本人仍可以选择完全不同的做法。
             仅返回 JSON：
             {"beats":[{"speakerId":"名单内ID","targetId":"user或另一成员ID或空字符串"}]}
-            speakerId 只从群成员 ID 里选择，不得重复；beats=[] 表示此刻自然停住。无需让所有成员都发言。
+            speakerId 只从群成员 ID 里选择，允许重复出现；beats=[] 表示此刻自然停住。无需让所有成员都发言。
         """.trimIndent()
         return try {
             val answer = LuluAiServices.gateway.generate(
@@ -172,12 +177,13 @@ internal object GroupChatTurnPlanner {
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 30_000,
             ).getOrThrow().text
-            decodePlan(answer, allowed, limit, group.ownerIncluded) ?: fallback
+            decodePlan(answer, allowed, limit, group.ownerIncluded)
+                ?: fallback.copy(planningFailure = "群聊规划模型没有返回有效发言安排")
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
-            // No second paid retry and no published fake coordinator decision.
-            fallback
+        } catch (failure: Exception) {
+            // No second paid retry; do not misreport a provider failure as voluntary silence.
+            fallback.copy(planningFailure = "群聊规划请求失败：${failure.message ?: failure::class.java.simpleName}")
         }
     }
 }
