@@ -109,6 +109,18 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
 }
 
 /**
+ * A held directional gesture only requests movement. Chests and landmarks
+ * require an explicit centre-button or HUD interaction, never auto-prying.
+ * The existing authoritative movement rules still decide collisions.
+ */
+internal fun relicDirectionAction(run:RelicRun,dx:Int,dy:Int):RelicQuickAction? {
+    if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
+        kotlin.math.abs(dx)+kotlin.math.abs(dy)!=1) return null
+    return RelicQuickAction("move","移动","只移动，不自动开箱或触发机关",
+        run.hero.x+dx,run.hero.y+dy)
+}
+
+/**
  * Nearby-object interaction for the D-pad. Direction wins, then the other
  * adjacent cells. Combat remains explicit so holding movement cannot spam it.
  */
@@ -126,5 +138,7 @@ internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>): RelicQuic
         val action = relicQuickAction(run, x to y)
         if (action?.action in interactions) return action
     }
-    return relicQuickAction(run, h.x to h.y)?.takeIf { it.action == "pickup" }
+    // Movement can stand on a chest or landmark tile; the centre action
+    // must remain usable from the same tile, not just the four neighbors.
+    return relicQuickAction(run, h.x to h.y)?.takeIf { it.action in interactions }
 }
