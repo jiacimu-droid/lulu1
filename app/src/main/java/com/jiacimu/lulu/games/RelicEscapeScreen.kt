@@ -279,7 +279,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     val nearby = run?.let { relicQuickAction(it, x to y) }
                     // Stepping toward usable objects interacts; fighting requires attack.
                     if (nearby?.action in setOf("open", "pickup", "resupply",
-                            "fountain", "disarm", "invoke", "revive", "extract")) {
+                            "fountain", "disarm", "invoke", "silence", "revive", "extract")) {
                         action(nearby!!.action, nearby.x, nearby.y, nearby.id)
                     } else {
                         action("move", x, y)
@@ -293,6 +293,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val urgent=run.mobs.firstOrNull { it.hp>0 && it.windup &&
                     run.visible(it.x,it.y) &&
                     RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=3 }
+                val alarmActive=run.sites.any { it.kind=="alarm" && !it.spent }
                 val summary=when(run.phase) {
                     RelicPhase.DOWNED -> "等待同伴救援"
                     RelicPhase.EXTRACT -> "撤离还需 ${(3-run.extraction).coerceAtLeast(0)} 回合"
@@ -309,6 +310,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             color=relicGreen,fontSize=10.sp,maxLines=1)
                     }
                 }
+                if(alarmActive && showTactics)
+                    Text("警戒钟楼仍在运作 · 找到后可花1工具拆除，否则搜刮高品级宝箱会招来追兵",
+                        color=relicRed,fontSize=10.sp,maxLines=2)
                 if(urgent!=null)
                     Text("⚠ ${RelicArsenal.monsterName(urgent.kind)} 正在蓄力 · 注意格挡",
                         color=relicRed,fontSize=11.sp,maxLines=1,
