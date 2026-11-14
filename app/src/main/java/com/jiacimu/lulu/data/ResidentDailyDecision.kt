@@ -926,7 +926,7 @@ internal object ResidentDailyDecision {
     internal val wakeTools = setOf("like_moment", "comment_moment", "send_friend_request",
         "respond_friend_request", "send_character_message", "publish_moment",
         "send_group_message", "create_group_chat", "play_solo_game", "digital_world_action",
-        "reschedule_personal_activity", "cancel_personal_activity")
+        "invite_duel_game", "respond_duel_invite", "reschedule_personal_activity", "cancel_personal_activity")
 
     /** Project the executable resident catalogue into BOTH regular and due decisions. */
     internal fun wakeToolContext(catalog: String): String = catalog.lineSequence().filter { line ->
@@ -1047,6 +1047,17 @@ internal object ResidentDailyDecision {
                 "create_group_chat" -> when {
                     args.optString("groupName").isBlank() -> "groupName"
                     args.optJSONArray("memberIds") == null -> "memberIds"
+                    else -> ""
+                }
+                "invite_duel_game" -> when {
+                    args.optString("gameId") !in setOf("yacht_dice", "memory_match") -> "gameId"
+                    args.optString("targetCharacterId").isBlank() -> "targetCharacterId"
+                    args.optString("text").isBlank() -> "text"
+                    else -> ""
+                }
+                "respond_duel_invite" -> when {
+                    args.optString("challengeId").isBlank() -> "challengeId"
+                    args.optString("decision") !in setOf("accept", "decline") -> "decision"
                     else -> ""
                 }
                 "digital_world_action" ->
@@ -1600,6 +1611,7 @@ internal object ResidentDailyDecision {
                         runCatching { JSONObject(event.content).optString("status") in
                             setOf("succeeded", "failed") }.getOrDefault(false)
                     "resident-duty", "meeting", "character-message", "owner-on-behalf",
+                    "duel-game", "duel-invite",
                     "digital-world", "moment:self" -> true
                     else -> false // A daily plan, a hypothetical thought, or someone else's story isn't an outcome.
                 }
@@ -1865,7 +1877,7 @@ internal object ResidentDailyDecision {
                 你也可以选择当天真正已经开放的扩展公共地点，地点码必须是下面合法选项中存在的值。想去哪里是你的决定，营业和休息仍以现实执行结果为准。
                 这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
                 注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
-                想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊、组织自己认识的好友建群或结识新朋友，都可以成为具体行程。
+                想见熟人、与另一位居民聊共同话题、通过 invite_duel_game 邀请熟人比快艇骰子或记忆配对、通过 respond_duel_invite 自己决定应邀或拒绝、回复真实来信、参与群聊、组织自己认识的好友建群或结识新朋友，都可以成为具体行程。
                 见过面但尚未成为好友的人，不等于已经发出了申请。今天若确实想继续来往，可以从上文真实认识且没有待处理申请的 targetCharacterId 自主选择 steps 中的 send_friend_request；对方仍可以拒绝，也可以彼此保持普通熟人。已收到申请则由你决定 respond_friend_request，不允许替对方同意。
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
@@ -1873,7 +1885,7 @@ internal object ResidentDailyDecision {
                 今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
                 agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text）；respond_duel_invite（需本人收到的challengeId和accept/decline）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
                 与熟人聊天并不要求去同一个地点：真实私信与群聊可以发生在本人当下所在的任何地方；只有实体偶遇和当面交谈才需要核实同场在场。遇到有意思的现实来信、此前没聊完的事、共同兴趣或者单纯想分享时，可以由本人考虑主动发一句；没有想说的也可以不发。不要把所有社交压缩成咖啡馆偶遇。
