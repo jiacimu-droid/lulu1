@@ -64,15 +64,8 @@ internal object RelicTreasureGallery {
         else -> "可在藏宝馆展出、鉴赏并分享"
     }
     /** One consistent material accent for the in-game legend and the real museum. */
-    fun rankAccent(rank:String):Color = when(rank) {
-        "精良" -> Color(0xFFB6D9C8)
-        "稀有" -> Color(0xFFB5D5E8)
-        "珍贵" -> Color(0xFFE9D0A1)
-        "史诗" -> Color(0xFFD4C0EF)
-        "传说" -> Color(0xFFF1C5D3)
-        "传世秘宝" -> Color(0xFFFFE4A3)
-        else -> Color(0xFFC8C4B9)
-    }
+    fun rankAccent(rank:String):Color =
+        relicGradeColor(RelicQuality.entries.indexOfFirst { it.label==rank }.coerceAtLeast(0))
     fun accent(loot:RelicLoot):Color=rankAccent(RelicCollectibles.displayRank(loot))
     fun shareText(loot:RelicLoot):String =
         "我在《迷雾摸金》带回了「${loot.name}」！\n"+
