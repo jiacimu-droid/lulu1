@@ -63,6 +63,11 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
             "撬开"+RelicQuality.at(chest.visibleGrade).label+"宝箱 "+
                 (run.chestProgress[chest.id] ?: 0)+"/"+RelicEscapeRules.openSteps(chest),
             "需要多次互动，每次世界都会行动；成功撤离才能永久收藏", x, y)
+        val drop = run.drops.firstOrNull {
+            it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.CAPACITY
+        }
+        if (drop != null) return RelicQuickAction("pickup", "拾取 ${drop.loot.name}",
+            "拾取进背包，不会立即增加永久仓库", id = drop.loot.id)
         val site = run.sites.firstOrNull { it.x == x && it.y == y && !it.spent }
         if (site?.kind == "trap" && run.tools > 0) return RelicQuickAction("disarm",
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
@@ -75,11 +80,6 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
             "拾取药剂和弩箭，储备有限", x, y)
         if (site?.kind == "fountain" && hero.hp<10) return RelicQuickAction("fountain", "汲取恢复灵泉",
             "回复生命，灵泉仅能使用一次", x, y)
-        val drop = run.drops.firstOrNull {
-            it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.CAPACITY
-        }
-        if (drop != null) return RelicQuickAction("pickup", "拾取 ${drop.loot.name}",
-            "拾取进背包，不会立即增加永久仓库", id = drop.loot.id)
         if (x == run.exitX && y == run.exitY && run.phase == RelicPhase.EXPLORE)
             return RelicQuickAction("extract", "启动撤离 · 守住三回合",
                 "守在出口附近，经过三回合才真正带走宝物")
