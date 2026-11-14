@@ -1,7 +1,9 @@
 // Renderer-only framing and facial score for a successfully started wolf
 // kiss Motion3. No new character intent, audio or independent scheduler.
 export const WOLF_KISS_MOTION_INDEX = 48
-export const KISS_CAMERA_DURATION_MS = 3350
+// The original 3.35s Motion3 starts the action. A renderer-only recovery tail
+// lets the lips soften and the camera retreat without racing the next TTS part.
+export const KISS_CAMERA_DURATION_MS = 4450
 export const KISS_CAMERA_PEAK_ZOOM = 2.26
 
 /**
@@ -47,12 +49,13 @@ export function kissCameraFrame(elapsedMs) {
   if (!Number.isFinite(elapsedMs) || elapsedMs < 0 ||
       elapsedMs >= KISS_CAMERA_DURATION_MS)
     return { zoom: 1, finished: true }
-  // One continuous approach, a tiny near-glass contact pulse, then a
-  // smooth withdraw. Zoom changes alone must not pretend the lips kissed.
-  const approach = smooth((elapsedMs - 140) / 1100)
-  const depart = 1 - smooth((elapsedMs - 2160) / 1190)
-  const contact = smooth((elapsedMs - 1350) / 220) *
-    (1 - smooth((elapsedMs - 1890) / 260))
+  // Approach, settle into a soft contact/nuzzle, and leave a long, eased
+  // retreat. The tail is deliberately longer than the authored Motion3;
+  // it is not tied to a guessed TTS sentence length.
+  const approach = smooth((elapsedMs - 140) / 1080)
+  const depart = 1 - smooth((elapsedMs - 2530) / 1920)
+  const contact = smooth((elapsedMs - 1330) / 230) *
+    (1 - smooth((elapsedMs - 2080) / 280))
   return { zoom: 1 + (1.15 * approach + .11 * contact) * depart, finished: false }
 }
 /**
@@ -64,9 +67,13 @@ export function kissFaceFrame(elapsedMs) {
   if (!Number.isFinite(elapsedMs) || elapsedMs < 0 ||
       elapsedMs >= KISS_CAMERA_DURATION_MS) return null
   const close = smooth((elapsedMs - 760) / 550) *
-    (1 - smooth((elapsedMs - 2200) / 650))
-  const pucker = smooth((elapsedMs - 720) / 610) *
-    (1 - smooth((elapsedMs - 2160) / 860))
+    (1 - smooth((elapsedMs - 2980) / 930))
+  // Lips move forward for the contact, soften during the nuzzle, then
+  // retract BEFORE the face has fully moved away from the glass.
+  const contact = smooth((elapsedMs - 1330) / 230) *
+    (1 - smooth((elapsedMs - 2080) / 280))
+  const pucker = smooth((elapsedMs - 700) / 620) *
+    (1 - smooth((elapsedMs - 2580) / 1050)) * (.86 + .14 * contact)
   return {
     face: {
       eyeOpen: .91 - .88 * close,
@@ -77,5 +84,24 @@ export function kissFaceFrame(elapsedMs) {
       jawOpen: 0,
     },
     pucker,
+  }
+}
+
+/**
+ * A tiny two-sided near-glass nuzzle, from real neck angles rather than
+ * an entire 2D sprite shake. It is part of a chosen kiss, not an extra AI
+ * gesture, and finishes before the slow camera retreat.
+ */
+export function kissNuzzleFrame(elapsedMs) {
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0 ||
+      elapsedMs >= KISS_CAMERA_DURATION_MS) return null
+  const strength = smooth((elapsedMs - 1460) / 370) *
+    (1 - smooth((elapsedMs - 2650) / 350))
+  if (strength <= .001) return null
+  const phase = 2 * Math.PI * (elapsedMs - 1480) / 1170
+  return {
+    yaw: 2.8 * Math.sin(phase) * strength,
+    roll: 3.4 * Math.sin(phase + .35) * strength,
+    pitch: -1.25 * strength,
   }
 }
