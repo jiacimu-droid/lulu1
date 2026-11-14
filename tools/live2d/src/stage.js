@@ -633,7 +633,9 @@ function applyFinalParameters(core, deltaMs) {
   visualLayers.update(core, {
     deltaMs, head: kissNuzzle || headRequest, body: bodyRequest, face: stagedFace,
     authoredMotion: motionActive,
-    touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
+    // A real kiss needs closed eyelids even if the earlier voice chose
+    // star-eyes or a touch exp3. Restore expression ownership on exit.
+    touchReflex: tactilePose, eyeShapeLocked: eyesLocked && !kissFrame, physical: physicalState,
     touchMotionActive: motionActive && authoredMotion?.source === 'touch',
     listening, thinking, speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
