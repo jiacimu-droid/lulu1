@@ -35,13 +35,25 @@ import com.jiacimu.lulu.games.MeetingAtmosphereOverlay
  * Location-first digital world browser. Public venues stay deliberately few and dense: every place
  * must offer a distinct shared activity instead of becoming another empty card on the map.
  */
-/** NPCs share the character runtime, but their homes belong only in the resident district. */
+/** Native residents use the character brain but retain their own UI/scene identity. */
+internal fun isWorldCompanionRole(id: String): Boolean = !id.startsWith("resident:")
+
 internal fun mapCompanionCharacters(
     characters: List<CharacterSettings>,
     profiles: Map<String, DigitalLifeProfile>,
 ): List<CharacterSettings> = characters.filter { character ->
-    !character.characterId.startsWith("resident:") &&
+    isWorldCompanionRole(character.characterId) &&
         (profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)).enabled
+}
+
+/** The same presence projection serves map cards, visiting notices and walkable bodies. */
+internal fun worldCompanionsAt(
+    characters: List<CharacterSettings>,
+    world: DigitalWorldState,
+    code: String,
+): List<CharacterSettings> = characters.filter { character ->
+    isWorldCompanionRole(character.characterId) &&
+        world.characterLocations[character.characterId] == code
 }
 
 @Composable
@@ -134,7 +146,7 @@ internal fun DigitalWorldMapLobby(
     val activeSceneCode = openSceneCode
     val activeSceneLabel = activeSceneCode?.let(::sceneLabel)
     val sceneResidents = activeSceneCode?.let { scene ->
-        mapCompanionCharacters(characters, profiles).filter { world.characterLocations[it.characterId] == scene }
+        worldCompanionsAt(mapCompanionCharacters(characters, profiles), world, scene)
             .map { it.characterId }
     }.orEmpty()
     DisposableEffect(activeSceneCode) {
@@ -750,9 +762,9 @@ private fun residentsAt(
     world: DigitalWorldState,
     code: String,
     characters: List<CharacterSettings>,
-): List<CharacterSettings> = characters.filter { world.characterLocations[it.characterId] == code }
+): List<CharacterSettings> = worldCompanionsAt(characters, world, code)
 
 private fun worldCharactersAt(location: String): Int =
     DigitalWorldStore.state.value.characterLocations.count { (id, code) ->
-        code == location && !id.startsWith("resident:") && DigitalLifeProfileStore.isEnabled(id)
+        code == location && isWorldCompanionRole(id) && DigitalLifeProfileStore.isEnabled(id)
     }
