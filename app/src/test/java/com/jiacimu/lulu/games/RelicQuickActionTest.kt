@@ -179,6 +179,26 @@ class RelicQuickActionTest {
         assertEquals(escaping.secured, reopened.secured)
     }
 
+
+    @Test fun physicalGroundLootWinsOverOverlappingActiveLandmark() {
+        val base = run()
+        val h = base.hero
+        val loot = RelicLoot("site:drop:1", "落地珍宝", RelicTier.PRECIOUS, 430)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = emptyList(), mobs = emptyList(),
+            sites = listOf(RelicSite(711, h.x, h.y, "altar")),
+            drops = listOf(RelicDrop(h.x, h.y, loot)),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val command = relicQuickAction(scene, h.x to h.y)!!
+        assertEquals("pickup", command.action)
+        assertEquals(loot.id, command.id)
+        val after = RelicEscapeRules.act(scene, command.action, lootId = command.id)
+        assertTrue(after.hero.bag.contains(loot))
+        assertFalse(after.drops.any { it.loot.id == loot.id })
+        assertFalse(after.sites.single().spent)
+    }
+
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
         val map = run().let { it.copy(seen = (0 until it.w * it.h).toSet()) }
         val quick = relicQuickAction(map, map.exitX to map.exitY)!!
