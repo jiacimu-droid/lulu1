@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T13:38:57.865699+00:00",
-  "commit": "4aa4cdcc02102f8d09c8adfa695a4dfa059f09b4",
+  "generatedAt": "2026-11-14T13:39:40.734777+00:00",
+  "commit": "4b1f871b1224ff03d496fe3a63800a6466e4b021",
   "branch": "main",
-  "sourceFingerprint": "1af6d899a45d42f312c4e53d713d9c467ef3efb5ba5bc083bcc36cc12a75fbec",
+  "sourceFingerprint": "9e20729404383c6593b0e28a4425616e9b3e983c7c1e957fb1ab77cf292e08ff",
   "summary": {
     "files": 1316,
-    "lines": 278593,
-    "symbols": 3929
+    "lines": 278664,
+    "symbols": 3930
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8104,6 +8104,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
+        "line": 120
       }
     ],
     "renderWithBody": [
@@ -44209,8 +44213,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
-      "lines": 108,
-      "sha256": "d636f9da4f7ed5622a85a17ef749f5319f95065042111aec2e5dc006fa1679cf",
+      "lines": 128,
+      "sha256": "9d5e63617399386118aef989a58b585db676391ea63561eb763bb0ac701bd949",
       "symbols": [
         {
           "name": "OnlineContinuationPolicyTest",
@@ -44724,8 +44728,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 217,
-      "sha256": "9adc5698c66697a632d7c8f45f0ac028f3418a83e32e4d0402961009254852b6",
+      "lines": 268,
+      "sha256": "c8a93661e996a92de3c503a20e02cd2a7e356e92580a8543c6c6be6ef9d74859",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
@@ -44734,6 +44738,10 @@
         {
           "name": "planAt",
           "line": 92
+        },
+        {
+          "name": "at",
+          "line": 120
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4aa4cdcc02102f8d09c8adfa695a4dfa059f09b4`
+- 基准提交：`4b1f871b1224ff03d496fe3a63800a6466e4b021`
 - 分支：`main`
 - 已索引文件：1316
-- 已索引代码/文本行：278593
-- 已发现符号：3929
+- 已索引代码/文本行：278664
+- 已发现符号：3930
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1139,7 +1139,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 340 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 251 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1183 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 108 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 128 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
@@ -1172,7 +1172,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 217 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 268 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3073 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 160 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
