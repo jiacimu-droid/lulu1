@@ -59,7 +59,7 @@ internal object DigitalWorldEvolutionRuntime {
         "迟墨" to ("严谨克制，常会核对传闻" to "旧公告"),
         "洛芽" to ("活泼乐观，偶尔迷糊" to "颜色搭配"),
         "栖迟" to ("独立随性，不喜欢被催促" to "街边小店"),
-        "青禾" to ("谨慎耐心，珍惜约定" to "修理旧物"),
+        "青禾" to ("谨慎耐心，珍惜约定" to "游戏馆机台、修理旧物与桌面游戏"),
         "苏弦" to ("热情有分寸，也敢反对" to "小游戏"),
         "言溪" to ("温和固执，方向感强" to "地名与猜谜"),
         "岚序" to ("清冷寡言，措辞精确" to "光影"),
@@ -81,8 +81,8 @@ internal object DigitalWorldEvolutionRuntime {
             "从外街搬来后靠帮人布置活动结识邻居，擅长色彩搭配。行动快、容易答应太多事，正在练习只接下真正有余力完成的工作。"),
         ResidentTemplate("栖迟", "街巷巡游居民", "男",
             "曾经长期守着固定岗位，后来选择每日走访不同街巷。喜欢独处也乐于偶遇，不爱被人追问计划；一直想找到能安静读书的小店。"),
-        ResidentTemplate("青禾", "公共设施看护员", "女",
-            "在旧修理铺学会给器物分类和修补，很在意物品原主留下的痕迹。说话慢、履约认真，但过分慎重时会耽误决定，最近开始练习独立判断。"),
+        ResidentTemplate("青禾", "游戏馆机台管理员", "女",
+            "在旧修理铺学会给器物分类和修补，如今负责游戏馆机台、设备状态与规则说明。说话慢、履约认真，游戏时却也喜欢认真较量；最近在练习更主动地结识玩家。"),
         ResidentTemplate("苏弦", "活动与游戏协助员", "男",
             "小时候常组织邻里小游戏，擅长把新人带进活动。热情却不爱输，遇到争议会认真讲规则；正在学习接受不同人的玩耍方式。"),
         ResidentTemplate("言溪", "路标维护居民", "女",
@@ -177,13 +177,8 @@ internal object DigitalWorldEvolutionRuntime {
                 recordEvolution(characterId, "cafe-barista-${barista.id}", summary, now)
             }
         }
-        barista?.let { employee ->
-            val hour = java.time.ZonedDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).hour
-            val destination = if (hour in 9..20) DigitalWorldPublicPlaces.CAFE else employee.homeLocationCode
-            if (employee.currentLocationCode != destination) {
-                DigitalWorldExpansionStore.moveResident(employee.id, destination, now)
-            }
-        }
+        // Only ResidentDailyRoutine may settle an on-duty shift. The removed
+        // hour-based teleport used to overwrite her self-chosen outings.
         val daySlot = Math.floorDiv(now.epochSecond, DAY_SECONDS)
 
         val consumedPlaceSlot = p.getLong(KEY_PLACE_SLOT, -1L)
