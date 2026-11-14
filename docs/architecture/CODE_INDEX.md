@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d7bb48939845543b8c401d0a92c1b63ad79aaa32`
+- 基准提交：`021f0cb77d6e0b38a99f9d6d25c233c3336bdac4`
 - 分支：`main`
 - 已索引文件：1318
-- 已索引代码/文本行：279404
-- 已发现符号：3934
+- 已索引代码/文本行：279469
+- 已发现符号：3936
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -150,7 +150,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 253 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 318 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |

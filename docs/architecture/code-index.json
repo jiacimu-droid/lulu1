@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T15:49:32.289194+00:00",
-  "commit": "d7bb48939845543b8c401d0a92c1b63ad79aaa32",
+  "generatedAt": "2026-11-14T15:51:34.969103+00:00",
+  "commit": "021f0cb77d6e0b38a99f9d6d25c233c3336bdac4",
   "branch": "main",
-  "sourceFingerprint": "bd92738419764f87732a9a5149d4b2e459502c914a566289090ef45463d53cec",
+  "sourceFingerprint": "e50ea24746e406d27787604c6923c86961b570741052e93a32890bca392487ce",
   "summary": {
     "files": 1318,
-    "lines": 279404,
-    "symbols": 3934
+    "lines": 279469,
+    "symbols": 3936
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 73
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 218
+        "line": 280
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -1747,31 +1747,37 @@
     "sentAudioMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 64
+        "line": 72
       }
     ],
     "sentKeepaliveMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 66
+        "line": 74
       }
     ],
     "audioFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 176
+        "line": 188
+      }
+    ],
+    "finishCaptureOnMute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
+        "line": 200
       }
     ],
     "acceptPartial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 234
+        "line": 297
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 240
+        "line": 303
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -1785,7 +1791,7 @@
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 242
+        "line": 305
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
@@ -1799,13 +1805,19 @@
     "pendingCommittedText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 248
+        "line": 311
+      }
+    ],
+    "hasPendingText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
+        "line": 313
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 250
+        "line": 315
       }
     ],
     "close": [
@@ -23359,48 +23371,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 253,
-      "sha256": "4a6e58d1757c584f40d6e7e5d20cc13652acbbaaf49cbb2119c6d22df5c3261f",
+      "lines": 318,
+      "sha256": "d6f366ed0afbfcfc067addfdcd3c0c35a2d12a60e70da362932972d50938b547",
       "symbols": [
         {
           "name": "sentAudioMillis",
-          "line": 64
+          "line": 72
         },
         {
           "name": "sentKeepaliveMillis",
-          "line": 66
+          "line": 74
         },
         {
           "name": "start",
-          "line": 73
+          "line": 81
         },
         {
           "name": "audioFrame",
-          "line": 176
+          "line": 188
+        },
+        {
+          "name": "finishCaptureOnMute",
+          "line": 200
         },
         {
           "name": "stop",
-          "line": 218
+          "line": 280
         },
         {
           "name": "acceptPartial",
-          "line": 234
+          "line": 297
         },
         {
           "name": "preview",
-          "line": 240
+          "line": 303
         },
         {
           "name": "commit",
-          "line": 242
+          "line": 305
         },
         {
           "name": "pendingCommittedText",
-          "line": 248
+          "line": 311
+        },
+        {
+          "name": "hasPendingText",
+          "line": 313
         },
         {
           "name": "takeFinal",
-          "line": 250
+          "line": 315
         }
       ]
     },
