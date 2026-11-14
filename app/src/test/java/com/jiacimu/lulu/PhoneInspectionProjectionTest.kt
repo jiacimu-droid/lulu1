@@ -59,17 +59,23 @@ class PhoneInspectionProjectionTest {
     }
 
     @Test fun savedPrivateOwnerRemarkOverridesLegacyContactNameInPhoneAndThreads() {
-        assertEquals("佳辞", inspectedOwnerContactName("佳辞", "主人"))
-        assertEquals("佳辞", inspectedOwnerContactName("   佳辞  ", "主人"))
+        assertEquals("佳辞（主人）", inspectedOwnerContactName("佳辞", "主人"))
+        assertEquals("佳辞（主人）", inspectedOwnerContactName("   佳辞  ", "主人"))
         assertEquals("公开昵称", inspectedOwnerContactName("", "公开昵称"))
         assertEquals("主人", inspectedOwnerContactName(" ", ""))
 
         val renamed = inspectedThreads("a", chats, nativeMail, emptyMap(), "佳辞")
-        assertEquals("佳辞", renamed.single { it.key == "chat:owner-a" }.title)
+        assertEquals("佳辞（主人）", renamed.single { it.key == "chat:owner-a" }.title)
         assertEquals("好友群", renamed.single { it.key == "chat:group" }.title)
         val unchanged = inspectedThreads("a", chats, nativeMail, emptyMap(), "另一个备注")
-        assertEquals("另一个备注", unchanged.single { it.key == "chat:owner-a" }.title)
-        assertEquals("佳辞", renamed.single { it.key == "chat:owner-a" }.title)
+        assertEquals("另一个备注（主人）", unchanged.single { it.key == "chat:owner-a" }.title)
+        assertEquals("佳辞（主人）", renamed.single { it.key == "chat:owner-a" }.title)
+        assertEquals("阿辞", inspectedOwnerContactName("阿辞", "阿辞"))
+        assertEquals("旧备注（新名字）", inspectedOwnerContactName("旧备注", "新名字"))
+        assertEquals("旧备注（更新后的名字）", inspectedThreads(
+            "a", chats, nativeMail, emptyMap(),
+            inspectedOwnerContactName("旧备注", "更新后的名字"))
+            .single { it.key == "chat:owner-a" }.title)
         assertEquals("主人", inspectedThreads("a", chats, nativeMail, emptyMap())
             .single { it.key == "chat:owner-a" }.title)
     }
