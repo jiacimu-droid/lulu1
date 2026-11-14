@@ -113,7 +113,7 @@ internal object LuluBackgroundPhoneContinuation {
         } else null
         val stableElement = element?.let { listOf(it.resourceId, it.name, it.x, it.y).joinToString("|") }
         return LuluPhoneRepeatGuard.target(action,
-            listOf("x", "y", "screenSnapshotId", "elementRef", "text", "packageName", "appName",
+            listOf("x", "y", "screenSnapshotId", "elementRef", "text", "recipient", "packageName", "appName",
                 "startX", "startY", "endX", "endY").associateWith { args.optString(it) },
             stableElement,
         )
@@ -177,6 +177,12 @@ internal object LuluBackgroundPhoneContinuation {
             if (LuluPhoneRepeatGuard.shouldBlock(attempt, action, target)) stalledGestures += action to target
         }
         val firstAction = initialArgs.optString("action")
+        if (firstAction == "send_chat_message") {
+            history.appendLine(if (lastScreenReceipt?.optBoolean("messageSendClicked") == true)
+                "微信消息发送按钮已经尝试点击一次，结果未证实送达；本轮不重发"
+            else "微信发送尚未确认成功，保留实际失败回执；本轮不重发")
+            return Outcome(history.toString().takeLast(5_000), image, false, 0)
+        }
         rememberGesture(firstAction, gestureTarget(firstAction, initialArgs, null), lastScreenReceipt)
         var duplicateRefusals = 0
         var unchangedObservations = 0
