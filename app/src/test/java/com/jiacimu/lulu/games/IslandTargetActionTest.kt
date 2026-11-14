@@ -181,6 +181,24 @@ class IslandTargetActionTest {
         assertEquals("none", self.action)
         assertFalse(islandTargetAction(s.copy(world = s.world.copy(finished = true)), 5 to 4).enabled)
     }
+    @Test fun livingGuardOnDownedAllyTileMustBeFoughtBeforeRescue() {
+        val s = scene().copy(fruit = 3)
+        val w = s.world
+        val guarded = s.copy(world = w.copy(mobs = listOf(ExpeditionMob(7, 4, 3, 2))))
+        val selected = islandTargetAction(guarded, 4 to 3)
+        assertEquals("fight", selected.action)
+        assertTrue(selected.enabled)
+        assertNull(islandNearbyAction(guarded, 0 to -1, setOf("revive"), 4 to 3))
+        val fought = BlockIslandRules.act(guarded, "fight", 4, 3)
+        assertTrue(fought.world.mobs.none { it.hp > 0 && it.x == 4 && it.y == 3 })
+        val rescue = islandTargetAction(fought, 4 to 3)
+        assertEquals("revive", rescue.action)
+        assertTrue(rescue.enabled)
+        val recovered = BlockIslandRules.act(fought, "revive", 4, 3)
+        assertTrue(recovered.world.friends.first().hp > 0)
+        assertEquals(fought.fruit - 2, recovered.fruit)
+    }
+
     @Test fun explicitMapSelectionOverridesFacingWithoutInventingDistantActions() {
         val s = scene()
         val w = s.world
