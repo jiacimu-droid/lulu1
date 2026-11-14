@@ -21,101 +21,39 @@ import java.time.format.DateTimeFormatter
 internal fun CharacterExecutionSettings(characterId: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
-    var shoppingEnabled by remember(characterId) {
-        mutableStateOf(com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId))
+    var screenAllowed by remember(characterId) {
+        mutableStateOf(com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId))
     }
-    var shoppingNotice by remember(characterId) { mutableStateOf("") }
-    var chatSendEnabled by remember(characterId) {
-        mutableStateOf(com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId))
-    }
-    var chatSendNotice by remember(characterId) { mutableStateOf("") }
+    var saveError by remember(characterId) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("操作授权", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        val permissionGroups = listOf(
-            "手机与应用" to listOf(
-                "screen" to "操作手机屏幕",
-                "device_read" to "读取设备状态",
-            ),
-            "日常协助" to listOf(
-                "alarm" to "设置闹钟",
-                "media" to "控制手机音乐",
-            ),
-            "其他能力" to listOf(
-                "health_read" to "读取健康数据",
-                "cloud" to "提交云端任务",
-            ),
-        )
-        permissionGroups.forEachIndexed { groupIndex, (groupTitle, permissions) ->
-            if (groupIndex > 0) HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
-            Text(groupTitle, style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp))
-            permissions.forEach { (key, title) ->
-                var allowed by remember(characterId, key) {
-                    mutableStateOf(prefs.getBoolean("$characterId:$key", false))
-                }
-                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(title, modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium)
-                    Switch(checked = allowed, onCheckedChange = { next ->
-                        if (prefs.edit().putBoolean("$characterId:$key", next).commit()) {
-                            allowed = next
-                        }
-                    })
-                }
-                if (key == "screen") {
-                    Row(Modifier.fillMaxWidth().heightIn(min = 58.dp),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text("帮我挑选商品", style = MaterialTheme.typography.bodyMedium)
-                            Text("可选规格、加购物车；付款必须由我完成",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(checked = shoppingEnabled,
-                            enabled = characterId.isNotBlank() &&
-                                !characterId.startsWith("resident:"),
-                            onCheckedChange = { next ->
-                                if (com.jiacimu.lulu.system.LuluShoppingAssistPolicy.setEnabled(
-                                        context, characterId, next)) {
-                                    shoppingEnabled = next
-                                    shoppingNotice = ""
-                                } else shoppingNotice = "授权未能保存，请重试"
-                            })
-                    }
-                    if (shoppingNotice.isNotBlank()) Text(shoppingNotice,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error)
-                    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text("允许微信发消息", style = MaterialTheme.typography.bodyMedium)
-                            Text("角色自主选择聊天内容与对象；需核实当前会话，随时可关闭",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(checked = chatSendEnabled,
-                            enabled = characterId.isNotBlank() &&
-                                !characterId.startsWith("resident:"),
-                            onCheckedChange = { next ->
-                                if (com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.setEnabled(
-                                        context, characterId, next)) {
-                                    chatSendEnabled = next
-                                    chatSendNotice = ""
-                                } else chatSendNotice = "微信发消息授权未能保存，请重试"
-                            })
-                    }
-                    if (chatSendNotice.isNotBlank()) Text(chatSendNotice,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error)
-                }
+        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("允许角色自主操作手机与应用", style = MaterialTheme.typography.bodyMedium)
+                Text("统一授权后台虚拟屏、查看设备状态、微信发消息、选品购物、音乐、闹钟和云端工具；不再逐项授权。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            Switch(checked = screenAllowed,
+                enabled = characterId.isNotBlank() && !characterId.startsWith("resident:"),
+                onCheckedChange = { next ->
+                    if (com.jiacimu.lulu.system.LuluRolePhoneAuthorization.setGranted(
+                            context, characterId, next)) {
+                        screenAllowed = next
+                        saveError = ""
+                    } else saveError = "总授权未能保存，请重试"
+                })
         }
+        if (saveError.isNotBlank()) Text(saveError,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error)
+        Text("关闭后立即禁止新的角色自主手机操作。角色仍需使用真实屏幕回执；安卓系统权限、无线调试配对、隐私保护和涉及付款的人工交接不会被此开关绕过。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+        Text("Android 系统能力", style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         val exactAlarmGranted = remember { mutableStateOf(com.jiacimu.lulu.system.LuluAlarmSystem.canScheduleExact()) }
         val fullScreenGranted = remember { mutableStateOf(android.os.Build.VERSION.SDK_INT < 34 ||
             context.getSystemService(android.app.NotificationManager::class.java).canUseFullScreenIntent()) }
@@ -157,29 +95,17 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 }) { Text("设置") }
             }
         }
-        Text("音乐控制需要在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；角色获媒体授权后可按实际情况播放、暂停、切歌及有限度调节媒体音量。", style = MaterialTheme.typography.bodySmall)
-        var wakeMusic by remember(characterId) { mutableStateOf(prefs.getBoolean("$characterId:wake_music_enabled", false)) }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("允许角色自主选择音乐叫醒", modifier = Modifier.weight(1f))
-            Switch(checked = wakeMusic, onCheckedChange = { next ->
-                if (prefs.edit().putBoolean("$characterId:wake_music_enabled", next).commit()) {
-                    wakeMusic = next
-                }
-            })
-        }
-        Text("开启表示允许选择，并不意味着每次叫醒都放音乐。角色会依据当时情况选择铃声、自然叫醒或已有播放器；正在通话时优先沿用原电话。媒体音量会受安全上限约束。",
+        Text("精确闹钟、锁屏来电和通知读取是 Android 本身的系统设置，不是第二套角色授权。",
             style = MaterialTheme.typography.bodySmall)
         CharacterMusicSensingSettings(characterId)
-        var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
-        // Non-critical notification filters: avoid synchronous disk writes on each IME keystroke.
+        var packages by remember(characterId) {
+            mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty())
+        }
         OutlinedTextField(packages, { next ->
             packages = next
             prefs.edit().putString("$characterId:notification_packages", next).apply()
         }, label = { Text("重要通知的 App 包名，逗号分隔") },
             modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-
-
-
     }
 }
 
