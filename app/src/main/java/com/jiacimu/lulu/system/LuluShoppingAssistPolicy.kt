@@ -2,24 +2,16 @@ package com.jiacimu.lulu.system
 
 import android.content.Context
 
-/**
- * Owner-given, per-character permission for reversible shopping navigation.
- * It is never inferred from a model prompt or from page contents. The model
- * still chooses each next action; a click is not proof of an order or payment.
+/** Shopping navigation uses the same single owner-granted virtual-phone permission.
+ * Confirmed charges and orders still require the existing owner handoff.
  */
 internal object LuluShoppingAssistPolicy {
-    private const val PREFS = "lulu_virtual_shopping_owner_v1"
-
     fun isEnabled(context: Context, characterId: String): Boolean =
-        characterId.isNotBlank() && !characterId.startsWith("resident:") &&
-            context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getBoolean(characterId, false)
+        LuluRolePhoneAuthorization.isGranted(context, characterId)
 
-    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean {
-        if (characterId.isBlank() || characterId.startsWith("resident:")) return false
-        return context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putBoolean(characterId, enabled).commit()
-    }
+    /** Compatibility for older callers: no independent shopping consent exists. */
+    fun setEnabled(context: Context, characterId: String, enabled: Boolean): Boolean =
+        LuluRolePhoneAuthorization.setGranted(context, characterId, enabled)
 
     // A prepayment merchant control can open an SKU picker, cart or checkout.
     // This does NOT authorize completing a charge or any binding order.
