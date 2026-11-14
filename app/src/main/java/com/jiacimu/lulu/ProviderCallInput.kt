@@ -162,7 +162,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     // system STT; a fixed 500ms gap caused a second paid LLM turn
                     // when the user only took a breath. New captured PCM keeps
                     // the same phrase until the final segment is actually ready.
-                    delay(SystemSpeechTurnPolicy.continuationMillis(phrase.toString()))
+                    // Explicit mute ends capture; do not add an unrelated 0.9–3.2s
+                    // conversational pause after the last cloud response arrived.
+                    // Automatic VAD completion still preserves natural breathing.
+                    if (!capturePaused) {
+                        delay(SystemSpeechTurnPolicy.continuationMillis(phrase.toString()))
+                    }
                     if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
                     val acousticNote = phraseAcoustics?.finish()
                     try {
@@ -269,7 +274,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
             },
             onSegment = { bytes, completed ->
                 capturingVoice = !completed
-                if (epoch == generation && !capturePaused && accept()) {
+                // Muting flips capturePaused before the AudioRecord loop sees
+                // accept=false. The final PCM (or empty end marker after prior
+                // 12s chunks) is still the user's *already recorded* speech.
+                // Never gate that last delivery on the new mute state.
+                if (epoch == generation &&
+                    ((completed && capturePaused) || (!capturePaused && accept()))) {
                     // An ended PCM segment means capture has stopped, even if
                     // cloud recognition still takes time or returns no text.
                     // Releasing the speaking flag must not wait for valid ASR.
