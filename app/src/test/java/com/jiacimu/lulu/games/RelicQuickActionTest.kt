@@ -310,6 +310,22 @@ class RelicQuickActionTest {
         assertTrue(relicAttackHint(scene, distant.x to distant.y).contains("靠近"))
     }
 
+    @Test fun defeatedSelectedEnemyNeverRedirectsAttackToAnotherLivingEnemy() {
+        val base = run()
+        val h = base.hero
+        val defeated = RelicMob(803, h.x + 1, h.y, 0, 0)
+        val living = RelicMob(804, h.x, h.y + 1, 5, 0)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            mobs = listOf(defeated, living),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        assertNull(relicAttackTarget(scene, defeated.x to defeated.y))
+        assertEquals(living.id, relicAttackTarget(scene, h.x to h.y)?.id)
+        assertEquals(living.id, relicAttackTarget(scene, living.x to living.y)?.id)
+        val noTarget = scene.copy(mobs = listOf(defeated))
+        assertNull(relicAttackTarget(noTarget, defeated.x to defeated.y))
+    }
+
     @Test fun enemyCanBeAttackedOnlyWhenCloseAndSeen() {
         val original = run()
         val x = original.hero.x + 1
