@@ -94,6 +94,19 @@ internal fun inspectedThreads(
 internal fun inspectedOwnerContactName(privateRemark: String, ownerProfileName: String): String =
     privateRemark.trim().ifBlank { ownerProfileName.trim().ifBlank { "主人" } }
 
+/** A one-to-one chat in this hub is with the OWNER, not a peer in the
+ * digital-character registry. Group and native mail have separate sources. */
+internal fun inspectedThreadAvatarUri(
+    thread: InspectedThread,
+    ownerAvatarUri: String?,
+    peerAvatarUri: String?,
+    groupAvatarUri: String?,
+): String? = when {
+    thread.isGroup -> groupAvatarUri
+    thread.conversationId != null -> ownerAvatarUri
+    else -> peerAvatarUri
+}
+
 internal fun inspectedChatMessageIsMine(
     roleId: String,
     conversation: LuluConversation,
@@ -172,9 +185,27 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val ownerProfilePrefs = remember(context) {
         context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
     }
-    val userName = ownerProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
-    val userAvatar = ownerProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
-    val userAvatarUri = ownerProfilePrefs.getString("avatar_uri", null)
+    // Profile editing lives on the owner's chat page. A role's phone must
+    // refresh from that SAME saved profile even when the inspection UI stays open.
+    val ownerProfileRevision = remember { mutableIntStateOf(0) }
+    DisposableEffect(ownerProfilePrefs) {
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key in setOf("display_name", "avatar_text", "avatar_uri")) {
+                ownerProfileRevision.intValue += 1
+            }
+        }
+        ownerProfilePrefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { ownerProfilePrefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+    val userName = remember(ownerProfileRevision.intValue) {
+        ownerProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
+    }
+    val userAvatar = remember(ownerProfileRevision.intValue) {
+        ownerProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    }
+    val userAvatarUri = remember(ownerProfileRevision.intValue) {
+        ownerProfilePrefs.getString("avatar_uri", null)
+    }
     val privateRemark = ownPhoneLife.optJSONObject("socialNames")?.optString("userRemark").orEmpty()
     val ownerContactName = inspectedOwnerContactName(privateRemark, userName)
     val threads = remember(actualRole, allChats, mail, names, pinned, ownerContactName) {
@@ -411,8 +442,10 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                 preview = thread.lastText,
                                 updatedAt = thread.updatedAt,
                                 avatarText = thread.title.take(1).ifBlank { "聊" },
-                                avatarUri = if (thread.isGroup) chat?.groupChat?.avatarUri
-                                    else people[thread.peerId]?.avatarUri,
+                                avatarUri = inspectedThreadAvatarUri(
+                                    thread, userAvatarUri, people[thread.peerId]?.avatarUri,
+                                    chat?.groupChat?.avatarUri,
+                                ),
                                 isGroup = thread.isGroup,
                                 pinned = thread.key in pinned,
                                 unreadCount = 0,
