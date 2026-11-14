@@ -122,9 +122,21 @@ internal object AutonomousDuelGames {
     private fun JSONObject.toInvite() = Invite(optString("id"), optString("from"),
         optString("to"), optString("gameId"), optString("status"), optString("text"))
 
+    /** A withdrawn/edited mail can no longer authorize accepting its old invitation. */
+    private fun hasLiveDelivery(row: JSONObject): Boolean {
+        val target = row.optString("to")
+        val mailId = row.optString("mailId")
+        if (target.isBlank() || mailId.isBlank()) return false
+        return SharedExperienceTimeline.eventsByIds(target,
+            listOf("native-mail-$mailId-viewer-$target")).any { event ->
+            event.revision == 1L && event.source == "character-message" &&
+                event.channel == "数字人物私信"
+        }
+    }
+
     @Synchronized fun pendingFor(context: Context, role: String): List<Invite> =
         entries(context).filter { it.optString("to") == role &&
-            it.optString("status") == "pending" }.map { it.toInvite() }
+            it.optString("status") == "pending" && hasLiveDelivery(it) }.map { it.toInvite() }
 
     @Synchronized fun contextFor(context: Context, role: String): String {
         val pending = pendingFor(context, role)
@@ -161,7 +173,8 @@ internal object AutonomousDuelGames {
             DigitalLifeProfileStore.allowsTimestamp(to, now)) { "邀请时间早于人物诞生时间" }
         val all = entries(context)
         all.firstOrNull { it.optString("from") == from && it.optString("to") == to &&
-            it.optString("gameId") == gameId && it.optString("status") == "pending" }
+            it.optString("gameId") == gameId && it.optString("status") == "pending" &&
+            hasLiveDelivery(it) }
             ?.let { return it.toInvite() }
         val id = UUID.randomUUID().toString()
         val row = JSONObject().put("id", id).put("from", from).put("to", to)
@@ -172,9 +185,10 @@ internal object AutonomousDuelGames {
         try {
             // Same durable character↔character QQ mailbox and its wake/observations.
             // Never create a fake owner-chat invitation or speak for the recipient.
-            ResidentSocialMailbox.send(from, to,
+            val delivered = ResidentSocialMailbox.send(from, to,
                 "[游戏馆邀约|$id|$gameId] ${text.trim().take(240)}",
                 at = now)
+            row.put("mailId", delivered.id)
         } catch (error: Exception) {
             row.put("status", "delivery_failed")
             commit(context, all)
@@ -199,6 +213,9 @@ internal object AutonomousDuelGames {
         if (status == "finished") return row.optString("result")
         require(status == "pending" || (status == "accepted" && decision == "accept")) {
             "该邀请尚未送达、已取消或不再接受操作"
+        }
+        if (status == "pending") require(hasLiveDelivery(row)) {
+            "原始游戏邀请已撤回或不再有效，不能据此替对方开局"
         }
         val from = row.getString("from")
         val gameId = row.getString("gameId")
