@@ -1034,7 +1034,11 @@ fun QqStyleChatDetailScreen(
                                 if (com.jiacimu.lulu.games.GameInvitationContinuity.recordAccepted(
                                         context, inviterId, message.id, gameId,
                                     )) {
-                                    com.jiacimu.lulu.games.LuluGames.store.selectCharacters(listOf(inviterId))
+                                    val gameStore = com.jiacimu.lulu.games.LuluGames.store
+                                    gameStore.selectCharacters(listOf(inviterId))
+                                    if (gameId == "yacht_dice" && gameStore.yachtMatch()?.completed == true) {
+                                        gameStore.restartYachtMatch(listOf(inviterId))
+                                    }
                                     onOpenGame(gameId)
                                 }
                             },
