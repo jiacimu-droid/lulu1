@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:45:05.709066+00:00",
-  "commit": "0bcc21e79a275fd43a8ee98904381c0de482ed6b",
+  "generatedAt": "2026-11-14T08:45:57.532300+00:00",
+  "commit": "41d9e3fe7cbedf247839bba4e7d9e8621df878d5",
   "branch": "main",
-  "sourceFingerprint": "bd9cde3052490e224c7f5c9f430c321f6fd7dd19ce08e14d5389945428edf690",
+  "sourceFingerprint": "dacbbbfe6d8c5b9cf15dcf4050213f9afceb92396d51fadd2385fc40db03a601",
   "summary": {
     "files": 1313,
-    "lines": 277893,
-    "symbols": 3919
+    "lines": 277939,
+    "symbols": 3920
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1549,7 +1549,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 129
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -14137,7 +14137,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 134
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -14151,13 +14151,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1092
+        "line": 1106
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1246
+        "line": 1260
       }
     ],
     "persistMatch": [
@@ -14642,10 +14642,16 @@
         "line": 139
       }
     ],
+    "blockedHint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
+        "line": 13
+      }
+    ],
     "destination": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
-        "line": 8
+        "line": 39
       }
     ],
     "crystalVein": [
@@ -35661,8 +35667,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1291,
-      "sha256": "bb6d40d0b0b855954a8df111ccc562c2ee1be9a7b785cd625b5cfe2a8f33d2c2",
+      "lines": 1305,
+      "sha256": "9e566b555a13bf97c538ddc69472f39b7b145a3b849568c4823ae50f287181f8",
       "symbols": [
         {
           "name": "playSound",
@@ -35670,19 +35676,19 @@
         },
         {
           "name": "save",
-          "line": 129
+          "line": 137
         },
         {
           "name": "perform",
-          "line": 134
+          "line": 142
         },
         {
           "name": "dot",
-          "line": 1092
+          "line": 1106
         },
         {
           "name": "targetFor",
-          "line": 1246
+          "line": 1260
         }
       ]
     },
@@ -36379,12 +36385,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
-      "lines": 21,
-      "sha256": "31233111177ef2ba8ca12a6143502b621bed49caab4365ac1f9250c3b0a0e4c0",
+      "lines": 53,
+      "sha256": "62d8ef8bfcc6235d61c6108e072f607bd7eb2875e0a18811382b6854be020086",
       "symbols": [
         {
+          "name": "blockedHint",
+          "line": 13
+        },
+        {
           "name": "destination",
-          "line": 8
+          "line": 39
         }
       ]
     },

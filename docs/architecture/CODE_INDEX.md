@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0bcc21e79a275fd43a8ee98904381c0de482ed6b`
+- 基准提交：`41d9e3fe7cbedf247839bba4e7d9e8621df878d5`
 - 分支：`main`
 - 已索引文件：1313
-- 已索引代码/文本行：277893
-- 已发现符号：3919
+- 已索引代码/文本行：277939
+- 已发现符号：3920
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -666,7 +666,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1334 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 345 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 946 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1291 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1305 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 273 | 5 |
@@ -700,7 +700,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 274 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt` | 21 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt` | 53 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
