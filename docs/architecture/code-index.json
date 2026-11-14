@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T23:47:49.893717+00:00",
-  "commit": "1c391b92dd7775ad866b1a78ac70843a833fa420",
+  "generatedAt": "2026-11-14T23:48:14.560591+00:00",
+  "commit": "fcaaf28c18485063b425d7255454c32e5d793f2e",
   "branch": "main",
-  "sourceFingerprint": "16c9fb66d8161f2bb2a9e75535a8e6de435291476257fe3c4a44a789a2858a86",
+  "sourceFingerprint": "3ad70a9f7c985ce7570ed39b41f7aec97ffc1c324d0850f3d816e2519a0b134a",
   "summary": {
     "files": 1323,
     "lines": 280300,
@@ -33063,7 +33063,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
       "lines": 185,
-      "sha256": "b62deb809096f3594b8acfa022dafff9f042ffb3391c512147ccdbd333c936c0",
+      "sha256": "4370f3aa38d28a031ccd1410767c0e518e3d564ad31cc55d28d4a65b45bacfd7",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
