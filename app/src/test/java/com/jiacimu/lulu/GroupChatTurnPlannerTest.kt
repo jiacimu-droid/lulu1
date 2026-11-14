@@ -35,6 +35,10 @@ class GroupChatTurnPlannerTest {
         assertNull(GroupChatTurnPlanner.decode("""{"other":true}""", ids, 3))
         assertEquals(listOf("b"), GroupChatTurnPlanner.decode(
             """```json\n{"speakerIds":["b"]}\n```""", ids, 3))
+        // An invalid nonempty plan is not a voluntary decision to go silent.
+        assertNull(GroupChatTurnPlanner.decode("""{"beats":[{"speakerId":"not-in-room"}]}""", ids, 3))
+        assertNull(GroupChatTurnPlanner.decode("""{"speakerIds":["not-in-room"]}""", ids, 3))
+        assertNull(GroupChatTurnPlanner.decode("""{"beats":["invalid-item"]}""", ids, 3))
     }
 
 
