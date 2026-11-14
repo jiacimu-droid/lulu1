@@ -180,10 +180,10 @@ class LuluGameStore internal constructor(context: Context) {
     }
 
     @Synchronized
-    fun restartYachtMatch(): YachtMatchSnapshot {
+    fun restartYachtMatch(companionIds: List<String>? = null): YachtMatchSnapshot {
         val previous = yachtMatch()
         val match = YachtMatchSnapshot(
-            companionIds = previous?.companionIds
+            companionIds = companionIds?.distinct()?.take(3) ?: previous?.companionIds
                 ?: mutableState.value.selectedCharacterIds.takeIf { mutableState.value.playWithCharacter }.orEmpty(),
         )
         check(prefs.edit().putString(KEY_YACHT_MATCH, match.toJson()).commit()) {
@@ -513,6 +513,9 @@ class LuluGameStore internal constructor(context: Context) {
                     detailsJson = JSONObject()
                         .put("game", "yacht_dice")
                         .put("turns", turns)
+                        .put("scoreSheet", JSONObject().apply {
+                            scoreSheet.forEach { (category, points) -> put(category.name, points) }
+                        })
                         .put("total", score)
                         .put("previousBest", previousBest ?: JSONObject.NULL)
                         .toString(),
