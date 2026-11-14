@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T16:05:56.995699+00:00",
-  "commit": "89c6f8cc20c16b87b98cc99365a0ef95096256c7",
+  "generatedAt": "2026-11-14T16:06:52.415714+00:00",
+  "commit": "1f494acdd84ff3e30f4a24c32fcd5bc7d1013b85",
   "branch": "main",
-  "sourceFingerprint": "0492ea8b1293eff98b7ca237805b1eaeaf86e2b5baaee7d83f32f3bad82835d3",
+  "sourceFingerprint": "dee2b2062e7a0c41d0275ce57bb1282a3cbd81e30a338d2ab39ac0f508509334",
   "summary": {
-    "files": 1321,
-    "lines": 279714,
-    "symbols": 3944
+    "files": 1322,
+    "lines": 279735,
+    "symbols": 3943
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3044,14 +3044,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
         "line": 38
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 15
       }
     ],
     "setBlocked": [
@@ -17151,7 +17143,7 @@
     "mayNavigate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-        "line": 39
+        "line": 35
       }
     ],
     "clipboardTimestamp": [
@@ -17211,25 +17203,25 @@
     "validRecipient": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 17
+        "line": 13
       }
     ],
     "validMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 21
+        "line": 17
       }
     ],
     "chatEditorCandidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 33
+        "line": 29
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 42
+        "line": 38
       }
     ],
     "canSendToRole": [
@@ -21856,6 +21848,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt",
         "line": 6
+      }
+    ],
+    "LuluShellDisplayCommandTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt",
+        "line": 9
       }
     ],
     "LuluShoppingAssistConsentTest": [
@@ -39514,20 +39512,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
-      "lines": 49,
-      "sha256": "ff67b3b2e5a19749d60835d5876c96ecbd748b42d29a039d807c3298416e7563",
+      "lines": 45,
+      "sha256": "dff759f7a2fdc0171fcdad9e0b4ebd83334f72038bddddaa6f645b6d55aa413a",
       "symbols": [
         {
           "name": "isEnabled",
           "line": 9
         },
         {
-          "name": "setEnabled",
-          "line": 13
-        },
-        {
           "name": "mayNavigate",
-          "line": 39
+          "line": 35
         }
       ]
     },
@@ -39626,32 +39620,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 49,
-      "sha256": "629dde04d7a540cb0184dbc6704d0b6fd67b0cfb74491f370808a818c14d82d6",
+      "lines": 45,
+      "sha256": "931e7b454fedba93f21bcb6c84f7c993ea47e0ce7708b865dd45fc254bf9c566",
       "symbols": [
         {
           "name": "isEnabled",
           "line": 10
         },
         {
-          "name": "setEnabled",
-          "line": 15
-        },
-        {
           "name": "validRecipient",
-          "line": 17
+          "line": 13
         },
         {
           "name": "validMessage",
-          "line": 21
+          "line": 17
         },
         {
           "name": "chatEditorCandidate",
-          "line": 33
+          "line": 29
         },
         {
           "name": "sendButton",
-          "line": 42
+          "line": 38
         }
       ]
     },
@@ -41087,8 +41077,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt",
-      "lines": 61,
-      "sha256": "a032e5207ca495d25aebf007121f2c098c0fa9c2e3d94867293750ee55f6c5ae",
+      "lines": 67,
+      "sha256": "7466ede677f76a0d531f4a0d201d25315c546929da232558a8844d548e8ca1be",
       "symbols": [
         {
           "name": "PhoneCallMediaSafetyTest",
@@ -46474,7 +46464,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
       "lines": 95,
-      "sha256": "bc7a169b8bb22166e5cf422766a447ed32513099ee95d8a09926fef28768c392",
+      "sha256": "003a150718fd81ea9d9b2c377800e12fd574e71d17b3d234376af5fc20c79565",
       "symbols": [
         {
           "name": "LuluRolePhoneAuthorizationTest",
@@ -46513,9 +46503,20 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt",
+      "lines": 23,
+      "sha256": "9f5728dd4e1726a284f44cf8f954ec4f7ec256d20ff2546a61e841bdacfc5588",
+      "symbols": [
+        {
+          "name": "LuluShellDisplayCommandTest",
+          "line": 9
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt",
       "lines": 34,
-      "sha256": "77b99bfc651fdfccfce200236251750ce51e55e537a0c603d5bd5a21b43a0f94",
+      "sha256": "2d1df55c7237efe44af90e7544fdc5ac9b546e6ddb91f902f3262268aa1213cf",
       "symbols": [
         {
           "name": "LuluShoppingAssistConsentTest",
@@ -46559,7 +46560,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
       "lines": 72,
-      "sha256": "c64c1dd34f8ea79cd0d636414083f1c696e7b36e711a4e467f01b437f52ba948",
+      "sha256": "81c3a6ed0418f357d1302d2f82f9536d25fa47ce392ce1bf109ae054ef78e969",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",

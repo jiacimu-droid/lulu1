@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`89c6f8cc20c16b87b98cc99365a0ef95096256c7`
+- 基准提交：`1f494acdd84ff3e30f4a24c32fcd5bc7d1013b85`
 - 分支：`main`
-- 已索引文件：1321
-- 已索引代码/文本行：279714
-- 已发现符号：3944
+- 已索引文件：1322
+- 已索引代码/文本行：279735
+- 已发现符号：3943
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -817,11 +817,11 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 605 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 49 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 49 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
@@ -917,7 +917,7 @@
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 60 | 1 |
@@ -1306,6 +1306,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt` | 95 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 45 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 166 | 1 |
