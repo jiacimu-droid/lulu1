@@ -35,6 +35,15 @@ import com.jiacimu.lulu.games.MeetingAtmosphereOverlay
  * Location-first digital world browser. Public venues stay deliberately few and dense: every place
  * must offer a distinct shared activity instead of becoming another empty card on the map.
  */
+/** NPCs share the character runtime, but their homes belong only in the resident district. */
+internal fun mapCompanionCharacters(
+    characters: List<CharacterSettings>,
+    profiles: Map<String, DigitalLifeProfile>,
+): List<CharacterSettings> = characters.filter { character ->
+    !character.characterId.startsWith("resident:") &&
+        (profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)).enabled
+}
+
 @Composable
 internal fun DigitalWorldMapLobby(
     modifier: Modifier,
@@ -66,9 +75,8 @@ internal fun DigitalWorldMapLobby(
     LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
 
     LaunchedEffect(characters, profiles) {
-        characters.forEach { character ->
-            val profile = profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)
-            if (profile.enabled) runCatching { DigitalWorldStore.ensureHome(character.characterId, character.displayName) }
+        mapCompanionCharacters(characters, profiles).forEach { character ->
+            runCatching { DigitalWorldStore.ensureHome(character.characterId, character.displayName) }
         }
         DigitalWorldNavigationStore.consumeHome(context)?.let { characterId ->
             if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -126,7 +134,7 @@ internal fun DigitalWorldMapLobby(
     val activeSceneCode = openSceneCode
     val activeSceneLabel = activeSceneCode?.let(::sceneLabel)
     val sceneResidents = activeSceneCode?.let { scene ->
-        characters.filter { world.characterLocations[it.characterId] == scene }
+        mapCompanionCharacters(characters, profiles).filter { world.characterLocations[it.characterId] == scene }
             .map { it.characterId }
     }.orEmpty()
     DisposableEffect(activeSceneCode) {
@@ -278,8 +286,7 @@ private fun DigitalWorldRouteDock(
             add(DigitalWorldStore.CLOUD_MEADOW)
             addAll(DigitalWorldPublicPlaces.all.map { it.code })
             addAll(DigitalWorldExpansionStore.places().map { it.code })
-            characters
-                .filter { (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled }
+            mapCompanionCharacters(characters, profiles)
                 .forEach { character -> add(DigitalWorldStore.homeLocation(character.characterId)) }
             // Residents own addresses too; keep them navigable from inside a scene.
             DigitalWorldExpansionStore.residents().forEach { add(it.homeLocationCode) }
@@ -368,9 +375,7 @@ private fun DigitalWorldMapPage(
     world: DigitalWorldState,
     onOpenScene: (String) -> Unit,
 ) {
-    val digitalCharacters = characters.filter {
-        (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled
-    }
+    val digitalCharacters = mapCompanionCharacters(characters, profiles)
     val expansionRevision by DigitalWorldExpansionStore.revisions.collectAsState()
     val localResidents = remember(expansionRevision) { DigitalWorldExpansionStore.residents() }
     val places = DigitalWorldPublicPlaces.all
@@ -386,7 +391,6 @@ private fun DigitalWorldMapPage(
             DigitalWorldAtlas(
                 characters = digitalCharacters,
                 nativeResidents = localResidents,
-                world = world,
                 onOpenScene = onOpenScene,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -394,13 +398,13 @@ private fun DigitalWorldMapPage(
         item { WorldMapSectionHeading("云境与户外", "真正可以抵达的开放空间", Icons.Outlined.Landscape) }
         item {
             MapPlaceCard(Modifier.fillMaxWidth(), "云眠原", "云海 · 漫步", Icons.Outlined.Cloud,
-                residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters), { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
+                residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, digitalCharacters), { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
                 DigitalWorldStore.CLOUD_MEADOW)
         }
         outdoor.forEach { place ->
             item(key = place.code) {
                 MapPlaceCard(Modifier.fillMaxWidth(), place.label, place.subtitle,
-                    routeIcon(place.code), residentsAt(world, place.code, characters),
+                    routeIcon(place.code), residentsAt(world, place.code, digitalCharacters),
                     { onOpenScene(place.code) }, place.code,
                     DigitalWorldExpansionStore.residentsAt(place.code).size)
             }
@@ -411,7 +415,7 @@ private fun DigitalWorldMapPage(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     facilities.forEach { place ->
                         MapPlaceCard(Modifier.weight(1f), place.label, place.subtitle, routeIcon(place.code),
-                            residentsAt(world, place.code, characters), { onOpenScene(place.code) }, place.code,
+                            residentsAt(world, place.code, digitalCharacters), { onOpenScene(place.code) }, place.code,
                             DigitalWorldExpansionStore.residentsAt(place.code).size)
                     }
                 }
@@ -424,7 +428,7 @@ private fun DigitalWorldMapPage(
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowPlaces.forEach { place ->
                             MapPlaceCard(Modifier.weight(1f), place.label, place.subtitle,
-                                routeIcon(place.code), residentsAt(world, place.code, characters),
+                                routeIcon(place.code), residentsAt(world, place.code, digitalCharacters),
                                 { onOpenScene(place.code) }, place.code,
                                 DigitalWorldExpansionStore.residentsAt(place.code).size)
                         }
@@ -443,7 +447,7 @@ private fun DigitalWorldMapPage(
                             val code = DigitalWorldStore.homeLocation(character.characterId)
                             MapHomeCard(Modifier.weight(1f), character,
                                 world.items.count { it.ownerCharacterId == character.characterId },
-                                residentsAt(world, code, characters), { onOpenScene(code) })
+                                residentsAt(world, code, digitalCharacters), { onOpenScene(code) })
                         }
                         if (rowCharacters.size == 1) Spacer(Modifier.weight(1f))
                     }
@@ -750,5 +754,5 @@ private fun residentsAt(
 
 private fun worldCharactersAt(location: String): Int =
     DigitalWorldStore.state.value.characterLocations.count { (id, code) ->
-        code == location && DigitalLifeProfileStore.isEnabled(id)
+        code == location && !id.startsWith("resident:") && DigitalLifeProfileStore.isEnabled(id)
     }
