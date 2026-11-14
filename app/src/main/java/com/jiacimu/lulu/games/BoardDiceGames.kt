@@ -367,20 +367,78 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         }
         if (gameOver) {
             item {
-                Surface(color = Color(0xFF1B3444), shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(1.dp, mint.copy(alpha = .35f))) {
-                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("本局排名", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
-                        players.sortedByDescending { scores[it.id].orEmpty().values.sum() }
-                            .forEachIndexed { index, player ->
-                                Text("${index + 1}. ${player.name}　${scores[player.id].orEmpty().values.sum()} 分",
-                                    color = if (index == 0) mint else Color.White, fontSize = 15.sp)
+                val ranking = players.sortedByDescending { scores[it.id].orEmpty().values.sum() }
+                val highest = ranking.firstOrNull()?.let { scores[it.id].orEmpty().values.sum() } ?: 0
+                val winners = ranking.filter { scores[it.id].orEmpty().values.sum() == highest }
+                Surface(
+                    color = Color(0xFF183744), shape = RoundedCornerShape(25.dp),
+                    border = BorderStroke(1.dp, mint.copy(alpha = .48f)),
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(13.dp),
+                    ) {
+                        Text("MATCH COMPLETE  ·  13 / 13", color = mint,
+                            fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(if (winners.size == 1) "✦ ${winners.first().name} 获胜" else "◇ 本局平局",
+                            color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Black)
+                        Text(if (winners.size == 1) "以 $highest 分赢下这一局" else "最高分同为 $highest 分",
+                            color = Color(0xFFB5CDDA), fontSize = 13.sp)
+                        ranking.forEachIndexed { index, player ->
+                            val total = scores[player.id].orEmpty().values.sum()
+                            Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Text("${index + 1}. ${player.name}", Modifier.weight(1f),
+                                    color = if (total == highest) mint else Color.White,
+                                    fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text("$total 分", color = Color.White,
+                                    fontWeight = FontWeight.Black, fontSize = 17.sp)
                             }
-                        Text("完整对局已写入游戏记录", color = Color(0xFF9FB6C8), fontSize = 11.sp)
-                        Button(onClick = ::reset, modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = ocean)) {
-                            Text("再玩一局")
                         }
+                        HorizontalDivider(color = Color.White.copy(alpha = .15f))
+                        Text("完整计分表", Modifier.align(Alignment.Start), color = mint,
+                            fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Column(Modifier.fillMaxWidth().horizontalScroll(
+                            androidx.compose.foundation.rememberScrollState()
+                        )) {
+                            Row(Modifier.background(Color(0xFF244E53), RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                                .padding(vertical = 9.dp)) {
+                                Text("项目", Modifier.width(80.dp).padding(start = 10.dp),
+                                    color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                players.forEach { player ->
+                                    Text(player.name, Modifier.width(80.dp),
+                                        color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                            YachtCategory.entries.forEachIndexed { index, category ->
+                                Row(Modifier.background(if (index % 2 == 0) Color(0xFF132934) else Color(0xFF1C333D))
+                                    .padding(vertical = 8.dp)) {
+                                    Text(category.label, Modifier.width(80.dp).padding(start = 10.dp),
+                                        color = Color(0xFFD9E6EF), fontSize = 11.sp)
+                                    players.forEach { player ->
+                                        Text("${scores[player.id]?.get(category) ?: 0}", Modifier.width(80.dp),
+                                            color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            Row(Modifier.background(Color(0xFF244E53), RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
+                                .padding(vertical = 10.dp)) {
+                                Text("总分", Modifier.width(80.dp).padding(start = 10.dp),
+                                    color = mint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                players.forEach { player ->
+                                    Text("${scores[player.id].orEmpty().values.sum()}", Modifier.width(80.dp),
+                                        color = mint, fontSize = 14.sp, fontWeight = FontWeight.Black)
+                                }
+                            }
+                        }
+                        Text("13轮全部完成 · 本局战绩已保存",
+                            color = Color(0xFF9FB6C8), fontSize = 11.sp)
+                        Button(
+                            onClick = ::reset, modifier = Modifier.fillMaxWidth().height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = mint, contentColor = ocean),
+                            shape = RoundedCornerShape(15.dp),
+                        ) { Text("再玩一局", fontWeight = FontWeight.Bold) }
                     }
                 }
             }
