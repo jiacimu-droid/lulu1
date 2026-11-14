@@ -181,7 +181,22 @@ internal fun RelicEscapeWorldMap(
                 }
                 val site=siteByCell[y*run.w+x]
                 if(site!=null) {
-                    if(site.kind=="supply") {
+                    if(site.kind=="alarm") {
+                        // A real optional map objective: brass warning bell, muted when disabled.
+                        val tint=if(site.spent)Color(0xFF5F7779) else Color(0xFFFF8F77)
+                        drawCircle(tint.copy(alpha=if(site.spent).08f else .18f+shimmer*.15f),
+                            t*.62f,c)
+                        drawLine(Color(0xFF405A67),p+Offset(t*.28f,t*.78f),
+                            p+Offset(t*.28f,t*.25f),strokeWidth=t*.07f)
+                        drawLine(Color(0xFF405A67),p+Offset(t*.72f,t*.78f),
+                            p+Offset(t*.72f,t*.25f),strokeWidth=t*.07f)
+                        drawLine(Color(0xFFAEC5CC),p+Offset(t*.26f,t*.28f),
+                            p+Offset(t*.74f,t*.28f),strokeWidth=t*.08f)
+                        drawCircle(tint,t*.21f,c+Offset(0f,-t*.02f))
+                        drawCircle(Color(0xFF292C3B),t*.09f,c+Offset(0f,t*.08f))
+                        if(!site.spent)drawCircle(tint.copy(alpha=.60f),
+                            t*.43f,c,style=Stroke(t*.035f))
+                    } else if(site.kind=="supply") {
                         val tint=if(site.spent)Color(0xFF6B8382) else Color(0xFF83E6CB)
                         drawCircle(tint.copy(alpha=.12f+shimmer*.10f),t*.53f,c)
                         drawRoundRect(Color(0xFF233E44),p+Offset(t*.18f,t*.27f),
