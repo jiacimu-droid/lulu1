@@ -55,6 +55,35 @@ class LuluShoppingLinkShareTest {
             "https://h5.m.goofish.com/item?id=12"))
     }
 
+    @Test fun meituanAndWaimaiShareOnlyTheirVerifiedOfficialHttpsLinks() {
+        val meituan = "com.sankuai.meituan"
+        val waimai = "com.sankuai.meituan.takeoutnew"
+        val offer = "https://i.meituan.com/deal/12345"
+        assertEquals("美团", LuluShoppingLinkShare.merchantName(meituan))
+        assertEquals("美团外卖", LuluShoppingLinkShare.merchantName(waimai))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(meituan, "复制链接", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(waimai, "复制商品链接", true, true))
+        assertFalse(LuluShoppingLinkShare.eligibleCopy(waimai, "复制商品链接", true, false))
+        assertEquals(offer, LuluShoppingLinkShare.verifiedChangedLink(meituan,
+            "old", "看看这个 " + offer))
+        assertEquals(offer, LuluShoppingLinkShare.verifiedChangedLink(waimai,
+            "old", offer))
+        assertTrue(LuluShoppingLinkShare.matchesMerchantLink("美团", offer))
+        assertTrue(LuluShoppingLinkShare.matchesMerchantLink("美团外卖", offer))
+        assertFalse(LuluShoppingLinkShare.matchesMerchantLink("淘宝", offer))
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(meituan,
+            "old", "https://evil-meituan.com/deal/12345"))
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(waimai,
+            "old", "https://meituan.com.evil.test/deal/12345"))
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(waimai,
+            "old", "http://i.meituan.com/deal/12345"))
+        val decoded = decodeQqShoppingProductLink(
+            encodeQqShoppingProductLink("美团", offer, "看到一家想尝尝的小店")
+        )
+        assertEquals(offer, decoded?.url)
+        assertEquals("看到一家想尝尝的小店", decoded?.caption)
+    }
+
     @Test fun copiedLinkRequiresNewClipboardEventAfterTheActualClickStarted() {
         assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1200L))
         assertTrue(LuluShoppingLinkShare.freshCopyEvent(1000L, 1200L, 1201L))
