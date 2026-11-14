@@ -45,7 +45,11 @@ const bridge = {
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
   kissCameraLease: null, KISS_CAMERA_DURATION_MS,
-  cancelKissCamera: () => { bridge.kissCameraLease = null },
+  cancelKissCamera: (soft = false) => {
+    if (soft && bridge.kissCameraLease) {
+      bridge.kissCameraLease.handoff ||= { at: clock, zoom: 2.1 }
+    } else bridge.kissCameraLease = null
+  },
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
   pendingExpressionName: null, pendingSpeechParts: null,
@@ -1012,8 +1016,8 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.kissCameraLease?.revision, 555,
     'a second speech-only fragment cannot instantly withdraw the kiss')
   bridge.perform({ visualSequence: 94003, motion: { group: 'Gesture', index: 12 } })
-  assert.equal(bridge.kissCameraLease, null,
-    'a new explicitly chosen action takes over from the kiss')
+  assert.equal(bridge.kissCameraLease?.handoff?.zoom, 2.1,
+    'a new chosen Motion3 eases the camera back instead of snapping')
   bridge.kissCameraLease = { model: bridge.model, revision: 556,
     startedAt: clock - 1400 }
   bridge.authoredMotion = { model: bridge.model, revision: 556,
