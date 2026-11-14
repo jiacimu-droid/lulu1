@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T08:03:43.900476+00:00",
-  "commit": "0f750dc4ee54943b65eb4236cd77b0a1a29b7685",
+  "generatedAt": "2026-11-14T08:04:23.207301+00:00",
+  "commit": "880d001e4a2323d27a9cbbcb175fe4ee2b5e0f3d",
   "branch": "main",
-  "sourceFingerprint": "7383c9ae48a545409e66759c7a71fece8399814a212807943bc0b8eefb6465b8",
+  "sourceFingerprint": "aa6b240ce53d522b6a9c653639d7983f93f9cc416a135a962eb18627022a6bde",
   "summary": {
-    "files": 1312,
-    "lines": 277474,
-    "symbols": 3914
+    "files": 1313,
+    "lines": 277552,
+    "symbols": 3917
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -54,6 +54,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
         "line": 69
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
+        "line": 31
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
@@ -118,6 +122,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
         "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -16444,6 +16452,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 304
+      }
+    ],
+    "remainingMs": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
+        "line": 64
       }
     ],
     "isSupportedAction": [
@@ -38599,6 +38613,25 @@
         {
           "name": "LuluBootReceiver",
           "line": 304
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
+      "lines": 78,
+      "sha256": "0d4012e93c2c9cba45ea81a02435cfe85e35e6a1f1c30d99df7ab9ee158aff52",
+      "symbols": [
+        {
+          "name": "start",
+          "line": 31
+        },
+        {
+          "name": "remainingMs",
+          "line": 64
+        },
+        {
+          "name": "stop",
+          "line": 70
         }
       ]
     },
