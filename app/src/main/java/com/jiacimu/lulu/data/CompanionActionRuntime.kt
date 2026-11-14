@@ -83,6 +83,12 @@ internal object CompanionActionRuntime {
 
     private val readingLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     private val gameTitles = com.jiacimu.lulu.games.GameInvitationCatalog.titles
+    /** One authoritative, human-readable invitation guide for both foreground and online chats. */
+    internal val gameInvitationCapabilityGuide: String
+        get() = "- send_game_invite，args={\\"gameId\\":\\"游戏ID\\",\\"text\\":\\"本人邀请语\\"}：" +
+            "角色可以主动在私聊发送可点击的游戏邀请卡片，不用主人先打开游戏或另装游戏App。" +
+            "可邀游戏（名称=gameId）：${gameTitles.entries.joinToString("、") { "${it.value}=${it.key}" }}。" +
+            "发送、主人接受、游戏开局各有独立真实回执，不能凭口头说法当成已经邀请或已经开局。"
 
     /**
      * One authority for search/read availability: filter the normal live tool
@@ -224,7 +230,7 @@ internal object CompanionActionRuntime {
             appendLine("- send_group_sticker，args={\"groupId\":\"真实群ID\",\"stickerId\":\"已列出的准确ID\"}：在所在群聊发送图片表情。")
             appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(context))
         }
-        appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
+        appendLine(gameInvitationCapabilityGuide)
         appendLine("- play_solo_game，args={\"gameId\":\"relic_escape\",\"focus\":\"treasure\",\"turns\":96}：也可选block_island（长期个人生存存档）、memory_match、yacht_dice；小岛focus=explore/gather/build/survive/wildlife，摸金focus=explore/treasure/rare/safe/extract，turns=4至128。自己选择玩哪个与何时停；角色实际操作同一游戏规则，摸金成功撤离后才归仓，小岛出入不清空存档。记忆配对独有targetScore。是否要把实况告诉主人另行自己决定，不自动当成聊天回复。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是仅好友可见的生活分享（QQ空间式）；好友可看全部点赞、评论，不限共同好友。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
