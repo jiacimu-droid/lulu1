@@ -258,3 +258,8 @@
 ## 2026-11-15 G-03.5 · 地面珍宝拾取后撤离实体回归（CI 待验）
 
 - 新增 `RelicQuickActionTest.groundTreasureMustBePickedUpBeforeItCanLeaveTheRun`：真实满包开箱落地→不拾取直接撤离仅记遗失→真实丢包腾容量→存档重读→拾取同一物品 ID→重复拾取无奖励→撤离成功 `secured` 唯一包含实物且重读保持。测试提交 `d7bb48939845543b8c401d0a92c1b63ad79aaa32`，测试 blob `aae4b416e390480288577320e3dd1727038a1ce0`；生产规则未改。该提交的 Lulu APK/JVM run #43612226879 查询时 pending，索引同 SHA 待终态，不能标通过。下轮先查 JVM 首错与拾取/撤离回归，再进入正式 `RelicEscapeScreen.kt` 的掉地交互与藏宝馆重进；真机/真实模型/FPS 独立待验。
+
+## 2026-11-15 G-03.5 · 地面实物与地标重叠的玩家优先交互
+
+- 正式 `RelicQuickAction.kt` 原先在选中地格时先执行祭坛/钟楼/补给等地标判断，才检查同格真实掉落。开箱满包后宝物若落在仍可互动的地标格，地图主按钮无法直接拾取；玩家只能打开深层背包菜单。`5010cf8` 将有容量的真实 `RelicDrop` 拾取判断移到地标前，仍由 `RelicEscapeRules.act("pickup", lootId)` 验证近距/容量/实体并扣世界回合；无实物时地标仍可操作。没有改变掉率或自动拾取。
+- `ae95fe6` 在 `RelicQuickActionTest.physicalGroundLootWinsOverOverlappingActiveLandmark` 加入真实地面珍宝与未消耗祭坛同格的回归：地图按钮必须选择实体拾取，权威背包新增同一 ID、地面消失，祭坛保持未消耗。源码 blob `146a28f9d5fe22da46c471cf2d9e1d828efac469`，测试 blob `04256568b3693e42e5390f16ca2396d73a5c796a`。对应 main push 的 JVM/APK/index 尚未取得终态；不能声称测试或 APK 成功。下一步先看 `ae95fe6` 对应 push JVM 首错，再检查正式地图同格多掉落、背包满容量提示和真机小屏 HUD/拾取/撤离入库；真实模型与帧率独立待验。
