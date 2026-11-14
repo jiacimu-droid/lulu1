@@ -131,6 +131,21 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             playedWithCharacterOverride = session.companionIds.isNotEmpty(),
             recordIdOverride = session.id,
         )
+        // The canonical record belongs to the invited role; other participants must
+        // receive their own truthful outcome observation rather than remain unaware.
+        players.mapNotNull { it.characterId }.drop(1).forEach { participantId ->
+            com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                eventId = "game-raw-$recordId-participant-$participantId",
+                characterId = participantId,
+                channel = "共同游戏《快艇骰子》",
+                speaker = "游戏结算",
+                content = "双方完成全部13轮：$rankingSummary；$outcome。最终计分表已保存于对局$recordId。",
+                occurredAt = java.time.Instant.now(),
+                triggerExtraction = false,
+                source = "game-match-result",
+                evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
+            )
+        }
         if (session.companionIds.isNotEmpty()) saveGameAsSharedMemory(scope, store, recordId)
     }
 
@@ -166,7 +181,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 scope = scope,
                 store = store,
                 recordId = null,
-                facts = lastResult,
+                facts = lastResult + "\\n" + store.activeGameContext(player.characterId),
                 instruction = "你刚刚亲自完成了这一回合。依据真实骰面及累计比分，以本人的语气自然回应；尚未结束不得声称获胜。",
                 title = "快艇骰子 · ${player.name}",
                 onState = { roleResponse = it },
