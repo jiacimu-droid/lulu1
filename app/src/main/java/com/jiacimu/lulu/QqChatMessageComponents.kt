@@ -813,7 +813,7 @@ private fun GameInviteMessageCard(
                 Spacer(Modifier.width(11.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
-                        "$inviterName邀请你一起玩",
+                        "${inviterName}邀请你一起玩",
                         color = QqMuted, fontSize = 11.sp,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
