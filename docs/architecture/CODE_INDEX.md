@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3f71043c35c529be9ecd1cd63b53eae8e8820e21`
+- 基准提交：`2ef46106255bdbb97a9189f0d80b91ed99d1a10b`
 - 分支：`main`
 - 已索引文件：1308
-- 已索引代码/文本行：275790
+- 已索引代码/文本行：275895
 - 已发现符号：3895
 
 | 文件 | 行数 | 符号数 |
@@ -261,7 +261,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt` | 42 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCard.kt` | 65 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCard.kt` | 141 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1235 | 11 |
@@ -1295,7 +1295,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 85 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
