@@ -287,7 +287,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 // 12s chunks) is still the user's *already recorded* speech.
                 // Never gate that last delivery on the new mute state.
                 if (epoch == generation &&
-                    ((completed && capturePaused) || (!capturePaused && accept()))) {
+                    PhoneMicSegmentPolicy.shouldQueueCapturedSegment(
+                        isFinal = completed, muted = capturePaused,
+                        acceptsNewAudio = !capturePaused && accept(),
+                    )) {
                     // An ended PCM segment means capture has stopped, even if
                     // cloud recognition still takes time or returns no text.
                     // Releasing the speaking flag must not wait for valid ASR.
