@@ -39,6 +39,20 @@ class RelicEscapeRulesTest {
         val fixed=base.copy(seed=upgrading!!)
         assertEquals(RelicEscapeRules.treasure(fixed,purple),
             RelicEscapeRules.treasure(fixed,purple))
+        val prismSeed=(1..100000).firstOrNull { seed ->
+            RelicEscapeRules.treasure(base.copy(seed=seed),purple).grade==6
+        }
+        assertNotNull("Rare violet-to-prism path must be real",prismSeed)
+        val prism=base.copy(seed=prismSeed!!)
+        val steps=RelicEscapeRules.openSteps(purple)
+        val glows=(0 until steps).map { progress ->
+            RelicEscapeRules.openingGlowGrade(
+                prism.copy(chestProgress=mapOf(purple.id to progress)),purple)
+        }
+        assertEquals(3,glows.first())
+        assertTrue(glows.contains(4))
+        assertTrue(glows.contains(5))
+        assertEquals(6,glows.last())
     }
 
     @Test fun openingNeedsPersistedPressesAndEnemyTurnsBeforeRealLoot() {
