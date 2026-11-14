@@ -30,16 +30,19 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private var realtimeAcoustics = VoiceAcousticAnalyzer()
     private var transcription: Job? = null
     private var realtime: ElevenLabsRealtimeStt? = null
-    private var realtimeStartedAtElapsed = 0L
+    // The old realtime socket can finish an already spoken sentence while a
+    // fresh microphone session opens after unmute. Audit/close by socket, never
+    // accidentally close the newly opened recognizer.
+    private val realtimeStartedAtElapsed = mutableMapOf<ElevenLabsRealtimeStt, Long>()
 
-    private fun closeRealtimeSession() {
-        val running = realtime ?: return
-        realtime = null
-        running.stop()
-        val elapsed = (SystemClock.elapsedRealtime() - realtimeStartedAtElapsed).coerceAtLeast(0L)
+    private fun closeRealtimeSession(running: ElevenLabsRealtimeStt? = realtime) {
+        val target = running ?: return
+        if (realtime === target) realtime = null
+        target.stop()
+        val started = realtimeStartedAtElapsed.remove(target) ?: SystemClock.elapsedRealtime()
+        val elapsed = (SystemClock.elapsedRealtime() - started).coerceAtLeast(0L)
         VoiceUsageAudit.record(context, "ElevenLabs", "stt_realtime_session", 0,
-            elevenModel, audioMs = running.sentAudioMillis(), durationMs = elapsed)
-        realtimeStartedAtElapsed = 0L
+            elevenModel, audioMs = target.sentAudioMillis(), durationMs = elapsed)
     }
     private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
     @Volatile private var generation = 0L
@@ -56,7 +59,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     @Volatile private var finalTranscriptPending = false
     val hasPendingUtterance: Boolean get() =
         capturingVoice || queuedChunks.get() > 0 || finalTranscriptPending ||
-            currentPhrase.isNotBlank() || realtime?.hasPendingUtterance == true
+            currentPhrase.isNotBlank() || realtimeStartedAtElapsed.keys.any { it.hasPendingUtterance }
 
     /** Realtime streams live PCM; batch Scribe automatically uploads
      * finished PCM segments through the existing ordered cloud-ASR queue. */
@@ -206,7 +209,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
             modelId = elevenModel,
             active = { epoch == generation },
             onSpeech = {
-                if (epoch == generation) {
+                // Delayed server events for an already muted utterance must
+                // not revoke its original capture authorization.
+                if (epoch == generation && !capturePaused) {
                     capturingVoice = true
                     onSpeech()
                 }
@@ -224,7 +229,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onError = { if (epoch == generation) onError(it) },
         )
         realtime = recognizer
-        realtimeStartedAtElapsed = SystemClock.elapsedRealtime()
+        realtimeStartedAtElapsed[recognizer] = SystemClock.elapsedRealtime()
         recognizer.start()
         onStatus("${CallVoiceConfiguration.elevenSttLabel(elevenModel)} 已选择，正在连接实时识别…")
         startRealtimeMicrophone(epoch, prefs, recognizer)
@@ -316,8 +321,11 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // Close the cloud ASR session as well as releasing AudioRecord.
         if (elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME) {
             microphone.stop()
-            closeRealtimeSession()
             capturingVoice = false
+            val spokenSession = realtime
+            spokenSession?.finishCaptureOnMute {
+                closeRealtimeSession(spokenSession)
+            }
         } else {
             pauseReleaseJob = scope.launch {
                 delay(650)
@@ -523,6 +531,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturePaused = false
         microphone.stop()
         closeRealtimeSession()
+        realtimeStartedAtElapsed.keys.toList().forEach { closeRealtimeSession(it) }
         realtimeAcoustics.clear()
         segments?.close()
         segments = null
