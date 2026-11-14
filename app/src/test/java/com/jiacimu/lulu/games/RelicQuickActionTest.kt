@@ -295,6 +295,21 @@ class RelicQuickActionTest {
         assertFalse(relicAttackHint(far, h.x + 3 to h.y).isBlank())
     }
 
+    @Test fun explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy() {
+        val base = run()
+        val h = base.hero
+        val near = RelicMob(801, h.x + 1, h.y, 5, 0)
+        val distant = RelicMob(802, h.x + 3, h.y, 5, 0)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            mobs = listOf(near, distant),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        assertNull(relicAttackTarget(scene, distant.x to distant.y))
+        assertEquals(near.id, relicAttackTarget(scene, h.x to h.y)?.id)
+        assertEquals(near.id, relicAttackTarget(scene, near.x to near.y)?.id)
+        assertTrue(relicAttackHint(scene, distant.x to distant.y).contains("靠近"))
+    }
+
     @Test fun enemyCanBeAttackedOnlyWhenCloseAndSeen() {
         val original = run()
         val x = original.hero.x + 1
