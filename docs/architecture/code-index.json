@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T01:54:56.089514+00:00",
-  "commit": "82aaa5a2da0a76b0019a45d1919ee69db9286cd0",
+  "generatedAt": "2026-11-14T01:55:58.454245+00:00",
+  "commit": "1a2877f57edd45741bedaee48d42e6d2f62ff8a2",
   "branch": "main",
-  "sourceFingerprint": "9291573b390b6f654a42f74dd9bc997c199254f16cc0c87c39540a78cb15bd4b",
+  "sourceFingerprint": "126cda93e408511b196290a928681c20bb211fa599a6a67d5dd0c37472db0605",
   "summary": {
     "files": 1305,
-    "lines": 275145,
+    "lines": 275174,
     "symbols": 3879
   },
   "symbolIndex": {
@@ -1567,25 +1567,25 @@
     "sceneLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 111
+        "line": 125
       }
     ],
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 126
+        "line": 140
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 131
+        "line": 145
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 141
+        "line": 155
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -20171,7 +20171,7 @@
     "NativeResidentLifeIntegrationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "OnlineChatBatchStoreTest": [
@@ -22846,24 +22846,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 771,
-      "sha256": "8cd095f4bce37d6c9d93f019be8637e2fa05b4f7101aced6e9b200a9e50b3252",
+      "lines": 785,
+      "sha256": "48b4e365ef05cdbd714c1624bbb04915022efafc3197679c7aa0a2f55ffb52fe",
       "symbols": [
         {
           "name": "sceneLabel",
-          "line": 111
+          "line": 125
         },
         {
           "name": "openScene",
-          "line": 126
+          "line": 140
         },
         {
           "name": "talkTo",
-          "line": 131
+          "line": 145
         },
         {
           "name": "toggleVoice",
-          "line": 141
+          "line": 155
         }
       ]
     },
@@ -43676,12 +43676,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 325,
-      "sha256": "3e8c4945b5cbd3f6779efaa30dcf703bc042eaa71875156a58b04c4c0e108beb",
+      "lines": 340,
+      "sha256": "e9c9bd4c416693a141ee9fed8e5ab632d3a8f74386ff36b4f805bf012039ed2d",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
-          "line": 17
+          "line": 18
         }
       ]
     },
