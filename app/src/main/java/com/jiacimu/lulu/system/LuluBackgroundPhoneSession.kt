@@ -1108,7 +1108,16 @@ internal object LuluBackgroundPhoneSession {
             val sharedReceipt = if (args.optBoolean("sendToChat")) {
                 if (!hasFrame) JSONObject().put("sentToChat", false)
                     .put("shareError", "后台虚拟屏未获得真实画面，不能发主屏截图替代")
-                else try {
+                else if (!LuluRolePhoneAuthorization.isGranted(context, characterId) ||
+                    ownerHasPaused(context) ||
+                    context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true ||
+                    LuluScreenAwareness.isExcluded(context, visible.packageName) ||
+                    displayId != id || ownerCharacterId != characterId ||
+                    activeApp != visible.packageName ||
+                    windowGate(id, activeApp).optString("kind") != "target") {
+                    JSONObject().put("sentToChat", false)
+                        .put("shareError", "发送前后台屏授权或目标窗口已变化，未发送截图")
+                } else try {
                     // Only pixels produced by this exact, independently
                     // verified displayId may be forwarded as a chat image.
                     // The user's live main screen is NEVER used here.
