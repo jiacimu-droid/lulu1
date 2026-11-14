@@ -36,6 +36,19 @@ class PhoneMicSegmentPolicyTest {
         assertTrue(PhoneMicSegmentPolicy.softVoiceQuietThreshold(30.0, 115.0) < 80.0)
     }
 
+    @Test fun mutingFinishesAlreadyCapturedBatchPcmButCannotAddNewAudio() {
+        // Reproduces explicit mute after an ElevenLabs batch upload chunk.
+        // The final marker can contain zero PCM bytes when 12s chunks were sent.
+        assertTrue(PhoneMicSegmentPolicy.shouldQueueCapturedSegment(
+            isFinal = true, muted = true, acceptsNewAudio = false))
+        assertFalse(PhoneMicSegmentPolicy.shouldQueueCapturedSegment(
+            isFinal = false, muted = true, acceptsNewAudio = false))
+        assertTrue(PhoneMicSegmentPolicy.shouldQueueCapturedSegment(
+            isFinal = false, muted = false, acceptsNewAudio = true))
+        assertFalse(PhoneMicSegmentPolicy.shouldQueueCapturedSegment(
+            isFinal = true, muted = false, acceptsNewAudio = false))
+    }
+
     @Test fun aLongNaturalExplanationAllowsBreathingPauses() {
         assertEquals(1450, PhoneMicSegmentPolicy.silenceMs(10, 500))
         assertEquals(1900, PhoneMicSegmentPolicy.silenceMs(22, 500))
