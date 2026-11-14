@@ -224,6 +224,32 @@ class RelicQuickActionTest {
         assertFalse(restored.chests.single().opened)
     }
 
+    @Test fun dpadPicksUpPhysicalLootUnderfootBeforeFacingAnotherChest() {
+        val base = run()
+        val h = base.hero
+        val loot = RelicLoot("underfoot:1", "脚边遗珍", RelicTier.RARE, 185)
+        val chest = RelicChest(720, h.x + 1, h.y, RelicTier.COMMON)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(chest), mobs = emptyList(), sites = emptyList(),
+            drops = listOf(RelicDrop(h.x, h.y, loot)),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        assertEquals("open", relicQuickAction(scene, chest.x to chest.y)?.action)
+        val first = relicNearbyAction(scene, 1 to 0)!!
+        assertEquals("pickup", first.action)
+        assertEquals(loot.id, first.id)
+        val picked = RelicEscapeRules.act(scene, first.action, lootId = first.id)
+        assertEquals(1, picked.hero.bag.count { it.id == loot.id })
+        assertFalse(picked.drops.any { it.loot.id == loot.id })
+        assertFalse(picked.chests.single().opened)
+        val next = relicNearbyAction(picked, 1 to 0)!!
+        assertEquals("open", next.action)
+        assertEquals(chest.x, next.x)
+        val restored = RelicRun.read(picked.json())!!
+        assertEquals(picked.hero.bag, restored.hero.bag)
+        assertFalse(restored.chests.single().opened)
+    }
+
     @Test fun navigationIsOneLegalStepAndCannotEnterMonsterTile() {
         val map = run().let { it.copy(seen = (0 until it.w * it.h).toSet()) }
         val quick = relicQuickAction(map, map.exitX to map.exitY)!!
