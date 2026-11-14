@@ -52,6 +52,16 @@ internal object CallVoiceConfiguration {
     ): Boolean = !capturingSpeech && !userSpeaking && !inputHasPendingUtterance &&
         recognitionPendingUntil <= now
 
+    /**
+     * Batch ElevenLabs Scribe has ALREADY waited for local end-of-speech VAD
+     * before its audio is uploaded. Do not apply a second full breath timer
+     * after the network response, which adds latency without speech evidence.
+     * Keep the existing continuation for other engines and open capture.
+     */
+    fun postAsrContinuationMillis(engine: String, muted: Boolean, transcript: String): Long =
+        if (muted || engine == "elevenlabs") 0L
+        else SystemSpeechTurnPolicy.continuationMillis(transcript)
+
     /** STT is independent from character TTS. Never silently switch paid ASR providers. */
     fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
     fun sttEngine(context: Context): String {
