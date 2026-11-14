@@ -779,7 +779,11 @@ class RelicEscapeRulesTest {
             assertEquals(a.exitX to a.exitY,b.exitX to b.exitY)
             assertEquals(3,a.allies.size)
             assertTrue(a.chests.size>=5)
-            // Seven-grade chest rolls are seeded, not a guaranteed premium payout.\n            // Every physical chest must keep its authoritative grade and tier aligned.\n            assertTrue(a.chests.all { it.grade in 0..6 &&\n                it.tier==RelicQuality.at(it.grade).tier })\n            assertEquals(a.chests.map { it.grade },b.chests.map { it.grade })
+            // Seven-grade chest rolls are seeded, not a guaranteed premium payout.
+            // Every physical chest must keep its authoritative grade and tier aligned.
+            assertTrue(a.chests.all { it.grade in 0..6 &&
+                it.tier==RelicQuality.at(it.grade).tier })
+            assertEquals(a.chests.map { it.grade },b.chests.map { it.grade })
             for(chest in a.chests)assertNotNull(RelicEscapeRules.path(a,2,2,chest.x,chest.y))
             assertNotNull(RelicEscapeRules.path(a,2,2,a.exitX,a.exitY))
         }
