@@ -477,13 +477,22 @@ class ConversationExpressionGatewayTest {
             assertTrue(expression.contains("所有气泡合起来是本轮回复"))
             (1..1).forEach { index ->
                 val messages = requests[index].getJSONArray("messages")
-                assertEquals(4, messages.length())
+                // Owner-edited world-book data is sent as one separate,
+                // lower-trust user-role reference before the real dialogue.
+                // It must never replace or reorder the original chat turns.
+                assertEquals(5, messages.length())
                 assertEquals("user", messages.getJSONObject(1).getString("role"))
-                assertEquals("还得接着读。", messages.getJSONObject(1).getString("content"))
-                assertEquals("assistant", messages.getJSONObject(2).getString("role"))
-                assertEquals("你在担心什么？", messages.getJSONObject(2).getString("content"))
-                assertEquals("不读书就没钱，", messages.getJSONObject(3).getString("content"))
+                assertTrue(messages.getJSONObject(1).getString("content")
+                    .contains("用户自行编辑的世界设定参考"))
+                assertEquals("user", messages.getJSONObject(2).getString("role"))
+                assertEquals("还得接着读。", messages.getJSONObject(2).getString("content"))
+                assertEquals("assistant", messages.getJSONObject(3).getString("role"))
+                assertEquals("你在担心什么？", messages.getJSONObject(3).getString("content"))
+                assertEquals("user", messages.getJSONObject(4).getString("role"))
+                assertEquals("不读书就没钱，", messages.getJSONObject(4).getString("content"))
                 assertFalse(messages.getJSONObject(0).getString("content").contains("历史应通过真实消息发送"))
+                assertFalse(messages.getJSONObject(0).getString("content")
+                    .contains("用户自行编辑的世界设定参考"))
             }
         } finally { server.shutdown() }
     }
@@ -2151,13 +2160,20 @@ class ConversationExpressionGatewayTest {
                     conversation = conversation).getOrThrow()
                 val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
                 val messages = body.getJSONArray("messages")
-                val offset = if (claude) 0 else 1
+                // One lower-trust world-book reference precedes the three
+                // actual dialogue turns on both wire protocols.
+                val offset = if (claude) 1 else 2
                 assertEquals(3 + offset, messages.length())
+                val reference = messages.getJSONObject(offset - 1)
+                assertEquals("user", reference.getString("role"))
+                assertTrue(reference.getString("content")
+                    .contains("用户自行编辑的世界设定参考"))
                 conversation.forEachIndexed { index, turn ->
                     assertEquals(turn.role.wire, messages.getJSONObject(index + offset).getString("role"))
                     assertEquals(turn.content, messages.getJSONObject(index + offset).getString("content"))
                 }
                 val system = if (claude) body.getString("system") else messages.getJSONObject(0).getString("content")
+                assertFalse(system.contains("用户自行编辑的世界设定参考"))
                 assertTrue(system.contains("搜索失败，尚未读到原文"))
                 assertTrue(system.contains("本轮背景材料"))
                 assertTrue(system.contains("旧长篇的篇幅与措辞不构成本轮的文风要求"))
@@ -2218,12 +2234,16 @@ class ConversationExpressionGatewayTest {
             assertEquals(1, server.requestCount)
             val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
             val messages = body.getJSONArray("messages")
-            assertEquals(4, messages.length())
-            assertEquals("还得接着读。", messages.getJSONObject(1).getString("content"))
-            assertEquals("assistant", messages.getJSONObject(2).getString("role"))
-            assertEquals("你在担心什么？", messages.getJSONObject(2).getString("content"))
-            assertEquals("user", messages.getJSONObject(3).getString("role"))
-            assertEquals(current.content, messages.getJSONObject(3).getString("content"))
+            assertEquals(5, messages.length())
+            assertEquals("user", messages.getJSONObject(1).getString("role"))
+            assertTrue(messages.getJSONObject(1).getString("content")
+                .contains("用户自行编辑的世界设定参考"))
+            assertEquals("user", messages.getJSONObject(2).getString("role"))
+            assertEquals("还得接着读。", messages.getJSONObject(2).getString("content"))
+            assertEquals("assistant", messages.getJSONObject(3).getString("role"))
+            assertEquals("你在担心什么？", messages.getJSONObject(3).getString("content"))
+            assertEquals("user", messages.getJSONObject(4).getString("role"))
+            assertEquals(current.content, messages.getJSONObject(4).getString("content"))
             val system = messages.getJSONObject(0).getString("content")
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
             // The current words are already in the real user turn. The system
