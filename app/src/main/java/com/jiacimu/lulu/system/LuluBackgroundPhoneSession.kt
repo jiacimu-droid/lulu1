@@ -850,7 +850,7 @@ internal object LuluBackgroundPhoneSession {
                     try {
                         com.jiacimu.lulu.data.CompanionActionRuntime.sendShoppingProductLink(
                             characterId,
-                            requireNotNull(LuluShoppingLinkShare.merchantName(activeApp)),
+                            requireNotNull(LuluShoppingLinkShare.merchantNameForLink(activeApp, link)),
                             link, args.optString("caption").take(240),
                         )
                     } catch (error: Exception) {
