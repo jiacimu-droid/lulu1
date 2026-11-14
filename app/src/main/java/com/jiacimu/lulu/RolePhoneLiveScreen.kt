@@ -69,7 +69,9 @@ private suspend fun loadInspectedPicture(
     // The source is ALWAYS the owned displayId>0 frame, with before/after
     // package verification in ownerPreview. This must never fall back to
     // capture_screen or any model-synthesized screenshot.
-    val frame = LuluBackgroundPhoneSession.ownerPreview(context, roleId)
+    val frame = withContext(Dispatchers.IO) {
+        LuluBackgroundPhoneSession.ownerPreview(context, roleId)
+    }
     val image = withContext(Dispatchers.Default) {
         val encoded = frame.imageDataUrl.removePrefix("data:image/jpeg;base64,")
         val bytes = Base64.getDecoder().decode(encoded)
@@ -230,7 +232,9 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
             // Validate current source and owner permission AGAIN before
             // sending the deliberately selected frame. If the virtual display
             // was switched/revoked, the old frame is never shared.
-            val verifiedNow = LuluBackgroundPhoneSession.ownerPreview(context, roleId)
+            val verifiedNow = withContext(Dispatchers.IO) {
+                LuluBackgroundPhoneSession.ownerPreview(context, roleId)
+            }
             check(verifiedNow.displayId == selected.frame.displayId &&
                 verifiedNow.packageName == selected.frame.packageName &&
                 !LuluBackgroundPhoneSession.ownerHasPaused(context) &&
