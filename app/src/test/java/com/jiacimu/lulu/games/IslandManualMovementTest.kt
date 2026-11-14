@@ -38,6 +38,42 @@ class IslandManualMovementTest {
         assertNull(IslandManualMovement.destination(ore,1,1))
     }
 
+    @Test fun blockedWalkingExplainsAnActionWithoutModifyingWorld() {
+        val original=BlockIslandRules.newWorld(622,emptyList())
+        val w=original.world.copy(
+            x=4,y=5,tiles=List(original.world.tiles.size){0},
+            mobs=emptyList(),friends=emptyList())
+        val clear=original.copy(world=w,animals=emptyList())
+        assertEquals(5 to 5,IslandManualMovement.destination(clear,1,0))
+        assertNull(IslandManualMovement.blockedHint(clear,1,0))
+        assertNull(IslandManualMovement.blockedHint(clear,1,1))
+
+        val wood=clear.copy(world=w.copy(tiles=w.tiles.toMutableList().also {
+            it[w.index(5,5)]=1
+        }))
+        val snapshot=wood.toJson()
+        assertNull(IslandManualMovement.destination(wood,1,0))
+        assertTrue(IslandManualMovement.blockedHint(wood,1,0)!!.contains("采集"))
+        // A UI hint must not spend wood, a turn or alter the user's save.
+        assertEquals(snapshot,wood.toJson())
+        assertEquals(w.turns,wood.world.turns)
+
+        val hostile=clear.copy(world=w.copy(
+            mobs=listOf(ExpeditionMob(78,5,5,4))))
+        assertNull(IslandManualMovement.destination(hostile,1,0))
+        assertTrue(IslandManualMovement.blockedHint(hostile,1,0)!!.contains("攻击"))
+        assertEquals(4,hostile.world.mobs.single().hp)
+        val ally=clear.copy(world=w.copy(
+            friends=listOf(ExpeditionFriend("ally",5,5,hp=0))))
+        assertNull(IslandManualMovement.destination(ally,1,0))
+        assertTrue(IslandManualMovement.blockedHint(ally,1,0)!!.contains("2枚野果"))
+        val unready=clear.copy(world=w.copy(tiles=w.tiles.toMutableList().also{
+            it[w.index(5,5)]=8
+        }))
+        assertNull(IslandManualMovement.destination(unready,1,0))
+        assertTrue(IslandManualMovement.blockedHint(unready,1,0)!!.contains("鱼竿"))
+    }
+
     @Test fun clearTileMovementStillWorksAndCannotWalkIntoMonsters() {
         val start=BlockIslandRules.newWorld(2,emptyList())
         val base=start.copy(animals=emptyList(),world=start.world.copy(mobs=emptyList()))
