@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T04:54:56.484898+00:00",
-  "commit": "955fda2969da1236470a6c917c49368069e2ce46",
+  "generatedAt": "2026-11-14T04:55:42.388593+00:00",
+  "commit": "3f71043c35c529be9ecd1cd63b53eae8e8820e21",
   "branch": "main",
-  "sourceFingerprint": "e2f515bc2617e03263a0c3d63841d6ae036f04aefe1a7ffa48efdb5e06fdd298",
+  "sourceFingerprint": "e1a624ccd82edd97cdea026241ae6b0e53e4e7f171ebe4587a40af2810ea8ee5",
   "summary": {
-    "files": 1307,
-    "lines": 275744,
-    "symbols": 3894
+    "files": 1308,
+    "lines": 275790,
+    "symbols": 3895
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16933,7 +16933,7 @@
     "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 47
+        "line": 52
       }
     ],
     "canObserve": [
@@ -17762,6 +17762,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
         "line": 14
+      }
+    ],
+    "GameInviteMessageParserTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt",
+        "line": 7
       }
     ],
     "GroupChatTurnPlannerTest": [
@@ -39061,12 +39067,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 96,
-      "sha256": "b0126c0263b4dd6d611cef616d49f996ed163ee38336d3db13b00e8a59b161a6",
+      "lines": 101,
+      "sha256": "8311d88e8eea0bcfa5824b416addf5b7e91ff7e3c060a194d0feeb12216a6ca1",
       "symbols": [
         {
           "name": "clipboardTimestamp",
-          "line": 47
+          "line": 52
         }
       ]
     },
@@ -40261,6 +40267,17 @@
         {
           "name": "ElevenLabsAudioContractsTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt",
+      "lines": 24,
+      "sha256": "8988d0da25c52a82845108e7a8c6c3d87e876c46f0cab0418e616e0f70a6bcc3",
+      "symbols": [
+        {
+          "name": "GameInviteMessageParserTest",
+          "line": 7
         }
       ]
     },
@@ -45200,8 +45217,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 55,
-      "sha256": "4dff571e70e12134672bcec72882f4c3ffd73a7e1aee9e4e690fb9b3f99deaf6",
+      "lines": 72,
+      "sha256": "a379338eea6a00d9f8310d5f86e9aa982169646bbe54021b4778bcc3ce821cf7",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
