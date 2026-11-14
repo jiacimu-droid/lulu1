@@ -186,7 +186,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             },
-            onRemove={id->acceptedInvites=acceptedInvites.filterNot{it==id}},
+            onRemove={ id ->
+                acceptedInvites=acceptedInvites.filterNot{it==id}
+                GameInvitationContinuity.recordPartyLeft(context, id, "relic_escape", partySessionId)
+            },
             onStart={
                 store.selectCharacters(acceptedInvites)
                 if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon,chosenContract) }) {
