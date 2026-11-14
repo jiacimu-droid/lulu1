@@ -943,7 +943,7 @@ class CompanionModelGateway(
                 "reductionAvailable=$reductionAvailable;projectedBytes=$reducedBytes;" +
                 "precompact=$sentReduced"
             var sentRequestBodyBytes = 0L
-            if (!ResidentDailyPolicy.activityEnabled(connectionStore.appContext, characterId))
+            if (!ResidentDailyPolicy.permitsModelRequest(connectionStore.appContext, characterId))
                 error("居民活动已暂停；本次没有发送模型请求")
             if (!BackgroundModelRequestBudget.claim(connectionStore.appContext, characterId,
                     source, title, evidence = backgroundEvidenceKey?.takeIf(String::isNotBlank)
