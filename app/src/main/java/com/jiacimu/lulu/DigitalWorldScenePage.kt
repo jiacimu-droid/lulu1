@@ -42,7 +42,10 @@ internal fun DigitalWorldScenePage(
 ) {
     val context = LocalContext.current
     val visibleResidents = remember(sceneCode, characters, world.characterLocations) {
-        characters.filter { world.characterLocations[it.characterId] == sceneCode }
+        characters.filter {
+            !it.characterId.startsWith("resident:") &&
+                world.characterLocations[it.characterId] == sceneCode
+        }
             .map(CharacterSettings::characterId).distinct()
     }
     val witnessedResidents = if (homeCharacterId == null) visibleResidents
