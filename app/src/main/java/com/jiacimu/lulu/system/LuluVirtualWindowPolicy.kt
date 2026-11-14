@@ -23,5 +23,12 @@ internal object LuluVirtualWindowPolicy {
             ) != null) Kind.OTHER_APP else Kind.UNKNOWN
     }
 
+    /** Only a temporarily missing target window may get a bounded, read-only
+     * local observation retry. System dialogs and other apps require a stop. */
+    fun canRetryReadOnly(kind: String, diagnostic: String): Boolean =
+        kind == "unknown" && diagnostic in setOf(
+            "no_window", "root_unreadable", "package_unreadable",
+        )
+
     fun pausesAutomation(kind: Kind): Boolean = kind != Kind.TARGET
 }
