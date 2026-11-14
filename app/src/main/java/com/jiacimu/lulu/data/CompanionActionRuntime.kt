@@ -85,7 +85,7 @@ internal object CompanionActionRuntime {
     private val gameTitles = com.jiacimu.lulu.games.GameInvitationCatalog.titles
     /** One authoritative, human-readable invitation guide for both foreground and online chats. */
     internal val gameInvitationCapabilityGuide: String
-        get() = "- send_game_invite，args={\\"gameId\\":\\"游戏ID\\",\\"text\\":\\"本人邀请语\\"}：" +
+        get() = "- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"本人邀请语\"}：" +
             "角色可以主动在私聊发送可点击的游戏邀请卡片，不用主人先打开游戏或另装游戏App。" +
             "可邀游戏（名称=gameId）：${gameTitles.entries.joinToString("、") { "${it.value}=${it.key}" }}。" +
             "发送、主人接受、游戏开局各有独立真实回执，不能凭口头说法当成已经邀请或已经开局。"
