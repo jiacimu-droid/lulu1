@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,16 +46,19 @@ internal fun LuluGameRecord.canWatchCharacterSoloProcess(): Boolean =
 fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val store = LuluGames.store
     val state by store.state.collectAsState()
-    var replayCenterVisible by remember { mutableStateOf(false) }
+    var replayCenterVisible by rememberSaveable { mutableStateOf(false) }
+    var replayLandscapeGameId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LuluGamesApp(onBack = onBack, initialGameId = initialGameId,
-        onReplayCenter = { replayCenterVisible = true })
+        onReplayCenter = { replayCenterVisible = true },
+        replayLandscapeGameId = replayLandscapeGameId)
 
     if (replayCenterVisible) {
         UniversalReplayCenter(
             records = state.records,
             onClear = store::clearRecords,
-            onDismiss = { replayCenterVisible = false },
+            onDismiss = { replayLandscapeGameId = null; replayCenterVisible = false },
+            onReplayModeChange = { replayLandscapeGameId = it },
         )
     }
 }
@@ -65,14 +69,17 @@ private fun UniversalReplayCenter(
     records: List<LuluGameRecord>,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
+    onReplayModeChange: (String?) -> Unit,
 ) {
-    var selected by remember { mutableStateOf<LuluGameRecord?>(null) }
-    var showReplay by remember(selected?.id) { mutableStateOf(false) }
+    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selected = records.firstOrNull { it.id == selectedId }
+    var showReplay by rememberSaveable(selectedId) { mutableStateOf(false) }
     BackHandler(enabled = selected != null) {
-        if (showReplay) showReplay = false else selected = null
+        if (showReplay) { showReplay = false; onReplayModeChange(null) }
+        else selectedId = null
     }
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onReplayModeChange(null); onDismiss() },
         containerColor = LuluColors.Paper,
     ) {
         if (selected == null) {
@@ -105,21 +112,27 @@ private fun UniversalReplayCenter(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         items(records, key = LuluGameRecord::id) { record ->
-                            ReplayRecordCard(record = record, onClick = { selected = record })
+                            ReplayRecordCard(record = record, onClick = { selectedId = record.id })
                         }
                     }
                 }
             }
         } else if (showReplay) {
             if (selected!!.canWatchCharacterSoloProcess()) {
-                UniversalGameReplay(record = selected!!, onBack = { showReplay = false })
+                UniversalGameReplay(record = selected!!, onBack = {
+                    showReplay = false; onReplayModeChange(null)
+                })
             } else {
                 UniversalGameResult(record = selected!!,
-                    onBack = { selected = null }, onReplay = { })
+                    onBack = { selectedId = null }, onReplay = { })
             }
         } else {
             UniversalGameResult(record = selected!!,
-                onBack = { selected = null }, onReplay = { showReplay = true })
+                onBack = { selectedId = null }, onReplay = {
+                    showReplay = true
+                    onReplayModeChange(if (selected!!.type == LuluGameType.RelicEscape) "relic_escape"
+                        else if (selected!!.type == LuluGameType.BlockIsland) "block_island" else null)
+                })
         }
     }
 }
