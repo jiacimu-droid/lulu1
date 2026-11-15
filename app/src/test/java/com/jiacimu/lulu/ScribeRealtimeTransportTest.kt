@@ -82,8 +82,10 @@ class ScribeRealtimeTransportTest {
             pumpUntil { partials.isNotEmpty() }
             assertTrue("Partial text is not a finished user turn", finals.isEmpty())
             wire.receive("committed_transcript", "我说到一半啦")
-            pumpUntil { finals.isNotEmpty() }
-            assertEquals(listOf("我说到一半啦"), finals)
+            pumpUntil { partials.any { it.contains("我说到一半啦") } }
+            shadowOf(Looper.getMainLooper()).idleFor(900, TimeUnit.MILLISECONDS)
+            assertEquals("v3 turn prediction should not wait for the older multi-second breath timer",
+                listOf("我说到一半啦"), finals)
         } finally {
             recognizer.stop()
             scope.cancel()
