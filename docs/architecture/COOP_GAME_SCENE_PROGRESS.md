@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-02.6 · 双游戏连麦旧会话迟到转写隔离（源码已提交，CI/真机待验）
+
+- **根因与可见后果**：两款游戏复用 `IslandGameOpenMic`，关闭麦克风后若云端 STT 回调延迟到下一次开麦，旧回调只检查 `active`，会把上一段录音误当成当前发言，进入角色队伍消息和原始时间线；旧 partial 也可能污染新面板。
+- **生产修复**：`a5f07fadd30e05967012882da84da341d70fff2b` 在 `IslandGameOpenMic.kt` 引入每次 start/stop 递增的会话代数，所有 STT ready/speech/partial/text/status/error 回调及录音 accept 均验证本会话仍有效；旧会话回调不得写入新会话状态或送入角色决策。没有修改 ElevenLabs 模型、增加付费调用或伪造发言。源码 blob `e44200b965d1989a0286b284b67f968e3f680c86`。
+- **验收**：当前 commit combined status 未返回 checks，JVM/APK/index 尚无成功证据；未新增 JVM 测试，Android/真实 STT 需验证关麦→立刻重开→旧请求迟到、同一会话正常提交、切后台停止、TTS 暂停录音及双游戏切换。下一入口 `IslandGameOpenMic.kt` 的 ProviderCallInput 回调生命周期与最新 main push APK/JVM 首错；真机 FPS/画面另验。
+
 ### G-02/G-03 · 游戏不是电话轮流答话：独立目标、低费用局内节拍与玩家插话改主意（源码/回归已提交；当前 JVM/APK 和 Redmi 待验）
 
 - **根因**：小岛 `IslandTravel.advance`、`IslandHouseProjects.advance` 与摸金 `RelicCoopTravel.advance` 之前只在主人主动消耗游戏回合时推进；角色虽然通过同一人物 Game 模型选定采木、施工、寻宝、支援或送宝，却会在玩家停手时卡住。游戏不能照搬电话式 A→B 一句一句等人指令，也不能改成每隔几秒购买一次模型推理。
