@@ -354,8 +354,8 @@ class RelicQuickActionTest {
         assertTrue(attacked.mobs.first{it.id==adjacent.id}.hp<adjacent.hp)
         // Explicitly inspecting a living distant enemy is still respected:
         // do not hit a different guard behind the player's back.
-        assertNull(relicAttackButtonTarget(scene,distant.x to distant.y))
-        assertTrue(relicAttackHint(scene,distant.x to distant.y).contains("靠近"))
+        assertEquals(adjacent.id,relicAttackButtonTarget(scene,distant.x to distant.y)?.id)
+        assertTrue(relicAttackHint(scene,distant.x to distant.y).contains("敌人进入射程"))
         assertEquals(adjacent.id,relicAttackButtonTarget(scene,h.x to h.y)?.id)
     }
 
@@ -370,6 +370,91 @@ class RelicQuickActionTest {
         assertTrue(relicAttackHint(scene,h.x to h.y).contains("上下左右相邻1格"))
         assertEquals(scene.turns,RelicEscapeRules.act(scene,"attack",far.x,far.y).turns)
         assertEquals(scene.mobs,RelicEscapeRules.act(scene,"attack",far.x,far.y).mobs)
+    }
+
+    @Test fun attackKeyAutoChoosesImminentThreatButStillHonorsReachableSelection() {
+        val base=run()
+        val h=base.hero
+        val near=RelicMob(920,h.x+1,h.y,3,0)
+        val winding=RelicMob(921,h.x,h.y+1,5,1,windup=true)
+        val scene=RelicEscapeRules.reveal(base.copy(
+            tiles=List(base.w*base.h){0},mobs=listOf(near,winding),
+            seen=(0 until base.w*base.h).toSet(),
+        ))
+        assertEquals(winding.id,relicAttackButtonTarget(scene,h.x to h.y)?.id)
+        assertEquals(near.id,relicAttackButtonTarget(scene,near.x to near.y)?.id)
+        assertEquals(winding.id,relicAttackButtonTarget(scene,99 to 99)?.id)
+        assertEquals(winding.id,relicAttackButtonTarget(scene,winding.x to winding.y)?.id)
+    }
+
+    @Test fun bladeSweepPhysicallyHitsAllAdjacentVisibleTargetsButNotDistantOnes() {
+        val base=run()
+        val h=base.hero
+        val east=RelicMob(930,h.x+1,h.y,5,0)
+        val south=RelicMob(931,h.x,h.y+1,5,1)
+        val west=RelicMob(932,h.x-1,h.y,5,2)
+        val far=RelicMob(933,h.x+3,h.y,5,0)
+        val scene=RelicEscapeRules.reveal(base.copy(
+            tiles=List(base.w*base.h){0},mobs=listOf(east,south,west,far),
+            seen=(0 until base.w*base.h).toSet(),
+            equipped="blade",weapons=setOf("blade")))
+        assertEquals(3,RelicArsenal.sweepTargets(scene).size)
+        assertTrue(RelicArsenal.canSweep(scene))
+        val attacked=RelicEscapeRules.act(scene,"sweep")
+        assertEquals(scene.turns+1,attacked.turns)
+        assertEquals(3,attacked.sweepReadyTurn)
+        assertEquals(4,attacked.mobs.first{it.id==east.id}.hp)
+        assertEquals(4,attacked.mobs.first{it.id==south.id}.hp)
+        assertEquals(4,attacked.mobs.first{it.id==west.id}.hp)
+        assertEquals(far.hp,attacked.mobs.first{it.id==far.id}.hp)
+        assertEquals(1,attacked.events.count{it.who=="player" && it.action=="sweep"})
+        val restored=RelicRun.read(attacked.json())!!
+        assertEquals(attacked.sweepReadyTurn,restored.sweepReadyTurn)
+        val spam=RelicEscapeRules.act(restored,"sweep")
+        assertEquals(restored.turns,spam.turns)
+        assertEquals(restored.mobs,spam.mobs)
+        assertFalse(RelicArsenal.canSweep(restored))
+    }
+
+    @Test fun bladeSweepDamageAndKillDropsRespectArmorUpgradeAndCooldown() {
+        val base=run()
+        val h=base.hero
+        val normal=RelicMob(940,h.x+1,h.y,2,0)
+        val armored=RelicMob(941,h.x,h.y+1,1,1)
+        val scene=RelicEscapeRules.reveal(base.copy(
+            tiles=List(base.w*base.h){0},mobs=listOf(normal,armored),
+            seen=(0 until base.w*base.h).toSet(),weapon=2,equipped="blade",
+            weapons=setOf("blade")))
+        assertEquals(2,RelicArsenal.sweepDamage(scene,normal))
+        assertEquals(1,RelicArsenal.sweepDamage(scene,armored))
+        val attacked=RelicEscapeRules.act(scene,"sweep")
+        assertTrue(attacked.mobs.all{it.hp==0})
+        assertEquals(2,attacked.drops.count{it.loot.id.startsWith(scene.id+":mob:")})
+        assertFalse(RelicArsenal.canSweep(attacked))
+        val replay=RelicEscapeRules.act(attacked,"sweep")
+        assertEquals(attacked.turns,replay.turns)
+        assertEquals(attacked.drops,replay.drops)
+        val waited=RelicEscapeRules.act(attacked,"wait")
+        assertEquals(2,waited.turns)
+        assertEquals(3,waited.sweepReadyTurn)
+    }
+
+    @Test fun bladeSweepCannotBypassShortBladeRangeOrAnotherWeapon() {
+        val base=run()
+        val h=base.hero
+        val one=RelicMob(951,h.x+1,h.y,4,0)
+        val far=RelicMob(952,h.x+3,h.y,4,0)
+        val alone=RelicEscapeRules.reveal(base.copy(
+            tiles=List(base.w*base.h){0},mobs=listOf(one,far),
+            seen=(0 until base.w*base.h).toSet()))
+        assertFalse(RelicArsenal.canSweep(alone))
+        assertEquals(alone.turns,RelicEscapeRules.act(alone,"sweep").turns)
+        val spear=alone.copy(equipped="spear",weapons=setOf("blade","spear"))
+        assertFalse(RelicArsenal.canSweep(spear))
+        assertEquals(spear.turns,RelicEscapeRules.act(spear,"sweep").turns)
+        val fog=alone.copy(mobs=listOf(one,one.copy(id=953,x=h.x,y=h.y+1)),
+            seen=emptySet())
+        assertFalse(RelicArsenal.canSweep(fog))
     }
 
     @Test fun explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy() {
