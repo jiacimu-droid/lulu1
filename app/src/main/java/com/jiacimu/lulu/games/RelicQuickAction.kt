@@ -31,6 +31,21 @@ internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMo
         }.thenBy { it.id })
 }
 
+/**
+ * The combat button is an explicit request to attack, not the map-inspection cursor.
+ * Keep an explicitly chosen living enemy authoritative (even when out of range);
+ * otherwise a stale empty/defeated terrain selection must not disable melee combat
+ * against a real nearby enemy. No action is executed until the player presses attack.
+ */
+internal fun relicAttackButtonTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMob? {
+    if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
+    val selectedEnemy = run.mobs.any {
+        it.hp > 0 && it.x == selected.first && it.y == selected.second
+    }
+    return relicAttackTarget(run,
+        if (selectedEnemy) selected else run.hero.x to run.hero.y)
+}
+
 /** Keep the implicit attack cursor attached to the player after a real move.
  * Explicitly tapped map targets stay selected; failed movement changes nothing.
  */
@@ -43,7 +58,7 @@ internal fun relicSelectionAfterMove(
 /** Explain a disabled attack key without inventing a successful hit. */
 internal fun relicAttackHint(run: RelicRun, selected: Pair<Int, Int>): String {
     if (run.phase == RelicPhase.DOWNED) return "已倒地，无法攻击；等待伙伴救援"
-    if (relicAttackTarget(run, selected) != null) return "敌人进入射程，点攻击即可出手"
+    if (relicAttackButtonTarget(run, selected) != null) return "敌人进入射程，点攻击即可出手"
     val mob = run.mobs.firstOrNull {
         it.hp > 0 && it.x == selected.first && it.y == selected.second
     }
