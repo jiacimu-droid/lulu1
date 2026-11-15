@@ -576,6 +576,23 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         run.phase!=RelicPhase.DOWNED && hero.kits>0 && hero.hp<10,
                         Modifier.weight(1f)) { action("heal") }
                 }
+                // Keep the regular 4-key HUD uncluttered. Only show the optional
+                // crowd-control skill in an actual multi-enemy melee situation.
+                val surrounded=RelicArsenal.sweepTargets(run)
+                if(run.equipped=="blade" && surrounded.size>=2) {
+                    val remaining=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
+                    TextButton(
+                        onClick={action("sweep")},
+                        enabled=RelicArsenal.canSweep(run),
+                        modifier=Modifier.fillMaxWidth().height(33.dp),
+                        contentPadding=PaddingValues(horizontal=5.dp,vertical=1.dp),
+                    ) {
+                        Text(if(remaining>0)
+                            "回旋斩冷却 ${remaining} 回合 · 可用格挡/移动解围"
+                            else "↻ 回旋斩 · ${surrounded.size}敌 · 每名${if(run.weapon>=2)"1–2" else "1"}伤",
+                            fontSize=10.sp,maxLines=1,color=relicGold)
+                    }
+                }
             }
         },
         actions = {
