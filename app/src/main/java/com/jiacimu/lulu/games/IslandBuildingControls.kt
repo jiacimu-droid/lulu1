@@ -42,13 +42,15 @@ internal object IslandBuildingControls {
             "house_warm", "house_pine" -> IslandHouseProjects.canStartPlayer(s,x,y)
             else -> BlockIslandRules.canPlaceBuilding(s, action, x, y)
         }
-        val allowed = locationOK && when(action) {
+        val allowed = !w.finished && locationOK && when(action) {
             "plant" -> w.wood >= 1
             "remove", "house_warm", "house_pine" -> true
             else -> BlockIslandRules.canBuild(s, action, x, y)
         }
         val message = when {
             w.finished -> "当前岛屿无法继续建造"
+            action in setOf("house_warm","house_pine") && s.houseProject != null ->
+                "已有小屋工程；先完成、续建或拆除当前工程"
             action in setOf("house_warm","house_pine") ->
                 if(locationOK) "可放蓝图 · 按指示一块块盖好" else "选距离4格内的3×3连续空地"
             kotlin.math.abs(w.x-x) + kotlin.math.abs(w.y-y) > 1 ->
