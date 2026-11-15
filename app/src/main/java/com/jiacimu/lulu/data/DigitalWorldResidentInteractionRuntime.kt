@@ -40,6 +40,10 @@ internal object DigitalWorldResidentInteractionRuntime {
             val location = DigitalWorldStore.locationOf(characterId)
             val resident = DigitalWorldExpansionStore.residentsAt(location).firstOrNull { it.id == residentId }
                 ?: error("居民不在当前地点，不能隔空交流")
+            val normalized = interaction.trim().lowercase()
+            require(normalized in allowedInteractions) {
+                "不支持的居民互动：activityId=${normalized.ifBlank { "未填写" }}"
+            }
             val nativeId = ResidentCharacterBridge.characterId(resident.id)
             // The resident's real phone identity must exist before contact
             // permissions are evaluated, including when they are asleep.
@@ -50,14 +54,10 @@ internal object DigitalWorldResidentInteractionRuntime {
                 // Return the actual recipient ID and available next tools so
                 // the SAME role can decide what to do on its next turn.
                 val canContact = ResidentSocialMailbox.canContact(characterId, nativeId)
-                "${resident.name}当前休眠，未发生当面交流，也没有自动代发消息。targetCharacterId=$nativeId。" +
+                "${resident.name}当前休眠。本次选择的现场活动 activityId=$normalized 未执行，没有自动代发消息。targetCharacterId=$nativeId。" +
                     if (canContact)
                         "如果本人还想联系，可另选 send_character_message 并亲自填写 text 留私信（休眠期间可送达，但不代表已读或回复）；若尚非好友且没有待处理申请，也可另选 send_friend_request。"
                     else "目前缺少已确认的联系依据，不能凭空发送私信或好友申请；可等对方清醒后实际认识。"
-            }
-            val normalized = interaction.trim().lowercase()
-            require(normalized in allowedInteractions) {
-                "不支持的居民互动：activityId=${normalized.ifBlank { "未填写" }}"
             }
             val episodeStep = if (normalized in DigitalWorldResidentEpisodeStore.interactions)
                 DigitalWorldResidentEpisodeStore.prepare(characterId, residentId, normalized, args, now) else null
