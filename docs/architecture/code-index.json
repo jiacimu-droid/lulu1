@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T13:15:08.612389+00:00",
-  "commit": "bc5157b494acab719327621411f79fb8fac4c12d",
+  "generatedAt": "2026-11-15T13:19:06.047419+00:00",
+  "commit": "85397ff4499c5a98b0373f4bcdb75dba826df755",
   "branch": "main",
-  "sourceFingerprint": "aef72d9bab1ef7b75e88abd499d967210f73e18d603bd1ab60375c507091f041",
+  "sourceFingerprint": "40d07b83f61c1e677ed73dbbac1b279aa050bde7241d59b0f3853fdcff6b4d61",
   "summary": {
     "files": 1333,
-    "lines": 284150,
+    "lines": 284219,
     "symbols": 4007
   },
   "symbolIndex": {
@@ -6963,7 +6963,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 774
+        "line": 791
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -7339,7 +7339,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 276
+        "line": 301
       }
     ],
     "axis": [
@@ -12059,19 +12059,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 789
+        "line": 795
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 791
+        "line": 797
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3646
+        "line": 3652
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -12923,19 +12923,19 @@
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 743
+        "line": 760
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 781
+        "line": 798
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 797
+        "line": 814
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -21379,7 +21379,7 @@
     "savedPlan": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 407
+        "line": 432
       }
     ],
     "ScheduledReminderDeliveryTest": [
@@ -33580,8 +33580,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3713,
-      "sha256": "64f862d21c45f32d261027854c2582f0059dcabd13032b8778381b7da31f3fed",
+      "lines": 3719,
+      "sha256": "bd7203fd240c1b758817360924f635930950fb0346b66f44973023ccf4723bbf",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -33605,15 +33605,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 789
+          "line": 795
         },
         {
           "name": "deferSupersededDecision",
-          "line": 791
+          "line": 797
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3646
+          "line": 3652
         }
       ]
     },
@@ -34280,8 +34280,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 922,
-      "sha256": "9002e6060a9215a1ff7ff7777d35b06f975dc64245acd11136719afa1010c679",
+      "lines": 960,
+      "sha256": "f7c99ac35bcea0544f6515d2b6a5a2a3a530842bb10bb7cdc3e4c88a88a87fb8",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -34361,19 +34361,19 @@
         },
         {
           "name": "dueContext",
-          "line": 743
+          "line": 760
         },
         {
           "name": "clearCharacter",
-          "line": 774
+          "line": 791
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 781
+          "line": 798
         },
         {
           "name": "canResume",
-          "line": 797
+          "line": 814
         }
       ]
     },
@@ -45692,8 +45692,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 486,
-      "sha256": "73929cc32c5a3212a704254768fbaedc9f407acaefd2b3583c3259f10e7f79b8",
+      "lines": 511,
+      "sha256": "58a2a756dcaf1d5fd8831845481205ab95786273c4be5763bde6632bdac33b43",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
@@ -45701,11 +45701,11 @@
         },
         {
           "name": "completed",
-          "line": 276
+          "line": 301
         },
         {
           "name": "savedPlan",
-          "line": 407
+          "line": 432
         }
       ]
     },
