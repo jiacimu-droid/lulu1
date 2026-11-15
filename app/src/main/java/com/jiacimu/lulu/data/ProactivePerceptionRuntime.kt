@@ -900,7 +900,10 @@ object ProactivePerceptionRuntime {
         com.jiacimu.lulu.games.LuluGames.initialize(appContext)
         val recentSoloGames = com.jiacimu.lulu.games.LuluGames.store.state.value.records
             .asSequence()
-            .filter { it.characterId == characterId && !it.playedWithCharacter }
+            .filter { it.characterId == characterId && (it.characterSolo ||
+                // Records from releases predating the characterSolo flag are only
+                // independent games when their persisted receipt says so.
+                (!it.playedWithCharacter && it.summary.startsWith("独自完成一局"))) }
             .take(4)
             .map { it.title to it.score }
             .toList()
