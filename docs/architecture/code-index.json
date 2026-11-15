@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:38:59.182605+00:00",
-  "commit": "45fddfe54071eeadf62a610337f5ebd0eb8bd628",
+  "generatedAt": "2026-11-15T04:43:11.498899+00:00",
+  "commit": "008b52e2a15f321884fee415e3dc7e75f3023d31",
   "branch": "main",
-  "sourceFingerprint": "19d7a389d2a3448c95e1b8ad7cc24e0b72e589b51556fcfaba3d6b58510703be",
+  "sourceFingerprint": "4618dbf8840783069ca333da8a89da1cdffbd041e1a8d1c31349007ae64740d2",
   "summary": {
     "files": 1327,
-    "lines": 282004,
+    "lines": 282038,
     "symbols": 3973
   },
   "symbolIndex": {
@@ -2815,7 +2815,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1503
+        "line": 1537
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6063,7 +6063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 166
+        "line": 205
       }
     ],
     "Attempt": [
@@ -8709,49 +8709,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1396
+        "line": 1430
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1454
+        "line": 1488
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1465
+        "line": 1499
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1472
+        "line": 1506
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1486
+        "line": 1520
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1496
+        "line": 1530
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1550
+        "line": 1584
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1926
+        "line": 1960
       }
     ],
     "age": [
@@ -29944,8 +29944,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1974,
-      "sha256": "2cfccd519d7b3eec78d3c1ae27fec77b74525e33ce8e8c9a402092a0be94a552",
+      "lines": 2008,
+      "sha256": "b5c0a98b83dfb09bf4237fc9412e6e19de10d372927cbc6bed924c4688317f4d",
       "symbols": [
         {
           "name": "asJson",
@@ -29957,43 +29957,43 @@
         },
         {
           "name": "capabilityContext",
-          "line": 166
+          "line": 205
         },
         {
           "name": "world",
-          "line": 1396
+          "line": 1430
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1454
+          "line": 1488
         },
         {
           "name": "recordedReceiptId",
-          "line": 1465
+          "line": 1499
         },
         {
           "name": "completedEvidence",
-          "line": 1472
+          "line": 1506
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1486
+          "line": 1520
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1496
+          "line": 1530
         },
         {
           "name": "from",
-          "line": 1503
+          "line": 1537
         },
         {
           "name": "requiresCompletion",
-          "line": 1550
+          "line": 1584
         },
         {
           "name": "availableContext",
-          "line": 1926
+          "line": 1960
         }
       ]
     },
