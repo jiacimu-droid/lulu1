@@ -53,9 +53,9 @@ internal object IslandBuildingControls {
                 if(locationOK) "可放蓝图 · 按指示一块块盖好" else "选距离4格内的3×3连续空地"
             kotlin.math.abs(w.x-x) + kotlin.math.abs(w.y-y) > 1 ->
                 "需要站到目标旁边（1格内）"
-            !locationOK && s.houseProject?.phase in setOf("building", "paused") &&
-                IslandHouseProjects.parts(w, s.houseProject!!.left, s.houseProject.top)
-                    .any { it.first == w.index(x, y) && it.first !in s.houseProject.placed } ->
+            !locationOK && (s.houseProject?.takeIf { it.phase in setOf("building", "paused") }
+                ?.let { project -> IslandHouseProjects.parts(w, project.left, project.top)
+                    .any { it.first == w.index(x, y) && it.first !in project.placed } } == true) ->
                 "这里是未完工小屋的预留地块；先继续施工或取消工程"
             !locationOK -> "地形不符或位置被占用"
             !allowed && action=="crystal_lantern" && s.crystals<1 ->
