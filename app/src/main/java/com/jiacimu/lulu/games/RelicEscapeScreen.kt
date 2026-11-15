@@ -95,6 +95,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     var showBag by remember(run?.id){mutableStateOf(true)}
     var showAlbum by remember{mutableStateOf(false)}
     var chestHud by remember(run?.id){mutableStateOf(RelicChestHudState())}
+    // Only the selected, reachable physical chest opens the inspection page.
+    var inspectingChestId by remember(run?.id) { mutableIntStateOf(-1) }
     val openingReceipt = chestHud.opening
     val lastChestReceipt = chestHud.lastCommitted
     val openingClock = remember(run?.id) { androidx.compose.animation.core.Animatable(0f) }
@@ -285,7 +287,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
                 onHoldChange = { joystickHeld = it },
-                onInteract = { adjacentAction?.let { action(it.action, it.x, it.y, it.id) } }) { dx, dy ->
+                onInteract = { adjacentAction?.let {
+                    if (it.action == "open") {
+                        inspectingChestId = run?.chests?.firstOrNull { chest ->
+                            chest.x == it.x && chest.y == it.y && !chest.opened
+                        }?.id ?: -1
+                    } else action(it.action, it.x, it.y, it.id)
+                } }) { dx, dy ->
                 facing = dx to dy
                 // Walking is not looting. A held joystick previously could
                 // auto-pry an entire chest in a few repeat ticks, defeating
@@ -541,7 +549,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     } ?: "开箱",chest?.let{relicGradeColor(it.visibleGrade)} ?: relicGold,
                         run.phase!=RelicPhase.DOWNED && chest!=null,
                         Modifier.weight(1f)) {
-                        chest?.let { action("open",it.x,it.y) }
+                        chest?.let { inspectingChestId = it.id }
                     }
                     GameHudQuickAction("格挡",relicGreen,run.phase!=RelicPhase.DOWNED,
                         Modifier.weight(1f)) { action("defend") }
@@ -800,7 +808,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 Text(run.notice,color=Color.White,fontSize=12.sp)
                 val quick = relicQuickAction(run, selected)
                 Button(
-                    onClick = { quick?.let { action(it.action, it.x, it.y, it.id) } },
+                    onClick = { quick?.let {
+                        if (it.action == "open") {
+                            inspectingChestId = run.chests.firstOrNull { chest ->
+                                !chest.opened && chest.x == it.x && chest.y == it.y
+                            }?.id ?: -1
+                        } else action(it.action, it.x, it.y, it.id)
+                    } },
                     enabled = quick != null,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -996,6 +1010,17 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     }
         },
     )
+    // The inspector is an actual full-screen subpage. A completed/opened chest
+    // disappears from it; its authoritative receipt then takes over the stage.
+    run.chests.firstOrNull { it.id == inspectingChestId && !it.opened &&
+        run.visible(it.x, it.y) &&
+        RelicEscapeRules.distance(run.hero.x, run.hero.y, it.x, it.y) <= 1 }
+        ?.takeIf { run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT) }
+        ?.let { chest ->
+            RelicChestInspection(run, chest,
+                onPry = { action("open", chest.x, chest.y) },
+                onExit = { inspectingChestId = -1 })
+        }
     // Present the verified reward above the entire in-game HUD.
     openingReceipt?.let { receipt ->
         RelicChestCeremony(receipt,openingClock.value) {
