@@ -42,6 +42,8 @@ internal fun RelicEscapeLobby(
     kits:Int,
     difficulty:RelicDifficulty,
     startingWeapon:String,
+    profession:RelicProfession,
+    onProfession:(RelicProfession)->Unit,
     contract:RelicContract,
     onContract:(RelicContract)->Unit,
     onKits:(Int)->Unit,
@@ -231,8 +233,8 @@ internal fun RelicEscapeLobby(
                                 color=campGold,fontSize=17.sp,fontWeight=FontWeight.Bold)
                             listOf(
                                 "01 · 按住左侧摇杆移动，拖动改方向；地图点选只用于查看目标。",
-                                "02 · 短剑自动攻击相邻敌人；遭两名以上守卫围攻时会出现回旋斩（范围伤害、挡一次、冷却两回合）。",
-                                "03 · 宝物要带回绿色撤离门，守住3回合才算真正收入仓库。",
+                                "02 · 攻击键直接出手：短剑打附近1格；长矛/弩弓按朝向攻击。点「转向」后方向盘只改变朝向。",
+                                "03 · 武器技能与职业技能是独立按键，分别冷却；宝物必须带回绿门并守住3回合。",
                                 "04 · 下一局可换装备、补给和挑战，收藏进度不会因失败清空。"
                             ).forEach { step ->
                                 Text(step,color=Color.White,fontSize=12.sp,lineHeight=18.sp)
@@ -327,6 +329,22 @@ internal fun RelicEscapeLobby(
                                 )
                             }
                         }
+                        Text("选择出发职业 · 职业技能与武器技能独立冷却",
+                            color=Color.White,fontSize=14.sp,fontWeight=FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                            RelicProfession.entries.forEach { role ->
+                                FilterChip(selected=profession==role,onClick={onProfession(role)},
+                                    label={Text(role.label)},
+                                    colors=FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor=campGold,selectedLabelColor=campInk,
+                                        labelColor=campMuted))
+                            }
+                        }
+                        Text(profession.skill+" · "+profession.detail,
+                            color=campMint,fontSize=12.sp)
+                        Text("普通攻击无需点选怪物。短剑打身边一格；长矛/弩弓沿方向盘朝向出手。局内「转向」可以原地瞄准。",
+                            color=campMuted,fontSize=11.sp,lineHeight=16.sp)
                         Text("背包 · "+(8+snapshot.satchelLevel*2)+"格（永久升级）",
                             color=campMint,fontSize=12.sp)
                         Row(verticalAlignment=Alignment.CenterVertically,
