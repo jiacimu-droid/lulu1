@@ -575,9 +575,12 @@ internal object RelicEscapeRules {
                         RelicDrop(enemy.x,enemy.y,RelicArsenal.monsterDrop(s,enemy))
                     },
                     sweepReadyTurn=s.turns+3,
+                    // A surrounded swordsman receives one guarded incoming strike
+                    // during the same world turn, not a permanent shield.
+                    guarding=true,
                 ).log("player","sweep",
                     "短剑回旋斩击中${targets.size}名守卫（每名${if(s.weapon>=2) "1–2" else "1"}伤害）"+
-                    " · 击败${killed.size}名 · 两个行动回合后可再次使用")
+                    " · 击败${killed.size}名 · 本回合格挡一次 · 两个行动回合后可再次使用")
                 noise=3
             }
             "defend"->{
