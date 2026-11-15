@@ -54,6 +54,8 @@ internal fun GameSceneDeck(
     compactStatus: Boolean = false,
     /** Minimal always-visible vital data; full status can be opened by tapping it. */
     compactSummary: String = "",
+    /** Resource readout below vitals; do not force players into inventory to see wood. */
+    resourceSummary: String = "",
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
     /** Optional small always-reachable guide, independent of scrolling tactical intel. */
@@ -213,6 +215,17 @@ internal fun GameSceneDeck(
                     }
                 }
                 }
+            if (compactStatus && resourceSummary.isNotBlank()) {
+                Surface(
+                    modifier = Modifier.widthIn(max = minOf(maxWidth * .46f, 340.dp)),
+                    color = Color(0xB3162935),
+                    shape = RoundedCornerShape(11.dp),
+                ) {
+                    Text(resourceSummary, color = Color(0xFFE3F2E9), fontSize = 10.sp,
+                        maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                }
+            }
             if (notice.isNotBlank()) {
                 Surface(
                     modifier = Modifier.widthIn(
