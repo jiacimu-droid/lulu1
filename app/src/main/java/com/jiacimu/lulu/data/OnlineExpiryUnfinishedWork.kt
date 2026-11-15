@@ -33,10 +33,18 @@ internal object OnlineExpiryUnfinishedWork {
                         runCatching { JSONObject(it) }.getOrNull()
                     }
                 Triple(tool, attempt, result)
-            }.distinctBy { it.first }
-            // A later success for the same tool removes the earlier failure
-            // from this short attention cue. Success still does not certify
-            // that the whole user goal has been achieved.
+            // Tool names are capabilities, not task identities. A successful
+            // phone operation for another request must not erase an earlier
+            // failed request. Only later evidence for the SAME request may
+            // supersede its earlier receipt. Legacy receipts without IDs
+            // remain distinct rather than inventing a shared task identity.
+            }.distinctBy { (_, attempt, _) ->
+                attempt.optString("requestId").takeIf(String::isNotBlank)
+                    ?.let { id -> "request:$id" }
+                    ?: "legacy:${attempt.toString()}"
+            }
+            // A later result for the same request supersedes its earlier
+            // failure; success does not certify the whole goal is complete.
             .filter { (_, attempt, result) ->
                 attempt.optString("status") in unfinished ||
                     result?.optString("status").orEmpty() in unfinished
