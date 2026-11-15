@@ -374,6 +374,12 @@ internal object BlockIslandRules {
         fun reject(reason: String) = s.copy(world = w.copy(notice = reason))
         fun near(x: Int = tx, y: Int = ty) = abs(w.x - x) + abs(w.y - y) <= 1
         if (w.finished) return reject("这个存档已结算")
+        // This tick is a real world turn caused only by an already chosen
+        // teammate route/house project. It does not claim a player input.
+        if (action == "companion_tick") {
+            if (autonomousIds.isEmpty() || !GameCoopPacing.islandHasPlan(s, true)) return s
+            return advance(s, "伙伴沿已选择的计划继续行动", autonomousIds)
+        }
         if (!w.inBounds(tx, ty)) return reject("目标在地图外")
         val cell = w.cell(tx, ty)
         val index = w.index(tx, ty)
