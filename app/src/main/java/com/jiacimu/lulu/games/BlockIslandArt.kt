@@ -43,6 +43,13 @@ internal fun islandSpeechBubbleLines(text: String, maxChars: Int = 16): List<Str
     return rendered.chunked(width)
 }
 
+/** Full speech is shown in successive in-world caption pages, never silently lost. */
+internal fun islandSpeechBubblePages(text: String, charsPerPage: Int = 36): List<String> {
+    val clean = text.trim().replace("\n", " ").replace("\r", " ")
+    if (clean.isEmpty()) return emptyList()
+    return clean.chunked(charsPerPage.coerceAtLeast(1))
+}
+
 internal object BlockIslandArt {
     private val grassA = Color(0xFF628E62)
     private val grassB = Color(0xFF709A6C)
