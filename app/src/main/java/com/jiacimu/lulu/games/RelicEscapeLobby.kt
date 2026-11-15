@@ -329,7 +329,7 @@ internal fun RelicEscapeLobby(
                                 )
                             }
                         }
-                        Text("选择出发职业 · 职业技能与武器技能独立冷却",
+                        Text("选择出发职业 · 每局3次职业技能，与武器技能独立冷却",
                             color=Color.White,fontSize=14.sp,fontWeight=FontWeight.Bold)
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                             horizontalArrangement=Arrangement.spacedBy(8.dp)) {
