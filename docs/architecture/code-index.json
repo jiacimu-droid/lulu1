@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T23:47:21.529188+00:00",
-  "commit": "39a3ed050b10bc0f44400320e56f5f224f5a2006",
+  "generatedAt": "2026-11-15T23:50:15.177776+00:00",
+  "commit": "0869d9f37d5c41103ab2af2b42ed21f35e656962",
   "branch": "main",
-  "sourceFingerprint": "1e5de90b02a0ce1f74e538a77da42075fadd86906ff26d1393cd7ee9eec3d3d1",
+  "sourceFingerprint": "d08b26daea860dd35dbb0f03b0e4d5b27c5245ac82dea9898034f89faf4b5be7",
   "summary": {
     "files": 1341,
-    "lines": 285658,
+    "lines": 285665,
     "symbols": 4033
   },
   "symbolIndex": {
@@ -809,7 +809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 520
+        "line": 527
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -37962,8 +37962,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 703,
-      "sha256": "08682e6da00a6d122bbf6a2b7618ccbb60ccc5290873df8c6680b34492770807",
+      "lines": 710,
+      "sha256": "29f1d4fca70a377855f6fe21b899bf79934c85519886ccdd4075de10caf908b3",
       "symbols": [
         {
           "name": "cell",
@@ -37975,7 +37975,7 @@
         },
         {
           "name": "label",
-          "line": 520
+          "line": 527
         }
       ]
     },
