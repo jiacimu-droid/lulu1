@@ -74,7 +74,7 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         // Ground loot is a committed physical object. Never hide it beneath an
         // unopened chest occupying the same tile, or it becomes unreachable.
         val drop = run.drops.firstOrNull {
-            it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.CAPACITY
+            it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.heroCapacity(run)
         }
         if (drop != null) return RelicQuickAction("pickup", "拾取 ${drop.loot.name}",
             "拾取进背包，不会立即增加永久仓库", id = drop.loot.id)
