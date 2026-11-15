@@ -15,10 +15,14 @@ import java.time.Instant
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveIncomingCallHistoryTest {
     private lateinit var context: Context
-    private val role = "incoming-history-test-role"
+    private lateinit var role: String
     private val time = Instant.parse("2026-11-15T00:00:00Z")
 
     @Before fun setUp() {
+        // The real chat Store persists across Robolectric methods. Each test
+        // needs an independent character to avoid prior missed-call receipts
+        // being mistaken for this test's newly offered invitation.
+        role = "incoming-history-" + java.util.UUID.randomUUID()
         context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             .edit().putBoolean("voice_call_ringtone_enabled", false).commit()
