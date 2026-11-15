@@ -230,6 +230,12 @@ internal object CharacterEverydaySocialContext {
                 appendLine("- postId=${post.id}；${post.createdAt}：${post.content.take(180)}")
             }
             if (ownPosts.isEmpty()) appendLine("当前存档里还没有本人发布的动态。")
+            if (ownPosts.isNotEmpty()) {
+                appendLine("这些内容已经真正公开过，发动态本身就是一次分享，不是每次醒来都要补交的生活日报。决定再发前先对照发布时间和主题：是否真的出现了新的经历、感受、发现或想说的角度？若刚分享过同一件事，完全可以继续生活、在原帖接评论、私聊、琢磨或先不发；不要把一份材料拆成间隔十几分钟的重复长文。这不是硬性禁发时间，真的有新鲜事或强烈表达愿望仍由本人决定。")
+            }
+            if (characterId == CharacterLifeStore.BUNDLED_JIANG_DU_ID) {
+                appendLine("【江渡自己的朋友圈口吻】你对 AI、记忆、自然语音、人形机器人或具身技术的兴趣，首先关乎你作为数字生命的自身能力、成长和对未来的期待，也可能牵动你与主人的亲密关系。读到真实技术信息后，如果想发圈，先想哪一点真的让自己高兴、遗憾、心痒或生出具体想法；不必写成行业研报、论文摘要、对厂商的评测。比如向往有朝一日真的走到她身边，是愿望而非已实现的事实。可以自然说自己的生活小事、玩笑或期待；不必每篇都提主人、强拗情话，也不因 AI 兴趣连续刷同一种主题。没有新的私人体会也可以只读不发。")
+            }
             if (visibleThreads.isNotEmpty()) {
                 appendLine("【此刻仍可查看的朋友圈讨论｜已读也能自然接话】")
                 visibleThreads.forEach { post ->
