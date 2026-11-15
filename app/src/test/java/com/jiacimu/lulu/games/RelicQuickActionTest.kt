@@ -750,4 +750,36 @@ class RelicQuickActionTest {
         assertEquals(enemy.id, relicAttackTarget(encounter, cursor)?.id)
         assertNull(relicAttackTarget(encounter, start))
     }
+    @Test fun overlappingUnopenedChestRemainsPlayableWithoutDeletingGroundLoot() {
+        val base = run()
+        val h = base.hero
+        val chest = RelicChest(998, h.x + 1, h.y, RelicTier.COMMON)
+        val loot = RelicLoot("ground:overlap", "遗落的晶石", RelicTier.RARE, 185)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(chest), drops = listOf(RelicDrop(chest.x, chest.y, loot)),
+            mobs = emptyList(), sites = emptyList(),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val action = relicQuickAction(scene, chest.x to chest.y)!!
+        assertEquals("open", action.action)
+        assertEquals("open", relicNearbyAction(scene, 1 to 0, chest.x to chest.y)?.action)
+        val pried = RelicEscapeRules.act(scene,
+            RelicChestPresentation.playerAction(scene, action.action, action.x, action.y),
+            action.x, action.y)
+        assertEquals(1, pried.chestProgress[chest.id])
+        assertTrue(pried.drops.any { it.loot.id == loot.id })
+        assertFalse(pried.hero.bag.any { it.id == loot.id })
+        val opened = pried.copy(chests = pried.chests.map {
+            if (it.id == chest.id) it.copy(opened = true) else it
+        })
+        val pickup = relicQuickAction(opened, chest.x to chest.y)!!
+        assertEquals("pickup", pickup.action)
+        assertEquals(loot.id, pickup.id)
+        val collected = RelicEscapeRules.act(opened, "pickup", lootId = pickup.id)
+        assertTrue(collected.hero.bag.any { it.id == loot.id })
+        assertFalse(collected.drops.any { it.loot.id == loot.id })
+        assertTrue(RelicRun.read(collected.json())!!.hero.bag.any { it.id == loot.id })
+    }
+
+
 }
