@@ -276,6 +276,8 @@ object ProactivePerceptionRuntime {
         onlineExpiryAtMillis: Long = 0L,
         motiveReviewId: String = "",
         motiveReviewToken: String = "",
+        requiredDuePlanId: String = "",
+        requiredDuePlanAt: Instant? = null,
     ): Int {
         // The passive sweep releases ownership between people. A new message
         // for B can run even while A is waiting for a model or website.
@@ -293,6 +295,14 @@ object ProactivePerceptionRuntime {
         val dispatchedAtMillis = System.currentTimeMillis()
         return cycleMutex.withLock(targetCharacterId) {
             currentCoroutineContext().ensureActive()
+            if (requiredDuePlanId.isNotBlank() &&
+                (requiredDuePlanAt == null ||
+                    !RoleDayScheduleStore.awaitingDueDecision(
+                        context, targetCharacterId, requiredDuePlanId, requiredDuePlanAt))) {
+                // Another real decision, cancellation or reschedule won this
+                // appointment while we waited. No second paid API request.
+                return@withLock 0
+            }
             // The unread user batch is the primary owner of this immediate
             // situation. A separate expiry/life/goal wake must NOT buy a
             // second appraisal while the owner is still typing or the role is

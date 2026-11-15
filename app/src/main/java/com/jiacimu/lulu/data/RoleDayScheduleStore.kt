@@ -765,6 +765,18 @@ object RoleDayScheduleStore {
         return true
     }
 
+    /** Revalidate a scheduled decision after acquiring the character mutex.
+     * A simultaneous private chat may have already handled this exact time slot
+     * while a delayed WorkManager task was waiting behind its model request. */
+    internal fun awaitingDueDecision(
+        context: Context, characterId: String, planId: String,
+        expectedDueAt: Instant, now: Instant = Instant.now(),
+    ): Boolean = plans(context, characterId).any { plan ->
+        plan.id == planId && plan.dueAt == expectedDueAt &&
+            plan.status in setOf("planned", "due") &&
+            !plan.dueAt.isAfter(now) && plan.lastWakeHandoffAt == null
+    }
+
     /** An enqueued WorkManager/online wake is not a model decision. Only a real
      * completed character appraisal can acknowledge the due appointment. The
      * plan remains due until a separately verified tool receipt resolves it. */
@@ -943,7 +955,16 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             // runDueCycle wakes an offline role only when this appraisal
             // actually starts; no extra online-expiry worker is invented.
             val decisions = ProactivePerceptionRuntime.runDueCycle(
-                applicationContext, trigger, targetCharacterId = role, force = true)
+                applicationContext, trigger, targetCharacterId = role, force = true,
+                requiredDuePlanId = plan.id, requiredDuePlanAt = plan.dueAt)
+            if (decisions == 0 &&
+                !RoleDayScheduleStore.awaitingDueDecision(
+                    applicationContext, role, plan.id, plan.dueAt)) {
+                // The competing decision already handled, canceled or
+                // rescheduled this exact appointment. Do not overwrite its
+                // receipt with a stale "wake failed" status.
+                return Result.success()
+            }
             if (decisions == 0) {
                 // An HTTP response could be lost after the provider charged.
                 // Never retry this potentially attempted turn from the due

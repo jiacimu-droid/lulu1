@@ -110,6 +110,10 @@ class RoleDayScheduleStoreTest {
             assertNull("WorkManager claimed the clock, not the model decision",
                 queued.lastWakeHandoffAt)
             assertTrue(RoleDayScheduleStore.needsWakeRestoration(queued, at.plusSeconds(30)))
+            assertTrue(RoleDayScheduleStore.awaitingDueDecision(
+                context, role, created.id, at, at.plusSeconds(30)))
+            assertFalse(RoleDayScheduleStore.awaitingDueDecision(
+                context, role, created.id, at.plusSeconds(60), at.plusSeconds(60)))
             assertTrue(RoleDayScheduleStore.recordUnfinishedWake(context, role, created.id,
                 at, "此时未取得模型决策"))
             val failed = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
@@ -119,6 +123,9 @@ class RoleDayScheduleStoreTest {
             RoleDayScheduleStore.acknowledgeDueDecisions(context, role, at.plusSeconds(55))
             val decided = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
             assertEquals(at.plusSeconds(35), decided.lastWakeHandoffAt)
+            assertFalse("Existing decision must block a delayed second API call",
+                RoleDayScheduleStore.awaitingDueDecision(
+                    context, role, created.id, at, at.plusSeconds(60)))
             assertTrue("A completed appraisal clears a stale handoff error",
                 decided.resultSummary.isBlank())
             assertFalse(RoleDayScheduleStore.recordUnfinishedWake(context, role, created.id,
