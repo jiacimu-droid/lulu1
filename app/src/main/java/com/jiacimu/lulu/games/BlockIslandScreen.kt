@@ -117,7 +117,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         // A spoken sentence may exceed the visible bubble. Cycle through
         // caption pages locally so no syllables or model tokens are discarded.
         val pages = actorCaptions.mapValues { (_, line) ->
-            islandSpeechBubblePages(line, 36)
+            islandSpeechBubblePages(line, 24)
         }
         val count = pages.values.maxOfOrNull { it.size } ?: 0
         for (page in 0 until count) {
