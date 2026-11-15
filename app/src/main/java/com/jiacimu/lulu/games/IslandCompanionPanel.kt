@@ -38,6 +38,7 @@ internal fun IslandCompanionPanel(
     onAutonomousChange: (Boolean) -> Unit,
     onSave: (BlockIslandState) -> Unit,
     onPing: (Pair<Int, Int>) -> Unit,
+    onDialogue: (String, String) -> Unit = { _, _ -> },
     readIsland: () -> BlockIslandState = { island },
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -56,6 +57,7 @@ internal fun IslandCompanionPanel(
     var error by remember { mutableStateOf("") }
     val speaker = rememberIslandCompanionVoice { error = it }
     var dialogue by rememberSaveable(island.world.seed) { mutableStateOf(emptyList<String>()) }
+    val latestDialogue by rememberUpdatedState(onDialogue)
     fun submitPlayerMessage(raw: String, fromSpeech: Boolean = false) {
         val message = raw.trim()
         if (message.isBlank()) return
@@ -67,9 +69,20 @@ internal fun IslandCompanionPanel(
             island.world.friends.map { it.id }, message, fromSpeech,
         )
         dialogue = (dialogue + ("你： " + message)).takeLast(6)
+        latestDialogue("player", message)
         speechIndex += 1
     }
     val microphone = rememberGameSpeechInput { heard -> submitPlayerMessage(heard, fromSpeech = true) }
+    val (openMic, toggleOpenMic) = rememberIslandGameOpenMic { heard ->
+        submitPlayerMessage(heard, fromSpeech = true)
+    }
+    DisposableEffect(speaker, openMic) {
+        speaker.setSpeakingListener { openMic.setCompanionSpeaking(it) }
+        onDispose { speaker.setSpeakingListener(null); openMic.stop() }
+    }
+    LaunchedEffect(openMic.partial) {
+        if (openMic.partial.isNotBlank()) latestDialogue("player", openMic.partial)
+    }
     val readCurrentIsland by rememberUpdatedState(readIsland)
     val currentSave by rememberUpdatedState(onSave)
     val currentPing by rememberUpdatedState(onPing)
@@ -160,6 +173,7 @@ internal fun IslandCompanionPanel(
                 }
                 if (choice.speech.isNotBlank()) {
                     dialogue = (dialogue + (name + "： " + choice.speech)).takeLast(6)
+                    latestDialogue(id, choice.speech)
                     GameTeamConversationTimeline.recordCompanion(
                         context, "block_island", workingState.world.seed.toString(),
                         members, id, choice.speech,
@@ -194,14 +208,17 @@ internal fun IslandCompanionPanel(
                     Icon(if(voice)Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
                         if(voice)"关闭伙伴语音" else "开启伙伴语音",tint=Color.White,modifier=Modifier.size(18.dp))
                 }
-                Surface(onClick={speaker.stop();microphone()},
-                    color=Color(0xFFA9E5BD),shape=RoundedCornerShape(10.dp)) {
+                Surface(onClick=toggleOpenMic,
+                    color=if(openMic.active) Color(0xFFFFD7BA) else Color(0xFFA9E5BD),
+                    shape=RoundedCornerShape(10.dp)) {
                     Row(Modifier.padding(horizontal=8.dp,vertical=7.dp),
                         verticalAlignment=Alignment.CenterVertically,
                         horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Outlined.Mic,"点按录音识别",tint=Color(0xFF17342F),
-                            modifier=Modifier.size(18.dp))
-                        Text("说话",fontSize=11.sp,fontWeight=FontWeight.Bold,
+                        Icon(Icons.Outlined.Mic,
+                            if(openMic.active) "关闭游戏连麦" else "开启游戏连麦",
+                            tint=Color(0xFF17342F), modifier=Modifier.size(18.dp))
+                        Text(if(openMic.active) "关麦" else "开麦",
+                            fontSize=11.sp,fontWeight=FontWeight.Bold,
                             color=Color(0xFF17342F))
                     }
                 }
@@ -209,13 +226,16 @@ internal fun IslandCompanionPanel(
                     Text(if(expanded)"收起" else "更多",color=Color(0xFFBDE4D5),fontSize=11.sp)
                 }
             }
-            Text(if (voice) "轻点「说话」跟伙伴交流 · 角色会有声回应"
-                else "轻点「说话」交流 · 开扬声器听伙伴回应",
+            Text(if(openMic.active) {
+                    if(openMic.partial.isNotBlank()) "你： " + openMic.partial
+                    else openMic.status.ifBlank { "连麦中 · 直接说话" }
+                } else if(openMic.status.isNotBlank()) openMic.status
+                else "点「开麦」，一边玩一边说",
                 fontSize=10.sp, color=Color(0xFFADCFBF), maxLines=2)
                 // New chat is immediate; saved factual world events still reappear after rotation.
                 val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(if(expanded)3 else 1)
                     else island.world.events.filter { it.startsWith("队友[") }.takeLast(if(expanded)2 else 1)
-                teamFeed.forEach { line ->
+                if (expanded) teamFeed.forEach { line ->
                     Surface(
                         color = Color(0xFF254752), shape = RoundedCornerShape(13.dp),
                         border = BorderStroke(1.dp, Color.White.copy(alpha = .06f)),
@@ -263,6 +283,9 @@ internal fun IslandCompanionPanel(
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { speaker.stop(); microphone() }) {
+                        Text("单次说话", color = Color(0xFFAEF0D7), fontSize = 12.sp)
+                    }
                     TextButton(onClick = { showTextChat = !showTextChat }) {
                         Text(if (showTextChat) "收起文字聊天" else "打字跟队友说",
                             color = Color(0xFFAEF0D7), fontSize = 12.sp)
