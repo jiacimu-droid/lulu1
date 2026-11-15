@@ -91,7 +91,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     isForeground = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
                     navigating = latestTraveling,
                     thinking = busy,
-                    playerSpeaking = openMic.partial.isNotBlank(),
+                    playerSpeaking = openMic.hasUncommittedSpeech,
                     nearbyThreat = GameCoopPacing.relicThreat(now),
                 )) continue
             val after = latestPulse(now.id)
