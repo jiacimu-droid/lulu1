@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T00:08:22.951651+00:00",
-  "commit": "468e918e89e541b5cf80baf279f579b6742b3984",
+  "generatedAt": "2026-11-15T00:27:44.323703+00:00",
+  "commit": "0971ab4e5a647682cb1db6c76d17910623355791",
   "branch": "main",
-  "sourceFingerprint": "f9525210f2acd72b6cfcee4a99b84da239ca976b7d45e08c7139e899b9836bda",
+  "sourceFingerprint": "64a7cc7cea8394fddd69001feaecd36c90943ab87f73669ee55a8ac7b5ffbd52",
   "summary": {
     "files": 1323,
-    "lines": 280545,
+    "lines": 280549,
     "symbols": 3948
   },
   "symbolIndex": {
@@ -44553,8 +44553,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt",
-      "lines": 90,
-      "sha256": "a7be9f82fc443745e52f217126488b9bf160a0cb2e1d9c5d26a98c1e44010f63",
+      "lines": 94,
+      "sha256": "ac9dcc824d169ddc23e0d03e0372b52d2fff5825b3fa8a4668de9fd38b987bc3",
       "symbols": [
         {
           "name": "ProactiveIncomingCallHistoryTest",
