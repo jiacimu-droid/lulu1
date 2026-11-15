@@ -493,6 +493,49 @@ class RelicQuickActionTest {
         assertTrue(scene.chestProgress.isEmpty())
     }
 
+    @Test fun upgradedSatchelMakesRealGroundTreasureReachableFromMapAndDpad() {
+        val base = run()
+        val h = base.hero
+        val packed = (1..8).map {
+            RelicLoot("packed:$it", "旧藏品$it", RelicTier.COMMON, 70)
+        }
+        val treasure = RelicLoot("satchel:upgrade:rare", "月银遗珍", RelicTier.RARE, 185)
+        val drop = RelicDrop(h.x + 1, h.y, treasure)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            hero = h.copy(bag = packed),
+            satchelLevel = 1,
+            drops = listOf(drop), chests = emptyList(), sites = emptyList(),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        assertEquals(8, scene.hero.load)
+        assertEquals(10, RelicEscapeRules.heroCapacity(scene))
+        val tapped = relicQuickAction(scene, drop.x to drop.y)!!
+        assertEquals("pickup", tapped.action)
+        assertEquals(treasure.id, tapped.id)
+        val dpad = relicNearbyAction(scene, 1 to 0, h.x to h.y)!!
+        assertEquals("pickup", dpad.action)
+        assertEquals(treasure.id, dpad.id)
+
+        val collected = RelicEscapeRules.act(scene, tapped.action, lootId = tapped.id)
+        assertEquals(10, collected.hero.load)
+        assertEquals(1, collected.satchelLevel)
+        assertEquals(1, collected.hero.bag.count { it.id == treasure.id })
+        assertFalse(collected.drops.any { it.loot.id == treasure.id })
+        val restored = RelicRun.read(collected.json())!!
+        assertEquals(10, restored.hero.load)
+        assertEquals(1, restored.hero.bag.count { it.id == treasure.id })
+        assertEquals(1, restored.satchelLevel)
+        assertNull(relicQuickAction(restored, drop.x to drop.y)?.takeIf { it.action == "pickup" })
+
+        // The same physical item must not become pickable without the upgrade.
+        val unupgraded = scene.copy(satchelLevel = 0)
+        assertNull(relicQuickAction(unupgraded, drop.x to drop.y)?.takeIf { it.action == "pickup" })
+        assertNull(relicNearbyAction(unupgraded, 1 to 0, h.x to h.y))
+        val rejected = RelicEscapeRules.act(unupgraded, "pickup", lootId = treasure.id)
+        assertEquals(8, rejected.hero.load)
+        assertTrue(rejected.drops.any { it.loot.id == treasure.id })
+    }
+
     @Test fun explicitAdjacentChestWinsOverUnrelatedUnderfootTreasure() {
         val base = run()
         val h = base.hero
