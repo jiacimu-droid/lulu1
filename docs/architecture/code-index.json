@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:27:15.348655+00:00",
-  "commit": "d2acf02745b7cd045ad577179f9487b023466a26",
+  "generatedAt": "2026-11-15T01:28:15.621148+00:00",
+  "commit": "c38cf6ada41f2bf7e507a620cbaf5fe5ee638b98",
   "branch": "main",
-  "sourceFingerprint": "eb567cb2c6376c062d32fe86b2a28ed31b977aed455aec9adc5e745f1be85587",
+  "sourceFingerprint": "1eb95ac886eea6c89c2b43a95a323942f1ad4e529aa17a2fc4009fdb9813dee0",
   "summary": {
     "files": 1323,
-    "lines": 280577,
+    "lines": 280625,
     "symbols": 3948
   },
   "symbolIndex": {
@@ -27229,7 +27229,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 1007,
-      "sha256": "d6bdcc69f65be251880c2342aa6f971eacd4060b7fa96f65c9e9f120971679cc",
+      "sha256": "e0223dfe5b3da5cbf63257f46d36310f023d1aaa621b162ffec3ba8bc6adb401",
       "symbols": []
     },
     {
@@ -41921,8 +41921,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 163,
-      "sha256": "9a9331e514417a652fe369939e7606df4aa02722c0b7631f607f7f04fb5223cd",
+      "lines": 171,
+      "sha256": "c95ff916da6445c19496e369bdb491ea92fe0b584d39f36f0b7d85250f1c402f",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -45040,8 +45040,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
-      "lines": 160,
-      "sha256": "3825d1823ed476494e339069b81775967d7b400c92bc09409d1694c88452d10e",
+      "lines": 200,
+      "sha256": "ca8bc35981d48542749aa7b3d66f0337eefe2a7f4b36e3f3b370bc7dd71bf431",
       "symbols": [
         {
           "name": "ResidentDailyPolicyTest",
