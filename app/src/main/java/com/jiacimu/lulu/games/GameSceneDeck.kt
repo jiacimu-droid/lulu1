@@ -80,8 +80,8 @@ internal fun GameSceneDeck(
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
         LaunchedEffect(wide) { drawer = false }
-        val sideWidth = minOf(maxWidth * .39f, 310.dp)
-        val panelHeight = minOf(if (wide) maxHeight * .52f else maxHeight * .32f, 170.dp)
+        val sideWidth = minOf(maxWidth * if (wide) .39f else .66f, 310.dp)
+        val panelHeight = gameHudTeamPanelHeightDp(maxHeight.value, wide).dp
         val teamState = rememberSaveableStateHolder()
         val teamPanel: @Composable () -> Unit = {
             teamState.SaveableStateProvider("team") {
@@ -212,7 +212,7 @@ internal fun GameSceneDeck(
             // Never unmount the team while the inventory opens: preserve pending
             // model decisions and the scene's voice queue.
             Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
-                .padding(top = 46.dp, end = 8.dp)) {
+                .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)) {
                 Box(Modifier.then(
                     if (!drawer) Modifier.heightIn(max = panelHeight)
                     else Modifier.height(0.dp),
@@ -266,9 +266,9 @@ internal fun GameSceneDeck(
         if (drawer && wide) {
             Surface(
                 modifier = Modifier.align(Alignment.TopEnd)
-                    .padding(top = 48.dp, end = 8.dp, bottom = 6.dp)
+                    .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp, bottom = 6.dp)
                     .width(sideWidth)
-                    .heightIn(max = (maxHeight - 60.dp).coerceAtLeast(90.dp)),
+                    .heightIn(max = gameHudDrawerMaxHeightDp(maxHeight.value).dp),
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0xF5112630),
                 border = BorderStroke(1.dp, accent.copy(alpha = .35f)),
@@ -330,6 +330,18 @@ private fun GameHudConditionTrack(label:String,fraction:Float,accent:Color) {
  * Keeping this arithmetic independent of Compose makes small-landscape and
  * split-screen safety testable without opening the actual game scene.
  */
+/** The world-game host draws a 40dp navigation/orientation strip at TopEnd.
+ * Both the teammate controls and inventory drawer MUST begin below this strip.
+ */
+internal fun gameHudChromeSafeTopDp(hostChromeDp: Float = 40f): Float =
+    hostChromeDp.coerceAtLeast(0f) + 8f
+
+internal fun gameHudDrawerMaxHeightDp(availableHeightDp: Float): Float =
+    (availableHeightDp.coerceAtLeast(0f) - gameHudChromeSafeTopDp() - 12f).coerceAtLeast(0f)
+
+internal fun gameHudTeamPanelHeightDp(availableHeightDp: Float, landscape: Boolean): Float =
+    minOf(availableHeightDp.coerceAtLeast(0f) * if (landscape) .52f else .32f, 170f)
+
 /** Top-corner vital label stays narrow on small landscape phones. */
 internal fun gameHudCompactStatusMaxWidthDp(availableWidthDp: Float, landscape: Boolean): Float =
     (availableWidthDp.coerceAtLeast(0f) * if (landscape) .28f else .52f)
