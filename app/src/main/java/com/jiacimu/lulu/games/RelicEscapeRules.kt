@@ -331,7 +331,7 @@ internal object RelicEscapeRules {
     fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet()):RelicRun {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return s.copy(notice="当前不能继续行动")
-        if(s.phase==RelicPhase.DOWNED && action!="wait")return s.copy(notice="倒地了，等待同伴救援")
+        if(s.phase==RelicPhase.DOWNED && action!="wait" && action!="companion_tick")return s.copy(notice="倒地了，等待同伴救援")
         if(action=="weapon_skill" && s.equipped=="blade")
             return act(s,"sweep",autonomousIds=autonomousIds)
         if(action=="equip") {
