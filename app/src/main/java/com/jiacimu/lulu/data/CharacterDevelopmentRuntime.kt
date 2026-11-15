@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 
 /** Versioned mailbox: in-flight reflection cannot clear a newer experience request. */
@@ -104,6 +105,50 @@ internal object GrowthReflectionInput {
                 "ownStatement=${TimelineStatementOwnership.isOwnCharacterStatement(event)} " +
                 CharacterExperienceLearning.evidenceText(event).take(280)
         }
+
+    /**
+     * The character's own private self-correction may inform future growth,
+     * but is not a second original fact or proof a tool worked. Attach it only
+     * to genuine, currently selected timeline evidence, so deletion/withdrawal
+     * cannot turn a free-floating thought into a verified experience.
+     */
+    fun subjectiveEvidenceText(
+        selected: List<SharedTimelineEvent>,
+        mind: JSONObject,
+    ): String {
+        if (selected.isEmpty()) return ""
+        val valid = selected.associateBy { it.id }
+        val notes = mutableListOf<Pair<Instant, String>>()
+        val seen = mutableSetOf<String>()
+        fun add(evidenceId: String, at: String, label: String, content: String) {
+            val event = valid[evidenceId] ?: return
+            val cleaned = content.trim().take(260)
+            if (cleaned.isBlank()) return
+            val stamp = runCatching { Instant.parse(at) }.getOrNull() ?: return
+            if (stamp.isBefore(event.occurredAt.minusSeconds(120)) ||
+                stamp.isAfter(Instant.now().plusSeconds(120))) return
+            if (!seen.add("$evidenceId:$cleaned")) return
+            notes += stamp to "eventId=$evidenceId；$label=$cleaned"
+        }
+        val transitions = mind.optJSONArray("causalTransitions")
+        for (i in 0 until (transitions?.length() ?: 0)) {
+            val entry = transitions?.optJSONObject(i) ?: continue
+            val id = entry.optString("evidenceId")
+            val correction = entry.optJSONObject("stateDelta")
+                ?.optString("selfCorrection").orEmpty()
+            add(id, entry.optString("at"), "当时想调整的做法", correction)
+            add(id, entry.optString("at"), "当时没说出口的想法",
+                entry.optString("innerThought"))
+        }
+        val voices = mind.optJSONArray("innerVoices")
+        for (i in 0 until (voices?.length() ?: 0)) {
+            val entry = voices?.optJSONObject(i) ?: continue
+            add(entry.optString("evidenceId"), entry.optString("occurredAt"),
+                "当时个人心声", entry.optString("thought"))
+        }
+        return notes.sortedBy { it.first }.takeLast(6)
+            .joinToString("\n") { (_, note) -> note }.take(1_800)
+    }
 
     /** Existing dispositions are a *reference index*, not an invitation to
      * resend the character's whole inner life, responsibilities and world. */
@@ -315,6 +360,14 @@ object CharacterDevelopmentRuntime {
             appendLine(UserRoutinePatterns.reflectionContext(routinePatterns.take(3)))
             appendLine("【本轮选取的可核验原始经历；完整版仍在时间线】")
             appendLine(GrowthReflectionInput.evidenceText(growthEvidence))
+            GrowthReflectionInput.subjectiveEvidenceText(
+                growthEvidence, CharacterInnerLifeStore.snapshot(characterId),
+            ).takeIf(String::isNotBlank)?.let { thoughts ->
+                appendLine("【上述真实事件关联的本人当时心声/自我修正；这是主观判断，不是新增事实或行动成功回执】")
+                appendLine(thoughts)
+                appendLine("如心声提出新做法（例如多一重闹钟），仅作为本人想过的策略；" +
+                    "需与原始工具回执、用户真实反馈及后来实践核对，不能把当时猜测写成已验证方法。")
+            }
         }
         LuluRepositories.performance.recordTiming("成长反思输入规划", 0,
             "角色=${characterId.take(36)};候选=${events.size};投入=${growthEvidence.size};" +
