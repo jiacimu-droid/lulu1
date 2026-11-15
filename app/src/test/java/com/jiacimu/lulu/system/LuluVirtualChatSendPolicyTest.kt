@@ -60,6 +60,33 @@ class LuluVirtualChatSendPolicyTest {
         assertFalse(LuluVirtualChatSendPolicy.validMessage("a".repeat(501)))
     }
 
+    @Test fun voiceComposerSwitchFindsOnlyTheUniqueLeftKeyboardTarget() {
+        val b = LuluVirtualChatSendPolicy::ComposerBounds
+        val c = LuluVirtualChatSendPolicy::ComposerControl
+        val talk = b(125, 1040, 610, 1100)
+        assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住 说话"))
+        assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住讲话"))
+        assertFalse(LuluVirtualChatSendPolicy.isPressToTalk("聊天记录：按住说话就行"))
+        val controls = listOf(
+            c(b(50, 1040, 103, 1100), "", "", true),
+            c(b(640, 1038, 695, 1100), "表情", "", true),
+            c(b(10, 50, 85, 120), "返回", "", true))
+        assertEquals(0, LuluVirtualChatSendPolicy.voiceToTextControl(
+            talk, controls, screenWidth = 720, screenHeight = 1280))
+        assertNull("Two different targets next to the composer are ambiguous",
+            LuluVirtualChatSendPolicy.voiceToTextControl(talk, controls +
+                c(b(4, 1040, 55, 1100), "", "", true), 720, 1280))
+        assertNull("Never click a Send control to toggle voice mode",
+            LuluVirtualChatSendPolicy.voiceToTextControl(
+                talk, listOf(c(b(50, 1040, 103, 1100), "发送", "", true)), 720, 1280))
+        assertNull("Cannot guess a keyboard toggle from chat history",
+            LuluVirtualChatSendPolicy.voiceToTextControl(
+                b(125, 200, 610, 260), controls, 720, 1280))
+        assertNull("Without a verified clickable control, never invent a tap",
+            LuluVirtualChatSendPolicy.voiceToTextControl(
+                talk, listOf(c(b(50, 1040, 103, 1100), "", "", false)), 720, 1280))
+    }
+
     @Test fun chatSendRequiresExplicitFieldsBeforeTransport() {
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("send_chat_message", JSONObject()))
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("send_chat_message",
