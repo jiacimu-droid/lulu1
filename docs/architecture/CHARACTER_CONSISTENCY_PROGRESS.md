@@ -2257,3 +2257,8 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 ## 2026-11-13 · UI-02.2 群成员变更持久提交边界
 - `updateGroupConversation` 之前先更新 `conversationState`、异步写 `state_v1`，拒写可能造成仅在本进程可见的成员变化并触发无依据通知。正式修复 [c7930a4](https://github.com/jiacimu-droid/lulu1/commit/c7930a4caea2330a17735919791809f6337cdb2c) 改为先 durable commit 后发布，失败不发送成员变更事件。
 - 新回归 [7c1b1f7](https://github.com/jiacimu-droid/lulu1/commit/7c1b1f72131f3ec24ec51d783a49bba467315641) `ChatHistoryLegacyCompatibilityTest.rejectedGroupMembershipUpdateMustNotPublishOrSurviveReopen`：注入拒写，验证 commit、禁止 apply、快照与内存/重开一致。尚无该提交 JVM/APK/Refresh 成功证据，不标工程通过；下一轮查首错后再核群通知追加失败的跨步回执。
+
+## 2026-11-15 · P-08d.2b.2 睡眠叫醒双保险 / 长期成长心声证据
+- **用户明确更正**：睡眠叫醒时「真实主动来电 + 本机系统闹钟」是可并行的双重保障，不是闹钟代替来电。沿原 commitment task / AlarmClockInfo 执行同一个首次到点任务，不另建 alarm_only 责任；`CommitmentExecutor` 提前尝试独立 USAGE_ALARM 有声提示，同时仍启动原 `start_call`；接听/拒接/错过来电立即止住本地铃声，不把响铃、请求拨号、接通或沉默视作真正醒来。首次外的后续结果复查不得重复响首次保底铃声。生产提交 `8a05b9d`、`0f224d5`、`1cb48b5`、结构化决策指导 `468e918`；`CommitmentCallRetryPolicyTest` 新增首次双保险/普通电话/正在通话/复查禁重响断言（`ed71580`）。
+- **成长输入缺口**：`GrowthReflectionInput` 原来只提供独立真实时间线事件，已有 `CharacterInnerLifeStore` 保存的私有心声、当时自我修正未入低频总结输入。现在按当前选中的真实事件 ID 只读补进来源明确的短心声、自我修正，显式声明其为主观意见而非工具成功或用户满意证据；原跨经历门槛、本人角色隔离、证据撤回及每小时成本约束保持。生产 `762da20`；`GrowthReflectionInputTest` 增加有无真实来源和越时拒绝回归（`e80bd15`）。
+- **验证边界**：这些代码与测试已推送 main，未拿到该后继 HEAD 的完整 JVM/APK 构建成功报告；GitHub 连接器的 `commit workflow runs=[]` / combined statuses 空不等于通过。真机仍须验证 Redmi 待机/闹钟音量/来电通知权限、30 秒独立铃声、接听立即停铃、未接仍有可追溯记录、每日重试隔离及跨日成长实际召回。下一次优先查上述新测试编译首错，再用真实触发测试确认互不覆盖。
