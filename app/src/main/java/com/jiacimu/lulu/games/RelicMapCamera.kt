@@ -6,6 +6,10 @@ import kotlin.math.min
 /** Drawing and touch use exactly the same camera; camera changes never move an actor. */
 internal data class RelicMapCamera(val tileSize: Float, val offsetX: Float, val offsetY: Float) {
     fun tileAt(px: Float, py: Float, width: Int, height: Int): Pair<Int, Int>? {
+        // A cancelled pinch or a zero-sized first layout can supply non-finite coordinates.
+        // Float.toInt() maps NaN to zero, otherwise selecting a real corner tile by accident.
+        if (!px.isFinite() || !py.isFinite() || !tileSize.isFinite() || tileSize <= 0f ||
+            !offsetX.isFinite() || !offsetY.isFinite()) return null
         val x = floor((px - offsetX) / tileSize).toInt()
         val y = floor((py - offsetY) / tileSize).toInt()
         return if (x in 0 until width && y in 0 until height) x to y else null
