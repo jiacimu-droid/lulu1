@@ -23,16 +23,22 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.coroutines.coroutineContext
 
 /** Event-driven scene adapter. No per-frame model calls, free-running paid timer or shadow identity. */
 @Composable
 internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = false,
     readRun: () -> RelicRun = { run },
+    onTeamPulse: (String) -> Boolean = { false },
     onChoice: (String, IslandActorChoice) -> Boolean) {
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
-    var voice by remember { mutableStateOf(prefs.getBoolean("voice",false)) }
+    var voice by remember { mutableStateOf(prefs.getBoolean("voice",true)) }
     var busy by remember { mutableStateOf(false) }
     var line by remember(run.id) { mutableStateOf("") }
     var failure by remember(run.id) { mutableStateOf("") }
@@ -45,14 +51,23 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
         val message=raw.trim()
         if(message.isBlank())return
         inbox=inbox.enqueue(message)
+        line="你：" + message
         GameTeamConversationTimeline.recordOwner(
             context, "relic_escape", run.id, run.allies.map { it.id }, message, fromSpeech,
         )
         speechVersion++
     }
     val mic = rememberGameSpeechInput { send(it, fromSpeech = true) }
+    val (openMic, toggleOpenMic) = rememberIslandGameOpenMic { spoken ->
+        send(spoken, fromSpeech = true)
+    }
+    DisposableEffect(speaker, openMic) {
+        speaker.setSpeakingListener { openMic.setCompanionSpeaking(it) }
+        onDispose { speaker.setSpeakingListener(null); openMic.stop() }
+    }
     val currentRun by rememberUpdatedState(readRun)
     val latestChoice by rememberUpdatedState(onChoice)
+    val latestPulse by rememberUpdatedState(onTeamPulse)
     val latestInbox by rememberUpdatedState(inbox)
     val latestSpeech by rememberUpdatedState(speechVersion)
     val latestTraveling by rememberUpdatedState(continuousTravel)
@@ -60,6 +75,24 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
     val members = run.allies.map { it.id }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
+    // A slow local game clock only resumes a previously actor-selected route.
+    // No model calls while that route takes legal physical steps.
+    LaunchedEffect(run.id, members) {
+        while (isActive) {
+            delay(GameCoopPacing.PLANNED_STEP_MS)
+            val now = currentRun()
+            if (now.id != run.id) break
+            if (!GameCoopPacing.canTick(
+                    hasPlan = GameCoopPacing.relicHasPlan(now),
+                    isForeground = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
+                    navigating = latestTraveling,
+                    thinking = busy,
+                    playerSpeaking = openMic.partial.isNotBlank(),
+                    nearbyThreat = GameCoopPacing.relicThreat(now),
+                )) continue
+            latestPulse(now.id)
+        }
+    }
     // Moving on a held joystick may create many local movement turns.
     // Do not charge a fresh companion decision for every tile of one gesture.
     // Explicit player messages still wake the real role while traveling.
@@ -91,8 +124,9 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     val urgentDown=snapshot.events.any {
                         it.who=="player" && it.action=="down" && it.turn==snapshot.turns
                     }
-                    if (message.isBlank() && RelicActorPlay.acted(snapshot,id) && !urgentDown)
-                        continue
+                    if (message.isBlank() &&
+                        (RelicActorPlay.acted(snapshot,id) || id in snapshot.coopPlans) &&
+                        !urgentDown) continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
                         .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
                     coroutineContext.ensureActive()
@@ -139,12 +173,28 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     Icon(if(voice)Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
                         if(voice)"关闭伙伴语音" else "开启伙伴语音",tint=Color.White,modifier=Modifier.size(18.dp))
                 }
-                IconButton(onClick={speaker.stop();mic()},modifier=Modifier.size(34.dp)) {
-                    Icon(Icons.Outlined.Mic,"跟伙伴说话",tint=Color.White,modifier=Modifier.size(18.dp))
+                Surface(onClick=toggleOpenMic,
+                    color=if(openMic.active) Color(0xFFFFD7BA) else Color(0xFFFFD894),
+                    shape=RoundedCornerShape(10.dp)) {
+                    Row(Modifier.padding(horizontal=8.dp,vertical=7.dp),
+                        verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(3.dp)) {
+                        Icon(Icons.Outlined.Mic,
+                            if(openMic.active)"关闭游戏连麦" else "开启游戏连麦",
+                            tint=Color(0xFF15202B),modifier=Modifier.size(16.dp))
+                        Text(if(openMic.active)"关麦" else "开麦",
+                            color=Color(0xFF15202B),fontSize=11.sp)
+                    }
                 }
             }
+            if(openMic.active) Text(
+                if(openMic.partial.isNotBlank()) "你：" + openMic.partial
+                else openMic.status.ifBlank { "游戏连麦中 · 直接说话" },
+                color=Color(0xFFE6F3EA),fontSize=10.sp,maxLines=2)
+            else if(openMic.status.isNotBlank()) Text(openMic.status,
+                color=Color(0xFFFFCBAF),fontSize=10.sp,maxLines=2)
             if(members.isNotEmpty()) {
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                if(expanded) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement=Arrangement.spacedBy(5.dp)) {
                     listOf(if(run.phase==RelicPhase.DOWNED)"你能来救救我吗？"
                         else "宝箱留给我开，好不好？","你能把宝物送给我吗？","我们一起打怪！","你能保护我吗？").forEach { line ->
@@ -159,7 +209,11 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
                     Text(if(expanded)"收起" else "打字和伙伴商量",color=Color(0xFFFFD894),fontSize=11.sp)
                 }
-                if(expanded)Row(verticalAlignment=Alignment.CenterVertically,
+                if(expanded) {
+                TextButton(onClick={speaker.stop();mic()}) {
+                    Text("单次识别",fontSize=11.sp,color=Color(0xFFFFD894))
+                }
+                Row(verticalAlignment=Alignment.CenterVertically,
                     horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     OutlinedTextField(value=typedMessage,onValueChange={typedMessage=it},
                         modifier=Modifier.weight(1f),maxLines=2,
@@ -167,6 +221,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     TextButton(onClick={send(typedMessage);typedMessage=""},enabled=typedMessage.isNotBlank()) {
                         Text("发送",fontSize=11.sp)
                     }
+                }
                 }
             }
             if(busy)LinearProgressIndicator(modifier=Modifier.fillMaxWidth(),color=Color(0xFFFFD894))
