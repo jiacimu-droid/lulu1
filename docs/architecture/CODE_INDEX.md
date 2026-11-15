@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2a7527124eb540628611a7661290a7222a5da23f`
+- 基准提交：`b8ca4678d644e1b0e7afd6143f10be46175eb52a`
 - 分支：`main`
 - 已索引文件：1333
-- 已索引代码/文本行：284360
+- 已索引代码/文本行：284372
 - 已发现符号：4007
 
 | 文件 | 行数 | 符号数 |
@@ -685,7 +685,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 89 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 540 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 552 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
