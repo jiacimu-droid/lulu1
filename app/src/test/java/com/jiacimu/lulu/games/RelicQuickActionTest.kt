@@ -288,8 +288,20 @@ class RelicQuickActionTest {
     }
 
     @Test fun extractionNeverSuggestsLeavingGate() {
-        val map = run().copy(phase = RelicPhase.EXTRACT)
-        assertEquals("wait", relicQuickAction(map, map.hero.x to map.hero.y)?.action)
+        val map = run().copy(phase = RelicPhase.EXTRACT, mobs = emptyList(),
+            chests = emptyList(), sites = emptyList(),
+            seen = (0 until run().w * run().h).toSet())
+        val hero = map.hero.x to map.hero.y
+        assertEquals("wait", relicQuickAction(map, hero)?.action)
+        // A map tap is selection, not consent to spend an extraction turn.
+        val empty = (map.hero.x + 3) to map.hero.y
+        assertNull(relicQuickAction(map, empty))
+        assertNull(relicNearbyAction(map, 1 to 0, empty))
+        val unchanged = RelicRun.read(map.json())!!
+        assertEquals(map.turns, unchanged.turns)
+        assertEquals(map.hero.bag, unchanged.hero.bag)
+        assertEquals("wait", relicQuickAction(unchanged,
+            unchanged.hero.x to unchanged.hero.y)?.action)
     }
 
     @Test fun adjacentEnemyCanBeAttackedWithoutMovingCursorOffPlayer() {
