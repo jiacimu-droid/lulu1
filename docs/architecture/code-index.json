@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T07:04:49.990424+00:00",
-  "commit": "8cf5a822a84d657937a13431577fe3c307a3cd0e",
+  "generatedAt": "2026-11-15T07:05:33.339090+00:00",
+  "commit": "ae4a19f69309ee59f2fd5edd6d7aaab9323890d9",
   "branch": "main",
-  "sourceFingerprint": "9f8db18321ed2c771141a475e5dc2fd68b886cf0e5523259714af947a680ced5",
+  "sourceFingerprint": "0a4f7ae3ab076acc935a5c8348b649f524bf4650adeb210e3d17c9fc189d9683",
   "summary": {
-    "files": 1330,
-    "lines": 283193,
-    "symbols": 3996
+    "files": 1331,
+    "lines": 283331,
+    "symbols": 3997
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21828,6 +21828,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCollectionGoalsTest.kt",
         "line": 7
+      }
+    ],
+    "RelicCombatSkillsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCombatSkillsTest.kt",
+        "line": 11
       }
     ],
     "RelicEscapeRulesTest": [
@@ -46513,6 +46519,17 @@
         {
           "name": "RelicCollectionGoalsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCombatSkillsTest.kt",
+      "lines": 138,
+      "sha256": "e12d2ec2bcadedaeac421042c3c8b04df433e14ec37e2820f169e80b35967b34",
+      "symbols": [
+        {
+          "name": "RelicCombatSkillsTest",
+          "line": 11
         }
       ]
     },
