@@ -666,6 +666,10 @@ internal object RelicEscapeRules {
                     .log("player","extract","撤离启动！守住出口3回合")
                 noise=2
             }
+            "companion_tick" -> {
+                if(autonomousIds.isEmpty() || !GameCoopPacing.relicHasPlan(s)) return s
+                next = s.log("team","companion_tick","同行伙伴沿本人已决定的计划前进")
+            }
             "wait"->next=s.log("player","wait",if(s.phase==RelicPhase.DOWNED)"倒地等待救援" else "原地观察")
             else->return s.copy(notice="无效行动")
         }
