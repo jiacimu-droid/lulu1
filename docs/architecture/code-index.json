@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:42:46.952983+00:00",
-  "commit": "b71db9218293c8d74ba9714852822f1d79a27170",
+  "generatedAt": "2026-11-15T06:43:30.015377+00:00",
+  "commit": "10e8311b5ecaac72d30387495b98d728c79f31cf",
   "branch": "main",
-  "sourceFingerprint": "d4ca54dd12f677a166800f7cba212996d8db3fe0f5080bb83a46dd2698b21044",
+  "sourceFingerprint": "58877d14285b72d83358519603da0e9e7218738b9564c9d334928d43bc6c1385",
   "summary": {
-    "files": 1328,
-    "lines": 282723,
-    "symbols": 3983
+    "files": 1329,
+    "lines": 282753,
+    "symbols": 3984
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21746,6 +21746,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt",
         "line": 5
+      }
+    ],
+    "RelicChestSwipeGateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestSwipeGateTest.kt",
+        "line": 7
       }
     ],
     "RelicCollectionGoalsTest": [
@@ -46364,6 +46370,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicChestSwipeGateTest.kt",
+      "lines": 17,
+      "sha256": "d0fc0810007273c34a9982a26377bb8b5a9b27eeea3221015509458ce67bf126",
+      "symbols": [
+        {
+          "name": "RelicChestSwipeGateTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCollectionGoalsTest.kt",
       "lines": 40,
       "sha256": "9974542f4e76917fd793752c1b44749fc752d25d0b2512172c216acc931eb9e9",
@@ -46398,8 +46415,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
-      "lines": 38,
-      "sha256": "d55dea5ef1ee50f2e16c692696edeeb99a8f0b6f39970451c06eb89cf8cdcf57",
+      "lines": 51,
+      "sha256": "2671591133b2579f5e5ab1583cce6718f2dc6f8ae514ef53a96e28d1d94fee70",
       "symbols": [
         {
           "name": "RelicMapCameraTest",
