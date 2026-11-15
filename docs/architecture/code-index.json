@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:53:14.966113+00:00",
-  "commit": "f2b2e387e9d18e723d94e4b240b1180d9252f88b",
+  "generatedAt": "2026-11-15T05:32:14.660372+00:00",
+  "commit": "51ee3d7cebe092ae53cc11ac0a3104b50b7bc42d",
   "branch": "main",
-  "sourceFingerprint": "605708ac7fa15bb722d569c2c96216f18cd54dc4a787c127a2c1549a07c90f43",
+  "sourceFingerprint": "b65802d6bfd982c2d3e2ec5fe1eb6b6dd207e497b97491c770299851efc6c812",
   "summary": {
     "files": 1327,
-    "lines": 282106,
-    "symbols": 3974
+    "lines": 282179,
+    "symbols": 3977
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17398,10 +17398,28 @@
         "line": 38
       }
     ],
+    "AppBarControl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
+        "line": 50
+      }
+    ],
+    "isNamedAppBack": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
+        "line": 69
+      }
+    ],
+    "appBackControlIndex": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
+        "line": 79
+      }
+    ],
     "mayClick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 48
+        "line": 121
       }
     ],
     "canRetryReadOnly": [
@@ -39971,8 +39989,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-      "lines": 68,
-      "sha256": "19faa7934fc510dfc9a7fbcadabaa1ff89708f206defa42f5ae806eac24f84a6",
+      "lines": 141,
+      "sha256": "acb84da4472469e62308e21f9d1dc289dfb725e9f9211b6775c758b31b3ff3e9",
       "symbols": [
         {
           "name": "fingerprint",
@@ -39987,8 +40005,20 @@
           "line": 38
         },
         {
+          "name": "AppBarControl",
+          "line": 50
+        },
+        {
+          "name": "isNamedAppBack",
+          "line": 69
+        },
+        {
+          "name": "appBackControlIndex",
+          "line": 79
+        },
+        {
           "name": "mayClick",
-          "line": 48
+          "line": 121
         }
       ]
     },
