@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
+import com.jiacimu.lulu.games.LuluGameRecord
+import com.jiacimu.lulu.games.LuluGameType
 import org.junit.Test
 import java.time.Instant
 
@@ -63,4 +65,33 @@ class DigitalWorldBulletinTest {
         assertFalse(notices.any { it.detail.contains("普通走动") })
         assertTrue(notices.any { it.detail.contains("椅子") })
     }
+    @Test fun actualSoloGameMakesOneBulletinReceiptWithoutFabricatingPlayerParticipationOrExtraction() {
+        val at = Instant.parse("2026-11-15T09:00:00Z")
+        val physical = LuluGameRecord(
+            id = "solo-relic-physical", type = LuluGameType.RelicEscape,
+            title = "迷雾摸金", score = 0, rewardCoins = 0,
+            characterId = "role-solo", playedWithCharacter = false,
+            characterSolo = true,
+            summary = "暂时结束本段游玩，背包战利品尚未撤离归仓；本段真实行动40回合。",
+            createdAt = at,
+        )
+        val playedWithOwner = physical.copy(id = "not-solo", playedWithCharacter = true,
+            characterSolo = false)
+        val ownerOnly = physical.copy(id = "owner-only", characterId = "",
+            characterSolo = false)
+        val bulletins = DigitalWorldBulletin.collect(
+            DigitalWorldState(), emptyList(), emptyList(),
+            friendships = emptyList(),
+            gameRecords = listOf(physical, playedWithOwner, ownerOnly),
+        )
+        assertEquals(1, bulletins.size)
+        val only = bulletins.single()
+        assertEquals("solo-game:${physical.id}", only.id)
+        assertEquals("游戏", only.category)
+        assertEquals(at, only.occurredAt)
+        assertTrue(only.detail.contains("尚未撤离归仓"))
+        assertFalse(only.detail.contains("成功带回"))
+        assertFalse(only.detail.contains("一起玩"))
+    }
+
 }
