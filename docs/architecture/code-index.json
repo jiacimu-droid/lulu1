@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:32:00.221370+00:00",
-  "commit": "1cfbd76b2a0a515623bf7e3086fb64fe2877c628",
+  "generatedAt": "2026-11-15T02:32:24.867777+00:00",
+  "commit": "74aea1f26d74cd6ef5b059742e2a19be5b392efa",
   "branch": "main",
-  "sourceFingerprint": "ea121ebd1b8c01e85ccc4b52e18653f387dd101599c5c99576e86472b14b80ad",
+  "sourceFingerprint": "3d213ed67cbf060d5fe06d2dc0432fb4d503d4de2f3fad8fa6eae7473173e7cf",
   "summary": {
     "files": 1325,
-    "lines": 281379,
-    "symbols": 3958
+    "lines": 281425,
+    "symbols": 3959
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6416,6 +6416,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
         "line": 103
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
+        "line": 26
       }
     ],
     "latestPending": [
@@ -20565,7 +20569,7 @@
     "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 361
+        "line": 407
       }
     ],
     "OnlineContinuationPolicyTest": [
@@ -44470,16 +44474,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1183,
-      "sha256": "ab37a5d77f70d1a02731188dd5405499708f4c8870f5b2c4d083830c112c312a",
+      "lines": 1229,
+      "sha256": "681fb538471a64fd99ee9a89e7db7bfda7243f0e7636932c184c28d9aff3976b",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
           "line": 16
         },
         {
+          "name": "eligible",
+          "line": 26
+        },
+        {
           "name": "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision",
-          "line": 361
+          "line": 407
         }
       ]
     },
