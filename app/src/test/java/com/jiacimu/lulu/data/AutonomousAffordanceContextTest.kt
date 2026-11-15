@@ -167,4 +167,25 @@ class AutonomousAffordanceContextTest {
         assertTrue(played.contains("快艇骰子：167 分"))
         assertTrue(played.contains("不是强制轮换任务"))
     }
+
+    @Test fun onlyTrueIndependentGamesEnterSoloHistoryNotCharacterDuelsOrOwnerGames() {
+        fun record(title: String, actor: String, solo: Boolean, withOwner: Boolean,
+            summary: String) = com.jiacimu.lulu.games.LuluGameRecord(
+            type = com.jiacimu.lulu.games.LuluGameType.YachtDice,
+            title = title, score = 42, rewardCoins = 0,
+            characterId = actor, playedWithCharacter = withOwner,
+            characterSolo = solo, summary = summary)
+        val records = listOf(
+            record("人物对战", "role-A", false, false, "甲乙共同比赛，甲得 42 分"),
+            record("与主人同玩", "role-A", false, true, "共同竞技的结果"),
+            record("其他人物独玩", "role-B", true, false, "另一位角色真的独玩"),
+            record("方块小岛", "role-A", true, false, "真实独立生存 18 回合"),
+            record("旧版快艇骰子", "role-A", false, false, "独自完成一局快艇骰子"),
+        )
+        assertEquals(listOf("方块小岛", "旧版快艇骰子"),
+            AutonomousAffordanceContext.recentSoloGames(records, "role-A").map { it.first })
+        assertEquals(listOf("其他人物独玩"),
+            AutonomousAffordanceContext.recentSoloGames(records, "role-B").map { it.first })
+    }
+
 }
