@@ -920,31 +920,39 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         // the appointment appears "due" with no model request at all.
         val trigger = "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
         return try {
-            // runDueCycle already wakes an offline character when the model
-            // appraisal really begins. Waking first created a five-minute online
-            // expiry even when a pending owner message made this appraisal a
-            // no-op, causing a second unnecessary opportunity to charge API.
+            // A user chat/call already owns this role's next decision. Check
+            // BEFORE entering the model pipeline: testing only after it returns
+            // zero could retry a request that became ambiguous or billable while
+            // the owner started typing, causing duplicate paid generations.
+            val ownerPending = CompanionOnlineStore.unreadChatSnapshot(role).text.isNotBlank()
+            val ownerBusy = OnlineChatBatchStore.shouldDeferBackgroundWake(
+                applicationContext, role)
+            val inCall = CompanionPresenceStore.isInCall(role)
+            if (ownerPending || ownerBusy || inCall) {
+                val reason = "主人当前对话或电话占用角色决策，等待该回合后复核"
+                RoleDayScheduleStore.recordUnfinishedWake(
+                    applicationContext, role, plan.id, plan.dueAt, reason)
+                CompanionPresenceStore.recordPerceptionAttempt(role,
+                    "日程未开始独立模型请求 · $reason")
+                if (RoleDayScheduleStore.retryDeferredDueWake(
+                        ownerPending, ownerBusy, inCall, runAttemptCount)) {
+                    return Result.retry()
+                }
+                return Result.success()
+            }
+            // runDueCycle wakes an offline role only when this appraisal
+            // actually starts; no extra online-expiry worker is invented.
             val decisions = ProactivePerceptionRuntime.runDueCycle(
                 applicationContext, trigger, targetCharacterId = role, force = true)
             if (decisions == 0) {
-                // Only a competing live owner turn is definitely safe for a
-                // short retry. Provider errors may already have incurred costs
-                // and use the existing durable background recovery mechanism.
-                val ownerPending = CompanionOnlineStore.unreadChatSnapshot(role).text.isNotBlank()
-                val ownerBusy = OnlineChatBatchStore.shouldDeferBackgroundWake(
-                    applicationContext, role)
-                val inCall = CompanionPresenceStore.isInCall(role)
-                val retry = RoleDayScheduleStore.retryDeferredDueWake(
-                    ownerPending, ownerBusy, inCall, runAttemptCount)
-                val reason = if (ownerPending || ownerBusy || inCall)
-                    "主人当前对话或电话占用角色决策，等待该回合后复核"
-                    else "未取得有效模型决策（可能是模型配置、网络响应或角色自主感知被停用）"
+                // An HTTP response could be lost after the provider charged.
+                // Never retry this potentially attempted turn from the due
+                // worker; AutonomousPerceptionAttempts owns bounded recovery.
+                val reason = "未取得有效模型决策（可能是模型配置、网络响应或角色自主感知被停用）"
                 RoleDayScheduleStore.recordUnfinishedWake(
-                    applicationContext, role, plan.id, plan.dueAt,
-                    "$reason；原日程仍待处理")
+                    applicationContext, role, plan.id, plan.dueAt, reason)
                 CompanionPresenceStore.recordPerceptionAttempt(role,
                     "日程已到但未完成模型决策 · $reason")
-                if (retry) return Result.retry()
             }
             Result.success()
         } catch (cancel: kotlinx.coroutines.CancellationException) {
