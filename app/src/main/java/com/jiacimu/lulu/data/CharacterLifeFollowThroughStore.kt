@@ -165,8 +165,8 @@ internal object CharacterLifeFollowThroughStore {
                 runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()
                     ?.let { it to shareImpulseFor(item, now) }
             }
-        val earliest = openEvents.minOfOrNull { it.first } ?: return@synchronized
-            heldImpulse.coerceIn(0.0, 100.0)
+        val earliest = openEvents.minOfOrNull { it.first }
+            ?: return@synchronized heldImpulse.coerceIn(0.0, 100.0)
         // This is an expression-satisfaction cue, not a moderation cooldown,
         // forced post interval, or claim that any particular story was told.
         val realPosts = postedAt.filter { !it.isBefore(earliest) && !it.isAfter(now) }
