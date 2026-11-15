@@ -14,6 +14,52 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun explicitRestInOrdinaryChatClosesTheCurrentWindowAfterTheActualReply() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("聊天后立即休眠回归").characterId
+        val instructions = proactiveDecisionInstruction(role, directPrivateChat = true)
+        assertTrue(instructions.contains("本轮即时休眠"))
+        assertTrue(instructions.contains("onlineDecision"))
+        assertTrue(instructions.contains("不必等到五分钟结束"))
+        fun eligible(
+            delivered: Boolean = true, silent: Boolean = false,
+            current: Boolean = true, reason: String = "想现在休息",
+            expiry: Long = 0L, choice: String = "sleep",
+        ) = shouldSettleImmediateOnlineSleep(
+            awakeAtDecision = true, onlineExpiryAtMillis = expiry,
+            onlineChoice = choice, onlineChoiceReason = reason,
+            hasUnreadUserMessage = true, replyDelivered = delivered,
+            explicitlySilent = silent, originalBatchCurrent = current,
+        )
+        assertTrue("An explicit same-turn choice may settle before the five-minute deadline", eligible())
+        assertFalse("A failed reply cannot be mistaken for a delivered farewell", eligible(delivered = false))
+        assertTrue("Silence must be consciously selected by the model", eligible(delivered = false, silent = true))
+        assertFalse("A superseded old chat turn cannot put a new turn to sleep", eligible(current = false))
+        assertFalse("An invalid online decision is never treated as consent", eligible(reason = ""))
+        assertFalse("Continue is not a rest choice", eligible(choice = "continue"))
+        assertFalse("Expiry sleep follows its existing separate settlement path", eligible(expiry = 1234L))
+        assertFalse(shouldSettleImmediateOnlineSleep(
+            awakeAtDecision = false, onlineExpiryAtMillis = 0L,
+            onlineChoice = "sleep", onlineChoiceReason = "我想休息",
+            hasUnreadUserMessage = false, replyDelivered = false,
+            explicitlySilent = true, originalBatchCurrent = true))
+
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+            "真实用户聊天", perceiveNow = false)
+        val originalDeadline = CompanionOnlineStore.states.value.getValue(role).onlineUntil
+        assertTrue(originalDeadline.isAfter(java.time.Instant.now()))
+        // The same-turn decision executes the authoritative state transition,
+        // not another online-expiry perception / model generation.
+        assertTrue(CompanionOnlineStore.goOfflineByChoice(role))
+        assertEquals(CompanionOnlineReason.SelfChosenSleep,
+            CompanionOnlineStore.states.value.getValue(role).reason)
+        assertFalse(CompanionOnlineStore.isOnline(role))
+        assertTrue(CompanionOnlineStore.states.value.getValue(role).onlineUntil
+            .isBefore(originalDeadline))
+    }
+
     @Test fun groupPeerBubbleDoesNotOpenAnotherImmediateOnlineReplyButUserTurnDoes() {
         // Member A's actual group message remains witnessed by B, but never
         // becomes a synthetic NEW user request to B (which would ping-pong).
