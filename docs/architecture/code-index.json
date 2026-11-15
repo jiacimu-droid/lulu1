@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:15:19.241844+00:00",
-  "commit": "5f8c0bdf17be359c9775c8112dd64245bca34556",
+  "generatedAt": "2026-11-15T02:16:33.245130+00:00",
+  "commit": "bad893f1fef0706948dd5918fa0ec838cac8e5ec",
   "branch": "main",
-  "sourceFingerprint": "69e9bf15773fb8ff85b90e16aa247adfb977b337f963852e0644351af271af8a",
+  "sourceFingerprint": "83ef4514dd9641fe482999c1de4a5cd8ca1166518d9343d5a5c077866b46e046",
   "summary": {
     "files": 1324,
-    "lines": 280985,
+    "lines": 281056,
     "symbols": 3953
   },
   "symbolIndex": {
@@ -11863,7 +11863,7 @@
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 83
+        "line": 92
       }
     ],
     "ProactiveMessageAutomation": [
@@ -27915,8 +27915,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 257,
-      "sha256": "b98a69b93206ad9ea309218179ce2a49749b60fa73330e79ba0368291082f978",
+      "lines": 263,
+      "sha256": "529ea35ca9c40db77794f40b4367ee73810536e056b7c9e97db0eda346042eaa",
       "symbols": [
         {
           "name": "render",
@@ -28342,7 +28342,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
       "lines": 374,
-      "sha256": "aeb1de0c3d37cc03599fd5110b12cc3d5fcfec3139a06d3dea90bfa774b68ce5",
+      "sha256": "8bdf24c40450c396b44f58394fe7ad148fc7e9dd113d45c6a693e4e03093b103",
       "symbols": [
         {
           "name": "initialize",
@@ -33112,8 +33112,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 185,
-      "sha256": "4370f3aa38d28a031ccd1410767c0e518e3d564ad31cc55d28d4a65b45bacfd7",
+      "lines": 194,
+      "sha256": "d35ae47249bfa030262f2cf44dd35c711a7970de3d3ef10f6a1a42439b84deb4",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -33133,7 +33133,7 @@
         },
         {
           "name": "activeFor",
-          "line": 83
+          "line": 92
         }
       ]
     },
@@ -42704,8 +42704,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 356,
-      "sha256": "0cb20327a10b7c2be4bba6aac74b97319cf45d615d927c376ebc5088c8e34c0f",
+      "lines": 412,
+      "sha256": "f75d98dba9ed6dcc060ae67574299f16e02980e2e3be699a0c8c8aa6107de986",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
