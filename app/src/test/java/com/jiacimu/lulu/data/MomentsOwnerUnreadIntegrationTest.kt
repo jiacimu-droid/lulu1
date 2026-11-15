@@ -10,6 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.util.UUID
+import java.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -23,6 +24,38 @@ class MomentsOwnerUnreadIntegrationTest {
         MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
         MomentsStore.initialize(context)
+    }
+
+    @Test fun realPublishedPostRelievesUrgeEvenWithoutAnExperienceId() {
+        val character = MigratedDomainStores.characters
+            .create("发圈分享欲回执-" + UUID.randomUUID()).characterId
+        CharacterLifeFollowThroughStore.initialize(context)
+        val now = Instant.now()
+        val sources = (1..10).map { "post-urge-integration-${UUID.randomUUID()}" }
+        sources.forEach { source ->
+            assertTrue(CharacterLifeFollowThroughStore.register(
+                character, source, "真实生活", "一次已核实的独立生活经历",
+                now.minusSeconds(120)))
+        }
+        val before = CharacterLifeFollowThroughStore.sharingUrge(character, now)
+        assertEquals(100.0, before, 0.001)
+        val post = MomentsStore.publishCharacter(
+            character, "今天分享一件自己真正有感触的小事",
+            requestPeerReview = false)!!
+        try {
+            val after = CharacterLifeFollowThroughStore.sharingUrge(
+                character, Instant.now().plusSeconds(1))
+            assertTrue("Posting to the actual store should relieve sharing urge", after < before)
+            assertTrue("A generic post is not proof that a specific story was narrated",
+                CharacterLifeFollowThroughStore.auditSnapshot(character)
+                    .any { it.optString("id") == sources[0] && it.optString("shareStatus") == "open" })
+        } finally {
+            MomentsStore.delete(post.id)
+        }
+        assertEquals("Removing the real post restores its general urge relief",
+            before, CharacterLifeFollowThroughStore.sharingUrge(
+                character, Instant.now().plusSeconds(1)), 0.01)
+        sources.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
     }
 
     @Test fun losingFeedPermissionImmediatelyRemovesInaccessibleUnreadPost() {
