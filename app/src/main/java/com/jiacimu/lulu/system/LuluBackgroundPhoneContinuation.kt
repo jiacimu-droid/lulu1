@@ -227,7 +227,7 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine(history.toString().takeLast(9_000))
                     appendLine("可选择的本机工具：background_phone")
                     appendLine(if (LuluVirtualChatSendPolicy.isEnabled(context, characterId))
-                        "主人已开启本角色虚拟屏幕总授权（包括微信发送）：可自行判断是否、向谁和说什么，但必须先真实打开微信与目标对话，取得screenSnapshotId；只有实际匹配收件人标题、唯一非搜索聊天输入框与发送按钮时才可调用send_chat_message(recipient,text,screenSnapshotId)。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
+                        "主人已开启本角色虚拟屏幕总授权（包括微信发送）：可自行判断是否、向谁和说什么，但必须先真实打开微信与目标对话，取得screenSnapshotId；取得真实微信聊天页与最新screenSnapshotId后，可一次选择send_chat_message(recipient,text,screenSnapshotId)。若当前为「按住说话」，本机在核实聊天标题、输入区和左下键盘图标后自动切换文字模式，全文一次性ACTION_SET_TEXT并读回；这些本地微操作不再向模型逐字请求，也不额外发逐字截图。看不到唯一切换控件则拒绝而不是盲点；只在输入和发送键均核实后尝试一次发送。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
                         else "主人未开启本角色虚拟屏幕总授权：可浏览微信，但send_chat_message会被拒绝；如想发送，可以自然提出让主人开启虚拟屏幕总授权。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
                         "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendProductLinkToChat=true执行；只有productLinkSent=true说明链接已发私聊。付款阶段停下交给主人。"
@@ -245,7 +245,7 @@ internal object LuluBackgroundPhoneContinuation {
                     上述只是字段格式说明，不是推荐点击或滑动位置。只保留本动作需要的参数；swipe必须同时给startX/startY/endX/endY四个整数（0至1000），不能只给方向；坐标应由本轮真实后台画面决定，别照抄示例的0。
                     或 {"decision":"finish","reason":"任务为什么可以结束，未完成时要明确说明"}
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
-                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。搜索框另可focus_search/type/submit，提交前须文字读回；无证据则ask/finish。
+                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。微信聊天显示「按住说话」并不要求你自己逐字打字：选定收件人和完整正文后直接调用send_chat_message，本机负责验证切换文字输入、全文写入读回与单次发送，不需要为每个字重新看图。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。搜索框另可focus_search/type/submit，提交前须文字读回；无证据则ask/finish。
                     若某次点击/滑动/搜索提交已被设备接受但效果未知，先核对当前页面或换安全目标；读到相同页面不能解除重复动作保护。
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     搜索时，当前目标App回执若有唯一可验证搜索框，可一次选择{"action":"search","text":"关键词"}。本机会核实焦点、输入读回后才提交，并返回实际页面；searchSubmitted只说明提交已派发，要阅读页面才知道搜到了什么。没有唯一搜索框时先根据真实控件或画面打开搜索入口；type仍只填入，单独submit才会提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
