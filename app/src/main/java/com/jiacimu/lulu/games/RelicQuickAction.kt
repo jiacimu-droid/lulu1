@@ -110,9 +110,8 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
     }
     // Waiting is a deliberate hero-tile command, never a fallback for a
     // player-selected empty/distant map tile during extraction.
-    if (run.phase == RelicPhase.EXTRACT) return if (target == (hero.x to hero.y))
-        RelicQuickAction("wait", "原地守住撤离门", "留在出口附近，推进撤离倒数")
-    else null
+    if (run.phase == RelicPhase.EXTRACT && target == (hero.x to hero.y))
+        return RelicQuickAction("wait", "原地守住撤离门", "留在出口附近，推进撤离倒数")
     if (target == (hero.x to hero.y)) {
         if (hero.kits > 0 && hero.hp < 10)
             return RelicQuickAction("heal", "使用一瓶药剂", "回复生命，敌人也会行动")
