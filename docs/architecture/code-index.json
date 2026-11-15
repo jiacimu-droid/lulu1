@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:39:06.833630+00:00",
-  "commit": "6c308f81f06b7eae02ecbaca611343a93ab06400",
+  "generatedAt": "2026-11-15T02:43:18.590097+00:00",
+  "commit": "ae3a4402039cd18ebb1f095ead23da2e43f0a06d",
   "branch": "main",
-  "sourceFingerprint": "dc09206194452bcff691c07dd4548b2c9d7f05701b4a76ef385a7a28b6ebd989",
+  "sourceFingerprint": "763285f0179097dca2510f4b47ca26b70e2752695c339ba820c37634967959b5",
   "summary": {
-    "files": 1325,
-    "lines": 281429,
-    "symbols": 3959
+    "files": 1327,
+    "lines": 281602,
+    "symbols": 3963
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -654,6 +654,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
         "line": 106
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
@@ -4092,6 +4096,26 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
         "line": 9
+      }
+    ],
+    "Result": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
+        "line": 1039
+      }
+    ],
+    "viewIntent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
+        "line": 22
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -8574,16 +8598,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
         "line": 19
-      }
-    ],
-    "Result": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1039
       }
     ],
     "DailyCommitmentAttempt": [
@@ -17199,7 +17213,7 @@
     "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 67
+        "line": 87
       }
     ],
     "canObserve": [
@@ -18352,6 +18366,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
         "line": 34
+      }
+    ],
+    "QqShoppingProductLinkOpenerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt",
+        "line": 18
       }
     ],
     "QqXhsShareCodecTest": [
@@ -25579,8 +25599,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCard.kt",
-      "lines": 141,
-      "sha256": "4183e94bbe2d4b4e6b1d9e06d5f2e170d6b982f83243bc7389f4e3e22886ecad",
+      "lines": 139,
+      "sha256": "b0c955430eb269c84d1ac5f18cc349c0be11a9ad72a404a1cd677b165a38fb33",
       "symbols": []
     },
     {
@@ -25588,6 +25608,25 @@
       "lines": 36,
       "sha256": "dc30c7e8183c57c5ef3421375cc9ddd3c5517fd12046e930b8a96c1b3009c850",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
+      "lines": 48,
+      "sha256": "501e55b44010e5c2cc6eb2a7329bb250031b01564f1ad426a465f5f9eeef59cc",
+      "symbols": [
+        {
+          "name": "Result",
+          "line": 15
+        },
+        {
+          "name": "viewIntent",
+          "line": 22
+        },
+        {
+          "name": "open",
+          "line": 32
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
@@ -39645,12 +39684,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 125,
-      "sha256": "221cb4d7791688bbc95e1124c407044001bdbe29ce863fa0b1fb90b7a9d01ffb",
+      "lines": 145,
+      "sha256": "4fb50d979631dd2edc3c3667b2110f02376f15ad551011ef6bfffe0ed8b03fba",
       "symbols": [
         {
           "name": "clipboardTimestamp",
-          "line": 67
+          "line": 87
         }
       ]
     },
@@ -41352,6 +41391,17 @@
         {
           "name": "QqReplySourceWatermarkTest",
           "line": 34
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt",
+      "lines": 107,
+      "sha256": "9be2b905bfe961bffba37e182fc9183c2dd4dc9a7d1f88bc97d3e755129e9c6f",
+      "symbols": [
+        {
+          "name": "QqShoppingProductLinkOpenerTest",
+          "line": 18
         }
       ]
     },
