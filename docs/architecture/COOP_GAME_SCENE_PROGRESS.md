@@ -424,3 +424,8 @@
 - 复核最新正式 `IslandGameOpenMic.kt` 后发现：先前仅在权限回调当下检查 `Lifecycle.STARTED`；若玩家请求权限后切后台、权限回调在恢复前台后才送达，仍会自动开启已不再有效的旧请求。生产提交 `3694ad41f9a65c14808668572f6d06239b744007`，源码 blob `f8da04cac829e9157623a3578ce5e3d996eb97d7`：`GameMicPermissionGate` 在请求时登记，在 ON_STOP/离场时失效；回调只消费仍有效的请求一次。已有 `dispose`、STT 会话代数和正常前台开麦保持原样。
 - 根因回归 `GameMicPermissionGateTest.kt` 提交 `caefbfd04e4cc8180af54dd7411e81a341778825`，测试 blob `55cdcbf080dcfde23316029722b752ec056211d2`，覆盖正常一次消费、后台/离场后迟到授权不复活、重进游戏必须重新请求、重复停止/拒绝。未添加模型调用或虚构角色发言。
 - JVM/APK/index：新 push 尚未取得对应 HEAD 的 terminal success；真实 Android 权限弹窗、Redmi 横屏/帧率、美术与完整游玩闭环仍待独立验收。下一入口 `GameMicPermissionGateTest.kt` 的 JVM 首错与 `IslandGameOpenMic.kt` 真机授权→后台→恢复；之后回到 G-03 箱盖与权威实物可视性。
+
+## 2026-11-16 G-03.5 · 同格多件真实掉落在地图上分别可见（CI/真机待验）
+
+- 正式 `RelicEscapeArt.kt` 之前将同格所有 `run.drops` 绘制在完全相同的坐标，满包后多件真实宝物叠在一起，玩家只能看见最后一件；生产 `ae051eebeeac765949fc6fc875ba4fdac48aac29`，blob `3130d20f8ce495c12a75aa651a78b87660a85010`，现按真实已保存地面实物依次排列最多四个独立小型切面，使用实物 grade 着色，超四件仅给拥挤指示点。不改物品数量、生成、拾取、存档、掉率或角色选择；无假奖励。复用已有真实掉落/重载规则回归，不按旧 ready 清单重复造同类测试。
+- 尚未取得此 main push 的 JVM/APK/index 终态，且 360/412dp 横屏视觉与实际点击命中区域、FPS 均未真机验收。下一入口 `RelicEscapeArt.kt` 同格多掉落截图和 `RelicQuickActionTest.kt` 实际拾取后画面同步，核新 push 的 APK/JVM 首错；未来应为超过四件的堆叠提供可操作物品选择，不把小圆点称为已实现拾取选择器。
