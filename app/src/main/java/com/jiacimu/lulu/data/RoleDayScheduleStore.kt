@@ -739,6 +739,23 @@ object RoleDayScheduleStore {
         return true
     }
 
+    /** An enqueued WorkManager/online wake is not a model decision. Only a real
+     * completed character appraisal can acknowledge the due appointment. The
+     * plan remains due until a separately verified tool receipt resolves it. */
+    @Synchronized
+    internal fun acknowledgeDueDecisions(context: Context, characterId: String,
+        at: Instant = Instant.now()) {
+        plans(context, characterId).filter {
+            it.status in setOf("planned", "due") &&
+                !it.dueAt.isAfter(at) && it.lastWakeHandoffAt == null
+        }.forEach { plan ->
+            if (plan.status == "planned") {
+                markDue(context, characterId, plan.id, expectedDueAt = plan.dueAt)
+            }
+            recordWakeHandoff(context, characterId, plan.id, plan.dueAt, at)
+        }
+    }
+
     /** A due plan is not a completed activity. Only wake the original role's decision loop. */
     fun dueContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
         plans(context, characterId).filter { it.status == "due" ||
@@ -833,6 +850,10 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         if (role.startsWith("resident:") &&
             !ResidentDailyDecision.hasSavedDueToResume(applicationContext, latest) &&
             !ResidentDailyPolicy.activityEnabled(applicationContext, role)) return Result.success()
+        // Another ordinary perception may already have consulted and decided
+        // about this exact due plan. Never bill a second appraisal for a stale job.
+        if (!role.startsWith("resident:") && latest.lastWakeHandoffAt != null)
+            return Result.success()
         val plan = if (latest.status == "completed") latest
             else RoleDayScheduleStore.markDue(applicationContext, role, planId,
                 expectedDueAt = expectedDueAt)
@@ -858,14 +879,31 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
                 return Result.retry()
             return Result.success()
         }
-        return runCatching {
-            ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
-            // Only the *wake request* was submitted; do not mark the plan
-            // completed or claim the selected tool has run.
-            RoleDayScheduleStore.recordWakeHandoff(
-                applicationContext, role, plan.id, plan.dueAt)
+        // Do not just enqueue an online-chat batch and immediately claim a
+        // successful handoff: that second worker can be skipped or delayed while
+        // the appointment appears "due" with no model request at all.
+        val trigger = "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
+        return try {
+            CompanionOnlineStore.wakeCharacter(role,
+                CompanionOnlineReason.BackgroundPerception, trigger, perceiveNow = false)
+            val decisions = ProactivePerceptionRuntime.runDueCycle(
+                applicationContext, trigger, targetCharacterId = role, force = true)
+            if (decisions == 0) {
+                // Busy chat, missing model configuration, or model failure is not
+                // a completed decision. Leave the real agenda pending without
+                // automatically replaying a possibly billable HTTP request.
+                CompanionPresenceStore.recordPerceptionAttempt(role,
+                    "日程已到但没有完成模型决策；仍待处理，可在下一次感知继续")
+            }
             Result.success()
-        }.getOrElse { Result.retry() }
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
+        } catch (failure: Exception) {
+            CompanionPresenceStore.recordPerceptionAttempt(role,
+                "日程唤醒失败；原日程保留：${failure.message.orEmpty().take(100)}")
+            // Do not automatically bill again when the request's outcome is uncertain.
+            Result.failure()
+        }
     }
 }
 

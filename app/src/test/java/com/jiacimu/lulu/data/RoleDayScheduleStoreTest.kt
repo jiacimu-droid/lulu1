@@ -97,6 +97,31 @@ class RoleDayScheduleStoreTest {
         }
     }
 
+    @Test fun queuedWakeDoesNotAcknowledgeDuePlanUntilRoleDecisionCompletes() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "schedule-real-model-handoff-test"
+        val at = Instant.now().plusSeconds(3600)
+        val created = RoleDayScheduleStore.arrange(context, role, "提醒复习剩下的十面题",
+            "到点重新判断如何提醒主人复习", at, activityAction = "send_private_message")
+        try {
+            RoleDayScheduleStore.markDue(context, role, created.id, expectedDueAt = at)
+            val queued = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
+            assertEquals("due", queued.status)
+            assertNull("WorkManager claimed the clock, not the model decision",
+                queued.lastWakeHandoffAt)
+            assertTrue(RoleDayScheduleStore.needsWakeRestoration(queued, at.plusSeconds(30)))
+            RoleDayScheduleStore.acknowledgeDueDecisions(context, role, at.plusSeconds(35))
+            RoleDayScheduleStore.acknowledgeDueDecisions(context, role, at.plusSeconds(55))
+            val decided = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
+            assertEquals(at.plusSeconds(35), decided.lastWakeHandoffAt)
+            assertEquals("due", decided.status)
+            assertTrue(decided.resultEvidenceId.isBlank())
+            assertFalse(RoleDayScheduleStore.needsWakeRestoration(decided, at.plusSeconds(60)))
+        } finally {
+            RoleDayScheduleStore.remove(context, role, created.id)
+        }
+    }
+
     @Test fun oneAutonomousDecisionCanKeepSeveralDifferentPlansWithoutDuplicates() {
         val a = plan.copy(status = "planned", id = "first",
             activityAction = "learn_topic",

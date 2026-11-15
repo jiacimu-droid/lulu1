@@ -533,6 +533,12 @@ object ProactivePerceptionRuntime {
                         AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
                         prefs.edit().remove("last_terminal_model_rejection_$characterId").apply()
                         evaluated += 1
+                        // A saved/started wake request is not a role decision.
+                        // A successful ordinary chat or time-based perception can
+                        // also satisfy the due plan's decision handoff, avoiding
+                        // a duplicate paid turn from its still-queued worker.
+                        RoleDayScheduleStore.acknowledgeDueDecisions(
+                            appContext, characterId, Instant.now())
                         CharacterDevelopmentRuntime.request(characterId)
                         val actionKey = "action_history_$characterId"
                         val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
