@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-02.6 · 游戏实时语音草稿不再冒充人物头顶正式发言（源码提交，CI/真机待验）
+
+- **根因**：正式 `IslandCompanionPanel` 将 `IslandGameOpenMic.partial` 的流式临时转写直接送到 `onDialogue("player", ...)`，而同一回调也用于玩家人物头顶字幕；VAD 后续可能修改/丢弃草稿，导致地图人物头顶显示并未确认说过的话。原面板已能独立展示临时转写，不必复制进世界空间。
+- **生产修复**：`716275e` 只移除 provisional partial→world-space dialogue 的错误投影，保留麦克风面板实时草稿；`ProviderCallInput.onText` 确认后仍通过 `submitPlayerMessage` 进入头顶字幕、队伍消息、原时间线及角色原模型决策，不增加模型请求或虚构发言。源码 blob `e579f1559ea249f875ef24bef9454becdcf827c6`；本轮未新增测试（需 Compose/真实 STT 生命周期及手机屏幕验收）。
+- **验收与下一入口**：本轮无当前 SHA 的 JVM/APK/index 成功证据；检查 `IslandCompanionPanel.kt` 和 `IslandGameOpenMic.kt`：连续语音草稿在面板更新，头顶字幕仅在完整 `onText` 后出现；取消/静音草稿不得留下虚假发言。Redmi 360/412dp、TTS 回声、帧率、真实模型仍待验。后续继续核最新 main push 的 APK 首错，勿把索引绿当 APK 绿。
+
+
 
 ### 2026-11-15 · G-02 · 玩家横屏实测反馈：通话式交流、人物头顶字幕及顶部状态（源码已提交；APK/真机待验）
 
