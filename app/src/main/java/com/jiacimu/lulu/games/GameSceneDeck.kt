@@ -75,14 +75,13 @@ internal fun GameSceneDeck(
     var drawer by remember { mutableStateOf(false) }
     LaunchedEffect(closeToolsSignal) { drawer = false }
     LaunchedEffect(openToolsSignal) { if (openToolsSignal != null) drawer = true }
-    var teamExpanded by remember { mutableStateOf(false) }
     var statusExpanded by remember { mutableStateOf(false) }
     BackHandler(enabled = drawer) { drawer = false }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
         LaunchedEffect(wide) { drawer = false }
         val sideWidth = minOf(maxWidth * .39f, 310.dp)
-        val panelHeight = minOf(if (wide) maxHeight * .46f else maxHeight * .25f, 205.dp)
+        val panelHeight = minOf(if (wide) maxHeight * .52f else maxHeight * .32f, 170.dp)
         val teamState = rememberSaveableStateHolder()
         val teamPanel: @Composable () -> Unit = {
             teamState.SaveableStateProvider("team") {
@@ -208,32 +207,14 @@ internal fun GameSceneDeck(
             }
         }
         if (companionAvailable) {
+            // The game host reserves the top-right 40dp for navigation/orientation/audio.
+            // Voice and the latest teammate subtitle live directly below that chrome.
+            // Never unmount the team while the inventory opens: preserve pending
+            // model decisions and the scene's voice queue.
             Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
-                .padding(top = 5.dp, end = 8.dp)) {
-                if (!drawer) {
-                    // No permanent full-width top bar: a small corner tab opens
-                    // the existing live companion/voice controls on demand.
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                        Surface(
-                            color = Color(0xAA132932),
-                            shape = RoundedCornerShape(14.dp),
-                        ) {
-                            Text(
-                                if (teamExpanded) "♡ 收起队伍" else "♡ 队伍",
-                                modifier = Modifier
-                                    .clickable { teamExpanded = !teamExpanded }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                                color = accent, fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-                    }
-                }
-                // Keep the exact same composition mounted when visually collapsed.
-                // Both companion panels own live AI decisions, inbox and voice effects.
-                // Removing the composition here would cancel their in-flight work.
+                .padding(top = 46.dp, end = 8.dp)) {
                 Box(Modifier.then(
-                    if (teamExpanded && !drawer) Modifier.heightIn(max = panelHeight)
+                    if (!drawer) Modifier.heightIn(max = panelHeight)
                     else Modifier.height(0.dp),
                 ).clipToBounds()) {
                     teamPanel()
@@ -285,16 +266,16 @@ internal fun GameSceneDeck(
         if (drawer && wide) {
             Surface(
                 modifier = Modifier.align(Alignment.TopEnd)
-                    .padding(top = 4.dp, end = 8.dp, bottom = 6.dp)
+                    .padding(top = 48.dp, end = 8.dp, bottom = 6.dp)
                     .width(sideWidth)
-                    .heightIn(max = (maxHeight - 18.dp).coerceAtLeast(100.dp)),
+                    .heightIn(max = (maxHeight - 60.dp).coerceAtLeast(90.dp)),
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0xF5112630),
                 border = BorderStroke(1.dp, accent.copy(alpha = .35f)),
                 shadowElevation = 10.dp,
             ) {
                 Column {
-                    Row(Modifier.fillMaxWidth().height(42.dp).padding(start = 12.dp, end = 6.dp),
+                    Row(Modifier.fillMaxWidth().height(38.dp).padding(start = 12.dp, end = 6.dp),
                         verticalAlignment = Alignment.CenterVertically) {
                         Text(toolsLabel, modifier = Modifier.weight(1f),
                             color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
