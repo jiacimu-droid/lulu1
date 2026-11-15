@@ -176,10 +176,18 @@ class InMemoryLuluChatStore : LuluChatStore {
                     else message
                 }
             }
-            val reconciled = restored != loaded.second &&
-                prefs?.edit()?.putString(CHAT_STATE, encode(loaded.first, restored).toString())?.commit() == true
+            if (restored != loaded.second) {
+                // The independent archive is still durable even when repairing the
+                // chat projection fails (e.g. storage is temporarily read-only).
+                // Keep the surviving favorite visible in this process and retry
+                // the durable repair on the next initialization; never discard
+                // the only surviving archive or its original voice recording.
+                runCatching {
+                    prefs?.edit()?.putString(CHAT_STATE, encode(loaded.first, restored).toString())?.commit()
+                }
+            }
             messageStates.clear()
-            (if (reconciled) restored else loaded.second).forEach { (conversationId, messages) ->
+            restored.forEach { (conversationId, messages) ->
                 messageStates[conversationId] = MutableStateFlow(messages)
             }
         }
