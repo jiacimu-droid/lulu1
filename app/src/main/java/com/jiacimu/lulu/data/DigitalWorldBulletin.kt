@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import java.time.Instant
+import com.jiacimu.lulu.games.LuluGameRecord
 
 /** News is rendered exclusively from PERSISTED world objects and events.
  * Proposals, model descriptions and unverified resident ideas never appear.
@@ -19,6 +20,7 @@ internal object DigitalWorldBulletin {
         residents: List<DigitalWorldResident>,
         places: List<DigitalWorldDiscoveredPlace>,
         friendships: List<CharacterFriendRequest> = CharacterFriendRequests.acceptedForWorld(),
+        gameRecords: List<LuluGameRecord> = emptyList(),
     ): List<DigitalWorldNotice> {
         val notices = mutableListOf<DigitalWorldNotice>()
         residents.forEach { resident ->
@@ -60,6 +62,23 @@ internal object DigitalWorldBulletin {
                     )
                 }
         }
+        // Only committed character-owned runs are public game-hall facts.
+        // Player-only and shared matches are already represented by their
+        // own result/history; never invent a solo trip for either.
+        val roleNames = MigratedDomainStores.characters.settings.value
+        gameRecords.asSequence().filter { it.characterSolo && it.characterId.isNotBlank() }
+            .forEach { record ->
+                val who = roleNames[record.characterId]?.displayName
+                    ?: residents.firstOrNull { "resident:${it.id}" == record.characterId }?.name
+                    ?: "数字人物"
+                notices += DigitalWorldNotice(
+                    id = "solo-game:${record.id}",
+                    title = "游戏馆动态 · ${who}",
+                    detail = "${who}独自玩了《${record.title}》。${record.summary}".take(230),
+                    occurredAt = record.createdAt,
+                    category = "游戏",
+                )
+            }
         world.events.asSequence()
             .filter { event ->
                 event.kind in setOf(
