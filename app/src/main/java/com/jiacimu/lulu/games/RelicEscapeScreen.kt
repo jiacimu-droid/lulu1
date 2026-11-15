@@ -43,7 +43,7 @@ private val relicGreen=Color(0xFF81E8C5)
 private val relicRed=Color(0xFFFFA2AD)
 
 @Composable
-internal fun RelicEscapeScreen(store:LuluGameStore) {
+internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = emptyList()) {
     val context=LocalContext.current
     val ledger=remember(context){RelicEscapeLedger(context)}
     val game by store.state.collectAsState()
@@ -55,7 +55,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     }
     var kits by remember{mutableIntStateOf(1)}
     var lobbyOpen by rememberSaveable { mutableStateOf(true) }
-    var acceptedInvites by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var acceptedInvites by rememberSaveable { mutableStateOf(initialParty.distinct().take(3)) }
+    LaunchedEffect(initialParty) {
+        if(initialParty.isNotEmpty()) acceptedInvites=(initialParty+acceptedInvites).distinct().take(3)
+    }
     val partySessionId = rememberSaveable { java.util.UUID.randomUUID().toString() }
     var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
     var startingWeapon by rememberSaveable { mutableStateOf("blade") }
