@@ -317,6 +317,11 @@ internal object BlockIslandRules {
             (x == w.x && y == w.y) ||
             IslandSupplyCaches.available(s, x, y) ||
             w.index(x,y) in s.lostPacks ||
+            // An unfinished house blueprint reserves its nine physical sites.
+            // Otherwise an unrelated build can silently strand the saved project.
+            (s.houseProject?.takeIf { it.phase in setOf("building", "paused") }
+                ?.let { project -> IslandHouseProjects.parts(w,project.left,project.top)
+                    .any { it.first == w.index(x,y) && it.first !in project.placed } } == true) ||
             (action == "floor" && cell == 4) ||
             w.friends.any { it.hp > 0 && it.x == x && it.y == y } ||
             w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
