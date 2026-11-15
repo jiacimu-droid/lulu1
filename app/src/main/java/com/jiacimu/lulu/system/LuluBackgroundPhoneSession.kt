@@ -897,6 +897,7 @@ internal object LuluBackgroundPhoneSession {
                             id, activeApp, recipient)
                     }
                     var toggleClicked = false
+                    var switchFailure: JSONObject? = null
                     val editorReady = if (alreadyText) true else {
                         val switched = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.switchVirtualChatToText(
@@ -904,6 +905,7 @@ internal object LuluBackgroundPhoneSession {
                         }
                         toggleClicked = switched.optBoolean("inputModeSwitchClicked")
                         if (!switched.optBoolean("accepted")) {
+                            switchFailure = switched
                             false
                         } else if (switched.optBoolean("inputModeTextVerified")) true else {
                             var ready = false
@@ -919,11 +921,11 @@ internal object LuluBackgroundPhoneSession {
                         }
                     }
                     if (!editorReady) {
-                        JSONObject().put("accepted", false)
-                            .put("messageSendClicked", false)
-                            .put("inputModeSwitchClicked", toggleClicked)
+                        (switchFailure?.let { JSONObject(it.toString()) } ?: JSONObject()
                             .put("errorCode", "chat_text_mode_unverified")
-                            .put("verification", "已尝试一次文字模式切换，但当前微信输入框未核实；未发送消息")
+                            .put("verification", "已尝试一次文字模式切换，但当前微信输入框未核实；未发送消息"))
+                            .put("accepted", false).put("messageSendClicked", false)
+                            .put("inputModeSwitchClicked", toggleClicked)
                     } else {
                         fingerprint = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.virtualUiSnapshot(
@@ -1012,6 +1014,8 @@ internal object LuluBackgroundPhoneSession {
                     .put("chatRecipientVerified",
                         applied?.optBoolean("chatRecipientVerified") == true)
                     .put("messageSendClicked", dispatched)
+                    .put("inputModeSwitchClicked",
+                        applied?.optBoolean("inputModeSwitchClicked") == true)
                     .put("messageDeliveryVerified", false)
                     .put("taskCompleted", false)
                     .put("errorCode", applied?.optString("errorCode").orEmpty())
@@ -1019,7 +1023,8 @@ internal object LuluBackgroundPhoneSession {
                         "当前微信聊天对象和正文已核实，并且发送按钮已被设备接受一次；尚无服务器送达证据，禁止以不确定为理由再次点击发送"
                     else if (applied?.optBoolean("messageInputReadbackVerified") == true)
                         "聊天文字已写入并读回，但发送按钮或收件人未能再次核实；没有确认发送，请先只读观察"
-                    else "本次微信聊天发送未执行；没有确切收件人、唯一输入框或有效授权，详情见errorCode")
+                    else applied?.optString("verification")?.takeIf(String::isNotBlank)
+                        ?: "本次微信聊天发送未执行；详情见errorCode")
                     .toString()
             }
             if (action == "search") searchReceipt = applied
