@@ -12,6 +12,12 @@ internal enum class RelicProfession(val label:String,val skill:String,val detail
 }
 
 internal object RelicCombatSkills {
+    /**
+     * Turning in place is not traversal. Companion scheduling must only
+     * suppress per-tile paid decisions while actual movement is held.
+     */
+    fun isContinuousTravelGesture(held:Boolean,aimOnly:Boolean):Boolean = held && !aimOnly
+
     fun cardinal(facing:Pair<Int,Int>):Boolean =
         kotlin.math.abs(facing.first)+kotlin.math.abs(facing.second)==1
 
