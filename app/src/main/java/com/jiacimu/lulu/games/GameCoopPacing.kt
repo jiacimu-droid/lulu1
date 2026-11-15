@@ -22,6 +22,21 @@ internal object GameCoopPacing {
     ): Boolean = hasPlan && isForeground && !navigating && !thinking &&
         !playerSpeaking && !nearbyThreat
 
+    /**
+     * One companion's local route step must not wake unrelated characters'
+     * paid Game model calls. Replan only the role whose goal really ended, or
+     * a role addressed by a new player message. Ordinary player turns retain
+     * the existing game decision policy.
+     */
+    fun mayReplanAfterTick(
+        currentTurn: Int,
+        lastCompanionTickTurn: Int,
+        actorId: String,
+        finishedGoals: Set<String>,
+        hasOwnerMessage: Boolean,
+    ): Boolean = hasOwnerMessage ||
+        currentTurn != lastCompanionTickTurn || actorId in finishedGoals
+
     fun islandMemberHasPlan(s: BlockIslandState, id: String): Boolean =
         id in s.companionTravel ||
             s.houseProject?.let { it.ownerId == id &&
