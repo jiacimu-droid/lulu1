@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T13:13:15.986472+00:00",
-  "commit": "bb8d4075cb2899ab534c59b7908f3fe9787d38a5",
+  "generatedAt": "2026-11-15T13:14:44.895162+00:00",
+  "commit": "1b7801f207a1ffa740f178803aa1a7965950c925",
   "branch": "main",
-  "sourceFingerprint": "5a76fafeeb7094efccbf03849063dbecab56dadbba01850bf6fed3fcafde7049",
+  "sourceFingerprint": "052525ba692a9707ecf5ed5182510c24a4f917a64baa2c9569c575e2d0050d5a",
   "summary": {
     "files": 1333,
-    "lines": 284067,
-    "symbols": 4005
+    "lines": 284107,
+    "symbols": 4006
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4047,7 +4047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-        "line": 22
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
@@ -5947,7 +5947,13 @@
     "recentSoloGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-        "line": 12
+        "line": 15
+      }
+    ],
+    "recentSoloPlayRhythm": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
+        "line": 32
       }
     ],
     "needsIndependentLifeReview": [
@@ -12065,7 +12071,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3642
+        "line": 3646
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -27421,16 +27427,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 128,
-      "sha256": "75006c3bb4c9b88b627202e6b51bb5dd47aa6bc48e80e07e4aa14f849b3a8280",
+      "lines": 164,
+      "sha256": "742d2008c8cf877223ddef18b4b496bb41c0d892da9f7a466d99719a34d2e0a8",
       "symbols": [
         {
           "name": "recentSoloGames",
-          "line": 12
+          "line": 15
+        },
+        {
+          "name": "recentSoloPlayRhythm",
+          "line": 32
         },
         {
           "name": "render",
-          "line": 22
+          "line": 54
         }
       ]
     },
@@ -33564,8 +33574,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3709,
-      "sha256": "31f9da1fe0f0ddf1a05fee57ed94d3f0e2abfab583c6a58aba3461574f11cc9e",
+      "lines": 3713,
+      "sha256": "64f862d21c45f32d261027854c2582f0059dcabd13032b8778381b7da31f3fed",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -33597,7 +33607,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3642
+          "line": 3646
         }
       ]
     },
