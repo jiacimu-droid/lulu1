@@ -1,5 +1,8 @@
 package com.jiacimu.lulu.data
 
+import java.time.Duration
+import java.time.Instant
+
 /**
  * Concrete opportunities, not orders or fabricated activities. This thin translator makes
  * already-existing capabilities visible to a character making an offline choice.
@@ -20,6 +23,35 @@ internal object AutonomousAffordanceContext {
         .map { it.title to it.score }
         .toList()
 
+    /**
+     * An actual recent-play rhythm, not a synthetic score or a rule demanding
+     * social contact. The old solo history only exposed titles/scores, so three
+     * independent sessions in an hour looked like three timeless preferences.
+     * Do not count matches against other people or another character's games.
+     */
+    fun recentSoloPlayRhythm(
+        records: List<com.jiacimu.lulu.games.LuluGameRecord>,
+        characterId: String,
+        now: Instant = Instant.now(),
+    ): String {
+        val recent = records.filter { record ->
+            record.characterId == characterId &&
+                (record.characterSolo || (!record.playedWithCharacter &&
+                    record.summary.startsWith("独自完成一局"))) &&
+                !record.createdAt.isAfter(now) &&
+                Duration.between(record.createdAt, now) <= Duration.ofHours(1)
+        }
+        if (recent.size < 2) return ""
+        val favourite = recent.groupingBy { it.title }.eachCount()
+            .maxByOrNull { it.value }
+        val repeated = favourite?.takeIf { it.value >= 2 }
+            ?.let { "，其中《${it.key}》${it.value}段" }.orEmpty()
+        return "过去60分钟本人已经实际独玩${recent.size}段${repeated}。这已经是近期真实投入过的消遣，" +
+            "下一次独玩前先想清楚是要继续什么具体进展，而非每次醒来/感知就另开一段。" +
+            "如果想把乐趣分享给主人，可主动发真实游戏邀请，不必等主人先提；也可以邀熟人、" +
+            "聊天、探索其他兴趣或安静休息。保留本人继续玩和独处的自由，不按次数强迫邀约或轮换。"
+    }
+
     fun render(
         digital: Boolean,
         location: String,
@@ -33,6 +65,7 @@ internal object AutonomousAffordanceContext {
         homeCapacityRemaining: Int = 0,
         homeFurniture: List<Pair<String, String>> = emptyList(),
         recentSoloGames: List<Pair<String, Int>> = emptyList(),
+        recentSoloPlayRhythm: String = "",
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
         appendLine("这里列出此刻确实存在的行动机会，不是新任务或规定的日常安排；决定做、稍后安排或独处均由本人选择。")
@@ -52,6 +85,9 @@ internal object AutonomousAffordanceContext {
                 appendLine("  · $title：$score 分")
             }
             appendLine("可以重玩喜欢的，也可以尝试不同类型；记录是本人经历，不是强制轮换任务。")
+        }
+        if (recentSoloPlayRhythm.isNotBlank()) {
+            appendLine("- 【近期独玩节奏｜真实游戏记录】" + recentSoloPlayRhythm)
         }
         appendLine("- 如果某句真实用户原话打动了自己，可在聊天原始ID可核实的前提下选择 tool=favorite_user_message 保存在生活记录的「收藏」；不能凭空收藏。")
         if (books.isNotEmpty()) {
