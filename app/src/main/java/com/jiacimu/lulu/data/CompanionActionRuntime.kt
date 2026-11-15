@@ -1019,9 +1019,12 @@ internal object CompanionActionRuntime {
                         focus = args.optString("focus", "explore"),
                         sessionTurns = if (args.has("turns")) args.getInt("turns") else null)
                 } ?: error("游戏馆未能保存这段真实游戏")
-                if (gameId !in setOf("relic_escape", "block_island")) {
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
-                }
+                // Every committed solo session gets a durable, idempotent owner-visible
+                // SYSTEM receipt. The role's freedom to share its thoughts is separate.
+                MigratedDomainStores.chat.appendPrivateActivityNotice(
+                    characterId, "[独自游戏] ${played.summary}",
+                    incidentId = "solo-game-${played.recordId}",
+                )
                 CompanionActionResult(true, played.summary, evidenceId = "game-solo-${played.recordId}")
             }
             "start_call" -> {
