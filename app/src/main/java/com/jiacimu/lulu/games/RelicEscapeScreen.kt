@@ -579,7 +579,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 // Keep the regular 4-key HUD uncluttered. Only show the optional
                 // crowd-control skill in an actual multi-enemy melee situation.
                 val surrounded=RelicArsenal.sweepTargets(run)
-                if(run.equipped=="blade" && surrounded.size>=2) {
+                if(run.equipped=="blade" && run.phase!=RelicPhase.DOWNED && surrounded.size>=2) {
                     val remaining=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
                     TextButton(
                         onClick={action("sweep")},
@@ -589,7 +589,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     ) {
                         Text(if(remaining>0)
                             "回旋斩冷却 ${remaining} 回合 · 可用格挡/移动解围"
-                            else "↻ 回旋斩 · ${surrounded.size}敌 · 每名${if(run.weapon>=2)"1–2" else "1"}伤",
+                            else "↻ 回旋斩 · ${surrounded.size}敌 · 挡1击",
                             fontSize=10.sp,maxLines=1,color=relicGold)
                     }
                 }
@@ -1321,7 +1321,7 @@ private fun relicDirection(dx:Int,dy:Int):String=
         }
         Text("行动回顾",color=Color.White,fontWeight=FontWeight.Bold)
         val actorEvents=run.events.filter{it.action in setOf(
-            "open","attack","heal","rescue","down","revived","escape","left","hurt","failure","pickup")}
+            "open","attack","sweep","heal","rescue","down","revived","escape","left","hurt","failure","pickup")}
         if(actorEvents.isEmpty())Text("本局没有特殊行动",color=relicMuted)
         actorEvents.takeLast(24).forEach{event->
             val actor=if(event.who=="player")"玩家" else if(event.who=="world")"遗迹"
