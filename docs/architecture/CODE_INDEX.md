@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d00ee4db570aaab802465ec36d9ed3353f677472`
+- 基准提交：`2dbb92c6ad8d414ed18bcb6704bc1e28852a3f3f`
 - 分支：`main`
 - 已索引文件：1337
-- 已索引代码/文本行：284925
-- 已发现符号：4021
+- 已索引代码/文本行：284998
+- 已发现符号：4023
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -150,7 +150,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 320 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
@@ -246,7 +246,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 553 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 317 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
@@ -736,7 +736,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 226 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 485 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 865 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1370 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1391 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 33 | 1 |
