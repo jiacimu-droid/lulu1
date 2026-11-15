@@ -231,7 +231,7 @@ internal fun RelicEscapeLobby(
                                 color=campGold,fontSize=17.sp,fontWeight=FontWeight.Bold)
                             listOf(
                                 "01 · 按住左侧摇杆移动，拖动改方向；地图点选只用于查看目标。",
-                                "02 · 靠近宝箱按「开箱」；遇到守卫用攻击、格挡和治疗。",
+                                "02 · 短剑自动攻击相邻敌人；遭两名以上守卫围攻时会出现回旋斩（范围伤害、挡一次、冷却两回合）。",
                                 "03 · 宝物要带回绿色撤离门，守住3回合才算真正收入仓库。",
                                 "04 · 下一局可换装备、补给和挑战，收藏进度不会因失败清空。"
                             ).forEach { step ->
