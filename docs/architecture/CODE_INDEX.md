@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f5c119ef8b1d23db4e0042d0420cf8211e4ad8aa`
+- 基准提交：`5f45c32cd518c55624319b34e9582b505718abfe`
 - 分支：`main`
 - 已索引文件：1327
-- 已索引代码/文本行：281870
-- 已发现符号：3970
+- 已索引代码/文本行：281898
+- 已发现符号：3971
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -789,7 +789,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1129 | 47 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1156 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
@@ -822,7 +822,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 107 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 108 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
