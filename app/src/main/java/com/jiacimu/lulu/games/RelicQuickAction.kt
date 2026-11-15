@@ -142,20 +142,18 @@ internal fun relicDirectionAction(run:RelicRun,dx:Int,dy:Int):RelicQuickAction? 
 internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>, selected: Pair<Int, Int>? = null): RelicQuickAction? {
     if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
     val h = run.hero
-    // A physical drop underfoot must not be hidden by a different adjacent
-    // chest or landmark merely because the D-pad still faces that direction.
-    val underfoot = relicQuickAction(run, h.x to h.y)
-    if (underfoot?.action == "pickup") return underfoot
-    // A deliberate map tap takes precedence over the last joystick direction.
-    // Only actual nearby physical interactions qualify; distant taps cannot act.
-    val selectedAction = selected?.let { relicQuickAction(run, it) }
+    // An explicit map tap is the player's chosen physical target. Do not
+    // override it with an unrelated drop underfoot; that would make a tapped
+    // adjacent chest or rescue action impossible until the drop was collected.
     val interactions = setOf("open", "pickup", "resupply", "fountain",
         "disarm", "invoke", "silence", "revive", "extract")
-    if (selectedAction?.action in interactions) return selectedAction
-    // A deliberate map selection must not silently operate a different nearby
-    // chest or landmark when that selected target is unreachable or invalid.
-    // Selecting the hero tile retains the ordinary facing-based D-pad shortcut.
-    if (selected != null && selected != (h.x to h.y)) return null
+    if (selected != null && selected != (h.x to h.y)) {
+        return relicQuickAction(run, selected)?.takeIf { it.action in interactions }
+    }
+    // The hero cursor is implicit: physical loot underfoot takes priority over
+    // facing shortcuts, and never vanishes behind another nearby landmark.
+    val underfoot = relicQuickAction(run, h.x to h.y)
+    if (underfoot?.action == "pickup") return underfoot
     val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
     for ((dx, dy) in directions) {
