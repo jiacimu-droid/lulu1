@@ -188,7 +188,7 @@ class ChatHistoryPersistenceBaselineTest {
                 val reopened = InMemoryLuluChatStore()
                 reopened.initialize(app)
                 assertTrue(reopened.messages(conversationId).value.single().favorite)
-                assertTrue(prefs.getString(key, null)!!.contains("\\"favorite\\":true"))
+                assertTrue(prefs.getString(key, null)!!.contains("\"favorite\":true"))
             } finally {
                 archiveField.set(UserMessageFavorites, oldInstance)
             }
