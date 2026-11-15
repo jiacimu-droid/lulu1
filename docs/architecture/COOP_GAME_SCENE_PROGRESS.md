@@ -334,3 +334,10 @@
 - 生产 `b0325d4`（`RelicQuickAction.kt` blob `b8916bd7`）：原来 `EXTRACT` 阶段任何无法互动的选中格都会回退成 `wait`，可能把地图选中空地当成主动守门；现在仅主角格提供明确等待动作，地图点选空地不推进世界。角色自主选择及权威撤离规则未改。
 - 最终生产 HEAD `d6c8175`（blob `b8916bd7`），保留显式选中目标的合法导航，禁止无关空地自动回退为守门 `wait`；回归最终 `dd5ac07`（`RelicQuickActionTest.kt` blob `224505bd`）：主角格可等待、其他格不自动等待、中心互动不擅自等待、读档回合/背包不变。`dd5ac07` 的 workflow 查询返回空列表（该查询仅覆盖 PR 触发运行），不能据此断言 main push APK/JVM/index 结果；真机与模型待验。
 - 下一文件：`RelicEscapeScreen.kt` 核正式地图选中格与守门按钮显示；按 `b417d84` main push 查 JVM/APK/index，不能借旧绿色结果。
+
+
+## 2026-11-15 G-03.5 · 升级背包容量与正式地图拾取统一（待 CI/真机）
+
+- 发现 `RelicQuickAction.relicQuickAction` 的地面实物候选使用固定 `RelicEscapeRules.CAPACITY=8`，但权威 `RelicEscapeRules.act("pickup")`、正式 HUD 与永久升级均使用 `heroCapacity(run)=8+2*satchelLevel`。玩家花资源升级到 10/12 格后，装满原 8 格时，地图/方向键仍拒绝显示合法珍宝拾取，造成升级收益在正式操作中失效。
+- 生产 `6ff2740`（`RelicQuickAction.kt` blob `a22bbe984569ff5257eb4a24ae7774d66b7d8536`）统一从权威容量读取候选，不改物理拾取/奖励/模型选择；测试 `d1cf2ef`（`RelicQuickActionTest.kt` blob `7443a565417f6952a87a1db922fe2bb06e180a7a`）覆盖原 8 格已满、升级后拾取两格稀有实物、方向键与地图候选、实际入包、存档复进及无升级拒绝，避免只改文字。
+- 当前仅确认源码与测试提交 main；最新 main push 的 JVM/APK/index 结果仍需按实际 head_sha 核实，真机 360/412dp 横屏点击、帧率、动画和真实模型独立待验。下一文件：`RelicQuickActionTest.kt` 的 CI 首错、`RelicEscapeScreen.kt` 满包/升级背包触控反馈。
