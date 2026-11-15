@@ -37,9 +37,18 @@ object ProactiveIncomingCallStore {
 
     @Synchronized
     fun initialize(context: Context) {
-        application = context.applicationContext
-        if (prefs != null) return
-        prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentApplication = context.applicationContext
+        if (prefs != null && application === currentApplication) return
+        // A long-lived runtime Store must not mix a new application's
+        // notification context with the previous application's pending-call
+        // preferences. Restore only offers actually saved by this application.
+        if (prefs != null) {
+            com.jiacimu.lulu.LuluCallRingtone.stopIncoming()
+            mutablePending.value = null
+            resolvedTaskCalls.clear()
+        }
+        application = currentApplication
+        prefs = currentApplication.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePending.value = decode(prefs?.getString(KEY_PENDING, null))
         if (mutablePending.value?.active() == false) reconcileExpired()
         mutablePending.value?.let { call -> com.jiacimu.lulu.LuluCallRingtone.startIncoming(context, call.conversationId + ":" + call.createdAt.toEpochMilli(), java.time.Duration.between(java.time.Instant.now(), call.expiresAt).toMillis()) }
