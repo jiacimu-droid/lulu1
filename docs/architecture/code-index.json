@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:40:14.505139+00:00",
-  "commit": "22ceaecace1e785477077335a7e749cdc19af4af",
+  "generatedAt": "2026-11-15T09:41:04.549894+00:00",
+  "commit": "a679b4c13423707496c78a45257e8735c990e564",
   "branch": "main",
-  "sourceFingerprint": "bfb3d783cd88220f667584544d341ee60b4650a69906ab7d74a7bb4cdccad955",
+  "sourceFingerprint": "4ce4edbd0abbee728c33d168f26b4a668303cfa869262e6565ea98c504fc380e",
   "summary": {
-    "files": 1331,
-    "lines": 283588,
-    "symbols": 3999
+    "files": 1332,
+    "lines": 283673,
+    "symbols": 4002
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -54,6 +54,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
         "line": 69
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
+        "line": 13
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
@@ -2244,6 +2248,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
         "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
+        "line": 14
       }
     ],
     "toggleSelfCamera": [
@@ -2434,6 +2442,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 194
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -5511,19 +5523,19 @@
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 207
+        "line": 210
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 223
+        "line": 226
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 226
+        "line": 229
       }
     ],
     "ScopedModelSelections": [
@@ -14381,11 +14393,11 @@
     "dist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 114
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 208
+        "line": 214
       }
     ],
     "partyFor": [
@@ -27032,8 +27044,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 230,
-      "sha256": "b823ae97c5275fd9e2ab5d41544b30be2e0430aa32a5b0e8a6513dece683fb5c",
+      "lines": 233,
+      "sha256": "d368a7f60b7f3a3b06e4b43d1a514357389f94e6d18e95b575a1207219f7cabf",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -27057,15 +27069,15 @@
         },
         {
           "name": "compactSectionPairs",
-          "line": 207
+          "line": 210
         },
         {
           "name": "compactSections",
-          "line": 223
+          "line": 226
         },
         {
           "name": "savesEnough",
-          "line": 226
+          "line": 229
         }
       ]
     },
@@ -36316,8 +36328,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-      "lines": 273,
-      "sha256": "5e5f66c4c54097d1f3243fd59b29e41605f6c85ec777af8531c16ab39c0e525a",
+      "lines": 279,
+      "sha256": "62e5d3e3016398e616987bf107f5843742e46bce58915de02e12c8a935ae13d5",
       "symbols": [
         {
           "name": "play",
@@ -36333,11 +36345,11 @@
         },
         {
           "name": "dist",
-          "line": 114
+          "line": 120
         },
         {
           "name": "dist",
-          "line": 208
+          "line": 214
         }
       ]
     },
@@ -37999,6 +38011,25 @@
         {
           "name": "polygon",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
+      "lines": 75,
+      "sha256": "059cbff25fdd236f5fea647b97ce0e8ecce1f2c7322d49e367ea55d487093438",
+      "symbols": [
+        {
+          "name": "start",
+          "line": 13
+        },
+        {
+          "name": "frame",
+          "line": 14
+        },
+        {
+          "name": "read",
+          "line": 46
         }
       ]
     },
@@ -42290,8 +42321,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 269,
-      "sha256": "a8e521c797cb6b353dbeabccd1c10da09fcc9d96508fe211934d3f4f16c05877",
+      "lines": 270,
+      "sha256": "41b7c0d722eb6eb940a4241ba8c2cdd4a7728a021a394aefa2f7be24758d14df",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
