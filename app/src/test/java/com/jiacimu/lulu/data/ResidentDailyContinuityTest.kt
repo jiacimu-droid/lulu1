@@ -200,6 +200,7 @@ class ResidentDailyContinuityTest {
             app, from, receiver.id, "chat", now = now)
         assertFalse(blocked.success)
         assertTrue(blocked.summary.contains("targetCharacterId=$to"))
+        assertTrue(blocked.summary.contains("activityId=chat"))
         assertTrue(blocked.summary.contains("没有自动代发消息"))
         assertEquals(before, ResidentSocialMailbox.historyForInspection(to).size)
 
