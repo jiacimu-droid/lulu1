@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:55:13.520211+00:00",
-  "commit": "8a22acd78a0bac41b0dc33eabcd1e88c7a869c54",
+  "generatedAt": "2026-11-15T03:32:46.206943+00:00",
+  "commit": "0529628306d8e842b57926ce67f243c8526d53be",
   "branch": "main",
-  "sourceFingerprint": "1f0d42a4132d0191c03ceaf167447397fda67c2cacd40b3f58dc75e71313b588",
+  "sourceFingerprint": "33cd7e5ffc088141ba91dbaf963bf2082fd63dd563f32c9b3b59ce174447c7f5",
   "summary": {
     "files": 1327,
-    "lines": 281691,
+    "lines": 281706,
     "symbols": 3963
   },
   "symbolIndex": {
@@ -42800,8 +42800,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 412,
-      "sha256": "f75d98dba9ed6dcc060ae67574299f16e02980e2e3be699a0c8c8aa6107de986",
+      "lines": 420,
+      "sha256": "83467f05ec7fa9fad34743ab4a25036df0c42157a832af5af9a15329884b14d8",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
@@ -44476,8 +44476,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
-      "lines": 117,
-      "sha256": "50bcde8b3c4b1f1945f3857ed9fd75042ccc97ba48f86793ea224c54505bc6e1",
+      "lines": 124,
+      "sha256": "2977d3db176904922e71dc56356db2e84909541c76ff9f62902b81e6bc15e1e0",
       "symbols": [
         {
           "name": "MomentsOwnerUnreadIntegrationTest",
