@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:07:30.591072+00:00",
-  "commit": "75cf39feb73d08ae7685f2f737a269756d4366da",
+  "generatedAt": "2026-11-15T16:08:13.088498+00:00",
+  "commit": "4fc51c2f0d44377a776b66d802cbd3f081cb1f73",
   "branch": "main",
-  "sourceFingerprint": "3bed85940ea1bbd776f557c2645b8c2ff3caa874eb8d45844150e28ab142a67b",
+  "sourceFingerprint": "9dfb2f0c17e5d915690e51bc194ac37f72f28d2071a695e9be3454d63c2c6391",
   "summary": {
     "files": 1337,
     "lines": 285090,
@@ -23858,7 +23858,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
       "lines": 368,
-      "sha256": "48276078e75162f1f2aadad1a7ecc89fff81dddd5e96fe1fa22cc62b8e62be79",
+      "sha256": "6e6c708d6a863c377f550a9ff631c20d4c40319d8878e590375fbf79a3591b97",
       "symbols": [
         {
           "name": "sentAudioMillis",
@@ -42062,7 +42062,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
       "lines": 329,
-      "sha256": "d4973ff7af810c0691d7989311296e5231f0bb6ddc4a98c304b7c1f1ec1b0116",
+      "sha256": "7718862717b15fc03d9ebe4a34b9d078b97cbad461ab6bbee3e4c471512abef6",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",
