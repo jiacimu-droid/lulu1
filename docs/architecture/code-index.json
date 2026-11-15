@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:26:39.959674+00:00",
-  "commit": "264d2b3448baf6b1250d0bc6d36127639888a322",
+  "generatedAt": "2026-11-15T02:28:29.585649+00:00",
+  "commit": "690c80eb261bac10fb3af630217918393a29102a",
   "branch": "main",
-  "sourceFingerprint": "ead913cd026e4d49ac08186d5a001b15894f7884702b16692699d926ac2b2c55",
+  "sourceFingerprint": "b1d3360d9406dbf960e0060136197e984d57d939f28d1375fc361f427de35098",
   "summary": {
     "files": 1324,
-    "lines": 281278,
+    "lines": 281292,
     "symbols": 3957
   },
   "symbolIndex": {
@@ -5893,7 +5893,7 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 289
+        "line": 303
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -27129,8 +27129,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 398,
-      "sha256": "1ab2463be869af7da7077391593f6abf03241bdcebc80c5ddc8bb0e5c6cf6fd7",
+      "lines": 412,
+      "sha256": "c7d81245b3e43f4efc9a4d5481dd2dbae8bffb2bf7adc5e0ce16515c7e00f9bd",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -27138,7 +27138,7 @@
         },
         {
           "name": "normalize",
-          "line": 289
+          "line": 303
         }
       ]
     },
@@ -39943,8 +39943,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 352,
-      "sha256": "ca68bc047d830cf7cf5d479e2e9953bb669f2c1b113ef6987d4b9375583caf77",
+      "lines": 328,
+      "sha256": "04d536980e53b257635619784e1353689c7be6b9b0e181329150378da21db402",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
@@ -41982,8 +41982,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 400,
-      "sha256": "1a0eba3b55927e8269ae193a7f1797f7b68a5df2953faf3ce0471226ca51d3fb",
+      "lines": 424,
+      "sha256": "dfcae02879be8c0526c3ee27462b3f113165d9e81f6044a4384e5355f43ecd3e",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
