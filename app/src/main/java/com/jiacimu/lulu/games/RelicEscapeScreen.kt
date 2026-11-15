@@ -293,7 +293,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         val current = ledger.read().run
                         if (current == null || current.id != expectedId ||
                             !GameCoopPacing.relicHasPlan(current))
-                            false
+                            null
                         else {
                             val next = runCatching {
                                 ledger.perform("companion_tick",
@@ -306,8 +306,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                             if (next != null && after != null && after.id == expectedId &&
                                 after.turns > current.turns) {
                                 snapshot = next
-                                true
-                            } else false
+                                after
+                            } else null
                         }
                     }) { id,choice ->
                     var saved = false
