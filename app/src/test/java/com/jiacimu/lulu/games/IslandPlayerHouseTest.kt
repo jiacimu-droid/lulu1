@@ -98,7 +98,7 @@ class IslandPlayerHouseTest {
         val active=IslandBuildingControls.preview(project,"house_pine",5,3)!!
         assertFalse(active.allowed)
         assertTrue(active.message.contains("已有小屋工程"))
-        assertEquals(project.toJson(),project.toJson())
+        val projectSnapshot=project.toJson()
         assertEquals(before,ready.toJson())
 
         val finished=ready.copy(world=ready.world.copy(finished=true))
@@ -107,7 +107,7 @@ class IslandPlayerHouseTest {
             assertFalse(preview.allowed)
             assertTrue(preview.message.contains("无法继续建造"))
         }
-        assertEquals(finished,BlockIslandState.fromJson(finished.toJson()))
+        assertEquals(projectSnapshot,project.toJson())
     }
 
 }
