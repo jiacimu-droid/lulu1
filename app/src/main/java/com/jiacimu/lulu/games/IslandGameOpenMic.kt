@@ -42,6 +42,8 @@ internal class IslandGameOpenMic(
 
     private var playerSpeaking = false
     private var input: ProviderCallInput? = null
+    // A stopped session may still deliver queued STT callbacks after a new mic starts.
+    private var generation = 0
     // Cover audio already captured but not yet transcribed: a delayed cloud
     // partial must not let the world tick while the owner is still talking.
     val hasUncommittedSpeech: Boolean
@@ -59,26 +61,28 @@ internal class IslandGameOpenMic(
         val engine = CallVoiceConfiguration.sttEngine(context)
         val model = CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null))
         val mode = CallVoiceConfiguration.elevenInputPath(engine, model)
+        val sessionGeneration = ++generation
+        fun isCurrent() = active && generation == sessionGeneration
         val session = ProviderCallInput(
             context = context, scope = scope, sttEngine = engine,
             elevenPath = mode, elevenModel = model,
-            accept = { active && !playerSpeaking },
-            onReady = { scope.launch { if (active) status = "连麦中 · 直接说话" } },
+            accept = { isCurrent() && !playerSpeaking },
+            onReady = { scope.launch { if (isCurrent()) status = "连麦中 · 直接说话" } },
             onLevel = {},
-            onSpeech = { scope.launch { if (active) status = "正在听你说话…" } },
+            onSpeech = { scope.launch { if (isCurrent()) status = "正在听你说话…" } },
             onCaptureFinished = {},
-            onPartial = { text -> scope.launch { if (active) partial = text } },
+            onPartial = { text -> scope.launch { if (isCurrent()) partial = text } },
             onText = { text, _ ->
                 scope.launch {
-                    if (active && text.isNotBlank()) {
+                    if (isCurrent() && text.isNotBlank()) {
                         partial = ""
                         status = "已转写，伙伴正在听"
                         onUtterance(text)
                     }
                 }
             },
-            onStatus = { text -> scope.launch { if (active) status = text } },
-            onError = { text -> scope.launch { if (active) status = text } },
+            onStatus = { text -> scope.launch { if (isCurrent()) status = text } },
+            onError = { text -> scope.launch { if (isCurrent()) status = text } },
         )
         input = session
         active = true
@@ -97,6 +101,7 @@ internal class IslandGameOpenMic(
     }
 
     fun stop() {
+        ++generation
         active = false
         input?.stop()
         input = null
