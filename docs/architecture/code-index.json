@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:42:27.896473+00:00",
-  "commit": "28c48b9e74123ea54a5bbd0a98fcc811fb16a095",
+  "generatedAt": "2026-11-15T15:42:52.569209+00:00",
+  "commit": "9bfdca5ac3e54b96b7bf3023cb7f76da1a8a1a61",
   "branch": "main",
-  "sourceFingerprint": "3cb5fa9bf9ae3b1d858d0092371ad5a82109202b326b93057dda8b32ebb2b39a",
+  "sourceFingerprint": "85d9e41362e7300d693182b8eea9f93fbab6ebd5d3832c00fb7f0035b53a391c",
   "summary": {
     "files": 1335,
-    "lines": 284737,
+    "lines": 284722,
     "symbols": 4014
   },
   "symbolIndex": {
@@ -14301,13 +14301,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1148
+        "line": 1133
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1303
+        "line": 1288
       }
     ],
     "persistMatch": [
@@ -36277,8 +36277,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1349,
-      "sha256": "82573a50d8dadd0c907d149989efc1af6460bcd23c561d57530f9468dfe7342a",
+      "lines": 1334,
+      "sha256": "ae75cc811df7072ee6aa957bd0ab74c69eadeec509e332036b90e6414ead0fde",
       "symbols": [
         {
           "name": "playSound",
@@ -36294,11 +36294,11 @@
         },
         {
           "name": "dot",
-          "line": 1148
+          "line": 1133
         },
         {
           "name": "targetFor",
-          "line": 1303
+          "line": 1288
         }
       ]
     },
