@@ -20,6 +20,53 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ResidentDailyContinuityTest {
+
+    @Test fun residentExchangeStepsRequireRealInteractionTypeBeforeDispatch() {
+        val now = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val args = JSONObject().put("worldAction", "interact_resident")
+            .put("itemId", "actual-resident-id")
+        val step = JSONObject().put("tool", "digital_world_action").put("args", args)
+        val day = JSONObject().put("lunch", "home").put("evening", "courtyard")
+            .put("steps", JSONArray().put(step))
+        val due = JSONObject().put("choice", "execute").put("steps", JSONArray().put(step))
+        assertTrue(ResidentDailyDecision.dayContractError(day, now).orEmpty().contains("activityId"))
+        assertTrue(ResidentDailyDecision.dueContractError(due, now).orEmpty().contains("activityId"))
+
+        args.put("activityId", "invented_action")
+        assertTrue(ResidentDailyDecision.dayContractError(day, now).orEmpty().contains("activityId"))
+        args.put("activityId", "chat")
+        assertNull(ResidentDailyDecision.dayContractError(day, now))
+        assertNull(ResidentDailyDecision.dueContractError(due, now))
+
+        args.put("activityId", "share_text")
+        assertTrue(ResidentDailyDecision.dayContractError(day, now).orEmpty().contains("text"))
+        args.put("text", "这是我自己写的文字")
+        assertNull(ResidentDailyDecision.dayContractError(day, now))
+        args.put("activityId", "continue_episode")
+        assertTrue(ResidentDailyDecision.dayContractError(day, now).orEmpty().contains("incidentId"))
+        args.put("incidentId", "real-episode-id")
+        assertNull(ResidentDailyDecision.dayContractError(day, now))
+
+        args.remove("itemId")
+        assertTrue(ResidentDailyDecision.dayContractError(day, now).orEmpty().contains("itemId"))
+    }
+
+    @Test fun residentAgendaNeverSchedulesAnUnspecifiedExchangeType() {
+        val now = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val args = JSONObject().put("worldAction", "interact_resident")
+            .put("itemId", "actual-resident-id")
+        val row = JSONObject().put("at", "14:00").put("title", "找居民聊天")
+            .put("intent", "想跟对方聊聊今天的见闻")
+            .put("activityAction", "digital_world_action").put("activityArgs", args)
+        val decision = JSONObject().put("lunch", "home").put("evening", "courtyard")
+            .put("agenda", JSONArray().put(row))
+        assertTrue(ResidentDailyDecision.dayContractError(decision, now).orEmpty().contains("activityId"))
+        args.put("activityId", "chat")
+        assertNull(ResidentDailyDecision.dayContractError(decision, now))
+    }
+
     // The production world has a deliberate twelve-resident limit. These
     // Robolectric cases must not consume one another's persistent residents:
     // isolate ONLY the test world's expansion fixture and restore it afterward.
