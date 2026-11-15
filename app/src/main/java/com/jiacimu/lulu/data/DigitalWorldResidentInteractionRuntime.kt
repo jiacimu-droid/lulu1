@@ -41,6 +41,9 @@ internal object DigitalWorldResidentInteractionRuntime {
             val resident = DigitalWorldExpansionStore.residentsAt(location).firstOrNull { it.id == residentId }
                 ?: error("居民不在当前地点，不能隔空交流")
             val nativeId = ResidentCharacterBridge.characterId(resident.id)
+            // The resident's real phone identity must exist before contact
+            // permissions are evaluated, including when they are asleep.
+            ResidentCharacterBridge.sync(context, now)
             require(CompanionOnlineStore.residentIsAwake(context, nativeId, now)) {
                 // A face-to-face action was selected, not a letter. Do not
                 // silently send text, add a friend, or fake a native reply.
@@ -64,10 +67,8 @@ internal object DigitalWorldResidentInteractionRuntime {
             }.takeLast(3).joinToString("\n") { session ->
                 session.turns.takeLast(8).joinToString("\n") { "${it.speakerName}：${it.dialogue}" }
             }
-            // Each participant now reasons through their OWN role, identity,
-            // memory and inner life. The initiating role is not allowed to
-            // impersonate the native citizen's entire side of the conversation.
-            ResidentCharacterBridge.sync(context, now)
+            // Each participant reasons through their own role, identity,
+            // memory and inner life. The initiator never invents a native reply.
             if (episodeStep == null) {
                 AutonomousSocialRuntime.directedResidentInteraction(
                     context, characterId, nativeId, normalized, now)?.let { return@runCatching it }
