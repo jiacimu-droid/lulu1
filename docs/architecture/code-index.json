@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:41:01.782521+00:00",
-  "commit": "4d6cc15531200c0620549e477057ad35b1f47798",
+  "generatedAt": "2026-11-15T15:41:23.440997+00:00",
+  "commit": "90a8916cb65e69499a6c8f881c20400ec8a0510c",
   "branch": "main",
-  "sourceFingerprint": "0664433a29f48b88216a6926fdf5b3ce79203a768277df7380f4f18037e09cc0",
+  "sourceFingerprint": "919ee1af21c59bd027052cc285cf15f68a08784689bc7e3d47d081cb0ec68f8e",
   "summary": {
-    "files": 1334,
-    "lines": 284692,
-    "symbols": 4013
+    "files": 1335,
+    "lines": 284713,
+    "symbols": 4014
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21852,6 +21852,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt",
         "line": 11
+      }
+    ],
+    "IslandSpeechBubbleTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandSpeechBubbleTest.kt",
+        "line": 8
       }
     ],
     "IslandTargetActionTest": [
@@ -46574,6 +46580,17 @@
         {
           "name": "IslandRareEventsTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandSpeechBubbleTest.kt",
+      "lines": 21,
+      "sha256": "822ba552c230925aa0bcea97619ba26a5936ec1ed3b79f9e56a0c0c2aafec260",
+      "symbols": [
+        {
+          "name": "IslandSpeechBubbleTest",
+          "line": 8
         }
       ]
     },
