@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T08:52:18.834493+00:00",
-  "commit": "d6ed579a7fa9df83d1e4196767814702c67edae8",
+  "generatedAt": "2026-11-15T09:25:42.457448+00:00",
+  "commit": "230bd7e90358a6bd1334052598f3cc30e80258c4",
   "branch": "main",
-  "sourceFingerprint": "3df2e13a10028cb16b6fbba2c62988039f8476c2e75d71dc377a396a7eda3f9f",
+  "sourceFingerprint": "c09461df95206f5a7a8f969610658474115081aef8c318075919826447c432ef",
   "summary": {
     "files": 1331,
-    "lines": 283428,
+    "lines": 283433,
     "symbols": 3998
   },
   "symbolIndex": {
@@ -5511,19 +5511,19 @@
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 202
+        "line": 207
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 218
+        "line": 223
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 221
+        "line": 226
       }
     ],
     "ScopedModelSelections": [
@@ -27026,8 +27026,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 225,
-      "sha256": "0a19f22a41fd8c4723df0b0d08f4549d1e9d97abfb394da0de9223de4fd52a78",
+      "lines": 230,
+      "sha256": "b823ae97c5275fd9e2ab5d41544b30be2e0430aa32a5b0e8a6513dece683fb5c",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -27051,15 +27051,15 @@
         },
         {
           "name": "compactSectionPairs",
-          "line": 202
+          "line": 207
         },
         {
           "name": "compactSections",
-          "line": 218
+          "line": 223
         },
         {
           "name": "savesEnough",
-          "line": 221
+          "line": 226
         }
       ]
     },
