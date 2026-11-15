@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:32:14.205345+00:00",
-  "commit": "f4aef6d57c5887fc1009c0041f90b18c268faf02",
+  "generatedAt": "2026-11-15T04:33:02.856144+00:00",
+  "commit": "9a2a0b9d234df7ea8bb8172e5be7c313b00dfa66",
   "branch": "main",
-  "sourceFingerprint": "803bad85f4bc55fc78e4f7a59553c99c8a5affacc07561f0b4d49c0cf94fb850",
+  "sourceFingerprint": "00066cc367becce2cde91044fe0d004114f8533f36b5fbdafd9f1e1bd5041825",
   "summary": {
     "files": 1327,
-    "lines": 281952,
+    "lines": 281984,
     "symbols": 3971
   },
   "symbolIndex": {
@@ -39156,8 +39156,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1328,
-      "sha256": "225b8c5948835185f26e5645f309262f55ea8c020cedf8046470eb3aaef29534",
+      "lines": 1333,
+      "sha256": "8b1a40e4c36858666321a0eb26e14df87aeaa131c1b4ac8d2804f2a6e5e0c91b",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -46856,8 +46856,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-      "lines": 72,
-      "sha256": "81c3a6ed0418f357d1302d2f82f9536d25fa47ce392ce1bf109ae054ef78e969",
+      "lines": 99,
+      "sha256": "a7a888b26c59e002f73950042d98293e9986d4f7ac2a5a894b201df024f8cb53",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
