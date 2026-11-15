@@ -79,7 +79,7 @@ internal object RelicCombatSkills {
 
     fun professionAvailable(s:RelicRun):Boolean {
         if(s.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
-            s.turns<s.professionReadyTurn)return false
+            s.professionCharges<=0 || s.turns<s.professionReadyTurn)return false
         return when(s.profession) {
             RelicProfession.GUARDIAN->true
             RelicProfession.MEDIC->s.hero.hp<10
@@ -88,6 +88,7 @@ internal object RelicCombatSkills {
     }
 
     fun professionHint(s:RelicRun):String=when {
+        s.professionCharges<=0->"本局职业技能次数已用完"
         s.turns<s.professionReadyTurn->"职业技能冷却 ${s.professionReadyTurn-s.turns} 回合"
         s.profession==RelicProfession.MEDIC->"满血时无需急救"
         s.profession==RelicProfession.SCOUT->"附近迷雾都已探明"
