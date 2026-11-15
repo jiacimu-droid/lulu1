@@ -90,6 +90,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         }
     }
     var showTactics by remember(run?.id){mutableStateOf(false)}
+    var combatPrompt by remember(run?.id){mutableStateOf("")}
     var showGuide by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(true)}
     var showAlbum by remember{mutableStateOf(false)}
@@ -149,6 +150,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             }
         }
         if(before!=snapshot.run?.turns) {
+            combatPrompt=""
             val sound=when(effectiveType) {
                 "open"->when(tier){
                     RelicTier.COMMON->GameSoundEffect.Interact
@@ -318,6 +320,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                             color=relicGreen,fontSize=10.sp,maxLines=1)
                     }
                 }
+                if(combatPrompt.isNotBlank()) Text("⚔ "+combatPrompt,
+                    color=relicGold,fontSize=11.sp,maxLines=2)
                 if(alarmActive && showTactics)
                     Text("警戒钟楼仍在运作 · 找到后可花1工具拆除，否则搜刮高品级宝箱会招来追兵",
                         color=relicRed,fontSize=10.sp,maxLines=2)
@@ -495,7 +499,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         },color=relicMuted,fontSize=10.sp,maxLines=2)
                     }
                 }
-                val attackTarget = relicAttackTarget(run, selected)
+                val attackTarget = relicAttackButtonTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
                     .sortedWith(compareByDescending<RelicMob> { it.windup }
@@ -524,12 +528,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if (run != null && run.phase in setOf(
                     RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero=run.hero
-                val attackTarget=relicAttackTarget(run,selected)
+                val attackTarget=relicAttackButtonTarget(run,selected)
                 val chest=RelicChestPresentation.actionableChest(run,selected)
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
-                    GameHudQuickAction("攻击",relicGold,attackTarget!=null,
-                        Modifier.weight(1f)) {
-                        attackTarget?.let { action("attack",it.x,it.y) }
+                    GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击",
+                        relicGold,run.phase!=RelicPhase.DOWNED,Modifier.weight(1f)) {
+                        if(attackTarget!=null) action("attack",attackTarget.x,attackTarget.y)
+                        else combatPrompt=relicAttackHint(run,selected)
                     }
                     GameHudQuickAction(chest?.let {
                         "开箱 "+(run.chestProgress[it.id] ?: 0)+"/"+RelicEscapeRules.openSteps(it)
