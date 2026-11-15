@@ -228,7 +228,7 @@ class ScribeRealtimeTransportTest {
             wire.receive("committed_transcript", "先说这句")
             pumpUntil { recognizer.hasPendingUtterance }
             wire.receive("partial_transcript", "再说这句")
-            pumpUntil { recognizer.hasPendingUtterance }
+            pumpUntil { partials.any { it.contains("再说这句") } }
             recognizer.finishCaptureOnMute { drained = true; recognizer.stop() }
             assertTrue(JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!).getBoolean("commit"))
             pumpUntil { drained }
