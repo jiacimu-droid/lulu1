@@ -38,9 +38,9 @@ internal object OnlineExpiryUnfinishedWork {
             // failed request. Only later evidence for the SAME request may
             // supersede its earlier receipt. Legacy receipts without IDs
             // remain distinct rather than inventing a shared task identity.
-            }.distinctBy { (_, attempt, _) ->
+            }.distinctBy { (tool, attempt, _) ->
                 attempt.optString("requestId").takeIf(String::isNotBlank)
-                    ?.let { id -> "request:$id" }
+                    ?.let { id -> "tool:$tool/request:$id" }
                     ?: "legacy:${attempt.toString()}"
             }
             // A later result for the same request supersedes its earlier
