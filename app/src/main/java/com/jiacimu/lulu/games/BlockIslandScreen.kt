@@ -310,7 +310,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         secondaryLabel = "饱食",
         compactStatus = true,
         compactSummary = "❤ ${world.hp}/12 · 饱 ${island.hunger}/10",
-        toolsLabel = "☰ 行囊 / 更多",
+        resourceSummary = "木 ${world.wood} · 石 ${world.stone} · 果 ${island.fruit} · 鱼 ${island.fish} · 晶 ${island.crystals}",
+        toolsLabel = "☰ 地图 / 行囊",
+        toolsFromTop = true,
+        companionCenterBottom = true,
         helpAction = { islandGuideTab = "入门"; showIslandGuideDialog = true },
         closeToolsSignal = dismissToolsVersion,
         notice = if (activeGuardian != null &&
