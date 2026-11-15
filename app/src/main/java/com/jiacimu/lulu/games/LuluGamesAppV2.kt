@@ -661,32 +661,87 @@ private fun MemoryMatchReplayScene(replay: MemoryReplayMatch, step: Int, score: 
 
 @Composable
 private fun YachtReplayScene(rounds: List<YachtReplayTurn>, step: Int, score: Int) {
+    // Three actual dice rolls per scoring category, not one textual row per round.
     val index = (step - 1).coerceAtLeast(0)
-    val round = rounds.getOrNull(index)
-    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (round == null) {
-            Text("13轮结束 · 总分 $score", style = MaterialTheme.typography.titleLarge)
-            Text("从第一轮开始回看每次投掷与计分结果。", color = LuluColors.Muted)
-        } else {
-            Text("第${index + 1}轮 · ${round.category}", style = MaterialTheme.typography.titleMedium)
-            round.rolls.forEachIndexed { rollIndex, dice ->
-                Text("第${rollIndex + 1}掷", color = LuluColors.Muted, fontSize = 12.sp)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    dice.forEach { pip ->
-                        Surface(
-                            modifier = Modifier.weight(1f).aspectRatio(1f),
-                            color = LuluColors.Card,
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, LuluColors.Border),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(pip.toString(), fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
+    val roundIndex = index / 3
+    val rollIndex = index % 3
+    val round = rounds.getOrNull(roundIndex)
+    val completedRounds = if (round == null) rounds.size
+        else roundIndex + if (rollIndex == 2) 1 else 0
+    val total = rounds.getOrNull(completedRounds - 1)?.total ?: 0
+    Column(
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            if (round == null) "13轮已完成 · 本局 ${score} 分"
+            else "第${roundIndex + 1}/13轮 · 第${rollIndex + 1}/3掷",
+            style = MaterialTheme.typography.titleLarge,
+        )
+        if (round != null) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                round.rolls[rollIndex].forEach { pip ->
+                    YachtReplayDie(pip, Modifier.weight(1f).aspectRatio(1f))
+                }
+            }
+            Text(
+                if (rollIndex == 2) "选择「${round.category}」计 ${round.points} 分"
+                else "骰子已落定，尚未选择本轮计分栏",
+                color = LuluColors.Muted,
+            )
+        }
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = LuluColors.Card,
+            border = BorderStroke(1.dp, LuluColors.Border),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("真实计分表", fontWeight = FontWeight.Bold)
+                    Text("合计 ${total} 分", fontWeight = FontWeight.Bold)
+                }
+                rounds.forEachIndexed { scoredIndex, saved ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("${scoredIndex + 1}. ${saved.category}",
+                            color = if (scoredIndex < completedRounds) MaterialTheme.colorScheme.onSurface
+                                else LuluColors.Muted, fontSize = 12.sp)
+                        Text(if (scoredIndex < completedRounds) "+${saved.points}" else "—",
+                            fontWeight = if (scoredIndex < completedRounds) FontWeight.SemiBold else FontWeight.Normal,
+                            fontSize = 12.sp)
                     }
                 }
             }
-            Text("选了${round.category} · 本轮 +${round.points} 分 · 累计 ${round.total} 分", fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/** The actual five dice faces, drawn locally without networking or AI calls. */
+@Composable
+private fun YachtReplayDie(value: Int, modifier: Modifier = Modifier) {
+    val positions = when (value) {
+        1 -> listOf(.5f to .5f)
+        2 -> listOf(.25f to .25f, .75f to .75f)
+        3 -> listOf(.25f to .25f, .5f to .5f, .75f to .75f)
+        4 -> listOf(.25f to .25f, .75f to .25f, .25f to .75f, .75f to .75f)
+        5 -> listOf(.25f to .25f, .75f to .25f, .5f to .5f,
+            .25f to .75f, .75f to .75f)
+        else -> listOf(.25f to .23f, .75f to .23f, .25f to .5f,
+            .75f to .5f, .25f to .77f, .75f to .77f)
+    }
+    Surface(
+        modifier = modifier,
+        color = Color(0xFFFCF8EE),
+        border = BorderStroke(1.dp, Color(0xFFC0B5A1)),
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 3.dp,
+    ) {
+        Canvas(Modifier.fillMaxSize().padding(7.dp)) {
+            val radius = size.minDimension * .095f
+            positions.forEach { (x, y) ->
+                drawCircle(Color(0xFF30435B), radius,
+                    center = Offset(size.width * x, size.height * y))
+            }
         }
     }
 }
