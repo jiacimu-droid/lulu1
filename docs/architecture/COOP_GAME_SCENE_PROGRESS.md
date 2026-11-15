@@ -317,3 +317,9 @@
 正式 RelicEscapeScreen.kt 原先仅在开局初始化 selected 为主角格。方向键移动后 selected 仍停旧坐标，先前仅主角格允许自动近敌攻击的修复因此会误禁用正常快捷攻击。现在仅在 ledger 成功提交 move 且主角实际改变位置时，使用 relicSelectionAfterMove 将原本指向旧主角格的隐式光标移动到新主角格；手动点选的其他目标保持不变，失败移动不移动光标。
 
 生产 RelicQuickAction.kt commit f0c5bbed / blob c8d1f0f4；RelicEscapeScreen.kt commit c47f885b / blob ab0d0eb2；测试 RelicQuickActionTest.kt commit b8453c56 / blob ec59e9ca。回归覆盖成功移动、手动目标保持、未移动不变、真实近敌攻击。测试提交的 main push Actions 查询返回零项，JVM/APK/index 未确认通过；真机横屏、帧率、美术和模型协作仍待验。下一入口：按 b8453c56 或后继 main push SHA 查 testPhoneUnitTest/assemblePhone/index 首错，再实测方向键移动后的攻击键和目标光标。
+
+## 2026-11-15 G-03.5 · 显式地图目标不再误操作另一只宝箱（CI 待验）
+
+- 根因：`relicNearbyAction` 在地图光标明确选中远处/空格时，若该格没有可执行互动，仍回退到摇杆朝向并自动撬开另一只邻近宝箱；玩家按中心键会操作并非自己选中的实体。`144f372d251252ce28187f28c41552e96b134fed` 修复：选中合法近处实体仍执行原动作；明确选中无效非主角格时中心键禁用，不改选邻箱；光标位于主角格时继续提供方向键快捷互动。实物生成/掉率/回合/角色决策仍归原规则。生产 `RelicQuickAction.kt` blob `f1aef49dc624dff8854336c2d0b1bd9e1501ffc7`。
+- `19141acfbf165ae3b809350cf640b2b3ae808dac` 新增 `RelicQuickActionTest.explicitUnreachableSelectionNeverOpensDifferentAdjacentChest`，覆盖远处/空地不重定向、回到主角格恢复方向互动、显式点中邻箱仍可互动、未实际提交动作时箱子/撬锁进度不变；测试 blob `ab465fdaeb97cf4ca5b164f9fec354b113b025f0`。
+- 新测试 SHA 的 Actions `Refresh code index` #43665148848 查询时 queued，Lulu APK/JVM 需继续按 head_sha 取实际结果，不得把索引或旧成功当作新 APK 绿；真机 360/412dp 横屏、触控、帧率、美术与真实模型仍待验。下一实际文件：`RelicEscapeScreen.kt` 中 `GameDirectionalPad` 中心按钮在光标显式选中无效目标时的禁用提示与真机点击；先核 `RelicQuickActionTest` 的 JVM 首错。
