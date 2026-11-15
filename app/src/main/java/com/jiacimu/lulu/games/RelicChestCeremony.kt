@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -100,6 +101,7 @@ internal fun RelicChestCeremony(
     progress: Float,
     onFinished: () -> Unit,
 ) {
+    BackHandler(onBack = onFinished)
     var displayYaw by remember(receipt.runId, receipt.chestId) { mutableFloatStateOf(0f) }
     val frame = RelicRevealTimeline.at(progress)
     val reveal = frame.jewelReveal
