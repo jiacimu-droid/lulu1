@@ -42,7 +42,7 @@ internal fun IslandCompanionPanel(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
-    var voice by rememberSaveable { mutableStateOf(prefs.getBoolean("voice",false)) }
+    var voice by rememberSaveable { mutableStateOf(prefs.getBoolean("voice",true)) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var teamInbox by rememberSaveable(island.world.seed, stateSaver = islandTeamInboxSaver) {
         mutableStateOf(IslandTeamInbox())
@@ -187,24 +187,46 @@ internal fun IslandCompanionPanel(
         Column(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=5.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(if (thinking) "伙伴正在看局势…" else if (autonomous) "队伍频道" else "伙伴操作已暂停",
+                Text(if (thinking) "伙伴思考中…" else if (autonomous) "伙伴频道" else "伙伴已暂停",
                     color=Color.White,fontWeight=FontWeight.Bold,fontSize=12.sp,modifier=Modifier.weight(1f))
                 IconButton(onClick={ voice=!voice; prefs.edit().putBoolean("voice",voice).apply()
                     speaker.setEnabled(voice) },modifier=Modifier.size(34.dp)) {
                     Icon(if(voice)Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
                         if(voice)"关闭伙伴语音" else "开启伙伴语音",tint=Color.White,modifier=Modifier.size(18.dp))
                 }
-                IconButton(onClick={speaker.stop();microphone()},modifier=Modifier.size(34.dp)) {
-                    Icon(Icons.Outlined.Mic,"跟伙伴说话",tint=Color.White,modifier=Modifier.size(18.dp))
+                Surface(onClick={speaker.stop();microphone()},
+                    color=Color(0xFFA9E5BD),shape=RoundedCornerShape(10.dp)) {
+                    Row(Modifier.padding(horizontal=8.dp,vertical=7.dp),
+                        verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Outlined.Mic,"点按录音识别",tint=Color(0xFF17342F),
+                            modifier=Modifier.size(18.dp))
+                        Text("说话",fontSize=11.sp,fontWeight=FontWeight.Bold,
+                            color=Color(0xFF17342F))
+                    }
                 }
                 TextButton(onClick={ expanded=!expanded },contentPadding=PaddingValues(4.dp)) {
-                    Text(if(expanded)"收起" else "聊天",color=Color(0xFFBDE4D5),fontSize=11.sp)
+                    Text(if(expanded)"收起" else "更多",color=Color(0xFFBDE4D5),fontSize=11.sp)
                 }
             }
-            Text(if (voice) "🎙 轻点麦克风说话；角色会按本人的音色回应"
-                else "🎙 点麦克风对角色说话 · 点扬声器开启角色有声回应",
+            Text(if (voice) "轻点「说话」跟伙伴交流 · 角色会有声回应"
+                else "轻点「说话」交流 · 开扬声器听伙伴回应",
                 fontSize=10.sp, color=Color(0xFFADCFBF), maxLines=2)
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                // New chat is immediate; saved factual world events still reappear after rotation.
+                val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(if(expanded)3 else 1)
+                    else island.world.events.filter { it.startsWith("队友[") }.takeLast(if(expanded)2 else 1)
+                teamFeed.forEach { line ->
+                    Surface(
+                        color = Color(0xFF254752), shape = RoundedCornerShape(13.dp),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = .06f)),
+                    ) {
+                        Text(line, modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            color = Color(0xFFE7F9F0), fontSize = 11.sp, lineHeight = 16.sp,
+                            maxLines = if(expanded) 5 else 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    }
+                }
+            if (expanded) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 island.world.friends.forEach { friend ->
                     val name=MigratedDomainStores.characters.get(friend.id).displayName
@@ -287,18 +309,6 @@ internal fun IslandCompanionPanel(
                         "${teamInbox.messages.size} 条队伍消息待确认 · 模型失败时保留，下一次行动或发言会继续投递",
                         color = Color(0xFFEFD3A6), fontSize = 11.sp, lineHeight = 16.sp,
                     )
-                }
-                // New chat is immediate; saved factual world events still reappear after rotation.
-                val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(if(expanded)3 else 1)
-                    else island.world.events.filter { it.startsWith("队友[") }.takeLast(if(expanded)2 else 1)
-                teamFeed.forEach { line ->
-                    Surface(
-                        color = Color(0xFF254752), shape = RoundedCornerShape(13.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = .06f)),
-                    ) {
-                        Text(line, modifier = Modifier.fillMaxWidth().padding(10.dp),
-                            color = Color(0xFFE7F9F0), fontSize = 12.sp, lineHeight = 18.sp)
-                    }
                 }
                 if(expanded) Text("聊天选择游戏模型；朗读使用此人物已配置的语音服务。选择收费音色时会按次计费，关闭则不合成。",
                     color = Color(0xFF95BEB4), fontSize = 10.sp, lineHeight = 15.sp)
