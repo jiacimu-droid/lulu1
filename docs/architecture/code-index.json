@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:28:17.033197+00:00",
-  "commit": "fb2b93b8afc5886a7b62598735b03a0b9a3c0980",
+  "generatedAt": "2026-11-15T15:33:17.680528+00:00",
+  "commit": "9e22dfcf9a12d42624989132a818f7ff842c4542",
   "branch": "main",
-  "sourceFingerprint": "a621f72888f210a2cc3cd8b8b426308bd7ab965093fef10c2a459cf3f9df5d33",
+  "sourceFingerprint": "17eaed74ce0a5c0d8203b3486d98f4223ef039dab9a84ca9b9f0d6dedd8902a6",
   "summary": {
     "files": 1333,
-    "lines": 284392,
-    "symbols": 4007
+    "lines": 284408,
+    "symbols": 4008
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -125,7 +125,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 51
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
@@ -1173,7 +1173,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 58
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
@@ -1841,7 +1841,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 106
+        "line": 120
       }
     ],
     "split": [
@@ -3063,7 +3063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 38
+        "line": 52
       }
     ],
     "setBlocked": [
@@ -14578,10 +14578,16 @@
         "line": 59
       }
     ],
+    "setSpeakingListener": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+        "line": 39
+      }
+    ],
     "setForeground": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 49
+        "line": 63
       }
     ],
     "position": [
@@ -36763,28 +36769,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-      "lines": 135,
-      "sha256": "159fbd82cefcccfaf71ca3f350e3c0a6c4f9343a567ae292041d6836f901d565",
+      "lines": 151,
+      "sha256": "6ff0634c5cbf661900f7936c2477916cf8dbe5b12848b7ab7b1c78b6b02432a1",
       "symbols": [
         {
+          "name": "setSpeakingListener",
+          "line": 39
+        },
+        {
           "name": "setEnabled",
-          "line": 38
+          "line": 52
         },
         {
           "name": "setForeground",
-          "line": 49
+          "line": 63
         },
         {
           "name": "stop",
-          "line": 51
+          "line": 65
         },
         {
           "name": "enqueue",
-          "line": 58
+          "line": 72
         },
         {
           "name": "close",
-          "line": 106
+          "line": 120
         }
       ]
     },
