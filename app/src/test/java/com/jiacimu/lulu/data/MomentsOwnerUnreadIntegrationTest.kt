@@ -33,6 +33,13 @@ class MomentsOwnerUnreadIntegrationTest {
         val now = Instant.now()
         val sources = (1..10).map { "post-urge-integration-${UUID.randomUUID()}" }
         sources.forEach { source ->
+            // Audit only exposes experiences with a real source event.
+            // This test exercises actual MomentsStore publishing, so its
+            // input experiences must be backed by the same timeline as prod.
+            SharedExperienceTimeline.record(source, character, "真实生活", "实际观察",
+                "一次已核实的独立生活经历", now.minusSeconds(120),
+                triggerExtraction = false, source = "verified-life",
+                evidenceKind = EventEvidenceKind.Observation)
             assertTrue(CharacterLifeFollowThroughStore.register(
                 character, source, "真实生活", "一次已核实的独立生活经历",
                 now.minusSeconds(120)))
