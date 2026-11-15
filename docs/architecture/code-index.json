@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:00:33.768747+00:00",
-  "commit": "88c695406e677347271034146e5f13bd6da176c0",
+  "generatedAt": "2026-11-15T16:02:57.209120+00:00",
+  "commit": "0c183caca57245b090df8b1a63408fa28cab6bd3",
   "branch": "main",
-  "sourceFingerprint": "904e43b7b399fd3a494ce7f7c7d88e2e3874914893743ed7563120437f9e029d",
+  "sourceFingerprint": "22d3c9f2151552c36e94788c8c0ea75e30506297c8a79bd5a6022a4c987bc0ef",
   "summary": {
-    "files": 1336,
-    "lines": 284772,
-    "symbols": 4015
+    "files": 1337,
+    "lines": 284819,
+    "symbols": 4020
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14478,6 +14478,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
         "line": 132
+      }
+    ],
+    "canTick": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 14
+      }
+    ],
+    "islandHasPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 24
+      }
+    ],
+    "relicHasPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 33
+      }
+    ],
+    "islandThreat": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 39
+      }
+    ],
+    "relicThreat": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 42
       }
     ],
     "recordPartyJoined": [
@@ -36606,6 +36636,33 @@
       "lines": 156,
       "sha256": "491da44221cc928c75e70820a6356af6ad85680c5c440673dd6ffddc5fe8abc9",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+      "lines": 47,
+      "sha256": "fda777e1d3e74288041a522b6335481c4879cdc9edfdde5256919ec48a5b9560",
+      "symbols": [
+        {
+          "name": "canTick",
+          "line": 14
+        },
+        {
+          "name": "islandHasPlan",
+          "line": 24
+        },
+        {
+          "name": "relicHasPlan",
+          "line": 33
+        },
+        {
+          "name": "islandThreat",
+          "line": 39
+        },
+        {
+          "name": "relicThreat",
+          "line": 42
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
