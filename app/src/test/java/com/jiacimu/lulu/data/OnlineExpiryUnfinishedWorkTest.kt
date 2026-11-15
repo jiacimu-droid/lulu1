@@ -117,6 +117,18 @@ class OnlineExpiryUnfinishedWorkTest {
         assertTrue(reminder.contains("状态=failed"))
     }
 
+    @Test fun rejectedToolGateReasonSurvivesWithoutNestedError() {
+        val rejected = receipt("background_phone", "waiting_user", 25)
+        val root = JSONObject(rejected.content)
+            .put("stage", "rejected")
+            .put("reason", "独立屏幕授权已撤销")
+            .put("result", JSONObject().put("status", "waiting_user").toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(
+            listOf(rejected.copy(content = root.toString())), now)
+        assertTrue(reminder.contains("状态=waiting_user"))
+        assertTrue(reminder.contains("真实阻碍=独立屏幕授权已撤销"))
+    }
+
     @Test fun unrelatedOrStaleEventsDoNotReviveOldFailures() {
         val badSource = receipt("background_phone", "failed", 50)
             .copy(source = "legacy")
