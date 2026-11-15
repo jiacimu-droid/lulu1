@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T03:32:46.206943+00:00",
-  "commit": "0529628306d8e842b57926ce67f243c8526d53be",
+  "generatedAt": "2026-11-15T04:29:17.221380+00:00",
+  "commit": "f5a92385ec9ccfaf919ca8e2b3ac70639419a971",
   "branch": "main",
-  "sourceFingerprint": "33cd7e5ffc088141ba91dbaf963bf2082fd63dd563f32c9b3b59ce174447c7f5",
+  "sourceFingerprint": "544948d20852e42f64cc283999fa9a1e4063d05190116798be25e681d3553459",
   "summary": {
     "files": 1327,
-    "lines": 281706,
-    "symbols": 3963
+    "lines": 281768,
+    "symbols": 3967
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17282,10 +17282,34 @@
         "line": 29
       }
     ],
+    "isPressToTalk": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 39
+      }
+    ],
+    "ComposerBounds": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 44
+      }
+    ],
+    "ComposerControl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 53
+      }
+    ],
+    "voiceToTextControl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 64
+      }
+    ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 38
+        "line": 100
       }
     ],
     "canSendToRole": [
@@ -39777,8 +39801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 45,
-      "sha256": "931e7b454fedba93f21bcb6c84f7c993ea47e0ce7708b865dd45fc254bf9c566",
+      "lines": 107,
+      "sha256": "80c4e815d44d6870829b767b722246020215b2bed8497c2f3dc72e69c18b99f4",
       "symbols": [
         {
           "name": "isEnabled",
@@ -39797,8 +39821,24 @@
           "line": 29
         },
         {
+          "name": "isPressToTalk",
+          "line": 39
+        },
+        {
+          "name": "ComposerBounds",
+          "line": 44
+        },
+        {
+          "name": "ComposerControl",
+          "line": 53
+        },
+        {
+          "name": "voiceToTextControl",
+          "line": 64
+        },
+        {
           "name": "sendButton",
-          "line": 38
+          "line": 100
         }
       ]
     },
