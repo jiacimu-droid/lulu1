@@ -73,6 +73,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     var cameraFocus by remember(run?.id, run?.hero?.x, run?.hero?.y) {
         mutableStateOf<Pair<Int, Int>?>(null)
     }
+    // Per-run view only. Moving the hero resets the pan/zoom; no gameplay state is changed.
+    var viewPan by remember(run?.id, run?.hero?.x, run?.hero?.y) {
+        mutableStateOf(Offset.Zero)
+    }
+    var viewZoom by remember(run?.id) { mutableFloatStateOf(1f) }
     var confirmAbandon by remember{mutableStateOf(false)}
     var confirmRestart by remember{mutableStateOf(false)}
     var showRulesDialog by remember{mutableStateOf(false)}
@@ -262,7 +267,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
                     RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
                         focus = cameraFocus ?: (run.hero.x to run.hero.y),
-                         openingReceipt = openingReceipt, openingProgress = openingClock.value)
+                        openingReceipt = openingReceipt, openingProgress = openingClock.value,
+                        viewPan = viewPan, viewZoom = viewZoom,
+                        onViewChange = { delta, multiplier ->
+                            viewPan = Offset((viewPan.x + delta.x).coerceIn(-600f, 600f),
+                                (viewPan.y + delta.y).coerceIn(-600f, 600f))
+                            viewZoom = (viewZoom * multiplier).coerceIn(.75f, 1.75f)
+                        })
                 else RelicCampBackdrop()
             }
         },
@@ -321,6 +332,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                     Text(summary,color=relicGold,fontSize=11.sp,maxLines=1,
                         modifier=Modifier.weight(1f))
+                    if (viewPan != Offset.Zero || viewZoom != 1f) {
+                        TextButton(onClick = {
+                            viewPan = Offset.Zero; viewZoom = 1f; cameraFocus = null
+                        }, modifier = Modifier.height(36.dp),
+                            contentPadding = PaddingValues(horizontal = 5.dp)) {
+                            Text("视角复位", color = relicGreen, fontSize = 10.sp)
+                        }
+                    }
                     TextButton(onClick={showTactics=!showTactics},
                         modifier=Modifier.height(36.dp),
                         contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
