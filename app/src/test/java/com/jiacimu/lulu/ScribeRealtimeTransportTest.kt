@@ -176,7 +176,70 @@ class ScribeRealtimeTransportTest {
         }
     }
 
-    @Test fun muteWithOnlyProvisionalTextReportsFailureInsteadOfInventingFinal() {
+    @Test fun explicitMuteRecoversVisibleProvisionalWhenServerNeverCommits() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val turns = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+        var recovered = 0
+        var drained = false
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            onPartial = {}, onText = { turns += it }, onError = { errors += it },
+            onProvisionalMuteResult = { recovered++ },
+            socketFactory = wire)
+        try {
+            recognizer.start()
+            recognizer.audioFrame(ByteArray(3_200))
+            assertNotNull(wire.packets.poll(5, TimeUnit.SECONDS))
+            wire.receive("partial_transcript", "尚未确认")
+            pumpUntil { recognizer.hasPendingUtterance }
+            recognizer.finishCaptureOnMute { drained = true; recognizer.stop() }
+            assertTrue(JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!).getBoolean("commit"))
+            // The server never returned committed_transcript. An explicit mute
+            // may use already shown words; ordinary partials still cannot do so.
+            pumpUntil { drained }
+            assertEquals(listOf("尚未确认"), turns)
+            assertEquals(1, recovered)
+            assertTrue(errors.isEmpty())
+            assertTrue(wire.closed)
+            wire.receive("committed_transcript", "尚未确认")
+            shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+            assertEquals(1, turns.size)
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
+    @Test fun mutingAfterOneCommitKeepsTheStillProvisionalEnding() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val turns = mutableListOf<String>()
+        var recovered = 0
+        var drained = false
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            onPartial = {}, onText = { turns += it }, onError = { fail(it) },
+            onProvisionalMuteResult = { recovered++ }, socketFactory = wire)
+        try {
+            recognizer.start()
+            recognizer.audioFrame(ByteArray(3_200))
+            assertNotNull(wire.packets.poll(5, TimeUnit.SECONDS))
+            wire.receive("committed_transcript", "先说这句")
+            pumpUntil { recognizer.hasPendingUtterance }
+            wire.receive("partial_transcript", "再说这句")
+            pumpUntil { recognizer.hasPendingUtterance }
+            recognizer.finishCaptureOnMute { drained = true; recognizer.stop() }
+            assertTrue(JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!).getBoolean("commit"))
+            pumpUntil { drained }
+            assertEquals(listOf("先说这句再说这句"), turns)
+            assertEquals(1, recovered)
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
+    @Test fun serverFailureWhileMutedStillDeliversVisibleWords() {
         val wire = FakeWire()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         val turns = mutableListOf<String>()
@@ -189,15 +252,44 @@ class ScribeRealtimeTransportTest {
             recognizer.start()
             recognizer.audioFrame(ByteArray(3_200))
             assertNotNull(wire.packets.poll(5, TimeUnit.SECONDS))
-            wire.receive("partial_transcript", "尚未确认")
+            wire.receive("partial_transcript", "断网前已经显示的内容")
             pumpUntil { recognizer.hasPendingUtterance }
             recognizer.finishCaptureOnMute { drained = true; recognizer.stop() }
-            assertTrue(JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!).getBoolean("commit"))
-            // The server never returned committed_transcript; do not fabricate a message.
+            wire.listener.onFailure(wire, java.io.IOException("offline"), null)
             pumpUntil { drained }
-            assertTrue(turns.isEmpty())
-            assertTrue(errors.any { it.contains("最终文字") })
-            assertTrue(wire.closed)
+            assertEquals(listOf("断网前已经显示的内容"), turns)
+            assertTrue(errors.isEmpty())
+        } finally {
+            recognizer.stop()
+            scope.cancel()
+        }
+    }
+
+    @Test fun stalledV3PartialRequestsManualServerCommitWithoutPrematureModelTurn() {
+        val wire = FakeWire()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val turns = mutableListOf<String>()
+        val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
+            modelId = CallVoiceConfiguration.SCRIBE_V3_LIVE,
+            onPartial = {}, onText = { turns += it }, onError = { fail(it) },
+            socketFactory = wire)
+        try {
+            recognizer.start()
+            wire.receive("partial_transcript", "字幕先到了")
+            pumpUntil { recognizer.hasPendingUtterance }
+            wire.receive("partial_transcript", "字幕先到了") // Keepalive is not new speech.
+            shadowOf(Looper.getMainLooper()).idleFor(4, TimeUnit.SECONDS)
+            var flush: JSONObject? = null
+            repeat(4) {
+                val packet = wire.packets.poll(5, TimeUnit.SECONDS) ?: return@repeat
+                val candidate = JSONObject(packet)
+                if (candidate.optBoolean("commit")) flush = candidate
+            }
+            assertNotNull("Stalled v3 partial should request a server commit", flush)
+            assertTrue("Client may not send partial words to character", turns.isEmpty())
+            wire.receive("committed_transcript", "字幕先到了")
+            pumpUntil { turns.isNotEmpty() }
+            assertEquals(listOf("字幕先到了"), turns)
         } finally {
             recognizer.stop()
             scope.cancel()
