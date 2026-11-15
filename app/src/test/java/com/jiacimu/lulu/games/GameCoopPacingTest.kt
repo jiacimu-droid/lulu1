@@ -12,6 +12,19 @@ import org.robolectric.annotation.Config
 class GameCoopPacingTest {
     private val roster = setOf("alice", "bob")
 
+    @Test fun aPlannedTileNeverBillsUnrelatedIdleTeammates() {
+        val finished = setOf("alice")
+        assertTrue(GameCoopPacing.mayReplanAfterTick(7,7,"alice",finished,false))
+        assertFalse("bob has no new owner input and no completed plan",
+            GameCoopPacing.mayReplanAfterTick(7,7,"bob",finished,false))
+        assertTrue("player can redirect bob while alice is still walking",
+            GameCoopPacing.mayReplanAfterTick(7,7,"bob",finished,true))
+        assertTrue("an ordinary real player turn may resume normal decision",
+            GameCoopPacing.mayReplanAfterTick(8,7,"bob",finished,false))
+        assertFalse("a continuing planned route needs no extra Game-model call",
+            GameCoopPacing.mayReplanAfterTick(7,7,"alice",emptySet(),false))
+    }
+
     @Test fun idleClockRequiresAnActualChosenPlanAndAnActiveForeground() {
         val yes = GameCoopPacing.canTick(
             true, true, false, false, false, false)
