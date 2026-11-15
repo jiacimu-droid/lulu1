@@ -157,8 +157,8 @@ internal fun IslandCompanionPanel(
         // A continuing character-owned multi-turn plan is executed for free by
         // the world rules; do not purchase another decision at each planned tile.
         // A new player utterance still forces this same actor to reconsider it.
-        if (GameCoopPacing.islandHasPlan(readCurrentIsland(), autonomous) &&
-            members.all { unreadSnapshot.forRole(it).isEmpty() }) {
+        if (members.all { GameCoopPacing.islandMemberHasPlan(readCurrentIsland(), it) &&
+                unreadSnapshot.forRole(it).isEmpty() }) {
             lastRequestedTurn = expectedTurn
             lastRequestedSpeech = currentSpeech
             continue
@@ -176,7 +176,9 @@ internal fun IslandCompanionPanel(
                 val alreadyCompleted = snapshot.world.events.any {
                     it.startsWith(IslandActorPlay.eventPrefix(id, snapshot.world.turns))
                 }
-                if (alreadyCompleted && heard.isBlank()) continue
+                if ((alreadyCompleted ||
+                        GameCoopPacing.islandMemberHasPlan(snapshot, id)) &&
+                    heard.isBlank()) continue
                 // Generate a real decision from this role's own identity, the actual current
                 // board, and its own earlier game events. The configured Game model is reused.
                 val result = runCatching { IslandActorPlay.decide(snapshot, id, heard) }
