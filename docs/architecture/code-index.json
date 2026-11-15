@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:48:58.398475+00:00",
-  "commit": "2ad5ec1689dd21194bdc2ae322fdfdf0a675da0c",
+  "generatedAt": "2026-11-15T15:49:32.243974+00:00",
+  "commit": "41fd394e1d3b7514ca2fc01b32ebbfbad24de411",
   "branch": "main",
-  "sourceFingerprint": "aecf757a1369c7bd02011b22cd309961ac6592a655b2bae258e33be406ae71c4",
+  "sourceFingerprint": "b992ba0cdd8af5674a09b7655c4a4e0827111d999202bef16de55eec79e8303f",
   "summary": {
     "files": 1335,
-    "lines": 284735,
+    "lines": 284739,
     "symbols": 4014
   },
   "symbolIndex": {
@@ -36790,8 +36790,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 348,
-      "sha256": "df59455ea375819cdbc959ca66e21706badbf4b1edd68adbb3f0076210cb8e4e",
+      "lines": 352,
+      "sha256": "0ea385b8a0c85168f870594664022f4e53d3d7331577d0ee54e00c572735332a",
       "symbols": [
         {
           "name": "submitPlayerMessage",
