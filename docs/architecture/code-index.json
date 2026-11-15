@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:27:54.157972+00:00",
-  "commit": "b8ca4678d644e1b0e7afd6143f10be46175eb52a",
+  "generatedAt": "2026-11-15T15:28:17.033197+00:00",
+  "commit": "fb2b93b8afc5886a7b62598735b03a0b9a3c0980",
   "branch": "main",
-  "sourceFingerprint": "b10be4b699d4496872bed97f75cb2895f4d32171c01db10de3770f5a3772a64c",
+  "sourceFingerprint": "a621f72888f210a2cc3cd8b8b426308bd7ab965093fef10c2a459cf3f9df5d33",
   "summary": {
     "files": 1333,
-    "lines": 284372,
+    "lines": 284392,
     "symbols": 4007
   },
   "symbolIndex": {
@@ -46329,8 +46329,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt",
-      "lines": 36,
-      "sha256": "1452ae17af334774b6748e12d686d575b20790ebf4e24bb2d1158ed9174e3933",
+      "lines": 56,
+      "sha256": "ece68db22fd8b183a7352fa3d8fbbeda5ef96370a3fb4f697488d51523f1191d",
       "symbols": [
         {
           "name": "GameHudLayoutBudgetTest",
