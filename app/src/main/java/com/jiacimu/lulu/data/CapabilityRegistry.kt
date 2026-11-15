@@ -140,8 +140,9 @@ object CapabilityRegistry {
             appendLine("主人统一手机操作授权涵盖微信消息=" +
                 com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId) +
                 "；若已开启，可由本人自主选择是否在微信给谁发什么消息；必须先真实导航至唯一聊天对象，" +
-                "用最新screenSnapshotId调用send_chat_message并提供recipient和text。只有核实的" +
-                "聊天标题、非搜索输入框读回、发送按钮单次点击才会派发；点击不代表对方送达。" +
+                "用最新screenSnapshotId调用send_chat_message并提供recipient和整段text。" +
+                "微信若是按住说话模式，本机会核对左下键盘图标并一次切换文字模式，再整段输入并读回，" +
+                "无需逐字模型调用或截图；只有核实聊天标题、非搜索输入框读回、发送按钮后才单次派发，点击不等于送达。" +
                 "总授权未开启时请提出开启虚拟屏幕总授权，不要把一刀切禁发当成人物性格。")
             appendLine("主人统一手机操作授权涵盖购物导航=" +
                 com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId) +
@@ -160,7 +161,7 @@ object CapabilityRegistry {
             appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
                 "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
-                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/send_chat_message/back/stop；找不到或重名就报告，不能猜包名。" +
+                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/send_chat_message/back/stop；找不到或重名就报告，不能猜包名。微信已到真实收件人会话时，即使为按住说话模式也可由本人一次选定send_chat_message的收件人和全文，系统在同一次工具调用内核实并切换文字模式、全文写入与读回，再尝试单次发送，不要另开模型调用逐字打字。" +
                 "目标App有唯一可核实的搜索框时，可一次选择search并传text，手机会核实焦点、读回关键词后提交，再由本人核对真实结果。搜索框还未出现时先打开搜索入口；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。也可分别选择focus_search、type、submit；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若想把选中的商品链接发给主人，先在真实商家页面找到分享/复制链接按钮，看到新的复制链接控件后选择tap_element并附sendProductLinkToChat=true、caption=本人配文；收到productLinkSent=true才算商品卡片送达，不能用商品名搜索页冒充链接。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
