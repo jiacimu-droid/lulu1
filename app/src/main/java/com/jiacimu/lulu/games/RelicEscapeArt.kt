@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +57,9 @@ internal fun RelicEscapeWorldMap(
     focus: Pair<Int, Int> = run.hero.x to run.hero.y,
     openingReceipt: RelicChestReceipt? = null,
     openingProgress: Float = 0f,
+    viewZoom: Float = 1f,
+    viewPan: Offset = Offset.Zero,
+    onViewChange: (Offset, Float) -> Unit = { _, _ -> },
 ) {
     // Only the player's selected, already-visible objective gets a route hint.
     // The path is a read-only projection of discovered traversable cells.
@@ -87,6 +91,8 @@ internal fun RelicEscapeWorldMap(
     val renderFocus = if (focus == (run.hero.x to run.hero.y)) heroVisual.value
         else Offset(focus.first.toFloat(), focus.second.toFloat())
     val currentRenderFocus = rememberUpdatedState(renderFocus)
+    val currentView = rememberUpdatedState(viewPan to viewZoom)
+    val currentOnViewChange = rememberUpdatedState(onViewChange)
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
@@ -103,13 +109,19 @@ internal fun RelicEscapeWorldMap(
                 .pointerInput(run.id, run.w, run.h, fullscreen, focus, onSelect) {
                     detectTapGestures { tap->
                         val camera = relicMapCamera(size.width.toFloat(), size.height.toFloat(),
-                            run.w, run.h, fullscreen, currentRenderFocus.value.x, currentRenderFocus.value.y)
+                            run.w, run.h, fullscreen, currentRenderFocus.value.x, currentRenderFocus.value.y,
+                            currentView.value.second, currentView.value.first.x, currentView.value.first.y)
                         camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> onSelect(x, y) }
+                    }
+                }
+                .pointerInput(run.id, fullscreen) {
+                    if (fullscreen) detectTransformGestures { _, pan, zoom, _ ->
+                        currentOnViewChange.value(pan, zoom)
                     }
                 }
         ) {
             val camera = relicMapCamera(size.width, size.height, run.w, run.h,
-                fullscreen, renderFocus.x, renderFocus.y)
+                fullscreen, renderFocus.x, renderFocus.y, viewZoom, viewPan.x, viewPan.y)
             val t = camera.tileSize
             val ox = camera.offsetX
             val oy = camera.offsetY
