@@ -87,4 +87,27 @@ class IslandPlayerHouseTest {
         assertNull(rejected.houseProject)
         assertEquals(occupied.world.wood,rejected.world.wood)
     }
+    @Test fun buildPreviewRejectsFinishedWorldAndExplainsExistingBlueprintWithoutChangingSave() {
+        val base=BlockIslandRules.newWorld(127,emptyList())
+        val ready=base.copy(animals=emptyList(),supplyCaches=emptyList(),
+            world=base.world.copy(wood=30,mobs=emptyList()))
+        val before=ready.toJson()
+        assertTrue(IslandBuildingControls.preview(ready,"house_warm",5,3)!!.allowed)
+        val project=BlockIslandRules.act(ready,"house_warm",5,3)
+        assertNotNull(project.houseProject)
+        val active=IslandBuildingControls.preview(project,"house_pine",5,3)!!
+        assertFalse(active.allowed)
+        assertTrue(active.message.contains("已有小屋工程"))
+        assertEquals(project.toJson(),project.toJson())
+        assertEquals(before,ready.toJson())
+
+        val finished=ready.copy(world=ready.world.copy(finished=true))
+        for(action in listOf("house_warm","workbench","plant","remove")) {
+            val preview=IslandBuildingControls.preview(finished,action,5,3)!!
+            assertFalse(preview.allowed)
+            assertTrue(preview.message.contains("无法继续建造"))
+        }
+        assertEquals(finished,BlockIslandState.fromJson(finished.toJson()))
+    }
+
 }
