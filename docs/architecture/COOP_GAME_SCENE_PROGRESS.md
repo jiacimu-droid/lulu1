@@ -354,3 +354,8 @@
 - 生产 `1206142d02717d6d88e9c1d621697fdae4d62c0c`，`RelicQuickAction.kt` blob `ea4a93822207272bdfcbd9234708e83f5a6251e2`：此前同一格同时存在未开启宝箱与真实掉落时，快捷动作先返回拾取，导致宝箱一直无法从中心互动打开。现在同格未开箱优先撬锁；已开箱才拾取，保留原权威掉落、容量、回合、仓库和角色自主选择。
 - 回归 `55c4c8778fce3f488eb43adf4b4e148ae82398eb`，`RelicQuickActionTest.kt` blob `2c2d09f6179c4374bb52e06bdaa6ff751e00e3ce`：重叠实体点选/方向互动、真实撬锁进度、地面实物不消失、开启后拾取及重新读档。该回归源码已提交，**JVM 尚未确认运行通过**。
 - 连接器 commit-workflow 查询只覆盖 PR 触发，本轮返回空；不能据此判定 main push 的 JVM/APK/index。下一实际文件 `RelicQuickActionTest.kt` 检查 JVM 首错及 `RelicEscapeScreen.kt` 真机同格点击/横屏 HUD；真机、真实模型、帧率及美术审图仍待验。
+
+## 2026-11-15 G-02.3 · 未完工房屋蓝图占地保护（源码/回归已提交，CI 待验）
+
+- 正式 `BlockIslandRules.canPlaceBuilding/canPlantAt` 现在拒绝在 `building/paused` 房屋工程尚未铺设的九格预留位置插入独立墙体/家具或树苗；否则原 `house_step` 的物理施工会因地块被改动而永久卡住。保留已铺设格、拆除/完成后自由重建、原资源扣除和伙伴决定权；无假建筑。源码 `168b0f5`、`cebf67d`，最新生产 blob `c3b22e5f4eac6538710bfd60ef2d91bab3692495`。
+- 新增 `BlockIslandRulesTest.unfinishedHouseBlueprintCannotBeOverbuiltAndSurvivesReload`，覆盖蓝图格禁止独立建墙/种树、拒绝不扣资源/回合、重读存档继续占地、工程移除后可建造。测试 `5568acd`，blob `335e5e4895f19dba95f0c01274d5adc2f3b18b4e`。**JVM/APK/index 未取得本 SHA 的 push 工作流终态，不得标通过**；真机横屏建造预览/触控/FPS 和人物协作独立待验。下一实际文件 `IslandBuildingControls.kt` 与 `BlockIslandRulesTest.kt`，核预览拒建原因与 JVM 首错。
