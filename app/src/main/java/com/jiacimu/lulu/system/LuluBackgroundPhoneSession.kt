@@ -804,6 +804,23 @@ internal object LuluBackgroundPhoneSession {
                     }
                     JSONObject().put("accepted", clicked).put("displayId", id)
                 }
+                "swipe" -> {
+                    // Follow Mika ScreenAccessibility: dispatchGesture with an
+                    // explicit displayId. Shell "input -d ... swipe" is not a
+                    // reliable route on every Android build. Never run both
+                    // dispatchers or replay an uncertain gesture.
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) {
+                        "无法建立独立屏滑动前的图像时间戳屏障"
+                    }
+                    withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.swipeVirtualDisplay(
+                            id, activeApp, args.getInt("startX"), args.getInt("startY"),
+                            args.getInt("endX"), args.getInt("endY"),
+                            args.optInt("durationMs", 400),
+                        )
+                    }
+                }
                 "focus_search" -> {
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) { "无法建立后台聚焦画面屏障" }
