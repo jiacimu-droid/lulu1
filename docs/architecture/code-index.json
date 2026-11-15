@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:33:08.124709+00:00",
-  "commit": "034f85aa5e6659b2ddd171cca29b7089044f4190",
+  "generatedAt": "2026-11-15T01:33:49.513788+00:00",
+  "commit": "3a245ab2867c9272afb3a2b8b87bfa88674a706c",
   "branch": "main",
-  "sourceFingerprint": "897736949c7097af55d5a1b09a153bbc38556f4367b435c1f7c157b59c0d4795",
+  "sourceFingerprint": "84a18b19b14476af187239e5b8d46431bb2d14fc401a084655f63501cd9e4fba",
   "summary": {
     "files": 1323,
-    "lines": 280657,
+    "lines": 280704,
     "symbols": 3950
   },
   "symbolIndex": {
@@ -1861,7 +1861,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2432
+        "line": 2446
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -12641,13 +12641,13 @@
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2286
+        "line": 2300
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2426
+        "line": 2440
       }
     ],
     "maxResidents": [
@@ -14663,7 +14663,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 116
+        "line": 119
       }
     ],
     "canInteract": [
@@ -15145,13 +15145,13 @@
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 97
+        "line": 104
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 105
+        "line": 112
       }
     ],
     "LuluGamesAppV2": [
@@ -15429,7 +15429,7 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 109
+        "line": 112
       }
     ],
     "carve": [
@@ -33753,8 +33753,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2498,
-      "sha256": "aae09e969b38877959eeb5e70fb721a3f607364eddce51ad52338bb7ab4ee5bc",
+      "lines": 2512,
+      "sha256": "9b3c886604c3ac30b0ddd34b138be861e281320c2bccfd94ca26fb2b2f4060ce",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -33830,15 +33830,15 @@
         },
         {
           "name": "errorOf",
-          "line": 2286
+          "line": 2300
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2426
+          "line": 2440
         },
         {
           "name": "schedule",
-          "line": 2432
+          "line": 2446
         }
       ]
     },
@@ -35823,8 +35823,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt",
-      "lines": 345,
-      "sha256": "e53f9ee7be7b9ee2f7d763ec19be259d4983ee3eeee18e41cec5f12fc8924f5a",
+      "lines": 348,
+      "sha256": "1185ef48bdd2b03432f72d100b35fe5e939cbfcb545ba02bed4b95482e640640",
       "symbols": []
     },
     {
@@ -37014,8 +37014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 964,
-      "sha256": "8d22a2fc28a8bcd7aebef7e1582776ac63a169a2b5326250733c4c276986f9cf",
+      "lines": 975,
+      "sha256": "f8c353a4a2b97bf992cd7e3bb9c568385b3f12994e02972c8f235b4d8ac8f882",
       "symbols": [
         {
           "name": "Home",
@@ -37071,11 +37071,11 @@
         },
         {
           "name": "LuluGamesApp",
-          "line": 97
+          "line": 104
         },
         {
           "name": "stepBack",
-          "line": 105
+          "line": 112
         }
       ]
     },
@@ -37504,16 +37504,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1271,
-      "sha256": "d7375626ba41491070f3a7102c6cb40484e1e17f81ff2924879f84cf93b944ef",
+      "lines": 1274,
+      "sha256": "2efaf18c05607a80f3a18dc9eeeb64033b3cb06a9f1500e2341c710c86fbce0f",
       "symbols": [
         {
           "name": "change",
-          "line": 109
+          "line": 112
         },
         {
           "name": "action",
-          "line": 116
+          "line": 119
         }
       ]
     },
@@ -45783,8 +45783,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 94,
-      "sha256": "c969b89c12e820bdf05dd99f40a69cfc1dd88b1491c8f9a28b3f47ce01515465",
+      "lines": 110,
+      "sha256": "ed0cd8f3feba2e809ec484fe9548ba5e407419ebbf3b6aaf4abd95612e908083",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
