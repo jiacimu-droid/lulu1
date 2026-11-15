@@ -2,6 +2,7 @@ package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,10 +82,10 @@ internal object RelicRevealTimeline {
 
 /** Bound the centerpiece to the actual viewport so short landscape screens keep the receipt visible. */
 internal fun relicCeremonyArtHeightDp(viewportHeightDp: Float): Int = when {
-    viewportHeightDp < 280f -> 72
-    viewportHeightDp < 360f -> 96
-    viewportHeightDp < 440f -> 124
-    else -> 172
+    viewportHeightDp < 280f -> 84
+    viewportHeightDp < 360f -> 116
+    viewportHeightDp < 440f -> 160
+    else -> 248
 }
 
 /** A presentation-only label derived from the already committed bag/drop outcome. */
@@ -97,6 +100,7 @@ internal fun RelicChestCeremony(
     progress: Float,
     onFinished: () -> Unit,
 ) {
+    var displayYaw by remember(receipt.runId, receipt.chestId) { mutableFloatStateOf(0f) }
     val frame = RelicRevealTimeline.at(progress)
     val reveal = frame.jewelReveal
     val chestAlpha = frame.chestAlpha
@@ -117,20 +121,18 @@ internal fun RelicChestCeremony(
         else -> "普通 · 遗迹遗物"
     }
     BoxWithConstraints(
-        Modifier.fillMaxSize().background(Color(0xC909101D)),
+        Modifier.fillMaxSize().background(Color(0xFF0B121C)),
         contentAlignment = Alignment.Center,
     ) {
-        // Only the dimmed backdrop or the explicit skip control dismisses the reveal.
-        // The scrollable treasure card must not inherit a full-screen tap-to-skip handler.
-        Box(Modifier.matchParentSize().clickable(onClick = onFinished))
+        // The reveal is a full-screen museum page, not a tiny dismissible dialog.
+        // Only an explicit close control ends the view.
         val compact = maxHeight < 360.dp
         val artHeight = relicCeremonyArtHeightDp(maxHeight.value).dp
         Surface(
-            modifier = Modifier.fillMaxWidth(.87f).widthIn(max = 360.dp).heightIn(max = maxHeight),
-            color = Color(0xFF171F2A),
-            shape = RoundedCornerShape(18.dp),
-            border = BorderStroke(1.dp, tint.copy(alpha = .33f)),
-            shadowElevation = 5.dp,
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFF111B27),
+            shape = RoundedCornerShape(0.dp),
+            shadowElevation = 0.dp,
         ) {
             Column {
                 // The physical receipt stays pinned while the long treasure description
@@ -155,7 +157,13 @@ internal fun RelicChestCeremony(
                     else rarityCue,
                     color = tint, fontWeight = FontWeight.Black, fontSize = 17.sp,
                 )
-                Canvas(Modifier.fillMaxWidth().height(artHeight)) {
+                Canvas(Modifier.fillMaxWidth().height(artHeight)
+                    .pointerInput(receipt.chestId) {
+                        detectHorizontalDragGestures { change, dx ->
+                            change.consume()
+                            displayYaw = (displayYaw + dx * .35f).coerceIn(-55f, 55f)
+                        }
+                    }) {
                     val h=size.height
                     val x=size.width*.5f
                     val center=Offset(x,h*.54f)
@@ -258,9 +266,11 @@ internal fun RelicChestCeremony(
                         // The exact physical loot gets much larger as the box
                         // fades. At full reveal it is the ONLY principal object.
                         val diameter=h*frame.jewelDiameterFraction
-                        with(RelicTreasureArt) {
-                            drawTreasure(receipt.loot.name,jewelCenter,diameter,
-                                tint,reveal)
+                        scale(1f - kotlin.math.abs(displayYaw)/155f, 1f, pivot=jewelCenter) {
+                            with(RelicTreasureArt) {
+                                drawTreasure(receipt.loot.name,jewelCenter,diameter,
+                                    tint,reveal)
+                            }
                         }
                         // 0 / 2 / 4 / 6 tiny highlights are the rarity's
                         // consistent reveal signature, not random visual noise.
@@ -274,6 +284,7 @@ internal fun RelicChestCeremony(
                     }
                 }
                 if (reveal > .05f) {
+                    Text("左右拖动鉴赏细节", color = Color(0xFF91A3B7), fontSize = 10.sp)
                     Text(
                         receipt.loot.name,
                         fontSize = if (legendary) 24.sp else 21.sp,
@@ -295,7 +306,7 @@ internal fun RelicChestCeremony(
                 // Keep dismissal reachable even when a short landscape viewport
                 // requires scrolling the collectible's full description.
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("跳过动画 / 关闭展示",
+                    Text(if(progress<1f) "跳过动画 / 收起展示" else "返回遗迹", 
                         modifier = Modifier.clickable(onClick = onFinished)
                             .padding(horizontal = 20.dp, vertical = 8.dp),
                         color = tint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
