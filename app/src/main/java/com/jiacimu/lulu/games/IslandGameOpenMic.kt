@@ -42,6 +42,11 @@ internal class IslandGameOpenMic(
 
     private var playerSpeaking = false
     private var input: ProviderCallInput? = null
+    // Cover audio already captured but not yet transcribed: a delayed cloud
+    // partial must not let the world tick while the owner is still talking.
+    val hasUncommittedSpeech: Boolean
+        get() = active && (partial.isNotBlank() || input?.hasPendingUtterance == true)
+
     private var onUtterance: (String) -> Unit = {}
 
     fun setListener(listener: (String) -> Unit) { onUtterance = listener }
