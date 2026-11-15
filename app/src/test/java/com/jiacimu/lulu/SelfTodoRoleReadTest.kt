@@ -195,7 +195,9 @@ class SelfTodoRoleReadTest {
         assertTrue(brief.contains("未来待办1项"))
         assertTrue(brief.contains("另有4项"))
         assertTrue(brief.contains("read_self_todo"))
-        assertFalse(brief.contains("备注"))
+        // A capability hint mentioning note fields is fine; the owner's actual
+        // private note *values* must never leak into the ambient context.
+        for (id in 1..11) assertFalse(brief, brief.contains("备注$id"))
         assertFalse(brief.contains("计划7"))
         val full = SelfTodoRoleRead.snapshot(tasks, date, now,
             JSONObject().put("scope", "all"))

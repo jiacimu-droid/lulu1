@@ -3,6 +3,8 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -278,6 +280,11 @@ object RoleDayScheduleStore {
                 .putString("planId", plan.id)
                 .putString("dueAt", plan.dueAt.toString()).build())
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            // The role decision requires a model connection. Keep one durable
+            // due worker pending offline rather than consuming it as a failed
+            // no-network model attempt.
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
             "role-own-plan-${plan.id}",
@@ -775,6 +782,16 @@ object RoleDayScheduleStore {
         }
     }
 
+    /** A competing incoming message or connected call owns the next model
+     * decision. A short WorkManager retry checks the SAME due plan only when no
+     * extra model request was made; ambiguous provider failures are recovered by
+     * AutonomousPerceptionAttempts instead, not retried from this worker. */
+    internal fun retryDeferredDueWake(
+        ownerMessagePending: Boolean, ownerInputBusy: Boolean, inCall: Boolean,
+        workAttemptCount: Int,
+    ): Boolean = workAttemptCount < 3 &&
+        (ownerMessagePending || ownerInputBusy || inCall)
+
     /** A due plan is not a completed activity. Only wake the original role's decision loop. */
     fun dueContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
         plans(context, characterId).filter { it.status == "due" ||
@@ -903,19 +920,31 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         // the appointment appears "due" with no model request at all.
         val trigger = "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
         return try {
-            CompanionOnlineStore.wakeCharacter(role,
-                CompanionOnlineReason.BackgroundPerception, trigger, perceiveNow = false)
+            // runDueCycle already wakes an offline character when the model
+            // appraisal really begins. Waking first created a five-minute online
+            // expiry even when a pending owner message made this appraisal a
+            // no-op, causing a second unnecessary opportunity to charge API.
             val decisions = ProactivePerceptionRuntime.runDueCycle(
                 applicationContext, trigger, targetCharacterId = role, force = true)
             if (decisions == 0) {
-                // Busy chat, missing model configuration, or model failure is not
-                // a completed decision. Leave the real agenda pending without
-                // automatically replaying a possibly billable HTTP request.
-                val summary = "未取得角色有效模型决策（可能在处理私聊或模型请求失败）；原日程仍待处理"
+                // Only a competing live owner turn is definitely safe for a
+                // short retry. Provider errors may already have incurred costs
+                // and use the existing durable background recovery mechanism.
+                val ownerPending = CompanionOnlineStore.unreadChatSnapshot(role).text.isNotBlank()
+                val ownerBusy = OnlineChatBatchStore.shouldDeferBackgroundWake(
+                    applicationContext, role)
+                val inCall = CompanionPresenceStore.isInCall(role)
+                val retry = RoleDayScheduleStore.retryDeferredDueWake(
+                    ownerPending, ownerBusy, inCall, runAttemptCount)
+                val reason = if (ownerPending || ownerBusy || inCall)
+                    "主人当前对话或电话占用角色决策，等待该回合后复核"
+                    else "未取得有效模型决策（可能是模型配置、网络响应或角色自主感知被停用）"
                 RoleDayScheduleStore.recordUnfinishedWake(
-                    applicationContext, role, plan.id, plan.dueAt, summary)
+                    applicationContext, role, plan.id, plan.dueAt,
+                    "$reason；原日程仍待处理")
                 CompanionPresenceStore.recordPerceptionAttempt(role,
-                    "日程已到但没有完成模型决策；仍待处理，可在下一次感知继续")
+                    "日程已到但未完成模型决策 · $reason")
+                if (retry) return Result.retry()
             }
             Result.success()
         } catch (cancel: kotlinx.coroutines.CancellationException) {

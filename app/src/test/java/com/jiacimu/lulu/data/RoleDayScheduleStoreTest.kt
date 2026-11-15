@@ -131,6 +131,26 @@ class RoleDayScheduleStoreTest {
         }
     }
 
+    @Test fun competingOwnerConversationGetsBoundedNoModelDueRetry() {
+        assertTrue(RoleDayScheduleStore.retryDeferredDueWake(
+            ownerMessagePending = true, ownerInputBusy = false, inCall = false,
+            workAttemptCount = 0))
+        assertTrue(RoleDayScheduleStore.retryDeferredDueWake(
+            ownerMessagePending = false, ownerInputBusy = true, inCall = false,
+            workAttemptCount = 1))
+        assertTrue(RoleDayScheduleStore.retryDeferredDueWake(
+            ownerMessagePending = false, ownerInputBusy = false, inCall = true,
+            workAttemptCount = 2))
+        assertFalse(RoleDayScheduleStore.retryDeferredDueWake(
+            ownerMessagePending = true, ownerInputBusy = false, inCall = false,
+            workAttemptCount = 3))
+        // A zero-decision result with no competing owner turn can mean a
+        // possibly billable model error; do not replay it on this worker.
+        assertFalse(RoleDayScheduleStore.retryDeferredDueWake(
+            ownerMessagePending = false, ownerInputBusy = false, inCall = false,
+            workAttemptCount = 0))
+    }
+
     @Test fun oneAutonomousDecisionCanKeepSeveralDifferentPlansWithoutDuplicates() {
         val a = plan.copy(status = "planned", id = "first",
             activityAction = "learn_topic",
