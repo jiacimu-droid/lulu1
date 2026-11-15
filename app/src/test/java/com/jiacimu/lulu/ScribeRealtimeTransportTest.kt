@@ -219,7 +219,7 @@ class ScribeRealtimeTransportTest {
         var recovered = 0
         var drained = false
         val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
-            onPartial = {}, onText = { turns += it }, onError = { fail(it) },
+            onPartial = { partials += it }, onText = { turns += it }, onError = { fail(it) },
             onProvisionalMuteResult = { recovered++ }, socketFactory = wire)
         try {
             recognizer.start()
