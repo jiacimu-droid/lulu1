@@ -384,8 +384,6 @@ internal fun RelicEscapeLobby(
                             color=campMuted,fontSize=12.sp)
                     }
                 }
-                    }
-                }
                 Spacer(Modifier.height(14.dp))
             }
             }
