@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T07:05:33.339090+00:00",
-  "commit": "ae4a19f69309ee59f2fd5edd6d7aaab9323890d9",
+  "generatedAt": "2026-11-15T07:07:17.544783+00:00",
+  "commit": "0bf0f88af66515d9c79ed3d7b0d8ce69394fadc9",
   "branch": "main",
-  "sourceFingerprint": "0a4f7ae3ab076acc935a5c8348b649f524bf4650adeb210e3d17c9fc189d9683",
+  "sourceFingerprint": "b5a4fc360d45108bc2861c8374583e3cce5f9c4b78a63a27b73a98273f214ca2",
   "summary": {
     "files": 1331,
-    "lines": 283331,
+    "lines": 283333,
     "symbols": 3997
   },
   "symbolIndex": {
@@ -37845,8 +37845,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1371,
-      "sha256": "dc8305f0cfd9a30650363ad4442351383eaadf6561e572188b82963dda7b12d6",
+      "lines": 1373,
+      "sha256": "2da2bcd71fd38cad4b0dd90f01df789c5fe155f1db2ec9a8a9dac5b4f74f9c49",
       "symbols": [
         {
           "name": "change",
