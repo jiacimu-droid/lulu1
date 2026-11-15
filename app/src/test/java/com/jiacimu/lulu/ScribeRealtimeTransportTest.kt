@@ -281,7 +281,7 @@ class ScribeRealtimeTransportTest {
             shadowOf(Looper.getMainLooper()).idleFor(4, TimeUnit.SECONDS)
             var flush: JSONObject? = null
             repeat(4) {
-                val packet = wire.packets.poll(5, TimeUnit.SECONDS) ?: return@repeat
+                val packet = wire.packets.poll(1, TimeUnit.SECONDS) ?: return@repeat
                 val candidate = JSONObject(packet)
                 if (candidate.optBoolean("commit")) flush = candidate
             }
