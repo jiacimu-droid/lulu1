@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T21:41:14.045242+00:00",
-  "commit": "a9bf84069bd416669573ab5fe82519cf3115fbba",
+  "generatedAt": "2026-11-15T21:48:08.698046+00:00",
+  "commit": "24d4ec9e913e0b6dcb5e648be1bcc9fead275e59",
   "branch": "main",
-  "sourceFingerprint": "cf541046817b73aaa0403c7c9f7dccee0b3c44381b37471ad8cd5ad62123516e",
+  "sourceFingerprint": "d03c434bf22a1818ec70f4f75b73b18299e2d1f7cca6db9d6bdbd1158f65ab86",
   "summary": {
     "files": 1341,
     "lines": 285609,
@@ -45207,7 +45207,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt",
       "lines": 151,
-      "sha256": "e5c8d2b7f012b75cc87ff09d55a0f55b706911f3209c6daef9763fa24f475ada",
+      "sha256": "1d05d7eea4a27f60a64a85114fda64afe7406cb0b64ce2e9bebc9f361685e519",
       "symbols": [
         {
           "name": "OnlineExpiryUnfinishedWorkTest",
