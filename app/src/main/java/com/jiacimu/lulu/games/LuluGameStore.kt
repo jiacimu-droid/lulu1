@@ -751,6 +751,7 @@ object LuluGames {
     val store: LuluGameStore
         get() = checkNotNull(storeInternal) { "LuluGames 尚未初始化" }
 
+    @Synchronized
     fun initialize(context: Context) {
         if (storeInternal == null) storeInternal = LuluGameStore(context.applicationContext)
     }
