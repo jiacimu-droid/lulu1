@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:22:42.164037+00:00",
-  "commit": "696d461453f401ba723fe790ef9532acc9efff9a",
+  "generatedAt": "2026-11-15T16:23:46.255685+00:00",
+  "commit": "b3ec5488fd71b176b8c8fa2471c315a2b8e7de0c",
   "branch": "main",
-  "sourceFingerprint": "420d3f7cccd6e55216d321627fd609f591ed40668b1d1b9ee6b92e5a3d50b789",
+  "sourceFingerprint": "4505d5a65c80249001ce3cd4e3be86288822a0bc4d06e29ebea48d3767d85ba0",
   "summary": {
     "files": 1340,
-    "lines": 285305,
+    "lines": 285307,
     "symbols": 4027
   },
   "symbolIndex": {
@@ -16945,31 +16945,31 @@
     "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 495
+        "line": 497
       }
     ],
     "phoneDecisionInvalidated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 500
+        "line": 502
       }
     ],
     "phoneInvalidationReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 504
+        "line": 506
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 506
+        "line": 508
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1576
+        "line": 1578
       }
     ],
     "LaunchableApp": [
@@ -39676,8 +39676,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2342,
-      "sha256": "d917cc5bc2ea72841641eb04c9a7a4eac389e2381d63cdb029fe282f36470b1c",
+      "lines": 2344,
+      "sha256": "ff37a2280610661cf356d21050e77212369727f483439bf242a000fcc3f55d0a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -39697,23 +39697,23 @@
         },
         {
           "name": "phoneReceiptChanged",
-          "line": 495
+          "line": 497
         },
         {
           "name": "phoneDecisionInvalidated",
-          "line": 500
+          "line": 502
         },
         {
           "name": "phoneInvalidationReason",
-          "line": 504
-        },
-        {
-          "name": "stalePhoneTurn",
           "line": 506
         },
         {
+          "name": "stalePhoneTurn",
+          "line": 508
+        },
+        {
           "name": "staleReplyExpression",
-          "line": 1576
+          "line": 1578
         }
       ]
     },
