@@ -230,7 +230,7 @@ internal class ElevenLabsRealtimeStt(
         }
     }
 
-    private fun finishMuteDrain() {
+    private fun finishMuteDrain(failure: String? = null) {
         if (!muteFinishing.compareAndSet(true, false)) return
         muteFinishJob?.cancel()
         turnDelay?.cancel()
@@ -243,7 +243,7 @@ internal class ElevenLabsRealtimeStt(
             if (usedProvisional) onProvisionalMuteResult()
             onText(bestText)
         } else if (hadPending || hasCapturedAudio) {
-            onError("Scribe 实时识别未返回文字，已停止收音，请重试")
+            onError(failure ?: "Scribe 实时识别未返回文字，已停止收音，请重试")
         }
         val finished = onMuteDrained
         onMuteDrained = null
@@ -305,10 +305,9 @@ internal class ElevenLabsRealtimeStt(
         // An explicit mute may still own committed words. Deliver what is
         // stable and release the socket even when the remote connection fails.
         if (muteFinishing.get()) {
-            scope.launch(Dispatchers.Main) {
-                if (active()) onError(message)
-                finishMuteDrain()
-            }
+            // A connection error must not revoke the earlier mute's capture
+            // authorization before its already visible transcript is drained.
+            scope.launch(Dispatchers.Main) { finishMuteDrain(message) }
         } else {
             scope.launch(Dispatchers.Main) { if (active()) onError(message) }
             stop()
