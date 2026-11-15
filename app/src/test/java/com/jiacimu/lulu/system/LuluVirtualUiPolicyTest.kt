@@ -37,6 +37,40 @@ class LuluVirtualUiPolicyTest {
         assertFalse(LuluVirtualUiPolicy.sameSnapshot("screen-1", "screen-1", old, next))
     }
 
+    @Test fun virtualBackPrefersTheRealOrdersPageArrowOverAnEdgeGesture() {
+        // The user-observed Douyin order page has a left arrow next to a
+        // long order-number search box, not a guaranteed Android BACK route.
+        fun c(l: Int, t: Int, r: Int, b: Int, label: String = "", id: String = "") =
+            LuluVirtualUiPolicy.AppBarControl(l, t, r, b, label, id)
+        val search = c(140, 138, 540, 196, "商品名/订单号/快递单号", "search")
+        val arrow = c(65, 136, 121, 192, "返回", "com.example:id/btn_back")
+        val controls = listOf(search, arrow, c(610, 145, 660, 193, "仓裹", ""))
+        assertEquals(1, LuluVirtualUiPolicy.appBackControlIndex(720, 1280, controls))
+        assertTrue(LuluVirtualUiPolicy.isNamedAppBack("返回", ""))
+        assertTrue(LuluVirtualUiPolicy.isNamedAppBack("", "com.example:id/iv_back"))
+        assertFalse(LuluVirtualUiPolicy.isNamedAppBack("订单", "all_orders"))
+        assertEquals(1, LuluVirtualUiPolicy.appBackControlIndex(720, 1280,
+            listOf(search, arrow.copy(label = "", resourceId = ""))))
+    }
+
+    @Test fun virtualBackNeverGuessesAmbiguousOrUnrelatedTopLeftTargets() {
+        fun c(l: Int, t: Int, r: Int, b: Int, label: String = "", id: String = "") =
+            LuluVirtualUiPolicy.AppBarControl(l, t, r, b, label, id)
+        val unknown = c(65, 140, 115, 194)
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(unknown)))
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(c(65, 140, 115, 194, "菜单", "menu"))))
+        val wideSearch = c(140, 138, 540, 196, "订单搜索")
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(unknown, wideSearch, c(8, 144, 54, 192))))
+        // A mid-page arrow or a full-screen container is not a toolbar BACK.
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(c(65, 690, 115, 746, "返回"))))
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(c(0, 48, 720, 1200, "返回"))))
+    }
+
     @Test fun onlySafeNamedNavigationMayBeClicked() {
         assertTrue(LuluVirtualUiPolicy.mayClick("搜索", "search_icon", ""))
         assertTrue(LuluVirtualUiPolicy.mayClick("打开笔记", "note_card", ""))
