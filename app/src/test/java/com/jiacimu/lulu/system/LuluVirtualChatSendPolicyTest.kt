@@ -61,8 +61,11 @@ class LuluVirtualChatSendPolicyTest {
     }
 
     @Test fun voiceComposerSwitchFindsOnlyTheUniqueLeftKeyboardTarget() {
-        val b = LuluVirtualChatSendPolicy::ComposerBounds
-        val c = LuluVirtualChatSendPolicy::ComposerControl
+        fun b(l: Int, t: Int, r: Int, bt: Int) =
+            LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
+        fun c(bounds: LuluVirtualChatSendPolicy.ComposerBounds, label: String,
+              resourceId: String, clickable: Boolean) =
+            LuluVirtualChatSendPolicy.ComposerControl(bounds, label, resourceId, clickable)
         val talk = b(125, 1040, 610, 1100)
         assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住 说话"))
         assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住讲话"))
