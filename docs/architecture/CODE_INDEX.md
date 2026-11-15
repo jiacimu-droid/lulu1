@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dd2cf0da8f39f5376ea87daf235246c690af5ba5`
+- 基准提交：`886318468fbaaa8829d6f09545ac5a2026664370`
 - 分支：`main`
 - 已索引文件：1327
-- 已索引代码/文本行：282270
-- 已发现符号：3980
+- 已索引代码/文本行：282304
+- 已发现符号：3982
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1322,7 +1322,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 64 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 85 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
