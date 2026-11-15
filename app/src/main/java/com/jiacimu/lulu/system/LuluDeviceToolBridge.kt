@@ -186,6 +186,7 @@ object LuluDeviceToolBridge {
         regenerationExcludedEventIds: Set<String> = emptySet(),
         userEvidenceIds: List<String> = emptyList(),
         phoneCallId: String = "",
+        phoneSleepMode: Boolean = false,
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
         onLive2DAction: ((JSONObject) -> Unit)? = null,
         onLive2DStatus: ((String) -> Unit)? = null,
@@ -195,6 +196,8 @@ object LuluDeviceToolBridge {
         val turnTraceId = diagnosticTurnTraceId.ifBlank { java.util.UUID.randomUUID().toString() }
         val preparationStartedNanos = System.nanoTime()
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
+        // Mode is a live call fact, never inferred from words in task or silence context.
+        val bedtimePromptActive = PhoneSleepPromptMode.active(phoneCallId, phoneSleepMode)
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         val externalCallResult = if (callSilence)
@@ -394,7 +397,7 @@ object LuluDeviceToolBridge {
         } else ""
         val voicePerformanceRule = if (sceneContext.contains("电话"))
             com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
-                sleepMode = sceneContext.contains("哄睡")) else ""
+                sleepMode = bedtimePromptActive) else ""
         val characterHangupRule = if (sceneContext.contains("电话") && onCharacterHangup != null) """
             【角色可以真的主动挂断】
             只有当前角色发自内心想结束这通电话时，才在 action=reply 的 JSON 中额外返回 "endCall":true。
@@ -569,7 +572,7 @@ object LuluDeviceToolBridge {
                 // in the gateway. Only the current-message challenge is local.
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
-            instruction = if (sceneContext.contains("哄睡")) """
+            instruction = if (bedtimePromptActive) """
                 【通话哄睡：单次完整长篇语音】你是当前角色，不是朗读系统或睡眠客服。
                 严格基于本次对话、上一段真实已播的哄睡内容和今晚的偏好，
                 写一段完整连贯、适合慢慢朗读的自然口语。不要复述刚才讲过的
@@ -656,8 +659,8 @@ object LuluDeviceToolBridge {
             // Phone speech should be a natural turn, not an essay. Keep enough
             // headroom for the JSON state without paying for runaway monologues.
             maxTokens = when {
-                sceneContext.contains("哄睡") && sceneContext.contains("长故事优先") -> 5_000
-                sceneContext.contains("哄睡") -> 3_800
+                bedtimePromptActive && sceneContext.contains("长故事优先") -> 5_000
+                bedtimePromptActive -> 3_800
                 rewriting -> 2_400
                 separateExpression -> 1_450
                 // Per-part spoken Motion3 and the role's optional private
@@ -1405,7 +1408,7 @@ object LuluDeviceToolBridge {
             // Phone reply and a voluntary favorite can be one decision. A
             // second chat/phone round is not needed to store a real user quote.
             val inOrdinaryPhone = sceneContext.contains("电话") &&
-                !callSilence && !rewriting && !sceneContext.contains("哄睡")
+                !callSilence && !rewriting && !bedtimePromptActive
             // An unspoken wish or spoken promise is not a selected tool call.
             val chosenPhoneFavorite = if (inOrdinaryPhone) plan.phoneFavorite else null
             chosenPhoneFavorite?.let { selected ->
@@ -1615,7 +1618,7 @@ object LuluDeviceToolBridge {
                 // harmless boundary normalization (while the safe speech still
                 // played). Only invalid or undeliverable turns suppress it.
                 if (live2dDecisionContext.isNotBlank() &&
-                    onLive2DAction != null && !sceneContext.contains("哄睡")) {
+                    onLive2DAction != null && !bedtimePromptActive) {
                     Live2DPhoneMotionRepair.publish(appContext,
                         characterId, phoneCallId, safeText, plan.live2d, history,
                         userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus,
@@ -1881,7 +1884,7 @@ object LuluDeviceToolBridge {
             if (sceneContext.contains("电话") &&
                 com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(checkedResultText))
                 throw IllegalStateException("工具结果混入内部分析，未向通话播放")
-            if (live2dDecisionContext.isNotBlank() && !sceneContext.contains("哄睡") &&
+            if (live2dDecisionContext.isNotBlank() && !bedtimePromptActive &&
                 checkedResultText.isNotBlank()) {
                 Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
                     checkedResultText, finalPlan?.live2d, "$history\n真实工具回执：$toolResult",
