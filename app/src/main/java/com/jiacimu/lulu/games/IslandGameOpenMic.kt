@@ -123,7 +123,7 @@ internal fun rememberIslandGameOpenMic(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val owner = LocalLifecycleOwner.current
-    val mic = remember(context) { IslandGameOpenMic(context.applicationContext, scope) }
+    val mic = remember(context, owner) { IslandGameOpenMic(context.applicationContext, scope) }
     SideEffect { mic.setListener(onUtterance) }
     DisposableEffect(mic, owner) {
         val observer = LifecycleEventObserver { _, event ->
