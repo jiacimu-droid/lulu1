@@ -15,7 +15,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.Display
-import androidx.core.content.ContextCompat
+import java.util.concurrent.Executors
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -81,6 +81,10 @@ class LuluAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+        // Screenshot pixel conversion can allocate several MB; never run it on the UI thread.
+        private val screenshotCopyExecutor = Executors.newSingleThreadExecutor { task ->
+            Thread(task, "lulu-screenshot-copy").apply { isDaemon = true }
+        }
         private var instance: LuluAccessibilityService? = null
         private val mutableState = MutableStateFlow(AccessibilitySnapshot())
         val state: StateFlow<AccessibilitySnapshot> = mutableState.asStateFlow()
@@ -96,7 +100,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 if (!cont.isActive) return@post
                 try {
                     service.takeScreenshot(Display.DEFAULT_DISPLAY,
-                        ContextCompat.getMainExecutor(service), object : TakeScreenshotCallback {
+                        screenshotCopyExecutor, object : TakeScreenshotCallback {
                             override fun onSuccess(result: ScreenshotResult) {
                                 try {
                                     val buffer = result.hardwareBuffer
