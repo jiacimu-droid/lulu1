@@ -227,6 +227,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onText = { if (epoch == generation) onText(it,
                 if (acousticEnabled) realtimeAcoustics.finish() else null) },
             onError = { if (epoch == generation) onError(it) },
+            onProvisionalMuteResult = {
+                if (epoch == generation)
+                    onStatus("麦克风已关闭：最终字幕未返回，已保留屏幕上识别的文字")
+            },
         )
         realtime = recognizer
         realtimeStartedAtElapsed[recognizer] = SystemClock.elapsedRealtime()
