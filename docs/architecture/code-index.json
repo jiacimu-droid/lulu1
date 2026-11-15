@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:26:07.504299+00:00",
-  "commit": "5641bff71131a5f4168085c6769182feffec4acb",
+  "generatedAt": "2026-11-15T09:34:07.783232+00:00",
+  "commit": "c2896585361e423fb98a9def2908e23abc6ea894",
   "branch": "main",
-  "sourceFingerprint": "9efea42e1501a5bfcf1f2b0aed0f65691b5b28141846562a7be1c487e9c1ad22",
+  "sourceFingerprint": "aa954ce51ffe19fcd595e12d948ad2b8d219245bd1db25b769b0851663b845e2",
   "summary": {
     "files": 1331,
-    "lines": 283449,
+    "lines": 283492,
     "symbols": 3998
   },
   "symbolIndex": {
@@ -32624,8 +32624,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 411,
-      "sha256": "96169b1c3c7909c4965a49bc3ea58d092494d1de05c60c8d56a75fd4f2174ed1",
+      "lines": 454,
+      "sha256": "e32691b8d0d16f0dc147a2c1db4b0a55675a7fcb894fef4ff624e0e650c88761",
       "symbols": [
         {
           "name": "report",
