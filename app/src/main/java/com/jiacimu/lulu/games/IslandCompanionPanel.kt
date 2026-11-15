@@ -123,7 +123,7 @@ internal fun IslandCompanionPanel(
                     isForeground = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
                     navigating = latestNavigating,
                     thinking = thinking,
-                    playerSpeaking = openMic.partial.isNotBlank(),
+                    playerSpeaking = openMic.hasUncommittedSpeech,
                     nearbyThreat = GameCoopPacing.islandThreat(now),
                 )) continue
             val beforePlans = members.filter {
