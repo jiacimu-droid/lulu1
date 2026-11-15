@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:47:08.862578+00:00",
-  "commit": "bf5eaad286a05ad6e89883743c70fb202d330826",
+  "generatedAt": "2026-11-15T06:48:36.137392+00:00",
+  "commit": "5a6c516e986fc8118b514a040d69a145b6bdbed7",
   "branch": "main",
-  "sourceFingerprint": "eafedf7117cc505d8fb1216e33b655ec93018f5fc72a99748dccc390bd418d7f",
+  "sourceFingerprint": "4bcbe45c497a9bbb10be1fa1aff6e3030a4d9827218ad7abd3d528286942f466",
   "summary": {
     "files": 1329,
-    "lines": 282930,
+    "lines": 282932,
     "symbols": 3987
   },
   "symbolIndex": {
@@ -8187,7 +8187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 69
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -15257,19 +15257,19 @@
     "glintCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "beamCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "flashStrength": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "committed": [
@@ -37385,24 +37385,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 318,
-      "sha256": "79117bde7e3d6477dca1066fc80d71967ce2e76cab1c3be23a29f1ec9971fbe9",
+      "lines": 320,
+      "sha256": "8f5bddedc34614bdfa2f5c606404f04755cc784c1d051de93c4da688e9d64311",
       "symbols": [
         {
           "name": "glintCount",
-          "line": 47
+          "line": 48
         },
         {
           "name": "beamCount",
-          "line": 54
+          "line": 55
         },
         {
           "name": "flashStrength",
-          "line": 63
+          "line": 64
         },
         {
           "name": "at",
-          "line": 69
+          "line": 70
         }
       ]
     },
