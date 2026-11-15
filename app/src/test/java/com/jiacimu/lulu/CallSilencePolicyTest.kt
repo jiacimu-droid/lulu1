@@ -48,6 +48,18 @@ class CallSilencePolicyTest {
         assertTrue(CallSilencePolicy.shouldRecoverStuckCapture(true, true, 90_000L))
     }
 
+    @Test fun silentCallObservationsAreNotInstructionsToPesterAboutMicrophone() {
+        val muted = CallSilencePolicy.context(60_000L, true)
+        val unmuted = CallSilencePolicy.context(60_000L, false)
+        assertTrue(muted.contains("麦克风已静音"))
+        assertTrue(unmuted.contains("麦克风未静音"))
+        for (scene in listOf(muted, unmuted)) {
+            assertTrue(scene.contains("不要把这些内部状态当作对话主题"))
+            assertTrue(scene.contains("她主动询问或有已证实的通话故障"))
+            assertTrue(scene.contains("不证明用户已睡"))
+        }
+    }
+
     @Test fun mutedCallProvidesFactsWithoutInventingPsychologicalGuidance() {
         val scene = CallSilencePolicy.context(15 * 60_000L, true)
         assertTrue(scene.contains("用户没有新增发言"))
