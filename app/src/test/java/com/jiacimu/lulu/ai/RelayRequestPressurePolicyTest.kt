@@ -164,10 +164,11 @@ class RelayRequestPressurePolicyTest {
             "旧回答")
         assertEquals(listOf(final), RelayRequestPressurePolicy.compactHistory(
             listOf(enormous, final), 900))
-        // The soft transport budget cannot erase the entire most-recent
-        // conversational turn; preserve it verbatim and drop only older turns.
-        assertEquals(listOf(enormous), RelayRequestPressurePolicy.compactHistory(
-            listOf(enormous), 900))
+        // A giant old USER history item may be omitted; the actual newest
+        // user message lives outside this list and is always preserved.
+        // Do not let an old oversized item disable a smaller 503 fallback.
+        assertTrue(RelayRequestPressurePolicy.compactHistory(
+            listOf(enormous), 900).isEmpty())
     }
 
     @Test fun longLatestReplySurvivesACompactRelayRequestWithoutOldChat() {
