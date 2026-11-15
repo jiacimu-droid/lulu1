@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:57:03.407224+00:00",
-  "commit": "ec0b9533ec0f24560f09f342ad9a144e81393fff",
+  "generatedAt": "2026-11-15T09:57:38.058624+00:00",
+  "commit": "64687b665b5df29af59585bcbb9d4563ec265a82",
   "branch": "main",
-  "sourceFingerprint": "5440f83880e5fc93f0ed2a086ee933314959a6803a9a72aaa13a1f76fa6c709e",
+  "sourceFingerprint": "0d39ec875038372ff753ca2c22ef880da79bb867beaa830ff76925fc26113a19",
   "summary": {
     "files": 1333,
-    "lines": 283965,
+    "lines": 283990,
     "symbols": 4004
   },
   "symbolIndex": {
@@ -789,7 +789,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 75
+        "line": 77
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -14557,7 +14557,7 @@
     "cycle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 70
+        "line": 72
       }
     ],
     "awardCompleted": [
@@ -36702,8 +36702,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 79,
-      "sha256": "89915e75a8baa86bf9b9e4bc450de8694f62a389616d437c35fd7749436e5f02",
+      "lines": 81,
+      "sha256": "2375f65eafc971a053bb41dbdcd2378b9cc9a5b7810b85079c5fbaf38842c0f3",
       "symbols": [
         {
           "name": "preview",
@@ -36711,11 +36711,11 @@
         },
         {
           "name": "cycle",
-          "line": 70
+          "line": 72
         },
         {
           "name": "label",
-          "line": 75
+          "line": 77
         }
       ]
     },
@@ -46455,8 +46455,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt",
-      "lines": 91,
-      "sha256": "05465f61539ccac8cd871271728bd1a9a607ddbeda70859d42a5b1a2581ecf3f",
+      "lines": 114,
+      "sha256": "a2db18c1bdb3f250a93dd8c84796b088cc9bf0f5974d297162fd7196ae2a13ec",
       "symbols": [
         {
           "name": "IslandPlayerHouseTest",

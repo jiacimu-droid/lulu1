@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ec0b9533ec0f24560f09f342ad9a144e81393fff`
+- 基准提交：`64687b665b5df29af59585bcbb9d4563ec265a82`
 - 分支：`main`
 - 已索引文件：1333
-- 已索引代码/文本行：283965
+- 已索引代码/文本行：283990
 - 已发现符号：4004
 
 | 文件 | 行数 | 符号数 |
@@ -693,7 +693,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 348 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 79 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 75 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 315 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
@@ -1257,7 +1257,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt` | 609 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandInvitationTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandManualMovementTest.kt` | 88 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 91 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 199 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 242 | 2 |
