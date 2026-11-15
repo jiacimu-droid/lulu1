@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:12:53.145938+00:00",
-  "commit": "dd307a8f0ad7e4712c33722dd00c48245d72fd81",
+  "generatedAt": "2026-11-15T16:15:34.103915+00:00",
+  "commit": "cfc541eb183a83e2daee292fc56bfd7f7eb37cef",
   "branch": "main",
-  "sourceFingerprint": "51742f3a1600d22eef4834137ef12b893ee8d026e4b30c7b90d3255385a6162f",
+  "sourceFingerprint": "e6fb9b54765678b23622e815222f634d9f8b474bdb1fec9d5389276294361afd",
   "summary": {
     "files": 1338,
-    "lines": 285228,
+    "lines": 285208,
     "symbols": 4024
   },
   "symbolIndex": {
@@ -14631,7 +14631,7 @@
     "submitPlayerMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-        "line": 77
+        "line": 76
       }
     ],
     "setSpeakingListener": [
@@ -36889,12 +36889,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 404,
-      "sha256": "6fa0602864187d347a52b3c6efbd93960fe31b0de79839a79943a9000e53ab1d",
+      "lines": 384,
+      "sha256": "70e945376778e496069cefe2a05764c0e455226b96f7efd5eaa74ec981434029",
       "symbols": [
         {
           "name": "submitPlayerMessage",
-          "line": 77
+          "line": 76
         }
       ]
     },
