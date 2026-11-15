@@ -60,7 +60,7 @@ internal object RelicArsenal {
     /** Lower per-target damage than ordinary short-blade attacks. */
     fun sweepDamage(s: RelicRun, target: RelicMob): Int {
         val base=if(s.weapon>=2)2 else 1
-        return (base-if(target.kind==1 || target.kind==3)1 else base).coerceAtLeast(1)
+        return (base - if(target.kind==1 || target.kind==3) 1 else 0).coerceAtLeast(1)
     }
 
     fun damage(s: RelicRun, target: RelicMob): Int {
