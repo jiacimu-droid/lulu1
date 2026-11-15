@@ -481,6 +481,38 @@ class RelicQuickActionTest {
         assertTrue(scene.chestProgress.isEmpty())
     }
 
+    @Test fun explicitAdjacentChestWinsOverUnrelatedUnderfootTreasure() {
+        val base = run()
+        val h = base.hero
+        val loot = RelicLoot("ground:explicit:1", "脚下遗珍", RelicTier.RARE, 100)
+        val chest = RelicChest(997, h.x + 1, h.y, RelicTier.COMMON)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(chest), mobs = emptyList(), sites = emptyList(),
+            drops = listOf(RelicDrop(h.x, h.y, loot)),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val tapped = relicNearbyAction(scene, 1 to 0, chest.x to chest.y)!!
+        assertEquals("open", tapped.action)
+        assertEquals(chest.x to chest.y, tapped.x to tapped.y)
+        val started = RelicEscapeRules.act(scene,
+            RelicChestPresentation.playerAction(scene, tapped.action, tapped.x, tapped.y),
+            tapped.x, tapped.y)
+        assertEquals(1, started.chestProgress[chest.id])
+        assertTrue(started.drops.any { it.loot.id == loot.id })
+        assertFalse(started.hero.bag.any { it.id == loot.id })
+        // Returning the cursor to the hero deliberately picks up the same item.
+        val pickup = relicNearbyAction(started, 1 to 0, h.x to h.y)!!
+        assertEquals("pickup", pickup.action)
+        assertEquals(loot.id, pickup.id)
+        val collected = RelicEscapeRules.act(started, pickup.action, lootId = pickup.id)
+        assertTrue(collected.hero.bag.any { it.id == loot.id })
+        assertFalse(collected.drops.any { it.loot.id == loot.id })
+        assertEquals(1, collected.chestProgress[chest.id])
+        val restored = RelicRun.read(collected.json())!!
+        assertTrue(restored.hero.bag.any { it.id == loot.id })
+        assertEquals(1, restored.chestProgress[chest.id])
+    }
+
     @Test fun contextInteractionNeverAutoAttacksEnemyOrActsThroughFog() {
         val base = run()
         val h = base.hero
