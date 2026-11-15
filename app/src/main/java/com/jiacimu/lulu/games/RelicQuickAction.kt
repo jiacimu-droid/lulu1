@@ -146,10 +146,14 @@ internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>, selected: 
     // chest or landmark merely because the D-pad still faces that direction.
     val underfoot = relicQuickAction(run, h.x to h.y)
     if (underfoot?.action == "pickup") return underfoot
-    // A deliberate map tap takes precedence over the last joystick direction.\n    // Only actual nearby physical interactions qualify; distant taps cannot act.\n    val selectedAction = selected?.let { relicQuickAction(run, it) }\n    val interactions = setOf("open", "pickup", "resupply", "fountain",\n        "disarm", "invoke", "silence", "revive", "extract")\n    if (selectedAction?.action in interactions) return selectedAction\n    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
-        .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
+    // A deliberate map tap takes precedence over the last joystick direction.
+    // Only actual nearby physical interactions qualify; distant taps cannot act.
+    val selectedAction = selected?.let { relicQuickAction(run, it) }
     val interactions = setOf("open", "pickup", "resupply", "fountain",
         "disarm", "invoke", "silence", "revive", "extract")
+    if (selectedAction?.action in interactions) return selectedAction
+    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
+        .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
     for ((dx, dy) in directions) {
         val x = h.x + dx
         val y = h.y + dy
