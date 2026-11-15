@@ -188,12 +188,15 @@ internal object RelayRequestPressurePolicy {
         var used = 0
         val retained = mutableListOf<ModelConversationMessage>()
         for (turn in history.asReversed()) {
-            // ConversationHistoryWindow keeps the newest intact turn even when
-            // it alone exceeds the soft history budget. A relay fallback must
-            // not silently erase that just-delivered reply (or quote) and make
-            // the same character appear to have forgotten the previous turn.
-            // Keep its complete text and role; only older turns are optional.
-            if (retained.isNotEmpty() && used + turn.content.length > maxCharacters) break
+            // The newest user input is already preserved verbatim in a
+            // separate wire message. Keep the last ASSISTANT reply intact,
+            // even if it exceeds this soft historic-window budget: losing
+            // what the character just said breaks immediate continuity.
+            // An older oversized USER history turn cannot block pressure
+            // recovery when the actual current user message is still present.
+            if (used + turn.content.length > maxCharacters &&
+                (retained.isNotEmpty() ||
+                    turn.role != ModelConversationMessage.Role.ASSISTANT)) break
             retained += turn
             used += turn.content.length
         }
