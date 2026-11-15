@@ -417,3 +417,10 @@
 
 - 正式 `IslandGameOpenMic.kt` 发现异步 Android `RequestPermission` 可能在游戏已离场、`DisposableEffect` 已销毁或 Activity 已停止后才返回，原回调直接 `mic.start()`，造成离开游戏后意外重新开启捕获。生产提交 `12cb3469ee6ec6ba47732243b12fa496d540584d`，blob `013ec19c59cf610064031e0c24cc47df99d793fb`：`dispose()` 使旧实例不可再启动，授权回调及手动切换只允许 Lifecycle 至少 STARTED 时开启，离场仍 stop 并失效旧 STT 会话；双游戏共用此入口，不修改人物决策或发言内容。
 - 未新增同类旧测试。CI 需按包含此提交的 main push SHA 核 JVM/APK/index；旧 `a5f07fa` 的 APK #43737591580 failure，索引 success，不等于新 APK 绿。真机必须覆盖授权弹窗中切后台/退出游戏→授权返回不再录音、正常授权连麦与关麦重开、Redmi 横屏语音回执；下一实际文件 `IslandGameOpenMic.kt`，可加 Robolectric 生命周期/权限回调根因回归，或检查新 APK 首错。美术与完整游玩闭环仍待验。
+
+
+## 2026-11-16 G-02.6 · 后台授权结果不得在重新前台时启动旧游戏连麦（工程 CI 待验）
+
+- 复核最新正式 `IslandGameOpenMic.kt` 后发现：先前仅在权限回调当下检查 `Lifecycle.STARTED`；若玩家请求权限后切后台、权限回调在恢复前台后才送达，仍会自动开启已不再有效的旧请求。生产提交 `3694ad41f9a65c14808668572f6d06239b744007`，源码 blob `f8da04cac829e9157623a3578ce5e3d996eb97d7`：`GameMicPermissionGate` 在请求时登记，在 ON_STOP/离场时失效；回调只消费仍有效的请求一次。已有 `dispose`、STT 会话代数和正常前台开麦保持原样。
+- 根因回归 `GameMicPermissionGateTest.kt` 提交 `caefbfd04e4cc8180af54dd7411e81a341778825`，测试 blob `55cdcbf080dcfde23316029722b752ec056211d2`，覆盖正常一次消费、后台/离场后迟到授权不复活、重进游戏必须重新请求、重复停止/拒绝。未添加模型调用或虚构角色发言。
+- JVM/APK/index：新 push 尚未取得对应 HEAD 的 terminal success；真实 Android 权限弹窗、Redmi 横屏/帧率、美术与完整游玩闭环仍待独立验收。下一入口 `GameMicPermissionGateTest.kt` 的 JVM 首错与 `IslandGameOpenMic.kt` 真机授权→后台→恢复；之后回到 G-03 箱盖与权威实物可视性。
