@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
+import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -73,4 +75,47 @@ class GrowthReflectionInputTest {
         val short = "原本人设"
         assertEquals(short, GrowthReflectionInput.personaBrief(short))
     }
+    @Test fun privateSelfCorrectionParticipatesOnlyWithItsRealSelectedEvidence() {
+        val source = event(90, EventEvidenceKind.ToolResult,
+            source = "actual-wake-call", channel = "工具回执")
+        val other = event(91, EventEvidenceKind.UserStatement)
+        val mind = JSONObject()
+            .put("causalTransitions", JSONArray()
+                .put(JSONObject()
+                    .put("evidenceId", source.id)
+                    .put("at", source.occurredAt.plusSeconds(30).toString())
+                    .put("stateDelta", JSONObject()
+                        .put("selfCorrection", "下次来电和本机闹钟双重保障"))
+                    .put("innerThought", "要先检查真实拨号记录")))
+            .put("innerVoices", JSONArray()
+                .put(JSONObject()
+                    .put("evidenceId", source.id)
+                    .put("occurredAt", source.occurredAt.plusSeconds(31).toString())
+                    .put("thought", "通知不等于醒来"))
+                .put(JSONObject()
+                    .put("evidenceId", "missing-evidence")
+                    .put("occurredAt", source.occurredAt.toString())
+                    .put("thought", "伪造的成功经验")))
+        val reflection = GrowthReflectionInput.subjectiveEvidenceText(listOf(source, other), mind)
+        assertTrue(reflection.contains(source.id))
+        assertTrue(reflection.contains("来电和本机闹钟双重保障"))
+        assertTrue(reflection.contains("先检查真实拨号记录"))
+        assertTrue(reflection.contains("通知不等于醒来"))
+        assertFalse(reflection.contains("伪造的成功经验"))
+        assertEquals("", GrowthReflectionInput.subjectiveEvidenceText(listOf(other), mind))
+        assertEquals("", GrowthReflectionInput.subjectiveEvidenceText(emptyList(), mind))
+    }
+
+    @Test fun growthReflectionDoesNotAcceptPrivateClaimsFromFutureOrBeforeSource() {
+        val source = event(92, EventEvidenceKind.ToolResult)
+        val mind = JSONObject().put("innerVoices", JSONArray()
+            .put(JSONObject().put("evidenceId", source.id)
+                .put("occurredAt", source.occurredAt.minusSeconds(3_600).toString())
+                .put("thought", "未见证的回顾"))
+            .put(JSONObject().put("evidenceId", source.id)
+                .put("occurredAt", Instant.now().plusSeconds(3_600).toString())
+                .put("thought", "来自未来的判断")))
+        assertEquals("", GrowthReflectionInput.subjectiveEvidenceText(listOf(source), mind))
+    }
+
 }
