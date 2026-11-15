@@ -10,8 +10,15 @@ internal data class RelicMapCamera(val tileSize: Float, val offsetX: Float, val 
         // Float.toInt() maps NaN to zero, otherwise selecting a real corner tile by accident.
         if (!px.isFinite() || !py.isFinite() || !tileSize.isFinite() || tileSize <= 0f ||
             !offsetX.isFinite() || !offsetY.isFinite()) return null
-        val x = floor((px - offsetX) / tileSize).toInt()
-        val y = floor((py - offsetY) / tileSize).toInt()
+        // Finite inputs can still overflow during subtraction/division. Never clamp an
+        // out-of-range projection into a real tile through Float.toInt saturation.
+        val projectedX = (px.toDouble() - offsetX.toDouble()) / tileSize.toDouble()
+        val projectedY = (py.toDouble() - offsetY.toDouble()) / tileSize.toDouble()
+        if (!projectedX.isFinite() || !projectedY.isFinite() ||
+            projectedX < 0.0 || projectedY < 0.0 ||
+            projectedX >= width.toDouble() || projectedY >= height.toDouble()) return null
+        val x = floor(projectedX).toInt()
+        val y = floor(projectedY).toInt()
         return if (x in 0 until width && y in 0 until height) x to y else null
     }
 }
