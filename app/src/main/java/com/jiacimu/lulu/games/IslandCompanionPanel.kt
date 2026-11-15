@@ -106,6 +106,10 @@ internal fun IslandCompanionPanel(
     val latestSpeechIndex by rememberUpdatedState(speechIndex)
     val latestTeamInbox by rememberUpdatedState(teamInbox)
     val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
+    var lastAutoPulseTurn by remember(island.world.seed) { mutableIntStateOf(-1) }
+    var lastAutoPulseFinished by remember(island.world.seed) {
+        mutableStateOf<Set<String>>(emptySet())
+    }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
 
     // No paid call per tile. Only an already self-selected multi-step route
@@ -122,9 +126,18 @@ internal fun IslandCompanionPanel(
                     playerSpeaking = openMic.partial.isNotBlank(),
                     nearbyThreat = GameCoopPacing.islandThreat(now),
                 )) continue
+            val beforePlans = members.filter {
+                GameCoopPacing.islandMemberHasPlan(now, it)
+            }.toSet()
             val next = BlockIslandRules.act(
                 now, "companion_tick", autonomousIds = now.world.friends.map { it.id }.toSet())
-            if (next.world.turns > now.world.turns) currentSave(next)
+            if (next.world.turns > now.world.turns) {
+                lastAutoPulseTurn = next.world.turns
+                lastAutoPulseFinished = beforePlans.filterNot {
+                    GameCoopPacing.islandMemberHasPlan(next, it)
+                }.toSet()
+                currentSave(next)
+            }
         }
     }
 
@@ -148,7 +161,9 @@ internal fun IslandCompanionPanel(
             }
         }
         // Reopening a previously completed turn does not pay for a redundant reply.
-        if (allActed && members.all { unreadSnapshot.forRole(it).isEmpty() }) {
+        if (allActed && !(expectedTurn == lastAutoPulseTurn &&
+                lastAutoPulseFinished.isNotEmpty()) &&
+            members.all { unreadSnapshot.forRole(it).isEmpty() }) {
             lastRequestedTurn = expectedTurn
             lastRequestedSpeech = currentSpeech
             continue
@@ -175,9 +190,14 @@ internal fun IslandCompanionPanel(
                 val alreadyCompleted = snapshot.world.events.any {
                     it.startsWith(IslandActorPlay.eventPrefix(id, snapshot.world.turns))
                 }
+                if (!GameCoopPacing.mayReplanAfterTick(
+                        snapshot.world.turns, lastAutoPulseTurn, id,
+                        lastAutoPulseFinished, heard.isNotBlank())) continue
+                val finishedOwnGoal = snapshot.world.turns == lastAutoPulseTurn &&
+                    id in lastAutoPulseFinished
                 if ((alreadyCompleted ||
                         GameCoopPacing.islandMemberHasPlan(snapshot, id)) &&
-                    heard.isBlank()) continue
+                    heard.isBlank() && !finishedOwnGoal) continue
                 // Generate a real decision from this role's own identity, the actual current
                 // board, and its own earlier game events. The configured Game model is reused.
                 val result = runCatching { IslandActorPlay.decide(snapshot, id, heard) }
