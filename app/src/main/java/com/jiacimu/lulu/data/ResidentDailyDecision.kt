@@ -1803,6 +1803,19 @@ internal object ResidentDailyDecision {
         evidence: List<SharedTimelineEvent> = residentEvidence(
             ResidentCharacterBridge.characterId(native.id), pending, at)): String {
         val id = ResidentCharacterBridge.characterId(native.id)
+        // These are real independent games in the existing ledger, not AI duel
+        // records (which also have playedWithCharacter=false). Let the resident
+        // recall their recent pastime when freely choosing today's game.
+        val ownGameHistory = appContext?.let { app ->
+            com.jiacimu.lulu.games.LuluGames.initialize(app)
+            AutonomousAffordanceContext.recentSoloGames(
+                com.jiacimu.lulu.games.LuluGames.store.state.value.records, id)
+        }.orEmpty()
+        val gameHistoryContext = if (ownGameHistory.isEmpty()) "" else buildString {
+            appendLine("【本人最近真正独玩的游戏（新到旧，不是必须轮换）】")
+            ownGameHistory.forEach { (name, score) -> appendLine("- $name：$score 分") }
+            appendLine("可以凭自身兴趣重玩，也可以选择其他实体游戏或主动邀请熟人；人物间已结算的比赛另属共同经历。")
+        }
         // The native resident location and the character's home-item ledger
         // are already shared authoritative world state. Surface the *current*
         // home capacity and object IDs in this same daily decision, rather
@@ -1817,6 +1830,7 @@ internal object ResidentDailyDecision {
             appendLine("想回家整理可选 digital_world_action，args.worldAction=go_home；确实在自己家且有空位时可选 worldAction=build_home_item，填写自己想要的 itemType/name/appearance/position。调整已有家具用 move_home_item 与真实 itemId/position；无法在咖啡厅凭空布置家中。执行结果才是家具已存在的依据。")
         }
         val facts = context(native, at, pending, evidence) + "\n" + homeOptions + "\n" +
+            gameHistoryContext + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
             CharacterPhoneInbox.requestContext(id) + "\n" +
             appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty() + "\n" +
