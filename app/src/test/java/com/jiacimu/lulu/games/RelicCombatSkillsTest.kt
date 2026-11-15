@@ -105,12 +105,12 @@ class RelicCombatSkillsTest {
         val h=b.hero
         val guard=b.copy(profession=RelicProfession.GUARDIAN,
             hero=h.copy(hp=5))
-        val protected=RelicEscapeRules.act(guard,"profession_skill")
-        assertEquals(guard.turns+1,protected.turns)
-        assertEquals(7,protected.hero.hp)
-        assertEquals(4,protected.professionReadyTurn)
-        assertFalse(RelicCombatSkills.professionAvailable(protected))
-        val restored=RelicRun.read(protected.json())!!
+        val guarded=RelicEscapeRules.act(guard,"profession_skill")
+        assertEquals(guard.turns+1,guarded.turns)
+        assertEquals(7,guarded.hero.hp)
+        assertEquals(4,guarded.professionReadyTurn)
+        assertFalse(RelicCombatSkills.professionAvailable(guarded))
+        val restored=RelicRun.read(guarded.json())!!
         assertEquals(RelicProfession.GUARDIAN,restored.profession)
         assertEquals(4,restored.professionReadyTurn)
         assertEquals(restored.turns,RelicEscapeRules.act(restored,"profession_skill").turns)
