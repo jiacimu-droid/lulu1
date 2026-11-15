@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:33:02.856144+00:00",
-  "commit": "9a2a0b9d234df7ea8bb8172e5be7c313b00dfa66",
+  "generatedAt": "2026-11-15T04:33:37.476328+00:00",
+  "commit": "1863c554bf2bad36d4c2ab378af1ed9da24e5677",
   "branch": "main",
-  "sourceFingerprint": "00066cc367becce2cde91044fe0d004114f8533f36b5fbdafd9f1e1bd5041825",
+  "sourceFingerprint": "32e3d54906c2532276ee823abae0fb9b141c94e30d96226d286e2c6e6a408b83",
   "summary": {
     "files": 1327,
-    "lines": 281984,
-    "symbols": 3971
+    "lines": 281987,
+    "symbols": 3973
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22034,6 +22034,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
         "line": 14
+      }
+    ],
+    "b": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
+        "line": 64
+      }
+    ],
+    "c": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
+        "line": 66
       }
     ],
     "LuluVirtualFrameSafetyTest": [
@@ -46856,12 +46868,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-      "lines": 99,
-      "sha256": "a7a888b26c59e002f73950042d98293e9986d4f7ac2a5a894b201df024f8cb53",
+      "lines": 102,
+      "sha256": "270905569ff6323c23b0a7c8afa9fd33eea004291fec236dd59cdf876dfbb2ee",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
           "line": 14
+        },
+        {
+          "name": "b",
+          "line": 64
+        },
+        {
+          "name": "c",
+          "line": 66
         }
       ]
     },
