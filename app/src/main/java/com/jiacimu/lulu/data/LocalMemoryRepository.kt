@@ -431,12 +431,11 @@ class LocalMemoryRepository : MemoryRepository {
             if (entry.isOwnerDeleted(current.deletedMemoryKeys) ||
                 entry.sourceIds().any { it in current.forgottenSourceIds[entry.characterId].orEmpty() }) return@forEach
             val index = entries.indexOfFirst { existing ->
-                existing.characterId == entry.characterId && existing.dedupeKey() == entry.dedupeKey() &&
-                    existing.source.startsWith("timeline-events:") && entry.source.startsWith("timeline-events:") &&
-                    // A new extraction must never silently overwrite a user's manually edited fact.
-                    // Identical daily wording is not proof of the same episode on a different day.
-                    (entry.kind == MemoryKind.Fact ||
-                        existing.sourceIds().intersect(entry.sourceIds().toSet()).isNotEmpty())
+                // The old 320-character dedupe key can collide when a later
+                // sentence contains an important qualification. Use exact full
+                // content and equal event scope before merging extracted facts.
+                // Never combine separate dated experiences into one generic fact.
+                memoriesEquivalentForMaintenance(existing, entry)
             }
             if (index < 0) entries += entry else entries[index] = mergeMemory(entries[index], entry)
         }
@@ -1104,20 +1103,28 @@ private fun MemoryEntry.memoryIdentityKey(): String = content
     .replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
     .take(320)
 
-private fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEntry): Boolean {
-    if (left.kind != right.kind || left.perspective != right.perspective || left.characterId != right.characterId) return false
-    // Manual corrections and memories in different episodes must never disappear in a daily sweep.
-    if (!left.source.startsWith("timeline-events:") || !right.source.startsWith("timeline-events:")) return false
-    val sameEvent = left.sourceIds().intersect(right.sourceIds().toSet()).isNotEmpty()
-    if (left.kind != MemoryKind.Fact && !sameEvent) return false
-    if (left.subject.isNotBlank() && right.subject.isNotBlank() && left.subject != right.subject) return false
-    if (left.slot.isNotBlank() && right.slot.isNotBlank() && left.slot != right.slot) return false
-    val a = left.memoryIdentityKey()
-    val b = right.memoryIdentityKey()
-    if (a == b) return true
-    // Non-facts are only merged when they describe the same original event; negations and
-    // semantically different versions are left to a model review, never string similarity alone.
-    return false
+/** Common gate for ingestion and daily maintenance: an identical heading or
+ * first 320 characters cannot retire a different occasion, quantitative fact
+ * or qualifying sentence. The weekly model review has its own stricter gate. */
+internal fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEntry): Boolean {
+    if (left.kind != right.kind || left.perspective != right.perspective ||
+        left.characterId != right.characterId) return false
+    // Hand-edited records are never consumed by automatic housekeeping.
+    if (!left.source.startsWith("timeline-events:") ||
+        !right.source.startsWith("timeline-events:")) return false
+    if (left.subject.trim() != right.subject.trim() ||
+        left.slot.trim() != right.slot.trim() ||
+        left.sceneKey.trim() != right.sceneKey.trim() ||
+        left.measureKind.trim() != right.measureKind.trim() ||
+        left.measureValue != right.measureValue ||
+        left.measureUnit.trim() != right.measureUnit.trim() ||
+        left.occurredAt != right.occurredAt) return false
+    if (left.kind != MemoryKind.Fact &&
+        left.sourceIds().intersect(right.sourceIds().toSet()).isEmpty()) return false
+    // Unlike the tombstone identity key, compare the entire statement, not
+    // a 320-character prefix. Otherwise a late negation or condition vanishes.
+    return left.content.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "") ==
+        right.content.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
 }
 
 private fun bigramJaccard(left: String, right: String): Double {
