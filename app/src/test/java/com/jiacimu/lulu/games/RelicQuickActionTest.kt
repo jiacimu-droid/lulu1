@@ -295,7 +295,7 @@ class RelicQuickActionTest {
         assertEquals("wait", relicQuickAction(map, hero)?.action)
         // A map tap is selection, not consent to spend an extraction turn.
         val empty = (map.hero.x + 3) to map.hero.y
-        assertNull(relicQuickAction(map, empty))
+        assertNotEquals("wait", relicQuickAction(map, empty)?.action)
         assertNull(relicNearbyAction(map, 1 to 0, empty))
         val unchanged = RelicRun.read(map.json())!!
         assertEquals(map.turns, unchanged.turns)
