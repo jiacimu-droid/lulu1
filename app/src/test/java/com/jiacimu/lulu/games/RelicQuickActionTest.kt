@@ -403,9 +403,14 @@ class RelicQuickActionTest {
         val attacked=RelicEscapeRules.act(scene,"sweep")
         assertEquals(scene.turns+1,attacked.turns)
         assertEquals(3,attacked.sweepReadyTurn)
-        assertEquals(4,attacked.mobs.first{it.id==east.id}.hp)
-        assertEquals(4,attacked.mobs.first{it.id==south.id}.hp)
-        assertEquals(4,attacked.mobs.first{it.id==west.id}.hp)
+        // This fixture equips weapon level 2: upgraded sweep hits unarmored
+        // foes for 2 and plated guardians for 1, not an unconditional 1.
+        assertEquals(east.hp-RelicArsenal.sweepDamage(scene,east),
+            attacked.mobs.first{it.id==east.id}.hp)
+        assertEquals(south.hp-RelicArsenal.sweepDamage(scene,south),
+            attacked.mobs.first{it.id==south.id}.hp)
+        assertEquals(west.hp-RelicArsenal.sweepDamage(scene,west),
+            attacked.mobs.first{it.id==west.id}.hp)
         assertEquals(far.hp,attacked.mobs.first{it.id==far.id}.hp)
         assertEquals(1,attacked.events.count{it.who=="player" && it.action=="sweep"})
         val restored=RelicRun.read(attacked.json())!!
@@ -480,7 +485,7 @@ class RelicQuickActionTest {
         assertFalse(RelicArsenal.canSweep(fog))
     }
 
-    @Test fun explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy() {
+    @Test fun mapInspectionDoesNotBlockTheRealAttackKeyWhenEnemyIsNearby() {
         val base = run()
         val h = base.hero
         val near = RelicMob(801, h.x + 1, h.y, 5, 0)
@@ -492,7 +497,10 @@ class RelicQuickActionTest {
         assertNull(relicAttackTarget(scene, distant.x to distant.y))
         assertEquals(near.id, relicAttackTarget(scene, h.x to h.y)?.id)
         assertEquals(near.id, relicAttackTarget(scene, near.x to near.y)?.id)
-        assertTrue(relicAttackHint(scene, distant.x to distant.y).contains("靠近"))
+        // Old context cursor still refuses to attack a distant selected mob,
+        // but the actual one-tap attack ignores inspection and finds an in-range foe.
+        assertEquals(near.id, relicAttackButtonTarget(scene, distant.x to distant.y)?.id)
+        assertTrue(relicAttackHint(scene, distant.x to distant.y).contains("敌人进入射程"))
     }
 
     @Test fun explicitlySelectedEmptyTileNeverRedirectsAttackToNearbyEnemy() {
