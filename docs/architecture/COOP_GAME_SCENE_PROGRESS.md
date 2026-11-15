@@ -1,5 +1,13 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-03.5 · 有限极值触点不得溢出成真实地图实体（源码/根因回归已提交；CI/真机待验）
+
+- **根因**：上轮只拒绝 NaN/Infinity 输入；即使每个 Float 输入有限，极小 tileSize 与极大触点的投影也可能溢出，随后 `Float.toInt` 饱和到 `Int.MAX_VALUE`。地图尺寸异常或手势边界时不应选中实体。
+- **生产**：`e644a7f9b4253d6e6f1395ad7eddcd1d4343930e` 在 `RelicMapCamera.tileAt` 用 Double 投影，并在转整数前验证有限且位于真实地图边界，保留正常触点投影；源码 blob `6c433ddd35b92f1292e45f85a28c9194c8619021`。
+- **回归**：`3c806eb4c7ea6d07f3c4b2a892d9a05eafb9d00e` 新增 `RelicMapCameraTest.finiteExtremeCoordinatesAndTinyTilesNeverSaturateIntoRealTiles`，覆盖有限极值、极小格子及合法普通点；测试 blob `18056ee288a42c893dfa05de9a9fd9c0674bdfe0`。
+- **CI/下一入口**：生产 push `e644a7f` 的 Lulu APK #43772116292 查询时 in_progress；最终测试 push `3c806eb` 的 JVM/APK/index 尚无 terminal success。下一轮核此 SHA 的 `RelicMapCameraTest.kt` JVM 与 `RelicEscapeArt.kt` 触点接线，Redmi 横屏捏合/FPS/实体选中另验；未改变战利品、模型决定或美术资源。
+
+
 ### 2026-11-16 · G-03.5 · 无效捏合触点不得误选地图角落（源码/回归已提交，CI/真机待验）
 
 - **根因**：`RelicMapCamera.tileAt` 直接把浮点坐标 `floor(...).toInt()` 转格子；Android 手势取消、初始零尺寸或无效投影出现 NaN 时，Kotlin 浮点转整数可能变成 0，导致玩家没点角落却误选 (0,0) 实体。
