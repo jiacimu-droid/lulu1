@@ -937,14 +937,18 @@ object ProactivePerceptionRuntime {
         // Past matches belong to this character only. Supply actual history for their
         // own choice of pastime; never force rotation or invent a preference.
         com.jiacimu.lulu.games.LuluGames.initialize(appContext)
+        val recentGameRecords = com.jiacimu.lulu.games.LuluGames.store.state.value.records
         val recentSoloGames = AutonomousAffordanceContext.recentSoloGames(
-            com.jiacimu.lulu.games.LuluGames.store.state.value.records, characterId)
+            recentGameRecords, characterId)
+        val recentSoloPlayRhythm = AutonomousAffordanceContext.recentSoloPlayRhythm(
+            recentGameRecords, characterId, now)
         val affordances = AutonomousAffordanceContext.render(
             digital = digital,
             location = currentLocation,
             books = readingBooks.map { AutonomousAffordanceContext.Book(it.id, it.title) },
             groups = availableGroups.map { it.id to it.groupChat?.name.orEmpty() },
             recentSoloGames = recentSoloGames,
+            recentSoloPlayRhythm = recentSoloPlayRhythm,
             locationActivities = activityChoices,
             publicPlaces = if (digital) DigitalWorldPublicPlaces.all.map { it.code to it.label } else emptyList(),
             currentItems = itemChoices,
