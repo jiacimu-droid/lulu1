@@ -43,6 +43,79 @@ internal object LuluVirtualUiPolicy {
         requestedId == currentId && expectedFingerprint.isNotBlank() &&
         expectedFingerprint == currentFingerprint
 
+    /** Only a bounded, actual toolbar control may implement the role's
+     * already selected BACK action. This is a physical action resolver, not
+     * a new model deciding whether to navigate. Indexes refer to the live
+     * virtual-display accessibility tree, not to stored screenshot pixels. */
+    data class AppBarControl(
+        val left: Int, val top: Int, val right: Int, val bottom: Int,
+        val label: String = "", val resourceId: String = "",
+        val clickable: Boolean = true,
+    ) {
+        val centerX: Int get() = (left + right) / 2
+        val centerY: Int get() = (top + bottom) / 2
+        val width: Int get() = right - left
+        val height: Int get() = bottom - top
+    }
+
+    private val BACK_LABELS = setOf(
+        "返回", "返回按钮", "返回上一页", "返回上一级", "上一页",
+        "back", "go back", "navigate up", "back button",
+    )
+    private val BACK_ID = Regex(
+        "(^|[_\\-])(back|arrow_back|back_arrow|navigate_up|nav_back|btnback|icback|title_back)([_\\-]|$)",
+        RegexOption.IGNORE_CASE,
+    )
+
+    fun isNamedAppBack(label: String, resourceId: String): Boolean {
+        val normalized = label.trim().lowercase().replace(Regex("\\s+"), " ")
+        val id = resourceId.substringAfterLast('/').lowercase()
+        return normalized in BACK_LABELS || BACK_ID.containsMatchIn(id)
+    }
+
+    /** A unique icon at the left edge of a verified toolbar may be anonymous
+     * in custom-drawn WebViews. Require a separate wide toolbar/search control
+     * to the right, otherwise do not guess what the unlabeled icon does. */
+    fun appBackControlIndex(
+        screenWidth: Int, screenHeight: Int, controls: List<AppBarControl>,
+    ): Int? {
+        if (screenWidth <= 0 || screenHeight <= 0) return null
+        val topLeft = controls.withIndex().filter { (_, c) ->
+            c.clickable && c.width in 12..(screenWidth / 4).coerceAtLeast(12) &&
+                c.height in 12..(screenHeight / 9).coerceAtLeast(12) &&
+                c.left >= 0 && c.top >= screenHeight / 30 &&
+                c.centerX < screenWidth * 27 / 100 &&
+                c.centerY < screenHeight * 28 / 100
+        }
+        val named = topLeft.filter { isNamedAppBack(it.value.label, it.value.resourceId) }
+        val candidates = if (named.isNotEmpty()) named else topLeft.filter { entry ->
+            val c = entry.value
+            c.label.isBlank() && c.resourceId.isBlank() &&
+                controls.any { neighbor ->
+                    neighbor !== c && neighbor.left >= c.right &&
+                        neighbor.width > screenWidth / 3 &&
+                        kotlin.math.abs(neighbor.centerY - c.centerY) <
+                            screenHeight / 25 &&
+                        neighbor.centerY < screenHeight * 28 / 100
+                }
+        }
+        if (candidates.isEmpty()) return null
+        val first = candidates.minWithOrNull(
+            compareBy<IndexedValue<AppBarControl>> {
+                it.value.width.toLong() * it.value.height
+            }.thenBy { it.value.centerX }
+        ) ?: return null
+        // Duplicate accessibility wrappers around one glyph are okay; two
+        // different top-left buttons are not an unambiguous BACK target.
+        if (candidates.any {
+                kotlin.math.abs(it.value.centerX - first.value.centerX) >
+                    screenWidth / 40 ||
+                kotlin.math.abs(it.value.centerY - first.value.centerY) >
+                    screenHeight / 40
+            }) return null
+        return first.index
+    }
+
     /** Only safe, named navigation. Unknown, empty, sensitive and outward
      * actions must fail closed, never perform a second click automatically. */
     fun mayClick(
