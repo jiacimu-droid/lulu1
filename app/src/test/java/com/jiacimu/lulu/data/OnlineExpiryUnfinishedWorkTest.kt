@@ -104,6 +104,19 @@ class OnlineExpiryUnfinishedWorkTest {
         assertFalse(reminder.contains("状态=succeeded"))
     }
 
+    @Test fun statuslessLaterReceiptCannotEraseEarlierFailureForSameRequest() {
+        val failure = receipt("background_phone", "failed", 80, "微信发送失败")
+        val later = JSONObject(receipt("background_phone", "succeeded", 20).content)
+            .put("requestId", "step-80")
+            .remove("status")
+        later.put("result", JSONObject().put("summary", "尚无执行结果").toString())
+        val statusless = receipt("background_phone", "succeeded", 20)
+            .copy(content = later.toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(listOf(failure, statusless), now)
+        assertTrue(reminder.contains("微信发送失败"))
+        assertTrue(reminder.contains("状态=failed"))
+    }
+
     @Test fun unrelatedOrStaleEventsDoNotReviveOldFailures() {
         val badSource = receipt("background_phone", "failed", 50)
             .copy(source = "legacy")
