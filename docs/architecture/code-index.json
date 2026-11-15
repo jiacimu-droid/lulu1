@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T18:39:23.809134+00:00",
-  "commit": "55dbad3be7755fc611191ec5b1ae5bf566050bbc",
+  "generatedAt": "2026-11-15T18:52:02.024332+00:00",
+  "commit": "3c940d817fb370e6f029f231fce133e7e0ec211e",
   "branch": "main",
-  "sourceFingerprint": "dbdbdf05974cdb12090330c578a274a94a51f1aed22acd7ead827e52ec095912",
+  "sourceFingerprint": "cc376fa25271f9a310b6676307812b8b9ee108c0cb2b667d814ca0d7bfd8c855",
   "summary": {
-    "files": 1340,
-    "lines": 285485,
-    "symbols": 4029
+    "files": 1341,
+    "lines": 285542,
+    "symbols": 4033
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -57,7 +57,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 57
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
@@ -133,7 +133,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 108
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
@@ -220,6 +220,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
         "line": 225
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt",
@@ -4842,6 +4846,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
         "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
+        "line": 31
       }
     ],
     "clear": [
@@ -7977,6 +7985,10 @@
     "invalidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
         "line": 30
       }
     ],
@@ -11811,7 +11823,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 66
+        "line": 74
       }
     ],
     "dueAt": [
@@ -14701,25 +14713,25 @@
     "setListener": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 54
+        "line": 62
       }
     ],
     "permissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 56
+        "line": 64
       }
     ],
     "setCompanionSpeaking": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 94
+        "line": 102
       }
     ],
     "dispose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 103
+        "line": 111
       }
     ],
     "json": [
@@ -21841,6 +21853,12 @@
     "GameJoystickDirectionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt",
+        "line": 8
+      }
+    ],
+    "GameMicPermissionGateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt",
         "line": 8
       }
     ],
@@ -36999,36 +37017,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-      "lines": 152,
-      "sha256": "8004395e6dbe9b90112486c9194ed56e6f2c6e17b9bef68c9fd5de8ab222b551",
+      "lines": 171,
+      "sha256": "259ea25eb6646c44211c5d6a0016d04a8ddaafd66ff131c7c818258f9fb5d5a2",
       "symbols": [
         {
+          "name": "request",
+          "line": 29
+        },
+        {
+          "name": "invalidate",
+          "line": 30
+        },
+        {
+          "name": "consume",
+          "line": 31
+        },
+        {
           "name": "setListener",
-          "line": 54
+          "line": 62
         },
         {
           "name": "permissionDenied",
-          "line": 56
+          "line": 64
         },
         {
           "name": "start",
-          "line": 57
+          "line": 65
         },
         {
           "name": "isCurrent",
-          "line": 66
+          "line": 74
         },
         {
           "name": "setCompanionSpeaking",
-          "line": 94
+          "line": 102
         },
         {
           "name": "dispose",
-          "line": 103
+          "line": 111
         },
         {
           "name": "stop",
-          "line": 108
+          "line": 116
         }
       ]
     },
@@ -46584,6 +46614,17 @@
       "symbols": [
         {
           "name": "GameJoystickDirectionTest",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt",
+      "lines": 38,
+      "sha256": "70b905fe401d3b2a16bb87164c644212a419552e81cb9e699a42cf29f8ded0df",
+      "symbols": [
+        {
+          "name": "GameMicPermissionGateTest",
           "line": 8
         }
       ]

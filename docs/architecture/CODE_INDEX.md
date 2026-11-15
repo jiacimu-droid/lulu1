@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`55dbad3be7755fc611191ec5b1ae5bf566050bbc`
+- 基准提交：`3c940d817fb370e6f029f231fce133e7e0ec211e`
 - 分支：`main`
-- 已索引文件：1340
-- 已索引代码/文本行：285485
-- 已发现符号：4029
+- 已索引文件：1341
+- 已索引代码/文本行：285542
+- 已发现符号：4033
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -700,7 +700,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 153 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt` | 152 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt` | 171 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt` | 71 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 274 | 14 |
@@ -1250,6 +1250,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
