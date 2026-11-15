@@ -304,8 +304,11 @@ internal object MemorySemanticConsolidation {
                     val originallyReviewed = window.filter { it.id in group }
                     if (current.size != group.size || current.toSet() != originallyReviewed.toSet() ||
                         current.size < 2 || !equivalentScope(current)) return@synchronized
-                    val keeper = current.sortedWith(compareByDescending<MemoryEntry> { it.isCoreMemory() }
-                        .thenByDescending { it.strength }.thenByDescending { it.createdAt }).first()
+                    // A language model's "same meaning" judgment is not
+                    // permission to discard a distinct condition, timestamp or
+                    // scene detail. The keeper must itself contain the wording
+                    // of every record being hidden from ordinary recall.
+                    val keeper = safeKeeperForEquivalentGroup(current) ?: return@synchronized
                     val redundant = current.filter { it.id != keeper.id }
                     if (redundant.isNotEmpty()) {
                         MemoryValidityStore.markEquivalent(redundant.map { it.id }, keeper.id)
@@ -380,14 +383,54 @@ internal object MemorySemanticConsolidation {
         return MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
     }
 
-    private fun equivalentScope(memories: List<MemoryEntry>): Boolean =
-        memories.map { it.characterId }.distinct().size == 1 &&
-            memories.map { it.perspective }.distinct().size == 1 &&
-            memories.map { it.kind }.distinct().size == 1 &&
-            (memories.first().kind == MemoryKind.Fact ||
-                memories.map { it.sourceIds().toSet() }.reduce { left, right -> left.intersect(right) }.isNotEmpty()) &&
-            memories.map { it.subject.trim() }.filter(String::isNotBlank).distinct().size <= 1 &&
-            memories.map { it.slot.trim() }.filter(String::isNotBlank).distinct().size <= 1
+    /**
+     * Two records can share a topic without being interchangeable. Keep
+     * provenance and every distinct piece of context accessible to retrieval.
+     * An autonomous weekly review may only retire text already present,
+     * without loss, in the exact surviving entry. All sources remain archived.
+     */
+    internal fun safeKeeperForEquivalentGroup(memories: List<MemoryEntry>): MemoryEntry? {
+        if (memories.size < 2 || !equivalentScope(memories)) return null
+        val keeper = memories.sortedWith(compareByDescending<MemoryEntry> { it.isCoreMemory() }
+            .thenByDescending { it.pinned }
+            .thenByDescending { it.content.length }
+            .thenByDescending { it.strength }
+            .thenByDescending { it.createdAt }).first()
+        val keeperText = normalizeDetailText(keeper.content)
+        if (keeperText.isBlank() ||
+            memories.any { memory ->
+                val detail = normalizeDetailText(memory.content)
+                detail.isBlank() || !keeperText.contains(detail)
+            }) return null
+        return keeper
+    }
+
+    private fun normalizeDetailText(text: String): String =
+        text.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
+
+    private fun equivalentScope(memories: List<MemoryEntry>): Boolean {
+        val first = memories.firstOrNull() ?: return false
+        // An empty field is NOT proof of the other entry's known value.
+        // Collapsing an unscoped memory into a scoped one loses context.
+        if (memories.any { memory ->
+                memory.characterId != first.characterId ||
+                    memory.perspective != first.perspective ||
+                    memory.kind != first.kind ||
+                    memory.subject.trim() != first.subject.trim() ||
+                    memory.slot.trim() != first.slot.trim() ||
+                    memory.sceneKey.trim() != first.sceneKey.trim() ||
+                    memory.measureKind.trim() != first.measureKind.trim() ||
+                    memory.measureValue != first.measureValue ||
+                    memory.measureUnit.trim() != first.measureUnit.trim() ||
+                    (memory.occurredAt != null && first.occurredAt != null &&
+                        memory.occurredAt != first.occurredAt)
+            }) return false
+        // Ordinary lived episodes and emotions must also have a common
+        // original event; two similar days are still two real experiences.
+        return first.kind == MemoryKind.Fact ||
+            memories.map { it.sourceIds().toSet() }
+                .reduce { left, right -> left.intersect(right) }.isNotEmpty()
+    }
 
     internal fun parseGroups(raw: String, allowed: Set<String>): List<List<String>> = runCatching {
         val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
