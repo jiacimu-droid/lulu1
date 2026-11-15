@@ -60,7 +60,7 @@ internal object OnlineExpiryUnfinishedWork {
                     }
                 }
                 appendLine("tool=$tool；requestId=${attempt.optString("requestId").take(110)}；" +
-                    "状态=${attempt.optString("status")}；真实阻碍=${explanation.take(250)}")
+                    "状态=${result?.optString("status")?.takeIf(String::isNotBlank) ?: attempt.optString("status")}；真实阻碍=${explanation.take(250)}")
             }
             appendLine("若本人仍想继续，可以本轮实际选择安全的工具动作；若现在不适合，可亲自说明失败并登记真实后续，或决定放下。只说‘我去看看’不等于工具执行；到点下线不自动清除这些事实。是否续醒、联系、改方法或休眠仍由本人选择。")
         }.trim()
