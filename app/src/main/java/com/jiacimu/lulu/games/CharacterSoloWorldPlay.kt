@@ -59,12 +59,17 @@ internal class CharacterSoloWorldPlay(context: Context) {
             old.kits.coerceAtMost(2),old.weapon,old.satchelLevel,
             purchasedWeapons=old.purchasedWeapons)
         val initial=run.turns
+        val replayStart = RelicSoloReplay.start(run)
+        val replayFrames = JSONArray()
         repeat(turns) {
             if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
                 return@repeat
             val cmd=chooseRelic(run,focus) ?: return@repeat
             val next=RelicEscapeRules.act(run,cmd.first,cmd.second.first,cmd.second.second)
-            if(next.turns>run.turns || next.phase!=run.phase)run=next
+            if(next.turns>run.turns || next.phase!=run.phase) {
+                run=next
+                replayFrames.put(RelicSoloReplay.frame(run))
+            }
         }
         require(run.turns>initial || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE)) {
             "没有合法的摸金行动发生，本段游戏不计为完成"
@@ -98,6 +103,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
             if(earned.isNotEmpty())" 新入馆：${earned.joinToString("、"){it.name}}。"else""
         val details=JSONObject().put("game","relic_escape").put("runId",run.id)
             .put("phase",run.phase.name).put("focus",focus)
+            .put("replayStart",replayStart).put("replayFrames",replayFrames)
             .put("sessionTurns",run.turns-initial).put("turns",run.turns)
             .put("secured",JSONArray(run.secured.map{it.json()}))
             .put("unsecured",JSONArray(if(run.phase==RelicPhase.SUCCESS)emptyList()else run.hero.bag.map{it.json()}))
