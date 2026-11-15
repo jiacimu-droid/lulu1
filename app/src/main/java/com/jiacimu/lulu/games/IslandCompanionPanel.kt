@@ -80,9 +80,9 @@ internal fun IslandCompanionPanel(
         speaker.setSpeakingListener { openMic.setCompanionSpeaking(it) }
         onDispose { speaker.setSpeakingListener(null); openMic.stop() }
     }
-    LaunchedEffect(openMic.partial) {
-        if (openMic.partial.isNotBlank()) latestDialogue("player", openMic.partial)
-    }
+    // Live STT partials are provisional and may be revised or discarded by VAD.
+    // Keep them in the microphone panel only; the world-space speech bubble and
+    // shared timeline must reflect a committed utterance, not an unconfirmed guess.
     val readCurrentIsland by rememberUpdatedState(readIsland)
     val currentSave by rememberUpdatedState(onSave)
     val currentPing by rememberUpdatedState(onPing)
