@@ -334,6 +334,44 @@ class RelicQuickActionTest {
         assertFalse(relicAttackHint(far, h.x + 3 to h.y).isBlank())
     }
 
+    @Test fun attackButtonKeepsStarterBladeUsableAfterInspectingEmptyTerrain() {
+        val base=run()
+        val h=base.hero
+        val adjacent=RelicMob(906, h.x+1, h.y, 5, 0)
+        val distant=RelicMob(907, h.x+3, h.y, 5, 0)
+        val scene=RelicEscapeRules.reveal(base.copy(
+            mobs=listOf(adjacent,distant),seen=(0 until base.w*base.h).toSet(),
+            equipped="blade",weapons=setOf("blade"),
+        ))
+        val inspectedEmpty=h.x to (h.y+1)
+        // Map inspection is not the combat cursor; a stale empty tile must not
+        // leave the attack button looking broken while a guard is right beside us.
+        assertNull(relicAttackTarget(scene,inspectedEmpty))
+        assertEquals(adjacent.id,relicAttackButtonTarget(scene,inspectedEmpty)?.id)
+        val target=relicAttackButtonTarget(scene,inspectedEmpty)!!
+        val attacked=RelicEscapeRules.act(scene,"attack",target.x,target.y)
+        assertEquals(scene.turns+1,attacked.turns)
+        assertTrue(attacked.mobs.first{it.id==adjacent.id}.hp<adjacent.hp)
+        // Explicitly inspecting a living distant enemy is still respected:
+        // do not hit a different guard behind the player's back.
+        assertNull(relicAttackButtonTarget(scene,distant.x to distant.y))
+        assertTrue(relicAttackHint(scene,distant.x to distant.y).contains("靠近"))
+        assertEquals(adjacent.id,relicAttackButtonTarget(scene,h.x to h.y)?.id)
+    }
+
+    @Test fun attackButtonWithoutReachableEnemyGivesHintWithoutAdvancingTheRun() {
+        val base=run()
+        val h=base.hero
+        val far=RelicMob(908,h.x+3,h.y,5,0)
+        val scene=RelicEscapeRules.reveal(base.copy(mobs=listOf(far),
+            equipped="blade",weapons=setOf("blade"),
+            seen=(0 until base.w*base.h).toSet()))
+        assertNull(relicAttackButtonTarget(scene,h.x to h.y))
+        assertTrue(relicAttackHint(scene,h.x to h.y).contains("上下左右相邻1格"))
+        assertEquals(scene.turns,RelicEscapeRules.act(scene,"attack",far.x,far.y).turns)
+        assertEquals(scene.mobs,RelicEscapeRules.act(scene,"attack",far.x,far.y).mobs)
+    }
+
     @Test fun explicitlySelectedDistantEnemyNeverRedirectsAttackToNearbyEnemy() {
         val base = run()
         val h = base.hero
