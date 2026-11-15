@@ -34,4 +34,17 @@ class RelicMapCameraTest {
         assertEquals(180f, y, .001f)
         assertEquals(4 to 6, camera.tileAt(400f, 180f, 18, 15))
     }
+    @Test fun pinchZoomAndDragUseTheSameCameraForSelectionAndDrawing() {
+        val camera = relicMapCamera(800f, 360f, 18, 15, true,
+            4.25f, 5.75f, zoom = 1.6f, panX = 100f, panY = -44f)
+        assertEquals(500f, camera.offsetX + (4.25f + .5f) * camera.tileSize, .001f)
+        assertEquals(136f, camera.offsetY + (5.75f + .5f) * camera.tileSize, .001f)
+        assertEquals(4 to 6, camera.tileAt(500f, 136f, 18, 15))
+        assertEquals(4 to 6, camera.tileAt(
+            camera.offsetX + 4.5f * camera.tileSize,
+            camera.offsetY + 6.5f * camera.tileSize, 18, 15))
+        // Zoom and pan never turn an outside-board tap into a legal tile.
+        assertNull(camera.tileAt(camera.offsetX - 1f, camera.offsetY, 18, 15))
+    }
+
 }
