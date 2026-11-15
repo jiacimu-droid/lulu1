@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:26:40.242469+00:00",
-  "commit": "f07cbeafae4639aa0620666272499b9b7e6b36c7",
+  "generatedAt": "2026-11-15T01:27:15.348655+00:00",
+  "commit": "d2acf02745b7cd045ad577179f9487b023466a26",
   "branch": "main",
-  "sourceFingerprint": "60bc63efac40196a1edd8df325c392e7b5e380e80912cfd5258b8ed403cce995",
+  "sourceFingerprint": "eb567cb2c6376c062d32fe86b2a28ed31b977aed455aec9adc5e745f1be85587",
   "summary": {
     "files": 1323,
-    "lines": 280556,
+    "lines": 280577,
     "symbols": 3948
   },
   "symbolIndex": {
@@ -1861,7 +1861,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2411
+        "line": 2432
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -12615,7 +12615,7 @@
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 720
+        "line": 721
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -12625,19 +12625,19 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1596
+        "line": 1617
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2265
+        "line": 2286
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2405
+        "line": 2426
       }
     ],
     "maxResidents": [
@@ -33739,8 +33739,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2477,
-      "sha256": "ccb002cceaaa3f29e2443064b4c74a2b9d9c458e11539951d03d28232b16d3f1",
+      "lines": 2498,
+      "sha256": "aae09e969b38877959eeb5e70fb721a3f607364eddce51ad52338bb7ab4ee5bc",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -33808,23 +33808,23 @@
         },
         {
           "name": "reject",
-          "line": 720
+          "line": 721
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1596
+          "line": 1617
         },
         {
           "name": "errorOf",
-          "line": 2265
+          "line": 2286
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2405
+          "line": 2426
         },
         {
           "name": "schedule",
-          "line": 2411
+          "line": 2432
         }
       ]
     },
