@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T18:25:14.673994+00:00",
-  "commit": "80d80a642ceeb645053e2c1df1722688396c3ba5",
+  "generatedAt": "2026-11-15T18:39:23.809134+00:00",
+  "commit": "55dbad3be7755fc611191ec5b1ae5bf566050bbc",
   "branch": "main",
-  "sourceFingerprint": "feb421dbce9918bd16fb9cd487c3c622173f227792228a35919f74ea1a9c4a2b",
+  "sourceFingerprint": "dbdbdf05974cdb12090330c578a274a94a51f1aed22acd7ead827e52ec095912",
   "summary": {
     "files": 1340,
-    "lines": 285472,
+    "lines": 285485,
     "symbols": 4029
   },
   "symbolIndex": {
@@ -33412,7 +33412,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
       "lines": 69,
-      "sha256": "bdbd2ee57a5a7d5b5ecedd2f4add50b6c5a78ecf85c2ae02f25a9add7be6883b",
+      "sha256": "11d0efd98fdacc3c05ed2e6b7b221d19f6b1f19642c32ca69583179c30842d49",
       "symbols": [
         {
           "name": "render",
@@ -45176,8 +45176,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt",
-      "lines": 90,
-      "sha256": "b2b429aa1aea47d4ccfbe26a26a043a89c1515c6b728f54d389bb8cd34ac43bb",
+      "lines": 103,
+      "sha256": "b8a829c3d1846b0e2b266a3f3e3a6b36d6d1b00533afe09ff43ad5794aecb470",
       "symbols": [
         {
           "name": "OnlineExpiryUnfinishedWorkTest",
