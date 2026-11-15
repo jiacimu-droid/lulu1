@@ -120,8 +120,22 @@ internal object AutonomousActionWireProtocol {
                 // (normally "tool"), but phone verbs are executor arguments.
                 // Carry only the verb the model actually chose; never infer
                 // "launch" merely from an appName and never replace nested args.
-                if (!args.has("action") && action !in setOf("", "tool", "background_phone"))
-                    args.put("action", action)
+                // Phone verbs are required executor arguments, not the outer
+                // wire action="tool". Preserve an explicitly chosen nested
+                // verb first, then accept the model's explicit phoneAction /
+                // operation aliases from flat or nested JSON. Never guess
+                // "launch" solely because an appName is present.
+                if (args.optString("action").isBlank()) {
+                    val explicit = listOf(
+                        args.optString("phoneAction"), args.optString("operation"),
+                        step.optString("phoneAction"), step.optString("operation"),
+                    ).firstOrNull { it.isNotBlank() }?.trim()?.lowercase()
+                    when {
+                        explicit != null -> args.put("action", explicit)
+                        action !in setOf("", "tool", "background_phone") ->
+                            args.put("action", action)
+                    }
+                }
                 setOf("packageName", "appName", "screenSnapshotId", "elementRef",
                     "x", "y", "startX", "startY", "endX", "endY", "durationMs",
                     "expectedText", "sendToChat", "sendProductLinkToChat",
