@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c183caca57245b090df8b1a63408fa28cab6bd3`
+- 基准提交：`d86705e9b97b43d73d250b2e46d97adde2e3d2e6`
 - 分支：`main`
 - 已索引文件：1337
-- 已索引代码/文本行：284819
+- 已索引代码/文本行：284829
 - 已发现符号：4020
 
 | 文件 | 行数 | 符号数 |
@@ -667,7 +667,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt` | 287 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1416 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 348 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 955 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 961 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1334 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
@@ -735,7 +735,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 693 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 226 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 485 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 861 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 865 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1370 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
