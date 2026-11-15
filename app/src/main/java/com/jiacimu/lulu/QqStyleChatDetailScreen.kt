@@ -1036,8 +1036,12 @@ fun QqStyleChatDetailScreen(
                                     )) {
                                     val gameStore = com.jiacimu.lulu.games.LuluGames.store
                                     gameStore.selectCharacters(listOf(inviterId))
-                                    if (gameId == "yacht_dice" && gameStore.yachtMatch()?.completed == true) {
-                                        gameStore.restartYachtMatch(listOf(inviterId))
+                                    if (gameId == "yacht_dice") {
+                                        // New invitations cannot relabel an unfinished match with another inviter.
+                                        gameStore.enterInvitedYachtMatch(inviterId)
+                                    }
+                                    if (gameId == "memory_match" && gameStore.state.value.memoryMatch.finished) {
+                                        gameStore.resetMemoryMatch()
                                     }
                                     onOpenGame(gameId)
                                 }
