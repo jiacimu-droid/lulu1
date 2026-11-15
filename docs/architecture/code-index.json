@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:46:04.771267+00:00",
-  "commit": "9cd095eee5aec9e0df39a75f7453e9c5c178230f",
+  "generatedAt": "2026-11-15T01:46:39.121053+00:00",
+  "commit": "0b227fc1ede1975f72d5192260fc4961b7cae7fb",
   "branch": "main",
-  "sourceFingerprint": "05b1dddc135d16c1db457f47a72f171ca65ad53c2a83b8ad854e77c757c76b63",
+  "sourceFingerprint": "ef08258d91c1ed92de60a84997aa4a9dc4e770b8fc048bbd3f0177ddeaee24ff",
   "summary": {
     "files": 1323,
-    "lines": 280811,
+    "lines": 280861,
     "symbols": 3951
   },
   "symbolIndex": {
@@ -2351,7 +2351,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
-        "line": 114
+        "line": 164
       }
     ],
     "attemptReload": [
@@ -46182,8 +46182,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
-      "lines": 151,
-      "sha256": "7b16cab478a8c352246f2ee65a3584d677e0fa7fb348880e97c52c29dd823c48",
+      "lines": 201,
+      "sha256": "6859dd1fc86bfb264b597e44391ac415a4f2f204231f7fedcb269bb9e4535ac0",
       "symbols": [
         {
           "name": "YachtMatchContinuityTest",
@@ -46191,7 +46191,7 @@
         },
         {
           "name": "record",
-          "line": 114
+          "line": 164
         }
       ]
     },
