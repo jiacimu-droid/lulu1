@@ -97,6 +97,7 @@ internal fun RelicEscapeWorldMap(
     val currentRenderFocus = rememberUpdatedState(renderFocus)
     val currentView = rememberUpdatedState(viewPan to viewZoom)
     val currentOnViewChange = rememberUpdatedState(onViewChange)
+    val currentOnSelect = rememberUpdatedState(onSelect)
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
@@ -110,12 +111,12 @@ internal fun RelicEscapeWorldMap(
     ) {
         Canvas(
             (if(fullscreen)Modifier.fillMaxSize()else Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h))
-                .pointerInput(run.id, run.w, run.h, fullscreen, focus, onSelect) {
+                .pointerInput(run.id, run.w, run.h, fullscreen, focus) {
                     detectTapGestures { tap->
                         val camera = relicMapCamera(size.width.toFloat(), size.height.toFloat(),
                             run.w, run.h, fullscreen, currentRenderFocus.value.x, currentRenderFocus.value.y,
                             currentView.value.second, currentView.value.first.x, currentView.value.first.y)
-                        camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> onSelect(x, y) }
+                        camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> currentOnSelect.value(x, y) }
                     }
                 }
                 .pointerInput(run.id, fullscreen) {
