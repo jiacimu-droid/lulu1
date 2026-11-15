@@ -62,12 +62,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     val partySessionId = rememberSaveable { java.util.UUID.randomUUID().toString() }
     var difficulty by rememberSaveable { mutableStateOf(RelicDifficulty.NORMAL) }
     var startingWeapon by rememberSaveable { mutableStateOf("blade") }
+    var profession by rememberSaveable { mutableStateOf(RelicProfession.SCOUT) }
     var chosenContract by rememberSaveable { mutableStateOf(RelicContract.FIRST_HAUL) }
     var invitingId by remember { mutableStateOf<String?>(null) }
     var invitationStatus by remember { mutableStateOf("") }
     val invitationScope=rememberCoroutineScope()
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
     var facing by remember(run?.id){mutableStateOf(0 to 1)}
+    var aimOnly by remember(run?.id){mutableStateOf(false)}
     var joystickHeld by remember(run?.id){mutableStateOf(false)}
     // Movement returns the camera to the player; looking at teammates spends no turn.
     var cameraFocus by remember(run?.id, run?.hero?.x, run?.hero?.y) {
@@ -165,7 +167,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     RelicTier.PRECIOUS->GameSoundEffect.Objective
                     null->GameSoundEffect.Bump
                 }
-                "attack","extract","invoke","channel","flare"->GameSoundEffect.Objective
+                "attack","sweep","weapon_skill","profession_skill","extract","invoke","channel","flare"->GameSoundEffect.Objective
                 "pickup","heal","revive","disarm"->GameSoundEffect.Collect
                 "pry"->GameSoundEffect.Interact
                 "move","sneak"->GameSoundEffect.Move
@@ -186,6 +188,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             inviteStatus=invitationStatus,error=error,kits=kits,difficulty=difficulty,
             startingWeapon=startingWeapon,contract=chosenContract,
             onKits={kits=it},onDifficulty={difficulty=it},onStartingWeapon={startingWeapon=it},
+            profession=profession,onProfession={profession=it},
             onContract={chosenContract=it},
             onInvite={ id ->
                 if(invitingId==null && id !in acceptedInvites && acceptedInvites.size<3) {
@@ -218,7 +221,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             },
             onStart={
                 store.selectCharacters(acceptedInvites)
-                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon,chosenContract) }) {
+                if(change { ledger.begin(acceptedInvites,kits.coerceIn(0,snapshot.kits),difficulty,startingWeapon,chosenContract,profession) }) {
                     if(snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT)) {
                         acceptedInvites.forEach { id ->
                             GameInvitationContinuity.recordPartyStarted(context, id, "relic_escape", partySessionId)
@@ -306,6 +309,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     } else action(it.action, it.x, it.y, it.id)
                 } }) { dx, dy ->
                 facing = dx to dy
+                // When aim mode is on, the D-pad rotates without spending a move.
+                if(!aimOnly) {
                 // Walking is not looting. A held joystick previously could
                 // auto-pry an entire chest in a few repeat ticks, defeating
                 // the player's deliberate reveal and creating accidental turns.
@@ -313,6 +318,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     relicDirectionAction(state, dx, dy)?.let { step ->
                         action(step.action, step.x, step.y)
                     }
+                }
                 }
             }
         },
@@ -555,13 +561,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if (run != null && run.phase in setOf(
                     RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero=run.hero
-                val attackTarget=relicAttackButtonTarget(run,selected)
+                val attackTarget=RelicCombatSkills.attackTarget(run,facing)
                 val chest=RelicChestPresentation.actionableChest(run,selected)
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
                     GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击",
                         relicGold,run.phase!=RelicPhase.DOWNED,Modifier.weight(1f)) {
                         if(attackTarget!=null) action("attack",attackTarget.x,attackTarget.y)
-                        else combatPrompt=relicAttackHint(run,selected)
+                        else combatPrompt=if(run.equipped=="blade")
+                            "短剑需要周围一格内有敌人；移动靠近后直接攻击"
+                            else "朝向${relicDirection(facing.first,facing.second)}没有可攻击目标；点击「转向」后用方向盘瞄准"
                     }
                     GameHudQuickAction(chest?.let {
                         "开箱 "+(run.chestProgress[it.id] ?: 0)+"/"+RelicEscapeRules.openSteps(it)
@@ -576,23 +584,43 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         run.phase!=RelicPhase.DOWNED && hero.kits>0 && hero.hp<10,
                         Modifier.weight(1f)) { action("heal") }
                 }
-                // Keep the regular 4-key HUD uncluttered. Only show the optional
-                // crowd-control skill in an actual multi-enemy melee situation.
-                val surrounded=RelicArsenal.sweepTargets(run)
-                if(run.equipped=="blade" && run.phase!=RelicPhase.DOWNED && surrounded.size>=2) {
-                    val remaining=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
-                    TextButton(
-                        onClick={action("sweep")},
-                        enabled=RelicArsenal.canSweep(run),
-                        modifier=Modifier.fillMaxWidth().height(33.dp),
-                        contentPadding=PaddingValues(horizontal=5.dp,vertical=1.dp),
-                    ) {
-                        Text(if(remaining>0)
-                            "回旋斩冷却 ${remaining} 回合 · 可用格挡/移动解围"
-                            else "↻ 回旋斩 · ${surrounded.size}敌 · 挡1击",
-                            fontSize=10.sp,maxLines=1,color=relicGold)
+                // Normal attack is ONE press; skills are explicit, separate and
+                // bound to the current weapon/profession, never the map cursor.
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
+                    TextButton(onClick={
+                        if(RelicCombatSkills.canWeaponSkill(run,facing))
+                            action("weapon_skill",facing.first,facing.second)
+                        else combatPrompt=RelicCombatSkills.weaponSkillHint(run,facing)
+                    },enabled=run.phase!=RelicPhase.DOWNED,
+                        modifier=Modifier.weight(1.15f).height(34.dp),
+                        contentPadding=PaddingValues(horizontal=2.dp)) {
+                        val cd=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
+                        Text(RelicCombatSkills.weaponSkillName(run)+if(cd>0)" $cd" else " 技",
+                            color=relicGold,fontSize=10.sp,maxLines=1)
+                    }
+                    TextButton(onClick={
+                        if(RelicCombatSkills.professionAvailable(run))
+                            action("profession_skill")
+                        else combatPrompt=RelicCombatSkills.professionHint(run)
+                    },enabled=run.phase!=RelicPhase.DOWNED,
+                        modifier=Modifier.weight(1.05f).height(34.dp),
+                        contentPadding=PaddingValues(horizontal=2.dp)) {
+                        val cd=(run.professionReadyTurn-run.turns).coerceAtLeast(0)
+                        Text(run.profession.skill+if(cd>0)" $cd" else " 技",
+                            color=relicGreen,fontSize=10.sp,maxLines=1)
+                    }
+                    TextButton(onClick={aimOnly=!aimOnly},
+                        enabled=run.phase!=RelicPhase.DOWNED,
+                        modifier=Modifier.weight(.95f).height(34.dp),
+                        contentPadding=PaddingValues(horizontal=1.dp)) {
+                        Text(if(aimOnly)"仅转向" else "转向",
+                            color=if(aimOnly)relicGold else relicMuted,
+                            fontSize=10.sp,maxLines=1)
                     }
                 }
+                Text("朝向"+relicDirection(facing.first,facing.second)+
+                    " · "+(if(aimOnly)"方向盘只调整朝向，不会移动" else "方向盘移动并调整朝向"),
+                    color=relicMuted,fontSize=10.sp,maxLines=1)
             }
         },
         actions = {
