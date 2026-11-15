@@ -166,6 +166,50 @@ class ResidentDailyContinuityTest {
     }
 
 
+    @Test fun sleepingOnsiteResidentCannotChatButCanReceiveAnIndependentLetter() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        fun citizen(name: String) = DigitalWorldExpansionStore.registerResident(
+            DigitalWorldResident(name = "$name-${UUID.randomUUID().toString().take(6)}",
+                identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                createdAt = now.minusSeconds(120)))
+        val sender = citizen("写信人")
+        val receiver = citizen("休眠收件人")
+        ResidentCharacterBridge.sync(app, now)
+        for (id in listOf(sender.id, receiver.id)) {
+            assertNotNull(DigitalWorldExpansionStore.moveResident(
+                id, DigitalWorldPublicPlaces.COURTYARD, now))
+        }
+        val from = ResidentCharacterBridge.characterId(sender.id)
+        val to = ResidentCharacterBridge.characterId(receiver.id)
+        assertFalse(CompanionOnlineStore.residentIsAwake(app, to, now))
+        assertTrue(ResidentSocialMailbox.canContact(from, to))
+
+        // The model sees the actual native phone target and knows the scene
+        // cannot support synchronous conversation with a sleeping person.
+        val scene = CompanionActionRuntime.residentContactContext(app, from, now)
+        assertTrue(scene.contains("itemId=${receiver.id}"))
+        assertTrue(scene.contains("targetCharacterId=$to"))
+        assertTrue(scene.contains("当前休眠，不可当面交谈"))
+        assertTrue(scene.contains("send_character_message"))
+        assertTrue(scene.contains("send_friend_request"))
+        assertFalse(scene.contains("可选择当面互动"))
+        val before = ResidentSocialMailbox.historyForInspection(to).size
+        val blocked = DigitalWorldResidentInteractionRuntime.interact(
+            app, from, receiver.id, "chat", now = now)
+        assertFalse(blocked.success)
+        assertTrue(blocked.summary.contains("targetCharacterId=$to"))
+        assertTrue(blocked.summary.contains("没有自动代发消息"))
+        assertEquals(before, ResidentSocialMailbox.historyForInspection(to).size)
+
+        // Letter delivery is durable but never turns the physical meeting
+        // into a fake dialogue, or wakes the sleeping resident by force.
+        val delivered = ResidentSocialMailbox.send(from, to, "你醒来以后有空聊聊吗", at = now)
+        assertTrue(ResidentSocialMailbox.historyForInspection(to).any { it.id == delivered.id })
+        assertFalse(CompanionOnlineStore.residentIsAwake(app, to, now))
+    }
+
     @Test fun everydaySocialPresenceExcludesObserverAndRemoteResidents() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
