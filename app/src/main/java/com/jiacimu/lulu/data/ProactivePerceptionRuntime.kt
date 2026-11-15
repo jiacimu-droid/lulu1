@@ -66,6 +66,27 @@ internal fun verifiedRoleDeliveries(
     }
 }
 
+/**
+ * A model-authored rest choice in an ordinary online turn is executable now;
+ * five-minute expiry is not the only place where the character can choose sleep.
+ * Never infer consent to sleep from reply wording. A pending reply must actually
+ * be delivered before the same-turn rest can close its online lease.
+ */
+internal fun shouldSettleImmediateOnlineSleep(
+    awakeAtDecision: Boolean,
+    onlineExpiryAtMillis: Long,
+    onlineChoice: String,
+    onlineChoiceReason: String,
+    hasUnreadUserMessage: Boolean,
+    replyDelivered: Boolean,
+    explicitlySilent: Boolean,
+    originalBatchCurrent: Boolean,
+): Boolean = awakeAtDecision && onlineExpiryAtMillis == 0L &&
+    onlineChoice == "sleep" &&
+    OnlineContinuationPolicy.contractIssue(onlineChoice, onlineChoiceReason) == null &&
+    originalBatchCurrent &&
+    (!hasUnreadUserMessage || replyDelivered || explicitlySilent)
+
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
@@ -1224,7 +1245,7 @@ object ProactivePerceptionRuntime {
                 } else "") +
                 (if (onlineExpiryAtMillis > 0L) onlineRenewalDecisionInstruction() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
-                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
+                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可选择 onlineDecision.choice=sleep（本轮动作结束即真正下线，不等五分钟到期），或在 steps 最后选择 go_offline，二者择一。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
                 else "【此时没有新消息】这不是延迟私聊回复；继续按本人当前兴趣与已列出的真实能力选择 action/steps、实际登记未来安排，或决定 silent。行动是否完成以独立回执为准。",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
@@ -1517,7 +1538,7 @@ object ProactivePerceptionRuntime {
         // A schema error in the online field does NOT transfer its decision
         // to the executor. Reask the same role once; keep the already chosen
         // outward actions and private psychology untouched.
-        if (onlineExpiryAtMillis > 0L) {
+        if (onlineExpiryAtMillis > 0L || (awakeReflection && parsed.onlineChoice.isNotBlank())) {
             val onlineIssue = OnlineContinuationPolicy.contractIssue(
                 parsed.onlineChoice, parsed.onlineChoiceReason)
                 ?: if (parsed.onlineChoice == "sleep")
@@ -2678,6 +2699,40 @@ object ProactivePerceptionRuntime {
         }
         if (!CharacterPhoneInbox.acknowledgeObserved(characterId, phoneUnread)) {
             android.util.Log.w("CharacterPhone", "Viewed Moments red-dot cursor not saved")
+        }
+        // A normal private online reply may already have chosen to rest in
+        // this SAME structured model decision. Do not defer that choice to the
+        // next five-minute expiry model call, or infer it from "good night".
+        // Settle after delivery, ordered tools and unread/mail acknowledgments.
+        if (shouldSettleImmediateOnlineSleep(
+                awakeAtDecision = awakeReflection,
+                onlineExpiryAtMillis = onlineExpiryAtMillis,
+                onlineChoice = decision.onlineChoice,
+                onlineChoiceReason = decision.onlineChoiceReason,
+                hasUnreadUserMessage = onlineUnread.text.isNotBlank(),
+                replyDelivered = execution.deliveredReply,
+                explicitlySilent = decision.action == Action.SILENT,
+                originalBatchCurrent = !batchSuperseded(),
+            ) && CompanionOnlineStore.isOnline(characterId, Instant.now())) {
+            val requestedHome = OnlineContinuationPolicy.requestedReturnHome(
+                when {
+                    decision.action == Action.DIGITAL_WORLD -> decision.worldAction
+                    decision.action == Action.TOOL && decision.tool == "digital_world_action" ->
+                        decision.toolArgs.optString("worldAction")
+                    else -> ""
+                }, decision.sideActions)
+            if (!OnlineContinuationPolicy.maySettleRestAtLocation(
+                    requestedHome, DigitalWorldStore.locationOf(characterId),
+                    DigitalWorldStore.homeLocation(characterId))) {
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "本人先回家再休眠的动作尚未真正完成，当前不标记为已经回家休眠。",
+                    Instant.now())
+            } else if (!CompanionOnlineStore.goOfflineByChoice(
+                    characterId, Instant.now(), decision.onlineNextChecks)) {
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "本轮即时休眠选择未落实：需要完成责任交接或等待当前通话结束。",
+                    Instant.now())
+            }
         }
         return effectiveAction
     }
