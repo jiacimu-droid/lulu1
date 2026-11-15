@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd3fc1d61f389fbb9ee17d26a31f6e0890b26cc6`
+- 基准提交：`a73433131e1ab98f1c87e3ec06fb70d046ade4a1`
 - 分支：`main`
 - 已索引文件：1340
-- 已索引代码/文本行：285312
+- 已索引代码/文本行：285309
 - 已发现符号：4027
 
 | 文件 | 行数 | 符号数 |
@@ -84,7 +84,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 32 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallResponsibilityContext.kt` | 29 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 49 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 50 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechCallbackBoundary.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
@@ -207,7 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2704 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2700 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |

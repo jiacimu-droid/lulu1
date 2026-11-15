@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:25:03.535635+00:00",
-  "commit": "fd3fc1d61f389fbb9ee17d26a31f6e0890b26cc6",
+  "generatedAt": "2026-11-15T16:30:38.371813+00:00",
+  "commit": "a73433131e1ab98f1c87e3ec06fb70d046ade4a1",
   "branch": "main",
-  "sourceFingerprint": "d4ac9889e5df59d93b2923df01e62f9f086f33498e4ebb11513989ee846e3f6a",
+  "sourceFingerprint": "248f8a7a0309c2d5258f6ee8ecaab96d5171277cfc5a0656445b7ec89db9f22f",
   "summary": {
     "files": 1340,
-    "lines": 285312,
+    "lines": 285309,
     "symbols": 4027
   },
   "symbolIndex": {
@@ -3373,19 +3373,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2257
+        "line": 2253
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2418
+        "line": 2414
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2558
+        "line": 2554
       }
     ],
     "returnToList": [
@@ -22951,7 +22951,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
       "lines": 32,
-      "sha256": "41b304e1176101514d99e5e6897b207c9a5aa8e7bcf52464a2ec128a515efa07",
+      "sha256": "52c2a761a3d077d70565b79265ecfe2e4b11b5be3a5edb0c71e3f5105c5cd6c3",
       "symbols": [
         {
           "name": "claim",
@@ -23019,8 +23019,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-      "lines": 49,
-      "sha256": "887ad6815e4dadecd93598dc2d724366e517cf9d7df1a44bd451470b1c6f6cd4",
+      "lines": 50,
+      "sha256": "e709cb7d5131dcd023c19501b2addfa95eb6a2b13830b715b1afe513e4c35eac",
       "symbols": [
         {
           "name": "shouldRecoverStuckCapture",
@@ -25060,8 +25060,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2704,
-      "sha256": "312afe817b697987a4959b99e2f1096182ff2adb8f583f08f11d8a44f5be8228",
+      "lines": 2700,
+      "sha256": "ccf2acc37c0f26456f2f5199f931cb3a96922fc5c77883013be20731a0a10d0f",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -25145,15 +25145,15 @@
         },
         {
           "name": "sameSession",
-          "line": 2257
+          "line": 2253
         },
         {
           "name": "retryListening",
-          "line": 2418
+          "line": 2414
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2558
+          "line": 2554
         }
       ]
     },
