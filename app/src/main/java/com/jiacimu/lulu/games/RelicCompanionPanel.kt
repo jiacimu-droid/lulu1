@@ -33,7 +33,7 @@ import kotlin.coroutines.coroutineContext
 @Composable
 internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = false,
     readRun: () -> RelicRun = { run },
-    onTeamPulse: (String) -> Boolean = { false },
+    onTeamPulse: (String) -> RelicRun? = { null },
     onChoice: (String, IslandActorChoice) -> Boolean) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -73,6 +73,10 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     val latestTraveling by rememberUpdatedState(continuousTravel)
     var notifiedSpeech by remember(run.id) { mutableIntStateOf(0) }
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
+    var lastTeamPulseTurn by remember(run.id) { mutableIntStateOf(-1) }
+    var lastTeamPulseFinished by remember(run.id) {
+        mutableStateOf<Set<String>>(emptySet())
+    }
     val members = run.allies.map { it.id }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
     // A slow local game clock only resumes a previously actor-selected route.
@@ -90,7 +94,11 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     playerSpeaking = openMic.partial.isNotBlank(),
                     nearbyThreat = GameCoopPacing.relicThreat(now),
                 )) continue
-            latestPulse(now.id)
+            val after = latestPulse(now.id)
+            if (after != null && after.id == now.id && after.turns > now.turns) {
+                lastTeamPulseTurn = after.turns
+                lastTeamPulseFinished = now.coopPlans.keys - after.coopPlans.keys
+            }
         }
     }
     // Moving on a held joystick may create many local movement turns.
@@ -124,9 +132,14 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     val urgentDown=snapshot.events.any {
                         it.who=="player" && it.action=="down" && it.turn==snapshot.turns
                     }
+                    if (!GameCoopPacing.mayReplanAfterTick(
+                            snapshot.turns, lastTeamPulseTurn, id,
+                            lastTeamPulseFinished, message.isNotBlank())) continue
+                    val finishedOwnGoal = snapshot.turns == lastTeamPulseTurn &&
+                        id in lastTeamPulseFinished
                     if (message.isBlank() &&
                         (RelicActorPlay.acted(snapshot,id) || id in snapshot.coopPlans) &&
-                        !urgentDown) continue
+                        !urgentDown && !finishedOwnGoal) continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
                         .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
                     coroutineContext.ensureActive()
