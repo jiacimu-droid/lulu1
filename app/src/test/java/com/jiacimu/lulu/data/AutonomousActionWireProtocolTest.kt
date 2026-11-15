@@ -189,6 +189,30 @@ class AutonomousActionWireProtocolTest {
         assertEquals("e4", withControls.getJSONObject("args").getString("elementRef"))
     }
 
+    @Test fun explicitPhoneOperationAliasesSurviveFlatteningWithoutGuessingFromAppName() {
+        val flat = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "tool").put("tool", "background_phone")
+                .put("phoneAction", "launch").put("appName", "微信"))
+        assertEquals("launch", flat.getJSONObject("args").getString("action"))
+        assertEquals("微信", flat.getJSONObject("args").getString("appName"))
+
+        val nestedAlias = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "tool").put("tool", "background_phone")
+                .put("args", JSONObject().put("operation", "observe")))
+        assertEquals("observe", nestedAlias.getJSONObject("args").getString("action"))
+
+        val nestedVerbWins = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "launch").put("tool", "background_phone")
+                .put("phoneAction", "stop")
+                .put("args", JSONObject().put("action", "observe")))
+        assertEquals("observe", nestedVerbWins.getJSONObject("args").getString("action"))
+
+        val notGuessed = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "tool").put("tool", "background_phone")
+                .put("appName", "微信"))
+        assertFalse(notGuessed.getJSONObject("args").has("action"))
+    }
+
     @Test fun socialStepAndPrimaryToolKeepAuthoredIdsAndDecisionFields() {
         val acceptedStep = AutonomousActionWireProtocol.normalizeStep(
             JSONObject().put("tool", "respond_friend_request")
