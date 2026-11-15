@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:43:18.590097+00:00",
-  "commit": "ae3a4402039cd18ebb1f095ead23da2e43f0a06d",
+  "generatedAt": "2026-11-15T02:44:05.358244+00:00",
+  "commit": "51d7c0f865694e95e8a97448f6a19dd141c86675",
   "branch": "main",
-  "sourceFingerprint": "763285f0179097dca2510f4b47ca26b70e2752695c339ba820c37634967959b5",
+  "sourceFingerprint": "0ea5f08c7a9f0f583ca1c6cf5b25ba16e9b6647beb051dd40f2dd0023dfca71a",
   "summary": {
     "files": 1327,
-    "lines": 281602,
+    "lines": 281661,
     "symbols": 3963
   },
   "symbolIndex": {
@@ -1087,7 +1087,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 196
+        "line": 214
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -6443,7 +6443,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 26
+        "line": 53
       }
     ],
     "latestPending": [
@@ -12009,43 +12009,43 @@
     "ProactivePerceptionRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 91
+        "line": 109
       }
     ],
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 204
+        "line": 222
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 212
+        "line": 230
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 221
+        "line": 239
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 771
+        "line": 789
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 773
+        "line": 791
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3610
+        "line": 3642
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -20589,7 +20589,7 @@
     "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 407
+        "line": 434
       }
     ],
     "OnlineContinuationPolicyTest": [
@@ -33336,40 +33336,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3677,
-      "sha256": "6baa5882d283e4737eb44f6fd7ffc261691c7639420098b58f08e180bd8a2903",
+      "lines": 3709,
+      "sha256": "31f9da1fe0f0ddf1a05fee57ed94d3f0e2abfab583c6a58aba3461574f11cc9e",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
-          "line": 91
+          "line": 109
         },
         {
           "name": "initialize",
-          "line": 196
+          "line": 214
         },
         {
           "name": "markConcernPromisePending",
-          "line": 204
+          "line": 222
         },
         {
           "name": "wakePlanFor",
-          "line": 212
+          "line": 230
         },
         {
           "name": "nextDueAt",
-          "line": 221
+          "line": 239
         },
         {
           "name": "batchSuperseded",
-          "line": 771
+          "line": 789
         },
         {
           "name": "deferSupersededDecision",
-          "line": 773
+          "line": 791
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3610
+          "line": 3642
         }
       ]
     },
@@ -44524,8 +44524,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1229,
-      "sha256": "681fb538471a64fd99ee9a89e7db7bfda7243f0e7636932c184c28d9aff3976b",
+      "lines": 1256,
+      "sha256": "89c79c81757af786bf74cf6846fd9a27996d5fa29adff70e862cbae8dd03455d",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -44533,11 +44533,11 @@
         },
         {
           "name": "eligible",
-          "line": 26
+          "line": 53
         },
         {
           "name": "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision",
-          "line": 407
+          "line": 434
         }
       ]
     },
