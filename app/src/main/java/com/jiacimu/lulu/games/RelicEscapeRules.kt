@@ -147,6 +147,8 @@ internal data class RelicRun(
     val contract:RelicContract = RelicContract.NONE,
     /** Real, persisted manual-opening effort; each press advances the enemy world turn. */
     val chestProgress:Map<Int,Int> = emptyMap(),
+    /** Earliest committed world turn when the short-blade sweep may be used again. */
+    val sweepReadyTurn:Int = 0,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -176,7 +178,7 @@ internal data class RelicRun(
         .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
         .put("guardedBy",guardedBy)
         .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
-        .put("contract",contract.name)
+        .put("contract",contract.name).put("sweepReadyTurn",sweepReadyTurn)
         .put("chestProgress",JSONObject().apply {
             chestProgress.forEach { (id,progress) -> put(id.toString(),progress) }
         })
@@ -225,6 +227,7 @@ internal data class RelicRun(
                     .getOrDefault(RelicDifficulty.NORMAL),
                 contract=runCatching { RelicContract.valueOf(j.optString("contract","NONE")) }
                     .getOrDefault(RelicContract.NONE),
+                sweepReadyTurn=j.optInt("sweepReadyTurn",0).coerceIn(0,result.turns+100),
                 chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
                     val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
                     buildMap {
@@ -549,6 +552,33 @@ internal object RelicEscapeRules {
                         if(defeated)" · 击败"+RelicArsenal.monsterName(mob.kind)+"，掉落战利品！"
                         else if(interrupted)" · 打断一次蓄力！" else if(mob.windup)" · 对手仍会反击！" else "")
                 noise=if(s.equipped=="bow")3 else 2
+            }
+            "sweep"->{
+                // A deliberate anti-surround attack, never an automatic fallback
+                // for a failed normal strike. One physical world turn per sweep.
+                val targets=RelicArsenal.sweepTargets(s)
+                if(s.equipped!="blade")
+                    return s.copy(notice="回旋斩仅适用于短剑")
+                if(s.turns<s.sweepReadyTurn)
+                    return s.copy(notice="回旋斩还需冷却${s.sweepReadyTurn-s.turns}回合")
+                if(targets.size<2)
+                    return s.copy(notice="至少有两个相邻守卫时才能回旋斩")
+                val damageById=targets.associate { it.id to RelicArsenal.sweepDamage(s,it) }
+                val killed=targets.filter { it.hp<=damageById.getValue(it.id) }
+                next=s.copy(
+                    mobs=s.mobs.map { enemy ->
+                        val amount=damageById[enemy.id] ?: 0
+                        if(amount>0) enemy.copy(hp=(enemy.hp-amount).coerceAtLeast(0))
+                        else enemy
+                    },
+                    drops=s.drops+killed.map { enemy ->
+                        RelicDrop(enemy.x,enemy.y,RelicArsenal.monsterDrop(s,enemy))
+                    },
+                    sweepReadyTurn=s.turns+3,
+                ).log("player","sweep",
+                    "短剑回旋斩击中${targets.size}名守卫（每名${if(s.weapon>=2) "1–2" else "1"}伤害）"+
+                    " · 击败${killed.size}名 · 两个行动回合后可再次使用")
+                noise=3
             }
             "defend"->{
                 next=s.copy(guarding=true).log("player","defend","举盾防御，抵消本回合一次来自守卫的伤害")
