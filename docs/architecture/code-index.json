@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:16:33.245130+00:00",
-  "commit": "bad893f1fef0706948dd5918fa0ec838cac8e5ec",
+  "generatedAt": "2026-11-15T02:18:17.635065+00:00",
+  "commit": "9b93ee768b30385655cc8ee2ff58ddf567540618",
   "branch": "main",
-  "sourceFingerprint": "83ef4514dd9641fe482999c1de4a5cd8ca1166518d9343d5a5c077866b46e046",
+  "sourceFingerprint": "3a5e4cebf6abbf7359689709996324549f0e6073f93051bd641f4bfc50c088f8",
   "summary": {
     "files": 1324,
-    "lines": 281056,
+    "lines": 281089,
     "symbols": 3953
   },
   "symbolIndex": {
@@ -20515,7 +20515,7 @@
     "MomentsOwnerUnreadIntegrationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "NarrativeMemoryRecallIntegrationTest": [
@@ -44380,12 +44380,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
-      "lines": 84,
-      "sha256": "d440828a79de10484cc47702ba87461f5547c50383df11917bd100e573cf941a",
+      "lines": 117,
+      "sha256": "50bcde8b3c4b1f1945f3857ed9fd75042ccc97ba48f86793ea224c54505bc6e1",
       "symbols": [
         {
           "name": "MomentsOwnerUnreadIntegrationTest",
-          "line": 16
+          "line": 17
         }
       ]
     },
