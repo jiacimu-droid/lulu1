@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`13b4f2c84c0ea84987e15963e74accef81b53be1`
+- 基准提交：`443d39267853bd2bda5fd44fabb2d1dbb1c47ccc`
 - 分支：`main`
 - 已索引文件：1338
-- 已索引代码/文本行：285185
+- 已索引代码/文本行：285210
 - 已发现符号：4024
 
 | 文件 | 行数 | 符号数 |
@@ -682,7 +682,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 52 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 60 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 89 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
@@ -1245,7 +1245,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 83 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 100 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
