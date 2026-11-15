@@ -86,7 +86,7 @@ internal fun GameSceneDeck(
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
         LaunchedEffect(wide) { drawer = false }
-        val sideWidth = if (companionCenterBottom && wide) minOf(maxWidth * .31f, 240.dp)
+        val sideWidth = if (companionCenterBottom && wide) minOf(maxWidth * .27f, 220.dp)
             else minOf(maxWidth * if (wide) .39f else .66f, 310.dp)
         val panelHeight = if (companionCenterBottom)
             minOf(maxHeight * if (wide) .34f else .32f, 140.dp)
