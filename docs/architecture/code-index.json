@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:28:53.280604+00:00",
-  "commit": "49150a5c57f2c5dc1d05995009df7d5ed90ed471",
+  "generatedAt": "2026-11-15T02:30:20.409981+00:00",
+  "commit": "593b694e78b5cda243d9d3804f4285b41892632d",
   "branch": "main",
-  "sourceFingerprint": "b1d3360d9406dbf960e0060136197e984d57d939f28d1375fc361f427de35098",
+  "sourceFingerprint": "d3736a143cc23b5a256a7aa152960b4b8819439f786f96ddd5d024c762ad13ee",
   "summary": {
-    "files": 1324,
-    "lines": 281292,
-    "symbols": 3957
+    "files": 1325,
+    "lines": 281321,
+    "symbols": 3958
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21954,6 +21954,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
         "line": 17
+      }
+    ],
+    "LuluVirtualAccessibilityInputTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt",
+        "line": 14
       }
     ],
     "LuluVirtualChatSendPolicyTest": [
@@ -46700,6 +46706,17 @@
         {
           "name": "LuluStudyWatchTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt",
+      "lines": 29,
+      "sha256": "882580739e6301bdcbd76f699913656251d12a7b33f83f38e89285bc1d5a44bd",
+      "symbols": [
+        {
+          "name": "LuluVirtualAccessibilityInputTest",
+          "line": 14
         }
       ]
     },
