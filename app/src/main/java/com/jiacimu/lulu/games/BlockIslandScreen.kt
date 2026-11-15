@@ -110,11 +110,23 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var actorCaptions by remember(world.seed) {
         mutableStateOf<Map<String, String>>(emptyMap())
     }
+    var visibleActorCaptions by remember(world.seed) {
+        mutableStateOf<Map<String, String>>(emptyMap())
+    }
     LaunchedEffect(actorCaptions) {
-        if (actorCaptions.isNotEmpty()) {
-            kotlinx.coroutines.delay(6_500)
-            actorCaptions = emptyMap()
+        // A spoken sentence may exceed the visible bubble. Cycle through
+        // caption pages locally so no syllables or model tokens are discarded.
+        val pages = actorCaptions.mapValues { (_, line) ->
+            islandSpeechBubblePages(line, 36)
         }
+        val count = pages.values.maxOfOrNull { it.size } ?: 0
+        for (page in 0 until count) {
+            visibleActorCaptions = pages.mapNotNull { (id, parts) ->
+                parts.getOrNull(page)?.let { id to it }
+            }.toMap()
+            kotlinx.coroutines.delay(if (page == count - 1) 4_000L else 2_700L)
+        }
+        visibleActorCaptions = emptyMap()
     }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
@@ -340,7 +352,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
-                actorCaptions = actorCaptions,
+                actorCaptions = visibleActorCaptions,
                 buildPreview = buildPreview, facing = facing,
                 hurtProgress = hurtProgress.value)
         },
