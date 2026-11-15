@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:34:17.444296+00:00",
-  "commit": "275c2078876730e9f944fbba04f86990bd0ee956",
+  "generatedAt": "2026-11-15T04:35:12.022664+00:00",
+  "commit": "6736e7b40784ab979cdae54ed3096571235b3d72",
   "branch": "main",
-  "sourceFingerprint": "cf59e35fa114537731eca1b93b9a35d02511ff0629bc9b552293eb42089307c9",
+  "sourceFingerprint": "a71ab6a586c1c69586ed3a223293383afc5e27c194af6742bab9b8f76eca4f9c",
   "summary": {
     "files": 1327,
-    "lines": 281988,
+    "lines": 282000,
     "symbols": 3973
   },
   "symbolIndex": {
@@ -46857,8 +46857,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt",
-      "lines": 29,
-      "sha256": "882580739e6301bdcbd76f699913656251d12a7b33f83f38e89285bc1d5a44bd",
+      "lines": 41,
+      "sha256": "f23cd1f0f53939b20e031d162b9534ca57715e5d68d2a69e6f4b05fb7b2b1750",
       "symbols": [
         {
           "name": "LuluVirtualAccessibilityInputTest",
