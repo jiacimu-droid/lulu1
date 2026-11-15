@@ -135,22 +135,62 @@ internal object CharacterLifeFollowThroughStore {
      * 0–100 is a decision cue, NEVER an automatic send threshold.
      */
     fun sharingUrge(characterId: String, now: Instant = Instant.now()): Double =
-        synchronized(lock) {
-            recent(characterId, now).asSequence()
-                .filter { it.optString("shareStatus") in setOf("open", "held") }
-                .sumOf { item ->
-                    val at = runCatching { Instant.parse(item.optString("occurredAt")) }
-                        .getOrNull() ?: return@sumOf 0.0
-                    val days = Duration.between(at, now).toMillis().coerceAtLeast(0L) /
-                        86_400_000.0
-                    val held = item.optString("shareStatus") == "held"
-                    val strength = item.optDouble("shareStrength", 55.0)
-                        .takeIf(Double::isFinite)?.coerceIn(0.0, 100.0) ?: 55.0
-                    val seed = if (held) 18.0 + strength * 0.16 else 12.0
-                    val significant = if (item.optBoolean("significant")) 12.0 else 0.0
-                    (seed + significant) * kotlin.math.exp(-days / 5.0)
-                }.coerceIn(0.0, 100.0)
+        sharingUrgeForReceipts(
+            characterId, now,
+            MomentsStore.posts.value.asSequence()
+                .filter { it.authorType == MomentAuthorType.Character &&
+                    it.authorCharacterId == characterId && !it.createdAt.isAfter(now) }
+                .map { it.createdAt }.toList(),
+        )
+
+    /**
+     * Actual published posts satisfy some GENERAL need to express oneself even
+     * when the model omitted experienceId. They must not mark an unrelated
+     * experience as "shared", especially an explicit held/private wish.
+     *
+     * Replay the already persisted post timestamps against the OPEN experience
+     * impulse in chronological order. This prevents a post from soothing an
+     * experience that had not happened yet, and makes deletion restore the
+     * gauge automatically without a second satisfaction store.
+     */
+    internal fun sharingUrgeForReceipts(
+        characterId: String, now: Instant, postedAt: List<Instant>,
+    ): Double = synchronized(lock) {
+        val live = recent(characterId, now)
+            .filter { it.optString("shareStatus") in setOf("open", "held") }
+        val heldImpulse = live.asSequence().filter { it.optString("shareStatus") == "held" }
+            .sumOf { shareImpulseFor(it, now) }
+        val openEvents = live.filter { it.optString("shareStatus") == "open" }
+            .mapNotNull { item ->
+                runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()
+                    ?.let { it to shareImpulseFor(item, now) }
+            }
+        val earliest = openEvents.minOfOrNull { it.first } ?: return@synchronized
+            heldImpulse.coerceIn(0.0, 100.0)
+        // This is an expression-satisfaction cue, not a moderation cooldown,
+        // forced post interval, or claim that any particular story was told.
+        val realPosts = postedAt.filter { !it.isBefore(earliest) && !it.isAfter(now) }
+            .map { it to -38.0 }
+        var openImpulse = 0.0
+        (openEvents + realPosts).sortedWith(
+            compareBy<Pair<Instant, Double>> { it.first }.thenByDescending { it.second }
+        ).forEach { (_, change) ->
+            openImpulse = (openImpulse + change).coerceIn(0.0, 100.0)
         }
+        (openImpulse + heldImpulse).coerceIn(0.0, 100.0)
+    }
+
+    private fun shareImpulseFor(item: JSONObject, now: Instant): Double {
+        val at = runCatching { Instant.parse(item.optString("occurredAt")) }
+            .getOrNull() ?: return 0.0
+        val days = Duration.between(at, now).toMillis().coerceAtLeast(0L) / 86_400_000.0
+        val held = item.optString("shareStatus") == "held"
+        val strength = item.optDouble("shareStrength", 55.0)
+            .takeIf(Double::isFinite)?.coerceIn(0.0, 100.0) ?: 55.0
+        val seed = if (held) 18.0 + strength * 0.16 else 12.0
+        val significant = if (item.optBoolean("significant")) 12.0 else 0.0
+        return (seed + significant) * kotlin.math.exp(-days / 5.0)
+    }
 
     /**
      * Choose an actual source of the accumulated urge. Previously the gauge
@@ -227,7 +267,7 @@ internal object CharacterLifeFollowThroughStore {
         buildString {
             appendLine("【真实经历留下的分享欲与好奇心｜你自己的选择，不是用户下达的任务】")
             val shareImpulse = sharingUrge(characterId, now).toInt()
-            appendLine("当前累计分享冲动≈$shareImpulse/100，来自多条尚未分享的真实经历；不是自动发送阈值。若曾明确想分享却一直未说，先重新认真考虑那件事；若只是多次小事累积到很高，挑其中一件自己最有兴致讲的经历，而不是把进度条本身当分享内容。")
+            appendLine("当前分享冲动≈$shareImpulse/100，基于尚未分享的真实经历，也扣除了最近真正发出朋友圈释放的部分表达需求；不是自动发送阈值。若曾明确想分享却一直未说，先重新认真考虑那件事；若只是多次小事累积到很高，挑其中一件自己最有兴致讲的经历，而不是把进度条本身当分享内容。")
             if (shareImpulse >= 85) appendLine("【鲜明的分享冲动｜先形成想法再决定做不做】当前确实积累了很强的分享冲动：本轮应把至少一件尚未分享、具有真实 experienceId 的经历转化为『想向谁讲哪件事、为什么想讲』的具体心理倾向，与其他生活欲望一起取舍。可在 appraisal.privateIdeas 记下尚未付诸行动的念头；如果本人现在愿意分享，就在同一轮的 action/steps 选择真实私聊、好友私信、群聊或朋友圈。已经在回主人消息也不妨碍并行选择其他独立动作；不愿发送、没合适对象或时机不妥时可以按本人性格克制，但不是把满值当成零。只凭冲动不能写已发送回执。")
             opportunities.forEach { item ->
                 appendLine("- experienceId=${item.optString("id")}；已证实发生=${item.optString("channel")}：${item.optString("fact")}")
