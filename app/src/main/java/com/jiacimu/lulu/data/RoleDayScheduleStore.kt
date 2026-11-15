@@ -734,7 +734,26 @@ object RoleDayScheduleStore {
         if (original.lastWakeHandoffAt != null) return true
         persist(context, records.map { item ->
             if (item.id == planId && item.characterId == characterId)
-                item.copy(lastWakeHandoffAt = at) else item
+                item.copy(lastWakeHandoffAt = at,
+                    resultSummary = if (item.resultSummary.startsWith("日程唤醒未完成："))
+                        "" else item.resultSummary) else item
+        })
+        return true
+    }
+
+    /** Make dispatch failures visible on the existing schedule card, without
+     * claiming the role tried a tool or automatically buying a retry. */
+    @Synchronized
+    internal fun recordUnfinishedWake(context: Context, characterId: String,
+        planId: String, expectedDueAt: Instant, message: String): Boolean {
+        val records = all(context)
+        val plan = records.firstOrNull { it.id == planId &&
+            it.characterId == characterId && it.dueAt == expectedDueAt &&
+            it.status == "due" && it.lastWakeHandoffAt == null } ?: return false
+        persist(context, records.map { item ->
+            if (item.id == plan.id && item.characterId == characterId) {
+                item.copy(resultSummary = "日程唤醒未完成：${message.take(130)}")
+            } else item
         })
         return true
     }
@@ -892,6 +911,9 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
                 // Busy chat, missing model configuration, or model failure is not
                 // a completed decision. Leave the real agenda pending without
                 // automatically replaying a possibly billable HTTP request.
+                val summary = "未取得角色有效模型决策（可能在处理私聊或模型请求失败）；原日程仍待处理"
+                RoleDayScheduleStore.recordUnfinishedWake(
+                    applicationContext, role, plan.id, plan.dueAt, summary)
                 CompanionPresenceStore.recordPerceptionAttempt(role,
                     "日程已到但没有完成模型决策；仍待处理，可在下一次感知继续")
             }
@@ -899,6 +921,9 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         } catch (cancel: kotlinx.coroutines.CancellationException) {
             throw cancel
         } catch (failure: Exception) {
+            RoleDayScheduleStore.recordUnfinishedWake(
+                applicationContext, role, plan.id, plan.dueAt,
+                "调度异常：${failure.message.orEmpty().take(100)}；原日程保留")
             CompanionPresenceStore.recordPerceptionAttempt(role,
                 "日程唤醒失败；原日程保留：${failure.message.orEmpty().take(100)}")
             // Do not automatically bill again when the request's outcome is uncertain.
