@@ -252,6 +252,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         accent = relicGold,
         compactStatus = true,
         compactSummary = if (run == null) "遗迹营地" else "❤ ${run.hero.hp}/10 · ◇${run.value}",
+        companionCenterBottom = true,
+        toolsFromTop = true,
         healthFraction = run?.hero?.hp?.div(10f),
         secondaryFraction = run?.let { state ->
             state.chests.count { it.opened }.toFloat() /
@@ -286,7 +288,26 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if (run != null && run.allies.isNotEmpty() && run.phase in
                 setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
                 RelicCompanionPanel(run,continuousTravel=joystickHeld,
-                    readRun={snapshot.run ?: run}) { id,choice ->
+                    readRun={snapshot.run ?: run},
+                    onTeamPulse = { expectedId ->
+                        val current = ledger.read().run
+                        if (current?.id != expectedId || !GameCoopPacing.relicHasPlan(current))
+                            false
+                        else {
+                            val next = runCatching {
+                                ledger.perform("companion_tick",
+                                    autonomousIds = current.allies.map { it.id }.toSet())
+                            }.getOrElse {
+                                error = it.message ?: "队伍行动无法保存"
+                                null
+                            }
+                            if (next != null && next.run?.id == expectedId &&
+                                next.run!!.turns > current.turns) {
+                                snapshot = next
+                                true
+                            } else false
+                        }
+                    }) { id,choice ->
                     var saved = false
                     change { ledger.companion(run.id,id,choice).also { saved = true } }
                     saved
