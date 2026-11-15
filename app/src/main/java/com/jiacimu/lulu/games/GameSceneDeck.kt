@@ -113,6 +113,7 @@ internal fun GameSceneDeck(
         val compactTopLeftWidth = if (helpAction != null && !wide)
             (maxWidth - sideWidth - 70.dp).coerceAtLeast(95.dp) else maxWidth
         val hudNoticeWidth = if (wide) maxWidth * .42f else maxWidth * .56f
+        val hudResourceWidth = minOf(maxWidth * .46f, 340.dp)
         // Capture BoxWithConstraints height in its own receiver scope. Inside
         // the bottom-right Column, ColumnScope shadows the constraint receiver
         // and Kotlin cannot implicitly resolve maxHeight (CI #857 / #858).
@@ -217,7 +218,7 @@ internal fun GameSceneDeck(
                 }
             if (compactStatus && resourceSummary.isNotBlank()) {
                 Surface(
-                    modifier = Modifier.widthIn(max = minOf(maxWidth * .46f, 340.dp)),
+                    modifier = Modifier.widthIn(max = hudResourceWidth),
                     color = Color(0xB3162935),
                     shape = RoundedCornerShape(11.dp),
                 ) {
