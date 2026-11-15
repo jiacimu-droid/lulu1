@@ -605,6 +605,28 @@ class LuluAccessibilityService : AccessibilityService() {
                 clicked = clicked)
         }
 
+        /** A live, read-only editor check for the exact WeChat conversation.
+         * Never use the owner's display or general search editor evidence. */
+        fun virtualChatTextInputVisible(
+            displayId: Int, packageName: String, recipient: String,
+        ): Boolean {
+            val service = instance ?: return false
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+                !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return false
+            val dimensions = virtualDimensions(service, displayId) ?: return false
+            if (!virtualChatHeaderMatches(service, displayId, packageName,
+                    recipient, dimensions.second)) return false
+            val editors = ownedVirtualRoots(service, displayId, packageName)
+                .flatMap(::visibleEditors)
+            return editors.size == 1 && safeEditable(editors.single()) &&
+                LuluVirtualChatSendPolicy.chatEditorCandidate(
+                    editors.single().className?.toString(),
+                    editors.single().hintText?.toString(),
+                    editors.single().viewIdResourceName)
+        }
+
         /** An explicit, owner-authorized WeChat send is a separate atomic
          * action, never a search Enter or a generic permissive tap. This makes
          * ONE attempt after verifying the actual conversation and readback.
@@ -634,7 +656,12 @@ class LuluAccessibilityService : AccessibilityService() {
                 service, displayId, packageName, recipient, dimensions.second)
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
             val editors = roots.flatMap(::visibleEditors)
-            if (editors.size != 1) return denied("chat_editor_ambiguous")
+            if (editors.size != 1) return denied(
+                if (roots.any { root ->
+                        root.collectVisibleText(maxNodes = 460, maxChars = 3_000)
+                            .lineSequence().any(LuluVirtualChatSendPolicy::isPressToTalk)
+                    }) "chat_voice_mode_requires_text_switch" else "chat_editor_ambiguous"
+            )
             val editor = editors.single()
             if (!LuluVirtualChatSendPolicy.chatEditorCandidate(
                     editor.className?.toString(), editor.hintText?.toString(),
