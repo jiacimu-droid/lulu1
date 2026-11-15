@@ -109,10 +109,12 @@ class RelicCombatSkillsTest {
         assertEquals(guard.turns+1,guarded.turns)
         assertEquals(7,guarded.hero.hp)
         assertEquals(4,guarded.professionReadyTurn)
+        assertEquals(2,guarded.professionCharges)
         assertFalse(RelicCombatSkills.professionAvailable(guarded))
         val restored=RelicRun.read(guarded.json())!!
         assertEquals(RelicProfession.GUARDIAN,restored.profession)
         assertEquals(4,restored.professionReadyTurn)
+        assertEquals(2,restored.professionCharges)
         assertEquals(restored.turns,RelicEscapeRules.act(restored,"profession_skill").turns)
 
         val medic=b.copy(profession=RelicProfession.MEDIC,
@@ -120,6 +122,7 @@ class RelicCombatSkillsTest {
         val healed=RelicEscapeRules.act(medic,"profession_skill")
         assertEquals(8,healed.hero.hp)
         assertEquals(0,healed.hero.kits)
+        assertEquals(2,healed.professionCharges)
         assertFalse(RelicCombatSkills.professionAvailable(
             medic.copy(hero=h.copy(hp=10))))
 
@@ -128,7 +131,12 @@ class RelicCombatSkillsTest {
         val explored=RelicEscapeRules.act(scout,"profession_skill")
         assertTrue(explored.seen.size>scout.seen.size)
         assertEquals(4,explored.professionReadyTurn)
+        assertEquals(2,explored.professionCharges)
         assertEquals(0,scout.professionReadyTurn)
+        val exhausted=medic.copy(professionCharges=0)
+        assertFalse(RelicCombatSkills.professionAvailable(exhausted))
+        assertTrue(RelicCombatSkills.professionHint(exhausted).contains("用完"))
+        assertEquals(exhausted.turns,RelicEscapeRules.act(exhausted,"profession_skill").turns)
 
         val legacy=org.json.JSONObject(b.json().toString())
             .apply{remove("profession");remove("professionReadyTurn")}
