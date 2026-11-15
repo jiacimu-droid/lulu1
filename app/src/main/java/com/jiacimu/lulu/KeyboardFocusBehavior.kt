@@ -23,8 +23,12 @@ import kotlinx.coroutines.delay
 internal fun Modifier.keepFocusedFieldVisible(): Modifier {
     val requester = remember { BringIntoViewRequester() }
     var hasFocus by remember { mutableStateOf(false) }
-    val imeBottom = WindowInsets.ime.getBottom(LocalDensity.current)
-    LaunchedEffect(hasFocus, imeBottom) {
+    // IME bottom changes on every animation frame. Keying the effect to its
+    // pixel height repeatedly cancels the delay and schedules a new scroll,
+    // causing unnecessary layout work while the keyboard opens or closes.
+    // Only the visibility transition (or focus change) needs a new request.
+    val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    LaunchedEffect(hasFocus, keyboardVisible) {
         if (hasFocus) {
             delay(90L)
             requester.bringIntoView()
