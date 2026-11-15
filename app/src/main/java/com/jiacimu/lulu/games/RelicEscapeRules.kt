@@ -149,6 +149,9 @@ internal data class RelicRun(
     val chestProgress:Map<Int,Int> = emptyMap(),
     /** Earliest committed world turn when the short-blade sweep may be used again. */
     val sweepReadyTurn:Int = 0,
+    /** Player's chosen camp profession; old save defaults to a scouting explorer. */
+    val profession:RelicProfession = RelicProfession.SCOUT,
+    val professionReadyTurn:Int = 0,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -179,6 +182,7 @@ internal data class RelicRun(
         .put("guardedBy",guardedBy)
         .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
         .put("contract",contract.name).put("sweepReadyTurn",sweepReadyTurn)
+        .put("profession",profession.name).put("professionReadyTurn",professionReadyTurn)
         .put("chestProgress",JSONObject().apply {
             chestProgress.forEach { (id,progress) -> put(id.toString(),progress) }
         })
@@ -228,6 +232,9 @@ internal data class RelicRun(
                 contract=runCatching { RelicContract.valueOf(j.optString("contract","NONE")) }
                     .getOrDefault(RelicContract.NONE),
                 sweepReadyTurn=j.optInt("sweepReadyTurn",0).coerceIn(0,result.turns+100),
+                profession=runCatching { RelicProfession.valueOf(j.optString("profession","SCOUT")) }
+                    .getOrDefault(RelicProfession.SCOUT),
+                professionReadyTurn=j.optInt("professionReadyTurn",0).coerceIn(0,result.turns+100),
                 chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
                     val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
                     buildMap {
@@ -321,6 +328,8 @@ internal object RelicEscapeRules {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return s.copy(notice="当前不能继续行动")
         if(s.phase==RelicPhase.DOWNED && action!="wait")return s.copy(notice="倒地了，等待同伴救援")
+        if(action=="weapon_skill" && s.equipped=="blade")
+            return act(s,"sweep",autonomousIds=autonomousIds)
         if(action=="equip") {
             if(lootId !in s.weapons || lootId !in RelicArsenal.weapons)
                 return s.copy(notice="尚未获得这把武器")
@@ -582,6 +591,51 @@ internal object RelicEscapeRules {
                     "短剑回旋斩击中${targets.size}名守卫（每名${if(s.weapon>=2) "1–2" else "1"}伤害）"+
                     " · 击败${killed.size}名 · 本回合格挡一次 · 两个行动回合后可再次使用")
                 noise=3
+            }
+            "weapon_skill"->{
+                // x/y carry facing direction (-1,0) etc, never a tapped map target.
+                val direction=x to y
+                if(!RelicCombatSkills.canWeaponSkill(s,direction))
+                    return s.copy(notice=RelicCombatSkills.weaponSkillHint(s,direction))
+                val targets=RelicCombatSkills.weaponSkillTargets(s,direction)
+                val damage=targets.associate { it.id to RelicArsenal.damage(s,it) }
+                val defeated=targets.filter{it.hp<=damage.getValue(it.id)}
+                next=s.copy(
+                    mobs=s.mobs.map { enemy ->
+                        val hit=damage[enemy.id] ?: 0
+                        if(hit>0)enemy.copy(hp=(enemy.hp-hit).coerceAtLeast(0)) else enemy
+                    },
+                    bolts=if(s.equipped=="bow")s.bolts-2 else s.bolts,
+                    drops=s.drops+defeated.map { RelicDrop(it.x,it.y,RelicArsenal.monsterDrop(s,it)) },
+                    sweepReadyTurn=s.turns+3,
+                ).log("player","weapon_skill",
+                    RelicCombatSkills.weaponSkillName(s)+"命中${targets.size}名敌人"+
+                    " · 击败${defeated.size}名"+
+                    if(s.equipped=="bow")" · 弩箭-2" else "")
+                noise=if(s.equipped=="bow")3 else 2
+            }
+            "profession_skill"->{
+                if(!RelicCombatSkills.professionAvailable(s))
+                    return s.copy(notice=RelicCombatSkills.professionHint(s))
+                next=when(s.profession) {
+                    RelicProfession.GUARDIAN->s.copy(
+                        hero=hero.copy(hp=(hero.hp+2).coerceAtMost(10)),guarding=true,
+                    ).log("player","profession_skill","守护者坚守：恢复2生命，并抵挡本回合一次攻击")
+                    RelicProfession.MEDIC->s.copy(
+                        hero=hero.copy(hp=(hero.hp+4).coerceAtMost(10)),
+                    ).log("player","profession_skill","医师急救：恢复4生命，不消耗药剂")
+                    RelicProfession.SCOUT->{
+                        val explored=s.seen.toMutableSet()
+                        for(dy in -5..5)for(dx in -5..5) {
+                            val px=hero.x+dx
+                            val py=hero.y+dy
+                            if(abs(dx)+abs(dy)<=5 && s.bounds(px,py))explored+=s.index(px,py)
+                        }
+                        s.copy(seen=explored).log("player","profession_skill",
+                            "探路者远眺：探明${explored.size-s.seen.size}格未知地形")
+                    }
+                }.copy(professionReadyTurn=s.turns+4)
+                noise=if(s.profession==RelicProfession.SCOUT)1 else 0
             }
             "defend"->{
                 next=s.copy(guarding=true).log("player","defend","举盾防御，抵消本回合一次来自守卫的伤害")
