@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T04:33:37.476328+00:00",
-  "commit": "1863c554bf2bad36d4c2ab378af1ed9da24e5677",
+  "generatedAt": "2026-11-15T04:34:17.444296+00:00",
+  "commit": "275c2078876730e9f944fbba04f86990bd0ee956",
   "branch": "main",
-  "sourceFingerprint": "32e3d54906c2532276ee823abae0fb9b141c94e30d96226d286e2c6e6a408b83",
+  "sourceFingerprint": "cf59e35fa114537731eca1b93b9a35d02511ff0629bc9b552293eb42089307c9",
   "summary": {
     "files": 1327,
-    "lines": 281987,
+    "lines": 281988,
     "symbols": 3973
   },
   "symbolIndex": {
@@ -465,7 +465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 167
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -27452,8 +27452,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 181,
-      "sha256": "200f4e5b6d99282f25f106365b65e81605b5e516bfcb916ce61b6754a1e59c9f",
+      "lines": 182,
+      "sha256": "d44d96a4a73a6b8edb290676018fcd9b91791f81b9f2874b6b7f3671d1973651",
       "symbols": [
         {
           "name": "Capability",
@@ -27489,7 +27489,7 @@
         },
         {
           "name": "context",
-          "line": 167
+          "line": 168
         }
       ]
     },
@@ -39116,7 +39116,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 479,
-      "sha256": "317915f9545f8b1483a32fe56dd7cf3f02d223143dd50077f7eae46adad2afcf",
+      "sha256": "703fdf3f9b9103815e2f6e0fd326c90261e6b6857fcd13454064b5c761c3deea",
       "symbols": [
         {
           "name": "Outcome",
