@@ -665,8 +665,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         val cleanCharacterId = characterId.trim().ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(cleanCharacterId)
         val conversation = ensureConversation(cleanCharacterId, character.displayName)
-        val marker = incidentId?.takeIf { it.matches(Regex("[A-Za-z0-9-]+")) }?.let { "[世界事件|$it] " }.orEmpty()
-        val activityPrefix = if (content.trim().startsWith("[独自游戏]")) "[游戏记录]" else "[共同活动]"
+        val gameNotice = content.trim().startsWith("[独自游戏]")
+        val activityPrefix = if (gameNotice) "[游戏记录]" else "[共同活动]"
+        val marker = incidentId?.takeIf { it.matches(Regex("[A-Za-z0-9-]+")) }?.let {
+            "[${if (gameNotice) "游戏事件" else "世界事件"}|$it] "
+        }.orEmpty()
         val notice = (marker + content.trim()).let { text ->
             if (marker.isBlank() && (text.startsWith("[共同活动]") || text.startsWith("[游戏记录]")))
                 text
