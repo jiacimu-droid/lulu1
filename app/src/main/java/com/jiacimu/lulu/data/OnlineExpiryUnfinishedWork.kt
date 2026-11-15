@@ -61,7 +61,11 @@ internal object OnlineExpiryUnfinishedWork {
             recent.forEach { (tool, attempt, result) ->
                 val explanation = result?.optString("error").orEmpty().ifBlank {
                     result?.optString("verification").orEmpty().ifBlank {
-                        result?.optString("summary").orEmpty()
+                        result?.optString("summary").orEmpty().ifBlank {
+                            // Rejected ToolRouter receipts keep the actual gate reason
+                            // on the envelope even when result has no detail.
+                            attempt.optString("reason")
+                        }
                     }
                 }
                 appendLine("tool=$tool；requestId=${attempt.optString("requestId").take(110)}；" +
