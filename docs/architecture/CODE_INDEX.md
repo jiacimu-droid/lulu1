@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`06147c32e70de189fa911de2b7fcc43d9378fe01`
+- 基准提交：`c1f0865d6a4284f2c2b916e4618606ba9683a0bf`
 - 分支：`main`
 - 已索引文件：1333
-- 已索引代码/文本行：284317
+- 已索引代码/文本行：284355
 - 已发现符号：4007
 
 | 文件 | 行数 | 符号数 |
@@ -555,7 +555,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3719 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3729 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
@@ -575,7 +575,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 196 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 236 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1022 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1043 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 968 | 22 |
@@ -1192,7 +1192,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt` | 43 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 540 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 547 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 100 | 1 |
