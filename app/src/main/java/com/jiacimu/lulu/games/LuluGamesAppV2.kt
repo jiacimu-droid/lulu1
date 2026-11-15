@@ -134,8 +134,7 @@ private fun UniversalReplayCenter(
             UniversalGameResult(record = selected!!,
                 onBack = { selectedId = null }, onReplay = {
                     showReplay = true
-                    onReplayModeChange(if (selected!!.type == LuluGameType.RelicEscape) "relic_escape"
-                        else if (selected!!.type == LuluGameType.BlockIsland) "block_island" else null)
+                    onReplayModeChange(if (selected!!.type == LuluGameType.RelicEscape) "relic_escape" else null)
                 })
         }
     }
