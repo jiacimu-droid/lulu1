@@ -108,7 +108,7 @@ class OnlineExpiryUnfinishedWorkTest {
         val failure = receipt("background_phone", "failed", 80, "微信发送失败")
         val later = JSONObject(receipt("background_phone", "succeeded", 20).content)
             .put("requestId", "step-80")
-            .remove("status")
+            .apply { remove("status") }
         later.put("result", JSONObject().put("summary", "尚无执行结果").toString())
         val statusless = receipt("background_phone", "succeeded", 20)
             .copy(content = later.toString())
