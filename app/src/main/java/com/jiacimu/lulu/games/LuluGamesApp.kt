@@ -101,7 +101,7 @@ private data class GameLauncher(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false, onReplayCenter: (() -> Unit)? = null) {
+fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false, onReplayCenter: (() -> Unit)? = null, replayLandscapeGameId: String? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
     var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
@@ -121,7 +121,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     val landscapeSupported = gameSupportsLandscape(route.savedGameId())
     var landscape by rememberSaveable(route.savedGameId()) { mutableStateOf(true) }
     val requestedGameOrientation = gameRequestedOrientation(
-        route.savedGameId(), selectionOpen = pendingRoute != null, preferLandscape = landscape,
+        replayLandscapeGameId ?: route.savedGameId(), selectionOpen = pendingRoute != null, preferLandscape = landscape,
     )
 
     // One owner for the orientation request, covering game, picker and lobby routes.
