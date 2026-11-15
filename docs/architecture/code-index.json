@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T00:06:54.576869+00:00",
-  "commit": "98769800d256f9d7d19d19a73908058b6edf4c00",
+  "generatedAt": "2026-11-15T00:07:54.356396+00:00",
+  "commit": "e80bd152ae04801f0ed0ed4ae28b4fd526d21d11",
   "branch": "main",
-  "sourceFingerprint": "2433935189374c7693eb4d49bbb738241f6b1b6dbc0da4c77e96945a88c3458b",
+  "sourceFingerprint": "29bef9f4fe124c436eef435b0a658696e2f90438786b7e9c53ad1ba44e4bfaca",
   "summary": {
     "files": 1323,
-    "lines": 280474,
+    "lines": 280545,
     "symbols": 3948
   },
   "symbolIndex": {
@@ -8539,13 +8539,13 @@
     "wakeSpeechContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 137
+        "line": 143
       }
     ],
     "selectionEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 150
+        "line": 156
       }
     ],
     "CommitmentLexiconSync": [
@@ -20097,7 +20097,7 @@
     "GrowthReflectionInputTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "ImageSearchProviderTest": [
@@ -29576,16 +29576,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 551,
-      "sha256": "d81cac4eb70774a355fecd10cff6070a8456dda6f6a52dbb10de6cc5a7fd1f4d",
+      "lines": 557,
+      "sha256": "9d5e4c931e75f10288e0f6489ca099855521e2fc912b2ea51720483953599fad",
       "symbols": [
         {
           "name": "wakeSpeechContext",
-          "line": 137
+          "line": 143
         },
         {
           "name": "selectionEvidence",
-          "line": 150
+          "line": 156
         }
       ]
     },
@@ -43274,8 +43274,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
-      "lines": 88,
-      "sha256": "42c4396133117f39a785678787d5259eba7dd31495eb4c2e0cc7940913bd12ac",
+      "lines": 108,
+      "sha256": "473b1991eb5e054b96a3c9e638ec3ab296e1342b3e092b8b5855f4f59544538e",
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",
@@ -43833,12 +43833,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt",
-      "lines": 77,
-      "sha256": "aee5e5b6749ad5e4a7f70793eeb4a812799c72b478d5d26a5219d10cdca76249",
+      "lines": 122,
+      "sha256": "40bbc3abde26189bb30e40d61e8a767e5670185dc21eb850e42600f3a80e9485",
       "symbols": [
         {
           "name": "GrowthReflectionInputTest",
-          "line": 12
+          "line": 14
         }
       ]
     },

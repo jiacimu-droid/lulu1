@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`98769800d256f9d7d19d19a73908058b6edf4c00`
+- 基准提交：`e80bd152ae04801f0ed0ed4ae28b4fd526d21d11`
 - 分支：`main`
 - 已索引文件：1323
-- 已索引代码/文本行：280474
+- 已索引代码/文本行：280545
 - 已发现符号：3948
 
 | 文件 | 行数 | 符号数 |
@@ -431,7 +431,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 80 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 149 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 551 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 557 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 104 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
@@ -1072,7 +1072,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 526 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 572 | 1 |
@@ -1105,7 +1105,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 228 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/GrowthReflectionInputTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt` | 41 | 1 |
