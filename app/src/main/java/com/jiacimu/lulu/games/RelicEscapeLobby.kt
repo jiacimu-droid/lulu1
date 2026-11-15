@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.MigratedDomainStores
 
 // Restrained gallery palette: warm ivory metal, cool slate and pale jade.
@@ -73,10 +75,8 @@ internal fun RelicEscapeLobby(
     val live=snapshot.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
     var picker by remember { mutableStateOf(false) }
     var leaveConfirm by remember { mutableStateOf(false) }
-    var shopExpanded by remember { mutableStateOf(true) }
 
 
-    var prepExpanded by remember { mutableStateOf(true) }
     val partyPanel: @Composable () -> Unit = {
         RelicLobbyPanel {
                     Row(verticalAlignment=Alignment.CenterVertically) {
@@ -203,8 +203,12 @@ internal fun RelicEscapeLobby(
         }
     }
     if(detailPage.isNotEmpty() && detailPage!="vault") {
-        ModalBottomSheet(onDismissRequest={detailPage=""},containerColor=campInk) {
-            Column(Modifier.fillMaxWidth().fillMaxHeight(.78f)
+        // Real full-screen destination: Android Back and the visible return control
+        // both return to the same camp state instead of dismissing a bottom sheet.
+        Dialog(onDismissRequest={detailPage=""},
+            properties=DialogProperties(usePlatformDefaultWidth=false)) {
+            Surface(modifier=Modifier.fillMaxSize(),color=campInk) {
+            Column(Modifier.fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal=16.dp,vertical=8.dp),
                 verticalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -217,7 +221,7 @@ internal fun RelicEscapeLobby(
                     },color=campGold,fontSize=21.sp,fontWeight=FontWeight.Black,
                         modifier=Modifier.weight(1f))
                     TextButton(onClick={detailPage=""}) {
-                        Text("完成",color=campMint)
+                        Text("← 返回营地",color=campMint)
                     }
                 }
                 when(detailPage) {
@@ -342,43 +346,48 @@ internal fun RelicEscapeLobby(
                     
                     }
                     "shop" -> {
-RelicLobbyPanel {
-                    Row(verticalAlignment=Alignment.CenterVertically) {
-                        Text("营地商店",color=Color.White,fontWeight=FontWeight.Black,
-                            fontSize=17.sp,modifier=Modifier.weight(1f))
-                        TextButton(onClick={shopExpanded=!shopExpanded}) {
-                            Text(if(shopExpanded)"收起 −" else "打开商店 ＋",color=campGold,fontSize=11.sp)
-                        }
-                    }
-                    if(shopExpanded) {
-                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-                        OutlinedButton(onClick=onBuyKit,enabled=!live && snapshot.coins>=70) {
-                            Text("药剂 · 70",color=campGold)
-                        }
-                        OutlinedButton(onClick=onUpgradeWeapon,
-                            enabled=!live && snapshot.weapon==1 && snapshot.coins>=350) {
-                            Text("武器强化 + 长矛 · 350",color=campGold)
-                        }
-                        OutlinedButton(onClick=onBuyBow,
-                            enabled=!live && "bow" !in snapshot.purchasedWeapons &&
-                                snapshot.coins>=650) {
-                            Text("购买弩弓 · 650",color=campGold)
-                        }
-                        RelicCampUpgrades.satchelCost(snapshot.satchelLevel)?.let { cost ->
-                            OutlinedButton(onClick=onUpgradeSatchel,
-                                enabled=!live && snapshot.coins>=cost) {
-                                Text("背包扩容 · "+cost,color=campGold)
+                        RelicLobbyPanel {
+                            Row(verticalAlignment=Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("遗迹补给与装备",color=Color.White,
+                                        fontSize=17.sp,fontWeight=FontWeight.Bold)
+                                    Text("购买后永久记录，探险中的装备不能临时更改。",
+                                        color=campMuted,fontSize=11.sp)
+                                }
+                                Text("◇ ${snapshot.coins}",color=campGold,
+                                    fontSize=18.sp,fontWeight=FontWeight.Bold)
                             }
                         }
-                    }
-                    Text("带出的宝物可换铜币，商店只出售确定的装备和补给。",
-                        color=campMuted,fontSize=11.sp)
+                        RelicShopOffer("治疗药剂","出发时选带的消耗补给 · 库存 ${snapshot.kits}",
+                            70,!live && snapshot.coins>=70,
+                            if(live)"当前探险中暂停购买" else "",onBuyKit)
+                        RelicShopOffer("短剑强化 · 解锁长矛",
+                            "短剑伤害 2 → 4，长矛可攻击直线两格",
+                            350,!live && snapshot.weapon==1 && snapshot.coins>=350,
+                            if(snapshot.weapon>=2)"已强化" else if(live)"当前探险中暂停购买" else "",
+                            onUpgradeWeapon)
+                        RelicShopOffer("弩弓","直线四格远程攻击 · 每箭消耗弹药",
+                            650,!live && "bow" !in snapshot.purchasedWeapons &&
+                                snapshot.coins>=650,
+                            if("bow" in snapshot.purchasedWeapons)"已拥有"
+                            else if(live)"当前探险中暂停购买" else "",
+                            onBuyBow)
+                        val satchelCost=RelicCampUpgrades.satchelCost(snapshot.satchelLevel)
+                        RelicShopOffer("背包扩容",
+                            "永久提高携带容量 · 当前 ${8+snapshot.satchelLevel*2} 格",
+                            satchelCost, !live && satchelCost!=null &&
+                                snapshot.coins>=satchelCost,
+                            if(satchelCost==null)"已满级"
+                            else if(live)"当前探险中暂停购买" else "",
+                            onUpgradeSatchel)
+                        Text("带出珍宝后，可在「藏宝馆」查看和出售真实拥有的藏品。",
+                            color=campMuted,fontSize=12.sp)
                     }
                 }
                     }
                 }
                 Spacer(Modifier.height(14.dp))
+            }
             }
         }
     }
@@ -432,5 +441,28 @@ private fun RelicLobbyPanel(content:@Composable ColumnScope.()->Unit) {
     ) {
         Column(Modifier.fillMaxWidth().padding(14.dp),
             verticalArrangement=Arrangement.spacedBy(9.dp),content=content)
+    }
+}
+
+/** A complete shop shelf item rather than a collapsed menu or horizontal button strip. */
+@Composable
+private fun RelicShopOffer(
+    name:String, detail:String, price:Int?, enabled:Boolean, status:String,
+    onPurchase:()->Unit,
+) {
+    RelicLobbyPanel {
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
+            horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                Text(name,color=Color.White,fontWeight=FontWeight.Bold,fontSize=15.sp)
+                Text(detail,color=campMuted,fontSize=12.sp,lineHeight=17.sp)
+                if(status.isNotBlank()) Text(status,color=campMint,fontSize=11.sp)
+            }
+            Button(onClick=onPurchase,enabled=enabled,
+                colors=ButtonDefaults.buttonColors(containerColor=campGold,contentColor=campInk),
+                shape=RoundedCornerShape(12.dp)) {
+                Text(if(price==null)"满级" else "◇$price",fontSize=12.sp)
+            }
+        }
     }
 }
