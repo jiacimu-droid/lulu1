@@ -164,8 +164,24 @@ class RelayRequestPressurePolicyTest {
             "旧回答")
         assertEquals(listOf(final), RelayRequestPressurePolicy.compactHistory(
             listOf(enormous, final), 900))
-        assertTrue(RelayRequestPressurePolicy.compactHistory(listOf(enormous), 900).isEmpty())
+        // The soft transport budget cannot erase the entire most-recent
+        // conversational turn; preserve it verbatim and drop only older turns.
+        assertEquals(listOf(enormous), RelayRequestPressurePolicy.compactHistory(
+            listOf(enormous), 900))
     }
+
+    @Test fun longLatestReplySurvivesACompactRelayRequestWithoutOldChat() {
+        val old = ModelConversationMessage(ModelConversationMessage.Role.USER,
+            "过时的两周前讨论：先不要修改此刻的设定。")
+        val latest = ModelConversationMessage(ModelConversationMessage.Role.ASSISTANT,
+            "刚刚明确答应主人，周日见面；如果情况有变，先说清楚再调整。".repeat(420))
+        val reduced = RelayRequestPressurePolicy.compactHistory(listOf(old, latest), 1_000)
+        assertEquals(listOf(latest), reduced)
+        assertEquals(ModelConversationMessage.Role.ASSISTANT, reduced.single().role)
+        assertEquals(latest.content, reduced.single().content)
+        assertTrue(RelayRequestPressurePolicy.compactHistory(emptyList(), 1_000).isEmpty())
+    }
+
     @Test fun pressureRecoveryRetainsBothPlacedWorldBookSectionsAndTheirOrder() {
         val top = "顶部" + "这是关键背景".repeat(1_000)
         val bottom = "底部" + "这是关键结尾".repeat(1_000)
