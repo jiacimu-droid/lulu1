@@ -232,8 +232,10 @@ internal object LuluBackgroundPhoneSession {
             LuluAccessibilityService.virtualWindowStatus(displayId, targetApp)
         }
         repeat(4) {
-            if (!LuluVirtualWindowPolicy.canRetryReadOnly(
-                    gate.optString("kind"), gate.optString("windowDiagnostic"))) return gate
+            val kind = gate.optString("kind")
+            val reason = gate.optString("windowDiagnostic")
+            if (!LuluVirtualWindowPolicy.canRetryReadOnly(kind, reason) &&
+                !LuluVirtualWindowPolicy.canRetryServiceConnectionReadOnly(kind, reason)) return gate
             kotlinx.coroutines.delay(200)
             gate = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualWindowStatus(displayId, targetApp)
