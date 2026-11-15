@@ -124,10 +124,10 @@ class AutonomousAffordanceContextTest {
             digital = false, location = "", books = emptyList(), groups = emptyList(),
         )
         assertTrue(context.contains("游戏意愿先于入口"))
-        assertTrue(context.contains("方块小岛建造"))
-        assertTrue(context.contains("迷雾摸金寻宝"))
-        assertTrue(context.contains("不要因为独自入口不支持就一律改玩快艇骰子"))
-        assertTrue(context.contains("可以真心喜欢同一款而重玩"))
+        assertTrue(context.contains("方块小岛（独立持久生存存档）"))
+        assertTrue(context.contains("迷雾摸金（独立探索、真实撤离）"))
+        assertTrue(context.contains("不要误以为只有快艇骰子能独玩"))
+        assertTrue(context.contains("可以真心喜欢某款而重玩"))
         assertTrue(context.contains("action=game_invite"))
         assertTrue(context.contains("appraisal.ownActivity={stage:decided,action:game_invite"))
         assertTrue(context.contains("无须再写相同 ownActivity"))
@@ -148,8 +148,16 @@ class AutonomousAffordanceContextTest {
         val withoutHistory = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
         )
-        assertTrue(withoutHistory.contains("gameId=memory_match"))
-        assertTrue(withoutHistory.contains("yacht_dice"))
+        assertTrue(withoutHistory.contains("memory_match=记忆配对"))
+        assertTrue(withoutHistory.contains("yacht_dice=快艇骰子"))
+        assertTrue(withoutHistory.contains("block_island=方块小岛"))
+        assertTrue(withoutHistory.contains("relic_escape=迷雾摸金"))
+        assertTrue(withoutHistory.contains("tool=invite_duel_game"))
+        assertTrue(withoutHistory.contains("tool=respond_duel_invite"))
+        assertTrue(withoutHistory.contains("不等于支持任意人数"))
+        com.jiacimu.lulu.games.AutonomousGameCatalog.gameNames.forEach { (id, name) ->
+            assertTrue("Missing executable solo game $id", withoutHistory.contains("$id=$name"))
+        }
         assertFalse(withoutHistory.contains("本人最近实际玩过的游戏"))
         val played = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
