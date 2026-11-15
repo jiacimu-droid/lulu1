@@ -23,6 +23,14 @@ import com.jiacimu.lulu.ProviderCallInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/** Permission result belongs only to the still-visible request, never a resumed old screen. */
+internal class GameMicPermissionGate {
+    private var pending = false
+    fun request() { pending = true }
+    fun invalidate() { pending = false }
+    fun consume(): Boolean = pending.also { pending = false }
+}
+
 /**
  * Opt-in, game-scoped hands-free microphone. Reuses the telephone's *existing*
  * VAD/Scribe/provider capture pipeline, not a new speech API or a frame-based
@@ -124,18 +132,26 @@ internal fun rememberIslandGameOpenMic(
     val scope = rememberCoroutineScope()
     val owner = LocalLifecycleOwner.current
     val mic = remember(context, owner) { IslandGameOpenMic(context.applicationContext, scope) }
+    val permissionGate = remember(mic) { GameMicPermissionGate() }
     SideEffect { mic.setListener(onUtterance) }
     DisposableEffect(mic, owner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) mic.stop()
+            if (event == Lifecycle.Event.ON_STOP) {
+                permissionGate.invalidate()
+                mic.stop()
+            }
         }
         owner.lifecycle.addObserver(observer)
-        onDispose { owner.lifecycle.removeObserver(observer); mic.dispose() }
+        onDispose {
+            permissionGate.invalidate()
+            owner.lifecycle.removeObserver(observer)
+            mic.dispose()
+        }
     }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         // Permission dialogs may finish after the game leaves the foreground.
         // Never resurrect capture from a stale launcher callback.
-        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+        if (permissionGate.consume() && owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
             if (it) mic.start() else mic.permissionDenied()
         }
     }
@@ -145,7 +161,10 @@ internal fun rememberIslandGameOpenMic(
         else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
             PackageManager.PERMISSION_GRANTED
         ) mic.start()
-        else permission.launch(Manifest.permission.RECORD_AUDIO)
+        else {
+            permissionGate.request()
+            permission.launch(Manifest.permission.RECORD_AUDIO)
+        }
     }
     return mic to toggle
 }
