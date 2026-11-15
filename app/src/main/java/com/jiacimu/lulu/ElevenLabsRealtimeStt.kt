@@ -40,6 +40,7 @@ internal class ElevenLabsRealtimeStt(
     private val onPartial: (String) -> Unit,
     private val onText: (String) -> Unit,
     private val onError: (String) -> Unit,
+    private val onProvisionalMuteResult: () -> Unit = {},
     private val modelId: String = CallVoiceConfiguration.SCRIBE_V2_REALTIME,
     private val endpoint: String = "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
     private val socketFactory: WebSocket.Factory? = null,
@@ -57,6 +58,7 @@ internal class ElevenLabsRealtimeStt(
     private val transcript = ScribeRealtimeTranscriptState()
     private var worker: Job? = null
     private var turnDelay: Job? = null
+    private var stalledV3Commit: Job? = null
     private var socket: WebSocket? = null
     private val lastWireSendAt = AtomicLong(SystemClock.elapsedRealtime())
     private val sentPcmBytes = AtomicLong(0L)
@@ -107,16 +109,20 @@ internal class ElevenLabsRealtimeStt(
                         dispatch {
                             if (!synchronized(lock) { transcript.acceptPartial(partial) }) return@dispatch
                             turnDelay?.cancel()
-                            if (!muteFinishing.get()) onSpeech()
+                            if (!muteFinishing.get()) {
+                                onSpeech()
+                                scheduleStalledV3Commit()
+                            }
                             onPartial(synchronized(lock) { transcript.preview(partial) })
-                            // A partial is not a final transcript. Do not close
-                            // early while Scribe is still processing the manual commit.
-                            if (muteFinishing.get()) scheduleMuteFinish(7_000L)
+                            // Mute can arrive before the final server commit; allow
+                            // the server to settle first, then preserve visible text.
+                            if (muteFinishing.get()) scheduleMuteFinish(3_500L)
                         }
                     }
                     "committed_transcript" -> {
                         val committed = event.optString("text").trim()
                         if (committed.isNotBlank()) dispatch {
+                            stalledV3Commit?.cancel()
                             val rendered = synchronized(lock) { transcript.commit(committed) }
                             // Short speech can be committed without a preceding partial.
                             if (!muteFinishing.get()) onSpeech()
@@ -205,6 +211,7 @@ internal class ElevenLabsRealtimeStt(
         onMuteDrained = onDrained
         muteHadSpeechEvidence = hasPendingUtterance
         turnDelay?.cancel()
+        stalledV3Commit?.cancel()
         if (!hasCapturedAudio && !muteHadSpeechEvidence) {
             finishMuteDrain()
             return
@@ -212,7 +219,7 @@ internal class ElevenLabsRealtimeStt(
         // ElevenLabs documents commit=true on input_audio_chunk; a short silent
         // tail is sent AFTER the already queued speech, not as a keepalive.
         enqueue(Packet(ByteArray(3_200), commit = true))
-        scheduleMuteFinish(7_000L)
+        scheduleMuteFinish(if (muteHadSpeechEvidence) 3_500L else 7_000L)
     }
 
     private fun scheduleMuteFinish(waitMs: Long) {
@@ -228,12 +235,36 @@ internal class ElevenLabsRealtimeStt(
         muteFinishJob?.cancel()
         turnDelay?.cancel()
         val hadPending = synchronized(lock) { transcript.hasPendingText() } || muteHadSpeechEvidence
-        val stable = synchronized(lock) { transcript.takeFinal() }
-        if (stable.isNotBlank()) onText(stable)
-        else if (hadPending) onError("Scribe 实时识别未返回最终文字，已停止收音，请重试")
+        val (bestText, usedProvisional) = synchronized(lock) { transcript.takeBestOnExplicitMute() }
+        if (bestText.isNotBlank()) {
+            // Mute is the user's explicit end-of-turn. Losing the already
+            // visible words because the remote commit is late is worse than a
+            // clearly marked provisional recovery. Never do this on live partials.
+            if (usedProvisional) onProvisionalMuteResult()
+            onText(bestText)
+        } else if (hadPending || hasCapturedAudio) {
+            onError("Scribe 实时识别未返回文字，已停止收音，请重试")
+        }
         val finished = onMuteDrained
         onMuteDrained = null
         finished?.invoke()
+    }
+
+    /** Turn prediction normally commits at the server. If it fails to commit
+     * despite an unchanged transcript beyond its configured VAD silence,
+     * explicitly flush the segment through the documented manual commit path.
+     * Repeated keepalive partials do not restart this watchdog. Never submit
+     * provisional words to the character during normal open-mic listening. */
+    private fun scheduleStalledV3Commit() {
+        if (modelId != CallVoiceConfiguration.SCRIBE_V3_LIVE) return
+        stalledV3Commit?.cancel()
+        stalledV3Commit = scope.launch(Dispatchers.Main) {
+            delay(endSilenceMs.coerceIn(1_450, 3_000).toLong() + 1_400L)
+            if (!closed.get() && active() && !muteFinishing.get() &&
+                synchronized(lock) { transcript.hasUncommittedPartial() }) {
+                enqueue(Packet(ByteArray(3_200), commit = true))
+            }
+        }
     }
 
     private fun enqueue(packet: Packet) {
@@ -247,7 +278,11 @@ internal class ElevenLabsRealtimeStt(
         // caller's whole thought. Hold the committed words across nearby
         // commits instead of sending two near-identical full-context LLM turns.
         // New partial/committed events cancel and restart this same window.
-        val continuationMillis = synchronized(lock) {
+        val continuationMillis = if (modelId == CallVoiceConfiguration.SCRIBE_V3_LIVE) {
+            // v3 turn prediction already detects a completed turn, unlike v2
+            // VAD's intermediate breath segments. Avoid another 0.9–3.2s wait.
+            400L
+        } else synchronized(lock) {
             SystemSpeechTurnPolicy.continuationMillis(transcript.pendingCommittedText())
         }
         turnDelay = scope.launch(Dispatchers.Main) {
@@ -283,6 +318,7 @@ internal class ElevenLabsRealtimeStt(
     fun stop() {
         if (!closed.compareAndSet(false, true)) return
         turnDelay?.cancel()
+        stalledV3Commit?.cancel()
         muteFinishJob?.cancel()
         outgoing.close()
         worker?.cancel()
@@ -312,6 +348,19 @@ internal class ScribeRealtimeTranscriptState {
     }
 
     fun pendingCommittedText(): String = stable.trim()
+
+    fun hasUncommittedPartial(): Boolean = partial.isNotBlank()
+
+    /** Only on an explicit microphone mute: recover visible words when the
+     * remote endpoint never sends a final event. Return whether any words are
+     * still provisional so the call can disclose that distinction. */
+    fun takeBestOnExplicitMute(): Pair<String, Boolean> {
+        val usedProvisional = partial.isNotBlank()
+        val text = if (usedProvisional) PhoneTranscriptAssembler.combine(stable, partial) else stable
+        stable = ""
+        partial = ""
+        return text.trim() to usedProvisional
+    }
 
     fun hasPendingText(): Boolean = stable.isNotBlank() || partial.isNotBlank()
 
