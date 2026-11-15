@@ -15,6 +15,22 @@ internal object DigitalWorldResidentInteractionRuntime {
         DigitalWorldResidentEpisodeStore.interactions
     private val gate = Mutex()
 
+    /** Validate the chosen resident exchange before saving a paid daily decision
+     * or dispatching a side action. This is only wire validation: actual
+     * presence, willingness and episode state are still checked at execution. */
+    internal fun interactionContractError(args: JSONObject): String? {
+        if (args.optString("itemId").trim().isBlank()) return "需要真实居民 itemId"
+        val kind = args.optString("activityId").trim().lowercase()
+        if (kind !in allowedInteractions)
+            return "activityId 必须选择 ${allowedInteractions.sorted().joinToString("|")}"
+        if (kind in DigitalWorldResidentEpisodeStore.starts &&
+            args.optString("text").trim().isBlank())
+            return "本次 ${kind} 需要本人实际填写 text"
+        if (kind == "continue_episode" && args.optString("incidentId").trim().isBlank())
+            return "继续已有居民事件需要 incidentId"
+        return null
+    }
+
     suspend fun interact(context: android.content.Context, characterId: String, residentId: String, interaction: String,
         args: JSONObject = JSONObject(),
         now: Instant = Instant.now()): DigitalWorldActionResult = gate.withLock {
@@ -29,7 +45,9 @@ internal object DigitalWorldResidentInteractionRuntime {
                 "${resident.name}现在在这里，但暂时无法交谈；可以晚些再联系"
             }
             val normalized = interaction.trim().lowercase()
-            require(normalized in allowedInteractions) { "不支持的居民互动" }
+            require(normalized in allowedInteractions) {
+                "不支持的居民互动：activityId=${normalized.ifBlank { "未填写" }}"
+            }
             val episodeStep = if (normalized in DigitalWorldResidentEpisodeStore.interactions)
                 DigitalWorldResidentEpisodeStore.prepare(characterId, residentId, normalized, args, now) else null
             val character = MigratedDomainStores.characters.get(characterId)
