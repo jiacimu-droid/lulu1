@@ -650,24 +650,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color = Color(0xFFB9DDCC), fontSize = 11.sp, lineHeight = 16.sp)
             }
         }
-        // Six weighted items in one row shrink to ~45dp and wrap numbers
-        // vertically on a short landscape screen. Three per row stay legible.
-        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                IslandStat("❤", "${world.hp}/12", Color(0xFFFFBFC0), Modifier.weight(1f))
-                IslandStat("木", "${world.wood}", Color(0xFFBEEAB4), Modifier.weight(1f))
-                IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
-                IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
-                IslandStat("晶", "${island.crystals}", Color(0xFFD1B6F9), Modifier.weight(1f))
-            }
-        }
-        Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
-            Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
-                color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
-        }
+        // Vitals, gathered resources and the latest event now live in the
+        // always-readable world HUD. Do not duplicate six stat cards in the
+        // menu: it is for actual maps, equipment and interactive details.
         if(menuSection=="行囊") Column(Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("生命归零：回营恢复6/12生命，随身一半木石、野果、晶石掉在原地；到原地点击「找回遗失背包」取回。家园与制作的工具保留。",
