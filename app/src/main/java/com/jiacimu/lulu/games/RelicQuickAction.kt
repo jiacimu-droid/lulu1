@@ -152,6 +152,10 @@ internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>, selected: 
     val interactions = setOf("open", "pickup", "resupply", "fountain",
         "disarm", "invoke", "silence", "revive", "extract")
     if (selectedAction?.action in interactions) return selectedAction
+    // A deliberate map selection must not silently operate a different nearby
+    // chest or landmark when that selected target is unreachable or invalid.
+    // Selecting the hero tile retains the ordinary facing-based D-pad shortcut.
+    if (selected != null && selected != (h.x to h.y)) return null
     val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
         .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
     for ((dx, dy) in directions) {
