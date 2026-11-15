@@ -401,16 +401,30 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
                     onClick = {
                         scope.launch {
                             if (paused) {
-                                LuluBackgroundPhoneSession.resumeByOwner(context)
-                                paused = LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                // Session state and permission checks may touch persistent
+                                // storage. Never perform them on Compose's main thread.
+                                withContext(Dispatchers.IO) {
+                                    LuluBackgroundPhoneSession.resumeByOwner(context)
+                                }
+                                paused = withContext(Dispatchers.IO) {
+                                    LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                }
                                 status = "已允许新后台任务"
                             } else {
                                 try {
-                                    LuluBackgroundPhoneSession.stop(context)
-                                    paused = LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                    // stop() releases the virtual display and may wait for
+                                    // its capture pipeline. Keep the UI responsive.
+                                    withContext(Dispatchers.IO) {
+                                        LuluBackgroundPhoneSession.stop(context)
+                                    }
+                                    paused = withContext(Dispatchers.IO) {
+                                        LuluBackgroundPhoneSession.ownerHasPaused(context)
+                                    }
                                     picture = null
                                     autoRefresh = false
                                     status = "后台操作已暂停"
+                                } catch (cancel: CancellationException) {
+                                    throw cancel
                                 } catch (error: Exception) {
                                     status = "停止失败：" + error.message.orEmpty().take(110)
                                 }
