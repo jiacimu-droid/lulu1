@@ -152,6 +152,62 @@ class CharacterLifeFollowThroughStoreTest {
         ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
     }
 
+    @Test fun realPostsRelieveOrdinarySharingUrgeWithoutPretendingToShareSpecificStories() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "actual-posts-relieve-urge"
+        val ids = (1..10).map { "post-relief-life-$it" }
+        ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+        ids.forEach { id ->
+            CharacterLifeFollowThroughStore.register(
+                role, id, "真实生活", "本人确实经历的一件小事", now.minusSeconds(90))
+        }
+        assertEquals(100.0,
+            CharacterLifeFollowThroughStore.sharingUrgeForReceipts(role, now, emptyList()), 0.001)
+
+        val firstPost = now.minusSeconds(30)
+        val secondPost = now.minusSeconds(20)
+        val thirdPost = now.minusSeconds(10)
+        val one = CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+            role, now, listOf(firstPost))
+        val three = CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+            role, now, listOf(firstPost, secondPost, thirdPost))
+        assertTrue("A real public post is an expression, not zero satisfaction", one < 100.0)
+        assertTrue("Several posts must relieve the gauge instead of leaving it at 100", three < one)
+        assertEquals(0.0, three, 0.001)
+        // Withdrawing a real post restores the gauge from existing facts;
+        // it does not require a separate mutable satisfaction counter.
+        assertTrue(CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+            role, now, listOf(firstPost)) > three)
+        // A generic post is not proof that any unrelated particular event
+        // was narrated. Its pending source must remain open.
+        assertEquals("open", CharacterLifeFollowThroughStore.auditSnapshot(role)
+            .first { it.optString("id") == ids[0] }.optString("shareStatus"))
+
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", ids[0]).put("status", "held")
+            .put("why", "这件具体的事只想以后亲口讲给主人"))
+        assertTrue("A particular held wish must survive generic public posts",
+            CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+                role, now, listOf(firstPost, secondPost, thirdPost)) > 0.0)
+        ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+    }
+
+    @Test fun aNewLifeExperienceIsNotSoothingByAnEarlierPublicPost() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "post-before-life-no-relief"
+        val id = "new-life-after-old-post"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        CharacterLifeFollowThroughStore.register(role, id, "真实生活",
+            "这件有趣的事是发圈之后才发生", now)
+        val baseline = CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+            role, now.plusSeconds(2), emptyList())
+        val withOldPost = CharacterLifeFollowThroughStore.sharingUrgeForReceipts(
+            role, now.plusSeconds(2), listOf(now.minusSeconds(10)))
+        assertEquals("An older post cannot satisfy a future experience",
+            baseline, withOldPost, 0.001)
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
     @Test fun anOlderHeldWishRemainsVisibleWhenNewOpenLifeArrives() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "sharing-old-held-priority"
