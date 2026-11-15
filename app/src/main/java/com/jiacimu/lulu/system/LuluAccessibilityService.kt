@@ -104,6 +104,9 @@ class LuluAccessibilityService : AccessibilityService() {
                             override fun onSuccess(result: ScreenshotResult) {
                                 try {
                                     val buffer = result.hardwareBuffer
+                                    // A cancelled capture still owns the incoming hardware buffer,
+                                    // but must not allocate a full-size software bitmap.
+                                    if (!cont.isActive) return@onSuccess
                                     val pixels = try {
                                         val hardware = Bitmap.wrapHardwareBuffer(buffer, result.colorSpace)
                                             ?: error("截图像素不可读取")
