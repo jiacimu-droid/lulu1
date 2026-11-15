@@ -6,10 +6,10 @@ import org.junit.Test
 /** Keep the real committed reward and its bag/drop receipt visible on short landscape screens. */
 class RelicCeremonyLayoutTest {
     @Test fun artworkShrinksOnShortLandscapeScreens() {
-        assertEquals(72, relicCeremonyArtHeightDp(240f))
-        assertEquals(96, relicCeremonyArtHeightDp(320f))
-        assertEquals(124, relicCeremonyArtHeightDp(400f))
-        assertEquals(172, relicCeremonyArtHeightDp(480f))
+        assertEquals(84, relicCeremonyArtHeightDp(240f))
+        assertEquals(116, relicCeremonyArtHeightDp(320f))
+        assertEquals(160, relicCeremonyArtHeightDp(400f))
+        assertEquals(248, relicCeremonyArtHeightDp(480f))
     }
 
     @Test fun committedBagAndGroundReceiptsRemainDistinctAndActionable() {
