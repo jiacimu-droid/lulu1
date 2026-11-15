@@ -92,14 +92,16 @@ internal class RelicEscapeLedger(context:Context) {
     }
     @Synchronized fun begin(participants:List<String>,medkits:Int,
         difficulty:RelicDifficulty=RelicDifficulty.NORMAL,
-        startingWeapon:String="blade",contract:RelicContract=RelicContract.NONE):RelicSnapshot {
+        startingWeapon:String="blade",contract:RelicContract=RelicContract.NONE,
+        profession:RelicProfession=RelicProfession.SCOUT):RelicSnapshot {
         val old=read()
         if(old.run?.phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return old
         if(medkits !in 0..3 || old.kits<medkits)return old
         val level=(old.successes+1).coerceAtMost(5)
         val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,
-            difficulty,old.purchasedWeapons,startingWeapon).copy(contract=contract)
+            difficulty,old.purchasedWeapons,startingWeapon).copy(contract=contract,
+                profession=profession)
         return write(old.copy(run=run,kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
@@ -142,8 +144,8 @@ internal class RelicEscapeLedger(context:Context) {
         val old=read();val current=old.run?:return old
         val result=if(action=="abandon")RelicEscapeRules.abandon(current)
             else RelicEscapeRules.act(current,action,
-                if(action in setOf("move","sneak","pry","open","channel","attack","invoke","disarm","silence","lure","resupply","fountain"))x else current.hero.x,
-                if(action in setOf("move","sneak","pry","open","channel","attack","invoke","disarm","silence","lure","resupply","fountain"))y else current.hero.y,
+                if(action in setOf("move","sneak","pry","open","channel","attack","weapon_skill","invoke","disarm","silence","lure","resupply","fountain"))x else current.hero.x,
+                if(action in setOf("move","sneak","pry","open","channel","attack","weapon_skill","invoke","disarm","silence","lure","resupply","fountain"))y else current.hero.y,
                 itemId,autonomousIds)
         if(result==current)return old
         val next=if(result.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && result.completedAtMs==0L)
