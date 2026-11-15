@@ -715,4 +715,33 @@ class BlockIslandRulesTest {
         assertEquals(9, next.world.wood)
         assertEquals(6, next.world.stone)
     }
+    @Test fun unfinishedHouseBlueprintCannotBeOverbuiltAndSurvivesReload() {
+        val base = BlockIslandRules.newWorld(1189, emptyList())
+        val left = 8
+        val top = 8
+        val sites = IslandHouseProjects.parts(base.world, left, top).map { it.first }
+        val cleared = base.world.tiles.toMutableList().also { tiles ->
+            sites.forEach { tiles[it] = 0 }
+        }
+        val ready = base.copy(
+            world = base.world.copy(tiles = cleared, x = left - 1, y = top,
+                wood = 30, stone = 20, mobs = emptyList()),
+            animals = emptyList(), supplyCaches = emptyList(),
+            houseProject = IslandHouseProject("player", left, top),
+        )
+        assertFalse(BlockIslandRules.canPlaceBuilding(ready, "wall", left, top))
+        assertFalse(BlockIslandRules.canPlantAt(ready, left, top))
+        val rejected = BlockIslandRules.act(ready, "wall", left, top)
+        assertEquals(ready.world.turns, rejected.world.turns)
+        assertEquals(ready.world.wood, rejected.world.wood)
+        assertEquals(0, rejected.world.cell(left, top))
+        val reloaded = BlockIslandState.fromJson(rejected.toJson())!!
+        assertFalse(BlockIslandRules.canPlaceBuilding(reloaded, "wall", left, top))
+        assertFalse(BlockIslandRules.canPlantAt(reloaded, left, top))
+        assertEquals(ready.houseProject, reloaded.houseProject)
+        // Demolition/finishing does not permanently reserve this land.
+        val released = reloaded.copy(houseProject = null)
+        assertTrue(BlockIslandRules.canPlaceBuilding(released, "wall", left, top))
+    }
+
 }
