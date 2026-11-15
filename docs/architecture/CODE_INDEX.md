@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`90a8916cb65e69499a6c8f881c20400ec8a0510c`
+- 基准提交：`28c48b9e74123ea54a5bbd0a98fcc811fb16a095`
 - 分支：`main`
 - 已索引文件：1335
-- 已索引代码/文本行：284713
+- 已索引代码/文本行：284737
 - 已发现符号：4014
 
 | 文件 | 行数 | 符号数 |
@@ -665,10 +665,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt` | 287 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1400 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 1407 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 348 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 955 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1337 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1349 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 279 | 5 |
@@ -1261,7 +1261,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandPlayerHouseTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandProgressionTest.kt` | 199 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandRareEventsTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandSpeechBubbleTest.kt` | 21 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandSpeechBubbleTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 242 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
