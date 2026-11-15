@@ -31,6 +31,15 @@ class LuluVirtualAccessibilityInputTest {
             71, "com.tencent.mm", "文件传输助手"))
     }
 
+    @Test fun appBackWithoutAccessibilityNeverTouchesAnotherDisplay() {
+        val receipt = LuluAccessibilityService.tapVirtualAppBackControl(
+            displayId = 71, packageName = "com.ss.android.ugc.aweme",
+            expectedFingerprint = "verified-before-tree")
+        assertFalse(receipt.optBoolean("accepted"))
+        assertEquals("accessibility_disconnected", receipt.optString("errorCode"))
+        assertEquals("accessibility_app_back_node", receipt.optString("actionMethod"))
+    }
+
     @Test fun searchSubmitWithoutAccessibilityDoesNotInjectShellKeyevent() {
         val receipt = LuluAccessibilityService.submitVirtualSearch(71, "com.tencent.mm")
         assertFalse(receipt.optBoolean("accepted"))
