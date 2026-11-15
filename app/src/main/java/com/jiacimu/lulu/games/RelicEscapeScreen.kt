@@ -609,7 +609,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         modifier=Modifier.weight(1.05f).height(34.dp),
                         contentPadding=PaddingValues(horizontal=2.dp)) {
                         val cd=(run.professionReadyTurn-run.turns).coerceAtLeast(0)
-                        Text(run.profession.skill+"${"$"}{run.professionCharges}次"+if(cd>0)" $cd" else "",
+                        Text(run.profession.skill+" "+run.professionCharges+"次"+if(cd>0)" $cd" else "",
                             color=relicGreen,fontSize=10.sp,maxLines=1)
                     }
                     TextButton(onClick={aimOnly=!aimOnly},
