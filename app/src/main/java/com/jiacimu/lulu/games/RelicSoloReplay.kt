@@ -51,24 +51,24 @@ internal object RelicSoloReplay {
         val updates = details.optJSONArray("replayFrames") ?: return@runCatching null
         if (updates.length() !in 1..128) return@runCatching null
         val state = JSONObject(original.toString())
-        buildList {
-            add(first)
-            var previous = first
-            for (index in 0 until updates.length()) {
-                val change = updates.getJSONObject(index)
-                val keys = change.keys()
-                while (keys.hasNext()) {
-                    val key = keys.next()
-                    state.put(key, change.get(key))
-                }
-                val next = RelicRun.read(state) ?: return@runCatching null
-                if (next.id != first.id || next.tiles != first.tiles ||
-                    next.turns <= previous.turns || next.turns > previous.turns + 1)
-                    return@runCatching null
-                add(next)
-                previous = next
+        val restored = mutableListOf(first)
+        var previous = first
+        for (index in 0 until updates.length()) {
+            val change = updates.getJSONObject(index)
+            val keys = change.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                state.put(key, change.get(key))
             }
-            if (details.optString("runId") != first.id) return@runCatching null
+            val next = RelicRun.read(state) ?: return@runCatching null
+            if (next.id != first.id || next.tiles != first.tiles ||
+                next.turns < previous.turns || next.turns > previous.turns + 1 ||
+                (next.turns == previous.turns && next.phase == previous.phase))
+                return@runCatching null
+            restored += next
+            previous = next
         }
+        if (details.optString("runId") != first.id) return@runCatching null
+        restored
     }.getOrNull()
 }
