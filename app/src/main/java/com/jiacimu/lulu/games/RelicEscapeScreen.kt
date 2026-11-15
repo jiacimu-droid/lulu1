@@ -532,7 +532,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         },color=relicMuted,fontSize=10.sp,maxLines=2)
                     }
                 }
-                val attackTarget = RelicCombatSkills.attackTarget(run, facing)
+                val attackTarget = relicAttackTarget(run, selected)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
                     .sortedWith(compareByDescending<RelicMob> { it.windup }
@@ -553,9 +553,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
                 if (attackTarget == null) Text(
-                    if(run.equipped=="blade")"附近没有可攻击的敌人 · 短剑近战1格"
-                    else if(run.equipped=="bow" && run.bolts<=0)"弩箭已用尽，请寻找补给"
-                    else "朝"+relicDirection(facing.first,facing.second)+"没有目标 · 点转向再用方向盘瞄准",
+                    relicAttackHint(run, selected),
                     color = relicMuted, fontSize = 10.sp, maxLines = 2)
                 }
             }
@@ -564,15 +562,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if (run != null && run.phase in setOf(
                     RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero=run.hero
-                val attackTarget=RelicCombatSkills.attackTarget(run,facing)
+                val attackTarget=relicAttackTarget(run,selected)
                 val chest=RelicChestPresentation.actionableChest(run,selected)
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
                     GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击",
                         relicGold,run.phase!=RelicPhase.DOWNED,Modifier.weight(1f)) {
                         if(attackTarget!=null) action("attack",attackTarget.x,attackTarget.y)
-                        else combatPrompt=if(run.equipped=="blade")
-                            "短剑需要周围一格内有敌人；移动靠近后直接攻击"
-                            else "朝向${relicDirection(facing.first,facing.second)}没有可攻击目标；点击「转向」后用方向盘瞄准"
+                        else combatPrompt=relicAttackHint(run,selected)
                     }
                     GameHudQuickAction(chest?.let {
                         "开箱 "+(run.chestProgress[it.id] ?: 0)+"/"+RelicEscapeRules.openSteps(it)
