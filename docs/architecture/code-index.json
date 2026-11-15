@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:46:18.936747+00:00",
-  "commit": "8f059d3a616051f23c50fe4ffc39946c44e42647",
+  "generatedAt": "2026-11-15T09:46:55.685725+00:00",
+  "commit": "22d6bb74f9f634505bf27f45c3e3389ad154dae8",
   "branch": "main",
-  "sourceFingerprint": "b77d2cd21870749f915c53325b467e7eaf7b42a701e588c34e17cc701ee8246d",
+  "sourceFingerprint": "e5bde53b247ea25eda6f265ae63ccc897ad8a6af7360f887362557c4323fe051",
   "summary": {
     "files": 1332,
-    "lines": 283786,
+    "lines": 283819,
     "symbols": 4002
   },
   "symbolIndex": {
@@ -46219,8 +46219,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 78,
-      "sha256": "1fc2b0d6f21491e4e3e2fd2c24887f9b97a04a586e2fbbefa7053ebb4bcf4715",
+      "lines": 111,
+      "sha256": "82cffbc396eacf8cddb3d5e459ce1eb2182c607f543612e345b0bb95787cedad",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",
