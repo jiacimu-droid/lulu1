@@ -37,7 +37,7 @@ class SoloGameSystemNoticeTest {
         }
         val actual = MigratedDomainStores.chat.messages(conversation.id).value.filter {
             it.sender == LuluChatMessage.Sender.System &&
-                it.content.startsWith("[游戏记录] [世界事件|solo-game-${record.id}]")
+                it.content.startsWith("[游戏记录] [游戏事件|solo-game-${record.id}]")
         }
         assertEquals(1, actual.size)
         assertTrue(actual.single().content.contains(record.summary))
@@ -47,7 +47,7 @@ class SoloGameSystemNoticeTest {
         assertEquals(actual.single().id, again.id)
         assertEquals(1, MigratedDomainStores.chat.messages(conversation.id).value.count {
             it.sender == LuluChatMessage.Sender.System &&
-                it.content.startsWith("[游戏记录] [世界事件|solo-game-${record.id}]")
+                it.content.startsWith("[游戏记录] [游戏事件|solo-game-${record.id}]")
         })
         val phase = JSONObject(record.detailsJson).getString("phase")
         if (phase != "SUCCESS") assertEquals(0, record.score)
