@@ -47,6 +47,15 @@ class RelicMapCameraTest {
         assertNull(camera.tileAt(camera.offsetX - 1f, camera.offsetY, 18, 15))
     }
 
+    @Test fun finiteExtremeCoordinatesAndTinyTilesNeverSaturateIntoRealTiles() {
+        val camera = RelicMapCamera(Float.MIN_VALUE, 0f, 0f)
+        assertNull(camera.tileAt(Float.MAX_VALUE, 0f, Int.MAX_VALUE, 15))
+        assertNull(camera.tileAt(0f, Float.MAX_VALUE, 18, Int.MAX_VALUE))
+        assertNull(camera.tileAt(-Float.MAX_VALUE, 0f, 18, 15))
+        // A real coordinate still resolves correctly after double-precision projection.
+        assertEquals(0 to 0, RelicMapCamera(20f, 0f, 0f).tileAt(10f, 10f, 18, 15))
+    }
+
     @Test fun invalidGestureCoordinatesNeverSelectARealMapTile() {
         val camera = relicMapCamera(800f, 360f, 18, 15, true, 4 to 5)
         for (bad in listOf(Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)) {
