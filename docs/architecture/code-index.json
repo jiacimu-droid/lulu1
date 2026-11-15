@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:15:34.103915+00:00",
-  "commit": "cfc541eb183a83e2daee292fc56bfd7f7eb37cef",
+  "generatedAt": "2026-11-15T16:21:10.531303+00:00",
+  "commit": "009c4a28a15bd8dc607470dc8d634e8f28674822",
   "branch": "main",
-  "sourceFingerprint": "e6fb9b54765678b23622e815222f634d9f8b474bdb1fec9d5389276294361afd",
+  "sourceFingerprint": "56a80f1476d0f3ce7b8b1d328eef736c8e552214f7a71abd8b443ba2a4571a65",
   "summary": {
     "files": 1338,
-    "lines": 285208,
-    "symbols": 4024
+    "lines": 285223,
+    "symbols": 4025
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14498,34 +14498,40 @@
         "line": 14
       }
     ],
+    "mayReplanAfterTick": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 31
+      }
+    ],
     "islandMemberHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 24
+        "line": 39
       }
     ],
     "islandHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 29
+        "line": 44
       }
     ],
     "relicHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 38
+        "line": 53
       }
     ],
     "islandThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 44
+        "line": 59
       }
     ],
     "relicThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 47
+        "line": 62
       }
     ],
     "recordPartyJoined": [
@@ -36671,32 +36677,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-      "lines": 60,
-      "sha256": "fb0c0d90ddd29732c8978c5d98353d5b864ff3ef258dc3c7a2f9102b867af25c",
+      "lines": 75,
+      "sha256": "0fb534e0273e6278f4ef6cdaa07d6a1748fb7dccc7cc3d9f7917868138941a05",
       "symbols": [
         {
           "name": "canTick",
           "line": 14
         },
         {
+          "name": "mayReplanAfterTick",
+          "line": 31
+        },
+        {
           "name": "islandMemberHasPlan",
-          "line": 24
+          "line": 39
         },
         {
           "name": "islandHasPlan",
-          "line": 29
-        },
-        {
-          "name": "relicHasPlan",
-          "line": 38
-        },
-        {
-          "name": "islandThreat",
           "line": 44
         },
         {
+          "name": "relicHasPlan",
+          "line": 53
+        },
+        {
+          "name": "islandThreat",
+          "line": 59
+        },
+        {
           "name": "relicThreat",
-          "line": 47
+          "line": 62
         }
       ]
     },
