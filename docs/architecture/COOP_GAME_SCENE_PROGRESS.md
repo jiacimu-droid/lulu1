@@ -348,3 +348,9 @@
 - 发现 `RelicQuickAction.relicQuickAction` 的地面实物候选使用固定 `RelicEscapeRules.CAPACITY=8`，但权威 `RelicEscapeRules.act("pickup")`、正式 HUD 与永久升级均使用 `heroCapacity(run)=8+2*satchelLevel`。玩家花资源升级到 10/12 格后，装满原 8 格时，地图/方向键仍拒绝显示合法珍宝拾取，造成升级收益在正式操作中失效。
 - 生产 `6ff2740`（`RelicQuickAction.kt` blob `a22bbe984569ff5257eb4a24ae7774d66b7d8536`）统一从权威容量读取候选，不改物理拾取/奖励/模型选择；测试 `d1cf2ef`（`RelicQuickActionTest.kt` blob `7443a565417f6952a87a1db922fe2bb06e180a7a`）覆盖原 8 格已满、升级后拾取两格稀有实物、方向键与地图候选、实际入包、存档复进及无升级拒绝，避免只改文字。
 - 当前仅确认源码与测试提交 main；最新 main push 的 JVM/APK/index 结果仍需按实际 head_sha 核实，真机 360/412dp 横屏点击、帧率、动画和真实模型独立待验。下一文件：`RelicQuickActionTest.kt` 的 CI 首错、`RelicEscapeScreen.kt` 满包/升级背包触控反馈。
+
+## 2026-11-15 G-03.5 · 同格未开宝箱与地面实物不再互相遮蔽（源码/回归待 CI）
+
+- 生产 `1206142d02717d6d88e9c1d621697fdae4d62c0c`，`RelicQuickAction.kt` blob `ea4a93822207272bdfcbd9234708e83f5a6251e2`：此前同一格同时存在未开启宝箱与真实掉落时，快捷动作先返回拾取，导致宝箱一直无法从中心互动打开。现在同格未开箱优先撬锁；已开箱才拾取，保留原权威掉落、容量、回合、仓库和角色自主选择。
+- 回归 `55c4c8778fce3f488eb43adf4b4e148ae82398eb`，`RelicQuickActionTest.kt` blob `2c2d09f6179c4374bb52e06bdaa6ff751e00e3ce`：重叠实体点选/方向互动、真实撬锁进度、地面实物不消失、开启后拾取及重新读档。该回归源码已提交，**JVM 尚未确认运行通过**。
+- 连接器 commit-workflow 查询只覆盖 PR 触发，本轮返回空；不能据此判定 main push 的 JVM/APK/index。下一实际文件 `RelicQuickActionTest.kt` 检查 JVM 首错及 `RelicEscapeScreen.kt` 真机同格点击/横屏 HUD；真机、真实模型、帧率及美术审图仍待验。
