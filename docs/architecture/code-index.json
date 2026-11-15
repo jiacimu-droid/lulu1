@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T07:10:36.266001+00:00",
-  "commit": "73289dda0b6c319762e355790db147c53f343ee1",
+  "generatedAt": "2026-11-15T07:11:07.940676+00:00",
+  "commit": "54b83fc0499515bd333b3ef668aefac68077b8ee",
   "branch": "main",
-  "sourceFingerprint": "cc46b47d0a8e100f6e9e92ec7ba5969f1490b76557209a535c39204dd1641e48",
+  "sourceFingerprint": "ae7fe53108324869dac67723775383dee33299686837dacbfabc6cfb8cddbf01",
   "summary": {
     "files": 1331,
-    "lines": 283339,
+    "lines": 283347,
     "symbols": 3997
   },
   "symbolIndex": {
@@ -37846,7 +37846,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1373,
-      "sha256": "4e3224f3be4dc51f819abbe16aa93ccb84bde30ab04644859cde4a5a50c2f095",
+      "sha256": "7d4714790ac6b590de4554558d13434b79b757d51d46efb01e6438133d8d4736",
       "symbols": [
         {
           "name": "change",
@@ -46524,8 +46524,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCombatSkillsTest.kt",
-      "lines": 138,
-      "sha256": "5902a9101a0863fc57adb4495f79bf5ffd428302ce31f05b82effd661e369634",
+      "lines": 146,
+      "sha256": "fb33ec892ee14f2f40514e59d71522a64d82c6f06bfa3b47b1a559e033988079",
       "symbols": [
         {
           "name": "RelicCombatSkillsTest",
