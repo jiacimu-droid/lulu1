@@ -110,7 +110,11 @@ class LuluAccessibilityService : AccessibilityService() {
                                         try { hardware.copy(Bitmap.Config.ARGB_8888, false)
                                             ?: error("截图像素无法复制") } finally { hardware.recycle() }
                                     } finally { buffer.close() }
-                                    if (cont.isActive) cont.resume(pixels) else pixels.recycle()
+                                    if (cont.isActive) {
+                                        // Cancellation can win after resume but before the caller receives
+                                        // the frame. The continuation owns recycling in that race.
+                                        cont.resume(pixels, onCancellation = { pixels.recycle() })
+                                    } else pixels.recycle()
                                 } catch (e: Exception) {
                                     if (cont.isActive) cont.resumeWithException(e)
                                 }
