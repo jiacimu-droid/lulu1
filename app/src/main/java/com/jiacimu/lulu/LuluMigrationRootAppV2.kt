@@ -298,6 +298,8 @@ fun LuluMigrationRootAppV2(
                                         pushRoute(MigrationRoute.Memory)
                                     },
                                     onOpenGame = { gameId ->
+                                        // A new explicit invitation supersedes the previous saved entry.
+                                        gamesUiStateHolder.removeState("games-$gameLaunchGeneration")
                                         initialGameId = gameId
                                         gameLaunchGeneration += 1
                                         pushRoute(MigrationRoute.Games)
@@ -426,6 +428,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Games -> gamesUiStateHolder.SaveableStateProvider("games-$gameLaunchGeneration") {
                                     LuluGamesAppV2(
                                         onBack = {
+                                            gamesUiStateHolder.removeState("games-$gameLaunchGeneration")
                                             initialGameId = null
                                             gameLaunchGeneration += 1
                                             popRoute()
