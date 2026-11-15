@@ -9,6 +9,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[33])
 class RelicCombatSkillsTest {
+    @Test fun aimOnlyDoesNotSuppressCompanionUpdatesAsThoughWalking() {
+        assertFalse(RelicCombatSkills.isContinuousTravelGesture(false,false))
+        assertTrue(RelicCombatSkills.isContinuousTravelGesture(true,false))
+        assertFalse(RelicCombatSkills.isContinuousTravelGesture(true,true))
+        assertFalse(RelicCombatSkills.isContinuousTravelGesture(false,true))
+    }
+
     private fun scene(vararg enemies:RelicMob):RelicRun {
         val base=RelicEscapeWorld.create(6164,1,emptyList(),2,1)
         return RelicEscapeRules.reveal(base.copy(
