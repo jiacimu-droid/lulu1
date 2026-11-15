@@ -113,8 +113,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         openingClock.animateTo(1f, androidx.compose.animation.core.tween(
             if(cinematic) 2350 else 1750,
             easing = androidx.compose.animation.core.FastOutSlowInEasing))
-        kotlinx.coroutines.delay(if(cinematic)1450 else 1000)
-        chestHud = chestHud.dismiss(receipt)
+        // Keep the actual discovered collectible on screen until the player
+        // closes the museum view. Never dismiss a rare find on an invisible timer.
     }
     var error by remember{mutableStateOf("")}
 
