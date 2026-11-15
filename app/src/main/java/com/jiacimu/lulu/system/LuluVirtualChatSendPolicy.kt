@@ -79,7 +79,8 @@ internal object LuluVirtualChatSendPolicy {
                     maxOf(talk.height / 2, screenHeight / 32) &&
                 !label.contains("切换到语音") && !label.contains("切换成语音") &&
                 !label.contains("holdtotalk") &&
-                LuluVirtualUiPolicy.mayClick(c.label, c.resourceId, "")
+                (LuluVirtualUiPolicy.mayClick(c.label, c.resourceId, "") ||
+                    (c.label.isBlank() && c.resourceId.isBlank()))
         }.sortedWith(compareBy<IndexedValue<ComposerControl>> {
             talk.left - it.value.bounds.right
         }.thenBy { it.value.bounds.width.toLong() * it.value.bounds.height })
