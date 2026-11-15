@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:39:53.446207+00:00",
-  "commit": "ca2663a3fc23fee9438b49f78d1e1f412278501e",
+  "generatedAt": "2026-11-15T06:40:33.691884+00:00",
+  "commit": "31828971399e2dae490026e2233f1e481c2c5546",
   "branch": "main",
-  "sourceFingerprint": "f5f8d5d397e9cd7a2e58c2d6666442a37eeb13a44ad76a87300715581a76a130",
+  "sourceFingerprint": "9e3fce3ec074ee65222a7608d76b40f9d2cd654e7b650db9d41f03da4f92e205",
   "summary": {
-    "files": 1327,
-    "lines": 282417,
-    "symbols": 3982
+    "files": 1328,
+    "lines": 282664,
+    "symbols": 3983
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15294,6 +15294,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
         "line": 24
+      }
+    ],
+    "released": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestInspection.kt",
+        "line": 34
       }
     ],
     "actionableChest": [
@@ -37392,6 +37398,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestInspection.kt",
+      "lines": 209,
+      "sha256": "e7c9c8a86a386c203ee5247a9ae4443acf1ebbcd8d14ea511634789c150f081d",
+      "symbols": [
+        {
+          "name": "released",
+          "line": 34
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
       "lines": 70,
       "sha256": "3fc1fcd2a3f1c7d482efdef1a991da80211fd7345be70bba068429bbf79ed5a2",
@@ -46414,8 +46431,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 608,
-      "sha256": "c54f5678b4ec78b72d90f9238f8e020de9cfa76a84a119cfc7093815d26df481",
+      "lines": 646,
+      "sha256": "a6b0bd4a88ef49d344ad6acdf3186d4faeb0dfe1560c550014694916ba985618",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
