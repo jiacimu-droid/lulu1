@@ -215,6 +215,7 @@ class ScribeRealtimeTransportTest {
         val wire = FakeWire()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         val turns = mutableListOf<String>()
+        val partials = mutableListOf<String>()
         var recovered = 0
         var drained = false
         val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, {}, {},
