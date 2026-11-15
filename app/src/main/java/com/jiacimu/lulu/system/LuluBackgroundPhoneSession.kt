@@ -84,7 +84,7 @@ internal object LuluBackgroundPhoneSession {
         }
         val fingerprint = inventory.optString("fingerprint")
         val elements = inventory.optJSONArray("elements")
-        if (fingerprint.isBlank() || elements == null || elements.length() == 0) {
+        if (fingerprint.isBlank() || elements == null) {
             lastObservedUi = null
             return output
         }
@@ -883,16 +883,70 @@ internal object LuluBackgroundPhoneSession {
                         .put("inputVerification", verified.wire)
                         .put("displayId", id)
                 }
-                "send_chat_message" -> withContext(Dispatchers.Main) {
-                    LuluAccessibilityService.sendVirtualChatMessage(
-                        id, activeApp, args.getString("recipient"), args.getString("text"),
-                        checkNotNull(lastObservedUi).fingerprint,
-                    ) {
-                        LuluVirtualChatSendPolicy.isEnabled(context, characterId) &&
-                            !ownerHasPaused(context) &&
-                            LuluRolePhoneAuthorization.isGranted(context, characterId) &&
-                            context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
-                            !LuluScreenAwareness.isExcluded(context, activeApp)
+                "send_chat_message" -> {
+                    val recipient = args.getString("recipient")
+                    val message = args.getString("text")
+                    // The model chose the whole message once. WeChat sometimes
+                    // starts in voice/press-to-talk mode, so prepare its editor
+                    // locally instead of paying for another vision-model turn.
+                    // This switch is NOT a send attempt; it clicks once and is
+                    // restricted to the verified recipient and current display.
+                    var fingerprint = checkNotNull(lastObservedUi).fingerprint
+                    val alreadyText = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.virtualChatTextInputVisible(
+                            id, activeApp, recipient)
+                    }
+                    var toggleClicked = false
+                    val editorReady = if (alreadyText) true else {
+                        val switched = withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.switchVirtualChatToText(
+                                id, activeApp, recipient, fingerprint)
+                        }
+                        toggleClicked = switched.optBoolean("inputModeSwitchClicked")
+                        if (!switched.optBoolean("accepted")) {
+                            false
+                        } else if (switched.optBoolean("inputModeTextVerified")) true else {
+                            var ready = false
+                            for (attempt in 0 until 6) {
+                                ready = withContext(Dispatchers.Main) {
+                                    LuluAccessibilityService.virtualChatTextInputVisible(
+                                        id, activeApp, recipient)
+                                }
+                                if (ready) break
+                                if (attempt < 5) kotlinx.coroutines.delay(160)
+                            }
+                            ready
+                        }
+                    }
+                    if (!editorReady) {
+                        JSONObject().put("accepted", false)
+                            .put("messageSendClicked", false)
+                            .put("inputModeSwitchClicked", toggleClicked)
+                            .put("errorCode", "chat_text_mode_unverified")
+                            .put("verification", "已尝试一次文字模式切换，但当前微信输入框未核实；未发送消息")
+                    } else {
+                        fingerprint = withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.virtualUiSnapshot(
+                                id, activeApp).optString("fingerprint")
+                        }
+                        if (fingerprint.isBlank()) {
+                            JSONObject().put("accepted", false)
+                                .put("messageSendClicked", false)
+                                .put("errorCode", "chat_text_snapshot_unavailable")
+                                .put("verification", "文字输入框可见，但缺少当前微信屏快照；未发送")
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.sendVirtualChatMessage(
+                                    id, activeApp, recipient, message, fingerprint,
+                                ) {
+                                    LuluVirtualChatSendPolicy.isEnabled(context, characterId) &&
+                                        !ownerHasPaused(context) &&
+                                        LuluRolePhoneAuthorization.isGranted(context, characterId) &&
+                                        context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
+                                        !LuluScreenAwareness.isExcluded(context, activeApp)
+                                }
+                            }.put("inputModeSwitchClicked", toggleClicked)
+                        }
                     }
                 }
                 "search" -> search(context, id, activeApp, characterId, unreadAtStart, args.getString("text"))
