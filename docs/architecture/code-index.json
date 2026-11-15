@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T05:33:33.447482+00:00",
-  "commit": "20d8b4ae4dcf895d224c6b90dc5f3dc6cd59dc93",
+  "generatedAt": "2026-11-15T05:34:33.272992+00:00",
+  "commit": "da4dbb408c86e474d7172c2a68025d01a16e40e8",
   "branch": "main",
-  "sourceFingerprint": "65aec3fca6cd324cfe19edcb8f663f6d951746ec1c3112b2b95772bc14f05c56",
+  "sourceFingerprint": "c26bbfb2e0e49c2cb3e76a89fe08ce1af132eaff2a52eaf92cd6822d1d509e22",
   "summary": {
     "files": 1327,
-    "lines": 282304,
+    "lines": 282323,
     "symbols": 3982
   },
   "symbolIndex": {
@@ -39224,8 +39224,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1353,
-      "sha256": "5f891f58dc804477b8838c49c71f686f85f9071bfe923e15a23557c3133a99ef",
+      "lines": 1363,
+      "sha256": "36e08db1d9806a663f49be4cacd89dff458ddb11c4c4fdb7fcdeacf96301affd",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -46929,8 +46929,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt",
-      "lines": 41,
-      "sha256": "f23cd1f0f53939b20e031d162b9534ca57715e5d68d2a69e6f4b05fb7b2b1750",
+      "lines": 50,
+      "sha256": "a6966575f8afa08ea5d48d412734f5544e155a9f134a1a96521e67316b121b8e",
       "symbols": [
         {
           "name": "LuluVirtualAccessibilityInputTest",
