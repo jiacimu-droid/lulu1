@@ -7,6 +7,15 @@ import com.jiacimu.lulu.system.LuluMediaVolume
 import org.json.JSONObject
 import java.time.Instant
 
+/** One alarm-clock callback may run a separate local audio cue alongside a
+ * promised incoming call, but never on an outcome review, repeated contact or
+ * ordinary non-wake call. This is a device reliability rule, not a new role
+ * decision or another scheduled responsibility. */
+internal fun shouldStartIndependentWakeAlarm(task: CommitmentTask, sameCall: Boolean): Boolean =
+    task.isWakeResponsibility() && !sameCall &&
+        task.deliveryAction in setOf("start_call", "alarm_only") &&
+        task.attemptCount == 0 && task.followUpKind.isBlank()
+
 /**
  * The system wakes an executable commitment at its deadline. It never treats
  * dialing as evidence the user woke up, and observes call outcome before retry.
@@ -122,10 +131,7 @@ internal object CommitmentExecutor {
         // stream at the actual deadline before the (possibly slow) model/call
         // dispatch. The SAME commitment/alarm ID owns both attempts; a follow-up
         // review must never restart this first-deadline safety cue.
-        val firstLocalRing = wake && !sameCall &&
-            claimedTask.deliveryAction in setOf("start_call", "alarm_only") &&
-            claimedTask.attemptCount == 0 &&
-            claimedTask.followUpKind.isBlank() &&
+        val firstLocalRing = shouldStartIndependentWakeAlarm(claimedTask, sameCall) &&
             LuluAudibleWakeRinger.start(appContext, claimedTask.id)
         val selected = if (wake)
             WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
