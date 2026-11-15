@@ -87,6 +87,24 @@ internal fun shouldSettleImmediateOnlineSleep(
     originalBatchCurrent &&
     (!hasUnreadUserMessage || replyDelivered || explicitlySilent)
 
+/**
+ * Repairing an unrelated action field may not reverse a role's already valid
+ * online choice or drop its exact future-task handoff. Only a decision which
+ * had NO online choice may adopt one supplied by the same-role correction.
+ */
+internal data class OnlineActionRepairHandoff(
+    val choice: String,
+    val reason: String,
+    val nextChecks: JSONArray?,
+)
+
+internal fun onlineHandoffAfterActionRepair(
+    original: OnlineActionRepairHandoff,
+    correction: OnlineActionRepairHandoff,
+    onlyFixingActionFields: Boolean,
+): OnlineActionRepairHandoff =
+    if (onlyFixingActionFields || original.choice.isNotBlank()) original else correction
+
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
@@ -1465,6 +1483,19 @@ object ProactivePerceptionRuntime {
                         Action.KAOMOJI, Action.GROUP_KAOMOJI) &&
                         it.conversationWords().isBlank())
             }?.let { validCorrection ->
+                // An action-format correction does not own an already chosen
+                // online rest/continue decision or its precise nextChecks.
+                val onlineHandoff = initialDecision?.let { original ->
+                    onlineHandoffAfterActionRepair(
+                        original = OnlineActionRepairHandoff(
+                            original.onlineChoice, original.onlineChoiceReason, original.onlineNextChecks),
+                        correction = OnlineActionRepairHandoff(
+                            validCorrection.onlineChoice, validCorrection.onlineChoiceReason,
+                            validCorrection.onlineNextChecks),
+                        onlyFixingActionFields = missingBuildFields.isNotEmpty() ||
+                            missingPlanFields.isNotEmpty(),
+                    )
+                }
                 // When only a tool name was invalid, retain the already parsed
                 // first-stage psychology rather than letting a repair rewrite it.
                 if (initialDecision == null) validCorrection else validCorrection.copy(
@@ -1483,8 +1514,9 @@ object ProactivePerceptionRuntime {
                     motiveId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.motiveId else validCorrection.motiveId,
                     concernId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.concernId else validCorrection.concernId,
                     experienceId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.experienceId else validCorrection.experienceId,
-                    onlineChoice = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.onlineChoice else validCorrection.onlineChoice,
-                    onlineChoiceReason = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.onlineChoiceReason else validCorrection.onlineChoiceReason,
+                    onlineChoice = onlineHandoff!!.choice,
+                    onlineChoiceReason = onlineHandoff.reason,
+                    onlineNextChecks = onlineHandoff.nextChecks,
                 )
             }
         } else null
