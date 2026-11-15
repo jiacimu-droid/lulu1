@@ -246,6 +246,8 @@ internal fun GameSceneDeck(
             val teamPlacement = if (companionCenterBottom && wide)
                 Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
                     .padding(bottom = 8.dp)
+            else if (companionCenterBottom)
+                Modifier.align(Alignment.TopCenter).padding(top = 100.dp)
             else Modifier.align(Alignment.TopEnd)
                 .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)
             Column(teamPlacement.width(sideWidth)) {
