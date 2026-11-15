@@ -8,6 +8,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -59,10 +61,13 @@ internal object BlockIslandArt {
      * scrolling chat card. Screen-space width stays readable as camera zoom changes.
      */
     private fun DrawScope.paintIslandSpeechBubble(head: Offset, tile: Float, speech: String) {
-        val fontSize = (tile * .25f).coerceIn(11f, 15f)
-        val allowedWidth = (size.width * .34f).coerceIn(115f, 245f)
-            .coerceAtMost((size.width - 12f).coerceAtLeast(20f))
-        val count = ((allowedWidth - 20f) / fontSize).toInt().coerceIn(6, 24)
+        // Canvas geometry is in physical pixels. Use density-aware SP/DP;
+        // 15 raw pixels on a 3x Android device made captions unreadable.
+        val fontSize = 12.sp.toPx()
+        val inset = 8.dp.toPx()
+        val allowedWidth = (size.width * .35f).coerceIn(140.dp.toPx(), 250.dp.toPx())
+            .coerceAtMost((size.width - 12.dp.toPx()).coerceAtLeast(50f))
+        val count = ((allowedWidth - inset * 2f) / fontSize).toInt().coerceIn(6, 24)
         val lines = islandSpeechBubbleLines(speech, count)
         if (lines.isEmpty()) return
         val ink = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
@@ -72,20 +77,24 @@ internal object BlockIslandArt {
                 android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
         }
         val longest = lines.maxOf { ink.measureText(it) }
-        val width = (longest + 20f).coerceAtMost(allowedWidth)
-        val height = fontSize * (lines.size * 1.35f) + 11f
-        val x = (head.x - width * .5f).coerceIn(6f, (size.width - width - 6f).coerceAtLeast(6f))
+        val width = (longest + inset * 2f).coerceAtMost(allowedWidth)
+        val height = fontSize * (lines.size * 1.35f) + 12.dp.toPx()
+        val safeX = 6.dp.toPx()
+        val safeY = 8.dp.toPx()
+        val x = (head.x - width * .5f)
+            .coerceIn(safeX, (size.width - width - safeX).coerceAtLeast(safeX))
         val y = (head.y - tile * .93f - height)
-            .coerceIn(8f, (size.height - height - 8f).coerceAtLeast(8f))
+            .coerceIn(safeY, (size.height - height - safeY).coerceAtLeast(safeY))
         val canvas = drawContext.canvas.nativeCanvas
         val background = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
             color = android.graphics.Color.argb(245, 239, 255, 239)
         }
+        val radius = 12.dp.toPx()
         canvas.drawRoundRect(android.graphics.RectF(x, y, x + width, y + height),
-            12f, 12f, background)
+            radius, radius, background)
         lines.forEachIndexed { index, line ->
-            canvas.drawText(line, x + 10f, y + 7f + fontSize * (index + 1) * 1.25f,
-                ink)
+            canvas.drawText(line, x + inset, y + 5.dp.toPx() +
+                fontSize * (index + 1) * 1.25f, ink)
         }
         // Tail points back to its real speaking character.
         if (head.y > y + height) {
