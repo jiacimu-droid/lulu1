@@ -24,11 +24,14 @@ import com.jiacimu.lulu.data.DigitalWorldBulletin
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.DigitalWorldNotice
 import com.jiacimu.lulu.data.DigitalWorldStore
+import com.jiacimu.lulu.games.LuluGames
+import com.jiacimu.lulu.games.LuluGameRecord
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
 
 /**
  * Home's centre area is a real world bulletin, not a decorative quote.
@@ -38,6 +41,15 @@ import kotlinx.coroutines.withContext
 internal fun DesktopWorldBulletinCard() {
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
+    // Game records are the single persisted authority for public solo play.
+    // Initialize/observe them off the Compose frame, never by polling the model.
+    val gameRecords by produceState<List<LuluGameRecord>>(emptyList(), context) {
+        val games = withContext(Dispatchers.IO) {
+            LuluGames.initialize(context)
+            LuluGames.store
+        }
+        games.state.collect { value = it.records }
+    }
     val prefs = remember(context) {
         context.applicationContext.getSharedPreferences("lulu_world_bulletin_read_v1", android.content.Context.MODE_PRIVATE)
     }
@@ -58,12 +70,13 @@ internal fun DesktopWorldBulletinCard() {
             delay(20_000L)
         }
     }
-    val notices by produceState(emptyList<DigitalWorldNotice>(), world, refresh) {
+    val notices by produceState(emptyList<DigitalWorldNotice>(), world, refresh, gameRecords) {
         // Persisted world events can grow for years. Do not sort/filter the
         // complete event ledger on the frame that also handles pager gestures.
         value = withContext(Dispatchers.Default) {
             DigitalWorldBulletin.collect(
                 world, DigitalWorldExpansionStore.residents(), DigitalWorldExpansionStore.places(),
+                gameRecords = gameRecords,
             )
         }
     }
