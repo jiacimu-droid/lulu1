@@ -170,7 +170,7 @@
         <service
             android:name=".system.LuluAccessibilityService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:label="露露屏幕感知与控制"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
