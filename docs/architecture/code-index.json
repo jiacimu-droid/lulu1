@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T13:14:44.895162+00:00",
-  "commit": "1b7801f207a1ffa740f178803aa1a7965950c925",
+  "generatedAt": "2026-11-15T13:15:08.612389+00:00",
+  "commit": "bc5157b494acab719327621411f79fb8fac4c12d",
   "branch": "main",
-  "sourceFingerprint": "052525ba692a9707ecf5ed5182510c24a4f917a64baa2c9569c575e2d0050d5a",
+  "sourceFingerprint": "aef72d9bab1ef7b75e88abd499d967210f73e18d603bd1ab60375c507091f041",
   "summary": {
     "files": 1333,
-    "lines": 284107,
-    "symbols": 4006
+    "lines": 284150,
+    "symbols": 4007
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2347,7 +2347,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 172
+        "line": 174
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -18997,7 +18997,13 @@
     "AutonomousAffordanceContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 5
+        "line": 7
+      }
+    ],
+    "game": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
+        "line": 196
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -42444,16 +42450,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 192,
-      "sha256": "4b8c7f7f1fc46491ca8d0598a65bb94fe85c88429a887b88dc47047dce2b5d33",
+      "lines": 235,
+      "sha256": "df93f7a387bc54ffe8b74b7823b24deeeccc3f98fa40ce1d9b310db6e24216a3",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
-          "line": 5
+          "line": 7
         },
         {
           "name": "record",
-          "line": 172
+          "line": 174
+        },
+        {
+          "name": "game",
+          "line": 196
         }
       ]
     },
