@@ -332,5 +332,5 @@
 ### 2026-11-15 · G-03.5 · 撤离期间点选空地不再误推进守门回合
 
 - 生产 `b0325d4`（`RelicQuickAction.kt` blob `b8916bd7`）：原来 `EXTRACT` 阶段任何无法互动的选中格都会回退成 `wait`，可能把地图选中空地当成主动守门；现在仅主角格提供明确等待动作，地图点选空地不推进世界。角色自主选择及权威撤离规则未改。
-- 回归 `b417d84`（`RelicQuickActionTest.kt` blob `40a983b1`）：检查主角格等待、远处空地无行动、中心互动不擅自等待，以及存档读回的背包/回合保持。已提交 main，JVM/APK/index 尚未取得该 SHA 的成功证据，真机横屏与真实模型仍待验。
+- 最终生产 HEAD `d6c8175`（blob `b8916bd7`），保留显式选中目标的合法导航，禁止无关空地自动回退为守门 `wait`；回归最终 `dd5ac07`（`RelicQuickActionTest.kt` blob `224505bd`）：主角格可等待、其他格不自动等待、中心互动不擅自等待、读档回合/背包不变。`dd5ac07` 的 workflow 查询返回空列表（该查询仅覆盖 PR 触发运行），不能据此断言 main push APK/JVM/index 结果；真机与模型待验。
 - 下一文件：`RelicEscapeScreen.kt` 核正式地图选中格与守门按钮显示；按 `b417d84` main push 查 JVM/APK/index，不能借旧绿色结果。
