@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T02:12:37.783648+00:00",
-  "commit": "975f3fa73488456fb1e882be5b51a41b2fdeda66",
+  "generatedAt": "2026-11-15T02:14:29.158730+00:00",
+  "commit": "14485c44827ab93fd2ffe31332494b40264abf74",
   "branch": "main",
-  "sourceFingerprint": "b1799f4caecac141121a73b8ae7767a45f9977ee45060a19284ec831084f20f0",
+  "sourceFingerprint": "2636e39bc7d82e302a10d65c181581a4bbad85ebe58541bad1732302e287aba9",
   "summary": {
-    "files": 1323,
-    "lines": 280891,
-    "symbols": 3951
+    "files": 1324,
+    "lines": 280945,
+    "symbols": 3953
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19652,6 +19652,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt",
         "line": 13
+      }
+    ],
+    "ChatApplicationContextRebindTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatApplicationContextRebindTest.kt",
+        "line": 17
+      }
+    ],
+    "isolatedApplication": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatApplicationContextRebindTest.kt",
+        "line": 20
       }
     ],
     "ChatAutomationRoutingTest": [
@@ -43208,6 +43220,21 @@
         {
           "name": "CharacterXhsReadPermissionTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatApplicationContextRebindTest.kt",
+      "lines": 54,
+      "sha256": "b7019302ef8f13167cbe1469dc0628a9b3dc88a9395494bbf869dbd673c6c0ee",
+      "symbols": [
+        {
+          "name": "ChatApplicationContextRebindTest",
+          "line": 17
+        },
+        {
+          "name": "isolatedApplication",
+          "line": 20
         }
       ]
     },
