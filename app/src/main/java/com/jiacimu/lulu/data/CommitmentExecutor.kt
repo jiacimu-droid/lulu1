@@ -117,9 +117,15 @@ internal object CommitmentExecutor {
         // The first locally promised wake cue must be audible even when the
         // model is slow/unavailable. Notification channel sound is not proof.
         // Later rounds remain the character's own decision.
+        // A sleeping owner's promised wake call and the OS alarm clock are
+        // complementary, not mutually exclusive. Ring the independent alarm
+        // stream at the actual deadline before the (possibly slow) model/call
+        // dispatch. The SAME commitment/alarm ID owns both attempts; a follow-up
+        // review must never restart this first-deadline safety cue.
         val firstLocalRing = wake && !sameCall &&
-            claimedTask.deliveryAction == "alarm_only" &&
+            claimedTask.deliveryAction in setOf("start_call", "alarm_only") &&
             claimedTask.attemptCount == 0 &&
+            claimedTask.followUpKind.isBlank() &&
             LuluAudibleWakeRinger.start(appContext, claimedTask.id)
         val selected = if (wake)
             WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
@@ -501,6 +507,7 @@ internal object CommitmentExecutor {
                     (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}，" +
                         "已尝试${if (useCall) "发起叫醒电话（先由本机来电铃声提示）" else "发出闹钟提醒"}；" +
                         "结果：${if (result.success) "执行请求已发出，实际醒来尚未确认" else "执行失败：${result.summary.take(90)}"}；" +
+                        (if (attempt == 1 && !sameCall) "本机独立闹钟=${if (firstLocalRing) "已实际发声" else "未能发声"}；" else "") +
                         "${selectionEvidence()}").takeLast(6),
                 nextCheckAt = followUp?.triggerAt,
                 linkedAlarmId = followUp?.id,
