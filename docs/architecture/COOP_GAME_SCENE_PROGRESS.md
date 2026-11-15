@@ -323,3 +323,8 @@
 - 根因：`relicNearbyAction` 在地图光标明确选中远处/空格时，若该格没有可执行互动，仍回退到摇杆朝向并自动撬开另一只邻近宝箱；玩家按中心键会操作并非自己选中的实体。`144f372d251252ce28187f28c41552e96b134fed` 修复：选中合法近处实体仍执行原动作；明确选中无效非主角格时中心键禁用，不改选邻箱；光标位于主角格时继续提供方向键快捷互动。实物生成/掉率/回合/角色决策仍归原规则。生产 `RelicQuickAction.kt` blob `f1aef49dc624dff8854336c2d0b1bd9e1501ffc7`。
 - `19141acfbf165ae3b809350cf640b2b3ae808dac` 新增 `RelicQuickActionTest.explicitUnreachableSelectionNeverOpensDifferentAdjacentChest`，覆盖远处/空地不重定向、回到主角格恢复方向互动、显式点中邻箱仍可互动、未实际提交动作时箱子/撬锁进度不变；测试 blob `ab465fdaeb97cf4ca5b164f9fec354b113b025f0`。
 - 新测试 SHA 的 Actions `Refresh code index` #43665148848 查询时 queued，Lulu APK/JVM 需继续按 head_sha 取实际结果，不得把索引或旧成功当作新 APK 绿；真机 360/412dp 横屏、触控、帧率、美术与真实模型仍待验。下一实际文件：`RelicEscapeScreen.kt` 中 `GameDirectionalPad` 中心按钮在光标显式选中无效目标时的禁用提示与真机点击；先核 `RelicQuickActionTest` 的 JVM 首错。
+
+## 2026-11-15 G-03.5 · 显式点选邻箱不被脚下掉落抢操作（源码+实体回归待 CI）
+
+- 正式 `RelicQuickAction.kt` 原先先返回脚下可拾取掉落，再检查玩家显式点选的邻箱/救援目标；造成玩家点箱按中心键却拾取另一位置的物品。现在非主角格的显式选中优先执行该格合法实体交互，不能操作时返回空；光标在主角格才优先拾取脚下实物，再走面向快捷操作。生产 commit `c6c70fdb84000baf3abb9297a68c5ded531f46b9`，blob `d9c945fa8b318e293ad9b8f74ff1c4a925de473a`。
+- `RelicQuickActionTest.explicitAdjacentChestWinsOverUnrelatedUnderfootTreasure` 用真实撬锁进度、地面物品、拾取入包与存档重载核查两次不同操作互不吞掉；测试 commit `09d5e071deaaa553425595f1934d0ebdbef95561`，blob `21966234dda85a002f691bfc507df75d3bb04db4`。未改掉率/怪物/角色意愿。JVM/APK/index 必须按包含测试的 main push SHA 核，真机触控与帧率未验。下一文件 `RelicEscapeScreen.kt`，验中心按钮在显式点箱和脚下掉落共存时的触控及 360dp 横屏遮挡。
