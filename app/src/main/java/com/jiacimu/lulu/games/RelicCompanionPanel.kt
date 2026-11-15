@@ -186,6 +186,9 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                             color=Color(0xFF15202B),fontSize=11.sp)
                     }
                 }
+                TextButton(onClick={expanded=true},contentPadding=PaddingValues(4.dp)) {
+                    Text("⋯",color=Color(0xFFFFD894),fontSize=15.sp)
+                }
             }
             if(openMic.active) Text(
                 if(openMic.partial.isNotBlank()) "你：" + openMic.partial
@@ -193,42 +196,57 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                 color=Color(0xFFE6F3EA),fontSize=10.sp,maxLines=2)
             else if(openMic.status.isNotBlank()) Text(openMic.status,
                 color=Color(0xFFFFCBAF),fontSize=10.sp,maxLines=2)
-            if(members.isNotEmpty()) {
-                if(expanded) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                    listOf(if(run.phase==RelicPhase.DOWNED)"你能来救救我吗？"
-                        else "宝箱留给我开，好不好？","你能把宝物送给我吗？","我们一起打怪！","你能保护我吗？").forEach { line ->
-                        AssistChip(onClick={send(line)},
-                            label={Text(line,fontSize=10.sp)},
-                            colors=AssistChipDefaults.assistChipColors(
-                                containerColor=Color(0xFF304759),
-                                labelColor=Color(0xFFE6F3EA)))
-                    }
-                }
-                TextButton(onClick={expanded=!expanded},
-                    contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
-                    Text(if(expanded)"收起" else "打字和伙伴商量",color=Color(0xFFFFD894),fontSize=11.sp)
-                }
-                if(expanded) {
-                TextButton(onClick={speaker.stop();mic()}) {
-                    Text("单次识别",fontSize=11.sp,color=Color(0xFFFFD894))
-                }
-                Row(verticalAlignment=Alignment.CenterVertically,
-                    horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                    OutlinedTextField(value=typedMessage,onValueChange={typedMessage=it},
-                        modifier=Modifier.weight(1f),maxLines=2,
-                        placeholder={Text("跟伙伴说句话…",fontSize=11.sp)})
-                    TextButton(onClick={send(typedMessage);typedMessage=""},enabled=typedMessage.isNotBlank()) {
-                        Text("发送",fontSize=11.sp)
-                    }
-                }
-                }
-            }
             if(busy)LinearProgressIndicator(modifier=Modifier.fillMaxWidth(),color=Color(0xFFFFD894))
             if(line.isNotBlank())Text(line,color=Color(0xFFE6F3EA),fontSize=12.sp,maxLines=2)
             if(failure.isNotBlank())Text(failure,color=Color(0xFFFFB4AA),fontSize=11.sp,maxLines=2)
         }
     }
+    // Full conversation controls appear only on demand, outside the tiny
+    // bottom-centre play toolbar. The world remains the first visual priority.
+    if(expanded) AlertDialog(
+        onDismissRequest = { expanded = false },
+        containerColor = Color(0xFF182C38),
+        titleContentColor = Color.White,
+        textContentColor = Color(0xFFE6F3EA),
+        title = { Text("队伍交流",fontSize=17.sp) },
+        text = {
+            Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("角色会继续自己选定的行动；你可以随时商量改变路线。",
+                    fontSize=11.sp,color=Color(0xFFB5D3D6))
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    listOf(if(run.phase==RelicPhase.DOWNED) "你能来救救我吗？"
+                        else "宝箱留给我开，好不好？",
+                        "你能把宝物送给我吗？","我们一起打怪！","你能保护我吗？"
+                    ).forEach { suggestion ->
+                        AssistChip(onClick={send(suggestion);expanded=false},
+                            label={Text(suggestion,fontSize=10.sp)},
+                            colors=AssistChipDefaults.assistChipColors(
+                                containerColor=Color(0xFF304759),
+                                labelColor=Color(0xFFE6F3EA)))
+                    }
+                }
+                OutlinedTextField(value=typedMessage,
+                    onValueChange={typedMessage=it},
+                    modifier=Modifier.fillMaxWidth(),maxLines=3,
+                    placeholder={Text("跟伙伴说句话…",fontSize=12.sp)})
+                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick={speaker.stop();mic();expanded=false}) {
+                        Text("单次语音",color=Color(0xFFFFD894))
+                    }
+                    TextButton(onClick={send(typedMessage);typedMessage="";expanded=false},
+                        enabled=typedMessage.isNotBlank()) {
+                        Text("发送",color=Color(0xFFFFD894))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick={expanded=false}) {
+                Text("回到游戏",color=Color(0xFFFFD894))
+            }
+        },
+    )
 }
 
 private val relicInboxSaver = Saver<IslandTeamInbox,String>(
