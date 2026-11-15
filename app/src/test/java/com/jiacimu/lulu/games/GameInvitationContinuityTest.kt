@@ -75,6 +75,22 @@ class GameInvitationContinuityTest {
         assertTrue(store.state.value.playWithCharacter)
     }
 
+    @Test fun inviteRosterTargetsOnlyItsNamedGameAndNeverAGenericHallEntry() {
+        val invited = LuluGameState(
+            selectedCharacterId = "inviter",
+            selectedCharacterIds = listOf("inviter", "friend", "inviter"),
+            playWithCharacter = true,
+        )
+        assertEquals(listOf("inviter", "friend"),
+            invitedCompanionsForGame("block_island", "block_island", invited))
+        assertEquals(emptyList<String>(),
+            invitedCompanionsForGame("block_island", "relic_escape", invited))
+        assertEquals(emptyList<String>(),
+            invitedCompanionsForGame(null, "block_island", invited))
+        assertEquals(emptyList<String>(),
+            invitedCompanionsForGame("block_island", "block_island", invited.copy(playWithCharacter = false)))
+    }
+
     @Test fun invitingOtherCharacterCannotClaimOwnersResponse() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         val role = "invite-scope-${UUID.randomUUID()}"
