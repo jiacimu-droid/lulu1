@@ -411,3 +411,9 @@
 
 - `RelicEscapeArt.kt` 的 Canvas 点击手势原先把每次 Compose 重组产生的 `onSelect` 回调作为 `pointerInput` key，可能导致地图动画/选择更新时取消并重建点击识别器。生产 `caf5b6483d50cd209e73fab6bf6681adeb04a6db` 改用 `rememberUpdatedState(onSelect)`，key 仅保留地图尺寸、场景及焦点等真正需要重启手势的条件；仍使用权威 `relicMapCamera.tileAt` 和原选择回调，不改移动、掉落、战斗或人物决策。源码 blob `0dd323902a406a508605b0f47fdbc22e5d38cc96`。
 - 本轮无新增 JVM 测试（属于 Compose 手势生命周期问题，不能用规则测试假装触控验收）。前一 `282a2a5` 对应 Lulu APK/JVM #43721148872 已 completed/failure（build 的 Test and build phone APK 步骤失败），不能算绿；本次提交及交接后的 main push 需独立核 JVM/APK/index。下一实际入口：`RelicEscapeArt.kt` 360/412dp 横屏连续点选/拖拽与手势不中断、`RelicEscapeScreen.kt` 地图 HUD，以及新 SHA APK 首错；帧时间和美术仍待真机。
+
+
+## 2026-11-16 G-02.6 · 游戏离场后的麦克风授权回调不得复活录音（待 CI/真机）
+
+- 正式 `IslandGameOpenMic.kt` 发现异步 Android `RequestPermission` 可能在游戏已离场、`DisposableEffect` 已销毁或 Activity 已停止后才返回，原回调直接 `mic.start()`，造成离开游戏后意外重新开启捕获。生产提交 `12cb3469ee6ec6ba47732243b12fa496d540584d`，blob `013ec19c59cf610064031e0c24cc47df99d793fb`：`dispose()` 使旧实例不可再启动，授权回调及手动切换只允许 Lifecycle 至少 STARTED 时开启，离场仍 stop 并失效旧 STT 会话；双游戏共用此入口，不修改人物决策或发言内容。
+- 未新增同类旧测试。CI 需按包含此提交的 main push SHA 核 JVM/APK/index；旧 `a5f07fa` 的 APK #43737591580 failure，索引 success，不等于新 APK 绿。真机必须覆盖授权弹窗中切后台/退出游戏→授权返回不再录音、正常授权连麦与关麦重开、Redmi 横屏语音回执；下一实际文件 `IslandGameOpenMic.kt`，可加 Robolectric 生命周期/权限回调根因回归，或检查新 APK 首错。美术与完整游玩闭环仍待验。
