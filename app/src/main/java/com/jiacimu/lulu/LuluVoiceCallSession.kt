@@ -1964,10 +1964,6 @@ internal object LuluVoiceCallSession {
                         append('\n')
                         append(existingTurnEvent)
                     }
-                    if (opening && latest.microphoneMuted) {
-                        append('\n')
-                        append("【通话开始状态】用户麦克风默认关闭，她想说话时会自己点开；你先开口第一句时顺带提一句就行，不用每轮都提，也不要把这件事说成工单。")
-                    }
                     if (opening || scheduledWakeReason != null) {
                         val timeFacts = CallTimeFacts.forCall(
                             characterId = latest.characterId,
