@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:03:37.403502+00:00",
-  "commit": "d86705e9b97b43d73d250b2e46d97adde2e3d2e6",
+  "generatedAt": "2026-11-15T16:04:10.954323+00:00",
+  "commit": "c52e630d6a3d152c459781cc5174f3a948bc9ee7",
   "branch": "main",
-  "sourceFingerprint": "299f6dc50bfecedf1cdfeba923cce9ac09dc05db7cbfa020f68cb5d0a86e43ee",
+  "sourceFingerprint": "9763cb703a64dbdf1960cdbf870ded63df7ee69aecb6d9003a40ade5b39e5ce9",
   "summary": {
     "files": 1337,
-    "lines": 284829,
-    "symbols": 4020
+    "lines": 284868,
+    "symbols": 4021
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14486,28 +14486,34 @@
         "line": 14
       }
     ],
-    "islandHasPlan": [
+    "islandMemberHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
         "line": 24
       }
     ],
+    "islandHasPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 29
+      }
+    ],
     "relicHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 33
+        "line": 38
       }
     ],
     "islandThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 39
+        "line": 44
       }
     ],
     "relicThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 42
+        "line": 47
       }
     ],
     "recordPartyJoined": [
@@ -14613,7 +14619,7 @@
     "submitPlayerMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-        "line": 72
+        "line": 77
       }
     ],
     "setSpeakingListener": [
@@ -36639,28 +36645,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-      "lines": 47,
-      "sha256": "fda777e1d3e74288041a522b6335481c4879cdc9edfdde5256919ec48a5b9560",
+      "lines": 52,
+      "sha256": "a39ff674a10d0054159b0ce6845b4e16efb2c952d7ee90f6b926a16716bb383a",
       "symbols": [
         {
           "name": "canTick",
           "line": 14
         },
         {
-          "name": "islandHasPlan",
+          "name": "islandMemberHasPlan",
           "line": 24
         },
         {
+          "name": "islandHasPlan",
+          "line": 29
+        },
+        {
           "name": "relicHasPlan",
-          "line": 33
+          "line": 38
         },
         {
           "name": "islandThreat",
-          "line": 39
+          "line": 44
         },
         {
           "name": "relicThreat",
-          "line": 42
+          "line": 47
         }
       ]
     },
@@ -36853,12 +36863,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 368,
-      "sha256": "853ce36a03ce19f8e5aadfd9d6c884b322c26d60e8b0580da0745f7da86c7eca",
+      "lines": 402,
+      "sha256": "bf159b238a17fd7fa8d4d7d346c7e8893a028fb6ea16148827ee601fa82427e8",
       "symbols": [
         {
           "name": "submitPlayerMessage",
-          "line": 72
+          "line": 77
         }
       ]
     },
