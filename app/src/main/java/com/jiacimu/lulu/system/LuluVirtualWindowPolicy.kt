@@ -35,5 +35,10 @@ internal object LuluVirtualWindowPolicy {
     fun canRetryServiceConnectionReadOnly(kind: String, diagnostic: String): Boolean =
         kind == "unknown" && diagnostic == "accessibility_disconnected"
 
+    /** A gesture must never fall back to the owner's display 0. A top
+     * system dialog, another App or unknown window does not grant control. */
+    fun allowsGestureOnDisplay(displayId: Int, windowKind: String): Boolean =
+        displayId > 0 && windowKind == Kind.TARGET.name.lowercase()
+
     fun pausesAutomation(kind: Kind): Boolean = kind != Kind.TARGET
 }
