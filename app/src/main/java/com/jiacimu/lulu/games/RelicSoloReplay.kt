@@ -42,6 +42,20 @@ internal object RelicSoloReplay {
         .put("professionReadyTurn", run.professionReadyTurn)
         .put("professionCharges", run.professionCharges)
 
+    /** Only changed physical fields per turn: long sessions stay small on disk. */
+    fun delta(before: RelicRun, after: RelicRun): JSONObject {
+        val old = frame(before)
+        val latest = frame(after)
+        return JSONObject().apply {
+            val keys = latest.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                if (old.opt(key).toString() != latest.opt(key).toString())
+                    put(key, latest.get(key))
+            }
+        }
+    }
+
     /** Includes the true initial state, then exactly the committed frames in order. */
     fun read(raw: String): List<RelicRun>? = runCatching {
         val details = JSONObject(raw)
