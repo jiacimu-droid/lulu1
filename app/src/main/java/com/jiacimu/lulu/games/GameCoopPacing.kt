@@ -22,6 +22,11 @@ internal object GameCoopPacing {
     ): Boolean = hasPlan && isForeground && !navigating && !thinking &&
         !playerSpeaking && !nearbyThreat
 
+    fun islandMemberHasPlan(s: BlockIslandState, id: String): Boolean =
+        id in s.companionTravel ||
+            s.houseProject?.let { it.ownerId == id &&
+                it.phase in setOf("building", "demolishing") } == true
+
     fun islandHasPlan(s: BlockIslandState, autonomous: Boolean): Boolean {
         if (!autonomous || s.world.finished) return false
         val activeIds = s.world.friends.filter { it.hp > 0 }.map { it.id }.toSet()
