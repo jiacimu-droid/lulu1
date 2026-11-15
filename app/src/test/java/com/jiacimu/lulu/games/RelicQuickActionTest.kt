@@ -461,6 +461,24 @@ class RelicQuickActionTest {
         assertNotEquals("open",relicNearbyAction(current,1 to 0)?.action)
     }
 
+    @Test fun explicitUnreachableSelectionNeverOpensDifferentAdjacentChest() {
+        val base = run()
+        val h = base.hero
+        val chest = RelicChest(990, h.x + 1, h.y, RelicTier.COMMON)
+        val scene = RelicEscapeRules.reveal(base.copy(
+            chests = listOf(chest), mobs = emptyList(), sites = emptyList(),
+            seen = (0 until base.w * base.h).toSet(),
+        ))
+        val distant = h.x + 3 to h.y
+        assertNull(relicNearbyAction(scene, 1 to 0, distant))
+        assertNull(relicNearbyAction(scene, 1 to 0, h.x to (h.y + 1)))
+        // Returning the cursor to the hero restores the direction shortcut.
+        assertEquals("open", relicNearbyAction(scene, 1 to 0, h.x to h.y)?.action)
+        assertEquals("open", relicNearbyAction(scene, 1 to 0, chest.x to chest.y)?.action)
+        assertFalse(scene.chests.single().opened)
+        assertTrue(scene.chestProgress.isEmpty())
+    }
+
     @Test fun contextInteractionNeverAutoAttacksEnemyOrActsThroughFog() {
         val base = run()
         val h = base.hero
