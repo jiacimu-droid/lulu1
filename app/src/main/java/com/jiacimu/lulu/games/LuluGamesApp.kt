@@ -81,6 +81,13 @@ private fun GameRoute.savedGameId(): String = when (this) {
     is GameRoute.Replay -> "replay:" + recordId
 }
 
+/** Only the explicit chat invitation seeds its own game room; browsing the hall never does. */
+internal fun invitedCompanionsForGame(
+    invitedGameId: String?, currentGameId: String, state: LuluGameState,
+): List<String> = if (invitedGameId == currentGameId && state.playWithCharacter) {
+    state.selectedCharacterIds.filter(String::isNotBlank).distinct().take(3)
+} else emptyList()
+
 private data class GameLauncher(
     val id: String,
     val title: String,
@@ -245,8 +252,12 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                     ) route = target else pendingRoute = target
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
-                GameRoute.BlockIsland -> BlockIslandEntry(store)
-                GameRoute.RelicEscape -> RelicEscapeScreen(store)
+                GameRoute.BlockIsland -> BlockIslandEntry(
+                    store, initialParty = invitedCompanionsForGame(initialGameId, "block_island", state),
+                )
+                GameRoute.RelicEscape -> RelicEscapeScreen(
+                    store, initialParty = invitedCompanionsForGame(initialGameId, "relic_escape", state),
+                )
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
