@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:46:55.685725+00:00",
-  "commit": "22d6bb74f9f634505bf27f45c3e3389ad154dae8",
+  "generatedAt": "2026-11-15T09:47:21.396880+00:00",
+  "commit": "a737df056766d07a40122c81ea0915ce9ed6ccd6",
   "branch": "main",
-  "sourceFingerprint": "e5bde53b247ea25eda6f265ae63ccc897ad8a6af7360f887362557c4323fe051",
+  "sourceFingerprint": "c7f47944807517d06fc5a36587903c68ba42f9021129719c2a7eb39a6367e60a",
   "summary": {
-    "files": 1332,
-    "lines": 283819,
-    "symbols": 4002
+    "files": 1333,
+    "lines": 283875,
+    "symbols": 4003
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21394,6 +21394,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
         "line": 16
+      }
+    ],
+    "SoloGameSystemNoticeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt",
+        "line": 18
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -45736,6 +45742,17 @@
         {
           "name": "ShortVideoMobileReadingTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt",
+      "lines": 56,
+      "sha256": "e8b2f145818b934bb466e37f46867ea58922f68608e845765703bf9e6f706ba1",
+      "symbols": [
+        {
+          "name": "SoloGameSystemNoticeTest",
+          "line": 18
         }
       ]
     },
