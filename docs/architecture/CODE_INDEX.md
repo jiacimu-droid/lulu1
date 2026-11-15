@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e9c7385cbbdf003d0c15f9b59cd0895deb82d4c7`
+- 基准提交：`05a89ae310778ab6f06adfebba5ac471761a703f`
 - 分支：`main`
 - 已索引文件：1323
-- 已索引代码/文本行：280625
-- 已发现符号：3948
+- 已索引代码/文本行：280652
+- 已发现符号：3950
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -335,7 +335,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 142 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 398 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 115 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 128 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 300 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 74 | 3 |
@@ -554,7 +554,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3629 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3622 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 107 | 4 |
@@ -981,7 +981,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 810 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 400 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 171 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 192 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 89 | 1 |

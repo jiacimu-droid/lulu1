@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:29:02.040384+00:00",
-  "commit": "e9c7385cbbdf003d0c15f9b59cd0895deb82d4c7",
+  "generatedAt": "2026-11-15T01:30:02.290538+00:00",
+  "commit": "05a89ae310778ab6f06adfebba5ac471761a703f",
   "branch": "main",
-  "sourceFingerprint": "e418d244eca5f0a0994fd0da7404276fa95cb84f3323c053f75561505ed5106c",
+  "sourceFingerprint": "e9eb9daba1796c5f42ae045c9774633c7f7c7408f194cc8cf5b0f04e2be795da",
   "summary": {
     "files": 1323,
-    "lines": 280625,
-    "symbols": 3948
+    "lines": 280652,
+    "symbols": 3950
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2334,6 +2334,10 @@
         "line": 84
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
+        "line": 172
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
         "line": 103
       },
@@ -4027,7 +4031,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-        "line": 9
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
@@ -5902,6 +5906,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 820
+      }
+    ],
+    "recentSoloGames": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
+        "line": 12
       }
     ],
     "needsIndependentLifeReview": [
@@ -12009,7 +12019,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3562
+        "line": 3555
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -27096,12 +27106,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 115,
-      "sha256": "ac50fbb44e9ae520dd6ea8d6ac0fdaa1b60c1d27909996e0191c2c0688269c27",
+      "lines": 128,
+      "sha256": "ef7490c3b38a214d8e7655091c593980d71f64e227a28d18e7da8dbe59c0f1e5",
       "symbols": [
         {
+          "name": "recentSoloGames",
+          "line": 12
+        },
+        {
           "name": "render",
-          "line": 9
+          "line": 22
         }
       ]
     },
@@ -33235,8 +33249,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3629,
-      "sha256": "7ab37ad525b445f80d26cb2212a6f7438031c5f56273588ff857dc8e1d9ffbf4",
+      "lines": 3622,
+      "sha256": "1007e5dff7dd9f72823ea6a092b1032de1bfcafe375b13347789e606bbb4a393",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -33268,7 +33282,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3562
+          "line": 3555
         }
       ]
     },
@@ -41921,12 +41935,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 171,
-      "sha256": "c95ff916da6445c19496e369bdb491ea92fe0b584d39f36f0b7d85250f1c402f",
+      "lines": 192,
+      "sha256": "4b8c7f7f1fc46491ca8d0598a65bb94fe85c88429a887b88dc47047dce2b5d33",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
           "line": 5
+        },
+        {
+          "name": "record",
+          "line": 172
         }
       ]
     },
