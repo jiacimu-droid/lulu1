@@ -117,7 +117,7 @@ class CharacterLifeFollowThroughStoreTest {
             .put("why", "这件事很想讲给别人听").put("intensity", 90))
         val wished = CharacterLifeFollowThroughStore.sharingUrge(role, now)
         assertTrue(wished > accumulated)
-        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("当前累计分享冲动≈"))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("当前分享冲动≈"))
         CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
             .put("experienceId", ids[1]).put("status", "released")
             .put("why", "决定保留给自己"))
@@ -153,13 +153,21 @@ class CharacterLifeFollowThroughStoreTest {
     }
 
     @Test fun realPostsRelieveOrdinarySharingUrgeWithoutPretendingToShareSpecificStories() {
+        SharedExperienceTimeline.initialize(context)
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "actual-posts-relieve-urge"
         val ids = (1..10).map { "post-relief-life-$it" }
         ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
         ids.forEach { id ->
-            CharacterLifeFollowThroughStore.register(
-                role, id, "真实生活", "本人确实经历的一件小事", now.minusSeconds(90))
+            // Audit snapshots require the actual canonical timeline event.
+            // Registering an auxiliary follow-through row alone is not proof
+            // that a lived experience has a durable source.
+            SharedExperienceTimeline.record(id, role, "真实生活", "实际观察",
+                "本人确实经历的一件小事", now.minusSeconds(90),
+                triggerExtraction = false, source = "verified-life",
+                evidenceKind = EventEvidenceKind.Observation)
+            assertTrue(CharacterLifeFollowThroughStore.register(
+                role, id, "真实生活", "本人确实经历的一件小事", now.minusSeconds(90)))
         }
         assertEquals(100.0,
             CharacterLifeFollowThroughStore.sharingUrgeForReceipts(role, now, emptyList()), 0.001)
