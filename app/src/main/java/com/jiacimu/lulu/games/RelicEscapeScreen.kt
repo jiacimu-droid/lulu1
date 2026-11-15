@@ -874,7 +874,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                                 RelicCommand("开箱",Modifier.weight(1f),
                                     enabled=chest!=null && visible &&
                                         RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=1) {
-                                    action("open",sx,sy)
+                                    inspectingChestId = chest?.id ?: -1
                                 }
                                 RelicCommand("攻击",Modifier.weight(1f),
                                     enabled=mob!=null && visible && RelicArsenal.canHit(run,sx,sy)) {
