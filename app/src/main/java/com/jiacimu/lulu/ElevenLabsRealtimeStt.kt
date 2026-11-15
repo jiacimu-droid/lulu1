@@ -242,7 +242,7 @@ internal class ElevenLabsRealtimeStt(
             // clearly marked provisional recovery. Never do this on live partials.
             if (usedProvisional) onProvisionalMuteResult()
             onText(bestText)
-        } else if (hadPending) {
+        } else if (hadPending || failure != null) {
             onError(failure ?: "Scribe 实时识别未返回文字，已停止收音，请重试")
         }
         val finished = onMuteDrained
