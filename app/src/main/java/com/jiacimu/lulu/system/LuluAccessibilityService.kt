@@ -631,6 +631,77 @@ class LuluAccessibilityService : AccessibilityService() {
                     editors.single().viewIdResourceName)
         }
 
+        /** Resolve the role's explicit BACK request on the OWNED virtual
+         * app page. Many mini-apps (such as an orders WebView) have an in-page
+         * arrow but ignore Android's system edge-back gesture.
+         *
+         * Only one live, top-left toolbar node is clicked. An unnamed node is
+         * considered solely if the real tree also has the adjacent wide
+         * header/search control; with no such evidence, caller can instead
+         * dispatch ONE traditional edge gesture. This never touches display 0,
+         * never injects shell input, and never declares that navigation worked.
+         */
+        fun tapVirtualAppBackControl(
+            displayId: Int, packageName: String, expectedFingerprint: String,
+        ): JSONObject {
+            fun receipt(attempted: Boolean, accepted: Boolean,
+                code: String, detail: String): JSONObject = JSONObject()
+                .put("attempted", attempted).put("accepted", accepted)
+                .put("actionMethod", "accessibility_app_back_node")
+                .put("errorCode", code).put("taskCompleted", false)
+                .put("verification", detail)
+            val service = instance ?: return receipt(true, false,
+                "accessibility_disconnected", "无障碍未连接，没有操作虚拟屏")
+            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return receipt(true, false, "virtual_back_window_unverified",
+                    "独立屏不是目标App窗口，没有点击返回或发送全局返回")
+            val dimensions = virtualDimensions(service, displayId)
+                ?: return receipt(true, false, "virtual_back_dimensions_missing",
+                    "后台屏幕尺寸不可用，没有猜测按钮位置")
+            if (expectedFingerprint.isBlank() ||
+                virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
+                return receipt(true, false, "virtual_back_snapshot_changed",
+                    "后台App页面已改变，旧的返回目标无效；先重新观察")
+            val buttons = mutableListOf<AccessibilityNodeInfo>()
+            val hints = mutableListOf<LuluVirtualUiPolicy.AppBarControl>()
+            var visited = 0
+            fun scan(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 26 || visited++ >= 620 ||
+                    !node.isVisibleToUser || !node.isEnabled || node.isPassword) return
+                val rect = Rect().also(node::getBoundsInScreen)
+                if (rect.width() > 0 && rect.height() > 0 && node.isClickable) {
+                    val label = (node.contentDescription?.toString()
+                        ?: node.text?.toString()).orEmpty().ifBlank {
+                        clickableDescendantLabel(node)
+                    }.trim().take(90)
+                    hints.add(LuluVirtualUiPolicy.AppBarControl(
+                        rect.left, rect.top, rect.right, rect.bottom, label,
+                        node.viewIdResourceName.orEmpty(), clickable = true))
+                    buttons.add(node)
+                }
+                for (i in 0 until node.childCount) node.getChild(i)?.let { scan(it, depth + 1) }
+            }
+            ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
+            val selected = LuluVirtualUiPolicy.appBackControlIndex(
+                dimensions.first, dimensions.second, hints)
+                ?: return receipt(false, false, "virtual_app_back_control_missing",
+                    "当前页面没有唯一可核实的左上角返回按钮；可尝试一次独立屏边缘返回")
+            val node = buttons[selected]
+            if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled ||
+                !node.isClickable || node.isPassword)
+                return receipt(true, false, "virtual_app_back_control_expired",
+                    "返回按钮失效，未点击，也不会盲目补发边缘手势")
+            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
+                return receipt(true, false, "virtual_app_back_page_changed",
+                    "返回前页面已变化，拒绝点击旧目标")
+            val clicked = node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            return receipt(true, clicked,
+                if (clicked) "" else "virtual_app_back_click_rejected",
+                if (clicked) "已单次点击目标App左上角实际返回控件；需核对新页面才算返回成功"
+                else "目标App拒绝了左上角返回控件的点击；未重复点击或触碰主屏")
+        }
+
         /** An explicit, owner-authorized WeChat send is a separate atomic
          * action, never a search Enter or a generic permissive tap. This makes
          * ONE attempt after verifying the actual conversation and readback.
