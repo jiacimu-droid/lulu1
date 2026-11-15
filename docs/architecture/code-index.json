@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T08:38:34.051124+00:00",
-  "commit": "8bfd18fe7f36fcb81c16d1dae4ba8562756e302a",
+  "generatedAt": "2026-11-15T08:52:18.834493+00:00",
+  "commit": "d6ed579a7fa9df83d1e4196767814702c67edae8",
   "branch": "main",
-  "sourceFingerprint": "0c685ce356ba7c4dc8ad42559fdb254d55ba76474b1fc3ec40d3d4ad43f4a1fc",
+  "sourceFingerprint": "3df2e13a10028cb16b6fbba2c62988039f8476c2e75d71dc377a396a7eda3f9f",
   "summary": {
     "files": 1331,
-    "lines": 283424,
+    "lines": 283428,
     "symbols": 3998
   },
   "symbolIndex": {
@@ -785,7 +785,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 71
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -14545,7 +14545,7 @@
     "cycle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 66
+        "line": 70
       }
     ],
     "awardCompleted": [
@@ -36672,8 +36672,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 75,
-      "sha256": "f83f7d8f6c1b1996b67b138f3ea902e91f5327cc7f86333a833dbc8b9ee9c1ee",
+      "lines": 79,
+      "sha256": "89915e75a8baa86bf9b9e4bc450de8694f62a389616d437c35fd7749436e5f02",
       "symbols": [
         {
           "name": "preview",
@@ -36681,11 +36681,11 @@
         },
         {
           "name": "cycle",
-          "line": 66
+          "line": 70
         },
         {
           "name": "label",
-          "line": 71
+          "line": 75
         }
       ]
     },
