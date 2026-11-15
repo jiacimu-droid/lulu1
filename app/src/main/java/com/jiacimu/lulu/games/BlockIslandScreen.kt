@@ -558,30 +558,38 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // A quiet drawer heading. The always-reachable 44dp guide lives on the HUD;
+        // don't repeat it beside the day/night badge in a narrow landscape drawer.
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             Column(Modifier.weight(1f)) {
-                Text("方块小岛", fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("砍树挖矿 · 建房搭桥 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
+                Text("方块小岛", fontSize = 16.sp, color = Color.White,
+                    fontWeight = FontWeight.Bold, maxLines = 1)
+                Text("探索 · 建造 · 和伙伴同行",
+                    color = Color(0xFFBCE2D8), fontSize = 10.sp, maxLines = 1)
             }
-            TextButton(onClick = { showIslandGuideDialog=true }) {
-                Text("？玩法", color=Color(0xFFBCEBCC),fontWeight=FontWeight.Bold)
-            }
-            Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF2F6063)) {
-                Text(if (night) "☾ 夜晚" else "☀ 白天", modifier = Modifier.padding(10.dp),
-                    color = Color(0xFFEBFBEC), fontSize = 12.sp)
+            Surface(shape = RoundedCornerShape(11.dp), color = Color(0xFF2F6063)) {
+                Text(if (night) "☾ 夜晚" else "☀ 白天",
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                    color = Color(0xFFEBFBEC), fontSize = 11.sp, maxLines = 1)
             }
         }
         // Navigation stays visible while large inventories, maps or animal records scroll.
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-            listOf("地图","行囊","伙伴","图鉴","设置").forEach { section ->
-                FilterChip(selected=menuSection==section,onClick={menuSection=section},
-                    label={Text(section,fontSize=11.sp,maxLines=1)},
-                    colors=FilterChipDefaults.filterChipColors(
-                        selectedContainerColor=Color(0xFFA9E5BD),
-                        selectedLabelColor=Color(0xFF12342D),
-                        labelColor=Color(0xFFD0E8DB)),
-                    modifier=Modifier.height(34.dp).widthIn(min=61.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("地图", "行囊", "伙伴", "图鉴", "设置").forEach { section ->
+                val selected = menuSection == section
+                Surface(
+                    onClick = { menuSection = section },
+                    modifier = Modifier.weight(1f).height(34.dp),
+                    shape = RoundedCornerShape(9.dp),
+                    color = if (selected) Color(0xFFA9E5BD) else Color(0xFF25464A),
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(section, fontSize = 11.sp, maxLines = 1,
+                            color = if (selected) Color(0xFF12342D) else Color(0xFFD0E8DB),
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium)
+                    }
+                }
             }
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
@@ -611,13 +619,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color = Color(0xFFB9DDCC), fontSize = 11.sp, lineHeight = 16.sp)
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            IslandStat("❤", "${world.hp}/12", Color(0xFFFFBFC0), Modifier.weight(1f))
-            IslandStat("木", "${world.wood}", Color(0xFFBEEAB4), Modifier.weight(1f))
-            IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
-            IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
-            IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
-            IslandStat("晶", "${island.crystals}", Color(0xFFD1B6F9), Modifier.weight(1f))
+        // Six weighted items in one row shrink to ~45dp and wrap numbers
+        // vertically on a short landscape screen. Three per row stay legible.
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                IslandStat("❤", "${world.hp}/12", Color(0xFFFFBFC0), Modifier.weight(1f))
+                IslandStat("木", "${world.wood}", Color(0xFFBEEAB4), Modifier.weight(1f))
+                IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
+                IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
+                IslandStat("晶", "${island.crystals}", Color(0xFFD1B6F9), Modifier.weight(1f))
+            }
         }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
             Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
