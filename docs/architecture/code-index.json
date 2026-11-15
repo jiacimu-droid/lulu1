@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:47:21.396880+00:00",
-  "commit": "a737df056766d07a40122c81ea0915ce9ed6ccd6",
+  "generatedAt": "2026-11-15T09:48:39.147326+00:00",
+  "commit": "ea0cdf10896b608735d2d85b9ad02af9bd5ff4df",
   "branch": "main",
-  "sourceFingerprint": "c7f47944807517d06fc5a36587903c68ba42f9021129719c2a7eb39a6367e60a",
+  "sourceFingerprint": "d578560b29184c51242d4de93b10671bb5ec41017c130aa9d621b1bbfeaa1d75",
   "summary": {
     "files": 1333,
-    "lines": 283875,
-    "symbols": 4003
+    "lines": 283889,
+    "symbols": 4004
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2445,7 +2445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
-        "line": 46
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -15672,6 +15672,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
         "line": 42
+      }
+    ],
+    "delta": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
+        "line": 46
       }
     ],
     "poly": [
@@ -36335,7 +36341,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
       "lines": 279,
-      "sha256": "62e5d3e3016398e616987bf107f5843742e46bce58915de02e12c8a935ae13d5",
+      "sha256": "7fb990e29c3e25d95fe92ddcfe90870f8149fd220840dd76e1ca6a3e8d184520",
       "symbols": [
         {
           "name": "play",
@@ -38022,8 +38028,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
-      "lines": 75,
-      "sha256": "d4caef5ddae5f7241a698b3bc59ad249e3add7f60bb635e481f5bdd45ba636bc",
+      "lines": 89,
+      "sha256": "94eab408305da7443738ef4d097feaadbfc48fb2e02150a9c356623ed6af5665",
       "symbols": [
         {
           "name": "start",
@@ -38034,8 +38040,12 @@
           "line": 14
         },
         {
-          "name": "read",
+          "name": "delta",
           "line": 46
+        },
+        {
+          "name": "read",
+          "line": 60
         }
       ]
     },
