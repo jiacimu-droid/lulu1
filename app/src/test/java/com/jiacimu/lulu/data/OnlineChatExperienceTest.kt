@@ -14,6 +14,33 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun actionFormatRepairCannotFlipChosenSleepOrLoseItsTaskHandoff() {
+        val originalChecks = org.json.JSONArray()
+            .put(JSONObject().put("taskId", "real-responsibility-id")
+                .put("at", "2026-11-15T11:30:00+09:00")
+                .put("reason", "本人约好到时核验"))
+        val original = OnlineActionRepairHandoff("sleep", "已决定回复后休眠", originalChecks)
+        val repair = OnlineActionRepairHandoff("continue", "修正了另一个工具参数",
+            org.json.JSONArray())
+        val carried = onlineHandoffAfterActionRepair(
+            original, repair, onlyFixingActionFields = false)
+        assertEquals("sleep", carried.choice)
+        assertEquals(original.reason, carried.reason)
+        assertSame("Handoff must retain the exact model-chosen responsible tasks",
+            originalChecks, carried.nextChecks)
+        assertEquals("sleep", onlineHandoffAfterActionRepair(
+            original, repair, onlyFixingActionFields = true).choice)
+        // Only when the first response made NO online choice may a
+        // correction supply one (the normal online contract still validates it).
+        val missing = OnlineActionRepairHandoff("", "", null)
+        val corrected = onlineHandoffAfterActionRepair(
+            missing, repair, onlyFixingActionFields = false)
+        assertEquals("continue", corrected.choice)
+        assertSame(repair.nextChecks, corrected.nextChecks)
+        assertEquals("", onlineHandoffAfterActionRepair(
+            missing, repair, onlyFixingActionFields = true).choice)
+    }
+
     @Test fun explicitRestInOrdinaryChatClosesTheCurrentWindowAfterTheActualReply() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
