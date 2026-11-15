@@ -222,8 +222,12 @@ internal fun IslandCompanionPanel(
                             color=Color(0xFF17342F))
                     }
                 }
-                TextButton(onClick={ expanded=!expanded },contentPadding=PaddingValues(4.dp)) {
-                    Text(if(expanded)"收起" else "更多",color=Color(0xFFBDE4D5),fontSize=11.sp)
+                Surface(onClick={expanded=!expanded},
+                    color=Color(0xFF274A4B), shape=RoundedCornerShape(9.dp)) {
+                    Text(if(expanded) "收" else "⋯",
+                        modifier=Modifier.padding(horizontal=8.dp, vertical=7.dp),
+                        color=Color(0xFFBDE4D5), fontSize=11.sp,
+                        fontWeight=FontWeight.Bold)
                 }
             }
             Text(if(openMic.active) {
