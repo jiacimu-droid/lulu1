@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`686dad5de58fc271e31488544522883fac4d8a5f`
+- 基准提交：`893cf2ecea1e971fa447c3e56b7c96d58d4914b7`
 - 分支：`main`
-- 已索引文件：1337
-- 已索引代码/文本行：285095
-- 已发现符号：4023
+- 已索引文件：1338
+- 已索引代码/文本行：285181
+- 已发现符号：4024
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -736,7 +736,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 226 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 485 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 865 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1391 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1393 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 33 | 1 |
@@ -947,7 +947,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 329 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 330 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 224 | 3 |
@@ -1245,6 +1245,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 83 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |

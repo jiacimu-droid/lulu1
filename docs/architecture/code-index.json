@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:08:58.142260+00:00",
-  "commit": "686dad5de58fc271e31488544522883fac4d8a5f",
+  "generatedAt": "2026-11-15T16:10:02.871663+00:00",
+  "commit": "893cf2ecea1e971fa447c3e56b7c96d58d4914b7",
   "branch": "main",
-  "sourceFingerprint": "cf85306d28b03c6c4b97772b3de57412e942070df9311cbd1e5002679f56b5b1",
+  "sourceFingerprint": "e08e31f77f01fe32a1b00113de4045cd8ae98a995ef82f960d93a58e68fef189",
   "summary": {
-    "files": 1337,
-    "lines": 285095,
-    "symbols": 4023
+    "files": 1338,
+    "lines": 285181,
+    "symbols": 4024
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18699,7 +18699,7 @@
     "receive": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-        "line": 311
+        "line": 312
       }
     ],
     "SelfThoughtNotebookTest": [
@@ -21800,6 +21800,12 @@
         "line": 12
       }
     ],
+    "GameCoopPacingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt",
+        "line": 12
+      }
+    ],
     "GameHudLayoutBudgetTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt",
@@ -23858,7 +23864,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
       "lines": 368,
-      "sha256": "6e6c708d6a863c377f550a9ff631c20d4c40319d8878e590375fbf79a3591b97",
+      "sha256": "37001a17d49ff62bd03e68cb66d09cdb95d45832d4ba3e1e7b6b93cc23b75124",
       "symbols": [
         {
           "name": "sentAudioMillis",
@@ -38067,8 +38073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1391,
-      "sha256": "b3cc9a914e41b9eb2b1fdd01c73a616348fd25fd55e5d90881edc256920602c0",
+      "lines": 1393,
+      "sha256": "0355a0cbe9a87f9e74a8603f6551f4d66081bfe1b759e7b1cb2f360601eb9c66",
       "symbols": [
         {
           "name": "change",
@@ -42061,8 +42067,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-      "lines": 329,
-      "sha256": "7718862717b15fc03d9ebe4a34b9d078b97cbad461ab6bbee3e4c471512abef6",
+      "lines": 330,
+      "sha256": "972bae8394dfdf8e260632e568972fc8d8e8e7589e595045d27fbf8bb355e5c8",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",
@@ -42070,7 +42076,7 @@
         },
         {
           "name": "receive",
-          "line": 311
+          "line": 312
         }
       ]
     },
@@ -46485,6 +46491,17 @@
       "symbols": [
         {
           "name": "ExplorationPlaytest",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt",
+      "lines": 83,
+      "sha256": "3854283813fe6dd830205da391f2052391b5934e0b2939782be320a3455a4161",
+      "symbols": [
+        {
+          "name": "GameCoopPacingTest",
           "line": 12
         }
       ]
