@@ -138,10 +138,16 @@ class InMemoryLuluChatStore : LuluChatStore {
 
     fun initialize(context: Context) {
         synchronized(lock) {
-            if (prefs != null) return
-            UserMessageFavorites.initialize(context)
-            appContext = context.applicationContext
-            prefs = context.applicationContext.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
+            val application = context.applicationContext
+            // Robolectric and process-restoration test hosts can supply a new
+            // Application while this Store object survives. Do not keep writing
+            // to an older Context's preferences: the UI would see a receipt that
+            // disappears when a fresh Store reads the current application's disk.
+            if (prefs != null && appContext === application) return
+            UserMessageFavorites.initialize(application)
+            appContext = application
+            prefs = application.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
+            unreadableChatSnapshot = false
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
             conversationState.value = loaded.first.ifEmpty { defaultConversations() }
                 .map { conversation ->
