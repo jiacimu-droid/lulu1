@@ -72,8 +72,12 @@ internal fun RelicEscapeWorldMap(
     val chestByCell = remember(run.chests,run.w) { run.chests.associateBy { it.y*run.w+it.x } }
     val siteByCell = remember(run.sites,run.w) { run.sites.associateBy { it.y*run.w+it.x } }
     val dropsByCell = remember(run.drops,run.w) { run.drops.groupBy { it.y*run.w+it.x } }
-    val names = run.allies.associate { ally ->
-        ally.id to MigratedDomainStores.characters.get(ally.id).displayName
+    // The light/shimmer animation redraws this map every frame. Character-store
+    // reads belong to roster changes, not to the animation's hot path.
+    val names = remember(run.allies) {
+        run.allies.associate { ally ->
+            ally.id to MigratedDomainStores.characters.get(ally.id).displayName
+        }
     }
     val namePaint = remember { android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG) }
     val start = Offset(run.hero.x.toFloat(), run.hero.y.toFloat())
