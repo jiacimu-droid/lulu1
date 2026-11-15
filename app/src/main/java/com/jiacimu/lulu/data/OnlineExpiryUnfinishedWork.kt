@@ -32,6 +32,11 @@ internal object OnlineExpiryUnfinishedWork {
                     .takeIf(String::isNotBlank)?.let {
                         runCatching { JSONObject(it) }.getOrNull()
                     }
+                // A statusless receipt cannot supersede an earlier
+                // authoritative failure for the same request.
+                val status = result?.optString("status")?.takeIf(String::isNotBlank)
+                    ?: attempt.optString("status")
+                if (status.isBlank()) return@mapNotNull null
                 Triple(tool, attempt, result)
             // Tool names are capabilities, not task identities. A successful
             // phone operation for another request must not erase an earlier
