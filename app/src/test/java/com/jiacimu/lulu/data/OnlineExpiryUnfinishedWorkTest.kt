@@ -81,6 +81,29 @@ class OnlineExpiryUnfinishedWorkTest {
         assertFalse(reminder.contains("状态=succeeded"))
     }
 
+    @Test fun nestedSuccessSupersedesFailedEnvelopeForSameExecution() {
+        val failedEnvelope = receipt("background_phone", "failed", 20, "旧外层失败")
+        val root = JSONObject(failedEnvelope.content)
+        root.put("result", JSONObject()
+            .put("status", "succeeded")
+            .put("summary", "目标窗口已确认").toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(
+            listOf(failedEnvelope.copy(content = root.toString())), now)
+        assertTrue(reminder.isBlank())
+    }
+
+    @Test fun nestedPendingRemainsUnfinishedDespiteSuccessfulEnvelope() {
+        val accepted = receipt("background_phone", "succeeded", 20)
+        val root = JSONObject(accepted.content)
+        root.put("result", JSONObject()
+            .put("status", "pending")
+            .put("summary", "等待真实执行回执").toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(
+            listOf(accepted.copy(content = root.toString())), now)
+        assertTrue(reminder.contains("状态=pending"))
+        assertFalse(reminder.contains("状态=succeeded"))
+    }
+
     @Test fun unrelatedOrStaleEventsDoNotReviveOldFailures() {
         val badSource = receipt("background_phone", "failed", 50)
             .copy(source = "legacy")
