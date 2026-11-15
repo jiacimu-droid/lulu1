@@ -361,17 +361,27 @@ internal fun RelicEscapeWorldMap(
                             Size(t*.085f,t*.09f),CornerRadius(t*.015f))
                     }
                 }
-                dropsByCell[y*run.w+x].orEmpty().forEach{drop->
-                    val tint=when(drop.loot.tier) {
-                        RelicTier.COMMON -> Color(0xFFE1D5B9)
-                        RelicTier.RARE -> Color(0xFF8EE2F4)
-                        RelicTier.PRECIOUS -> Color(0xFFFFDC84)
-                    }
-                    val gemAt=c+Offset(t*.22f,t*.20f)
-                    drawCircle(tint.copy(alpha=.14f+shimmer*.17f),t*.37f,gemAt)
-                    drawRelicFacet(gemAt,
-                        t*(if(drop.loot.tier==RelicTier.PRECIOUS).19f else .13f),
-                        tint,drop.loot.tier==RelicTier.PRECIOUS)
+                // Each persisted ground item occupies its own visible position.
+                // Previously every drop was drawn at the same offset, hiding all but
+                // the last item when a full bag left several treasures on one tile.
+                val cellDrops = dropsByCell[y*run.w+x].orEmpty()
+                cellDrops.take(4).forEachIndexed { index, drop ->
+                    val tint = relicGradeColor(drop.loot.grade.takeIf { it in 0..6 }
+                        ?: when(drop.loot.tier) {
+                            RelicTier.COMMON -> 0
+                            RelicTier.RARE -> 2
+                            RelicTier.PRECIOUS -> 4
+                        })
+                    val dx = if(index % 2 == 0) -.20f else .20f
+                    val dy = if(index < 2) -.18f else .22f
+                    val gemAt = c + Offset(t*dx,t*dy)
+                    drawCircle(tint.copy(alpha=.12f+shimmer*.12f),t*.19f,gemAt)
+                    drawRelicFacet(gemAt,t*.115f,tint,drop.loot.tier==RelicTier.PRECIOUS)
+                }
+                // More than four actual drops: preserve the visible stack indicator
+                // without inventing a fifth item or mutating authoritative loot.
+                if(cellDrops.size>4) {
+                    drawCircle(Color(0xFFDAE6EC),t*.045f,c)
                 }
                 if(x==run.exitX && y==run.exitY) {
                     // An actual carved extraction gate, not a generic green
