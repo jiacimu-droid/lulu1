@@ -2,6 +2,8 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class AutonomousAffordanceContextTest {
     @Test fun offersOnlyExistingBookAndGroupsAndExistingWorldIdentifiers() {
@@ -186,6 +188,47 @@ class AutonomousAffordanceContextTest {
             AutonomousAffordanceContext.recentSoloGames(records, "role-A").map { it.first })
         assertEquals(listOf("其他人物独玩"),
             AutonomousAffordanceContext.recentSoloGames(records, "role-B").map { it.first })
+    }
+
+
+    @Test fun realPastHourSoloBurstIsVisibleWithoutInventingASocialObligation() {
+        val now = Instant.parse("2026-11-15T13:11:00Z")
+        fun game(minutesAgo: Long, title: String = "方块小岛",
+                 actor: String = "role-A", solo: Boolean = true,
+                 withOwner: Boolean = false) = com.jiacimu.lulu.games.LuluGameRecord(
+            type = com.jiacimu.lulu.games.LuluGameType.BlockIsland,
+            title = title, score = 0, rewardCoins = 0,
+            characterId = actor, characterSolo = solo,
+            playedWithCharacter = withOwner,
+            summary = if (solo) "独自玩了方块小岛" else "双人对战",
+            createdAt = now.minus(minutesAgo, ChronoUnit.MINUTES),
+        )
+        val actual = listOf(
+            game(41), game(32), game(3),
+            game(70), // Earlier than the observed one-hour rhythm
+            game(8, actor = "role-B"), // Another character's pastime
+            game(7, solo = false, withOwner = true), // Played with owner
+            game(6, solo = false), // AI-vs-AI duel, not solo
+            game(-4), // Future-dated corrupt record is not a witnessed game
+        )
+        val rhythm = AutonomousAffordanceContext.recentSoloPlayRhythm(actual, "role-A", now)
+        assertTrue(rhythm.contains("过去60分钟本人已经实际独玩3段"))
+        assertTrue(rhythm.contains("《方块小岛》3段"))
+        assertTrue(rhythm.contains("可主动发真实游戏邀请"))
+        assertTrue(rhythm.contains("不按次数强迫邀约"))
+        val prompt = AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+            recentSoloPlayRhythm = rhythm,
+        )
+        assertTrue(prompt.contains("【近期独玩节奏｜真实游戏记录】"))
+        assertTrue(prompt.contains("独玩3段"))
+        assertFalse(AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+        ).contains("【近期独玩节奏"))
+        assertEquals("", AutonomousAffordanceContext.recentSoloPlayRhythm(
+            listOf(game(5)), "role-A", now))
+        assertEquals("", AutonomousAffordanceContext.recentSoloPlayRhythm(
+            actual, "missing-role", now))
     }
 
 }
