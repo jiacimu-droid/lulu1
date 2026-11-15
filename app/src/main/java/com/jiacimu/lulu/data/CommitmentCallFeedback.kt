@@ -1,10 +1,15 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.system.LuluAlarmSystem
+import com.jiacimu.lulu.system.LuluAudibleWakeRinger
 
 /** User interaction with incoming-call UI; answering does not prove wakefulness. */
 internal object CommitmentCallFeedback {
     fun onResponse(taskId: String, answered: Boolean) {
+        // The independent deadline alarm must not drown out an answered wake
+        // call; declining the call also ends this bounded local cue. Neither
+        // response proves the user is awake.
+        LuluAudibleWakeRinger.stop(taskId)
         val task = CommitmentTaskStore.snapshot().firstOrNull { it.id == taskId } ?: return
         if (task.status != CommitmentTaskStatus.WaitingForFeedback) return
         // A response is one delivery fact. Completion is evaluated against the
@@ -67,6 +72,7 @@ internal object CommitmentCallFeedback {
     }
 
     fun onMissed(taskId: String) {
+        LuluAudibleWakeRinger.stop(taskId)
         val task = CommitmentTaskStore.snapshot().firstOrNull { it.id == taskId } ?: return
         if (task.status != CommitmentTaskStatus.WaitingForFeedback) return
         CommitmentTaskStore.update(taskId) { old ->
