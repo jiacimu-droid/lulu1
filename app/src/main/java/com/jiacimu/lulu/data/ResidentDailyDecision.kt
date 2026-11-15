@@ -891,10 +891,16 @@ internal object ResidentDailyDecision {
                 reject(index, row, "预选消息正文为空")
                 continue
             }
-            if (action == "digital_world_action" && worldAction == "interact_resident" &&
-                DigitalWorldExpansionStore.residents().none { it.id == params.optString("itemId") }) {
-                reject(index, row, "互动目标居民已不存在")
-                continue
+            if (action == "digital_world_action" && worldAction == "interact_resident") {
+                val invalidInteraction = DigitalWorldResidentInteractionRuntime.interactionContractError(params)
+                if (invalidInteraction != null) {
+                    reject(index, row, "预选居民互动参数无效：${invalidInteraction}")
+                    continue
+                }
+                if (DigitalWorldExpansionStore.residents().none { it.id == params.optString("itemId") }) {
+                    reject(index, row, "互动目标居民已不存在")
+                    continue
+                }
             }
             val targetResident = if (action == "digital_world_action" &&
                 worldAction == "interact_resident") params.optString("itemId") else ""
@@ -1066,6 +1072,12 @@ internal object ResidentDailyDecision {
             }
             if (missing.isNotBlank())
                 return "steps[${index}].args 缺少 ${missing}，须由本人补正"
+            if (tool == "digital_world_action" &&
+                args.optString("worldAction") == "interact_resident") {
+                DigitalWorldResidentInteractionRuntime.interactionContractError(args)?.let {
+                    return "steps[${index}].args ${it}，须由本人补正"
+                }
+            }
         }
         return null
     }
@@ -1114,6 +1126,11 @@ internal object ResidentDailyDecision {
                 if (worldAction in setOf("move_home_item", "remove_home_item") &&
                     args.optString("itemId").isBlank())
                     return "agenda[${index}] 移动或删除家具必须填写 itemId"
+                if (worldAction == "interact_resident") {
+                    DigitalWorldResidentInteractionRuntime.interactionContractError(args)?.let {
+                        return "agenda[${index}].activityArgs ${it}，须由本人补正"
+                    }
+                }
             }
         }
         return null
@@ -1296,6 +1313,7 @@ internal object ResidentDailyDecision {
                 行动后由工具留下独立真实回执，禁止自行宣告结果或替另一人说话。
                 一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
                 最近真见过面但还未加好友的人，可考虑 send_friend_request；已有待处理申请就不要重复发，别人有权拒绝。也可用 digital_world_action 的 go_home/build_home_item 在家布置自己的家具，选择应来自本人此刻兴趣且必须满足世界实际位置与物品容量。
+                若额外选择面对面 interact_resident，args 必须同时给 worldAction=interact_resident、现场真实居民 itemId、本人选择的 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode；后三个新事件还需本人 text，continue_episode 还需真实 incidentId。缺少字段要先补正，不能拿空 activityId 去执行。
                 原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action","args":{}}]，每项必须有真实 tool 和 args 对象。
                 如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
                 每步可填写 requiresPreviousSuccess=true|false；true 仅在前一步有实际成功回执后才执行，false 为独立行动。首个附加步骤若选true，需原计划本轮已执行成功；改期、取消、等待不算原活动执行成功。每步可带原有 motiveId/concernId/experienceId，分别关联真实结果。
@@ -1886,7 +1904,7 @@ internal object ResidentDailyDecision {
                 今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
                 agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text）；respond_duel_invite（需本人收到的challengeId和accept/decline）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text）；respond_duel_invite（需本人收到的challengeId和accept/decline）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
                 五分钟在线窗口结束只暂停清醒注意力，不会瞬移或修改世界地点。晚上通常可以回自己的家，但如果确实想先发朋友圈、再回家、最后休眠，可在同一次模型决定的 steps 中选 publish_moment、digital_world_action(worldAction=go_home)，按实际回执先后执行；不必为每步额外付费。没有选或没有完成回家动作时，夜间时钟保留本人实际所在的位置，不得说自己已经回家。若确实受到朋友邀请并通过真实拜访行动留宿，也可在已经到达的住宅暂歇；不得因为朋友关系凭空进入别人的家。
