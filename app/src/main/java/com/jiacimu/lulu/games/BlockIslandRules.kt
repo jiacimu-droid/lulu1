@@ -346,7 +346,11 @@ internal object BlockIslandRules {
         if (w.finished || !w.inBounds(x, y)) return false
         return abs(w.x - x) + abs(w.y - y) <= 1 && w.cell(x, y) == 0 &&
             w.index(x, y) !in s.structures &&
-            !IslandSupplyCaches.available(s, x, y) && !(x == w.x && y == w.y) &&
+            !IslandSupplyCaches.available(s, x, y) &&
+            (s.houseProject?.takeIf { it.phase in setOf("building", "paused") }
+                ?.let { project -> IslandHouseProjects.parts(w,project.left,project.top)
+                    .any { it.first == w.index(x,y) && it.first !in project.placed } } != true) &&
+            !(x == w.x && y == w.y) &&
             w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
             w.mobs.none { it.hp > 0 && it.x == x && it.y == y } &&
             s.animals.none { it.x == x && it.y == y }
