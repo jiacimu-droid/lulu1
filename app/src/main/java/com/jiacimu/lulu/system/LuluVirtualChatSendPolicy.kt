@@ -33,6 +33,68 @@ internal object LuluVirtualChatSendPolicy {
         return !nonChatEditor.containsMatchIn(metadata)
     }
 
+    /** The WeChat voice composer exposes a press-to-talk control instead of
+     * an EditText. Only the model-selected switch_chat_input may switch modes.
+     * Never mistake a chat-history quote for the current composer. */
+    fun isPressToTalk(text: String?): Boolean {
+        val normalized = text.orEmpty().replace(Regex("\\s+"), "").lowercase()
+        return normalized == "按住说话" || normalized == "按住讲话" ||
+            normalized == "holdtotalk"
+    }
+
+    data class ComposerBounds(
+        val left: Int, val top: Int, val right: Int, val bottom: Int,
+    ) {
+        val centerX: Int get() = (left + right) / 2
+        val centerY: Int get() = (top + bottom) / 2
+        val width: Int get() = right - left
+        val height: Int get() = bottom - top
+    }
+
+    data class ComposerControl(
+        val bounds: ComposerBounds,
+        val label: String,
+        val resourceId: String,
+        val clickable: Boolean,
+    )
+
+    /** The keyboard toggle is the compact control immediately LEFT of a
+     * verified bottom press-to-talk composer. Never use a fixed coordinate,
+     * guess an unidentified page button, or select a Send/Add control. */
+    fun voiceToTextControl(
+        talk: ComposerBounds, controls: List<ComposerControl>,
+        screenWidth: Int, screenHeight: Int,
+    ): Int? {
+        if (screenWidth <= 0 || screenHeight <= 0 ||
+            talk.top < screenHeight / 2 || talk.width < screenWidth / 3)
+            return null
+        val matches = controls.withIndex().filter { (_, c) ->
+            val b = c.bounds
+            val label = c.label.replace(Regex("\\s+"), "").lowercase()
+            c.clickable && b.width in 12..(screenWidth / 4).coerceAtLeast(12) &&
+                b.height in 12..(screenHeight / 7).coerceAtLeast(12) &&
+                b.centerX < talk.left &&
+                talk.left - b.right in 0..(screenWidth / 6).coerceAtLeast(12) &&
+                kotlin.math.abs(b.centerY - talk.centerY) <=
+                    maxOf(talk.height / 2, screenHeight / 32) &&
+                !label.contains("切换到语音") && !label.contains("切换成语音") &&
+                !label.contains("holdtotalk") &&
+                LuluVirtualUiPolicy.mayClick(c.label, c.resourceId, "")
+        }.sortedWith(compareBy<IndexedValue<ComposerControl>> {
+            talk.left - it.value.bounds.right
+        }.thenBy { it.value.bounds.width.toLong() * it.value.bounds.height })
+        val best = matches.firstOrNull() ?: return null
+        // Multiple nodes may wrap one icon; different physical targets mean
+        // the geometry is ambiguous and nothing is clicked.
+        if (matches.any {
+                kotlin.math.abs(it.value.bounds.centerX - best.value.bounds.centerX) >
+                    screenWidth / 35 ||
+                kotlin.math.abs(it.value.bounds.centerY - best.value.bounds.centerY) >
+                    screenHeight / 35
+            }) return null
+        return best.index
+    }
+
     /** A deliberately narrow action rather than a general allow-list override
      * for all buttons marked 发送 / submit / post. */
     fun sendButton(label: String?, resourceId: String?): Boolean {
