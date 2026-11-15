@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:48:36.137392+00:00",
-  "commit": "5a6c516e986fc8118b514a040d69a145b6bdbed7",
+  "generatedAt": "2026-11-15T06:49:35.930673+00:00",
+  "commit": "d1d0e2f8597db5e8ac6cd2027286bc78a72951ac",
   "branch": "main",
-  "sourceFingerprint": "4bcbe45c497a9bbb10be1fa1aff6e3030a4d9827218ad7abd3d528286942f466",
+  "sourceFingerprint": "b0a753cea8c93733e28d2d5149f9dedc96702b606163ed753b4244576f2e9cb1",
   "summary": {
     "files": 1329,
-    "lines": 282932,
+    "lines": 282958,
     "symbols": 3987
   },
   "symbolIndex": {
@@ -15463,25 +15463,25 @@
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 682
+        "line": 685
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 683
+        "line": 686
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 760
+        "line": 763
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 796
+        "line": 799
       }
     ],
     "change": [
@@ -37608,13 +37608,13 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
       "lines": 467,
-      "sha256": "7bc907d4c168c7be29117115ecad009ca3f91337448bb986d4eef00020cee5f7",
+      "sha256": "faef1ccef59fd8bed2040b23eeeaa6f209375d0f24484e4fc31da30e68c2723a",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 799,
-      "sha256": "923e49fd51e3c5977372e4b65bfa19bca1e338c64ff2c60f69d2aa618846b296",
+      "lines": 802,
+      "sha256": "91e43e4b3778981872a868ce07d520582a0714e5a02c307dce6dd5ff2105c6ea",
       "symbols": [
         {
           "name": "at",
@@ -37726,26 +37726,26 @@
         },
         {
           "name": "enemyThreatRange",
-          "line": 682
+          "line": 685
         },
         {
           "name": "canEnemyStrike",
-          "line": 683
+          "line": 686
         },
         {
           "name": "path",
-          "line": 760
+          "line": 763
         },
         {
           "name": "abandon",
-          "line": 796
+          "line": 799
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1340,
-      "sha256": "b257a3026048e34e5fe2b2f98a78167fd92e2038267cc39906a4e528386e2750",
+      "sha256": "d1a80377f88baa4d2dec66c55d1313267692b8d96004acf56b5ebc10b5d3309f",
       "symbols": [
         {
           "name": "change",
@@ -46478,8 +46478,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 731,
-      "sha256": "313ac8589142e4e376ce53dfd2bf8c608ec639aa7176f9b8ff3ea0e3cb0df974",
+      "lines": 754,
+      "sha256": "c2a60988bfa0572489238eb039ce068d3be5dd7a3c3478c227d3795d4aaad6ae",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
