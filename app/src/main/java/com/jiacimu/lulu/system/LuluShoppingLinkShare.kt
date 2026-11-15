@@ -57,6 +57,26 @@ internal object LuluShoppingLinkShare {
             details.first == merchant && verifiedChangedLink(pkg, null, url) == url
         }
 
+    /**
+     * Owner's product-card tap is separate from the role's background phone.
+     * Prefer an actual installed merchant's HTTPS deep-link handler, while
+     * keeping the same verified URL. Do not construct undocumented app schemes.
+     * The intent dispatcher tries these explicit packages in order and falls
+     * back to Android's normal browser/default handler only if none accepts it.
+     */
+    internal fun preferredOpenPackages(merchant: String, url: String): List<String> {
+        if (!matchesMerchantLink(merchant, url)) return emptyList()
+        return when (merchant) {
+            // Flash also runs inside Taobao; prefer the account the owner commonly
+            // uses there, then the independent Eleme app if it can handle the URL.
+            "淘宝闪购" -> listOf("com.taobao.taobao", "me.ele")
+            "美团外卖" -> listOf("com.sankuai.meituan.takeoutnew", "com.sankuai.meituan")
+            else -> merchantDomains.filter { (pkg, details) ->
+                details.first == merchant && verifiedChangedLink(pkg, null, url) == url
+            }.keys.toList()
+        }
+    }
+
     internal fun eligibleCopy(
         packageName: String, label: String, clickable: Boolean, ownerApproved: Boolean,
     ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
