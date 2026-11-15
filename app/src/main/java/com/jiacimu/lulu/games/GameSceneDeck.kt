@@ -62,6 +62,10 @@ internal fun GameSceneDeck(
     closeToolsSignal: Any? = null,
     /** An explicit nearby-workbench interaction may open the existing menu. */
     openToolsSignal: Any? = null,
+    /** Island voice controls use the free space between the two thumb zones. */
+    companionCenterBottom: Boolean = false,
+    /** Island management opens a temporary top sheet, never a permanent sidebar. */
+    toolsFromTop: Boolean = false,
     scene: @Composable () -> Unit,
     companion: @Composable () -> Unit,
     companionAvailable: Boolean = false,
@@ -80,8 +84,11 @@ internal fun GameSceneDeck(
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
         LaunchedEffect(wide) { drawer = false }
-        val sideWidth = minOf(maxWidth * if (wide) .39f else .66f, 310.dp)
-        val panelHeight = gameHudTeamPanelHeightDp(maxHeight.value, wide).dp
+        val sideWidth = if (companionCenterBottom && wide) minOf(maxWidth * .31f, 240.dp)
+            else minOf(maxWidth * if (wide) .39f else .66f, 310.dp)
+        val panelHeight = if (companionCenterBottom)
+            minOf(maxHeight * if (wide) .34f else .32f, 140.dp)
+            else gameHudTeamPanelHeightDp(maxHeight.value, wide).dp
         val teamState = rememberSaveableStateHolder()
         val teamPanel: @Composable () -> Unit = {
             teamState.SaveableStateProvider("team") {
@@ -157,6 +164,18 @@ internal fun GameSceneDeck(
                             }
                         }
                     }
+                    if (toolsFromTop && wide) {
+                        Surface(onClick = { drawer = !drawer },
+                            modifier = Modifier.size(44.dp).semantics {
+                                contentDescription = "打开游戏地图、背包和设置"
+                            },
+                            color = Color(0xAA162935), shape = RoundedCornerShape(12.dp)) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(if (drawer) "收起" else "☰", color = accent,
+                                    fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             } else {
                 Surface(
@@ -207,12 +226,16 @@ internal fun GameSceneDeck(
             }
         }
         if (companionAvailable) {
-            // The game host reserves the top-right 40dp for navigation/orientation/audio.
-            // Voice and the latest teammate subtitle live directly below that chrome.
-            // Never unmount the team while the inventory opens: preserve pending
-            // model decisions and the scene's voice queue.
-            Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
-                .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)) {
+            // Landscape co-op voice lives between the left and right thumb zones.
+            // Only on-demand details expand; captions appear over world characters.
+            // Keep composition alive through inventory opens, so the microphone,
+            // model response and speech queue never restart.
+            val teamPlacement = if (companionCenterBottom && wide)
+                Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
+                    .padding(bottom = 8.dp)
+            else Modifier.align(Alignment.TopEnd)
+                .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)
+            Column(teamPlacement.width(sideWidth)) {
                 Box(Modifier.then(
                     if (!drawer) Modifier.heightIn(max = panelHeight)
                     else Modifier.height(0.dp),
@@ -251,24 +274,31 @@ internal fun GameSceneDeck(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 actions()
             }
-            FilledTonalButton(
-                onClick = { drawer = !drawer },
-                modifier = Modifier.height(32.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = Color(0xD92A414B), contentColor = Color.White),
-            ) {
-                Text(toolsLabel, fontSize = 10.sp, maxLines = 1)
+            if (!toolsFromTop || !wide) {
+                FilledTonalButton(
+                    onClick = { drawer = !drawer },
+                    modifier = Modifier.height(32.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color(0xD92A414B), contentColor = Color.White),
+                ) {
+                    Text(toolsLabel, fontSize = 10.sp, maxLines = 1)
+                }
             }
         }
         // Landscape management is an in-scene side panel, NOT an opaque full-screen dialog.
         // The map and the left movement control remain usable while it is open.
         if (drawer && wide) {
             Surface(
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = (if (toolsFromTop) Modifier.align(Alignment.TopCenter)
+                    .padding(top = gameHudChromeSafeTopDp().dp)
+                    .width(minOf(maxWidth * .82f, 570.dp))
+                    .heightIn(max = minOf(maxHeight * .78f,
+                        gameHudDrawerMaxHeightDp(maxHeight.value).dp))
+                else Modifier.align(Alignment.TopEnd)
                     .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp, bottom = 6.dp)
                     .width(sideWidth)
-                    .heightIn(max = gameHudDrawerMaxHeightDp(maxHeight.value).dp),
+                    .heightIn(max = gameHudDrawerMaxHeightDp(maxHeight.value).dp)),
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0xF5112630),
                 border = BorderStroke(1.dp, accent.copy(alpha = .35f)),
