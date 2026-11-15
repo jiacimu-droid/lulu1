@@ -39,6 +39,63 @@ class MemorySemanticConsolidationTest {
         assertEquals(setOf("o", "o2"), windows.single().map { it.id }.toSet())
     }
 
+    @Test fun weeklySemanticReviewKeepsDistinctScenesNumbersAndCorrections() {
+        val time = Instant.parse("2026-11-10T08:00:00Z")
+        val original = com.jiacimu.lulu.core.MemoryEntry(
+            "old", "role", "那天主人喜欢红茶，不加糖",
+            com.jiacimu.lulu.core.MemoryKind.Fact, "timeline-events:event-old",
+            time, time, 5, false, true,
+            subject = "主人", slot = "饮品", sceneKey = "饮茶|家中|主人|上午",
+            measureKind = "cups", measureValue = 1.0, measureUnit = "杯",
+        )
+        fun safe(other: com.jiacimu.lulu.core.MemoryEntry) =
+            MemorySemanticConsolidation.safeKeeperForEquivalentGroup(listOf(original, other))
+        assertEquals(null, safe(original.copy(id = "scene",
+            sceneKey = "饮茶|咖啡馆|主人|上午")))
+        assertEquals(null, safe(original.copy(id = "value", measureValue = 2.0)))
+        assertEquals(null, safe(original.copy(id = "missing", measureKind = "")))
+        assertEquals(null, safe(original.copy(id = "day", occurredAt = time.plusSeconds(86_400))))
+        assertEquals(null, safe(original.copy(id = "correction",
+            content = "后来主人说现在不喜欢红茶了")))
+        assertEquals(null, safe(original.copy(id = "different-person",
+            subject = "朋友")))
+    }
+
+    @Test fun weeklySemanticReviewDoesNotEraseAUniqueDetailInLessImportantEntry() {
+        val at = Instant.parse("2026-11-10T08:00:00Z")
+        val shortCore = com.jiacimu.lulu.core.MemoryEntry(
+            "core", "role", "主人喜欢红茶",
+            com.jiacimu.lulu.core.MemoryKind.Fact, "timeline-events:event-a",
+            at, at, 9, false, true, tier = com.jiacimu.lulu.core.MemoryTier.Core,
+            subject = "主人", slot = "饮品",
+        )
+        val moreDetailed = shortCore.copy(
+            id = "detail", tier = com.jiacimu.lulu.core.MemoryTier.Stable,
+            content = "主人喜欢红茶，而且明确不要加糖",
+        )
+        assertEquals(null, MemorySemanticConsolidation.safeKeeperForEquivalentGroup(
+            listOf(shortCore, moreDetailed)))
+        // Same conditions and all details still present in the keeper: safe.
+        assertEquals(moreDetailed, MemorySemanticConsolidation.safeKeeperForEquivalentGroup(
+            listOf(shortCore.copy(tier = com.jiacimu.lulu.core.MemoryTier.Stable), moreDetailed)))
+        assertEquals(null, MemorySemanticConsolidation.safeKeeperForEquivalentGroup(
+            listOf(moreDetailed, moreDetailed.copy(id = "extra", content = "主人喜欢红茶，但只有独处时才不加糖"))))
+    }
+
+    @Test fun weeklyReviewKeepsTwoSimilarButIndependentLivedEpisodes() {
+        val at = Instant.parse("2026-11-10T08:00:00Z")
+        val first = com.jiacimu.lulu.core.MemoryEntry(
+            "one", "role", "昨晚一起散步很开心",
+            com.jiacimu.lulu.core.MemoryKind.Timeline, "timeline-events:first",
+            at, at, 5, false, true, subject = "散步", slot = "共同经历",
+        )
+        assertEquals(null, MemorySemanticConsolidation.safeKeeperForEquivalentGroup(
+            listOf(first, first.copy(id = "next", source = "timeline-events:second",
+                occurredAt = at.plusSeconds(86_400)))))
+        assertEquals(first, MemorySemanticConsolidation.safeKeeperForEquivalentGroup(
+            listOf(first, first.copy(id = "duplicate"))))
+    }
+
     @Test fun singleRecordNeverCreatesPaidReviewBatch() {
         assertTrue(MemorySemanticConsolidation.overlappingReviewWindows(listOf("only")).isEmpty())
     }
