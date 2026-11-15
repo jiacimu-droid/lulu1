@@ -105,6 +105,17 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     var islandGuideTab by rememberSaveable { mutableStateOf("入门") }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
+    // Transient on-map captions; the durable utterance remains in the shared
+    // game conversation timeline, not in this render-only map.
+    var actorCaptions by remember(world.seed) {
+        mutableStateOf<Map<String, String>>(emptyMap())
+    }
+    LaunchedEffect(actorCaptions) {
+        if (actorCaptions.isNotEmpty()) {
+            kotlinx.coroutines.delay(6_500)
+            actorCaptions = emptyMap()
+        }
+    }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
     // Transient local feedback only. Repeated joystick collisions never rewrite a save.
@@ -326,6 +337,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
+                actorCaptions = actorCaptions,
                 buildPreview = buildPreview, facing = facing,
                 hurtProgress = hurtProgress.value)
         },
@@ -338,7 +350,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     { enabled ->
                         autonomousCompanions = enabled
                         if (!enabled) save(IslandTravel.stopAll(island))
-                    }, ::save, { companionPing = it }, readIsland = { island })
+                    }, ::save, { companionPing = it },
+                    onDialogue = { id, line ->
+                        actorCaptions = actorCaptions + (id to line)
+                    },
+                    readIsland = { island })
             }
         },
         movement = {
@@ -1218,6 +1234,7 @@ private fun BlockIslandCanvas(
     onNavigate: (Int, Int) -> Unit,
     fullscreen: Boolean = false,
     companionPing: Pair<Int, Int>? = null,
+    actorCaptions: Map<String, String> = emptyMap(),
     buildPreview: IslandBuildPreview? = null,
     facing: Pair<Int, Int> = 0 to 1,
     hurtProgress: Float = 1f,
@@ -1289,6 +1306,7 @@ private fun BlockIslandCanvas(
                 island = island, selected = target, companionPing = companionPing,
                 playerVisual = playerVisual, companionVisuals = companionVisuals,
                 mobVisuals = mobVisuals, companionLabels = companionLabels,
+                speechBubbles = actorCaptions,
                 playerFacing = facing, camera = camera,
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
