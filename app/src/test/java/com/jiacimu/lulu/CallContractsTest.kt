@@ -245,6 +245,20 @@ class CallContractsTest {
         assertFalse(CallOpeningTurn.isWakeCallReason("我想跟你聊天"))
     }
 
+    @Test fun everyNewCallOpensWithPersonalMotiveInsteadOfMicSetupInstructions() {
+        val opening = CallOpeningTurn.prompt("想跟她分享今天发生的事")
+        assertTrue(opening.contains("本通电话已经接通"))
+        assertTrue(opening.contains("想跟她分享今天发生的事"))
+        assertTrue(opening.contains("按本人性格、关系、来电动机"))
+        assertTrue(opening.contains("设备设置、接通与收音状态由电话界面提示"))
+        assertFalse(opening.contains("顺带提一句"))
+        assertFalse(opening.contains("麦克风"))
+        // The line authored before calling is also an after-answer greeting,
+        // not an instruction to diagnose a muted mic every time.
+        assertTrue(CallOpeningTurn.incomingLineContract.contains("不把例行设备操作说明当成第一句话"))
+        assertTrue(CallOpeningTurn.incomingLineContract.contains("主动问起"))
+    }
+
     @Test fun callOpeningRunsOnceForBothCallDirectionsAndReconnectDoesNotRepeat() {
         val opening = CallOpeningTurn()
         assertFalse(opening.claim(""))
