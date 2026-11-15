@@ -7,6 +7,19 @@ package com.jiacimu.lulu.data
 internal object AutonomousAffordanceContext {
     internal data class Book(val id: String, val title: String)
 
+    /** An AI-vs-AI match has playedWithCharacter=false too. Only genuine
+     * independent runs (or old explicit solo receipts) belong in solo history. */
+    fun recentSoloGames(
+        records: List<com.jiacimu.lulu.games.LuluGameRecord>,
+        characterId: String,
+    ): List<Pair<String, Int>> = records.asSequence()
+        .filter { it.characterId == characterId &&
+            (it.characterSolo || (!it.playedWithCharacter &&
+                it.summary.startsWith("独自完成一局"))) }
+        .take(4)
+        .map { it.title to it.score }
+        .toList()
+
     fun render(
         digital: Boolean,
         location: String,
