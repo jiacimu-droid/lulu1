@@ -366,3 +366,8 @@
 - 正式 `IslandBuildingControls.preview` 原先即使 `world.finished` 仍可能返回 `allowed=true`，与「无法继续建造」提示冲突；已有房屋工程时尝试另一张蓝图只提示空地不足。`51536db` 将终局预览统一禁用并明确提示当前工程须完成/续建/拆除，仍由原 `BlockIslandRules.act` 执行实际施工及扣料，无影子建筑或奖励。
 - `IslandPlayerHouseTest` 新增蓝图占用、终局各建造入口禁用和预览不改真实存档回归：`19099e3`、`2b26a19`；生产 blob `7d095d9a727d7f3fc40c838dbf339adcfcee7ac9`，测试 blob `51f508f8b0b4ceb294e1893ea26ab011c97a1e04`。
 - main push `2b26a197` 的 Lulu APK/JVM #43701707170 pending、Refresh code index #43701707195 queued（查询时），**未证明 JVM/APK/索引成功**；前两次 push 均被新提交取消。下一入口 `IslandPlayerHouseTest.kt` 的 JVM 首错与 `BlockIslandScreen.kt` 的预览按钮禁用行为；Redmi 横屏/360dp/412dp、FPS 和同伴模型仍待独立验收。
+
+## 2026-11-15 G-03.5 · 正式战斗 HUD 与地图点选同源（CI 待验）
+
+- 根因：`RelicEscapeScreen.kt` 主攻击按钮与战斗提示一直读取 `RelicCombatSkills.attackTarget(run,facing)`，忽略地图光标；即使 `RelicQuickAction.kt` 已对显式点选的敌人、空地和死亡目标禁止重定向，主按钮仍可能攻击朝向上的另一只敌人。正式屏幕现改用既有 `relicAttackTarget(run,selected)`，攻击键、提示统一使用既有 `relicAttackHint`，不改变敌人血量/掉落、武器射程或 AI 角色意愿。生产 commit `11aae0604538e5cf2560476953eacae4e183c2b3`，`RelicEscapeScreen.kt` blob `b2949f99c2720d5deffa71c7e6c1e65b5f77524e`。
+- 已有 `RelicQuickActionTest` 覆盖显式点敌、空地、已击败目标、主角格快捷攻击及移动后光标跟随，不重复添加同类测试。此前 `2b26a197` 的 main push APK/JVM #43701707170 和索引 #43701707195 已 completed/success，但不代表本次改动通过；本次 `11aae060` 对应 APK/JVM #43710916717 与索引 #43710917374 查询时 queued。下一入口：该 SHA 的 `testPhoneUnitTest`/`assemblePhone` 首错，以及 `RelicEscapeScreen.kt` 360/412dp 横屏点敌→攻击、点空地→不误伤、移动后攻击、低端机帧率实测；真实模型与美术审图另验。
