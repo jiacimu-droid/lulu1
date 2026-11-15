@@ -175,39 +175,15 @@ object LuluShellDisplayMain {
                     else "虚拟屏启动应用被系统拒绝：${launchResult.failure}")
         }
         check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
-        val args = when (action) {
-            "tap" -> listOf("input", "-d", id.toString(), "tap",
-                point(cmd, "x", WIDTH).toString(), point(cmd, "y", HEIGHT).toString())
-            "swipe" -> listOf("input", "-d", id.toString(), "swipe",
-                point(cmd, "startX", WIDTH).toString(), point(cmd, "startY", HEIGHT).toString(),
-                point(cmd, "endX", WIDTH).toString(), point(cmd, "endY", HEIGHT).toString(),
-                cmd.optInt("durationMs", 400).coerceIn(180, 1600).toString())
-            "back" -> listOf("input", "-d", id.toString(), "keyevent", "KEYCODE_BACK")
-            // An app's search field often needs an explicit IME Enter/Search
-            // after ACTION_SET_TEXT. The role explicitly chooses submission
-            // directly or as a verified search; typing alone never submits.
-            "submit" -> listOf("input", "-d", id.toString(), "keyevent", "KEYCODE_ENTER")
-            else -> error("unsupported virtual display operation")
-        }
-        val frameBarrier = discardPreActionFrames()
-        val dispatched = run(args)
-        if (dispatched.accepted) {
-            pendingActionFrameBarrierNanos = frameBarrier
-            pendingActionNeedsFrame = true
-        }
-        return JSONObject().put("success", false).put("accepted", dispatched.accepted)
+        // Only app launching and frame transport belong to the shell helper.
+        // Shell input -d is not portable: on some Android builds it requires
+        // INJECT_EVENTS, which cannot be granted through the app UI. The
+        // session now dispatches all input to the owned display via
+        // AccessibilityService; deliberately refuse any future shell fallback.
+        return JSONObject().put("success", false).put("accepted", false)
             .put("displayId", id).put("targetPackage", targetPackage)
-            .put("errorCode", if (dispatched.accepted) "" else "shell_input_rejected")
-            .put("error", if (dispatched.accepted) "" else dispatched.failure)
-            .put("verification", if (dispatched.accepted)
-                "input sent only to virtual display; completion unverified"
-                else "虚拟屏输入未被系统接受：${dispatched.failure}")
-    }
-
-    private fun point(json: JSONObject, key: String, dimension: Int): Int {
-        val n = json.getInt(key)
-        require(n in 0..1000) { "normalized coordinate out of bounds" }
-        return ((dimension - 1L) * n / 1000).toInt()
+            .put("errorCode", "shell_input_disabled")
+            .put("verification", "输入操作必须由独立虚拟屏无障碍手势或控件执行；Shell不会注入触控和按键")
     }
 
     private data class ShellDispatch(val accepted: Boolean, val failure: String = "")
