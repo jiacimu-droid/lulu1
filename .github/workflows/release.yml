@@ -265,18 +265,63 @@ jobs:
               state: 'open',
               per_page: 100,
             })
-            if (existing.some(issue => issue.body?.includes(marker))) return
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `[CI] APK build failed on ${shortSha}`,
-              body: [
-                marker,
-                '## Lulu APK 自动构建失败',
-                '',
-                `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-                `- **提交：** ${shortSha}`,
-                '',
-                '请优先查看本次运行中的 `gradle-build.log`。'
-              ].join('\n')
-            })
+            const details = [
+              marker,
+              '## Lulu APK 自动构建失败（当前告警）',
+              '',
+              `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              `- **提交：** ${shortSha}`,
+              '',
+              '同一主线的多次失败集中在此工单；每次运行仍有独立 Actions 日志。',
+              '请优先查看本次运行中的 `gradle-build.log`。'
+            ].join('\n')
+            const automated = existing.filter(issue =>
+              !issue.pull_request &&
+              issue.title.startsWith('[CI] APK build failed on ') &&
+              /<!-- lulu1-ci-failure:[0-9a-f]{40} -->/.test(issue.body || '')
+            ).sort((a, b) => b.number - a.number)
+            const primary = automated[0]
+            if (!primary) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[CI] APK build failed on ${shortSha}`,
+                body: details
+              })
+              return
+            }
+            if (!primary.body?.includes(marker)) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: primary.number,
+                body: [
+                  `本轮 main 构建失败：${shortSha}（旧故障不视为已修复）。`,
+                  `完整日志：https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                ].join('\n')
+              })
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: primary.number,
+                title: `[CI] APK build failed on ${shortSha}`,
+                body: details
+              })
+            }
+            // Keep the newest alert open. Older automated alerts point to this
+            // ongoing failure; their original run links/logs remain accessible.
+            for (const older of automated.slice(1)) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: older.number,
+                body: `历史构建失败归并至 #${primary.number}，并不代表已经修复。原始运行和日志仍可查看。`
+              })
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: older.number,
+                state: 'closed',
+                state_reason: 'not_planned'
+              })
+            }
