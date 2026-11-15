@@ -52,6 +52,7 @@ internal fun RelicChestInspection(
     val accent = relicGradeColor(observedGrade)
     var yaw by remember(run.id, chest.id) { mutableFloatStateOf(-22f) }
     var slide by remember(run.id, chest.id, progress) { mutableFloatStateOf(0f) }
+    var slidingFromHandle by remember(run.id, chest.id, progress) { mutableStateOf(false) }
     val pryNow by rememberUpdatedState(onPry)
 
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF0B121C))) {
@@ -167,15 +168,21 @@ internal fun RelicChestInspection(
                 Box(
                     Modifier.fillMaxSize().pointerInput(run.id, chest.id, progress, travelPx) {
                         detectDragGestures(
-                            onDragStart = { slide = 0f },
-                            onDragEnd = {
-                                if (RelicChestSwipeGate.released(slide, travelPx)) pryNow()
+                            onDragStart = { start ->
+                                // Gesture must start on the actual lock handle, not
+                                // anywhere in the decorative rail.
+                                slidingFromHandle = start.x <= with(density) { 60.dp.toPx() }
                                 slide = 0f
                             },
-                            onDragCancel = { slide = 0f },
+                            onDragEnd = {
+                                if (slidingFromHandle && RelicChestSwipeGate.released(slide, travelPx)) pryNow()
+                                slidingFromHandle = false
+                                slide = 0f
+                            },
+                            onDragCancel = { slidingFromHandle = false; slide = 0f },
                         ) { change, distance ->
                             change.consume()
-                            slide = (slide + distance.x).coerceIn(0f, travelPx)
+                            if (slidingFromHandle) slide = (slide + distance.x).coerceIn(0f, travelPx)
                         }
                     },
                     contentAlignment = Alignment.Center,
