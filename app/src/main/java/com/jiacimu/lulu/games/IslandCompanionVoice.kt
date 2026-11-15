@@ -33,6 +33,20 @@ internal class IslandCompanionVoice(
     private val pending = ArrayDeque<Pair<String, String>>()
     private var active = false
     private var enabled = false
+    private var speakingListener: ((Boolean) -> Unit)? = null
+
+    /** Pause the shared game microphone during audible companion speech. */
+    fun setSpeakingListener(listener: ((Boolean) -> Unit)?) {
+        speakingListener = listener
+        listener?.invoke(active)
+    }
+
+    private fun setActive(next: Boolean) {
+        if (active == next) return
+        active = next
+        speakingListener?.invoke(next)
+    }
+
     private var disposed = false
     private var audioGeneration = 0L
 
@@ -42,7 +56,7 @@ internal class IslandCompanionVoice(
         audioGeneration++
         if (!value) {
             pending.clear()
-            active = false
+            setActive(false)
             engine.stop()
         }
     }
@@ -52,7 +66,7 @@ internal class IslandCompanionVoice(
     fun stop() {
         audioGeneration++
         pending.clear()
-        active=false
+        setActive(false)
         engine.stop()
     }
 
@@ -65,25 +79,25 @@ internal class IslandCompanionVoice(
     private fun playNext() {
         if (!enabled || disposed || !foreground) {
             pending.clear()
-            active = false
+            setActive(false)
             return
         }
         val next = pending.removeFirstOrNull() ?: run {
-            active = false
+            setActive(false)
             return
         }
         if (!VoiceSynthesisPolicy.meetingPlayable(appContext)) {
             // Obey existing global/role voice controls before spending synthesis credits.
             pending.clear()
-            active=false
+            setActive(false)
             return
         }
         if (!CharacterVoicePreferenceStore.isEnabled(next.first)) {
-            active=false
+            setActive(false)
             playNext()
             return
         }
-        active = true
+        setActive(true)
         val expectedAudioGeneration = audioGeneration
         engine.speak(
             text = next.second,
@@ -96,7 +110,7 @@ internal class IslandCompanionVoice(
                 scope.launch {
                     if (!disposed && expectedAudioGeneration == audioGeneration) {
                         if(engine.lastError.isNotBlank())onError("伙伴语音："+engine.lastError)
-                        active = false
+                        setActive(false)
                         playNext()
                     }
                 }
@@ -110,6 +124,8 @@ internal class IslandCompanionVoice(
         audioGeneration++
         enabled = false
         pending.clear()
+        setActive(false)
+        speakingListener = null
         engine.shutdown()
     }
 }
