@@ -745,6 +745,77 @@ class LuluAccessibilityService : AccessibilityService() {
             return service.performGlobalAction(globalAction)
         }
 
+        /**
+         * Mika ScreenAccessibility's official per-display gesture route.
+         * Shell input is NOT the authorization authority for a role-owned swipe.
+         * Only the verified target window on an independent display can receive
+         * a gesture; no fallback to the owner's main screen is permitted.
+         *
+         * An Android onCompleted callback confirms gesture dispatch/completion,
+         * not that the page actually scrolled. The session separately compares
+         * fresh accessibility observations and image frames.
+         */
+        suspend fun swipeVirtualDisplay(
+            displayId: Int, packageName: String,
+            startX: Int, startY: Int, endX: Int, endY: Int, durationMs: Int,
+        ): JSONObject {
+            fun receipt(accepted: Boolean, errorCode: String, detail: String,
+                dispatched: Boolean = false) = JSONObject()
+                .put("accepted", accepted)
+                .put("actionMethod", "accessibility_gesture_virtual_display")
+                .put("gestureDispatched", dispatched)
+                .put("gestureCompleted", accepted)
+                .put("errorCode", errorCode)
+                .put("taskCompleted", false)
+                .put("verification", detail)
+
+            val service = instance ?: return receipt(false, "accessibility_disconnected",
+                "无障碍服务没有连接，本次没有向任何屏幕下发滑动")
+            if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank())
+                return receipt(false, "virtual_gesture_display_invalid",
+                    "Android版本或虚拟屏幕ID不支持指定屏手势，未滑动")
+            val gate = virtualWindowStatus(displayId, packageName)
+            if (!LuluVirtualWindowPolicy.allowsGestureOnDisplay(
+                    displayId, gate.optString("kind")))
+                return receipt(false, "virtual_gesture_window_unverified",
+                    "滑动前虚拟屏的目标App窗口未核实，未触碰其他屏幕")
+            val dimensions = virtualDimensions(service, displayId)
+                ?: return receipt(false, "virtual_gesture_dimensions_missing",
+                    "虚拟屏幕的实际尺寸无法核实，未滑动")
+            val path = Path().apply {
+                moveTo(LuluPhoneUiGeometry.pixel(startX, dimensions.first),
+                    LuluPhoneUiGeometry.pixel(startY, dimensions.second))
+                lineTo(LuluPhoneUiGeometry.pixel(endX, dimensions.first),
+                    LuluPhoneUiGeometry.pixel(endY, dimensions.second))
+            }
+            val gesture = GestureDescription.Builder()
+                .setDisplayId(displayId)
+                .addStroke(GestureDescription.StrokeDescription(
+                    path, 0, durationMs.coerceIn(180, 1600).toLong()))
+                .build()
+            return kotlinx.coroutines.withTimeoutOrNull(5_000L) {
+                suspendCancellableCoroutine<JSONObject> { cont ->
+                    val callback = object : AccessibilityService.GestureResultCallback() {
+                        override fun onCompleted(description: GestureDescription) {
+                            if (cont.isActive) cont.resume(receipt(true, "",
+                                "Android已完成独立虚拟屏上的手势，仍需核对页面是否真的滚动", true))
+                        }
+                        override fun onCancelled(description: GestureDescription) {
+                            if (cont.isActive) cont.resume(receipt(false, "virtual_gesture_cancelled",
+                                "Android取消了这次虚拟屏手势，结果未知；不自动重复滑动", true))
+                        }
+                    }
+                    val sent = runCatching {
+                        service.dispatchGesture(gesture, callback, Handler(Looper.getMainLooper()))
+                    }.getOrDefault(false)
+                    if (!sent && cont.isActive) cont.resume(receipt(false,
+                        "virtual_gesture_dispatch_rejected",
+                        "Android未接收虚拟屏手势，未使用主屏幕或Shell输入兜底"))
+                }
+            } ?: receipt(false, "virtual_gesture_timeout",
+                "虚拟屏手势回执超时，可能已有局部滑动；先核对新画面，禁止盲目补发", true)
+        }
+
         /** Normalized 0..1000 coordinates for the currently visible display only. */
         fun tapNormalized(x: Int, y: Int): Boolean {
             val service = instance ?: return false
