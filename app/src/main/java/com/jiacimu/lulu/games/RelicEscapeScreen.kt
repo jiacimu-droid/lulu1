@@ -532,7 +532,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         },color=relicMuted,fontSize=10.sp,maxLines=2)
                     }
                 }
-                val attackTarget = relicAttackButtonTarget(run, selected)
+                val attackTarget = RelicCombatSkills.attackTarget(run, facing)
                 val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
                     RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
                     .sortedWith(compareByDescending<RelicMob> { it.windup }
@@ -552,7 +552,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 }
                 Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
-                if (attackTarget == null) Text(relicAttackHint(run, selected),
+                if (attackTarget == null) Text(
+                    if(run.equipped=="blade")"附近没有可攻击的敌人 · 短剑近战1格"
+                    else if(run.equipped=="bow" && run.bolts<=0)"弩箭已用尽，请寻找补给"
+                    else "朝"+relicDirection(facing.first,facing.second)+"没有目标 · 点转向再用方向盘瞄准",
                     color = relicMuted, fontSize = 10.sp, maxLines = 2)
                 }
             }
