@@ -156,6 +156,53 @@ class SelfTodoRoleReadTest {
         assertTrue(row.isNull("dueDate"))
     }
 
+    @Test fun existingChatContextSeesLatestSavedTitlesWithoutAnotherModelToolCall() {
+        val date = LocalDate.now()
+        val now = date.atTime(20, 23).atZone(ZoneId.systemDefault()).toInstant()
+        val task = TodoTask("today-live", "今天先复习刑法", "私密备注不可默认外露",
+            date, 20 * 60, TodoRepeat.ONCE, now.toEpochMilli())
+        assertTrue(SelfTodoStore.save(app, listOf(task)))
+        val initial = SelfTodoRoleRead.opportunity(app, now)
+        assertTrue(initial, initial.contains("今天先复习刑法"))
+        assertTrue(initial, initial.contains("读取日期${date}"))
+        assertFalse(initial.contains("私密备注不可默认外露"))
+        // The phone can edit 所行 between two ordinary chat decisions. The
+        // second decision must use the same durable store, not yesterday\'s prompt.
+        assertTrue(SelfTodoStore.save(app, listOf(task.copy(title = "今天先复习民法"))))
+        val refreshed = SelfTodoRoleRead.opportunity(app, now)
+        assertTrue(refreshed, refreshed.contains("今天先复习民法"))
+        assertFalse(refreshed, refreshed.contains("今天先复习刑法"))
+        val checked = SelfTodoCalendar.complete(task.copy(title = "今天先复习民法"),
+            date, now.toEpochMilli())
+        assertTrue(SelfTodoStore.save(app, listOf(checked)))
+        val afterChecking = SelfTodoRoleRead.opportunity(app, now)
+        assertTrue(afterChecking, afterChecking.contains("今天未完成0项"))
+        assertTrue(afterChecking, afterChecking.contains("今天勾选1次"))
+        assertTrue(afterChecking, afterChecking.contains("今天先复习民法"))
+    }
+
+    @Test fun briefContextIsBoundedAndFullTodoRemainsAvailableThroughExistingTool() {
+        val date = LocalDate.of(2026, 11, 15)
+        val now = date.atTime(20, 0).atZone(ZoneId.systemDefault()).toInstant()
+        fun item(id: Int, due: LocalDate): TodoTask =
+            TodoTask("todo-$id", "计划$id", "备注$id", due, null, TodoRepeat.ONCE, id.toLong())
+        val tasks = (1..7).map { item(it, date) } +
+            (8..10).map { item(it, date.minusDays(1)) } + item(11, date.plusDays(1))
+        val brief = SelfTodoRoleRead.briefContext(tasks, now)
+        for (id in 1..4) assertTrue(brief, brief.contains("计划$id"))
+        assertTrue(brief.contains("今天未完成7项"))
+        assertTrue(brief.contains("逾期3项"))
+        assertTrue(brief.contains("未来待办1项"))
+        assertTrue(brief.contains("另有4项"))
+        assertTrue(brief.contains("read_self_todo"))
+        assertFalse(brief.contains("备注"))
+        assertFalse(brief.contains("计划7"))
+        val full = SelfTodoRoleRead.snapshot(tasks, date, now,
+            JSONObject().put("scope", "all"))
+        assertEquals(11, full.getJSONArray("pending").length())
+        assertTrue(full.toString().contains("计划7"))
+        assertTrue(full.toString().contains("备注7"))
+    }
     @Test fun unreadableOwnerDataIsAnErrorNotAFalseEmptyPlan() {
         val prefs = app.getSharedPreferences("lulu_self_todo_v2",
             android.content.Context.MODE_PRIVATE)
