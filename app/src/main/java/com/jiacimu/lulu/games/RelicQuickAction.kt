@@ -90,9 +90,20 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         val ally = run.allies.firstOrNull { it.hp <= 0 && it.x == x && it.y == y }
         if (ally != null && hero.kits > 0) return RelicQuickAction("revive", "使用药剂救援队友",
             "消耗一瓶药剂救起附近倒地伙伴", id = ally.id)
-        // An unopened chest and ground loot can coexist on a tile. Opening
-        // the chest is the only way to reach its committed contents; leave the
-        // physical drop untouched until the chest has been opened.
+        // A reachable physical drop directly under the hero must remain
+        // collectable even when a still-closed chest shares this tile.
+        // For an explicitly inspected *adjacent* chest, opening remains the
+        // requested action; the contextual D-pad underfoot shortcut collects
+        // ground loot before choosing a neighboring chest.
+        if (x == hero.x && y == hero.y) {
+            val underfootDrop = run.drops.firstOrNull {
+                it.x == x && it.y == y &&
+                    hero.load + it.loot.weight <= RelicEscapeRules.heroCapacity(run)
+            }
+            if (underfootDrop != null) return RelicQuickAction(
+                "pickup", "拾取 ${underfootDrop.loot.name}",
+                "拾取进背包，不会立即增加永久仓库", id = underfootDrop.loot.id)
+        }
         val chest = run.chests.firstOrNull { it.x == x && it.y == y && !it.opened }
         if (chest != null) return RelicQuickAction("open",
             "撬开"+RelicQuality.at(chest.visibleGrade).label+"宝箱 "+
