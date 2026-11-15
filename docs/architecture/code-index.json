@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T01:35:33.158364+00:00",
-  "commit": "484a6f733254b2c7c803b36219b22b7b8669f541",
+  "generatedAt": "2026-11-15T01:37:16.808636+00:00",
+  "commit": "c2d24e683b9673fe166389e0d149aa5ea77e8609",
   "branch": "main",
-  "sourceFingerprint": "a80a3dbc1ffe428da3dd66088a2c7d65af9b5a020d9278e6f27f548f6d750a58",
+  "sourceFingerprint": "a6f5ebee784449e848f03f483d0b47ebc6dd15b1653d0238d9123c0a1aa5f161",
   "summary": {
     "files": 1323,
-    "lines": 280707,
-    "symbols": 3950
+    "lines": 280724,
+    "symbols": 3951
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16659,7 +16659,7 @@
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 440
+        "line": 442
       }
     ],
     "LuluDeviceToolBridge": [
@@ -17334,10 +17334,16 @@
         "line": 28
       }
     ],
+    "canRetryServiceConnectionReadOnly": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
+        "line": 35
+      }
+    ],
     "pausesAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
-        "line": 32
+        "line": 37
       }
     ],
     "LuluWirelessDebugging": [
@@ -22001,7 +22007,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 196,
-      "sha256": "f886bfa2b150c702ca7bc8037a6d2391418441637b892415ae5bc1cb6399e311",
+      "sha256": "93619eb89673e83eb7729268a9d5ab98bd001a8022fffbca91161e025d840b48",
       "symbols": []
     },
     {
@@ -38997,8 +39003,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1220,
-      "sha256": "9e041ac9c99b3675b8180cde3498ff9587aca27d1f2ba34ad47a0f35a622eb9b",
+      "lines": 1222,
+      "sha256": "918242e0d3461d7deecbb1c3763fd9d16e9d5b8ffd8d9d8402485461d1ebea34",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -39018,7 +39024,7 @@
         },
         {
           "name": "stopped",
-          "line": 440
+          "line": 442
         }
       ]
     },
@@ -39803,8 +39809,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
-      "lines": 35,
-      "sha256": "a77eb88147c4843260418bb8674d794dfe332a2d9728f8ba8c1f0790b9e74408",
+      "lines": 40,
+      "sha256": "5226655668eba68d7f75fcd8832217e9c0789944078ef13145e7186d0975a133",
       "symbols": [
         {
           "name": "Kind",
@@ -39819,8 +39825,12 @@
           "line": 28
         },
         {
+          "name": "canRetryServiceConnectionReadOnly",
+          "line": 35
+        },
+        {
           "name": "pausesAutomation",
-          "line": 32
+          "line": 37
         }
       ]
     },
@@ -46709,8 +46719,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt",
-      "lines": 56,
-      "sha256": "54fd674828c8dae7b46f46315d9b736dc262576f3c3082db10691623fb4f7ce5",
+      "lines": 66,
+      "sha256": "bf3fee8802645d4a87ab0cc21639aad4ad83a80572a65d4bc7eb7949f7643b40",
       "symbols": [
         {
           "name": "LuluVirtualWindowPolicyTest",

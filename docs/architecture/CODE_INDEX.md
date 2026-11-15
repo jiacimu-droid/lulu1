@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`484a6f733254b2c7c803b36219b22b7b8669f541`
+- 基准提交：`c2d24e683b9673fe166389e0d149aa5ea77e8609`
 - 分支：`main`
 - 已索引文件：1323
-- 已索引代码/文本行：280707
-- 已发现符号：3950
+- 已索引代码/文本行：280724
+- 已发现符号：3951
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -795,7 +795,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 479 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1220 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1222 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2339 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -828,7 +828,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 68 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 35 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 40 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
@@ -1319,7 +1319,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 51 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 56 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
