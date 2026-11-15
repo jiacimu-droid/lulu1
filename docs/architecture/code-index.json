@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:41:10.899901+00:00",
-  "commit": "c121804c3da1644fa2d81fb89cd9b4f855218536",
+  "generatedAt": "2026-11-15T06:42:24.493096+00:00",
+  "commit": "c11e1eef24f54de5bef11df861caa415fcbfd8a7",
   "branch": "main",
-  "sourceFingerprint": "c4b04c0c8ad41eddb74e56b470391e60bf044e6df1e38c88db16ecee2e634d65",
+  "sourceFingerprint": "d4ca54dd12f677a166800f7cba212996d8db3fe0f5080bb83a46dd2698b21044",
   "summary": {
     "files": 1328,
-    "lines": 282689,
+    "lines": 282723,
     "symbols": 3983
   },
   "symbolIndex": {
@@ -793,7 +793,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 493
+        "line": 505
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -14139,7 +14139,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 118
+        "line": 130
       }
     ],
     "actorCenter": [
@@ -14439,7 +14439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 117
+        "line": 129
       }
     ],
     "adjacent": [
@@ -14697,7 +14697,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 122
+        "line": 127
       }
     ],
     "canInteract": [
@@ -15469,7 +15469,7 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 115
+        "line": 120
       }
     ],
     "carve": [
@@ -37529,20 +37529,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 676,
-      "sha256": "c0bbf673b157a298465245c678e15f5286bc561ee562bd1fc026d99d429f35b1",
+      "lines": 688,
+      "sha256": "39e206aa005546ab2adb649e44ab9842a0982111fb2b3a73677cea839f6714bf",
       "symbols": [
         {
           "name": "cell",
-          "line": 117
+          "line": 129
         },
         {
           "name": "center",
-          "line": 118
+          "line": 130
         },
         {
           "name": "label",
-          "line": 493
+          "line": 505
         }
       ]
     },
@@ -37708,16 +37708,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1304,
-      "sha256": "76bc59c79eca54f9e92046b409763752d17f188dc007155f6d6bef4a0041fe0e",
+      "lines": 1323,
+      "sha256": "57db6c3a326d6887c21f5b141c5167a2aea609fe1baa2a6152ac0e58df647e1b",
       "symbols": [
         {
           "name": "change",
-          "line": 115
+          "line": 120
         },
         {
           "name": "action",
-          "line": 122
+          "line": 127
         }
       ]
     },
@@ -37749,8 +37749,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-      "lines": 30,
-      "sha256": "5a1d2e7940f5baba7d421b418c29a4f401ba0e6832f3436dff411474a1791fe3",
+      "lines": 33,
+      "sha256": "921a88a188031bfe0a72e9d60c9167ead71b047ff9982fc7d55e3843b4d0d265",
       "symbols": [
         {
           "name": "tileAt",
