@@ -666,13 +666,16 @@ class InMemoryLuluChatStore : LuluChatStore {
         val character = MigratedDomainStores.characters.get(cleanCharacterId)
         val conversation = ensureConversation(cleanCharacterId, character.displayName)
         val marker = incidentId?.takeIf { it.matches(Regex("[A-Za-z0-9-]+")) }?.let { "[世界事件|$it] " }.orEmpty()
+        val activityPrefix = if (content.trim().startsWith("[独自游戏]")) "[游戏记录]" else "[共同活动]"
         val notice = (marker + content.trim()).let { text ->
-            if (text.startsWith("[共同活动]")) text else "[共同活动] $text"
+            if (marker.isBlank() && (text.startsWith("[共同活动]") || text.startsWith("[游戏记录]")))
+                text
+            else "$activityPrefix $text"
         }
         if (marker.isNotBlank()) {
             synchronized(lock) {
                 val existing = messageStates[conversation.id]?.value?.lastOrNull {
-                    it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动] $marker")
+                    it.sender == LuluChatMessage.Sender.System && it.content.startsWith("$activityPrefix $marker")
                 }
                 if (existing != null) {
                     // An incident update is not delivered until the chat snapshot accepts it.
