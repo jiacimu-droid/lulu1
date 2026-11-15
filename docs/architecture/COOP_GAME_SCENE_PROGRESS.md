@@ -371,3 +371,9 @@
 
 - 根因：`RelicEscapeScreen.kt` 主攻击按钮与战斗提示一直读取 `RelicCombatSkills.attackTarget(run,facing)`，忽略地图光标；即使 `RelicQuickAction.kt` 已对显式点选的敌人、空地和死亡目标禁止重定向，主按钮仍可能攻击朝向上的另一只敌人。正式屏幕现改用既有 `relicAttackTarget(run,selected)`，攻击键、提示统一使用既有 `relicAttackHint`，不改变敌人血量/掉落、武器射程或 AI 角色意愿。生产 commit `11aae0604538e5cf2560476953eacae4e183c2b3`，`RelicEscapeScreen.kt` blob `b2949f99c2720d5deffa71c7e6c1e65b5f77524e`。
 - 已有 `RelicQuickActionTest` 覆盖显式点敌、空地、已击败目标、主角格快捷攻击及移动后光标跟随，不重复添加同类测试。此前 `2b26a197` 的 main push APK/JVM #43701707170 和索引 #43701707195 已 completed/success，但不代表本次改动通过；本次 `11aae060` 对应 APK/JVM #43710916717 与索引 #43710917374 查询时 queued。下一入口：该 SHA 的 `testPhoneUnitTest`/`assemblePhone` 首错，以及 `RelicEscapeScreen.kt` 360/412dp 横屏点敌→攻击、点空地→不误伤、移动后攻击、低端机帧率实测；真实模型与美术审图另验。
+
+
+## 2026-11-15 G-03.5 · 战术目标不可达时禁用移动键（CI/真机待验）
+
+- 正式 `RelicEscapeScreen.kt` 战术页此前仅以 `visible` 启用「向目标一步」「潜行一步」，但已探明目标可能被墙、守卫或其他障碍阻断；`RelicEscapeRules.path` 返回 null 时按钮点击无任何动作/回执。生产提交 `992f411890ec07c42df684e2a2cfb35ba89e617b` 改为用同一权威 `path` 结果同时控制按钮可用状态与实际下一步，禁止已知不可达目标的空点击，不揭雾、不移动、不扣资源、不替角色决定。源码 blob `7aa52f001ad680265026914a96732b0170bddb69`。已有 `RelicObjectiveRouteTest` 对敌人/迷雾阻路和路径恢复覆盖规则，本轮不重复造同类路径测试；Compose 矮横屏触控仍待设备验证。
+- 本轮 main push 的 commit statuses 为空，PR-only workflow 查询无记录，均不代表 APK/JVM/index 通过；下一入口按 `992f411` 对应 main push 的 Actions JVM/APK/index 终态核实，再看 `RelicEscapeScreen.kt` 战术页目标可达/不可达状态及 360dp 横屏实际点按；真机帧率、原创美术审图和真实角色协作独立待验。
