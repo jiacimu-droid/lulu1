@@ -19,6 +19,18 @@ class LuluVirtualAccessibilityInputTest {
         assertEquals("accessibility_tap_virtual_display", receipt.optString("actionMethod"))
     }
 
+    @Test fun wechatComposerRecoveryNeverGuessesKeyboardWithoutOwnedAccessibility() {
+        val receipt = LuluAccessibilityService.switchVirtualChatToText(
+            displayId = 71, packageName = "com.tencent.mm",
+            recipient = "文件传输助手", expectedFingerprint = "observed-real-tree")
+        assertFalse(receipt.optBoolean("accepted"))
+        assertFalse(receipt.optBoolean("inputModeSwitchClicked"))
+        assertFalse(receipt.optBoolean("inputModeTextVerified"))
+        assertEquals("accessibility_disconnected", receipt.optString("errorCode"))
+        assertFalse(LuluAccessibilityService.virtualChatTextInputVisible(
+            71, "com.tencent.mm", "文件传输助手"))
+    }
+
     @Test fun searchSubmitWithoutAccessibilityDoesNotInjectShellKeyevent() {
         val receipt = LuluAccessibilityService.submitVirtualSearch(71, "com.tencent.mm")
         assertFalse(receipt.optBoolean("accepted"))
