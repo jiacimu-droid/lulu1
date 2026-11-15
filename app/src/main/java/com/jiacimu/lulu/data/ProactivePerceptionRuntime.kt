@@ -898,15 +898,8 @@ object ProactivePerceptionRuntime {
         // Past matches belong to this character only. Supply actual history for their
         // own choice of pastime; never force rotation or invent a preference.
         com.jiacimu.lulu.games.LuluGames.initialize(appContext)
-        val recentSoloGames = com.jiacimu.lulu.games.LuluGames.store.state.value.records
-            .asSequence()
-            .filter { it.characterId == characterId && (it.characterSolo ||
-                // Records from releases predating the characterSolo flag are only
-                // independent games when their persisted receipt says so.
-                (!it.playedWithCharacter && it.summary.startsWith("独自完成一局"))) }
-            .take(4)
-            .map { it.title to it.score }
-            .toList()
+        val recentSoloGames = AutonomousAffordanceContext.recentSoloGames(
+            com.jiacimu.lulu.games.LuluGames.store.state.value.records, characterId)
         val affordances = AutonomousAffordanceContext.render(
             digital = digital,
             location = currentLocation,
