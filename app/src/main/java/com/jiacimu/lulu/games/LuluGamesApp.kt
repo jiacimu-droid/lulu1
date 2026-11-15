@@ -250,6 +250,8 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                     if (target == GameRoute.BlockIsland || target == GameRoute.RelicEscape ||
                         (target == GameRoute.YachtDice && store.yachtMatch()?.completed == false)
                     ) route = target else pendingRoute = target
+                }, onResumeYacht = { matchId ->
+                    if (store.resumeSuspendedYachtMatch(matchId)) route = GameRoute.YachtDice
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.BlockIsland -> BlockIslandEntry(
@@ -373,6 +375,7 @@ private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowerca
 @Composable
 private fun GameHome(
     onOpen: (GameRoute) -> Unit,
+    onResumeYacht: (String) -> Unit,
 ) {
     val deepSea = GameLauncher(
         "deep_sea_journey",
@@ -395,6 +398,7 @@ private fun GameHome(
     )
     var showClassics by remember { mutableStateOf(true) }
     val unfinishedYacht = LuluGames.store.yachtMatch()?.takeUnless { it.completed }
+    val suspendedYacht = LuluGames.store.suspendedYachtMatches()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(Color(0xFF111620)),
@@ -429,6 +433,9 @@ private fun GameHome(
                 }
             }
         }
+        items(suspendedYacht, key = { "paused-yacht-" + it.id }) { paused ->
+            ItemYachtResumeCard(paused, onResumeYacht)
+        }
         item { DeepSeaFeaturedEntry(deepSea, onOpen) }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -455,6 +462,35 @@ private fun GameHome(
         }
         if (showClassics) {
             items(classics, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+        }
+    }
+}
+
+@Composable
+private fun ItemYachtResumeCard(
+    paused: YachtMatchSnapshot,
+    onResumeYacht: (String) -> Unit,
+) {
+    val round = paused.scores["user"].orEmpty().size
+    Surface(
+        onClick = { onResumeYacht(paused.id) },
+        modifier = Modifier.fillMaxWidth(),
+        color = Color(0xFF24303F),
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, Color(0xFF7789A4).copy(alpha = .45f)),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("保留的旧局 · 快艇骰子", color = Color.White, fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold)
+                Text("你已完成 $round/13 轮 · ${paused.companionIds.size} 位同行角色",
+                    color = Color(0xFFC5CBD8), fontSize = 11.sp)
+            }
+            Text("恢复旧局 ›", color = Color(0xFFB8E6DB), fontSize = 12.sp,
+                fontWeight = FontWeight.Bold)
         }
     }
 }
