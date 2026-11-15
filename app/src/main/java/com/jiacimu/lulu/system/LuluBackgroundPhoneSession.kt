@@ -834,17 +834,27 @@ internal object LuluBackgroundPhoneSession {
                     }
                 }
                 "back" -> {
-                    // Android's global BACK is not display-targeted. On
-                    // gesture-navigation devices, attempt edge-back ONLY on
-                    // the owned virtual screen and verify the next observation.
+                    // An in-app back arrow is NOT the same as Android BACK:
+                    // mini-app/WebView order pages often ignore edge gestures.
+                    // First resolve one real app-toolbar button on the owned
+                    // virtual display. If no such control is accessible, use
+                    // ONE display-bound edge-back gesture. Never try both when
+                    // a node click was attempted but its result is uncertain.
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) {
                         "无法建立虚拟屏返回前的图像时间戳屏障"
                     }
-                    withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.swipeVirtualDisplay(
-                            id, activeApp, 8, 500, 320, 500, 290,
-                        ).put("actionMethod", "accessibility_back_edge_virtual_display")
+                    val toolbar = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.tapVirtualAppBackControl(
+                            id, activeApp, beforeUiFingerprint)
+                    }
+                    if (toolbar.optBoolean("attempted")) toolbar else {
+                        withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.swipeVirtualDisplay(
+                                id, activeApp, 8, 500, 320, 500, 290,
+                            ).put("actionMethod", "accessibility_back_edge_virtual_display")
+                                .put("appToolbarBack", "no_verified_toolbar_control")
+                        }
                     }
                 }
                 "submit" -> {
@@ -1066,6 +1076,12 @@ internal object LuluBackgroundPhoneSession {
             val uiSettled = if (applied?.optBoolean("accepted") == true &&
                 action in setOf("tap", "tap_element", "swipe", "submit", "search", "back"))
                 awaitStableUi(id, activeApp, beforeUiFingerprint) else false
+            val backOutcome = if (action == "back" && applied?.optBoolean("accepted") == true)
+                when {
+                    uiSettled -> "page_change_observed"
+                    beforeUiFingerprint.isBlank() -> "no_prior_ui_evidence"
+                    else -> "no_change_verified"
+                } else if (action == "back") "not_accepted" else ""
             failureStage = "read_virtual_frame"
             val frame = command(JSONObject().put("action", "observe"))
             if (!frame.optBoolean("success")) {
@@ -1115,7 +1131,9 @@ internal object LuluBackgroundPhoneSession {
                     .put("screenCaptureStatus", if (frame.optBoolean("frameBlack", false))
                         "all_black_unreadable" else "no_fresh_frame")
                     .put("uiSettled", uiSettled)
+                    .put("backOutcome", backOutcome)
                     .put("actionMethod", applied?.optString("actionMethod").orEmpty())
+                    .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
                     .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
                         if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
                         else "；目标App窗口未核实，禁止盲点")
@@ -1262,7 +1280,9 @@ internal object LuluBackgroundPhoneSession {
                 .put("targetWindowVerified", true)
                 .put("searchEditorStatus", searchStatus)
                 .put("uiSettled", uiSettled)
+                .put("backOutcome", backOutcome)
                 .put("actionMethod", applied?.optString("actionMethod").orEmpty())
+                .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
