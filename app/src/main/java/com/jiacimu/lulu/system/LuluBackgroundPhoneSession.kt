@@ -465,11 +465,14 @@ internal object LuluBackgroundPhoneSession {
         } else null
         if (beforeSubmit == null) return SearchDispatch(stopped("input_unverified",
             "未能从当前搜索框准确读回所输文字，未提交。").put("inputVerification", typed.wire))
-        val submitted = command(JSONObject().put("action", "submit"))
+        val submitted = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.submitVirtualSearch(id, packageName)
+        }
         val accepted = submitted.optBoolean("accepted")
         val receipt = submitted.put("searchStage", if (accepted) "submitted" else "submit_rejected")
             .put("searchInputVerifiedBeforeSubmit", true)
             .put("searchSubmitted", accepted)
+            .also { if (!accepted) it.put("status", "unverified") }
             .put("verification", if (accepted)
                 "已读回关键词并提交搜索；请核对页面里的实际搜索结果。"
             else "已读回关键词，但设备未接受搜索提交。")
@@ -774,7 +777,16 @@ internal object LuluBackgroundPhoneSession {
                 "tap" -> {
                     val elementRef = semanticTap.optString("elementRef")
                     if (elementRef.isBlank()) {
-                        command(request).put("actionMethod", "verified_coordinate")
+                        // Avoid shell input -d: INJECT_EVENTS is denied on
+                        // some Android builds even with virtual-screen consent.
+                        val prepared = command(JSONObject().put("action", "prepare_type"))
+                        check(prepared.optBoolean("accepted")) {
+                            "无法建立虚拟屏点击前的图像时间戳屏障"
+                        }
+                        withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.tapVirtualDisplay(
+                                id, activeApp, args.getInt("x"), args.getInt("y"))
+                        }
                     } else {
                         val prepared = command(JSONObject().put("action", "prepare_type"))
                         check(prepared.optBoolean("accepted")) {
@@ -819,6 +831,29 @@ internal object LuluBackgroundPhoneSession {
                             args.getInt("endX"), args.getInt("endY"),
                             args.optInt("durationMs", 400),
                         )
+                    }
+                }
+                "back" -> {
+                    // Android's global BACK is not display-targeted. On
+                    // gesture-navigation devices, attempt edge-back ONLY on
+                    // the owned virtual screen and verify the next observation.
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) {
+                        "无法建立虚拟屏返回前的图像时间戳屏障"
+                    }
+                    withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.swipeVirtualDisplay(
+                            id, activeApp, 8, 500, 320, 500, 290,
+                        ).put("actionMethod", "accessibility_back_edge_virtual_display")
+                    }
+                }
+                "submit" -> {
+                    val prepared = command(JSONObject().put("action", "prepare_type"))
+                    check(prepared.optBoolean("accepted")) {
+                        "无法建立虚拟屏搜索提交前的图像时间戳屏障"
+                    }
+                    withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.submitVirtualSearch(id, activeApp)
                     }
                 }
                 "focus_search" -> {
