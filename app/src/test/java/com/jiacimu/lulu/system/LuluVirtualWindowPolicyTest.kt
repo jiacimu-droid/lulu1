@@ -42,6 +42,16 @@ class LuluVirtualWindowPolicyTest {
         assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("system_dialog", "no_window"))
         assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("other_app", "no_window"))
         assertFalse(LuluVirtualWindowPolicy.canRetryReadOnly("target", "no_window"))
+        // An Android-managed service can bind late. Reobserve briefly without
+        // re-launching the app or replaying any tap, but never cross app/dialog gates.
+        assertTrue(LuluVirtualWindowPolicy.canRetryServiceConnectionReadOnly(
+            "unknown", "accessibility_disconnected"))
+        assertFalse(LuluVirtualWindowPolicy.canRetryServiceConnectionReadOnly(
+            "unknown", "unsupported_sdk"))
+        assertFalse(LuluVirtualWindowPolicy.canRetryServiceConnectionReadOnly(
+            "system_dialog", "accessibility_disconnected"))
+        assertFalse(LuluVirtualWindowPolicy.canRetryServiceConnectionReadOnly(
+            "other_app", "accessibility_disconnected"))
     }
 
     @Test fun mikaClassifierOnlyMarksProvenTaskRelation() {
