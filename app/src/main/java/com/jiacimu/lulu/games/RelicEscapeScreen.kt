@@ -630,7 +630,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             val quick = run?.let { relicQuickAction(it,selected) }
             Button(onClick = {
                 if (run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
-                    change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits.coerceAtMost(snapshot.kits)) }
+                    change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),
+                        kits.coerceAtMost(snapshot.kits),difficulty,startingWeapon,chosenContract,profession) }
                 } else quick?.let { action(it.action,it.x,it.y,it.id) }
             },enabled = run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT) || quick != null,
                 modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor=relicGold,contentColor=relicInk)) {
@@ -712,7 +713,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 Text("探险背包："+(8+snapshot.satchelLevel*2)+"格 · 升级后每局都能多带出战利品",
                     color=relicGreen,fontSize=12.sp)
                 Button(onClick={
-                    change{ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits.coerceAtMost(snapshot.kits))}
+                    change{ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),
+                        kits.coerceAtMost(snapshot.kits),difficulty,startingWeapon,chosenContract,profession)}
                 },modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=relicGold,
                     contentColor=relicInk)) {Text("进入遗迹 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层")}
             }
@@ -1237,7 +1239,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 val ended=ledger.perform("abandon")
                 ledger.syncExperiences(ended,store)
                 ledger.begin(previous.allies.map{it.id},kits.coerceAtMost(ended.kits),
-                    previous.difficulty,startingWeapon,previous.contract)
+                    previous.difficulty,previous.equipped,previous.contract,previous.profession)
             }
             if(restarted && snapshot.run?.id!=previous.id) lobbyOpen=false
             confirmRestart=false
