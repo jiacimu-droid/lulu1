@@ -117,6 +117,91 @@ class ChatHistoryPersistenceBaselineTest {
         }
     }
 
+    /** A failed startup reconciliation must not hide the surviving independent favorite. */
+    @Test fun favoriteArchiveRemainsVisibleWhenStartupChatRepairCommitIsRejected() {
+        val favoritePrefs = app.getSharedPreferences("lulu_user_message_favorites", Context.MODE_PRIVATE)
+        val oldChat = prefs.getString(key, null)
+        val oldFavorites = favoritePrefs.getString("entries_v1", null)
+        val messageId = "ui02-startup-reconcile-rejected"
+        val conversation = JSONObject().put("id", conversationId)
+            .put("characterId", "ui02-character").put("title", "收藏恢复")
+            .put("updatedAt", "2026-01-01T00:00:00Z")
+        val message = JSONObject().put("id", messageId).put("conversationId", conversationId)
+            .put("sender", "User").put("content", "需要保留的原文")
+            .put("createdAt", "2026-01-01T00:00:00Z").put("status", "Sent")
+            .put("favorite", false)
+        val chatSnapshot = JSONObject().put("conversations", JSONArray().put(conversation))
+            .put("messages", JSONObject().put(conversationId, JSONArray().put(message))).toString()
+        val favorite = JSONObject().put("messageId", messageId)
+            .put("conversationId", conversationId).put("characterId", "ui02-character")
+            .put("authorName", "我").put("conversationTitle", "收藏恢复")
+            .put("content", "需要保留的原文")
+            .put("messageAt", "2026-01-01T00:00:00Z")
+            .put("savedAt", "2026-01-01T00:00:01Z")
+        try {
+            assertTrue(prefs.edit().putString(key, chatSnapshot).commit())
+            assertTrue(favoritePrefs.edit().putString("entries_v1", JSONArray().put(favorite).toString()).commit())
+            // The singleton archive is initialized independently from the chat Store.
+            // Use its real load path rather than inventing a second in-memory authority.
+            val archiveField = UserMessageFavorites::class.java.getDeclaredField("instance")
+                .apply { isAccessible = true }
+            val oldInstance = archiveField.get(UserMessageFavorites)
+            try {
+                archiveField.set(UserMessageFavorites, UserMessageFavoriteStore(app))
+                val rejecting = object : android.content.ContextWrapper(app) {
+                    override fun getApplicationContext(): Context = this
+                    override fun getSharedPreferences(name: String, mode: Int): android.content.SharedPreferences {
+                        val original = app.getSharedPreferences(name, mode)
+                        if (name != "lulu_chat_store") return original
+                        return java.lang.reflect.Proxy.newProxyInstance(
+                            original.javaClass.classLoader,
+                            arrayOf(android.content.SharedPreferences::class.java),
+                        ) { _, method, args ->
+                            if (method.name != "edit") method.invoke(original, *(args ?: emptyArray()))
+                            else {
+                                val editor = original.edit()
+                                lateinit var proxy: android.content.SharedPreferences.Editor
+                                proxy = java.lang.reflect.Proxy.newProxyInstance(
+                                    editor.javaClass.classLoader,
+                                    arrayOf(android.content.SharedPreferences.Editor::class.java),
+                                ) { _, m, a ->
+                                    when (m.name) {
+                                        "commit" -> false
+                                        "apply" -> error("Startup reconciliation must not apply asynchronously")
+                                        else -> {
+                                            val result = m.invoke(editor, *(a ?: emptyArray()))
+                                            if (result === editor) proxy else result
+                                        }
+                                    }
+                                } as android.content.SharedPreferences.Editor
+                                proxy
+                            }
+                        } as android.content.SharedPreferences
+                    }
+                }
+                val store = InMemoryLuluChatStore()
+                store.initialize(rejecting)
+                assertTrue(store.messages(conversationId).value.single().favorite)
+                assertEquals(chatSnapshot, prefs.getString(key, null))
+                // Once storage is writable again, the same original snapshot
+                // reconciles durably on a fresh process/store initialization.
+                val reopened = InMemoryLuluChatStore()
+                reopened.initialize(app)
+                assertTrue(reopened.messages(conversationId).value.single().favorite)
+                assertTrue(prefs.getString(key, null)!!.contains("\\"favorite\\":true"))
+            } finally {
+                archiveField.set(UserMessageFavorites, oldInstance)
+            }
+        } finally {
+            val chatEditor = prefs.edit()
+            if (oldChat == null) chatEditor.remove(key) else chatEditor.putString(key, oldChat)
+            assertTrue(chatEditor.commit())
+            val favoriteEditor = favoritePrefs.edit()
+            if (oldFavorites == null) favoriteEditor.remove("entries_v1") else favoriteEditor.putString("entries_v1", oldFavorites)
+            assertTrue(favoriteEditor.commit())
+        }
+    }
+
     @Test fun thousandAndTenThousandMessagesWriteAndReopenWithoutLoss() {
         for (count in listOf(1_000, 10_000)) measure(count)
     }
