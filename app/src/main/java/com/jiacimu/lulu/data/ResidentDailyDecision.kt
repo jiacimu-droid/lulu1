@@ -667,6 +667,7 @@ internal object ResidentDailyDecision {
     private val residentAgendaActions = setOf(
         "send_character_message", "send_friend_request", "respond_friend_request",
         "send_group_message", "publish_moment", "digital_world_action", "play_solo_game",
+        "invite_duel_game", "respond_duel_invite",
     )
 
     /** Preserve model-selected targets and destinations in the SAME args checked at execution.
@@ -677,7 +678,7 @@ internal object ResidentDailyDecision {
     internal fun agendaArgs(action: String, row: JSONObject): JSONObject {
         val args = row.optJSONObject("activityArgs")?.let { JSONObject(it.toString()) } ?: JSONObject()
         args.remove("planId")
-        if (action in setOf("send_character_message", "send_friend_request")) {
+        if (action in setOf("send_character_message", "send_friend_request", "invite_duel_game")) {
             val target = row.optString("targetCharacterId").trim()
                 .ifBlank { args.optString("targetCharacterId").trim() }
             if (target.isNotBlank()) args.put("targetCharacterId", target)
@@ -832,7 +833,7 @@ internal object ResidentDailyDecision {
                 reject(index, row, "原决定的活动时刻已过去，未补发或擅自改期")
                 continue
             }
-            if (action in setOf("send_character_message", "send_friend_request") &&
+            if (action in setOf("send_character_message", "send_friend_request", "invite_duel_game") &&
                 (target !in known || target == actor)) {
                 reject(index, row, "当前没有对目标角色的真实联系权限")
                 continue
@@ -884,6 +885,18 @@ internal object ResidentDailyDecision {
             if (action == "digital_world_action" && worldAction == "visit_public_place" &&
                 location.isBlank()) {
                 reject(index, row, "目标公共地点不存在")
+                continue
+            }
+            if (action == "invite_duel_game" &&
+                (params.optString("gameId") !in com.jiacimu.lulu.games.AutonomousDuelRules.games ||
+                    params.optString("text").isBlank())) {
+                reject(index, row, "人物对战的游戏ID或邀请正文无效")
+                continue
+            }
+            if (action == "respond_duel_invite" &&
+                (params.optString("challengeId").isBlank() ||
+                    params.optString("decision") !in setOf("accept", "decline"))) {
+                reject(index, row, "人物对战回应参数无效")
                 continue
             }
             if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
@@ -1100,7 +1113,7 @@ internal object ResidentDailyDecision {
                 return "agenda[${index}].activityAction 不是允许的居民日程工具"
             val args = row.optJSONObject("activityArgs")
                 ?: return "agenda[${index}].activityArgs 必须是对象"
-            if (action in setOf("send_character_message", "send_friend_request") &&
+            if (action in setOf("send_character_message", "send_friend_request", "invite_duel_game") &&
                 row.optString("targetCharacterId").trim().isBlank() &&
                 args.optString("targetCharacterId").trim().isBlank())
                 return "agenda[${index}] 必须明确填写目标角色 ID"
@@ -1111,6 +1124,14 @@ internal object ResidentDailyDecision {
                 return "agenda[${index}] 群消息必须指定 groupId"
             if (action == "respond_friend_request" && args.optString("requestId").isBlank())
                 return "agenda[${index}] 回应好友申请必须指定 requestId"
+            if (action == "invite_duel_game" && (args.optString("gameId") !in
+                    com.jiacimu.lulu.games.AutonomousDuelRules.games ||
+                    args.optString("text").isBlank()))
+                return "agenda[${index}] 人物对战必须指定受支持的 gameId 和本人 text"
+            if (action == "respond_duel_invite" &&
+                (args.optString("challengeId").isBlank() ||
+                    args.optString("decision") !in setOf("accept", "decline")))
+                return "agenda[${index}] 回应人物对战必须指定 challengeId 和 accept/decline"
             if (action == "digital_world_action") {
                 val worldAction = args.optString("worldAction")
                 if (worldAction.isBlank())
@@ -1314,7 +1335,7 @@ internal object ResidentDailyDecision {
                 一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
                 最近真见过面但还未加好友的人，可考虑 send_friend_request；已有待处理申请就不要重复发，别人有权拒绝。也可用 digital_world_action 的 go_home/build_home_item 在家布置自己的家具，选择应来自本人此刻兴趣且必须满足世界实际位置与物品容量。
                 若额外选择面对面 interact_resident，args 必须同时给 worldAction=interact_resident、现场真实居民 itemId、本人选择的 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode；后三个新事件还需本人 text，continue_episode 还需真实 incidentId。缺少字段要先补正，不能拿空 activityId 去执行。
-                原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action","args":{}}]，每项必须有真实 tool 和 args 对象。
+                原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|invite_duel_game|respond_duel_invite|play_solo_game|digital_world_action","args":{}}]，每项必须有真实 tool 和 args 对象。
                 如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
                 每步可填写 requiresPreviousSuccess=true|false；true 仅在前一步有实际成功回执后才执行，false 为独立行动。首个附加步骤若选true，需原计划本轮已执行成功；改期、取消、等待不算原活动执行成功。每步可带原有 motiveId/concernId/experienceId，分别关联真实结果。
                 不能在附加步骤传 planId 或冒充执行原计划；对方未同意好友前不许称已添加成功。
@@ -1904,7 +1925,7 @@ internal object ResidentDailyDecision {
                 今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
                 agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text）；respond_duel_invite（需本人收到的challengeId和accept/decline）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text，发出不算对方已接受）；respond_duel_invite（需本人收到的challengeId和accept/decline，对方自主选择）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game（可独玩 memory_match、yacht_dice、block_island 长期生存、relic_escape 探索撤离；后两款可选focus和turns，不要因旧说明只玩骰子）；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
                 五分钟在线窗口结束只暂停清醒注意力，不会瞬移或修改世界地点。晚上通常可以回自己的家，但如果确实想先发朋友圈、再回家、最后休眠，可在同一次模型决定的 steps 中选 publish_moment、digital_world_action(worldAction=go_home)，按实际回执先后执行；不必为每步额外付费。没有选或没有完成回家动作时，夜间时钟保留本人实际所在的位置，不得说自己已经回家。若确实受到朋友邀请并通过真实拜访行动留宿，也可在已经到达的住宅暂歇；不得因为朋友关系凭空进入别人的家。
@@ -1914,7 +1935,7 @@ internal object ResidentDailyDecision {
                 点单只是自选的口味、休闲或社交活动。旧日程没有点单字段时不会自动购买。
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
                 仅输出 JSON，不能替别人发言：
-                {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|send_friend_request|respond_friend_request|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
+                {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|send_friend_request|respond_friend_request|invite_duel_game|respond_duel_invite|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
                  "lunch":"${leisureLocationOptions().joinToString("|")}",
                  "evening":"${leisureLocationOptions().joinToString("|")}",
                  "cafeOrderLunch":"none|${DigitalCafeMenu.offerings.joinToString("|") { it.id }}",
@@ -1925,7 +1946,7 @@ internal object ResidentDailyDecision {
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
                  "messageTo":"上文列出的确实认识的角色ID，否则为空",
                  "message":"给这位角色真正想说的私信，否则为空",
-                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
+                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|invite_duel_game|respond_duel_invite|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
                  "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。
@@ -2245,7 +2266,7 @@ internal object ResidentDailyDecision {
                     social(targetId,interpretation,reason,dimensions)。只填写自己真实产生的感受，
                     social.targetId 必须是本轮确实见证的来信者或好友申请对方的ID；
                     没有变化时不必填写。不能替对方写心理或宣告双方关系升级。
-                    只输出JSON：{"steps":[{"tool":"send_character_message|send_friend_request|respond_friend_request|publish_moment|like_moment|comment_moment|send_group_message|create_group_chat|digital_world_action|play_solo_game|reschedule_personal_activity|cancel_personal_activity","args":{},"requiresPreviousSuccess":false}]}
+                    只输出JSON：{"steps":[{"tool":"send_character_message|send_friend_request|respond_friend_request|publish_moment|like_moment|comment_moment|send_group_message|create_group_chat|invite_duel_game|respond_duel_invite|digital_world_action|play_solo_game|reschedule_personal_activity|cancel_personal_activity","args":{},"requiresPreviousSuccess":false}]}
                     可选同时附带 "innerLife":{"emotion":{"feeling":"本人感受","cause":"真实触发"},"social":{"targetId":"真实对方ID","interpretation":"自己的印象","reason":"亲眼见证的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same"}}}}。
                     没有要执行的动作时输出 {"steps":[]}；没有心理变化时省略 innerLife。工具参数按上方本人可用能力目录填写。
                     不得编造已见面、已发信、已发帖或对方已经回应。
