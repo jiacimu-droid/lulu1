@@ -59,6 +59,56 @@ class YachtMatchContinuityTest {
         assertEquals("", reopened.activeGameContext("not-in-party"))
     }
 
+    @Test fun newInviterKeepsOldMatchAndCanRestoreOriginalScoresAfterRestart() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        context.getSharedPreferences("lulu_games", 0).edit().clear().commit()
+        val store = LuluGameStore(context)
+        val first = store.enterInvitedYachtMatch("river")
+        val oldScore = first.copy(
+            scores = mapOf("user" to YachtCategory.entries.take(12).associateWith { 4 }),
+            currentPlayerIndex = 1,
+            dice = listOf(1, 1, 2, 3, 6),
+            held = setOf(0, 1),
+            rolls = 2,
+        )
+        store.saveYachtMatch(oldScore)
+
+        val second = store.enterInvitedYachtMatch("cloud")
+        assertNotEquals(first.id, second.id)
+        assertEquals(listOf("cloud"), second.companionIds)
+        assertTrue(second.scores.isEmpty())
+        assertEquals(oldScore, store.suspendedYachtMatches().single())
+
+        val sameInviteAgain = store.enterInvitedYachtMatch("cloud")
+        assertEquals(second.id, sameInviteAgain.id)
+        assertEquals(1, store.suspendedYachtMatches().size)
+
+        val reopened = LuluGameStore(context)
+        assertEquals(second.id, reopened.yachtMatch()!!.id)
+        assertTrue(reopened.resumeSuspendedYachtMatch(first.id))
+        assertEquals(oldScore, reopened.yachtMatch())
+        assertEquals(listOf("river"), reopened.state.value.selectedCharacterIds)
+        assertEquals(12, reopened.yachtMatch()!!.scores["user"]!!.size)
+        assertEquals(listOf("cloud"), reopened.suspendedYachtMatches().single().companionIds)
+
+        val thirdLoad = LuluGameStore(context)
+        assertEquals(oldScore, thirdLoad.openYachtMatch())
+        assertEquals(second.id, thirdLoad.suspendedYachtMatches().single().id)
+        assertFalse(thirdLoad.resumeSuspendedYachtMatch("nonexistent"))
+    }
+
+    @Test fun completedYachtDoesNotBecomeAFalseUnfinishedSavedRoom() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        context.getSharedPreferences("lulu_games", 0).edit().clear().commit()
+        val store = LuluGameStore(context)
+        val original = store.enterInvitedYachtMatch("river")
+        store.saveYachtMatch(original.copy(completed = true))
+        val fresh = store.enterInvitedYachtMatch("cloud")
+        assertNotEquals(original.id, fresh.id)
+        assertEquals(listOf("cloud"), fresh.companionIds)
+        assertTrue(store.suspendedYachtMatches().isEmpty())
+    }
+
     @Test fun scoresRenderFromCompetitiveSheetAndHistoricalSoloTurnResults() {
         val scores = JSONObject().put("user", JSONObject().put("name", "你").put("total", 42)
             .put("categories", JSONObject().put("Ones", 3).put("Yacht", 0)))
