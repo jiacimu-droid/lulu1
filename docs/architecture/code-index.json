@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:12:24.694414+00:00",
-  "commit": "443d39267853bd2bda5fd44fabb2d1dbb1c47ccc",
+  "generatedAt": "2026-11-15T16:12:53.145938+00:00",
+  "commit": "dd307a8f0ad7e4712c33722dd00c48245d72fd81",
   "branch": "main",
-  "sourceFingerprint": "375ad2aa9aec2066ed1b1dc386c6522b4675bf8d565374aea1c64712dee570a5",
+  "sourceFingerprint": "51742f3a1600d22eef4834137ef12b893ee8d026e4b30c7b90d3255385a6162f",
   "summary": {
     "files": 1338,
-    "lines": 285210,
+    "lines": 285228,
     "symbols": 4024
   },
   "symbolIndex": {
@@ -37821,8 +37821,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 237,
-      "sha256": "b22e8e18fb864f5ae14383025f64ffe5e78eb9ca8ea71191bb9e5e1e2f1bf26e",
+      "lines": 255,
+      "sha256": "1bd1f2832d7df0489a9c9e3b1392faa71f1016d3f7b88b0d9e0365fa358a2497",
       "symbols": [
         {
           "name": "send",
