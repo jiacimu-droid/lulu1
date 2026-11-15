@@ -1,5 +1,13 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-03.5 · 无效捏合触点不得误选地图角落（源码/回归已提交，CI/真机待验）
+
+- **根因**：`RelicMapCamera.tileAt` 直接把浮点坐标 `floor(...).toInt()` 转格子；Android 手势取消、初始零尺寸或无效投影出现 NaN 时，Kotlin 浮点转整数可能变成 0，导致玩家没点角落却误选 (0,0) 实体。
+- **生产**：`c2efa84a1cc29e121e52bf90684fffdf79cd7b89` 在统一渲染/触控相机入口拒绝非有限触点、非有限偏移和无效 tileSize；正常合法地图触点仍用原投影。源码 blob `3fbbeff3bb1b78de852948881a4b91c9cc3c6843`。
+- **回归**：`92b944eab31ebed1609a089f862e076cbd5f9b9e` 在 `RelicMapCameraTest.invalidGestureCoordinatesNeverSelectARealMapTile` 覆盖 NaN、正负无穷、零 tile、NaN 相机偏移与正常中心触点。测试 blob `de5327039024a8825875bbac1b056401295233d1`。没有新奖励、角色代决策或模型调用。
+- **验收**：待核此测试提交对应 main push 的 JVM/APK/index terminal 结果；Redmi 横屏捏合取消/拖动、地图实体选中、触控手感、FPS 与美术仍待真机。下一文件 `RelicMapCamera.kt` / `RelicMapCameraTest.kt`，接 `RelicEscapeArt.kt` 的手势入口验证。
+
+
 ### 2026-11-16 · G-02.6 · 双游戏连麦旧会话迟到转写隔离（源码已提交，CI/真机待验）
 
 - **根因与可见后果**：两款游戏复用 `IslandGameOpenMic`，关闭麦克风后若云端 STT 回调延迟到下一次开麦，旧回调只检查 `active`，会把上一段录音误当成当前发言，进入角色队伍消息和原始时间线；旧 partial 也可能污染新面板。
