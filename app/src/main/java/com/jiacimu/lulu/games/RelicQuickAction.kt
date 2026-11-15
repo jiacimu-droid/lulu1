@@ -32,18 +32,22 @@ internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMo
 }
 
 /**
- * The combat button is an explicit request to attack, not the map-inspection cursor.
- * Keep an explicitly chosen living enemy authoritative (even when out of range);
- * otherwise a stale empty/defeated terrain selection must not disable melee combat
- * against a real nearby enemy. No action is executed until the player presses attack.
+ * An attack press is playable without targeting: a reachable explicit choice
+ * wins; otherwise pick a currently hittable foe, prioritizing imminent windups,
+ * then opponents that can be finished. Looking at a distant enemy does not
+ * disable a short sword while a guard is physically next to the player.
+ * No turn advances unless the player actually presses the key.
  */
 internal fun relicAttackButtonTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMob? {
     if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
-    val selectedEnemy = run.mobs.any {
-        it.hp > 0 && it.x == selected.first && it.y == selected.second
-    }
-    return relicAttackTarget(run,
-        if (selectedEnemy) selected else run.hero.x to run.hero.y)
+    val chosen=run.mobs.firstOrNull { it.hp>0 && it.x==selected.first && it.y==selected.second }
+    if(chosen!=null && RelicArsenal.canHit(run,chosen.x,chosen.y)) return chosen
+    return run.mobs.filter { it.hp>0 && RelicArsenal.canHit(run,it.x,it.y) }
+        .sortedWith(compareByDescending<RelicMob> { it.windup }
+            .thenBy { it.hp>RelicArsenal.damage(run,it) }
+            .thenBy { RelicEscapeRules.distance(run.hero.x,run.hero.y,it.x,it.y) }
+            .thenBy { it.id })
+        .firstOrNull()
 }
 
 /** Keep the implicit attack cursor attached to the player after a real move.
