@@ -76,6 +76,38 @@ class MemoryContinuityTest {
         assertEquals(1, reloaded.snapshot(roleB).size)
     }
 
+    @Test fun extractionAndDailyMaintenanceKeepEveryDistinctDetailAndEpisode() {
+        val at = Instant.parse("2026-11-15T03:00:00Z")
+        val original = memory("a", "今天和主人喝了无糖红茶").copy(
+            source = "timeline-events:tea-first", occurredAt = at,
+            subject = "主人", slot = "饮品",
+            sceneKey = "喝茶|家里|两人|清晨",
+            measureKind = "cups", measureValue = 1.0, measureUnit = "杯",
+        )
+        val sameFact = original.copy(id = "b", source = "timeline-events:tea-second")
+        assertTrue(memoriesEquivalentForMaintenance(original, sameFact))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            sameFact.copy(id = "day-two", occurredAt = at.plusSeconds(86_400))))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            sameFact.copy(id = "at-cafe", sceneKey = "喝茶|咖啡馆|两人|清晨")))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            sameFact.copy(id = "quantity", measureValue = 2.0)))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            sameFact.copy(id = "slot", slot = "早餐")))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            sameFact.copy(id = "more", content = "今天和主人喝了无糖红茶，她特别喜欢这个杯子")))
+        val prefix = "当时主人和角色共同经历的真实细节".repeat(19)
+        val longFact = original.copy(id = "long", content = prefix + "，最后两人决定留下")
+        val revised = longFact.copy(id = "revised", content = prefix + "，最后两人决定离开")
+        assertFalse("字数上限不能吃掉末尾的关键区别",
+            memoriesEquivalentForMaintenance(longFact, revised))
+        assertFalse(memoriesEquivalentForMaintenance(original,
+            original.copy(id = "hand-edited", source = "手动")))
+        val secondEpisode = original.copy(id = "episode", kind = MemoryKind.Timeline)
+        assertFalse(memoriesEquivalentForMaintenance(secondEpisode,
+            secondEpisode.copy(id = "another-episode", source = "timeline-events:tea-other")))
+    }
+
     @Test fun oppositePreferencesAreNeverMergedByTextSimilarity() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         val repository = LocalMemoryRepository().apply { initialize(context) }
