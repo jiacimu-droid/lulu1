@@ -68,6 +68,19 @@ class OnlineExpiryUnfinishedWorkTest {
         assertTrue(reminder.contains("购物页面未确认"))
     }
 
+    @Test fun nestedExecutionFailureStatusIsReportedInsteadOfAcceptedEnvelope() {
+        val accepted = receipt("background_phone", "succeeded", 20)
+        val root = JSONObject(accepted.content)
+        root.put("result", JSONObject()
+            .put("status", "unverified")
+            .put("verification", "窗口未确认").toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(
+            listOf(accepted.copy(content = root.toString())), now)
+        assertTrue(reminder.contains("状态=unverified"))
+        assertTrue(reminder.contains("窗口未确认"))
+        assertFalse(reminder.contains("状态=succeeded"))
+    }
+
     @Test fun unrelatedOrStaleEventsDoNotReviveOldFailures() {
         val badSource = receipt("background_phone", "failed", 50)
             .copy(source = "legacy")
