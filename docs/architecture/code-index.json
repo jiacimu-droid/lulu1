@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:54:15.572276+00:00",
-  "commit": "32ecbca1d0e9962e75a1a279f0ce72232bcc9ed2",
+  "generatedAt": "2026-11-15T07:02:26.583632+00:00",
+  "commit": "2508aaa79b1ceacb20bdcd50d5f050bd41458330",
   "branch": "main",
-  "sourceFingerprint": "7544c601243755ca5947150f1d5d5296a2e0490ce44c5db57aeb44734f76d095",
+  "sourceFingerprint": "419f5ec855b85f532c031c23366ab4b08819e56cb4b36e7ac750dc06f072c8cb",
   "summary": {
-    "files": 1329,
-    "lines": 282991,
-    "symbols": 3987
+    "files": 1330,
+    "lines": 283088,
+    "symbols": 3996
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15350,6 +15350,68 @@
         "line": 13
       }
     ],
+    "cardinal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 15
+      }
+    ],
+    "line": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
+        "line": 76
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 113
+      }
+    ],
+    "attackTarget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 40
+      }
+    ],
+    "weaponSkillName": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 50
+      }
+    ],
+    "weaponSkillTargets": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 60
+      }
+    ],
+    "canWeaponSkill": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 66
+      }
+    ],
+    "weaponSkillHint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 72
+      }
+    ],
+    "professionAvailable": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 79
+      }
+    ],
+    "professionHint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 89
+      }
+    ],
     "bagProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
@@ -15592,16 +15654,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
         "line": 42
-      }
-    ],
-    "line": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
-        "line": 76
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 113
       }
     ],
     "poly": [
@@ -37487,6 +37539,49 @@
         {
           "name": "completed",
           "line": 28
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+      "lines": 97,
+      "sha256": "de26adbb9bfe59112277f486f2bc01851ed6b40a6d8312e233b4a04cf5e5bae6",
+      "symbols": [
+        {
+          "name": "cardinal",
+          "line": 15
+        },
+        {
+          "name": "line",
+          "line": 25
+        },
+        {
+          "name": "attackTarget",
+          "line": 40
+        },
+        {
+          "name": "weaponSkillName",
+          "line": 50
+        },
+        {
+          "name": "weaponSkillTargets",
+          "line": 60
+        },
+        {
+          "name": "canWeaponSkill",
+          "line": 66
+        },
+        {
+          "name": "weaponSkillHint",
+          "line": 72
+        },
+        {
+          "name": "professionAvailable",
+          "line": 79
+        },
+        {
+          "name": "professionHint",
+          "line": 89
         }
       ]
     },
