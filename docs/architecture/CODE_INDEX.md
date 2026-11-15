@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a73433131e1ab98f1c87e3ec06fb70d046ade4a1`
+- 基准提交：`282420733ce4a7d52fdcdbe1d7f15a8b7a6cdbbd`
 - 分支：`main`
 - 已索引文件：1340
-- 已索引代码/文本行：285309
+- 已索引代码/文本行：285335
 - 已发现符号：4027
 
 | 文件 | 行数 | 符号数 |
@@ -869,12 +869,12 @@
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 265 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmEnvelopeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |

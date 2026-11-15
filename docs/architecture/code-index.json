@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:30:38.371813+00:00",
-  "commit": "a73433131e1ab98f1c87e3ec06fb70d046ade4a1",
+  "generatedAt": "2026-11-15T16:31:29.810618+00:00",
+  "commit": "282420733ce4a7d52fdcdbe1d7f15a8b7a6cdbbd",
   "branch": "main",
-  "sourceFingerprint": "248f8a7a0309c2d5258f6ee8ecaab96d5171277cfc5a0656445b7ec89db9f22f",
+  "sourceFingerprint": "e7bdbe92f66106745f9d821f887e3407f662948ac1280d4546e74aa58bc53785",
   "summary": {
     "files": 1340,
-    "lines": 285309,
+    "lines": 285335,
     "symbols": 4027
   },
   "symbolIndex": {
@@ -41205,8 +41205,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 265,
-      "sha256": "1035bbfbe3b367a67faa6d94949a8dd2240bde8d84a3b5422ededdd7490deaf6",
+      "lines": 279,
+      "sha256": "004b25edd2fd7ace72a458a73140222157ed24c7633605d3e70f120e93052e35",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -41260,8 +41260,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt",
-      "lines": 62,
-      "sha256": "4803f8a14b5a8d6a434179797e1250dc3e302d677a230409598f4319d33f5cd5",
+      "lines": 74,
+      "sha256": "81662f8b9b9567f3d3f15498f7472cad40f979d1b35ec58e743be6711d99f702",
       "symbols": [
         {
           "name": "CallSilencePolicyTest",
