@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:10:02.871663+00:00",
-  "commit": "893cf2ecea1e971fa447c3e56b7c96d58d4914b7",
+  "generatedAt": "2026-11-15T16:10:49.611889+00:00",
+  "commit": "13b4f2c84c0ea84987e15963e74accef81b53be1",
   "branch": "main",
-  "sourceFingerprint": "e08e31f77f01fe32a1b00113de4045cd8ae98a995ef82f960d93a58e68fef189",
+  "sourceFingerprint": "d63d3bb121fda8e350f116e437835a0921dd8429a863b6c153927f399588d102",
   "summary": {
     "files": 1338,
-    "lines": 285181,
+    "lines": 285185,
     "symbols": 4024
   },
   "symbolIndex": {
@@ -18699,7 +18699,7 @@
     "receive": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-        "line": 312
+        "line": 314
       }
     ],
     "SelfThoughtNotebookTest": [
@@ -36828,8 +36828,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 348,
-      "sha256": "aad78f4b52e445d75f0eb9bf1a2744f4750aac331c6a51595b7c4fb86ecca6e0",
+      "lines": 349,
+      "sha256": "8a3db47a6aa3c3705efdcd3a7032e1df872c5ab7b89f7a58c8a436a3b986b286",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -37591,8 +37591,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 309,
-      "sha256": "b81d7d9eacbbf19ce81f25af15321bf740fb45e47ad9c0b92994e59b5605f260",
+      "lines": 310,
+      "sha256": "a89c10cae1b8987be32418e8a1098120b8cbb452d82141b3cab9305783ce10d8",
       "symbols": [
         {
           "name": "acted",
@@ -42067,8 +42067,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-      "lines": 330,
-      "sha256": "972bae8394dfdf8e260632e568972fc8d8e8e7589e595045d27fbf8bb355e5c8",
+      "lines": 332,
+      "sha256": "3eab2b509f4961f91535bb24abe844be6683f372e5554ae1bf2e38a0db874a7e",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",
@@ -42076,7 +42076,7 @@
         },
         {
           "name": "receive",
-          "line": 312
+          "line": 314
         }
       ]
     },
