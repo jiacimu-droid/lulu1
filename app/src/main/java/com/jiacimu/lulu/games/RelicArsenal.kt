@@ -14,7 +14,7 @@ internal object RelicArsenal {
     fun description(id: String): String = when(id) {
         "spear" -> "直线2格 · 稳定输出"
         "bow" -> "直线4格 · 每箭耗1弹"
-        else -> "近战1格 · 可打断蓄力"
+        else -> "近战1格 · 可打断蓄力 · 贴身包围时可回旋斩"
     }
     fun chestUnlock(chest: RelicChest): String? = when {
         chest.id==0 -> "spear"
@@ -43,6 +43,26 @@ internal object RelicArsenal {
         }
         return true
     }
+    /** A short blade's defensive crowd skill: only physically adjacent, revealed
+     * living targets. This is not an automatic attack and never extends its range.
+     */
+    fun sweepTargets(s: RelicRun): List<RelicMob> {
+        if(s.equipped!="blade") return emptyList()
+        return s.mobs.filter {
+            it.hp>0 && canHit(s,it.x,it.y)
+        }.sortedBy { it.id }
+    }
+
+    fun canSweep(s: RelicRun): Boolean =
+        s.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) &&
+            s.turns>=s.sweepReadyTurn && sweepTargets(s).size>=2
+
+    /** Lower per-target damage than ordinary short-blade attacks. */
+    fun sweepDamage(s: RelicRun, target: RelicMob): Int {
+        val base=if(s.weapon>=2)2 else 1
+        return (base-if(target.kind==1 || target.kind==3)1 else base).coerceAtLeast(1)
+    }
+
     fun damage(s: RelicRun, target: RelicMob): Int {
         val base=when(s.equipped) {
             "spear"->if(s.weapon>=2)4 else 3
