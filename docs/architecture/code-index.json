@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T13:12:45.312817+00:00",
-  "commit": "7bdb00f21d3aba8b95e2ffb08eb619e57e173d5c",
+  "generatedAt": "2026-11-15T13:13:15.986472+00:00",
+  "commit": "bb8d4075cb2899ab534c59b7908f3fe9787d38a5",
   "branch": "main",
-  "sourceFingerprint": "9af2a60d1b2da5f7e14a8c44e1066bdcea7f12a45fcbe4cec783020c316a8dc1",
+  "sourceFingerprint": "5a76fafeeb7094efccbf03849063dbecab56dadbba01850bf6fed3fcafde7049",
   "summary": {
     "files": 1333,
-    "lines": 284020,
-    "symbols": 4004
+    "lines": 284067,
+    "symbols": 4005
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18712,6 +18712,20 @@
         "line": 45
       }
     ],
+    "item": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
+        "line": 187
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
+        "line": 496
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 1019
+      }
+    ],
     "SelfWishFoldersTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt",
@@ -19688,16 +19702,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
         "line": 22
-      }
-    ],
-    "item": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-        "line": 496
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1019
       }
     ],
     "CharacterRelationalInitiativeTest": [
@@ -41964,8 +41968,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 175,
-      "sha256": "4d49580e3c52629afad793956eddb1a4ea26257baa9a5c882f99cdf4945df7d3",
+      "lines": 222,
+      "sha256": "d3507fadf740b88a0764cfc912554620c65b4779de4c4b8dabbd71b7b418bf67",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
@@ -41974,6 +41978,10 @@
         {
           "name": "task",
           "line": 45
+        },
+        {
+          "name": "item",
+          "line": 187
         }
       ]
     },
