@@ -291,7 +291,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     readRun={snapshot.run ?: run},
                     onTeamPulse = { expectedId ->
                         val current = ledger.read().run
-                        if (current?.id != expectedId || !GameCoopPacing.relicHasPlan(current))
+                        if (current == null || current.id != expectedId ||
+                            !GameCoopPacing.relicHasPlan(current))
                             false
                         else {
                             val next = runCatching {
@@ -301,8 +302,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                                 error = it.message ?: "队伍行动无法保存"
                                 null
                             }
-                            if (next != null && next.run?.id == expectedId &&
-                                next.run!!.turns > current.turns) {
+                            val after = next?.run
+                            if (next != null && after != null && after.id == expectedId &&
+                                after.turns > current.turns) {
                                 snapshot = next
                                 true
                             } else false
