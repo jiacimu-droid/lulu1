@@ -47,4 +47,17 @@ class RelicMapCameraTest {
         assertNull(camera.tileAt(camera.offsetX - 1f, camera.offsetY, 18, 15))
     }
 
+    @Test fun invalidGestureCoordinatesNeverSelectARealMapTile() {
+        val camera = relicMapCamera(800f, 360f, 18, 15, true, 4 to 5)
+        for (bad in listOf(Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)) {
+            assertNull(camera.tileAt(bad, 180f, 18, 15))
+            assertNull(camera.tileAt(400f, bad, 18, 15))
+        }
+        assertNull(RelicMapCamera(0f, 0f, 0f).tileAt(0f, 0f, 18, 15))
+        assertNull(RelicMapCamera(Float.NaN, 0f, 0f).tileAt(0f, 0f, 18, 15))
+        assertNull(RelicMapCamera(20f, Float.NaN, 0f).tileAt(0f, 0f, 18, 15))
+        assertEquals(4 to 5, camera.tileAt(400f, 180f, 18, 15))
+    }
+
+
 }
