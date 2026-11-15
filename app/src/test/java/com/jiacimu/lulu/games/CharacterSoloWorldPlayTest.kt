@@ -74,4 +74,37 @@ class CharacterSoloWorldPlayTest {
         assertNull(executor.readIsland(id))
         assertNull(executor.readRelic(id).run)
     }
+    @Test fun relicVisualFramesComeOnlyFromRealCommittedTurnsAndReplayIsReadOnly() {
+        val actor = "solo-relic-visual-proof"
+        val executor = CharacterSoloWorldPlay(context)
+        val segment = executor.play(actor, "relic_escape", "safe", 128, now.plusSeconds(700))
+        val details = JSONObject(segment.details)
+        val physical = requireNotNull(executor.readRelic(actor).run)
+        val frames = requireNotNull(RelicSoloReplay.read(segment.details))
+        assertEquals(details.getJSONArray("replayFrames").length() + 1, frames.size)
+        assertTrue(frames.size >= 2)
+        assertEquals(details.getString("runId"), frames.first().id)
+        assertEquals(physical.id, frames.last().id)
+        assertEquals(physical.turns, frames.last().turns)
+        assertEquals(physical.hero, frames.last().hero)
+        assertEquals(physical.chests, frames.last().chests)
+        assertEquals(physical.mobs, frames.last().mobs)
+        assertEquals(physical.seen, frames.last().seen)
+        assertTrue(frames.zipWithNext().all { (before, after) ->
+            after.turns >= before.turns &&
+                after.turns <= before.turns + 1 &&
+                (after.turns > before.turns || after.phase != before.phase)
+        })
+        val durable = executor.readRelic(actor).json().toString()
+        repeat(3) { assertNotNull(RelicSoloReplay.read(segment.details)) }
+        assertEquals(durable, executor.readRelic(actor).json().toString())
+        // Old records lack frames. Never reconstruct unobserved moves or pretend
+        // a final snapshot proves what happened across the missing history.
+        assertNull(RelicSoloReplay.read("""{"game":"relic_escape","events":[]}"""))
+        val tampered = JSONObject(segment.details)
+        tampered.getJSONArray("replayFrames").getJSONObject(0)
+            .put("turns", frames.first().turns + 999)
+        assertNull(RelicSoloReplay.read(tampered.toString()))
+    }
+
 }
