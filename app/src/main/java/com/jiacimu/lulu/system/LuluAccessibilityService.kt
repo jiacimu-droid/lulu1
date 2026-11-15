@@ -816,6 +816,58 @@ class LuluAccessibilityService : AccessibilityService() {
                 "虚拟屏手势回执超时，可能已有局部滑动；先核对新画面，禁止盲目补发", true)
         }
 
+        /**
+         * A single stationary gesture on the OWNED virtual display. Never use
+         * shell "input" or the active-display tapNormalized() fallback: neither
+         * guarantees the owner's display 0 will remain untouched.
+         */
+        suspend fun tapVirtualDisplay(
+            displayId: Int, packageName: String, x: Int, y: Int,
+        ): JSONObject = swipeVirtualDisplay(
+            displayId, packageName, x, y, x, y, 180,
+        ).put("actionMethod", "accessibility_tap_virtual_display")
+
+        /**
+         * Only a focused search editor in this app may submit IME_ENTER.
+         * Android API 30+ exposes this action on editable focused nodes.
+         * Never fall back to shell keyevents: those fail with INJECT_EVENTS on
+         * some devices and can target an unrelated focused screen.
+         */
+        fun submitVirtualSearch(displayId: Int, packageName: String): JSONObject {
+            fun receipt(accepted: Boolean, code: String, detail: String) = JSONObject()
+                .put("accepted", accepted)
+                .put("displayId", displayId)
+                .put("actionMethod", "accessibility_ime_enter_virtual_search")
+                .put("errorCode", code)
+                .put("taskCompleted", false)
+                .put("verification", detail)
+            val service = instance ?: return receipt(false, "accessibility_disconnected",
+                "无障碍服务未连接；未向任何屏幕提交搜索")
+            if (displayId <= 0 || Build.VERSION.SDK_INT < 30 ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return receipt(false, "search_window_unverified",
+                    "独立虚拟屏的搜索窗口未核实，未提交")
+            val roots = ownedVirtualRoots(service, displayId, packageName)
+            val editors = roots.flatMap(::visibleEditors)
+            val searches = editors.filter(::searchEditor)
+            if (!LuluVirtualSearchFieldPolicy.canRecoverUniqueSearchField(
+                    searches.size, editors.size - searches.size))
+                return receipt(false, "search_focus_unverified", "没有唯一安全搜索框，未提交")
+            val field = searches.single()
+            if (!field.refresh() || !field.isFocused || !safeEditable(field))
+                return receipt(false, "search_focus_unverified", "搜索框已失去焦点，未提交")
+            if (field.actionList.none {
+                    it.id == AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.id
+                })
+                return receipt(false, "search_ime_action_missing",
+                    "此应用搜索框没有暴露无障碍回车动作；可观察搜索按钮后点击，未发送输入事件")
+            val sent = field.performAction(
+                AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.id)
+            return receipt(sent, if (sent) "" else "search_ime_action_rejected",
+                if (sent) "已向独立屏搜索框提交一次IME动作；仍需观察结果页面"
+                else "应用未接受搜索框的IME动作；未在主屏或Shell兜底重试")
+        }
+
         /** Normalized 0..1000 coordinates for the currently visible display only. */
         fun tapNormalized(x: Int, y: Int): Boolean {
             val service = instance ?: return false
