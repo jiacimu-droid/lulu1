@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:21:10.531303+00:00",
-  "commit": "009c4a28a15bd8dc607470dc8d634e8f28674822",
+  "generatedAt": "2026-11-15T16:22:42.164037+00:00",
+  "commit": "696d461453f401ba723fe790ef9532acc9efff9a",
   "branch": "main",
-  "sourceFingerprint": "56a80f1476d0f3ce7b8b1d328eef736c8e552214f7a71abd8b443ba2a4571a65",
+  "sourceFingerprint": "420d3f7cccd6e55216d321627fd609f591ed40668b1d1b9ee6b92e5a3d50b789",
   "summary": {
-    "files": 1338,
-    "lines": 285223,
-    "symbols": 4025
+    "files": 1340,
+    "lines": 285305,
+    "symbols": 4027
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3373,19 +3373,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2256
+        "line": 2257
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2417
+        "line": 2418
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2557
+        "line": 2558
       }
     ],
     "returnToList": [
@@ -6894,6 +6894,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
         "line": 102
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneSleepPromptMode.kt",
+        "line": 9
       }
     ],
     "applyProposal": [
@@ -16941,31 +16945,31 @@
     "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 492
+        "line": 495
       }
     ],
     "phoneDecisionInvalidated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 497
+        "line": 500
       }
     ],
     "phoneInvalidationReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 501
+        "line": 504
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 503
+        "line": 506
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1573
+        "line": 1576
       }
     ],
     "LaunchableApp": [
@@ -22384,6 +22388,12 @@
         "line": 5
       }
     ],
+    "PhoneSleepPromptModeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/PhoneSleepPromptModeTest.kt",
+        "line": 5
+      }
+    ],
     "LuluDisplayFrameFreshnessTest": [
       {
         "path": "app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt",
@@ -25050,8 +25060,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2703,
-      "sha256": "827ada6cfbd019a4fcb5c77365bd28f42641ae9f3c84b893b6118e5af98f3b93",
+      "lines": 2704,
+      "sha256": "312afe817b697987a4959b99e2f1096182ff2adb8f583f08f11d8a44f5be8228",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -25135,15 +25145,15 @@
         },
         {
           "name": "sameSession",
-          "line": 2256
+          "line": 2257
         },
         {
           "name": "retryListening",
-          "line": 2417
+          "line": 2418
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2557
+          "line": 2558
         }
       ]
     },
@@ -36899,8 +36909,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 384,
-      "sha256": "70e945376778e496069cefe2a05764c0e455226b96f7efd5eaa74ec981434029",
+      "lines": 404,
+      "sha256": "a5b50c1361fa135f66598553c98de1849549f6a99f0b3f28ff24aa3a8e974ea7",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -37831,8 +37841,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 255,
-      "sha256": "1bd1f2832d7df0489a9c9e3b1392faa71f1016d3f7b88b0d9e0365fa358a2497",
+      "lines": 268,
+      "sha256": "5d60d47ca63b62356edf58cd800fb65aa37643d903d986cc75f9b209d8583d0c",
       "symbols": [
         {
           "name": "send",
@@ -38084,7 +38094,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1393,
-      "sha256": "0355a0cbe9a87f9e74a8603f6551f4d66081bfe1b759e7b1cb2f360601eb9c66",
+      "sha256": "a63f997a58ab2b9b6ab115d7d9f2c2d3387f1b8e10ed5d5a2188a35c3e5d40e9",
       "symbols": [
         {
           "name": "change",
@@ -39666,8 +39676,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2339,
-      "sha256": "c56efef48dc277e8c01df903f0a0443c5ae5e61db45e0b3720532dde461167ac",
+      "lines": 2342,
+      "sha256": "d917cc5bc2ea72841641eb04c9a7a4eac389e2381d63cdb029fe282f36470b1c",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -39687,23 +39697,23 @@
         },
         {
           "name": "phoneReceiptChanged",
-          "line": 492
+          "line": 495
         },
         {
           "name": "phoneDecisionInvalidated",
-          "line": 497
+          "line": 500
         },
         {
           "name": "phoneInvalidationReason",
-          "line": 501
+          "line": 504
         },
         {
           "name": "stalePhoneTurn",
-          "line": 503
+          "line": 506
         },
         {
           "name": "staleReplyExpression",
-          "line": 1573
+          "line": 1576
         }
       ]
     },
@@ -40533,6 +40543,17 @@
         {
           "name": "shouldStream",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneSleepPromptMode.kt",
+      "lines": 12,
+      "sha256": "dfd841bb22b93e5b957ada848414821069019f91f74f64a3eb587f8944bb4f49",
+      "symbols": [
+        {
+          "name": "active",
+          "line": 9
         }
       ]
     },
@@ -46507,8 +46528,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt",
-      "lines": 100,
-      "sha256": "12df48f08745ad7c137a692053fe9be02344a91627fab62d47b982b9cf1df6b4",
+      "lines": 113,
+      "sha256": "eb699f37bb977a3fda19d28ca57b1f7cd61ab23dd5163a7819776c913b190d93",
       "symbols": [
         {
           "name": "GameCoopPacingTest",
@@ -47542,6 +47563,17 @@
       "symbols": [
         {
           "name": "LuluWirelessDebuggingHostTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/PhoneSleepPromptModeTest.kt",
+      "lines": 20,
+      "sha256": "4c0df268a303354f135928ceaae405546538480dd27364eb4d27a3999035abb6",
+      "symbols": [
+        {
+          "name": "PhoneSleepPromptModeTest",
           "line": 5
         }
       ]

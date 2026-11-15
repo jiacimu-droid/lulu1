@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`009c4a28a15bd8dc607470dc8d634e8f28674822`
+- 基准提交：`696d461453f401ba723fe790ef9532acc9efff9a`
 - 分支：`main`
-- 已索引文件：1338
-- 已索引代码/文本行：285223
-- 已发现符号：4025
+- 已索引文件：1340
+- 已索引代码/文本行：285305
+- 已发现符号：4027
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -207,7 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2703 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2704 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -696,7 +696,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 349 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 75 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 384 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 404 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 153 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
@@ -729,7 +729,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 70 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCollectionGoals.kt` | 30 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt` | 104 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 255 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 268 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 257 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 693 | 3 |
@@ -802,7 +802,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1363 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2339 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2342 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
@@ -837,6 +837,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 45 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/PhoneSleepPromptMode.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 328 | 2 |
@@ -1245,7 +1246,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 100 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 113 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
@@ -1336,6 +1337,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 86 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/PhoneSleepPromptModeTest.kt` | 20 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
