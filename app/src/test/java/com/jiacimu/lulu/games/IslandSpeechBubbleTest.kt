@@ -16,5 +16,10 @@ class IslandSpeechBubbleTest {
         assertTrue(page.all { it.length <= 9 })
         assertTrue(page.last().endsWith("…"))
         assertEquals(longSpeech.take(26) + "…", page.joinToString(""))
+        val pages = islandSpeechBubblePages(longSpeech, 9)
+        assertTrue(pages.size > 1)
+        assertTrue(pages.all { it.length <= 9 })
+        assertEquals(longSpeech, pages.joinToString(""))
+        assertEquals(emptyList<String>(), islandSpeechBubblePages("  "))
     }
 }
