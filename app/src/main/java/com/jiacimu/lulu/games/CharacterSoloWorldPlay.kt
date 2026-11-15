@@ -67,8 +67,8 @@ internal class CharacterSoloWorldPlay(context: Context) {
             val cmd=chooseRelic(run,focus) ?: return@repeat
             val next=RelicEscapeRules.act(run,cmd.first,cmd.second.first,cmd.second.second)
             if(next.turns>run.turns || next.phase!=run.phase) {
+                replayFrames.put(RelicSoloReplay.delta(run, next))
                 run=next
-                replayFrames.put(RelicSoloReplay.frame(run))
             }
         }
         require(run.turns>initial || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE)) {
