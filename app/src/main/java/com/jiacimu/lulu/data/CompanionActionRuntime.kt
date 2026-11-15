@@ -1021,11 +1021,21 @@ internal object CompanionActionRuntime {
                 } ?: error("游戏馆未能保存这段真实游戏")
                 // Every committed solo session gets a durable, idempotent owner-visible
                 // SYSTEM receipt. The role's freedom to share its thoughts is separate.
-                MigratedDomainStores.chat.appendPrivateActivityNotice(
-                    characterId, "[独自游戏] ${played.summary}",
-                    incidentId = "solo-game-${played.recordId}",
-                )
-                CompanionActionResult(true, played.summary, evidenceId = "game-solo-${played.recordId}")
+                val receiptFailure = runCatching {
+                    MigratedDomainStores.chat.appendPrivateActivityNotice(
+                        characterId, "[独自游戏] ${played.summary}",
+                        incidentId = "solo-game-${played.recordId}",
+                    )
+                }.exceptionOrNull()
+                // A failed secondary chat write cannot undo a committed physical
+                // expedition or encourage the scheduler to repeat the whole run.
+                if (receiptFailure != null)
+                    android.util.Log.w("SoloGameReceipt",
+                        "Game record committed, chat receipt not yet durable", receiptFailure)
+                CompanionActionResult(true,
+                    played.summary + if (receiptFailure != null)
+                        "；本局游戏战绩已保存，但系统消息写入失败" else "",
+                    evidenceId = "game-solo-${played.recordId}")
             }
             "start_call" -> {
                 require(character.contactPolicy.proactiveCallsEnabled) { "该角色未开启主动来电" }
