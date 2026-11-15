@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f45c32cd518c55624319b34e9582b505718abfe`
+- 基准提交：`f4aef6d57c5887fc1009c0041f90b18c268faf02`
 - 分支：`main`
 - 已索引文件：1327
-- 已索引代码/文本行：281898
+- 已索引代码/文本行：281952
 - 已发现符号：3971
 
 | 文件 | 行数 | 符号数 |
@@ -796,7 +796,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 479 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1274 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1328 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2339 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
