@@ -692,10 +692,10 @@ internal object LuluVoiceCallSession {
         val pendingSystemSpeech = if (nextMuted && providerInput == null)
             SystemSpeechTurnPolicy.wordsToSubmitOnMute(systemUtteranceBuffer, systemPartialCandidate)
         else ""
+        val input = providerInput
+        val pendingCapturedAudio = nextMuted &&
+            (input?.hasPendingUtterance == true || input?.hasBufferedRealtimeAudio == true)
         if (nextMuted) {
-            val input = providerInput
-            val pendingCapturedAudio = input?.hasPendingUtterance == true ||
-                input?.hasBufferedRealtimeAudio == true
             // A realtime server may not send its first partial until AFTER mute.
             // The mic was eligible at capture time; validate the later stable
             // server text for actual speech and echo before handing it to AI.
@@ -713,6 +713,7 @@ internal object LuluVoiceCallSession {
                 partialTranscript = if (nextMuted && providerInput == null &&
                     pendingSystemSpeech.isBlank()) "" else it.partialTranscript,
                 statusMessage = when {
+                    nextMuted && pendingCapturedAudio -> "麦克风已释放，正在完成刚才那段语音的识别…"
                     nextMuted -> "麦克风已释放，可在其他应用语音输入"
                     else -> "麦克风已打开，直接说话就好"
                 },
@@ -727,7 +728,11 @@ internal object LuluVoiceCallSession {
             restartListeningJob?.cancel()
             resetSystemRecognitionTurn()
             providerInput?.pauseCapture()
-            pauseRecognition()
+            // The system recognizer owns its own partials; cloud Scribe has
+            // an in-flight, already displayed transcript that must survive mute
+            // until its manual commit drains. Do not clear it through the
+            // unrelated Android SpeechRecognizer reset.
+            if (providerInput == null) pauseRecognition()
             recognizer?.destroy()
             recognizer = null
             // Preserve the current headphones / earpiece during a text-only call.
