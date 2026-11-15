@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9e22dfcf9a12d42624989132a818f7ff842c4542`
+- 基准提交：`f844ab611aadaeadee35146653ee93abb26086aa`
 - 分支：`main`
-- 已索引文件：1333
-- 已索引代码/文本行：284408
-- 已发现符号：4008
+- 已索引文件：1334
+- 已索引代码/文本行：284539
+- 已发现符号：4013
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -699,6 +699,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 151 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt` | 131 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt` | 71 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 274 | 14 |
