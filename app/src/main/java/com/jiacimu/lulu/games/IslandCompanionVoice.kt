@@ -87,12 +87,14 @@ internal class IslandCompanionVoice(
             return
         }
         if (!VoiceSynthesisPolicy.meetingPlayable(appContext)) {
-            // Obey existing global/role voice controls before spending synthesis credits.
+            // Honour user audio settings rather than silently pretending TTS played.
+            onError("伙伴发言已显示字幕；请在语音设置启用有声播放")
             pending.clear()
             setActive(false)
             return
         }
         if (!CharacterVoicePreferenceStore.isEnabled(next.first)) {
+            onError("这一位伙伴的语音已关闭，字幕仍会显示")
             setActive(false)
             playNext()
             return
