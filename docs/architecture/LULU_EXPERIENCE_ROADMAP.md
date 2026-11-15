@@ -11,6 +11,10 @@
 
 # 露露机整体体验大纲与唯一跨窗口接力看板
 
+
+**2026-11-15 G-04/S-02 · 角色游戏选择偏向快艇骰子、少邀熟人（已提交生产修复和回归，CI/真机/真实模型待验）**：真实角色四款独玩引擎早已存在，旧 `AutonomousAffordanceContext` 与 `AutonomousSocialRuntime` 却仍称只能独玩记忆配对/快艇骰子；居民 `ResidentDailyDecision` 说明虽提人物对战，但实际可排程 action、JSON 示例漏掉 `invite_duel_game` / `respond_duel_invite`，个人独玩历史还误吞人物双人对局。现由既有 `AutonomousGameCatalog` 投射四款独玩规则（含永久小岛和实际摸金撤离）、主人六款游戏馆邀约、人物双人对战邀请/接受/拒绝，居民每日/到点工具与日程合法纳入邀请，持久参数带真实 targetCharacterId，双人比赛不混入个人独玩记忆；角色仍自主选择游戏和邀约对象，不强制轮流或刷社交。生产提交 `d0aa9eb`、`d2acf02`、`b819faf`、`e9c7385`、`fb96214`、`799d57b`；测试 `9f77363`、`05a89ae`、`c38cf6a`，详细边界见 `COOP_GAME_SCENE_PROGRESS` 2026-11-15。**剩余**：main push APK/JVM/上述新增回归通过；真实模型在未强迫轮换下能按兴趣选择四款及真实好友邀约、对方独立接受和真实记分；Redmi 真机验证。人物间现只支持快艇骰子/记忆配对的双人局，**3人及以上自主同局尚未实现**，不可误报为已交付。无需另建影子人格、游戏计数轮换器或第二收费模型决策。
+
+
 **2026-11-15 电话挂断不重复付费感知（源码及回归已提交，CI/真机待验）**：主人纠正“角色自己挂断”和“用户主动挂断”在感知来源上的根本区别。`LuluVoiceCallSession.finishCall` 现在两者均保存真实结束事实，但仅用户发起者安排即时自主感知与 WorkManager 延迟恢复；角色已决定的挂断不再购买第二轮完整上下文。`InteractionSignalBridge.isRoleInitiatedCallEnd` 使用权威事件来源/ID/当事人标记与旧版固定操作回执兼容识别；`CharacterPerceptionContext`、`CharacterCausalAppraisalStage` 均排除本人挂断回执成为新的用户感知刺激，仍保留历史供后续自然召回。回归 `CharacterPerceptionContextTest.roleHangupIsSavedButNeverCountsAsNewOwnerPerception` 验角色/用户两种结束分支、旧存档、持久历史和主动感知队列。实际提交 `c84dab8`、`0b27b07`、`546407e`、`8100ec6`、`3978e16`；新主线 CI 与手机真机费用面板待验。代码索引由现有 `code-index.yml` 流水线自动生成，不手工伪造。
 
 
