@@ -194,6 +194,52 @@ class LuluGameStore internal constructor(context: Context) {
         return match
     }
 
+    /**
+     * An accepted invitation is a new concrete room, not the previous unfinished
+     * Yacht game with a different opponent. Keep the displaced match recoverable,
+     * and write both snapshots in one SharedPreferences transaction.
+     */
+    @Synchronized
+    internal fun enterInvitedYachtMatch(inviterId: String): YachtMatchSnapshot {
+        require(inviterId.isNotBlank()) { "邀请者不能为空" }
+        val roster = listOf(inviterId.trim())
+        val existing = yachtMatch()
+        if (existing != null && !existing.completed && existing.companionIds == roster) return existing
+        val paused = suspendedYachtMatches() + listOfNotNull(existing?.takeUnless { it.completed })
+        val fresh = YachtMatchSnapshot(companionIds = roster)
+        check(prefs.edit()
+            .putString(KEY_YACHT_MATCH, fresh.toJson())
+            .putString(KEY_YACHT_SUSPENDED, JSONArray(paused.distinctBy { it.id }.map { JSONObject(it.toJson()) }).toString())
+            .commit()) { "无法安全保存原快艇对局，新邀请尚未开始" }
+        return fresh
+    }
+
+    /** Unfinished rooms displaced by other invitations, without losing their scores. */
+    @Synchronized
+    internal fun suspendedYachtMatches(): List<YachtMatchSnapshot> {
+        val raw = prefs.getString(KEY_YACHT_SUSPENDED, null) ?: return emptyList()
+        val array = runCatching { JSONArray(raw) }.getOrNull() ?: return emptyList()
+        return (0 until array.length()).mapNotNull { i ->
+            YachtMatchSnapshot.fromJson(array.optJSONObject(i)?.toString())
+        }.filterNot { it.completed }.distinctBy { it.id }
+    }
+
+    /** Swap a saved unfinished room back into play without discarding today's invite. */
+    @Synchronized
+    internal fun resumeSuspendedYachtMatch(matchId: String): Boolean {
+        val paused = suspendedYachtMatches()
+        val old = paused.firstOrNull { it.id == matchId } ?: return false
+        val current = yachtMatch()
+        val remaining = paused.filterNot { it.id == matchId } +
+            listOfNotNull(current?.takeUnless { it.completed || it.id == matchId })
+        check(prefs.edit()
+            .putString(KEY_YACHT_MATCH, old.toJson())
+            .putString(KEY_YACHT_SUSPENDED, JSONArray(remaining.distinctBy { it.id }.map { JSONObject(it.toJson()) }).toString())
+            .commit()) { "无法恢复旧快艇对局，当前对局仍然保留" }
+        selectCharacters(old.companionIds)
+        return true
+    }
+
     /** Read-only, participant-scoped live state; never invent a completed result. */
     fun activeGameContext(characterId: String): String =
         yachtMatch()?.contextFor(characterId).orEmpty()
@@ -676,6 +722,7 @@ class LuluGameStore internal constructor(context: Context) {
     private companion object {
         const val PREFS_NAME = "lulu_games"
         const val KEY_YACHT_MATCH = "yacht_match_snapshot_v1"
+        const val KEY_YACHT_SUSPENDED = "yacht_suspended_matches_v1"
         const val KEY_STATE = "state"
         const val MAX_RECORDS = 200
     }
