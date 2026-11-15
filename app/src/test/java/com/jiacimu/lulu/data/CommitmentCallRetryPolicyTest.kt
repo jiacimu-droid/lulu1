@@ -84,4 +84,24 @@ class CommitmentCallRetryPolicyTest {
         assertEquals(150L, CommitmentCallRetryPolicy.nextDelaySeconds(simpleCall, 1, true))
         assertTrue(CommitmentCallRetryPolicy.isFinalCheck(simpleCall, 2, true))
     }
+    @Test fun promisedWakeCallAndLocalAlarmAreComplementaryOnlyAtFirstDeadline() {
+        val wakeCall = CommitmentTask(
+            characterId = "role", goal = "早上七点叫醒我起床",
+            deliveryAction = "start_call", attemptCount = 0)
+        assertTrue(shouldStartIndependentWakeAlarm(wakeCall, sameCall = false))
+        assertTrue(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(deliveryAction = "alarm_only"), sameCall = false))
+        assertFalse(shouldStartIndependentWakeAlarm(wakeCall, sameCall = true))
+        assertFalse(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(attemptCount = 1), sameCall = false))
+        assertFalse(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(followUpKind = "verification"), sameCall = false))
+        assertFalse(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(followUpKind = "retry"), sameCall = false))
+        assertFalse(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(goal = "早上七点给我打电话"), sameCall = false))
+        assertFalse(shouldStartIndependentWakeAlarm(
+            wakeCall.copy(deliveryAction = "send_private_message"), sameCall = false))
+    }
+
 }
