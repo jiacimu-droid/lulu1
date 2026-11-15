@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T07:23:56.516336+00:00",
-  "commit": "57fb7e2ec529b81cc928974e101754c1095248e4",
+  "generatedAt": "2026-11-15T07:36:40.395220+00:00",
+  "commit": "77756070b93f72d11073d7505e1d5fcda6493a7d",
   "branch": "main",
-  "sourceFingerprint": "e79e2aac65ee3c701760ae688776161ad14e27bcd924a10c49eb12e045806272",
+  "sourceFingerprint": "a5c7a663042b71d591d860427d6c314ddd7a101e2d6a7f5e52c3abcaf1c730cc",
   "summary": {
     "files": 1331,
-    "lines": 283366,
-    "symbols": 3997
+    "lines": 283379,
+    "symbols": 3998
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15350,16 +15350,22 @@
         "line": 13
       }
     ],
+    "isContinuousTravelGesture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
+        "line": 19
+      }
+    ],
     "cardinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 15
+        "line": 20
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 25
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt",
@@ -15373,43 +15379,43 @@
     "attackTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 40
+        "line": 46
       }
     ],
     "weaponSkillName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 50
+        "line": 56
       }
     ],
     "weaponSkillTargets": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 60
+        "line": 66
       }
     ],
     "canWeaponSkill": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 66
+        "line": 72
       }
     ],
     "weaponSkillHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 72
+        "line": 78
       }
     ],
     "professionAvailable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 79
+        "line": 85
       }
     ],
     "professionHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-        "line": 89
+        "line": 95
       }
     ],
     "bagProgress": [
@@ -37550,44 +37556,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt",
-      "lines": 98,
-      "sha256": "a73e4a75e650499bad2e058621247e8f337bead82cb28a716a43a8a5fcec1172",
+      "lines": 104,
+      "sha256": "d0637b7b9c301cb997fc3492a9b80c8130776cc7809525f18c23acc4127d92d6",
       "symbols": [
         {
+          "name": "isContinuousTravelGesture",
+          "line": 19
+        },
+        {
           "name": "cardinal",
-          "line": 15
+          "line": 20
         },
         {
           "name": "line",
-          "line": 25
+          "line": 31
         },
         {
           "name": "attackTarget",
-          "line": 40
+          "line": 46
         },
         {
           "name": "weaponSkillName",
-          "line": 50
+          "line": 56
         },
         {
           "name": "weaponSkillTargets",
-          "line": 60
-        },
-        {
-          "name": "canWeaponSkill",
           "line": 66
         },
         {
-          "name": "weaponSkillHint",
+          "name": "canWeaponSkill",
           "line": 72
         },
         {
+          "name": "weaponSkillHint",
+          "line": 78
+        },
+        {
           "name": "professionAvailable",
-          "line": 79
+          "line": 85
         },
         {
           "name": "professionHint",
-          "line": 89
+          "line": 95
         }
       ]
     },
@@ -37846,7 +37856,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1373,
-      "sha256": "7d4714790ac6b590de4554558d13434b79b757d51d46efb01e6438133d8d4736",
+      "sha256": "51da818e8214511deff67006c6dacc4572a1aae1a9e4a45c42e0f61ddc1aa64b",
       "symbols": [
         {
           "name": "change",
@@ -46524,8 +46534,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicCombatSkillsTest.kt",
-      "lines": 146,
-      "sha256": "fb33ec892ee14f2f40514e59d71522a64d82c6f06bfa3b47b1a559e033988079",
+      "lines": 153,
+      "sha256": "00bf6b6517989dee93c3663d7525d153a89b912d731ae1e24f9dd75a46a442ec",
       "symbols": [
         {
           "name": "RelicCombatSkillsTest",
