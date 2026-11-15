@@ -45,7 +45,15 @@ internal object GameCoopPacing {
         s.world.hp <= 3 || s.world.mobs.any { it.hp > 0 &&
             abs(it.x - s.world.x) + abs(it.y - s.world.y) <= 2 }
 
-    fun relicThreat(s: RelicRun): Boolean =
-        s.hero.hp <= 3 || s.mobs.any { it.hp > 0 && s.visible(it.x, it.y) &&
+    fun relicThreat(s: RelicRun): Boolean {
+        // Do not freeze the last remaining rescue opportunity just because the
+        // owner is downed. The actor explicitly chose rescue; the real rules
+        // still enforce medicine, distance, danger and rescue timeout.
+        if (s.phase == RelicPhase.DOWNED &&
+            s.coopPlans.any { (id, plan) -> plan.kind == "rescue" &&
+                s.allies.any { it.id == id && it.hp > 0 && it.kits > 0 } })
+            return false
+        return s.hero.hp <= 3 || s.mobs.any { it.hp > 0 && s.visible(it.x, it.y) &&
             RelicEscapeRules.distance(it.x, it.y, s.hero.x, s.hero.y) <= 2 }
+    }
 }
