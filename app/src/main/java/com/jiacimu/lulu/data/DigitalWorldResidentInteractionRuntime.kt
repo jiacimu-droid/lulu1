@@ -42,7 +42,15 @@ internal object DigitalWorldResidentInteractionRuntime {
                 ?: error("居民不在当前地点，不能隔空交流")
             val nativeId = ResidentCharacterBridge.characterId(resident.id)
             require(CompanionOnlineStore.residentIsAwake(context, nativeId, now)) {
-                "${resident.name}现在在这里，但暂时无法交谈；可以晚些再联系"
+                // A face-to-face action was selected, not a letter. Do not
+                // silently send text, add a friend, or fake a native reply.
+                // Return the actual recipient ID and available next tools so
+                // the SAME role can decide what to do on its next turn.
+                val canContact = ResidentSocialMailbox.canContact(characterId, nativeId)
+                "${resident.name}当前休眠，未发生当面交流，也没有自动代发消息。targetCharacterId=$nativeId。" +
+                    if (canContact)
+                        "如果本人还想联系，可另选 send_character_message 并亲自填写 text 留私信（休眠期间可送达，但不代表已读或回复）；若尚非好友且没有待处理申请，也可另选 send_friend_request。"
+                    else "目前缺少已确认的联系依据，不能凭空发送私信或好友申请；可等对方清醒后实际认识。"
             }
             val normalized = interaction.trim().lowercase()
             require(normalized in allowedInteractions) {
