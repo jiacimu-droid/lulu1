@@ -31,12 +31,12 @@ import kotlinx.coroutines.launch
  * New party members join only after their own model explicitly accepts the invitation.
  */
 @Composable
-internal fun BlockIslandEntry(store: LuluGameStore) {
+internal fun BlockIslandEntry(store: LuluGameStore, initialParty: List<String> = emptyList()) {
     var playing by rememberSaveable { mutableStateOf(false) }
     if (playing) {
         BlockIslandScreen(store)
     } else {
-        BlockIslandLobby(onStart = { companions ->
+        BlockIslandLobby(initialParty = initialParty, onStart = { companions ->
             store.selectCharacters(companions)
             playing = true
         })
@@ -45,7 +45,7 @@ internal fun BlockIslandEntry(store: LuluGameStore) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
+private fun BlockIslandLobby(initialParty: List<String>, onStart: (List<String>) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val lobbySessionId = rememberSaveable { java.util.UUID.randomUUID().toString() }
     val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
@@ -68,8 +68,11 @@ private fun BlockIslandLobby(onStart: (List<String>) -> Unit) {
     // made the delegate a projected MutableState and broke all subsequent list operations.
     var selected: List<String> by rememberSaveable {
         mutableStateOf<List<String>>(
-            savedIsland?.world?.friends?.map { it.id } ?: emptyList()
+            (initialParty + savedIsland?.world?.friends?.map { it.id }.orEmpty()).distinct().take(3)
         )
+    }
+    LaunchedEffect(initialParty) {
+        if (initialParty.isNotEmpty()) selected = (initialParty + selected).distinct().take(3)
     }
     var choosing by rememberSaveable { mutableStateOf(false) }
     var inviting by remember { mutableStateOf<String?>(null) }
