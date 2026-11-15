@@ -40,13 +40,32 @@ class OnlineExpiryUnfinishedWorkTest {
         assertTrue(reminder.contains("本人选择"))
     }
 
-    @Test fun laterSuccessfulRetrySupersedesEarlierFailureOfSameTool() {
-        val reminder = OnlineExpiryUnfinishedWork.render(listOf(
-            receipt("background_phone", "failed", 80),
-            receipt("background_phone", "succeeded", 20),
-        ), now)
-        assertFalse(reminder.contains("后台未打开应用"))
+    @Test fun laterSuccessForSameRequestSupersedesItsFailure() {
+        val failed = receipt("background_phone", "failed", 80)
+        val success = receipt("background_phone", "succeeded", 20)
+            .copy(content = JSONObject(receipt("background_phone", "succeeded", 20).content)
+                .put("requestId", "step-80").toString())
+        val reminder = OnlineExpiryUnfinishedWork.render(listOf(failed, success), now)
         assertTrue(reminder.isBlank())
+    }
+
+    @Test fun successForDifferentPhoneRequestDoesNotEraseUnfinishedWork() {
+        val reminder = OnlineExpiryUnfinishedWork.render(listOf(
+            receipt("background_phone", "failed", 80, "微信发送失败"),
+            receipt("background_phone", "succeeded", 20, "另一个页面已打开"),
+        ), now)
+        assertTrue(reminder.contains("微信发送失败"))
+        assertTrue(reminder.contains("requestId=step-80"))
+        assertFalse(reminder.contains("另一个页面已打开"))
+    }
+
+    @Test fun separateFailedPhoneRequestsBothReachTheSameDecision() {
+        val reminder = OnlineExpiryUnfinishedWork.render(listOf(
+            receipt("background_phone", "failed", 80, "微信未发送"),
+            receipt("background_phone", "unverified", 20, "购物页面未确认"),
+        ), now)
+        assertTrue(reminder.contains("微信未发送"))
+        assertTrue(reminder.contains("购物页面未确认"))
     }
 
     @Test fun unrelatedOrStaleEventsDoNotReviveOldFailures() {
