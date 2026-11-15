@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`41fd394e1d3b7514ca2fc01b32ebbfbad24de411`
+- 基准提交：`cb29201393773e5b8272f9f88e87b6371507bbc9`
 - 分支：`main`
-- 已索引文件：1335
-- 已索引代码/文本行：284739
-- 已发现符号：4014
+- 已索引文件：1336
+- 已索引代码/文本行：284771
+- 已发现符号：4015
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -695,7 +695,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 348 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 75 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 352 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 368 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 153 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
@@ -1264,6 +1264,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandSpeechBubbleTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 242 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandTeamSpeechWakeTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |

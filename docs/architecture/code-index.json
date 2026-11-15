@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:49:32.243974+00:00",
-  "commit": "41fd394e1d3b7514ca2fc01b32ebbfbad24de411",
+  "generatedAt": "2026-11-15T15:50:46.280330+00:00",
+  "commit": "cb29201393773e5b8272f9f88e87b6371507bbc9",
   "branch": "main",
-  "sourceFingerprint": "b992ba0cdd8af5674a09b7655c4a4e0827111d999202bef16de55eec79e8303f",
+  "sourceFingerprint": "1af07315dc8e2d2eab556979dd0044f74c1f9b9ae55857ecdeb1dcbac4305c7f",
   "summary": {
-    "files": 1335,
-    "lines": 284739,
-    "symbols": 4014
+    "files": 1336,
+    "lines": 284771,
+    "symbols": 4015
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14583,7 +14583,7 @@
     "submitPlayerMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-        "line": 61
+        "line": 72
       }
     ],
     "setSpeakingListener": [
@@ -21870,6 +21870,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt",
         "line": 11
+      }
+    ],
+    "IslandTeamSpeechWakeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTeamSpeechWakeTest.kt",
+        "line": 6
       }
     ],
     "IslandTravelTest": [
@@ -36790,12 +36796,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 352,
-      "sha256": "0ea385b8a0c85168f870594664022f4e53d3d7331577d0ee54e00c572735332a",
+      "lines": 368,
+      "sha256": "853ce36a03ce19f8e5aadfd9d6c884b322c26d60e8b0580da0745f7da86c7eca",
       "symbols": [
         {
           "name": "submitPlayerMessage",
-          "line": 61
+          "line": 72
         }
       ]
     },
@@ -46617,6 +46623,17 @@
         {
           "name": "IslandTeamInboxTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTeamSpeechWakeTest.kt",
+      "lines": 16,
+      "sha256": "ec49fca93012c886e83e620a76344addb874f4f144f43f71511b3b19cbfb1ca3",
+      "symbols": [
+        {
+          "name": "IslandTeamSpeechWakeTest",
+          "line": 6
         }
       ]
     },
