@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`de5279bbffac0bfedcd166aa4b86429b6b329f8e`
+- 基准提交：`ec0b9533ec0f24560f09f342ad9a144e81393fff`
 - 分支：`main`
 - 已索引文件：1333
-- 已索引代码/文本行：283933
+- 已索引代码/文本行：283965
 - 已发现符号：4004
 
 | 文件 | 行数 | 符号数 |
@@ -715,7 +715,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 38 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 758 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1011 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 804 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 309 | 4 |
@@ -1099,7 +1099,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActionIdTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt` | 20 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneOfferPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt` | 47 | 1 |

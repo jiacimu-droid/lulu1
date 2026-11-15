@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T09:56:21.576435+00:00",
-  "commit": "de5279bbffac0bfedcd166aa4b86429b6b329f8e",
+  "generatedAt": "2026-11-15T09:57:03.407224+00:00",
+  "commit": "ec0b9533ec0f24560f09f342ad9a144e81393fff",
   "branch": "main",
-  "sourceFingerprint": "a1652835318d50eb0edd54a38db53c8c3e4fe9f7b2e337128865e1dee98f456b",
+  "sourceFingerprint": "5440f83880e5fc93f0ed2a086ee933314959a6803a9a72aaa13a1f76fa6c709e",
   "summary": {
     "files": 1333,
-    "lines": 283933,
+    "lines": 283965,
     "symbols": 4004
   },
   "symbolIndex": {
@@ -1115,7 +1115,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 753
+        "line": 755
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -20225,7 +20225,7 @@
     "DigitalWorldBulletinTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt",
-        "line": 6
+        "line": 8
       }
     ],
     "DigitalWorldEnvironmentTest": [
@@ -37206,8 +37206,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 758,
-      "sha256": "4a1865c8b013a2fa16ac2feed767598df141ac77236ce1e40dc5f89b5040b014",
+      "lines": 759,
+      "sha256": "97a9961e9cfa615b4ba47c49ab5ed732fc8ec789d4cd8d55255493ff5679de71",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -37319,7 +37319,7 @@
         },
         {
           "name": "initialize",
-          "line": 753
+          "line": 755
         }
       ]
     },
@@ -44189,12 +44189,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt",
-      "lines": 67,
-      "sha256": "6ed8f9a360ec8df4646abc5604f9ccb299f5103006bf479c70ca9624aa1cc16d",
+      "lines": 98,
+      "sha256": "3ac3870a8c55953c45c5a265235a9d46523ef779fe5f7cffcc8248a10bc72c83",
       "symbols": [
         {
           "name": "DigitalWorldBulletinTest",
-          "line": 6
+          "line": 8
         }
       ]
     },
