@@ -30,6 +30,17 @@ import kotlin.coroutines.coroutineContext
  * One game-model choice per meaningful completed player turn (or explicit voice message);
  * no frame-based polling, passive paid thinking or endless reciprocal wake-ups.
  */
+/**
+ * Movement is never a reason to ignore an actual incoming player utterance.
+ * An unchanged game frame alone does not purchase a new decision.
+ */
+internal fun shouldWakeIslandTeam(
+    autonomous: Boolean,
+    navigating: Boolean,
+    memberCount: Int,
+    hasNewPlayerSpeech: Boolean,
+): Boolean = autonomous && memberCount > 0 && (!navigating || hasNewPlayerSpeech)
+
 @Composable
 internal fun IslandCompanionPanel(
     island: BlockIslandState,
@@ -96,12 +107,13 @@ internal fun IslandCompanionPanel(
     // Real state changes only enqueue one signal. Fast manual movement does not cancel
     // in-flight model requests or generate unlimited duplicate decisions.
     LaunchedEffect(island.world.seed, island.world.turns, navigating, autonomous, speechIndex, members) {
-        if (autonomous && !navigating && members.isNotEmpty()) signals.trySend(Unit)
+        if (shouldWakeIslandTeam(autonomous, navigating, members.size,
+                speechIndex > lastRequestedSpeech)) signals.trySend(Unit)
     }
     LaunchedEffect(island.world.seed, autonomous, members) {
         if (!autonomous || members.isEmpty()) return@LaunchedEffect
         for (signal in signals) {
-        if (latestNavigating) continue
+        if (latestNavigating && latestSpeechIndex <= lastRequestedSpeech) continue
         val expectedTurn = readCurrentIsland().world.turns
         val currentSpeech = latestSpeechIndex
         if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == currentSpeech) continue
@@ -153,9 +165,13 @@ internal fun IslandCompanionPanel(
                     continue
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
-                if (!alreadyActed || choice.actionId == "stop_travel" ||
+                // A conversation-only choice is valid even if the player has
+                // moved while the game model was thinking. No stale physical
+                // turn should suppress an already chosen spoken reply.
+                if (choice.actionId != "none" &&
+                    (!alreadyActed || choice.actionId == "stop_travel" ||
                     choice.actionId.startsWith("plan_") ||
-                    IslandHouseProjects.isChangeAction(choice.actionId)) {
+                    IslandHouseProjects.isChangeAction(choice.actionId))) {
                     val applied = IslandActorPlay.applyLive(latest, snapshot, id, choice)
                     if (applied == null) {
                         error = "局势已经改变，行动未执行；消息仍待送达"
