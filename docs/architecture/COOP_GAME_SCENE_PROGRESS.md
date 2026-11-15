@@ -359,3 +359,10 @@
 
 - 正式 `BlockIslandRules.canPlaceBuilding/canPlantAt` 现在拒绝在 `building/paused` 房屋工程尚未铺设的九格预留位置插入独立墙体/家具或树苗；否则原 `house_step` 的物理施工会因地块被改动而永久卡住。保留已铺设格、拆除/完成后自由重建、原资源扣除和伙伴决定权；无假建筑。源码 `168b0f5`、`cebf67d`，最新生产 blob `c3b22e5f4eac6538710bfd60ef2d91bab3692495`。
 - 新增 `BlockIslandRulesTest.unfinishedHouseBlueprintCannotBeOverbuiltAndSurvivesReload`，覆盖蓝图格禁止独立建墙/种树、拒绝不扣资源/回合、重读存档继续占地、工程移除后可建造。测试 `5568acd`，blob `335e5e4895f19dba95f0c01274d5adc2f3b18b4e`。**JVM/APK/index 未取得本 SHA 的 push 工作流终态，不得标通过**；真机横屏建造预览/触控/FPS 和人物协作独立待验。下一实际文件 `IslandBuildingControls.kt` 与 `BlockIslandRulesTest.kt`，核预览拒建原因与 JVM 首错。
+
+
+## 2026-11-15 G-02.3 · 房屋蓝图预览与终局禁建一致性（CI 待验）
+
+- 正式 `IslandBuildingControls.preview` 原先即使 `world.finished` 仍可能返回 `allowed=true`，与「无法继续建造」提示冲突；已有房屋工程时尝试另一张蓝图只提示空地不足。`51536db` 将终局预览统一禁用并明确提示当前工程须完成/续建/拆除，仍由原 `BlockIslandRules.act` 执行实际施工及扣料，无影子建筑或奖励。
+- `IslandPlayerHouseTest` 新增蓝图占用、终局各建造入口禁用和预览不改真实存档回归：`19099e3`、`2b26a19`；生产 blob `7d095d9a727d7f3fc40c838dbf339adcfcee7ac9`，测试 blob `51f508f8b0b4ceb294e1893ea26ab011c97a1e04`。
+- main push `2b26a197` 的 Lulu APK/JVM #43701707170 pending、Refresh code index #43701707195 queued（查询时），**未证明 JVM/APK/索引成功**；前两次 push 均被新提交取消。下一入口 `IslandPlayerHouseTest.kt` 的 JVM 首错与 `BlockIslandScreen.kt` 的预览按钮禁用行为；Redmi 横屏/360dp/412dp、FPS 和同伴模型仍待独立验收。
