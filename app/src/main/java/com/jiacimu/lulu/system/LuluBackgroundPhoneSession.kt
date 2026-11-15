@@ -1134,8 +1134,11 @@ internal object LuluBackgroundPhoneSession {
                     .put("backOutcome", backOutcome)
                     .put("actionMethod", applied?.optString("actionMethod").orEmpty())
                     .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
-                    .put("verification", frame.optString("verification", "后台屏幕暂无可确认画面") +
-                        if (owned) "；仍有目标App无障碍控件证据，可选择核实的搜索框操作"
+                    .put("verification", (
+                        if (action == "back") applied?.optString("verification").orEmpty() + "；"
+                        else ""
+                    ) + frame.optString("verification", "后台屏幕暂无可确认画面") +
+                        if (owned) "；目标App仍在；返回是否成功未证实时先核对真实页面与可点返回控件"
                         else "；目标App窗口未核实，禁止盲点")
                     .attachSearchReceipt(applied)
                 if (!owned) {
@@ -1233,6 +1236,9 @@ internal object LuluBackgroundPhoneSession {
             // Previously a swipe without expectedText was always "unverified",
             // so continuous browsing stopped after just one swipe.
             val observed = hasFrame && (actionConditionVerified || expected.isBlank()) &&
+                // A fresh pixel frame is NOT proof that BACK navigated; the
+                // verified app UI must actually change before we report success.
+                (action != "back" || uiSettled) &&
                 (applied?.optBoolean("accepted") != false) &&
                 (action != "type" || textReadbackVerified) &&
                 (action != "focus_search" || searchStatus.optBoolean("focusedSearchField"))
@@ -1300,7 +1306,11 @@ internal object LuluBackgroundPhoneSession {
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
                 .put("shareError", sharedReceipt.optString("shareError"))
-                .put("verification", if (action == "focus_search")
+                .put("verification", if (action == "back")
+                    (applied?.optString("verification").orEmpty() + "；" +
+                        if (uiSettled) "后台App控件树已确认发生变化，实际目标页面仍需核对"
+                        else "未确认页面发生变化，不能声称返回成功；可重新观察并针对可见的App返回箭头选择新操作")
+                    else if (action == "focus_search")
                     (if (searchStatus.optBoolean("focusedSearchField"))
                         "已核实唯一搜索框获得焦点；未输入或提交内容"
                     else "搜索框焦点未能核实；没有点击其他输入框")
