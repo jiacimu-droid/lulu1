@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T06:43:30.015377+00:00",
-  "commit": "10e8311b5ecaac72d30387495b98d728c79f31cf",
+  "generatedAt": "2026-11-15T06:45:09.535128+00:00",
+  "commit": "51bdf0a644bdd0c4ce740e72946cc1cef889d115",
   "branch": "main",
-  "sourceFingerprint": "58877d14285b72d83358519603da0e9e7218738b9564c9d334928d43bc6c1385",
+  "sourceFingerprint": "3021a63b4d1293f1966def86171f6323df0b164b11f11061452768f387783b57",
   "summary": {
     "files": 1329,
-    "lines": 282753,
-    "symbols": 3984
+    "lines": 282821,
+    "symbols": 3987
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1717,7 +1717,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 132
+        "line": 135
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt",
@@ -2001,7 +2001,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1145
+        "line": 1148
       }
     ],
     "motionMetadata": [
@@ -2433,7 +2433,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 185
+        "line": 187
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -5929,7 +5929,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1151
+        "line": 1154
       }
     ],
     "recentSoloGames": [
@@ -6155,7 +6155,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 311
+        "line": 314
       }
     ],
     "canChoose": [
@@ -6579,15 +6579,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 647
+        "line": 650
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 970
+        "line": 973
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1045
+        "line": 1048
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -6755,7 +6755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1208
+        "line": 1211
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -7101,7 +7101,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 525
+        "line": 528
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -8187,7 +8187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 66
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -10765,15 +10765,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 154
+        "line": 156
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1154
+        "line": 1157
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1217
+        "line": 1220
       }
     ],
     "validateZip": [
@@ -14225,7 +14225,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 317
+        "line": 320
       }
     ],
     "near": [
@@ -14269,7 +14269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 943
+        "line": 946
       }
     ],
     "dot": [
@@ -14357,7 +14357,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 249
+        "line": 252
       }
     ],
     "answer": [
@@ -14419,7 +14419,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 151
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -14579,7 +14579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 247
+        "line": 250
       }
     ],
     "reached": [
@@ -14663,7 +14663,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 160
+        "line": 162
       }
     ],
     "season": [
@@ -15218,40 +15218,58 @@
         "line": 25
       }
     ],
+    "sweepTargets": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
+        "line": 49
+      }
+    ],
+    "canSweep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
+        "line": 55
+      }
+    ],
+    "sweepDamage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
+        "line": 61
+      }
+    ],
     "damage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-        "line": 46
-      }
-    ],
-    "monsterName": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-        "line": 62
-      }
-    ],
-    "monsterDrop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
         "line": 65
       }
     ],
+    "monsterName": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
+        "line": 82
+      }
+    ],
+    "monsterDrop": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
+        "line": 85
+      }
+    ],
     "glintCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 44
+        "line": 47
       }
     ],
     "beamCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "flashStrength": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-        "line": 60
+        "line": 63
       }
     ],
     "committed": [
@@ -15387,13 +15405,13 @@
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 152
+        "line": 154
       }
     ],
     "tile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 153
+        "line": 155
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
@@ -15403,67 +15421,67 @@
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 155
+        "line": 157
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 158
+        "line": 160
       }
     ],
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 246
+        "line": 249
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 259
+        "line": 262
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 268
+        "line": 271
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 270
+        "line": 273
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 279
+        "line": 282
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 652
+        "line": 682
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 653
+        "line": 683
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 730
+        "line": 760
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 766
+        "line": 796
       }
     ],
     "change": [
@@ -16409,221 +16427,221 @@
     "observeDisplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 145
+        "line": 148
       }
     ],
     "virtualWindowStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 177
+        "line": 180
       }
     ],
     "unknown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 179
+        "line": 182
       }
     ],
     "isSensitiveVirtualTap": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 228
+        "line": 231
       }
     ],
     "checkNode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 247
+        "line": 250
       }
     ],
     "visit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 280
+        "line": 283
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 350
+        "line": 353
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 504
+        "line": 507
       }
     ],
     "virtualUiSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 410
+        "line": 413
       }
     ],
     "safeVirtualTapTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 430
+        "line": 433
       }
     ],
     "tapVirtualUiElement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 464
+        "line": 467
       }
     ],
     "labels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 481
+        "line": 484
       }
     ],
     "switchVirtualChatToText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 521
+        "line": 524
       }
     ],
     "scan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 563
+        "line": 566
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 668
+        "line": 671
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1131
+        "line": 1134
       }
     ],
     "virtualChatTextInputVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 614
+        "line": 617
       }
     ],
     "tapVirtualAppBackControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 644
+        "line": 647
       }
     ],
     "sendVirtualChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 709
+        "line": 712
       }
     ],
     "denied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 713
+        "line": 716
       }
     ],
     "uniqueRecipientInHeader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 730
+        "line": 733
       }
     ],
     "locate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 766
+        "line": 769
       }
     ],
     "virtualSearchFieldStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 806
+        "line": 809
       }
     ],
     "focusUniqueVirtualSearchEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 839
+        "line": 842
       }
     ],
     "virtualHasPasswordField": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 858
+        "line": 861
       }
     ],
     "hasPassword": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 863
+        "line": 866
       }
     ],
     "readVirtualSearchFieldText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 875
+        "line": 878
       }
     ],
     "typeOnDisplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 894
+        "line": 897
       }
     ],
     "typedTextReadbackOnDisplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 921
+        "line": 924
       }
     ],
     "hasFocusedVirtualSearchEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 937
+        "line": 940
       }
     ],
     "submitVirtualSearch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1044
+        "line": 1047
       }
     ],
     "tapNormalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1080
+        "line": 1083
       }
     ],
     "swipeNormalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1092
+        "line": 1095
       }
     ],
     "typeIntoFocusedField": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1111
+        "line": 1114
       }
     ],
     "scrollVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1121
+        "line": 1124
       }
     ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1177
+        "line": 1180
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1187
+        "line": 1190
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 1195
+        "line": 1198
       }
     ],
     "LuluAlarm": [
@@ -37314,8 +37332,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
-      "lines": 74,
-      "sha256": "50d3b97e0759abb5668eab76e9aa2da00c88f5b0ddd593fb174a76984019def4",
+      "lines": 94,
+      "sha256": "36200a760cb9025eb7e760541e2914e8eeefb771d30d14f92a6ecec051a0a554",
       "symbols": [
         {
           "name": "label",
@@ -37334,16 +37352,28 @@
           "line": 25
         },
         {
+          "name": "sweepTargets",
+          "line": 49
+        },
+        {
+          "name": "canSweep",
+          "line": 55
+        },
+        {
+          "name": "sweepDamage",
+          "line": 61
+        },
+        {
           "name": "damage",
-          "line": 46
+          "line": 65
         },
         {
           "name": "monsterName",
-          "line": 62
+          "line": 82
         },
         {
           "name": "monsterDrop",
-          "line": 65
+          "line": 85
         }
       ]
     },
@@ -37355,24 +37385,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt",
-      "lines": 307,
-      "sha256": "40b1fe25a5d7cc0c1f5e0eb7585fa44d2bfce90fe34e162b1723903dde826e50",
+      "lines": 318,
+      "sha256": "79117bde7e3d6477dca1066fc80d71967ce2e76cab1c3be23a29f1ec9971fbe9",
       "symbols": [
         {
           "name": "glintCount",
-          "line": 44
+          "line": 47
         },
         {
           "name": "beamCount",
-          "line": 51
+          "line": 54
         },
         {
           "name": "flashStrength",
-          "line": 60
+          "line": 63
         },
         {
           "name": "at",
-          "line": 66
+          "line": 69
         }
       ]
     },
@@ -37583,8 +37613,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 769,
-      "sha256": "0e697b72a730a11ae6e5c258c94462f9b77e4a17505aafb448572bbce0cd77ed",
+      "lines": 799,
+      "sha256": "923e49fd51e3c5977372e4b65bfa19bca1e338c64ff2c60f69d2aa618846b296",
       "symbols": [
         {
           "name": "at",
@@ -37632,90 +37662,90 @@
         },
         {
           "name": "index",
-          "line": 151
-        },
-        {
-          "name": "bounds",
-          "line": 152
-        },
-        {
-          "name": "tile",
           "line": 153
         },
         {
-          "name": "walk",
+          "name": "bounds",
           "line": 154
         },
         {
-          "name": "visible",
+          "name": "tile",
           "line": 155
         },
         {
-          "name": "log",
-          "line": 158
+          "name": "walk",
+          "line": 156
         },
         {
-          "name": "json",
+          "name": "visible",
+          "line": 157
+        },
+        {
+          "name": "log",
           "line": 160
         },
         {
+          "name": "json",
+          "line": 162
+        },
+        {
           "name": "read",
-          "line": 185
+          "line": 187
         },
         {
           "name": "heroCapacity",
-          "line": 246
-        },
-        {
-          "name": "distance",
-          "line": 247
-        },
-        {
-          "name": "reveal",
           "line": 249
         },
         {
+          "name": "distance",
+          "line": 250
+        },
+        {
+          "name": "reveal",
+          "line": 252
+        },
+        {
           "name": "canSurvey",
-          "line": 259
+          "line": 262
         },
         {
           "name": "openSteps",
-          "line": 268
+          "line": 271
         },
         {
           "name": "openingGlowGrade",
-          "line": 270
+          "line": 273
         },
         {
           "name": "treasure",
-          "line": 279
+          "line": 282
         },
         {
           "name": "act",
-          "line": 317
+          "line": 320
         },
         {
           "name": "enemyThreatRange",
-          "line": 652
+          "line": 682
         },
         {
           "name": "canEnemyStrike",
-          "line": 653
+          "line": 683
         },
         {
           "name": "path",
-          "line": 730
+          "line": 760
         },
         {
           "name": "abandon",
-          "line": 766
+          "line": 796
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1323,
-      "sha256": "57db6c3a326d6887c21f5b141c5167a2aea609fe1baa2a6152ac0e58df647e1b",
+      "sha256": "92e2530f7031ec80b20bd9e8bf566da693939620774bb2b5454c36de13e01dde",
       "symbols": [
         {
           "name": "change",
@@ -37820,8 +37850,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt",
-      "lines": 187,
-      "sha256": "7da33fa6d786d075669dc10a2fa4792f69df2955154620477f81ad86727c0386",
+      "lines": 191,
+      "sha256": "c203880183a35cd64e61da150bc928f5e6e0411530f919c4cfb06ad86ef1f7b9",
       "symbols": []
     },
     {
@@ -38906,8 +38936,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 1231,
-      "sha256": "9388dd18c54212328e732e79d1d1fe00d58d4c6ff199ec2b09bfd1f75433306c",
+      "lines": 1234,
+      "sha256": "35bc85bc372e416ccf87e4fdca9d826cb34fc1469669dff68106876ffdacfc72",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -38915,203 +38945,203 @@
         },
         {
           "name": "observe",
-          "line": 132
+          "line": 135
         },
         {
           "name": "observeDisplay",
-          "line": 145
+          "line": 148
         },
         {
           "name": "virtualWindowStatus",
-          "line": 177
+          "line": 180
         },
         {
           "name": "unknown",
-          "line": 179
+          "line": 182
         },
         {
           "name": "isSensitiveVirtualTap",
-          "line": 228
+          "line": 231
         },
         {
           "name": "checkNode",
-          "line": 247
+          "line": 250
         },
         {
           "name": "visit",
-          "line": 280
+          "line": 283
         },
         {
           "name": "find",
-          "line": 311
+          "line": 314
         },
         {
           "name": "visit",
-          "line": 350
+          "line": 353
         },
         {
           "name": "virtualUiSnapshot",
-          "line": 410
+          "line": 413
         },
         {
           "name": "safeVirtualTapTarget",
-          "line": 430
+          "line": 433
         },
         {
           "name": "tapVirtualUiElement",
-          "line": 464
+          "line": 467
         },
         {
           "name": "labels",
-          "line": 481
+          "line": 484
         },
         {
           "name": "visit",
-          "line": 504
+          "line": 507
         },
         {
           "name": "switchVirtualChatToText",
-          "line": 521
+          "line": 524
         },
         {
           "name": "result",
-          "line": 525
+          "line": 528
         },
         {
           "name": "scan",
-          "line": 563
+          "line": 566
         },
         {
           "name": "virtualChatTextInputVisible",
-          "line": 614
+          "line": 617
         },
         {
           "name": "tapVirtualAppBackControl",
-          "line": 644
-        },
-        {
-          "name": "receipt",
           "line": 647
         },
         {
+          "name": "receipt",
+          "line": 650
+        },
+        {
           "name": "scan",
-          "line": 668
+          "line": 671
         },
         {
           "name": "sendVirtualChatMessage",
-          "line": 709
+          "line": 712
         },
         {
           "name": "denied",
-          "line": 713
+          "line": 716
         },
         {
           "name": "uniqueRecipientInHeader",
-          "line": 730
+          "line": 733
         },
         {
           "name": "locate",
-          "line": 766
+          "line": 769
         },
         {
           "name": "virtualSearchFieldStatus",
-          "line": 806
+          "line": 809
         },
         {
           "name": "focusUniqueVirtualSearchEditor",
-          "line": 839
+          "line": 842
         },
         {
           "name": "virtualHasPasswordField",
-          "line": 858
+          "line": 861
         },
         {
           "name": "hasPassword",
-          "line": 863
+          "line": 866
         },
         {
           "name": "readVirtualSearchFieldText",
-          "line": 875
+          "line": 878
         },
         {
           "name": "typeOnDisplay",
-          "line": 894
+          "line": 897
         },
         {
           "name": "typedTextReadbackOnDisplay",
-          "line": 921
+          "line": 924
         },
         {
           "name": "hasFocusedVirtualSearchEditor",
-          "line": 937
+          "line": 940
         },
         {
           "name": "perform",
-          "line": 943
+          "line": 946
         },
         {
           "name": "receipt",
-          "line": 970
+          "line": 973
         },
         {
           "name": "submitVirtualSearch",
-          "line": 1044
+          "line": 1047
         },
         {
           "name": "receipt",
-          "line": 1045
+          "line": 1048
         },
         {
           "name": "tapNormalized",
-          "line": 1080
+          "line": 1083
         },
         {
           "name": "swipeNormalized",
-          "line": 1092
+          "line": 1095
         },
         {
           "name": "typeIntoFocusedField",
-          "line": 1111
+          "line": 1114
         },
         {
           "name": "scrollVisible",
-          "line": 1121
+          "line": 1124
         },
         {
           "name": "scan",
-          "line": 1131
+          "line": 1134
         },
         {
           "name": "controls",
-          "line": 1145
+          "line": 1148
         },
         {
           "name": "normalize",
-          "line": 1151
-        },
-        {
-          "name": "walk",
           "line": 1154
         },
         {
+          "name": "walk",
+          "line": 1157
+        },
+        {
           "name": "clickFirstText",
-          "line": 1177
+          "line": 1180
         },
         {
           "name": "AccessibilitySnapshot",
-          "line": 1187
+          "line": 1190
         },
         {
           "name": "LuluScreenAction",
-          "line": 1195
+          "line": 1198
         },
         {
           "name": "add",
-          "line": 1208
+          "line": 1211
         },
         {
           "name": "walk",
-          "line": 1217
+          "line": 1220
         }
       ]
     },

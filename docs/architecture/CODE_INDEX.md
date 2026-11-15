@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`10e8311b5ecaac72d30387495b98d728c79f31cf`
+- 基准提交：`51bdf0a644bdd0c4ce740e72946cc1cef889d115`
 - 分支：`main`
 - 已索引文件：1329
-- 已索引代码/文本行：282753
-- 已发现符号：3984
+- 已索引代码/文本行：282821
+- 已发现符号：3987
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -719,9 +719,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1011 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 698 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 309 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 74 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 307 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 318 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt` | 27 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestInspection.kt` | 209 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 70 | 4 |
@@ -732,14 +732,14 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 688 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 224 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 467 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 769 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 799 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1323 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 33 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt` | 17 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt` | 130 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 187 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 191 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt` | 188 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTensionPresentation.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicTreasureArt.kt` | 214 | 4 |
@@ -790,7 +790,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1231 | 51 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1234 | 51 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
