@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T15:45:47.089703+00:00",
-  "commit": "9a32d375afd6991e03ad7f615e887665de1505b7",
+  "generatedAt": "2026-11-15T15:48:58.398475+00:00",
+  "commit": "2ad5ec1689dd21194bdc2ae322fdfdf0a675da0c",
   "branch": "main",
-  "sourceFingerprint": "e43f6283e4c19c29254489f0fe5446a30722922ac20c587c57fd3aaa858bd55c",
+  "sourceFingerprint": "aecf757a1369c7bd02011b22cd309961ac6592a655b2bae258e33be406ae71c4",
   "summary": {
     "files": 1335,
-    "lines": 284726,
+    "lines": 284735,
     "symbols": 4014
   },
   "symbolIndex": {
@@ -14151,13 +14151,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 153
+        "line": 162
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 157
+        "line": 166
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -14171,7 +14171,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 158
+        "line": 167
       }
     ],
     "next": [
@@ -36173,20 +36173,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 1407,
-      "sha256": "54eb4b3efe157e91820535569e6a6e7a4bd700b7a12a1ccdde6d93e813d570ce",
+      "lines": 1416,
+      "sha256": "b16943375461635bed44e5d38b8343ead9c856c9e68ff8014060c0fb27330ee2",
       "symbols": [
         {
           "name": "origin",
-          "line": 153
+          "line": 162
         },
         {
           "name": "center",
-          "line": 157
+          "line": 166
         },
         {
           "name": "actorCenter",
-          "line": 158
+          "line": 167
         }
       ]
     },
@@ -36278,7 +36278,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
       "lines": 1334,
-      "sha256": "ae75cc811df7072ee6aa957bd0ab74c69eadeec509e332036b90e6414ead0fde",
+      "sha256": "e5c822845c3e147637bcdb34502c17dd489175291d8a9e25fd631914072c1794",
       "symbols": [
         {
           "name": "playSound",
@@ -36652,7 +36652,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
       "lines": 597,
-      "sha256": "78b63913cda50dcd6aea5d4263b884d886dac6f8a2e88db1bf3d3480e2425d33",
+      "sha256": "6c480cce2f521ad116a010c0749b4293674812358c0a0fb7f46075a1318f0e28",
       "symbols": []
     },
     {
@@ -36791,7 +36791,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
       "lines": 348,
-      "sha256": "895436cc9db5f430f26f8e0793faf4824c9c0018fcc3c663aa33649fc37a554b",
+      "sha256": "df59455ea375819cdbc959ca66e21706badbf4b1edd68adbb3f0076210cb8e4e",
       "symbols": [
         {
           "name": "submitPlayerMessage",
