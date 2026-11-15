@@ -31,10 +31,12 @@ class RelicQuickActionTest {
             chosen.x, chosen.y)
         assertEquals(0, next.chestProgress[east.id] ?: 0)
         assertEquals(1, next.chestProgress[south.id] ?: 0)
-        // A distant or empty tap must not manufacture a remote interaction.
-        val fallback = relicNearbyAction(scene, facing, h.x + 8 to h.y + 8)!!
-        assertEquals(east.x, fallback.x)
-        assertEquals(east.y, fallback.y)
+        // A deliberate distant/empty tap must not silently open a different chest.
+        // The facing shortcut is available only after returning selection to the hero.
+        assertNull(relicNearbyAction(scene, facing, h.x + 8 to h.y + 8))
+        val facingShortcut = relicNearbyAction(scene, facing, h.x to h.y)!!
+        assertEquals(east.x, facingShortcut.x)
+        assertEquals(east.y, facingShortcut.y)
     }
 
     @Test fun explicitDistantChestNeverOpensAdjacentChest() {
