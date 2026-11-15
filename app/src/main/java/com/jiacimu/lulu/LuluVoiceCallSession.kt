@@ -1935,6 +1935,7 @@ internal object LuluVoiceCallSession {
                 silenceObservationId = observationId,
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
+                phoneSleepMode = latest.sleepMode,
                 turnContext = buildString {
                     append(videoTurnContext)
                     if (responsibilityContext.isNotBlank()) {
