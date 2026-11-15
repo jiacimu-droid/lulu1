@@ -439,6 +439,29 @@ class RelicQuickActionTest {
         assertEquals(3,waited.sweepReadyTurn)
     }
 
+    @Test fun bladeSweepBlocksOneIncomingStrikeNotEverySurroundingEnemy() {
+        val base=run()
+        val h=base.hero
+        val first=RelicMob(961,h.x+1,h.y,5,0,windup=true)
+        val second=RelicMob(962,h.x,h.y+1,5,0,windup=true)
+        val scene=RelicEscapeRules.reveal(base.copy(
+            tiles=List(base.w*base.h){0},
+            mobs=listOf(first,second),allies=emptyList(),
+            seen=(0 until base.w*base.h).toSet(),
+            equipped="blade",weapons=setOf("blade"),
+        ))
+        val swept=RelicEscapeRules.act(scene,"sweep")
+        assertEquals(scene.turns+1,swept.turns)
+        // The first strike is guarded and the second can still land:
+        // the skill is a way to survive encirclement, not invulnerability.
+        assertEquals(9,swept.hero.hp)
+        assertFalse(swept.guarding)
+        assertEquals(3,swept.sweepReadyTurn)
+        val restored=RelicRun.read(swept.json())!!
+        assertEquals(swept.hero.hp,restored.hero.hp)
+        assertEquals(swept.sweepReadyTurn,restored.sweepReadyTurn)
+    }
+
     @Test fun bladeSweepCannotBypassShortBladeRangeOrAnotherWeapon() {
         val base=run()
         val h=base.hero
