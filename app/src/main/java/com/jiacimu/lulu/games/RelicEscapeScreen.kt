@@ -300,7 +300,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 stopWhen = run?.hero?.hp to run?.phase,
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
-                onHoldChange = { joystickHeld = it },
+                onHoldChange = { joystickHeld = RelicCombatSkills.isContinuousTravelGesture(it,aimOnly) },
                 onInteract = { adjacentAction?.let {
                     if (it.action == "open") {
                         inspectingChestId = run?.chests?.firstOrNull { chest ->
@@ -612,7 +612,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         Text(run.profession.skill+" "+run.professionCharges+"次"+if(cd>0)" $cd" else "",
                             color=relicGreen,fontSize=10.sp,maxLines=1)
                     }
-                    TextButton(onClick={aimOnly=!aimOnly},
+                    TextButton(onClick={aimOnly=!aimOnly; joystickHeld=false},
                         enabled=run.phase!=RelicPhase.DOWNED,
                         modifier=Modifier.weight(.95f).height(34.dp),
                         contentPadding=PaddingValues(horizontal=1.dp)) {
