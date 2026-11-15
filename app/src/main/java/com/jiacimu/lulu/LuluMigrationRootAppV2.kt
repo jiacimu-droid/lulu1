@@ -112,6 +112,9 @@ fun LuluMigrationRootAppV2(
     var lexiconInitialFavoriteId by rememberSaveable(initialFavoriteEntryId) { mutableStateOf(initialFavoriteEntryId) }
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
+    // A new invitation must not restore an old hall route from the previous game entry.
+    // Keep one stable entry while visiting chat so its in-progress screen can resume.
+    var gameLaunchGeneration by rememberSaveable { mutableIntStateOf(0) }
     var meetingInviteCharacterId by rememberSaveable(initialRouteName, initialTargetCharacterId) {
         mutableStateOf(
             initialTargetCharacterId?.takeIf {
@@ -296,6 +299,7 @@ fun LuluMigrationRootAppV2(
                                     },
                                     onOpenGame = { gameId ->
                                         initialGameId = gameId
+                                        gameLaunchGeneration += 1
                                         pushRoute(MigrationRoute.Games)
                                     },
                                 )
@@ -419,10 +423,11 @@ fun LuluMigrationRootAppV2(
                                         meetingInvitationId = null
                                     },
                                 )
-                                MigrationRoute.Games -> gamesUiStateHolder.SaveableStateProvider("games") {
+                                MigrationRoute.Games -> gamesUiStateHolder.SaveableStateProvider("games-$gameLaunchGeneration") {
                                     LuluGamesAppV2(
                                         onBack = {
                                             initialGameId = null
+                                            gameLaunchGeneration += 1
                                             popRoute()
                                         },
                                         initialGameId = initialGameId,
