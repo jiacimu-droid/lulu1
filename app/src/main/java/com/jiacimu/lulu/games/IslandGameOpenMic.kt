@@ -40,6 +40,7 @@ internal class IslandGameOpenMic(
     var partial by mutableStateOf("")
         private set
 
+    private var disposed = false
     private var playerSpeaking = false
     private var input: ProviderCallInput? = null
     // A stopped session may still deliver queued STT callbacks after a new mic starts.
@@ -55,7 +56,7 @@ internal class IslandGameOpenMic(
     fun permissionDenied() { status = "需要麦克风权限才能游戏连麦" }
 
     fun start() {
-        if (active) return
+        if (disposed || active) return
         CallVoiceConfiguration.sttPreflight(context)?.let { status = it; return }
         val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         val engine = CallVoiceConfiguration.sttEngine(context)
@@ -100,6 +101,11 @@ internal class IslandGameOpenMic(
         }
     }
 
+    fun dispose() {
+        disposed = true
+        stop()
+    }
+
     fun stop() {
         ++generation
         active = false
@@ -124,13 +130,18 @@ internal fun rememberIslandGameOpenMic(
             if (event == Lifecycle.Event.ON_STOP) mic.stop()
         }
         owner.lifecycle.addObserver(observer)
-        onDispose { owner.lifecycle.removeObserver(observer); mic.stop() }
+        onDispose { owner.lifecycle.removeObserver(observer); mic.dispose() }
     }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        if (it) mic.start() else mic.permissionDenied()
+        // Permission dialogs may finish after the game leaves the foreground.
+        // Never resurrect capture from a stale launcher callback.
+        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            if (it) mic.start() else mic.permissionDenied()
+        }
     }
     val toggle: () -> Unit = {
-        if (mic.active) mic.stop()
+        if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) Unit
+        else if (mic.active) mic.stop()
         else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
             PackageManager.PERMISSION_GRANTED
         ) mic.start()
