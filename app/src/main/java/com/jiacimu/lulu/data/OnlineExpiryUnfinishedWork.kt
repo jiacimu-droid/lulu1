@@ -46,8 +46,8 @@ internal object OnlineExpiryUnfinishedWork {
             // A later result for the same request supersedes its earlier
             // failure; success does not certify the whole goal is complete.
             .filter { (_, attempt, result) ->
-                attempt.optString("status") in unfinished ||
-                    result?.optString("status").orEmpty() in unfinished
+                (result?.optString("status")?.takeIf(String::isNotBlank)
+                    ?: attempt.optString("status")) in unfinished
             }.take(3).toList()
         if (recent.isEmpty()) return ""
         return buildString {
