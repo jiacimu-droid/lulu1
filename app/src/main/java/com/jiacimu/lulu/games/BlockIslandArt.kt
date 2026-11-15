@@ -29,10 +29,69 @@ internal data class BlockIslandImpact(
     val targetMobId: Int? = null,
 )
 
+/**
+ * Lightweight, deterministic caption projection. No additional game-model
+ * calls, synthetic dialogue, persistent character facts or per-frame state.
+ */
+internal fun islandSpeechBubbleLines(text: String, maxChars: Int = 16): List<String> {
+    val clean = text.trim().replace("\n", " ").replace("\r", " ")
+    if (clean.isEmpty()) return emptyList()
+    val width = maxChars.coerceAtLeast(1)
+    val limit = width * 3
+    val rendered = if (clean.length > limit)
+        clean.take((limit - 1).coerceAtLeast(0)) + "…" else clean
+    return rendered.chunked(width)
+}
+
 internal object BlockIslandArt {
     private val grassA = Color(0xFF628E62)
     private val grassB = Color(0xFF709A6C)
     private val grassC = Color(0xFF779C69)
+    /**
+     * Speech belongs to the actual person standing on this tile, not a detached
+     * scrolling chat card. Screen-space width stays readable as camera zoom changes.
+     */
+    private fun DrawScope.paintIslandSpeechBubble(head: Offset, tile: Float, speech: String) {
+        val fontSize = (tile * .25f).coerceIn(11f, 15f)
+        val allowedWidth = (size.width * .34f).coerceIn(115f, 245f)
+            .coerceAtMost((size.width - 12f).coerceAtLeast(20f))
+        val count = ((allowedWidth - 20f) / fontSize).toInt().coerceIn(6, 24)
+        val lines = islandSpeechBubbleLines(speech, count)
+        if (lines.isEmpty()) return
+        val ink = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.rgb(35, 62, 51)
+            textSize = fontSize
+            typeface = android.graphics.Typeface.create(
+                android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        }
+        val longest = lines.maxOf { ink.measureText(it) }
+        val width = (longest + 20f).coerceAtMost(allowedWidth)
+        val height = fontSize * (lines.size * 1.35f) + 11f
+        val x = (head.x - width * .5f).coerceIn(6f, (size.width - width - 6f).coerceAtLeast(6f))
+        val y = (head.y - tile * .93f - height)
+            .coerceIn(8f, (size.height - height - 8f).coerceAtLeast(8f))
+        val canvas = drawContext.canvas.nativeCanvas
+        val background = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.argb(245, 239, 255, 239)
+        }
+        canvas.drawRoundRect(android.graphics.RectF(x, y, x + width, y + height),
+            12f, 12f, background)
+        lines.forEachIndexed { index, line ->
+            canvas.drawText(line, x + 10f, y + 7f + fontSize * (index + 1) * 1.25f,
+                ink)
+        }
+        // Tail points back to its real speaking character.
+        if (head.y > y + height) {
+            val tail = Path().apply {
+                moveTo(head.x - 5f, y + height - 1f)
+                lineTo(head.x + 5f, y + height - 1f)
+                lineTo(head.x, (y + height + 8f).coerceAtMost(head.y))
+                close()
+            }
+            drawPath(tail, Color(0xFFEFFFEF))
+        }
+    }
+
     private val water = Color(0xFF2F7796)
     private val waterLight = Color(0xFF5799AE)
     private val pine = Color(0xFF255D4B)
@@ -66,6 +125,7 @@ internal object BlockIslandArt {
         companionVisuals: Map<String,Offset> = emptyMap(),
         mobVisuals: Map<Int,Offset> = emptyMap(),
         companionLabels: Map<String,String> = emptyMap(),
+        speechBubbles: Map<String,String> = emptyMap(),
         playerFacing: Pair<Int,Int> = 0 to 1,
         camera: IslandFollowCamera,
         navigationStep: Pair<Int, Int>? = null,
@@ -366,6 +426,9 @@ internal object BlockIslandArt {
                     drawContext.canvas.nativeCanvas.drawText(name,
                         head.x,head.y-tile*.59f,companionNamePaint)
                 }
+                speechBubbles[friend.id]?.let { line ->
+                    paintIslandSpeechBubble(head, tile, line)
+                }
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
             val playerCenter=actorCenter(playerVisual,w.x,w.y)
@@ -373,6 +436,9 @@ internal object BlockIslandArt {
                 abs(playerVisual.x-w.x)+abs(playerVisual.y-w.y)>.025f
             drawPerson(playerCenter,tile,
                 Color(0xFFEEA87C),Color(0xFF715047),phase,true,walking=walking)
+            speechBubbles["player"]?.let { line ->
+                paintIslandSpeechBubble(playerCenter, tile, line)
+            }
             // Clear directional cue beneath the feet: turning does not spend a game turn.
             val heading=Offset(playerFacing.first.toFloat(),playerFacing.second.toFloat())
             if(abs(playerFacing.first)+abs(playerFacing.second)==1) {
