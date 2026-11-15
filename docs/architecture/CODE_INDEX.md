@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`17e714a006d9f109fe23886a53b5b13b2ff657ae`
+- 基准提交：`4c046bb4d40699f9a0a30eea051af8a065664594`
 - 分支：`main`
 - 已索引文件：1341
-- 已索引代码/文本行：285575
+- 已索引代码/文本行：285593
 - 已发现符号：4033
 
 | 文件 | 行数 | 符号数 |
@@ -539,7 +539,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 141 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 243 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 73 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt` | 69 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 68 | 3 |
@@ -1152,7 +1152,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 251 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1256 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 133 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt` | 126 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWorkTest.kt` | 139 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
