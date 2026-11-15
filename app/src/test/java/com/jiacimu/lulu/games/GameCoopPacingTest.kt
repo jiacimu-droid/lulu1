@@ -55,6 +55,23 @@ class GameCoopPacingTest {
             autonomousIds=roster))
     }
 
+    @Test fun downedPlayerDoesNotFreezeAnExplicitlyChosenRescueRoute() {
+        val base=RelicEscapeWorld.create(77,1,roster.toList(),1,1)
+        val down=base.copy(
+            phase=RelicPhase.DOWNED,
+            hero=base.hero.copy(hp=0),
+            mobs=emptyList(),
+            coopPlans=mapOf("alice" to RelicCoopPlan("rescue",lastStepTurn=base.turns)),
+        )
+        assertTrue(GameCoopPacing.relicHasPlan(down))
+        assertFalse("the rescue plan must still move after a down",GameCoopPacing.relicThreat(down))
+        assertTrue(GameCoopPacing.relicThreat(down.copy(coopPlans=emptyMap())))
+        val incapacitated=down.copy(allies=down.allies.map {
+            if(it.id=="alice")it.copy(kits=0)else it
+        })
+        assertTrue(GameCoopPacing.relicThreat(incapacitated))
+    }
+
     @Test fun relicPlannedStepsUseRealTurnAndStopAfterOwnerChangesMind() {
         val base=RelicEscapeWorld.create(77,1,roster.toList(),1,1)
         val s=base.copy(tiles=List(base.w*base.h){0},mobs=emptyList(),
