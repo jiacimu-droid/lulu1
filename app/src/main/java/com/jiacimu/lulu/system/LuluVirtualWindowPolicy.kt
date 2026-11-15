@@ -30,5 +30,10 @@ internal object LuluVirtualWindowPolicy {
             "no_window", "root_unreadable", "package_unreadable",
         )
 
+    /** Only wait for Android's own service rebind. Never enable permissions,
+     * dismiss dialogs, retry input, or treat a missing service as a verified screen. */
+    fun canRetryServiceConnectionReadOnly(kind: String, diagnostic: String): Boolean =
+        kind == "unknown" && diagnostic == "accessibility_disconnected"
+
     fun pausesAutomation(kind: Kind): Boolean = kind != Kind.TARGET
 }
