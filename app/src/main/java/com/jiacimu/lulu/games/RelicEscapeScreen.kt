@@ -925,14 +925,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         fontWeight=FontWeight.Bold,fontSize=13.sp)
                 if(run.phase!=RelicPhase.DOWNED) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            // A visible target is not necessarily reachable: blocked corridors
+                            // must not present enabled buttons that silently do nothing.
+                            val nextStep = if (visible) RelicEscapeRules.path(run,hero.x,hero.y,sx,sy) else null
                             Row(horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                                RelicCommand("向目标一步",Modifier.weight(1f),enabled=visible) {
-                                    val step=RelicEscapeRules.path(run,hero.x,hero.y,sx,sy)
-                                    if(step!=null)action("move",step.first,step.second)
+                                RelicCommand("向目标一步",Modifier.weight(1f),enabled=nextStep!=null) {
+                                    nextStep?.let { action("move",it.first,it.second) }
                                 }
-                                RelicCommand("潜行一步",Modifier.weight(1f),enabled=visible) {
-                                    val step=RelicEscapeRules.path(run,hero.x,hero.y,sx,sy)
-                                    if(step!=null)action("sneak",step.first,step.second)
+                                RelicCommand("潜行一步",Modifier.weight(1f),enabled=nextStep!=null) {
+                                    nextStep?.let { action("sneak",it.first,it.second) }
                                 }
                             }
                             Row(horizontalArrangement=Arrangement.spacedBy(5.dp)) {
