@@ -152,6 +152,8 @@ internal data class RelicRun(
     /** Player's chosen camp profession; old save defaults to a scouting explorer. */
     val profession:RelicProfession = RelicProfession.SCOUT,
     val professionReadyTurn:Int = 0,
+    /** Three class ability charges per real expedition; prevents limitless free healing. */
+    val professionCharges:Int = 3,
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -183,6 +185,7 @@ internal data class RelicRun(
         .put("satchelLevel",satchelLevel).put("difficulty",difficulty.name)
         .put("contract",contract.name).put("sweepReadyTurn",sweepReadyTurn)
         .put("profession",profession.name).put("professionReadyTurn",professionReadyTurn)
+        .put("professionCharges",professionCharges)
         .put("chestProgress",JSONObject().apply {
             chestProgress.forEach { (id,progress) -> put(id.toString(),progress) }
         })
@@ -235,6 +238,7 @@ internal data class RelicRun(
                 profession=runCatching { RelicProfession.valueOf(j.optString("profession","SCOUT")) }
                     .getOrDefault(RelicProfession.SCOUT),
                 professionReadyTurn=j.optInt("professionReadyTurn",0).coerceIn(0,result.turns+100),
+                professionCharges=j.optInt("professionCharges",3).coerceIn(0,3),
                 chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
                     val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
                     buildMap {
@@ -634,7 +638,8 @@ internal object RelicEscapeRules {
                         s.copy(seen=explored).log("player","profession_skill",
                             "探路者远眺：探明${explored.size-s.seen.size}格未知地形")
                     }
-                }.copy(professionReadyTurn=s.turns+4)
+                }.copy(professionReadyTurn=s.turns+4,
+                    professionCharges=s.professionCharges-1)
                 noise=if(s.profession==RelicProfession.SCOUT)1 else 0
             }
             "defend"->{
