@@ -328,3 +328,9 @@
 
 - 正式 `RelicQuickAction.kt` 原先先返回脚下可拾取掉落，再检查玩家显式点选的邻箱/救援目标；造成玩家点箱按中心键却拾取另一位置的物品。现在非主角格的显式选中优先执行该格合法实体交互，不能操作时返回空；光标在主角格才优先拾取脚下实物，再走面向快捷操作。生产 commit `c6c70fdb84000baf3abb9297a68c5ded531f46b9`，blob `d9c945fa8b318e293ad9b8f74ff1c4a925de473a`。
 - `RelicQuickActionTest.explicitAdjacentChestWinsOverUnrelatedUnderfootTreasure` 用真实撬锁进度、地面物品、拾取入包与存档重载核查两次不同操作互不吞掉；测试 commit `09d5e071deaaa553425595f1934d0ebdbef95561`，blob `21966234dda85a002f691bfc507df75d3bb04db4`。未改掉率/怪物/角色意愿。JVM/APK/index 必须按包含测试的 main push SHA 核，真机触控与帧率未验。下一文件 `RelicEscapeScreen.kt`，验中心按钮在显式点箱和脚下掉落共存时的触控及 360dp 横屏遮挡。
+
+### 2026-11-15 · G-03.5 · 撤离期间点选空地不再误推进守门回合
+
+- 生产 `b0325d4`（`RelicQuickAction.kt` blob `b8916bd7`）：原来 `EXTRACT` 阶段任何无法互动的选中格都会回退成 `wait`，可能把地图选中空地当成主动守门；现在仅主角格提供明确等待动作，地图点选空地不推进世界。角色自主选择及权威撤离规则未改。
+- 回归 `b417d84`（`RelicQuickActionTest.kt` blob `40a983b1`）：检查主角格等待、远处空地无行动、中心互动不擅自等待，以及存档读回的背包/回合保持。已提交 main，JVM/APK/index 尚未取得该 SHA 的成功证据，真机横屏与真实模型仍待验。
+- 下一文件：`RelicEscapeScreen.kt` 核正式地图选中格与守门按钮显示；按 `b417d84` main push 查 JVM/APK/index，不能借旧绿色结果。
