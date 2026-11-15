@@ -65,7 +65,6 @@ internal fun IslandCompanionPanel(
         mutableStateOf(IslandTeamInbox())
     }
     var typedMessage by rememberSaveable { mutableStateOf("") }
-    var showTextChat by rememberSaveable { mutableStateOf(false) }
     var speechIndex by remember { mutableIntStateOf(0) }
     var lastRequestedSpeech by remember { mutableIntStateOf(0) }
     var lastRequestedTurn by remember(island.world.seed) { mutableIntStateOf(-1) }
@@ -288,112 +287,93 @@ internal fun IslandCompanionPanel(
                 } else if(openMic.status.isNotBlank()) openMic.status
                 else "点「开麦」，一边玩一边说",
                 fontSize=10.sp, color=Color(0xFFADCFBF), maxLines=2)
-                // New chat is immediate; saved factual world events still reappear after rotation.
-                val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(if(expanded)3 else 1)
-                    else island.world.events.filter { it.startsWith("队友[") }.takeLast(if(expanded)2 else 1)
-                if (expanded) teamFeed.forEach { line ->
-                    Surface(
-                        color = Color(0xFF254752), shape = RoundedCornerShape(13.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = .06f)),
-                    ) {
-                        Text(line, modifier = Modifier.fillMaxWidth().padding(10.dp),
-                            color = Color(0xFFE7F9F0), fontSize = 11.sp, lineHeight = 16.sp,
-                            maxLines = if(expanded) 5 else 2,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                    }
+            if (thinking) LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().height(2.dp),
+                color = Color(0xFFA3E5C5))
+            if (error.isNotBlank()) Text(error + " · 游戏仍可继续",
+                color = Color(0xFFFFC3BA), fontSize = 10.sp, maxLines = 2)
+        }
+    }
+    // The voice pill is intentionally tiny in landscape. Text chat and party
+    // management open in a proper dialog instead of being clipped to 140dp.
+    if (expanded) AlertDialog(
+        onDismissRequest = { expanded = false },
+        containerColor = Color(0xFF19313B),
+        titleContentColor = Color.White,
+        textContentColor = Color(0xFFE7F9F0),
+        title = { Text("小岛队伍交流",fontSize=17.sp) },
+        text = {
+            Column(Modifier.heightIn(max=245.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Text("伙伴自主行动",color=Color.White,
+                        modifier=Modifier.weight(1f),fontSize=12.sp)
+                    Switch(checked=autonomous,onCheckedChange=onAutonomousChange)
                 }
-            if (expanded) Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                island.world.friends.forEach { friend ->
-                    val name=MigratedDomainStores.characters.get(friend.id).displayName
-                    val travel=island.companionTravel[friend.id]
-                    AssistChip(onClick={currentPing((travel?.x ?: friend.x) to (travel?.y ?: friend.y))},
-                        label={ Text(name+" · "+friend.hp+"❤"+
-                            (travel?.let { if(it.targetMobId==-2)" · 来找你"
-                                else if(it.targetMobId==-3)" · 采木剩"+it.harvestRemaining+"棵"
-                                else if(it.targetMobId>=0)" · 追怪中"
-                                else " → ("+it.x+","+it.y+")" } ?: ""),fontSize=11.sp) },
-                        colors=AssistChipDefaults.assistChipColors(containerColor=Color(0xFF254752),
-                            labelColor=Color(0xFFD7F6E5)),
-                        border=BorderStroke(1.dp,Color(0xFF46786E)))
-                }
-            }
-            if(expanded) Row(verticalAlignment=Alignment.CenterVertically) {
-                Text("角色自主操作",color=Color.White,modifier=Modifier.weight(1f),fontSize=12.sp)
-                Switch(checked=autonomous,onCheckedChange=onAutonomousChange)
-            }
-            if (autonomous) {
-                if(expanded) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    listOf("一起去打怪吧！", "你能保护我一下吗？", "我们一起把房子建起来").forEach { ping ->
-                        AssistChip(
-                            onClick = { submitPlayerMessage(ping) },
-                            label = { Text(ping, fontSize = 11.sp) },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = Color(0xFF264951),
-                                labelColor = Color(0xFFC7F4E8),
-                            ),
-                            border = BorderStroke(1.dp, Color(0xFF46786E)),
-                        )
+                    horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    island.world.friends.forEach { friend ->
+                        val travel=island.companionTravel[friend.id]
+                        val name=MigratedDomainStores.characters.get(friend.id).displayName
+                        AssistChip(onClick={
+                            currentPing((travel?.x?:friend.x) to (travel?.y?:friend.y))
+                            expanded=false
+                        }, label={Text(name+" · "+friend.hp+"❤",fontSize=11.sp)},
+                            colors=AssistChipDefaults.assistChipColors(
+                                containerColor=Color(0xFF254752),
+                                labelColor=Color(0xFFD7F6E5)))
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { speaker.stop(); microphone() }) {
-                        Text("单次说话", color = Color(0xFFAEF0D7), fontSize = 12.sp)
-                    }
-                    TextButton(onClick = { showTextChat = !showTextChat }) {
-                        Text(if (showTextChat) "收起文字聊天" else "打字跟队友说",
-                            color = Color(0xFFAEF0D7), fontSize = 12.sp)
-                    }
-                }
-                if (showTextChat) {
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = typedMessage,
-                            onValueChange = { typedMessage = it },
-                            modifier = Modifier.weight(1f),
-                            maxLines = 2,
-                            placeholder = { Text("跟队友说句话…", fontSize = 12.sp) },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF9DE7D0),
-                                unfocusedBorderColor = Color(0xFF658F8A),
-                                focusedPlaceholderColor = Color(0xFFA4C9C1),
-                                unfocusedPlaceholderColor = Color(0xFFA4C9C1),
-                            ),
-                        )
-                        Button(onClick = {
-                            submitPlayerMessage(typedMessage)
-                            typedMessage = ""
-                        }, enabled = typedMessage.isNotBlank()) {
-                            Text("发送", fontSize = 12.sp)
+                if (autonomous) {
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                        listOf("我们现在做什么？","教教我怎么盖房子",
+                            "我们一起建个家吧").forEach { suggestion ->
+                            AssistChip(onClick={
+                                submitPlayerMessage(suggestion)
+                                expanded=false
+                            }, label={Text(suggestion,fontSize=11.sp)},
+                                colors=AssistChipDefaults.assistChipColors(
+                                    containerColor=Color(0xFF264951),
+                                    labelColor=Color(0xFFC7F4E8)))
                         }
                     }
                 }
+                OutlinedTextField(
+                    value=typedMessage,onValueChange={typedMessage=it},
+                    modifier=Modifier.fillMaxWidth(),maxLines=3,
+                    placeholder={Text("跟伙伴商量下一步…",fontSize=12.sp)},
+                    colors=OutlinedTextFieldDefaults.colors(
+                        focusedTextColor=Color.White,
+                        unfocusedTextColor=Color.White,
+                        focusedBorderColor=Color(0xFF9DE7D0),
+                        unfocusedBorderColor=Color(0xFF658F8A)))
+                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick={speaker.stop();microphone();expanded=false}) {
+                        Text("单次说话",color=Color(0xFFBDE4D5))
+                    }
+                    TextButton(
+                        onClick={submitPlayerMessage(typedMessage);typedMessage="";expanded=false},
+                        enabled=typedMessage.isNotBlank()) {
+                        Text("发送",color=Color(0xFFBDE4D5))
+                    }
                 }
-                if (thinking) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = Color(0xFFA3E5C5),
-                    )
-                }
-                if (error.isNotBlank())
-                    Text(error + "（游戏仍可继续）", color = Color(0xFFFFC3BA),
-                        fontSize = 11.sp, lineHeight = 17.sp)
-                if (expanded && teamInbox.messages.isNotEmpty()) {
-                    Text(
-                        "${teamInbox.messages.size} 条队伍消息待确认 · 模型失败时保留，下一次行动或发言会继续投递",
-                        color = Color(0xFFEFD3A6), fontSize = 11.sp, lineHeight = 16.sp,
-                    )
-                }
-                if(expanded) Text("聊天选择游戏模型；朗读使用此人物已配置的语音服务。选择收费音色时会按次计费，关闭则不合成。",
-                    color = Color(0xFF95BEB4), fontSize = 10.sp, lineHeight = 15.sp)
+                val feed=if(dialogue.isNotEmpty())dialogue.takeLast(4)
+                    else island.world.events.filter{it.startsWith("队友[")}.takeLast(2)
+                feed.forEach { Text(it,color=Color(0xFFC6E1D6),fontSize=11.sp) }
+                if(teamInbox.messages.isNotEmpty())Text(
+                    "待确认消息 ${teamInbox.messages.size} 条",
+                    color=Color(0xFFEFD3A6),fontSize=11.sp)
+                Text("发言经原游戏模型决定，语音合成使用角色既有音色配置。",
+                    color=Color(0xFFABCBC1),fontSize=10.sp)
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(onClick={expanded=false}) {
+                Text("返回地图",color=Color(0xFFBDE4D5))
+            }
+        },
+    )
 }
 
 /** Saved-state only: the real actor identity and game history remain in existing stores. */
