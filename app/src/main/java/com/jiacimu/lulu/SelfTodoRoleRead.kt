@@ -103,20 +103,53 @@ internal object SelfTodoRoleRead {
             .put("summary", summary)
     }
 
-    /** Small context cue; the role chooses whether to fetch full detail. */
+    /** A small, fresh projection from the SAME owner store as the read tool.
+     * It is included in existing role decisions, without another paid tool turn.
+     * Full details and longer lists remain behind read_self_todo pagination. */
+    internal fun briefContext(tasks: List<TodoTask>, now: Instant): String {
+        val date = now.atZone(ZoneId.systemDefault()).toLocalDate()
+        val pending = SelfTodoCalendar.allPending(tasks, date)
+        val dueToday = pending.filter { it.date == date }
+        val overdue = pending.filter { it.date.isBefore(date) }
+        val futureCount = pending.count { it.date.isAfter(date) }
+        val completedToday = tasks.flatMap { task ->
+            task.completions.filter { log -> log.completedAt > 0 &&
+                Instant.ofEpochMilli(log.completedAt)
+                    .atZone(ZoneId.systemDefault()).toLocalDate() == date
+            }.map { task.title to it.completedAt }
+        }.sortedByDescending { it.second }
+        val shownToday = dueToday.take(4)
+        val shownOverdue = overdue.take(2)
+        return buildString {
+            appendLine("【主人自序·所行｜本机当前已保存清单，读取日期${date}】今天未完成${dueToday.size}项，逾期${overdue.size}项，今天勾选${completedToday.size}次，未来待办${futureCount}项。")
+            if (shownToday.isNotEmpty()) {
+                appendLine("今天的部分待办：")
+                shownToday.forEach { item ->
+                    appendLine("- ${item.task.title.take(65)}${item.task.minutes?.let { "（%02d:%02d）".format(it / 60, it % 60) }.orEmpty()}")
+                }
+            }
+            if (shownOverdue.isNotEmpty()) {
+                appendLine("逾期的部分待办：")
+                shownOverdue.forEach { item ->
+                    appendLine("- ${item.date} ${item.task.title.take(65)}")
+                }
+            }
+            if (completedToday.isNotEmpty()) {
+                appendLine("今天确实在所行中勾选的部分事项：")
+                completedToday.take(2).forEach { (title, _) -> appendLine("- ${title.take(65)}") }
+            }
+            val hidden = dueToday.size - shownToday.size + overdue.size - shownOverdue.size
+            if (hidden > 0) appendLine("另有${hidden}项今天或逾期事项未在摘要列出。")
+            append("这是本次从本机权威待办存储即时读取的摘要，不是昨天聊天中的旧记忆；")
+            append("想了解完整条目、任务备注、未来安排或详细完成记录，可自行调用 read_self_todo(scope=today|all)，按 nextOffset 翻页，无需主人截图。")
+            append("清单未勾选不能证明主人没学习，须结合真实学习计时或获许可的监督证据。")
+        }.trim()
+    }
+
+    /** If current storage is unreadable, never represent old memories as live data. */
     fun opportunity(context: Context, now: Instant = Instant.now()): String {
         val tasks = SelfTodoStore.readForRole(context)
-            ?: return "【自序·所行】读取失败；不能假定今日清单为空"
-        val date = now.atZone(ZoneId.systemDefault()).toLocalDate()
-        val due = SelfTodoCalendar.allPending(tasks, date)
-        val todayCount = due.count { it.date == date }
-        val overdueCount = due.count { it.date.isBefore(date) }
-        val checked = tasks.sumOf { task -> task.completions.count { log ->
-            log.completedAt > 0 && Instant.ofEpochMilli(log.completedAt)
-                .atZone(ZoneId.systemDefault()).toLocalDate() == date
-        } }
-        return "【主人自序·所行｜本机日期${date}】今天未完成${todayCount}项，逾期${overdueCount}项，今天勾选${checked}次。" +
-            "你可自主调用 read_self_todo 查最新任务详情，再结合真实学习记录、限时获授权的学习监督决定是否联系、怎样鼓励或提醒；" +
-            "待办未勾选不代表主人没有学习，不能擅自完成、修改清单，也不需要自动派发固定催促。"
+            ?: return "【主人自序·所行】本机当前保存的待办读取失败；不能凭旧聊天推测今天清单或声称数据停在昨天。read_self_todo 也须以真实回执为准。"
+        return briefContext(tasks, now)
     }
 }
