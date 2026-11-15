@@ -54,6 +54,15 @@ class LuluVirtualWindowPolicyTest {
             "other_app", "accessibility_disconnected"))
     }
 
+    @Test fun virtualGestureOnlyRunsOnAnOwnedNonMainDisplay() {
+        assertTrue(LuluVirtualWindowPolicy.allowsGestureOnDisplay(4, "target"))
+        assertFalse(LuluVirtualWindowPolicy.allowsGestureOnDisplay(0, "target"))
+        assertFalse(LuluVirtualWindowPolicy.allowsGestureOnDisplay(-1, "target"))
+        assertFalse(LuluVirtualWindowPolicy.allowsGestureOnDisplay(4, "unknown"))
+        assertFalse(LuluVirtualWindowPolicy.allowsGestureOnDisplay(4, "other_app"))
+        assertFalse(LuluVirtualWindowPolicy.allowsGestureOnDisplay(4, "system_dialog"))
+    }
+
     @Test fun mikaClassifierOnlyMarksProvenTaskRelation() {
         assertTrue(LuluMikaAppSwitch.switchedTo(target,"com.android.browser",
             sameTask = { false }, partOfTask = emptySet(), settingsPage = { false })?.byTarget == false)
