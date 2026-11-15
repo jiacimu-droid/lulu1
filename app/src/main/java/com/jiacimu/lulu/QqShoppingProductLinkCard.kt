@@ -1,6 +1,5 @@
 package com.jiacimu.lulu
 
-import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -43,13 +42,12 @@ internal fun QqShoppingProductLinkCard(
             onClickLabel = "打开${product.merchant}商品链接",
             onLongClickLabel = "消息操作",
             onClick = {
-                try {
-                    context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Uri.parse(product.url))
-                            .addCategory(Intent.CATEGORY_BROWSABLE)
-                    )
-                } catch (_: Exception) {
-                    Toast.makeText(context, "无法打开商品链接，请检查商家应用或浏览器", Toast.LENGTH_LONG).show()
+                when (QqShoppingProductLinkOpener.open(context, product)) {
+                    QqShoppingProductLinkOpener.Result.MERCHANT_APP -> Unit
+                    QqShoppingProductLinkOpener.Result.SYSTEM_HANDLER ->
+                        Toast.makeText(context, "商家App没有接收此链接，已交给系统默认方式打开", Toast.LENGTH_SHORT).show()
+                    QqShoppingProductLinkOpener.Result.FAILED ->
+                        Toast.makeText(context, "无法打开商品链接，请检查商家应用或浏览器", Toast.LENGTH_LONG).show()
                 }
             },
             onLongClick = onLongClick,
