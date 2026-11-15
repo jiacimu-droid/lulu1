@@ -377,3 +377,9 @@
 
 - 正式 `RelicEscapeScreen.kt` 战术页此前仅以 `visible` 启用「向目标一步」「潜行一步」，但已探明目标可能被墙、守卫或其他障碍阻断；`RelicEscapeRules.path` 返回 null 时按钮点击无任何动作/回执。生产提交 `992f411890ec07c42df684e2a2cfb35ba89e617b` 改为用同一权威 `path` 结果同时控制按钮可用状态与实际下一步，禁止已知不可达目标的空点击，不揭雾、不移动、不扣资源、不替角色决定。源码 blob `7aa52f001ad680265026914a96732b0170bddb69`。已有 `RelicObjectiveRouteTest` 对敌人/迷雾阻路和路径恢复覆盖规则，本轮不重复造同类路径测试；Compose 矮横屏触控仍待设备验证。
 - 本轮 main push 的 commit statuses 为空，PR-only workflow 查询无记录，均不代表 APK/JVM/index 通过；下一入口按 `992f411` 对应 main push 的 Actions JVM/APK/index 终态核实，再看 `RelicEscapeScreen.kt` 战术页目标可达/不可达状态及 360dp 横屏实际点按；真机帧率、原创美术审图和真实角色协作独立待验。
+
+
+## 2026-11-15 G-03.5 · 地图点选手势稳定性（待 CI/真机）
+
+- `RelicEscapeArt.kt` 的 Canvas 点击手势原先把每次 Compose 重组产生的 `onSelect` 回调作为 `pointerInput` key，可能导致地图动画/选择更新时取消并重建点击识别器。生产 `caf5b6483d50cd209e73fab6bf6681adeb04a6db` 改用 `rememberUpdatedState(onSelect)`，key 仅保留地图尺寸、场景及焦点等真正需要重启手势的条件；仍使用权威 `relicMapCamera.tileAt` 和原选择回调，不改移动、掉落、战斗或人物决策。源码 blob `0dd323902a406a508605b0f47fdbc22e5d38cc96`。
+- 本轮无新增 JVM 测试（属于 Compose 手势生命周期问题，不能用规则测试假装触控验收）。前一 `282a2a5` 对应 Lulu APK/JVM #43721148872 已 completed/failure（build 的 Test and build phone APK 步骤失败），不能算绿；本次提交及交接后的 main push 需独立核 JVM/APK/index。下一实际入口：`RelicEscapeArt.kt` 360/412dp 横屏连续点选/拖拽与手势不中断、`RelicEscapeScreen.kt` 地图 HUD，以及新 SHA APK 首错；帧时间和美术仍待真机。
