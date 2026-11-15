@@ -23,6 +23,10 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -53,6 +57,7 @@ internal fun IslandCompanionPanel(
     readIsland: () -> BlockIslandState = { island },
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
     var voice by rememberSaveable { mutableStateOf(prefs.getBoolean("voice",true)) }
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -104,6 +109,26 @@ internal fun IslandCompanionPanel(
     val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
 
+    // No paid call per tile. Only an already self-selected multi-step route
+    // or building project can advance while the player stays still.
+    LaunchedEffect(island.world.seed, autonomous, members) {
+        while (isActive) {
+            delay(GameCoopPacing.PLANNED_STEP_MS)
+            val now = readCurrentIsland()
+            if (!GameCoopPacing.canTick(
+                    hasPlan = GameCoopPacing.islandHasPlan(now, autonomous),
+                    isForeground = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
+                    navigating = latestNavigating,
+                    thinking = thinking,
+                    playerSpeaking = openMic.partial.isNotBlank(),
+                    nearbyThreat = GameCoopPacing.islandThreat(now),
+                )) continue
+            val next = BlockIslandRules.act(
+                now, "companion_tick", autonomousIds = now.world.friends.map { it.id }.toSet())
+            if (next.world.turns > now.world.turns) currentSave(next)
+        }
+    }
+
     // Real state changes only enqueue one signal. Fast manual movement does not cancel
     // in-flight model requests or generate unlimited duplicate decisions.
     LaunchedEffect(island.world.seed, island.world.turns, navigating, autonomous, speechIndex, members) {
@@ -125,6 +150,15 @@ internal fun IslandCompanionPanel(
         }
         // Reopening a previously completed turn does not pay for a redundant reply.
         if (allActed && members.all { unreadSnapshot.forRole(it).isEmpty() }) {
+            lastRequestedTurn = expectedTurn
+            lastRequestedSpeech = currentSpeech
+            continue
+        }
+        // A continuing character-owned multi-turn plan is executed for free by
+        // the world rules; do not purchase another decision at each planned tile.
+        // A new player utterance still forces this same actor to reconsider it.
+        if (GameCoopPacing.islandHasPlan(readCurrentIsland(), autonomous) &&
+            members.all { unreadSnapshot.forRole(it).isEmpty() }) {
             lastRequestedTurn = expectedTurn
             lastRequestedSpeech = currentSpeech
             continue
