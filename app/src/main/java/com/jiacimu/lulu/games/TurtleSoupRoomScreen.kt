@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.CompanionContextMode
-import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -119,7 +118,6 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             maxTokens = 40,
             usage = ModelUsage.Game,
             contextMode = if (snapshot.host == SoupHost.AI) CompanionContextMode.Isolated else CompanionContextMode.PersonaAndScenario,
-            contextMode = if (snapshot.host == SoupHost.AI) CompanionContextMode.Isolated else CompanionContextMode.Full,
         )
         result.onSuccess { response ->
             val verdict = normalizeSoupVerdict(response.text)
