@@ -37,7 +37,9 @@ internal object RelicLobbyInvitation {
             source="游戏 · 迷雾摸金营地邀请",
             title="收到摸金组队邀请",
             usage=ModelUsage.Game,
-            contextMode=CompanionContextMode.CharacterAndScenario,
+            // The decision to join belongs to the character's ongoing life.
+            // The lightweight scenario-only renderer omits raw history.
+            contextMode=CompanionContextMode.Full,
             maxTokens=170,
         ).mapCatching { parse(it.text) ?: error("邀请回复格式无效，尚未加入队伍") }
     }
