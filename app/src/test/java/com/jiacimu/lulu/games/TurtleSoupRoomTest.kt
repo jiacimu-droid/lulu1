@@ -176,4 +176,24 @@ class TurtleSoupRoomTest {
         }
     }
 
+    @Test fun customMysterySecretsPersistButNeverReachGuesserContext() {
+        val custom = SoupRoom(
+            caseId = CUSTOM_CASE_ID,
+            customTitle = "深夜的电台",
+            customSurface = "他关掉收音机后，房间里还是有人一字不差地复述刚才的天气预报。",
+            customTruth = "邻居的蓝牙音箱误连到了他家的接收器。关掉的只是收音机电源，另一台音箱还在播同一段预录新闻；并没有藏在屋里的陌生人。",
+            host = SoupHost.USER, companions = listOf("jiangdu"), started = true,
+        )
+        val encoded = custom.toJson()
+        val restored = SoupRoom.fromJson(encoded)!!
+        assertEquals(custom, restored)
+        assertEquals("深夜的电台", restored.puzzle.title)
+        assertTrue(restored.puzzle.truth.contains("蓝牙音箱"))
+        assertFalse(restored.publicContext().contains("蓝牙音箱"))
+        assertTrue(restored.publicContext().contains("复述"))
+        val invalid = org.json.JSONObject(encoded).put("custom_truth", "").toString()
+        assertNull(SoupRoom.fromJson(invalid))
+        assertEquals(SoupLibrary.cases.first().id, SoupRoom().caseId)
+    }
+
 }
