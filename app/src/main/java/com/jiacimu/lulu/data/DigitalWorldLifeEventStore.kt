@@ -290,7 +290,7 @@ internal object DigitalWorldLifeEventStore {
                     incident.kind in ambientMoments && incident.kind !in personalAmbient &&
                     !incident.createdAt.isAfter(now) &&
                     now.epochSecond - incident.createdAt.epochSecond <= 600L
-            }.sortedByDescending { it.createdAt }.take(5).map { it.toTick(now) }.toList()
+            }.sortedByDescending { it.createdAt }.take(5).map { it.toTick(it.createdAt) }.toList()
         }
         return candidate.filterNot { tick ->
             SharedExperienceTimeline.eventsByIds(characterId,
