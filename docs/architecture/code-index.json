@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:51:14.981287+00:00",
-  "commit": "6161d7ccc09e105b2514de04fc44d2300c58ff80",
+  "generatedAt": "2026-11-16T03:52:14.539300+00:00",
+  "commit": "6e93190d24174cae7ecbeeaca1983f674518abf9",
   "branch": "main",
-  "sourceFingerprint": "ae05a1b72f6f401ba92e281fa22639ce76b662a9fe98e182106ff8f750fa2ce1",
+  "sourceFingerprint": "1d90661081e009e6c4f23a7005ec848f7056b3e0854e43c6c1722d10d0214dac",
   "summary": {
     "files": 1346,
-    "lines": 287290,
+    "lines": 287317,
     "symbols": 4053
   },
   "symbolIndex": {
@@ -36896,8 +36896,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
-      "lines": 89,
-      "sha256": "6d37ca77903b5875c35530f0a2cdf16597c2945258fcb0220842b9b94d096575",
+      "lines": 98,
+      "sha256": "62457682abd85c61346de3267a354deff693453d5e64320c8d04b0857379a968",
       "symbols": [
         {
           "name": "recordPartyJoined",
@@ -46820,8 +46820,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 110,
-      "sha256": "ed0cd8f3feba2e809ec484fe9548ba5e407419ebbf3b6aaf4abd95612e908083",
+      "lines": 128,
+      "sha256": "8f83890fb95f7bc972304cffb5a990a02d91e538bf1a9ca0e7eb0e460699148b",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
