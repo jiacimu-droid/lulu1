@@ -212,7 +212,52 @@ internal fun RelicEscapeWorldMap(
                 }
                 val site=siteByCell[y*run.w+x]
                 if(site!=null) {
-                    if(site.kind=="alarm") {
+                    if(site.kind=="seal_gate") {
+                        // Actual wall until its paired switch changes the saved tile.
+                        // After unlocking, the open passage stays visibly different.
+                        val metal=if(site.spent)Color(0xFF668F9B) else Color(0xFFB1A2D0)
+                        drawRoundRect(metal.copy(alpha=if(site.spent).15f else .78f),
+                            p+Offset(t*.12f,t*.10f),Size(t*.76f,t*.80f),
+                            CornerRadius(t*.11f),style=Stroke(t*.085f))
+                        if(!site.spent) {
+                            drawLine(metal.copy(alpha=.85f),
+                                p+Offset(t*.18f,t*.18f),p+Offset(t*.82f,t*.82f),
+                                strokeWidth=t*.08f)
+                            drawLine(metal.copy(alpha=.85f),
+                                p+Offset(t*.82f,t*.18f),p+Offset(t*.18f,t*.82f),
+                                strokeWidth=t*.08f)
+                            drawCircle(Color(0xFFE8D7FF),t*.11f,c)
+                        }
+                    } else if(site.kind=="seal_switch") {
+                        val rune=if(site.spent)Color(0xFF67868C) else Color(0xFFCEB4FA)
+                        drawCircle(rune.copy(alpha=if(site.spent).12f else .16f+shimmer*.10f),
+                            t*.53f,c)
+                        drawRoundRect(Color(0xFF243442),p+Offset(t*.20f,t*.26f),
+                            Size(t*.60f,t*.53f),CornerRadius(t*.10f))
+                        drawCircle(rune,t*.23f,c,style=Stroke(t*.07f))
+                        drawLine(rune,c+Offset(-t*.14f,0f),c+Offset(t*.14f,0f),
+                            strokeWidth=t*.065f)
+                        drawLine(rune,c+Offset(0f,-t*.14f),c+Offset(0f,t*.14f),
+                            strokeWidth=t*.065f)
+                    } else if(site.kind=="lens") {
+                        val glint=if(site.spent)Color(0xFF70868D) else Color(0xFF9CDDEB)
+                        drawCircle(glint.copy(alpha=if(site.spent).12f else .14f+shimmer*.14f),
+                            t*.57f,c)
+                        drawCircle(Color(0xFF2A4153),t*.40f,c)
+                        drawCircle(glint,t*.32f,c,style=Stroke(t*.075f))
+                        drawCircle(glint.copy(alpha=.55f),t*.17f,c)
+                        drawLine(Color(0xFFE4F9FC),c+Offset(-t*.17f,t*.17f),
+                            c+Offset(t*.15f,-t*.16f),strokeWidth=t*.04f)
+                    } else if(site.kind=="echo") {
+                        val signal=if(site.spent)Color(0xFF66878B) else Color(0xFFEDA6A0)
+                        drawRoundRect(Color(0xFF27353F),p+Offset(t*.14f,t*.15f),
+                            Size(t*.72f,t*.71f),CornerRadius(t*.08f))
+                        drawCircle(signal,t*.13f,c)
+                        drawCircle(signal.copy(alpha=if(site.spent).23f else .72f),
+                            t*.28f,c,style=Stroke(t*.055f))
+                        drawCircle(signal.copy(alpha=if(site.spent).10f else .35f+shimmer*.16f),
+                            t*.44f,c,style=Stroke(t*.055f))
+                    } else if(site.kind=="alarm") {
                         // A real optional map objective: brass warning bell, muted when disabled.
                         val tint=if(site.spent)Color(0xFF5F7779) else Color(0xFFFF8F77)
                         drawCircle(tint.copy(alpha=if(site.spent).08f else .18f+shimmer*.15f),
