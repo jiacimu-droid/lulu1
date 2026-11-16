@@ -92,9 +92,17 @@ internal object CharacterEverydaySocialContext {
         // something witnessed during a meeting. Never look at other brains.
         val livedMoments = SharedExperienceTimeline.recentEvents(characterId, 160)
             .asSequence().filter { event ->
-                !event.occurredAt.isAfter(now) &&
-                    event.evidenceKind == EventEvidenceKind.Observation &&
-                    event.source in setOf("digital-world", "meeting", "digital-environment")
+                !event.occurredAt.isAfter(now) && (
+                    (event.evidenceKind == EventEvidenceKind.Observation &&
+                        event.source in setOf("digital-world", "meeting", "digital-environment")) ||
+                    // DigitalWorldStore.execute currently saves a verified
+                    // world-fact-* raw action with Legacy metadata. Preserve
+                    // its canonical receipt without reclassifying it into a
+                    // new paid perception stimulus or fabricated thought.
+                    (event.evidenceKind == EventEvidenceKind.Legacy &&
+                        event.source == "legacy" && event.channel == "数字世界" &&
+                        event.id.startsWith("world-fact-"))
+                )
             }.sortedByDescending { it.occurredAt }.toList()
         val recentWorldMoments = (
             livedMoments.filter { it.source != "digital-environment" }.take(3) +
