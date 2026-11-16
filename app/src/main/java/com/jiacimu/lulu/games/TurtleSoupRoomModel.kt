@@ -104,6 +104,7 @@ internal object SoupLibrary {
     fun find(id: String): SoupCase? = cases.firstOrNull { it.id == id }
 }
 
+internal const val CUSTOM_CASE_ID = "owner_custom"
 internal enum class SoupHost { AI, CHARACTER, USER }
 internal enum class SoupKind { QUESTION, ANSWER, DISCUSSION, SOLUTION, SOLUTION_RESULT }
 
@@ -118,6 +119,9 @@ internal data class SoupLine(
 internal data class SoupRoom(
     val id: String = UUID.randomUUID().toString(),
     val caseId: String = SoupLibrary.cases.first().id,
+    val customTitle: String = "",
+    val customSurface: String = "",
+    val customTruth: String = "",
     val host: SoupHost = SoupHost.AI,
     val companions: List<String> = emptyList(),
     val lines: List<SoupLine> = emptyList(),
@@ -125,7 +129,11 @@ internal data class SoupRoom(
     val revealed: Boolean = false,
     val solved: Boolean = false,
 ) {
-    val puzzle: SoupCase get() = requireNotNull(SoupLibrary.find(caseId))
+    val puzzle: SoupCase get() = if (caseId == CUSTOM_CASE_ID) {
+        require(customSurface.isNotBlank() && customTruth.isNotBlank())
+        SoupCase(CUSTOM_CASE_ID, customTitle.ifBlank { "我的原创汤" },
+            "原创自定义", "自定义", customSurface, customTruth, emptyList())
+    } else requireNotNull(SoupLibrary.find(caseId))
     val hostId: String? get() = if (host == SoupHost.CHARACTER) companions.firstOrNull() else null
     val guessers: List<String> get() = if (host == SoupHost.CHARACTER) companions.drop(1) else companions
     val pendingQuestion: Int get() = lines.indices.lastOrNull {
@@ -164,6 +172,9 @@ internal data class SoupRoom(
         .put("version", 1)
         .put("id", id)
         .put("case_id", caseId)
+        .put("custom_title", customTitle)
+        .put("custom_surface", customSurface)
+        .put("custom_truth", customTruth)
         .put("host", host.name)
         .put("companions", JSONArray(companions))
         .put("started", started)
@@ -182,12 +193,18 @@ internal data class SoupRoom(
         fun fromJson(value: String?): SoupRoom? = runCatching {
             val raw = JSONObject(value ?: return null)
             val caseId = raw.getString("case_id")
-            require(SoupLibrary.find(caseId) != null)
+            require(SoupLibrary.find(caseId) != null || (
+                caseId == CUSTOM_CASE_ID && raw.optString("custom_surface").isNotBlank() &&
+                    raw.optString("custom_truth").isNotBlank()
+            ))
             val roster = raw.optJSONArray("companions") ?: JSONArray()
             val entries = raw.optJSONArray("lines") ?: JSONArray()
             SoupRoom(
                 id = raw.getString("id"),
                 caseId = caseId,
+                customTitle = raw.optString("custom_title"),
+                customSurface = raw.optString("custom_surface"),
+                customTruth = raw.optString("custom_truth"),
                 host = SoupHost.valueOf(raw.getString("host")),
                 companions = (0 until roster.length()).map { roster.getString(it) }.distinct(),
                 revealed = raw.optBoolean("revealed"),
