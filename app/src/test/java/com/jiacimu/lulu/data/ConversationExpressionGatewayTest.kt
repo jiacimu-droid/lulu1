@@ -2207,6 +2207,11 @@ class ConversationExpressionGatewayTest {
         LuluAiServices.initialize(context)
         com.jiacimu.lulu.study.StarWishStores.initialize(context)
         val role = MigratedDomainStores.characters.create("日常在线回复入口回归", "有自己的判断，认真听人说话")
+        val agreement = "各自读书时可以分享偶遇；若对方正在专注，不用要求立即回应。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(role.characterId, "user", "共读伙伴", agreement))
+        val other = MigratedDomainStores.characters.create("独立的另一位读者")
+        val otherAgreement = "只在读书会结束后交换整本书的批注。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(other.characterId, "user", "读书会同伴", otherAgreement))
         val sceneExperienceId = "online-reply-life-${role.characterId}"
         val sceneExperience = "一个人在旧书店看到手绘的铜版书签"
         SharedExperienceTimeline.record(sceneExperienceId, role.characterId, "独自阅读", "本人",
@@ -2290,6 +2295,37 @@ class ConversationExpressionGatewayTest {
                 it.sender == LuluChatMessage.Sender.Character && it.content == spoken
             })
             assertFalse(current.id in CompanionOnlineStore.unreadChatSnapshot(role.characterId).messageIds)
+            assertTrue(system.contains(agreement))
+            assertFalse(system.contains(otherAgreement))
+
+            val messagesAfterReply = MigratedDomainStores.chat.messages(chat.id).value.map { it.id }
+            val autonomousAnswer = """{"choices":[{"message":{"content":"{\"action\":\"silent\",\"reason\":\"想留一点时间整理自己的阅读感想\"}"},"finish_reason":"stop"}]}"""
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest) = MockResponse()
+                    .setHeader("Content-Type", "application/json").setBody(autonomousAnswer)
+            }
+            assertEquals(1, ProactivePerceptionRuntime.runDueCycle(
+                context, "用户手动唤醒", role.characterId, force = true,
+            ))
+            assertEquals(2, server.requestCount)
+            val autonomousMessages = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                .getJSONArray("messages")
+            assertEquals(listOf("system", "user", "user", "user"),
+                List(autonomousMessages.length()) { autonomousMessages.getJSONObject(it).getString("role") })
+            val autonomousSystem = autonomousMessages.getJSONObject(0).getString("content")
+            val autonomousScene = autonomousMessages.getJSONObject(2).getString("content")
+            val scenePolicy = com.jiacimu.lulu.ai.ActorSceneWirePolicy
+            assertTrue(autonomousMessages.getJSONObject(1).getString("content")
+                .contains("用户自行编辑的世界设定参考"))
+            assertTrue(autonomousScene.startsWith(scenePolicy.SCENE_HEADING))
+            assertTrue(autonomousScene.lineSequence().any {
+                it.contains("eventId=$sceneExperienceId") && it.contains(sceneExperience)
+            })
+            assertTrue(autonomousSystem.contains(agreement))
+            assertFalse(autonomousSystem.contains(otherAgreement))
+            assertTrue(autonomousSystem.contains(spontaneousInnerVoiceGuide))
+            assertEquals(scenePolicy.autonomousTurn(), autonomousMessages.getJSONObject(3).getString("content"))
+            assertEquals(messagesAfterReply, MigratedDomainStores.chat.messages(chat.id).value.map { it.id })
         } finally {
             OnlineChatBatchStore.cancel(context, role.characterId)
             server.shutdown()
