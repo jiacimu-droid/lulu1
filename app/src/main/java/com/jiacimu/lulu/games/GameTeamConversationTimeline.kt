@@ -110,8 +110,9 @@ internal object GameTeamConversationTimeline {
     /** Bounded first-hand session conversation for this role's existing game-model call. */
     fun recentLines(characterId: String, game: String, run: String): List<String> {
         if (characterId.isBlank() || game !in titles || run.isBlank()) return emptyList()
-        return SharedExperienceTimeline.sessionEvents(characterId, room(game, run), 12)
-            .filter { it.source.startsWith("game-team-") }
+        return SharedExperienceTimeline.sessionStatementEvents(characterId, room(game, run), 12)
+            .filter { it.source == "game-team-companion" ||
+                it.source.startsWith("game-team-owner-") }
             .takeLast(8)
             .map { it.speaker + "：" + it.content.take(240) }
     }
