@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`149965586ebf034b671c9961ffe51f9729c1017f`
+- 基准提交：`2536eee5042e815b00e7bcfebe935504d7258cea`
 - 分支：`main`
-- 已索引文件：1343
-- 已索引代码/文本行：286533
-- 已发现符号：4046
+- 已索引文件：1344
+- 已索引代码/文本行：286573
+- 已发现符号：4047
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -918,7 +918,8 @@
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 48 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |

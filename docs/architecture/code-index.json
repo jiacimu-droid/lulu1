@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:23:28.942328+00:00",
-  "commit": "149965586ebf034b671c9961ffe51f9729c1017f",
+  "generatedAt": "2026-11-16T03:24:16.592700+00:00",
+  "commit": "2536eee5042e815b00e7bcfebe935504d7258cea",
   "branch": "main",
-  "sourceFingerprint": "f0baf4e363e5e643d8df5ca4972a33999f605d9aef13471accf178e037436850",
+  "sourceFingerprint": "27933271a5788824344fbbcd644bb05c7223bd628d0eb02405efeabf8c55ee5c",
   "summary": {
-    "files": 1343,
-    "lines": 286533,
-    "symbols": 4046
+    "files": 1344,
+    "lines": 286573,
+    "symbols": 4047
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18600,6 +18600,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
         "line": 8
+      }
+    ],
+    "MeetingSceneDestinationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt",
+        "line": 5
       }
     ],
     "MeetingVoiceOffTest": [
@@ -41926,12 +41932,23 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
-      "lines": 35,
-      "sha256": "4ca3545dc1aeb6f7b5d74546a823dd5717c1ff1388393f494581f2dfb2ea9766",
+      "lines": 48,
+      "sha256": "fdb923e4d8b72bd23952ebdf787ec844f1a08f91fa570bde1d0fd6dd93e8c1be",
       "symbols": [
         {
           "name": "MeetingPhysicalStateReducerTest",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt",
+      "lines": 27,
+      "sha256": "0a74a87e399b5ca3d879e57859d03b9236334415547ed4441a10d22393d785d7",
+      "symbols": [
+        {
+          "name": "MeetingSceneDestinationTest",
+          "line": 5
         }
       ]
     },
