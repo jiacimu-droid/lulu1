@@ -128,6 +128,11 @@ internal fun meetingValidatedDestinationItemId(
 internal fun meetingValidatedDestinationActivityId(candidate: String, allowedIds: Set<String>): String =
     candidate.trim().takeIf { it in allowedIds }.orEmpty()
 
+internal fun meetingValidatedStreetCode(
+    candidate: String, existing: String, explicitlySupplied: Boolean, allowedCodes: Set<String>,
+): String = (if (explicitlySupplied) candidate else existing).trim()
+    .takeIf { it in allowedCodes }.orEmpty()
+
 internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull(), atRequest: MeetingSceneSnapshot? = null): MeetingSceneSnapshot? {
     json ?: return null
     val allowedIds = listOf("user") + session.participantIds.distinct()
@@ -139,6 +144,11 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
         DigitalWorldStore.state.value.items.filter { it.ownerCharacterId == roomOwnerId }
     else emptyList()
     val validItemIds = roomItems.mapTo(hashSetOf()) { it.id }
+    val allowedStreetCodes = if (session.reality == MeetingReality.DIGITAL_WORLD &&
+        session.location == "世界入口") DigitalWorldStore.meetingLocationOptions(session)
+        .mapTo(hashSetOf()) { DigitalWorldStore.meetingLocationCode(it) }
+        .filterTo(hashSetOf()) { it != DigitalWorldStore.ARRIVAL }
+    else emptySet()
     val proposed = buildMap {
         val array = json.optJSONArray("participants") ?: JSONArray()
         for (index in 0 until minOf(array.length(), allowedIds.size * 2)) {
@@ -181,6 +191,14 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                         item.optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }
                             ?: beforeById[id]?.explorationMode.orEmpty()
                     } else beforeById[id]?.explorationMode.orEmpty(),
+                    destinationStreetCode = if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD)
+                        meetingValidatedStreetCode(
+                            item.optString("destinationStreetCode"),
+                            beforeById[id]?.destinationStreetCode.orEmpty(),
+                            item.has("destinationStreetCode"),
+                            allowedStreetCodes,
+                        )
+                    else beforeById[id]?.destinationStreetCode.orEmpty(),
                     destinationItemId = selectedItemId,
                     destinationActivityId = if (id == respondingCharacterId &&
                         session.reality == MeetingReality.DIGITAL_WORLD && selectedItem != null)
@@ -259,6 +277,14 @@ internal suspend fun meetingGenerateReplyV2(
             if (session.reality == MeetingReality.DIGITAL_WORLD) {
                 val live = DigitalWorldLiveScene.context(characterId)
                 if (live.isNotBlank()) appendLine(live)
+                if (session.location == "世界入口") {
+                    appendLine("【当前小镇可真实沿街道走到的建筑｜可选 destinationStreetCode】")
+                    DigitalWorldStore.meetingLocationOptions(session).forEach { label ->
+                        val code = DigitalWorldStore.meetingLocationCode(label)
+                        if (code != DigitalWorldStore.ARRIVAL)
+                            appendLine("- code=$code；门牌=$label；这里仅表示步行目标，实际进入仍需到门前由主人操作")
+                    }
+                }
                 val roomCode = DigitalWorldStore.meetingLocationCode(session.location)
                 val roomOwner = roomCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
                 val furniture = DigitalWorldStore.state.value.items.filter { it.ownerCharacterId == roomOwner }
@@ -285,7 +311,7 @@ internal suspend fun meetingGenerateReplyV2(
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "这是同一个人从普通私聊走进真实见面现场：人格、记忆、情绪和心声保持连续。先自然接住主人的话，像平常聊天一样选择说什么；只有本人确实想动、现场需要时才穿插动作和神态。普通的一句回答或安静相伴已经足够，不必每轮强制制造事件、转场或长篇叙事。"}
 
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY","destinationItemId":"现场家具准确ID或空字符串","destinationActivityId":"可选的对应家具activityId或空字符串"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY","destinationItemId":"现场家具准确ID或空字符串","destinationActivityId":"可选的对应家具activityId或空字符串","destinationStreetCode":"街道真实建筑code或空字符串"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
 
             规则：
             ${spontaneousInnerVoiceGuide}
@@ -311,6 +337,7 @@ internal suspend fun meetingGenerateReplyV2(
             - 多人场景不要替其他角色新增言行；他们会有自己的回合。不得断言主人未表达的心理和感受。
             - moveTo 只有主人明确提出去可用地点时才填写准确名称，并写出移动过程；否则留空。
             - explorationMode 只更新你自己的字段：FOLLOW_USER 表示你已经同意并开始跟随主人探索，地图上的身体会实际跟随；STAY 表示你停止跟随。邀请、犹豫、拒绝不能标成已跟随。是否答应由你的人设、关系和当时安排决定；不替其他角色决定，不改变主人的字段。没有变化时保留当前值。现实场景留空。
+            - destinationStreetCode 只在当前场景为“世界入口/云上小镇街道”时可用；你如果自主想带主人去咖啡厅/别人家，必须从当前实际门牌 code 里选择真实建筑。代码只是目的地，不代表已经抵达或已经进入；带着主人走需要已有的真实牵手接触，主人随时能改方向，达到建筑门口后仍由主人决定是否进门。不想领路可以留空或省略保留原有效目标。
             - destinationItemId 是你想真实走向的当前房间家具 ID，必须从现场家具清单选择，不能填家具名称、想象地点或其他角色家里的东西。只有决定现在真的动身时才填，不要把“要不要去？”的邀请冒充已经拉着主人到达；等对方同意牵手后，场景可以一起寻路，主人可以随时自己走或松手。取消原目标可显式填空；未决定新目标时可以省略字段保留未完成目标。
             - 如果你不仅想走到家具旁，还想在那里做具体的事，可以同时设置 destinationActivityId 为【该件家具】提供的 activityId，例如整理、照料、坐下、开灯；到达后程序才会真正执行并写回活动结果。仅仅接近或邀请对方去坐坐可以不填 activityId，**不能提前写成已经做完**。跨家具不能借用其他物品的活动，取消目标就同时取消活动；用户移动、松手或现场变化不会被程序解释成主人同意了新动作。
             - 场景正文不能代替身体行动的成功回执：走向床边等结果必须等地图真实走到对应家具旁再被当成已完成。你可以走着说话、走着等待、边探索边感知。
