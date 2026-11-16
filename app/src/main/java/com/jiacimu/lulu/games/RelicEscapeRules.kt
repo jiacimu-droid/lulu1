@@ -268,6 +268,47 @@ internal data class RelicRun(
 }
 
 /** Pure state transitions; invalid actions do not pass time or yield rewards. */
+/** One physical mechanic for both owner and role actors, with shared authoritative receipts. */
+internal object RelicSiteInteractions {
+    private fun actor(s:RelicRun,id:String):RelicActor? =
+        if(id=="player")s.hero else s.allies.firstOrNull { it.id==id && it.hp>0 }
+    private fun canReach(s:RelicRun,id:String,x:Int,y:Int):Boolean {
+        val a=actor(s,id) ?:return false
+        return s.visible(x,y) && RelicEscapeRules.distance(a.x,a.y,x,y)<=1
+    }
+    fun observeLens(s:RelicRun,id:String,x:Int,y:Int):RelicRun? {
+        val lens=s.sites.firstOrNull {
+            it.kind=="lens" && !it.spent && it.x==x && it.y==y
+        } ?:return null
+        if(!canReach(s,id,x,y))return null
+        val found=s.seen.toMutableSet()
+        for(dy in -6..6)for(dx in -6..6) {
+            val px=x+dx;val py=y+dy
+            if(abs(dx)+abs(dy)<=6 && s.bounds(px,py))
+                found+=s.index(px,py)
+        }
+        return s.copy(seen=found,sites=s.sites.map {
+            if(it.id==lens.id)it.copy(spent=true) else it
+        }).log(id,"observe_lens","校准古代观测镜，揭开了"+
+            (found.size-s.seen.size)+"格真实迷雾")
+    }
+    fun unseal(s:RelicRun,id:String,x:Int,y:Int):RelicRun? {
+        val control=s.sites.firstOrNull {
+            it.kind=="seal_switch" && !it.spent && it.x==x && it.y==y
+        } ?:return null
+        if(!canReach(s,id,x,y))return null
+        val gate=s.sites.firstOrNull {
+            it.id==control.linkId && it.kind=="seal_gate" && !it.spent &&
+                it.linkId==control.id && s.bounds(it.x,it.y) && s.tile(it.x,it.y)==1
+        } ?:return null
+        val opened=s.tiles.toMutableList()
+        opened[s.index(gate.x,gate.y)]=0
+        return s.copy(tiles=opened,sites=s.sites.map {
+            if(it.id==control.id || it.id==gate.id)it.copy(spent=true) else it
+        }).log(id,"unseal","转动古代机关，封门真实开启，新的通路可以通行")
+    }
+}
+
 internal object RelicEscapeRules {
     const val CAPACITY=8
     const val ALLY_EXIT_RADIUS = 2
@@ -515,44 +556,13 @@ internal object RelicEscapeRules {
                 noise=3
             }
             "observe_lens" -> {
-                val lens=s.sites.firstOrNull {
-                    !it.spent && it.kind=="lens" && it.x==x && it.y==y
-                } ?:return s.copy(notice="观测镜已经使用或不存在")
-                if(!near(hero,x,y) || !s.visible(x,y))
-                    return s.copy(notice="需要靠近并看清观测镜")
-                val explored=s.seen.toMutableSet()
-                for(dy in -6..6)for(dx in -6..6) {
-                    val px=x+dx;val py=y+dy
-                    if(abs(dx)+abs(dy)<=6 && s.bounds(px,py))
-                        explored+=s.index(px,py)
-                }
-                next=s.copy(seen=explored,
-                    sites=s.sites.map {
-                        if(it.id==lens.id)it.copy(spent=true) else it
-                    }).log("player","observe_lens",
-                        "古代观测镜校准，真实揭开了周围"+(explored.size-s.seen.size)+
-                        "格迷雾；可据此重新挑选路线")
+                next=RelicSiteInteractions.observeLens(s,"player",x,y)
+                    ?:return s.copy(notice="需靠近尚未使用的观测镜")
                 noise=0
             }
             "unseal" -> {
-                val control=s.sites.firstOrNull {
-                    !it.spent && it.kind=="seal_switch" && it.x==x && it.y==y
-                } ?:return s.copy(notice="找不到仍可启动的封门机关")
-                if(!near(hero,x,y) || !s.visible(x,y))
-                    return s.copy(notice="需要靠近封门机关")
-                val gate=s.sites.firstOrNull {
-                    it.id==control.linkId && it.kind=="seal_gate" &&
-                        !it.spent && it.linkId==control.id &&
-                        s.bounds(it.x,it.y) && s.tile(it.x,it.y)==1
-                } ?:return s.copy(notice="封门结构已发生变化，无法启动")
-                val opened=s.tiles.toMutableList()
-                opened[s.index(gate.x,gate.y)]=0
-                next=s.copy(tiles=opened,
-                    sites=s.sites.map {
-                        if(it.id==control.id || it.id==gate.id)it.copy(spent=true)
-                        else it
-                    }).log("player","unseal",
-                        "机关转动！石门真正开启，原先被墙隔开的道路可以通行")
+                next=RelicSiteInteractions.unseal(s,"player",x,y)
+                    ?:return s.copy(notice="需要靠近可操作的石门控制台")
                 noise=2
             }
             "silence"->{
