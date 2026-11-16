@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Dialog
@@ -132,8 +136,8 @@ internal fun RolePhoneAlbum(characterId: String, observationsOnly: Boolean = fal
     }
 }
 
-/** The owner's full-size, pinch-to-zoom view of a verified captured display.
- * Never replace the retained image with a textual model description. */
+/** Never crop or reformat an archived screenshot. Keep its original pixel ratio;
+ * only the presentation changes to a full-screen, edge-to-edge photo viewer. */
 @Composable
 private fun ScreenRecordViewer(
     photo: RoleAlbumPhoto,
@@ -143,60 +147,124 @@ private fun ScreenRecordViewer(
     var scale by remember(photo.id) { mutableFloatStateOf(1f) }
     var shiftX by remember(photo.id) { mutableFloatStateOf(0f) }
     var shiftY by remember(photo.id) { mutableFloatStateOf(0f) }
-    val zoom = rememberTransformableState { zoomChange, panChange, _ ->
-        scale = (scale * zoomChange).coerceIn(1f, 5f)
-        shiftX = if (scale == 1f) 0f else shiftX + panChange.x
-        shiftY = if (scale == 1f) 0f else shiftY + panChange.y
+    var viewport by remember(photo.id) { mutableStateOf(IntSize.Zero) }
+    var showControls by remember(photo.id) { mutableStateOf(true) }
+    val resetZoom = {
+        scale = 1f
+        shiftX = 0f
+        shiftY = 0f
     }
-    Dialog(onDismissRequest = onClose,
-        properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.94f).padding(10.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-        ) {
-            Column(Modifier.fillMaxSize().padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("屏幕记录", style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold)
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Black)
-                        .transformable(zoom),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    MomentImageAttachment(
-                        photo.uri,
-                        modifier = Modifier.fillMaxSize()
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationX = shiftX
-                                translationY = shiftY
+    val zoom = rememberTransformableState { zoomChange, panChange, _ ->
+        val nextScale = (scale * zoomChange).coerceIn(1f, 5f)
+        scale = nextScale
+        shiftX = clampScreenRecordPan(shiftX + panChange.x, viewport.width, nextScale)
+        shiftY = clampScreenRecordPan(shiftY + panChange.y, viewport.height, nextScale)
+    }
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
+    ) {
+        // No 94%-height card, inset frame or image-sized header/footer: a phone
+        // screenshot needs the same portrait viewport as the phone itself.
+        Box(Modifier.fillMaxSize().background(Color(0xFF101012))) {
+            Box(
+                Modifier.fillMaxSize()
+                    .onSizeChanged { viewport = it }
+                    .transformable(zoom)
+                    .pointerInput(photo.id) {
+                        detectTapGestures(
+                            onTap = { showControls = !showControls },
+                            onDoubleTap = {
+                                if (scale > 1f) resetZoom() else {
+                                    scale = 2.5f
+                                    shiftX = 0f
+                                    shiftY = 0f
+                                }
                             },
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "可缩放的真实屏幕截图",
-                    )
+                        )
+                    },
+            ) {
+                MomentImageAttachment(
+                    photo.uri,
+                    modifier = Modifier.fillMaxSize()
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationX = shiftX
+                            translationY = shiftY
+                        },
+                    contentScale = ContentScale.Fit,
+                    contentDescription = "完整原始手机截屏，双指缩放，轻点隐藏工具栏",
+                    cornerRadius = 0.dp,
+                    backgroundColor = Color(0xFF101012),
+                    foregroundColor = Color.White,
+                )
+            }
+            if (showControls) {
+                // Controls float OVER the image instead of shrinking it.
+                Surface(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    color = Color.Black.copy(alpha = 0.74f),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .windowInsetsPadding(WindowInsets.statusBars)
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(onClick = onClose) { Text("‹ 返回", color = Color.White) }
+                        Text("屏幕记录", fontWeight = FontWeight.SemiBold,
+                            color = Color.White, fontSize = 15.sp)
+                        TextButton(onClick = resetZoom) { Text("复原", color = Color.White) }
+                    }
                 }
-                Text("双指缩放可放大查看 · 这是真实截屏，不是实时画面",
-                    fontSize = 11.sp, color = LuluColors.Muted)
-                if (photo.caption.isNotBlank()) Text(
-                    screenRecordLocalTime(photo.savedAt) + " · " + photo.caption,
-                    maxLines = 2, style = MaterialTheme.typography.bodySmall)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = onDelete) { Text("删除这张") }
-                    TextButton(onClick = {
-                        scale = 1f
-                        shiftX = 0f
-                        shiftY = 0f
-                    }) { Text("复原大小") }
-                    Button(onClick = onClose) { Text("返回") }
+                Surface(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    color = Color.Black.copy(alpha = 0.78f),
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth()
+                            .windowInsetsPadding(WindowInsets.navigationBars)
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                    ) {
+                        if (photo.caption.isNotBlank()) Text(
+                            screenRecordLocalTime(photo.savedAt) + " · " + photo.caption,
+                            maxLines = 2, fontSize = 11.sp, color = Color.White,
+                        )
+                        Text("原始比例 · 双指缩放 · 轻点画面隐藏工具栏",
+                            fontSize = 11.sp, color = Color.White.copy(alpha = 0.70f))
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            TextButton(onClick = onDelete) {
+                                Text("删除这张", color = Color.White)
+                            }
+                            TextButton(onClick = resetZoom) {
+                                Text("复原大小", color = Color.White)
+                            }
+                            TextButton(onClick = onClose) {
+                                Text("返回", color = Color.White)
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+/** Keep a pinch-zoomed capture within its viewport. At 1x it is always centred. */
+internal fun clampScreenRecordPan(offsetPx: Float, viewportPx: Int, scale: Float): Float {
+    if (scale <= 1f || viewportPx <= 0) return 0f
+    val maxOffset = viewportPx * (scale - 1f) / 2f
+    return offsetPx.coerceIn(-maxOffset, maxOffset)
 }
 
 private val ScreenRecordTimeFormat = DateTimeFormatter.ofPattern("M/d HH:mm")
