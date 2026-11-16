@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2f670f60b8703a7e8b6403f2ee17dfa54bc4f145`
+- 基准提交：`ac304a45511ba5f6d7e0fac7d85ee0672c03549a`
 - 分支：`main`
 - 已索引文件：1367
-- 已索引代码/文本行：292224
-- 已发现符号：4123
+- 已索引代码/文本行：292244
+- 已发现符号：4124
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -686,7 +686,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 101 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
@@ -733,7 +733,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt` | 70 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCollectionGoals.kt` | 30 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCombatSkills.kt` | 104 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 334 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 348 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 294 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 730 | 4 |

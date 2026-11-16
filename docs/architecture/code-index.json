@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:32:53.306027+00:00",
-  "commit": "2f670f60b8703a7e8b6403f2ee17dfa54bc4f145",
+  "generatedAt": "2026-11-16T16:35:14.299742+00:00",
+  "commit": "ac304a45511ba5f6d7e0fac7d85ee0672c03549a",
   "branch": "main",
-  "sourceFingerprint": "ec26e28ddc8842f84a3acb81c833994a40d0d8f83473527a47c3d5871d2ddbc0",
+  "sourceFingerprint": "f33e5d3056ca21f605260d8bf88f9e3da67f87eba01122d9cdc80d0d90b9fb7d",
   "summary": {
     "files": 1367,
-    "lines": 292224,
-    "symbols": 4123
+    "lines": 292244,
+    "symbols": 4124
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14704,34 +14704,40 @@
         "line": 44
       }
     ],
+    "relicImmediateThreat": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 61
+      }
+    ],
     "relicHeldDecisionDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 60
+        "line": 65
       }
     ],
     "relicTickActors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 72
+        "line": 78
       }
     ],
     "relicHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 79
+        "line": 85
       }
     ],
     "islandThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 85
+        "line": 91
       }
     ],
     "relicThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 88
+        "line": 94
       }
     ],
     "recordPartyJoined": [
@@ -37333,8 +37339,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-      "lines": 101,
-      "sha256": "45e61c2826d3219a1bffc3759745e0655394c8bb095cc7c3d6d051ee22b622e3",
+      "lines": 107,
+      "sha256": "8ee619543e35e80b57ca4c86fef64b4ccde7439cacfc4fa8d3c3b86026f804db",
       "symbols": [
         {
           "name": "canTick",
@@ -37353,24 +37359,28 @@
           "line": 44
         },
         {
+          "name": "relicImmediateThreat",
+          "line": 61
+        },
+        {
           "name": "relicHeldDecisionDue",
-          "line": 60
+          "line": 65
         },
         {
           "name": "relicTickActors",
-          "line": 72
+          "line": 78
         },
         {
           "name": "relicHasPlan",
-          "line": 79
-        },
-        {
-          "name": "islandThreat",
           "line": 85
         },
         {
+          "name": "islandThreat",
+          "line": 91
+        },
+        {
           "name": "relicThreat",
-          "line": 88
+          "line": 94
         }
       ]
     },
@@ -38535,8 +38545,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 334,
-      "sha256": "c11cc5bc4117a309363671acd959310a6f95c6121a5089057a1403cf5df91d43",
+      "lines": 348,
+      "sha256": "15d88a19b47d61e4b5f6d7de08ba89b27308d106e21a5e632e7d63284986e649",
       "symbols": [
         {
           "name": "send",
