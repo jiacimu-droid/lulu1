@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ec3d25651f667616f1b16a2a96708a627d68cc66`
+- 基准提交：`a968850e6708d8ce67fa435b412d828b6e41d11d`
 - 分支：`main`
 - 已索引文件：1345
-- 已索引代码/文本行：287010
+- 已索引代码/文本行：287029
 - 已发现符号：4048
 
 | 文件 | 行数 | 符号数 |
@@ -133,11 +133,11 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1632 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 829 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 832 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 644 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 450 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 411 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 885 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 891 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 509 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeHomeFixtures.kt` | 26 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 102 | 0 |
@@ -148,7 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 308 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 318 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
