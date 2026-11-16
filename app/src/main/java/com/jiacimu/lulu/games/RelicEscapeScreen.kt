@@ -764,7 +764,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     if (showGuide) {
                         Text("① 方向键探索  ② 靠近宝箱按方向或✦  ③ 带宝物回出口",
                             color = Color.White, fontSize = 12.sp, lineHeight = 19.sp)
-                        Text("怪物用攻击键打，格挡可以防御蓄力攻击。靠近稀有箱可选择稳妥开箱或危险破封。宝物必须成功撤离才会进入永久图鉴。",
+                        Text("遇到紫色机关可打开石门捷径；观测镜能照出未知路径；粉红共鸣石板要潜行通过，否则惊动巡逻守卫。战斗中看清蓄力预警再攻击、格挡或撤离。宝物成功撤离才会入库。",
                             color = relicMuted, fontSize = 11.sp, lineHeight = 17.sp)
                     }
                 }
@@ -778,6 +778,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 Text("目标 "+sx+","+sy+" · "+if(!visible)"迷雾未探明" else when {
                     chest!=null->chest.tier.label+"宝箱"
                     site?.kind=="altar"->"古老祭坛 · 唤醒后会有守卫"
+                    site?.kind=="seal_switch"->"封门机关 · 可开启旁边被锁住的通路"
+                    site?.kind=="seal_gate"->"封印石门 · 找相连机关开启"
+                    site?.kind=="lens"->"古代观测镜 · 可照亮大片未知路径"
+                    site?.kind=="echo"->"共鸣石板 · 按住方向走会发出警报，潜行可绕过"
                     site?.kind=="trap"->"古代陷阱 · 可提前解除"
                     site?.kind=="supply"->"战地补给站 · 药剂与弩箭"
                     site?.kind=="fountain"->"恢复灵泉"
@@ -1168,13 +1172,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         else -> {
                             Text("① 左手按住方向键移动，拖动可以转向；点地图只选择目标，不会自动移动。",
                                 color=Color.White,fontSize=12.sp)
-                            Text("② 走到宝箱附近按右侧「开箱」或中心互动键；稀有箱可选择稳妥开箱，或消耗工具破封并面对额外守卫。",
+                            Text("② 地图有真正的支路机关：紫色控制台能打开石门捷径；蓝色观测镜照亮未知区域；粉红共鸣石板正常踏上会惊动守卫，点地图目标选择「潜行」能安全经过。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("③ 每走一格、攻击一次、格挡一次，通常各推进1回合；不是现实中的1秒。按住方向会连续走格，怪物也会随这些行动移动。",
+                            Text("③ 一次成功的玩家行动算一回合（走一格、攻击或格挡），敌人因此响应。队友自己沿路线行走不会消耗你的行动回合，也不推进你的冷却。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("④ 怪物会先蓄力警告，下一次行动才可能攻击：可以走出射程、举盾格挡，或尝试短剑打断普通守卫一次蓄力。短剑近战1格，长矛直线2格，弩弓直线4格。",
+                            Text("④ 走到宝箱附近按互动键开箱，稀有箱可自愿花工具冒险破封。守卫先蓄力，再在你下一次有效行动时攻击：可离开射程、举盾格挡或用短剑打断普通守卫的一次蓄力。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("⑤ 技能的冷却数字是“还需行动多少回合”，不是秒数。出门先分开应对守卫，带着宝物走到绿色撤离门附近，启动撤离并守住3回合。",
+                            Text("⑤ 技能冷却数字表示你还要行动多少次，不是秒数。短剑近战1格、长矛直线2格、弩弓直线4格。带宝物到绿色出口启动撤离并守住3次自己的行动。",
                                 color=relicGreen,fontSize=11.sp)
                             Text("右侧「行囊／更多」是背包、战术与收藏；点「七档品级」可随时查看什么最珍贵。",
                                 color=relicGold,fontSize=11.sp)
