@@ -79,7 +79,9 @@ internal object MemoryWorkingSet {
                         preview.contains("eventId=${event.id}@${event.revision}")
                     }.forEach { deliveredEventIds.add(it.id) }
                     add(MemoryPromptCandidate(
-                        "recent-turn:${scoped.key}", RECENT, preview, 965 - index.coerceAtMost(35),
+                        if (unique.size == 1) "recent:${unique.single().id}"
+                        else "recent-turn:${scoped.key}",
+                        RECENT, preview, 965 - index.coerceAtMost(35),
                         payload = preview, sources = unique.mapTo(linkedSetOf()) { it.id },
                         originalEvidence = false,
                     ))
