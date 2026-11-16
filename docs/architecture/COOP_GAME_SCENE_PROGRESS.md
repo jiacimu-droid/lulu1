@@ -608,3 +608,7 @@
 ## 2026-11-17 G-03.5 · 封门实物阻挡与旧地图回归一致性（CI 待验）
 - 核查 main push `f2a6622` 的 APK/JVM #43924462403：3307 tests、5 failed，G 段 `RelicEscapeRulesTest.everySpawnHasOptionalLandmarksAndTrapsAreNeverUnderChests` 在第1167行失败；此前新增的 `seal_gate` 是未解封的真实石墙，旧断言却要求所有 site 初始可行走，与新玩法冲突。
 - 根因回归修正 `805f03d1c9a354d851d96e92ac8f38740a86c03a`，`RelicEscapeRulesTest.kt` blob `167b22ac1b8b8871d65e3db74742956c4b369051`：对 seal_gate 必须为实体墙并拥有双向关联 seal_switch，其他地点仍须可行走；保留离入口距离、宝箱不重叠、可抵达邻格的原有检查。不修改生产地图、奖励或人物决定。下一入口：该测试 main push JVM 首错；若仍失败按实际断言定位，随后验证开机关→石墙变可走→地图复进及 Redmi 横屏触控。JVM/APK/index 尚未取得新 SHA 终态，真机/FPS/模型未验。
+
+## 2026-11-17 G-02.6 · 工作台真实升级到晶矿的跨存档根因回归
+- 原 `IslandWorkbenchRecipesTest.woodenPickaxeIsPersistedAndDoesNotMineCrystalVeins` 最后直接向 tools 注入 `pickaxe`，没有证明玩家实际工作台制作石镐、扣木石、保存重进后再采晶矿。现测试改为走 `BlockIslandRules.act(craft_pickaxe)`，断言真实扣料，序列化重进后开采蓝晶、再重进保留晶石、已采矿格与工具；保留木镐拒绝晶矿的前半段。测试提交 `02389bf33969cfc1c210b8d087901baa4f886951`，blob `a39cfbf9fb3a6b2cbfdfaed46ac4c607ddd6846d`；生产规则未变（`BlockIslandRules.kt` blob `ed89c1148e64d84a47e2471a9fae3d90dd063e30`）。
+- CI：最近可核 main push `d51e440` 的 APK/JVM #43940227387 completed/failure（3307 测试，2 失败：MemoryEvidenceCommitIntegrationTest、RecentSemanticTimelineTest，均非本 G 测试），索引 #43940227396 success；本测试新 SHA 的 APK/JVM/index 尚未取得终态，不称通过。下一实际入口 `IslandWorkbenchRecipesTest.kt` 新增真实升级链的 JVM 执行、`BlockIslandScreen.kt` 工作台触控及 Redmi 横屏采晶视觉/帧时间。无新增美术与真机验收。
