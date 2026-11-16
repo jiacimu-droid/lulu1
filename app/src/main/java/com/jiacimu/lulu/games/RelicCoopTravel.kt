@@ -55,9 +55,9 @@ internal object RelicCoopTravel {
         }
         val actor=after.allies.firstOrNull { it.id==id } ?:return after
         val place=plan?.let { target(after,it) }
-        val keep=place!=null &&
-            RelicEscapeRules.distance(actor.x,actor.y,place.first,place.second)>1
-        return after.copy(coopPlans=if(keep)after.coopPlans+(id to plan!!)
+        val keep=plan!=null && place!=null && actor.hp>0 &&
+            (plan.kind=="rescue" || RelicEscapeRules.distance(actor.x,actor.y,place.first,place.second)>1)
+        return after.copy(coopPlans=if(keep)after.coopPlans+(id to checkNotNull(plan))
             else after.coopPlans-id)
     }
     /** Change an existing plan after the actor already moved, without an extra action. */
@@ -199,7 +199,11 @@ internal object RelicCoopTravel {
                 continue
             }
             if(RelicEscapeRules.distance(a.x,a.y,goal.first,goal.second)<=1) {
-                if(plan.kind=="deliver") {
+                if(plan.kind=="rescue") {
+                    s=RelicActorPlay.apply(s,id,IslandActorChoice("rescue",""))
+                        ?: s.copy(coopPlans=s.coopPlans-id)
+                            .log(id,"travel","已到玩家身边，但没有可用药剂，救援未完成")
+                } else if(plan.kind=="deliver") {
                     val gift=a.bag.firstOrNull { it.id==plan.itemId }
                     s=when {
                         gift==null->s.copy(coopPlans=s.coopPlans-id)
@@ -240,7 +244,7 @@ internal object RelicCoopTravel {
             }
             val actor=stepState.allies.first { it.id==id }
             val hurt=(a.hp-actor.hp).coerceAtLeast(0)
-            val remaining=actor.hp>0 && (plan.kind=="deliver" ||
+            val remaining=actor.hp>0 && (plan.kind in setOf("deliver","rescue") ||
                 RelicEscapeRules.distance(actor.x,actor.y,goal.first,goal.second)>1)
             s=stepState.copy(coopPlans=if(remaining)stepState.coopPlans+
                 (id to plan.copy(lastStepTurn=stepState.turns))

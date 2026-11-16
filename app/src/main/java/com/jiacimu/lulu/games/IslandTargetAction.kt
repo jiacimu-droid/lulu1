@@ -16,6 +16,7 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
     val distance = abs(w.x - x) + abs(w.y - y)
     if (w.finished || !w.inBounds(x, y)) return IslandTargetAction("none", "无法操作", false, distance)
     val near = distance <= 1
+    val structure = state.structures[w.index(x, y)]
     val downed = w.friends.any { it.hp <= 0 && it.x == x && it.y == y }
     val mob = w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
     return when {
@@ -45,7 +46,19 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
                 if(IslandWildlife.canGift(state,resident)) "收取伙伴礼物" else "轻抚"+IslandWildlife.name(resident.species),
                 IslandWildlife.canGift(state,resident),distance)
         }
-        near && state.structures[w.index(x, y)] == "garden" -> {
+        structure == "workbench" -> IslandTargetAction(
+            "use_workbench", if (distance <= 2) "使用工作台" else "走近工作台",
+            distance <= 2, distance)
+        structure in setOf("campfire", "bed") -> {
+            val ready = near && islandCampRestAvailable(state)
+            IslandTargetAction("rest", when {
+                !near -> "走近营地设施"
+                w.hp >= 12 -> "生命已满"
+                ready -> "在营地休息"
+                else -> "暂时无法休息"
+            }, ready, distance)
+        }
+        near && structure == "garden" -> {
             val index = w.index(x, y)
             IslandTargetAction(IslandGarden.action(state,index),
                 IslandGarden.actionLabel(state,index),

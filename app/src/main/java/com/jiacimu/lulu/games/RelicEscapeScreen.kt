@@ -1119,6 +1119,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         }
     }
     if(run.phase==RelicPhase.DOWNED) {
+        val rescuers = run.allies.filter { it.hp > 0 && it.kits > 0 }
+        val approaching = rescuers.filter { run.coopPlans[it.id]?.kind == "rescue" }
+            .minByOrNull { RelicEscapeRules.distance(it.x,it.y,run.hero.x,run.hero.y) }
         Box(Modifier.fillMaxSize().background(Color(0x9C07111A)),
             contentAlignment=Alignment.Center) {
             Surface(
@@ -1133,14 +1136,22 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     Text("❤ 你倒地了",color=relicRed,fontSize=23.sp,
                         fontWeight=FontWeight.Black)
                     Text(
-                        if(run.allies.any{it.hp>0 && it.kits>0})
-                            "还能等待队友来救你 · 剩余"+
-                                (4-run.downTurns).coerceAtLeast(0)+"回合"
-                        else "目前没有能救援的队友。不用卡在这里，可以立即重开或返回营地。",
+                        when {
+                            approaching != null -> {
+                                val name = MigratedDomainStores.characters.get(approaching.id).displayName
+                                val distance = RelicEscapeRules.distance(
+                                    approaching.x,approaching.y,run.hero.x,run.hero.y)
+                                if(distance <= 1) "$name 已到身边，正在准备药剂"
+                                else "$name 正在赶来救你 · 距离 ${distance} 格"
+                            }
+                            rescuers.isNotEmpty() ->
+                                "还有队友携带药剂 · 剩余 ${(4-run.downTurns).coerceAtLeast(0)} 个等待回合"
+                            else -> "目前没有能救援的队友，可以重开或返回营地。"
+                        },
                         color=Color.White,fontSize=12.sp,lineHeight=18.sp)
-                    if(run.allies.any{it.hp>0 && it.kits>0}) {
+                    if(rescuers.isNotEmpty() && approaching == null) {
                         OutlinedButton(onClick={action("wait")},modifier=Modifier.fillMaxWidth()) {
-                            Text("等待队友救援",color=relicGreen)
+                            Text("等待一回合",color=relicGreen)
                         }
                     }
                     Button(onClick={confirmRestart=true},modifier=Modifier.fillMaxWidth(),

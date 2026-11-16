@@ -24,6 +24,30 @@ class IslandTargetActionTest {
         ))
     }
 
+    @Test fun tappingABuiltFacilitySelectsItsActualInteraction() {
+        val original = scene()
+        val w = original.world
+        val bench = 6 to 4
+        val bed = 4 to 5
+        val s = original.copy(
+            world = w.copy(hp = 6, turns = 12),
+            structures = mapOf(
+                w.index(bench.first, bench.second) to "workbench",
+                w.index(bed.first, bed.second) to "bed",
+            ),
+        )
+        val selectedBench = islandTargetAction(s, bench)
+        assertEquals("use_workbench", selectedBench.action)
+        assertTrue(selectedBench.enabled)
+        assertFalse(islandTargetAction(s.copy(world = s.world.copy(x = 3)), bench).enabled)
+
+        val selectedBed = islandTargetAction(s, bed)
+        assertEquals("rest", selectedBed.action)
+        assertTrue(selectedBed.enabled)
+        assertFalse(islandTargetAction(s.copy(lastRestTurn = 10), bed).enabled)
+        assertFalse(islandTargetAction(s.copy(world = s.world.copy(hp = 12)), bed).enabled)
+    }
+
     @Test fun gatheringAndCombatUseNearbyTargetsWithoutMapSelection() {
         val s = scene()
         val tree = islandNearbyAction(s, 1 to 0, setOf("gather"))

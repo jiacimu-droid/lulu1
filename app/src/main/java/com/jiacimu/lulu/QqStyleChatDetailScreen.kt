@@ -286,10 +286,10 @@ fun QqStyleChatDetailScreen(
     // No microphone capture, speech recognition, polling AI or new model request here.
     val latestKeyboardVisible = rememberUpdatedState(keyboardVisible)
     val appVisibility = remember {
-        UserInteractionPresenceStore.state.map { it.appVisible }.distinctUntilChanged()
+        UserInteractionPresenceStore.state.map { it.appVisible != false }.distinctUntilChanged()
     }
     val appVisibleForComposer by appVisibility.collectAsState(
-        initial = UserInteractionPresenceStore.state.value.appVisible,
+        initial = UserInteractionPresenceStore.state.value.appVisible != false,
     )
     LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible, appVisibleForComposer) {
         if (groupChat == null && routeVisible && appVisibleForComposer) {

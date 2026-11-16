@@ -287,6 +287,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
     val buildReady = buildPreview?.allowed == true
     val deliberateTarget = target.takeIf { mapAim }
+    val selectedFacility = primaryAction.takeIf {
+        mapAim && it.action in setOf("use_workbench", "rest")
+    }
     val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","recover_pack","fish",
         "sow_berries","tend_berries","harvest_berries"),deliberateTarget)
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"),deliberateTarget)
@@ -375,15 +378,18 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         movement = {
             val center = islandNearbyAction(island, facing, selectedTarget = deliberateTarget)
             // Workbench interaction should remain discoverable near resources.
-            val workstationAction = deliberateTarget == null && workbenchNear && center?.action !in setOf(
-                "fight", "revive", "tame", "care", "salvage", "recover_pack", "gather", "fish")
+            val workstationAction = selectedFacility?.let { it.action == "use_workbench" && it.enabled }
+                ?: (deliberateTarget == null && workbenchNear && center?.action !in setOf(
+                    "fight", "revive", "tame", "care", "salvage", "recover_pack", "gather", "fish"))
             // A map selection is deliberate: a blocked or distant target must
             // not silently turn the center button into resting or crafting.
-            val restingAction = deliberateTarget == null && campRestAvailable && !workstationAction && center == null
+            val restingAction = selectedFacility?.let { it.action == "rest" && it.enabled }
+                ?: (deliberateTarget == null && campRestAvailable && !workstationAction && center == null)
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
                 interactLabel = if (buildMode != null) "确认建造" else
-                    if (workstationAction) "使用工作台制作"
+                    if (selectedFacility != null) selectedFacility.label
+                    else if (workstationAction) "使用工作台制作"
                     else if (restingAction) "在营地休息"
                     else center?.label ?: "附近互动",
                 interactEnabled = if (buildMode != null) buildReady
@@ -565,7 +571,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     navigateTo=target
                     if(hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 } else if(mapAim && primaryAction.enabled) {
-                    perform(primaryAction.action,aimedCell.first,aimedCell.second)
+                    if (primaryAction.action == "use_workbench") workbenchOpen = true
+                    else perform(primaryAction.action,aimedCell.first,aimedCell.second)
                 } else mainAction?.let { perform(it.action,it.x,it.y) }
             }, enabled = navigateTo!=null || if(buildMode!=null) buildReady
                 else (if(mapAim) primaryAction.enabled else mainAction!=null),

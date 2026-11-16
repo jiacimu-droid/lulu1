@@ -85,6 +85,32 @@ class GameCoopPacingTest {
         assertTrue(GameCoopPacing.relicThreat(incapacitated))
     }
 
+    @Test fun companionCompletesAnExplicitRescueAfterReachingThePlayer() {
+        val base = RelicEscapeWorld.create(77,1,listOf("alice"),1,1)
+        val down = base.copy(
+            phase = RelicPhase.DOWNED, downTurns = 3,
+            tiles = List(base.w * base.h) { 0 }, sites = emptyList(), mobs = emptyList(),
+            hero = base.hero.copy(x = 2, y = 2, hp = 0),
+            allies = listOf(base.allies.first().copy(x = 4, y = 2, kits = 1)),
+        )
+        val plan = RelicActorPlay.apply(down, "alice", IslandActorChoice("plan_rescue","我来救你"))!!
+        val arrived = RelicEscapeRules.act(plan, "companion_tick", autonomousIds = setOf("alice"))
+        assertEquals(0, arrived.hero.hp)
+        assertEquals(3, arrived.downTurns)
+        assertEquals(1, arrived.allies.single().kits)
+        assertEquals("rescue", arrived.coopPlans["alice"]?.kind)
+        assertFalse("Walking and using a medkit take separate steps",
+            RelicActorPlay.options(arrived, "alice").any { it.id == "rescue" })
+
+        val rescued = RelicEscapeRules.act(arrived, "companion_tick", autonomousIds = setOf("alice"))
+        assertEquals(RelicPhase.EXPLORE, rescued.phase)
+        assertEquals(4, rescued.hero.hp)
+        assertEquals(0, rescued.allies.single().kits)
+        assertEquals(1, rescued.allies.single().rescues)
+        assertTrue(rescued.coopPlans.isEmpty())
+        assertEquals(rescued, RelicEscapeRules.act(rescued, "companion_tick", autonomousIds = setOf("alice")))
+    }
+
     @Test fun idleRelicPartnerCannotFinishExtractionOrUseUpRescueTime() {
         val base = RelicEscapeWorld.create(77,1,roster.toList(),1,1)
         val board = base.copy(
