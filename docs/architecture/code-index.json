@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:21:39.050822+00:00",
-  "commit": "87a5e56c2b28d50d57254d7a2720dc476e90981f",
+  "generatedAt": "2026-11-16T02:22:06.361681+00:00",
+  "commit": "e87ea444780f8fbe3cad8d3374a27e17f56ec01b",
   "branch": "main",
-  "sourceFingerprint": "d173958c2b675f9e4bbc6bded9b52c541b81f96c99ca3d6b468e4b71f04f78c4",
+  "sourceFingerprint": "ac51314ebeb68506df9215a40937099d129d34d17379693645e136a62839d41b",
   "summary": {
     "files": 1342,
-    "lines": 286269,
+    "lines": 286307,
     "symbols": 4043
   },
   "symbolIndex": {
@@ -44212,8 +44212,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt",
-      "lines": 99,
-      "sha256": "a78ecb01918c46e7582a0fe1c2c87584b09646c377aaaa99c546734ae30bd04c",
+      "lines": 137,
+      "sha256": "d6da2aeeae443e647cdd08bf33b92998ff6a6cbc971dd533985ee665d2d3ffc9",
       "symbols": [
         {
           "name": "CompanionPresenceFreshnessTest",
