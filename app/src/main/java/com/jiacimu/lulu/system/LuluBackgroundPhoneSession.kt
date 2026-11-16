@@ -93,6 +93,7 @@ internal object LuluBackgroundPhoneSession {
         return output.put("screenSnapshotId", token)
             .put("uiTreeFingerprint", fingerprint)
             .put("interactiveElements", elements)
+            .put("chatHeaderTexts", inventory.optJSONArray("chatHeaderTexts") ?: org.json.JSONArray())
             .put("uiEvidenceSource", "virtual_accessibility_tree")
     }
 
