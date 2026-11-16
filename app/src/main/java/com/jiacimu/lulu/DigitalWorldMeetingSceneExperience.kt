@@ -188,7 +188,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         add(DigitalStreetAddress(DigitalWorldStore.CLOUD_MEADOW, "云眠原"))
         DigitalWorldPublicPlaces.all.forEach { add(DigitalStreetAddress(it.code, it.label)) }
         DigitalWorldExpansionStore.places().forEach { add(DigitalStreetAddress(it.code, it.label)) }
-        characters.filter(::isWorldCompanionRole).forEach { role ->
+        characters.filter { isWorldCompanionRole(it.characterId) }.forEach { role ->
             val code = DigitalWorldStore.homeLocation(role.characterId)
             add(DigitalStreetAddress(code,
                 world.homes[role.characterId]?.name ?: "${role.displayName}的家"))
