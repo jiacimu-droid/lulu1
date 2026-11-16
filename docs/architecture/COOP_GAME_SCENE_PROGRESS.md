@@ -463,3 +463,9 @@
 - **根因**：上一轮地图地形、怪物和同伴图形已经裁剪到相机可见区域，但独立的同伴姓名和撤离门标签仍遍历屏幕外实体，每帧创建文字背景、测量文本并提交原生 Canvas 绘制；缩放和平移时浪费绘制且可能在边缘出现漂移标签。
 - **生产**：`81367cc53f53920a095082987a50c3a1a080be17` 让同伴标签和撤离门标签共用现有 `inViewport` 以及 `run.visible` 判定；没有更改地图状态、角色决策、物品或结算。`RelicEscapeArt.kt` blob `1f876ace7bd0265d2e75872c66e70129e080ab73`。本轮未新增测试 SHA。
 - **验收**：提交后按生产 SHA 查询 Actions runs 返回 0 条，JVM/APK/index 均未取得成功证据。Redmi 横屏极端平移/缩放、标签入镜、FPS 和美术仍待真机。下一入口 `RelicEscapeArt.kt` 的 label 绘制分支与 `RelicMapCameraTest.kt` 的视口边界回归，优先转向 G-03 实物拾取→撤离→藏宝馆重新进入的真实闭环。
+
+
+## 2026-11-16 G-03.5 · 横屏平移时背景固定在视口（生产修复，CI/真机待验）
+
+- 正式 `RelicEscapeArt.kt` 的 `drawRect(Color(0xFF070D16))` 原先在 `translate(ox, oy)` 内，拖拽/缩放时背景跟随世界偏移，地图边缘可能露出 Surface 底色。生产提交 `332b00813ebc1b4365e6e0efd4af4e56c26ca059` 将全屏背景绘制移到相机平移之前，地形、怪物、实物掉落和标签仍在原相机空间；不修改奖励、碰撞、存档或角色决策。源码 blob `25ef3856eb245349905613d96b1be918f0adb2ff`。
+- 本轮未新增测试 SHA；Compose Canvas 视觉行为需 Android 截图/帧时间验收。源码变更后 `scripts/generate_code_index.py` 尚未在本环境执行，必须核后续原有索引工作流并同步 CODE_INDEX/code-index.json；不得把索引绿当 APK 绿。下一文件 `RelicEscapeArt.kt` 360/412dp 横屏极端平移、地图边缘背景对比及新 push 的 JVM/APK/index 终态，随后转向撤离→藏宝馆实物存档重入。
