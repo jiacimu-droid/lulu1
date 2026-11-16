@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:46:31.548968+00:00",
-  "commit": "b6c539feb8fe637f98a12f66ea43d9c8e844cdb9",
+  "generatedAt": "2026-11-16T18:01:49.112168+00:00",
+  "commit": "31b941c5d9be4fbc4184ff371ccd2e3b46b79027",
   "branch": "main",
-  "sourceFingerprint": "d2d3d87b69b2db67af426fdbdcafbf5167bca7bc433f90b65c29e57c5f56a282",
+  "sourceFingerprint": "1b6069c5319d4188cdafeaeb956374ab585293e858953f60ba191e1f594d2005",
   "summary": {
     "files": 1376,
-    "lines": 293698,
-    "symbols": 4140
+    "lines": 293739,
+    "symbols": 4141
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6331,7 +6331,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
-        "line": 25
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
@@ -14541,19 +14541,19 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 901
+        "line": 906
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 907
+        "line": 912
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 946
+        "line": 951
       }
     ],
     "playSound": [
@@ -15341,7 +15341,7 @@
     "canCraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "GameModelConnectionStatus": [
@@ -22528,6 +22528,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
         "line": 12
+      }
+    ],
+    "beside": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
+        "line": 89
       }
     ],
     "MemoryMatchOpponentFairnessTest": [
@@ -37067,8 +37073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 954,
-      "sha256": "f32d2b52053a308d0891b7c095f2fe2060c6cb0556ed1e462904ee5efc312000",
+      "lines": 959,
+      "sha256": "bd81673eb57bd04e8429c843485b28537b66b07c6c6cd9efcc3dabb0ed348b9a",
       "symbols": [
         {
           "name": "toJson",
@@ -37132,22 +37138,22 @@
         },
         {
           "name": "nextStep",
-          "line": 901
+          "line": 906
         },
         {
           "name": "occupiedByOther",
-          "line": 907
+          "line": 912
         },
         {
           "name": "actionName",
-          "line": 946
+          "line": 951
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
       "lines": 1338,
-      "sha256": "60b9f2709e86b8f62b13be8e429b192240bc5b9ecfae8c5cf3d8de4c36c6286e",
+      "sha256": "5b618ad74e6278794c7992b4a84c47e94e5ba6aca2b5624ec8907488892554e9",
       "symbols": [
         {
           "name": "playSound",
@@ -38211,16 +38217,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
-      "lines": 38,
-      "sha256": "430cfc7a479c0d18e5a709153a6e90f5e7d6ce637b9e25e2f592be05b228984b",
+      "lines": 39,
+      "sha256": "0cb47eea210483c7992c5892deb346d7bd1782fe72db6fede4cf9d25bdf97892",
       "symbols": [
         {
           "name": "find",
-          "line": 25
+          "line": 26
         },
         {
           "name": "canCraft",
-          "line": 26
+          "line": 27
         }
       ]
     },
@@ -48031,12 +48037,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
-      "lines": 74,
-      "sha256": "71528129522a3b0eb2f7bfd8102c0071141f54c493555406bd834dbc1a8edc76",
+      "lines": 109,
+      "sha256": "eaebdbab97e4e2fc287a8f7b7d6d869aa2c2e8522847cd71e6a481fe0bd260b8",
       "symbols": [
         {
           "name": "IslandWorkbenchRecipesTest",
           "line": 12
+        },
+        {
+          "name": "beside",
+          "line": 89
         }
       ]
     },
