@@ -47,6 +47,28 @@ class RelicActorPlayTest {
             IslandActorChoice("switch:21","已经开过了")))
     }
 
+    @Test fun partnerStealthChoiceAvoidsTheSameEchoHazardThatLoudMovementTriggers() {
+        val base=run()
+        val ally=base.allies.first().copy(x=5,y=4)
+        val echo=RelicSite(17,6,4,"echo")
+        val enemy=RelicMob(38,9,4,6,0)
+        val board=base.copy(allies=listOf(ally),mobs=listOf(enemy),
+            sites=listOf(echo),hero=base.hero.copy(x=2,y=2))
+        assertTrue(RelicActorPlay.options(board,"alice").any { it.id=="move:6:4" })
+        assertTrue(RelicActorPlay.options(board,"alice").any { it.id=="sneak:6:4" })
+        val quiet=RelicActorPlay.apply(board,"alice",
+            IslandActorChoice("sneak:6:4","我小心走过去"))!!
+        assertFalse(quiet.sites.single().spent)
+        assertEquals(0,quiet.mobs.single().alert)
+        val loud=RelicActorPlay.apply(board,"alice",
+            IslandActorChoice("move:6:4","先过去看看"))!!
+        assertTrue(loud.sites.single().spent)
+        assertEquals(4,loud.mobs.single().alert)
+        assertTrue(loud.events.any { it.action=="echo" })
+        assertEquals(board.turns,loud.turns)
+        assertEquals(board.turns,quiet.turns)
+    }
+
     @Test fun partnerCanCarryARealGroundDropOutWhenThePlayerCannotFitIt() {
         val base = run()
         val loot = RelicLoot("run:chest:7", "幽蓝宝石", RelicTier.RARE, 220)
