@@ -171,12 +171,12 @@ class RelicObjectiveRouteTest {
     @Test fun tacticalHudSuggestsReachableChestBeforeCloserBlockedChest() {
         val base=corridor()
         val terrain=base.tiles.toMutableList().also { tiles ->
-            for(x in 2..8) tiles[3*12+x]=0
+            for(x in 2..8) { tiles[3*12+x]=0; tiles[4*12+x]=0 }
             // The nearer chest at (5,2) is surrounded by walls except (4,2).
             tiles[2*12+6]=1
             tiles[3*12+5]=1
         }
-        val seen=(2..8).flatMap { x -> listOf(2*12+x,3*12+x) }.toSet()
+        val seen=(2..8).flatMap { x -> listOf(2*12+x,3*12+x,4*12+x) }.toSet()
         val world=base.copy(
             tiles=terrain,seen=seen,
             chests=listOf(
