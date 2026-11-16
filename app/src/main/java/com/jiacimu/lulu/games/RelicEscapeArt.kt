@@ -449,12 +449,18 @@ internal fun RelicEscapeWorldMap(
             knownRoute?.takeIf { it.size > 1 }?.let { route ->
                 val ink = Color(0xFFB8E2D9).copy(alpha=.48f)
                 route.zipWithNext().forEach { (from, to) ->
-                    drawLine(ink, center(from.first, from.second),
-                        center(to.first, to.second), strokeWidth=t*.085f)
+                    // A route segment may enter the visible edge from one tile
+                    // outside; keep that segment without drawing the whole route.
+                    if (from.first in (firstX-1)..lastX && from.second in (firstY-1)..lastY &&
+                        to.first in (firstX-1)..lastX && to.second in (firstY-1)..lastY) {
+                        drawLine(ink, center(from.first, from.second),
+                            center(to.first, to.second), strokeWidth=t*.085f)
+                    }
                 }
                 route.drop(1).forEach { (x,y) ->
-                    drawCircle(Color(0xFFE1F7E9).copy(alpha=.62f),
-                        t*.065f,center(x,y))
+                    if (x in firstX until lastX && y in firstY until lastY)
+                        drawCircle(Color(0xFFE1F7E9).copy(alpha=.62f),
+                            t*.065f,center(x,y))
                 }
             }
             if(run.flareTurns>0) {
@@ -470,7 +476,11 @@ internal fun RelicEscapeWorldMap(
                     t*.5f,at,style=Stroke(t*.075f))
                 drawCircle(Color(0xFFD1C6FF),t*.11f,at)
             }
-            run.mobs.filter{it.hp>0 && run.visible(it.x,it.y)}.forEach{mob->
+            // Sprite passes share the terrain viewport: offscreen actors must not
+            // allocate paths, gradients or native labels on every shimmer frame.
+            fun inViewport(x: Int, y: Int): Boolean =
+                x >= firstX && x < lastX && y >= firstY && y < lastY
+            run.mobs.filter{it.hp>0 && inViewport(it.x,it.y) && run.visible(it.x,it.y)}.forEach{mob->
                 val p=center(mob.x,mob.y)
                 drawCircle(Color.Black.copy(alpha=.4f),t*.35f,p+Offset(0f,t*.13f))
                 if(mob.windup) {
@@ -491,7 +501,7 @@ internal fun RelicEscapeWorldMap(
                     Size(t*.60f*(mob.hp.toFloat()/maxHp.coerceAtLeast(1)).coerceIn(0f,1f),
                         t*.055f),CornerRadius(t*.02f))
             }
-            run.allies.filter{run.visible(it.x,it.y)}.forEachIndexed{index,ally->
+            run.allies.filter{inViewport(it.x,it.y) && run.visible(it.x,it.y)}.forEachIndexed{index,ally->
                 val p=center(ally.x,ally.y)
                 drawCircle(Color.Black.copy(alpha=.32f),t*.39f,p+Offset(t*.03f,t*.13f))
                 val cape=if(index%2==0)Color(0xFF4C9CAD)else Color(0xFF7189B3)
