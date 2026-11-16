@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:43:57.350901+00:00",
-  "commit": "1c223d364c29af602dd3cffcc5fc764ecbbee05e",
+  "generatedAt": "2026-11-16T14:53:16.459742+00:00",
+  "commit": "54a527ce54197d3a7ce4ea5bcddd9b936f33743a",
   "branch": "main",
-  "sourceFingerprint": "ffed051921077e921c7d3e42e61fbc3847a890da65bd9fd4b0bc9e5c78d6500c",
+  "sourceFingerprint": "25946aecf3f68da0eb0470135d9382b93a66bf4cc2db1294c5f5aba8282326d8",
   "summary": {
     "files": 1365,
-    "lines": 291737,
+    "lines": 291742,
     "symbols": 4110
   },
   "symbolIndex": {
@@ -22615,7 +22615,7 @@
     "LuluBackgroundPhoneContinuationYieldTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "LuluBackgroundPhonePreviewGateTest": [
@@ -38945,7 +38945,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt",
       "lines": 31,
-      "sha256": "e77e43804d59c81c0f7363d70135264c40df4e8156cfb9c58b9cb50e588e9793",
+      "sha256": "c14eb2c93ad45ceeaa451af64cb32a51c147a822f97e9129d7a4eca3998a02c9",
       "symbols": [
         {
           "name": "question",
@@ -48133,12 +48133,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-      "lines": 55,
-      "sha256": "f5204cac471054e4e61981db886ca7ad05889db5a100a16fd66cfa5571bd0c07",
+      "lines": 60,
+      "sha256": "d47fdeffc4b3ec2cada0b08f79917b5ba931924002a958842ea7fdac407e3e11",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneContinuationYieldTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
