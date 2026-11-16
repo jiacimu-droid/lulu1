@@ -118,7 +118,10 @@ class PromptContextPolicyTest {
             assertTrue(situated.worldDetails)
             assertTrue(situated.richInnerLife)
             assertTrue(verifying.precise)
-            assertTrue(verifying.evidenceCharacters >= 7_000)
+            assertEquals(situated.evidenceCharacters, verifying.evidenceCharacters)
+            assertEquals(situated.memoryCharacters, verifying.memoryCharacters)
+            assertEquals(situated.recentCharacters, verifying.recentCharacters)
+            assertEquals(situated.workingSetCharacters, verifying.workingSetCharacters)
         }
     }
 
@@ -180,8 +183,10 @@ class PromptContextPolicyTest {
                 scene, request, fullCharacterDecision = true)
             assertTrue(budget.precise)
             assertTrue(budget.richInnerLife)
-            assertEquals(7_000, budget.evidenceCharacters)
-            assertEquals(31_000, budget.workingSetCharacters)
+            assertEquals(5_500, budget.evidenceCharacters)
+            assertEquals(10_000, budget.memoryCharacters)
+            assertEquals(5_900, budget.recentCharacters)
+            assertEquals(28_000, budget.workingSetCharacters)
         }
     }
 
