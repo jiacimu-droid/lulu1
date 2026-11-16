@@ -254,11 +254,14 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         "不要重复已否定的假设，也不要凭空宣称问题已解决。" +
                         "只输出JSON对象：{\"type\":\"question|discussion|solve|wait\",\"text\":\"自然口语内容\"}。" +
                         "如选择wait，text可为空。不得替其他玩家发言。",
-                    source = "游戏",
+                    // The companion is the SAME person in their original-world
+                    // life; only the sealed current-case truth stays unavailable.
+                    // Independent fixed hosts remain isolated objective judges.
+                    source = "游戏 · 海龟汤同伴推理",
                     title = "海龟汤 · 同伴推理",
                     maxTokens = 220,
                     usage = ModelUsage.Game,
-                    contextMode = CompanionContextMode.PersonaAndScenario,
+                    contextMode = CompanionContextMode.Full,
                 )
                 decision.onSuccess { response ->
                     val parsed = parseSoupCompanionDecision(response.text)
