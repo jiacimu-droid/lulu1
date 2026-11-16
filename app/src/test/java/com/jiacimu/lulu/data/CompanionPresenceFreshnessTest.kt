@@ -65,6 +65,44 @@ class CompanionPresenceFreshnessTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun freshChatWithoutAuthoredStatusOrMoodCannotInheritOldActivity() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "chat-moment-no-stale-inheritance"
+        CompanionPresenceStore.clearCharacter(role)
+        val at = Instant.parse("2026-11-16T00:00:00Z")
+        CompanionPresenceStore.update(role, "正在阅读", "靠着沙发看书", "",
+            "兴奋", "独自阅读", at)
+        CompanionPresenceStore.update(role, null, null, "", null, "聊天回复",
+            at.plusSeconds(3600))
+        val current = CompanionPresenceStore.current(role)!!
+        assertEquals("", current.statusText)
+        assertEquals("", current.gesture)
+        assertEquals("", current.mood)
+        assertEquals(at.plusSeconds(3600), current.updatedAt)
+        assertTrue(CompanionPresenceStore.histories.value[role].orEmpty().any {
+            it.statusText == "正在阅读" && it.mood == "兴奋"
+        })
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun ongoingCallKeepsLiveCallFactWhileHandlingChatWithoutNewStatus() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "live-call-chat-presence"
+        CompanionPresenceStore.clearCharacter(role)
+        CompanionPresenceStore.beginCall(role)
+        try {
+            CompanionPresenceStore.update(role, null, null, "", null, "聊天",
+                Instant.now().plusSeconds(1))
+            assertTrue(CompanionPresenceStore.isInCall(role))
+            assertEquals("通话中", CompanionPresenceStore.current(role)!!.statusText)
+        } finally {
+            CompanionPresenceStore.finishCall(role)
+            CompanionPresenceStore.clearCharacter(role)
+        }
+    }
+
     @Test fun newPrivateIdeasDisplayEvenWhenThereIsNoHeartVoice() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
