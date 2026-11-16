@@ -32,8 +32,15 @@ internal object LuluVirtualChatSendPolicy {
         if (!validRecipient(recipient)) return false
         fun normalized(s: String): String = s
             .replace(Regex("[\\u200B\\u200E\\u200F\\uFEFF]"), "").trim()
+        val expected = normalized(recipient)
+        // WeChat occasionally coalesces the small unread-count badge and the
+        // toolbar title into ONE accessibility description. Accept only that
+        // exact structural decoration, not a fuzzy substring from chat history.
+        val unreadBadge = "(?:[1-9][0-9]{0,2}|[(][1-9][0-9]{0,2}[)]|（[1-9][0-9]{0,2}）)"
+        val decorated = Regex("^(?:返回\\s*)?(?:$unreadBadge\\s+)?${Regex.escape(expected)}$")
         return listOf(text, description).filterNotNull().any {
-            normalized(it) == normalized(recipient)
+            val candidate = normalized(it)
+            candidate == expected || decorated.matches(candidate)
         }
     }
 
@@ -108,6 +115,7 @@ internal object LuluVirtualChatSendPolicy {
     fun isPressToTalk(text: String?): Boolean {
         val normalized = text.orEmpty().replace(Regex("\\s+"), "").lowercase()
         return normalized == "按住说话" || normalized == "按住讲话" ||
+            normalized == "可按住转文字" || normalized == "按住转文字" ||
             normalized == "holdtotalk"
     }
 
