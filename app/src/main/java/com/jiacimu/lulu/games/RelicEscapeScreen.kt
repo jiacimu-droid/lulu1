@@ -327,7 +327,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                             }
                             val after = next?.run
                             if (next != null && after != null && after.id == expectedId &&
-                                after.turns > current.turns) {
+                                after.teamSteps > current.teamSteps) {
                                 snapshot = next
                                 after
                             } else null
