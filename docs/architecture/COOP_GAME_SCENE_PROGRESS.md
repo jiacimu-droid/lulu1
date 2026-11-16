@@ -1,5 +1,13 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-03.5 · 无本人计划的同伴不得自动开箱造物（源码/回归提交，CI/真机待验）
+
+- **生产根因**：`RelicEscapeRules.alliesTurn` 在没有人物模型选择、没有 `autonomousIds` 的普通玩家 `wait` 回合，会擅自找附近宝箱、生成权威 `treasure` 实物、放入伙伴背包，甚至替伙伴自动寻路。这不只是文案问题，会改变实际战利品和地图，抢走玩家开箱权。
+- **生产**：`98ae39ab19bed66e0d3a7b438607f57ce236b74d`（`RelicEscapeRules.kt` blob `0f8b0b4ee19cee6cd65fd284381c2317b0e78b33`）取消无计划同伴的自动寻箱/开箱/移动分支；仍保留已有紧急防御、治疗、救援与攻击规则；真正本人已选的跨回合搜宝、施工与行动继续交由 `RelicCoopTravel` 执行，不新增每格模型调用。
+- **回归**：`53d591d4a6448a1266080caba733a3d2bfdd515e` 新增 `RelicIdleCompanionLootTest.kt`，构造实际可达宝箱旁的同伴并让玩家等待，断言无授权计划时宝箱、伙伴背包和坐标不变，无伪造开箱事件。提交时 main 最新 SHA 为 `53d591d`，对应 Actions API 查询零条运行，不等于成功；JVM/APK/index 待按最终 push SHA 核 terminal。
+- **下一入口**：`RelicIdleCompanionLootTest.kt` 的 `testPhoneUnitTest`，`RelicEscapeRules.kt` 的无计划同伴防御分支与 `RelicCoopTravel.kt` 的真实计划执行；真机确认角色选择开箱才真的开箱、撤离入馆、Redmi 横屏 FPS 和美术另验。
+
+
 ### 2026-11-16 · G-03.5 · 旧地图/伙伴回调不能操作新一局（源码/回归已提交，CI/真机待验）
 
 - **根因**：正式 `RelicEscapeScreen` 的地图操作与 `companion_tick` 会在读到某局后异步触发；`RelicEscapeLedger.perform` 只读取当前 run，未验证调用者原本所属的 run ID。旧局延迟回调可能在新局执行 `abandon` 或推进真实回合。此前 `companion` 已有 run ID 守卫，但通用 perform 没有。
