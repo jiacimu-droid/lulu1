@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3cbbb79336d1622ab5c47a912df00d6dffd297d5`
+- 基准提交：`cdddccdb4057d8e5a17f26284679b19442551cf5`
 - 分支：`main`
 - 已索引文件：1350
-- 已索引代码/文本行：287903
+- 已索引代码/文本行：287909
 - 已发现符号：4065
 
 | 文件 | 行数 | 符号数 |
@@ -132,7 +132,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1643 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1649 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 832 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 649 | 5 |
