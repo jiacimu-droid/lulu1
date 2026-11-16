@@ -269,6 +269,13 @@ internal fun DigitalWorldGameScene(
     var escortPath by remember(sceneKey) { mutableStateOf<List<WorldVector>>(emptyList()) }
     var nextEscortRouteAt by remember(sceneKey) { mutableLongStateOf(0L) }
     val latestOnReachedItem by rememberUpdatedState(onReachedSceneItem)
+    // Arrivals are discrete facts, not a callback to replay on every render frame.
+    var reportedArrivals by remember(sceneKey) { mutableStateOf<Set<String>>(emptySet()) }
+    LaunchedEffect(sceneDestinations) {
+        reportedArrivals = reportedArrivals.filterTo(mutableSetOf()) { key ->
+            sceneDestinations.any { (id, itemId) -> key == "$id:$itemId" }
+        }
+    }
     val activeFollowerIds = (followerIds - suspendedFollowers) + requestedFollowers + listOfNotNull(effectiveHoldingId)
 
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
@@ -615,8 +622,12 @@ internal fun DigitalWorldGameScene(
                     if (chosenItem != null && itemPoint != null &&
                         moved.distanceTo(itemPoint) < 68f &&
                         (!handHolding || playerPosition.distanceTo(itemPoint) < 94f)) {
-                        // Only the physical arrival callback can clear this goal and report success.
-                        latestOnReachedItem?.invoke(characterId, chosenItem.item.id)
+                        val arrivalKey = "$characterId:${chosenItem.item.id}"
+                        if (arrivalKey !in reportedArrivals) {
+                            reportedArrivals = reportedArrivals + arrivalKey
+                            // Only the physical arrival callback can clear this goal and report success.
+                            latestOnReachedItem?.invoke(characterId, chosenItem.item.id)
+                        }
                     }
                     motion.copy(
                         position = moved,
