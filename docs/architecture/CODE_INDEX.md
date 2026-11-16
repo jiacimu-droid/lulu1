@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`949a8ef1ccf6252b0c346711da32c3ba41cea89a`
+- 基准提交：`24ae691c832244c277b62ac5f7faa3063b59c00f`
 - 分支：`main`
 - 已索引文件：1374
-- 已索引代码/文本行：293468
-- 已发现符号：4134
+- 已索引代码/文本行：293476
+- 已发现符号：4135
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -583,7 +583,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1043 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 972 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 979 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 269 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 26 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
@@ -693,7 +693,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 607 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt` | 119 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt` | 120 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
