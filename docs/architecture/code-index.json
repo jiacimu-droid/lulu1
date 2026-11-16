@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:24:16.592700+00:00",
-  "commit": "2536eee5042e815b00e7bcfebe935504d7258cea",
+  "generatedAt": "2026-11-16T03:29:09.037435+00:00",
+  "commit": "fa3eb0e408908ec19035f98bdf3ddeed87254b56",
   "branch": "main",
-  "sourceFingerprint": "27933271a5788824344fbbcd644bb05c7223bd628d0eb02405efeabf8c55ee5c",
+  "sourceFingerprint": "129637b647c9f9fbcaed6c4df224517f985242d97cc8ca24ae159285978ff459",
   "summary": {
-    "files": 1344,
-    "lines": 286573,
+    "files": 1345,
+    "lines": 286817,
     "symbols": 4047
   },
   "symbolIndex": {
@@ -23951,6 +23951,12 @@
           "line": 91
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt",
+      "lines": 244,
+      "sha256": "36c51bd388903b6e4fc2317f33dcb6c7eed4d38af146b8926b009b70594817a0",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt",

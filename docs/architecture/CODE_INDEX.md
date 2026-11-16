@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2536eee5042e815b00e7bcfebe935504d7258cea`
+- 基准提交：`fa3eb0e408908ec19035f98bdf3ddeed87254b56`
 - 分支：`main`
-- 已索引文件：1344
-- 已索引代码/文本行：286573
+- 已索引文件：1345
+- 已索引代码/文本行：286817
 - 已发现符号：4047
 
 | 文件 | 行数 | 符号数 |
@@ -148,6 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 244 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
