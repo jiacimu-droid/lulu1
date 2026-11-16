@@ -185,6 +185,7 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                     destinationActivityId = if (id == respondingCharacterId &&
                         session.reality == MeetingReality.DIGITAL_WORLD && selectedItem != null)
                         meetingValidatedDestinationActivityId(offeredActivity, offeredActivities)
+                    else if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD) ""
                     else beforeById[id]?.destinationActivityId.orEmpty(),
                 ),
             )
