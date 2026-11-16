@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:01:45.963978+00:00",
-  "commit": "266c386952f3bbdb944281f425e0f30c0c54fd4f",
+  "generatedAt": "2026-11-16T17:02:24.439458+00:00",
+  "commit": "0946e93b2607be7b88d575ef20804301da4eae03",
   "branch": "main",
-  "sourceFingerprint": "f5d088cd68bd1a58102e1ee0a19aa3b25274f57ee5bbe8088b4e22b912192239",
+  "sourceFingerprint": "aa92092f6e670f7bad25f9c7f88d802e37bed888b6c83e5b25296d7f74da2f7d",
   "summary": {
-    "files": 1370,
-    "lines": 292880,
-    "symbols": 4123
+    "files": 1371,
+    "lines": 292927,
+    "symbols": 4124
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22872,6 +22872,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
         "line": 58
+      }
+    ],
+    "LuluVirtualChatTitleOcrTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcrTest.kt",
+        "line": 8
       }
     ],
     "LuluVirtualFrameSafetyTest": [
@@ -48592,6 +48598,17 @@
         {
           "name": "b",
           "line": 144
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcrTest.kt",
+      "lines": 47,
+      "sha256": "e94e39370c184444fbd4be14dcb29bd9fa53251a4b769c812bd20d04041fe93a",
+      "symbols": [
+        {
+          "name": "LuluVirtualChatTitleOcrTest",
+          "line": 8
         }
       ]
     },
