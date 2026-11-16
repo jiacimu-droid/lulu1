@@ -36,4 +36,25 @@ class RelicMuseumSaleGuardTest {
         assertEquals(sold,RelicEscapeLedger(context).read())
         assertEquals(sold,RelicEscapeLedger(context).sellLoot(loot.id))
     }
+    @Test fun staleMuseumPedestalChoiceCannotChangeDisplayDuringExpedition() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val first=RelicLoot("pedestal-first","月银胸针",RelicTier.RARE,180)
+        val second=RelicLoot("pedestal-second","月银胸针",RelicTier.RARE,180)
+        val world=RelicEscapeWorld.create(8124,2,emptyList(),0,1)
+        for (phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
+            val before=RelicSnapshot(run=world.copy(phase=phase),
+                vault=listOf(first,second),featuredLootId=first.id)
+            assertTrue(prefs.edit().putString("ledger",before.json().toString()).commit())
+            assertEquals(before,RelicEscapeLedger(context).featureLoot(second.id))
+            assertEquals(before,RelicEscapeLedger(context).read())
+        }
+        val camp=RelicSnapshot(run=world.copy(phase=RelicPhase.SUCCESS),
+            vault=listOf(first,second),featuredLootId=first.id)
+        assertTrue(prefs.edit().putString("ledger",camp.json().toString()).commit())
+        val changed=RelicEscapeLedger(context).featureLoot(second.id)
+        assertEquals(second.id,changed.featuredLootId)
+        assertEquals(changed,RelicEscapeLedger(context).read())
+    }
+
 }
