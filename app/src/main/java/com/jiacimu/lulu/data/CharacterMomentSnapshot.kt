@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import org.json.JSONObject
+import java.time.Instant
 
 /**
  * The fictional psychological *snapshot* of one newly observed interaction.
@@ -128,6 +129,20 @@ internal data class PresenceHistoryMoment(
 )
 
 internal object PresenceHistoryPresentation {
+    /**
+     * Preserve the actual frozen delivery moment even when the model committed
+     * its presence milliseconds AFTER the bubble was persisted. Exclude other
+     * future moments; a historical avatar is not a live-status shortcut.
+     */
+    fun anchoredHistory(
+        history: List<CompanionPresenceState>,
+        messageAt: Instant,
+        snapshot: CompanionPresenceState?,
+    ): List<CompanionPresenceState> = buildList {
+        snapshot?.let(::add)
+        addAll(history.filter { !it.updatedAt.isAfter(messageAt) })
+    }.distinctBy { it.updatedAt }
+
     /** Explicit message anchors may show only their own private moment.
      * The general "Current" tab instead shows the newest actually authored
      * voice, labelled with that voice's real time.
