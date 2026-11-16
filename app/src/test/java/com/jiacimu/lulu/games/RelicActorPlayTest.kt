@@ -18,7 +18,7 @@ class RelicActorPlayTest {
     @Test fun companionCanChooseRealMapMechanismsWithoutSpendingOwnersTurn() {
         val base=run()
         val gate=RelicSite(20,6,2,"seal_gate",linkId=21)
-        val control=RelicSite(21,5,3,"seal_switch",linkId=20)
+        val control=RelicSite(21,4,3,"seal_switch",linkId=20)
         val lens=RelicSite(22,5,2,"lens")
         val tile=base.tiles.toMutableList()
         tile[base.index(gate.x,gate.y)]=1
@@ -26,7 +26,7 @@ class RelicActorPlayTest {
         val board=base.copy(tiles=tile,allies=listOf(alice),
             sites=listOf(gate,control,lens),
             seen=setOf(base.index(4,2),base.index(5,2),
-                base.index(5,3),base.index(6,2)))
+                base.index(4,3),base.index(6,2)))
         assertTrue(RelicActorPlay.options(board,"alice").any { it.id=="lens:22" })
         assertFalse(board.walk(gate.x,gate.y))
         val openedMap=RelicActorPlay.apply(board,"alice",
