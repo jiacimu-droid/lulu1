@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1bff7e50581a589cc49d03191ff22d1a4aa3aff2`
+- 基准提交：`41bd8903b21240b26a65c198a97cfa6cf477866c`
 - 分支：`main`
 - 已索引文件：1355
-- 已索引代码/文本行：288707
-- 已发现符号：4089
+- 已索引代码/文本行：288721
+- 已发现符号：4090
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -753,7 +753,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 228 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt` | 186 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 200 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 446 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 460 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |

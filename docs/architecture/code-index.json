@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:48:28.972829+00:00",
-  "commit": "1bff7e50581a589cc49d03191ff22d1a4aa3aff2",
+  "generatedAt": "2026-11-16T05:51:31.130963+00:00",
+  "commit": "41bd8903b21240b26a65c198a97cfa6cf477866c",
   "branch": "main",
-  "sourceFingerprint": "d877e014060591ab2bec7db9afde3bd22d216c2f959773c6666192f5c3fd5a43",
+  "sourceFingerprint": "9116a211d40af0935829257fd3214ebe7b092165b6beb6a05050c0d4420cca84",
   "summary": {
     "files": 1355,
-    "lines": 288707,
-    "symbols": 4089
+    "lines": 288721,
+    "symbols": 4090
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 219
+        "line": 226
       }
     ],
     "replyTextPrefix": [
@@ -16024,10 +16024,16 @@
         "line": 154
       }
     ],
+    "requestHint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 219
+      }
+    ],
     "startNew": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 239
+        "line": 246
       }
     ],
     "walkable": [
@@ -38812,8 +38818,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 446,
-      "sha256": "146013705155e57fa08e696815799c76c1e83d0521f40cf7133b2555ec1fd497",
+      "lines": 460,
+      "sha256": "a008f536efc42830b2c2ec93a298fe79c50775fc5b05156d04d42a55b4ee28bb",
       "symbols": [
         {
           "name": "name",
@@ -38840,12 +38846,16 @@
           "line": 154
         },
         {
-          "name": "finish",
+          "name": "requestHint",
           "line": 219
         },
         {
+          "name": "finish",
+          "line": 226
+        },
+        {
           "name": "startNew",
-          "line": 239
+          "line": 246
         }
       ]
     },
