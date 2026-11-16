@@ -99,6 +99,19 @@ class CharacterSoloWorldPlayTest {
         val durable = executor.readRelic(actor).json().toString()
         repeat(3) { assertNotNull(RelicSoloReplay.read(segment.details)) }
         assertEquals(durable, executor.readRelic(actor).json().toString())
+        // The replay CTA enters a full game screen only for genuine solo physical
+        // frames, never for owner co-op, generic events or old text-only history.
+        val soloRecord = LuluGameRecord(
+            type = LuluGameType.RelicEscape, title = "迷雾摸金",
+            score = segment.score, rewardCoins = 0, characterId = actor,
+            playedWithCharacter = false, characterSolo = true,
+            summary = segment.summary, detailsJson = segment.details,
+        )
+        assertTrue(soloRecord.canOpenImmersiveRelicReplay())
+        assertFalse(soloRecord.copy(characterSolo = false).canOpenImmersiveRelicReplay())
+        assertFalse(soloRecord.copy(playedWithCharacter = true).canOpenImmersiveRelicReplay())
+        assertFalse(soloRecord.copy(detailsJson = """{"game":"relic_escape","events":[]}""")
+            .canOpenImmersiveRelicReplay())
         // Old records lack frames. Never reconstruct unobserved moves or pretend
         // a final snapshot proves what happened across the missing history.
         assertNull(RelicSoloReplay.read("""{"game":"relic_escape","events":[]}"""))
