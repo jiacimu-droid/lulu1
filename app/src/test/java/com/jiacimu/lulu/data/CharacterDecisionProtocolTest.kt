@@ -44,6 +44,24 @@ class CharacterDecisionProtocolTest {
         assertFalse(direct.contains("属于辞海约定"))
     }
 
+    @Test fun privateChatAndIndependentLifeShareContinuingAgencyAndActionReceipts() {
+        val privateChat = proactiveDecisionInstruction("continuing-life-private", directPrivateChat = true)
+        val soloLife = proactiveDecisionInstruction("continuing-life-solo", directPrivateChat = false)
+        assertTrue(continuingLifeDecisionGuide.contains("同一个人的连续生活决定"))
+        assertTrue(continuingLifeDecisionGuide.contains("先回主人"))
+        assertTrue(continuingLifeDecisionGuide.contains("steps"))
+        assertTrue(continuingLifeDecisionGuide.contains("给认识的人发信"))
+        assertTrue(continuingLifeDecisionGuide.contains("真实查询"))
+        assertTrue(continuingLifeDecisionGuide.contains("执行器"))
+        assertTrue(privateChat.contains(continuingLifeDecisionGuide))
+        assertTrue(soloLife.contains(continuingLifeDecisionGuide))
+        assertTrue(privateChat.contains("send_character_message"))
+        assertTrue(privateChat.contains("send_group_message"))
+        assertTrue(privateChat.contains("web_search") || privateChat.contains("搜索"))
+        assertTrue(soloLife.contains("steps"))
+        assertTrue(soloLife.contains("plan_personal_activity"))
+    }
+
     @Test fun privateChatContractCanChooseVoiceReplyThenARealIncomingCall() {
         val instruction = proactiveDecisionInstruction("multi-action-private-chat",
             directPrivateChat = true)
