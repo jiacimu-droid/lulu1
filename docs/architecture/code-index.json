@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T10:31:33.361848+00:00",
-  "commit": "e3f936f6c82c12e01dc377dccd114eddd22b19d9",
+  "generatedAt": "2026-11-16T10:56:59.329529+00:00",
+  "commit": "cea2c275a2cef8e708bb79208ba478a522f0f106",
   "branch": "main",
-  "sourceFingerprint": "6cec9bf11e9792387a99bdcc3a589928b3f87485fbf46383e33ba4ef47e8669a",
+  "sourceFingerprint": "fd21bc23e49f2978ca5cb244721d540978d488394d95d4226cc94044c87e3f5e",
   "summary": {
-    "files": 1358,
-    "lines": 290305,
-    "symbols": 4090
+    "files": 1359,
+    "lines": 290346,
+    "symbols": 4091
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15723,7 +15723,7 @@
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 192
+        "line": 196
       }
     ],
     "namesFor": [
@@ -22378,6 +22378,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt",
         "line": 7
+      }
+    ],
+    "RelicStaleRunActionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicStaleRunActionTest.kt",
+        "line": 15
       }
     ],
     "RelicTensionPresentationTest": [
@@ -38374,8 +38380,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 236,
-      "sha256": "e30f6fe0adcd8228d5a737a2eec3754f0565f5ab44983d6b26c470dc4fc1049b",
+      "lines": 240,
+      "sha256": "ed872b731a2ddf282a980df24919485dc1afb5dcafae010e6cb09dccd0a8be50",
       "symbols": [
         {
           "name": "json",
@@ -38391,7 +38397,7 @@
         },
         {
           "name": "syncExperiences",
-          "line": 192
+          "line": 196
         }
       ]
     },
@@ -38534,8 +38540,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1393,
-      "sha256": "a63f997a58ab2b9b6ab115d7d9f2c2d3387f1b8e10ed5d5a2188a35c3e5d40e9",
+      "lines": 1395,
+      "sha256": "60946ef1148f5e1a90fe2e731a58131817f058938d60a7e382b61b9dfb5375ef",
       "symbols": [
         {
           "name": "change",
@@ -47668,6 +47674,17 @@
         {
           "name": "RelicSceneIndexTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicStaleRunActionTest.kt",
+      "lines": 35,
+      "sha256": "0c17e4b52d1b6dc9cee1f95997cfdcb664a667d040adf0f1e25e40c32e42e8fa",
+      "symbols": [
+        {
+          "name": "RelicStaleRunActionTest",
+          "line": 15
         }
       ]
     },
