@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:12:16.381118+00:00",
-  "commit": "cdddccdb4057d8e5a17f26284679b19442551cf5",
+  "generatedAt": "2026-11-16T04:12:46.880349+00:00",
+  "commit": "86603e44af473746648266b1756c7f31c6e6ec7f",
   "branch": "main",
-  "sourceFingerprint": "70744207e555f9ca69499901b0c1e1d39febfc081df7d856f1a5f68789d5c1ba",
+  "sourceFingerprint": "aca307134350fb741f031aab43b35118446a6389a8e1799f1bd341a1269910e7",
   "summary": {
-    "files": 1350,
-    "lines": 287909,
-    "symbols": 4065
+    "files": 1351,
+    "lines": 287954,
+    "symbols": 4066
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18700,6 +18700,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt",
         "line": 12
+      }
+    ],
+    "MeetingSceneConsentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneConsentTest.kt",
+        "line": 20
       }
     ],
     "MeetingSceneDestinationTest": [
@@ -42146,6 +42152,17 @@
         {
           "name": "MeetingSceneConcurrencyTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneConsentTest.kt",
+      "lines": 45,
+      "sha256": "c3bc589ff34e9175b6c36370192a3e8466fdb33df2729b578e60bc6ca0d532e8",
+      "symbols": [
+        {
+          "name": "MeetingSceneConsentTest",
+          "line": 20
         }
       ]
     },
