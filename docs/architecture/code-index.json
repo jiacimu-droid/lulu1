@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:57:03.899433+00:00",
-  "commit": "7e7b0f9a34c60c9c17ec1781e92e30da12ab9be1",
+  "generatedAt": "2026-11-16T16:57:37.156204+00:00",
+  "commit": "448236631aa93c90510d791d77e1d2811c1d9be7",
   "branch": "main",
-  "sourceFingerprint": "48c44b936b350e9e7cad9b449e53dff6fb6bc0c8063438f37e68a08489621496",
+  "sourceFingerprint": "63109b9ece03c9b21dd0fb0bda06ceb6c15161ce76ffe143550e13813c75d93c",
   "summary": {
     "files": 1369,
-    "lines": 292686,
+    "lines": 292688,
     "symbols": 4124
   },
   "symbolIndex": {
@@ -14471,7 +14471,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 345
+        "line": 347
       }
     ],
     "near": [
@@ -14881,7 +14881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 273
+        "line": 275
       }
     ],
     "reached": [
@@ -15873,67 +15873,67 @@
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 272
+        "line": 274
       }
     ],
     "allyReadyToExtract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 275
+        "line": 277
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 277
+        "line": 279
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 287
+        "line": 289
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 296
+        "line": 298
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 298
+        "line": 300
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 307
+        "line": 309
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 810
+        "line": 812
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 811
+        "line": 813
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 888
+        "line": 890
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 924
+        "line": 926
       }
     ],
     "change": [
@@ -38680,8 +38680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 927,
-      "sha256": "4b5831f8f5b30f065b9129b457a5650ae87e9a4a023a924f27dbdae344303973",
+      "lines": 929,
+      "sha256": "68d3b03d9697f7ebf1f8ae222d56d7f41721e23ce8541fe8a67079128bcf5614",
       "symbols": [
         {
           "name": "at",
@@ -38761,55 +38761,55 @@
         },
         {
           "name": "heroCapacity",
-          "line": 272
+          "line": 274
         },
         {
           "name": "distance",
-          "line": 273
-        },
-        {
-          "name": "allyReadyToExtract",
           "line": 275
         },
         {
-          "name": "reveal",
+          "name": "allyReadyToExtract",
           "line": 277
         },
         {
+          "name": "reveal",
+          "line": 279
+        },
+        {
           "name": "canSurvey",
-          "line": 287
+          "line": 289
         },
         {
           "name": "openSteps",
-          "line": 296
-        },
-        {
-          "name": "openingGlowGrade",
           "line": 298
         },
         {
+          "name": "openingGlowGrade",
+          "line": 300
+        },
+        {
           "name": "treasure",
-          "line": 307
+          "line": 309
         },
         {
           "name": "act",
-          "line": 345
+          "line": 347
         },
         {
           "name": "enemyThreatRange",
-          "line": 810
+          "line": 812
         },
         {
           "name": "canEnemyStrike",
-          "line": 811
+          "line": 813
         },
         {
           "name": "path",
-          "line": 888
+          "line": 890
         },
         {
           "name": "abandon",
-          "line": 924
+          "line": 926
         }
       ]
     },
