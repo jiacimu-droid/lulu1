@@ -432,4 +432,64 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
         CompanionPresenceStore.clearMessageAnchor()
     }
+
+    @Test fun messageAvatarShowsFrozenHeartAndReflectionWhenPresenceWasSavedAfterBubble() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "message-late-presence-regression"
+        CompanionPresenceStore.clearCharacter(role)
+        val sentAt = Instant.parse("2026-11-16T10:12:00Z")
+        CompanionPresenceStore.update(
+            role, "正在聊天", "微笑", "这一条真实产生的心声", "开心",
+            "聊天回复", sentAt.plusMillis(400), momentReflection = "想法：想继续跟她聊",
+        )
+        CompanionPresenceStore.bindDeliveredMessage(
+            role, "late-heart-bubble", sentAt, refreshAfterDelivery = true,
+        )
+        CompanionPresenceStore.selectMessageAnchor(role, sentAt, "late-heart-bubble")
+        val frozen = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+        val originalHistory = CompanionPresenceStore.histories.value[role].orEmpty()
+        val beforeSend = originalHistory.filter { !it.updatedAt.isAfter(sentAt) }
+        assertTrue(beforeSend.isEmpty())
+        // Top avatar looks at the latest real event; a message avatar uses its
+        // frozen exact delivery snapshot even when that event has a later clock.
+        assertNull(PresenceHistoryPresentation.latestVoice(frozen, beforeSend, messageAnchored = false))
+        assertEquals("这一条真实产生的心声",
+            PresenceHistoryPresentation.latestVoice(frozen, beforeSend, messageAnchored = true)?.innerThought)
+        assertEquals("想法：想继续跟她聊",
+            PresenceHistoryPresentation.latestReflection(frozen, beforeSend, messageAnchored = true)?.momentReflection)
+
+        // Later independent turns must never appear in this older message's tab.
+        CompanionPresenceStore.update(role, "去看书", "坐下", "后来才想到的新事情", "平静",
+            "聊天回复", sentAt.plusSeconds(45))
+        val visible = PresenceHistoryPresentation.anchoredHistory(
+            CompanionPresenceStore.histories.value[role].orEmpty(), sentAt, frozen,
+        )
+        assertEquals(1, visible.size)
+        assertEquals("这一条真实产生的心声", visible.single().innerThought)
+        CompanionPresenceStore.clearMessageAnchor()
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun repeatedSameHeartVoiceRemainsVisibleOnItsOwnMessageSnapshot() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "message-repeat-heart-regression"
+        CompanionPresenceStore.clearCharacter(role)
+        val firstAt = Instant.parse("2026-11-16T11:00:00Z")
+        CompanionPresenceStore.update(role, "正在聊天", "笑着", "还在想着这件事",
+            "开心", "聊天回复", firstAt)
+        CompanionPresenceStore.update(role, "正在聊天", "点头", "还在想着这件事",
+            "开心", "聊天回复", firstAt.plusSeconds(10))
+        CompanionPresenceStore.bindDeliveredMessage(role, "repeated-heart-bubble", firstAt.plusSeconds(11))
+        CompanionPresenceStore.selectMessageAnchor(role, firstAt.plusSeconds(11), "repeated-heart-bubble")
+        val frozen = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals("", history.first().innerThought) // History stores only the new delta.
+        assertEquals("还在想着这件事", frozen.innerThought)
+        assertEquals("还在想着这件事",
+            PresenceHistoryPresentation.latestVoice(frozen, history, messageAnchored = true)?.innerThought)
+        CompanionPresenceStore.clearMessageAnchor()
+        CompanionPresenceStore.clearCharacter(role)
+    }
 }
