@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7a64810eb09661ff8279aae7104006ca5c52e4c2`
+- 基准提交：`1613c09c514ea121c36017b51a9495e298c545b9`
 - 分支：`main`
 - 已索引文件：1362
-- 已索引代码/文本行：291223
+- 已索引代码/文本行：291231
 - 已发现符号：4104
 
 | 文件 | 行数 | 符号数 |
@@ -228,7 +228,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 166 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 174 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |

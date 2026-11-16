@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:32:38.796005+00:00",
-  "commit": "7a64810eb09661ff8279aae7104006ca5c52e4c2",
+  "generatedAt": "2026-11-16T14:33:35.241769+00:00",
+  "commit": "1613c09c514ea121c36017b51a9495e298c545b9",
   "branch": "main",
-  "sourceFingerprint": "9272894b8c29e893951db2cb9d5cbf6a38a8130d60b563c77a2cea7a0b34a401",
+  "sourceFingerprint": "38b5c113e884600a134a0fa38602d73c5d7ab46012ce7a840b8c2c60240d69e8",
   "summary": {
     "files": 1362,
-    "lines": 291223,
+    "lines": 291231,
     "symbols": 4104
   },
   "symbolIndex": {
@@ -3729,19 +3729,19 @@
     "Loading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 35
+        "line": 37
       }
     ],
     "Ready": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 36
+        "line": 38
       }
     ],
     "Failed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 37
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
@@ -25939,20 +25939,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-      "lines": 166,
-      "sha256": "2a29c4f044021e3a99781db8e0990857af69107da0e23979df735c7290980083",
+      "lines": 174,
+      "sha256": "53161f6b3578710535f1c54054a76a90de700b75c98329e13f219d2905ab8dbd",
       "symbols": [
         {
           "name": "Loading",
-          "line": 35
+          "line": 37
         },
         {
           "name": "Ready",
-          "line": 36
+          "line": 38
         },
         {
           "name": "Failed",
-          "line": 37
+          "line": 39
         }
       ]
     },
