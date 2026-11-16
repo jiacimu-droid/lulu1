@@ -19,8 +19,9 @@ internal object CharacterSceneCadence {
     /** A connected phone can think again during genuine silence without speaking. */
     const val PHONE_MIN_USER_SILENCE_MS = 60_000L
     const val PHONE_MIN_AUDIO_GAP_MS = 45_000L
-    const val PHONE_INITIAL_REVIEW_MS = 2 * 60_000L
-    const val PHONE_LONG_SILENCE_REVIEW_MS = 5 * 60_000L
+    // One ordinary connected-call silence cadence, including a wake-up call.
+    // Five-minute later pulses missed ordinary conversation and wake follow-up.
+    const val PHONE_SILENCE_REVIEW_MS = 2 * 60_000L
     const val PHONE_FAILURE_BACKOFF_MS = 10 * 60_000L
 
     /**
