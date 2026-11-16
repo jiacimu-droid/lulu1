@@ -386,7 +386,24 @@ internal object RelicEscapeRules {
                 if(s.phase==RelicPhase.EXTRACT && distance(x,y,s.exitX,s.exitY)>1)
                     next=next.copy(phase=RelicPhase.EXPLORE,extraction=0)
                         .log("player","cancel","离开出口，撤离进度重置")
-                noise=if(action=="sneak")0 else 1
+                noise=if(action=="sneak")0 else if(s.tile(x,y)==3)2 else 1
+                val echo=s.sites.firstOrNull {
+                    !it.spent && it.kind=="echo" && it.x==x && it.y==y
+                }
+                if(echo!=null) {
+                    if(action=="sneak") {
+                        next=next.log("player","stealth",
+                            "轻声绕过共鸣石板，机关未被触发")
+                    } else {
+                        // Distinct from a damage trap: it broadcasts a position
+                        // to nearby guards. Sneaking is a real counterplay.
+                        noise=5
+                        next=next.copy(sites=next.sites.map {
+                            if(it.id==echo.id)it.copy(spent=true) else it
+                        }).log("world","echo",
+                            "共鸣石板响彻遗迹！附近守卫听见脚步，后续可改走潜行路线")
+                    }
+                }
             }
             "channel"->{
                 val chest=s.chests.firstOrNull{
@@ -494,6 +511,47 @@ internal object RelicEscapeRules {
                         (s.mobs.maxOfOrNull{it.id}?:0)+1,spawn.first,spawn.second,6+s.level,2,alert=4))
                     .log("player","invoke","祭坛苏醒！获得珍贵封印之心"+if(fits)"（已入包）" else "（掉落在地）")
                 noise=3
+            }
+            "observe_lens" -> {
+                val lens=s.sites.firstOrNull {
+                    !it.spent && it.kind=="lens" && it.x==x && it.y==y
+                } ?:return s.copy(notice="观测镜已经使用或不存在")
+                if(!near(hero,x,y) || !s.visible(x,y))
+                    return s.copy(notice="需要靠近并看清观测镜")
+                val explored=s.seen.toMutableSet()
+                for(dy in -6..6)for(dx in -6..6) {
+                    val px=x+dx;val py=y+dy
+                    if(abs(dx)+abs(dy)<=6 && s.bounds(px,py))
+                        explored+=s.index(px,py)
+                }
+                next=s.copy(seen=explored,
+                    sites=s.sites.map {
+                        if(it.id==lens.id)it.copy(spent=true) else it
+                    }).log("player","observe_lens",
+                        "古代观测镜校准，真实揭开了周围"+(explored.size-s.seen.size)+
+                        "格迷雾；可据此重新挑选路线")
+                noise=0
+            }
+            "unseal" -> {
+                val control=s.sites.firstOrNull {
+                    !it.spent && it.kind=="seal_switch" && it.x==x && it.y==y
+                } ?:return s.copy(notice="找不到仍可启动的封门机关")
+                if(!near(hero,x,y) || !s.visible(x,y))
+                    return s.copy(notice="需要靠近封门机关")
+                val gate=s.sites.firstOrNull {
+                    it.id==control.linkId && it.kind=="seal_gate" &&
+                        !it.spent && it.linkId==control.id &&
+                        s.bounds(it.x,it.y) && s.tile(it.x,it.y)==1
+                } ?:return s.copy(notice="封门结构已发生变化，无法启动")
+                val opened=s.tiles.toMutableList()
+                opened[s.index(gate.x,gate.y)]=0
+                next=s.copy(tiles=opened,
+                    sites=s.sites.map {
+                        if(it.id==control.id || it.id==gate.id)it.copy(spent=true)
+                        else it
+                    }).log("player","unseal",
+                        "机关转动！石门真正开启，原先被墙隔开的道路可以通行")
+                noise=2
             }
             "silence"->{
                 val bell=s.sites.firstOrNull{it.x==x && it.y==y &&
