@@ -32,9 +32,15 @@ internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int
 internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int,
     fullscreen: Boolean, focusX: Float, focusY: Float,
     zoom: Float = 1f, panX: Float = 0f, panY: Float = 0f): RelicMapCamera {
+    // Android may compose a zero-sized map during rotation; never divide by zero or
+    // let an invalid gesture zoom propagate NaN into drawing and hit-testing.
+    if (!width.isFinite() || !height.isFinite() || width <= 0f || height <= 0f ||
+        columns <= 0 || rows <= 0 || !focusX.isFinite() || !focusY.isFinite() ||
+        !panX.isFinite() || !panY.isFinite()) return RelicMapCamera(0f, 0f, 0f)
     val baseTile = if (fullscreen) maxOf(width / (if (width > height) 20f else 12f), height / rows)
         else min(width / columns, height / rows)
-    val tile = baseTile * zoom.coerceIn(.75f, 1.75f)
+    val safeZoom = if (zoom.isFinite()) zoom.coerceIn(.75f, 1.75f) else 1f
+    val tile = baseTile * safeZoom
     // Permit space beyond board edges: clamping put the spawn beneath the top-left HUD.
     return if (fullscreen) RelicMapCamera(tile,
         width / 2f - (focusX + .5f) * tile + panX,
