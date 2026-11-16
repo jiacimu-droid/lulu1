@@ -90,6 +90,38 @@ class LuluVirtualChatSendPolicyTest {
                 talk, listOf(c(b(50, 1040, 103, 1100), "", "", false)), 720, 1280))
     }
 
+    @Test fun chatHeaderUsesExactVisibleTitleAndToleratesAccessibilityDescription() {
+        assertTrue(LuluVirtualChatSendPolicy.headerMatches(
+            "文件传输助手", null, "文件传输助手"))
+        assertTrue(LuluVirtualChatSendPolicy.headerMatches(
+            null, "文件传输助手", "文件传输助手"))
+        assertTrue(LuluVirtualChatSendPolicy.headerMatches(
+            " 文件传输助手 ", null, "文件传输助手"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            "文件传输助手", null, "佳辞"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            "佳辞的聊天", null, "佳辞"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            null, null, "文件传输助手"))
+    }
+
+    @Test fun sendMustBeBesideVerifiedComposerNotAnywhereInChatHistory() {
+        fun b(l: Int, t: Int, r: Int, bt: Int) =
+            LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
+        val editor = b(125, 1038, 580, 1100)
+        val send = b(590, 1039, 695, 1098)
+        assertTrue(LuluVirtualChatSendPolicy.sendControlNearEditor(
+            send, editor, 720, 1280))
+        assertFalse(LuluVirtualChatSendPolicy.sendControlNearEditor(
+            b(590, 700, 695, 765), editor, 720, 1280))
+        assertFalse(LuluVirtualChatSendPolicy.sendControlNearEditor(
+            b(5, 1039, 110, 1098), editor, 720, 1280))
+        assertEquals(0, LuluVirtualChatSendPolicy.uniqueSendTarget(
+            listOf(send, b(588, 1038, 698, 1100)), 720, 1280))
+        assertNull(LuluVirtualChatSendPolicy.uniqueSendTarget(
+            listOf(send, b(505, 1040, 560, 1098)), 720, 1280))
+    }
+
     @Test fun chatSendRequiresExplicitFieldsBeforeTransport() {
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("send_chat_message", JSONObject()))
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("send_chat_message",
