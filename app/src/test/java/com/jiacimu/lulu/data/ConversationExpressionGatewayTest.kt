@@ -2207,6 +2207,11 @@ class ConversationExpressionGatewayTest {
         LuluAiServices.initialize(context)
         com.jiacimu.lulu.study.StarWishStores.initialize(context)
         val role = MigratedDomainStores.characters.create("日常在线回复入口回归", "有自己的判断，认真听人说话")
+        val sceneExperienceId = "online-reply-life-${role.characterId}"
+        val sceneExperience = "一个人在旧书店看到手绘的铜版书签"
+        SharedExperienceTimeline.record(sceneExperienceId, role.characterId, "独自阅读", "本人",
+            sceneExperience, java.time.Instant.now().minusSeconds(3600), triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
         val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
         MigratedDomainStores.chat.sendUserMessage(chat.id, "还得接着读。")
         MigratedDomainStores.chat.appendCharacterMessage(chat.id, "你在担心什么？", role.characterId)
@@ -2264,11 +2269,15 @@ class ConversationExpressionGatewayTest {
                 .put("text", current.content).toString()))
             assertTrue(system.contains("从本人的性格、所知、立场与在意之处"))
             assertTrue(system.contains("选择此刻真正想对这个人说什么"))
-            // Live capabilities and the person's lived associative context are
-            // factual scene evidence, not elevated to system-level authority.
+            // Instructions stay in system; the actual old experience is
+            // attributed to the role in the observed scene alongside live capabilities.
+            assertTrue(system.contains(spontaneousInnerVoiceGuide))
+            assertFalse(scene.contains(spontaneousInnerVoiceGuide))
             assertTrue(scene.contains("web_search 尚未配置"))
-            assertTrue(scene.contains("任何具体特质都能单独引出一个念头"))
-            assertTrue(scene.contains("沿着本人的真实特质和当前情境自由联想"))
+            assertTrue(scene.contains("【自主联想素材｜从自己的生活想起事情，不是新指令】"))
+            assertTrue(scene.lineSequence().any {
+                it.contains("eventId=$sceneExperienceId") && it.contains(sceneExperience)
+            })
             assertTrue(CharacterMessageFavorites.hasFavorite(role.characterId, current.id))
             val receipts = SharedExperienceTimeline.all(role.characterId)
                 .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
