@@ -126,6 +126,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
                 if (directPrivateChat) CharacterSpeechChannel.PRIVATE_CHAT
                 else CharacterSpeechChannel.AUTONOMOUS)),
             PromptRuleAssemblyPolicy.Rule("inner-voice", spontaneousInnerVoiceGuide),
+            PromptRuleAssemblyPolicy.Rule("spontaneity", CharacterSpontaneityGuide.autonomousPrinciples),
         )))
         appendLine(continuingLifeDecisionGuide)
         appendLine(sharedFullLifeDecisionGuide)
