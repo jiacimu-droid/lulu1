@@ -55,6 +55,7 @@ internal fun DigitalWorldWalkableStreet(
     companions: List<CharacterSettings> = emptyList(),
     hudTopPadding: Dp = 10.dp,
     canEnterScene: Boolean = true,
+    spawnAtLocationCode: String? = null,
 ) {
     val context = LocalContext.current
     val preferences = remember(context) {
@@ -67,8 +68,14 @@ internal fun DigitalWorldWalkableStreet(
     }
     val worldHeight = maxOf(2_380f, 690f + ((doors.size + 1) / 2) * 370f)
     val worldWidth = 1_280f
-    var player by remember {
-        mutableStateOf(WorldVector(
+    val doorwaySpawn = remember(doors, spawnAtLocationCode) {
+        doors.firstOrNull { it.address.code == spawnAtLocationCode }?.let { door ->
+            // Spawn on the public path just outside the exact building exited.
+            WorldVector(if (door.point.x < 640f) 600f else 680f, door.point.y + 28f)
+        }
+    }
+    var player by remember(spawnAtLocationCode) {
+        mutableStateOf(doorwaySpawn ?: WorldVector(
             preferences.getFloat("player_x", 650f).coerceIn(80f, 1_200f),
             preferences.getFloat("player_y", 180f).coerceIn(90f, worldHeight - 100f),
         ))
@@ -111,9 +118,12 @@ internal fun DigitalWorldWalkableStreet(
         }
     }
     var visited by remember { mutableStateOf(preferences.getStringSet("found", emptySet()).orEmpty().toSet()) }
-    var companionPositions by remember(companions.map { it.characterId }) {
+    var companionPositions by remember(companions.map { it.characterId }, spawnAtLocationCode) {
         mutableStateOf(companions.mapIndexed { index, _ ->
-            WorldVector(720f + index * 65f, 235f + index * 40f)
+            WorldVector(
+                (player.x + 78f + index * 36f).coerceIn(90f, worldWidth - 90f),
+                (player.y + 70f + index * 36f).coerceIn(90f, worldHeight - 95f),
+            )
         })
     }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
