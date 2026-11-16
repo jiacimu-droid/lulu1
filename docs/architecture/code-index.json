@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:52:13.719578+00:00",
-  "commit": "00797ff818e19c66ae8c9ae7a9f01ed23354dda7",
+  "generatedAt": "2026-11-16T16:52:43.001086+00:00",
+  "commit": "0f7fc19613d3ff5f6cc0f1678c1de9302f6d8bc8",
   "branch": "main",
-  "sourceFingerprint": "4a240b031afb3deb353e77ebc79a16bcefda40e61edbe72b4c77c8e2b643b21f",
+  "sourceFingerprint": "4a2f66123dafdba8096452f6e18fb6f08f4cfc19d7df06263c9d26cf70bc0f24",
   "summary": {
     "files": 1369,
-    "lines": 292475,
+    "lines": 292533,
     "symbols": 4124
   },
   "symbolIndex": {
@@ -15915,25 +15915,25 @@
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 752
+        "line": 810
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 753
+        "line": 811
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 830
+        "line": 888
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 866
+        "line": 924
       }
     ],
     "change": [
@@ -38680,8 +38680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 869,
-      "sha256": "ba3b828320cff7992dde6346465f64302c2d6d4e657ea6098b6ade84ed94afd3",
+      "lines": 927,
+      "sha256": "4b5831f8f5b30f065b9129b457a5650ae87e9a4a023a924f27dbdae344303973",
       "symbols": [
         {
           "name": "at",
@@ -38797,19 +38797,19 @@
         },
         {
           "name": "enemyThreatRange",
-          "line": 752
+          "line": 810
         },
         {
           "name": "canEnemyStrike",
-          "line": 753
+          "line": 811
         },
         {
           "name": "path",
-          "line": 830
+          "line": 888
         },
         {
           "name": "abandon",
-          "line": 866
+          "line": 924
         }
       ]
     },
