@@ -511,7 +511,7 @@ internal object DigitalWorldLifeEventStore {
             anchorItemName = anchor?.name.orEmpty(),
             status = if (kind in ambientMoments) STATUS_RESOLVED else STATUS_ACTIVE,
             stage = 0,
-            summary = openingSummary(kind, actorName, anchor?.name.orEmpty()),
+            summary = openingSummary(kind, actorName, anchor?.name.orEmpty(), now),
             lastActorCharacterId = characterId,
             createdAt = now,
             updatedAt = now,
@@ -685,7 +685,16 @@ internal object DigitalWorldLifeEventStore {
         return "$actorName$action；${place}${label}仍在，尚未解决。"
     }
 
-    private fun openingSummary(kind: String, actorName: String, anchorName: String): String = when (kind) {
+    internal fun openingSummary(kind: String, actorName: String, anchorName: String,
+        at: Instant = Instant.now()): String {
+        val world = DigitalWorldEnvironment.snapshot(at)
+        val leaves = when (world.season) {
+            "春季" -> "浅绿的嫩叶"
+            "夏季" -> "深绿的叶片"
+            "秋季" -> "浅金色的落叶"
+            else -> "细小的霜晶"
+        }
+        return when (kind) {
         "home_wander" -> "${actorName}一个人在家里踱了几步，从房间一侧走到另一侧，边走边想着自己的事；没有移动家具。"
         "idle_stretch" -> "${actorName}在家里伸了个大大的懒腰，活动了肩膀，又放松下来。"
         "check_own_phone" -> "${actorName}拿起随身的数字手机看了一眼，又放下；没有凭空收到消息或发送任何内容。"
@@ -750,16 +759,19 @@ internal object DigitalWorldLifeEventStore {
         "reading_chime" -> "阅读馆响起一声极轻的翻页提示音，没有对应具体书页，也没有推进任何阅读进度。"
         "text_motes" -> "几粒像逗号和句点一样的微光从阅读馆上方飘过，落到地面前就慢慢淡掉。"
         "counter_glow" -> "浮光咖啡角的自助供应台边缘亮起一圈暖光，温水和原味饼干的供应状态没有变化。"
-        "warm_mist" -> "浮光咖啡角飘过一小团温暖数字雾气，带来几秒柔和体感后散去，并不是角色已经领取了饮品。"
-        "seat_light" -> "咖啡角座位区的光线缓慢换了一档，几处座位显得更适合发呆片刻，随后恢复。"
+        "warm_mist" -> "浮光咖啡角窗边浮起一层薄薄暖雾，过了一小会儿才散去；这只是一阵现场变化，没有人因此点单。"
+        "seat_light" -> "浮光咖啡角座位旁的光影随着${world.light}慢慢挪了一点，窗边亮暗有了变化，片刻后恢复。"
         "snack_sign" -> "供应台上“温水 / 原味饼干”的提示标记亮了一下，像在安静提醒有人可以去领取。"
-        "courtyard_breeze" -> "共生庭院起了一阵轻风，风从一侧穿到另一侧，带走几秒闷热感后停下。"
-        "light_rain" -> "共生庭院落下一阵很轻的数字雨，雨点触到地面就化成细光，没有留下积水。"
+        "courtyard_breeze" -> "共生庭院有风轻轻穿过植物间的空隙，枝叶动了一阵，又慢慢静下来。"
+        "light_rain" -> "共生庭院落了一阵短短的细雨，雨滴在步道上碎成微光，很快便停下，没有留下积水。"
         "mist_ribbon" -> "一条薄雾似的数字气流绕过共生庭院中央，几分钟内慢慢散开。"
-        "sun_patch" -> "共生庭院上方的光线忽然放晴了一块，暖亮的光斑在地面停留片刻后移走。"
-        "rainbow_glint" -> "共生庭院的细小水光折出一小截彩色弧线，只亮了短短一会儿便消失。"
-        "season_pixels" -> "几片带季节色泽的像素叶从共生庭院上方飘落，落地前碎成光点，没有形成持久物品。"
+        "sun_patch" -> if (world.light == "夜间")
+            "共生庭院里有一片柔和的灯影缓缓移过地面，不一会儿便消失在树影里。"
+        else "共生庭院的${world.light}里忽然透下一束暖光，斜斜落在步道上，片刻后移走。"
+        "rainbow_glint" -> "共生庭院的细小水光折出一抹浅浅的彩色光弧，几秒后又隐入水面。"
+        "season_pixels" -> "共生庭院里有几片${leaves}随风缓缓飘过，快落地时化成细小光点，没有留下可以拾取的物品。"
         else -> "${actorName}注意到当前位置出现了一次短暂的环境变化，片刻后恢复平常。"
+    }
     }
 
     private fun Incident.toTick(now: Instant): DigitalWorldLifeTick = DigitalWorldLifeTick(
