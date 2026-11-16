@@ -41,7 +41,7 @@ import kotlinx.coroutines.isActive
 /** All doors lead to existing authoritative scenes, never to invented room copies. */
 internal data class DigitalStreetAddress(val code: String, val label: String)
 
-private data class StreetDoor(val address: DigitalStreetAddress, val point: WorldVector) {
+internal data class StreetDoor(val address: DigitalStreetAddress, val point: WorldVector) {
     // The building footprint is solid; its door is approached from the sidewalk.
     val entrance = WorldVector(point.x, point.y + 112f)
     val obstacle = WorldObstacle(address.code, WorldRectangle(
