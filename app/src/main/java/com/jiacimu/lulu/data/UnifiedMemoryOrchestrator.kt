@@ -52,6 +52,8 @@ data class UnifiedMemoryContext(
     val understandingContext: String = "",
     /** Literal retrieval focus only; never a second interpretation of the user. */
     val retrievalFocus: String = "",
+    /** Read-only groups of existing event IDs, not another fact store. */
+    val recentTurns: List<RecentSemanticTimeline.Turn> = emptyList(),
 ) {
     // A context object is also passed between scenes and low-budget renderers.
     // Never trust the incoming lists as already scoped: even if an adapter
@@ -77,6 +79,11 @@ data class UnifiedMemoryContext(
         get() = sourceEvents.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
     internal val ownedRecentEvents: List<SharedTimelineEvent>
         get() = recentEvents.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
+    internal val ownedRecentTurns: List<RecentSemanticTimeline.Turn>
+        get() = if (recentTurns.isNotEmpty()) recentTurns.mapNotNull { turn ->
+            val owned = turn.events.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
+            if (owned.isEmpty()) null else turn.copy(events = owned)
+        } else RecentSemanticTimeline.select(ownedRecentEvents, ownedRecentEvents.size)
 
     val coreMemorySection: String get() = CoreMemoryDelivery.render(ownedCoreMemories)
 
@@ -94,8 +101,28 @@ data class UnifiedMemoryContext(
         return if (rendered.text.isBlank()) rendered else rendered.copy(text = header + rendered.text)
     }
 
-    private fun recentRendered(budget: Int = recentCharacterBudget): RenderedMemorySection =
-        MemoryEvidenceSelection.render(ownedRecentEvents.asReversed(), budget, retrievalFocus)
+    private fun recentRendered(budget: Int = recentCharacterBudget): RenderedMemorySection {
+        val kept = mutableListOf<String>()
+        val ids = mutableListOf<String>()
+        val truncated = mutableListOf<String>()
+        var remaining = budget
+        ownedRecentTurns.asReversed().forEachIndexed { index, turn ->
+            val room = minOf(remaining, when {
+                index < 6 -> 700
+                index < 18 -> 330
+                else -> 180
+            })
+            val line = RecentSemanticTimeline.render(turn, room)
+            if (line.isBlank()) return@forEachIndexed
+            remaining -= line.length + 1
+            kept.add(line)
+            turn.events.forEach { event ->
+                if (line.contains("eventId=${event.id}@${event.revision}")) ids.add(event.id)
+                else truncated.add(event.id)
+            }
+        }
+        return RenderedMemorySection(kept.asReversed().joinToString("\n"), ids, truncated)
+    }
 
     val sourceEvidence: String get() = evidenceRendered().text
     val recentTimeline: String get() = listOf(activeTaskContext, recentRendered().text)
@@ -150,15 +177,23 @@ object UnifiedMemoryOrchestrator {
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
         val excluded = request.unavailableEventIds
-        val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory
-            .contextTimelineEvents(characterId).filterNot { it.id in excluded }
+        val recentTurns = if (localOnly) emptyList() else LuluRepositories.memory
+            .contextTimelineTurns(characterId).mapNotNull { turn ->
+                val valid = turn.events.filterNot { it.id in excluded }
+                if (valid.isEmpty()) null else turn.copy(events = valid)
+            }
+        val recentEvents = recentTurns.flatMap { it.events }
         val seenInChat = listOf(request.recentContext, request.alreadyPresentedEvidence)
             .filter(String::isNotBlank).joinToString("\n")
             .replace(Regex("\\s+"), " ")
-        val promptRecentEvents = recentEvents.filterNot { event ->
-            val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
-            text.length >= 36 && seenInChat.contains(text)
+        val promptRecentTurns = recentTurns.mapNotNull { turn ->
+            val visible = turn.events.filterNot { event ->
+                val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
+                text.length >= 36 && seenInChat.contains(text)
+            }
+            if (visible.isEmpty()) null else turn.copy(events = visible)
         }
+        val promptRecentEvents = promptRecentTurns.flatMap { it.events }
         val seenIds = (recentEvents - promptRecentEvents.toSet()).mapTo(mutableSetOf()) { it.id }
         val query = request.retrievalQuery()
         val core = CoreMemoryDelivery.active(characterId).filterNot { memory ->
@@ -204,6 +239,7 @@ object UnifiedMemoryOrchestrator {
             coreMemories = core,
             sourceEvents = sourceEvents,
             recentEvents = promptRecentEvents,
+            recentTurns = promptRecentTurns,
             activeTaskContext = activeTasks,
             evidenceCharacterBudget = evidenceCharacterBudget,
             recentCharacterBudget = recentCharacterBudget,
