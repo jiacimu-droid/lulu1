@@ -66,6 +66,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     var room by remember { mutableStateOf(initial) }
     var input by remember(room.id) { mutableStateOf("") }
     var composingQuestion by remember(room.id) { mutableStateOf(true) }
+    var composingSolution by remember(room.id) { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
     var confirmReveal by remember { mutableStateOf(false) }
@@ -92,6 +93,27 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     } catch (e: Exception) {
         error = e.message ?: "保存对局失败，消息未发送"
         false
+    }
+
+    fun conclude(solved: Boolean) {
+        if (room.revealed || !room.started) return
+        val finished = room.copy(revealed = true, solved = solved)
+        if (!commit(finished)) return
+        val recordId = store.recordExternalGame(
+            type = LuluGameType.TurtleSoup,
+            title = "海龟汤 · " + finished.puzzle.title,
+            score = if (solved) 100 else 25,
+            reward = 0,
+            summary = "《" + finished.puzzle.title + "》由" + hostName() +
+                "主持，共提问" + finished.questionCount + "次，尝试还原" +
+                finished.solutionAttempts + "次，参与同伴" + finished.companions.size +
+                "位；" + if (solved) "成功还原真相。" else "主动揭晓汤底。",
+            detailsJson = finished.toJson(),
+            characterIdOverride = finished.companions.firstOrNull() ?: state.selectedCharacterId,
+            playedWithCharacterOverride = finished.companions.isNotEmpty(),
+            recordIdOverride = finished.id,
+        )
+        saveGameAsSharedMemory(scope, store, recordId)
     }
 
     suspend fun judge(questionIndex: Int) {
@@ -128,6 +150,41 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             }
         }.onFailure { failure ->
             error = failure.message ?: "主持人暂时没有回应。问题仍保留，可重试。"
+        }
+    }
+
+    suspend fun judgeSolution(solutionIndex: Int) {
+        val snapshot = room
+        val solution = snapshot.lines.getOrNull(solutionIndex) ?: return
+        if (snapshot.host == SoupHost.USER || snapshot.pendingSolution != solutionIndex ||
+            solution.kind != SoupKind.SOLUTION) return
+        val result = LuluAiServices.gateway.generate(
+            characterId = if (snapshot.host == SoupHost.AI) "lulu" else requireNotNull(snapshot.hostId),
+            facts = "固定汤底（只给裁判，玩家不能看到）：" + snapshot.puzzle.truth +
+                "\n事实边界：" + snapshot.puzzle.boundaries +
+                "\n" + snapshot.publicContext() +
+                "\n正在核验的完整还原：" + solution.text,
+            instruction = "你是海龟汤最终答案裁判。只按照固定汤底判断玩家是否还原了核心事实、关键机制与因果链。" +
+                "允许同义表述，不要求人物名字或无关时间。若只猜到题材、说对局部但缺少关键解释，判false。" +
+                "错误答案的反馈只能指出玩家已有描述中还没说完整的部分，不得透露汤底中新线索。" +
+                "只输出JSON对象：{\"correct\":true或false,\"feedback\":\"一句简短、不泄底的反馈\"}。",
+            source = "游戏", title = "海龟汤 · 还原核验",
+            maxTokens = 140, usage = ModelUsage.Game,
+            contextMode = if (snapshot.host == SoupHost.AI) CompanionContextMode.Isolated else CompanionContextMode.PersonaAndScenario,
+        )
+        result.onSuccess { response ->
+            val judgment = parseSoupSolutionJudgment(response.text)
+            if (judgment == null) {
+                error = "裁判输出不合法，本次完整还原已保存，可以重新核验。"
+            } else if (room.id == snapshot.id && room.pendingSolution == solutionIndex) {
+                val verdict = if (judgment.correct) "还原成功 · " + judgment.feedback
+                    else "还差一点 · " + judgment.feedback
+                if (commit(room.copy(lines = room.lines + SoupLine(
+                        hostName(), SoupKind.SOLUTION_RESULT, verdict, solutionIndex,
+                    ))) && judgment.correct) conclude(true)
+            }
+        }.onFailure { failure ->
+            error = failure.message ?: "本轮核验失败，完整还原已保存，可重试。"
         }
     }
 
@@ -228,23 +285,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     }
 
     fun finish() {
-        if (room.revealed || !room.started || busy) return
-        val finished = room.copy(revealed = true)
-        if (!commit(finished)) return
-        val recordId = store.recordExternalGame(
-            type = LuluGameType.TurtleSoup,
-            title = "海龟汤 · " + finished.puzzle.title,
-            score = 100,
-            reward = 0,
-            summary = "《" + finished.puzzle.title + "》由" + hostName() +
-                "主持，共提出" + finished.questionCount + "个问题，参与同伴" +
-                finished.companions.size + "位；已揭晓原定汤底。",
-            detailsJson = finished.toJson(),
-            characterIdOverride = finished.companions.firstOrNull() ?: state.selectedCharacterId,
-            playedWithCharacterOverride = finished.companions.isNotEmpty(),
-            recordIdOverride = finished.id,
-        )
-        saveGameAsSharedMemory(scope, store, recordId)
+        if (busy || room.pendingQuestion >= 0 || room.pendingSolution >= 0) return
+        conclude(false)
     }
 
     fun startNew(puzzleId: String) {
