@@ -160,7 +160,7 @@ internal fun DigitalWorldScenePage(
 /**
  * Shared renderer for map exploration and meeting scenes.
  *
- * Exploration controls are fully disabled while the meeting page is in story/reading mode. Public
+ * Exploration controls stay active during a live digital meeting, including story and voice. Public
  * venue actions now live at physical hotspots inside [DigitalWorldGameScene], so there is no global
  * “这里可以做什么” menu floating above the map anymore: walk to the visible bar, window seat,
  * arcade machine, reading island or bench, then interact there.
@@ -181,6 +181,8 @@ internal fun DigitalWorldSceneCanvas(
     showExplorationHud: Boolean = true,
     followerIds: Set<String> = emptySet(),
     initiatedHandHoldingId: String? = null,
+    sceneDestinations: Map<String, String> = emptyMap(),
+    onReachedSceneItem: ((characterId: String, itemId: String) -> Unit)? = null,
 ) {
     DigitalWorldGameScene(
         modifier = modifier,
@@ -197,5 +199,7 @@ internal fun DigitalWorldSceneCanvas(
         showExplorationHud = showExplorationHud,
         followerIds = followerIds,
         initiatedHandHoldingId = initiatedHandHoldingId,
+        sceneDestinations = sceneDestinations,
+        onReachedSceneItem = onReachedSceneItem,
     )
 }
