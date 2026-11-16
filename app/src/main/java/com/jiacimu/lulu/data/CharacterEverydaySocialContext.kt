@@ -133,9 +133,9 @@ internal object CharacterEverydaySocialContext {
                     originalEvidence.containsKey("moment-public-comment-$commentId-$characterId")
                 } == true
         }.take(3).toList()
-        if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
-            recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty() &&
-            recentWorldMoments.isEmpty() && visibleThreads.isEmpty()) return ""
+        // An ordinary quiet day still has a time, place, body and possible
+        // small observations. Do not drop the entire social-life context just
+        // because the character has no unread messages or published posts.
         return buildString {
             appendLine("【自己的数字世界来往｜真实事件与可选的下一步】")
             if (pending.isNotEmpty()) {
