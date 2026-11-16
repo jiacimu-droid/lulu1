@@ -304,6 +304,6 @@ internal object RelicActorPlay {
 只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；plan_deliver 是你亲自选定的跨回合送宝目标，移动与交付都扣真实回合，行动失败保留宝物并给回执；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。你可以自主和玩家一起围攻敌人、在敌人蓄力时选择牵制interrupt牺牲伤害打断攻击，也可花自己的药剂aid_player为未倒地玩家紧急治疗；这些由你自己取舍，程序不预设你的性格。你也能主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
 只输出JSON：{"actionId":"options中的id","speech":"愿意说出口的话；沉默则为空字符串"}。实际执行结果由游戏返回。""",
             source="游戏 · 迷雾摸金自主同行",title="摸金伙伴自主决策",usage=ModelUsage.Game,
-            contextMode=CompanionContextMode.CharacterAndScenario,maxTokens=260)
+            contextMode=CompanionContextMode.Full,maxTokens=260)
             .mapCatching { IslandActorPlay.parse(it.text) ?: error("伙伴决定格式无效，未执行操作") }
 }
