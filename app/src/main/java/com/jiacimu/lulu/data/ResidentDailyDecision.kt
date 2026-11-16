@@ -1841,23 +1841,18 @@ internal object ResidentDailyDecision {
             CharacterPhoneInbox.requestContext(id) + "\n" +
             appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty() + "\n" +
             appContext?.let { com.jiacimu.lulu.games.AutonomousDuelGames.contextFor(it, id) }.orEmpty()
-        val memory = CharacterRuntime.actionMemory(id, UnifiedMemoryRequest(
-            currentInput = pending.joinToString("\n") { it.content },
-            sceneContext = "原住民自己的日常生活与熟人来往",
-            recentContext = facts,
-            taskIntent = "根据本人经历、心情与未尽念头安排今天，不补造他人经历",
-        ))
+        // The character-owned Full gateway now owns memory retrieval,
+        // private mental state and personality assembly. Never build a second
+        // locally selected memory/psychology packet into these same daily facts:
+        // that duplicates evidence and makes one resident appear to have two minds.
         return listOf(facts,
             appContext?.let { RoleDayScheduleStore.plannedContext(it, id, at) }.orEmpty(),
             "已有日程仍属于自己。结合本轮真实来信或现场事实，自己判断之前等待的条件是否有变化；程序不会替你认定对方已接受。" +
                 "如果自己决定提前复议或改期，可在 steps 用 reschedule_personal_activity，args={planId,expectedDueAt:上文原时间版本,dueAt:本人新选的未来ISO时间,reason}；新时间须在当前时间60秒之后，到时仍由自己决定是否执行。" +
                 "确实放下可用 cancel_personal_activity，args={planId,expectedDueAt,reason}。没有变化可保留原安排。普通社交/活动步骤仍不得携带 planId。",
-            CharacterRuntime.personalityRuntimeContext(id, compact = true,
-                query = facts, includeActiveCommitments = false),
-            CharacterExplorationContinuity.context(id),
-            // CharacterAndScenario delivers core memories through its central
-            // channel; do not inject the same core a second time in facts.
-            memory.copy(coreMemories = emptyList()).compactPromptSection())
+            // Exploration candidates are factual open threads, not a second
+            // personality or reconstructed chronological memory store.
+            CharacterExplorationContinuity.context(id))
             .filter(String::isNotBlank).joinToString("\n\n")
     }
 
