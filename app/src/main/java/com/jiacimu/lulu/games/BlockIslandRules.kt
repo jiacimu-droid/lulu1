@@ -86,7 +86,7 @@ internal data class BlockIslandState(
             ) ?: return@runCatching null
             val list = json.optJSONArray("tools") ?: JSONArray()
             val tools = (0 until list.length()).map { list.getString(it) }.toSet()
-            if (tools.any { it !in setOf("axe", "pickaxe", "sword", "rod", "charm") }) return@runCatching null
+            if (tools.any { it !in setOf("axe", "wood_pickaxe", "pickaxe", "sword", "rod", "charm") }) return@runCatching null
             val obj = json.optJSONObject("structures") ?: JSONObject()
             val positions = mutableMapOf<Int, String>()
             val keys = obj.keys()
@@ -430,7 +430,12 @@ internal object BlockIslandRules {
                 val richOre = cell == 2 && IslandProgression.crystalVein(w.seed,index)
                 if (richOre && "pickaxe" !in s.tools)
                     return reject("这块蓝色晶矿必须用石镐开采。先挖普通石头做石镐")
-                val bonus = if (cell == 1 && "axe" in s.tools || cell == 2 && "pickaxe" in s.tools) 2 else 0
+                val bonus = when {
+                    cell == 1 && "axe" in s.tools -> 2
+                    cell == 2 && "pickaxe" in s.tools -> 2
+                    cell == 2 && "wood_pickaxe" in s.tools -> 1
+                    else -> 0
+                }
                 val amount = 2 + bonus
                 val berry = if (cell == 1 && (index + w.seed).and(Int.MAX_VALUE) % 3 == 0) 1 else 0
                 next = s.copy(world = w.setTile(tx, ty, 0).copy(
@@ -540,7 +545,7 @@ internal object BlockIslandRules {
                 )
                 message = "拆除了${if (structure == null) "建筑" else actionName(structure)}，返还部分材料"
             }
-            "craft_axe", "craft_pickaxe", "craft_sword", "craft_rod", "craft_charm" -> {
+            "craft_axe", "craft_wood_pickaxe", "craft_pickaxe", "craft_sword", "craft_rod", "craft_charm" -> {
                 val tool = action.removePrefix("craft_")
                 if (tool in s.tools) return reject("已经制作过这件工具")
                 val tableNear = s.structures.any { (location, kind) ->
@@ -944,7 +949,7 @@ internal object BlockIslandRules {
     private fun ExpeditionState.setTile(x: Int, y: Int, tile: Int) =
         copy(tiles = tiles.toMutableList().also { it[index(x, y)] = tile })
     fun actionName(action: String): String = when (action) {
-        "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"; "charm" -> "晶石护符"
+        "axe" -> "木斧"; "wood_pickaxe" -> "木镐"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"; "charm" -> "晶石护符"
         "wall" -> "木墙"; "floor" -> "木地板"; "door" -> "木门"
         "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
         "lantern" -> "夜灯"; "crystal_lantern" -> "护夜晶灯"; "pet_house" -> "宠物小屋"
