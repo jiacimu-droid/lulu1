@@ -549,7 +549,9 @@ internal object AutonomousSocialRuntime {
                 characterId = speakerId, facts = sceneFacts, instruction = sceneInstruction,
                 source = "数字世界·人物独立相遇", title = "${characters.getValue(speakerId).displayName}在$location",
                 maxTokens = 2100,
-                contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                // Each participant's genuine next move must recall THEIR own lived timeline.
+                // Gateway keeps native-world residents scoped to their available facts.
+                contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Full,
                 connectionOverride = roleModel,
             ).getOrNull()?.text.orEmpty()
             // No automatic retry of an empty/unknown network response: it may
@@ -565,7 +567,8 @@ internal object AutonomousSocialRuntime {
                     source = "数字世界·相遇结构补正",
                     title = "${characters.getValue(speakerId).displayName}的相遇决定补正",
                     maxTokens = 2100,
-                    contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                    // Structural repair belongs to the SAME character with the SAME recall.
+                    contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Full,
                     connectionOverride = roleModel,
                 ).getOrNull()?.text.orEmpty()
             }
