@@ -176,7 +176,8 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
                 speakerName,
                 recorded,
                 occurredAt,
-                groupIndex == groups.lastIndex && session.participantIds.size == 1 && viewerId == session.participantIds.last(),
+                !isUser && groupIndex == groups.lastIndex && session.participantIds.size == 1 &&
+                    viewerId == session.participantIds.last(),
                 evidenceKind = if (isUser) EventEvidenceKind.Observation else EventEvidenceKind.CharacterStatement,
             )
         }
