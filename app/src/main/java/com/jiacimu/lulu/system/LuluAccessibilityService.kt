@@ -439,21 +439,22 @@ class LuluAccessibilityService : AccessibilityService() {
             topWindow?.title?.toString()?.takeIf {
                 LuluVirtualChatSendPolicy.windowTitleMatches(it, it.trim())
             }?.let(labels::add)
-            var visited = 0
-            fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
+            LuluVirtualA11yTraversal.forEachVisible(
+                roots = listOfNotNull(topWindow?.root),
+                childCount = { it.childCount },
+                childAt = { node, index -> node.getChild(index) },
+                isProtected = { it.isPassword },
+                isVisible = { it.isVisibleToUser },
+            ) { node ->
                 val r = Rect().also(node::getBoundsInScreen)
-                if (node.isVisibleToUser && r.top >= 0 && r.bottom <= height * 3 / 10 &&
+                if (r.top >= 0 && r.bottom <= height * 3 / 10 &&
                     !node.isEditable && r.width() > 0) {
                     listOf(node.text?.toString(), node.contentDescription?.toString())
                         .filterNotNull().map { it.trim() }
-                        .filter { it.length in 1..80 && !it.contains('\n') }
+                        .filter { it.length in 1..80 && !it.contains('\\n') }
                         .forEach { labels.add(it) }
                 }
-                for (i in 0 until node.childCount)
-                    node.getChild(i)?.let { scan(it, depth + 1) }
             }
-            topWindow?.root?.let { scan(it, 0) }
             return JSONArray().apply { labels.take(12).forEach { put(it) } }
         }
 
@@ -559,15 +560,16 @@ class LuluAccessibilityService : AccessibilityService() {
             if (LuluVirtualChatSendPolicy.windowTitleMatches(
                     topWindow.title?.toString(), recipient)) return true
             val titleBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
-            var visited = 0
-            fun visit(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
+            LuluVirtualA11yTraversal.forEachVisible(
+                roots = listOfNotNull(topWindow.root),
+                childCount = { it.childCount },
+                childAt = { node, index -> node.getChild(index) },
+                isProtected = { it.isPassword },
+                isVisible = { it.isVisibleToUser },
+            ) { node ->
                 val bounds = Rect().also(node::getBoundsInScreen)
-                // A toolbar title can be a wide, tall accessibility wrapper;
-                // the previous 80%-width/10%-height filters hid valid titles.
-                // Still exclude full-page containers and chat history.
-                if (node.isVisibleToUser &&
-                    bounds.top >= 0 && bounds.top <= height / 5 &&
+                // Keep actual title inside the top toolbar, never chat history.
+                if (bounds.top >= 0 && bounds.top <= height / 5 &&
                     bounds.bottom <= height / 3 &&
                     bounds.width() in 1..width &&
                     bounds.height() in 1..(height / 6).coerceAtLeast(1) &&
@@ -575,10 +577,7 @@ class LuluAccessibilityService : AccessibilityService() {
                         node.text?.toString(), node.contentDescription?.toString(), recipient))
                     titleBounds.add(LuluVirtualChatSendPolicy.ComposerBounds(
                         bounds.left, bounds.top, bounds.right, bounds.bottom))
-                for (i in 0 until node.childCount)
-                    node.getChild(i)?.let { visit(it, depth + 1) }
             }
-            topWindow.root?.let { visit(it, 0) }
             // Nested title wrappers are the same physical label; two different
             // visible header positions must remain ambiguous (no send).
             return LuluVirtualChatSendPolicy.uniqueHeaderTitle(titleBounds, height)
