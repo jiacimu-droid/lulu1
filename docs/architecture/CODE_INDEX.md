@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5ed83e411a13a0187b5e04ba0dee030f526d4c06`
+- 基准提交：`90f8904661a3268e132f243b45588fc6e24c8988`
 - 分支：`main`
 - 已索引文件：1355
-- 已索引代码/文本行：289427
+- 已索引代码/文本行：289491
 - 已发现符号：4085
 
 | 文件 | 行数 | 符号数 |
@@ -475,7 +475,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 324 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 233 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 441 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 805 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 858 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt` | 40 | 2 |
@@ -483,7 +483,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 270 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1261 | 41 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1272 | 41 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 341 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
