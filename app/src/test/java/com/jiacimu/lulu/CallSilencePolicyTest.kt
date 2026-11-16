@@ -15,7 +15,7 @@ class CallSilencePolicyTest {
         assertTrue(due(silence = 30 * 60_000L, reflection = 5 * 60_000L))
         assertFalse(due(silence = 59_999L))
         assertFalse(due(reflection = 119_999L))
-        assertFalse(due(silence = 30 * 60_000L, reflection = 120_000L))
+        assertTrue(due(silence = 30 * 60_000L, reflection = 120_000L))
     }
 
     @Test fun reflectionNeverRacesSpeechOpeningOrAnEndedCall() {
@@ -25,6 +25,10 @@ class CallSilencePolicyTest {
         assertFalse(due(userSpeaking = true))
         assertFalse(due(audio = 44_999L))
         assertTrue(due(audio = 45_000L))
+        assertTrue("Ten minutes of silence is still eligible after two minutes",
+            due(silence = 10 * 60_000L, reflection = 2 * 60_000L))
+        assertFalse("No early second model turn after a silence pulse",
+            due(silence = 10 * 60_000L, reflection = 119_999L))
     }
 
     @Test fun repeatedFailuresBackOffRatherThanCallingEveryTimerTick() {
