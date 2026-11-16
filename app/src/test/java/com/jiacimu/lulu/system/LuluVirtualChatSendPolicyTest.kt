@@ -60,6 +60,19 @@ class LuluVirtualChatSendPolicyTest {
         assertFalse(LuluVirtualChatSendPolicy.validMessage("a".repeat(501)))
     }
 
+    @Test fun nestedVoiceBarLabelsAreOnePhysicalComposerButSeparateBarsAreAmbiguous() {
+        fun b(l: Int, t: Int, r: Int, bt: Int) =
+            LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
+        val inner = b(155, 1045, 595, 1105)
+        val wrapper = b(122, 1034, 625, 1118)
+        assertEquals(inner, LuluVirtualChatSendPolicy.uniqueVoiceComposer(
+            listOf(wrapper, inner, inner), 720, 1280))
+        assertNull(LuluVirtualChatSendPolicy.uniqueVoiceComposer(
+            listOf(inner, b(150, 800, 600, 870)), 720, 1280))
+        assertNull(LuluVirtualChatSendPolicy.uniqueVoiceComposer(
+            listOf(b(600, 1050, 680, 1110)), 720, 1280))
+    }
+
     @Test fun voiceComposerSwitchFindsOnlyTheUniqueLeftKeyboardTarget() {
         fun b(l: Int, t: Int, r: Int, bt: Int) =
             LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
