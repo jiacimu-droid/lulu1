@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -98,7 +99,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         val line = snapshot.lines.getOrNull(questionIndex) ?: return
         if (line.kind != SoupKind.QUESTION || snapshot.host == SoupHost.USER) return
         val result = LuluAiServices.gateway.generate(
-            characterId = snapshot.hostId ?: snapshot.companions.firstOrNull() ?: state.selectedCharacterId,
+            characterId = if (snapshot.host == SoupHost.AI) "lulu" else requireNotNull(snapshot.hostId),
             facts = buildString {
                 append("当前主持方式：").append(snapshot.host.name).append('\n')
                 append("锁定汤底：").append(snapshot.puzzle.truth).append('\n')
@@ -116,6 +117,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             title = "海龟汤 · 公平裁定",
             maxTokens = 40,
             usage = ModelUsage.Game,
+            contextMode = if (snapshot.host == SoupHost.AI) CompanionContextMode.Isolated else CompanionContextMode.Full,
         )
         result.onSuccess { response ->
             val verdict = normalizeSoupVerdict(response.text)
