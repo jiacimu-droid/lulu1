@@ -1018,15 +1018,25 @@ class LuluAccessibilityService : AccessibilityService() {
             val service = instance ?: return false
             if (displayId <= 0 || packageName.isBlank() ||
                 observeDisplay(displayId).packageName != packageName) return false
+            // Match the deep, invisible-wrapper-tolerant virtual UI reader.
+            // An incomplete scan must never be treated as proof that a screen
+            // contains no password field.
             var inspected = 0
+            var incomplete = false
             fun hasPassword(node: AccessibilityNodeInfo, depth: Int): Boolean {
-                if (depth > 24 || inspected++ > 450 || !node.isVisibleToUser) return false
                 if (node.isPassword) return true
+                if (depth > 80 || inspected >= 1600) {
+                    incomplete = true
+                    return false
+                }
+                inspected++
                 return (0 until node.childCount).any { index ->
                     node.getChild(index)?.let { hasPassword(it, depth + 1) } == true
                 }
             }
-            return ownedVirtualRoots(service, displayId, packageName).any { hasPassword(it, 0) }
+            val found = ownedVirtualRoots(service, displayId, packageName)
+                .any { hasPassword(it, 0) }
+            return found || incomplete
         }
 
         /** The only text the local type verifier can read: one focused,
