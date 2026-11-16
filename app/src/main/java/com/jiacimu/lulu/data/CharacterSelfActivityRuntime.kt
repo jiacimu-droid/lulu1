@@ -96,7 +96,7 @@ internal object CharacterSelfActivityRuntime {
                 if (!digitalLife) return null
                 val action = input.optString("worldAction").trim()
                 if (action !in setOf("go_home", "visit_cloud_meadow", "visit_public_place",
-                    "use_home_item", "use_location", "handle_incident", "interact_resident", "visit_resident_home", "leave_resident_episode")) return null
+                    "use_home_item", "use_location", "handle_incident", "observe_scene", "interact_resident", "visit_resident_home", "leave_resident_episode")) return null
                 val args = JSONObject().put("worldAction", action)
                 if (action == "leave_resident_episode") {
                     val id = input.optString("incidentId").trim()
@@ -116,6 +116,13 @@ internal object CharacterSelfActivityRuntime {
                         args.put("activityId", interaction).put("text", input.optString("text"))
                             .put("incidentId", input.optString("incidentId"))
                     }
+                }
+                if (action == "observe_scene") {
+                    val incidentId = input.optString("incidentId").trim()
+                    if (incidentId.isBlank() ||
+                        DigitalWorldLifeEventStore.observableScenes(characterId)
+                            .none { it.incidentId == incidentId }) return null
+                    args.put("incidentId", incidentId)
                 }
                 if (action == "handle_incident") {
                     val incidentId = input.optString("incidentId").trim()
