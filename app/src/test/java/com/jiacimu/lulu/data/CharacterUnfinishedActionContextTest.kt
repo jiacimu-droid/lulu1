@@ -351,6 +351,53 @@ class CharacterUnfinishedActionContextTest {
             .single { it.getString("id") == origin }.getString("shareStatus"))
     }
 
+    @Test fun withdrawnToolResultDoesNotReachTheNextConcernDecision() {
+        val peer = MigratedDomainStores.characters.create("线索发言人").characterId
+        val chat = MigratedDomainStores.chat
+        val group = chat.createGroupConversation("一起核对材料", listOf(role, peer))
+        val message = chat.appendCharacterMessage(group.id, "候选材料的地址", peer)
+        val sourceId = "${message.id}:group:$role"
+        val receiptId = "concern-search-$role"
+        val summary = "找到了候选材料的地址"
+        try {
+            val result = JSONObject().put("success", true).put("summary", summary)
+                .put("evidenceId", sourceId)
+            val payload = JSONObject().put("tool", "web_search").put("status", "observed")
+                .put("result", result.toString())
+            SharedExperienceTimeline.record(receiptId, role, "实际工具执行", "执行器",
+                payload.toString(), now, triggerExtraction = false,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+            CharacterInnerLifeStore.recordConcernOutcome(
+                role, concernId, receiptId, "web_search", true, summary, now,
+            )
+            val concerns = CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns")
+            fun candidate() = CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(1))
+                .single { it.kind == "挂心" && it.id == concernId }
+            fun concernContext() = CharacterOpenConcernRuntime.contextForRole(
+                role, concerns, now.plusSeconds(1), compact = false,
+            )
+
+            assertTrue(candidate().detail.contains(summary))
+            assertTrue(concernContext().contains(summary))
+            assertTrue(chat.retractCharacterMessage(message.id, "线索发言人"))
+
+            val next = candidate()
+            assertTrue(next.title.contains("阅读发现"))
+            assertTrue(next.detail.contains("上次尝试的原回执不可用"))
+            assertFalse(next.detail.contains(receiptId))
+            assertFalse(next.detail.contains(summary))
+            assertFalse(concernContext().contains(summary))
+            assertTrue(concernContext().contains("上次尝试的原回执不可用"))
+            assertEquals(setOf(sourceId, receiptId),
+                SharedExperienceTimeline.eventsByIds(role, listOf(sourceId, receiptId)).map { it.id }.toSet())
+            assertEquals(concerns.toString(),
+                CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns").toString())
+        } finally {
+            chat.deleteConversation(group.id)
+            SharedExperienceTimeline.deleteEvent(receiptId)
+        }
+    }
+
     @Test fun completedDeviceRequestRestoresOriginalReceiptAfterPermissionRevoked() = runBlocking {
         val request = "replay-revoked-device-$role"
         val result = JSONObject().put("success", true).put("status", "succeeded")

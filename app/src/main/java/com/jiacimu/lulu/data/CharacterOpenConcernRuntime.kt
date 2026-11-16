@@ -312,7 +312,7 @@ internal object CharacterOpenConcernRuntime {
         val receiptIds = active(previous, now).mapNotNull {
             it.optJSONObject("lastOutcome")?.optString("id")?.takeIf(String::isNotBlank)
         }.distinct()
-        val available = SharedExperienceTimeline.eventsByIds(role, receiptIds).mapTo(hashSetOf()) { it.id }
+        val available = CharacterPerceptionContext.liveEvidenceIds(role, receiptIds)
         return context(previous, now, compact, available)
     }
 

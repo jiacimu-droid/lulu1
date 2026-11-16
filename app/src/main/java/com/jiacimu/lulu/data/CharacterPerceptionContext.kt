@@ -89,6 +89,14 @@ internal object CharacterPerceptionContext {
         return selectRecent(withLiveOutcomeEvidence(characterId, events), now, limit)
     }
 
+    /** Exact evidence lookup for prompt projections that carry an earlier result forward. */
+    fun liveEvidenceIds(characterId: String, ids: Collection<String>): Set<String> {
+        val events = SharedExperienceTimeline.withoutRecalledGroupSpeech(
+            SharedExperienceTimeline.eventsByIds(characterId, ids),
+        )
+        return withLiveOutcomeEvidence(characterId, events).mapTo(hashSetOf()) { it.id }
+    }
+
     /** A result can remain in the raw ledger after its backing observation is
      * removed or recalled. Its payload is no longer fresh evidence. */
     private fun withLiveOutcomeEvidence(

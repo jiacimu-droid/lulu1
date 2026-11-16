@@ -30,10 +30,10 @@ internal object CharacterUnfinishedActionContext {
                     100 else 0) + (m.optInt("priority", 2) - 2).coerceAtLeast(0))
         }
         val concerns = CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now)
-        val concernEvidence = SharedExperienceTimeline.eventsByIds(role, concerns.flatMap { concern ->
+        val concernEvidence = CharacterPerceptionContext.liveEvidenceIds(role, concerns.flatMap { concern ->
             listOf(concern.optString("evidenceId"),
                 concern.optJSONObject("lastOutcome")?.optString("id").orEmpty())
-        }.filter(String::isNotBlank).distinct()).mapTo(hashSetOf()) { it.id }
+        })
         concerns.filter { it.optString("evidenceId") in concernEvidence }.forEach { c ->
             val lastAttempt = CharacterOpenConcernRuntime.lastAttemptContext(c, concernEvidence)
                 .takeIf(String::isNotBlank)?.plus("；").orEmpty()
