@@ -102,9 +102,16 @@ object CompanionPresenceStore {
         mutableHistories.value = decodeHistory(prefs?.getString(KEY_HISTORY, null))
         messageMoments.clear()
         messageMoments.putAll(decodeMessageMoments(prefs?.getString(KEY_MESSAGE_MOMENTS, null)))
-        // Android cannot keep a call alive across a process restart. Repair old current state only;
-        // historical message snapshots remain exact records of their original moment.
-        mutableStates.value.keys.toList().forEach(::finishCall)
+        // Android cannot keep a call alive across a process restart. Correct
+        // abandoned call flags without inventing a new hangup at app launch time;
+        // older message anchors and original history keep their real timestamps.
+        val recovered = mutableStates.value.mapValues { (_, state) ->
+            recoverAbandonedCallState(state)
+        }
+        if (recovered != mutableStates.value) {
+            mutableStates.value = recovered
+            persist()
+        }
         // Old-APK repair must also withdraw archived psychology, not just UI cards.
         CharacterInnerLifeStore.initialize(context.applicationContext)
         reconcileTombstonedMoments()
@@ -127,6 +134,21 @@ object CompanionPresenceStore {
         stale.forEach { moment ->
             deleteMoment(moment.characterId, moment.updatedAt, timelineAlreadyDeleted = true)
         }
+    }
+
+    /** A process restart is not a freshly observed call-ending event. */
+    internal fun recoverAbandonedCallState(state: CompanionPresenceState): CompanionPresenceState {
+        val callStatus = describesOngoingCall(state.statusText)
+        val callGesture = describesOngoingCall(state.gesture)
+        if (!callStatus && !callGesture) return state
+        return state.copy(
+            statusText = if (callStatus) "通话已结束" else state.statusText,
+            gesture = if (callGesture) "" else state.gesture,
+            gestureVerified = if (callGesture) false else state.gestureVerified,
+            source = "通话恢复修正",
+            // No new user/model perception occurred while the process was absent.
+            updatedAt = state.updatedAt,
+        )
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
