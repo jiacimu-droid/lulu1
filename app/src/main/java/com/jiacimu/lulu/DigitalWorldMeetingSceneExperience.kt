@@ -176,6 +176,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     var walkingStreet by rememberSaveable(session.id) {
         mutableStateOf(session.location == "世界入口")
     }
+    var streetEntryCode by rememberSaveable(session.id) { mutableStateOf<String?>(null) }
     LaunchedEffect(session.location) {
         if (walkingStreet && session.location != "世界入口") walkingStreet = false
     }
@@ -234,6 +235,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 companions = characters.filter { it.characterId in session.participantIds },
                 hudTopPadding = if (storyVisible) 224.dp else 14.dp,
                 canEnterScene = !generating && !viewOnly,
+                spawnAtLocationCode = streetEntryCode,
             )
         } else if (isDigitalWorld) {
             DigitalWorldSceneCanvas(
@@ -265,7 +267,11 @@ internal fun DigitalWorldMeetingSceneExperience(
                     MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
                 },
                 onExitToStreet = {
-                    if (relocatePhysically("世界入口")) walkingStreet = true
+                    val leaving = sceneCode
+                    if (relocatePhysically("世界入口")) {
+                        streetEntryCode = leaving
+                        walkingStreet = true
+                    }
                 },
             )
         } else {
