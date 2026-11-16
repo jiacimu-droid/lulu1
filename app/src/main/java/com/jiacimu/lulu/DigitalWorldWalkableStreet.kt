@@ -186,29 +186,50 @@ internal fun DigitalWorldWalkableStreet(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(streetDestinations, handHoldingCharacterId, doors, buildingObstacles) {
         var lastFrame = withFrameNanos { it }
         while (isActive) {
             withFrameNanos { frame ->
                 val dt = ((frame - lastFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 lastFrame = frame
+                val now = System.currentTimeMillis()
+                val guideCode = handHoldingCharacterId?.let(streetDestinations::get)
+                val guideDoor = doors.firstOrNull { it.address.code == guideCode }
+                val guideKey = if (guideDoor != null) "$handHoldingCharacterId:$guideCode" else ""
+                val manualInput = joystick.length > .08f || tapPath.isNotEmpty()
+                if (guideKey.isNotBlank() && manualInput)
+                    cancelledGuideKeys = cancelledGuideKeys + guideKey
+                val mayGuide = guideDoor != null && guideKey !in cancelledGuideKeys
+                if (mayGuide && guideDoor != null && !manualInput) {
+                    if (now >= nextGuideRouteAt) {
+                        guidePath = worldFollowPath(
+                            player, guideDoor.entrance, walkBounds, buildingObstacles, 34f)
+                        nextGuideRouteAt = now + 850L
+                    }
+                    while (guidePath.isNotEmpty() && player.distanceTo(guidePath.first()) < 18f) {
+                        guidePath = guidePath.drop(1)
+                    }
+                } else guidePath = emptyList()
                 while (tapPath.isNotEmpty() && player.distanceTo(tapPath.first()) < 18f) {
                     tapPath = tapPath.drop(1)
                 }
-                val targetDirection = if (tapPath.isEmpty()) WorldVector.Zero
-                    else (tapPath.first() - player).normalized()
+                val direction = when {
+                    joystick.length > .08f -> {
+                        tapTarget = null
+                        tapPath = emptyList()
+                        joystick
+                    }
+                    tapPath.isNotEmpty() -> (tapPath.first() - player).normalized()
+                    mayGuide && guidePath.isNotEmpty() ->
+                        (guidePath.first() - player).normalized()
+                    else -> WorldVector.Zero
+                }
                 if (tapPath.isEmpty()) tapTarget = null
-                val direction = if (joystick.length > .08f) {
-                    tapTarget = null
-                    tapPath = emptyList()
-                    joystick
-                } else targetDirection
                 if (direction.length > .04f) {
                     val moved = moveInWorld(
                         player, direction, 310f, dt, 34f, walkBounds, buildingObstacles)
                     player = moved.position
                     if (moved.collided && tapTarget != null) {
-                        // No phantom sliding through a wall after a blocked route.
                         tapTarget = null
                         tapPath = emptyList()
                     }
@@ -216,14 +237,42 @@ internal fun DigitalWorldWalkableStreet(
                 if (companionPositions.isNotEmpty()) {
                     val before = companionPositions
                     companionPositions = before.mapIndexed { index, position ->
+                        val companion = companions.getOrNull(index)
+                        val id = companion?.characterId.orEmpty()
+                        val code = streetDestinations[id]
+                        val key = "$id:$code"
+                        val destinationDoor = doors.firstOrNull { it.address.code == code }
+                            ?.takeUnless { id == handHoldingCharacterId && key in cancelledGuideKeys }
                         val leader = if (index == 0) player else before[index - 1]
-                        val desired = WorldVector(
-                            (leader.x + if (index % 2 == 0) 80f else -80f).coerceIn(90f, worldWidth - 90f),
+                        val follow = WorldVector(
+                            (leader.x + if (index % 2 == 0) 80f else -80f)
+                                .coerceIn(90f, worldWidth - 90f),
                             (leader.y + 85f).coerceIn(90f, worldHeight - 95f),
                         )
-                        val toLeader = desired - position
-                        if (toLeader.length <= 10f) position
-                        else position + toLeader.normalized() * minOf(toLeader.length, dt * 300f)
+                        val desired = destinationDoor?.entrance ?: follow
+                        var path = companionRoutes[id].orEmpty()
+                        if (now >= (companionRouteAt[id] ?: 0L) || path.isEmpty()) {
+                            path = worldFollowPath(position, desired, walkBounds, buildingObstacles, 28f)
+                            companionRouteAt = companionRouteAt + (id to (now + 850L))
+                        }
+                        while (path.isNotEmpty() && position.distanceTo(path.first()) < 14f) {
+                            path = path.drop(1)
+                        }
+                        companionRoutes = companionRoutes + (id to path)
+                        val directionToGoal = path.firstOrNull()?.let { it - position }
+                            ?: WorldVector.Zero
+                        val moved = if (directionToGoal.length <= 7f) position else
+                            moveInWorld(position, directionToGoal, 275f, dt, 28f,
+                                walkBounds, buildingObstacles).position
+                        if (destinationDoor != null && id.isNotBlank() &&
+                            moved.distanceTo(destinationDoor.entrance) < 65f &&
+                            (id != handHoldingCharacterId ||
+                                player.distanceTo(destinationDoor.entrance) < 115f) &&
+                            key !in reachedDoorKeys) {
+                            reachedDoorKeys = reachedDoorKeys + key
+                            latestDoorArrival?.invoke(id, destinationDoor.address.code)
+                        }
+                        moved
                     }
                 }
             }
