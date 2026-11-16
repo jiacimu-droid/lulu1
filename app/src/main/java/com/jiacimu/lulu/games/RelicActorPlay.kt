@@ -10,7 +10,8 @@ import org.json.JSONObject
 internal object RelicActorPlay {
     private val live = setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)
     fun acted(s: RelicRun, id: String) = s.events.any {
-        it.who == id && it.action == "decision" && it.turn == s.turns
+        it.who == id && it.action == "decision" &&
+            it.turn == s.turns && it.teamStep == s.teamSteps
     }
 
     fun options(s: RelicRun, id: String): List<IslandActorOption> {
