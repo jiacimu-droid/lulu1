@@ -51,6 +51,13 @@ internal object DigitalWorldLifeEventStore {
         "courtyard_social_glimpse", "cloud_social_ripple",
     )
 
+    // These are the character's own bodily actions, not an external scene to
+    // discover later. Their factual occurrence is already lived through.
+    private val personalAmbient = setOf(
+        "home_wander", "idle_stretch", "check_own_phone",
+        "digital_sneeze", "chair_stumble", "footstep_pause",
+    )
+
     /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
     fun isAmbientMoment(tick: DigitalWorldLifeTick): Boolean = tick.kind in ambientMoments
 
@@ -150,7 +157,13 @@ internal object DigitalWorldLifeEventStore {
             pair.second
         } ?: return null
 
-        recordObservedTick(characterId, result, now)
+        // The world produces a scene independently of the person's attention.
+        // Character-owned actions and unresolved incidents are witnessed at once.
+        // Brief environmental happenings remain choices to notice, not
+        // automatically implanted memories or things the role must share.
+        if (!isAmbientMoment(result) || result.kind in personalAmbient) {
+            recordObservedTick(characterId, result, now)
+        }
         return result
     }
 
@@ -264,7 +277,36 @@ internal object DigitalWorldLifeEventStore {
         }
     }
 
-    fun contextFor(characterId: String): String {
+    /** Only actually spawned scenes at the actor's current location, still
+     * fresh enough to witness. No new rolls or imagination at read time.
+     */
+    internal fun observableScenes(characterId: String, now: Instant = Instant.now()): List<DigitalWorldLifeTick> {
+        if (characterId.isBlank() || !DigitalLifeProfileStore.isEnabled(characterId)) return emptyList()
+        val location = DigitalWorldStore.locationOf(characterId)
+        val candidate = synchronized(lock) {
+            incidents.asSequence().filter { incident ->
+                incident.locationCode == location &&
+                    incident.status == STATUS_RESOLVED &&
+                    incident.kind in ambientMoments && incident.kind !in personalAmbient &&
+                    !incident.createdAt.isAfter(now) &&
+                    now.epochSecond - incident.createdAt.epochSecond <= 600L
+            }.sortedByDescending { it.createdAt }.take(5).map { it.toTick(now) }.toList()
+        }
+        return candidate.filterNot { tick ->
+            SharedExperienceTimeline.eventsByIds(characterId,
+                listOf("world-observe-$characterId-${tick.incidentId}")).isNotEmpty()
+        }
+    }
+
+    /** The model selected THIS already-occurring fact rather than a scripted
+     * touching action. The caller must commit one stable world-action receipt.
+     */
+    internal fun chooseObservation(characterId: String, incidentId: String, now: Instant): String? =
+        observableScenes(characterId, now).firstOrNull { it.incidentId == incidentId }?.let {
+            "${MigratedDomainStores.characters.get(characterId).displayName}留意到了眼前的一幕：${it.summary}"
+        }
+
+    fun contextFor(characterId: String, now: Instant = Instant.now()): String {
         if (characterId.isBlank()) return ""
         val location = DigitalWorldStore.locationOf(characterId)
         val active = synchronized(lock) {
@@ -272,17 +314,28 @@ internal object DigitalWorldLifeEventStore {
                 .sortedBy(Incident::createdAt)
                 .take(6)
         }
-        if (active.isEmpty()) return "当前位置没有尚未解决的持续事件。普通环境瞬间会直接写入时间线，不会变成待处理任务。"
+        val candidates = observableScenes(characterId, now)
+        if (active.isEmpty() && candidates.isEmpty())
+            return "当前位置没有尚未解决的持续事件。此刻没有新鲜的现场变化需要专门观察，也可以自在生活。"
         return buildString {
-            appendLine("【数字世界仍未解决的旧事件｜权威现场状态，不是本轮重新发生】")
-            appendLine("下列 incidentId 是持久的同一件事，不能当作每次感知都重新出现。只有新增的 world-fact 原始事件或真实处理回执才算新进展；仍在场不等于角色每轮都必须处理、重复担心或发消息。")
-            active.forEach { incident ->
-                append("- incidentId=${incident.id}；类型=${incident.kind}；阶段=${incident.stage}；")
-                append("首次观察=${incident.createdAt}；最后核实进展=${incident.updatedAt}；")
-                if (incident.anchorItemId.isNotBlank()) {
-                    append("家具 itemId=${incident.anchorItemId}；家具=${incident.anchorItemName}；")
+            if (candidates.isNotEmpty()) {
+                appendLine("【场景自身刚发生的变化｜尚非本人亲眼留意或真实参与】")
+                appendLine("环境与他人并非为你发表动态而存在。若确实好奇某件事，可以选择 digital_world_action(worldAction=observe_scene, incidentId=准确ID)；不选则保持世界发生过、但你未特意观察的区别。不可凭下面的候选说自己已经摸过、看清或与谁交谈。")
+                candidates.forEach { incident ->
+                    appendLine("- incidentId=${incident.incidentId}；出现于=${incident.occurredAt}；现场=${incident.summary}")
                 }
-                appendLine("已记录的最近状态=${incident.summary}；可选 approach=${responseOptions(incident.kind).joinToString("/")}")
+            }
+            if (active.isNotEmpty()) {
+                appendLine("【数字世界仍未解决的旧事件｜权威现场状态，不是本轮重新发生】")
+                appendLine("下列 incidentId 是持久的同一件事，不能当作每次感知都重新出现。只有新增的 world-fact 原始事件或真实处理回执才算新进展；仍在场不等于角色每轮都必须处理、重复担心或发消息。")
+                active.forEach { incident ->
+                    append("- incidentId=${incident.id}；类型=${incident.kind}；阶段=${incident.stage}；")
+                    append("首次观察=${incident.createdAt}；最后核实进展=${incident.updatedAt}；")
+                    if (incident.anchorItemId.isNotBlank()) {
+                        append("家具 itemId=${incident.anchorItemId}；家具=${incident.anchorItemName}；")
+                    }
+                    appendLine("已记录的最近状态=${incident.summary}；可选 approach=${responseOptions(incident.kind).joinToString("/")}")
+                }
             }
         }.trim()
     }
