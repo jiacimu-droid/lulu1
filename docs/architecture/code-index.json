@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:41:57.054845+00:00",
-  "commit": "054d0f96075a05dd826d021c545d9965d0dea647",
+  "generatedAt": "2026-11-16T07:42:27.040022+00:00",
+  "commit": "abe933545b1b6292cbc1fcc59d8aee00e2597dda",
   "branch": "main",
-  "sourceFingerprint": "7a6aa1be49b7797dafdcd4bc52d79ae4a999ef211dbb25ca8af93c8e8f204d82",
+  "sourceFingerprint": "3ef93f62e7d1924834fa82f6b5dd5826b57612dd9e35c08aa0496291bbbc53e8",
   "summary": {
     "files": 1355,
-    "lines": 289386,
-    "symbols": 4084
+    "lines": 289432,
+    "symbols": 4085
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20602,6 +20602,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
         "line": 18
+      }
+    ],
+    "worldTick": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
+        "line": 99
       }
     ],
     "DigitalWorldArrivalAudienceTest": [
@@ -44992,12 +44998,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
-      "lines": 133,
-      "sha256": "575863cecb3e05e5a7c59ef3b4ffe6e480b7e9718a70958ec0c6a1e9caca3c53",
+      "lines": 179,
+      "sha256": "e919f3638096c598825fb25e791ba93be17dcd4f256b9968f8ba8ff089d0110f",
       "symbols": [
         {
           "name": "DigitalWorldActivityTransitionTest",
           "line": 18
+        },
+        {
+          "name": "worldTick",
+          "line": 99
         }
       ]
     },
