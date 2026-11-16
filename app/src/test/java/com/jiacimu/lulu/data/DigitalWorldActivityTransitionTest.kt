@@ -61,36 +61,71 @@ class DigitalWorldActivityTransitionTest {
     private fun act(id: String, at: Instant) = DigitalWorldStore.performAction(role, "use_home_item",
         JSONObject().put("itemId", table.id).put("activityId", id), at)
 
-    @Test fun livedCafeAndCourtyardSensationsRequireExecutedWorldReceipts() {
+    @Test fun sceneOccursBeforeTheCharacterElectsToNoticeIt() {
         val at = now.plusSeconds(100)
-        val missingPlace = DigitalWorldStore.performAction(role, "use_location",
-            JSONObject().put("activityId", "cafe_touch_table"), at)
-        assertFalse(missingPlace.success)
-        assertFalse(SharedExperienceTimeline.all(role).any {
-            it.content.contains("平整光滑的数字材质")
-        })
         assertTrue(DigitalWorldStore.performAction(role, "visit_public_place",
             JSONObject().put("locationCode", DigitalWorldPublicPlaces.CAFE), at).success)
-        val touch = DigitalWorldStore.performAction(role, "use_location",
-            JSONObject().put("activityId", "cafe_touch_table"), at.plusSeconds(10))
-        assertTrue(touch.summary, touch.success)
-        assertTrue(touch.summary.contains("平整光滑的数字材质"))
-        val stored = SharedExperienceTimeline.eventsByIds(role, listOf(touch.evidenceId)).single()
-        assertEquals(touch.summary, stored.content)
-        assertEquals("数字世界", stored.channel)
-        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(15), emptyList())
-            .contains("平整光滑的数字材质"))
+        val sceneId = "cafe-scene-${java.util.UUID.randomUUID()}"
+        val sceneDescription = "咖啡角窗边原有的柔光忽然暗了一瞬，过一会儿又亮回来"
+        val saved = org.json.JSONArray().put(JSONObject()
+            .put("id", sceneId).put("kind", "seat_light")
+            .put("locationCode", DigitalWorldPublicPlaces.CAFE)
+            .put("anchorItemId", "").put("anchorItemName", "")
+            .put("status", "resolved").put("stage", 0)
+            .put("summary", sceneDescription)
+            .put("lastActorCharacterId", "")
+            .put("createdAt", at.toString()).put("updatedAt", at.toString()))
+        val prefs = context.getSharedPreferences("lulu_digital_world_life_events", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString("incidents_v1", saved.toString()).commit())
+        DigitalWorldLifeEventStore.javaClass.getDeclaredField("prefs")
+            .apply { isAccessible = true }.set(DigitalWorldLifeEventStore, null)
+        DigitalWorldLifeEventStore.initialize(context)
 
+        val options = DigitalWorldLifeEventStore.contextFor(role, at.plusSeconds(1))
+        assertTrue(options.contains(sceneId))
+        assertTrue(options.contains("尚非本人亲眼留意"))
+        assertFalse(SharedExperienceTimeline.all(role).any { it.content.contains(sceneDescription) })
+        val chosen = DigitalWorldStore.performAction(role, "observe_scene",
+            JSONObject().put("incidentId", sceneId), at.plusSeconds(2))
+        assertTrue(chosen.summary, chosen.success)
+        assertEquals("world-observe-$role-$sceneId", chosen.evidenceId)
+        assertTrue(chosen.summary.contains(sceneDescription))
+        val receipt = SharedExperienceTimeline.eventsByIds(role, listOf(chosen.evidenceId)).single()
+        assertEquals(EventEvidenceKind.Observation, receipt.evidenceKind)
+        assertEquals("digital-world", receipt.source)
+        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(4), emptyList())
+            .contains(sceneDescription))
+        assertFalse(DigitalWorldStore.performAction(role, "observe_scene",
+            JSONObject().put("incidentId", sceneId), at.plusSeconds(5)).success)
+        assertFalse(DigitalWorldLifeEventStore.contextFor(role, at.plusSeconds(6)).contains(sceneId))
+        assertFalse(CharacterLifeFollowThroughStore.auditSnapshot(role)
+            .any { it.optString("id") == chosen.evidenceId })
+    }
+
+    @Test fun offsiteAndStaleSceneCannotBecomeSomeoneElsesFirsthandStory() {
+        val at = now.plusSeconds(150)
+        val sceneId = "courtyard-scene-${java.util.UUID.randomUUID()}"
+        val saved = org.json.JSONArray().put(JSONObject()
+            .put("id", sceneId).put("kind", "season_pixels")
+            .put("locationCode", DigitalWorldPublicPlaces.COURTYARD)
+            .put("anchorItemId", "").put("anchorItemName", "")
+            .put("status", "resolved").put("stage", 0)
+            .put("summary", "庭院上方飘下几片浅金色叶子")
+            .put("createdAt", at.toString()).put("updatedAt", at.toString()))
+        val prefs = context.getSharedPreferences("lulu_digital_world_life_events", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString("incidents_v1", saved.toString()).commit())
+        DigitalWorldLifeEventStore.javaClass.getDeclaredField("prefs")
+            .apply { isAccessible = true }.set(DigitalWorldLifeEventStore, null)
+        DigitalWorldLifeEventStore.initialize(context)
+        assertFalse(DigitalWorldStore.performAction(role, "observe_scene",
+            JSONObject().put("incidentId", sceneId), at.plusSeconds(1)).success)
         assertTrue(DigitalWorldStore.performAction(role, "visit_public_place",
-            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD),
-            at.plusSeconds(20)).success)
-        val air = DigitalWorldStore.performAction(role, "use_location",
-            JSONObject().put("activityId", "courtyard_feel_air"), at.plusSeconds(30))
-        assertTrue(air.summary, air.success)
-        val world = DigitalWorldEnvironment.snapshot(at.plusSeconds(30))
-        assertTrue(air.summary.contains("${world.temperatureCelsius}℃"))
-        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(40), emptyList())
-            .contains("室外体感约${world.temperatureCelsius}℃"))
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD), at.plusSeconds(2)).success)
+        assertFalse(DigitalWorldStore.performAction(role, "observe_scene",
+            JSONObject().put("incidentId", sceneId), at.plusSeconds(601)).success)
+        assertFalse(SharedExperienceTimeline.all(role).any {
+            it.content.contains("庭院上方飘下几片浅金色叶子")
+        })
     }
 
     @Test fun ordinaryWorldAmbienceRemainsLivedEvidenceWithoutCreatingShareChores() {
