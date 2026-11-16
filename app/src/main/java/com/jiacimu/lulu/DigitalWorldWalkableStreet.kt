@@ -22,6 +22,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Dp
+import com.jiacimu.lulu.data.CharacterSettings
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.WorldFirstExplorationMemory
@@ -50,6 +52,9 @@ internal fun DigitalWorldWalkableStreet(
     onEnterScene: (String) -> Unit,
     onReturnToAtlas: () -> Unit,
     modifier: Modifier = Modifier,
+    companions: List<CharacterSettings> = emptyList(),
+    hudTopPadding: Dp = 10.dp,
+    canEnterScene: Boolean = true,
 ) {
     val context = LocalContext.current
     val preferences = remember(context) {
@@ -178,12 +183,21 @@ internal fun DigitalWorldWalkableStreet(
                 drawCircle(Color(0xFFF5D5B9), 30f, Offset(you.x, you.y - 30f))
                 drawCircle(Color(0xFF547E72), 27f, you)
                 drawCircle(Color(0xFFF6FFF0), 7f, Offset(you.x - 9f, you.y - 6f))
+                companions.take(3).forEachIndexed { index, person ->
+                    val companion = Offset(you.x + 85f + index * 63f, you.y + 26f + index * 28f)
+                    drawOval(Color(0xFF456254).copy(alpha = .17f),
+                        Offset(companion.x - 27f, companion.y + 12f), Size(54f, 16f))
+                    drawCircle(Color(0xFF8DA6A0), 27f, companion)
+                    drawCircle(Color(0xFFFFE0C5), 25f, Offset(companion.x, companion.y - 30f))
+                    drawContext.canvas.nativeCanvas.drawText(
+                        person.displayName.take(4), companion.x, companion.y - 66f, titlePaint)
+                }
             }
         }
 
         Surface(
             modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp).padding(top = hudTopPadding, bottom = 10.dp),
             color = Color(0xED172B25),
             shape = RoundedCornerShape(19.dp),
         ) {
@@ -204,8 +218,9 @@ internal fun DigitalWorldWalkableStreet(
             tint = Color(0xFFC4FFE4),
         )
         WorldActionButton(
-            label = nearestDiscovery?.let { "探索" } ?: nearestDoor?.let { "进入" } ?: "靠近",
-            enabled = nearestDiscovery != null || nearestDoor != null,
+            label = nearestDiscovery?.let { "探索" }
+                ?: nearestDoor?.let { if (canEnterScene) "进入" else "等待" } ?: "靠近",
+            enabled = nearestDiscovery != null || (nearestDoor != null && canEnterScene),
             onClick = {
                 val clue = nearestDiscovery
                 val door = nearestDoor
