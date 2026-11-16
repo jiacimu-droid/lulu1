@@ -48,8 +48,10 @@ internal fun CompanionPresenceDialog(
         .firstOrNull { it.displayName == characterName }?.characterId ?: "lulu"
     val messageAnchor = CompanionPresenceStore.selectedMessageAnchor(characterId)
     val displayState = if (messageAnchor != null) messageAnchor.state else state
-    val displayHistory = remember(history, messageAnchor?.messageAt) {
-        if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
+    val displayHistory = remember(history, messageAnchor) {
+        if (messageAnchor == null) history else PresenceHistoryPresentation.anchoredHistory(
+            history, messageAnchor.messageAt, messageAnchor.state,
+        )
     }
     var selectedTab by remember(characterId) { mutableIntStateOf(0) }
     LaunchedEffect(messageAnchor?.messageAt) { selectedTab = 0 }
@@ -82,7 +84,9 @@ internal fun CompanionPresenceDialog(
         messageAnchor?.messageAt) {
         if (selectedTab != 1) return@LaunchedEffect
         historyLoading = true
-        val cutoff = messageAnchor?.messageAt ?: Instant.now()
+        val cutoff = messageAnchor?.let { anchor ->
+            maxOf(anchor.messageAt, anchor.state?.updatedAt ?: anchor.messageAt)
+        } ?: Instant.now()
         val built = withContext(Dispatchers.Default) {
             CharacterStateHistory.entries(characterId, displayHistory, cutoff, maxEntries = 50)
         }
