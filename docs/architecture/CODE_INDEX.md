@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`27ebcfa36aeebfb1c5fa6caf1b35f38cdcd4bea4`
+- 基准提交：`f06cec32e7e7fdffbda2ff4da8b1b010ea4a63fa`
 - 分支：`main`
 - 已索引文件：1346
-- 已索引代码/文本行：287343
-- 已发现符号：4053
+- 已索引代码/文本行：287386
+- 已发现符号：4054
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -418,7 +418,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 446 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 303 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 89 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 162 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 72 | 9 |
@@ -919,7 +919,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 48 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |

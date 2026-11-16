@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:53:20.886321+00:00",
-  "commit": "27ebcfa36aeebfb1c5fa6caf1b35f38cdcd4bea4",
+  "generatedAt": "2026-11-16T03:53:45.768470+00:00",
+  "commit": "f06cec32e7e7fdffbda2ff4da8b1b010ea4a63fa",
   "branch": "main",
-  "sourceFingerprint": "2ca4611ce5e84b7548b39979a79154494d4d4b638ef533e09c0c587656972463",
+  "sourceFingerprint": "20dd95239d90b903045978ea3b6348e3a463d84623f0688f36dc57c55e4d811f",
   "summary": {
     "files": 1346,
-    "lines": 287343,
-    "symbols": 4053
+    "lines": 287386,
+    "symbols": 4054
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1827,7 +1827,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
-        "line": 19
+        "line": 58
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -8248,6 +8248,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
         "line": 170
+      }
+    ],
+    "recordDurableDecision": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
+        "line": 22
       }
     ],
     "candidates": [
@@ -29792,12 +29798,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
-      "lines": 64,
-      "sha256": "138b9da6ffda3050635d7ba54c514dc7338ada3c7721387c7e048557fb0458fe",
+      "lines": 89,
+      "sha256": "b8cdb1f02956e9062e51d9a2189d24f90d5bdf6e99bc37186455b30887fb0e76",
       "symbols": [
         {
+          "name": "recordDurableDecision",
+          "line": 22
+        },
+        {
           "name": "commit",
-          "line": 19
+          "line": 58
         }
       ]
     },
@@ -41994,8 +42004,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
-      "lines": 48,
-      "sha256": "fdb923e4d8b72bd23952ebdf787ec844f1a08f91fa570bde1d0fd6dd93e8c1be",
+      "lines": 66,
+      "sha256": "8bdbd2b39d9df6034e7032cd56e4b7c66266b32f5cbd9c604b53c4affaea90c3",
       "symbols": [
         {
           "name": "MeetingPhysicalStateReducerTest",
