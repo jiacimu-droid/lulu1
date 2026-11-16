@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:04:54.653549+00:00",
-  "commit": "37fa43f575d5958e1c1426de2ffdf9f4f5f9356a",
+  "generatedAt": "2026-11-16T17:05:25.287219+00:00",
+  "commit": "686f05f17529b8af0f4c379256862cb9fb086f4e",
   "branch": "main",
-  "sourceFingerprint": "8bfd1d12e4bb4f281990104fba693172e34527dc50cf5646a5d0c5df2c86f533",
+  "sourceFingerprint": "998e1172bd5227cf45e13c9765a54bf404779714dd0b943c3ec3006d18f7ce4e",
   "summary": {
     "files": 1372,
     "lines": 293233,
-    "symbols": 4129
+    "symbols": 4132
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12656,6 +12656,36 @@
         "line": 491
       }
     ],
+    "RecentSemanticTimeline": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
+        "line": 12
+      }
+    ],
+    "Kind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
+        "line": 567
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt",
+        "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
+        "line": 8
+      }
+    ],
+    "Turn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
+        "line": 14
+      }
+    ],
     "requiresBufferedSpeech": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt",
@@ -16398,20 +16428,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
         "line": 97
-      }
-    ],
-    "Kind": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
-        "line": 567
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt",
-        "line": 10
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
-        "line": 8
       }
     ],
     "Section": [
@@ -34722,8 +34738,20 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
       "lines": 161,
-      "sha256": "1ff94864c660d04d5760c69617606e97cf64b63bec566d47241150049da3fd03",
+      "sha256": "ad5ee5b17591ec7c06df02f1428c9dc18d46e8a4348452a3502be822e2a8ec95",
       "symbols": [
+        {
+          "name": "RecentSemanticTimeline",
+          "line": 12
+        },
+        {
+          "name": "Kind",
+          "line": 13
+        },
+        {
+          "name": "Turn",
+          "line": 14
+        },
         {
           "name": "select",
           "line": 66
