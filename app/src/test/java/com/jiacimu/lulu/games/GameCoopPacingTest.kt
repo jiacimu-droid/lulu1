@@ -82,6 +82,20 @@ class GameCoopPacingTest {
                 "alice" to RelicCoopPlan("regroup",lastStepTurn=0))),0))
     }
 
+    @Test fun newVisibleWindupIsAnUrgentPerceptionFactNotAnAutoAttack() {
+        val base=RelicEscapeWorld.create(7,1,listOf("alice"),1,1)
+            .copy(mobs=emptyList())
+        val adjacent=RelicMob(45,base.hero.x+1,base.hero.y,5,0)
+        assertFalse(GameCoopPacing.relicImmediateThreat(base))
+        assertFalse(GameCoopPacing.relicImmediateThreat(
+            base.copy(mobs=listOf(adjacent))))
+        assertTrue(GameCoopPacing.relicImmediateThreat(
+            base.copy(mobs=listOf(adjacent.copy(windup=true)))))
+        assertFalse(GameCoopPacing.relicImmediateThreat(
+            base.copy(phase=RelicPhase.SETTLEMENT,
+                mobs=listOf(adjacent.copy(windup=true)))))
+    }
+
     @Test fun combatDoesNotFreezeASpecificallyChosenSupportPlan() {
         val base=RelicEscapeWorld.create(7,1,listOf("alice","bob"),1,1)
         val s=base.copy(tiles=List(base.w*base.h){0},sites=emptyList(),
