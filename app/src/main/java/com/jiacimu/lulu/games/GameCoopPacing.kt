@@ -51,6 +51,32 @@ internal object GameCoopPacing {
                 it.phase in setOf("building", "demolishing") } == true
     }
 
+    /**
+     * Held movement still produces real player turns. Reconsider on a modest
+     * turn boundary instead of one paid model call per joystick repeat. This
+     * only schedules the *same* role's decision, never picks their next action.
+     * A threat earns a faster observation than an uneventful corridor.
+     */
+    fun relicHeldDecisionDue(s: RelicRun, lastObservedTurn: Int): Boolean {
+        if (s.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) return false
+        if (s.allies.none { it.hp > 0 && it.id !in s.coopPlans }) return false
+        val minimumTurns = if (relicThreat(s)) 4 else 8
+        return s.turns.toLong() - lastObservedTurn.toLong() >= minimumTurns
+    }
+
+    /**
+     * Nearby threats must not paralyse an already chosen support/rescue plan.
+     * Unsafe side errands stay paused. The tick only advances approved teammate
+     * actions; it never moves the player or takes a free enemy combat turn.
+     */
+    fun relicTickActors(s: RelicRun): Set<String> {
+        val threatened = relicThreat(s)
+        return s.allies.asSequence().filter { actor ->
+            RelicCoopTravel.hasPendingStep(s, actor) &&
+                (!threatened || s.coopPlans[actor.id]?.kind in setOf("support", "rescue"))
+        }.map { it.id }.toSet()
+    }
+
     fun relicHasPlan(s: RelicRun): Boolean =
         s.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED) &&
             s.allies.any { RelicCoopTravel.hasPendingStep(s, it) }
