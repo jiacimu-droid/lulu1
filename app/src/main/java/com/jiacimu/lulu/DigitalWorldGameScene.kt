@@ -145,6 +145,8 @@ internal fun DigitalWorldGameScene(
     showExplorationHud: Boolean = true,
     followerIds: Set<String> = emptySet(),
     initiatedHandHoldingId: String? = null,
+    sceneDestinations: Map<String, String> = emptyMap(),
+    onReachedSceneItem: ((characterId: String, itemId: String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -260,6 +262,12 @@ internal fun DigitalWorldGameScene(
     var requestedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadFollowerIds()) }
     var suspendedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadSuspendedFollowers()) }
     val effectiveHoldingId = handHoldingId ?: initiatedHandHoldingId
+    // The character owns its destination; the player owns whether to keep following.
+    // A manual joystick or tap immediately cancels automatic hand-in-hand guidance.
+    var cancelledEscorts by remember(sceneKey) { mutableStateOf<Set<String>>(emptySet()) }
+    var escortPath by remember(sceneKey) { mutableStateOf<List<WorldVector>>(emptyList()) }
+    var nextEscortRouteAt by remember(sceneKey) { mutableLongStateOf(0L) }
+    val latestOnReachedItem by rememberUpdatedState(onReachedSceneItem)
     val activeFollowerIds = (followerIds - suspendedFollowers) + requestedFollowers + listOfNotNull(effectiveHoldingId)
 
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
@@ -405,7 +413,7 @@ internal fun DigitalWorldGameScene(
         if (activeActionLabel == queued.label) activeActionLabel = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, nativeResidents.map { it.id }, controlsEnabled, props, venueAnchors, activeFollowerIds, residentActivities) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, nativeResidents.map { it.id }, controlsEnabled, props, venueAnchors, activeFollowerIds, residentActivities, sceneDestinations, effectiveHoldingId) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -413,6 +421,28 @@ internal fun DigitalWorldGameScene(
                 val delta = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
 
+                val escortItemId = effectiveHoldingId?.let(sceneDestinations::get)
+                val escortProp = props.firstOrNull { it.item.id == escortItemId }
+                val escortKey = "${effectiveHoldingId.orEmpty()}:${escortItemId.orEmpty()}"
+                val escortPoint = escortProp?.let { digitalItemApproachPoint(it, obstacles) }
+                val manuallyMoving = joystick.length > .08f || tapTarget != null
+                if (escortPoint != null && manuallyMoving && escortKey !in cancelledEscorts) {
+                    cancelledEscorts = cancelledEscorts + escortKey
+                    escortPath = emptyList()
+                }
+                val escorting = controlsEnabled && escortPoint != null &&
+                    escortKey !in cancelledEscorts && effectiveHoldingId != null
+                if (escorting && escortPoint != null) {
+                    val now = System.currentTimeMillis()
+                    if (now >= nextEscortRouteAt) {
+                        escortPath = com.jiacimu.lulu.games.worldFollowPath(
+                            playerPosition, escortPoint, DIGITAL_WORLD_BOUNDS, obstacles, 31f)
+                        nextEscortRouteAt = now + 850L
+                    }
+                    while (escortPath.isNotEmpty() && playerPosition.distanceTo(escortPath.first()) < 18f) {
+                        escortPath = escortPath.drop(1)
+                    }
+                } else escortPath = emptyList()
                 val destination = if (controlsEnabled) tapTarget else null
                 val automatic = destination?.let { target ->
                     val deltaVector = target - playerPosition
@@ -424,7 +454,10 @@ internal fun DigitalWorldGameScene(
                 val direction = when {
                     !controlsEnabled -> WorldVector.Zero
                     joystick.length > .08f -> joystick
-                    else -> automatic
+                    destination != null -> automatic
+                    escorting && escortPath.isNotEmpty() ->
+                        (escortPath.first() - playerPosition).normalized()
+                    else -> WorldVector.Zero
                 }
                 if (direction.length > .04f) {
                     if (joystick.length > .08f) tapTarget = null
@@ -474,9 +507,13 @@ internal fun DigitalWorldGameScene(
                     val sceneGoal = com.jiacimu.lulu.data.DigitalWorldLiveScene.goal(characterId)
                     val approaching = sceneGoal?.action in setOf(
                         "approach_user", "offer_hand", "offer_hug", "offer_follow")
-                    val following = characterId in activeFollowerIds || approaching
                     val handHolding = characterId == effectiveHoldingId
-                    val occupiedFurniture = if (!following && sceneGoal == null) furniturePoseFor(characterId) else null
+                    val chosenItem = props.firstOrNull { it.item.id == sceneDestinations[characterId] }
+                    val itemPoint = chosenItem?.let { digitalItemApproachPoint(it, obstacles) }
+                    val following = (characterId in activeFollowerIds || approaching) &&
+                        (itemPoint == null || handHolding)
+                    val occupiedFurniture = if (!following && sceneGoal == null && itemPoint == null)
+                        furniturePoseFor(characterId) else null
                     if (occupiedFurniture != null) {
                         // A verified resting activity is an occupied furniture
                         // slot. Do not pathfind into the furniture's collision
@@ -490,14 +527,24 @@ internal fun DigitalWorldGameScene(
                                     .firstOrNull { it.first == id }?.second }
                             }.orEmpty())
                     }
-                    var followPath = if (following || sceneGoal != null) motion.followPath else emptyList()
+                    var followPath = if (following || sceneGoal != null || itemPoint != null) motion.followPath else emptyList()
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
                     val pendingItemId: String? = null
                     val pendingVenueId: String? = null
                     val pendingActivityId: String? = null
                     var activityLabel = motion.activityLabel
-                    if (following) {
+                    if (itemPoint != null && !following) {
+                        if (now >= nextDecision || followPath.isEmpty() || motion.pendingItemId != chosenItem?.item?.id) {
+                            followPath = com.jiacimu.lulu.games.worldFollowPath(
+                                motion.position, itemPoint, DIGITAL_WORLD_BOUNDS, obstacles, 28f)
+                            nextDecision = now + 750L
+                        }
+                        while (followPath.isNotEmpty() && motion.position.distanceTo(followPath.first()) < 14f)
+                            followPath = followPath.drop(1)
+                        target = followPath.firstOrNull() ?: motion.position
+                        activityLabel = "走向${chosenItem?.item?.name.orEmpty()}"
+                    } else if (following) {
                         val followPosition = if (handHolding) {
                             playerPosition + WorldVector(if (facingX >= 0f) 64f else -64f, 10f)
                         } else playerPosition
@@ -515,7 +562,10 @@ internal fun DigitalWorldGameScene(
                             }
                             target = followPath.firstOrNull() ?: motion.position
                         }
-                        activityLabel = if (handHolding) "牵着手同行" else if (approaching) "走近你" else "跟随你"
+                        activityLabel = if (handHolding && chosenItem != null && escorting)
+                            "牵着手去${chosenItem.item.name}旁"
+                        else if (handHolding) "牵着手同行"
+                        else if (approaching) "走近你" else "跟随你"
                         if (approaching && motion.position.distanceTo(playerPosition) < 90f) {
                             com.jiacimu.lulu.data.DigitalWorldLiveScene.arrived(characterId, sceneGoal!!.id)
                             activityLabel = "来到你身边"
@@ -561,6 +611,12 @@ internal fun DigitalWorldGameScene(
                             obstacles = obstacles,
                         ).position
                     } else motion.position
+                    if (chosenItem != null && itemPoint != null &&
+                        moved.distanceTo(itemPoint) < 68f &&
+                        (!handHolding || playerPosition.distanceTo(itemPoint) < 94f)) {
+                        // Only the physical arrival callback can clear this goal and report success.
+                        latestOnReachedItem?.invoke(characterId, chosenItem.item.id)
+                    }
                     motion.copy(
                         position = moved,
                         target = target,
@@ -1453,6 +1509,28 @@ private fun rememberUserAvatar(context: Context): Pair<String, String?> =
     context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE).let { prefs ->
         prefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) to prefs.getString("avatar_uri", null)
     }
+
+/** Find a collision-free reachable standing spot beside a real, existing furniture footprint. */
+internal fun digitalItemApproachPoint(
+    prop: DigitalRoomProp,
+    obstacles: List<com.jiacimu.lulu.games.WorldObstacle>,
+): WorldVector? {
+    val bounds = prop.bounds
+    val center = bounds.center
+    val candidates = listOf(
+        WorldVector(center.x, bounds.bottom + 76f),
+        WorldVector(center.x, bounds.top - 76f),
+        WorldVector(bounds.left - 76f, center.y),
+        WorldVector(bounds.right + 76f, center.y),
+    )
+    return candidates.firstOrNull { candidate ->
+        candidate.x >= DIGITAL_WORLD_BOUNDS.left + 34f &&
+            candidate.x <= DIGITAL_WORLD_BOUNDS.right - 34f &&
+            candidate.y >= DIGITAL_WORLD_BOUNDS.top + 34f &&
+            candidate.y <= DIGITAL_WORLD_BOUNDS.bottom - 34f &&
+            obstacles.none { circleIntersects(candidate, 34f, it.bounds) }
+    }
+}
 
 private fun digitalSafeStart(restored: WorldVector, obstacles: List<com.jiacimu.lulu.games.WorldObstacle>): WorldVector {
     if (obstacles.none { circleIntersects(restored, 34f, it.bounds) }) return restored
