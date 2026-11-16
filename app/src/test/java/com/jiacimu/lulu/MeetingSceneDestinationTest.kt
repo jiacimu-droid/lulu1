@@ -24,6 +24,20 @@ class MeetingSceneDestinationTest {
         assertEquals("", meetingValidatedDestinationActivityId("sit_on_bed", emptySet()))
     }
 
+    @Test fun streetGuidanceOnlyAcceptsRealAddressesAndCanBeCancelled() {
+        val available = setOf("shared:cafe", "home:role-1")
+        assertEquals("shared:cafe", meetingValidatedStreetCode(
+            "shared:cafe", "", true, available))
+        assertEquals("", meetingValidatedStreetCode(
+            "made-up-castle", "", true, available))
+        assertEquals("home:role-1", meetingValidatedStreetCode(
+            "", "home:role-1", false, available))
+        assertEquals("", meetingValidatedStreetCode(
+            "", "shared:cafe", true, available))
+        assertEquals("", meetingValidatedStreetCode(
+            "", "removed-address", false, available))
+    }
+
     @Test fun omissionPreservesExistingDestinationWhileExplicitEmptyCancels() {
         assertEquals("sofa-02", meetingValidatedDestinationItemId(
             "", "sofa-02", false, roomFurniture))
