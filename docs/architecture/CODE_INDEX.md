@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e681461240997d39cfc0d49f7742c8464d88ae2b`
+- 基准提交：`2a87683d06d88abdda1e8ed1a5a8eed781244a11`
 - 分支：`main`
-- 已索引文件：1355
-- 已索引代码/文本行：289546
-- 已发现符号：4085
+- 已索引文件：1356
+- 已索引代码/文本行：289609
+- 已发现符号：4086
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -483,7 +483,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 270 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1272 | 41 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1274 | 41 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 341 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
@@ -1016,6 +1016,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BedtimeTimelineBoundaryTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 1078 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |

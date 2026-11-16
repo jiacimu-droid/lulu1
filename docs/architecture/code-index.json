@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:54:55.914074+00:00",
-  "commit": "e681461240997d39cfc0d49f7742c8464d88ae2b",
+  "generatedAt": "2026-11-16T07:55:55.524590+00:00",
+  "commit": "2a87683d06d88abdda1e8ed1a5a8eed781244a11",
   "branch": "main",
-  "sourceFingerprint": "4996f6fe4015ec305c1b233f1b767e918407490f120141b8f5f7bda66e760753",
+  "sourceFingerprint": "7cdbf20482e50f50819c6b64c60df56681e47cf194d1c31fcc2c6503286779aa",
   "summary": {
-    "files": 1355,
-    "lines": 289546,
-    "symbols": 4085
+    "files": 1356,
+    "lines": 289609,
+    "symbols": 4086
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7079,7 +7079,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 983
+        "line": 985
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -9933,113 +9933,113 @@
     "startMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 471
+        "line": 473
       }
     ],
     "appendMeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 532
+        "line": 534
       }
     ],
     "commitResidentEncounter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 550
+        "line": 552
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 576
+        "line": 578
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 609
+        "line": 611
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 602
+        "line": 604
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 612
+        "line": 614
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 668
+        "line": 670
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 693
+        "line": 695
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 720
+        "line": 722
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 758
+        "line": 760
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 827
+        "line": 829
       }
     ],
     "meetingInputEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 837
+        "line": 839
       }
     ],
     "meetingExchangeEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 839
+        "line": 841
       }
     ],
     "recordMeetingOriginalInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 842
+        "line": 844
       }
     ],
     "recordMeetingExchangeObservation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 855
+        "line": 857
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 869
+        "line": 871
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 899
+        "line": 901
       }
     ],
     "retireResidentPresence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 972
+        "line": 974
       }
     ],
     "strongest": [
@@ -19460,6 +19460,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt",
         "line": 20
+      }
+    ],
+    "BedtimeTimelineBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeTimelineBoundaryTest.kt",
+        "line": 17
       }
     ],
     "BundledJiangDuImportTest": [
@@ -31654,8 +31660,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1272,
-      "sha256": "7c39b4d99cfc9e1b62c95b8afa56b957493d59855556f5669cea3eb08017ed46",
+      "lines": 1274,
+      "sha256": "0906ef43baa611922e51723075ad518e670d071d7f4c0fe1adbce142021022f3",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -31743,83 +31749,83 @@
         },
         {
           "name": "startMeeting",
-          "line": 471
+          "line": 473
         },
         {
           "name": "appendMeetingTurn",
-          "line": 532
+          "line": 534
         },
         {
           "name": "commitResidentEncounter",
-          "line": 550
+          "line": 552
         },
         {
           "name": "meetingLocationOptions",
-          "line": 576
+          "line": 578
         },
         {
           "name": "invitationLocationOptions",
-          "line": 602
+          "line": 604
         },
         {
           "name": "meetingLocationOptions",
-          "line": 609
+          "line": 611
         },
         {
           "name": "moveMeeting",
-          "line": 612
+          "line": 614
         },
         {
           "name": "endMeeting",
-          "line": 668
+          "line": 670
         },
         {
           "name": "deleteMeeting",
-          "line": 693
+          "line": 695
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 720
+          "line": 722
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 758
+          "line": 760
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 827
+          "line": 829
         },
         {
           "name": "meetingInputEvidenceId",
-          "line": 837
-        },
-        {
-          "name": "meetingExchangeEvidenceId",
           "line": 839
         },
         {
+          "name": "meetingExchangeEvidenceId",
+          "line": 841
+        },
+        {
           "name": "recordMeetingOriginalInput",
-          "line": 842
+          "line": 844
         },
         {
           "name": "recordMeetingExchangeObservation",
-          "line": 855
+          "line": 857
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 869
+          "line": 871
         },
         {
           "name": "meetingContext",
-          "line": 899
+          "line": 901
         },
         {
           "name": "retireResidentPresence",
-          "line": 972
+          "line": 974
         },
         {
           "name": "clearCharacter",
-          "line": 983
+          "line": 985
         }
       ]
     },
@@ -43437,9 +43443,20 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeTimelineBoundaryTest.kt",
+      "lines": 61,
+      "sha256": "2763d94cea75d37a2e4428e15a12075aa29734841b0639b6e5834121ec656f60",
+      "symbols": [
+        {
+          "name": "BedtimeTimelineBoundaryTest",
+          "line": 17
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
       "lines": 1078,
-      "sha256": "bf6965ef69639728706ee2685659417c4d2685abccec649a7d977bb6f6717027",
+      "sha256": "1150d2c7e913b9f7d821c852275070b4ea706fdca7eff965ed7ae5cadbb8e5b9",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
