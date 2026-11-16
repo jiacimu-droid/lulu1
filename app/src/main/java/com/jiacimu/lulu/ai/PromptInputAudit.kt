@@ -197,10 +197,19 @@ internal object PromptInputAudit {
         val separators = system.length - systemPartsCharacters
         if (separators > 0) parts += "系统段落间隔" to "\n".repeat(separators)
         history.forEachIndexed { index, turn ->
-            parts += ("历史对话 #" + (index + 1) + " / " + turn.role.wire) to turn.content
+            // Full actor turns share ONE role-owned scene slot. It is neither
+            // a preceding owner chat message nor part of the system persona.
+            if (turn.role == ModelConversationMessage.Role.USER &&
+                turn.content.startsWith(ActorSceneWirePolicy.SCENE_HEADING)) {
+                parts += splitHeadings("本轮背景依据", turn.content)
+            } else {
+                parts += ("历史对话 #" + (index + 1) + " / " + turn.role.wire) to turn.content
+            }
         }
         if (currentIsActualUserMessage) {
             parts += "本轮完整输入 / user" to user
+        } else if (user.startsWith(ActorSceneWirePolicy.AUTONOMOUS_TURN)) {
+            parts += "本轮自主决策程序触发（非主人发言）" to user
         } else {
             // An autonomous request places a large assembled scene in the HTTP
             // user role. It is not something the owner typed. Split known section
