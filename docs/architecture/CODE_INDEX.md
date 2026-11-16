@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6f1ad63dba8cee21b48701dfe7da3687f958e8a5`
+- 基准提交：`3898a831a3ee474e3609e71a72d9d6215771412a`
 - 分支：`main`
 - 已索引文件：1357
-- 已索引代码/文本行：289690
+- 已索引代码/文本行：289708
 - 已发现符号：4087
 
 | 文件 | 行数 | 符号数 |
@@ -1116,7 +1116,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 214 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 98 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneOfferPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt` | 79 | 1 |

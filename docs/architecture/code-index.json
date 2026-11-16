@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:02:09.322204+00:00",
-  "commit": "6f1ad63dba8cee21b48701dfe7da3687f958e8a5",
+  "generatedAt": "2026-11-16T08:02:45.458421+00:00",
+  "commit": "3898a831a3ee474e3609e71a72d9d6215771412a",
   "branch": "main",
-  "sourceFingerprint": "5946707ba158a97302560c791b59c9bff13ccff5d1130a8d0fc8b9298f202ad2",
+  "sourceFingerprint": "ea2c960ebc6d6accd2a1218c7101d1140c48a6972588a488f2b06d8480933601",
   "summary": {
     "files": 1357,
-    "lines": 289690,
+    "lines": 289708,
     "symbols": 4087
   },
   "symbolIndex": {
@@ -45058,8 +45058,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt",
-      "lines": 30,
-      "sha256": "dbd95e1a1455cc9203df1b9d5ce9a4baaaf80cc8e84060763b7b8b2b3ff4ec2d",
+      "lines": 48,
+      "sha256": "68cb2a4920762a08350263b4e0e7d105412631a579f554182505c943335ffc73",
       "symbols": [
         {
           "name": "DigitalWorldEnvironmentTest",
