@@ -590,3 +590,11 @@
 - 玩家按住摇杆时不应完全抑制角色感知，模型仍按本人真实目标与局势决定，不写死护主攻击：危险时已选的支援/救援路线可以推进 57cd536、920a93b；移动到实际观察间隔可重新感知 0e839cb；真实可见敌人蓄力触发即时感知 fb9c9d0、ac304a4。回归 b912755、be24e9a；模型实际响应和落地待真机验。
 - 初始标准3怪，按键连走340ms推进危险回合，第一层过陡。新局按层数渐进：轻松1、标准2、险境5，安全入口半径增大、敌人分散、精英怪逐级解锁 f4ed029；测试292a875；营地难度说明3db9fc5。轻松/标准按住移动间隔650/520ms，险境340ms；技能提示与指南解释一次行动通常是一回合（并非秒数）、敌人蓄力可闪避、格挡或一次性打断 2f670f6。旧存档未改。
 - 源码落地不等于实测。多次并行 push 的旧 APK CI 可能 cancelled；本次生产测试 head 3db9fc5 对应 APK https://github.com/jiacimu-droid/lulu1/actions/runs/43909495238 查询时 pending。下一步检查最新 head APK/JVM 终态与首错，再用 Redmi 横屏验字幕碰撞、设置即时音频、标准首层战斗梯度/技能和角色真实动作。未做真机声音、FPS 和完整撤离闭环验收。
+
+## 2026-11-17 G-03 · 实玩反馈：协作行动时钟隔离 + 机关与多样地形（源码及回归已提交，APK/真机待验）
+
+- 根因：旧 companion_tick 每次同伴沿自选路线走一步也让 RelicRun.turns+1，却不执行该回合敌人行动；造成技能 CD、日志“回合”、角色事件时间与实际玩家行动不同步。现在 RelicRun.teamSteps 单独持久记队友移动、logicalStep 用于合作行程合法推进；RelicEvent 记录 player turn 和 team step，两种行动不再混同。RelicEscapeRules、RelicCoopTravel、RelicActorPlay、RelicCompanionPanel、RelicEscapeScreen 已接入，旧档 teamSteps 默认为0、已有计划按恢复时钟恢复。相关生产 4c8b455、3a830ad、d3cbfb7、c0a2f30、3f20919、f83584a、4482366；GameCoopPacingTest 366c390 覆盖队友独走不推进怪物/玩家 CD/撤离并持久可重入。
+- 地图新局有三种基于种子稳定的可达建筑轮廓（中央大厅/双廊道/错位宝库），不只换背景色：c8fe9b9。追加三种不同物理规则：观测镜 lens 一次性真实揭开六格内迷雾；echo 共鸣石板正常走会触发守卫警戒，潜行可避免；相连 seal_switch 开启唯一 seal_gate 的原始石墙使路线真正可走，保留旧有通路且不提前提供宝物。生成00797ff、存档字段4bd99e8、规则0f7fc19/f686ecf、操作af5ddbd、图层bfeefbd、指引ee481c6，回归7e7b0f9。
+- 同伴可自主选择解观测镜、开封门和在有回声石板的路线上潜行（不是默认强制做）：RelicActorPlay e7b8b30/6bdb9e9，RelicCoopTravel b2ff62b，回归 ceb0fd4/4275db9/37fa43f。地图互动、角色独自物理动作与事件回执共用同一权威存档；无新模型调用类型，无抽奖/实物伪造。
+- 长按方向移动碰到真实邻近守卫蓄力时中断重复移动，防止玩家一按到底连续挨打：bb5c2c9。HUD 与设置明确标玩家行动而非共同“回合”：7cac125，快捷潜行 tuple 编译消歧266c386。
+- 验收未冒认：上述代码均为 GitHub main 源码层提交；频繁并行推送导致多次原有 APK run cancelled，不能当 success。仍需核包含本组源码/测试的新 head 的 phone JVM/assemble job 及 code-index 终态；Redmi 横屏检查封门绘制与可点击、潜行/站位可达、图层遮挡及新机制在旧档上不误触，完整探宝撤离+队友真模型操作另测。
