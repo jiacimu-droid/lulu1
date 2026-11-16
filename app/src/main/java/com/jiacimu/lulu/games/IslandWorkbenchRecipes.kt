@@ -31,7 +31,7 @@ internal object IslandWorkbenchRecipes {
                 kotlin.math.abs(world.x - location % world.width) +
                 kotlin.math.abs(world.y - location / world.width) <= 2
         }
-        return workbenchNear && recipe.tool !in state.tools &&
+        return !world.finished && workbenchNear && recipe.tool !in state.tools &&
             world.wood >= recipe.wood && world.stone >= recipe.stone &&
             state.crystals >= recipe.crystals
     }
