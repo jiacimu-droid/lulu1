@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:35:56.713449+00:00",
-  "commit": "b84c8715e0e1249e532537f4d030cea203bd3a6d",
+  "generatedAt": "2026-11-16T14:36:46.952245+00:00",
+  "commit": "ae2960cf54f2b8cd16bd99a595e0cb71bdd06d8f",
   "branch": "main",
-  "sourceFingerprint": "d905f2712e017420057b0c9fb24c615fd5065fd7f971f21f854b19e0d0e54738",
+  "sourceFingerprint": "4eaaafa5e4d975ca80b6ec1310675c8ad4e32ae5bef0e96f28186875278412f7",
   "summary": {
-    "files": 1364,
-    "lines": 291462,
-    "symbols": 4107
+    "files": 1365,
+    "lines": 291516,
+    "symbols": 4110
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16038,6 +16038,18 @@
         "line": 70
       }
     ],
+    "question": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt",
+        "line": 8
+      }
+    ],
+    "solution": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt",
+        "line": 20
+      }
+    ],
     "hostName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -22763,7 +22775,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 109
+        "line": 118
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
+        "line": 129
       }
     ],
     "c": [
@@ -38927,6 +38943,21 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt",
+      "lines": 31,
+      "sha256": "e77e43804d59c81c0f7363d70135264c40df4e8156cfb9c58b9cb50e588e9793",
+      "symbols": [
+        {
+          "name": "question",
+          "line": 8
+        },
+        {
+          "name": "solution",
+          "line": 20
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
       "lines": 290,
       "sha256": "79a1dd7bf111409b77d7d9c8657563bcea57e56d9e934118335416ce817f5291",
@@ -48374,8 +48405,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-      "lines": 134,
-      "sha256": "446211478fac4965beb66f1ba04668a227611a18d88df3d9bd75d3b182759b26",
+      "lines": 157,
+      "sha256": "d566b512354ee7df0429cfed0c5dea6a5695e638ccf417eedf2e48726dcce82e",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
@@ -48391,7 +48422,11 @@
         },
         {
           "name": "b",
-          "line": 109
+          "line": 118
+        },
+        {
+          "name": "b",
+          "line": 129
         }
       ]
     },

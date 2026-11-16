@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b84c8715e0e1249e532537f4d030cea203bd3a6d`
+- 基准提交：`ae2960cf54f2b8cd16bd99a595e0cb71bdd06d8f`
 - 分支：`main`
-- 已索引文件：1364
-- 已索引代码/文本行：291462
-- 已发现符号：4107
+- 已索引文件：1365
+- 已索引代码/文本行：291516
+- 已发现符号：4110
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -754,6 +754,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/SoupCuratedCases.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/SoupExpansionCases.kt` | 119 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 290 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 673 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
@@ -1352,7 +1353,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 134 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 157 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt` | 35 | 1 |
