@@ -93,12 +93,10 @@ internal class IslandCompanionVoice(
             setActive(false)
             return
         }
-        if (!CharacterVoicePreferenceStore.isEnabled(next.first)) {
-            onError("这一位伙伴的语音已关闭，字幕仍会显示")
-            setActive(false)
-            playNext()
-            return
-        }
+        // The in-game speaker toggle is an explicit opt-in, independent of
+        // per-character *chat automatic read*. A player can disable auto-read
+        // in private messages and still hear the teammate in a live game.
+        // Global TTS and actual device volume are checked above.
         setActive(true)
         val expectedAudioGeneration = audioGeneration
         engine.speak(
