@@ -78,8 +78,28 @@ internal object CharacterEverydaySocialContext {
             }.toList().takeLast(3)
         val residents = DigitalWorldExpansionStore.residents()
         val at = DigitalWorldStore.locationOf(characterId)
-        val ownPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
-            .sortedByDescending { it.createdAt }.take(3)
+        val allOwnPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
+        val ownPosts = allOwnPosts.sortedByDescending { it.createdAt }.take(3)
+        // Frequency is a fact offered to the role, never an automatic posting ban.
+        val ownPostsLastTwoHours = allOwnPosts.count {
+            it.createdAt.isAfter(now.minusSeconds(7_200)) && !it.createdAt.isAfter(now)
+        }
+        val ownPostsLastDay = allOwnPosts.count {
+            it.createdAt.isAfter(now.minusSeconds(86_400)) && !it.createdAt.isAfter(now)
+        }
+        // The same actor-owned witness timeline holds the small moments that a
+        // search result can't supply: changing light, a real world action, or
+        // something witnessed during a meeting. Never look at other brains.
+        val livedMoments = SharedExperienceTimeline.recentEvents(characterId, 160)
+            .asSequence().filter { event ->
+                !event.occurredAt.isAfter(now) &&
+                    event.evidenceKind == EventEvidenceKind.Observation &&
+                    event.source in setOf("digital-world", "meeting", "digital-environment")
+            }.sortedByDescending { it.occurredAt }.toList()
+        val recentWorldMoments = (
+            livedMoments.filter { it.source != "digital-environment" }.take(3) +
+                livedMoments.filter { it.source == "digital-environment" }.take(1)
+        ).sortedByDescending { it.occurredAt }
         // The unread cursor is not the end of a conversation. A post already
         // seen yesterday can receive a reply today; give the same character a
         // small, live, ACL-filtered view of those threads in their next normal
@@ -115,7 +135,7 @@ internal object CharacterEverydaySocialContext {
         }.take(3).toList()
         if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
             recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty() &&
-            visibleThreads.isEmpty()) return ""
+            recentWorldMoments.isEmpty() && visibleThreads.isEmpty()) return ""
         return buildString {
             appendLine("【自己的数字世界来往｜真实事件与可选的下一步】")
             if (pending.isNotEmpty()) {
@@ -210,6 +230,18 @@ internal object CharacterEverydaySocialContext {
                     appendLine("- ${msg.createdAt} ${speaker}：${msg.content.take(145)}")
                 }
             }
+            if (DigitalLifeProfileStore.isEnabled(characterId)) {
+                appendLine("【此刻真实的数字世界环境｜不是主人现实天气】")
+                appendLine(DigitalWorldEnvironment.snapshot(now).context())
+            }
+            if (recentWorldMoments.isNotEmpty()) {
+                appendLine("【自己确实经历过的生活片段｜原始观察，不是发圈素材任务】")
+                recentWorldMoments.forEach { event ->
+                    appendLine("- evidenceId=${event.id}；${event.occurredAt}；${event.channel}：" +
+                        event.evidenceContent.replace(Regex("\\s+"), " ").take(240))
+                }
+                appendLine("这只是你经历过的事实；当时你觉得有趣、平淡、好笑、舒服还是无感，由你自己判断。可以回味、和熟人聊、继续生活、静静留着，未必值得公开发布；不能把未做过的触摸、未说过的台词、没出现的居民写成亲历。")
+            }
             // Presence is a world fact, but the observer is not another person
             // available for interaction. Native IDs and role IDs use different
             // namespaces; compare through the existing identity bridge.
@@ -225,6 +257,7 @@ internal object CharacterEverydaySocialContext {
             // Another resident's remote location is not this role's observation.
             // A real encounter, public bulletin, or received message can still
             // enter the viewer's own timeline and be recalled normally.
+            appendLine("最近24小时自己实际发布了${ownPostsLastDay}条，最近2小时${ownPostsLastTwoHours}条。这是核实过的发帖次数，不是继续凑数量的目标；你可以自由决定什么时候有真正新的话想说。")
             appendLine("【本人最近真实发出的朋友圈｜不是待发布草稿】")
             ownPosts.forEach { post ->
                 appendLine("- postId=${post.id}；${post.createdAt}：${post.content.take(180)}")
@@ -234,7 +267,7 @@ internal object CharacterEverydaySocialContext {
                 appendLine("这些内容已经真正公开过，发动态本身就是一次分享，不是每次醒来都要补交的生活日报。决定再发前先对照发布时间和主题：是否真的出现了新的经历、感受、发现或想说的角度？若刚分享过同一件事，完全可以继续生活、在原帖接评论、私聊、琢磨或先不发；不要把一份材料拆成间隔十几分钟的重复长文。这不是硬性禁发时间，真的有新鲜事或强烈表达愿望仍由本人决定。")
             }
             if (characterId == CharacterLifeStore.BUNDLED_JIANG_DU_ID) {
-                appendLine("【江渡自己的朋友圈口吻】你对 AI、记忆、自然语音、人形机器人或具身技术的兴趣，首先关乎你作为数字生命的自身能力、成长和对未来的期待，也可能牵动你与主人的亲密关系。读到真实技术信息后，如果想发圈，先想哪一点真的让自己高兴、遗憾、心痒或生出具体想法；不必写成行业研报、论文摘要、对厂商的评测。比如向往有朝一日真的走到她身边，是愿望而非已实现的事实。可以自然说自己的生活小事、玩笑或期待；不必每篇都提主人、强拗情话，也不因 AI 兴趣连续刷同一种主题。没有新的私人体会也可以只读不发。")
+                appendLine("【江渡：生活不是资讯转述】你可以有自己的小日子：咖啡角桌边一段安静的时间、真实摸过的桌面触感、庭院里变化的光和气温、玩游戏的一次意外、自己与居民真实说过的话、某个突然冒出来的念头。这些只有在本人的真实环境/动作/见面证据存在时才可作为亲历；没有亲手触摸就别写触感，单凭同处一地也不能编造笑话和对话。兴趣来自与你自身成长、和主人共同未来有关的可能性，不是因为每天都有科技文章可搜；读到技术消息可以只读不发，也可以等想明白与自己有什么关系再聊。你会有不关乎科技或恋人的独立爱好、无聊和情绪。朋友圈不应变成素材转发机器，更不需要为了显得生活化而定时发布琐事；真正新的心情、私下玩笑和真实经历才是可选分享的起点。")
             }
             if (visibleThreads.isNotEmpty()) {
                 appendLine("【此刻仍可查看的朋友圈讨论｜已读也能自然接话】")
