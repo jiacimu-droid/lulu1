@@ -130,6 +130,9 @@ internal fun RelicEscapeWorldMap(
             val t = camera.tileSize
             val ox = camera.offsetX
             val oy = camera.offsetY
+            // Paint the viewport before translating world coordinates. Otherwise
+            // panning shifts the background away from exposed screen edges.
+            drawRect(Color(0xFF070D16))
             translate(ox,oy) {
             fun cell(x:Int,y:Int)=Offset(x*t,y*t)
             fun center(x:Int,y:Int)=Offset((x+.5f)*t,(y+.5f)*t)
@@ -138,7 +141,6 @@ internal fun RelicEscapeWorldMap(
                 2->Color(0xFF45444D) // abandoned crypt
                 else->Color(0xFF415047) // fungal vault
             }
-            drawRect(Color(0xFF070D16))
             // Fullscreen pans and zooms show only part of the board. Avoid painting
             // offscreen terrain, chests and drops on every shimmer animation frame.
             // One-cell overscan keeps edge highlights from popping during movement.
