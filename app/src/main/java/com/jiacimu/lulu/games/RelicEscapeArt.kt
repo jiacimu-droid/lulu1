@@ -144,10 +144,9 @@ internal fun RelicEscapeWorldMap(
             // Fullscreen pans and zooms show only part of the board. Avoid painting
             // offscreen terrain, chests and drops on every shimmer animation frame.
             // One-cell overscan keeps edge highlights from popping during movement.
-            val firstX = if(fullscreen && t > 0f) kotlin.math.floor((-ox / t).toDouble()).toInt().minus(1).coerceIn(0,run.w) else 0
-            val lastX = if(fullscreen && t > 0f) kotlin.math.ceil(((size.width-ox)/t).toDouble()).toInt().plus(1).coerceIn(0,run.w) else run.w
-            val firstY = if(fullscreen && t > 0f) kotlin.math.floor((-oy / t).toDouble()).toInt().minus(1).coerceIn(0,run.h) else 0
-            val lastY = if(fullscreen && t > 0f) kotlin.math.ceil(((size.height-oy)/t).toDouble()).toInt().plus(1).coerceIn(0,run.h) else run.h
+            val bounds = if (fullscreen) camera.visibleBounds(size.width, size.height, run.w, run.h)
+                else intArrayOf(0, run.w, 0, run.h)
+            val (firstX, lastX, firstY, lastY) = bounds.toList()
             for(y in firstY until lastY)for(x in firstX until lastX) {
                 val p=cell(x,y)
                 val c=center(x,y)
