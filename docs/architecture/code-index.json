@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:55:21.136024+00:00",
-  "commit": "314c1c0c3ca77d498659ecdacaa16c8a0c8870bc",
+  "generatedAt": "2026-11-16T03:55:48.520028+00:00",
+  "commit": "13d006d1f4eb0e975e5819e5893b4a9ff6535656",
   "branch": "main",
-  "sourceFingerprint": "721ab8493b78139c4eac760578cd0137fdd9ff9c8e9753ef589bbf5ea00d2bb8",
+  "sourceFingerprint": "03df7dd94b5b2df541a804d5aa84995cebeb8508be39e1010100adae9ba186ca",
   "summary": {
-    "files": 1347,
-    "lines": 287454,
-    "symbols": 4060
+    "files": 1348,
+    "lines": 287576,
+    "symbols": 4061
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18470,6 +18470,12 @@
         "line": 7
       }
     ],
+    "DigitalStreetJourneyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt",
+        "line": 5
+      }
+    ],
     "ElevenLabsAudioContractsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
@@ -24067,8 +24073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt",
-      "lines": 318,
-      "sha256": "a50c2418e600ee8cc2c0116f8e38daf14d4fd4e9239794f5f064322dce317fce",
+      "lines": 400,
+      "sha256": "94015cc7eec96b0eec1a05f4cd1110c88bd0dd49f013a0434818fe4e84a3137a",
       "symbols": []
     },
     {
@@ -41772,6 +41778,17 @@
         {
           "name": "DigitalResidentFurniturePoseTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt",
+      "lines": 40,
+      "sha256": "3cc82a6f2cafd957e13c6010a13a6065c05ecd8d95ca50c697211092e989c7e1",
+      "symbols": [
+        {
+          "name": "DigitalStreetJourneyTest",
+          "line": 5
         }
       ]
     },

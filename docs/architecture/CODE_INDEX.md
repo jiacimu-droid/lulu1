@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`314c1c0c3ca77d498659ecdacaa16c8a0c8870bc`
+- 基准提交：`13d006d1f4eb0e975e5819e5893b4a9ff6535656`
 - 分支：`main`
-- 已索引文件：1347
-- 已索引代码/文本行：287454
-- 已发现符号：4060
+- 已索引文件：1348
+- 已索引代码/文本行：287576
+- 已发现符号：4061
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -149,7 +149,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 318 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 400 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
@@ -894,6 +894,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopLauncherMoveTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
