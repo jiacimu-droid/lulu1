@@ -74,6 +74,36 @@ internal fun DigitalWorldWalkableStreet(
         ))
     }
     val latestPlayer by rememberUpdatedState(player)
+    // Share this single physical observation stream with the EXISTING meeting
+    // brain. This is local scene sensing, not an additional billable LLM loop.
+    var streetLiveToken by remember { mutableStateOf("") }
+    DisposableEffect(companions.map { it.characterId }) {
+        val token = if (companions.isNotEmpty())
+            com.jiacimu.lulu.data.DigitalWorldLiveScene.begin(
+                context, com.jiacimu.lulu.data.DigitalWorldStore.ARRIVAL, "云上小镇")
+        else ""
+        streetLiveToken = token
+        onDispose { com.jiacimu.lulu.data.DigitalWorldLiveScene.end(token) }
+    }
+    LaunchedEffect(streetLiveToken, companions.map { it.characterId }) {
+        if (streetLiveToken.isBlank()) return@LaunchedEffect
+        var previous = latestPlayer
+        while (isActive) {
+            val current = latestPlayer
+            val nearest = doors.minByOrNull { current.distanceTo(it.point) }
+            val nearName = nearest?.takeIf { current.distanceTo(it.point) < 235f }
+                ?.address?.label
+            val moving = current.distanceTo(previous) > 20f
+            com.jiacimu.lulu.data.DigitalWorldLiveScene.update(
+                streetLiveToken, current.x, current.y,
+                companions.map { it.characterId }.toSet(),
+                if (nearName != null) "在云上小镇的${nearName}附近，${if (moving) "正在散步" else "暂时停留"}"
+                else "在云上小镇街道上，${if (moving) "正在散步" else "暂时停留"}",
+            )
+            previous = current
+            kotlinx.coroutines.delay(1_600L)
+        }
+    }
     DisposableEffect(preferences) {
         onDispose {
             preferences.edit().putFloat("player_x", latestPlayer.x)
