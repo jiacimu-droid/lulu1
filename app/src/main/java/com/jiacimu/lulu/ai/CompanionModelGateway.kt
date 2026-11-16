@@ -1516,7 +1516,7 @@ class CompanionModelGateway(
             }
 
             if (content.isEmpty() && plainResponse.isNotBlank()) {
-                return@execute modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
+                return@executeCancellable modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
                     onStreamText?.invoke(reply.text)
                 }
             }
