@@ -244,6 +244,15 @@ internal fun captureReplySourceWatermark(
         } ?: return null
         sources[id] = message.content
     }
+    // A delayed tool reply must not acquire a FRESH watermark for an OLD
+    // perception snapshot after the owner has already sent a newer message.
+    // The live sender also checks this under the chat mutation lock; the
+    // initial capture must reject stale evidence before its first bubble.
+    val latestSentUserMessageId = messages.lastOrNull {
+        it.sender == LuluChatMessage.Sender.User &&
+            it.status == LuluChatMessage.Status.Sent
+    }?.id
+    if (latestSentUserMessageId !in userMessageIds) return null
     val evidenceIds = userMessageIds.associateWith { id ->
         if (group == null) id else "${id}:group:$characterId"
     }
@@ -258,10 +267,7 @@ internal fun captureReplySourceWatermark(
         revisions[id] = event.revision
     }
     return ReplySourceWatermark(conversationId, characterId, revisions, sources,
-        messages.lastOrNull {
-            it.sender == LuluChatMessage.Sender.User &&
-                it.status == LuluChatMessage.Status.Sent
-        }?.id,
+        latestSentUserMessageId,
         group?.replyScene(),
     )
 }
