@@ -42,6 +42,50 @@ class RelicActorPlayTest {
         assertEquals(1, escaped.secured.count { it.id == loot.id })
     }
 
+    @Test fun partnerCanChooseToRendezvousAndWaitAtTheRealWithdrawalBoundary() {
+        val base = run()
+        val loot = RelicLoot("alice:loot", "幽蓝宝石", RelicTier.RARE, 220)
+        val ally = base.allies.first().copy(x = 6, y = 2, bag = listOf(loot))
+        val board = base.copy(
+            hero = base.hero.copy(x = 2, y = 2), allies = listOf(ally),
+            exitX = 2, exitY = 2, phase = RelicPhase.EXTRACT, extraction = 2,
+        )
+        val choice = IslandActorChoice("plan_exit", "我先把这件带到门口")
+        val fog = board.copy(seen = setOf(board.index(2, 2), board.index(6, 2)))
+        val concealedExit = fog.copy(seen = setOf(board.index(6, 2)))
+        assertFalse(RelicActorPlay.options(fog, "alice").any { it.id == choice.actionId })
+        assertNull(RelicActorPlay.apply(fog, "alice", choice))
+        assertNull(RelicActorPlay.apply(concealedExit, "alice", choice))
+        assertFalse(RelicEscapeRules.allyReadyToExtract(board, ally.copy(x = 4, hp = 0)))
+        assertTrue(RelicActorPlay.options(board, "alice").any { it.id == choice.actionId })
+
+        val plan = RelicActorPlay.apply(board, "alice", choice)!!
+        assertEquals(board.allies, plan.allies)
+        assertEquals(board.turns, plan.turns)
+        val loaded = RelicRun.read(plan.json())!!
+        assertEquals("exit", loaded.coopPlans.getValue("alice").kind)
+        val one = RelicEscapeRules.act(loaded, "companion_tick", autonomousIds = setOf("alice"))
+        assertEquals(5, one.allies.single().x)
+        assertFalse(RelicEscapeRules.allyReadyToExtract(one, one.allies.single()))
+        assertTrue(GameCoopPacing.relicHasPlan(one))
+        val premature = RelicEscapeRules.act(board, "wait", autonomousIds = setOf("alice"))
+        assertEquals(listOf(loot), premature.lost)
+        assertTrue(premature.secured.isEmpty())
+
+        val ready = RelicEscapeRules.act(one, "companion_tick", autonomousIds = setOf("alice"))
+        assertEquals(4, ready.allies.single().x)
+        assertEquals(board.hero, ready.hero)
+        assertEquals(board.extraction, ready.extraction)
+        assertTrue(RelicEscapeRules.allyReadyToExtract(ready, ready.allies.single()))
+        assertFalse(GameCoopPacing.relicHasPlan(ready))
+        assertEquals(ready, RelicEscapeRules.act(ready, "companion_tick", autonomousIds = setOf("alice")))
+        assertTrue(RelicActorPlay.options(ready, "alice").any { it.id == "stop_travel" })
+        val escaped = RelicEscapeRules.act(ready, "wait", autonomousIds = setOf("alice"))
+        assertEquals(RelicPhase.SUCCESS, escaped.phase)
+        assertEquals(listOf(loot), escaped.secured)
+        assertTrue(escaped.lost.isEmpty())
+    }
+
     @Test fun ownMovementDoesNotMovePlayerOrAdvanceEnemyClock() {
         val s=run()
         val move=RelicActorPlay.options(s,"alice").first { it.kind=="move" }

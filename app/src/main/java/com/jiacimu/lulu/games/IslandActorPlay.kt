@@ -215,7 +215,7 @@ internal object IslandActorPlay {
             val part = IslandHouseProjects.nextPlayerPart(s)
                 ?.takeIf { it.first == w.index(a.x, a.y) && IslandHouseProjects.canPlacePart(s, it) }
                 ?: return null
-            val built = IslandHouseProjects.placePart(s, project, part)
+            val built = IslandHouseProjects.placePart(s, project, part, id)
             val completed = project.placed.size + 1
             val message = eventPrefix(id, turn) + "帮你安放了小屋的一块 · $completed/9" +
                 choice.speech.takeIf(String::isNotBlank)?.let { "；他说：「$it」" }.orEmpty()

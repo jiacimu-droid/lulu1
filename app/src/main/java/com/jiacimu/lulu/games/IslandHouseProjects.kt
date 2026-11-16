@@ -18,11 +18,17 @@ internal data class IslandHouseProject(
     val resumePhase: String = "building",
     /** Number of actually placed pieces when demolition was chosen. */
     val demolitionStartCount: Int = 9,
+    val builders: Map<Int, String> = emptyMap(),
 ) {
     fun json(): JSONObject = JSONObject().put("ownerId",ownerId).put("left",left)
         .put("top",top).put("phase",phase).put("placed",JSONArray(placed))
         .put("lastStepTurn",lastStepTurn).put("style",style)
         .put("resumePhase",resumePhase).put("demolitionStartCount",demolitionStartCount)
+        .put("builders", JSONObject().apply {
+            builders.forEach { (index, builder) -> put(index.toString(), builder) }
+        })
+
+    fun withoutPart(index: Int) = copy(placed = placed - index, builders = builders - index)
 
     companion object {
         fun read(raw: JSONObject?,world: ExpeditionState): IslandHouseProject? = runCatching {
@@ -30,11 +36,16 @@ internal data class IslandHouseProject(
             val positions=j.getJSONArray("placed").let { a ->
                 (0 until a.length()).map { a.getInt(it) }
             }
+            val builders = j.optJSONObject("builders")
             val p=IslandHouseProject(j.getString("ownerId"),j.getInt("left"),j.getInt("top"),
                 j.getString("phase"),positions,j.optInt("lastStepTurn",-1),
                 j.optString("style","warm").takeIf { it in IslandHouseProjects.styles } ?: "warm",
                 j.optString("resumePhase","building"),
-                j.optInt("demolitionStartCount",9))
+                j.optInt("demolitionStartCount",9),
+                positions.mapNotNull { index ->
+                    (builders?.opt(index.toString()) as? String)?.takeIf { it.isNotBlank() }
+                        ?.let { index to it }
+                }.toMap())
             val possible=IslandHouseProjects.parts(world,p.left,p.top).map { it.first }
             if(p.ownerId.isBlank() || p.left !in 1 until world.width-3 ||
                 p.top !in 1 until world.height-3 ||
@@ -97,7 +108,12 @@ internal object IslandHouseProjects {
     fun partCost(kind: String): Int = if (kind == "floor") 1 else 2
 
     /** Call only after checking the current project, the work spot and the builder. */
-    fun placePart(s: BlockIslandState, project: IslandHouseProject, part: Pair<Int, String>): BlockIslandState {
+    fun placePart(
+        s: BlockIslandState,
+        project: IslandHouseProject,
+        part: Pair<Int, String>,
+        builder: String,
+    ): BlockIslandState {
         val (index, kind) = part
         val w = s.world
         val tiles = w.tiles.toMutableList().also { it[index] = if (kind == "wall") 3 else 4 }
@@ -108,6 +124,7 @@ internal object IslandHouseProjects {
             houseProject = project.copy(
                 placed = placed, lastStepTurn = w.turns,
                 phase = if (placed.size == 9) "complete" else "building",
+                builders = project.builders + (index to builder),
             ),
         )
     }
@@ -266,7 +283,7 @@ internal object IslandHouseProjects {
             if(w.wood < partCost(kind))
                 return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                     id,"木材不足，已经停工；可先采集再决定续建")
-            val next = placePart(s, p, part)
+            val next = placePart(s, p, part, id)
             return log(next,id,"真实消耗木材，建造"+kind+" ("+(p.placed.size+1)+"/"+all.size+")")
         }
         // Never demolish player-made changes, even if they overlap a former plan.
@@ -282,10 +299,10 @@ internal object IslandHouseProjects {
             return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),id,
                 "待拆位置有人、动物或怪物，暂停拆除")
         val cells=w.tiles.toMutableList().also { it[index]=0 }
-        val remaining=p.placed-index
+        val remainder=pNext.withoutPart(index)
         val next=s.copy(world=w.copy(tiles=cells,wood=w.wood+1),
             structures=if(kind=="door")s.structures-index else s.structures,
-            houseProject=if(remaining.isEmpty())null else pNext.copy(placed=remaining))
-        return log(next,id,"拆除自己建的一格并回收1木；剩余"+remaining.size+"格")
+            houseProject=remainder.takeIf { it.placed.isNotEmpty() })
+        return log(next,id,"拆除自己建的一格并回收1木；剩余"+remainder.placed.size+"格")
     }
 }

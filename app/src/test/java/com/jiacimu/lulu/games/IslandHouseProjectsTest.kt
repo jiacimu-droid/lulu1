@@ -63,7 +63,19 @@ class IslandHouseProjectsTest {
         val saved = BlockIslandState.fromJson(afterPlayer.toJson())!!
         assertEquals("player", saved.houseProject!!.ownerId)
         assertEquals(listOf(floor.first, world.index(3, 3)), saved.houseProject!!.placed)
+        assertEquals(mapOf(floor.first to "alice", world.index(3,3) to "player"),
+            saved.houseProject!!.builders)
+        val legacy = IslandHouseProject.read(
+            saved.houseProject!!.json().apply { remove("builders") }, saved.world,
+        )!!
+        assertEquals(saved.houseProject!!.placed, legacy.placed)
+        assertTrue(legacy.builders.isEmpty())
         assertEquals(3, saved.world.cell(3, 3))
+        val moved = saved.copy(world = saved.world.copy(x = 4, y = 5))
+        val removed = BlockIslandRules.act(moved, "remove", floor.first % world.width,
+            floor.first / world.width, setOf("alice"))
+        assertFalse(floor.first in removed.houseProject!!.placed)
+        assertEquals(mapOf(world.index(3,3) to "player"), removed.houseProject!!.builders)
     }
 
     @Test fun hudAndProjectPanelProgressTrackActualDemolitionAcrossPauseAndReload() {

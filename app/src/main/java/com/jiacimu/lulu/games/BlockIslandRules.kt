@@ -456,7 +456,7 @@ internal object BlockIslandRules {
                 if(project==null || part.first!=index || !IslandHouseProjects.canPlayerBuildNext(s))
                     return reject("走近下一处施工位，备足1～2木材后再施工")
                 val (_, kind) = part
-                next = IslandHouseProjects.placePart(s, project, part)
+                next = IslandHouseProjects.placePart(s, project, part, "player")
                 val placedCount = project.placed.size + 1
                 message=if(placedCount==9)
                     "✦ ${IslandHouseProjects.styleName(project.style)}完工！真正的屋顶和外墙已经出现在地图上"
@@ -534,7 +534,7 @@ internal object BlockIslandRules {
                     gardens = s.gardens - index,
                     houseProject = s.houseProject?.let { project ->
                         if(project.ownerId=="player" && index in project.placed)
-                            project.copy(placed=project.placed-index,phase="building")
+                            project.withoutPart(index).copy(phase="building")
                         else project
                     },
                 )

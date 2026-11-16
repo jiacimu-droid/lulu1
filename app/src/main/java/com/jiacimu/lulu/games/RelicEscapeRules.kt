@@ -257,9 +257,12 @@ internal data class RelicRun(
 /** Pure state transitions; invalid actions do not pass time or yield rewards. */
 internal object RelicEscapeRules {
     const val CAPACITY=8
+    const val ALLY_EXIT_RADIUS = 2
     fun heroCapacity(s:RelicRun)=CAPACITY + 2*s.satchelLevel.coerceIn(0,2)
     fun distance(ax:Int,ay:Int,bx:Int,by:Int)=abs(ax-bx)+abs(ay-by)
     private fun near(a:RelicActor,x:Int,y:Int)=distance(a.x,a.y,x,y)<=1
+    fun allyReadyToExtract(s: RelicRun, ally: RelicActor): Boolean =
+        ally.hp > 0 && distance(ally.x, ally.y, s.exitX, s.exitY) <= ALLY_EXIT_RADIUS
     fun reveal(s:RelicRun):RelicRun {
         val seen=s.seen.toMutableSet()
         for(dy in -3..3)for(dx in -3..3)if(abs(dx)+abs(dy)<=3 && s.bounds(s.hero.x+dx,s.hero.y+dy))
@@ -667,8 +670,8 @@ internal object RelicEscapeRules {
                 noise=2
             }
             "companion_tick" -> {
-                if(s.coopPlans.keys.none { id -> id in autonomousIds &&
-                        s.allies.any { it.id == id && it.hp > 0 } }) return s
+                if(s.allies.none { it.id in autonomousIds &&
+                        RelicCoopTravel.hasPendingStep(s, it) }) return s
                 // Keep action ordering for a teammate already in motion, but a
                 // local teammate step is not the player's combat/wait turn.
                 val tick = s.copy(turns = s.turns + 1)
@@ -834,7 +837,7 @@ internal object RelicEscapeRules {
         return current%s.w to current/s.w
     }
     private fun success(s:RelicRun):RelicRun {
-        val escaped=s.allies.filter{it.hp>0 && distance(it.x,it.y,s.exitX,s.exitY)<=2}
+        val escaped=s.allies.filter { allyReadyToExtract(s, it) }
         val abandoned=s.allies.filterNot{it in escaped}
         val saved=s.hero.bag+escaped.flatMap{it.bag}
         val lost=abandoned.flatMap{it.bag}+s.drops.map{it.loot}

@@ -53,7 +53,7 @@ internal object GameCoopPacing {
 
     fun relicHasPlan(s: RelicRun): Boolean =
         s.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED) &&
-            s.coopPlans.keys.any { id -> s.allies.any { it.id == id && it.hp > 0 } }
+            s.allies.any { RelicCoopTravel.hasPendingStep(s, it) }
 
     /** Idle camera time must never silently kill an AFK player. */
     fun islandThreat(s: BlockIslandState): Boolean =

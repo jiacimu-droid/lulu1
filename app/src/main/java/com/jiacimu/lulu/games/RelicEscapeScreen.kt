@@ -260,7 +260,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     GameSceneDeck(
         accent = relicGold,
         compactStatus = true,
-        compactSummary = if (run == null) "遗迹营地" else "❤ ${run.hero.hp}/10 · ◇${run.value}",
+        compactSummary = when {
+            run == null -> "遗迹营地"
+            run.phase == RelicPhase.EXTRACT -> "❤ ${run.hero.hp}/10 · 撤离 ${run.extraction}/3"
+            else -> "❤ ${run.hero.hp}/10 · ◇${run.value}"
+        },
         companionCenterBottom = true,
         toolsFromTop = true,
         healthFraction = run?.hero?.hp?.div(10f),
@@ -368,10 +372,24 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 val chestCarrier = chestLoot?.let { loot ->
                     run.allies.firstOrNull { ally -> ally.bag.any { it.id == loot.id } }
                 }
+                val atExit = RelicObjectiveGuide.visibleExit(run) != null &&
+                    RelicEscapeRules.distance(hero.x, hero.y, run.exitX, run.exitY) <= 1
+                val missing = if (atExit) run.allies.filterNot {
+                    RelicEscapeRules.allyReadyToExtract(run, it)
+                } else emptyList()
+                val missingLoot = missing.sumOf { it.bag.size }
                 val feedback = when {
                     urgent != null -> "${RelicArsenal.monsterName(urgent.kind)}蓄力 · 躲避或格挡"
                     combatPrompt.isNotBlank() -> combatPrompt
-                    run.phase == RelicPhase.EXTRACT -> "撤离还需 ${(3 - run.extraction).coerceAtLeast(0)} 回合"
+                    missing.isNotEmpty() -> {
+                        val absent = missing.singleOrNull()?.let {
+                            MigratedDomainStores.characters.get(it.id).displayName +
+                                if (it.hp <= 0) "倒地" else "还未到"
+                        } ?: "${missing.size} 人未就位"
+                        absent + if (missingLoot > 0) " · ${missingLoot} 件珍宝可能遗失" else ""
+                    }
+                    atExit && run.allies.isNotEmpty() -> "小队已就位 · 携带 ${run.carried.size} 件珍宝"
+                    run.phase == RelicPhase.EXTRACT -> "守住撤离门"
                     groundLoot != null && allyWithRoom != null &&
                         hero.load + groundLoot.loot.weight > RelicEscapeRules.heroCapacity(run) ->
                         "背包已满 · ${MigratedDomainStores.characters.get(allyWithRoom.id).displayName}可代捡"
@@ -670,7 +688,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     Text(when(run.phase){
                         RelicPhase.EXTRACT->"撤离倒数 "+(3-run.extraction).coerceAtLeast(0)+" 回合"
                         RelicPhase.DOWNED->"倒地，剩余救援机会 "+(4-run.downTurns).coerceAtLeast(0)
-                        else->"出口方向："+relicDirection(run.exitX-hero.x,run.exitY-hero.y)
+                        else->if(RelicObjectiveGuide.visibleExit(run)!=null)
+                            "出口方向："+relicDirection(run.exitX-hero.x,run.exitY-hero.y)
+                        else "尚未发现撤离门"
                     },color=if(run.phase==RelicPhase.EXTRACT)relicGold else relicGreen,
                         fontWeight=FontWeight.Bold,fontSize=13.sp,modifier=Modifier.weight(1f))
                     Text("层级 "+run.level,color=relicMuted,fontSize=12.sp)
@@ -795,6 +815,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                             "deliver" -> "送宝途中"
                             "rescue" -> "救援中"
                             "regroup" -> "前来集合"
+                            "exit" -> if (RelicEscapeRules.allyReadyToExtract(run, ally))
+                                "已到撤离门" else "前往撤离门"
                             else -> ""
                         }
                         TextButton(onClick = {

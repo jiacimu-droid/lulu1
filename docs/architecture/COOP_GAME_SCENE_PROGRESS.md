@@ -559,3 +559,9 @@
 
 - 正式 `RelicObjectiveGuide.nextVisible` 此前仍按直线距离挑最近已见宝箱，而 `visibleChest` 已按真实已探明安全路线排序；玩家在地图主目标提示与战术页会看到互相矛盾的箱子。生产 `30a437890e4868abad75981df800dd94266a6753`（blob `69058b8b036baa6b812514a9e46b85859fa51067`）改为复用 `visibleChest` 与 `visibleExit`，保留携带实物时优先撤离的既有规则，不揭雾、不自动移动、不生成奖励。
 - 复用原有守卫封路/远箱绕行夹具，回归 `5255bb2655bb97fd8e5badb838543a37938f140a`（`RelicObjectiveRouteTest.kt` blob `038ed3f8d7bdea45aa8a05754f09d5eb5e1f3eff`）增加主目标、战术目标与提示路线一致断言，避免复制另一套路由算法。该轮无本地 Gradle 执行证据；连接器的 commit workflow 查询只覆盖 PR，不能据此断言 main push JVM/APK/index 终态。下一入口 `RelicObjectiveRouteTest.tacticalHudSuggestsReachableChestBeforeCloserBlockedChest` 的 JVM 首错、`RelicEscapeScreen.kt` 主提示与战术目标实机切换；Redmi 360/412dp 横屏、帧率、美术、真实角色协作仍独立待验。
+
+## 2026-11-16 G-02.2 与 G-03.5 · 合建归属与撤离集合
+
+- 小岛的真实施工格保存施工人。蓝图用同伴衣服颜色标出其贡献，地图详情显示各人建了几块。玩家拆除共建构件时同步清除记录，旧存档保留原施工进度。
+- 摸金同伴可自主选定已发现且有已知路线的撤离门，逐格带宝物到集合范围后等待。集合状态与最终结算共用存活和距离判定。玩家开门和决定何时离开，闲时只推进同伴原先选定的路，撤离倒数照旧由玩家回合推进。出口在队伍未齐时亮琥珀色，场内提示未到/倒地和可能遗失的实物数。
+- 本地 Kotlin/JUnit 用离线服务夹具通过 100 条游戏规则测试，包括合建重载与拆除、旧存档、已知路线限制、集合边界、等待与实物带出。前一版 APK 运行 43870535746 失败于两条 QqReplySourceWatermarkTest，其后主分支运行 43872695198 已成功。本提交的完整 APK、Redmi 横屏和实际模型协作待验。下一入口 RelicEscapeScreen 局内撤离提示与 BlockIslandArt 共建标记。

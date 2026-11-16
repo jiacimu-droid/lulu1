@@ -121,6 +121,8 @@ internal object BlockIslandArt {
     private val companionOutfits = listOf(
         Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
     )
+    private fun companionLook(id: String): Int =
+        (id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
     // Reused geometry offsets; drawing the same island must not allocate per-frame coordinate lists.
     private val houseLightOffsets = floatArrayOf(.55f, 2.44f)
     private val houseWindowOffsets = floatArrayOf(.33f, 2.37f)
@@ -419,7 +421,7 @@ internal object BlockIslandArt {
         }
         w.friends.forEach { friend ->
                 if (friend.x !in left until left + cols || friend.y !in top until top + rows) return@forEach
-                val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
+                val look = companionLook(friend.id)
                 val visual = companionVisuals[friend.id]
                 val walking = visual != null &&
                     abs(visual.x-friend.x)+abs(visual.y-friend.y)>.025f
@@ -522,10 +524,17 @@ internal object BlockIslandArt {
                 val y=index/w.width
                 if(x !in left until left+cols || y !in top until top+rows)continue
                 val built=index in plan.placed
+                val cell = origin(x,y)
                 drawRoundRect(outline.copy(alpha=if(built).21f else .65f),
-                    origin(x,y)+Offset(tile*.10f,tile*.10f),
+                    cell+Offset(tile*.10f,tile*.10f),
                     Size(tile*.80f,tile*.80f),CornerRadius(tile*.11f),
                     style=Stroke((tile*.055f).coerceAtLeast(1.5f)))
+                val builder = plan.builders[index]
+                if (plan.phase != "complete" && builder != null && builder != plan.ownerId) {
+                    val peg = cell + Offset(tile*.18f,tile*.81f)
+                    drawCircle(Color(0xDD203C35),tile*.10f,peg)
+                    drawCircle(companionOutfits[companionLook(builder)],tile*.066f,peg)
+                }
             }
         }
         // A teammate's actual selected destination, distinct from the player's yellow selection.

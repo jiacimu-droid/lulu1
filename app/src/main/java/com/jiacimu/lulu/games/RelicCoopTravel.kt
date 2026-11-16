@@ -21,7 +21,7 @@ internal object RelicCoopTravel {
                 RelicCoopPlan(j.getString("kind"),j.optInt("targetId",-1),
                     j.optInt("lastStepTurn",-1),j.optString("itemId"))
             }.getOrNull() ?:return@mapNotNull null
-            if(plan.kind !in setOf("support","regroup","chest","rescue","deliver") ||
+            if(plan.kind !in setOf("support","regroup","chest","rescue","deliver","exit") ||
                 plan.lastStepTurn !in -1..s.turns ||
                 (plan.kind in setOf("support","chest") && plan.targetId<0) ||
                 (plan.kind=="deliver" &&
@@ -39,7 +39,21 @@ internal object RelicCoopTravel {
             s.allies.any { a -> a.hp>0 && a.bag.any { it.id==p.itemId } }
         }?.let { it.x to it.y }
         "rescue"->s.hero.takeIf { it.hp<=0 }?.let { it.x to it.y }
+        "exit"->RelicObjectiveGuide.visibleExit(s)?.let { it.x to it.y }
         else->null
+    }
+
+    fun canPlanExit(s: RelicRun, actor: RelicActor): Boolean {
+        val exit = RelicObjectiveGuide.visibleExit(s) ?: return false
+        return s.hero.hp > 0 && actor.hp > 0 &&
+            !RelicEscapeRules.allyReadyToExtract(s, actor) &&
+            routeStep(s, actor, exit.x to exit.y, RelicEscapeRules.ALLY_EXIT_RADIUS, knownOnly = true) != null
+    }
+
+    fun hasPendingStep(s: RelicRun, actor: RelicActor): Boolean {
+        val plan = s.coopPlans[actor.id] ?: return false
+        return actor.hp > 0 &&
+            (plan.kind != "exit" || s.hero.hp <= 0 || !RelicEscapeRules.allyReadyToExtract(s, actor))
     }
     fun afterChoice(before:RelicRun,after:RelicRun,id:String,option:IslandActorOption):RelicRun {
         val plan=when(option.kind) {
@@ -86,6 +100,10 @@ internal object RelicCoopTravel {
                     return null
                 RelicCoopPlan("rescue",lastStepTurn=s.turns)
             }
+            "plan_exit" -> {
+                if(parts.size!=1 || !canPlanExit(s,actor))return null
+                RelicCoopPlan("exit",lastStepTurn=s.turns)
+            }
             "plan_chest" -> {
                 if(parts.size!=2)return null
                 val chest=parts[1].toIntOrNull()?.let { key ->
@@ -109,7 +127,8 @@ internal object RelicCoopTravel {
             return null
         val label=when(plan.kind) {
             "support"->"支援战斗";"chest"->"探查宝箱"
-            "rescue"->"赶来救你";"deliver"->"把找到的宝物送给你";else->"与你集合"
+            "rescue"->"赶来救你";"deliver"->"把找到的宝物送给你"
+            "exit"->"前往撤离门集合";else->"与你集合"
         }
         return s.copy(coopPlans=s.coopPlans+(id to plan))
             .log(id,"travel","重新决定下一步目标："+label+
@@ -143,7 +162,13 @@ internal object RelicCoopTravel {
      * around other actors each turn. A terrain-only path can lead directly into
      * a stationary teammate and incorrectly cancel an otherwise valid delivery.
      */
-    private fun routeStep(s:RelicRun,a:RelicActor,goal:Pair<Int,Int>):Pair<Int,Int>? {
+    private fun routeStep(
+        s: RelicRun,
+        a: RelicActor,
+        goal: Pair<Int, Int>,
+        radius: Int,
+        knownOnly: Boolean,
+    ): Pair<Int,Int>? {
         if(!s.bounds(a.x,a.y) || !s.bounds(goal.first,goal.second))return null
         val start=s.index(a.x,a.y)
         val parent=IntArray(s.w*s.h){-1}
@@ -155,12 +180,12 @@ internal object RelicCoopTravel {
             val current=queue.removeFirst()
             val x=current%s.w
             val y=current/s.w
-            if(RelicEscapeRules.distance(x,y,goal.first,goal.second)<=1) {
+            if(RelicEscapeRules.distance(x,y,goal.first,goal.second)<=radius) {
                 arrival=current
                 break
             }
             for((nx,ny) in listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)) {
-                if(!s.bounds(nx,ny) || !s.walk(nx,ny) ||
+                if(!s.bounds(nx,ny) || !s.walk(nx,ny) || knownOnly && !s.visible(nx,ny) ||
                     s.hero.x==nx && s.hero.y==ny ||
                     s.allies.any { it.id!=a.id && it.hp>0 && it.x==nx && it.y==ny } ||
                     s.mobs.any { it.hp>0 && it.x==nx && it.y==ny })continue
@@ -198,7 +223,12 @@ internal object RelicCoopTravel {
                     .log(id,"travel","目标消失或已被打开，行程停止，下一轮由本人重新决定")
                 continue
             }
-            if(RelicEscapeRules.distance(a.x,a.y,goal.first,goal.second)<=1) {
+            val exitPlan = plan.kind == "exit"
+            val arrivalRadius = if (exitPlan) RelicEscapeRules.ALLY_EXIT_RADIUS else 1
+            if(RelicEscapeRules.distance(a.x,a.y,goal.first,goal.second)<=arrivalRadius) {
+                // Stay with this choice until the trip ends or the actor changes plans.
+                // Waiting in range is not a recurring movement or a new model turn.
+                if(exitPlan)continue
                 if(plan.kind=="rescue") {
                     s=RelicActorPlay.apply(s,id,IslandActorChoice("rescue",""))
                         ?: s.copy(coopPlans=s.coopPlans-id)
@@ -226,7 +256,7 @@ internal object RelicCoopTravel {
                 }
                 continue
             }
-            val step=routeStep(s,a,goal)
+            val step=routeStep(s,a,goal,arrivalRadius,knownOnly=exitPlan)
             if(step==null || !s.walk(step.first,step.second) ||
                 s.hero.x==step.first && s.hero.y==step.second ||
                 s.allies.any { it.id!=id && it.hp>0 &&
@@ -244,15 +274,18 @@ internal object RelicCoopTravel {
             }
             val actor=stepState.allies.first { it.id==id }
             val hurt=(a.hp-actor.hp).coerceAtLeast(0)
-            val remaining=actor.hp>0 && (plan.kind in setOf("deliver","rescue") ||
-                RelicEscapeRules.distance(actor.x,actor.y,goal.first,goal.second)>1)
+            val arrived = RelicEscapeRules.distance(actor.x,actor.y,goal.first,goal.second)<=arrivalRadius
+            val remaining=actor.hp>0 && (exitPlan || plan.kind in setOf("deliver","rescue") ||
+                !arrived)
             s=stepState.copy(coopPlans=if(remaining)stepState.coopPlans+
                 (id to plan.copy(lastStepTurn=stepState.turns))
                 else stepState.coopPlans-id)
                 .log(id,"decision","沿自己决定的"+when(plan.kind) {
                     "support"->"支援";"chest"->"找宝箱"
-                    "rescue"->"救援";"deliver"->"送宝物给玩家";else->"集合"
+                    "rescue"->"救援";"deliver"->"送宝物给玩家"
+                    "exit"->"撤离门集合";else->"集合"
                 }+"目标前进一步，到("+actor.x+","+actor.y+")"+
+                    (if(exitPlan && arrived && actor.hp>0)"；已抵达撤离范围" else "")+
                     if(hurt>0)"；碰到危险地形，受伤"+hurt else "")
         }
         return s

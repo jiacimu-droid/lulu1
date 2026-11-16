@@ -400,7 +400,9 @@ internal fun RelicEscapeWorldMap(
                 if(x==run.exitX && y==run.exitY) {
                     // An actual carved extraction gate, not a generic green
                     // debug circle. It occupies the same real saved exit cell.
-                    val jade=Color(0xFF83F2D3)
+                    val teamAtGate = run.allies.all { RelicEscapeRules.allyReadyToExtract(run, it) }
+                    val nearGate = RelicEscapeRules.distance(run.hero.x,run.hero.y,x,y) <= 1
+                    val jade = if (nearGate && !teamAtGate) Color(0xFFFFC681) else Color(0xFF83F2D3)
                     val stone=Color(0xFF829D98)
                     drawCircle(Brush.radialGradient(
                         listOf(jade.copy(alpha=.22f+shimmer*.25f),Color.Transparent),

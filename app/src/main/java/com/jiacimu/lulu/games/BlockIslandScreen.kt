@@ -711,6 +711,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         " · 位置("+
                         project.left+","+project.top+")",
                         color = Color(0xFFBEE8D2), fontSize = 11.sp)
+                    val crew = project.builders.values.groupingBy { it }.eachCount()
+                    if (crew.keys.any { it != project.ownerId }) {
+                        Text(crew.entries.joinToString(" · ") { (id, count) ->
+                            val builder = if (id == "player") "你"
+                                else MigratedDomainStores.characters.get(id).displayName
+                            builder + "建了" + count + "块"
+                        }, color = Color(0xFFF7E8B7), fontSize = 11.sp)
+                    }
                     if(project.phase=="building" ||
                         (project.phase=="paused" && project.resumePhase=="building")) {
                         val woodStillNeeded=IslandHouseProjects.parts(world,project.left,project.top)
