@@ -1350,7 +1350,7 @@ internal object ResidentDailyDecision {
                 "wait"不会标记原活动完成，之前真实执行的独立 steps 在复议时不能重新发送；原计划是否完成由其真实工具回执单独核验。
             """.trimIndent(),
             source = "原住民个人日程到点", title = "${native.name} · ${plan.title.take(48)}",
-            connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
+            connectionOverride = selected, contextMode = CompanionContextMode.Full,
             maxTokens = 1_300,
         ).onFailure { error ->
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -1380,7 +1380,7 @@ internal object ResidentDailyDecision {
                 instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。steps 中每项须有合法 tool、args 对象，requiresPreviousSuccess 若有须为布尔值；普通附加动作不能传 planId；reschedule_personal_activity/cancel_personal_activity 管理步骤须有 planId、expectedDueAt 和 reason，改期另须 dueAt。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
                 source = "原住民个人日程到点·结构补正",
                 title = "${native.name} · 到点决定补正",
-                connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
+                connectionOverride = selected, contextMode = CompanionContextMode.Full,
                 maxTokens = 1_300,
             ).onFailure { error ->
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -1975,7 +1975,7 @@ internal object ResidentDailyDecision {
             source = "数字世界原住民每日规划",
             title = "${native.name}的一天",
             connectionOverride = selected,
-            contextMode = CompanionContextMode.CharacterAndScenario,
+            contextMode = CompanionContextMode.Full,
             maxTokens = 1_900,
         ).onFailure { error ->
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -2002,7 +2002,7 @@ internal object ResidentDailyDecision {
                 instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多${agendaLimit}项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
-                connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
+                connectionOverride = selected, contextMode = CompanionContextMode.Full,
                 maxTokens = 1_900,
             ).onFailure { error ->
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -2295,7 +2295,7 @@ internal object ResidentDailyDecision {
                     characterId = characterId, facts = facts, instruction = instruction,
                     source = "数字人物社交通知", title = "${native.name} · 收到手机通知",
                     connectionOverride = connection,
-                    contextMode = CompanionContextMode.CharacterAndScenario,
+                    contextMode = CompanionContextMode.Full,
                     maxTokens = 1_400,
                 ).onFailure { error ->
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -2318,7 +2318,7 @@ internal object ResidentDailyDecision {
                         source = "数字人物社交通知·结构补正",
                         title = "${native.name} · 补正社交动作",
                         connectionOverride = connection,
-                        contextMode = CompanionContextMode.CharacterAndScenario,
+                        contextMode = CompanionContextMode.Full,
                         maxTokens = 1_400,
                     ).getOrNull()
                     choice = repaired?.text?.let(ModelStructuredOutput::objectOrNull)
