@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:11:24.099897+00:00",
-  "commit": "17a428957a056bc31a0bb315467384278501efbc",
+  "generatedAt": "2026-11-16T17:13:07.392543+00:00",
+  "commit": "d95aee2952f2ac8a0067be2e70d842c57307964e",
   "branch": "main",
-  "sourceFingerprint": "98f20b7160b37703be74934c7fc7d8732a3b032ef408169e99f1c2878e4cc512",
+  "sourceFingerprint": "158292113ea394ee74c203f8da6035af2cda11ec7734eab4e6a8db7b768918f9",
   "summary": {
     "files": 1375,
-    "lines": 293520,
+    "lines": 293545,
     "symbols": 4136
   },
   "symbolIndex": {
@@ -33636,7 +33636,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
       "lines": 133,
-      "sha256": "1888b5fe55f2d05f5ed388cff976adad45132ba8a5080fee203ac6a1ba80cf0f",
+      "sha256": "385ec73bdd99720bc3c245e5fbc13ef80ae65914d72f57cac559d7ef80a2038f",
       "symbols": [
         {
           "name": "assemble",
@@ -34761,8 +34761,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 162,
-      "sha256": "5878da3bab5b4ba59661eb24b347c2c372e3c0a260011b4ba61f29bd23f6dfaa",
+      "lines": 187,
+      "sha256": "5293a206b8907acee9f58089bf48e76bbe956432937f1a9eed9abb5db3d0fef3",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -35573,7 +35573,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
       "lines": 380,
-      "sha256": "946d2decad63f07e5f12c735df63e9938d9422a34d9de520ca44af7665172cb6",
+      "sha256": "2de896170e92dcff36365afe66dc5b9a15b7c109ffe3bffec460226a35f78280",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
