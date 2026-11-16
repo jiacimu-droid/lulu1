@@ -1,3 +1,10 @@
+## 2026-11-16 · P-08b/P-03 全场景输入额度与感知节拍统一（源码、回归已提交；真机/真实模型待验）
+
+- **主人要求**：凡原世界人物本人决策（私聊、后台、电话、群聊、见面、游戏等）沿同一人格、原始时间线、心理、意愿和行动能力，输入工作集分项、召回名额与字符上限相同；场景只能添加权威现场、话语媒介和感知节拍。感知机会不等于强迫说话；普通任务目标约 5 万 token，但不为凑数重复输入。
+- **证实并修正的残余预算分叉**：`PromptContextPolicy.forRequest` 旧 `precise` 分支优先于 `fullCharacterDecision`，核查承诺会从 28k 改 31k 工作集及 5.5k 改 7k 原始证据。生产 `b62cb82` 将所有 Full 人物决策统一 28,000 字符、40 候选、记忆 10k/证据 5.5k/近期 5.9k/生活 3.3k；精确核验仅改变证据召回重点，权威证据不丢。回归 `3d17b7a` 验证同一内容在私聊、后台、电话、游戏及精确核验时总/分项上限完全一致。
+- **场景节拍，不另造人物中心**：`CharacterSceneCadence.kt` `8702860` 是纯调度常量，不持久化人物状态：私聊在线窗口 300s，普通电话沉默 2/5min 按现有安全门禁反思，游戏已选择计划每 6s 免费物理步进，前台见面初始 9s、静默机会从 84s 调为 60s。接线 `510470b`、`15443ae`、`84da1f4`、`e57adbb`，不新增模型每格请求，不把反思当作必须发言；回归 `cda8334` 检查电话忙碌不触发、游戏无计划不自动动、私聊窗口不同于高频场景。
+- **验收边界**：本批代码推送 main；最新 [索引 #43858576422](https://github.com/jiacimu-droid/lulu1/actions/runs/43858576422) success，[APK/JVM #43858576377](https://github.com/jiacimu-droid/lulu1/actions/runs/43858576377) 尚待完整结果。不能宣称主分支最新版 APK 编译成功、Redmi 见面节拍或实际 Gemini 输入收敛到约 5 万 token。下一步核同 SHA/有效后继 JVM/APK 的 `PromptContextPolicyTest` / `CharacterSceneCadenceTest` / `CallSilencePolicyTest` / `GameCoopPacingTest`；实际手机取同角色、近似现场的私聊/自主/电话/见面/游戏最终输入审计，并验证见面周期可沉默或行动、被用户输入打断。
+
 ## 2026-11-16 · 主人反馈：见面聊天追齐私聊（源码与回归已提交，CI/真机待验）
 
 - **源头缺口**：见面 `recordMeetingTimeline` 将所有非角色名的事件记作观察，主人的真实输入没有独立 `UserStatement`；生成场景里的用户行动/台词可能与原始输入混存；`commitMeetingDecision` 的 `meeting-turn:` / `meeting-living:` 伪来源未对应 `SharedExperienceTimeline` 的真实 ID，撤回后心声/人物决定可能留孤儿。
