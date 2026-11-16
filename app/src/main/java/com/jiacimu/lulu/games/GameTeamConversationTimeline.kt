@@ -13,7 +13,11 @@ import java.util.UUID
  * accepted role speech become facts; no parallel chat store or additional AI call.
  */
 internal object GameTeamConversationTimeline {
-    private val titles = mapOf("block_island" to "方块小岛", "relic_escape" to "迷雾摸金")
+    private val titles = mapOf(
+        "block_island" to "方块小岛",
+        "relic_escape" to "迷雾摸金",
+        "turtle_soup" to "海龟汤",
+    )
     private fun room(game: String, run: String) = "game-session-" + game + "-" + run
     private fun eventId(game: String, run: String, utterance: String, recipient: String) =
         "game-conversation-" + game + "-" + run + "-" + utterance + "-" + recipient
