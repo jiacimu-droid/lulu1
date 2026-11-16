@@ -21,8 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.activity.compose.BackHandler
 import com.jiacimu.lulu.data.MigratedDomainStores
 
 // Restrained gallery palette: warm ivory metal, cool slate and pale jade.
@@ -123,6 +122,9 @@ internal fun RelicEscapeLobby(
     // The title screen is a fixed game viewport. Long-form controls live in
     // separate sheets, never below the launch button on a scrolling homepage.
     var detailPage by rememberSaveable { mutableStateOf("") }
+    // A second Compose destination in the game viewport, never a Dialog window.
+    BackHandler(enabled=detailPage.isNotEmpty()) { detailPage="" }
+    if(detailPage.isEmpty()) {
     BoxWithConstraints(Modifier.fillMaxSize().background(campInk)) {
         val landscape = maxWidth > maxHeight
         GameLobbyBackdrop(island=false,modifier=Modifier.matchParentSize())
@@ -204,27 +206,26 @@ internal fun RelicEscapeLobby(
             }
         }
     }
+    }
     if(detailPage.isNotEmpty() && detailPage!="vault") {
-        // Real full-screen destination: Android Back and the visible return control
-        // both return to the same camp state instead of dismissing a bottom sheet.
-        Dialog(onDismissRequest={detailPage=""},
-            properties=DialogProperties(usePlatformDefaultWidth=false)) {
-            Surface(modifier=Modifier.fillMaxSize(),color=campInk) {
+        // Actual full-viewport page; leave room for the game-level 40dp corner controls.
+        Surface(modifier=Modifier.fillMaxSize(),color=campInk) {
             Column(Modifier.fillMaxSize()
+                .padding(top=42.dp)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal=16.dp,vertical=8.dp),
                 verticalArrangement=Arrangement.spacedBy(12.dp)) {
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                    TextButton(onClick={detailPage=""}) {
+                        Text("← 返回营地",color=campMint)
+                    }
                     Text(when(detailPage) {
                         "prep"->"出发整备"
                         "shop"->"营地商店"
                         "guide"->"遗迹入门指南"
                         else->"我的藏宝馆"
                     },color=campGold,fontSize=21.sp,fontWeight=FontWeight.Black,
-                        modifier=Modifier.weight(1f))
-                    TextButton(onClick={detailPage=""}) {
-                        Text("← 返回营地",color=campMint)
-                    }
+                        modifier=Modifier.weight(1f),maxLines=1)
                 }
                 when(detailPage) {
                     "guide" -> {
@@ -403,7 +404,6 @@ internal fun RelicEscapeLobby(
                     }
                 }
                 Spacer(Modifier.height(14.dp))
-            }
             }
         }
     }
