@@ -525,3 +525,10 @@
 
 - 根因：`RelicEscapeLedger.featureLoot` 原来只校验物品存在，未检查探险阶段；迟到的藏宝馆展台点击可以在 EXPLORE/EXTRACT/DOWNED 中改写永久展台选择。生产 `51d71eb8de7c90a134e8e460056c1c4f98d63143`，`RelicEscapeLedger.kt` blob `a656ea393cd9501663925ca37a2e141bd617533d`：局中拒绝旧展台选择，结算后仍可更换真实已拥有展品，不伪造馆藏或奖励。
 - 回归 `fffed30fd99126e66711edafc52b29b1a27bcb19`，`RelicMuseumSaleGuardTest.kt` blob `1495331144fcadbcbdd2d08325a5e7e8c5f7e275`：三个局中阶段保留原展品及重载一致，成功结算后更换展台并持久化。最终测试 SHA 查询 Actions main push runs=0，JVM/APK/index 未证成功，真机与帧率未验；下一文件 `RelicMuseumSaleGuardTest.kt` JVM 首错与 `RelicVaultPage.kt` 迟到点击真实 UI 路径，再推进实物拾取→撤离→藏宝馆→重进端到端。
+
+
+## 2026-11-16 G-03 · 迷雾营地二级页面改成真实全屏（JVM/APK/Redmi 待验）
+
+- 主人 Redmi 横屏截图见到「遗迹入门指南」左侧露出营地、右上返回控件被裁切。源码根因不是文字长度：`RelicEscapeLobby.kt` 的「指南/整备/商店」及 `RelicVaultPage.kt` 的藏宝馆仍创建 `Dialog(usePlatformDefaultWidth=false)`；`fillMaxSize()` 只填弹窗 window，不拥有实际游戏显示区。现在二级页直接作为同一个 `LuluGamesApp` Compose 游戏视口的完整页面渲染，营地内容仅在没有二级页时挂载，安卓 Back 和页内返回都回同一个营地状态；次级标题置于游戏全局 40dp 角落控件下方，返回按钮改到左侧并限制标题单行。生产 `5662a65`、`5563e33`。
+- `LuluGamesApp.kt` 原仅小岛隐藏系统导航条，摸金横屏未享有真正的全高；生产 `43b05b0`、`100611f` 将迷雾摸金与方块小岛共用纯函数 `worldGameOwnsSystemNavigation`，离开世界场景时恢复系统 UI；`GameOrientationPolicyTest.kt` 的 `4b74dbe` 增加导航边界回归。本批不修改账本、宝物生成、角色决策和地图规则。
+- 当前已确认五个生产/测试 GitHub main commit 写入，不等于现有安装 APK 已更新或画面实际验收。最后测试 SHA `4b74dbe` 的 Lulu APK run [#43856128051](https://github.com/jiacimu-droid/lulu1/actions/runs/43856128051) 查询时仍 pending；先核 `testPhoneUnitTest` / `assemblePhone` 的终态，不能把并行 push cancelled 当成功；Redmi 真机分别在窄横屏、竖屏、放大字体检查指南/整备/商店/藏宝馆全宽无露底、页内/实体 Back、头部角落工具条不遮返回、底部系统导航不占游戏高度，及回到大厅后导航恢复。
