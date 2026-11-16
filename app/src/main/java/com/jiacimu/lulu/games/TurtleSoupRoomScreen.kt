@@ -135,7 +135,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
 
     fun sendOwner() {
         val message = input.trim()
-        if (message.isEmpty() || busy || room.revealed) return
+        if (message.isEmpty() || busy || !room.started || room.revealed) return
         val kind = if (room.host != SoupHost.USER && composingQuestion) SoupKind.QUESTION else SoupKind.DISCUSSION
         val next = room.copy(lines = room.lines + SoupLine("你", kind, message))
         if (!commit(next)) return
@@ -157,7 +157,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     }
 
     fun companionStep() {
-        if (busy || room.revealed || room.pendingQuestion >= 0 || room.guessers.isEmpty()) return
+        if (busy || !room.started || room.revealed || room.pendingQuestion >= 0 || room.guessers.isEmpty()) return
         val snapshot = room
         val actor = snapshot.guessers[companionCursor % snapshot.guessers.size]
         companionCursor++
@@ -205,8 +205,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     }
 
     // Reactive to real room events, not a background perception polling clock.
-    LaunchedEffect(room.id, room.lines.size, busy, autoThink, remainingAutonomousSteps) {
-        if (busy || !autoThink || room.revealed || remainingAutonomousSteps <= 0 ||
+    LaunchedEffect(room.id, room.started, room.lines.size, busy, autoThink, remainingAutonomousSteps) {
+        if (busy || !room.started || !autoThink || room.revealed || remainingAutonomousSteps <= 0 ||
             room.guessers.isEmpty() || room.pendingQuestion >= 0) return@LaunchedEffect
         val last = room.lines.lastOrNull()
         val shouldRespond = last == null || last.kind == SoupKind.ANSWER ||
@@ -223,14 +223,14 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     }
 
     fun requestHint() {
-        if (busy || room.revealed) return
+        if (busy || !room.started || room.revealed) return
         val used = room.lines.count { it.speaker == "系统提示" }
         val nextHint = room.puzzle.hints.getOrNull(used) ?: return
         commit(room.copy(lines = room.lines + SoupLine("系统提示", SoupKind.DISCUSSION, nextHint)))
     }
 
     fun finish() {
-        if (room.revealed || busy) return
+        if (room.revealed || !room.started || busy) return
         val finished = room.copy(revealed = true)
         if (!commit(finished)) return
         val recordId = store.recordExternalGame(
@@ -301,7 +301,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     }
                 }
             }
-            if (room.lines.isEmpty()) {
+            if (!room.started) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text("开局身份（尚未开问，可以切换）", color = Color.White, fontWeight = FontWeight.SemiBold)
@@ -313,7 +313,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             ).forEach { (choice, label) ->
                                 FilterChip(selected = room.host == choice,
                                     onClick = {
-                                        if (!busy && room.lines.isEmpty() &&
+                                        if (!busy && !room.started &&
                                             (choice != SoupHost.CHARACTER || room.companions.isNotEmpty())) {
                                             commit(room.copy(host = choice))
                                         }
@@ -326,6 +326,33 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             Text("你已获得汤底查看权；同伴的提问由你按四种裁定回答。",
                                 color = gold, fontSize = 12.sp)
                         }
+                        Spacer(Modifier.height(9.dp))
+                        Text("开局前选一碗汤", color = Color.White,
+                            fontWeight = FontWeight.SemiBold)
+                        Text("按自己的喜好选题；开始前不会调用队友模型。",
+                            color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                        SoupLibrary.cases.chunked(2).forEach { pair ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                pair.forEach { candidate ->
+                                    FilterChip(
+                                        modifier = Modifier.weight(1f),
+                                        selected = room.caseId == candidate.id,
+                                        onClick = { if (!busy) commit(room.copy(caseId = candidate.id)) },
+                                        label = {
+                                            Text(candidate.title + " · " + candidate.difficulty,
+                                                maxLines = 1, fontSize = 11.sp)
+                                        },
+                                    )
+                                }
+                                if (pair.size == 1) Spacer(Modifier.weight(1f))
+                            }
+                        }
+                        Button(
+                            onClick = { commit(room.copy(started = true)) },
+                            enabled = !busy,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = gold, contentColor = background),
+                        ) { Text("开始推理") }
                     }
                 }
             }
@@ -382,7 +409,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             }
             item { Spacer(Modifier.height(8.dp)) }
         }
-        if (!room.revealed) {
+        if (room.started && !room.revealed) {
             Surface(color = Color(0xFF162438), shadowElevation = 8.dp) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(7.dp)) {
