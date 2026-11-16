@@ -933,7 +933,8 @@ class CompanionModelGateway(
             // scene, then optional real dialogue and the actual current turn.
             // No scene facts are duplicated in a privileged system section.
             val userPrompt = if (dialogueRequest) conversation.last().content
-            else if (fullContext) ActorSceneWirePolicy.autonomousTurn()
+            else if (fullContext && source == "后台主动感知") ActorSceneWirePolicy.autonomousTurn()
+            else if (fullContext) ActorSceneWirePolicy.interactiveTurn()
             else if (effectiveMode == CompanionContextMode.Isolated) {
                 "本次独立任务素材：\n${facts.trim()}"
             } else {
