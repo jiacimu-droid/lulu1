@@ -63,7 +63,7 @@ class SelfTodoRoleReadTest {
         assertEquals(1, todayView.getInt("overdueCount"))
         assertEquals(1, todayView.getInt("upcomingCount"))
         assertEquals(2, todayView.getInt("checkedTodayCount"))
-        assertEquals(3, todayView.getJSONArray("pending").length())
+        assertEquals(2, todayView.getJSONArray("pending").length())
         assertTrue(todayView.getString("summary").contains("学习时长"))
         assertFalse(todayView.getJSONArray("pending").toString().contains("future"))
         assertFalse(todayView.getJSONArray("pending").toString().contains("finished_old"))
@@ -82,11 +82,9 @@ class SelfTodoRoleReadTest {
         assertEquals("upcoming", allPending.getJSONObject(2).getString("state"))
         assertEquals("old", allPending.getJSONObject(3).getString("taskId"))
         assertEquals("overdue", allPending.getJSONObject(3).getString("state"))
-        // A today-only tool read must still include unfinished overdue tasks,
-        // even though the all-scope presentation gives future dates priority.
-        val todayPending = todayView.getJSONArray("pending")
-        assertEquals("old", todayPending.getJSONObject(2).getString("taskId"))
-        assertEquals("overdue", todayPending.getJSONObject(2).getString("state"))
+        // Today's explicit read must not grow with historical overdue tasks.
+        assertFalse(todayView.getJSONArray("pending").toString().contains("old"))
+        assertEquals(1, todayView.getInt("overdueCount"))
     }
 
     @Test fun readOnlyRoleSeesUnmigratedOldTodoButNeverOtherPrivateNotebookPages() {
@@ -190,7 +188,8 @@ class SelfTodoRoleReadTest {
         val tasks = (1..7).map { item(it, date) } +
             (8..10).map { item(it, date.minusDays(1)) } + item(11, date.plusDays(1))
         val brief = SelfTodoRoleRead.briefContext(tasks, now)
-        for (id in 1..11) assertTrue(brief, brief.contains("计划$id"))
+        for (id in 1..7) assertTrue(brief, brief.contains("计划$id"))
+        for (id in 8..11) assertFalse(brief, brief.contains("计划$id"))
         assertTrue(brief.contains("今天未完成7项"))
         assertTrue(brief.contains("逾期3项"))
         assertTrue(brief.contains("未来待办1项"))
@@ -206,7 +205,7 @@ class SelfTodoRoleReadTest {
         assertTrue(full.toString().contains("计划7"))
         assertTrue(full.toString().contains("备注7"))
     }
-    @Test fun allSmallOwnerListsAreReturnedWithoutPageOrReceiptTruncation() {
+    @Test fun todaysEntireOwnerListIsReturnedWithoutPageOrReceiptTruncation() {
         val day = LocalDate.of(2026, 11, 16)
         val now = day.atTime(21, 0).atZone(ZoneId.systemDefault()).toInstant()
         val checkedMillis = day.atTime(20, 0).atZone(ZoneId.systemDefault())
@@ -227,7 +226,7 @@ class SelfTodoRoleReadTest {
         assertEquals(42, output.getInt("pendingTotalInScope"))
         assertTrue(output.getString("summary").contains("待办42"))
         assertTrue(output.getString("summary").contains("完成77"))
-        assertEquals("完整私人备注42：" + "字".repeat(280),
+        assertEquals(("完整私人备注42：" + "字".repeat(280)).take(240),
             output.getJSONArray("pending").getJSONObject(41).getString("note"))
         val fromLaterOffset = SelfTodoRoleRead.snapshot(tasks, day, now,
             JSONObject().put("offset", 30))
@@ -244,6 +243,35 @@ class SelfTodoRoleReadTest {
         assertTrue(verified!!.details.contains("待办42"))
         assertTrue(verified.details.contains("完成77"))
         assertTrue(verified.details.contains("完整私人备注42"))
+    }
+
+    @Test fun accumulatedHistoricalAndFutureTasksArePagedButNeverPushedIntoTodaysContext() {
+        val day = LocalDate.of(2026, 11, 16)
+        val now = day.atTime(12, 0).atZone(ZoneId.systemDefault()).toInstant()
+        val tasks = listOf(TodoTask("today", "今日完整标题", "", day, null,
+            TodoRepeat.ONCE, 1L)) +
+            (1..80).map { n -> TodoTask("old-$n", "旧计划$n", "",
+                day.minusDays(n.toLong()), null, TodoRepeat.ONCE, n.toLong()) } +
+            (1..60).map { n -> TodoTask("future-$n", "未来计划$n", "",
+                day.plusDays(n.toLong()), null, TodoRepeat.ONCE, n.toLong()) }
+        val ambient = SelfTodoRoleRead.briefContext(tasks, now)
+        assertTrue(ambient.contains("今日完整标题"))
+        assertTrue(ambient.contains("逾期80项"))
+        assertTrue(ambient.contains("未来待办60项"))
+        assertFalse(ambient.contains("旧计划"))
+        assertFalse(ambient.contains("未来计划"))
+        val today = SelfTodoRoleRead.snapshot(tasks, day, now)
+        assertEquals(1, today.getJSONArray("pending").length())
+        assertTrue(today.isNull("nextOffset"))
+        val all = SelfTodoRoleRead.snapshot(tasks, day, now, JSONObject().put("scope", "all"))
+        assertEquals(30, all.getJSONArray("pending").length())
+        assertEquals(141, all.getInt("pendingTotalInScope"))
+        assertEquals(30, all.getInt("nextOffset"))
+        assertFalse(all.getString("summary").contains("旧计划"))
+        val second = SelfTodoRoleRead.snapshot(tasks, day, now,
+            JSONObject().put("scope", "all").put("offset", all.getInt("nextOffset")))
+        assertEquals(30, second.getJSONArray("pending").length())
+        assertEquals(60, second.getInt("nextOffset"))
     }
 
     @Test fun unreadableOwnerDataIsAnErrorNotAFalseEmptyPlan() {
