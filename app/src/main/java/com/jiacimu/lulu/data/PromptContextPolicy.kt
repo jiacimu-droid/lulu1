@@ -41,7 +41,20 @@ internal object PromptContextPolicy {
     /** Give the role more relevant source material; the transport independently handles
      * provider request-size pressure, without changing stored history or local memory.
      */
-    fun forRequest(source: String, request: UnifiedMemoryRequest): PromptContextBudget {
+    fun forRequest(
+        source: String,
+        request: UnifiedMemoryRequest,
+        hasLiveConversation: Boolean = false,
+    ): PromptContextBudget {
+        // A live DM, an independent life decision, and in-game choices belong
+        // to the SAME PERSON. They cannot silently select different memory and
+        // mental-life tiers merely because the owner just sent a message.
+        // Context scope varies with the actual evidence/tool need, not with
+        // the presence of a chat bubble. The DM gets slightly MORE recall room.
+        // Neither tier deletes stored memories or disables autonomous steps.
+        val sharedLifeTurn = source == "后台主动感知" ||
+            source == "私聊" || source.startsWith("游戏 ·")
+        val ownerConversation = hasLiveConversation || source == "私聊"
         // Current input is the main relevance signal. Old history cannot force heavyweight
         // evidence/world context into every later turn forever.
         val current = request.currentInput.takeLast(1_600)
@@ -61,7 +74,18 @@ internal object PromptContextPolicy {
         val rich = autonomous || world || immersive || precise || activeTool
         return when {
             precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
-            autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
+            sharedLifeTurn -> PromptContextBudget(
+                recallLimit = 40,
+                memoryCharacters = if (ownerConversation) 10_000 else 9_400,
+                evidenceCharacters = if (ownerConversation) 5_500 else 5_000,
+                recentCharacters = 5_900,
+                worldDetails = world,
+                richInnerLife = true,
+                lexiconCharacters = 3_300,
+                precise = false,
+                workingSetCharacters = if (ownerConversation) 28_000 else 27_000,
+            )
+            autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, world, true, 3_400, false)
             world || activeTool -> PromptContextBudget(34, 7_800, if (activeTool) 3_200 else 2_400,
                 4_800, world, rich, 2_700, false)
             else -> PromptContextBudget(26, 6_000, 2_000, 3_800, false, false, 2_200, false)
