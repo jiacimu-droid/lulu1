@@ -90,4 +90,19 @@ class RelicMapCameraTest {
     }
 
 
+    @Test fun visibleBoundsExcludeFarPannedWorldAndPreserveEdgeOverscan() {
+        val normal = RelicMapCamera(20f, -20f, -20f)
+        assertArrayEquals(intArrayOf(0, 7, 0, 6), normal.visibleBounds(100f, 80f, 18, 15))
+        // The old Float.toInt saturation could clamp a far-offscreen world to
+        // an edge strip, wasting per-frame drawing on a nonvisible board.
+        val farRight = RelicMapCamera(20f, -Float.MAX_VALUE, 0f)
+        assertArrayEquals(intArrayOf(18, 18, 0, 5), farRight.visibleBounds(100f, 80f, 18, 15))
+        val farLeft = RelicMapCamera(20f, Float.MAX_VALUE, 0f)
+        assertArrayEquals(intArrayOf(0, 0, 0, 5), farLeft.visibleBounds(100f, 80f, 18, 15))
+        assertArrayEquals(intArrayOf(0, 0, 0, 0),
+            RelicMapCamera(0f, 0f, 0f).visibleBounds(100f, 80f, 18, 15))
+        assertArrayEquals(intArrayOf(0, 0, 0, 0),
+            normal.visibleBounds(0f, 80f, 18, 15))
+    }
+
 }
