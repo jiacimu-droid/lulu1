@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9ded163e49b8c9d778ad97cb44585775aade726b`
+- 基准提交：`c83c5759d9a38c152505ce6703ee336b9f52372c`
 - 分支：`main`
 - 已索引文件：1355
-- 已索引代码/文本行：289047
+- 已索引代码/文本行：289073
 - 已发现符号：4084
 
 | 文件 | 行数 | 符号数 |
@@ -673,7 +673,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1334 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 596 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 279 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 305 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 978 | 4 |
