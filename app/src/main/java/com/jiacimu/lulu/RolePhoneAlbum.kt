@@ -219,7 +219,7 @@ private fun ScreenRecordViewer(
                         TextButton(onClick = onClose) { Text("‹ 返回", color = Color.White) }
                         Text("屏幕记录", fontWeight = FontWeight.SemiBold,
                             color = Color.White, fontSize = 15.sp)
-                        TextButton(onClick = resetZoom) { Text("复原", color = Color.White) }
+                        TextButton(onClick = { showControls = false }) { Text("全屏", color = Color.White) }
                     }
                 }
                 Surface(
@@ -236,7 +236,7 @@ private fun ScreenRecordViewer(
                             screenRecordLocalTime(photo.savedAt) + " · " + photo.caption,
                             maxLines = 2, fontSize = 11.sp, color = Color.White,
                         )
-                        Text("原始比例 · 双指缩放 · 轻点画面隐藏工具栏",
+                        Text("历史真实截屏（非实时） · 双指缩放 · 轻点隐藏工具栏",
                             fontSize = 11.sp, color = Color.White.copy(alpha = 0.70f))
                         Row(
                             Modifier.fillMaxWidth(),
@@ -248,9 +248,6 @@ private fun ScreenRecordViewer(
                             }
                             TextButton(onClick = resetZoom) {
                                 Text("复原大小", color = Color.White)
-                            }
-                            TextButton(onClick = onClose) {
-                                Text("返回", color = Color.White)
                             }
                         }
                     }
