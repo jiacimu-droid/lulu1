@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:14:54.331789+00:00",
-  "commit": "14aac6c53ac069e47889fe1e32e076b57fb710d9",
+  "generatedAt": "2026-11-16T02:16:01.368272+00:00",
+  "commit": "1fab2529d4111fdab623f23a10add817b779b611",
   "branch": "main",
-  "sourceFingerprint": "93824afcb815fd9fc441a433461c04e7ccbc9eb8d7b35f846c108bc9c89198c2",
+  "sourceFingerprint": "b30a3b146063aca9b81ee5dcbce81068f872a527b6ff5eb7f43ea7ba9855e060",
   "summary": {
     "files": 1341,
-    "lines": 286153,
+    "lines": 286146,
     "symbols": 4042
   },
   "symbolIndex": {
@@ -7181,7 +7181,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 164
+        "line": 157
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -7657,13 +7657,13 @@
     "latestVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 135
+        "line": 140
       }
     ],
     "latestReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 149
+        "line": 148
       }
     ],
     "canonicalInnerLife": [
@@ -29040,8 +29040,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 182,
-      "sha256": "c2489f58052cd7bda6b14cb4bf86b9d98e4bb3e59c50be2d9e3249f5d1bfc56c",
+      "lines": 175,
+      "sha256": "3167d9441d18dd4ecfe9e15ddef6df32bb502a78821e5b3fbdddc66caf8817f2",
       "symbols": [
         {
           "name": "reflection",
@@ -29053,15 +29053,15 @@
         },
         {
           "name": "latestVoice",
-          "line": 135
+          "line": 140
         },
         {
           "name": "latestReflection",
-          "line": 149
+          "line": 148
         },
         {
           "name": "entries",
-          "line": 164
+          "line": 157
         }
       ]
     },
