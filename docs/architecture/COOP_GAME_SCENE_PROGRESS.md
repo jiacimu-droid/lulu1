@@ -1,5 +1,13 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+### 2026-11-16 · G-03.5 · 旧地图/伙伴回调不能操作新一局（源码/回归已提交，CI/真机待验）
+
+- **根因**：正式 `RelicEscapeScreen` 的地图操作与 `companion_tick` 会在读到某局后异步触发；`RelicEscapeLedger.perform` 只读取当前 run，未验证调用者原本所属的 run ID。旧局延迟回调可能在新局执行 `abandon` 或推进真实回合。此前 `companion` 已有 run ID 守卫，但通用 perform 没有。
+- **生产**：`abd282153013fd0c3f7d19712e646fde117ccb8a` 在同一同步账本操作内增加可选 `expectedRunId` 校验，失配直接返回原快照；`5003cb51a79b293da936111660cb7d5ed03e8488` 将地图动作与伙伴本地节拍绑定当前可见局 ID。不改人物决策、战利品掉率、物理行动或存档格式；已有其他调用者仍兼容旧接口。
+- **根因回归**：`b1942dbadf082ec3e9e2f581cf6ce209d35aa3a8` 新增 `RelicStaleRunActionTest.kt`（blob `12a0017a72fc336dd90a365485b73182b63fad1f`），用两次真实 begin/abandon 验旧局 `abandon`/`wait`/`companion_tick` 不改变新局和重载存档，新局同 ID 的 abandon 仍合法。
+- **CI/下一入口**：测试提交的连接器 workflow 查询仅覆盖 PR，返回 0 条，不代表 main push JVM/APK/index 通过；需按最终 main push SHA 查 `testPhoneUnitTest`、`assemblePhone`、索引 terminal 结果。下一文件 `RelicStaleRunActionTest.kt` JVM 首错、`RelicEscapeScreen.kt` 的地图/伙伴异步闭环；Redmi 横屏、帧率、原创美术和真实模型另验。
+
+
 
 ### 2026-11-16 · G-02 · 角色独玩小岛长期存档无合法行动（源码/回归已提交；CI/真机待验）
 
