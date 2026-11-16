@@ -41,11 +41,15 @@ internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int
         else min(width / columns, height / rows)
     val safeZoom = if (zoom.isFinite()) zoom.coerceIn(.75f, 1.75f) else 1f
     val tile = baseTile * safeZoom
+    // A finite Android viewport/focus can still overflow during zoom and camera
+    // centering. Do not publish a drawable camera with infinite coordinates.
+    if (!tile.isFinite() || tile <= 0f) return RelicMapCamera(0f, 0f, 0f)
+    if (!fullscreen) return RelicMapCamera(tile, 0f, 0f)
+    val ox = width / 2f - (focusX + .5f) * tile + panX
+    val oy = height / 2f - (focusY + .5f) * tile + panY
+    if (!ox.isFinite() || !oy.isFinite()) return RelicMapCamera(0f, 0f, 0f)
     // Permit space beyond board edges: clamping put the spawn beneath the top-left HUD.
-    return if (fullscreen) RelicMapCamera(tile,
-        width / 2f - (focusX + .5f) * tile + panX,
-        height / 2f - (focusY + .5f) * tile + panY)
-    else RelicMapCamera(tile, 0f, 0f)
+    return RelicMapCamera(tile, ox, oy)
 }
 
 /** Exclusive board bounds visible on screen, with one tile of overscan.
