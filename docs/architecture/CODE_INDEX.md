@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e077ffbf196be25f2d93c1dd35eb1089bd0da787`
+- 基准提交：`37fa43f575d5958e1c1426de2ffdf9f4f5f9356a`
 - 分支：`main`
 - 已索引文件：1372
-- 已索引代码/文本行：293139
-- 已发现符号：4128
+- 已索引代码/文本行：293233
+- 已发现符号：4129
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -533,7 +533,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 235 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 115 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 133 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1392 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
@@ -592,7 +592,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 620 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 344 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 380 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
@@ -725,7 +725,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1042 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 927 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 361 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 366 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 320 | 4 |
@@ -1297,7 +1297,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 329 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 351 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicChestHudStateTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicChestSwipeGateTest.kt` | 17 | 1 |
@@ -1359,7 +1359,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 172 | 5 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 185 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcrTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt` | 46 | 1 |

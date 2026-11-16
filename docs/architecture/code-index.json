@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:03:39.667390+00:00",
-  "commit": "e077ffbf196be25f2d93c1dd35eb1089bd0da787",
+  "generatedAt": "2026-11-16T17:04:54.653549+00:00",
+  "commit": "37fa43f575d5958e1c1426de2ffdf9f4f5f9356a",
   "branch": "main",
-  "sourceFingerprint": "1bbc87fb27a6e6b64e1ed095dcc6ce86da67b360c8ea1d73a9c4dc60457c6640",
+  "sourceFingerprint": "8bfd1d12e4bb4f281990104fba693172e34527dc50cf5646a5d0c5df2c86f533",
   "summary": {
     "files": 1372,
-    "lines": 293139,
-    "symbols": 4128
+    "lines": 293233,
+    "symbols": 4129
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3603,7 +3603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 171
+        "line": 174
       }
     ],
     "reachedItem": [
@@ -5267,7 +5267,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 138
+        "line": 165
       }
     ],
     "restore": [
@@ -13479,13 +13479,13 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 117
+        "line": 144
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 136
+        "line": 163
       }
     ],
     "Attachment": [
@@ -14847,7 +14847,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 322
+        "line": 327
       }
     ],
     "cycle": [
@@ -22871,17 +22871,21 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 133
+        "line": 77
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 144
+        "line": 146
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
+        "line": 157
       }
     ],
     "c": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 66
+        "line": 79
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
@@ -33591,8 +33595,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 115,
-      "sha256": "e0dd41525d2fb6afdd98f390ee095411cd3839c1b86f7d390d899cca2111af53",
+      "lines": 133,
+      "sha256": "1888b5fe55f2d05f5ed388cff976adad45132ba8a5080fee203ac6a1ba80cf0f",
       "symbols": [
         {
           "name": "assemble",
@@ -35512,8 +35516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 344,
-      "sha256": "2867e26b575b047ccdbcafbe2b907de1193f8920f63b98e3a83a4a99096dae9a",
+      "lines": 380,
+      "sha256": "946d2decad63f07e5f12c735df63e9938d9422a34d9de520ca44af7665172cb6",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -35533,15 +35537,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 117
+          "line": 144
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 136
+          "line": 163
         },
         {
           "name": "empty",
-          "line": 138
+          "line": 165
         }
       ]
     },
@@ -38354,8 +38358,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 361,
-      "sha256": "8e5c49285377ecc17deacf204933943f50caee55d08e5ab20d3fc95c06f0ee27",
+      "lines": 366,
+      "sha256": "ed0e9b6d55538ea90dbb5ece64a6817c5b3b1b7afd70a72928d356a6fbfc6d48",
       "symbols": [
         {
           "name": "acted",
@@ -38367,11 +38371,11 @@
         },
         {
           "name": "apply",
-          "line": 171
+          "line": 174
         },
         {
           "name": "facts",
-          "line": 322
+          "line": 327
         }
       ]
     },
@@ -47915,8 +47919,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt",
-      "lines": 329,
-      "sha256": "4ad916eb1abb5f12518ff9540cb7f94d88c4538a60b9e1379f593bedafc8cdea",
+      "lines": 351,
+      "sha256": "881ed3a2f56ecf8eef39b54c17af146293d9070eac1f97bc81fb47a2494b82c0",
       "symbols": [
         {
           "name": "RelicActorPlayTest",
@@ -48617,8 +48621,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-      "lines": 172,
-      "sha256": "b9a903e17ac0120b86708d359ac9c58b64045134aa754e4d6b9f78e2bfc3a390",
+      "lines": 185,
+      "sha256": "b47457bc204acac0ae9eb46d1ef69e1cd6e7f1ff2c6b671a532cb1fc53f9f1c0",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
@@ -48629,16 +48633,20 @@
           "line": 64
         },
         {
+          "name": "b",
+          "line": 77
+        },
+        {
           "name": "c",
-          "line": 66
+          "line": 79
         },
         {
           "name": "b",
-          "line": 133
+          "line": 146
         },
         {
           "name": "b",
-          "line": 144
+          "line": 157
         }
       ]
     },
