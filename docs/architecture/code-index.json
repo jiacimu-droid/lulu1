@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T06:15:52.483579+00:00",
-  "commit": "ceba9f7f8037f05235cd9f99c0741580ff8dc315",
+  "generatedAt": "2026-11-16T06:16:52.407722+00:00",
+  "commit": "21574525772d21cbe6100c3cc4119889046fd1ad",
   "branch": "main",
-  "sourceFingerprint": "b16a9f1d24f44ec5884d8ca9bac18776fde890c18b07fef332f6eb7c88ed6f19",
+  "sourceFingerprint": "23b2f39bb8cf6f88e41ab702cbcaaadff9d88a0f94adb43c0dc90bbdf4f0eaf1",
   "summary": {
     "files": 1355,
-    "lines": 288761,
+    "lines": 288786,
     "symbols": 4082
   },
   "symbolIndex": {
@@ -1657,7 +1657,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 200
+        "line": 211
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
@@ -1999,7 +1999,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 137
+        "line": 144
       }
     ],
     "genuinelyConnected": [
@@ -2535,7 +2535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 198
+        "line": 209
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -10067,7 +10067,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 153
+        "line": 162
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -10093,7 +10093,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 172
+        "line": 182
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -38720,8 +38720,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-      "lines": 230,
-      "sha256": "4ba5fdb912014e74d83a4c9c063139b65b6dff4eaef71b3cbf999acc2f0cec9d",
+      "lines": 255,
+      "sha256": "e0e14889199aea3016dc05df38707e6a75e31d7d07bbca6013f77614708dfada",
       "symbols": [
         {
           "name": "find",
@@ -38729,23 +38729,23 @@
         },
         {
           "name": "publicContext",
-          "line": 137
+          "line": 144
         },
         {
           "name": "toJson",
-          "line": 153
+          "line": 162
         },
         {
           "name": "fromJson",
-          "line": 172
+          "line": 182
         },
         {
           "name": "read",
-          "line": 198
+          "line": 209
         },
         {
           "name": "save",
-          "line": 200
+          "line": 211
         }
       ]
     },
