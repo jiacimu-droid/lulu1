@@ -285,7 +285,12 @@ fun DigitalWorldMeetingApp(
         val living = pending.rawDraft.startsWith(MEETING_LIVING_MOMENT_PREFIX_V2)
         val rawDraft = pending.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)
         val livingPayload = pending.rawDraft.removePrefix(MEETING_LIVING_MOMENT_PREFIX_V2)
-        val record = MeetingExperienceStore.beginExchange(resumedSession, pending.rawDraft, pending.id)
+        // A RUNNING exchange was rewound with its original evidence tombstones.
+        // Resume it as a new exchange: reusing that evidence ID would silently
+        // discard the owner's input and leave the next inner voice ungrounded.
+        val resumedId = if (pending.status == MeetingExchangeStatus.RUNNING)
+            java.util.UUID.randomUUID().toString() else pending.id
+        val record = MeetingExperienceStore.beginExchange(resumedSession, pending.rawDraft, resumedId)
         val resumed = MeetingReplyTaskManager.launch(resumedSession.id, record.id) {
             when {
                 opening -> meetingRunInvitedOpeningV2(resumedSession.id, rawDraft, record.id)
