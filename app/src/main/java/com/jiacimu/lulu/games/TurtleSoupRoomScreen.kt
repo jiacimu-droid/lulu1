@@ -183,7 +183,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                 error = "裁判输出不合法，本次完整还原已保存，可以重新核验。"
             } else if (room.id == snapshot.id && room.pendingSolution == solutionIndex) {
                 val verdict = if (judgment.correct) "还原成功 · " + judgment.feedback
-                    else "还差一点 · " + judgment.feedback
+                    else "还差一点 · 核心原因或关键过程尚未说明完整，可以继续提问。"
                 if (commit(room.copy(lines = room.lines + SoupLine(
                         hostName(), SoupKind.SOLUTION_RESULT, verdict, solutionIndex,
                     ))) && judgment.correct) conclude(true)
