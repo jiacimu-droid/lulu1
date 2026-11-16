@@ -60,7 +60,7 @@ internal object AutonomousActionWireProtocol {
         "approach_user", "wait_at_entrance", "offer_hand", "offer_hug",
         "offer_follow", "go_home", "visit_cloud_meadow", "visit_public_place",
         "build_home_item", "move_home_item", "remove_home_item",
-        "use_home_item", "use_location", "handle_incident",
+        "use_home_item", "use_location", "handle_incident", "observe_scene",
         "visit_character_home", "visit_resident_home",
         "leave_resident_episode", "interact_resident",
     )
