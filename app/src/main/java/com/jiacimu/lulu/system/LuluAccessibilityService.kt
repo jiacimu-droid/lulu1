@@ -451,7 +451,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     !node.isEditable && r.width() > 0) {
                     listOf(node.text?.toString(), node.contentDescription?.toString())
                         .filterNotNull().map { it.trim() }
-                        .filter { it.length in 1..80 && !it.contains('\\n') }
+                        .filter { it.length in 1..80 && !it.contains('\n') }
                         .forEach { labels.add(it) }
                 }
             }
