@@ -112,7 +112,7 @@ data class UnifiedMemoryContext(
                 index < 18 -> 330
                 else -> 180
             })
-            val line = RecentSemanticTimeline.render(turn, room)
+            val line = RecentSemanticTimeline.render(turn, room, retrievalFocus)
             if (line.isBlank()) return@forEachIndexed
             remaining -= line.length + 1
             kept.add(line)
