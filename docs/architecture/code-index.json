@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:32:23.254698+00:00",
-  "commit": "c2c6503c027de773018cc8d7d474d9fe5eeafec0",
+  "generatedAt": "2026-11-16T07:32:43.910971+00:00",
+  "commit": "0278bdab3aebee09d5b812631c31660f7917038b",
   "branch": "main",
-  "sourceFingerprint": "ec2087e641c64d1affd5346c2bd89469b9ff5086b75da80e96d1ad6af4e9f4b0",
+  "sourceFingerprint": "355447da28bd014310a5267ce34f0a32da6d241d5dcda145dd5621231b5473cd",
   "summary": {
     "files": 1355,
-    "lines": 289355,
+    "lines": 289366,
     "symbols": 4084
   },
   "symbolIndex": {
@@ -45656,8 +45656,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 409,
-      "sha256": "7cdda3498470375b46190336c620efb1cc9f3405f4e49186043713a27de169ea",
+      "lines": 420,
+      "sha256": "c972e9097dc199cef703e9e014eb5cd17cb5093f2e5595f49e8a86874787e8c8",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
