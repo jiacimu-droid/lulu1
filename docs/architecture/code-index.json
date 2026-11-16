@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:16:54.042302+00:00",
-  "commit": "aeba586c18d694435074d7ae4674c4e76287eb9b",
+  "generatedAt": "2026-11-16T02:17:20.389317+00:00",
+  "commit": "a5c6d53f9aabc0e9d827592c5c3cdfbf9fded88d",
   "branch": "main",
-  "sourceFingerprint": "d78d7ccfbd90ca13edea5f8fcec216239b7700cb67a36378117bce7389f564a3",
+  "sourceFingerprint": "d78bb7f25c6aa3dca525ba0904857000992224185720743cf102c83641f32ed3",
   "summary": {
     "files": 1341,
     "lines": 286161,
@@ -30502,7 +30502,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 659,
-      "sha256": "b62f297015da636dc6d7f3b0c32692ec2a06003b35e03acd97edd166a2d00691",
+      "sha256": "e2e5b26d6bf9e4db6ad0a8cc9ce863c54628aa0ec0a99fdb2189139e6ebbe7c5",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
