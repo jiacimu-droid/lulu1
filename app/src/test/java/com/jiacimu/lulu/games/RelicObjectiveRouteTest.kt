@@ -204,4 +204,22 @@ class RelicObjectiveRouteTest {
         assertEquals(2 to 2,blocked.hero.x to blocked.hero.y)
     }
 
+    @Test fun routeIndexIgnoresSpentTrapsAndDeadMobsButBlocksLiveHazards() {
+        val base=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
+        val target=RelicObjectiveGuide.visibleChest(base)!!
+        val harmless=base.copy(
+            mobs=listOf(RelicMob(101,4,2,0,0),RelicMob(102,10,8,5,0)),
+            sites=listOf(RelicSite(201,4,2,"trap",spent=true),
+                RelicSite(202,10,8,"trap"))
+        )
+        assertEquals(listOf(2 to 2,3 to 2,4 to 2,5 to 2),
+            RelicObjectiveGuide.knownRouteTiles(harmless,target))
+        val dangerous=harmless.copy(mobs=harmless.mobs+
+            RelicMob(103,4,2,5,0))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(dangerous,target))
+        // Route projection must never mutate persistent world entities.
+        assertEquals(0,harmless.mobs.first().hp)
+        assertTrue(harmless.sites.first().spent)
+    }
+
 }
