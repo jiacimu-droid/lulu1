@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:56:36.072630+00:00",
-  "commit": "7fe61860e547e80b5bfe6db3f812e23be145822d",
+  "generatedAt": "2026-11-16T07:58:35.337546+00:00",
+  "commit": "aa70502d25aa63850c22ca95d96aa6628ce70526",
   "branch": "main",
-  "sourceFingerprint": "e0f65b2da738ad0ba8603e8826f1da36805acd9a4f8db8e146a4ab086bbba0ee",
+  "sourceFingerprint": "8afaac01712895790e3cb23de021fccb906dfebfdd4a2be68c982694b4a3b658",
   "summary": {
-    "files": 1356,
-    "lines": 289612,
-    "symbols": 4086
+    "files": 1357,
+    "lines": 289665,
+    "symbols": 4087
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15711,7 +15711,7 @@
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 185
+        "line": 189
       }
     ],
     "namesFor": [
@@ -22326,6 +22326,12 @@
         "line": 7
       }
     ],
+    "RelicMuseumSaleGuardTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMuseumSaleGuardTest.kt",
+        "line": 15
+      }
+    ],
     "RelicObjectiveRouteTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
@@ -25417,8 +25423,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2703,
-      "sha256": "761399948e2c6d4018e88d11c952f7cd8d1aa8d4e80fa559fd2b19052b772f54",
+      "lines": 2707,
+      "sha256": "64c55d1ab6904e7bed6dea0f14c3d134a435a2216d13cfb093d5279c8e93bb02",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -31497,8 +31503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 858,
-      "sha256": "c4196e6b6b52369883005bf2a4b9b678ee2c47032acff4fe56815de6439f6334",
+      "lines": 863,
+      "sha256": "7bf6ae25387b2aed386169ef11ec930f704f2d3f988e9b29a58b16a4af7c6b4b",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -38342,8 +38348,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 229,
-      "sha256": "470c1978d52ca6528174873d067d63c9926d9d84a3505dae304706e433795f05",
+      "lines": 233,
+      "sha256": "ba14baf682c29f8a296725def70bd880fedb49b491da6b687fb5f8a205bbac44",
       "symbols": [
         {
           "name": "json",
@@ -38359,7 +38365,7 @@
         },
         {
           "name": "syncExperiences",
-          "line": 185
+          "line": 189
         }
       ]
     },
@@ -47559,6 +47565,17 @@
         {
           "name": "RelicMenuSectionsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMuseumSaleGuardTest.kt",
+      "lines": 40,
+      "sha256": "902c0dd7ab8cd0e9fb93cea857ad0ba4b6516a53ba473cc3bba4f00332866632",
+      "symbols": [
+        {
+          "name": "RelicMuseumSaleGuardTest",
+          "line": 15
         }
       ]
     },
