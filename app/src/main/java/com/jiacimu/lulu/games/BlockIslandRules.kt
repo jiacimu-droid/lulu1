@@ -455,19 +455,12 @@ internal object BlockIslandRules {
                     ?: return reject("还没有正在施工的个人小屋")
                 if(project==null || part.first!=index || !IslandHouseProjects.canPlayerBuildNext(s))
                     return reject("走近下一处施工位，备足1～2木材后再施工")
-                val (cellIndex,kind)=part
-                val cost=if(kind=="floor")1 else 2
-                val newTiles=w.tiles.toMutableList().also { it[cellIndex]=if(kind=="wall")3 else 4 }
-                val placed=project.placed+cellIndex
-                next=s.copy(
-                    world=w.copy(tiles=newTiles,wood=w.wood-cost),
-                    structures=if(kind=="door")s.structures+(cellIndex to "door")else s.structures,
-                    houseProject=project.copy(placed=placed,
-                        phase=if(placed.size==9)"complete" else "building"),
-                )
-                message=if(placed.size==9)
+                val (_, kind) = part
+                next = IslandHouseProjects.placePart(s, project, part)
+                val placedCount = project.placed.size + 1
+                message=if(placedCount==9)
                     "✦ ${IslandHouseProjects.styleName(project.style)}完工！真正的屋顶和外墙已经出现在地图上"
-                else "亲手安放${if(kind=="floor")"地板" else if(kind=="door")"木门" else "墙体"} · 小屋${placed.size}/9"
+                else "亲手安放${if(kind=="floor")"地板" else if(kind=="door")"木门" else "墙体"} · 小屋$placedCount/9"
             }
             "wall", "floor", "door", "workbench", "campfire", "bed", "bridge", "lantern", "crystal_lantern", "pet_house", "garden" -> {
                 if (!canPlaceBuilding(s, action, tx, ty))

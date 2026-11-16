@@ -101,9 +101,10 @@ internal fun GameSceneDeck(
         }
         scene()
         // Passive shading must not intercept map gestures.
-        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(
-            Color(0x7909151D), Color.Transparent, Color.Transparent, Color(0x7909151D),
-        ))))
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(
+            0f to Color(0x5909151D), .20f to Color.Transparent,
+            .74f to Color.Transparent, 1f to Color(0x6209151D),
+        )))
         // Capture BoxWithConstraints dimensions before entering ColumnScope:
         // nested layout scopes cannot resolve BoxWithConstraints.maxWidth directly.
         val hudStatusWidth = if (wide) maxWidth * .48f else maxWidth * .59f

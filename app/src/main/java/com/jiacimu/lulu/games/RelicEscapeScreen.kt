@@ -96,7 +96,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             firstPlayGuidePrefs.edit().putBoolean("shown_v1",true).apply()
         }
     }
-    var showTactics by remember(run?.id){mutableStateOf(false)}
+    var tacticsOpenRequest by remember(run?.id) { mutableStateOf<Int?>(null) }
+    var tacticsCloseRequest by remember(run?.id) { mutableIntStateOf(0) }
     var combatPrompt by remember(run?.id){mutableStateOf("")}
     var showGuide by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(true)}
@@ -247,6 +248,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
     }
 
     // The risk display reads the authoritative turn state. No fake realtime clock.
+    fun interact(target: RelicQuickAction) {
+        if (target.action == "open") {
+            inspectingChestId = run?.chests?.firstOrNull { chest ->
+                !chest.opened && chest.x == target.x && chest.y == target.y
+            }?.id ?: -1
+        } else action(target.action, target.x, target.y, target.id)
+    }
     val tension = run?.let(::relicTension)
     Box(Modifier.fillMaxSize()) {
     GameSceneDeck(
@@ -261,7 +269,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 state.chests.size.coerceAtLeast(1)
         },
         secondaryLabel = "开箱",
-        toolsLabel = "☰ 游戏菜单",
+        toolsLabel = "地图与行囊",
+        openToolsSignal = tacticsOpenRequest,
+        closeToolsSignal = tacticsCloseRequest,
         helpAction = { rulesTab = "入门"; showRulesDialog = true },
         notice = error,
         status = if (run == null) "遗迹营地" else
@@ -326,13 +336,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
                 onHoldChange = { joystickHeld = RelicCombatSkills.isContinuousTravelGesture(it,aimOnly) },
-                onInteract = { adjacentAction?.let {
-                    if (it.action == "open") {
-                        inspectingChestId = run?.chests?.firstOrNull { chest ->
-                            chest.x == it.x && chest.y == it.y && !chest.opened
-                        }?.id ?: -1
-                    } else action(it.action, it.x, it.y, it.id)
-                } }) { dx, dy ->
+                onInteract = { adjacentAction?.let(::interact) }) { dx, dy ->
                 facing = dx to dy
                 // When aim mode is on, the D-pad rotates without spending a move.
                 if(!aimOnly) {
@@ -348,238 +352,72 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             }
         },
         quickActions = {
-            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
-                val hero=run.hero
-                val urgent=run.mobs.firstOrNull { it.hp>0 && it.windup &&
-                    run.visible(it.x,it.y) &&
-                    RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=3 }
-                val alarmActive=run.sites.any { it.kind=="alarm" && !it.spent }
-                val summary=when(run.phase) {
-                    RelicPhase.DOWNED -> "等待同伴救援"
-                    RelicPhase.EXTRACT -> "撤离还需 ${(3-run.extraction).coerceAtLeast(0)} 回合"
-                    else -> if(run.carried.isEmpty()) "探索遗迹 · 寻找珍宝"
-                        else "背包 ${run.carried.size} 件 · 价值 ◇${run.value}"
-                }
-                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                    Text(summary,color=relicGold,fontSize=11.sp,maxLines=1,
-                        modifier=Modifier.weight(1f))
-                    if (viewPan != Offset.Zero || viewZoom != 1f) {
-                        TextButton(onClick = {
-                            viewPan = Offset.Zero; viewZoom = 1f; cameraFocus = null
-                        }, modifier = Modifier.height(36.dp),
-                            contentPadding = PaddingValues(horizontal = 5.dp)) {
-                            Text("视角复位", color = relicGreen, fontSize = 10.sp)
-                        }
-                    }
-                    TextButton(onClick={showTactics=!showTactics},
-                        modifier=Modifier.height(36.dp),
-                        contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
-                        Text(if(showTactics)"收起详情" else "目标 / 更多",
-                            color=relicGreen,fontSize=10.sp,maxLines=1)
-                    }
-                }
-                if(combatPrompt.isNotBlank()) Text("⚔ "+combatPrompt,
-                    color=relicGold,fontSize=11.sp,maxLines=2)
-                if(alarmActive && showTactics)
-                    Text("警戒钟楼仍在运作 · 找到后可花1工具拆除，否则搜刮高品级宝箱会招来追兵",
-                        color=relicRed,fontSize=10.sp,maxLines=2)
-                if(urgent!=null)
-                    Text("⚠ ${RelicArsenal.monsterName(urgent.kind)} 正在蓄力 · 注意格挡",
-                        color=relicRed,fontSize=11.sp,maxLines=1,
-                        fontWeight=FontWeight.Bold)
-                if(!showTactics) {
-                    val openingChest=run.chests.firstOrNull { !it.opened &&
-                        (run.chestProgress[it.id] ?: 0)>0 &&
-                        RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)<=1 }
-                    openingChest?.let { chest ->
-                        val progress=run.chestProgress[chest.id] ?: 0
-                        val result=RelicEscapeRules.treasure(run,chest)
-                        val glowGrade=RelicEscapeRules.openingGlowGrade(run,chest)
-                        val upgraded=glowGrade>chest.visibleGrade
-                        Text(
-                            if(upgraded) "✦ 宝箱光芒转为"+RelicQuality.at(glowGrade).label+
-                                "！继续撬锁，还有惊喜与危险"
-                            else "撬锁 "+progress+"/"+RelicEscapeRules.openSteps(chest)+
-                                " · 每次操作敌人都会行动",
-                            color=if(upgraded)relicGradeColor(glowGrade) else relicGold,
-                            fontSize=11.sp,fontWeight=FontWeight.Bold,maxLines=2)
-                    }
-                    lastChestReceipt?.let { receipt ->
-                        Text("✦ ${RelicCollectibles.displayRank(receipt.loot)} · ${receipt.loot.name} ◇${receipt.loot.value}" +
-                            if(receipt.inBag)" 已入包" else " 落地待拾",
-                            color=if(RelicCollectibles.isCrownJewel(receipt.loot.name))relicGold else relicMuted,
-                            fontSize=10.sp,maxLines=1)
-                    }
-                    run.coopPlans.entries.firstOrNull()?.let { (id,plan) ->
-                        val name=MigratedDomainStores.characters.get(id).displayName
-                        val work=when(plan.kind) {
-                            "support"->"赶去支援"
-                            "chest"->"搜寻宝箱"
-                            "deliver"->"带宝物来找你"
-                            "rescue"->"赶来救援"
-                            else->"正在集合"
-                        }
-                        Text("${name} · ${work}",color=relicGreen,fontSize=10.sp,maxLines=1)
-                    }
-                }
-                if(showTactics) {
+            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) {
                 val hero = run.hero
-                lastChestReceipt?.let { receipt ->
-                    val loot = receipt.loot
-                    Surface(color=if(RelicCollectibles.isCrownJewel(loot.name))
-                        Color(0xFF60441F) else Color(0xFF24374B),
-                        shape=RoundedCornerShape(14.dp),
-                        border=BorderStroke(1.dp,if(RelicCollectibles.isCrownJewel(loot.name))
-                            Color(0xFFFFE3A0) else relicGold.copy(alpha=.45f))) {
-                        Text((if(RelicCollectibles.isCrownJewel(loot.name)) "✦ 隐世奇珍！ " else "✧ 宝箱出货 · ")+
-                            RelicCollectibles.displayRank(loot)+"「"+loot.name+"」 · 估值"+loot.value+
-                            (if(receipt.inBag) " · 已入包，撤离后收录"
-                            else " · 背包已满，拾起并撤离后收录"),
-                            modifier=Modifier.fillMaxWidth().padding(10.dp),
-                            color=Color.White,fontSize=12.sp,fontWeight=FontWeight.Bold)
-                    }
+                val urgent = run.mobs.firstOrNull { mob ->
+                    mob.hp > 0 && mob.windup && run.visible(mob.x, mob.y) &&
+                        RelicEscapeRules.distance(hero.x, hero.y, mob.x, mob.y) <= 3
                 }
-                Text("已探明 ${run.seen.size * 100 / (run.w * run.h)}% · 宝箱 ${run.chests.count{it.opened}}/${run.chests.size} · 动作会推进回合",
-                    color = Color.White, fontSize = 10.sp, maxLines = 1)
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = { cameraFocus = null; selected = hero.x to hero.y }) {
-                        Text("定位你", color = relicGold, fontSize = 11.sp)
-                    }
-                    TextButton(onClick = { rulesTab = "入门"; showRulesDialog = true }) {
-                        Text("教程", color = relicGreen, fontSize = 11.sp)
-                    }
-                    TextButton(onClick = { lobbyOpen = true }) {
-                        Text("回营地", color = relicGold, fontSize = 11.sp)
-                    }
-                    TextButton(onClick = { action("survey") },
-                        enabled = RelicEscapeRules.canSurvey(run)) {
-                        Text("侦察", color = relicGreen, fontSize = 11.sp)
-                    }
-                    run.allies.forEach { ally ->
-                        val name = MigratedDomainStores.characters.get(ally.id).displayName
-                        TextButton(onClick = {
-                            cameraFocus = ally.x to ally.y
-                            selected = ally.x to ally.y
-                        }) { Text("找$name", color = relicGreen, fontSize = 11.sp) }
-                    }
-                }
-                run.coopPlans.forEach { (id,plan) ->
-                    val name=MigratedDomainStores.characters.get(id).displayName
-                    val work=when(plan.kind) {
-                        "support" -> "正在赶去支援"
-                        "chest" -> "正在寻找宝箱"
-                        "deliver" -> {
-                            val item=run.allies.firstOrNull { it.id==id }?.bag
-                                ?.firstOrNull { it.id==plan.itemId }
-                            if(item==null)"正在核对送达物品"
-                            else "正带着「"+item.name+"」来送给你"
-                        }
-                        else -> "正在与你集合"
-                    }
-                    Text(name+" · "+work,color=relicGreen,fontSize=11.sp,maxLines=1)
-                }
-                if(run.guardedBy.isNotBlank()) {
-                    run.allies.firstOrNull { it.id==run.guardedBy && it.hp>0 }?.let { teammate ->
-                        Text("♡ "+MigratedDomainStores.characters.get(teammate.id).displayName+
-                            " 正在保护你",color=relicGreen,fontSize=11.sp,maxLines=1)
-                    }
-                }
-                val quickHint = relicQuickAction(run, selected)?.hint
-                val nearbyLoot = run.chests.firstOrNull { !it.opened &&
-                    RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 &&
+                val groundLoot = run.drops.firstOrNull { it.x == selected.first && it.y == selected.second &&
                     run.visible(it.x, it.y) }
-                val objective = when (run.phase) {
-                    RelicPhase.EXTRACT -> "撤离 · 守住 ${(3-run.extraction).coerceAtLeast(0)} 回合"
-                    RelicPhase.DOWNED -> "倒地 · 等待同伴救援"
-                    else -> if (run.carried.isEmpty()) "找漂亮珍宝 · 自己决定何时撤离"
-                        else "已携带 ${run.carried.size} 件宝物 · 估值 ${run.value}"
+                val allyWithRoom = groundLoot?.let { drop ->
+                    run.allies.firstOrNull { it.hp > 0 && it.load + drop.loot.weight <= RelicEscapeRules.CAPACITY &&
+                        RelicEscapeRules.distance(it.x, it.y, drop.x, drop.y) <= 1 }
                 }
-                val chestTarget=RelicObjectiveGuide.visibleChest(run)
-                val exitTarget=RelicObjectiveGuide.visibleExit(run)
-                Surface(
-                    color=Color(0xE31B3340),shape=RoundedCornerShape(12.dp),
-                    border=BorderStroke(1.dp,relicGold.copy(alpha=.48f)),
-                ) {
-                    Column(Modifier.fillMaxWidth().padding(horizontal=10.dp,vertical=8.dp),
-                        verticalArrangement=Arrangement.spacedBy(5.dp)) {
-                        Text(objective,color=relicGold,fontWeight=FontWeight.Bold,
-                            fontSize=11.sp,maxLines=2)
-                        if(run.contract!=RelicContract.NONE) {
-                            val progress=RelicContractBoard.bagProgress(run)
-                            Text("✦ "+run.contract.label+" · "+
-                                RelicContractBoard.status(run)+
-                                " · 成功撤离额外 ◇"+run.contract.bonus,
-                                color=relicGreen,fontSize=10.sp,
-                                fontWeight=FontWeight.Bold,maxLines=2)
-                        }
-                        // Present both real options simultaneously. A player with
-                        // loot may keep searching; the system must not force
-                        // extraction just because the bag has one item.
-                        Row(Modifier.fillMaxWidth(),
-                            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-                            OutlinedButton(
-                                onClick={
-                                    chestTarget?.let {
-                                        cameraFocus=it.x to it.y
-                                        selected=it.x to it.y
-                                    }
-                                },
-                                enabled=chestTarget!=null,
-                                modifier=Modifier.weight(1f),
-                                contentPadding=PaddingValues(horizontal=6.dp,vertical=4.dp),
-                                border=BorderStroke(1.dp,relicGold.copy(alpha=.55f)),
-                            ) { Text("◇ 再搜一箱",fontSize=10.sp,maxLines=1,color=relicGold) }
-                            OutlinedButton(
-                                onClick={
-                                    exitTarget?.let {
-                                        cameraFocus=it.x to it.y
-                                        selected=it.x to it.y
-                                    }
-                                },
-                                enabled=exitTarget!=null,
-                                modifier=Modifier.weight(1f),
-                                contentPadding=PaddingValues(horizontal=6.dp,vertical=4.dp),
-                                border=BorderStroke(1.dp,relicGreen.copy(alpha=.55f)),
-                            ) { Text("↗ 去撤离门",fontSize=10.sp,maxLines=1,color=relicGreen) }
-                        }
-                        Text(when {
-                            chestTarget!=null && exitTarget!=null ->
-                                "宝箱："+RelicObjectiveGuide.optionLabel(run,chestTarget)+
-                                    " · 撤离："+RelicObjectiveGuide.optionLabel(run,exitTarget)
-                            chestTarget!=null ->
-                                "宝箱："+RelicObjectiveGuide.optionLabel(run,chestTarget)+
-                                    " · 撤离门尚未发现"
-                            exitTarget!=null ->
-                                "撤离："+RelicObjectiveGuide.optionLabel(run,exitTarget)+
-                                    " · 尚无已知未开宝箱"
-                            else -> RelicObjectiveGuide.prompt(run)
-                        },color=relicMuted,fontSize=10.sp,maxLines=2)
+                val chestLoot = lastChestReceipt?.loot
+                val chestCarrier = chestLoot?.let { loot ->
+                    run.allies.firstOrNull { ally -> ally.bag.any { it.id == loot.id } }
+                }
+                val feedback = when {
+                    urgent != null -> "${RelicArsenal.monsterName(urgent.kind)}蓄力 · 躲避或格挡"
+                    combatPrompt.isNotBlank() -> combatPrompt
+                    run.phase == RelicPhase.EXTRACT -> "撤离还需 ${(3 - run.extraction).coerceAtLeast(0)} 回合"
+                    groundLoot != null && allyWithRoom != null &&
+                        hero.load + groundLoot.loot.weight > RelicEscapeRules.heroCapacity(run) ->
+                        "背包已满 · ${MigratedDomainStores.characters.get(allyWithRoom.id).displayName}可代捡"
+                    chestLoot != null && hero.bag.any { it.id == chestLoot.id } -> chestLoot.name + " · 已入包"
+                    chestLoot != null && chestCarrier != null ->
+                        "${chestLoot.name} · ${MigratedDomainStores.characters.get(chestCarrier.id).displayName}携带"
+                    chestLoot != null && run.drops.any { it.loot.id == chestLoot.id } ->
+                        chestLoot.name + " · 落地待拾"
+                    run.carried.isNotEmpty() -> "携带 ${run.carried.size} 件珍宝"
+                    else -> "探索遗迹 · 寻找珍宝"
+                }
+                Text(feedback, color = if (urgent != null) relicRed else relicGold,
+                    fontSize = 12.sp, maxLines = 2, fontWeight = FontWeight.SemiBold)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                    val chest = RelicObjectiveGuide.visibleChest(run)
+                    val exit = RelicObjectiveGuide.visibleExit(run)
+                    if (chest != null) TextButton(onClick = {
+                        selected = chest.x to chest.y
+                        cameraFocus = selected
+                        viewPan = Offset.Zero
+                    }, modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 2.dp)) {
+                        Text("宝箱", color = relicGold, fontSize = 11.sp, maxLines = 1)
                     }
-                }
-                val attackTarget = relicAttackTarget(run, selected)
-                val visibleThreat = run.mobs.filter { it.hp > 0 && run.visible(it.x, it.y) &&
-                    RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 3 }
-                    .sortedWith(compareByDescending<RelicMob> { it.windup }
-                        .thenBy { RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) })
-                    .firstOrNull()
-                if (visibleThreat != null) {
-                    val name = RelicArsenal.monsterName(visibleThreat.kind)
-                    Text(if (visibleThreat.windup)
-                        "⚠ $name 正在蓄力！"+
-                            (if(RelicEscapeRules.enemyThreatRange(visibleThreat)==2)
-                                "直线2格内危险；" else "")+
-                            "移动躲避、格挡或贴身打断"
-                        else "$name · 生命${visibleThreat.hp} · 攻击伤害"+
-                            (visibleThreat.kind+1+run.difficulty.incomingDamage).coerceAtLeast(1),
-                        color = if (visibleThreat.windup) relicRed else relicGreen,
-                        fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 2)
-                }
-                Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
-                    color = relicGold, fontSize = 10.sp, maxLines = 2)
-                if (attackTarget == null) Text(
-                    relicAttackHint(run, selected),
-                    color = relicMuted, fontSize = 10.sp, maxLines = 2)
+                    if (exit != null) TextButton(onClick = {
+                        selected = exit.x to exit.y
+                        cameraFocus = selected
+                        viewPan = Offset.Zero
+                    }, modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 2.dp)) {
+                        Text("出口", color = relicGreen, fontSize = 11.sp, maxLines = 1)
+                    }
+                    if (viewPan != Offset.Zero || viewZoom != 1f || cameraFocus != null) {
+                        TextButton(onClick = {
+                            viewPan = Offset.Zero
+                            viewZoom = 1f
+                            cameraFocus = null
+                            selected = hero.x to hero.y
+                        }, modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 2.dp)) {
+                            Text("复位", color = relicGreen, fontSize = 11.sp, maxLines = 1)
+                        }
+                    }
+                    TextButton(onClick = {
+                        menuSection = "战术"
+                        tacticsOpenRequest = (tacticsOpenRequest ?: 0) + 1
+                    }, modifier = Modifier.weight(1f), contentPadding = PaddingValues(horizontal = 2.dp)) {
+                        Text("战术", color = relicGreen, fontSize = 11.sp, maxLines = 1)
+                    }
                 }
             }
         },
@@ -587,20 +425,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if (run != null && run.phase in setOf(
                     RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero=run.hero
-                val attackTarget=relicAttackTarget(run,selected)
-                val chest=RelicChestPresentation.actionableChest(run,selected)
+                val attackTarget=relicAttackButtonTarget(run,selected)
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
                     GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击",
                         relicGold,run.phase!=RelicPhase.DOWNED,Modifier.weight(1f)) {
                         if(attackTarget!=null) action("attack",attackTarget.x,attackTarget.y)
                         else combatPrompt=relicAttackHint(run,selected)
-                    }
-                    GameHudQuickAction(chest?.let {
-                        "开箱 "+(run.chestProgress[it.id] ?: 0)+"/"+RelicEscapeRules.openSteps(it)
-                    } ?: "开箱",chest?.let{relicGradeColor(it.visibleGrade)} ?: relicGold,
-                        run.phase!=RelicPhase.DOWNED && chest!=null,
-                        Modifier.weight(1f)) {
-                        chest?.let { inspectingChestId = it.id }
                     }
                     GameHudQuickAction("格挡",relicGreen,run.phase!=RelicPhase.DOWNED,
                         Modifier.weight(1f)) { action("defend") }
@@ -642,18 +472,20 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                             fontSize=10.sp,maxLines=1)
                     }
                 }
-                Text("朝向"+relicDirection(facing.first,facing.second)+
-                    " · "+(if(aimOnly)"方向盘只调整朝向，不会移动" else "方向盘移动并调整朝向"),
-                    color=relicMuted,fontSize=10.sp,maxLines=1)
+                if (aimOnly) Text("仅转向 " + relicDirection(facing.first, facing.second),
+                    color = relicGold, fontSize = 11.sp, maxLines = 1)
             }
         },
         actions = {
-            val quick = run?.let { relicQuickAction(it,selected) }
-            Button(onClick = {
+            val quick = run?.takeIf { it.phase != RelicPhase.DOWNED }
+                ?.let { relicQuickAction(it, selected) }
+                ?.takeUnless { it.action == "attack" || it.action == "heal" }
+            if (quick != null || run == null || run.phase in setOf(
+                    RelicPhase.SUCCESS, RelicPhase.FAILURE, RelicPhase.SETTLEMENT)) Button(onClick = {
                 if (run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
                     change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),
                         kits.coerceAtMost(snapshot.kits),difficulty,startingWeapon,chosenContract,profession) }
-                } else quick?.let { action(it.action,it.x,it.y,it.id) }
+                } else quick?.let(::interact)
             },enabled = run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT) || quick != null,
                 modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor=relicGold,contentColor=relicInk)) {
                 Text(if(run == null) "进入遗迹" else if(run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT))
@@ -670,10 +502,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         Color(0xFF241D29),Color(0xFF101A25),relicInk)))
         .padding(10.dp), verticalArrangement=Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment=Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("迷雾摸金",fontSize=18.sp,fontWeight=FontWeight.Bold,color=Color.White)
-                Text("暗影遗迹 · 随机宝藏 · 战术撤离",fontSize=11.sp,color=relicMuted)
-            }
+            Text(menuSection, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White,
+                modifier = Modifier.weight(1f))
             Surface(color=relicGold.copy(alpha=.12f),shape=RoundedCornerShape(14.dp),
                 border=BorderStroke(1.dp,relicGold.copy(alpha=.38f))) {
                 Text("◇  仓库 "+snapshot.vault.size+" 件",color=relicGold,
@@ -946,6 +776,38 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     }
                 }
                 if(menuSection=="战术") {
+                    val chestRoute = RelicObjectiveGuide.visibleChest(run)
+                    val exitRoute = RelicObjectiveGuide.visibleExit(run)
+                    if (chestRoute != null) Text("宝箱 · " + RelicObjectiveGuide.optionLabel(run, chestRoute),
+                        color = relicGold, fontSize = 11.sp)
+                    if (exitRoute != null) Text("出口 · " + RelicObjectiveGuide.optionLabel(run, exitRoute),
+                        color = relicGreen, fontSize = 11.sp)
+                    if (run.contract != RelicContract.NONE)
+                        Text(run.contract.label + " · " + RelicContractBoard.status(run),
+                            color = relicMuted, fontSize = 11.sp)
+                    if (run.sites.any { it.kind == "alarm" && !it.spent && run.visible(it.x, it.y) })
+                        Text("钟楼已发现 · 开贵重宝箱可能招来追兵", color = relicRed, fontSize = 11.sp)
+                    run.allies.forEach { ally ->
+                        val name = MigratedDomainStores.characters.get(ally.id).displayName
+                        val plan = when (run.coopPlans[ally.id]?.kind) {
+                            "support" -> "支援中"
+                            "chest" -> "搜寻中"
+                            "deliver" -> "送宝途中"
+                            "rescue" -> "救援中"
+                            "regroup" -> "前来集合"
+                            else -> ""
+                        }
+                        TextButton(onClick = {
+                            cameraFocus = ally.x to ally.y
+                            selected = ally.x to ally.y
+                            viewPan = Offset.Zero
+                            tacticsCloseRequest++
+                        }) {
+                            Text(listOf(name, plan, "${ally.load}/${RelicEscapeRules.CAPACITY} 负重")
+                                .filter(String::isNotBlank).joinToString(" · "), color = relicGreen, fontSize = 11.sp)
+                        }
+                    }
+                    OutlinedButton(onClick = { lobbyOpen = true }) { Text("回营地") }
                     Text("战术与道具",color=relicGold,
                         fontWeight=FontWeight.Bold,fontSize=13.sp)
                 if(run.phase!=RelicPhase.DOWNED) {

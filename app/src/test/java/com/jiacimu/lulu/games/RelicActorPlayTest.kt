@@ -15,6 +15,33 @@ class RelicActorPlayTest {
             chests=emptyList(),seen=s.tiles.indices.toSet())
     }
 
+    @Test fun partnerCanCarryARealGroundDropOutWhenThePlayerCannotFitIt() {
+        val base = run()
+        val loot = RelicLoot("run:chest:7", "幽蓝宝石", RelicTier.RARE, 220)
+        val actor = base.allies.first().copy(x = 3, y = 2)
+        val board = base.copy(
+            hero = base.hero.copy(x = 2, y = 2,
+                bag = List(8) { RelicLoot("filled-$it", "旧王银币", RelicTier.COMMON, 70) }),
+            allies = listOf(actor), drops = listOf(RelicDrop(3, 3, loot)),
+            exitX = 2, exitY = 2, phase = RelicPhase.EXTRACT, extraction = 2,
+        )
+        val choice = IslandActorChoice("pickup:${loot.id}", "我有位置，我来带")
+        assertTrue(RelicActorPlay.options(board, "alice").any { it.id == choice.actionId })
+        assertNull(RelicActorPlay.apply(board.copy(drops = emptyList()), "alice", choice))
+        assertNull(RelicActorPlay.apply(board.copy(seen = emptySet()), "alice", choice))
+        val full = board.copy(allies = listOf(actor.copy(bag = board.hero.bag)))
+        assertNull(RelicActorPlay.apply(full, "alice", choice))
+
+        val taken = RelicActorPlay.apply(board, "alice", choice)!!
+        assertTrue(taken.drops.isEmpty())
+        assertEquals(board.hero.bag, taken.hero.bag)
+        assertEquals(listOf(loot), taken.allies.single().bag)
+        val loaded = RelicRun.read(taken.json())!!
+        val escaped = RelicEscapeRules.act(loaded, "wait", autonomousIds = setOf("alice"))
+        assertEquals(RelicPhase.SUCCESS, escaped.phase)
+        assertEquals(1, escaped.secured.count { it.id == loot.id })
+    }
+
     @Test fun ownMovementDoesNotMovePlayerOrAdvanceEnemyClock() {
         val s=run()
         val move=RelicActorPlay.options(s,"alice").first { it.kind=="move" }

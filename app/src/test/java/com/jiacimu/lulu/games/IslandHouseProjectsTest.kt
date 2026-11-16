@@ -37,6 +37,35 @@ class IslandHouseProjectsTest {
         return IslandHouseProjects.advance(advanced,setOf("alice"))
     }
 
+    @Test fun bothPlayersCanAddRealPartsToTheSameBlueprintAndKeepItAfterReload() {
+        val original = clear()
+        val world = original.world.copy(x = 3, y = 2, turns = 0,
+            friends = listOf(ExpeditionFriend("alice", 4, 3)))
+        val project = IslandHouseProject("player", 3, 3)
+        val island = original.copy(world = world, houseProject = project, animals = emptyList())
+        val floor = IslandHouseProjects.nextPlayerPart(island)!!
+        val help = IslandActorPlay.options(island, "alice").single { it.kind == "help_house" }
+        val afterHelp = IslandActorPlay.apply(island, "alice", world.turns,
+            IslandActorChoice(help.id, "地板我来"))!!
+        assertEquals(world.wood - 1, afterHelp.world.wood)
+        assertEquals(listOf(floor.first), afterHelp.houseProject!!.placed)
+        assertEquals(4, afterHelp.world.tiles[floor.first])
+        assertTrue(afterHelp.world.events.last().contains("帮你安放了小屋的一块"))
+        assertNull(IslandActorPlay.apply(afterHelp, "alice", world.turns,
+            IslandActorChoice(help.id, "")))
+        assertFalse(IslandActorPlay.options(island.copy(world = world.copy(wood = 0)), "alice")
+            .any { it.kind == "help_house" })
+        assertFalse(IslandActorPlay.options(island.copy(houseProject = project.copy(phase = "paused")), "alice")
+            .any { it.kind == "help_house" })
+
+        val afterPlayer = BlockIslandRules.act(afterHelp, "house_step", 3, 3, setOf("alice"))
+        assertEquals(world.wood - 3, afterPlayer.world.wood)
+        val saved = BlockIslandState.fromJson(afterPlayer.toJson())!!
+        assertEquals("player", saved.houseProject!!.ownerId)
+        assertEquals(listOf(floor.first, world.index(3, 3)), saved.houseProject!!.placed)
+        assertEquals(3, saved.world.cell(3, 3))
+    }
+
     @Test fun hudAndProjectPanelProgressTrackActualDemolitionAcrossPauseAndReload() {
         val world=clear().world
         val built=IslandHouseProject("alice",3,3,phase="complete",

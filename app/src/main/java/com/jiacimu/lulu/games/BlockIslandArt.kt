@@ -758,13 +758,33 @@ internal object BlockIslandArt {
             // sampling made these soft hand-painted textures look pixelated.
             filterQuality=FilterQuality.Medium)
         if(kind==8){
-            drawRect(Color(0xFFD3E9E4).copy(alpha=.12f),p,Size(t,t))
-            // The atlas provides texture while small waves remain animated;
-            // fishing/shoreline rules still read the original world tile.
-            val drift=t*(.10f+.22f*phase)
-            drawRoundRect(Color(0x99DDF5EA).copy(alpha=.20f+.12f*phase),
-                topLeft=p+Offset(t*.16f+drift*.15f,t*.36f),
-                size=Size(t*.21f,t*.035f),cornerRadius=CornerRadius(t*.02f))
+            val shallow = !waterAbove || !waterBelow || !waterLeft || !waterRight
+            drawRect(if (shallow) Color(0x2C8FDECC) else Color(0x202F6D91), p, Size(t, t))
+            // Pale shallows and two foam contours follow actual shoreline tiles.
+            val foam = Color(0x60D9F4E9)
+            val shallows = Color(0x208EE0CD)
+            if (!waterAbove) {
+                drawRect(shallows, p, Size(t, t * .29f))
+                drawRect(foam, p, Size(t, t * .055f))
+            }
+            if (!waterBelow) {
+                drawRect(shallows, p + Offset(0f, t * .71f), Size(t, t * .29f))
+                drawRect(foam, p + Offset(0f, t * .945f), Size(t, t * .055f))
+            }
+            if (!waterLeft) {
+                drawRect(shallows, p, Size(t * .29f, t))
+                drawRect(foam, p, Size(t * .055f, t))
+            }
+            if (!waterRight) {
+                drawRect(shallows, p + Offset(t * .71f, 0f), Size(t * .29f, t))
+                drawRect(foam, p + Offset(t * .945f, 0f), Size(t * .055f, t))
+            }
+            val wave = ((x * 17L + y * 31L + seed).mod(11L)).toFloat() / 10f
+            val drift = t * (.06f + .14f * phase)
+            drawRoundRect(Color(0xFFDDF5EA).copy(alpha = .10f + .11f * phase),
+                topLeft = p + Offset(t * (.12f + .38f * wave) + drift, t * (.28f + .32f * wave)),
+                size = Size(t * (.15f + .13f * wave), t * .027f),
+                cornerRadius = CornerRadius(t * .015f))
         }else {
             // One quiet tint ties adjacent atlas tiles together without
             // obscuring the authored grass and stone brushwork.

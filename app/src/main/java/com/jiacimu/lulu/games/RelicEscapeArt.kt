@@ -159,8 +159,10 @@ internal fun RelicEscapeWorldMap(
                     continue
                 }
                 val distance=RelicEscapeRules.distance(x,y,run.hero.x,run.hero.y)
-                val lit=distance<=4 || run.flareTurns>0 &&
-                    RelicEscapeRules.distance(x,y,run.flareX,run.flareY)<=6
+                val flareDistance = if (run.flareTurns > 0)
+                    RelicEscapeRules.distance(x, y, run.flareX, run.flareY) else Int.MAX_VALUE
+                val lightDistance = minOf(distance, flareDistance)
+                val darkness = ((lightDistance - 2).coerceIn(0, 6) / 6f) * .44f
                 val kind=run.tile(x,y)
                 val variation=(abs(x*17+y*31+run.seed)%5)*.018f
                 val base=when(kind) {
@@ -183,14 +185,18 @@ internal fun RelicEscapeWorldMap(
                         p+Offset(t*.48f,t*.8f),strokeWidth=t*.035f)
                 }
                 if(kind==1) {
-                    drawRect(Color(0xFF111B28).copy(alpha=.8f),
-                        p+Offset(t*.13f,t*.18f),Size(t*.86f,t*.82f))
-                    drawRoundRect(Color(0xFF56616F),p+Offset(t*.02f,t*.01f),
-                        Size(t*.89f,t*.70f),CornerRadius(t*.10f))
-                    drawLine(Color(0xFF293744),p+Offset(t*.09f,t*.34f),
-                        p+Offset(t*.87f,t*.34f),strokeWidth=t*.10f)
-                    drawLine(Color(0xFF7C8792).copy(alpha=.45f),
-                        p+Offset(t*.09f,t*.08f),p+Offset(t*.75f,t*.08f),strokeWidth=t*.045f)
+                    // Cap and face share a silhouette; adjacent walls read as one ruin.
+                    val wallBelow = y + 1 < run.h && run.visible(x, y + 1) && run.tile(x, y + 1) == 1
+                    val wallRight = x + 1 < run.w && run.visible(x + 1, y) && run.tile(x + 1, y) == 1
+                    drawRect(Color(0xFF30404E), p, Size(t + .4f, t + .4f))
+                    drawRect(Color(0xFF546370), p, Size(t + .4f, t * .72f))
+                    drawLine(Color(0xFF72808B).copy(alpha = .42f), p + Offset(0f, t * .08f),
+                        p + Offset(t, t * .08f), strokeWidth = t * .038f)
+                    if (!wallBelow) drawRect(Color(0xFF1D2B37),
+                        p + Offset(0f, t * .72f), Size(t + .4f, t * .28f))
+                    if (!wallRight || (x + y) % 2 == 0)
+                        drawLine(Color(0xFF273643), p + Offset(t * .97f, t * .08f),
+                            p + Offset(t * .97f, t * .73f), strokeWidth = t * .04f)
                 } else if(kind==2) {
                     drawCircle(Color(0xFF8DBD91).copy(alpha=.26f+shimmer*.1f),t*.37f,c)
                     repeat(3){i->
@@ -437,8 +443,8 @@ internal fun RelicEscapeWorldMap(
                         }
                     }
                 }
-                if(!lit)drawRect(Color(0xFF090E1B).copy(alpha=.42f),
-                    p,Size(t+.3f,t+.3f))
+                if (darkness > 0f) drawRect(Color(0xFF090E1B).copy(alpha = darkness),
+                    p, Size(t + .3f, t + .3f))
                 if(x==selected.first && y==selected.second) {
                     drawRect(Color(0xFFF9DC99).copy(alpha=.96f),
                         p+Offset(t*.03f,t*.03f),

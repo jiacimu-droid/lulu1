@@ -76,16 +76,40 @@ internal object IslandHouseProjects {
     }
 
     fun canPlayerBuildNext(s: BlockIslandState): Boolean {
-        val part=nextPlayerPart(s) ?: return false
-        val w=s.world
-        val (index,kind)=part
-        return index!=w.index(w.x,w.y) &&
-            abs(w.x-index%w.width)+abs(w.y-index/w.width)<=1 &&
-            w.wood >= (if(kind=="floor")1 else 2) &&
-            w.tiles[index]==0 && index !in s.structures &&
-            w.friends.none { w.index(it.x,it.y)==index } &&
-            s.animals.none { w.index(it.x,it.y)==index } &&
-            w.mobs.none { it.hp>0 && w.index(it.x,it.y)==index }
+        val part = nextPlayerPart(s) ?: return false
+        val w = s.world
+        val (index, _) = part
+        return abs(w.x - index % w.width) + abs(w.y - index / w.width) == 1 &&
+            canPlacePart(s, part)
+    }
+
+    fun canPlacePart(s: BlockIslandState, part: Pair<Int, String>): Boolean {
+        val (index, kind) = part
+        val w = s.world
+        return !w.finished && w.wood >= partCost(kind) &&
+            w.tiles[index] == 0 && index !in s.structures && index !in s.supplyCaches &&
+            index != w.index(w.x, w.y) &&
+            w.friends.none { w.index(it.x, it.y) == index } &&
+            s.animals.none { w.index(it.x, it.y) == index } &&
+            w.mobs.none { it.hp > 0 && w.index(it.x, it.y) == index }
+    }
+
+    fun partCost(kind: String): Int = if (kind == "floor") 1 else 2
+
+    /** Call only after checking the current project, the work spot and the builder. */
+    fun placePart(s: BlockIslandState, project: IslandHouseProject, part: Pair<Int, String>): BlockIslandState {
+        val (index, kind) = part
+        val w = s.world
+        val tiles = w.tiles.toMutableList().also { it[index] = if (kind == "wall") 3 else 4 }
+        val placed = project.placed + index
+        return s.copy(
+            world = w.copy(tiles = tiles, wood = w.wood - partCost(kind)),
+            structures = if (kind == "door") s.structures + (index to "door") else s.structures,
+            houseProject = project.copy(
+                placed = placed, lastStepTurn = w.turns,
+                phase = if (placed.size == 9) "complete" else "building",
+            ),
+        )
     }
 
     /** The original demolition scope is authoritative, including partially built houses. */
@@ -239,17 +263,11 @@ internal object IslandHouseProjects {
                 index in s.supplyCaches)
                 return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                     id,"施工格已被占用或改动，暂停以保护现有建筑")
-            val cost=if(kind=="floor")1 else 2
-            if(w.wood<cost)
+            if(w.wood < partCost(kind))
                 return log(s.copy(houseProject=pNext.copy(phase="paused",resumePhase=p.phase)),
                     id,"木材不足，已经停工；可先采集再决定续建")
-            val cells=w.tiles.toMutableList().also { it[index]=if(kind=="wall")3 else 4 }
-            val count=p.placed.size+1
-            val next=s.copy(world=w.copy(tiles=cells,wood=w.wood-cost),
-                structures=if(kind=="door")s.structures+(index to "door")else s.structures,
-                houseProject=pNext.copy(placed=p.placed+index,
-                    phase=if(count==all.size)"complete" else "building"))
-            return log(next,id,"真实消耗木材，建造"+kind+" ("+count+"/"+all.size+")")
+            val next = placePart(s, p, part)
+            return log(next,id,"真实消耗木材，建造"+kind+" ("+(p.placed.size+1)+"/"+all.size+")")
         }
         // Never demolish player-made changes, even if they overlap a former plan.
         val expected=if(kind=="wall")3 else 4

@@ -295,7 +295,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"),deliberateTarget)
     val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"),deliberateTarget)
     val nearbyWildlife = islandNearbyAction(island,facing,setOf("tame","care"),deliberateTarget)
-    val nearbyPrimary = nearbyFight ?: nearbyRescue ?: nearbyWildlife ?: nearbyGather
     val directionLabel = when(facing) {
         0 to -1 -> "↑"; 1 to 0 -> "→"; -1 to 0 -> "←"; else -> "↓"
     }
@@ -424,31 +423,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
-            // Show one actionable objective instead of a permanent stack of
-            // quest, tracker, direction, protector and construction cards.
-
-            // The quest and help share one short ribbon; never add another map-covering row.
-            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                Surface(
-                    onClick={goalsOpen=true},
-                    modifier=Modifier.weight(1f),
-                    color=Color(0xBB263E39),shape=RoundedCornerShape(10.dp),
-                ) {
-                    Text("☑ " + survivalGoal.substringAfter(" · ", survivalGoal) + "  ›",
-                        color=Color(0xFFFFE3A7),fontWeight=FontWeight.SemiBold,
-                        fontSize=10.sp,maxLines=1,
-                        modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp))
-                }
-                Surface(onClick={islandGuideTab="入门";showIslandGuideDialog=true},
-                    color=Color(0xBB263E39),shape=RoundedCornerShape(10.dp)) {
-                    Text("？指南",color=Color(0xFFC9F2D9),
-                        fontSize=10.sp,fontWeight=FontWeight.SemiBold,
-                        modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp))
+            val nextHousePart = IslandHouseProjects.nextPlayerPart(island)
+            if (buildMode == null && nextHousePart == null) {
+                Surface(onClick = { goalsOpen = true },
+                    color = Color(0xD01E3834), shape = RoundedCornerShape(10.dp)) {
+                    Text(survivalGoal.substringAfter(" · ", survivalGoal) + "  ›",
+                        color = Color(0xFFF7E8B7), fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp, maxLines = 1,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp))
                 }
             }
             island.houseProject?.takeIf { it.ownerId=="player" }?.let { home ->
-                val nextPart=IslandHouseProjects.nextPlayerPart(island)
-                if (nextPart!=null) {
+                val nextPart = nextHousePart
+                if (nextPart != null && buildMode == null) {
                     val bx=nextPart.first%world.width
                     val by=nextPart.first/world.width
                     val canWork=IslandHouseProjects.canPlayerBuildNext(island)
@@ -456,10 +443,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         buildMode=null
                         if(canWork) perform("house_step",bx,by)
                         else {
-                            val needed=if(nextPart.second=="floor")1 else 2
-                            if(world.wood<needed) {
-                                save(island.copy(world=world.copy(
-                                    notice="施工还需${needed}木材；先砍树，再回来亲手建造")))
+                            val needed = IslandHouseProjects.partCost(nextPart.second)
+                            if (world.wood < needed) {
+                                save(island.copy(world=world.copy(notice="施工还需 ${needed} 木材")))
+                            } else if (abs(world.x - bx) + abs(world.y - by) <= 1) {
+                                save(island.copy(world=world.copy(notice="施工位被挡住了")))
                             } else {
                                 // Approach an accessible *neighbour*, never walk onto
                                 // the future solid wall itself.
@@ -486,15 +474,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         }
                     }, color=Color(0xCB544A36),
                         shape=RoundedCornerShape(10.dp)) {
-                        Text("⌂ 小屋 ${home.placed.size}/9 · " +
-                            (if(canWork) "施工下一块（${bx},${by}）"
-                            else "前往施工位（${bx},${by}）"),
-                            modifier=Modifier.padding(horizontal=9.dp,vertical=6.dp),
-                            color=Color(0xFFFFE2B1),fontSize=10.sp,maxLines=1)
+                        Text("小屋 ${home.placed.size}/9 · " +
+                            when {
+                                canWork -> "施工下一块"
+                                world.wood < IslandHouseProjects.partCost(nextPart.second) -> "需要木材"
+                                abs(world.x - bx) + abs(world.y - by) <= 1 -> "施工位受阻"
+                                else -> "前往施工位"
+                            },
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+                            color = Color(0xFFFFE7BB), fontSize = 12.sp, maxLines = 1)
                     }
-                } else {
-                    Text("⌂ ${IslandHouseProjects.styleName(home.style)}已完工",
-                        color=Color(0xFFFFE6B3),fontSize=10.sp,maxLines=1)
                 }
             }
             if (buildMode != null) {
@@ -502,12 +491,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     (buildPreview?.message ?: "选好地点后确认"),
                     color = if (buildReady) Color(0xFFBDF4D3) else Color(0xFFFFD0B6),
                     fontSize = 10.sp, maxLines = 1)
-            }
-            if(blockedMoveHint.isNotEmpty()) {
+            } else if (blockedMoveHint.isNotEmpty()) {
                 Text(blockedMoveHint,color=Color(0xFFFFD5AD),
                     fontSize=10.sp,maxLines=2)
-            } else if(world.notice.isNotBlank() &&
-                world.notice != "走到了 (${world.x},${world.y})") {
+            } else if (!joystickHeld && navigateTo == null && world.notice.isNotBlank() &&
+                !world.notice.startsWith("走到了 (")) {
                 Text(worldNotice,color=Color(0xFFE7F4E6),
                     fontSize=10.sp,maxLines=1)
             }
@@ -558,12 +546,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         actions = {
-            val mainAction = nearbyRescue ?: nearbyPrimary
+            // Attacks and gathering have persistent right-thumb shortcuts.
+            val mainAction = nearbyRescue ?: nearbyWildlife
                 ?: if (campRestAvailable) IslandNearbyAction("rest", "在营地休息", world.x, world.y)
                 else if (island.fruit > 0 && (world.hp < 12 || island.hunger < 8))
                     IslandNearbyAction("eat", "吃野果", world.x, world.y)
                 else null
-            Button(onClick = {
+            if (navigateTo != null || buildMode != null || mapAim || mainAction != null) Button(onClick = {
                 if(navigateTo!=null) navigateTo=null
                 else if(buildMode!=null) {
                     if(buildReady) buildMode?.let { perform(it,aimedCell.first,aimedCell.second) }
