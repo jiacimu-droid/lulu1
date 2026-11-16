@@ -92,6 +92,9 @@ internal fun CompanionPresenceDialog(
     val latestHeartMoment = PresenceHistoryPresentation.latestVoice(
         displayState, displayHistory, messageAnchored = messageAnchor != null,
     )
+    val latestReflectionMoment = PresenceHistoryPresentation.latestReflection(
+        displayState, displayHistory, messageAnchored = messageAnchor != null,
+    )
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
         onDismiss()
@@ -184,7 +187,7 @@ internal fun CompanionPresenceDialog(
                                             lineHeight = 21.sp,
                                         )
                                     } else {
-                                        PresenceStateContent(displayState, latestHeartMoment)
+                                        PresenceStateContent(displayState, latestHeartMoment, latestReflectionMoment)
                                     }
                                     if (messageAnchor == null) {
                                         TextButton(
@@ -371,6 +374,7 @@ private fun PresenceMomentLine(label: String, value: String) {
 private fun PresenceStateContent(
     state: CompanionPresenceState,
     heartMoment: CompanionPresenceState?,
+    reflectionMoment: CompanionPresenceState?,
 ) {
     // The same source of truth as the other projections: deduplicate mood,
     // ongoing state and gestures without changing the character's saved data.
@@ -381,7 +385,7 @@ private fun PresenceStateContent(
     val voice = heartMoment?.innerThought.orEmpty()
     // "想逗"/"想哄" are the concise alternatives; the heart voice may
     // naturally tell the same A/B story in full without making them redundant.
-    val reflection = CharacterMomentSnapshot.visibleReflection(heartMoment?.momentReflection.orEmpty())
+    val reflection = CharacterMomentSnapshot.visibleReflection(reflectionMoment?.momentReflection.orEmpty())
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
