@@ -505,19 +505,29 @@ class LuluAccessibilityService : AccessibilityService() {
             service: LuluAccessibilityService, displayId: Int, packageName: String,
             recipient: String, height: Int,
         ): Boolean {
-            var count = 0
+            val titleBounds = mutableListOf<Rect>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
                 if (depth > 24 || visited++ > 460 ||
                     !node.isVisibleToUser || node.isPassword) return
                 val bounds = Rect().also(node::getBoundsInScreen)
-                if (bounds.top >= 0 && bounds.top < height * 3 / 10 &&
-                    !node.isEditable && node.text?.toString()?.trim() == recipient) count++
+                if (bounds.top >= 0 && bounds.bottom <= height * 3 / 10 &&
+                    bounds.width() > 0 && bounds.height() > 0 &&
+                    !node.isEditable && LuluVirtualChatSendPolicy.headerMatches(
+                        node.text?.toString(), node.contentDescription?.toString(), recipient))
+                    titleBounds.add(bounds)
                 for (i in 0 until node.childCount)
                     node.getChild(i)?.let { visit(it, depth + 1) }
             }
             ownedVirtualRoots(service, displayId, packageName).forEach { visit(it, 0) }
-            return count == 1
+            // Duplicate text + accessibility wrapper nodes at the SAME
+            // physical title are normal on WeChat. Different title locations
+            // remain ambiguous: never send to an inferred recipient.
+            val first = titleBounds.firstOrNull() ?: return false
+            return titleBounds.all {
+                kotlin.math.abs(it.centerX() - first.centerX()) <= 12 &&
+                kotlin.math.abs(it.centerY() - first.centerY()) <= 12
+            }
         }
 
         /** WeChat voice-composer recovery is a deliberately narrow navigation
@@ -629,7 +639,10 @@ class LuluAccessibilityService : AccessibilityService() {
             if (!virtualChatHeaderMatches(service, displayId, packageName,
                     recipient, dimensions.second)) return false
             val editors = ownedVirtualRoots(service, displayId, packageName)
-                .flatMap(::visibleEditors)
+                .flatMap(::visibleEditors).distinctBy { node ->
+                    val rect = Rect().also(node::getBoundsInScreen)
+                    Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
+                }
             return editors.size == 1 && safeEditable(editors.single()) &&
                 LuluVirtualChatSendPolicy.chatEditorCandidate(
                     editors.single().className?.toString(),
@@ -736,7 +749,10 @@ class LuluAccessibilityService : AccessibilityService() {
             fun uniqueRecipientInHeader(): Boolean = virtualChatHeaderMatches(
                 service, displayId, packageName, recipient, dimensions.second)
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
-            val editors = roots.flatMap(::visibleEditors)
+            val editors = roots.flatMap(::visibleEditors).distinctBy { node ->
+                val rect = Rect().also(node::getBoundsInScreen)
+                Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
+            }
             if (editors.size != 1) return denied(
                 if (roots.any { root ->
                         root.collectVisibleText(maxNodes = 460, maxChars = 3_000)
@@ -767,7 +783,11 @@ class LuluAccessibilityService : AccessibilityService() {
             // The generic read-only UI inventory exposes at most 40 nodes.
             // Long chat histories can fill that quota before the bottom send
             // button, so inspect the live target tree directly here.
+            val editorBounds = Rect().also(editor::getBoundsInScreen)
+            val composer = LuluVirtualChatSendPolicy.ComposerBounds(
+                editorBounds.left, editorBounds.top, editorBounds.right, editorBounds.bottom)
             val buttons = mutableListOf<AccessibilityNodeInfo>()
+            val buttonBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var inspected = 0
             fun locate(node: AccessibilityNodeInfo, depth: Int) {
                 if (depth > 25 || inspected++ >= 640 || !node.isVisibleToUser ||
@@ -778,20 +798,28 @@ class LuluAccessibilityService : AccessibilityService() {
                         ?: node.text?.toString()).orEmpty().ifBlank {
                         clickableDescendantLabel(node)
                     }
-                    if (LuluVirtualChatSendPolicy.sendButton(label, node.viewIdResourceName))
+                    val control = LuluVirtualChatSendPolicy.ComposerBounds(
+                        bounds.left, bounds.top, bounds.right, bounds.bottom)
+                    if (LuluVirtualChatSendPolicy.sendButton(label, node.viewIdResourceName) &&
+                        LuluVirtualChatSendPolicy.sendControlNearEditor(
+                            control, composer, dimensions.first, dimensions.second)) {
                         buttons.add(node)
+                        buttonBounds.add(control)
+                    }
                 }
                 for (i in 0 until node.childCount) {
                     node.getChild(i)?.let { locate(it, depth + 1) }
                 }
             }
             ownedVirtualRoots(service, displayId, packageName).forEach { locate(it, 0) }
-            if (buttons.size != 1 || !stillAuthorized() ||
+            val sendTarget = LuluVirtualChatSendPolicy.uniqueSendTarget(
+                buttonBounds, dimensions.first, dimensions.second)
+            if (sendTarget == null || !stillAuthorized() ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
                 !uniqueRecipientInHeader())
                 return denied("chat_send_button_or_context_unverified")
                     .put("messageInputReadbackVerified", true)
-            val button = buttons.single()
+            val button = buttons[sendTarget]
             if (!button.refresh() || !button.isClickable || !button.isEnabled ||
                 !button.isVisibleToUser)
                 return denied("chat_send_button_expired")
