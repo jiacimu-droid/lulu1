@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:10:48.063213+00:00",
-  "commit": "d3a1a02fff87b2bd622a8860aa0cdf2da8bb2ab8",
+  "generatedAt": "2026-11-16T11:12:18.649996+00:00",
+  "commit": "78e2c3d8f30c3812eb794dc8f6cbeaf46a20bbba",
   "branch": "main",
-  "sourceFingerprint": "d445c6e6d6a83cbda91507a06e24ada44ca79cff17770bfd225381637f7b867a",
+  "sourceFingerprint": "f6cfaf8d2ebb325b47a48e577842fb8f632a32069a593b77d345a762e68f3a42",
   "summary": {
     "files": 1359,
-    "lines": 290275,
-    "symbols": 4091
+    "lines": 290291,
+    "symbols": 4092
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6877,7 +6877,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 75
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
@@ -7273,7 +7273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 163
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -7743,19 +7743,25 @@
     "reflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 66
+        "line": 67
+      }
+    ],
+    "anchoredHistory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+        "line": 137
       }
     ],
     "latestVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 140
+        "line": 155
       }
     ],
     "latestReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 153
+        "line": 168
       }
     ],
     "canonicalInnerLife": [
@@ -23830,8 +23836,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 857,
-      "sha256": "5c19e57b1eee062d7c72e6577ff1725a70646d6d9b2f6450510c30b5defb8875",
+      "lines": 861,
+      "sha256": "bb1781ab80a02e1943e57cca32a37dd18172611173c5efe91a402ad9e2d6c28f",
       "symbols": []
     },
     {
@@ -29369,28 +29375,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 181,
-      "sha256": "03e526d037242420362bcd7658a5676bbe55771771207140a6687bce15ca4521",
+      "lines": 196,
+      "sha256": "184356f48166ddfb08ccd78aa50eae35e83887e6231d751f08caefdafc384c03",
       "symbols": [
         {
           "name": "reflection",
-          "line": 66
+          "line": 67
         },
         {
           "name": "add",
-          "line": 75
+          "line": 76
+        },
+        {
+          "name": "anchoredHistory",
+          "line": 137
         },
         {
           "name": "latestVoice",
-          "line": 140
+          "line": 155
         },
         {
           "name": "latestReflection",
-          "line": 153
+          "line": 168
         },
         {
           "name": "entries",
-          "line": 163
+          "line": 178
         }
       ]
     },
@@ -33969,7 +33979,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 166,
-      "sha256": "eff4e3beff8c4e09c29de6691aa2a24d5e27d95511310ff2d9b74d0585f9e05b",
+      "sha256": "6b38bacca9b89463931a726e31158673f6cb0ff2e0454c8dc756caa6aa9ce92b",
       "symbols": []
     },
     {
@@ -38404,7 +38414,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
       "lines": 485,
-      "sha256": "8b902a1acb9c09d4b32e921ba75187af20f270ff820758f6177af203e5474466",
+      "sha256": "e8d294a02e125110cecfeea72cb9ddd47f79028241eb9488c89fefc6bb8e3c6c",
       "symbols": []
     },
     {
@@ -38770,8 +38780,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt",
-      "lines": 228,
-      "sha256": "85719f743701a51977565897e4be817b660bf15a70c40ec7e940faf59fbe7302",
+      "lines": 225,
+      "sha256": "9e8f09bc31d1baa6acde42e9062b033770bb8ede64757f22e49a4ec3d26d2848",
       "symbols": []
     },
     {
