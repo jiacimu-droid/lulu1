@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:04:09.862687+00:00",
-  "commit": "a724fae0bc5c3b8878a249173228ebfd48cd34dd",
+  "generatedAt": "2026-11-16T08:13:26.938111+00:00",
+  "commit": "55c55a11eef02dcd66789716f687bf56ea57e151",
   "branch": "main",
-  "sourceFingerprint": "94f94b96408cd9b48f92f858fee5d61000b14940487314097be5df54d3b2426d",
+  "sourceFingerprint": "35f110f6a74023b7155a8d7ea377dc26925b466a52b7c45c5a5b76fbaa1e19b0",
   "summary": {
     "files": 1357,
-    "lines": 289709,
+    "lines": 289712,
     "symbols": 4087
   },
   "symbolIndex": {
@@ -41777,8 +41777,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt",
-      "lines": 28,
-      "sha256": "1dd276fc51b54b25d9868755659cb10b0a2ed30897df687651055819166df55f",
+      "lines": 31,
+      "sha256": "688ec4ec738a3de7cf9db34762be14e8d90d05eaf2d34d07b0925f5d5f37e57e",
       "symbols": [
         {
           "name": "CallMemoryPolicyTest",
