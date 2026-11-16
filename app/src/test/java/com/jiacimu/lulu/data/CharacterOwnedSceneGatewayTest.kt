@@ -39,7 +39,7 @@ class CharacterOwnedSceneGatewayTest {
             eventId = "scene-voice-${UUID.randomUUID()}", characterId = role,
             channel = "电话互动", speaker = "角色",
             content = "我在电话里确实与主人讨论过$anchor。",
-            occurredAt = Instant.now().minusSeconds(120), triggerExtraction = false,
+            occurredAt = Instant.now(), triggerExtraction = false,
             source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
         val other = MigratedDomainStores.characters.create("旁观角色", "独立的旁观者").characterId
         val secret = "另一位角色的私有密码形容词" + UUID.randomUUID().toString().take(8)
@@ -49,9 +49,11 @@ class CharacterOwnedSceneGatewayTest {
             triggerExtraction = false, source = "message",
             evidenceKind = EventEvidenceKind.CharacterStatement)
         val sourceScenes = listOf(
-            "聊天工具规划", "电话回复", "朋友圈独立感知",
-            "数字世界见面", "游戏 · 方块小岛自主同行",
-            "游戏 · 迷雾摸金自主同行",
+            "后台主动感知", "聊天工具规划", "电话回复",
+            "群聊本人发言", "朋友圈独立感知",
+            "数字世界见面", "数字世界居民交流",
+            "游戏 · 方块小岛自主同行", "游戏 · 迷雾摸金自主同行",
+            "游戏", "一起看", "原住民个人日程到点",
         )
         val server = MockWebServer()
         repeat(sourceScenes.size) {
@@ -63,12 +65,12 @@ class CharacterOwnedSceneGatewayTest {
             val conn = ModelConnection(server.url("/").toString(), "test-only", "test")
             sourceScenes.forEach { source ->
                 LuluAiServices.gateway.generate(
-                    characterId = role, facts = "当前场景=$source；本人想起$anchor",
+                    characterId = role, facts = "当前场景=$source；这是独立于旧记忆的本轮新现场",
                     instruction = "按本人真实经历选择是否行动，不得借用别人的私人记录",
                     source = source, title = "跨场景连续性回归",
                     connectionOverride = conn, contextMode = CompanionContextMode.Full,
                     memoryRequest = UnifiedMemoryRequest(
-                        currentInput = anchor, sceneContext = source,
+                        currentInput = "回想与主人过去在电话里聊的那件事情", sceneContext = source,
                         taskIntent = "回想真实经历并选择下一步",
                     ),
                 ).getOrThrow()
@@ -77,6 +79,8 @@ class CharacterOwnedSceneGatewayTest {
                 assertTrue("$source should recall its own phone event", prompt.contains(anchor))
                 assertFalse("$source must never see another person's private life", prompt.contains(secret))
                 assertTrue(prompt.contains("统一角色决策协议"))
+                assertTrue("$source should keep rich actor inner-life continuity",
+                    prompt.contains("【角色持续内在生活"))
             }
             assertEquals(sourceScenes.size, server.requestCount)
         } finally { server.shutdown() }
