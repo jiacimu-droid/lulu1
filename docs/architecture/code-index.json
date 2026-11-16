@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T19:56:36.259710+00:00",
-  "commit": "a3c55f97d549e1a27732fb4f4f2fd8b2c6f94159",
+  "generatedAt": "2026-11-16T20:52:49.998755+00:00",
+  "commit": "95807f5d74801b8a75465f63038ca577ef3608ab",
   "branch": "main",
-  "sourceFingerprint": "351922e2cea016c1fbe45a9f7f4a135180473c938c918d1f19fdc6ba7cd99f67",
+  "sourceFingerprint": "de8efa6f6ac865d9ff41f2b2e9a033786582205a452148c636256d23df0d2acc",
   "summary": {
     "files": 1376,
-    "lines": 293773,
+    "lines": 293791,
     "symbols": 4141
   },
   "symbolIndex": {
@@ -22533,7 +22533,7 @@
     "beside": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
-        "line": 89
+        "line": 107
       }
     ],
     "MemoryMatchOpponentFairnessTest": [
@@ -38218,7 +38218,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
       "lines": 39,
-      "sha256": "0cb47eea210483c7992c5892deb346d7bd1782fe72db6fede4cf9d25bdf97892",
+      "sha256": "af5bd649fffa254d55529720008397137bf3d088504eaa55c05b30a86b4b6666",
       "symbols": [
         {
           "name": "find",
@@ -48037,8 +48037,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
-      "lines": 118,
-      "sha256": "4daed9a192207a05f2ca1e0c051061a1010e59c6e52cfbfaaeef5d7605305b42",
+      "lines": 136,
+      "sha256": "78ce643d7bbfebc45460ffd486f0006df7a22099378afbefeaf0198fad2e57ac",
       "symbols": [
         {
           "name": "IslandWorkbenchRecipesTest",
@@ -48046,7 +48046,7 @@
         },
         {
           "name": "beside",
-          "line": 89
+          "line": 107
         }
       ]
     },
