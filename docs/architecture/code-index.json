@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:05:43.694482+00:00",
-  "commit": "63b682997aa0fc31a051c177cd7d3f67b7aee6c5",
+  "generatedAt": "2026-11-16T04:06:26.269248+00:00",
+  "commit": "40c333d4bf79e8d72d51e3d3a52bb84043f094e2",
   "branch": "main",
-  "sourceFingerprint": "5d13b59e68dfd7dffa44dbd44895d1d6ff1ac15c16426ad90c5e19b6122d64ae",
+  "sourceFingerprint": "87ef84b8a3dfd168ef53ebb1c32fc670ae1616bca0da036afb160048edad51df",
   "summary": {
     "files": 1349,
-    "lines": 287754,
+    "lines": 287815,
     "symbols": 4064
   },
   "symbolIndex": {
@@ -1739,7 +1739,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 862
+        "line": 874
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
@@ -23988,8 +23988,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 896,
-      "sha256": "a0f120ad583b035bd92cd1a093dd18cf8a231f39c1f81c4bb52be9408a31f964",
+      "lines": 908,
+      "sha256": "9fa6b2159e159497e48fdccd03c145b0b0f16bf27fb6e567b9d865f3088fcf13",
       "symbols": [
         {
           "name": "relocatePhysically",
@@ -23997,7 +23997,7 @@
         },
         {
           "name": "flush",
-          "line": 862
+          "line": 874
         }
       ]
     },
@@ -24089,8 +24089,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt",
-      "lines": 445,
-      "sha256": "cea7d8ac3e134751d1a05a08b138afb6c78b657cdbcf6f6bc1175594b1668727",
+      "lines": 494,
+      "sha256": "45fa59f89eb669a9b28ef211a972f8e729978ce5482b360a89288c54376ab8a5",
       "symbols": []
     },
     {
