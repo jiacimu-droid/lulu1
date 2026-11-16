@@ -435,7 +435,8 @@ internal object DigitalWorldLifeEventStore {
     ): Pair<Incident, DigitalWorldLifeTick>? {
         val homeOwnerId = locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
         val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
-        val anchor = realItems.getOrNull(roll("$locationCode:${now.toEpochMilli()}:anchor", realItems.size.coerceAtLeast(1)))
+        val slot = DigitalWorldEventRules.opportunitySlot(now.epochSecond)
+        val anchor = realItems.getOrNull(roll("$locationCode:$slot:anchor", realItems.size.coerceAtLeast(1)))
         val busy = DigitalWorldActivityStateStore.ongoingActivity(characterId) != null
         val withCompany = DigitalWorldStore.state.value.characterLocations.any { (id, code) ->
             id != characterId && code == locationCode && DigitalLifeProfileStore.isEnabled(id)
@@ -443,9 +444,11 @@ internal object DigitalWorldLifeEventStore {
         val kindOptions = when {
             anchor != null -> homeIncidentKinds(anchor)
             homeOwnerId != null -> listOf(
-                // A digital life begins with a body and a phone; no invisible furniture.
-                "home_wander", "home_wander", "idle_stretch", "check_own_phone",
-                "digital_sneeze", "footstep_pause", "home_soft_glow",
+                // An empty home still has atmosphere; the world should not
+                // arbitrarily make the owner walk, check a phone or perform
+                // scripted chores merely because a perception poll ran.
+                "home_soft_glow", "home_grid_ripple", "home_quiet_pulse",
+                "home_soft_glow", "home_grid_ripple",
             )
             locationCode == DigitalWorldStore.CLOUD_MEADOW -> listOf(
                 "cloud_bloom", "star_motes", "cool_current", "color_tide", "cloud_shadow",
@@ -497,7 +500,9 @@ internal object DigitalWorldLifeEventStore {
         }
         // Quiet is a valid outcome. Never bypass cooldown just to force an incident into this slot.
         if (availableKinds.isEmpty()) return null
-        val kind = availableKinds[roll("$characterId:$locationCode:${now.toEpochMilli()}:kind", availableKinds.size)]
+        // The same location/slot yields the same world candidate regardless
+        // of which digital person happened to wake and notice first.
+        val kind = availableKinds[roll("$locationCode:$slot:kind", availableKinds.size)]
         val incident = Incident(
             id = UUID.randomUUID().toString(),
             kind = kind,
