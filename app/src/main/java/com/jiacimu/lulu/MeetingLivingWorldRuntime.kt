@@ -115,14 +115,33 @@ internal object MeetingLivingWorldRuntime {
             it.id == itemId && it.ownerCharacterId == ownerId
         } ?: return false
         val before = MeetingExperienceStore.sceneFor(current)
-        if (before.participants.none {
+        val committedGoal = before.participants.firstOrNull {
             it.participantId == characterId && it.destinationItemId == itemId
-        }) return false
+        } ?: return false
         val now = Instant.now()
+        val name = MigratedDomainStores.characters.get(characterId).displayName
+        // Only a character-authored, validated activity is executed, and only
+        // after the visible pawn has really approached the matching furniture.
+        val activityId = committedGoal.destinationActivityId
+        val actionResult = if (activityId.isBlank()) null else {
+            val summary = DigitalWorldActivityCatalog.itemActivitySummary(name, item, activityId)
+            if (summary == null) "活动没有匹配这件家具，未执行"
+            else runCatching {
+                DigitalWorldActivityStateStore.apply(characterId, item, activityId, summary, now)
+            }.fold(
+                onSuccess = { "已经实际执行：$it" },
+                onFailure = { "执行未成功：${it.message ?: "现场状态不满足条件"}" },
+            )
+        }
+        // Clear the pending action even on refusal: animation cannot spin an
+        // unbounded activity retry on each frame.
         MeetingExperienceStore.updateScene(
             current.id, MeetingPhysicalStateReducer.reachedItem(before, characterId, itemId, item.name, now))
-        val name = MigratedDomainStores.characters.get(characterId).displayName
-        val fact = "${name}在“${current.location}”沿真实场景路线走到了${item.name}旁。已实际抵达；没有代替主人决定是否停留、坐下或做其他动作。"
+        val fact = buildString {
+            append("${name}沿真实场景路线到了“${current.location}”的${item.name}旁。")
+            if (actionResult != null) append(actionResult)
+            else append("只确认到达，没有代替主人决定是否停留或坐下。")
+        }
         val turn = MeetingTurn(
             id = UUID.randomUUID().toString(),
             speakerId = "system",
@@ -134,8 +153,9 @@ internal object MeetingLivingWorldRuntime {
         )
         DigitalWorldStore.appendMeetingTurn(current.id, turn)
         recordObservation(current, fact, "arrived-${turn.id}")
-        pendingTouches[current.id] = (pendingTouches[current.id].orEmpty() +
-            PendingTouch(turn.id, characterId, fact)).takeLast(12)
+        // Arrival is already in the shared timeline and scene state; do not
+        // buy a second LLM call for every local navigation/action animation.
+        // The next user turn or already-scheduled autonomous perception sees it.
         return true
     }
 
