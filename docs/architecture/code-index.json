@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:57:33.983140+00:00",
-  "commit": "33fa243b8a1fd055fcb439b8028deec49b4e7ad3",
+  "generatedAt": "2026-11-16T03:58:07.214277+00:00",
+  "commit": "3f8798b693b8242ebbf9186765b754f84daac711",
   "branch": "main",
-  "sourceFingerprint": "90cc8cd400824f61965cce45650623269178a76c298842dd99e3277905bb6a69",
+  "sourceFingerprint": "cdae65787e1030371862f1094ea709928ce75a21a334422ee37b65a57d985ab2",
   "summary": {
-    "files": 1348,
-    "lines": 287579,
-    "symbols": 4061
+    "files": 1349,
+    "lines": 287638,
+    "symbols": 4062
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18678,6 +18678,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
         "line": 8
+      }
+    ],
+    "MeetingSceneConcurrencyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt",
+        "line": 12
       }
     ],
     "MeetingSceneDestinationTest": [
@@ -42094,6 +42100,17 @@
         {
           "name": "MeetingPhysicalStateReducerTest",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt",
+      "lines": 59,
+      "sha256": "d672cf4b71e65867b5089195dbef8008f67510f5eebcc8f11d05e739c1d04d26",
+      "symbols": [
+        {
+          "name": "MeetingSceneConcurrencyTest",
+          "line": 12
         }
       ]
     },
