@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T12:20:20.036106+00:00",
-  "commit": "ca3be0c9f42594c5cdf5657c34b504e14f7f4090",
+  "generatedAt": "2026-11-16T12:24:08.130913+00:00",
+  "commit": "f101986c7a3840f857bc5fd999960245008540e6",
   "branch": "main",
-  "sourceFingerprint": "01c904b6db6e1a0f1dd554e433746339b14bd77cf23955dc97001dbc069b5caa",
+  "sourceFingerprint": "6b6eebb18fcc054e10b17f1c2268c9d429c7ed8dd8328414ba239e954a1b47a3",
   "summary": {
     "files": 1362,
-    "lines": 290694,
+    "lines": 290779,
     "symbols": 4095
   },
   "symbolIndex": {
@@ -14489,13 +14489,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1133
+        "line": 1140
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1288
+        "line": 1295
       }
     ],
     "persistMatch": [
@@ -26426,7 +26426,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 1264,
-      "sha256": "b01750621c2f39b2ca651e5ca36c452f0f22f2ad68e8eacbee6cc6e70d977ae8",
+      "sha256": "b9fcfdc7238b17cc0f4fa571a6c0794a8af55b1b6b76a7c4b9a8fda837491062",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -36826,8 +36826,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1334,
-      "sha256": "e5c822845c3e147637bcdb34502c17dd489175291d8a9e25fd631914072c1794",
+      "lines": 1341,
+      "sha256": "e2a139387014d0acf64230432f7f848823fc8f5287a78d7771f6c15b30f2afaa",
       "symbols": [
         {
           "name": "playSound",
@@ -36843,11 +36843,11 @@
         },
         {
           "name": "dot",
-          "line": 1133
+          "line": 1140
         },
         {
           "name": "targetFor",
-          "line": 1288
+          "line": 1295
         }
       ]
     },
@@ -37729,8 +37729,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt",
-      "lines": 132,
-      "sha256": "8c91d6c6a3434f3ad1a55436863b7b49171a2f18074a81e5749ea9964f3cca76",
+      "lines": 145,
+      "sha256": "6c24a7e5cc594ec11e00e0e310b202f21900da68fe7a8c3e54a438552509cc02",
       "symbols": []
     },
     {
@@ -38093,7 +38093,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
       "lines": 310,
-      "sha256": "33a57adbf4b48f4f3540fadebd592cbc3c81e2fdaea86cbfce448b1d53c8d8e3",
+      "sha256": "86667e3ada769cbb8fd276f3a1578506f8237ac886d2a5c2dd0b08fe1b4d3aea",
       "symbols": [
         {
           "name": "acted",
@@ -38356,8 +38356,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 257,
-      "sha256": "799e99c206db37c5bd341df9f5810eaa9e2d56bba3f0a0a8e1d0702cf5a11844",
+      "lines": 261,
+      "sha256": "30382ecbdea2f760c921a089394695986078ec0e7e88d309b8d1fbbe86450a09",
       "symbols": [
         {
           "name": "json",
@@ -38578,8 +38578,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1395,
-      "sha256": "60946ef1148f5e1a90fe2e731a58131817f058938d60a7e382b61b9dfb5375ef",
+      "lines": 1406,
+      "sha256": "1c8906162d1fcbd597122034ec5c9979381aed82eaeddaace2bc3e3f79d27e2d",
       "symbols": [
         {
           "name": "change",
@@ -47262,8 +47262,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt",
-      "lines": 145,
-      "sha256": "a1138a94e23e384fa0b2c19bc554cc2cff6e34738a3ba46afa11b7e73647d7ae",
+      "lines": 171,
+      "sha256": "ff8dd27555482791d4d646ccccddac89326c51cf02484886535f6302b2e8f922",
       "symbols": [
         {
           "name": "GameCoopPacingTest",
@@ -47482,8 +47482,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
-      "lines": 242,
-      "sha256": "29a9243e59e7051df446bfd8757631e49fe6ff2149eb9aa0217e3183559d917a",
+      "lines": 266,
+      "sha256": "a24b398c4a754ba0a535f3268528c79ed2c33d58ec445f0576e4b0ade6a14ad4",
       "symbols": [
         {
           "name": "IslandTargetActionTest",
