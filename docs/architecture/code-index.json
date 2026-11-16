@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T10:12:56.218008+00:00",
-  "commit": "26052b73695296210adcf4b57cf3af4f51ba9ee9",
+  "generatedAt": "2026-11-16T10:13:29.794079+00:00",
+  "commit": "68c2c927e8ab45c177c3039ab7071de02cf83fbf",
   "branch": "main",
-  "sourceFingerprint": "edc782a2a2158ca058b2b2af705f422c0f1b8d686c6e69bc1e2b6748133c8649",
+  "sourceFingerprint": "3e56834e12cec03283ffab202b18784a113360285307f794218f5c4a821c0242",
   "summary": {
     "files": 1358,
-    "lines": 290273,
+    "lines": 290277,
     "symbols": 4090
   },
   "symbolIndex": {
@@ -44278,8 +44278,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOwnedSceneGatewayTest.kt",
-      "lines": 126,
-      "sha256": "1582cc41a20b7af8446e205109e424cd5282f34afa7a0e67fc82d18f81dbb908",
+      "lines": 130,
+      "sha256": "f203491364d17647315423acfe5ad3812d5e996d2b2d89e6a9e3ff5bd23e7d41",
       "symbols": [
         {
           "name": "CharacterOwnedSceneGatewayTest",
