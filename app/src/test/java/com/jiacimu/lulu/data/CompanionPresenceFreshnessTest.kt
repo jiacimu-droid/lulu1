@@ -65,6 +65,24 @@ class CompanionPresenceFreshnessTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun newPrivateIdeasDisplayEvenWhenThereIsNoHeartVoice() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "separate-reflection-moment"
+        CompanionPresenceStore.clearCharacter(role)
+        val at = Instant.parse("2026-11-16T02:00:00Z")
+        CompanionPresenceStore.update(role, "正在聊天", null, "",
+            "好奇", "聊天", at,
+            momentReflection = "想把刚才那句话再想一想",
+        )
+        val state = CompanionPresenceStore.current(role)!!
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertNull(PresenceHistoryPresentation.latestVoice(state, history, false))
+        assertEquals("想把刚才那句话再想一想",
+            PresenceHistoryPresentation.latestReflection(state, history, false)?.momentReflection)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun explicitlyBlankStatusClearsStaleStateWithoutInventingNewMind() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
