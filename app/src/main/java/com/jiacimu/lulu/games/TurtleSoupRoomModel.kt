@@ -233,7 +233,7 @@ internal fun parseSoupCompanionDecision(raw: String): SoupCompanionDecision? = r
     require(open >= 0 && close > open)
     val json = JSONObject(raw.substring(open, close + 1))
     val type = json.getString("type").lowercase()
-    require(type in setOf("question", "discussion", "wait"))
+    require(type in setOf("question", "discussion", "solve", "wait"))
     val message = json.optString("text").trim()
     require(type == "wait" || message.isNotBlank())
     SoupCompanionDecision(type, message.take(400))
