@@ -31,6 +31,7 @@ import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.games.GameAmbientAudioButton
 import com.jiacimu.lulu.games.GameAmbientSoundscape
 import com.jiacimu.lulu.games.GameSoundscape
+import kotlinx.coroutines.launch
 
 private data class MeetingReadingPage(
     val group: MeetingUiDisplayGroup,
@@ -74,6 +75,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     onOpenVoiceSettings: () -> Unit,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val arrivalScope = rememberCoroutineScope()
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     val viewOnly = session.endedAt != null
@@ -264,7 +266,10 @@ internal fun DigitalWorldMeetingSceneExperience(
                     .filter { it.participantId in session.participantIds && it.destinationItemId.isNotBlank() }
                     .associate { it.participantId to it.destinationItemId },
                 onReachedSceneItem = { characterId, itemId ->
-                    MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
+                    // Disk-backed room effects are deliberately outside the animation frame.
+                    arrivalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
+                    }
                 },
                 onExitToStreet = {
                     val leaving = sceneCode
