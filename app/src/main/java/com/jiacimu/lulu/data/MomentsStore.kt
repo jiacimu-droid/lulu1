@@ -340,26 +340,10 @@ object MomentsStore {
             sceneContext = "朋友圈原帖，作者：$authorName",
             taskIntent = "当前角色独立判断是否点赞、评论，或者只看不回应",
         )
-        val memoryContext = UnifiedMemoryOrchestrator.assemble(
-            characterId = character.characterId,
-            request = socialMemoryRequest,
-            recallLimit = 6,
-            evidenceLimit = 4,
-            evidenceCharacterBudget = 2_200,
-            recentCharacterBudget = 2_600,
-        )
-        // Batch 1, social persona: CharacterAndScenario does NOT deliver
-        // personalityRuntimeContext (gateway developmentSection is Full-only),
-        // so an independent Moments reaction otherwise never sees narrative
-        // meaning, user preferences/habits or adaptive learning. Reuse the
-        // exact compact form ResidentDailyDecision.decisionFacts already uses:
-        // local reads only, no extra model call, no new store, no timeline write.
-        val personalityContext = CharacterRuntime.personalityRuntimeContext(
-            character.characterId, compact = true,
-            query = momentContext(post), includeActiveCommitments = false,
-        )
-        val presence = CompanionPresenceStore.current(character.characterId)
-
+        // This is the character's ONE real social decision: the shared Full
+        // gateway assembles its identity, relationship, recent lived evidence,
+        // inner life and source-scoped memories once. Do not prefetch another
+        // competing "social personality" prompt or pay for duplicate recall.
         val nativeConnection = if (character.characterId.startsWith("resident:"))
             runCatching { ScopedModelSelections.residentSocialConnection() }
                 .getOrNull() else null
@@ -391,16 +375,8 @@ object MomentsStore {
                 appendLine("【当前独立判断的角色】")
                 appendLine("characterId=${character.characterId}")
                 appendLine("显示名=${character.displayName}")
-                memoryContext.compactPromptSection(characterBudget = 3_600)
-                    .takeIf(String::isNotBlank)
-                    ?.let { appendLine(it) }
-                personalityContext.takeIf(String::isNotBlank)
-                    ?.let { appendLine(it) }
-                presence?.let {
-                    appendLine(
-                        "上一刻状态=${it.statusText.take(120)}；动作=${it.gesture.take(120)}；心情=${it.mood.take(80)}；没说出口=${it.innerThought.take(180)}",
-                    )
-                }
+                // Personal context and presence are supplied by the gateway,
+                // never by a separate per-Moments persona/psychology channel.
             },
             instruction = """
                 你就是当前这个角色。有真实好友发布了这条只有好友可见的动态，你获得了一次查看它的机会。请按本人性格、关系、经历和此刻心情独立决定怎么做。已读到正文不等于必须互动，更不等于自动喜欢。别人评论与点赞全部可见，不限共同好友。
@@ -419,7 +395,7 @@ object MomentsStore {
             title = "${character.displayName}查看朋友圈",
             maxTokens = 600,
             usage = ModelUsage.Chat,
-            contextMode = CompanionContextMode.CharacterAndScenario,
+            contextMode = CompanionContextMode.Full,
             connectionOverride = nativeConnection,
             memoryRequest = socialMemoryRequest,
         ).getOrNull()?.text.orEmpty()
