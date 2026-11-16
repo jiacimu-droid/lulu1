@@ -159,6 +159,35 @@ internal object MeetingLivingWorldRuntime {
         return true
     }
 
+    /** Character chose the doorway, but only the actual street pawn may confirm arrival. */
+    @Synchronized
+    fun reachedStreetDoor(session: MeetingSession, characterId: String, code: String): Boolean {
+        val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
+            ?: return false
+        if (!isPresent(session.id) || current.endedAt != null ||
+            current.location != "世界入口" || characterId !in current.participantIds) return false
+        val destination = DigitalWorldStore.meetingLocationOptions(current).firstOrNull {
+            DigitalWorldStore.meetingLocationCode(it) == code
+        } ?: return false
+        val before = MeetingExperienceStore.sceneFor(current)
+        if (before.participants.none {
+            it.participantId == characterId && it.destinationStreetCode == code
+        }) return false
+        val now = Instant.now()
+        MeetingExperienceStore.updateScene(current.id,
+            MeetingPhysicalStateReducer.reachedStreetDoor(before, characterId, code, destination, now))
+        val name = MigratedDomainStores.characters.get(characterId).displayName
+        val fact = "${name}在云上小镇真正沿步行路线来到${destination}的门口，尚未擅自替主人进入建筑。"
+        val turn = MeetingTurn(id = UUID.randomUUID().toString(),
+            speakerId = "system", speakerName = "数字世界", sceneText = fact,
+            dialogue = "", occurredAt = now,
+            segments = listOf(MeetingSegment(MeetingSegmentType.ACTION, fact)))
+        DigitalWorldStore.appendMeetingTurn(current.id, turn)
+        recordObservation(current, fact, "street-door-${turn.id}")
+        // Already in the world timeline; no extra model call for one local walk.
+        return true
+    }
+
     private fun recordObservation(session: MeetingSession, fact: String, suffix: String) {
         val now = Instant.now()
         session.participantIds.forEach { id ->
