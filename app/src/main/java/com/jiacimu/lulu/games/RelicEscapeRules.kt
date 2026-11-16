@@ -159,7 +159,7 @@ internal data class RelicRun(
     /** Teammates' autonomous physical steps, independent of the owner's combat turns. */
     val teamSteps:Int = 0,
 ) {
-    val logicalStep:Long get()=turns.toLong()+teamSteps.toLong()
+    val logicalStep:Int get()=turns+teamSteps
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
     fun tile(x:Int,y:Int)=if(bounds(x,y))tiles[index(x,y)] else 1
