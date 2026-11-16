@@ -101,7 +101,15 @@ private data class GameLauncher(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false, onReplayCenter: (() -> Unit)? = null, replayLandscapeGameId: String? = null) {
+fun LuluGamesApp(
+    onBack: () -> Unit,
+    initialGameId: String? = null,
+    returnToCaller: Boolean = false,
+    onReplayCenter: (() -> Unit)? = null,
+    replayLandscapeGameId: String? = null,
+    fullscreenReplayId: String? = null,
+    onFullscreenReplayExit: (() -> Unit)? = null,
+) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
     var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
@@ -170,10 +178,13 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     }
 
     val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
-    val immersivePlay = route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
+    val immersivePlay = fullscreenReplayId != null ||
+        route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
+    val immersiveWorld = worldGameOwnsSystemNavigation(route.savedGameId()) ||
+        (fullscreenReplayId != null && replayLandscapeGameId == "relic_escape")
 
     // Full-screen is confined to active game sessions; orientation is managed above.
-    DisposableEffect(hostActivity, immersivePlay, route) {
+    DisposableEffect(hostActivity, immersivePlay, immersiveWorld, route) {
         val window = hostActivity?.window
         val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
         val wasFullscreen = window?.attributes?.flags?.and(flag) != 0
@@ -182,7 +193,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         if (immersivePlay) window?.addFlags(flag)
         // Both world-map games own the screen, including the navigation-pillar band.
         // Restore the host system UI when returning to the game hall or caller.
-        if (worldGameOwnsSystemNavigation(route.savedGameId()) && decor != null) {
+        if (immersiveWorld && decor != null) {
             @Suppress("DEPRECATION")
             decor.systemUiVisibility = (oldSystemUi ?: 0) or
                 android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -192,12 +203,27 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         }
         onDispose {
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
-            if (worldGameOwnsSystemNavigation(route.savedGameId()) && decor != null && oldSystemUi != null) {
+            if (immersiveWorld && decor != null && oldSystemUi != null) {
                 @Suppress("DEPRECATION")
                 decor.systemUiVisibility = oldSystemUi
             }
         }
     }
+    // History remains a sheet; watching a recorded world run is a separate full-screen scene.
+    // Keep the hall's route/state mounted so exiting returns to the same selected record.
+    if (fullscreenReplayId != null) {
+        BackHandler { onFullscreenReplayExit?.invoke() }
+        val recorded = state.records.firstOrNull { it.id == fullscreenReplayId }
+        if (recorded != null) {
+            UniversalGameReplay(recorded, onBack = { onFullscreenReplayExit?.invoke() })
+        } else {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("这段回放已不存在", color = Color.White)
+            }
+        }
+        return
+    }
+
     Scaffold(
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
         topBar = {
