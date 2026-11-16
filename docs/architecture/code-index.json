@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:28:04.753663+00:00",
-  "commit": "6e6005e15c660fa5655c22e029522af1d27ed5c2",
+  "generatedAt": "2026-11-16T16:28:41.387666+00:00",
+  "commit": "d4257ff589c176e2045190dab8772a8e81966921",
   "branch": "main",
-  "sourceFingerprint": "1d0a77a7bdf022ba1395d3467e6b50a9076924ec83c0e065acc99ccfee5988c4",
+  "sourceFingerprint": "be0761dd30f6722305e8d5f897875bc2e8a42b65f4100367c3260b9234929bf9",
   "summary": {
     "files": 1367,
-    "lines": 292090,
+    "lines": 292126,
     "symbols": 4119
   },
   "symbolIndex": {
@@ -15013,7 +15013,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 130
+        "line": 136
       }
     ],
     "canInteract": [
@@ -15929,13 +15929,13 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 123
+        "line": 129
       }
     ],
     "interact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 251
+        "line": 257
       }
     ],
     "carve": [
@@ -38779,20 +38779,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1291,
-      "sha256": "5bbecefc582e48c1b5e9e1e9b396fe8b12fc91a4fabb9dc6da34f2a3ccee8a9a",
+      "lines": 1327,
+      "sha256": "aa1b182a8440e7761aa3a84e42df448e649fd991f3c05065958c1d3c363823a9",
       "symbols": [
         {
           "name": "change",
-          "line": 123
+          "line": 129
         },
         {
           "name": "action",
-          "line": 130
+          "line": 136
         },
         {
           "name": "interact",
-          "line": 251
+          "line": 257
         }
       ]
     },
