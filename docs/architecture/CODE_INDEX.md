@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`549d6278bf2ebb2009c134317aaae9d8da9d74a2`
+- 基准提交：`bd628f5b4748216da03198335c44b7e671bdfb46`
 - 分支：`main`
 - 已索引文件：1355
-- 已索引代码/文本行：289538
+- 已索引代码/文本行：289543
 - 已发现符号：4085
 
 | 文件 | 行数 | 符号数 |
@@ -706,7 +706,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt` | 71 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 274 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 45 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt` | 55 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt` | 45 | 2 |
@@ -740,7 +740,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 865 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1393 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 138 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 45 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt` | 17 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt` | 130 | 8 |
