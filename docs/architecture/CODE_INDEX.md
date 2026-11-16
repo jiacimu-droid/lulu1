@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`aa70502d25aa63850c22ca95d96aa6628ce70526`
+- 基准提交：`9d253de9dc91a8c06618e1b3b1e395ed8b92f1cc`
 - 分支：`main`
 - 已索引文件：1357
-- 已索引代码/文本行：289665
+- 已索引代码/文本行：289678
 - 已发现符号：4087
 
 | 文件 | 行数 | 符号数 |
@@ -877,7 +877,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |

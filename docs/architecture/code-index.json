@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:58:35.337546+00:00",
-  "commit": "aa70502d25aa63850c22ca95d96aa6628ce70526",
+  "generatedAt": "2026-11-16T07:59:03.767741+00:00",
+  "commit": "9d253de9dc91a8c06618e1b3b1e395ed8b92f1cc",
   "branch": "main",
-  "sourceFingerprint": "8afaac01712895790e3cb23de021fccb906dfebfdd4a2be68c982694b4a3b658",
+  "sourceFingerprint": "f308778846e8cf2eeca4db4935b4248fe3019908129d9508afc490f1ddcf674e",
   "summary": {
     "files": 1357,
-    "lines": 289665,
+    "lines": 289678,
     "symbols": 4087
   },
   "symbolIndex": {
@@ -18421,7 +18421,7 @@
     "CallMemoryPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "CallResponsibilityContextTest": [
@@ -41777,12 +41777,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt",
-      "lines": 15,
-      "sha256": "076ee5d64cae3d389a36aa1e2db47ad1a1a1a958a6688d22d3c398733c9f5550",
+      "lines": 28,
+      "sha256": "1dd276fc51b54b25d9868755659cb10b0a2ed30897df687651055819166df55f",
       "symbols": [
         {
           "name": "CallMemoryPolicyTest",
-          "line": 5
+          "line": 6
         }
       ]
     },
