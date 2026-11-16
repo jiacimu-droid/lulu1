@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:26:57.899366+00:00",
-  "commit": "880c70152d72297c620f8f757239a9e684ab37da",
+  "generatedAt": "2026-11-16T14:32:38.796005+00:00",
+  "commit": "7a64810eb09661ff8279aae7104006ca5c52e4c2",
   "branch": "main",
-  "sourceFingerprint": "7e355d8470ed19b9c6be245b3d025d178371a3cc694dd73fd9564618c27d5c66",
+  "sourceFingerprint": "9272894b8c29e893951db2cb9d5cbf6a38a8130d60b563c77a2cea7a0b34a401",
   "summary": {
     "files": 1362,
-    "lines": 291205,
+    "lines": 291223,
     "symbols": 4104
   },
   "symbolIndex": {
@@ -1657,7 +1657,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 228
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
@@ -1999,7 +1999,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 152
+        "line": 164
       }
     ],
     "genuinelyConnected": [
@@ -2535,7 +2535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 226
+        "line": 244
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -6289,7 +6289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 104
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10079,7 +10079,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 170
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -10105,7 +10105,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 193
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -38904,32 +38904,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-      "lines": 272,
-      "sha256": "f387e1b4de17abe2733418a896f8517da0f68f9c162287bb6114b94202671426",
+      "lines": 290,
+      "sha256": "79a1dd7bf111409b77d7d9c8657563bcea57e56d9e934118335416ce817f5291",
       "symbols": [
         {
           "name": "find",
-          "line": 104
+          "line": 106
         },
         {
           "name": "publicContext",
-          "line": 152
+          "line": 164
         },
         {
           "name": "toJson",
-          "line": 170
+          "line": 184
         },
         {
           "name": "fromJson",
-          "line": 193
+          "line": 208
         },
         {
           "name": "read",
-          "line": 226
+          "line": 244
         },
         {
           "name": "save",
-          "line": 228
+          "line": 246
         }
       ]
     },
