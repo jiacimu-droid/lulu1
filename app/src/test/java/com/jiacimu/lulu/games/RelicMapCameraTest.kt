@@ -107,8 +107,8 @@ class RelicMapCameraTest {
 
     @Test fun finiteCameraInputsThatOverflowProjectionCannotBecomeDrawableOrSelectable() {
         // All inputs are finite: only the derived zoom/offset overflows Float.
-        val zoomOverflow = relicMapCamera(Float.MAX_VALUE, 360f, 18, 15,
-            true, 4f, 5f, zoom = 1.75f)
+        val zoomOverflow = relicMapCamera(800f, Float.MAX_VALUE, 18, 1,
+            true, 4f, 0f, zoom = 1.75f)
         assertEquals(0f, zoomOverflow.tileSize, 0f)
         assertNull(zoomOverflow.tileAt(10f, 10f, 18, 15))
         assertArrayEquals(intArrayOf(0, 0, 0, 0),
