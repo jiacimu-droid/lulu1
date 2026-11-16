@@ -235,6 +235,17 @@ internal fun IslandCompanionPanel(
                     }
                     workingState = applied
                     currentSave(applied)
+                    // Only an accepted engine state is a lived game action.
+                    // A future plan is accepted but not yet completed.
+                    if (applied != latest) {
+                        val receipt = applied.world.notice
+                            .takeIf { it.isNotBlank() && it != latest.world.notice }
+                            ?: "已更新游戏状态或持续计划：${selectedAction.name}；目标尚未完成"
+                        GameTeamConversationTimeline.recordEngineAcceptedAction(
+                            context, "block_island", applied.world.seed.toString(),
+                            id, applied.world.turns, choice.actionId, receipt,
+                        )
+                    }
                     if (selectedAction.x >= 0 && selectedAction.y >= 0)
                         currentPing(selectedAction.x to selectedAction.y)
                 }
