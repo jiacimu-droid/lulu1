@@ -367,18 +367,13 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
     val memoryReplay = remember(record.id, record.detailsJson) { parseMemoryReplay(record.detailsJson) }
     val yachtReplay = remember(record.id, record.detailsJson) { parseYachtReplay(record.detailsJson) }
     val relicFrames = remember(record.id, record.detailsJson) { RelicSoloReplay.read(record.detailsJson) }
-    val steps = remember(record.id, record.detailsJson, record.characterReply) {
-        relicFrames?.let { frames ->
-            frames.mapIndexed { index, run ->
-                ReplayStep("${record.id}-frame-$index", index + 1,
-                    if (index == 0) "进入遗迹" else "实际行动 $index", run.notice)
-            } + ReplayStep("${record.id}-result", frames.size + 1, "本段结果", record.summary)
-        } ?: record.toReplaySteps()
-    }
-    // Relic frames use the actual map, edge-to-edge, with only floating playback chrome.
+    // The physical world replay never enters a menu-like step list.
     if (relicFrames != null) {
         RelicImmersiveReplay(record, relicFrames, onBack)
         return
+    }
+    val steps = remember(record.id, record.detailsJson, record.characterReply) {
+        record.toReplaySteps()
     }
     var visibleSteps by remember(record.id) { mutableIntStateOf(1.coerceAtMost(steps.size)) }
     var playing by remember(record.id) { mutableStateOf(false) }
@@ -405,29 +400,6 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
         }
 
         when {
-            relicFrames != null -> Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                val run = relicFrames[(visibleSteps - 1).coerceIn(0, relicFrames.lastIndex)]
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("遗迹第${run.level}层 · ${run.phase.name}", fontWeight = FontWeight.SemiBold)
-                    Text("物理回合 ${run.turns}", color = LuluColors.Muted)
-                }
-                Box(Modifier.fillMaxWidth().weight(1f)) {
-                    // The SAME map renderer as the playable landscape game.
-                    // Input is read-only and never runs the game rules again.
-                    RelicEscapeWorldMap(run, run.hero.x to run.hero.y,
-                        onSelect = { _, _ -> }, fullscreen = true)
-                }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("生命 ${run.hero.hp} · 背包 ${run.hero.bag.size} 件",
-                        fontWeight = FontWeight.Medium)
-                    Text("已带出 ${run.secured.size} 件", color = LuluColors.Muted)
-                }
-                Text(run.notice, color = LuluColors.Muted,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
             memoryReplay != null -> Box(Modifier.weight(1f)) {
                 MemoryMatchReplayScene(memoryReplay, visibleSteps, record.score)
             }
