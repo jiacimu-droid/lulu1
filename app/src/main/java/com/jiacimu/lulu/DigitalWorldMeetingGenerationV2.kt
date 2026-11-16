@@ -185,7 +185,10 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                     position = item.optString("position").trim().take(240),
                     posture = item.optString("posture").trim().take(240),
                     facing = item.optString("facing").trim().take(180),
-                    contact = list("contact"),
+                    // Story output may describe touch, but only real accepted
+                    // in-scene actions can commit enduring digital contact.
+                    contact = if (session.reality == MeetingReality.DIGITAL_WORLD)
+                        beforeById[id]?.contact.orEmpty() else list("contact"),
                     heldItems = list("heldItems"),
                     explorationMode = if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD) {
                         item.optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }
