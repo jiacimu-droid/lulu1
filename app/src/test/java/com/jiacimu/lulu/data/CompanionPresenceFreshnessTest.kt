@@ -93,7 +93,7 @@ class CompanionPresenceFreshnessTest {
         CompanionPresenceStore.clearCharacter(role)
         CompanionPresenceStore.beginCall(role)
         try {
-            CompanionPresenceStore.update(role, null, null, "", null, "聊天",
+            CompanionPresenceStore.update(role, "", "", "", null, "聊天",
                 Instant.now().plusSeconds(1))
             assertTrue(CompanionPresenceStore.isInCall(role))
             assertEquals("通话中", CompanionPresenceStore.current(role)!!.statusText)
