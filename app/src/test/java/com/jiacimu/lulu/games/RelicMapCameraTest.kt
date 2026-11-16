@@ -105,4 +105,24 @@ class RelicMapCameraTest {
             normal.visibleBounds(0f, 80f, 18, 15))
     }
 
+    @Test fun finiteCameraInputsThatOverflowProjectionCannotBecomeDrawableOrSelectable() {
+        // All inputs are finite: only the derived zoom/offset overflows Float.
+        val zoomOverflow = relicMapCamera(Float.MAX_VALUE, 360f, 18, 15,
+            true, 4f, 5f, zoom = 1.75f)
+        assertEquals(0f, zoomOverflow.tileSize, 0f)
+        assertNull(zoomOverflow.tileAt(10f, 10f, 18, 15))
+        assertArrayEquals(intArrayOf(0, 0, 0, 0),
+            zoomOverflow.visibleBounds(800f, 360f, 18, 15))
+
+        val focusOverflow = relicMapCamera(800f, 360f, 18, 15,
+            true, Float.MAX_VALUE, 5f)
+        assertEquals(0f, focusOverflow.tileSize, 0f)
+        assertNull(focusOverflow.tileAt(400f, 180f, 18, 15))
+
+        // Valid landscape zoom remains selectable at the real player's location.
+        val normal = relicMapCamera(800f, 360f, 18, 15,
+            true, 4f, 5f, zoom = 1.75f)
+        assertEquals(4 to 5, normal.tileAt(400f, 180f, 18, 15))
+    }
+
 }
