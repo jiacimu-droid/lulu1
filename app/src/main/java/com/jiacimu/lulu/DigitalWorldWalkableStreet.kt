@@ -251,8 +251,11 @@ internal fun DigitalWorldWalkableStreet(
                         )
                         val desired = destinationDoor?.entrance ?: follow
                         var path = companionRoutes[id].orEmpty()
-                        if (now >= (companionRouteAt[id] ?: 0L) || path.isEmpty()) {
+                        if (position.distanceTo(desired) <= 16f) {
+                            path = emptyList()
+                        } else if (now >= (companionRouteAt[id] ?: 0L)) {
                             path = worldFollowPath(position, desired, walkBounds, buildingObstacles, 28f)
+                            // A blocked route is not retried at 60 fps.
                             companionRouteAt = companionRouteAt + (id to (now + 850L))
                         }
                         while (path.isNotEmpty() && position.distanceTo(path.first()) < 14f) {
@@ -319,8 +322,8 @@ internal fun DigitalWorldWalkableStreet(
                 doors.forEachIndexed { index, door ->
                     val p = door.point
                     val left = index % 2 == 0
-                    val from = if (left) Offset(p.x + 115f, p.y + 24f) else Offset(p.x - 115f, p.y + 24f)
-                    val to = Offset(if (left) 610f else 675f, p.y + 24f)
+                    val from = if (left) Offset(p.x + 115f, p.y + 112f) else Offset(p.x - 115f, p.y + 112f)
+                    val to = Offset(if (left) 610f else 675f, p.y + 112f)
                     drawLine(Color(0xFFF4E9D2), from, to, 34f, cap = StrokeCap.Round)
                     drawOval(Color(0xFF547E69).copy(alpha = .20f),
                         Offset(p.x - 151f, p.y + 78f), Size(302f, 38f))
