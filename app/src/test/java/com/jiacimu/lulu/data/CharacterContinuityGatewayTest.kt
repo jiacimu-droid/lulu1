@@ -119,7 +119,11 @@ class CharacterContinuityGatewayTest {
             for (withOwner in listOf(false, true)) {
                 LuluAiServices.gateway.generate(
                     characterId = role, facts = "此刻有一份真实的本人生活时间线",
-                    instruction = "按真实关系与本人心愿选择是否说话或行动",
+                    // Exercise the actual online prompt switch, not just
+                    // two copies of the same synthetic gateway instruction.
+                    instruction = proactiveDecisionInstruction(
+                        role, directPrivateChat = withOwner,
+                    ),
                     source = "后台主动感知", title = if (withOwner) "新消息" else "生活回顾",
                     contextMode = CompanionContextMode.Full, connectionOverride = connection,
                     memoryRequest = requested, maxTokens = 350,
