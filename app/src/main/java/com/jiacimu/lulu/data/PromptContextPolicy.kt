@@ -85,7 +85,7 @@ internal object PromptContextPolicy {
                 precise = false,
                 workingSetCharacters = if (ownerConversation) 28_000 else 27_000,
             )
-            autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, world, true, 3_400, false)
+            autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
             world || activeTool -> PromptContextBudget(34, 7_800, if (activeTool) 3_200 else 2_400,
                 4_800, world, rich, 2_700, false)
             else -> PromptContextBudget(26, 6_000, 2_000, 3_800, false, false, 2_200, false)
