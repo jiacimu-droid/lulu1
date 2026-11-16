@@ -190,17 +190,25 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
 
     fun sendOwner() {
         val message = input.trim()
-        if (message.isEmpty() || busy || !room.started || room.revealed) return
-        val kind = if (room.host != SoupHost.USER && composingQuestion) SoupKind.QUESTION else SoupKind.DISCUSSION
+        if (message.isEmpty() || busy || !room.started || room.revealed ||
+            room.pendingQuestion >= 0 || room.pendingSolution >= 0) return
+        val kind = when {
+            room.host == SoupHost.USER -> SoupKind.DISCUSSION
+            composingSolution -> SoupKind.SOLUTION
+            composingQuestion -> SoupKind.QUESTION
+            else -> SoupKind.DISCUSSION
+        }
         val next = room.copy(lines = room.lines + SoupLine("你", kind, message))
         if (!commit(next)) return
         input = ""
         remainingAutonomousSteps = 3
-        if (kind == SoupKind.QUESTION) {
-            val questionIndex = next.lines.lastIndex
+        if (kind == SoupKind.QUESTION || kind == SoupKind.SOLUTION) {
+            val index = next.lines.lastIndex
             busy = true
             scope.launch {
-                try { judge(questionIndex) } finally { busy = false }
+                try {
+                    if (kind == SoupKind.QUESTION) judge(index) else judgeSolution(index)
+                } finally { busy = false }
             }
         }
     }
@@ -211,8 +219,19 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         commit(room.copy(lines = room.lines + SoupLine("你 · 主持", SoupKind.ANSWER, verdict, pending)))
     }
 
+    fun sendOwnerSolutionVerdict(correct: Boolean) {
+        val pending = room.pendingSolution
+        if (busy || !room.started || room.revealed || room.host != SoupHost.USER || pending < 0) return
+        val reply = if (correct) "还原成功 · 主持人确认核心真相已还原"
+            else "还差一点 · 主持人尚未确认"
+        if (commit(room.copy(lines = room.lines + SoupLine(
+                "你 · 主持", SoupKind.SOLUTION_RESULT, reply, pending,
+            ))) && correct) conclude(true)
+    }
+
     fun companionStep() {
-        if (busy || !room.started || room.revealed || room.pendingQuestion >= 0 || room.guessers.isEmpty()) return
+        if (busy || !room.started || room.revealed || room.pendingQuestion >= 0 ||
+            room.pendingSolution >= 0 || room.guessers.isEmpty()) return
         val snapshot = room
         val actor = snapshot.guessers[companionCursor % snapshot.guessers.size]
         companionCursor++
@@ -226,9 +245,9 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         "。你只知道公开题面、公共问答及讨论，没有汤底。",
                     instruction = "你是正在真实参与海龟汤的角色本人，不是主持人，不可读取或假装知道汤底。" +
                         "用人设和已公开证据形成假设，选择下一步：向主持人提一个可用是/否判断的新问题，" +
-                        "或者跟同伴自然讨论、指出矛盾，或者决定先等待玩家。" +
+                        "或者跟同伴讨论、指出矛盾，或者尝试完整还原真相（solve），或者决定等待玩家。" +
                         "不要重复已否定的假设，也不要凭空宣称问题已解决。" +
-                        "只输出JSON对象：{\"type\":\"question|discussion|wait\",\"text\":\"自然口语内容\"}。" +
+                        "只输出JSON对象：{\"type\":\"question|discussion|solve|wait\",\"text\":\"自然口语内容\"}。" +
                         "如选择wait，text可为空。不得替其他玩家发言。",
                     source = "游戏",
                     title = "海龟汤 · 同伴推理",
@@ -243,11 +262,16 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     } else if (room.id == snapshot.id) {
                         when (parsed.type) {
                             "wait" -> Unit
-                            "discussion", "question" -> {
-                                val kind = if (parsed.type == "question") SoupKind.QUESTION else SoupKind.DISCUSSION
+                            "discussion", "question", "solve" -> {
+                                val kind = when (parsed.type) {
+                                    "question" -> SoupKind.QUESTION
+                                    "solve" -> SoupKind.SOLUTION
+                                    else -> SoupKind.DISCUSSION
+                                }
                                 val next = room.copy(lines = room.lines + SoupLine(name(actor), kind, parsed.text))
-                                if (commit(next) && kind == SoupKind.QUESTION && next.host != SoupHost.USER) {
-                                    judge(next.lines.lastIndex)
+                                if (commit(next) && next.host != SoupHost.USER) {
+                                    if (kind == SoupKind.QUESTION) judge(next.lines.lastIndex)
+                                    if (kind == SoupKind.SOLUTION) judgeSolution(next.lines.lastIndex)
                                 }
                             }
                         }
@@ -262,9 +286,10 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     // Reactive to real room events, not a background perception polling clock.
     LaunchedEffect(room.id, room.started, room.lines.size, busy, autoThink, remainingAutonomousSteps) {
         if (busy || !room.started || !autoThink || room.revealed || remainingAutonomousSteps <= 0 ||
-            room.guessers.isEmpty() || room.pendingQuestion >= 0) return@LaunchedEffect
+            room.guessers.isEmpty() || room.pendingQuestion >= 0 || room.pendingSolution >= 0) return@LaunchedEffect
         val last = room.lines.lastOrNull()
         val shouldRespond = last == null || last.kind == SoupKind.ANSWER ||
+            last.kind == SoupKind.SOLUTION_RESULT ||
             (last.kind == SoupKind.DISCUSSION && last.speaker == "你")
         if (!shouldRespond || lastAutonomousTrigger == room.lines.size) return@LaunchedEffect
         lastAutonomousTrigger = room.lines.size
