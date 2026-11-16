@@ -527,7 +527,10 @@ object ProactivePerceptionRuntime {
                         .filter { it.id in visibleMotives }
                     val result = runCatching {
                         evaluateCharacter(appContext, conversation, effectiveTrigger, now,
-                            requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
+                            requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision,
+                            deferToNewUserBubble = requiredDuePlanId.isBlank() &&
+                                requiredInteractionEvidenceId.isNullOrBlank() &&
+                                motiveReviewId.isBlank() && onlineExpiryAtMillis == 0L)
                     }
                     result.onSuccess { action ->
                         // Preempted work is not a model-authored silent decision.
@@ -747,8 +750,11 @@ object ProactivePerceptionRuntime {
         now: Instant, requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
+        deferToNewUserBubble: Boolean = false,
     ): Action? {
         val characterId = conversation.characterId.ifBlank { "lulu" }
+        val userBubbleVersion = OnlineChatBatchStore.userBubbleVersion(characterId)
+            .takeIf { onlineRevision != null || deferToNewUserBubble }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         // ALL genuine role decision/tool work must have an execution lease,
         // including self-initiated phone browsing with no unread chat. A busy
@@ -761,7 +767,7 @@ object ProactivePerceptionRuntime {
             try {
                 evaluateCharacterWithActivity(
                     appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
-                    onlineRevision, generationActivityId = leaseId,
+                    onlineRevision, generationActivityId = leaseId, userBubbleVersion = userBubbleVersion,
                 )
             } catch (error: Throwable) {
                 currentCoroutineContext().ensureActive()
@@ -792,6 +798,7 @@ object ProactivePerceptionRuntime {
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
         generationActivityId: String? = null,
+        userBubbleVersion: Long? = null,
     ): Action? {
         val preparationStartedNanos = System.nanoTime()
         val characterId = conversation.characterId.ifBlank { "lulu" }
@@ -802,8 +809,11 @@ object ProactivePerceptionRuntime {
         // The generation may take seconds. Any NEW user bubble can open a newer
         // durable revision before this model completes; its older unsent choice
         // cannot be treated as the reply to the entire new user turn.
-        fun batchSuperseded(): Boolean = onlineRevision != null &&
-            !OnlineChatBatchStore.isCurrent(appContext, characterId, onlineRevision)
+        fun batchSuperseded(): Boolean =
+            (onlineRevision != null &&
+                !OnlineChatBatchStore.isCurrent(appContext, characterId, onlineRevision)) ||
+                (userBubbleVersion != null &&
+                    OnlineChatBatchStore.userBubbleVersion(characterId) != userBubbleVersion)
         fun deferSupersededDecision(): Action? {
             // Batch 1 diagnosis only: batch-superseded silences previously
             // lived only in recordPerceptionAttempt, not under the shadow tag.
@@ -822,6 +832,7 @@ object ProactivePerceptionRuntime {
             "-$characterId-${now.toEpochMilli()}"
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
+                ?.takeIf(DigitalWorldLifeEventStore::isImmediatelyWitnessed)
         } else null
         // A world tick is a committed scene, not always a character's own
         // witness receipt. Harmless environmental changes may be noticed later
@@ -986,9 +997,7 @@ object ProactivePerceptionRuntime {
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
-        val modelStartedNanos = System.nanoTime()
-        val modelOutcome = try {
-            LuluAiServices.gateway.generate(
+        suspend fun generateDecision() = LuluAiServices.gateway.generate(
             characterId = characterId,
             turnTraceId = turnTraceId,
             facts = buildString {
@@ -1318,7 +1327,13 @@ object ProactivePerceptionRuntime {
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
             imageDataUrls = unreadPhotos.urls,
-            )
+        )
+        val modelStartedNanos = System.nanoTime()
+        val modelOutcome = try {
+            if (userBubbleVersion == null) generateDecision()
+            else OnlineChatBatchStore.untilNextUserBubble(characterId, userBubbleVersion) {
+                generateDecision()
+            } ?: return deferSupersededDecision()
         } finally {
             // This inclusive duration survives a failed/timeout request.
             // It overlaps Prompt and 模型请求 on successful generations.

@@ -1191,7 +1191,7 @@ class CompanionModelGateway(
     private fun claudeBase(baseUrl: String): String = baseUrl.trimEnd('/').removeSuffix("/messages")
         .let { if (it.endsWith("/v1")) it else "$it/v1" }
 
-    private fun openAiCompatible(
+    private suspend fun openAiCompatible(
         connection: ModelConnection,
         system: String,
         user: String,
@@ -1338,25 +1338,25 @@ class CompanionModelGateway(
         }
     }
 
-    private fun requestPostJson(
+    private suspend fun requestPostJson(
         url: String,
         headers: Map<String, String>,
         body: JSONObject,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): JSONObject {
-        return ModelPostTransport.execute(url, headers, body.toString(), readTimeoutMillis) {
+        return ModelPostTransport.executeCancellable(url, headers, body.toString(), readTimeoutMillis) {
             parseJsonResponse(it.code, it.body?.string().orEmpty())
         }
     }
 
-    private fun requestPostStreamingReply(
+    private suspend fun requestPostStreamingReply(
         url: String,
         headers: Map<String, String>,
         body: JSONObject,
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
     ): ModelReply {
-        return ModelPostTransport.execute(
+        return ModelPostTransport.executeCancellable(
             url, headers + ("Accept" to "text/event-stream, application/json"),
             body.toString(), readTimeoutMillis,
         ) { connection ->

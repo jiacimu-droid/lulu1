@@ -667,8 +667,13 @@ internal object RelicEscapeRules {
                 noise=2
             }
             "companion_tick" -> {
-                if(autonomousIds.isEmpty() || !GameCoopPacing.relicHasPlan(s)) return s
-                next = s.log("team","companion_tick","同行伙伴沿本人已决定的计划前进")
+                if(s.coopPlans.keys.none { id -> id in autonomousIds &&
+                        s.allies.any { it.id == id && it.hp > 0 } }) return s
+                // Keep action ordering for a teammate already in motion, but a
+                // local teammate step is not the player's combat/wait turn.
+                val tick = s.copy(turns = s.turns + 1)
+                return RelicCoopTravel.advance(tick, autonomousIds)
+                    .takeUnless { it == tick } ?: s
             }
             "wait"->next=s.log("player","wait",if(s.phase==RelicPhase.DOWNED)"倒地等待救援" else "原地观察")
             else->return s.copy(notice="无效行动")

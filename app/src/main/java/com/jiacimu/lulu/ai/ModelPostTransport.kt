@@ -9,6 +9,8 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -35,6 +37,26 @@ internal object ModelPostTransport {
         .followSslRedirects(false)
         .build()
 
+    /** The gateway runs this on Dispatchers.IO. Cancellation closes the
+     * socket immediately, including while a response body is still streaming. */
+    internal suspend fun <T> executeCancellable(
+        url: String,
+        headers: Map<String, String>,
+        body: String,
+        readTimeoutMillis: Int,
+        read: (Response) -> T,
+    ): T = suspendCancellableCoroutine { continuation ->
+        val activeCall = java.util.concurrent.atomic.AtomicReference<Call>()
+        continuation.invokeOnCancellation { activeCall.get()?.cancel() }
+        val result = runCatching {
+            execute(url, headers, body, readTimeoutMillis, onCall = { call ->
+                activeCall.set(call)
+                if (!continuation.isActive) call.cancel()
+            }, read = read)
+        }
+        if (continuation.isActive) continuation.resumeWith(result)
+    }
+
     /** A fresh Call per attempt; never replay an upload or a response wait.
      * A proxy/VPN is part of the selected system route, not a reason to block it. */
     internal fun <T> execute(
@@ -43,6 +65,7 @@ internal object ModelPostTransport {
         body: String,
         readTimeoutMillis: Int,
         transportClient: OkHttpClient = client,
+        onCall: (Call) -> Unit = {},
         read: (Response) -> T,
     ): T {
         val bytes = body.toByteArray(Charsets.UTF_8)
@@ -76,7 +99,9 @@ internal object ModelPostTransport {
                     .followSslRedirects(false)
                     .readTimeout(readTimeoutMillis.coerceIn(30_000, 300_000).toLong(), TimeUnit.MILLISECONDS)
                     .build()
-                return transport.newCall(request).execute().use { response ->
+                val call = transport.newCall(request)
+                onCall(call)
+                return call.execute().use { response ->
                     phase = Phase.READ_RESPONSE
                     read(response)
                 }

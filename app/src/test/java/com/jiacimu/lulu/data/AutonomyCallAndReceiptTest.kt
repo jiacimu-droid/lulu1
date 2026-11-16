@@ -140,6 +140,9 @@ class AutonomyCallAndReceiptTest {
             occurredAt = Instant.parse("2026-10-09T03:00:00Z"),
         )
         assertTrue(DigitalWorldLifeEventStore.isAmbientMoment(tick("home_grid_ripple")))
+        assertFalse(DigitalWorldLifeEventStore.isImmediatelyWitnessed(tick("home_grid_ripple")))
+        assertTrue(DigitalWorldLifeEventStore.isImmediatelyWitnessed(tick("digital_sneeze")))
+        assertTrue(DigitalWorldLifeEventStore.isImmediatelyWitnessed(tick("roach")))
         assertFalse(DigitalWorldLifeEventStore.isAmbientMoment(tick("roach")))
     }
 }

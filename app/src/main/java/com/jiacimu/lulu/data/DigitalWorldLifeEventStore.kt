@@ -61,6 +61,9 @@ internal object DigitalWorldLifeEventStore {
     /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
     fun isAmbientMoment(tick: DigitalWorldLifeTick): Boolean = tick.kind in ambientMoments
 
+    internal fun isImmediatelyWitnessed(tick: DigitalWorldLifeTick): Boolean =
+        !isAmbientMoment(tick) || tick.kind in personalAmbient
+
     /**
      * A small lighting/temperature/detail observation is a genuine lived fact,
      * but not a new unfinished obligation to share, explore or wake the model.
@@ -161,7 +164,7 @@ internal object DigitalWorldLifeEventStore {
         // Character-owned actions and unresolved incidents are witnessed at once.
         // Brief environmental happenings remain choices to notice, not
         // automatically implanted memories or things the role must share.
-        if (!isAmbientMoment(result) || result.kind in personalAmbient) {
+        if (isImmediatelyWitnessed(result)) {
             recordObservedTick(characterId, result, now)
         }
         return result

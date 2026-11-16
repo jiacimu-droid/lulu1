@@ -1,6 +1,12 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Test
@@ -17,6 +23,39 @@ class OnlineChatBatchStoreTest {
 
     @After fun reset() {
         OnlineChatBatchStore.cancel(app, role)
+    }
+
+    @Test fun aNewBubbleInterruptsOnlyTheOwningRolesUnsentModelRequest(): Unit = runBlocking {
+        val original = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
+        val version = OnlineChatBatchStore.userBubbleVersion(role)
+        val waiting = CompletableDeferred<Unit>()
+        val stopped = CompletableDeferred<Unit>()
+        val outcome = async {
+            OnlineChatBatchStore.untilNextUserBubble(role, version) {
+                waiting.complete(Unit)
+                try {
+                    awaitCancellation()
+                } finally {
+                    stopped.complete(Unit)
+                }
+            }
+        }
+        withTimeout(2_000L) {
+            waiting.await()
+            val otherRole = "$role-other"
+            try {
+                OnlineChatBatchStore.onUserBubble(app, otherRole, 101_000L)
+                yield()
+                assertFalse(outcome.isCompleted)
+                val next = OnlineChatBatchStore.onUserBubble(app, role, 102_000L)
+                assertEquals(original.revision, next.revision)
+                assertNull(outcome.await())
+                assertTrue(stopped.isCompleted)
+                assertEquals(next.dueAtMillis, OnlineChatBatchStore.pendingDueAt(app, role))
+            } finally {
+                OnlineChatBatchStore.cancel(app, otherRole)
+            }
+        }
     }
 
     @Test fun uncertainTransportFailureParksOnlyQueueAndNewBubbleStartsFreshRevision() {

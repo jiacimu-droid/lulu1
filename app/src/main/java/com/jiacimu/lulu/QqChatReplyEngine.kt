@@ -422,7 +422,10 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowed }?.let { id -> before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val spoken = mutableListOf<LuluChatMessage>()
     val replyBatchId = UUID.randomUUID().toString()
-    delay(roleTypingLeadDelayMillis(characterId))
+    // A reply to a real private message has already waited for generation.
+    // Publish its first authored bubble as soon as the source can be verified.
+    if (replyGroup != null || actionableUserMessageIds.isNullOrEmpty())
+        delay(roleTypingLeadDelayMillis(characterId))
     var stale = false
     bubbles.forEachIndexed { index, bubble ->
         if (stale || !currentCoroutineContext().isActive) return@forEachIndexed

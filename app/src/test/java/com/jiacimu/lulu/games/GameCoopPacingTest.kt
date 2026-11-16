@@ -85,6 +85,38 @@ class GameCoopPacingTest {
         assertTrue(GameCoopPacing.relicThreat(incapacitated))
     }
 
+    @Test fun idleRelicPartnerCannotFinishExtractionOrUseUpRescueTime() {
+        val base = RelicEscapeWorld.create(77,1,roster.toList(),1,1)
+        val board = base.copy(
+            tiles = List(base.w * base.h) { 0 }, sites = emptyList(), chests = emptyList(),
+            allies = listOf(base.allies.first().copy(x = 8, y = 8, kits = 1)),
+        )
+        val extracting = board.copy(
+            phase = RelicPhase.EXTRACT, extraction = 2, flareTurns = 3,
+            coopPlans = mapOf("alice" to RelicCoopPlan("regroup", lastStepTurn = board.turns)),
+        )
+        val after = RelicEscapeRules.act(extracting, "companion_tick", autonomousIds = roster)
+        assertEquals(extracting.turns + 1, after.turns)
+        assertNotEquals(extracting.allies, after.allies)
+        assertEquals(RelicPhase.EXTRACT, after.phase)
+        assertEquals(extracting.extraction, after.extraction)
+        assertEquals(extracting.flareTurns, after.flareTurns)
+        assertEquals(extracting.hero, after.hero)
+        assertEquals(extracting.mobs, after.mobs)
+
+        val down = board.copy(
+            phase = RelicPhase.DOWNED, hero = board.hero.copy(hp = 0), downTurns = 3,
+            coopPlans = mapOf("alice" to RelicCoopPlan("rescue", lastStepTurn = board.turns)),
+        )
+        val approaching = RelicEscapeRules.act(down, "companion_tick", autonomousIds = roster)
+        assertNotEquals(down.allies, approaching.allies)
+        assertEquals(RelicPhase.DOWNED, approaching.phase)
+        assertEquals(down.downTurns, approaching.downTurns)
+        assertEquals(RelicPhase.FAILURE, RelicEscapeRules.act(
+            down.copy(coopPlans = emptyMap(), mobs = emptyList()), "wait", autonomousIds = roster,
+        ).phase)
+    }
+
     @Test fun relicPlannedStepsUseRealTurnAndStopAfterOwnerChangesMind() {
         val base=RelicEscapeWorld.create(77,1,roster.toList(),1,1)
         val s=base.copy(tiles=List(base.w*base.h){0},mobs=emptyList(),

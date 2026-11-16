@@ -12,6 +12,12 @@ import java.net.SocketException
 import java.net.URI
 import java.net.UnknownHostException
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import javax.net.ssl.SSLHandshakeException
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -40,6 +46,24 @@ class ModelPostTransportTest {
             assertEquals(body.toByteArray(Charsets.UTF_8).size.toString(), request.getHeader("Content-Length"))
             assertEquals(1, server.requestCount)
         } finally { server.shutdown() }
+    }
+
+    @Test fun cancelledDecoderReleasesItsSocketWithoutReposting(): Unit = runBlocking {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+            server.start()
+            val job = launch(Dispatchers.IO) {
+                ModelPostTransport.executeCancellable(server.url("/").toString(),
+                    emptyMap(), "{}", 30_000) { it.body!!.string() }
+            }
+            try {
+                assertNotNull(server.takeRequest(3, TimeUnit.SECONDS))
+                withTimeout(3_000L) { job.cancelAndJoin() }
+                assertEquals(1, server.requestCount)
+            } finally {
+                job.cancel()
+            }
+        }
     }
 
     @Test fun authenticationRejectionRetainsProviderBodyWithoutReplaying() {

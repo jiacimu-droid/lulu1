@@ -1,6 +1,11 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.selects.select
 
 /** Durable chat turns wait for the last user bubble; an unsent older reply must yield to newer input. */
 internal object OnlineChatBatchStore {
@@ -13,6 +18,30 @@ internal object OnlineChatBatchStore {
     const val POST_SEND_OBSERVE_MILLIS = 4_000L
     const val DRAFT_IDLE_FALLBACK_MILLIS = 60_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
+    private val userBubbleVersions = MutableStateFlow<Map<String, Long>>(emptyMap())
+
+    fun userBubbleVersion(characterId: String): Long = userBubbleVersions.value[characterId] ?: 0L
+
+    /** Only the still-unexecuted model request is interruptible here. */
+    suspend fun <T> untilNextUserBubble(
+        characterId: String, version: Long, request: suspend () -> T,
+    ): T? = coroutineScope {
+        if (userBubbleVersion(characterId) != version) return@coroutineScope null
+        val newerBubble = async {
+            userBubbleVersions.first { (it[characterId] ?: 0L) != version }
+        }
+        val generation = async { request() }
+        try {
+            select<T?> {
+                newerBubble.onAwait { null }
+                generation.onAwait { it }
+            }
+        } finally {
+            newerBubble.cancel()
+            generation.cancel()
+        }
+    }
+
     private val reading = mutableSetOf<Pair<String, Long>>()
     // Pure foreground signal, never durable content. A draft with no sent
     // bubble still shields its character from unrelated passive inferences.
@@ -55,6 +84,13 @@ internal object OnlineChatBatchStore {
     @Synchronized fun onUserBubble(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Batch {
+        val batch = extendForUserBubble(context, characterId, atMillis)
+        userBubbleVersions.value = userBubbleVersions.value +
+            (characterId to userBubbleVersion(characterId) + 1L)
+        return batch
+    }
+
+    private fun extendForUserBubble(context: Context, characterId: String, atMillis: Long): Batch {
         val p = prefs(context)
         val revision = p.getLong("revision:$characterId", 0L)
         if (p.contains("due:$characterId") && (characterId to revision) !in reading) {

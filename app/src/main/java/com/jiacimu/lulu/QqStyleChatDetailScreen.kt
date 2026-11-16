@@ -39,6 +39,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.delay
@@ -283,49 +285,53 @@ fun QqStyleChatDetailScreen(
     // Observe Android's active input recording only while this private IME has focus.
     // No microphone capture, speech recognition, polling AI or new model request here.
     val latestKeyboardVisible = rememberUpdatedState(keyboardVisible)
-    LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible) {
-        if (groupChat == null && routeVisible) {
+    val appVisibility = remember {
+        UserInteractionPresenceStore.state.map { it.appVisible }.distinctUntilChanged()
+    }
+    val appVisibleForComposer by appVisibility.collectAsState(
+        initial = UserInteractionPresenceStore.state.value.appVisible,
+    )
+    LaunchedEffect(conversationId, characterId, groupChat == null, routeVisible, appVisibleForComposer) {
+        if (groupChat == null && routeVisible && appVisibleForComposer) {
             try {
-                var lastEditSignalAt: Long? = null
                 val audioManager = context.getSystemService(AudioManager::class.java)
+                var lastEditSignal = 0L
                 snapshotFlow { Triple(inputState.value, composerFocused, latestKeyboardVisible.value) }
                     .collectLatest { (draft, focused, imeVisible) ->
-                        if (focused && imeVisible && draft.isBlank()) {
-                            // Third-party keyboards can dictate for several seconds before
-                            // their first committed text change. Only the OS audio-recording
-                            // state can tell us that a silent-looking composer is still busy.
-                            // Poll only in this focused/empty state; Android may hide sources.
-                            while (currentCoroutineContext().isActive) {
-                                val dictating = runCatching {
+                        if (!focused || !imeVisible) {
+                            OnlineChatBatchStore.onComposerIdle(context, characterId)
+                            return@collectLatest
+                        }
+                        val editedAt = android.os.SystemClock.elapsedRealtime()
+                        if (draft.isNotBlank() && (lastEditSignal == 0L || editedAt - lastEditSignal >= 350L)) {
+                            OnlineChatBatchStore.onComposerEdit(context, characterId)
+                            lastEditSignal = editedAt
+                        }
+                        var wasDictating = false
+                        var lastDictationSignal: Long? = null
+                        while (currentCoroutineContext().isActive) {
+                            // Some keyboards commit partial text while the mic
+                            // is still open. Keep watching until the IME closes.
+                            val dictating = withContext(Dispatchers.IO) {
+                                runCatching {
                                     audioManager?.activeRecordingConfigurations?.any {
-                                        isImeSpeechCaptureSource(it.clientAudioSource)
+                                        (android.os.Build.VERSION.SDK_INT < 29 || !it.isClientSilenced) &&
+                                            isImeSpeechCaptureSource(it.clientAudioSource)
                                     } == true
                                 }.getOrDefault(false)
-                                val now = android.os.SystemClock.elapsedRealtime()
-                                if (dictating) {
-                                    val last = lastEditSignalAt
-                                    if (last == null || now - last >= 350L) {
-                                        OnlineChatBatchStore.onComposerEdit(context, characterId)
-                                        lastEditSignalAt = now
-                                    }
-                                } else {
-                                    OnlineChatBatchStore.onComposerIdle(context, characterId)
-                                    lastEditSignalAt = null
-                                }
-                                delay(350L)
                             }
-                        } else if (draft.isNotBlank() && focused) {
-                            // Actual typing or a committed partial transcript.
                             val now = android.os.SystemClock.elapsedRealtime()
-                            val last = lastEditSignalAt
-                            if (last == null || now - last >= 350L) {
+                            val last = lastDictationSignal
+                            if (dictating && (!wasDictating || last == null || now - last >= 15_000L)) {
                                 OnlineChatBatchStore.onComposerEdit(context, characterId)
-                                lastEditSignalAt = now
+                                lastDictationSignal = now
+                            } else if (!dictating && draft.isBlank() && (wasDictating || last == null)) {
+                                OnlineChatBatchStore.onComposerIdle(context, characterId)
+                                lastDictationSignal = now
+                                lastEditSignal = 0L
                             }
-                        } else {
-                            // Defocus / keyboard dismissal is a genuine input boundary.
-                            OnlineChatBatchStore.onComposerIdle(context, characterId)
-                            lastEditSignalAt = null
+                            wasDictating = dictating
+                            delay(350L)
                         }
                     }
             } finally {
