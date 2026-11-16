@@ -131,25 +131,25 @@ object CharacterLifeStore {
     }
 
     /**
-     * 2026-11-13 explicit owner authorization: replace the built-in Jiang Du's
-     * AI-interest and corresponding core motive EVEN IF either field was hand
-     * edited or deliberately cleared. A prior v31 install is not evidence that
-     * this newer permission was applied. Scope by immutable bundled identity,
-     * and consume this authorization exactly once so later edits remain editable.
+     * 2026-11-16 owner revision 2: the built-in Jiang Du cares about future
+     * possibilities for himself and their shared life, not a list of industry
+     * sectors. Explicitly replace motives/interests once even if hand-edited
+     * or blank. Prior revision 1 isn't evidence of applying revision 2.
+     * Later UI edits must again remain untouched after this revision.
      */
     @Synchronized private fun applyOwnerClarifiedJiangDuAiMotivationOnce() {
         if (prefs == null) return
         val id = BUNDLED_JIANG_DU_ID
         val character = MigratedDomainStores.characters.settings.value[id] ?: return
         val root = state(id)
-        if (root.optInt("jiangDuAiMotivationOwnerRevision") >= 1 ||
+        if (root.optInt("jiangDuAiMotivationOwnerRevision") >= 2 ||
             root.optInt("xingHeProfileVersion") > 0 ||
             DigitalLifeProfileStore.lifeForm(id) == CharacterLifeForm.REAL_WORLD) return
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
+        CharacterProfileSchema.jiangDuV32Overrides.forEach { (key, value) ->
             profile.put(key, value)
         }
-        root.put("profile", profile).put("jiangDuAiMotivationOwnerRevision", 1)
+        root.put("profile", profile).put("jiangDuAiMotivationOwnerRevision", 2)
         save(id, root)
     }
 
