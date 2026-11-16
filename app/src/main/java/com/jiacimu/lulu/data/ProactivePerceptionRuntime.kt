@@ -823,9 +823,10 @@ object ProactivePerceptionRuntime {
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
-        // The authoritative world tick is already committed to the shared
-        // timeline and included in this same model turn. A system-generated
-        // chat bulletin is NOT the character choosing to tell the user:
+        // A world tick is a committed scene, not always a character's own
+        // witness receipt. Harmless environmental changes may be noticed later
+        // only if the role explicitly chooses observe_scene. A bulletin is
+        // not the character choosing to tell the user:
         // only an actual model-selected, executed message can do that.
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
