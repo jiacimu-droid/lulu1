@@ -95,6 +95,10 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
     var lastTeamPulseTurn by remember(run.id) { mutableIntStateOf(-1) }
     var lastHeldDecisionTurn by remember(run.id) { mutableIntStateOf(run.turns) }
+    var lastNearbyWindup by remember(run.id) { mutableStateOf(false) }
+    var threatAlertVersion by remember(run.id) { mutableIntStateOf(0) }
+    var lastNotifiedThreat by remember(run.id) { mutableIntStateOf(0) }
+    val latestThreatAlert by rememberUpdatedState(threatAlertVersion)
     var lastTeamPulseFinished by remember(run.id) {
         mutableStateOf<Set<String>>(emptySet())
     }
@@ -128,25 +132,35 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     // Do not charge a fresh companion decision for every tile of one gesture.
     // Explicit player messages still wake the real role while traveling.
     LaunchedEffect(run.id,run.turns,speechVersion,continuousTravel) {
+        val windup = GameCoopPacing.relicImmediateThreat(run)
+        if (windup && !lastNearbyWindup) threatAlertVersion++
+        lastNearbyWindup = windup
         if (!continuousTravel || speechVersion > notifiedSpeech ||
+            threatAlertVersion > lastNotifiedThreat ||
             GameCoopPacing.relicHeldDecisionDue(run,lastHeldDecisionTurn)) {
             notifiedSpeech = speechVersion
+            lastNotifiedThreat = threatAlertVersion
             signals.trySend(Unit)
         }
     }
     LaunchedEffect(run.id,members) {
         var requestedTurn = -1
         var requestedSpeech = 0
+        var requestedThreat = 0
         for (signal in signals) {
             if (currentRun().phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
             val turn = currentRun().turns
             val version = latestSpeech
-            if (latestTraveling && requestedSpeech == version &&
+            val alertVersion = latestThreatAlert
+            val urgentCombat = alertVersion > requestedThreat
+            if (latestTraveling && requestedSpeech == version && !urgentCombat &&
                 !GameCoopPacing.relicHeldDecisionDue(currentRun(),lastHeldDecisionTurn)) continue
-            if (requestedTurn == turn && requestedSpeech == version) continue
+            if (requestedTurn == turn && requestedSpeech == version &&
+                !urgentCombat) continue
             val unread = latestInbox
             requestedTurn = turn
             requestedSpeech = version
+            requestedThreat = alertVersion
             if (latestTraveling) lastHeldDecisionTurn = turn
             busy = true
             failure = ""
@@ -165,7 +179,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                         id in lastTeamPulseFinished
                     if (message.isBlank() &&
                         (RelicActorPlay.acted(snapshot,id) || id in snapshot.coopPlans) &&
-                        !urgentDown && !finishedOwnGoal) continue
+                        !urgentDown && !finishedOwnGoal && !urgentCombat) continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
                         .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
                     coroutineContext.ensureActive()
