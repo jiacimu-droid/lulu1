@@ -119,9 +119,10 @@ internal object CharacterSelfActivityRuntime {
                 }
                 if (action == "observe_scene") {
                     val incidentId = input.optString("incidentId").trim()
-                    if (incidentId.isBlank() ||
-                        DigitalWorldLifeEventStore.observableScenes(characterId)
-                            .none { it.incidentId == incidentId }) return null
+                    if (incidentId.isBlank()) return null
+                    // Parsing does not know the role ID or the eventual action
+                    // time. The real world executor checks scene, owner, place
+                    // and expiry before recording one firsthand observation.
                     args.put("incidentId", incidentId)
                 }
                 if (action == "handle_incident") {
