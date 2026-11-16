@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
@@ -51,18 +52,29 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val store = LuluGames.store
     val state by store.state.collectAsState()
     var replayCenterVisible by rememberSaveable { mutableStateOf(false) }
-    var replayLandscapeGameId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedReplayId by rememberSaveable { mutableStateOf<String?>(null) }
+    var fullscreenReplayId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LuluGamesApp(onBack = onBack, initialGameId = initialGameId,
         onReplayCenter = { replayCenterVisible = true },
-        replayLandscapeGameId = replayLandscapeGameId)
+        replayLandscapeGameId = if (fullscreenReplayId != null) "relic_escape" else null,
+        fullscreenReplayId = fullscreenReplayId,
+        onFullscreenReplayExit = {
+            fullscreenReplayId = null
+            replayCenterVisible = true
+        })
 
-    if (replayCenterVisible) {
+    if (replayCenterVisible && fullscreenReplayId == null) {
         UniversalReplayCenter(
             records = state.records,
+            selectedId = selectedReplayId,
+            onSelectRecord = { selectedReplayId = it },
             onClear = store::clearRecords,
-            onDismiss = { replayLandscapeGameId = null; replayCenterVisible = false },
-            onReplayModeChange = { replayLandscapeGameId = it },
+            onDismiss = { replayCenterVisible = false },
+            onOpenFullscreenReplay = { id ->
+                fullscreenReplayId = id
+                replayCenterVisible = false
+            },
         )
     }
 }
@@ -71,19 +83,20 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
 @Composable
 private fun UniversalReplayCenter(
     records: List<LuluGameRecord>,
+    selectedId: String?,
+    onSelectRecord: (String?) -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
-    onReplayModeChange: (String?) -> Unit,
+    onOpenFullscreenReplay: (String) -> Unit,
 ) {
-    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val selected = records.firstOrNull { it.id == selectedId }
     var showReplay by rememberSaveable(selectedId) { mutableStateOf(false) }
     BackHandler(enabled = selected != null) {
-        if (showReplay) { showReplay = false; onReplayModeChange(null) }
-        else selectedId = null
+        if (showReplay) showReplay = false
+        else onSelectRecord(null)
     }
     ModalBottomSheet(
-        onDismissRequest = { onReplayModeChange(null); onDismiss() },
+        onDismissRequest = onDismiss,
         containerColor = LuluColors.Paper,
     ) {
         if (selected == null) {
@@ -116,7 +129,7 @@ private fun UniversalReplayCenter(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         items(records, key = LuluGameRecord::id) { record ->
-                            ReplayRecordCard(record = record, onClick = { selectedId = record.id })
+                            ReplayRecordCard(record = record, onClick = { onSelectRecord(record.id) })
                         }
                     }
                 }
@@ -124,17 +137,20 @@ private fun UniversalReplayCenter(
         } else if (showReplay) {
             if (selected!!.canWatchCharacterSoloProcess()) {
                 UniversalGameReplay(record = selected!!, onBack = {
-                    showReplay = false; onReplayModeChange(null)
+                    showReplay = false
                 })
             } else {
                 UniversalGameResult(record = selected!!,
-                    onBack = { selectedId = null }, onReplay = { })
+                    onBack = { onSelectRecord(null) }, onReplay = { })
             }
         } else {
             UniversalGameResult(record = selected!!,
-                onBack = { selectedId = null }, onReplay = {
-                    showReplay = true
-                    onReplayModeChange(if (selected!!.type == LuluGameType.RelicEscape) "relic_escape" else null)
+                onBack = { onSelectRecord(null) }, onReplay = {
+                    // A physical relic run deserves the actual game viewport, not a sheet.
+                    if (selected!!.type == LuluGameType.RelicEscape &&
+                        RelicSoloReplay.read(selected!!.detailsJson) != null) {
+                        onOpenFullscreenReplay(selected!!.id)
+                    } else showReplay = true
                 })
         }
     }
@@ -355,6 +371,11 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
             } + ReplayStep("${record.id}-result", frames.size + 1, "本段结果", record.summary)
         } ?: record.toReplaySteps()
     }
+    // Relic frames use the actual map, edge-to-edge, with only floating playback chrome.
+    if (relicFrames != null) {
+        RelicImmersiveReplay(record, relicFrames, onBack)
+        return
+    }
     var visibleSteps by remember(record.id) { mutableIntStateOf(1.coerceAtMost(steps.size)) }
     var playing by remember(record.id) { mutableStateOf(false) }
 
@@ -458,6 +479,130 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
             ) { Text("下一步"); Icon(Icons.Outlined.SkipNext, null) }
         }
         Spacer(Modifier.height(14.dp))
+    }
+}
+
+/** An actual read-only game viewport; no Sheet, no simulated actions or new model calls. */
+@Composable
+private fun RelicImmersiveReplay(
+    record: LuluGameRecord,
+    frames: List<RelicRun>,
+    onBack: () -> Unit,
+) {
+    var frameIndex by rememberSaveable(record.id) { mutableIntStateOf(0) }
+    var playing by rememberSaveable(record.id) { mutableStateOf(true) }
+    var doubleSpeed by rememberSaveable(record.id) { mutableStateOf(false) }
+    var controlsVisible by rememberSaveable(record.id) { mutableStateOf(true) }
+    var zoom by remember(record.id) { mutableFloatStateOf(1f) }
+    var pan by remember(record.id) { mutableStateOf(Offset.Zero) }
+    val last = frames.lastIndex
+    val index = frameIndex.coerceIn(0, last)
+    val run = frames[index]
+
+    LaunchedEffect(playing, doubleSpeed, record.id, last) {
+        while (playing && frameIndex < last) {
+            delay(if (doubleSpeed) 370L else 740L)
+            frameIndex = (frameIndex + 1).coerceAtMost(last)
+        }
+        if (frameIndex >= last) playing = false
+    }
+
+    Box(Modifier.fillMaxSize().background(Color(0xFF070D16))) {
+        // Same painter/camera/character interpolation as playing Relic Escape.
+        // Tap the world to hide/reveal HUD; pinch to inspect explored terrain.
+        RelicEscapeWorldMap(
+            run = run,
+            selected = run.hero.x to run.hero.y,
+            onSelect = { _, _ -> controlsVisible = !controlsVisible },
+            fullscreen = true,
+            viewZoom = zoom,
+            viewPan = pan,
+            onViewChange = { drag, scale ->
+                zoom = (zoom * scale).coerceIn(0.8f, 2.4f)
+                pan += drag
+            },
+        )
+        if (controlsVisible) {
+            Row(
+                Modifier.align(Alignment.TopCenter).fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Row(
+                    Modifier.background(Color(0xD90A1522), RoundedCornerShape(15.dp))
+                        .height(42.dp).padding(end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = onBack, modifier = Modifier.size(40.dp)) {
+                        Icon(Icons.Outlined.ArrowBack, "退出回放", tint = Color.White)
+                    }
+                    Text("迷雾摸金 · 回放", color = Color.White,
+                        fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                }
+                Spacer(Modifier.weight(1f))
+                Text(
+                    "第${run.level}层  ·  生命${run.hero.hp}  ·  背包${run.hero.bag.size}  ·  ${index + 1}/${frames.size}",
+                    modifier = Modifier.background(Color(0xD90A1522), RoundedCornerShape(13.dp))
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    color = Color(0xFFE4E8EF), fontSize = 12.sp,
+                )
+            }
+            Column(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                    .background(Brush.verticalGradient(
+                        listOf(Color.Transparent, Color(0xE807101B), Color(0xF707101B)),
+                    ))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                Text(
+                    if (index == last) "本次冒险结束 · ${record.summary}"
+                    else run.notice.ifBlank { "正在探索遗迹" },
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    color = Color(0xFFF0E4C9), fontSize = 12.sp,
+                )
+                Slider(
+                    value = index.toFloat(),
+                    onValueChange = { playing = false; frameIndex = it.toInt().coerceIn(0, last) },
+                    valueRange = 0f..last.toFloat(),
+                    modifier = Modifier.fillMaxWidth().height(28.dp),
+                )
+                Row(
+                    Modifier.fillMaxWidth().height(42.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    IconButton(onClick = {
+                        playing = false; frameIndex = (frameIndex - 1).coerceAtLeast(0)
+                    }) {
+                        Icon(Icons.Outlined.SkipPrevious, "上一步", tint = Color.White)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    IconButton(onClick = {
+                        if (frameIndex >= last) frameIndex = 0
+                        playing = !playing || frameIndex == 0
+                    }, modifier = Modifier.size(42.dp)) {
+                        Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                            if (playing) "暂停" else "播放", tint = Color.White)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    IconButton(onClick = {
+                        playing = false; frameIndex = (frameIndex + 1).coerceAtMost(last)
+                    }) {
+                        Icon(Icons.Outlined.SkipNext, "下一步", tint = Color.White)
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    TextButton(onClick = { doubleSpeed = !doubleSpeed }) {
+                        Text(if (doubleSpeed) "2×" else "1×",
+                            color = Color(0xFFFFD894), fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = { controlsVisible = false }) {
+                        Icon(Icons.Outlined.VisibilityOff, "隐藏控件",
+                            tint = Color(0xFFE4E8EF), modifier = Modifier.size(19.dp))
+                    }
+                }
+            }
+        }
     }
 }
 
