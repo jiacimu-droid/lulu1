@@ -16,7 +16,7 @@ class IslandWorkbenchRecipesTest {
         val table = w.index(6, 5)
         val ready = base.copy(world = w, crystals = 3, structures = mapOf(table to "workbench"))
 
-        assertEquals(setOf("axe", "pickaxe", "sword", "rod", "charm"),
+        assertEquals(setOf("axe", "wood_pickaxe", "pickaxe", "sword", "rod", "charm"),
             IslandWorkbenchRecipes.all.map { it.tool }.toSet())
         for (recipe in IslandWorkbenchRecipes.all) {
             assertEquals("craft_" + recipe.tool, recipe.action)
@@ -70,4 +70,39 @@ class IslandWorkbenchRecipesTest {
                 BlockIslandRules.act(farAway, recipe.action, world.x, world.y).world.turns)
         }
     }
+    @Test fun woodenPickaxeIsPersistedAndDoesNotMineCrystalVeins() {
+        val seed = 427
+        val base = BlockIslandRules.newWorld(seed, emptyList())
+        val world = base.world.copy(x = 5, y = 5, wood = 20, stone = 20, mobs = emptyList())
+        val ready = base.copy(world = world, structures = mapOf(world.index(6, 5) to "workbench"))
+        val crafted = BlockIslandRules.act(ready, "craft_wood_pickaxe", world.x, world.y)
+        assertTrue("wood_pickaxe" in crafted.tools)
+        assertEquals(world.wood - 2, crafted.world.wood)
+        val restored = BlockIslandState.fromJson(crafted.toJson())!!
+        assertTrue("wood_pickaxe" in restored.tools)
+        val ordinary = restored.world.tiles.indices.first { i ->
+            restored.world.tiles[i] == 2 && !IslandProgression.crystalVein(seed, i)
+        }
+        val crystal = restored.world.tiles.indices.first { i ->
+            restored.world.tiles[i] == 2 && IslandProgression.crystalVein(seed, i)
+        }
+        fun beside(s: BlockIslandState, index: Int): BlockIslandState {
+            val x = index % s.world.width
+            val y = index / s.world.width
+            return s.copy(world = s.world.copy(x = x - 1, y = y))
+        }
+        val normal = beside(restored, ordinary)
+        val mined = BlockIslandRules.act(normal, "gather", ordinary % world.width, ordinary / world.width)
+        assertEquals(normal.world.stone + 3, mined.world.stone)
+        val blocked = beside(restored, crystal)
+        val denied = BlockIslandRules.act(blocked, "gather", crystal % world.width, crystal / world.width)
+        assertEquals(blocked.world.turns, denied.world.turns)
+        assertEquals(blocked.crystals, denied.crystals)
+        assertEquals(blocked.world.tiles, denied.world.tiles)
+        val upgraded = blocked.copy(tools = blocked.tools + "pickaxe")
+        val extracted = BlockIslandRules.act(upgraded, "gather", crystal % world.width, crystal / world.width)
+        assertEquals(upgraded.world.stone + 4, extracted.world.stone)
+        assertEquals(upgraded.crystals + 1, extracted.crystals)
+    }
+
 }
