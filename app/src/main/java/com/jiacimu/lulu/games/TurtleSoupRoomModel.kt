@@ -105,7 +105,7 @@ internal object SoupLibrary {
 }
 
 internal enum class SoupHost { AI, CHARACTER, USER }
-internal enum class SoupKind { QUESTION, ANSWER, DISCUSSION }
+internal enum class SoupKind { QUESTION, ANSWER, DISCUSSION, SOLUTION, SOLUTION_RESULT }
 
 internal data class SoupLine(
     val speaker: String,
@@ -123,6 +123,7 @@ internal data class SoupRoom(
     val lines: List<SoupLine> = emptyList(),
     val started: Boolean = false,
     val revealed: Boolean = false,
+    val solved: Boolean = false,
 ) {
     val puzzle: SoupCase get() = requireNotNull(SoupLibrary.find(caseId))
     val hostId: String? get() = if (host == SoupHost.CHARACTER) companions.firstOrNull() else null
@@ -132,6 +133,12 @@ internal data class SoupRoom(
             lines.indices.none { j -> lines[j].kind == SoupKind.ANSWER && lines[j].questionIndex == it }
     } ?: -1
     val questionCount: Int get() = lines.count { it.kind == SoupKind.QUESTION }
+    val solutionAttempts: Int get() = lines.count { it.kind == SoupKind.SOLUTION }
+    /** Unjudged solutions survive failed network calls and app restarts. */
+    val pendingSolution: Int get() = lines.indices.lastOrNull { i ->
+        lines[i].kind == SoupKind.SOLUTION &&
+            lines.indices.none { j -> lines[j].kind == SoupKind.SOLUTION_RESULT && lines[j].questionIndex == i }
+    } ?: -1
 
     /** Every event, including early discussions and negative evidence, remains in this authoritative log. */
     fun publicContext(): String = buildString {
@@ -145,6 +152,8 @@ internal data class SoupRoom(
                 SoupKind.QUESTION -> "问"
                 SoupKind.ANSWER -> "答"
                 SoupKind.DISCUSSION -> "讨论"
+                SoupKind.SOLUTION -> "还原真相"
+                SoupKind.SOLUTION_RESULT -> "还原判定"
             })
             if (line.questionIndex >= 0) append("(回应#").append(line.questionIndex + 1).append(')')
             append('：').append(line.text).append('\n')
@@ -159,6 +168,7 @@ internal data class SoupRoom(
         .put("companions", JSONArray(companions))
         .put("started", started)
         .put("revealed", revealed)
+        .put("solved", solved)
         .put("lines", JSONArray().apply {
             lines.forEach { line ->
                 put(JSONObject().put("speaker", line.speaker)
@@ -181,6 +191,7 @@ internal data class SoupRoom(
                 host = SoupHost.valueOf(raw.getString("host")),
                 companions = (0 until roster.length()).map { roster.getString(it) }.distinct(),
                 revealed = raw.optBoolean("revealed"),
+                solved = raw.optBoolean("solved"),
                 started = raw.optBoolean("started", entries.length() > 0),
                 lines = (0 until entries.length()).map { index ->
                     val line = entries.getJSONObject(index)
@@ -226,4 +237,18 @@ internal fun parseSoupCompanionDecision(raw: String): SoupCompanionDecision? = r
     val message = json.optString("text").trim()
     require(type == "wait" || message.isNotBlank())
     SoupCompanionDecision(type, message.take(400))
+}.getOrNull()
+
+/** The judge must return an explicit JSON boolean; never parse "looks correct" from prose. */
+internal data class SoupSolutionJudgment(val correct: Boolean, val feedback: String)
+internal fun parseSoupSolutionJudgment(raw: String): SoupSolutionJudgment? = runCatching {
+    val start = raw.indexOf('{')
+    val end = raw.lastIndexOf('}')
+    require(start >= 0 && end > start)
+    val json = JSONObject(raw.substring(start, end + 1))
+    val correct = json.get("correct")
+    require(correct is Boolean)
+    val feedback = json.optString("feedback").trim()
+    require(feedback.isNotBlank())
+    SoupSolutionJudgment(correct, feedback.take(180))
 }.getOrNull()
