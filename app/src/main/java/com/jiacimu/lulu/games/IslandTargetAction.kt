@@ -74,6 +74,7 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
                 rare && !canMine -> "蓝晶矿 · 需要石镐"
                 rare -> "石镐开采 · 晶石+1"
                 "pickaxe" in state.tools -> "石镐采石 +4"
+                "wood_pickaxe" in state.tools -> "木镐采石 +3"
                 else -> "徒手采石 +2"
             }
             IslandTargetAction("gather",label,canMine,distance)
