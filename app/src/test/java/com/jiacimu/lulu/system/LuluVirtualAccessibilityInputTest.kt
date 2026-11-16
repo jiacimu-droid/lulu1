@@ -19,7 +19,7 @@ class LuluVirtualAccessibilityInputTest {
         assertEquals("accessibility_tap_virtual_display", receipt.optString("actionMethod"))
     }
 
-    @Test fun wechatComposerRecoveryNeverGuessesKeyboardWithoutOwnedAccessibility() {
+    @Test fun wechatComposerRecoveryNeverGuessesKeyboardWithoutOwnedAccessibility() = runBlocking {
         val receipt = LuluAccessibilityService.switchVirtualChatToText(
             displayId = 71, packageName = "com.tencent.mm",
             recipient = "文件传输助手", expectedFingerprint = "observed-real-tree")
