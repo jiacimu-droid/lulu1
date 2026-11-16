@@ -160,6 +160,63 @@ internal object AutonomousActionWireProtocol {
     }
 
     /**
+     * Phone executor verbs live inside args.action, not in a step's outer
+     * action="tool". Missing/unknown verbs need the SAME character's explicit
+     * correction; appName or prose is not permission to guess "launch".
+     */
+    internal fun invalidBackgroundPhoneStepActions(steps: org.json.JSONArray?): List<String> = buildList {
+        for (index in 0 until (steps?.length() ?: 0)) {
+            val step = steps?.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "background_phone") continue
+            val args = step.optJSONObject("args") ?: JSONObject()
+            if (!com.jiacimu.lulu.system.LuluBackgroundPhoneArgumentPolicy.isSupportedAction(
+                    args.optString("action").trim().lowercase())) {
+                add("steps[$index].args.action")
+            }
+        }
+    }
+
+    /**
+     * Keep already authored arguments (particularly appName/target coordinates),
+     * and accept only a role-authored correction of an invalid action. This is
+     * transport normalization, never an executor-selected next step.
+     */
+    internal fun repairBackgroundPhoneArgs(original: JSONObject, patch: JSONObject): JSONObject? {
+        val policy = com.jiacimu.lulu.system.LuluBackgroundPhoneArgumentPolicy
+        if (policy.isSupportedAction(original.optString("action").trim().lowercase())) return null
+        val verb = patch.optString("action").trim().lowercase()
+        if (!policy.isSupportedAction(verb)) return null
+        val fixed = JSONObject(original.toString()).put("action", verb)
+        listOf("packageName", "appName", "text", "screenSnapshotId", "elementRef",
+            "x", "y", "startX", "startY", "endX", "endY", "durationMs",
+            "expectedText", "recipient").forEach { key ->
+            if (!fixed.has(key) && patch.has(key)) fixed.put(key, patch.opt(key))
+        }
+        return fixed.takeIf { policy.invalidReason(verb, it) == null }
+    }
+
+    /** Patch ONLY broken background-phone steps; other step identities and order survive. */
+    internal fun repairBackgroundPhoneSteps(
+        steps: org.json.JSONArray?, correction: JSONObject,
+    ): org.json.JSONArray? {
+        if (steps == null || invalidBackgroundPhoneStepActions(steps).isEmpty()) return null
+        val patches = correction.optJSONArray("repairs") ?: return null
+        val copied = org.json.JSONArray(steps.toString())
+        for (i in 0 until patches.length()) {
+            val patch = patches.optJSONObject(i) ?: continue
+            val index = patch.optInt("index", -1)
+            if (index !in 0 until copied.length()) continue
+            val step = copied.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "background_phone") continue
+            val originalArgs = step.optJSONObject("args") ?: JSONObject()
+            val fixed = repairBackgroundPhoneArgs(originalArgs, patch) ?: continue
+            step.put("args", fixed)
+            copied.put(index, step)
+        }
+        return copied.takeIf { invalidBackgroundPhoneStepActions(it).isEmpty() }
+    }
+
+    /**
      * A syntactically selected build is not executable without its actual
      * required fields. This only validates the model's authored JSON; it never
      * selects a world action, names an item, or invents its appearance.
