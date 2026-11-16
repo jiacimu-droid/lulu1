@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:54:03.275523+00:00",
-  "commit": "ee481c609685804729e4cd96737d6f1877e171df",
+  "generatedAt": "2026-11-16T16:55:09.693152+00:00",
+  "commit": "c8fe9b953b11897970a481114700faf56aec34da",
   "branch": "main",
-  "sourceFingerprint": "3c1a6ddd7516919887f3b300c549b7c053a17e4cb8c37253be3377b795e2dc17",
+  "sourceFingerprint": "efc57ac4cb350e920738c677f181077325e136072b2253534ccf35b68a33bfcb",
   "summary": {
     "files": 1369,
-    "lines": 292592,
+    "lines": 292614,
     "symbols": 4124
   },
   "symbolIndex": {
@@ -38834,8 +38834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 217,
-      "sha256": "02b931db76701c6b051c9bc65a438607137a1553475174843adce8b2022e3054",
+      "lines": 239,
+      "sha256": "16fc9b8553a048b065b3f48bbdc460be71571dafa6d517a288547195bfa856c8",
       "symbols": [
         {
           "name": "monsterCount",
