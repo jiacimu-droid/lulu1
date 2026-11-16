@@ -85,6 +85,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     var notifiedSpeech by remember(run.id) { mutableIntStateOf(0) }
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
     var lastTeamPulseTurn by remember(run.id) { mutableIntStateOf(-1) }
+    var lastHeldDecisionTurn by remember(run.id) { mutableIntStateOf(run.turns) }
     var lastTeamPulseFinished by remember(run.id) {
         mutableStateOf<Set<String>>(emptySet())
     }
@@ -98,12 +99,14 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
             val now = currentRun()
             if (now.id != run.id) break
             if (!GameCoopPacing.canTick(
-                    hasPlan = GameCoopPacing.relicHasPlan(now),
+                    hasPlan = GameCoopPacing.relicTickActors(now).isNotEmpty(),
                     isForeground = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
                     navigating = latestTraveling,
                     thinking = busy,
                     playerSpeaking = openMic.hasUncommittedSpeech,
-                    nearbyThreat = GameCoopPacing.relicThreat(now),
+                    // The actor filter above pauses errands but keeps a chosen
+                    // fight/rescue route active even while enemies are nearby.
+                    nearbyThreat = false,
                 )) continue
             val after = latestPulse(now.id)
             if (after != null && after.id == now.id && after.turns > now.turns) {
@@ -116,7 +119,8 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     // Do not charge a fresh companion decision for every tile of one gesture.
     // Explicit player messages still wake the real role while traveling.
     LaunchedEffect(run.id,run.turns,speechVersion,continuousTravel) {
-        if (!continuousTravel || speechVersion > notifiedSpeech) {
+        if (!continuousTravel || speechVersion > notifiedSpeech ||
+            GameCoopPacing.relicHeldDecisionDue(run,lastHeldDecisionTurn)) {
             notifiedSpeech = speechVersion
             signals.trySend(Unit)
         }
@@ -128,11 +132,13 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
             if (currentRun().phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
             val turn = currentRun().turns
             val version = latestSpeech
-            if (latestTraveling && requestedSpeech == version) continue
+            if (latestTraveling && requestedSpeech == version &&
+                !GameCoopPacing.relicHeldDecisionDue(currentRun(),lastHeldDecisionTurn)) continue
             if (requestedTurn == turn && requestedSpeech == version) continue
             val unread = latestInbox
             requestedTurn = turn
             requestedSpeech = version
+            if (latestTraveling) lastHeldDecisionTurn = turn
             busy = true
             failure = ""
             try {
