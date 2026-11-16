@@ -25,17 +25,17 @@ class CharacterSceneCadenceTest {
             true, false, false, false,
             CharacterSceneCadence.PHONE_MIN_USER_SILENCE_MS,
             CharacterSceneCadence.PHONE_MIN_AUDIO_GAP_MS,
-            CharacterSceneCadence.PHONE_INITIAL_REVIEW_MS, 0))
+            CharacterSceneCadence.PHONE_SILENCE_REVIEW_MS, 0))
         assertFalse(CallSilencePolicy.shouldReflect(
             true, false, false, true,
             CharacterSceneCadence.PHONE_MIN_USER_SILENCE_MS,
             CharacterSceneCadence.PHONE_MIN_AUDIO_GAP_MS,
-            CharacterSceneCadence.PHONE_INITIAL_REVIEW_MS, 0))
+            CharacterSceneCadence.PHONE_SILENCE_REVIEW_MS, 0))
         assertFalse(CallSilencePolicy.shouldReflect(
             true, false, true, false,
             CharacterSceneCadence.PHONE_MIN_USER_SILENCE_MS,
             CharacterSceneCadence.PHONE_MIN_AUDIO_GAP_MS,
-            CharacterSceneCadence.PHONE_INITIAL_REVIEW_MS, 0))
+            CharacterSceneCadence.PHONE_SILENCE_REVIEW_MS, 0))
         assertTrue(CallSilencePolicy.context(60_000L, true).contains("reply 或 silent"))
     }
 
