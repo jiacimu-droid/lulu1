@@ -441,7 +441,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     node.getChild(i)?.let { scan(it, depth + 1) }
             }
             ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
-            return JSONArray().apply { labels.take(12).forEach(::put) }
+            return JSONArray().apply { labels.take(12).forEach { put(it) } }
         }
 
         fun virtualUiSnapshot(displayId: Int, packageName: String): JSONObject {
@@ -537,13 +537,15 @@ class LuluAccessibilityService : AccessibilityService() {
             recipient: String, height: Int,
         ): Boolean {
             val titleBounds = mutableListOf<Rect>()
+            val width = virtualDimensions(service, displayId)?.first ?: return false
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
                 if (depth > 24 || visited++ > 460 ||
                     !node.isVisibleToUser || node.isPassword) return
                 val bounds = Rect().also(node::getBoundsInScreen)
                 if (bounds.top >= 0 && bounds.bottom <= height * 3 / 10 &&
-                    bounds.width() > 0 && bounds.height() > 0 &&
+                    bounds.width() > 0 && bounds.width() <= width * 4 / 5 &&
+                    bounds.height() in 1..(height / 10).coerceAtLeast(1) &&
                     !node.isEditable && LuluVirtualChatSendPolicy.headerMatches(
                         node.text?.toString(), node.contentDescription?.toString(), recipient))
                     titleBounds.add(bounds)
@@ -834,7 +836,17 @@ class LuluAccessibilityService : AccessibilityService() {
             if (!editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
                 return denied("chat_input_rejected")
             // A failed readback leaves only an unsent draft; never click Send.
-            if (!editor.refresh() || editor.text?.toString() != message)
+            val readback = if (editor.refresh() && editor.text?.toString() == message) true
+                else ownedVirtualRoots(service, displayId, packageName)
+                    .flatMap(::visibleEditors)
+                    .filter { LuluVirtualChatSendPolicy.chatEditorCandidate(
+                        it.className?.toString(), it.hintText?.toString(),
+                        it.viewIdResourceName) }
+                    .distinctBy { node ->
+                        val rect = Rect().also(node::getBoundsInScreen)
+                        rect.centerX() to rect.centerY()
+                    }.singleOrNull()?.text?.toString() == message
+            if (!readback)
                 return denied("chat_input_unverified")
                     .put("messageInputReadbackVerified", false)
             if (!stillAuthorized() ||
