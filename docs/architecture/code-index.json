@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:11:32.726852+00:00",
-  "commit": "287ac20ff001623721001fbfd8a6800976ffb721",
+  "generatedAt": "2026-11-16T04:11:54.786393+00:00",
+  "commit": "3cbbb79336d1622ab5c47a912df00d6dffd297d5",
   "branch": "main",
-  "sourceFingerprint": "2529f8e79697526ca86e42f9e22c621228111eeb83a2a77158ce0b67b86f61db",
+  "sourceFingerprint": "c8ad8301c5e42554a1a60b05c5be5916ec4b99f9eb7f1ea7a627d329aa4e2414",
   "summary": {
     "files": 1350,
-    "lines": 287902,
+    "lines": 287903,
     "symbols": 4065
   },
   "symbolIndex": {
@@ -3543,13 +3543,13 @@
     "reachedSceneItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 107
+        "line": 108
       }
     ],
     "reachedStreetDoor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 164
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
@@ -25464,8 +25464,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 209,
-      "sha256": "d0339798fe4319d5772ddaf1a74e6c6eade21c0579ebe99168352de6c4b6e62d",
+      "lines": 210,
+      "sha256": "bad80365ddbf39e655bbc2fee8727ad2036bee5b5cfdce69df6e356768687d5f",
       "symbols": [
         {
           "name": "PendingTouch",
@@ -25497,11 +25497,11 @@
         },
         {
           "name": "reachedSceneItem",
-          "line": 107
+          "line": 108
         },
         {
           "name": "reachedStreetDoor",
-          "line": 164
+          "line": 165
         }
       ]
     },
