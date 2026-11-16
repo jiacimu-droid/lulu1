@@ -58,8 +58,26 @@ internal object MemoryWorkingSet {
             // A recalled event may also be inside the recent window. Keep the
             // newest original once, rather than charging for the same event twice.
             val deliveredEventIds = mutableSetOf<String>()
-            context.ownedRecentEvents.asReversed().forEach { event ->
-                if (deliveredEventIds.add(event.id)) evidence(event, true)
+            // A co-op game is one experience, but user/companion speech inside
+            // the game remains separate turns. Work only from original event
+            // revisions; do not write a second narrative or summarize per tick.
+            context.ownedRecentTurns.asReversed().forEachIndexed { index, turn ->
+                val unique = turn.events.filter { deliveredEventIds.add(it.id) }
+                if (unique.isEmpty()) return@forEachIndexed
+                val scoped = turn.copy(events = unique)
+                val previewBudget = when {
+                    index < 6 -> 700
+                    index < 18 -> 330
+                    else -> 180
+                }
+                val preview = RecentSemanticTimeline.render(scoped, previewBudget)
+                if (preview.isNotBlank()) {
+                    add(MemoryPromptCandidate(
+                        "recent-turn:${scoped.key}", RECENT, preview, 965 - index.coerceAtMost(35),
+                        payload = preview, sources = unique.mapTo(linkedSetOf()) { it.id },
+                        originalEvidence = false,
+                    ))
+                }
             }
             context.ownedSourceEvents.forEach { event ->
                 if (deliveredEventIds.add(event.id)) evidence(event, false)
