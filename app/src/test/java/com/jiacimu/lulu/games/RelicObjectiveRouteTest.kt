@@ -168,4 +168,38 @@ class RelicObjectiveRouteTest {
         assertTrue(detour.chests.none { it.opened })
     }
 
+    @Test fun tacticalHudSuggestsReachableChestBeforeCloserBlockedChest() {
+        val base=corridor()
+        val terrain=base.tiles.toMutableList().also { tiles ->
+            // A short branch to the nearby chest ends behind an impassable wall.
+            for(x in 2..8) tiles[3*12+x]=0
+            tiles[2*12+4]=1
+        }
+        val seen=(2..8).flatMap { x -> listOf(2*12+x,3*12+x) }.toSet()
+        val world=base.copy(
+            tiles=terrain,seen=seen,
+            chests=listOf(
+                RelicChest(41,5,2,RelicTier.COMMON),
+                RelicChest(42,8,3,RelicTier.COMMON)
+            )
+        )
+        // The first chest is physically reachable via the southern detour;
+        // both remain legal, so HUD chooses actual route length, not distance.
+        val near=RelicObjectiveGuide.selectedVisible(world,5,2)!!
+        val far=RelicObjectiveGuide.selectedVisible(world,8,3)!!
+        val nearSteps=RelicObjectiveGuide.knownRouteSteps(world,near)!!
+        val farSteps=RelicObjectiveGuide.knownRouteSteps(world,far)!!
+        assertTrue(nearSteps < farSteps)
+        assertEquals(5 to 2,RelicObjectiveGuide.visibleChest(world)?.let { it.x to it.y })
+
+        // A live guard closes the only access to the nearer chest; the farther
+        // target remains traversable and is suggested instead.
+        val blocked=world.copy(mobs=listOf(RelicMob(99,5,3,5,0)))
+        assertNull(RelicObjectiveGuide.knownRouteSteps(blocked,near))
+        assertTrue(RelicObjectiveGuide.knownRouteSteps(blocked,far)!=null)
+        assertEquals(8 to 3,RelicObjectiveGuide.visibleChest(blocked)?.let { it.x to it.y })
+        assertTrue(blocked.chests.none { it.opened })
+        assertEquals(2 to 2,blocked.hero.x to blocked.hero.y)
+    }
+
 }
