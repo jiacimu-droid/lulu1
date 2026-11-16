@@ -79,7 +79,11 @@ internal object PromptContextPolicy {
         val activeTool = liveSignals.any(current::contains)
         val rich = autonomous || world || immersive || precise || activeTool
         return when {
-            precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
+            // EVERY full, actor-owned decision gets exactly the same memory
+            // sections, recall counts and total working-set cap. A request to
+            // verify an old promise changes which relevant evidence ranks first,
+            // NOT which persona/scene has a larger brain. The original facts
+            // stay in their stores and the existing exact-source search remains.
             sharedLifeTurn -> PromptContextBudget(
                 recallLimit = 40,
                 memoryCharacters = 10_000,
@@ -88,9 +92,10 @@ internal object PromptContextPolicy {
                 worldDetails = world,
                 richInnerLife = true,
                 lexiconCharacters = 3_300,
-                precise = false,
+                precise = precise,
                 workingSetCharacters = 28_000,
             )
+            precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
             autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
             world || activeTool -> PromptContextBudget(34, 7_800, if (activeTool) 3_200 else 2_400,
                 4_800, world, rich, 2_700, false)
