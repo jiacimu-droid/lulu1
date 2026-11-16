@@ -37,6 +37,24 @@ class GameInvitationContinuityTest {
         assertEquals(first.occurredAt, repeated.occurredAt)
     }
 
+    @Test fun alreadyAcceptedMessageCannotRelabelOwnerChoiceAsAnotherGame() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val role = "invite-edit-" + UUID.randomUUID()
+        val messageId = "chat-" + UUID.randomUUID()
+        val whenAccepted = Instant.now()
+        assertTrue(GameInvitationContinuity.recordAccepted(
+            context, role, messageId, "block_island", whenAccepted))
+        assertFalse(GameInvitationContinuity.recordAccepted(
+            context, role, messageId, "relic_escape", whenAccepted.plusSeconds(60)))
+        assertTrue(GameInvitationContinuity.recordAccepted(
+            context, role, messageId, "block_island", whenAccepted.plusSeconds(90)))
+        val event = SharedExperienceTimeline.eventsByIds(
+            role, listOf("game-invite-accepted-$role-$messageId")).single()
+        assertEquals(whenAccepted, event.occurredAt)
+        assertTrue(event.content.contains("gameId=block_island"))
+        assertFalse(event.content.contains("gameId=relic_escape"))
+    }
+
     @Test fun actualInvitationAndPartyFactsReachTheCharacterPerceptionPipeline() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         val role = "game-aware-" + UUID.randomUUID()

@@ -70,7 +70,16 @@ internal object GameInvitationContinuity {
         if (characterId.isBlank() || messageId.isBlank()) return false
         SharedExperienceTimeline.initialize(context.applicationContext)
         val eventId = "game-invite-accepted-$characterId-$messageId"
-        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(eventId)).isNotEmpty()) return true
+        val alreadyAccepted = SharedExperienceTimeline.eventsByIds(characterId, listOf(eventId))
+            .singleOrNull()
+        if (alreadyAccepted != null) {
+            // The message ID is the idempotency key. An edited/reused invite
+            // cannot silently reuse an acceptance for a DIFFERENT game.
+            return alreadyAccepted.source == "game-invitation-accepted" &&
+                alreadyAccepted.content.contains(
+                    "gameId=$normalizedGame，邀请消息ID=$messageId）",
+                )
+        }
         SharedExperienceTimeline.record(
             eventId = eventId,
             characterId = characterId,
