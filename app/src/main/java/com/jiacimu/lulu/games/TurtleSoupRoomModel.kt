@@ -15,6 +15,8 @@ internal data class SoupCase(
     val truth: String,
     val hints: List<String>,
     val boundaries: String = "",
+    /** Explicit milestones for fair final-answer grading; never sent to guessers. */
+    val milestones: List<String> = emptyList(),
 )
 
 internal object SoupLibrary {
@@ -100,7 +102,7 @@ internal object SoupLibrary {
             "这不是餐厅用来吃的汤，而是一家以海龟汤推理为主题的沉浸式体验店。空白菜单本来应当用遇水显影的墨水显示当场的谜题汤面；当天店里停水，连展示题面的喷雾都无法使用。客人是推理游戏爱好者，知道看不到公平的谜题就没法玩，主动离开了游戏场。主人公没有受到威胁。",
             listOf("海龟汤不一定是菜。", "这张纸本来应该显示文字。", "离开不是为了逃命，只是游戏无法正常开始。"),
         ),
-    ) + SoupExpansionCases.cases
+    ) + SoupExpansionCases.cases + SoupCuratedCases.cases
     fun find(id: String): SoupCase? = cases.firstOrNull { it.id == id }
 }
 
@@ -126,6 +128,8 @@ internal data class SoupRoom(
     val companions: List<String> = emptyList(),
     val lines: List<SoupLine> = emptyList(),
     val started: Boolean = false,
+    /** Zero means traditional unlimited questions; 12 is an opt-in challenge. */
+    val questionBudget: Int = 0,
     val revealed: Boolean = false,
     val solved: Boolean = false,
 ) {
@@ -141,6 +145,14 @@ internal data class SoupRoom(
             lines.indices.none { j -> lines[j].kind == SoupKind.ANSWER && lines[j].questionIndex == it }
     } ?: -1
     val questionCount: Int get() = lines.count { it.kind == SoupKind.QUESTION }
+    val canAsk: Boolean get() = questionBudget == 0 || questionCount < questionBudget
+    /** Derived from the immutable transcript rather than a second source of game truth. */
+    val evidence: List<SoupEvidence> get() = lines.mapIndexedNotNull { index, line ->
+        if (line.kind != SoupKind.ANSWER || line.questionIndex < 0) return@mapIndexedNotNull null
+        val question = lines.getOrNull(line.questionIndex)
+        if (question?.kind != SoupKind.QUESTION) return@mapIndexedNotNull null
+        SoupEvidence(line.questionIndex, question.speaker, question.text, line.text)
+    }
     val solutionAttempts: Int get() = lines.count { it.kind == SoupKind.SOLUTION }
     /** Unjudged solutions survive failed network calls and app restarts. */
     val pendingSolution: Int get() = lines.indices.lastOrNull { i ->
@@ -153,6 +165,8 @@ internal data class SoupRoom(
         append("题面：").append(puzzle.surface).append('\n')
         append("类型：").append(puzzle.category).append('\n')
         append("主持规则：只能回答是、否、部分是、无关；不得虚构已确认事实。\n")
+        if (questionBudget > 0) append("限问挑战：总共").append(questionBudget).append("问；已提").append(questionCount)
+            .append("问；").append(if (canAsk) "仍可提问。" else "问数用尽，只能讨论或还原真相。").append('\n')
         lines.forEachIndexed { index, line ->
             append('#').append(index + 1).append(' ')
             append(line.speaker).append(' ')
@@ -178,6 +192,7 @@ internal data class SoupRoom(
         .put("host", host.name)
         .put("companions", JSONArray(companions))
         .put("started", started)
+        .put("question_budget", questionBudget)
         .put("revealed", revealed)
         .put("solved", solved)
         .put("lines", JSONArray().apply {
@@ -210,6 +225,7 @@ internal data class SoupRoom(
                 revealed = raw.optBoolean("revealed"),
                 solved = raw.optBoolean("solved"),
                 started = raw.optBoolean("started", entries.length() > 0),
+                questionBudget = raw.optInt("question_budget", 0).takeIf { it == 12 } ?: 0,
                 lines = (0 until entries.length()).map { index ->
                     val line = entries.getJSONObject(index)
                     SoupLine(line.getString("speaker"),
@@ -220,6 +236,8 @@ internal data class SoupRoom(
         }.getOrNull()
     }
 }
+
+internal data class SoupEvidence(val questionIndex: Int, val speaker: String, val question: String, val verdict: String)
 
 internal class TurtleSoupRoomArchive(context: Context) {
     private val prefs = context.getSharedPreferences("lulu_turtle_soup_room_v1", Context.MODE_PRIVATE)
