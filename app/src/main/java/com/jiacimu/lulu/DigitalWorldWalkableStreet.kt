@@ -293,6 +293,10 @@ internal fun DigitalWorldWalkableStreet(
                         tapped.y in (door.point.y - 108f)..(door.point.y + 95f)
                 }
                 val target = hitBuilding?.entrance ?: tapped
+                val guideCode = handHoldingCharacterId?.let(streetDestinations::get)
+                if (guideCode != null) {
+                    cancelledGuideKeys = cancelledGuideKeys + "$handHoldingCharacterId:$guideCode"
+                }
                 val route = worldFollowPath(player, target, walkBounds, buildingObstacles, 34f)
                 if (route.isNotEmpty()) {
                     tapTarget = target
@@ -372,6 +376,18 @@ internal fun DigitalWorldWalkableStreet(
                     drawCircle(Color(0xFFFFE0C5), 25f, Offset(companion.x, companion.y - 30f))
                     drawContext.canvas.nativeCanvas.drawText(
                         person.displayName.take(4), companion.x, companion.y - 66f, titlePaint)
+                }
+                val holdingIndex = companions.indexOfFirst {
+                    it.characterId == handHoldingCharacterId
+                }
+                if (holdingIndex >= 0) {
+                    val holdingPosition = companionPositions.getOrNull(holdingIndex)
+                    if (holdingPosition != null && player.distanceTo(holdingPosition) < 120f) {
+                        drawLine(Color(0xFFFCE2CA),
+                            Offset(player.x + 14f, player.y - 8f),
+                            Offset(holdingPosition.x - 14f, holdingPosition.y - 8f),
+                            5f, cap = StrokeCap.Round)
+                    }
                 }
             }
         }
