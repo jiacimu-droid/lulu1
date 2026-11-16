@@ -100,7 +100,7 @@ class CharacterContinuityGatewayTest {
         )
         CharacterInnerLifeStore.observe(role, eventId, "我们聊过$anchor，想接着阅读",
             JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
-                .put("op", "start").put("aim", "想把$anchor读完")
+                .put("op", "start").put("aim", "想把${anchor}读完")
                 .put("why", "自己真的对书里的故事感兴趣"))), now = at)
         val server = MockWebServer()
         repeat(2) {
@@ -133,7 +133,7 @@ class CharacterContinuityGatewayTest {
                 prompts += system
                 assertTrue("Both entrypoints must recall their OWN lived event", system.contains(anchor))
                 assertTrue("Both entrypoints must retain ongoing personal desire",
-                    system.contains("想把$anchor读完"))
+                    system.contains("想把${anchor}读完"))
                 assertTrue("One person should retain the full rich inner life in every context",
                     system.contains("【角色持续内在生活"))
             }
