@@ -54,6 +54,25 @@ class MeetingPhysicalStateReducerTest {
         assertTrue(departed.participants.all { it.destinationItemId.isEmpty() && it.destinationActivityId.isEmpty() })
     }
 
+    @Test fun reachingTheActualStreetDoorDoesNotAutomaticallyEnterOrMoveTheOwner() {
+        val before = original.copy(participants = original.participants.map {
+            if (it.participantId == "role-a")
+                it.copy(destinationStreetCode = "shared:cafe", position = "街道上")
+            else it
+        })
+        val wrong = MeetingPhysicalStateReducer.reachedStreetDoor(
+            before, "role-a", "shared:game_hall", "游戏馆", Instant.EPOCH)
+        assertEquals("shared:cafe", wrong.participants[1].destinationStreetCode)
+        val arrived = MeetingPhysicalStateReducer.reachedStreetDoor(
+            before, "role-a", "shared:cafe", "浮光咖啡角", Instant.EPOCH)
+        assertEquals("", arrived.participants[1].destinationStreetCode)
+        assertEquals("在浮光咖啡角的门口", arrived.participants[1].position)
+        assertEquals(before.participants[0], arrived.participants[0])
+        assertEquals(before.location, arrived.location)
+        val departed = MeetingPhysicalStateReducer.userDeparted(before, Instant.EPOCH)
+        assertEquals("", departed.participants[1].destinationStreetCode)
+    }
+
     @Test fun departureEndsContactAndFollowingWithoutInventingOtherChanges() {
         val held = MeetingPhysicalStateReducer.apply(original, "role-a", "HOLD_HANDS", Instant.EPOCH)
         val departed = MeetingPhysicalStateReducer.userDeparted(held, Instant.EPOCH)
