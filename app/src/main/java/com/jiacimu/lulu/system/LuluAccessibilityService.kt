@@ -616,7 +616,9 @@ class LuluAccessibilityService : AccessibilityService() {
             if (!virtualChatHeaderMatches(service, displayId, packageName,
                     recipient, dimensions.second))
                 return result(false, "chat_recipient_unverified",
-                    "微信会话顶部没有唯一对应的收件人，未切换")
+                    "微信顶部没有找到与收件人一致的可验证标题，未切换也未发送")
+                    .put("observedChatHeaderTexts",
+                        virtualChatHeaderTexts(service, displayId, packageName))
             val roots = ownedVirtualRoots(service, displayId, packageName)
             if (roots.flatMap(::visibleEditors).any { editor ->
                     LuluVirtualChatSendPolicy.chatEditorCandidate(
