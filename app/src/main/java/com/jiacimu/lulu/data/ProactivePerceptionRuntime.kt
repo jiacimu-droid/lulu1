@@ -1097,24 +1097,16 @@ object ProactivePerceptionRuntime {
                     // unless this role actually reaches/observes that place.
                     appendLine("寻找新朋友可以先亲自到公共场所；只有当前场景确实见到的居民、自己收到的消息和已知联系人，才是本人当前可确认的社会线索。")
                 }
-                // An online reply may also contain an independent search. Give
-                // it the same live provider state and argument contract without
-                // pulling in the full world/action catalogue.
-                if (privateDialogue.isNotEmpty()) {
-                    appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
-                    CompanionActionRuntime.externalSearchContext(appContext, characterId)
-                        .takeIf(String::isNotBlank)?.let(::appendLine)
-                } else {
-                    appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
-                        appContext, characterId))
-                }
-                // Private replies already have the normal character context.
-                // Reserve the dedicated life-planning context for independent
-                // turns instead of charging it on every incoming chat bubble.
-                if (privateDialogue.isEmpty()) {
-                    RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
-                        .takeIf(String::isNotBlank)?.let(::appendLine)
-                }
+                // A new private message is ONE scene inside this person's
+                // ongoing day, not the end of their freedom to research,
+                // message friends, play, or schedule their own next activity.
+                // The identical capability projection and actual live IDs go
+                // to both private and autonomous decisions. This is a single
+                // model decision, not a second discovery/reply call.
+                appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
+                    appContext, characterId))
+                RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (selfReviewDue && pendingUserContext.isBlank()) {
                     CharacterLifeSelfReview.context(appContext, characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
@@ -1235,9 +1227,10 @@ object ProactivePerceptionRuntime {
                 // a chosen quiet interval must not wipe an unfinished thought.
                 appendLine(CharacterUnfinishedActionContext.renderWithBody(unfinishedChoices, characterId, now))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
-                // Old memories can spark an independent idea even without unread user input.
+                // Old memories can spark independent ideas during chat as well
+                // as solo life. Persona is supplied already by the gateway.
                 appendLine(CharacterAssociativeRecall.render(characterId, now,
-                    includePersonaLenses = privateDialogue.isEmpty()))
+                    includePersonaLenses = false))
                 // The gateway already includes the shared personality runtime,
                 // including relational initiatives; avoid inserting the same evidence twice.
                 appendLine(AutonomousActionTrace.render(
