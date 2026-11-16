@@ -105,6 +105,26 @@ class LuluVirtualChatSendPolicyTest {
             null, null, "文件传输助手"))
     }
 
+    @Test fun actualWindowTitleCanVerifyCustomWeChatToolbarWithoutMatchingTextNodes() {
+        assertTrue(LuluVirtualChatSendPolicy.windowTitleMatches("文件传输助手", "文件传输助手"))
+        assertTrue(LuluVirtualChatSendPolicy.windowTitleMatches(" 佳辞 ", "佳辞"))
+        assertFalse(LuluVirtualChatSendPolicy.windowTitleMatches("微信", "微信"))
+        assertFalse(LuluVirtualChatSendPolicy.windowTitleMatches("WeChat", "WeChat"))
+        assertFalse(LuluVirtualChatSendPolicy.windowTitleMatches("文件传输助手", "佳辞"))
+        assertFalse(LuluVirtualChatSendPolicy.windowTitleMatches(null, "佳辞"))
+    }
+
+    @Test fun nestedChatToolbarLabelsCountAsOneButTwoPositionsNeverDo() {
+        fun b(l: Int, t: Int, r: Int, bt: Int) =
+            LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
+        // A wide parent wraps the true title: centres differ by ~100 px.
+        assertTrue(LuluVirtualChatSendPolicy.uniqueHeaderTitle(
+            listOf(b(25, 80, 690, 170), b(135, 102, 270, 142)), 1280))
+        assertFalse(LuluVirtualChatSendPolicy.uniqueHeaderTitle(
+            listOf(b(135, 102, 270, 142), b(135, 198, 270, 238)), 1280))
+        assertFalse(LuluVirtualChatSendPolicy.uniqueHeaderTitle(emptyList(), 1280))
+    }
+
     @Test fun sendMustBeBesideVerifiedComposerNotAnywhereInChatHistory() {
         fun b(l: Int, t: Int, r: Int, bt: Int) =
             LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
@@ -118,6 +138,9 @@ class LuluVirtualChatSendPolicyTest {
             b(5, 1039, 110, 1098), editor, 720, 1280))
         assertEquals(0, LuluVirtualChatSendPolicy.uniqueSendTarget(
             listOf(send, b(588, 1038, 698, 1100)), 720, 1280))
+        assertEquals("An outer clickable wrapper and inner Send label are one button",
+            1, LuluVirtualChatSendPolicy.uniqueSendTarget(
+                listOf(b(580, 1030, 711, 1110), b(620, 1047, 695, 1090)), 720, 1280))
         assertNull(LuluVirtualChatSendPolicy.uniqueSendTarget(
             listOf(send, b(505, 1040, 560, 1098)), 720, 1280))
     }
