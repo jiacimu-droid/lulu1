@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:30:09.979038+00:00",
-  "commit": "3d17b7a062e47d60bf5f621e695f758dd016ac4a",
+  "generatedAt": "2026-11-16T11:30:55.479961+00:00",
+  "commit": "87028602af017a58029e802fa78891ccb7128e8c",
   "branch": "main",
-  "sourceFingerprint": "ce355798f4dab19e6ba70f0313dd2def5f7440343150bac88ada94c89848e3b3",
+  "sourceFingerprint": "4d8f022fac18e3c2c703fc722f2cb412ab86ab178c42338677057bf7be8c1de6",
   "summary": {
-    "files": 1359,
-    "lines": 290384,
+    "files": 1360,
+    "lines": 290426,
     "symbols": 4092
   },
   "symbolIndex": {
@@ -29848,6 +29848,12 @@
           "line": 243
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt",
+      "lines": 42,
+      "sha256": "306bf8243564fe4c00d35d0362f9229aaee82c938847809ace75cd161f6880b4",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",

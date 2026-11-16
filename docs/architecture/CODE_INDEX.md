@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3d17b7a062e47d60bf5f621e695f758dd016ac4a`
+- 基准提交：`87028602af017a58029e802fa78891ccb7128e8c`
 - 分支：`main`
-- 已索引文件：1359
-- 已索引代码/文本行：290384
+- 已索引文件：1360
+- 已索引代码/文本行：290426
 - 已发现符号：4092
 
 | 文件 | 行数 | 符号数 |
@@ -412,6 +412,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 250 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 431 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 73 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 427 | 15 |
