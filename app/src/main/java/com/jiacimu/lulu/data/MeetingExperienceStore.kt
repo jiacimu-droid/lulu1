@@ -26,6 +26,8 @@ data class MeetingParticipantSceneState(
     val contact: List<String> = emptyList(),
     val heldItems: List<String> = emptyList(),
     val explorationMode: String = "",
+    /** Validated ID of an actual furniture goal the character chose to approach. */
+    val destinationItemId: String = "",
 )
 
 data class MeetingSceneSnapshot(
@@ -45,6 +47,7 @@ data class MeetingSceneSnapshot(
             if (item.facing.isNotBlank()) append("；朝向=${item.facing}")
             if (item.contact.isNotEmpty()) append("；接触=${item.contact.joinToString("、")}")
             if (item.explorationMode.isNotBlank()) append("；探索行为=${item.explorationMode}")
+            if (item.destinationItemId.isNotBlank()) append("；正在走向物品ID=${item.destinationItemId}")
             if (item.heldItems.isNotEmpty()) append("；持有=${item.heldItems.joinToString("、")}")
             appendLine()
         }
@@ -472,6 +475,7 @@ private fun MeetingParticipantSceneState.toJson() = JSONObject()
     .put("contact", JSONArray(contact))
     .put("heldItems", JSONArray(heldItems))
     .put("explorationMode", explorationMode)
+    .put("destinationItemId", destinationItemId)
 
 private fun JSONObject.toParticipantScene(): MeetingParticipantSceneState? {
     val id = optString("participantId").trim()
@@ -484,6 +488,7 @@ private fun JSONObject.toParticipantScene(): MeetingParticipantSceneState? {
         contact = optJSONArray("contact").toStringList(),
         heldItems = optJSONArray("heldItems").toStringList(),
         explorationMode = optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }.orEmpty(),
+        destinationItemId = optString("destinationItemId").trim().take(100),
     )
 }
 
