@@ -60,7 +60,6 @@ internal fun DigitalWorldMeetingSceneExperience(
     canSend: Boolean,
     errorText: String,
     onBackToMap: () -> Unit,
-    onExitToStreet: () -> Unit,
     onEnd: () -> Unit,
     onDelete: () -> Unit,
     onInputChanged: (String) -> Unit,
@@ -174,6 +173,46 @@ internal fun DigitalWorldMeetingSceneExperience(
 
     val sceneCode = DigitalWorldStore.meetingLocationCode(session.location)
     val homeId = sceneCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
+    var walkingStreet by rememberSaveable(session.id) {
+        mutableStateOf(session.location == "世界入口")
+    }
+    LaunchedEffect(session.location) {
+        if (walkingStreet && session.location != "世界入口") walkingStreet = false
+    }
+    // The outdoor world remains part of the SAME meeting. No duplicate chat,
+    // no new person-model request and no loss of shared relationship history.
+    val availableDestinations = if (isDigitalWorld)
+        DigitalWorldStore.meetingLocationOptions(session) else emptyList()
+    val streetAddresses = if (isDigitalWorld) buildList {
+        add(DigitalStreetAddress(DigitalWorldStore.CLOUD_MEADOW, "云眠原"))
+        DigitalWorldPublicPlaces.all.forEach { add(DigitalStreetAddress(it.code, it.label)) }
+        DigitalWorldExpansionStore.places().forEach { add(DigitalStreetAddress(it.code, it.label)) }
+        characters.filter(::isWorldCompanionRole).forEach { role ->
+            val code = DigitalWorldStore.homeLocation(role.characterId)
+            add(DigitalStreetAddress(code,
+                world.homes[role.characterId]?.name ?: "${role.displayName}的家"))
+        }
+        DigitalWorldExpansionStore.residents().forEach { resident ->
+            add(DigitalStreetAddress(resident.homeLocationCode, "${resident.name}的家"))
+        }
+    }.filter { it.label in availableDestinations }.distinctBy(DigitalStreetAddress::code)
+    else emptyList()
+
+    fun relocatePhysically(destination: String): Boolean {
+        if (!isDigitalWorld || viewOnly || generating ||
+            destination !in availableDestinations) return false
+        return runCatching {
+            val oldScene = MeetingExperienceStore.sceneFor(session)
+            val moved = DigitalWorldStore.moveMeeting(session.id, destination)
+            MeetingExperienceStore.updateScene(session.id, oldScene.copy(
+                location = moved.location,
+                participants = oldScene.participants.map {
+                    it.copy(position = "在${moved.location}入口", destinationItemId = "")
+                },
+                updatedAt = java.time.Instant.now(),
+            ))
+        }.isSuccess
+    }
 
     Box(
         modifier
@@ -182,7 +221,21 @@ internal fun DigitalWorldMeetingSceneExperience(
             .statusBarsPadding()
             .imePadding(),
     ) {
-        if (isDigitalWorld) {
+        if (isDigitalWorld && walkingStreet) {
+            DigitalWorldWalkableStreet(
+                addresses = streetAddresses,
+                onEnterScene = { code ->
+                    streetAddresses.firstOrNull { it.code == code }?.let { destination ->
+                        if (relocatePhysically(destination.label)) walkingStreet = false
+                    }
+                },
+                onReturnToAtlas = onBackToMap,
+                modifier = Modifier.fillMaxSize().padding(top = 56.dp),
+                companions = characters.filter { it.characterId in session.participantIds },
+                hudTopPadding = if (storyVisible) 224.dp else 14.dp,
+                canEnterScene = !generating && !viewOnly,
+            )
+        } else if (isDigitalWorld) {
             DigitalWorldSceneCanvas(
                 modifier = Modifier.fillMaxSize().padding(top = 56.dp),
                 sceneCode = sceneCode,
@@ -211,7 +264,9 @@ internal fun DigitalWorldMeetingSceneExperience(
                 onReachedSceneItem = { characterId, itemId ->
                     MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
                 },
-                onExitToStreet = onExitToStreet,
+                onExitToStreet = {
+                    if (relocatePhysically("世界入口")) walkingStreet = true
+                },
             )
         } else {
             RealisticMeetingStage(
@@ -221,7 +276,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         }
 
         MeetingImmersiveTopBar(
-            location = session.location,
+            location = if (walkingStreet) "云上小镇" else session.location,
             viewOnly = viewOnly,
             generating = generating,
             voiceEnabled = voiceEnabled,
