@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`85cc8934a83defe68f0d1863cc3b0d8f0f19abf6`
+- 基准提交：`549d6278bf2ebb2009c134317aaae9d8da9d74a2`
 - 分支：`main`
 - 已索引文件：1355
-- 已索引代码/文本行：289511
+- 已索引代码/文本行：289538
 - 已发现符号：4085
 
 | 文件 | 行数 | 符号数 |
@@ -580,7 +580,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1043 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 968 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 972 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 269 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 26 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
@@ -1000,7 +1000,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 810 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 484 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 267 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 255 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 89 | 1 |
@@ -1112,7 +1112,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActionIdTest.kt` | 17 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 179 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 214 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |

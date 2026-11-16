@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:52:13.142828+00:00",
-  "commit": "85cc8934a83defe68f0d1863cc3b0d8f0f19abf6",
+  "generatedAt": "2026-11-16T07:53:56.151545+00:00",
+  "commit": "549d6278bf2ebb2009c134317aaae9d8da9d74a2",
   "branch": "main",
-  "sourceFingerprint": "7614dad239c7681c19eb3f8e9f0a2ff2440f23deeb6c4a7b424fdd39705ec862",
+  "sourceFingerprint": "ccc1c45dc804b717448877d60a57dd17bf971dce7f87deeea4a17cb76c3e63fe",
   "summary": {
     "files": 1355,
-    "lines": 289511,
+    "lines": 289538,
     "symbols": 4085
   },
   "symbolIndex": {
@@ -2421,7 +2421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 142
+        "line": 146
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -2433,7 +2433,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 206
+        "line": 194
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -7133,7 +7133,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 725
+        "line": 729
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -7173,7 +7173,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 741
+        "line": 745
       }
     ],
     "informativeAction": [
@@ -10547,7 +10547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 854
+        "line": 858
       }
     ],
     "LegacyLuluImportResult": [
@@ -13167,7 +13167,7 @@
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 273
+        "line": 277
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -13177,67 +13177,67 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 341
+        "line": 345
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 392
+        "line": 396
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 469
+        "line": 473
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 481
+        "line": 485
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 487
+        "line": 491
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 498
+        "line": 502
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 529
+        "line": 533
       }
     ],
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 681
+        "line": 685
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 690
+        "line": 694
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 722
+        "line": 726
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 836
+        "line": 840
       }
     ],
     "Limits": [
@@ -19369,7 +19369,7 @@
     "game": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 228
+        "line": 216
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -20607,7 +20607,7 @@
     "worldTick": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
-        "line": 99
+        "line": 134
       }
     ],
     "DigitalWorldArrivalAudienceTest": [
@@ -34914,8 +34914,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 968,
-      "sha256": "d527a93a79a1fc13934f3db78d150cfcf885fb4056222019c95510ede59d797a",
+      "lines": 972,
+      "sha256": "dee2eb7fbb8f956fd76add6a8403ca758c8a1e0b70a8c2aaf0ddc409fccef558",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -34943,67 +34943,67 @@
         },
         {
           "name": "record",
-          "line": 142
+          "line": 146
         },
         {
           "name": "all",
-          "line": 273
+          "line": 277
         },
         {
           "name": "eventsByIds",
-          "line": 341
+          "line": 345
         },
         {
           "name": "deleteEvent",
-          "line": 392
+          "line": 396
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 469
+          "line": 473
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 481
+          "line": 485
         },
         {
           "name": "deleteConversationMessage",
-          "line": 487
+          "line": 491
         },
         {
           "name": "deleteConversationData",
-          "line": 498
+          "line": 502
         },
         {
           "name": "recentEvents",
-          "line": 529
+          "line": 533
         },
         {
           "name": "recentUserActivities",
-          "line": 681
+          "line": 685
         },
         {
           "name": "recentXhsReadings",
-          "line": 690
+          "line": 694
         },
         {
           "name": "sessionEvents",
-          "line": 722
+          "line": 726
         },
         {
           "name": "recentContext",
-          "line": 725
+          "line": 729
         },
         {
           "name": "remember",
-          "line": 741
+          "line": 745
         },
         {
           "name": "exportBackup",
-          "line": 836
+          "line": 840
         },
         {
           "name": "importBackup",
-          "line": 854
+          "line": 858
         }
       ]
     },
@@ -43242,8 +43242,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 267,
-      "sha256": "2a753c67b10ccffd23cc66156bf5ebc3e4b4156338df8c59760a42b5d22fafbc",
+      "lines": 255,
+      "sha256": "6b38b2b82c03cfc671cd847a9ecd2d45b98de443da959e184facaf0e0ff3af3d",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -43251,11 +43251,11 @@
         },
         {
           "name": "record",
-          "line": 206
+          "line": 194
         },
         {
           "name": "game",
-          "line": 228
+          "line": 216
         }
       ]
     },
@@ -44998,8 +44998,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
-      "lines": 179,
-      "sha256": "e919f3638096c598825fb25e791ba93be17dcd4f256b9968f8ba8ff089d0110f",
+      "lines": 214,
+      "sha256": "fab0e960649412b332efe9193b0d778c1bdb40246a2f07104694272a85250d5d",
       "symbols": [
         {
           "name": "DigitalWorldActivityTransitionTest",
@@ -45007,7 +45007,7 @@
         },
         {
           "name": "worldTick",
-          "line": 99
+          "line": 134
         }
       ]
     },
