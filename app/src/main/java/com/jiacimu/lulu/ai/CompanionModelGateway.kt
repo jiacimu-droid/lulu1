@@ -582,7 +582,7 @@ class CompanionModelGateway(
             // start another API request just to identify the owner's avatar.
             val originalWorldContext = contextMode == CompanionContextMode.Full ||
                 contextMode == CompanionContextMode.CharacterAndScenario
-            val ownerAvatar = if (originalWorldContext &&
+            val ownerAvatar = if (originalWorldContext && !characterId.startsWith("resident:") &&
                 source in setOf("后台主动感知", "聊天工具规划", "电话回复"))
                 com.jiacimu.lulu.data.UserAvatarVision.prepare(
                     connectionStore.appContext, characterId, imageDataUrls.size)
@@ -619,11 +619,13 @@ class CompanionModelGateway(
                 source == com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING
             val leanExpression = expressionOnly &&
                 !budget.precise && !budget.worldDetails
-            // Native-world citizens never inherit the protagonist's broad
-            // real-device/user-profile recall. Keep their OWN core identity,
-            // configured persona, direct conversation, and explicit scene.
+            // A real citizen has the same role-owned autobiographical timeline
+            // as any companion. Do not silently downgrade an expressly requested
+            // Full decision to a persona-only renderer. Keep expression-only
+            // turns lightweight, and NEVER expose the owner's physical-device
+            // or account-wide profile to a resident.
             val citizen = characterId.startsWith("resident:")
-            val effectiveMode = if ((leanExpression || citizen) &&
+            val effectiveMode = if (leanExpression &&
                 contextMode == CompanionContextMode.Full)
                 CompanionContextMode.CharacterAndScenario else contextMode
             val fullContext = effectiveMode == CompanionContextMode.Full
@@ -635,7 +637,10 @@ class CompanionModelGateway(
                 CompanionPresenceStore.current(characterId) else null
             val unifiedMemory = if (fullContext) {
                 com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget,
-                    paidRanking = com.jiacimu.lulu.data.PromptContextPolicy.paidRankingFor(source, request))
+                    // Resident/rapid game turns need source-grounded local recall,
+                    // not extra billed ranking HTTP requests per action.
+                    paidRanking = !citizen && !source.startsWith("游戏 ·") &&
+                        com.jiacimu.lulu.data.PromptContextPolicy.paidRankingFor(source, request))
             } else if (leanExpression && request.actionContext.isNotBlank() && contextMode == CompanionContextMode.Full) {
                 com.jiacimu.lulu.data.CharacterRuntime.actionMemory(characterId, request)
             } else {
@@ -654,7 +659,7 @@ class CompanionModelGateway(
             val memories = unifiedMemory.memories
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
-            val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
+            val userProfileSection = if (fullContext && !citizen) UserProfileContext.promptSection() else ""
             val live2dCapabilitySection = if (!citizen && (fullContext ||
                 effectiveMode == CompanionContextMode.CharacterAndScenario))
                 UserProfileContext.live2dCallContext(characterId) else ""
