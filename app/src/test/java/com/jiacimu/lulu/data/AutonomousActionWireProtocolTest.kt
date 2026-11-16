@@ -257,8 +257,9 @@ class AutonomousActionWireProtocolTest {
 
     @Test fun primaryPhoneCorrectionMergesExplicitVerbWithOriginalArgs() {
         val initial = JSONObject().put("appName", "微信")
-        assertNull(AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
-            JSONObject().put("action", "launch").put("appName", "支付宝")))
+        assertEquals("微信", AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
+            JSONObject().put("action", "launch").put("appName", "支付宝"))!!
+            .getString("appName"))
         // The original target is never replaced. The role's own valid verb is enough.
         val fixed = AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
             JSONObject().put("action", "launch"))!!
