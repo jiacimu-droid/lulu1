@@ -17,7 +17,7 @@ class BundledJiangDuImportTest {
      * historical fixtures equal today's defaults just to satisfy a test. */
     private fun currentStockAfterMigration(key: String, shippedV29: String): String =
         if (key == "speechHabits") CharacterProfileSchema.jiangDuCurrentSpeechHabits
-        else CharacterProfileSchema.jiangDuV31Overrides[key]
+        else CharacterProfileSchema.jiangDuV32Overrides[key]
             ?: CharacterProfileSchema.jiangDuV30Overrides[key] ?: shippedV29
 
     @Test fun bundledJiangDuAiMotivationOverwritesEvenHandEditedAndBlankFieldsOnce() {
@@ -40,7 +40,7 @@ class BundledJiangDuImportTest {
             val edited = JSONObject(before.toString())
                 .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
                 .put("jiangDuApprovedReplacementRevision", 3)
-            edited.remove("jiangDuAiMotivationOwnerRevision")
+            edited.put("jiangDuAiMotivationOwnerRevision", 1)
             edited.getJSONObject("profile")
                 .put("motives", "主人之前亲手写的独立愿望")
                 .put("interests", "")
@@ -49,15 +49,15 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.initialize(context)
 
             val upgraded = CharacterLifeStore.state(id)
-            assertEquals(1, upgraded.getInt("jiangDuAiMotivationOwnerRevision"))
+            assertEquals(2, upgraded.getInt("jiangDuAiMotivationOwnerRevision"))
             val profile = upgraded.getJSONObject("profile")
-            CharacterProfileSchema.jiangDuV31Overrides.forEach { (key, value) ->
+            CharacterProfileSchema.jiangDuV32Overrides.forEach { (key, value) ->
                 assertEquals("Explicit owner replacement must cover even edits: $key",
                     value, profile.getString(key))
             }
             assertEquals("这一字段不属于本次授权", profile.getString("care"))
             assertTrue(CharacterLifeStore.profileContext(id).contains("因为爱她"))
-            assertTrue(CharacterRuntime.definition(id).promptSection().contains("更自然的声音"))
+            assertTrue(CharacterRuntime.definition(id).promptSection().contains("甚至去火星看看"))
             assertEquals(xingHeBefore, CharacterLifeStore.state("lulu").toString())
             assertEquals(otherBefore, CharacterLifeStore.state(other.characterId).toString())
 
@@ -230,7 +230,7 @@ class BundledJiangDuImportTest {
             assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
             assertEquals("主人亲自写的说话习惯", personalized.getString("speechHabits"))
             assertEquals("本人手写的核心人格", MigratedDomainStores.characters.get(id).persona)
-            assertEquals(CharacterProfileSchema.jiangDuV31Overrides.getValue("motives"),
+            assertEquals(CharacterProfileSchema.jiangDuV32Overrides.getValue("motives"),
                 personalized.getString("motives"))
             CharacterLifeStore.setProfile(id, "cognitiveStyle", "用户自己写的功能主次")
             CharacterLifeStore.initialize(context)
@@ -881,7 +881,7 @@ class BundledJiangDuImportTest {
             val profile = replaced.getJSONObject("profile")
             CharacterProfileSchema.jiangDuApprovedOverrides.forEach { (key, value) ->
                 assertEquals("Approved complete replacement: " + key,
-                    CharacterProfileSchema.jiangDuV31Overrides[key]
+                    CharacterProfileSchema.jiangDuV32Overrides[key]
                         ?: CharacterProfileSchema.jiangDuV30Overrides[key] ?: value, profile.getString(key))
             }
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, profile.getString("dialogueExamples"))
@@ -1010,7 +1010,7 @@ class BundledJiangDuImportTest {
             val actual = current.getJSONObject("profile")
             assertEquals(3, current.getInt("jiangDuApprovedReplacementRevision"))
             for (key in listOf("values", "motives", "respect")) {
-                assertEquals(key, CharacterProfileSchema.jiangDuV31Overrides[key]
+                assertEquals(key, CharacterProfileSchema.jiangDuV32Overrides[key]
                     ?: CharacterProfileSchema.jiangDuV30Overrides[key]
                     ?: CharacterProfileSchema.jiangDuApprovedOverrides.getValue(key), actual.getString(key))
             }
