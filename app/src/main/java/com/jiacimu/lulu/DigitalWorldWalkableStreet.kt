@@ -118,6 +118,13 @@ internal fun DigitalWorldWalkableStreet(
         }
     }
     var visited by remember { mutableStateOf(preferences.getStringSet("found", emptySet()).orEmpty().toSet()) }
+    val mementoKey = remember(companions.map { it.characterId }) {
+        "memento:" + DigitalStreetJourney.participantKey(companions.map { it.characterId })
+    }
+    var memento by remember(mementoKey) { mutableStateOf(preferences.getString(mementoKey, "").orEmpty()) }
+    var showMemento by remember { mutableStateOf(false) }
+    var revealClue by remember { mutableStateOf<StreetDiscovery?>(null) }
+    val mementoPoint = remember { WorldVector(635f, 1_545f) }
     var companionPositions by remember(companions.map { it.characterId }, spawnAtLocationCode) {
         mutableStateOf(companions.mapIndexed { index, _ ->
             WorldVector(
@@ -134,9 +141,12 @@ internal fun DigitalWorldWalkableStreet(
     val cameraY = (player.y - visibleHeight * .48f).coerceIn(0f, (worldHeight - visibleHeight).coerceAtLeast(0f))
     val nearestDoor = doors.minByOrNull { player.distanceTo(it.point) }
         ?.takeIf { player.distanceTo(it.point) < 145f }
-    val nearestDiscovery = streetDiscoveries.filter { it.id !in visited }
+    val nearestDiscovery = streetDiscoveries
+        .filter { it.id in DigitalStreetJourney.visibleClues(visited) }
         .minByOrNull { player.distanceTo(it.point) }
         ?.takeIf { player.distanceTo(it.point) < 118f }
+    val nearMemento = DigitalStreetJourney.isMementoUnlocked(visited) &&
+        player.distanceTo(mementoPoint) < 130f
     val titlePaint = remember {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             textSize = 39f
@@ -226,7 +236,9 @@ internal fun DigitalWorldWalkableStreet(
                     drawContext.canvas.nativeCanvas.drawText(
                         door.address.label.take(11), p.x, p.y - 106f, titlePaint)
                 }
-                streetDiscoveries.forEach { discovery ->
+                streetDiscoveries.filter {
+                    it.id in DigitalStreetJourney.visibleClues(visited)
+                }.forEach { discovery ->
                     val p = discovery.point
                     val found = discovery.id in visited
                     drawCircle(Color(0xFF476F5D).copy(alpha = .17f), 66f, Offset(p.x, p.y + 30f))
@@ -234,6 +246,22 @@ internal fun DigitalWorldWalkableStreet(
                         42f, Offset(p.x, p.y))
                     drawCircle(Color.White.copy(alpha = if (found) .30f else .75f),
                         10f, Offset(p.x, p.y - 13f))
+                    drawContext.canvas.nativeCanvas.drawText(
+                        discovery.label, p.x, p.y - 63f, titlePaint)
+                }
+                if (DigitalStreetJourney.isMementoUnlocked(visited)) {
+                    val p = mementoPoint
+                    drawOval(Color(0xFF365B49).copy(alpha = .25f),
+                        Offset(p.x - 57f, p.y + 53f), Size(114f, 26f))
+                    drawRoundRect(Color(0xFFF8EDCF), Offset(p.x - 45f, p.y - 25f),
+                        Size(90f, 95f), CornerRadius(12f))
+                    drawRoundRect(Color(0xFFA67862), Offset(p.x - 39f, p.y + 5f),
+                        Size(78f, 14f), CornerRadius(3f))
+                    drawCircle(if (memento.isBlank()) Color(0xFFE8C487) else Color(0xFF90D0AC),
+                        13f, Offset(p.x, p.y - 9f))
+                    drawContext.canvas.nativeCanvas.drawText(
+                        if (memento.isBlank()) "纪念邮筒" else "我们的旅行卡",
+                        p.x, p.y - 47f, titlePaint)
                 }
                 val you = Offset(player.x, player.y)
                 drawOval(Color(0xFF395B4F).copy(alpha = .26f),
@@ -264,7 +292,7 @@ internal fun DigitalWorldWalkableStreet(
                 verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("云上小镇 · 自由散步", color = Color.White, fontSize = 15.sp)
-                    Text("走到建筑门口再进入 · 已发现 ${visited.size}/${streetDiscoveries.size}",
+                    Text(DigitalStreetJourney.progressText(visited),
                         color = Color(0xFFBDD4C6), fontSize = 10.sp)
                 }
                 TextButton(onClick = onReturnToAtlas) { Text("总览", color = Color(0xFFBFECD6)) }
@@ -277,22 +305,43 @@ internal fun DigitalWorldWalkableStreet(
             tint = Color(0xFFC4FFE4),
         )
         WorldActionButton(
-            label = nearestDiscovery?.let { "探索" }
-                ?: nearestDoor?.let { if (canEnterScene) "进入" else "等待" } ?: "靠近",
-            enabled = nearestDiscovery != null || (nearestDoor != null && canEnterScene),
+            label = if (nearMemento) { if (memento.isBlank()) "留纪念" else "翻看" }
+                else nearestDiscovery?.let { if (it.id in visited) "回顾" else "探索" }
+                    ?: nearestDoor?.let { if (canEnterScene) "进入" else "等待" } ?: "靠近",
+            enabled = nearMemento || nearestDiscovery != null || (nearestDoor != null && canEnterScene),
             onClick = {
                 val clue = nearestDiscovery
                 val door = nearestDoor
-                if (clue != null) {
-                    val updated = visited + clue.id
-                    if (preferences.edit().putStringSet("found", updated).commit()) {
-                        visited = updated
-                        WorldFirstExplorationMemory.record(
-                            context = context, worldId = "digital-world",
-                            locationId = "street:${clue.id}",
-                            locationLabel = "云上小镇",
-                            action = "走到了${clue.label}，亲自发现：${clue.description}",
-                        )
+                if (nearMemento) {
+                    if (memento.isBlank()) {
+                        val names = listOf("我") + companions.map { it.displayName }
+                        val note = DigitalStreetJourney.mementoText(
+                            names, java.time.LocalDate.now().toString())
+                        if (preferences.edit().putString(mementoKey, note).commit()) {
+                            memento = note
+                            WorldFirstExplorationMemory.record(
+                                context = context, worldId = "digital-world",
+                                locationId = "street:${DigitalStreetJourney.MEMENTO}",
+                                locationLabel = "云上小镇 · 纪念邮筒",
+                                action = "在同一真实场景探索了三个街道线索后，${names.joinToString("、")}一起来到纪念邮筒，亲手留下并保存了旅行卡；文字为：$note",
+                            )
+                        }
+                    }
+                    showMemento = memento.isNotBlank()
+                } else if (clue != null) {
+                    if (clue.id in visited) revealClue = clue
+                    else {
+                        val updated = visited + clue.id
+                        if (preferences.edit().putStringSet("found", updated).commit()) {
+                            visited = updated
+                            WorldFirstExplorationMemory.record(
+                                context = context, worldId = "digital-world",
+                                locationId = "street:${clue.id}",
+                                locationLabel = "云上小镇",
+                                action = "步行抵达${clue.label}，亲自发现：${clue.description}",
+                            )
+                            revealClue = clue
+                        }
                     }
                 } else if (door != null) {
                     preferences.edit().putFloat("player_x", player.x)
@@ -303,15 +352,48 @@ internal fun DigitalWorldWalkableStreet(
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 19.dp, bottom = 30.dp),
             accent = Color(0xFFE8F7D9),
         )
-        if (nearestDoor != null || nearestDiscovery != null) {
+        if (nearMemento || nearestDoor != null || nearestDiscovery != null) {
             Surface(modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = 120.dp, start = 85.dp, end = 85.dp),
                 color = Color(0xE5172B25), shape = RoundedCornerShape(12.dp)) {
-                Text(nearestDiscovery?.let { "${it.label} · ${it.description}" }
-                    ?: nearestDoor?.let { "${it.address.label} · 已走到入口" }.orEmpty(),
+                Text(if (nearMemento) "纪念邮筒 · 三处线索的共同纪念"
+                    else nearestDiscovery?.let { "${it.label} · ${it.description}" }
+                        ?: nearestDoor?.let { "${it.address.label} · 已走到入口" }.orEmpty(),
                     color = Color(0xFFE8F4EA), fontSize = 11.sp,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
             }
         }
     }
+    revealClue?.let { found ->
+        AlertDialog(
+            onDismissRequest = { revealClue = null },
+            title = { Text("探索 · ${found.label}") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Text(found.description)
+                    Text(DigitalStreetJourney.progressText(visited))
+                }
+            },
+            confirmButton = { TextButton(onClick = { revealClue = null }) { Text("继续散步") } },
+        )
+    }
+    if (showMemento) {
+        AlertDialog(
+            onDismissRequest = { showMemento = false },
+            title = { Text("云上小镇 · 旅行卡") },
+            text = {
+                Surface(shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFFF8EFDD)) {
+                    Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("三个地方，一段真实走过的路", color = Color(0xFF486C58), fontSize = 14.sp)
+                        Text(memento, color = Color(0xFF38463C), fontSize = 12.sp)
+                        Text("这张卡会留在邮筒里，下次来到这里还能翻看。",
+                            color = Color(0xFF829185), fontSize = 10.sp)
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showMemento = false }) { Text("收好") } },
+        )
+    }
+
 }
