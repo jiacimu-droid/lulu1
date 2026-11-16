@@ -1,3 +1,10 @@
+## 2026-11-17 · P-08b.1 私聊请求的联想证据与心声规则
+
+- [d51e440](https://github.com/jiacimu-droid/lulu1/commit/d51e440b7400cec84686f4585d439a1cb24cdecc) 只改正式私聊 HTTP 回归。改动前 [#43933272141](https://github.com/jiacimu-droid/lulu1/actions/runs/43933272141) 在 `normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers` 第 2270 行失败：旧断言从现场资料查 `SpontaneousInnerVoiceGuide` 的规则句，正式路径由 `proactiveDecisionInstruction` 组装到系统消息；本人联想事实来自原时间线 `CharacterAssociativeRecall.render`，仍经共用 `ActorSceneWirePolicy.history` 进入现场资料。
+- 回归为角色写入有 ID 的旧书店亲历事件，对最终 HTTP 确认系统栏含完整心声规则、现场栏含真实旧经历和事件 ID，当前用户原话仍完整地在最后。保留一次模型请求、气泡送达、收藏成功与独立搜索失败回执的原断言。没有改运行时提示词、人格或者执行器。
+- 精确 SHA 的[索引 #43940227396](https://github.com/jiacimu-droid/lulu1/actions/runs/43940227396)成功，[JVM/APK #43940227387](https://github.com/jiacimu-droid/lulu1/actions/runs/43940227387) 确认本回归及上轮 `withdrawnToolResultDoesNotReachTheNextConcernDecision` 通过；全量 3307 项中 2 项失败、1 项跳过，失败为已有的 `MemoryEvidenceCommitIntegrationTest` 和 `RecentSemanticTimelineTest`，APK 未发布。上轮精确 [#43921835220](https://github.com/jiacimu-droid/lulu1/actions/runs/43921835220) 的挂心回归也复核通过。真机与真实模型仍待验。
+- 下一步打开 `ProactiveQuietDecisionTest` 和 `ConversationExpressionGatewayTest.normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers`，用无新消息的自主感知取得最终 HTTP 请求，对照同一角色同一份过去经历和当前关系的栏目归属，不重复修私聊断言。
+
 ## 2026-11-17 · P-03.1 挂心后续只读取仍有效的真实回执
 
 - 正式后台链 `ProactivePerceptionRuntime → CharacterUnfinishedActionContext.candidates` 和心事正文 `CharacterOpenConcernRuntime.contextForRole` 原先只核回执 ID 是否在原始时间线。关联的群消息撤回后，工具流水与心事里的旧摘要都还在，下一次本人决定仍会读到已经失效的结果。
