@@ -155,7 +155,7 @@ object CompanionPresenceStore {
     internal fun describesOngoingCall(text: String): Boolean {
         if (Regex("已结束|挂断|挂了|放下|结束了|想.*电话|准备.*电话").containsMatchIn(text)) return false
         return Regex(
-            "通话中|电话中|正在.*(?:通话|电话)|(?:通话|电话).*正在|接听(?:着)?电话|打着电话|还在.*(?:电话|通话)|" +
+            "通话中|电话中|(?:电话|通话)接通中|(?:电话|通话)已接通|正在.*(?:通话|电话)|(?:通话|电话).*正在|接听(?:着)?电话|打着电话|还在.*(?:电话|通话)|" +
                 "拿着.*(?:手机|电话).*(?:听|说)|" +
                 "(?:拿|举|握|捧|贴|靠).*(?:手机|电话).*(?:耳边|耳侧|耳旁|耳朵)|" +
                 "(?:手机|电话).*(?:贴|靠|举|拿).*(?:耳边|耳侧|耳旁|耳朵)"
@@ -179,6 +179,9 @@ object CompanionPresenceStore {
 
     private fun inheritedGesture(previous: CompanionPresenceState?, now: Instant): String {
         val old = previous ?: return ""
+        // An executed action is a completed receipt, not an ongoing pose.
+        // Its evidence remains in history; later turns must not inherit it as a fresh action.
+        if (old.gestureVerified) return ""
         val ageMinutes = runCatching { Duration.between(old.updatedAt, now).toMinutes() }.getOrDefault(Long.MAX_VALUE)
         return old.gesture.takeIf { ageMinutes in 0..(8 * 60) && isSustainedGesture(it) }.orEmpty()
     }
@@ -325,7 +328,10 @@ object CompanionPresenceStore {
         val previous = mutableStates.value[characterId]
         val next = CompanionPresenceState(
             characterId = characterId,
-            statusText = (statusText.cleanPresence(120) ?: previous?.statusText.orEmpty()).let {
+            statusText = (statusText?.trim()?.replace(Regex("\\s+"), " ")?.take(120)
+                ?: previous?.statusText.orEmpty().takeUnless {
+                    source.contains("聊天") && previous?.source == "通话结束"
+                }.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
             },
             gesture = (if (gesture == null) inheritedGesture(previous, now) else gesture.cleanPresence(500).orEmpty()).let {
