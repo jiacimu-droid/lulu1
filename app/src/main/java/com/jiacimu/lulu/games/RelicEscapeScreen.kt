@@ -45,6 +45,12 @@ private val relicRed=Color(0xFFFFA2AD)
 @Composable
 internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = emptyList()) {
     val context=LocalContext.current
+    val gameAudioPrefs=remember(context) {
+        context.getSharedPreferences("game_companion_audio", android.content.Context.MODE_PRIVATE)
+    }
+    var companionVoiceEnabled by remember {
+        mutableStateOf(gameAudioPrefs.getBoolean("voice",true))
+    }
     val ledger=remember(context){RelicEscapeLedger(context)}
     val game by store.state.collectAsState()
     var snapshot by remember{mutableStateOf(ledger.read())}
@@ -562,6 +568,36 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             if(run!=null && run.allies.isNotEmpty())
                 Text("和伙伴玩：点右上「队伍与语音」，告诉他们想一起打怪、分头搜箱或请他送宝；角色自行选择、行动和承担后果。",
                     color=relicGreen,fontSize=11.sp,lineHeight=17.sp)
+        }
+        if(menuSection=="设置")RelicPanel {
+            Text("游戏设置", color=Color.White, fontWeight=FontWeight.Bold,
+                fontSize=16.sp)
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("伙伴语音",color=relicGold,fontWeight=FontWeight.SemiBold,
+                        fontSize=13.sp)
+                    Text("默认开启 · 游戏里会读出队友台词；不受私聊自动朗读开关影响",
+                        color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+                }
+                Switch(checked=companionVoiceEnabled,onCheckedChange={ enabled ->
+                    companionVoiceEnabled=enabled
+                    gameAudioPrefs.edit().putBoolean("voice",enabled).apply()
+                })
+            }
+            Text("麦克风：在游戏顶部单独点麦克风开／关。默认不录音，退出游戏自动停止。",
+                color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+            Text("伙伴出声还需要系统媒体音量、全局语音合成及对应音色正常配置。",
+                color=relicMuted,fontSize=11.sp,lineHeight=16.sp)
+        }
+        if(menuSection=="设置")RelicPanel {
+            Text("回合与战斗",color=Color.White,fontWeight=FontWeight.Bold,fontSize=14.sp)
+            Text("这不是按秒计时的技能 CD：走一格、攻击一次、格挡一次，通常各算 1 次行动回合；每次行动后守卫也可能移动或蓄力。按住方向键会连续走格，也会连续推进回合。",
+                color=relicMuted,fontSize=12.sp,lineHeight=18.sp)
+            Text("技能旁的数字表示还需行动几次才能恢复，不是等待几秒；怪物蓄力会先警告，下一次行动时才可能攻击。",
+                color=relicGreen,fontSize=12.sp,lineHeight=18.sp)
+            TextButton(onClick={rulesTab="入门";showRulesDialog=true}) {
+                Text("查看完整玩法与应对方法",color=relicGold)
+            }
         }
         if(run==null || run.phase in listOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
             if(menuSection=="准备" && run!=null)RelicSettlement(run,snapshot.newDiscoveries)
