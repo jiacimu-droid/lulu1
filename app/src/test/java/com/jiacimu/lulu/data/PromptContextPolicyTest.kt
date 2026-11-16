@@ -63,18 +63,65 @@ class PromptContextPolicyTest {
         assertEquals(hugeText, long.content)
     }
 
-    @Test fun realWorldInteractionAndBackgroundLifeKeepDetails() {
+    @Test fun worldNeedsExpandOnlyWhenSceneReallyRequiresIt() {
         val meeting = PromptContextPolicy.forRequest("数字世界见面",
             UnifiedMemoryRequest(currentInput = "这个桌子能搬吗"))
         val background = PromptContextPolicy.forRequest("后台主动感知", UnifiedMemoryRequest())
         assertTrue(meeting.worldDetails)
-        assertTrue(background.worldDetails)
+        assertFalse("A quiet autonomous reflection should not copy the full world registry", background.worldDetails)
+        assertTrue(PromptContextPolicy.forRequest("后台主动感知",
+            UnifiedMemoryRequest(currentInput = "想看看家里的书架能不能移动")).worldDetails)
         assertTrue(meeting.richInnerLife)
-        assertTrue(background.evidenceCharacters >= 4_600)
-        assertTrue(background.workingSetCharacters >= 26_000)
+        assertTrue(background.evidenceCharacters >= 5_000)
+        assertTrue(background.workingSetCharacters >= 27_000)
         assertTrue(meeting.memoryCharacters >= 7_800)
-        assertTrue(background.recallLimit >= 38)
+        assertTrue(background.recallLimit >= 40)
     }
+    @Test fun privateAndSoloLivesShareOneRichMemoryTierAndPrioritizeOwnerDialogue() {
+        val input = UnifiedMemoryRequest(
+            currentInput = "我想再聊聊今天做的事",
+            sceneContext = "普通生活中的当前聊天与自主选择",
+        )
+        val independent = PromptContextPolicy.forRequest("后台主动感知", input)
+        val chatting = PromptContextPolicy.forRequest(
+            "后台主动感知", input, hasLiveConversation = true)
+        val ordinaryChat = PromptContextPolicy.forRequest("私聊", input)
+        assertTrue(independent.richInnerLife)
+        assertTrue(chatting.richInnerLife)
+        assertTrue(ordinaryChat.richInnerLife)
+        assertEquals(independent.recallLimit, chatting.recallLimit)
+        assertEquals(independent.recentCharacters, chatting.recentCharacters)
+        assertEquals(independent.lexiconCharacters, chatting.lexiconCharacters)
+        assertEquals(independent.worldDetails, chatting.worldDetails)
+        assertFalse(independent.worldDetails)
+        // Speaking with the owner must not reduce how much the person knows.
+        assertTrue(chatting.memoryCharacters >= independent.memoryCharacters)
+        assertTrue(chatting.evidenceCharacters >= independent.evidenceCharacters)
+        assertTrue(chatting.workingSetCharacters >= independent.workingSetCharacters)
+        assertTrue(chatting.workingSetCharacters - independent.workingSetCharacters <= 1_000)
+        assertEquals(ordinaryChat.memoryCharacters, chatting.memoryCharacters)
+        assertEquals(ordinaryChat.workingSetCharacters, chatting.workingSetCharacters)
+        val game = PromptContextPolicy.forRequest("游戏 · 方块小岛自主同行", input)
+        assertTrue(game.richInnerLife)
+        assertEquals(independent.workingSetCharacters, game.workingSetCharacters)
+    }
+
+    @Test fun actualWorldOrPromiseEvidenceCanExpandWithoutChangingTheSharedPerson() {
+        val source = "后台主动感知"
+        val world = UnifiedMemoryRequest(currentInput = "去数字世界的庭院用真实物品")
+        val precise = UnifiedMemoryRequest(currentInput = "你上次答应我的叫醒真正做到了吗？")
+        for (conversation in listOf(false, true)) {
+            val situated = PromptContextPolicy.forRequest(source, world,
+                hasLiveConversation = conversation)
+            val verifying = PromptContextPolicy.forRequest(source, precise,
+                hasLiveConversation = conversation)
+            assertTrue(situated.worldDetails)
+            assertTrue(situated.richInnerLife)
+            assertTrue(verifying.precise)
+            assertTrue(verifying.evidenceCharacters >= 7_000)
+        }
+    }
+
     @Test fun alreadySentSceneEvidenceDoesNotPolluteRecallQuery() {
         val normal = UnifiedMemoryRequest(
             currentInput = "还记得我们约好的事吗？",
