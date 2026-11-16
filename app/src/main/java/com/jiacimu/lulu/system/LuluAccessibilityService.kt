@@ -583,11 +583,23 @@ class LuluAccessibilityService : AccessibilityService() {
             return LuluVirtualChatSendPolicy.uniqueHeaderTitle(titleBounds, height)
         }
 
+        /**
+         * When WeChat renders the name but omits its accessibility text,
+         * verify fresh pixels from this independently owned display with
+         * offline OCR. Never trust the model's screenshot claim for sending.
+         */
+        private suspend fun verifiedChatHeader(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+            recipient: String, height: Int,
+        ): Boolean = virtualChatHeaderMatches(
+            service, displayId, packageName, recipient, height
+        ) || LuluVirtualChatTitleOcr.matches(displayId, packageName, recipient)
+
         /** WeChat voice-composer recovery is a deliberately narrow navigation
          * action chosen by the role. It never types or clicks a send control.
          * A real press-to-talk element AND a unique small toggle immediately
          * left of it must be witnessed on this exact virtual display. */
-        fun switchVirtualChatToText(
+        suspend fun switchVirtualChatToText(
             displayId: Int, packageName: String, recipient: String,
             expectedFingerprint: String,
         ): JSONObject {
@@ -613,7 +625,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     "微信页面已改变，请先观察后再选输入模式")
             val dimensions = virtualDimensions(service, displayId)
                 ?: return result(false, "chat_display_unavailable", "后台屏实际尺寸不可用")
-            if (!virtualChatHeaderMatches(service, displayId, packageName,
+            if (!verifiedChatHeader(service, displayId, packageName,
                     recipient, dimensions.second))
                 return result(false, "chat_recipient_unverified",
                     "微信顶部没有找到与收件人一致的可验证标题，未切换也未发送")
@@ -669,7 +681,7 @@ class LuluAccessibilityService : AccessibilityService() {
             // The final gate runs again AFTER scanning, because a system dialog
             // or another chat may replace the target while the tree is read.
             if (virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                !virtualChatHeaderMatches(service, displayId, packageName,
+                !verifiedChatHeader(service, displayId, packageName,
                     recipient, dimensions.second))
                 return result(false, "chat_changed_before_toggle",
                     "聊天界面发生变化，没有点击")
@@ -682,7 +694,7 @@ class LuluAccessibilityService : AccessibilityService() {
 
         /** A live, read-only editor check for the exact WeChat conversation.
          * Never use the owner's display or general search editor evidence. */
-        fun virtualChatTextInputVisible(
+        suspend fun virtualChatTextInputVisible(
             displayId: Int, packageName: String, recipient: String,
         ): Boolean {
             val service = instance ?: return false
@@ -691,7 +703,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return false
             val dimensions = virtualDimensions(service, displayId) ?: return false
-            if (!virtualChatHeaderMatches(service, displayId, packageName,
+            if (!verifiedChatHeader(service, displayId, packageName,
                     recipient, dimensions.second)) return false
             val editors = ownedVirtualRoots(service, displayId, packageName)
                 .flatMap(::visibleEditors).distinctBy { node ->
@@ -779,7 +791,7 @@ class LuluAccessibilityService : AccessibilityService() {
          * owned virtual conversation screen. Used to distinguish an accepted
          * Send click from a new client-side message appearance. A count is NOT
          * server delivery confirmation and must never trigger another click. */
-        fun virtualChatOutgoingTextCount(
+        suspend fun virtualChatOutgoingTextCount(
             displayId: Int, packageName: String, recipient: String, message: String,
         ): Int {
             val service = instance ?: return -1
@@ -788,7 +800,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return -1
             val dimensions = virtualDimensions(service, displayId) ?: return -1
-            if (!virtualChatHeaderMatches(
+            if (!verifiedChatHeader(
                     service, displayId, packageName, recipient, dimensions.second)) return -1
             val positions = mutableListOf<Rect>()
             var scanned = 0
@@ -811,7 +823,7 @@ class LuluAccessibilityService : AccessibilityService() {
          * action, never a search Enter or a generic permissive tap. This makes
          * ONE attempt after verifying the actual conversation and readback.
          * ACTION_CLICK acceptance does not establish server delivery. */
-        fun sendVirtualChatMessage(
+        suspend fun sendVirtualChatMessage(
             displayId: Int, packageName: String, recipient: String, message: String,
             expectedFingerprint: String, stillAuthorized: () -> Boolean,
         ): JSONObject {
@@ -832,7 +844,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val dimensions = virtualDimensions(service, displayId)
                 ?: return denied("chat_display_unavailable")
             val roots = ownedVirtualRoots(service, displayId, packageName)
-            fun uniqueRecipientInHeader(): Boolean = virtualChatHeaderMatches(
+            suspend fun uniqueRecipientInHeader(): Boolean = verifiedChatHeader(
                 service, displayId, packageName, recipient, dimensions.second)
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
                 .put("observedChatHeaderTexts",
