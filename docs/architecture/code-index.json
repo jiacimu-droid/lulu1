@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T10:14:03.065873+00:00",
-  "commit": "b09b1302e6635a17064d3c4ff5f9ba4d0978f125",
+  "generatedAt": "2026-11-16T10:31:33.361848+00:00",
+  "commit": "e3f936f6c82c12e01dc377dccd114eddd22b19d9",
   "branch": "main",
-  "sourceFingerprint": "c4a4ad38cd963385f226918e3b026d0cddc221cce09179235c7bf38fc867fb22",
+  "sourceFingerprint": "6cec9bf11e9792387a99bdcc3a589928b3f87485fbf46383e33ba4ef47e8669a",
   "summary": {
     "files": 1358,
-    "lines": 290281,
+    "lines": 290305,
     "symbols": 4090
   },
   "symbolIndex": {
@@ -15723,7 +15723,7 @@
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 189
+        "line": 192
       }
     ],
     "namesFor": [
@@ -38374,8 +38374,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 233,
-      "sha256": "ba14baf682c29f8a296725def70bd880fedb49b491da6b687fb5f8a205bbac44",
+      "lines": 236,
+      "sha256": "e30f6fe0adcd8228d5a737a2eec3754f0565f5ab44983d6b26c470dc4fc1049b",
       "symbols": [
         {
           "name": "json",
@@ -38391,7 +38391,7 @@
         },
         {
           "name": "syncExperiences",
-          "line": 189
+          "line": 192
         }
       ]
     },
@@ -47607,8 +47607,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMuseumSaleGuardTest.kt",
-      "lines": 40,
-      "sha256": "902c0dd7ab8cd0e9fb93cea857ad0ba4b6516a53ba473cc3bba4f00332866632",
+      "lines": 61,
+      "sha256": "193cdd1753db8d015b1c396f282ff7a689f33a736ac796fde67f443e2e782195",
       "symbols": [
         {
           "name": "RelicMuseumSaleGuardTest",
