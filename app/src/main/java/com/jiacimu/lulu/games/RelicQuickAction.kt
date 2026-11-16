@@ -115,6 +115,15 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         if (drop != null) return RelicQuickAction("pickup", "拾取 ${drop.loot.name}",
             "拾取进背包，不会立即增加永久仓库", id = drop.loot.id)
         val site = run.sites.firstOrNull { it.x == x && it.y == y && !it.spent }
+        if(site?.kind=="seal_switch")return RelicQuickAction("unseal",
+            "转动机关 · 开启石门",
+            "解锁对应石门，真实改变可通行地图；会产生一点声响", x,y)
+        if(site?.kind=="lens")return RelicQuickAction("observe_lens",
+            "校准观测镜 · 揭开迷雾",
+            "一次性揭开以装置为中心六格内的真实地图，无需战斗",x,y)
+        if(site?.kind=="echo" && x to y != (hero.x to hero.y))
+            return RelicQuickAction("sneak","轻声越过共鸣石板",
+                "点按钮潜行，不惊动守卫；直接按方向走会触发响声",x,y)
         if (site?.kind == "trap" && run.tools > 0) return RelicQuickAction("disarm",
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
         if (site?.kind == "altar") return RelicQuickAction("invoke", "唤醒古老祭坛",
@@ -179,7 +188,8 @@ internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>, selected: 
     // override it with an unrelated drop underfoot; that would make a tapped
     // adjacent chest or rescue action impossible until the drop was collected.
     val interactions = setOf("open", "pickup", "resupply", "fountain",
-        "disarm", "invoke", "silence", "revive", "extract")
+        "disarm", "invoke", "silence", "revive", "extract",
+        "observe_lens", "unseal")
     if (selected != null && selected != (h.x to h.y)) {
         return relicQuickAction(run, selected)?.takeIf { it.action in interactions }
     }
