@@ -31,13 +31,23 @@ import com.jiacimu.lulu.games.GameSoundEffect
 import com.jiacimu.lulu.games.GameSoundEffects
 import com.jiacimu.lulu.games.WorldActionButton
 import com.jiacimu.lulu.games.WorldVector
+import com.jiacimu.lulu.games.WorldRectangle
+import com.jiacimu.lulu.games.WorldObstacle
+import com.jiacimu.lulu.games.moveInWorld
+import com.jiacimu.lulu.games.worldFollowPath
 import com.jiacimu.lulu.games.WorldVirtualJoystick
 import kotlinx.coroutines.isActive
 
 /** All doors lead to existing authoritative scenes, never to invented room copies. */
 internal data class DigitalStreetAddress(val code: String, val label: String)
 
-private data class StreetDoor(val address: DigitalStreetAddress, val point: WorldVector)
+private data class StreetDoor(val address: DigitalStreetAddress, val point: WorldVector) {
+    // The building footprint is solid; its door is approached from the sidewalk.
+    val entrance = WorldVector(point.x, point.y + 112f)
+    val obstacle = WorldObstacle(address.code, WorldRectangle(
+        point.x - 145f, point.y - 104f, point.x + 145f, point.y + 67f),
+        address.label, "沿人行道走到真正的建筑入口")
+}
 private data class StreetDiscovery(val id: String, val label: String, val description: String, val point: WorldVector)
 
 private val streetDiscoveries = listOf(
@@ -68,6 +78,8 @@ internal fun DigitalWorldWalkableStreet(
     }
     val worldHeight = maxOf(2_380f, 690f + ((doors.size + 1) / 2) * 370f)
     val worldWidth = 1_280f
+    val walkBounds = remember(worldHeight) { WorldRectangle(86f, 90f, worldWidth - 86f, worldHeight - 100f) }
+    val buildingObstacles = remember(doors) { doors.map { it.obstacle } }
     val doorwaySpawn = remember(doors, spawnAtLocationCode) {
         doors.firstOrNull { it.address.code == spawnAtLocationCode }?.let { door ->
             // Spawn on the public path just outside the exact building exited.
@@ -135,12 +147,13 @@ internal fun DigitalWorldWalkableStreet(
     }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
     var tapTarget by remember { mutableStateOf<WorldVector?>(null) }
+    var tapPath by remember { mutableStateOf<List<WorldVector>>(emptyList()) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
     val scale = if (viewport.width > 0) viewport.width / worldWidth else 1f
     val visibleHeight = if (scale > 0f) viewport.height / scale else worldHeight
     val cameraY = (player.y - visibleHeight * .48f).coerceIn(0f, (worldHeight - visibleHeight).coerceAtLeast(0f))
-    val nearestDoor = doors.minByOrNull { player.distanceTo(it.point) }
-        ?.takeIf { player.distanceTo(it.point) < 145f }
+    val nearestDoor = doors.minByOrNull { player.distanceTo(it.entrance) }
+        ?.takeIf { player.distanceTo(it.entrance) < 112f }
     val nearestDiscovery = streetDiscoveries
         .filter { it.id in DigitalStreetJourney.visibleClues(visited) }
         .minByOrNull { player.distanceTo(it.point) }
@@ -162,23 +175,26 @@ internal fun DigitalWorldWalkableStreet(
             withFrameNanos { frame ->
                 val dt = ((frame - lastFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 lastFrame = frame
-                val targetDirection = tapTarget?.let { target ->
-                    val delta = target - player
-                    if (delta.length < 25f) {
-                        tapTarget = null
-                        WorldVector.Zero
-                    } else delta.normalized()
-                } ?: WorldVector.Zero
+                while (tapPath.isNotEmpty() && player.distanceTo(tapPath.first()) < 18f) {
+                    tapPath = tapPath.drop(1)
+                }
+                val targetDirection = if (tapPath.isEmpty()) WorldVector.Zero
+                    else (tapPath.first() - player).normalized()
+                if (tapPath.isEmpty()) tapTarget = null
                 val direction = if (joystick.length > .08f) {
                     tapTarget = null
+                    tapPath = emptyList()
                     joystick
                 } else targetDirection
                 if (direction.length > .04f) {
-                    val delta = direction.normalized() * (dt * 310f)
-                    player = WorldVector(
-                        (player.x + delta.x).coerceIn(86f, worldWidth - 86f),
-                        (player.y + delta.y).coerceIn(90f, worldHeight - 100f),
-                    )
+                    val moved = moveInWorld(
+                        player, direction, 310f, dt, 34f, walkBounds, buildingObstacles)
+                    player = moved.position
+                    if (moved.collided && tapTarget != null) {
+                        // No phantom sliding through a wall after a blocked route.
+                        tapTarget = null
+                        tapPath = emptyList()
+                    }
                 }
                 if (companionPositions.isNotEmpty()) {
                     val before = companionPositions
@@ -198,13 +214,18 @@ internal fun DigitalWorldWalkableStreet(
     }
 
     Box(modifier.fillMaxSize().background(Color(0xFFBBD2C4)).onSizeChanged { viewport = it }) {
-        Canvas(Modifier.fillMaxSize().pointerInput(scale, cameraY) {
+        Canvas(Modifier.fillMaxSize().pointerInput(scale, cameraY, buildingObstacles) {
             detectTapGestures { point ->
-                tapTarget = WorldVector(
+                val target = WorldVector(
                     (point.x / scale).coerceIn(86f, worldWidth - 86f),
                     (point.y / scale + cameraY).coerceIn(90f, worldHeight - 100f),
                 )
-                GameSoundEffects.play(GameSoundEffect.Move)
+                val route = worldFollowPath(player, target, walkBounds, buildingObstacles, 34f)
+                if (route.isNotEmpty()) {
+                    tapTarget = target
+                    tapPath = route
+                    GameSoundEffects.play(GameSoundEffect.Move)
+                }
             }
         }) {
             withTransform({
