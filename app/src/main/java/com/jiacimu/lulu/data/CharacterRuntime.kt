@@ -34,6 +34,17 @@ data class CharacterDefinitionSnapshot(
         identity.takeIf(String::isNotBlank)?.let { "身份与背景事实：\n$it" }.orEmpty(),
         personaPromptSection(),
         relationshipPromptSection().takeIf { includeRelationships }.orEmpty(),
+        // A hobby in someone's editable profile is not a shipped game.
+        // Read the real invitation catalog instead of copying a second list
+        // into prompts, and expose it equally to chat, call and meeting.
+        "【当前真实游戏邀约能力｜系统事实，不是人设兴趣或已玩经历】" +
+            "目前可实际向用户发出游戏馆邀约的项目：" +
+            com.jiacimu.lulu.games.GameInvitationCatalog.titles.values.joinToString("、") + "。" +
+            "角色可以喜欢、畅想或讨论尚未推出的玩法，亦可明确说想以后一起玩；" +
+            "但人物兴趣、故事设定、口头猜谜不证明游戏馆存在对应入口，" +
+            "不能把尚未接入的项目描述为现在可开局、可组队或已有真实战绩。" +
+            "当用户说明某玩法目前不能玩时，承接这条新事实，不要继续声称可以在游戏馆玩。" +
+            "是否改提其他真实玩法由本人决定，不必朗读能力清单。",
     ).filter(String::isNotBlank).joinToString("\n\n")
 }
 
