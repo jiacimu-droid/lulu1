@@ -330,7 +330,7 @@ fun DigitalWorldMeetingApp(
         val id = observedSession?.id ?: return@LaunchedEffect
         if (!meetingForeground) return@LaunchedEffect
         if (input.isNotBlank()) return@LaunchedEffect
-        kotlinx.coroutines.delay(9_000L)
+        kotlinx.coroutines.delay(com.jiacimu.lulu.data.CharacterSceneCadence.MEETING_INITIAL_IDLE_MS)
         while (MeetingLivingWorldRuntime.isPresent(id)) {
             val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == id }
             if (current == null || current.endedAt != null) break
@@ -343,7 +343,7 @@ fun DigitalWorldMeetingApp(
                     launchLivingMoment(current, characterId)
                 }
             }
-            kotlinx.coroutines.delay(84_000L)
+            kotlinx.coroutines.delay(com.jiacimu.lulu.data.CharacterSceneCadence.MEETING_QUIET_DECISION_MS)
         }
     }
 
