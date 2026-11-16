@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:50:29.579060+00:00",
-  "commit": "020c3ff7c336c6d179db67cffbe67735ef29eb4c",
+  "generatedAt": "2026-11-16T03:50:45.477367+00:00",
+  "commit": "e1d55dc3e712a5815cbb66334fbfcb5f77592ab3",
   "branch": "main",
-  "sourceFingerprint": "b71e1bd16258e1e20bc5d9f151d678f0a533d7eb0b19e08176299f4a068ac765",
+  "sourceFingerprint": "6f68bc0687ded314077f1e51a62105b5496781008a50912a96dbf2f53665a6bf",
   "summary": {
     "files": 1346,
-    "lines": 287269,
+    "lines": 287270,
     "symbols": 4053
   },
   "symbolIndex": {
@@ -25402,8 +25402,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
-      "lines": 46,
-      "sha256": "495152fc3270374e9c124abab7af7df66bd55d74dd247202cc220dc83d1e0b2d",
+      "lines": 47,
+      "sha256": "c749785463bbaf9abaa4c553537c410808f5a5a0a811a4822ab51f8801640a06",
       "symbols": [
         {
           "name": "apply",
