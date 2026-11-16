@@ -24,6 +24,47 @@ internal object LuluVirtualChatSendPolicy {
         RegexOption.IGNORE_CASE,
     )
 
+    /** Match the real WeChat chat title, not a guessed model recipient.
+     * Android/WeChat sometimes exposes the same title via text or content
+     * description, with layout-only zero-width characters. Never allow a
+     * partial nickname match to send to a different conversation. */
+    fun headerMatches(text: String?, description: String?, recipient: String): Boolean {
+        if (!validRecipient(recipient)) return false
+        fun normalized(s: String): String = s
+            .replace(Regex("[\\u200B\\u200E\\u200F\\uFEFF]"), "").trim()
+        return listOf(text, description).filterNotNull().any {
+            normalized(it) == normalized(recipient)
+        }
+    }
+
+    /** Both a clickable label and its wrapping layout may be exposed as
+     * separate accessibility nodes for a single physical Send button. */
+    fun uniqueSendTarget(
+        controls: List<ComposerBounds>, screenWidth: Int, screenHeight: Int,
+    ): Int? {
+        if (controls.isEmpty() || screenWidth <= 0 || screenHeight <= 0) return null
+        val reference = controls[0]
+        if (controls.any {
+                kotlin.math.abs(it.centerX - reference.centerX) > screenWidth / 45 ||
+                kotlin.math.abs(it.centerY - reference.centerY) > screenHeight / 65
+            }) return null
+        return controls.indices.minByOrNull {
+            controls[it].width.toLong() * controls[it].height
+        }
+    }
+
+    /** The send button must be on the same bottom composer row as the
+     * live text editor, not a matching "发送" label inside chat history. */
+    fun sendControlNearEditor(
+        control: ComposerBounds, editor: ComposerBounds,
+        screenWidth: Int, screenHeight: Int,
+    ): Boolean = control.width > 0 && control.height > 0 &&
+        editor.width > 0 && editor.height > 0 && screenWidth > 0 &&
+        screenHeight > 0 && control.centerX >= screenWidth / 2 &&
+        control.centerX >= editor.centerX &&
+        kotlin.math.abs(control.centerY - editor.centerY) <=
+            maxOf(editor.height, screenHeight / 16)
+
     /** Only one writable non-search/non-password editor on a verified
      * WeChat conversation page may be used. Generic search stays unchanged. */
     fun chatEditorCandidate(className: String?, hint: String?, resourceId: String?): Boolean {
