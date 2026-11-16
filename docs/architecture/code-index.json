@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:11:57.560688+00:00",
-  "commit": "7a58082fbb89c38c0090282805c80096d2fe9200",
+  "generatedAt": "2026-11-16T03:13:25.632253+00:00",
+  "commit": "d978a438fbcd09d9138f17a500c0f38b98ebf880",
   "branch": "main",
-  "sourceFingerprint": "84b28d40dfe5280e7a936ef81dd8763a94a93656c5e37a0c05115fe6ac2b1c49",
+  "sourceFingerprint": "de6bc4ff2aec93893ce6b7f7a5ba77e394f062387a123850f3e66959eff0754e",
   "summary": {
-    "files": 1342,
-    "lines": 286341,
-    "symbols": 4043
+    "files": 1343,
+    "lines": 286358,
+    "symbols": 4044
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18594,6 +18594,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt",
         "line": 16
+      }
+    ],
+    "MeetingWalkAndTalkContractTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt",
+        "line": 7
       }
     ],
     "MiniMaxAsrStreamAccumulatorTest": [
@@ -41917,6 +41923,17 @@
         {
           "name": "MeetingVoiceOffTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt",
+      "lines": 17,
+      "sha256": "35c7cb3e60944cfce5a8812c90c94b44a9d09e134eb7e96cef2fab0b1dec5eba",
+      "symbols": [
+        {
+          "name": "MeetingWalkAndTalkContractTest",
+          "line": 7
         }
       ]
     },
