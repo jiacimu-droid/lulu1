@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:18:15.064470+00:00",
-  "commit": "ce3d4d96d71afdfc2a5980858440c3381569a494",
+  "generatedAt": "2026-11-16T02:19:40.199404+00:00",
+  "commit": "6715848a77a098e9f01d81d6ebdeed50b1142f3d",
   "branch": "main",
-  "sourceFingerprint": "ffaf638cfe6425bb6284f09e5c4dff7f892ccf1d0765f1d39729ad791c9f193d",
+  "sourceFingerprint": "468b8d6a5b269da9854d70183ca8fb991daec7f3048ffff8dbfb3ddbddeb3e05",
   "summary": {
     "files": 1342,
-    "lines": 286241,
+    "lines": 286263,
     "symbols": 4043
   },
   "symbolIndex": {
@@ -23564,8 +23564,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 853,
-      "sha256": "924bac9f6cc7d7b9a5228cd43eaf32e8175a925acdbd5e7928f8ddbcebbe9572",
+      "lines": 857,
+      "sha256": "5c19e57b1eee062d7c72e6577ff1725a70646d6d9b2f6450510c30b5defb8875",
       "symbols": []
     },
     {
@@ -44212,8 +44212,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt",
-      "lines": 81,
-      "sha256": "d7b730980b245dbc4546b2c4ebefa3a9808612b72ee64f592717b7c1756ee875",
+      "lines": 99,
+      "sha256": "a78ecb01918c46e7582a0fe1c2c87584b09646c377aaaa99c546734ae30bd04c",
       "symbols": [
         {
           "name": "CompanionPresenceFreshnessTest",

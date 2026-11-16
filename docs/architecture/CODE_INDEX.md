@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ce3d4d96d71afdfc2a5980858440c3381569a494`
+- 基准提交：`6715848a77a098e9f01d81d6ebdeed50b1142f3d`
 - 分支：`main`
 - 已索引文件：1342
-- 已索引代码/文本行：286241
+- 已索引代码/文本行：286263
 - 已发现符号：4043
 
 | 文件 | 行数 | 符号数 |
@@ -118,7 +118,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 853 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 857 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DesktopWorldBulletinCard.kt` | 175 | 0 |
@@ -1086,7 +1086,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 572 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 81 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2277 | 40 |
