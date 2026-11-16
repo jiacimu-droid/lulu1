@@ -47,7 +47,8 @@ object RecentSemanticTimeline {
     private fun isConversation(event: SharedTimelineEvent): Boolean {
         if (event.evidenceKind !in setOf(EventEvidenceKind.UserStatement,
                 EventEvidenceKind.CharacterStatement)) return false
-        return event.source == "message" || event.source == "legacy" ||
+        return (event.source == "message" && event.sessionId.isNotBlank()) ||
+            (event.source == "legacy" && event.sessionId.isNotBlank() && event.channel == "私聊") ||
             event.source.startsWith("game-team-owner-") ||
             event.source == "game-team-companion" ||
             (event.source == "meeting" && event.sessionId.isNotBlank()) ||
