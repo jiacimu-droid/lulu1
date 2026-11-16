@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.ai.ActorSceneWirePolicy
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
@@ -148,6 +149,64 @@ class CharacterContinuityGatewayTest {
             assertTrue("A new user message must not remove half of the actor's memory",
                 difference <= 5_000)
             assertEquals("Neither path may buy a second model call just to recall", 2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun realGatewayBuildsTheSameActorSectionsForDirectMessageAndSoloLife() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = MigratedDomainStores.characters.create("同一背景同一人格").characterId
+        val observed = "【角色最近自己的生活记录｜旧→新】\n咖啡角真实活动 evidenceId=coffee-verified-21"
+        val server = MockWebServer()
+        repeat(2) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"{}","finish_reason":"stop"}}]}"""))
+        }
+        server.start()
+        try {
+            val wire = mutableListOf<org.json.JSONArray>()
+            for (privateChat in listOf(true, false)) {
+                LuluAiServices.gateway.generate(
+                    characterId = role, facts = observed,
+                    instruction = "同一人物当下自主判断；场景只负责指定当前沟通对象",
+                    source = "后台主动感知", title = if (privateChat) "新消息" else "独立生活",
+                    contextMode = CompanionContextMode.Full,
+                    connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test"),
+                    memoryRequest = UnifiedMemoryRequest(currentInput = "咖啡角", sceneContext = "相同现场"),
+                    maxTokens = 350,
+                    conversation = if (privateChat)
+                        listOf(ModelConversationMessage(ModelConversationMessage.Role.USER, "你正在做什么？"))
+                    else emptyList(),
+                ).getOrThrow()
+                val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                wire += request.getJSONArray("messages")
+            }
+            fun scene(messages: org.json.JSONArray): Pair<Int, String> {
+                val indexes = (0 until messages.length()).filter {
+                    messages.getJSONObject(it).optString("content")
+                        .startsWith(ActorSceneWirePolicy.SCENE_HEADING)
+                }
+                assertEquals("one full actor scene, never a second divergent background", 1, indexes.size)
+                val idx = indexes.single()
+                assertEquals("user", messages.getJSONObject(idx).getString("role"))
+                return idx to messages.getJSONObject(idx).getString("content")
+            }
+            val live = scene(wire[0])
+            val solo = scene(wire[1])
+            assertEquals("same authoritative scene delivered regardless of new chat", live.second, solo.second)
+            assertEquals("same position after actor system/worldbook context", live.first, solo.first)
+            assertFalse("data must not turn into privileged system instructions",
+                wire[0].getJSONObject(0).getString("content").contains("coffee-verified-21"))
+            assertFalse(wire[1].getJSONObject(0).getString("content").contains("coffee-verified-21"))
+            assertEquals("你正在做什么？", wire[0].getJSONObject(wire[0].length() - 1).getString("content"))
+            assertTrue(wire[1].getJSONObject(wire[1].length() - 1).getString("content")
+                .startsWith(ActorSceneWirePolicy.AUTONOMOUS_TURN))
+            assertTrue("the common personality must be above both scenes",
+                wire[0].getJSONObject(0).getString("content").contains("当前角色设定"))
+            assertTrue(wire[1].getJSONObject(0).getString("content").contains("当前角色设定"))
+            assertEquals(2, server.requestCount)
         } finally { server.shutdown() }
     }
 
