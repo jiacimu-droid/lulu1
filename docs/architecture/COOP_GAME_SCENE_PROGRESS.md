@@ -483,3 +483,10 @@
 
 - 根因：正式 `RelicEscapeArt.kt` 视口裁剪先将 Float 投影转 Int 再 ±1；极端平移时 Int 饱和可错误绘制屏幕外边缘图层。新增 `RelicMapCamera.visibleBounds` 以 Double 投影、先裁剪到实际地图边界，返回独占上界；正式地形/宝物/人物/路线/标签共用此边界。生产 `417d9438`（相机 blob `87ae1033`）、`df69c548`（渲染 blob `324884e9`）。
 - 根因回归 `7c966f0e`（`RelicMapCameraTest.kt` blob `39fcfaa7`）验证正常边缘预留、极远双向平移、无效视口，不改变掉落、人物决定或存档。新 push JVM/APK/index 尚未确认终态，Redmi 横屏 FPS、视觉、操作仍待真机。下一文件 `RelicMapCameraTest.kt` 先查 JVM 首错；随后 `RelicEscapeArt.kt` 360/412dp 横屏边界截图及地图点选，继续实物撤离→藏宝馆复进闭环。
+
+
+## 2026-11-16 G-03.5 · 有限视口投影溢出不生成可绘制相机（JVM/APK 待验）
+
+- 生产 `91de7ce`（`RelicMapCamera.kt` blob `f811340e2bacd0c2c1a87d9a38a11d6df06930e7`）：有限输入在极端旋转尺寸/缩放或焦点乘法中仍可溢出为无穷；现在校验派生 tile/offset，失效时返回不可点选、不可绘制的空相机。正常横屏相机、实体物理和掉落不变。
+- 根因回归 `8e301bae`（`RelicMapCameraTest.kt` blob `c1b1105125466a1471db7fd01731be81a93440dc`）：有限巨大单行视口乘缩放溢出、有限极端焦点投影溢出、正常横屏点选；修正首版夹具 `d064c98` 的尺寸不足以溢出问题。
+- 只确认生产/测试写入 main；最新 push 的 JVM/APK/index 终态及 Redmi 真机旋转、帧率、美术待验。下一实际文件：`RelicMapCameraTest.kt` JVM 首错，`RelicEscapeArt.kt` 正式相机接线及真实拾取→撤离→藏宝馆重入。
