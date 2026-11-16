@@ -27,11 +27,12 @@ internal object CallSilencePolicy {
         sinceAudioMillis: Long, sinceReflectionMillis: Long, failures: Int,
     ): Boolean {
         if (!connected || sleepMode || busy || userSpeaking) return false
-        val interval = when {
-            failures >= 3 -> com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_FAILURE_BACKOFF_MS
-            sinceUserActivityMillis >= 10 * 60_000L -> com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_LONG_SILENCE_REVIEW_MS
-            else -> com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_INITIAL_REVIEW_MS
-        }
+        // Normal and scheduled wake-up calls share the SAME perception clock.
+        // The role decides whether to speak, act, ring (when authorized) or be
+        // quiet; only persistent errors impose a safety backoff.
+        val interval = if (failures >= 3)
+            com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_FAILURE_BACKOFF_MS
+        else com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_SILENCE_REVIEW_MS
         return sinceUserActivityMillis >= com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_MIN_USER_SILENCE_MS &&
             sinceAudioMillis >= com.jiacimu.lulu.data.CharacterSceneCadence.PHONE_MIN_AUDIO_GAP_MS &&
             sinceReflectionMillis >= interval
