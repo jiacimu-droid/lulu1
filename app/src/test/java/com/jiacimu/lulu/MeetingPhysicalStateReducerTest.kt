@@ -36,6 +36,24 @@ class MeetingPhysicalStateReducerTest {
         assertEquals("desk-02", arrived.participants[2].destinationItemId)
     }
 
+    @Test fun arrivingAtRealTargetClearsItsPendingActivityOnly() {
+        val initial = original.copy(participants = original.participants.map {
+            when (it.participantId) {
+                "role-a" -> it.copy(destinationItemId = "lamp-1", destinationActivityId = "toggle_lamp")
+                "role-b" -> it.copy(destinationItemId = "bed-2", destinationActivityId = "sit_on_bed")
+                else -> it
+            }
+        })
+        val stillWalking = MeetingPhysicalStateReducer.reachedItem(initial, "role-a", "bed-2", "床", Instant.EPOCH)
+        assertEquals("toggle_lamp", stillWalking.participants[1].destinationActivityId)
+        val arrived = MeetingPhysicalStateReducer.reachedItem(initial, "role-a", "lamp-1", "台灯", Instant.EPOCH)
+        assertEquals("", arrived.participants[1].destinationActivityId)
+        assertEquals("", arrived.participants[1].destinationItemId)
+        assertEquals("sit_on_bed", arrived.participants[2].destinationActivityId)
+        val departed = MeetingPhysicalStateReducer.userDeparted(initial, Instant.EPOCH)
+        assertTrue(departed.participants.all { it.destinationItemId.isEmpty() && it.destinationActivityId.isEmpty() })
+    }
+
     @Test fun departureEndsContactAndFollowingWithoutInventingOtherChanges() {
         val held = MeetingPhysicalStateReducer.apply(original, "role-a", "HOLD_HANDS", Instant.EPOCH)
         val departed = MeetingPhysicalStateReducer.userDeparted(held, Instant.EPOCH)
