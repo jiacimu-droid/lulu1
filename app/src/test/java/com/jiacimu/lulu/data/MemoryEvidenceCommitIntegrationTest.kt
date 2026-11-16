@@ -160,11 +160,15 @@ class MemoryEvidenceCommitIntegrationTest {
             recentCharacterBudget = 0, evidenceCharacterBudget = 0, localOnly = false)
         assertTrue(assembled.memories.any { it.id == "cat" })
         assertTrue(assembled.sourceEvidence.isBlank())
+        // A recalled source is not the same as an injected source. With both
+        // original-evidence channels closed, the live derived memory must still
+        // reach the prompt instead of disappearing solely because it was recalled.
         val full = UnifiedMemoryOrchestrator.assemble(role, UnifiedMemoryRequest(currentInput = "橘猫在桥西"),
-            recentCharacterBudget = 3000, evidenceCharacterBudget = 0, localOnly = false)
+            recentCharacterBudget = 0, evidenceCharacterBudget = 0, localOnly = false)
         val working = MemoryWorkingSet.assemble(full, emptyList(), emptyList(),
-            PromptContextBudget(18, 4000, 0, 3000, false, false, 0, false), "")
-        assertFalse("memory:cat" in working.selected)
+            PromptContextBudget(18, 4000, 0, 0, false, false, 0, false), "")
+        assertTrue("memory:cat" in working.selected)
+        assertFalse(working.selected.any { it.startsWith("recent:") || it.startsWith("event:") })
         assertTrue(working.sections.values.any { it.contains("橘猫在桥西等我") })
     }
 }
