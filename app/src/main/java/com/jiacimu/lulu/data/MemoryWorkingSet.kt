@@ -70,7 +70,7 @@ internal object MemoryWorkingSet {
                     index < 18 -> 330
                     else -> 180
                 }
-                val preview = RecentSemanticTimeline.render(scoped, previewBudget)
+                val preview = RecentSemanticTimeline.render(scoped, previewBudget, context.retrievalFocus)
                 if (preview.isNotBlank()) {
                     add(MemoryPromptCandidate(
                         "recent-turn:${scoped.key}", RECENT, preview, 965 - index.coerceAtMost(35),
