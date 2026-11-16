@@ -57,6 +57,12 @@ internal object GameCoopPacing {
      * only schedules the *same* role's decision, never picks their next action.
      * A threat earns a faster observation than an uneventful corridor.
      */
+    /** A newly visible guard windup is an actual combat change, not a timer. */
+    fun relicImmediateThreat(s: RelicRun): Boolean =
+        s.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) &&
+            s.mobs.any { it.hp>0 && it.windup && s.visible(it.x,it.y) &&
+                RelicEscapeRules.distance(it.x,it.y,s.hero.x,s.hero.y)<=3 }
+
     fun relicHeldDecisionDue(s: RelicRun, lastObservedTurn: Int): Boolean {
         if (s.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) return false
         if (s.allies.none { it.hp > 0 && it.id !in s.coopPlans }) return false
