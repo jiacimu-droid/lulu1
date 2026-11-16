@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.VolumeOff
@@ -16,6 +17,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +52,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     var expanded by rememberSaveable(run.id){mutableStateOf(false)}
     var typedMessage by rememberSaveable(run.id){mutableStateOf("")}
     val speaker = rememberIslandCompanionVoice { failure = it }
+    var speakerSpeaking by remember(run.id) { mutableStateOf(false) }
     var inbox by rememberSaveable(run.id,stateSaver=relicInboxSaver) { mutableStateOf(IslandTeamInbox()) }
     var speechVersion by remember { mutableIntStateOf(0) }
     fun send(raw:String, fromSpeech:Boolean=false) {
@@ -62,7 +70,10 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
         send(spoken, fromSpeech = true)
     }
     DisposableEffect(speaker, openMic) {
-        speaker.setSpeakingListener { openMic.setCompanionSpeaking(it) }
+        speaker.setSpeakingListener { speaking ->
+            speakerSpeaking = speaking
+            openMic.setCompanionSpeaking(speaking)
+        }
         onDispose { speaker.setSpeakingListener(null); openMic.stop() }
     }
     val currentRun by rememberUpdatedState(readRun)
@@ -187,43 +198,85 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
             } finally { busy = false }
         }
     }
-    Surface(color=Color(0xEE182C38),shape=RoundedCornerShape(18.dp),
-        border=BorderStroke(1.dp,Color(0x557DADAD))) {
-        Column(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=5.dp)) {
-            Row(verticalAlignment=Alignment.CenterVertically) {
-                Text(if (busy) "伙伴正在看局势…" else "伙伴自主同行",color=Color.White,
-                    fontSize=12.sp,modifier=Modifier.weight(1f))
-                IconButton(onClick={ voice=!voice; prefs.edit().putBoolean("voice",voice).apply()
-                    if(!voice)speaker.stop() },modifier=Modifier.size(34.dp)) {
-                    Icon(if(voice)Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                        if(voice)"关闭伙伴语音" else "开启伙伴语音",tint=Color.White,modifier=Modifier.size(18.dp))
-                }
-                Surface(onClick=toggleOpenMic,
-                    color=if(openMic.active) Color(0xFFFFD7BA) else Color(0xFFFFD894),
-                    shape=RoundedCornerShape(10.dp)) {
-                    Row(Modifier.padding(horizontal=8.dp,vertical=7.dp),
-                        verticalAlignment=Alignment.CenterVertically,
-                        horizontalArrangement=Arrangement.spacedBy(3.dp)) {
-                        Icon(Icons.Outlined.Mic,
-                            if(openMic.active)"关闭游戏连麦" else "开启游戏连麦",
-                            tint=Color(0xFF15202B),modifier=Modifier.size(16.dp))
-                        Text(if(openMic.active)"关麦" else "开麦",
-                            color=Color(0xFF15202B),fontSize=11.sp)
-                    }
-                }
-                TextButton(onClick={expanded=true},contentPadding=PaddingValues(4.dp)) {
-                    Text("⋯",color=Color(0xFFFFD894),fontSize=15.sp)
+    // Captions are presentation, not a blocking game menu. An already spoken line
+    // leaves the world visible and fades after playback (or after a short text hold).
+    LaunchedEffect(line, speakerSpeaking) {
+        if (line.isNotBlank() && !speakerSpeaking) {
+            delay(6500L)
+            if (!speakerSpeaking) line = ""
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val landscape = maxWidth > maxHeight
+        val captionWidth = if (landscape) minOf(maxWidth * .44f, 400.dp)
+            else maxWidth * .86f
+        val subtitleStyle = TextStyle(shadow = Shadow(
+            color = Color(0xFF000000), offset = Offset(0f, 2f), blurRadius = 5f))
+        // Independent 44dp microphone in the *top* safe area, never nested in
+        // captions; the nearby icons are only game audio and team details.
+        Row(Modifier.align(Alignment.TopCenter)
+                .padding(top = if (landscape) 5.dp else 56.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Surface(onClick = {
+                    voice = !voice
+                    prefs.edit().putBoolean("voice", voice).apply()
+                    if (!voice) speaker.stop()
+                }, modifier = Modifier.size(44.dp),
+                color = Color(0xC0162935), shape = CircleShape) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(if (voice) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                        if (voice) "关闭伙伴语音" else "开启伙伴语音",
+                        tint = Color.White, modifier = Modifier.size(22.dp))
                 }
             }
-            if(openMic.active) Text(
-                if(openMic.partial.isNotBlank()) "你：" + openMic.partial
-                else openMic.status.ifBlank { "游戏连麦中 · 直接说话" },
-                color=Color(0xFFE6F3EA),fontSize=10.sp,maxLines=2)
-            else if(openMic.status.isNotBlank()) Text(openMic.status,
-                color=Color(0xFFFFCBAF),fontSize=10.sp,maxLines=2)
-            if(busy)LinearProgressIndicator(modifier=Modifier.fillMaxWidth(),color=Color(0xFFFFD894))
-            if(line.isNotBlank())Text(line,color=Color(0xFFE6F3EA),fontSize=12.sp,maxLines=2)
-            if(failure.isNotBlank())Text(failure,color=Color(0xFFFFB4AA),fontSize=11.sp,maxLines=2)
+            Surface(onClick = toggleOpenMic, modifier = Modifier.size(48.dp),
+                color = if (openMic.active) Color(0xFFFFD7BA) else Color(0xCC1A303C),
+                shape = CircleShape,
+                border = BorderStroke(1.dp,
+                    if (openMic.active) Color(0xFFFFD894) else Color(0x887DADAD))) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.Mic,
+                        if (openMic.active) "关闭游戏连麦" else "开启游戏连麦",
+                        tint = if (openMic.active) Color(0xFF15202B) else Color.White,
+                        modifier = Modifier.size(23.dp))
+                }
+            }
+            Surface(onClick = { expanded = true }, modifier = Modifier.size(44.dp),
+                color = Color(0xC0162935), shape = CircleShape) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("⋯", color = Color(0xFFFFD894),
+                        fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+        // Only two lines of borderless, shadowed subtitle; no card, progress
+        // strip or full-width pointer target over the fight and the team.
+        Column(Modifier.align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .widthIn(max = captionWidth)
+                .padding(horizontal = 6.dp,
+                    bottom = if (landscape) 8.dp else 156.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            if (line.isNotBlank()) Text(line,
+                color = Color.White, style = subtitleStyle,
+                fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center, lineHeight = 19.sp,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            if (openMic.active && openMic.partial.isNotBlank())
+                Text("你：" + openMic.partial,
+                    color = Color(0xFFE6F3EA), style = subtitleStyle,
+                    fontSize = 12.sp, textAlign = TextAlign.Center,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (failure.isNotBlank()) Text(failure,
+                color = Color(0xFFFFCBAF), style = subtitleStyle,
+                fontSize = 11.sp, textAlign = TextAlign.Center,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            else if (busy && line.isBlank())
+                Text("伙伴正在观察战况…", color = Color(0xFFCADAD8),
+                    style = subtitleStyle, fontSize = 11.sp,
+                    textAlign = TextAlign.Center, maxLines = 1)
         }
     }
     // Full conversation controls appear only on demand, outside the tiny
