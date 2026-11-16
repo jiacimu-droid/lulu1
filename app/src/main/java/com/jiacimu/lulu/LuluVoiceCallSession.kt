@@ -2446,8 +2446,10 @@ internal object LuluVoiceCallSession {
         lastCallAudioMillis = startedAt
         recentlyPlayedAgentText = ""
         recentlyPlayedAgentAtMillis = 0L
-        // First ordinary-call reflection after one quiet minute, then bounded pulses.
-        lastSilenceReflectionMillis = startedAt - 60_000L
+        // All ordinary connected calls (including wake calls) offer the first
+        // quiet reflection after the same 2-minute silence interval. Starting
+        // with a negative offset previously made the first pulse special.
+        lastSilenceReflectionMillis = startedAt
         silenceFailures = 0
         timerJob = scope.launch {
             while (mutableState.value.connected) {
