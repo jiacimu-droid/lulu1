@@ -180,27 +180,14 @@ internal object RelayRequestPressurePolicy {
     }
 
     /**
-     * One transport envelope for every FULL, role-owned decision (private chat,
-     * phone, games and autonomous life). Character/persona/relationship/active
-     * responsibilities and tool contracts are outside this soft ceiling: we
-     * must never silently cut a binding promise to hit a numeric target.
-     *
-     * The number is Unicode text characters, NOT provider-reported tokens;
-     * provider tokenization and images differ. The same limits apply to both
-     * autonomous decisions and live messages. The owner’s current user message
-     * is always kept intact; only supplied scene/background facts are projected.
+     * Transport-only fallback, shared by private and independent decisions.
+     * This is never the person's normal context budget and does not trim
+     * records in storage or the latest genuine user utterance. Unlike the
+     * earlier background-only system-section projection, the observed scene
+     * now has the same named user-role slot in both kinds of actor turns.
      */
-    internal const val ACTOR_SCENE_FACTS_CHARACTERS = 24_000
-    internal const val ACTOR_SOFT_INPUT_CHARACTERS = 86_000
-
-    fun actorSceneFacts(facts: String, fullActorDecision: Boolean): String =
-        if (fullActorDecision && facts.length > ACTOR_SCENE_FACTS_CHARACTERS)
-            excerptBackgroundBySource(facts, ACTOR_SCENE_FACTS_CHARACTERS)
-        else facts
-
-    fun actorExceedsEnvelope(fullActorDecision: Boolean, textCharacters: Int): Boolean =
-        fullActorDecision && textCharacters > ACTOR_SOFT_INPUT_CHARACTERS
-
+    fun compactActorSceneFacts(facts: String): String =
+        excerptBackgroundBySource(facts, limit("本轮背景依据"))
     /**
      * Full, latest user input is NEVER shortened. Old dialogue keeps complete
      * turns and original roles, newest first; old turns alone are expendable.
