@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`43b05b0b0b1a07a76bdda999ca5eb0a9ba3b507e`
+- 基准提交：`4b74dbe5e68c6a70e4d70c2cb6db7cb227999aeb`
 - 分支：`main`
 - 已索引文件：1359
-- 已索引代码/文本行：290361
+- 已索引代码/文本行：290374
 - 已发现符号：4092
 
 | 文件 | 行数 | 符号数 |
@@ -551,7 +551,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 40 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 91 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 166 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 167 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 194 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
@@ -720,7 +720,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1012 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1016 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 804 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 310 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
@@ -1266,7 +1266,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandCampRestTest.kt` | 47 | 1 |

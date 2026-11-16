@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:14:27.257927+00:00",
-  "commit": "43b05b0b0b1a07a76bdda999ca5eb0a9ba3b507e",
+  "generatedAt": "2026-11-16T11:15:42.593834+00:00",
+  "commit": "4b74dbe5e68c6a70e4d70c2cb6db7cb227999aeb",
   "branch": "main",
-  "sourceFingerprint": "4cb210532a067f5fa6f728e52266fdea442e1dc76afd684f10e882227be14429",
+  "sourceFingerprint": "ab605a37027521470d50c437894113ea7fd2fb6e996b6c6e12e9536bf4f12e9e",
   "summary": {
     "files": 1359,
-    "lines": 290361,
+    "lines": 290374,
     "symbols": 4092
   },
   "symbolIndex": {
@@ -33978,8 +33978,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 166,
-      "sha256": "6b38bacca9b89463931a726e31158673f6cb0ff2e0454c8dc756caa6aa9ce92b",
+      "lines": 167,
+      "sha256": "5c90b2c35438ecd104167f50eb3fa53dfe1a0f74d9645323aad06c9f0eb88897",
       "symbols": []
     },
     {
@@ -37986,8 +37986,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 1012,
-      "sha256": "6ff3b296e1fdd5bd78922623a38c52cb8e33b9bfcab4f487f61fd9526beeac6e",
+      "lines": 1016,
+      "sha256": "7f7d16e5af8cb7a65a04a2e7a007cd0ccdaf458fbddb07ba057c8683aa6f715f",
       "symbols": [
         {
           "name": "Home",
@@ -47278,8 +47278,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt",
-      "lines": 46,
-      "sha256": "a599a98de08eb0e3702886d1c813b33d451d45cd6f3c3a0f9c168451dfe0456d",
+      "lines": 54,
+      "sha256": "3be959903677ecfde7fea063f38512fe0526ce85c686ec5f6bb93a35ec3fbd89",
       "symbols": [
         {
           "name": "GameOrientationPolicyTest",
