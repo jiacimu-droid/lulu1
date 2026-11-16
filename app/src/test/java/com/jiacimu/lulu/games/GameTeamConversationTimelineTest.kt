@@ -90,4 +90,35 @@ class GameTeamConversationTimelineTest {
         assertEquals(1, other.size)
         assertTrue(other.single().content.contains("下一回合才开始"))
     }
+
+    @Test fun turtleSoupCommittedDiscussionIsSharedOnlyWithinActualPartyAndIdempotent() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val first = "soup-role-" + UUID.randomUUID()
+        val second = "soup-role-" + UUID.randomUUID()
+        val stranger = "soup-role-" + UUID.randomUUID()
+        val room = UUID.randomUUID().toString()
+        assertTrue(GameTeamConversationTimeline.recordOwner(
+            context, "turtle_soup", room, listOf(first, second),
+            "这会不会和监控画面有关？", false, "owner-1"))
+        assertTrue(GameTeamConversationTimeline.recordCompanion(
+            context, "turtle_soup", room, listOf(first, second),
+            first, "我先问是不是录像倒放", "companion-2"))
+        assertTrue(GameTeamConversationTimeline.recordCompanion(
+            context, "turtle_soup", room, listOf(first, second),
+            first, "我先问是不是录像倒放", "companion-2"))
+        assertFalse(GameTeamConversationTimeline.recordCompanion(
+            context, "turtle_soup", room, listOf(first, second),
+            stranger, "我并不在这个房间"))
+        for (role in listOf(first, second)) {
+            val events = SharedExperienceTimeline.sessionEvents(
+                role, "game-session-turtle_soup-" + room)
+            assertEquals(2, events.size)
+            assertEquals(EventEvidenceKind.UserStatement, events[0].evidenceKind)
+            assertEquals("game-team-companion", events[1].source)
+            assertEquals(2, GameTeamConversationTimeline.recentLines(
+                role, "turtle_soup", room).size)
+        }
+        assertTrue(SharedExperienceTimeline.sessionEvents(
+            stranger, "game-session-turtle_soup-" + room).isEmpty())
+    }
 }
