@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:23:02.474021+00:00",
-  "commit": "2445a5d1aebd0dfdb4da24bcee35f74a29c0f4e6",
+  "generatedAt": "2026-11-16T16:24:17.109007+00:00",
+  "commit": "57cd536e509f81ebfcae607acf8d6b23e0dc588b",
   "branch": "main",
-  "sourceFingerprint": "4a7d887ffd9dd74e2ed9fedef0596bfd343f04cb54d2da01dd045f0ad5a004ff",
+  "sourceFingerprint": "6378a8f62dc82a78efa04c3229c2baac00209026aacfccc42e66dcbbb179841a",
   "summary": {
     "files": 1367,
-    "lines": 292063,
-    "symbols": 4117
+    "lines": 292089,
+    "symbols": 4119
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14704,22 +14704,34 @@
         "line": 44
       }
     ],
+    "relicHeldDecisionDue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 60
+      }
+    ],
+    "relicTickActors": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
+        "line": 72
+      }
+    ],
     "relicHasPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 53
+        "line": 79
       }
     ],
     "islandThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 59
+        "line": 85
       }
     ],
     "relicThreat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-        "line": 62
+        "line": 88
       }
     ],
     "recordPartyJoined": [
@@ -37297,8 +37309,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
-      "lines": 75,
-      "sha256": "cb96c4e9c29a9be3388c9ea4a7e221177140d161c1e9a8656cbfa4d93d7c603b",
+      "lines": 101,
+      "sha256": "45e61c2826d3219a1bffc3759745e0655394c8bb095cc7c3d6d051ee22b622e3",
       "symbols": [
         {
           "name": "canTick",
@@ -37317,16 +37329,24 @@
           "line": 44
         },
         {
+          "name": "relicHeldDecisionDue",
+          "line": 60
+        },
+        {
+          "name": "relicTickActors",
+          "line": 72
+        },
+        {
           "name": "relicHasPlan",
-          "line": 53
+          "line": 79
         },
         {
           "name": "islandThreat",
-          "line": 59
+          "line": 85
         },
         {
           "name": "relicThreat",
-          "line": 62
+          "line": 88
         }
       ]
     },
