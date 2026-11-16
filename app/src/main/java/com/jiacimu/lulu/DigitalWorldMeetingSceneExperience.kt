@@ -44,6 +44,10 @@ private data class MeetingReadingPage(
 
 private enum class MeetingSceneMode { Explore, Story }
 
+/** Reading, conversation and remote generation are overlays, not movement locks. */
+internal fun meetingSceneAllowsMovement(isDigitalWorld: Boolean, viewOnly: Boolean): Boolean =
+    isDigitalWorld && !viewOnly
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun DigitalWorldMeetingSceneExperience(
@@ -88,7 +92,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
     var previousPageCount by remember(session.id) { mutableIntStateOf(pages.size) }
     var showMenu by remember { mutableStateOf(false) }
-    var narrativeExpanded by rememberSaveable(session.id) { mutableStateOf(true) }
+    var narrativeExpanded by rememberSaveable(session.id) { mutableStateOf(false) }
     var sceneModeName by rememberSaveable(session.id) { mutableStateOf(MeetingSceneMode.Story.name) }
     val sceneMode = if (!isDigitalWorld || viewOnly) MeetingSceneMode.Story else {
         runCatching { MeetingSceneMode.valueOf(sceneModeName) }.getOrDefault(MeetingSceneMode.Story)
@@ -136,9 +140,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         } else if (pages.size > oldCount) {
             val wasAtEnd = oldCount == 0 || pageIndex >= oldCount - 1
             if (wasAtEnd) pageIndex = oldCount.coerceAtMost(pages.lastIndex)
-            narrativeExpanded = true
-            // A character initiating talk may not steal focus from walking.
-            if (isDigitalWorld && latestLivingTurn == null) sceneModeName = MeetingSceneMode.Story.name
+            // New replies are available, but never force the player out of walking mode.
         } else if (pageIndex > pages.lastIndex) {
             pageIndex = pages.lastIndex
         }
@@ -146,11 +148,11 @@ internal fun DigitalWorldMeetingSceneExperience(
     }
     val currentPage = pages.getOrNull(pageIndex)
 
-    LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled, storyVisible) {
+    LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled) {
         val page = currentPage
         val speakerId = page?.speakerId
         if (
-            storyVisible && voiceEnabled && page != null && page.speechText.isNotBlank() &&
+            voiceEnabled && page != null && page.speechText.isNotBlank() &&
             !speakerId.isNullOrBlank() && speakerId != "system"
         ) {
             MeetingVoicePlayback.playVisibleDialogue(
@@ -188,17 +190,17 @@ internal fun DigitalWorldMeetingSceneExperience(
                 world = world,
                 onCharacterClick = { characterId ->
                     sceneModeName = MeetingSceneMode.Story.name
-                    narrativeExpanded = true
+                    narrativeExpanded = false
                     onCharacterClick(characterId, session.location)
                 },
                 onWorldAction = { suggestedAction ->
                     onInputChanged(suggestedAction)
                     sceneModeName = MeetingSceneMode.Story.name
-                    narrativeExpanded = true
+                    narrativeExpanded = false
                 },
                 onPhysicalInteraction = onPhysicalInteraction,
                 controlsBottomPadding = 94.dp,
-                controlsEnabled = exploring && (!generating || modelInitiating),
+                controlsEnabled = meetingSceneAllowsMovement(isDigitalWorld, viewOnly),
                 showExplorationHud = exploring,
                 followerIds = followers,
                 initiatedHandHoldingId = roleInitiatedHandHolding,
@@ -207,23 +209,6 @@ internal fun DigitalWorldMeetingSceneExperience(
             RealisticMeetingStage(
                 modifier = Modifier.fillMaxSize().padding(top = 56.dp),
                 participantIds = session.participantIds,
-            )
-        }
-
-        if (isDigitalWorld && !exploring) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(top = 56.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0x12040A08),
-                                Color(0x36040A08),
-                                Color(0x76040A08),
-                            ),
-                        ),
-                    ),
             )
         }
 
@@ -254,7 +239,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 page = currentPage,
                 pageIndex = pageIndex,
                 pageCount = pages.size,
-                expanded = if (isDigitalWorld) true else narrativeExpanded,
+                expanded = narrativeExpanded,
                 viewOnly = viewOnly,
                 generating = generating,
                 characters = characters,
@@ -265,11 +250,8 @@ internal fun DigitalWorldMeetingSceneExperience(
                 canSend = canSend,
                 errorText = errorText,
                 onExpandedChanged = { narrativeExpanded = it },
-                onReturnToExplore = if (isDigitalWorld && !viewOnly && !generating) {
-                    {
-                        MeetingVoicePlayback.stopVisibleDialogue(session.id)
-                        sceneModeName = MeetingSceneMode.Explore.name
-                    }
+                onReturnToExplore = if (isDigitalWorld && !viewOnly) {
+                    { sceneModeName = MeetingSceneMode.Explore.name }
                 } else null,
                 onPrevious = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
                 onNext = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
@@ -277,7 +259,10 @@ internal fun DigitalWorldMeetingSceneExperience(
                 onSend = onSend,
                 onRetry = onRetry,
                 onLongClick = { currentPage?.let { onSceneLongClick(it.group) } },
-                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+                modifier = if (isDigitalWorld && !viewOnly) {
+                    // Keep dialogue above the playfield; lower joystick and action button stay touchable.
+                    Modifier.align(Alignment.TopCenter).padding(top = 58.dp)
+                } else Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
             )
         } else {
             if (!ambientNotice.isNullOrBlank()) {
@@ -331,7 +316,7 @@ private fun MeetingImmersiveTopBar(
     val subtitle = when {
         !digitalWorld -> "沉浸见面 · 剧情互动"
         exploring -> "自由活动 · 移动、靠近、点击互动"
-        else -> "剧情互动 · 移动操控已暂停"
+        else -> "边聊边逛 · 对话不暂停移动"
     }
     Row(
         modifier
@@ -354,7 +339,7 @@ private fun MeetingImmersiveTopBar(
             IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除", tint = Color.White) }
         } else {
             TextButton(onClick = onEnd, enabled = !generating) {
-                Text("结束", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("结束见面", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
         MeetingVoiceToggleButton(enabled = voiceEnabled, onToggle = onToggleVoice)
@@ -407,7 +392,7 @@ private fun MeetingExploreDock(
             Column(Modifier.weight(1f)) {
                 Text("自由活动", color = Color.White, fontSize = 12.5.sp, fontWeight = FontWeight.Black)
                 Text(
-                    if (generating) "剧情正在后台继续，移动暂时锁定" else "摇杆移动 · 靠近人物或家具后再互动",
+                    if (generating) "角色正在回应 · 你仍可自由移动" else "摇杆移动 · 靠近人物或家具后再互动",
                     color = Color(0xFF91AAA2),
                     fontSize = 8.5.sp,
                     maxLines = 1,
@@ -504,7 +489,7 @@ private fun MeetingNarrativeOverlay(
                     ) {
                         Icon(Icons.Outlined.Explore, null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("自由活动", fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                        Text("收起对话", fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                     }
                 } else {
                     IconButton(onClick = { onExpandedChanged(!expanded) }, modifier = Modifier.size(34.dp)) {
