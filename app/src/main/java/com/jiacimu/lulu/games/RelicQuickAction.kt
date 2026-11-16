@@ -121,7 +121,7 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         if(site?.kind=="lens")return RelicQuickAction("observe_lens",
             "校准观测镜 · 揭开迷雾",
             "一次性揭开以装置为中心六格内的真实地图，无需战斗",x,y)
-        if(site?.kind=="echo" && x to y != (hero.x to hero.y))
+        if(site?.kind=="echo" && (x to y) != (hero.x to hero.y))
             return RelicQuickAction("sneak","轻声越过共鸣石板",
                 "点按钮潜行，不惊动守卫；直接按方向走会触发响声",x,y)
         if (site?.kind == "trap" && run.tools > 0) return RelicQuickAction("disarm",
