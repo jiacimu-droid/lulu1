@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`824cbfefff75860fcb6f4fd525d5ec0d38fc0434`
+- 基准提交：`96fe0c021a761df9c56f5a0aa0642322ec458eea`
 - 分支：`main`
 - 已索引文件：1362
-- 已索引代码/文本行：291199
+- 已索引代码/文本行：291188
 - 已发现符号：4104
 
 | 文件 | 行数 | 符号数 |
@@ -292,7 +292,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 160 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 147 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 607 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
@@ -722,7 +722,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1042 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 949 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 951 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 338 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |

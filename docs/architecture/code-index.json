@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:23:39.115923+00:00",
-  "commit": "824cbfefff75860fcb6f4fd525d5ec0d38fc0434",
+  "generatedAt": "2026-11-16T14:24:41.728011+00:00",
+  "commit": "96fe0c021a761df9c56f5a0aa0642322ec458eea",
   "branch": "main",
-  "sourceFingerprint": "de47635c830e1096326ef0a0a063b7b104d18b82b1c46635c24a80082a3ed882",
+  "sourceFingerprint": "a7f756ae00a0cbf2b1ca123e4f47a3987402c4ad018bf0f2a54cfde9e46f1ae7",
   "summary": {
     "files": 1362,
-    "lines": 291199,
+    "lines": 291188,
     "symbols": 4104
   },
   "symbolIndex": {
@@ -4521,13 +4521,13 @@
     "execute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "opportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 154
+        "line": 141
       }
     ],
     "pending": [
@@ -26800,16 +26800,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-      "lines": 160,
-      "sha256": "84564263ecfa83d8c0a02efebdfc8416325e891538b2ad2263a7eb9f264352d7",
+      "lines": 147,
+      "sha256": "ae221a6085db54930b08b375770c17d278cdc0bbb563ba5d3dc6837ae0e99655",
       "symbols": [
         {
           "name": "execute",
-          "line": 12
+          "line": 14
         },
         {
           "name": "opportunity",
-          "line": 154
+          "line": 141
         }
       ]
     },
@@ -38149,8 +38149,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 949,
-      "sha256": "6380ff8512859ac3e7ef4aece3718a62ebbadde717a4b4a2f278ff567c09e458",
+      "lines": 951,
+      "sha256": "69e58d99a21328bebcbb6e59e827d7a99a94408fc997e0b8530cf5756509d6a1",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
