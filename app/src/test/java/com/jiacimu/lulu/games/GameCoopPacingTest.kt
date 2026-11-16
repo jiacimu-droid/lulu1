@@ -155,6 +155,34 @@ class GameCoopPacingTest {
         assertEquals(rescued, RelicEscapeRules.act(rescued, "companion_tick", autonomousIds = setOf("alice")))
     }
 
+    @Test fun autonomousTeammateStepsCannotReducePlayerSkillCooldownOrAdvanceMonsterTurn() {
+        val world=RelicEscapeWorld.create(88,2,listOf("alice"),1,1)
+        val s=world.copy(
+            tiles=List(world.w*world.h){0},
+            sites=emptyList(),mobs=listOf(RelicMob(31,10,10,9,0)),
+            hero=world.hero.copy(x=2,y=2),
+            allies=listOf(world.allies.first().copy(x=7,y=7)),
+            sweepReadyTurn=world.turns+3,
+            professionReadyTurn=world.turns+4,
+            coopPlans=mapOf("alice" to RelicCoopPlan("regroup",lastStepTurn=world.logicalStep)),
+        )
+        val beforeMonster=s.mobs
+        val progressed=RelicEscapeRules.act(s,"companion_tick",autonomousIds=setOf("alice"))
+        assertEquals(s.turns,progressed.turns)
+        assertEquals(s.teamSteps+1,progressed.teamSteps)
+        assertEquals(s.sweepReadyTurn,progressed.sweepReadyTurn)
+        assertEquals(s.professionReadyTurn,progressed.professionReadyTurn)
+        assertEquals(beforeMonster,progressed.mobs)
+        assertEquals(s.hero,progressed.hero)
+        assertEquals(progressed,RelicRun.read(org.json.JSONObject(progressed.json().toString())))
+        val another=RelicEscapeRules.act(progressed,"companion_tick",autonomousIds=setOf("alice"))
+        assertEquals(progressed.turns,another.turns)
+        assertEquals(progressed.teamSteps+1,another.teamSteps)
+        assertNotEquals(progressed.allies,another.allies)
+        assertEquals(0,another.events.last().turn)
+        assertEquals(another.teamSteps,another.events.last().teamStep)
+    }
+
     @Test fun idleRelicPartnerCannotFinishExtractionOrUseUpRescueTime() {
         val base = RelicEscapeWorld.create(77,1,roster.toList(),1,1)
         val board = base.copy(
@@ -166,7 +194,8 @@ class GameCoopPacingTest {
             coopPlans = mapOf("alice" to RelicCoopPlan("regroup", lastStepTurn = board.turns)),
         )
         val after = RelicEscapeRules.act(extracting, "companion_tick", autonomousIds = roster)
-        assertEquals(extracting.turns + 1, after.turns)
+        assertEquals("teammate steps do not spend the player's action clock", extracting.turns,after.turns)
+        assertEquals(extracting.teamSteps+1,after.teamSteps)
         assertNotEquals(extracting.allies, after.allies)
         assertEquals(RelicPhase.EXTRACT, after.phase)
         assertEquals(extracting.extraction, after.extraction)
@@ -198,7 +227,8 @@ class GameCoopPacingTest {
             IslandActorChoice("plan_regroup","我过去和你一起行动"))!!
         assertTrue(GameCoopPacing.relicHasPlan(plan))
         val next=RelicEscapeRules.act(plan,"companion_tick",autonomousIds=roster)
-        assertEquals(plan.turns+1,next.turns)
+        assertEquals(plan.turns,next.turns)
+        assertEquals(plan.teamSteps+1,next.teamSteps)
         assertEquals(s.hero.x to s.hero.y,next.hero.x to next.hero.y)
         assertNotEquals(plan.allies.first().x to plan.allies.first().y,
             next.allies.first().x to next.allies.first().y)
