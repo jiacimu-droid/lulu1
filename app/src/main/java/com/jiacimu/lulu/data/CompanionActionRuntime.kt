@@ -108,10 +108,19 @@ internal object CompanionActionRuntime {
      * Only called for independent life turns, never for every user bubble.
      */
     fun autonomousDiscoveryContext(context: Context, characterId: String): String {
+        // One bounded catalogue for BOTH live chat and solo life. Preserve
+        // the actual personal learning goal IDs and remaining quota: using
+        // only the first "- learn_topic" line used to hide those facts during
+        // ordinary autonomy, while live private chat received a different list.
         val tools = discoveryToolLines(capabilityContext(context, characterId,
             allowSleepReward = false, includeWorldContext = false))
-        return if (tools.isBlank()) "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
-            else "【此刻外部探索真实工具与配置】\n$tools\n" +
+            .lineSequence().filterNot { it.trimStart().startsWith("- learn_topic") }
+            .joinToString("\n").trim()
+        val learning = if (characterId.startsWith("resident:")) ""
+            else AutonomousLearningRuntime.capabilityContext(context, characterId)
+        val catalogue = listOf(tools, learning).filter(String::isNotBlank).joinToString("\n")
+        return if (catalogue.isBlank()) "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
+            else "【此刻外部探索真实工具与配置】\n$catalogue\n" +
                 "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
     }
 
