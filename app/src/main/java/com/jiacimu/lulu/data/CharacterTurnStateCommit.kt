@@ -16,12 +16,11 @@ import java.time.Instant
  * stores remain the sole authorities for identity, psychology, and receipts.
  */
 internal object CharacterTurnStateCommit {
-    fun commit(
-        context: Context,
+    /** Meeting and other scene adapters use the same durable causal ordering
+     * without pretending that a model turn has acknowledged unrelated stimuli.
+     * The caller must pass an already-recorded, role-owned source evidence ID. */
+    fun recordDurableDecision(
         characterId: String,
-        perception: CharacterPerceptionInput,
-        direct: List<PerceptionStimulus>,
-        claimDirect: Boolean,
         evidenceId: String,
         appraisal: JSONObject?,
         innerLife: JSONObject?,
@@ -55,6 +54,32 @@ internal object CharacterTurnStateCommit {
                 characterId, evidenceId, innerThought, now, voiceFingerprint,
             )
         }
+    }
+
+    fun commit(
+        context: Context,
+        characterId: String,
+        perception: CharacterPerceptionInput,
+        direct: List<PerceptionStimulus>,
+        claimDirect: Boolean,
+        evidenceId: String,
+        appraisal: JSONObject?,
+        innerLife: JSONObject?,
+        innerThoughtBasis: JSONObject?,
+        selectedAction: String,
+        innerThought: String,
+        reason: String,
+        now: Instant,
+        alternatives: JSONArray? = null,
+        recordInnerVoice: Boolean = true,
+        voiceFingerprint: String = "",
+        afterCausalRecord: () -> Unit = {},
+    ) {
+        recordDurableDecision(
+            characterId, evidenceId, appraisal, innerLife, innerThoughtBasis,
+            selectedAction, innerThought, reason, now, alternatives, recordInnerVoice,
+            voiceFingerprint, afterCausalRecord,
+        )
         CharacterPerceptionContext.acknowledge(
             context, characterId, perception, direct = direct,
             claimDirect = claimDirect,
