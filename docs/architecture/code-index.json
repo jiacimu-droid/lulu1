@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:13:58.482505+00:00",
-  "commit": "6f8c99040186fa8a0f974565415268b7867bd8d0",
+  "generatedAt": "2026-11-16T11:14:27.257927+00:00",
+  "commit": "43b05b0b0b1a07a76bdda999ca5eb0a9ba3b507e",
   "branch": "main",
-  "sourceFingerprint": "8b4f839752e20325c5524ba8356c92fedc24a461cc2e0d1d9251a8ee6f6c0523",
+  "sourceFingerprint": "4cb210532a067f5fa6f728e52266fdea442e1dc76afd684f10e882227be14429",
   "summary": {
     "files": 1359,
     "lines": 290361,
@@ -37987,7 +37987,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
       "lines": 1012,
-      "sha256": "8a9e9de3716b9174ae1d7b08cd456da5e026954528c1c4b06de9e6a01936676c",
+      "sha256": "6ff3b296e1fdd5bd78922623a38c52cb8e33b9bfcab4f487f61fd9526beeac6e",
       "symbols": [
         {
           "name": "Home",
