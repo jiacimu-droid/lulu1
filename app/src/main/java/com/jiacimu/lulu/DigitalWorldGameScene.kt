@@ -147,6 +147,7 @@ internal fun DigitalWorldGameScene(
     initiatedHandHoldingId: String? = null,
     sceneDestinations: Map<String, String> = emptyMap(),
     onReachedSceneItem: ((characterId: String, itemId: String) -> Unit)? = null,
+    onExitToStreet: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1017,6 +1018,22 @@ internal fun DigitalWorldGameScene(
                 queued = queuedActions,
                 modifier = Modifier.align(Alignment.BottomCenter).padding(start = 90.dp, end = 90.dp, bottom = controlsBottomPadding + 88.dp),
             )
+        }
+
+        if (controlsEnabled && onExitToStreet != null &&
+            playerPosition.distanceTo(WorldVector(800f, 935f)) < 145f) {
+            Surface(
+                onClick = onExitToStreet,
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .padding(bottom = controlsBottomPadding + 90.dp),
+                shape = RoundedCornerShape(15.dp),
+                color = Color(0xF0204537),
+                border = BorderStroke(1.dp, Color(0xFFB7EAD4).copy(alpha = .60f)),
+            ) {
+                Text("走出房间 · 到小镇街道", color = Color(0xFFE8FFF1),
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp))
+            }
         }
 
         if (controlsEnabled) {
