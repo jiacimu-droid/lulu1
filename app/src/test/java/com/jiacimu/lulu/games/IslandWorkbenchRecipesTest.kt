@@ -70,6 +70,24 @@ class IslandWorkbenchRecipesTest {
                 BlockIslandRules.act(farAway, recipe.action, world.x, world.y).world.turns)
         }
     }
+    @Test fun settledWorldCannotOfferCraftingOrChangeSavedInventory() {
+        val base = BlockIslandRules.newWorld(427, emptyList())
+        val world = base.world.copy(x = 5, y = 5, wood = 20, stone = 20,
+            mobs = emptyList(), finished = true)
+        val settled = base.copy(world = world, crystals = 3,
+            structures = mapOf(world.index(6, 5) to "workbench"))
+        IslandWorkbenchRecipes.all.forEach { recipe ->
+            assertFalse("Finished saves must not offer " + recipe.tool,
+                IslandWorkbenchRecipes.canCraft(settled, recipe))
+            val result = BlockIslandRules.act(settled, recipe.action, world.x, world.y)
+            assertEquals(settled.world.turns, result.world.turns)
+            assertEquals(settled.world.wood, result.world.wood)
+            assertEquals(settled.world.stone, result.world.stone)
+            assertEquals(settled.crystals, result.crystals)
+            assertEquals(settled.tools, result.tools)
+        }
+    }
+
     @Test fun woodenPickaxeIsPersistedAndDoesNotMineCrystalVeins() {
         val seed = 427
         val base = BlockIslandRules.newWorld(seed, emptyList())
