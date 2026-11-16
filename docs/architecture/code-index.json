@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:52:00.591780+00:00",
-  "commit": "1965bf71b8d83341aa1e714ef215c0f7d68bc130",
+  "generatedAt": "2026-11-16T05:53:12.130989+00:00",
+  "commit": "82486439542bd59613946329b124937161b00ae3",
   "branch": "main",
-  "sourceFingerprint": "60d6ce99efa0c147d786fb3e767a5b7ad1b2ab3a886e483ed10c86f225c29b2d",
+  "sourceFingerprint": "9e7c9d6e4db2dd5dca3e523bb527bd94970896d26591096d52ade6f8c6a77918",
   "summary": {
-    "files": 1355,
-    "lines": 288723,
-    "symbols": 4090
+    "files": 1354,
+    "lines": 288567,
+    "symbols": 4082
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 228
+        "line": 231
       }
     ],
     "replyTextPrefix": [
@@ -1657,7 +1657,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 170
+        "line": 197
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
@@ -1879,7 +1879,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 87
+        "line": 88
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -1998,12 +1998,8 @@
         "line": 35
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 116
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 109
+        "line": 136
       }
     ],
     "genuinelyConnected": [
@@ -2539,7 +2535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 168
+        "line": 195
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -6180,10 +6176,6 @@
         "line": 13
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 173
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
         "line": 259
       },
@@ -6296,12 +6288,8 @@
         "line": 25
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 63
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 77
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10078,16 +10066,8 @@
         "line": 41
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 76
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 131
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 125
+        "line": 152
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -10112,16 +10092,8 @@
         "line": 49
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 81
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 142
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-        "line": 143
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -15173,7 +15145,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 80
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
@@ -15994,46 +15966,40 @@
         "line": 70
       }
     ],
-    "nextGuessingCharacter": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-        "line": 124
-      }
-    ],
     "hostName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "sendOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 133
+        "line": 135
       }
     ],
     "sendOwnerVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 150
+        "line": 152
       }
     ],
     "companionStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 156
+        "line": 158
       }
     ],
     "requestHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 221
+        "line": 224
       }
     ],
     "startNew": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 248
+        "line": 251
       }
     ],
     "walkable": [
@@ -38747,115 +38713,76 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
-      "lines": 186,
-      "sha256": "0094e9689ae3f6cd47fcb2665b6aeb9d7ca53d39347f780e892f8450f5799fb3",
-      "symbols": [
-        {
-          "name": "find",
-          "line": 63
-        },
-        {
-          "name": "toJson",
-          "line": 76
-        },
-        {
-          "name": "fromJson",
-          "line": 81
-        },
-        {
-          "name": "publicContext",
-          "line": 116
-        },
-        {
-          "name": "nextGuessingCharacter",
-          "line": 124
-        },
-        {
-          "name": "toJson",
-          "line": 131
-        },
-        {
-          "name": "fromJson",
-          "line": 142
-        },
-        {
-          "name": "parse",
-          "line": 173
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
-      "lines": 200,
-      "sha256": "cb95c795a5cd99054059af7c0be185bec425192b5611b9c2f1215441fa830133",
+      "lines": 227,
+      "sha256": "2f05df138bfd0b60fed2b329671e740ce06c4bc64337d94524acaf7307a1dbb7",
       "symbols": [
         {
           "name": "find",
-          "line": 77
+          "line": 104
         },
         {
           "name": "publicContext",
-          "line": 109
+          "line": 136
         },
         {
           "name": "toJson",
-          "line": 125
+          "line": 152
         },
         {
           "name": "fromJson",
-          "line": 143
+          "line": 170
         },
         {
           "name": "read",
-          "line": 168
+          "line": 195
         },
         {
           "name": "save",
-          "line": 170
+          "line": 197
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 462,
-      "sha256": "c0436bdf736c8d99850749533c8f2032e67c9400334a02578bdd46dec0ca30f6",
+      "lines": 465,
+      "sha256": "84947f886f18cbb8e144de11478e3c1c8eaed5e40ba07039cb95797d8c66ae34",
       "symbols": [
         {
           "name": "name",
-          "line": 80
+          "line": 81
         },
         {
           "name": "hostName",
-          "line": 82
+          "line": 83
         },
         {
           "name": "commit",
-          "line": 87
+          "line": 88
         },
         {
           "name": "sendOwner",
-          "line": 133
+          "line": 135
         },
         {
           "name": "sendOwnerVerdict",
-          "line": 150
+          "line": 152
         },
         {
           "name": "companionStep",
-          "line": 156
+          "line": 158
         },
         {
           "name": "requestHint",
-          "line": 221
+          "line": 224
         },
         {
           "name": "finish",
-          "line": 228
+          "line": 231
         },
         {
           "name": "startNew",
-          "line": 248
+          "line": 251
         }
       ]
     },
