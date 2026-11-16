@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:52:14.539300+00:00",
-  "commit": "6e93190d24174cae7ecbeeaca1983f674518abf9",
+  "generatedAt": "2026-11-16T03:52:53.013116+00:00",
+  "commit": "2e641f3f05158d1138b2e99a36eb7986cd6fbab4",
   "branch": "main",
-  "sourceFingerprint": "1d90661081e009e6c4f23a7005ec848f7056b3e0854e43c6c1722d10d0214dac",
+  "sourceFingerprint": "db9b9a1ad43e0518cdfdfa165f04345ef232a40a21f58cbb24a443ebf48218f8",
   "summary": {
     "files": 1346,
-    "lines": 287317,
+    "lines": 287328,
     "symbols": 4053
   },
   "symbolIndex": {
@@ -1441,7 +1441,7 @@
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1567
+        "line": 1578
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1451,85 +1451,85 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1576
+        "line": 1587
       }
     ],
     "loadDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1578
+        "line": 1589
       }
     ],
     "loadAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1580
+        "line": 1591
       }
     ],
     "saveAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1582
+        "line": 1593
       }
     ],
     "loadVenueActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1584
+        "line": 1595
       }
     ],
     "saveVenueActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1587
+        "line": 1598
       }
     ],
     "loadNativePosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1590
+        "line": 1601
       }
     ],
     "saveNativePositions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1598
+        "line": 1609
       }
     ],
     "saveDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1608
+        "line": 1619
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1611
+        "line": 1622
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1613
+        "line": 1624
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1616
+        "line": 1627
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1619
+        "line": 1630
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1627
+        "line": 1638
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -23725,8 +23725,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1632,
-      "sha256": "578a898a741eceadb74bd5a34f4ffd0d8a75909753cdd98fad03b9a100a9a393",
+      "lines": 1643,
+      "sha256": "58360badd6f7e9d75aa44abaeefa21f710654d0bb9d2b8bbd61dc7e128ff181a",
       "symbols": [
         {
           "name": "Resident",
@@ -23754,63 +23754,63 @@
         },
         {
           "name": "loadPosition",
-          "line": 1567
-        },
-        {
-          "name": "loadQuest",
-          "line": 1576
-        },
-        {
-          "name": "loadDiscoveries",
           "line": 1578
         },
         {
-          "name": "loadAcquaintedResidents",
-          "line": 1580
-        },
-        {
-          "name": "saveAcquaintedResidents",
-          "line": 1582
-        },
-        {
-          "name": "loadVenueActivities",
-          "line": 1584
-        },
-        {
-          "name": "saveVenueActivity",
+          "name": "loadQuest",
           "line": 1587
         },
         {
-          "name": "loadNativePosition",
-          "line": 1590
+          "name": "loadDiscoveries",
+          "line": 1589
         },
         {
-          "name": "saveNativePositions",
+          "name": "loadAcquaintedResidents",
+          "line": 1591
+        },
+        {
+          "name": "saveAcquaintedResidents",
+          "line": 1593
+        },
+        {
+          "name": "loadVenueActivities",
+          "line": 1595
+        },
+        {
+          "name": "saveVenueActivity",
           "line": 1598
         },
         {
+          "name": "loadNativePosition",
+          "line": 1601
+        },
+        {
+          "name": "saveNativePositions",
+          "line": 1609
+        },
+        {
           "name": "saveDiscoveries",
-          "line": 1608
-        },
-        {
-          "name": "loadHandHoldingId",
-          "line": 1611
-        },
-        {
-          "name": "loadFollowerIds",
-          "line": 1613
-        },
-        {
-          "name": "loadSuspendedFollowers",
-          "line": 1616
-        },
-        {
-          "name": "saveCompanionship",
           "line": 1619
         },
         {
-          "name": "save",
+          "name": "loadHandHoldingId",
+          "line": 1622
+        },
+        {
+          "name": "loadFollowerIds",
+          "line": 1624
+        },
+        {
+          "name": "loadSuspendedFollowers",
           "line": 1627
+        },
+        {
+          "name": "saveCompanionship",
+          "line": 1630
+        },
+        {
+          "name": "save",
+          "line": 1638
         }
       ]
     },
