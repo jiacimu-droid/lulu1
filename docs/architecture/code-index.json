@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:44:16.778279+00:00",
-  "commit": "eb8bda0d6208922cde5544682753603350e38fc4",
+  "generatedAt": "2026-11-16T05:46:58.534185+00:00",
+  "commit": "086ad85f16c34a781df877e1317a23c11c92e626",
   "branch": "main",
-  "sourceFingerprint": "d6c7cc9153e1a2e8638c1d1bf08fb50f0e1c9480e0966471568af1329cca789a",
+  "sourceFingerprint": "5a423507d72332a886118d9684bfbc3843d878919b6ec992298ac4ff3e2aec0f",
   "summary": {
-    "files": 1352,
-    "lines": 288194,
-    "symbols": 4074
+    "files": 1354,
+    "lines": 288609,
+    "symbols": 4088
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -432,6 +432,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
         "line": 578
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 219
       }
     ],
     "replyTextPrefix": [
@@ -1874,6 +1878,10 @@
         "line": 58
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 86
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 779
       }
@@ -1988,6 +1996,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
         "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
@@ -2391,7 +2403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 656
+        "line": 439
       }
     ],
     "record": [
@@ -4907,7 +4919,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 768
+        "line": 551
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
@@ -6168,6 +6180,10 @@
         "line": 13
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 173
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
         "line": 259
       },
@@ -6278,6 +6294,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
@@ -10058,6 +10078,14 @@
         "line": 41
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 76
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 131
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
         "line": 125
       },
@@ -10082,6 +10110,14 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
         "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 81
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
@@ -14343,7 +14379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 693
+        "line": 476
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
@@ -14532,26 +14568,10 @@
         "line": 322
       }
     ],
-    "ask": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 445
-      }
-    ],
-    "reveal": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 472
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 263
-      }
-    ],
     "answer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 684
+        "line": 467
       }
     ],
     "readIsland": [
@@ -15150,6 +15170,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
         "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
@@ -15770,6 +15794,12 @@
         "line": 260
       }
     ],
+    "reveal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 263
+      }
+    ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -15962,6 +15992,42 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicTreasureGallery.kt",
         "line": 70
+      }
+    ],
+    "nextGuessingCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+        "line": 124
+      }
+    ],
+    "hostName": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 81
+      }
+    ],
+    "sendOwner": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 131
+      }
+    ],
+    "sendOwnerVerdict": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 148
+      }
+    ],
+    "companionStep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 154
+      }
+    ],
+    "startNew": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 239
       }
     ],
     "walkable": [
@@ -36752,8 +36818,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 813,
-      "sha256": "e197572557987fa758f6e75b7b85e9bd95d8083c3277fd90b863220e6967de54",
+      "lines": 596,
+      "sha256": "4a9d3d8b2729fb956e1e664b38c4f54dffc9f2e08c0f68edc9f50b93e21427c9",
       "symbols": [
         {
           "name": "nextRound",
@@ -36780,28 +36846,20 @@
           "line": 322
         },
         {
-          "name": "ask",
-          "line": 445
-        },
-        {
-          "name": "reveal",
-          "line": 472
-        },
-        {
           "name": "prepare",
-          "line": 656
+          "line": 439
         },
         {
           "name": "answer",
-          "line": 684
+          "line": 467
         },
         {
           "name": "next",
-          "line": 693
+          "line": 476
         },
         {
           "name": "play",
-          "line": 768
+          "line": 551
         }
       ]
     },
@@ -38677,6 +38735,45 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoom.kt",
+      "lines": 186,
+      "sha256": "0094e9689ae3f6cd47fcb2665b6aeb9d7ca53d39347f780e892f8450f5799fb3",
+      "symbols": [
+        {
+          "name": "find",
+          "line": 63
+        },
+        {
+          "name": "toJson",
+          "line": 76
+        },
+        {
+          "name": "fromJson",
+          "line": 81
+        },
+        {
+          "name": "publicContext",
+          "line": 116
+        },
+        {
+          "name": "nextGuessingCharacter",
+          "line": 124
+        },
+        {
+          "name": "toJson",
+          "line": 131
+        },
+        {
+          "name": "fromJson",
+          "line": 142
+        },
+        {
+          "name": "parse",
+          "line": 173
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
       "lines": 200,
       "sha256": "cb95c795a5cd99054059af7c0be185bec425192b5611b9c2f1215441fa830133",
@@ -38704,6 +38801,45 @@
         {
           "name": "save",
           "line": 170
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+      "lines": 446,
+      "sha256": "146013705155e57fa08e696815799c76c1e83d0521f40cf7133b2555ec1fd497",
+      "symbols": [
+        {
+          "name": "name",
+          "line": 79
+        },
+        {
+          "name": "hostName",
+          "line": 81
+        },
+        {
+          "name": "commit",
+          "line": 86
+        },
+        {
+          "name": "sendOwner",
+          "line": 131
+        },
+        {
+          "name": "sendOwnerVerdict",
+          "line": 148
+        },
+        {
+          "name": "companionStep",
+          "line": 154
+        },
+        {
+          "name": "finish",
+          "line": 219
+        },
+        {
+          "name": "startNew",
+          "line": 239
         }
       ]
     },
