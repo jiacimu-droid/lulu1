@@ -718,25 +718,10 @@ internal object RelicEscapeRules {
                         it.copy(hp=(it.hp-2).coerceAtLeast(0)) else it})
                         .log(a.id,"attack","队友 "+a.id+" 掩护攻击")
                 }
-                else->{
-                    val chest=s.chests.firstOrNull{!it.opened && near(a,it.x,it.y) &&
-                        a.load+it.tier.weight<=CAPACITY}
-                    if(chest!=null && s.phase==RelicPhase.EXPLORE) {
-                        val loot=treasure(s,chest)
-                        a=a.copy(bag=a.bag+loot)
-                        s=s.copy(chests=s.chests.map{if(it.id==chest.id)it.copy(opened=true)else it})
-                            .log(a.id,"open","队友 "+a.id+" 搜到 "+loot.name)
-                    } else {
-                        val target=if(s.hero.hp<=0) s.hero.x to s.hero.y else if(s.phase==RelicPhase.EXTRACT) s.exitX to s.exitY
-                            else s.chests.filter{!it.opened && a.load<CAPACITY && distance(a.x,a.y,it.x,it.y)<=4}
-                                .minByOrNull{distance(a.x,a.y,it.x,it.y)}?.let{it.x to it.y}
-                                ?: (s.hero.x to s.hero.y)
-                        val step=path(s,a.x,a.y,target.first,target.second)
-                        if(step!=null && s.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second}) {
-                            a=a.copy(x=step.first,y=step.second)
-                            s=s.log(a.id,"move","队友 "+a.id+" 前进到 "+step.first+","+step.second)
-                        }
-                    }
+                else -> {
+                    // No plan means no chosen destination or chest-opening permission.
+                    // RelicCoopTravel alone executes the character's explicit plan.
+                    // Never mint loot or silently choose a route for an idle companion.
                 }
             }
             done+=a
