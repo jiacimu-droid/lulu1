@@ -433,7 +433,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 if (r.top >= 0 && r.bottom <= height * 3 / 10 &&
                     !node.isEditable && r.width() > 0) {
                     listOf(node.text?.toString(), node.contentDescription?.toString())
-                        .filterNotNull().map(String::trim)
+                        .filterNotNull().map { it.trim() }
                         .filter { it.length in 1..80 && !it.contains('\n') }
                         .forEach { labels.add(it) }
                 }
