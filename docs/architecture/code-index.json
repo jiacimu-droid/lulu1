@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:24:41.728011+00:00",
-  "commit": "96fe0c021a761df9c56f5a0aa0642322ec458eea",
+  "generatedAt": "2026-11-16T14:25:20.617289+00:00",
+  "commit": "a134c7f11e3725d4c99e8aaf15c0f99eb87d499b",
   "branch": "main",
-  "sourceFingerprint": "a7f756ae00a0cbf2b1ca123e4f47a3987402c4ad018bf0f2a54cfde9e46f1ae7",
+  "sourceFingerprint": "0a371fc746570c3fbb6a465ccc9dcb6cb460c18780be8f194cd870ddd272c25e",
   "summary": {
     "files": 1362,
-    "lines": 291188,
+    "lines": 291205,
     "symbols": 4104
   },
   "symbolIndex": {
@@ -15495,7 +15495,7 @@
     "LuluGamesAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-        "line": 51
+        "line": 56
       }
     ],
     "acted": [
@@ -38149,12 +38149,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 951,
-      "sha256": "69e58d99a21328bebcbb6e59e827d7a99a94408fc997e0b8530cf5756509d6a1",
+      "lines": 955,
+      "sha256": "68854c6e6bfc71205225437dab2b9dff508ecabe840492ade9af7b4a4bec5156",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
-          "line": 51
+          "line": 56
         }
       ]
     },
@@ -47295,8 +47295,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 184,
-      "sha256": "bacd2fc86b439a1d9d887c9578a0c31383a36c0a692e81336f724d31cde5076f",
+      "lines": 197,
+      "sha256": "49751a15c5e4df1d4c4f3d2c8720be3f8b2cdd47ebe1f3c0bd928693ee90bdda",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",
