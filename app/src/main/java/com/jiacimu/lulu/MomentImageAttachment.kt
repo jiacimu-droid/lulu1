@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.design.LuluColors
@@ -44,6 +46,10 @@ internal fun MomentImageAttachment(
     contentScale: ContentScale = ContentScale.Crop,
     contentDescription: String = "图片附件",
     previewMaxEdge: Int = MOMENT_IMAGE_MAX_EDGE,
+    // Screen-record viewers show the original full-frame pixels, not a photo card.
+    cornerRadius: Dp = 14.dp,
+    backgroundColor: Color = LuluColors.CardStrong,
+    foregroundColor: Color = LuluColors.Ink,
 ) {
     val context = LocalContext.current
     val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri, previewMaxEdge) {
@@ -55,17 +61,18 @@ internal fun MomentImageAttachment(
     }
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = LuluColors.CardStrong,
+        shape = RoundedCornerShape(cornerRadius),
+        color = backgroundColor,
     ) {
         when (val current = state) {
             MomentAttachmentState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp,
+                    color = foregroundColor)
             }
             is MomentAttachmentState.Ready -> Image(
                 bitmap = current.bitmap.asImageBitmap(),
                 contentDescription = contentDescription,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp)),
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(cornerRadius)),
                 contentScale = contentScale,
             )
             MomentAttachmentState.Failed -> Column(
@@ -76,12 +83,13 @@ internal fun MomentImageAttachment(
                 Icon(
                     Icons.Outlined.BrokenImage,
                     contentDescription = null,
-                    tint = LuluColors.Muted,
+                    tint = foregroundColor.copy(alpha = 0.7f),
                     modifier = Modifier.size(30.dp),
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("图片附件加载失败", color = LuluColors.Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                Text("原动态仍保留，不会伪装成空白图片。", color = LuluColors.Muted, fontSize = 10.sp)
+                Text("图片附件加载失败", color = foregroundColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Text("原图片仍保留，不会伪装成空白图片。",
+                    color = foregroundColor.copy(alpha = 0.72f), fontSize = 10.sp)
             }
         }
     }
