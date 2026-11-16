@@ -175,7 +175,6 @@ internal object DigitalWorldActivityCatalog {
             "order_drink" to "领取一杯温水",
             "order_snack" to "领取一份原味饼干",
             "cafe_sit" to "找个座位坐下",
-            "cafe_touch_table" to "摸摸咖啡角公共桌面的质感",
             "window_cafe" to "去靠窗的位置",
             "people_watch" to "看看周围",
             "slow_drink" to "慢慢喝一会儿",
@@ -183,7 +182,6 @@ internal object DigitalWorldActivityCatalog {
         )
         DigitalWorldPublicPlaces.COURTYARD -> listOf(
             "courtyard_walk" to "沿庭院慢慢散步",
-            "courtyard_feel_air" to "停下来感受庭院的室外空气",
             "courtyard_sit" to "去长椅坐坐",
             "watch_sky" to "抬头看看天色",
             "water_edge" to "走到水边停一会儿",
@@ -228,8 +226,7 @@ internal object DigitalWorldActivityCatalog {
         val consumed = if (locationCode == DigitalWorldPublicPlaces.CAFE) DigitalCafeMenu.byConsume(activityId) else null
         if (ordered != null) return "${characterName}在浮光咖啡角点了一份${ordered.name}。"
         if (consumed != null) return "$characterName${consumed.verb}了一份${consumed.name}。"
-        val worldEnvironment = DigitalWorldEnvironment.snapshot(observedAt)
-        val worldLight = worldEnvironment.light
+        val worldLight = DigitalWorldEnvironment.snapshot(observedAt).light
         val action = when (activityId) {
             "cloud_walk" -> "沿着云眠原的感官云面慢慢散了一会儿步"
             "cloud_sit" -> "在云眠原的感官云质上坐了下来"
@@ -245,13 +242,11 @@ internal object DigitalWorldActivityCatalog {
             "order_drink" -> "在浮光咖啡角领取了一杯温水"
             "order_snack" -> "在浮光咖啡角领取了一份原味饼干"
             "cafe_sit" -> "在浮光咖啡角找了个舒服的位置坐下"
-            "cafe_touch_table" -> "在浮光咖啡角的公共桌边用指腹碰了碰桌面，感觉到平整光滑的数字材质；没有凭空拿起或移动桌上物品"
             "window_cafe" -> "换到浮光咖啡角靠窗的位置坐下，看了一会儿窗外的${worldLight}光线"
             "people_watch" -> "在浮光咖啡角看了看周围，没有据此假定有人在场"
             "slow_drink" -> "坐在浮光咖啡角慢慢喝着东西，没有急着离开"
             "cafe_linger" -> "在浮光咖啡角放空了一会儿，只听着周围细碎的声音"
             "courtyard_walk" -> "沿着共生庭院的步道慢慢散了一会儿步"
-            "courtyard_feel_air" -> "在共生庭院停下来感受室外的数字空气，当时是${worldEnvironment.season}、${worldLight}，室外体感约${worldEnvironment.temperatureCelsius}℃；舒服还是有些凉由本人自己判断"
             "courtyard_sit" -> "在共生庭院的长椅上坐下来休息"
             "watch_sky" -> "在共生庭院停下来抬头看了一会儿${worldLight}的天空"
             "water_edge" -> "走到共生庭院的水边停了一会儿"
