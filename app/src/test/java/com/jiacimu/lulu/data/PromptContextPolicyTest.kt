@@ -122,6 +122,69 @@ class PromptContextPolicyTest {
         }
     }
 
+    @Test fun fullCharacterDecisionsUseIdenticalMemoryTierAcrossEveryRealScene() {
+        val request = UnifiedMemoryRequest(
+            currentInput = "我在想今天那些真实经历",
+            sceneContext = "这个角色本人的当前场景",
+            taskIntent = "按已有真实经历独立做决定",
+        )
+        // Not a heuristic source list in production: Full is the authoritative
+        // actor decision flag. The scene label must never deprive this person
+        // of its other memories, commitments, feelings or desired activities.
+        val realScenes = listOf(
+            "后台主动感知",
+            "私聊",
+            "聊天工具规划",
+            "电话回复",
+            "群聊本人发言",
+            "朋友圈独立感知",
+            "数字世界见面",
+            "数字世界居民交流",
+            "游戏 · 方块小岛自主同行",
+            "游戏 · 迷雾摸金自主同行",
+            "游戏",
+            "一起看",
+            "原住民个人日程到点",
+        )
+        val budgets = realScenes.map { scene ->
+            PromptContextPolicy.forRequest(
+                scene, request, fullCharacterDecision = true,
+            )
+        }
+        val first = budgets.first()
+        budgets.forEachIndexed { index, actual ->
+            assertEquals(realScenes[index], first.recallLimit, actual.recallLimit)
+            assertEquals(realScenes[index], first.memoryCharacters, actual.memoryCharacters)
+            assertEquals(realScenes[index], first.evidenceCharacters, actual.evidenceCharacters)
+            assertEquals(realScenes[index], first.recentCharacters, actual.recentCharacters)
+            assertEquals(realScenes[index], first.lexiconCharacters, actual.lexiconCharacters)
+            assertEquals(realScenes[index], first.workingSetCharacters, actual.workingSetCharacters)
+            assertTrue(realScenes[index], actual.richInnerLife)
+            assertEquals(28_000, actual.workingSetCharacters)
+        }
+        // Distinct actual scenes can require different authoritative world
+        // inventories; this is not a second personality or a different memory tier.
+        assertFalse(budgets.first().worldDetails)
+        assertTrue(budgets[6].worldDetails)
+        // A real new owner message cannot lower the person's memory.
+        assertEquals(first, PromptContextPolicy.forRequest(
+            "后台主动感知", request, hasLiveConversation = true,
+            fullCharacterDecision = true))
+    }
+
+    @Test fun sharedActorStillExpandsSourceEvidenceWhenActualPromiseMustBeChecked() {
+        val request = UnifiedMemoryRequest(
+            currentInput = "你答应过的那次电话，实际完成了吗？")
+        listOf("后台主动感知", "电话回复", "游戏 · 方块小岛自主同行").forEach { scene ->
+            val budget = PromptContextPolicy.forRequest(
+                scene, request, fullCharacterDecision = true)
+            assertTrue(budget.precise)
+            assertTrue(budget.richInnerLife)
+            assertEquals(7_000, budget.evidenceCharacters)
+            assertEquals(31_000, budget.workingSetCharacters)
+        }
+    }
+
     @Test fun alreadySentSceneEvidenceDoesNotPolluteRecallQuery() {
         val normal = UnifiedMemoryRequest(
             currentInput = "还记得我们约好的事吗？",
