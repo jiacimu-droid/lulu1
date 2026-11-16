@@ -379,7 +379,8 @@ internal fun RelicEscapeWorldMap(
                 // Previously every drop was drawn at the same offset, hiding all but
                 // the last item when a full bag left several treasures on one tile.
                 val cellDrops = dropsByCell[y*run.w+x].orEmpty()
-                cellDrops.take(4).forEachIndexed { index, drop ->
+                for (index in 0 until minOf(4, cellDrops.size)) {
+                    val drop = cellDrops[index]
                     val tint = relicGradeColor(drop.loot.grade.takeIf { it in 0..6 }
                         ?: when(drop.loot.tier) {
                             RelicTier.COMMON -> 0
