@@ -29,20 +29,24 @@ private fun commitMeetingDecision(
     val motive = CharacterBehaviorMotivation.resolve(
         action, reply.decisionReason, reply.appraisal, reply.innerLife,
     )
-    CharacterInnerLifeStore.recordCausalTransition(
-        characterId = characterId, evidenceId = sourceId,
-        appraisal = reply.appraisal, innerLife = reply.innerLife,
+    CharacterTurnStateCommit.recordDurableDecision(
+        characterId = characterId,
+        evidenceId = sourceId,
+        appraisal = reply.appraisal,
+        innerLife = reply.innerLife,
         innerThoughtBasis = null,
         selectedAction = action,
         innerThought = reply.innerThought,
-        reason = motive?.reason.orEmpty(), now = at,
+        reason = motive?.reason.orEmpty(),
+        now = at,
+        afterCausalRecord = {
+            CharacterInnerLifeStore.observe(
+                characterId, sourceId, source.content, reply.innerLife,
+                if (source.evidenceKind == EventEvidenceKind.UserStatement) setOf("user") else emptySet(),
+                at,
+            )
+        },
     )
-    CharacterInnerLifeStore.observe(
-        characterId, sourceId, source.content, reply.innerLife,
-        if (source.evidenceKind == EventEvidenceKind.UserStatement) setOf("user") else emptySet(),
-        at,
-    )
-    CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reply.innerThought, at)
 }
 
 
