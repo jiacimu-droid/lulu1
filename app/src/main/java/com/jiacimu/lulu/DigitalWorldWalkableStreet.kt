@@ -216,10 +216,17 @@ internal fun DigitalWorldWalkableStreet(
     Box(modifier.fillMaxSize().background(Color(0xFFBBD2C4)).onSizeChanged { viewport = it }) {
         Canvas(Modifier.fillMaxSize().pointerInput(scale, cameraY, buildingObstacles) {
             detectTapGestures { point ->
-                val target = WorldVector(
+                val tapped = WorldVector(
                     (point.x / scale).coerceIn(86f, worldWidth - 86f),
                     (point.y / scale + cameraY).coerceIn(90f, worldHeight - 100f),
                 )
+                // Tapping a house means "walk to its actual door", never
+                // try to pathfind through an impassable painted roof.
+                val hitBuilding = doors.firstOrNull { door ->
+                    tapped.x in (door.point.x - 146f)..(door.point.x + 146f) &&
+                        tapped.y in (door.point.y - 108f)..(door.point.y + 95f)
+                }
+                val target = hitBuilding?.entrance ?: tapped
                 val route = worldFollowPath(player, target, walkBounds, buildingObstacles, 34f)
                 if (route.isNotEmpty()) {
                     tapTarget = target
