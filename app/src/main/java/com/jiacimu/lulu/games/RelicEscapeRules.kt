@@ -238,7 +238,10 @@ internal data class RelicRun(
                         (0 until a.length()).any { a.getJSONObject(it).optString("id")==id }
                     }
                 } ?: "")
-            result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result),
+            val persistedTeamSteps=j.optInt("teamSteps",0)
+                .coerceIn(0,(Int.MAX_VALUE-result.turns).coerceAtLeast(0))
+            val withClock=result.copy(teamSteps=persistedTeamSteps)
+            withClock.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),withClock),
                 satchelLevel=j.optInt("satchelLevel",0).coerceIn(0,2),
                 difficulty=runCatching { RelicDifficulty.valueOf(j.optString("difficulty","NORMAL")) }
                     .getOrDefault(RelicDifficulty.NORMAL),
@@ -249,7 +252,6 @@ internal data class RelicRun(
                     .getOrDefault(RelicProfession.SCOUT),
                 professionReadyTurn=j.optInt("professionReadyTurn",0).coerceIn(0,result.turns+100),
                 professionCharges=j.optInt("professionCharges",3).coerceIn(0,3),
-                teamSteps=j.optInt("teamSteps",0).coerceIn(0,Int.MAX_VALUE-result.turns),
                 chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
                     val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
                     buildMap {
