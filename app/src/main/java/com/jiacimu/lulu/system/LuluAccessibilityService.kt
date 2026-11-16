@@ -752,6 +752,39 @@ class LuluAccessibilityService : AccessibilityService() {
                 else "目标App拒绝了左上角返回控件的点击；未重复点击或触碰主屏")
         }
 
+        /** Count only outgoing-side text bubbles currently visible on the
+         * owned virtual conversation screen. Used to distinguish an accepted
+         * Send click from a new client-side message appearance. A count is NOT
+         * server delivery confirmation and must never trigger another click. */
+        fun virtualChatOutgoingTextCount(
+            displayId: Int, packageName: String, recipient: String, message: String,
+        ): Int {
+            val service = instance ?: return -1
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+                !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return -1
+            val dimensions = virtualDimensions(service, displayId) ?: return -1
+            if (!virtualChatHeaderMatches(
+                    service, displayId, packageName, recipient, dimensions.second)) return -1
+            val positions = mutableListOf<Rect>()
+            var scanned = 0
+            fun scan(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 26 || scanned++ >= 720 ||
+                    !node.isVisibleToUser || node.isPassword) return
+                val rect = Rect().also(node::getBoundsInScreen)
+                if (!node.isEditable && node.text?.toString() == message &&
+                    rect.top >= dimensions.second / 10 &&
+                    rect.bottom <= dimensions.second * 9 / 10 &&
+                    rect.right > dimensions.first * 3 / 5 &&
+                    rect.width() > 0 && rect.height() > 0) positions.add(rect)
+                for (i in 0 until node.childCount)
+                    node.getChild(i)?.let { scan(it, depth + 1) }
+            }
+            ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
+            return positions.distinctBy { it.centerX() / 12 to it.centerY() / 12 }.size
+        }
+
         /** An explicit, owner-authorized WeChat send is a separate atomic
          * action, never a search Enter or a generic permissive tap. This makes
          * ONE attempt after verifying the actual conversation and readback.
@@ -855,12 +888,18 @@ class LuluAccessibilityService : AccessibilityService() {
                 !button.isVisibleToUser)
                 return denied("chat_send_button_expired")
                     .put("messageInputReadbackVerified", true)
+            // Measure the current outbox before the irreversible click. A
+            // newly visible bubble after the click is evidence of client UI
+            // submission, never proof of remote/server delivery.
+            val outgoingBefore = virtualChatOutgoingTextCount(
+                displayId, packageName, recipient, message)
             // One click only; never retry an uncertain external side effect.
             val clicked = button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             return JSONObject().put("accepted", clicked)
                 .put("messageInputReadbackVerified", true)
                 .put("chatRecipientVerified", true)
                 .put("messageSendClicked", clicked)
+                .put("outgoingVisibleBefore", outgoingBefore)
                 .put("messageDeliveryVerified", false)
                 .put("taskCompleted", false)
                 .put("errorCode", if (clicked) "" else "chat_send_click_unverified")
