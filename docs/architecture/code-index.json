@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:12:46.880349+00:00",
-  "commit": "86603e44af473746648266b1756c7f31c6e6ec7f",
+  "generatedAt": "2026-11-16T04:53:48.538792+00:00",
+  "commit": "bed30fc71522be569904705229a7e57acb478d2a",
   "branch": "main",
-  "sourceFingerprint": "aca307134350fb741f031aab43b35118446a6389a8e1799f1bd341a1269910e7",
+  "sourceFingerprint": "aed1e4120d0f575409e695ae13a0f4c9c88716f78db755d3a9698f4826a19343",
   "summary": {
     "files": 1351,
-    "lines": 287954,
-    "symbols": 4066
+    "lines": 287994,
+    "symbols": 4068
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -57,6 +57,10 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
+        "line": 65
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
         "line": 65
       },
       {
@@ -809,7 +813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 539
+        "line": 538
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -8454,6 +8458,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
         "line": 45
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
+        "line": 67
       }
     ],
     "clearConversation": [
@@ -15671,7 +15679,7 @@
     "inViewport": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 483
+        "line": 482
       }
     ],
     "satchelCost": [
@@ -38227,8 +38235,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 722,
-      "sha256": "b56c8f43b2ac6427abe64589e7f2af5621927bf04864d7ab976f688d06c1220c",
+      "lines": 721,
+      "sha256": "29fb6895f8bccfb310916bfb98b99d9d4a636dd8efb07a543a31b4cac5e2a86e",
       "symbols": [
         {
           "name": "cell",
@@ -38240,11 +38248,11 @@
         },
         {
           "name": "inViewport",
-          "line": 483
+          "line": 482
         },
         {
           "name": "label",
-          "line": 539
+          "line": 538
         }
       ]
     },
@@ -38451,12 +38459,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-      "lines": 50,
-      "sha256": "1221bb4ec37c4d2eeab5a98a3de9dfec5f095abec7259b8326b60e3e635c1aef",
+      "lines": 76,
+      "sha256": "f353dc7df7510856c5b50998ac09ab128069ae0d34d3667dffee6948bd96ed8b",
       "symbols": [
         {
           "name": "tileAt",
           "line": 8
+        },
+        {
+          "name": "start",
+          "line": 65
+        },
+        {
+          "name": "end",
+          "line": 67
         }
       ]
     },
@@ -47339,8 +47355,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
-      "lines": 94,
-      "sha256": "00333291ff848e02e98f952bbc1f6b42d26019fde74db99a0d74b287c7d737f1",
+      "lines": 109,
+      "sha256": "6a10ac660389ba831e605d5f0257d3084b90b837f7ed838e6399918f7c4a9069",
       "symbols": [
         {
           "name": "RelicMapCameraTest",
