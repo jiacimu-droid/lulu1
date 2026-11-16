@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7b16c7884840df83cb2393776a09f0a1ac3e63e6`
+- 基准提交：`b5d8d3a96a85d3b887ca49c03eb32b12a29a02ff`
 - 分支：`main`
 - 已索引文件：1359
-- 已索引代码/文本行：290352
+- 已索引代码/文本行：290351
 - 已发现符号：4091
 
 | 文件 | 行数 | 符号数 |
@@ -255,7 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1052 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1044 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 943 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
@@ -267,7 +267,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 48 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1251 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1258 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 782 | 6 |
