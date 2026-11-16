@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:31:33.309777+00:00",
-  "commit": "e57adbb1ae70c86be0b21860758a86258004d056",
+  "generatedAt": "2026-11-16T11:32:14.843874+00:00",
+  "commit": "cda8334f02bc9da731729bea799c8bbfa4df33aa",
   "branch": "main",
-  "sourceFingerprint": "b38fc662cad0f2ce4dc45b5acc9f25588755cd302c9c8c8531c071593c6e2573",
+  "sourceFingerprint": "41915be567c5a5317352adf7846eb072e9b9dff983b06de89df76e17f112b41a",
   "summary": {
-    "files": 1360,
-    "lines": 290427,
-    "symbols": 4092
+    "files": 1361,
+    "lines": 290480,
+    "symbols": 4093
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20122,6 +20122,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt",
         "line": 13
+      }
+    ],
+    "CharacterSceneCadenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSceneCadenceTest.kt",
+        "line": 12
       }
     ],
     "CharacterScreenShareTest": [
@@ -44416,6 +44422,17 @@
         {
           "name": "CharacterRelationshipAuthorityTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSceneCadenceTest.kt",
+      "lines": 53,
+      "sha256": "178758621fde61d3a9475c9dcf3a2f62f5a0e59319f96d444ba2453d2a776acc",
+      "symbols": [
+        {
+          "name": "CharacterSceneCadenceTest",
+          "line": 12
         }
       ]
     },
