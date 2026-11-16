@@ -47,3 +47,29 @@ internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int
         height / 2f - (focusY + .5f) * tile + panY)
     else RelicMapCamera(tile, 0f, 0f)
 }
+
+/** Exclusive board bounds visible on screen, with one tile of overscan.
+ * Use Double before clamping: Float-to-Int saturation near a far pan must not
+ * turn an entirely offscreen board into a rendered edge strip.
+ */
+internal fun RelicMapCamera.visibleBounds(
+    viewportWidth: Float, viewportHeight: Float, columns: Int, rows: Int,
+    overscan: Int = 1
+): IntArray {
+    if (tileSize <= 0f || !tileSize.isFinite() || !offsetX.isFinite() ||
+        !offsetY.isFinite() || !viewportWidth.isFinite() || !viewportHeight.isFinite() ||
+        viewportWidth <= 0f || viewportHeight <= 0f || columns <= 0 || rows <= 0) {
+        return intArrayOf(0, 0, 0, 0)
+    }
+    val tile = tileSize.toDouble()
+    fun start(offset: Float, count: Int): Int =
+        kotlin.math.floor(-offset.toDouble() / tile - overscan).coerceIn(0.0, count.toDouble()).toInt()
+    fun end(viewport: Float, offset: Float, count: Int): Int =
+        kotlin.math.ceil((viewport.toDouble() - offset.toDouble()) / tile + overscan)
+            .coerceIn(0.0, count.toDouble()).toInt()
+    val left = start(offsetX, columns)
+    val right = end(viewportWidth, offsetX, columns)
+    val top = start(offsetY, rows)
+    val bottom = end(viewportHeight, offsetY, rows)
+    return intArrayOf(left, maxOf(left, right), top, maxOf(top, bottom))
+}
