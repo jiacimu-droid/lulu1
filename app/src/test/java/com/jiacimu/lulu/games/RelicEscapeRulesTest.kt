@@ -528,6 +528,35 @@ class RelicEscapeRulesTest {
         assertTrue(hardDamage>easyDamage)
     }
 
+    @Test fun earlyExpeditionsIntroduceThreatsGraduallyAndKeepEntrySafe() {
+        for (difficulty in RelicDifficulty.entries) {
+            val first=RelicEscapeWorld.create(341,1,emptyList(),0,1,difficulty=difficulty)
+            val second=RelicEscapeWorld.create(341,2,emptyList(),0,1,difficulty=difficulty)
+            val third=RelicEscapeWorld.create(341,3,emptyList(),0,1,difficulty=difficulty)
+            assertEquals(RelicThreatProgression.monsterCount(1,difficulty),first.mobs.size)
+            assertEquals(RelicThreatProgression.monsterCount(2,difficulty),second.mobs.size)
+            assertEquals(RelicThreatProgression.monsterCount(3,difficulty),third.mobs.size)
+            assertTrue(third.mobs.size>=first.mobs.size)
+            assertTrue(first.mobs.all { mob ->
+                kotlin.math.abs(mob.x-first.hero.x)+
+                    kotlin.math.abs(mob.y-first.hero.y)>
+                    RelicThreatProgression.safeSpawnDistance(difficulty)
+            })
+        }
+        assertEquals(1,RelicThreatProgression.monsterCount(1,RelicDifficulty.EASY))
+        assertEquals(2,RelicThreatProgression.monsterCount(1,RelicDifficulty.NORMAL))
+        assertFalse(RelicThreatProgression.eliteUnlocked(1,RelicDifficulty.NORMAL))
+        assertFalse(RelicThreatProgression.eliteUnlocked(2,RelicDifficulty.NORMAL))
+        assertTrue(RelicThreatProgression.eliteUnlocked(3,RelicDifficulty.NORMAL))
+        val standard=RelicEscapeWorld.create(341,1,emptyList(),0,1,
+            difficulty=RelicDifficulty.NORMAL)
+        assertTrue(standard.mobs.all { it.kind!=3 })
+        assertTrue(standard.mobs.zipWithNext().all { (a,b) ->
+            kotlin.math.abs(a.x-b.x)+kotlin.math.abs(a.y-b.y)>
+                RelicThreatProgression.separation(RelicDifficulty.NORMAL)
+        })
+    }
+
     @Test fun campEquipmentPurchasesGiveRealSelectableStartingWeapons() {
         val ledger=cleared()
         val context=RuntimeEnvironment.getApplication()
