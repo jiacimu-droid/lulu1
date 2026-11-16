@@ -205,6 +205,12 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         }
         val next = room.copy(lines = room.lines + SoupLine("你", kind, message))
         if (!commit(next)) return
+        // Only committed public game speech becomes a lived role observation.
+        // The owner is heard by the actual participants, not by every character.
+        GameTeamConversationTimeline.recordOwner(
+            context, "turtle_soup", next.id, next.companions, message,
+            fromSpeech = false, utteranceId = "owner-${next.lines.lastIndex}",
+        )
         input = ""
         remainingAutonomousSteps = 3
         if (kind == SoupKind.QUESTION || kind == SoupKind.SOLUTION) {
@@ -249,6 +255,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         "\n你在本局中的身份：与其他猜题者同桌的玩家；主持人是" + hostName() +
                         "。你只知道公开题面、公共问答及讨论，没有汤底。",
                     instruction = "你是正在真实参与海龟汤的角色本人，不是主持人，不可读取或假装知道汤底。" +
+                        "你过去的亲身经历和人格只能影响思考风格、关系与交流；本局隐藏汤底只能用这局公开的题面和问答推理，不能借用旧题答案或其他角色的私密记忆。" +
                         "用人设和已公开证据形成假设，选择下一步：向主持人提一个可用是/否判断的新问题，" +
                         "或者跟同伴讨论、指出矛盾，或者尝试完整还原真相（solve），或者决定等待玩家。" +
                         "不要重复已否定的假设，也不要凭空宣称问题已解决。" +
@@ -277,9 +284,18 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                     else -> SoupKind.DISCUSSION
                                 }
                                 val next = room.copy(lines = room.lines + SoupLine(name(actor), kind, parsed.text))
-                                if (commit(next) && next.host != SoupHost.USER) {
-                                    if (kind == SoupKind.QUESTION) judge(next.lines.lastIndex)
-                                    if (kind == SoupKind.SOLUTION) judgeSolution(next.lines.lastIndex)
+                                if (commit(next)) {
+                                    // A selected question/discussion is not delivered
+                                    // until the room actually persisted it.
+                                    GameTeamConversationTimeline.recordCompanion(
+                                        context, "turtle_soup", next.id,
+                                        next.companions, actor, parsed.text,
+                                        utteranceId = "companion-${next.lines.lastIndex}",
+                                    )
+                                    if (next.host != SoupHost.USER) {
+                                        if (kind == SoupKind.QUESTION) judge(next.lines.lastIndex)
+                                        if (kind == SoupKind.SOLUTION) judgeSolution(next.lines.lastIndex)
+                                    }
                                 }
                             }
                         }
