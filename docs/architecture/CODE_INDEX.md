@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`afd8723a1168497600fff3edd77f730609ae5df4`
+- 基准提交：`a95f20f48c375915a6a5a2af2bf298994ca5a50b`
 - 分支：`main`
 - 已索引文件：1342
-- 已索引代码/文本行：286312
+- 已索引代码/文本行：286354
 - 已发现符号：4043
 
 | 文件 | 行数 | 符号数 |
@@ -448,7 +448,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2021 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 670 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 692 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 93 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 282 | 5 |
@@ -1086,7 +1086,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 572 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 137 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2277 | 40 |
