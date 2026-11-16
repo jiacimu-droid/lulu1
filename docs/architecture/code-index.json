@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:48:58.349757+00:00",
-  "commit": "9bf0a4134cfabbcfbddce02e43f091df5e2e2bc8",
+  "generatedAt": "2026-11-16T07:50:10.100575+00:00",
+  "commit": "b669133dd61f9b7c0c510857b7476c36df791344",
   "branch": "main",
-  "sourceFingerprint": "2a8823e894cb024d1aaf32a805913d89b2e2750edc0e502d7b09a11b18c081e9",
+  "sourceFingerprint": "268f6c6ea9a6de8f671582a1d50f7be98decc4628bd77896c3723d73951b8f53",
   "summary": {
     "files": 1355,
-    "lines": 289491,
+    "lines": 289505,
     "symbols": 4085
   },
   "symbolIndex": {
@@ -1951,7 +1951,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2446
+        "line": 2452
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -4789,7 +4789,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 286
+        "line": 293
       }
     ],
     "recordCurrent": [
@@ -8163,19 +8163,19 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 161
+        "line": 168
       }
     ],
     "latestConsideration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 265
+        "line": 272
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 352
+        "line": 359
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -12865,19 +12865,19 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1617
+        "line": 1623
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2300
+        "line": 2306
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2440
+        "line": 2446
       }
     ],
     "maxResidents": [
@@ -27908,7 +27908,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
       "lines": 469,
-      "sha256": "0a304a39131203adce39679004dd85e347e8be65b77224b710ffe47867d27ae0",
+      "sha256": "11adb15a3aad891d3890fdf243db0521998b169a54833e4e9e341061f96bc069",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -29801,8 +29801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 423,
-      "sha256": "74bc9c27bc646ace5f0060e94e085a08d033722a7ee10f6f75673e299b43d630",
+      "lines": 430,
+      "sha256": "7013eda73a90ea0802652640a8a0d44423711a64b11acaebfd9422c393ef1912",
       "symbols": [
         {
           "name": "parse",
@@ -29810,19 +29810,19 @@
         },
         {
           "name": "offer",
-          "line": 161
+          "line": 168
         },
         {
           "name": "latestConsideration",
-          "line": 265
+          "line": 272
         },
         {
           "name": "latest",
-          "line": 286
+          "line": 293
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 352
+          "line": 359
         }
       ]
     },
@@ -33928,8 +33928,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 227,
-      "sha256": "04fa44a171c32d6fc3f2d350e1208a858011d796e165f8738753b16f765d8e0a",
+      "lines": 228,
+      "sha256": "847119d8cd0ffd4efdf0b7017d0ecfc5b9901379375fa5a6395ce77f14c84da5",
       "symbols": []
     },
     {
@@ -34593,8 +34593,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2512,
-      "sha256": "9b3c886604c3ac30b0ddd34b138be861e281320c2bccfd94ca26fb2b2f4060ce",
+      "lines": 2518,
+      "sha256": "105c0e15e972461ae5ca01c6f8ea80dcff10456fde77438a9d7c376ad3529176",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -34666,19 +34666,19 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1617
+          "line": 1623
         },
         {
           "name": "errorOf",
-          "line": 2300
+          "line": 2306
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2440
+          "line": 2446
         },
         {
           "name": "schedule",
-          "line": 2446
+          "line": 2452
         }
       ]
     },
