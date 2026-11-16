@@ -525,7 +525,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             near.action=="gather" && IslandProgression.crystalVein(
                                 world.seed,world.index(near.x,near.y)) -> "晶石+1"
                             near.action=="gather" ->
-                                if("pickaxe" in island.tools) "采石+4" else "采石+2"
+                                if("pickaxe" in island.tools) "采石+4" else if("wood_pickaxe" in island.tools) "采石+3" else "采石+2"
                             near.action=="recover_pack" -> "取回背包"
                             else -> near.label.take(6)
                         }
