@@ -242,11 +242,17 @@ class CharacterExpressionGuideTest {
         assertTrue(freshPrivate.contains("steps=["))
         assertTrue(freshPrivate.contains("requiresPreviousSuccess"))
         assertTrue(freshPrivate.contains("一个完整 JSON"))
-        assertTrue(freshPrivate.length < autonomous.length)
-        // The self-directed life instructions still exist for genuinely
-        // autonomous turns; they no longer burden a casual incoming message.
-        assertTrue(autonomous.contains("【本轮自主决策】"))
-        assertFalse(freshPrivate.contains("【本轮自主决策】"))
+        // A private user message changes only the CURRENT audience, not
+        // which cognition, memory or autonomy contract the person receives.
+        // The former branch had thousands of extra world/psychology rules
+        // exclusively for solo life, making the same actor appear split.
+        assertTrue(freshPrivate.contains("【本轮自主决策｜一套人物认知与执行规则】"))
+        assertTrue(autonomous.contains("【本轮自主决策｜一套人物认知与执行规则】"))
+        assertTrue(freshPrivate.contains(sharedFullLifeDecisionGuide))
+        assertTrue(autonomous.contains(sharedFullLifeDecisionGuide))
+        val sceneAdapterDifference = kotlin.math.abs(freshPrivate.length - autonomous.length)
+        assertTrue("Only the dialogue/solo channel adapter may differ: $sceneAdapterDifference",
+            sceneAdapterDifference < 2_000)
     }
 
     @Test fun voluntaryFuturePlanningIsAvailableInTheSameLifeDecisionWithoutForcingADailyChecklist() {
