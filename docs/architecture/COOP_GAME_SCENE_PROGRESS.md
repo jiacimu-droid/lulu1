@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-17 · G-02.6 · 已结算旧档工作台不得显示虚假可制作（CI 待验）
+
+- **根因**：正式规则 `BlockIslandRules.act` 拒绝 `world.finished` 的一切操作，但工作台按钮所用 `IslandWorkbenchRecipes.canCraft` 未检查该状态，旧结算存档仍显示可制作，点后不扣料、不产生工具。
+- **生产/测试**：`f1a4ea1c389814eb0e22219d9d78f786f9c536b1` 修正同一配方判定（blob `dea5e7810094795003a0f4fa2239982b9de578f7`）；`1f5517a42e966e7074cbd01a1b8ac353d5c88446` 添加结算存档所有配方的 UI/权威规则一致性回归（blob `8d724f5ba750518ecfb6181415550f6919c54c22`）。
+- **CI/下一入口**：按测试 push SHA 查询 `testPhoneUnitTest`、`assemblePhone` 和索引终态，不能以旧绿替代；下一文件 `IslandWorkbenchRecipesTest.kt`、`BlockIslandScreen.kt` 验证已结算旧档工作台禁用按钮与未结算真实制作；Redmi 横屏/FPS/美术和角色模型仍待验。
+
+
 ## 2026-11-16 · G-03 独玩迷雾摸金实体全屏回放（源码已提交，待 CI/真机）
 
 - **主人实际反馈**：历史页点「回放」后仍是白底菜单型 BottomSheet，屏幕中地图仅一条窄带。目标不是回合文字/表单，而是像正在玩《迷雾摸金》一样铺满横屏看角色移动、开图、遭遇与结果。
