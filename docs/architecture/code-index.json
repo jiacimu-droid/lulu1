@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T15:58:44.890296+00:00",
-  "commit": "3461783eab98e62e010fca7cf0ba174bf02f369c",
+  "generatedAt": "2026-11-16T16:09:17.818837+00:00",
+  "commit": "55274e3dd5c8fceb959bba8304abdb5866c99aa7",
   "branch": "main",
-  "sourceFingerprint": "25275d323f65ace7f088bc34ddef136178ac6e151591b60fdd9c11604788f2a2",
+  "sourceFingerprint": "636dba65517174210f02c23f911ff484ac6a755113cb9f1d93e050289c1f6024",
   "summary": {
     "files": 1367,
-    "lines": 291979,
-    "symbols": 4116
+    "lines": 291989,
+    "symbols": 4117
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5355,19 +5355,25 @@
     "sceneMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "autonomousTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
-        "line": 26
+        "line": 27
+      }
+    ],
+    "interactiveTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
+        "line": 37
       }
     ],
     "history": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
-        "line": 31
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -27468,20 +27474,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
-      "lines": 38,
-      "sha256": "5684d5f6246e1e47f7335990eb0579e3bfa4670245ccb9d18e62c917ebd18a8e",
+      "lines": 48,
+      "sha256": "b168248577eec3c1972ac0ebaf90e4d5fd00ed25acf6a09e70e5ebd4d78b87f9",
       "symbols": [
         {
           "name": "sceneMessage",
-          "line": 16
+          "line": 17
         },
         {
           "name": "autonomousTurn",
-          "line": 26
+          "line": 27
+        },
+        {
+          "name": "interactiveTurn",
+          "line": 37
         },
         {
           "name": "history",
-          "line": 31
+          "line": 41
         }
       ]
     },

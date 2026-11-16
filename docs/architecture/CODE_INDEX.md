@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3461783eab98e62e010fca7cf0ba174bf02f369c`
+- 基准提交：`55274e3dd5c8fceb959bba8304abdb5866c99aa7`
 - 分支：`main`
 - 已索引文件：1367
-- 已索引代码/文本行：291979
-- 已发现符号：4116
+- 已索引代码/文本行：291989
+- 已发现符号：4117
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -318,7 +318,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 271 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 38 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1662 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
