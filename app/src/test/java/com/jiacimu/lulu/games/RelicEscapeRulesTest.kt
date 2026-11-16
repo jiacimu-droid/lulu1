@@ -1164,7 +1164,13 @@ class RelicEscapeRulesTest {
             assertTrue(run.sites.any{it.kind=="altar"})
             assertTrue(run.sites.any{it.kind=="trap"})
             for(site in run.sites) {
-                assertTrue(run.walk(site.x,site.y))
+                // The seal gate is a real wall until its paired switch opens it.
+                if (site.kind == "seal_gate") {
+                    assertFalse(run.walk(site.x, site.y))
+                    assertTrue(run.sites.any { it.kind == "seal_switch" && it.id == site.linkId && it.linkId == site.id })
+                } else {
+                    assertTrue(run.walk(site.x, site.y))
+                }
                 assertTrue(RelicEscapeRules.distance(site.x,site.y,2,2)>=5)
                 assertTrue(run.chests.none{it.x==site.x && it.y==site.y})
                 assertFalse(site.x==run.exitX && site.y==run.exitY)
