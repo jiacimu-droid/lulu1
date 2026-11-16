@@ -262,4 +262,28 @@ class IslandTargetActionTest {
             setOf("gather"), 3 to 4)!!.x)
     }
 
+    @Test fun oreTargetDescribesTheActualEquippedPickaxeYield() {
+        val start = scene()
+        val ore = start.copy(world = start.world.copy(
+            tiles = start.world.tiles.toMutableList().also {
+                it[start.world.index(5, 4)] = 2
+            },
+            mobs = emptyList(), friends = emptyList(),
+        ))
+        val bare = islandTargetAction(ore, 5 to 4)
+        assertEquals("gather", bare.action)
+        assertTrue(bare.label.contains("+2"))
+        val wooden = ore.copy(tools = setOf("wood_pickaxe"))
+        val woodTarget = islandTargetAction(wooden, 5 to 4)
+        assertTrue(woodTarget.enabled)
+        assertTrue(woodTarget.label.contains("木镐"))
+        assertTrue(woodTarget.label.contains("+3"))
+        val mined = BlockIslandRules.act(wooden, woodTarget.action, 5, 4)
+        assertEquals(wooden.world.stone + 3, mined.world.stone)
+        val stone = ore.copy(tools = setOf("pickaxe"))
+        assertTrue(islandTargetAction(stone, 5 to 4).label.contains("+4"))
+        assertEquals(stone.world.stone + 4,
+            BlockIslandRules.act(stone, "gather", 5, 4).world.stone)
+    }
+
 }
