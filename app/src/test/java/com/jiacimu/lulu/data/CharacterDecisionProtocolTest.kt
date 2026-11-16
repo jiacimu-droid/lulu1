@@ -48,7 +48,7 @@ class CharacterDecisionProtocolTest {
         val privateChat = proactiveDecisionInstruction("continuing-life-private", directPrivateChat = true)
         val soloLife = proactiveDecisionInstruction("continuing-life-solo", directPrivateChat = false)
         assertTrue(continuingLifeDecisionGuide.contains("同一个人的连续生活决定"))
-        assertTrue(continuingLifeDecisionGuide.contains("先回主人"))
+        assertTrue(continuingLifeDecisionGuide.contains("收到用户新消息意味着优先理解"))
         assertTrue(continuingLifeDecisionGuide.contains("steps"))
         assertTrue(continuingLifeDecisionGuide.contains("给认识的人发信"))
         assertTrue(continuingLifeDecisionGuide.contains("真实查询"))
