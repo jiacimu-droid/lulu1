@@ -24,12 +24,22 @@ internal object MeetingPhysicalStateReducer {
             }
         }, updatedAt = at)
 
+    /** Completes only an actually observed movement goal; narration alone cannot clear it. */
+    fun reachedItem(scene: MeetingSceneSnapshot, characterId: String, itemId: String, itemName: String,
+                    at: Instant): MeetingSceneSnapshot =
+        scene.copy(participants = scene.participants.map { participant ->
+            if (participant.participantId == characterId && participant.destinationItemId == itemId)
+                participant.copy(destinationItemId = "", position = "在${itemName}旁")
+            else participant
+        }, updatedAt = at)
+
     fun userDeparted(scene: MeetingSceneSnapshot, at: Instant): MeetingSceneSnapshot =
         scene.copy(participants = scene.participants.map {
             if (it.participantId == "user") it.copy(contact = emptyList(), posture = "已离开当前场景")
             else it.copy(
                 contact = it.contact - "handholding:user",
                 explorationMode = if (it.explorationMode == "FOLLOW_USER") "STAY" else it.explorationMode,
+                destinationItemId = "",
             )
         }, updatedAt = at)
 }
