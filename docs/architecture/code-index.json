@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:53:48.538792+00:00",
-  "commit": "bed30fc71522be569904705229a7e57acb478d2a",
+  "generatedAt": "2026-11-16T05:44:16.778279+00:00",
+  "commit": "eb8bda0d6208922cde5544682753603350e38fc4",
   "branch": "main",
-  "sourceFingerprint": "aed1e4120d0f575409e695ae13a0f4c9c88716f78db755d3a9698f4826a19343",
+  "sourceFingerprint": "d6c7cc9153e1a2e8638c1d1bf08fb50f0e1c9480e0966471568af1329cca789a",
   "summary": {
-    "files": 1351,
-    "lines": 287994,
-    "symbols": 4068
+    "files": 1352,
+    "lines": 288194,
+    "symbols": 4074
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1652,6 +1652,10 @@
         "line": 206
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 170
+      },
+      {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
         "line": 10
       }
@@ -1984,6 +1988,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
         "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 109
       }
     ],
     "genuinelyConnected": [
@@ -2516,6 +2524,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
         "line": 60
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
@@ -6266,6 +6278,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 77
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10042,6 +10058,10 @@
         "line": 41
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 125
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
         "line": 22
       }
@@ -10062,6 +10082,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
         "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+        "line": 143
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -38651,6 +38675,37 @@
       "lines": 228,
       "sha256": "85719f743701a51977565897e4be817b660bf15a70c40ec7e940faf59fbe7302",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt",
+      "lines": 200,
+      "sha256": "cb95c795a5cd99054059af7c0be185bec425192b5611b9c2f1215441fa830133",
+      "symbols": [
+        {
+          "name": "find",
+          "line": 77
+        },
+        {
+          "name": "publicContext",
+          "line": 109
+        },
+        {
+          "name": "toJson",
+          "line": 125
+        },
+        {
+          "name": "fromJson",
+          "line": 143
+        },
+        {
+          "name": "read",
+          "line": 168
+        },
+        {
+          "name": "save",
+          "line": 170
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
