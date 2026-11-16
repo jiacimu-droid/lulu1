@@ -10,7 +10,10 @@ class CallMemoryPolicyTest {
         assertTrue(CallMemoryPolicy.TRANSCRIPT_STILL_AVAILABLE)
         assertTrue(CallMemoryPolicy.IMPORTANT_DETAILS_STILL_EXTRACTABLE)
         assertTrue("voice-sleep-callId-agent-id".startsWith("voice-sleep-"))
-        assertFalse("voice-callId    @Test fun ordinaryCallHistoryKeepsDialogueButNotLongBedtimeNarration() {
+        assertFalse("voice-callId-agent-id".startsWith("voice-sleep-"))
+    }
+
+    @Test fun ordinaryCallHistoryKeepsDialogueButNotLongBedtimeNarration() {
         val messages = listOf(
             LuluChatMessage(id = "voice-call-user-1", conversationId = "phone",
                 sender = LuluChatMessage.Sender.User, content = "刚才想起上次的小事"),
