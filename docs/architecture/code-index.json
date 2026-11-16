@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:22:14.046847+00:00",
-  "commit": "f5e352ae6ff7ab742dd93cc5fbc7909468a48860",
+  "generatedAt": "2026-11-16T14:23:39.115923+00:00",
+  "commit": "824cbfefff75860fcb6f4fd525d5ec0d38fc0434",
   "branch": "main",
-  "sourceFingerprint": "8344235339b52297f1867d32574773a029339b9bc0d41c85e3179e1150f5438b",
+  "sourceFingerprint": "de47635c830e1096326ef0a0a063b7b104d18b82b1c46635c24a80082a3ed882",
   "summary": {
     "files": 1362,
-    "lines": 290987,
-    "symbols": 4103
+    "lines": 291199,
+    "symbols": 4104
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15489,13 +15489,13 @@
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 112
+        "line": 120
       }
     ],
     "LuluGamesAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "acted": [
@@ -19147,19 +19147,23 @@
     "SelfTodoRoleReadTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "task": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 45
+        "line": 46
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
+        "line": 214
       }
     ],
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 187
+        "line": 188
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
@@ -26797,7 +26801,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
       "lines": 160,
-      "sha256": "889621ab4c5c733afb4a60b3639edce93fd586f6e5a7c08e4841994a03408050",
+      "sha256": "84564263ecfa83d8c0a02efebdfc8416325e891538b2ad2263a7eb9f264352d7",
       "symbols": [
         {
           "name": "execute",
@@ -38078,8 +38082,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 1016,
-      "sha256": "7f7d16e5af8cb7a65a04a2e7a007cd0ccdaf458fbddb07ba057c8683aa6f715f",
+      "lines": 1042,
+      "sha256": "5eac3b876cd900be2f8b4bfc9be8da3229f6d2c86dd40f692209aad8fe620e90",
       "symbols": [
         {
           "name": "Home",
@@ -38139,18 +38143,18 @@
         },
         {
           "name": "stepBack",
-          "line": 112
+          "line": 120
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 804,
-      "sha256": "a3cb1eb7cb9f6fa7337b0083515d8f853ffc78cb56c5d6f3b577c4459a612b65",
+      "lines": 949,
+      "sha256": "6380ff8512859ac3e7ef4aece3718a62ebbadde717a4b4a2f278ff567c09e458",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
-          "line": 50
+          "line": 51
         }
       ]
     },
@@ -42938,20 +42942,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 224,
-      "sha256": "25b87febe7c1ab7a03972b3feb7d71a07efd57d41496e1490420ef5a19651b68",
+      "lines": 265,
+      "sha256": "1d38b734d850935a4c020747c4f35efa6f174df6acd1284dbebaa80a7fe63497",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
-          "line": 26
+          "line": 27
         },
         {
           "name": "task",
-          "line": 45
+          "line": 46
         },
         {
           "name": "item",
-          "line": 187
+          "line": 188
+        },
+        {
+          "name": "task",
+          "line": 214
         }
       ]
     },
