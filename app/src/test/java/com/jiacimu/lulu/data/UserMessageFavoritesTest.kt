@@ -331,7 +331,7 @@ class UserMessageFavoritesTest {
         assertEquals("想给她打电话", CompanionPresenceStore.current(role)!!.statusText)
     }
 
-    @Test fun currentShowsLatestHeartWhileHistoricalMomentsIncludeItAndDedupePosture() {
+    @Test fun currentQuietMomentKeepsEarlierHeartOnlyInHistoryAndDedupePosture() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
         val role = "moment-time-scope-test"
@@ -351,9 +351,9 @@ class UserMessageFavoritesTest {
         val latest = PresenceHistoryPresentation.latestVoice(
             CompanionPresenceStore.current(role), history, messageAnchored = false,
         )
-        assertEquals(start, latest!!.updatedAt)
-        assertEquals("她出去了，我也翻几页书", latest.innerThought)
-        assertEquals("顾虑：还没想好要不要跟她分享", latest.momentReflection)
+        assertNull(latest)
+        assertEquals("她出去了，我也翻几页书", history.last().innerThought)
+        assertEquals("顾虑：还没想好要不要跟她分享", history.last().momentReflection)
         val presented = PresenceHistoryPresentation.entries(history)
         assertEquals(1, presented.size)
         assertEquals(start, presented.first().state.updatedAt)
@@ -361,14 +361,13 @@ class UserMessageFavoritesTest {
         val pinned = PresenceHistoryPresentation.latestVoice(
             history.first(), history, messageAnchored = true,
         )
-        // The most recent real heart voice remains visible for this nearby
-        // chat moment, with its ORIGINAL time rather than a fabricated new one.
-        assertEquals("她出去了，我也翻几页书", pinned!!.innerThought)
-        assertEquals(start, pinned.updatedAt)
+        // No authored thought for the later message: the old words remain in
+        // history, never passed off as this newer message's private voice.
+        assertNull(pinned)
         val priorThought = PresenceHistoryPresentation.latestReflection(
             history.first(), history, messageAnchored = true,
         )
-        assertEquals("顾虑：还没想好要不要跟她分享", priorThought?.momentReflection)
+        assertNull(priorThought)
         CompanionPresenceStore.clearCharacter(role)
     }
 
