@@ -106,10 +106,14 @@ internal data class RelicDrop(val x:Int,val y:Int,val loot:RelicLoot) {
     fun json()=JSONObject().put("x",x).put("y",y).put("loot",loot.json())
     companion object { fun read(j:JSONObject)=RelicDrop(j.getInt("x"),j.getInt("y"),RelicLoot.read(j.getJSONObject("loot"))) }
 }
-internal data class RelicSite(val id:Int,val x:Int,val y:Int,val kind:String,val spent:Boolean=false) {
-    fun json()=JSONObject().put("id",id).put("x",x).put("y",y).put("kind",kind).put("spent",spent)
+internal data class RelicSite(val id:Int,val x:Int,val y:Int,val kind:String,
+    val spent:Boolean=false,
+    /** Optional paired-site ID: an ancient switch opens exactly its matching gate. */
+    val linkId:Int=-1) {
+    fun json()=JSONObject().put("id",id).put("x",x).put("y",y).put("kind",kind)
+        .put("spent",spent).put("linkId",linkId)
     companion object { fun read(j:JSONObject)=RelicSite(j.getInt("id"),j.getInt("x"),
-        j.getInt("y"),j.getString("kind"),j.optBoolean("spent")) }
+        j.getInt("y"),j.getString("kind"),j.optBoolean("spent"),j.optInt("linkId",-1)) }
 }
 internal data class RelicEvent(val who:String,val action:String,val text:String,val turn:Int,
     val teamStep:Int=0) {
