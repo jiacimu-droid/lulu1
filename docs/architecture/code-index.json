@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T15:23:08.797303+00:00",
-  "commit": "79d2ef097143f467d7cae4cc2d8a1aa7e04ef52c",
+  "generatedAt": "2026-11-16T15:24:17.078013+00:00",
+  "commit": "9dd45237c631d4c92707275ef0e015add314e360",
   "branch": "main",
-  "sourceFingerprint": "dd20bc69b34d00d498b2f489f78e8173a88eb69f17feadc8978a35f2b1100fa0",
+  "sourceFingerprint": "a23674354fba48f0b280c218d59eea7bd4d9afbe883bcbd330c930b49069113a",
   "summary": {
     "files": 1366,
-    "lines": 291848,
-    "symbols": 4115
+    "lines": 291845,
+    "symbols": 4114
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5656,40 +5656,34 @@
         "line": 53
       }
     ],
-    "actorSceneFacts": [
+    "compactActorSceneFacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 195
-      }
-    ],
-    "actorExceedsEnvelope": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 200
+        "line": 189
       }
     ],
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 208
+        "line": 195
       }
     ],
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 232
+        "line": 219
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 248
+        "line": 235
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 251
+        "line": 238
       }
     ],
     "ScopedModelSelections": [
@@ -12295,7 +12289,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3735
+        "line": 3736
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -27739,8 +27733,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
-      "lines": 230,
-      "sha256": "a01f4eda14587febaf456c2908dd358130c0940b73c990186e20b1b778a62bce",
+      "lines": 239,
+      "sha256": "58262b0a0fabe777e2f4be270e89051e03fe60b4ec1d259ea108b7b1ed2d1639",
       "symbols": [
         {
           "name": "Snapshot",
@@ -27754,8 +27748,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 255,
-      "sha256": "5b775c9d7ecfcdb24d8b1cab3a72cf3eeb31045fb4c6a7c957da8c7e020cd515",
+      "lines": 242,
+      "sha256": "3c5d155d6a1e69a7748197d76d57c4a8ab3f1da3aa8da1a8be67866a303d7164",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -27774,28 +27768,24 @@
           "line": 53
         },
         {
-          "name": "actorSceneFacts",
-          "line": 195
-        },
-        {
-          "name": "actorExceedsEnvelope",
-          "line": 200
+          "name": "compactActorSceneFacts",
+          "line": 189
         },
         {
           "name": "compactHistory",
-          "line": 208
+          "line": 195
         },
         {
           "name": "compactSectionPairs",
-          "line": 232
+          "line": 219
         },
         {
           "name": "compactSections",
-          "line": 248
+          "line": 235
         },
         {
           "name": "savesEnough",
-          "line": 251
+          "line": 238
         }
       ]
     },
@@ -34308,8 +34298,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3802,
-      "sha256": "14433fc92401b8367483db94e7cc9bfb146fd21078516a05c53c663af817e562",
+      "lines": 3803,
+      "sha256": "197427375a74ae9c277a39300b62e80811c0f4d481c4c5b0066fee3ad4e44e12",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -34341,7 +34331,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3735
+          "line": 3736
         }
       ]
     },
