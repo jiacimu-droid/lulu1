@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:16:47.059514+00:00",
-  "commit": "a02e1923c4a604ef71d5a5d6c382fb40aeeb4701",
+  "generatedAt": "2026-11-16T03:17:39.885007+00:00",
+  "commit": "df997336239dc333ef7a341662fbc584555443b5",
   "branch": "main",
-  "sourceFingerprint": "05e94eac5cbb551a1a5f956f94fad448203c30eba4cb189b35d73382db6fe0e9",
+  "sourceFingerprint": "203288f2ed2cff5ba5980d3664e2460717704f53f61e678ebd7eed35d3b1d762",
   "summary": {
     "files": 1343,
-    "lines": 286363,
+    "lines": 286398,
     "symbols": 4044
   },
   "symbolIndex": {
@@ -1679,7 +1679,7 @@
     "list": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-        "line": 132
+        "line": 144
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -23818,8 +23818,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 415,
-      "sha256": "e824b0a2db4c1071da58bd61680b16a8e490153282649a50a0c24cfd5dfa5e7b",
+      "lines": 450,
+      "sha256": "29ae81ff95e4b04452b2d64b5f8eeb1ca94275ad91f9090c80fc9df07e4af37c",
       "symbols": [
         {
           "name": "ledgerText",
@@ -23827,7 +23827,7 @@
         },
         {
           "name": "list",
-          "line": 132
+          "line": 144
         }
       ]
     },
