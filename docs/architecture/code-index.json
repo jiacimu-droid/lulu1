@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:24:33.092743+00:00",
-  "commit": "a95f20f48c375915a6a5a2af2bf298994ca5a50b",
+  "generatedAt": "2026-11-16T02:51:15.653094+00:00",
+  "commit": "abe5dcdd3412e0b5ebdb5d6bb21554c785ec6417",
   "branch": "main",
-  "sourceFingerprint": "b8613f6391b699da5378accc699b074093562d74b41a5da87ef1c87b3ebb42d6",
+  "sourceFingerprint": "192b5d9e6e6e2802271a5faded1ea9a11283f20c463e01c4a5fb464de9556fb6",
   "summary": {
     "files": 1342,
-    "lines": 286354,
+    "lines": 286356,
     "symbols": 4043
   },
   "symbolIndex": {
@@ -809,7 +809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 537
+        "line": 539
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -14201,7 +14201,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 135
+        "line": 138
       }
     ],
     "actorCenter": [
@@ -14501,7 +14501,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 134
+        "line": 137
       }
     ],
     "adjacent": [
@@ -15577,7 +15577,7 @@
     "inViewport": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 481
+        "line": 483
       }
     ],
     "satchelCost": [
@@ -38014,24 +38014,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 720,
-      "sha256": "736c03c7de715467f8d69c3ea3f9572fae574fed21e506269128609b1759c2dc",
+      "lines": 722,
+      "sha256": "b56c8f43b2ac6427abe64589e7f2af5621927bf04864d7ab976f688d06c1220c",
       "symbols": [
         {
           "name": "cell",
-          "line": 134
+          "line": 137
         },
         {
           "name": "center",
-          "line": 135
+          "line": 138
         },
         {
           "name": "inViewport",
-          "line": 481
+          "line": 483
         },
         {
           "name": "label",
-          "line": 537
+          "line": 539
         }
       ]
     },
