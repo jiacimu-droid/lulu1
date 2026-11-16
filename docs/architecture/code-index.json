@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T20:52:49.998755+00:00",
-  "commit": "95807f5d74801b8a75465f63038ca577ef3608ab",
+  "generatedAt": "2026-11-16T21:34:29.651212+00:00",
+  "commit": "36063cec7ddb0881709ac77483f1afeb6c41cc17",
   "branch": "main",
-  "sourceFingerprint": "de8efa6f6ac865d9ff41f2b2e9a033786582205a452148c636256d23df0d2acc",
+  "sourceFingerprint": "5b3cd2e50a747b6b5e61ea27b73378066c726c933000405a2c772f8ab9f84975",
   "summary": {
     "files": 1376,
-    "lines": 293791,
+    "lines": 293827,
     "symbols": 4141
   },
   "symbolIndex": {
@@ -45288,8 +45288,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 2299,
-      "sha256": "a9aa952c5102585a6ad001bcf9ae9601f4bf8f851811ff705635d049eaaef214",
+      "lines": 2335,
+      "sha256": "8f95342ef2f41b043e5d8fcbbe9ab7ae7d472acfb0a99c07b482ba3b5b53f077",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
