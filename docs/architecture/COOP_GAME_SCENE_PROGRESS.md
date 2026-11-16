@@ -579,3 +579,7 @@
 
 - 正式 `RelicObjectiveGuide.knownRouteTiles` 先前每扩展一格创建四个 Pair/List，并逐格线性遍历全部怪物与机关；每个可见宝箱的推荐路径会再次执行该搜索，地图和战术页频繁刷新时放大 CPU/GC 成本。生产 `2f267376b5a621856d4e2b7561aee4d66d26c4a6`，源码 blob `32b155a94934c8222aef92ceb0f9a62ddbbd1379`：一次建立真实活怪/未解除陷阱占位表，队列只传格索引，保留已见地形、腐蚀、最短路、目标邻格终点与玩家选择边界；不动角色决定、奖励或存档。
 - 回归 `ff0d9fb627c63b53067c1a76eb7d3fd72eb67ac6`，`RelicObjectiveRouteTest.kt` blob `c8a4953b926787e499b5e03347f7ca9594351557`，新增死亡怪物/已解除陷阱不挡路、活怪挡路及原始实体不变；原守卫绕路/迷雾/目标一致性测试复用。尚未取得本批 JVM/APK/index 终态，不宣称执行成功或 FPS 提升。下一实际入口 `RelicObjectiveRouteTest` JVM 首错、`RelicEscapeScreen.kt` 高频目标提示与 Redmi 360/412dp 横屏帧时间；然后继续真实开箱→携物撤离→藏宝馆复进。仅本 G 段记录，不改总看板。
+
+## 2026-11-17 G-03.5 · 地图同格掉落绘制取消帧内临时列表
+- 生产 `RelicEscapeArt.kt` 将每个可见格 `cellDrops.take(4).forEachIndexed` 改为按索引读取原列表，保留前四件真实掉落位置和超过四件的标识；避免 Compose Canvas 每帧每格创建 `take` 子列表。提交 `a80a52e76cb4e30a0173fe52f4988670434a1c67`，源码 blob `0eaa980d6e12d687733522c0b904743a5d07552b`。无新增测试；旧同格掉落回归仍需按最新 SHA 的 JVM 复核，性能收益未测量，不能声称 FPS 提升。
+- 下一入口：`RelicEscapeArt.kt` 同格掉落绘制与现有同格掉落测试；查询 main push `a80a52e` 对应 JVM/APK/index，随后 Redmi 横屏帧时间与可见性审图；继续实物拾取→撤离→藏宝馆重入闭环。
