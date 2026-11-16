@@ -1031,7 +1031,14 @@ fun QqStyleChatDetailScreen(
                             showTime = preferences.showMessageTimestamps && groupEnd,
                             userAvatar = userAvatar,
                             userAvatarUri = userAvatarUri,
-                            onCharacterAvatarClick = { presenceCharacterId = author.characterId },
+                            onCharacterAvatarClick = {
+                                // The same message-ID anchor as image bubbles:
+                                // this avatar opens THIS reply's recorded heart voice.
+                                CompanionPresenceStore.selectMessageAnchor(
+                                    author.characterId, message.createdAt, message.id,
+                                )
+                                presenceCharacterId = author.characterId
+                            },
                             onLongClick = { if (multiSelectMode) toggleSelected(message.id) else selectedMessage = message },
                             onSwipeReply = { if (multiSelectMode) toggleSelected(message.id) else beginReply(message) },
                             onAcceptGame = { gameId ->
