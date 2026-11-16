@@ -553,3 +553,9 @@
 
 - 生产 `919c68c341aba9ce7ad6032f52f89631ee7823db`，`RelicObjectiveGuide.kt` blob `744f283cc76086d5d02926c270978782ce572e09`：原战术 HUD 按曼哈顿距离推荐最近已见宝箱，即使守卫/墙挡住，仍把不可达箱置于可达箱之前；现用既有仅已探明安全地块的 `knownRouteTiles` 排序，优先可达目标，均不可达时保留最近已见箱并明确「路径未探明」。不移动玩家、不揭雾、不改开箱/掉率/角色决策；地图仍由玩家显式选择目标。
 - `RelicObjectiveRouteTest.kt` 测试最终提交 `8df1b6c3a03862dac7fb2cabf76949e2e867c73a`，blob `4b711ab192cca5f62f39a8cf8bf2aa8abf092a4b`：近箱通路被实际守卫占据、远箱可绕行时战术推荐切换，原实体和位置不变。**测试尚未取得 JVM 实际通过证据**；最新 main push 的 JVM/APK/index 与真机另核。下一实际入口：`RelicObjectiveRouteTest.tacticalHudSuggestsReachableChestBeforeCloserBlockedChest` 的 JVM 首错、`RelicEscapeScreen.kt` 战术宝箱点击/镜头定位及 Redmi 横屏目标切换。
+
+
+## 2026-11-16 G-03.5 · 主目标提示与战术页使用同一真实可达宝箱（CI/真机待验）
+
+- 正式 `RelicObjectiveGuide.nextVisible` 此前仍按直线距离挑最近已见宝箱，而 `visibleChest` 已按真实已探明安全路线排序；玩家在地图主目标提示与战术页会看到互相矛盾的箱子。生产 `30a437890e4868abad75981df800dd94266a6753`（blob `69058b8b036baa6b812514a9e46b85859fa51067`）改为复用 `visibleChest` 与 `visibleExit`，保留携带实物时优先撤离的既有规则，不揭雾、不自动移动、不生成奖励。
+- 复用原有守卫封路/远箱绕行夹具，回归 `5255bb2655bb97fd8e5badb838543a37938f140a`（`RelicObjectiveRouteTest.kt` blob `038ed3f8d7bdea45aa8a05754f09d5eb5e1f3eff`）增加主目标、战术目标与提示路线一致断言，避免复制另一套路由算法。该轮无本地 Gradle 执行证据；连接器的 commit workflow 查询只覆盖 PR，不能据此断言 main push JVM/APK/index 终态。下一入口 `RelicObjectiveRouteTest.tacticalHudSuggestsReachableChestBeforeCloserBlockedChest` 的 JVM 首错、`RelicEscapeScreen.kt` 主提示与战术目标实机切换；Redmi 360/412dp 横屏、帧率、美术、真实角色协作仍独立待验。
