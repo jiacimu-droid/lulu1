@@ -15,6 +15,38 @@ class RelicActorPlayTest {
             chests=emptyList(),seen=s.tiles.indices.toSet())
     }
 
+    @Test fun companionCanChooseRealMapMechanismsWithoutSpendingOwnersTurn() {
+        val base=run()
+        val gate=RelicSite(20,6,2,"seal_gate",linkId=21)
+        val control=RelicSite(21,5,3,"seal_switch",linkId=20)
+        val lens=RelicSite(22,5,2,"lens")
+        val tile=base.tiles.toMutableList()
+        tile[base.index(gate.x,gate.y)]=1
+        val alice=base.allies.first().copy(x=4,y=2)
+        val board=base.copy(tiles=tile,allies=listOf(alice),
+            sites=listOf(gate,control,lens),
+            seen=setOf(base.index(4,2),base.index(5,2),
+                base.index(5,3),base.index(6,2)))
+        assertTrue(RelicActorPlay.options(board,"alice").any { it.id=="lens:22" })
+        assertFalse(board.walk(gate.x,gate.y))
+        val openedMap=RelicActorPlay.apply(board,"alice",
+            IslandActorChoice("lens:22","先把地图看清"))!!
+        assertEquals(0,openedMap.turns)
+        assertTrue(openedMap.seen.size>board.seen.size)
+        assertTrue(openedMap.sites.first { it.id==22 }.spent)
+        assertFalse(RelicActorPlay.options(openedMap,"alice").any { it.id=="switch:21" })
+        val next=RelicEscapeRules.act(openedMap,"wait",autonomousIds=setOf("alice"))
+        val switched=RelicActorPlay.apply(next,"alice",
+            IslandActorChoice("switch:21","捷径我来开"))!!
+        assertEquals(next.turns,switched.turns)
+        assertTrue(switched.walk(gate.x,gate.y))
+        assertTrue(switched.sites.first { it.id==20 }.spent)
+        assertTrue(switched.sites.first { it.id==21 }.spent)
+        assertEquals(switched,RelicRun.read(switched.json()))
+        assertNull(RelicActorPlay.apply(switched,"alice",
+            IslandActorChoice("switch:21","已经开过了")))
+    }
+
     @Test fun partnerCanCarryARealGroundDropOutWhenThePlayerCannotFitIt() {
         val base = run()
         val loot = RelicLoot("run:chest:7", "幽蓝宝石", RelicTier.RARE, 220)
