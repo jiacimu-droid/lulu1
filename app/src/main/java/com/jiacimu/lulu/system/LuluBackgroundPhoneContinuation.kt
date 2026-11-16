@@ -31,6 +31,25 @@ internal object LuluBackgroundPhoneContinuation {
         voiceTurnInvalidated: Boolean,
     ): Boolean = voiceTurnInvalidated || hasNewUnreadInput(startedWith, currentlyUnread)
 
+    /** A rejected PRE-CLICK send has not crossed the irreversible boundary.
+     * The same character may inspect/navigate once more, unlike an accepted or
+     * ambiguous send click. Never infer a failed delivery from missing pixels. */
+    internal fun mayRecoverUnsentChat(receipt: JSONObject?): Boolean {
+        if (receipt == null || receipt.optBoolean("messageSendClicked") ||
+            receipt.optBoolean("messageAppearedInChat")) return false
+        return receipt.optString("errorCode") in setOf(
+            "chat_snapshot_expired", "chat_recipient_unverified",
+            "chat_voice_mode_requires_text_switch", "chat_editor_ambiguous",
+            "chat_editor_unverified", "chat_input_rejected",
+            "chat_input_unverified", "chat_changed_before_send",
+            "chat_send_button_or_context_unverified", "chat_send_button_expired",
+            "chat_text_mode_unverified", "chat_text_snapshot_unavailable",
+            "chat_keyboard_toggle_unverified", "chat_voice_composer_unverified",
+            "chat_keyboard_toggle_expired", "chat_keyboard_toggle_rejected",
+            "chat_changed_before_toggle", "chat_window_unverified",
+        )
+    }
+
     data class Outcome(
         val notes: String,
         val lastImage: String?,
@@ -196,15 +215,20 @@ internal object LuluBackgroundPhoneContinuation {
             if (LuluPhoneRepeatGuard.shouldBlock(attempt, action, target)) stalledGestures += action to target
         }
         val firstAction = initialArgs.optString("action")
+        var preClickChatFailures = 0
         if (firstAction == "send_chat_message") {
-            history.appendLine(when {
-                lastScreenReceipt?.optBoolean("messageAppearedInChat") == true ->
-                    "微信客户端已显示新增右侧发出消息；服务器送达仍未知，本轮不重复发送"
-                lastScreenReceipt?.optBoolean("messageSendClicked") == true ->
-                    "微信发送按钮已尝试点击一次，未确认客户端显示或服务器送达；本轮不重复发送"
-                else -> "微信发送尚未确认成功，保留实际失败回执；本轮不重发"
-            })
-            return Outcome(history.toString().takeLast(5_000), image, false, 0)
+            if (!mayRecoverUnsentChat(lastScreenReceipt)) {
+                history.appendLine(when {
+                    lastScreenReceipt?.optBoolean("messageAppearedInChat") == true ->
+                        "微信客户端已显示新增右侧发出消息；服务器送达仍未知，本轮不重复发送"
+                    lastScreenReceipt?.optBoolean("messageSendClicked") == true ->
+                        "微信发送按钮已尝试点击一次，未确认客户端显示或服务器送达；本轮不重复发送"
+                    else -> "微信发送未确认，且没有确切的点击前失败证明；拒绝盲重发"
+                })
+                return Outcome(history.toString().takeLast(5_000), image, false, 0)
+            }
+            preClickChatFailures = 1
+            history.appendLine("本次明确在点击发送前被拒绝；没有外发动作。允许本人根据实际页面选择安全观察或导航再试一次，不能原样盲点。")
         }
         rememberGesture(firstAction, gestureTarget(firstAction, initialArgs, null), lastScreenReceipt)
         var duplicateRefusals = 0
@@ -373,17 +397,22 @@ internal object LuluBackgroundPhoneContinuation {
             if (result?.optString("errorCode") == "new_user_input")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             if (action == "send_chat_message") {
-                // Message delivery cannot be inferred from a click or a frame.
-                // Never give this loop an opportunity to send the same text
-                // again as a purported recovery from an ambiguous result.
-                history.appendLine(when {
-                    result?.optBoolean("messageAppearedInChat") == true ->
-                        "已看到微信客户端新增右侧发出消息；服务器送达仍未知，不重复发送"
-                    result?.optBoolean("messageSendClicked") == true ->
-                        "微信发送控件只点击了一次，未核实新消息气泡；送达仍未知，不重复发送"
-                    else -> "微信消息未确认发送；保留实际输入与拦截回执，不自动重试"
-                })
-                return Outcome(history.toString().takeLast(5_000), image, false, count)
+                // Never repeat a clicked/ambiguous external side effect. A
+                // proven PRE-CLICK rejection may be followed by one further
+                // same-role recovery decision, not a scripted resend.
+                if (preClickChatFailures < 2 && mayRecoverUnsentChat(result)) {
+                    preClickChatFailures++
+                    history.appendLine("微信仍在点击发送前拒绝；最多再由本人观察或更换安全操作一次，禁止盲重发。")
+                } else {
+                    history.appendLine(when {
+                        result?.optBoolean("messageAppearedInChat") == true ->
+                            "已看到微信客户端新增右侧发出消息；服务器送达仍未知，不重复发送"
+                        result?.optBoolean("messageSendClicked") == true ->
+                            "微信发送控件只点击了一次，未核实新消息气泡；送达仍未知，不重复发送"
+                        else -> "微信消息未确认发送；保留实际输入与拦截回执，不自动重试"
+                    })
+                    return Outcome(history.toString().takeLast(5_000), image, false, count)
+                }
             }
             val currentScreen = screen(result, image)
             val screenChanged = LuluPhoneRepeatGuard.changed(lastVerifiedScreen, currentScreen)
