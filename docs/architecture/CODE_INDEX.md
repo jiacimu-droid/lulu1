@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fa3eb0e408908ec19035f98bdf3ddeed87254b56`
+- 基准提交：`b74bab7b0295b71558c2388f2781836914aaf3ee`
 - 分支：`main`
 - 已索引文件：1345
-- 已索引代码/文本行：286817
+- 已索引代码/文本行：286891
 - 已发现符号：4047
 
 | 文件 | 行数 | 符号数 |
@@ -131,19 +131,19 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1610 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1627 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 785 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 640 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 829 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 649 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 450 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 411 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 828 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 830 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 509 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeHomeFixtures.kt` | 26 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 364 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt` | 192 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 206 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 208 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 324 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:29:09.037435+00:00",
-  "commit": "fa3eb0e408908ec19035f98bdf3ddeed87254b56",
+  "generatedAt": "2026-11-16T03:30:54.309866+00:00",
+  "commit": "b74bab7b0295b71558c2388f2781836914aaf3ee",
   "branch": "main",
-  "sourceFingerprint": "129637b647c9f9fbcaed6c4df224517f985242d97cc8ca24ae159285978ff459",
+  "sourceFingerprint": "be31cd0a72deacacce3fe9e930c5bd51e9cb62c07b545104652bb86d2ea49289",
   "summary": {
     "files": 1345,
-    "lines": 286817,
+    "lines": 286891,
     "symbols": 4047
   },
   "symbolIndex": {
@@ -1435,13 +1435,13 @@
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 217
+        "line": 218
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1545
+        "line": 1562
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1451,85 +1451,85 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1554
+        "line": 1571
       }
     ],
     "loadDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1556
+        "line": 1573
       }
     ],
     "loadAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1558
+        "line": 1575
       }
     ],
     "saveAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1560
+        "line": 1577
       }
     ],
     "loadVenueActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1562
+        "line": 1579
       }
     ],
     "saveVenueActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1565
+        "line": 1582
       }
     ],
     "loadNativePosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1568
+        "line": 1585
       }
     ],
     "saveNativePositions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1576
+        "line": 1593
       }
     ],
     "saveDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1586
+        "line": 1603
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1589
+        "line": 1606
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1591
+        "line": 1608
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1594
+        "line": 1611
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1597
+        "line": 1614
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1605
+        "line": 1622
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -1619,25 +1619,25 @@
     "sceneLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 125
+        "line": 128
       }
     ],
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 140
+        "line": 143
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 145
+        "line": 148
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 155
+        "line": 158
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -1649,25 +1649,25 @@
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 159
+        "line": 160
       }
     ],
     "launchLivingMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 176
+        "line": 177
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 190
+        "line": 191
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 211
+        "line": 212
       }
     ],
     "ledgerText": [
@@ -1697,7 +1697,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 794
+        "line": 796
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
@@ -23689,8 +23689,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1610,
-      "sha256": "390f3e43be9fde57627bd9d1f7a176c2b02926f49666efe84ad796a5869fc903",
+      "lines": 1627,
+      "sha256": "ae94e5f15212225ff26f62c0908932f4aeb02b82b7e00d4f152c42b57ddfbef1",
       "symbols": [
         {
           "name": "Resident",
@@ -23714,67 +23714,67 @@
         },
         {
           "name": "furniturePoseFor",
-          "line": 217
+          "line": 218
         },
         {
           "name": "loadPosition",
-          "line": 1545
-        },
-        {
-          "name": "loadQuest",
-          "line": 1554
-        },
-        {
-          "name": "loadDiscoveries",
-          "line": 1556
-        },
-        {
-          "name": "loadAcquaintedResidents",
-          "line": 1558
-        },
-        {
-          "name": "saveAcquaintedResidents",
-          "line": 1560
-        },
-        {
-          "name": "loadVenueActivities",
           "line": 1562
         },
         {
+          "name": "loadQuest",
+          "line": 1571
+        },
+        {
+          "name": "loadDiscoveries",
+          "line": 1573
+        },
+        {
+          "name": "loadAcquaintedResidents",
+          "line": 1575
+        },
+        {
+          "name": "saveAcquaintedResidents",
+          "line": 1577
+        },
+        {
+          "name": "loadVenueActivities",
+          "line": 1579
+        },
+        {
           "name": "saveVenueActivity",
-          "line": 1565
+          "line": 1582
         },
         {
           "name": "loadNativePosition",
-          "line": 1568
+          "line": 1585
         },
         {
           "name": "saveNativePositions",
-          "line": 1576
+          "line": 1593
         },
         {
           "name": "saveDiscoveries",
-          "line": 1586
+          "line": 1603
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1589
+          "line": 1606
         },
         {
           "name": "loadFollowerIds",
-          "line": 1591
+          "line": 1608
         },
         {
           "name": "loadSuspendedFollowers",
-          "line": 1594
+          "line": 1611
         },
         {
           "name": "saveCompanionship",
-          "line": 1597
+          "line": 1614
         },
         {
           "name": "save",
-          "line": 1605
+          "line": 1622
         }
       ]
     },
@@ -23786,31 +23786,31 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 785,
-      "sha256": "48b4e365ef05cdbd714c1624bbb04915022efafc3197679c7aa0a2f55ffb52fe",
+      "lines": 829,
+      "sha256": "216f74cd029e4ceff6c05c47a2d593faef1a1ca828530bf9ca8c34184327b757",
       "symbols": [
         {
           "name": "sceneLabel",
-          "line": 125
+          "line": 128
         },
         {
           "name": "openScene",
-          "line": 140
+          "line": 143
         },
         {
           "name": "talkTo",
-          "line": 145
+          "line": 148
         },
         {
           "name": "toggleVoice",
-          "line": 155
+          "line": 158
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 640,
-      "sha256": "2f36607efed17b8742816387dc845a70b11da2a2e88e5c51484af4e17a2abda7",
+      "lines": 649,
+      "sha256": "352efeb7327b9a5d1b66820c0a6032a5c119313076af30b50bd9f11cd0cb2c17",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -23818,19 +23818,19 @@
         },
         {
           "name": "launchExchange",
-          "line": 159
+          "line": 160
         },
         {
           "name": "launchLivingMoment",
-          "line": 176
+          "line": 177
         },
         {
           "name": "openDirectMeeting",
-          "line": 190
+          "line": 191
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 211
+          "line": 212
         }
       ]
     },
@@ -23857,12 +23857,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 828,
-      "sha256": "25f45f221c9fd6aa0499ba3cce81d35ef836a660f13a830f3c33324a6704efa6",
+      "lines": 830,
+      "sha256": "5751c4c4e5e67c09524cfc682b4066dfa3ca4d5cac3d15966359357946af7d53",
       "symbols": [
         {
           "name": "flush",
-          "line": 794
+          "line": 796
         }
       ]
     },
@@ -23898,8 +23898,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 206,
-      "sha256": "7278b0d935f06336a618eda6444a4aaa57ecd0b77bbfe5477afbee88865534af",
+      "lines": 208,
+      "sha256": "f31a51a21e7ea4afbece3ae8fe82b5961cfb38555daaadaea44f642a5742c53c",
       "symbols": []
     },
     {
