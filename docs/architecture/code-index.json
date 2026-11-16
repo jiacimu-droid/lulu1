@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:35:14.299742+00:00",
-  "commit": "ac304a45511ba5f6d7e0fac7d85ee0672c03549a",
+  "generatedAt": "2026-11-16T16:35:40.142251+00:00",
+  "commit": "be24e9a145461d4b88cd317afee9b834a3d19cbf",
   "branch": "main",
-  "sourceFingerprint": "f33e5d3056ca21f605260d8bf88f9e3da67f87eba01122d9cdc80d0d90b9fb7d",
+  "sourceFingerprint": "4fa42dedb122ec60ae6203667608a78fe1776c37f463d6078521625324452567",
   "summary": {
     "files": 1367,
-    "lines": 292244,
+    "lines": 292258,
     "symbols": 4124
   },
   "symbolIndex": {
@@ -47576,8 +47576,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt",
-      "lines": 201,
-      "sha256": "23a0d7acb393ae788a255505e99c1c7b8a196f7af6f3564b1f7459b7e9d66700",
+      "lines": 215,
+      "sha256": "25511b4fd726d8271d5c18bf9728f5c1efee790c407a443025f1aad99fddee7e",
       "symbols": [
         {
           "name": "GameCoopPacingTest",
