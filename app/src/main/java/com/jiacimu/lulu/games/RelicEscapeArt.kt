@@ -547,14 +547,14 @@ internal fun RelicEscapeWorldMap(
                 namePaint.color = color
                 drawContext.canvas.nativeCanvas.drawText(text, p.x, baseline, namePaint)
             }
-            run.allies.filter { run.visible(it.x, it.y) }.forEach { ally ->
+            run.allies.filter { inViewport(it.x, it.y) && run.visible(it.x, it.y) }.forEach { ally ->
                 label(names[ally.id].orEmpty(), ally.x, ally.y, android.graphics.Color.rgb(129, 232, 197),
                     below = ally.x == run.hero.x && ally.y == run.hero.y)
             }
             drawCircle(Color(0xFFFFD894), t * .43f, hero, style = Stroke(2.dp.toPx()))
             label("你", run.hero.x, run.hero.y,
                 android.graphics.Color.rgb(255, 216, 148), visual = hero)
-            if (run.visible(run.exitX, run.exitY))
+            if (inViewport(run.exitX, run.exitY) && run.visible(run.exitX, run.exitY))
                 label("撤离门", run.exitX, run.exitY, android.graphics.Color.rgb(129, 232, 197), below = true)
             // Drifting dust and sparse fireflies soften the grid without masking real objects.
             repeat(12){i->
