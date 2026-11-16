@@ -54,6 +54,15 @@ internal object DigitalWorldLifeEventStore {
     /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
     fun isAmbientMoment(tick: DigitalWorldLifeTick): Boolean = tick.kind in ambientMoments
 
+    /**
+     * A small lighting/temperature/detail observation is a genuine lived fact,
+     * but not a new unfinished obligation to share, explore or wake the model.
+     * Only an actual incident or a personally notable body moment merits the
+     * existing follow-through opportunity. This never chooses to publish.
+     */
+    internal fun warrantsLifeFollowThrough(tick: DigitalWorldLifeTick): Boolean =
+        !isAmbientMoment(tick) || isNoticeableLifeMoment(tick)
+
     /** Only sufficiently personal, noteworthy mishaps create an optional chat receipt.
      * The rest can still change a person's thoughts, memories and spontaneous sharing.
      */
@@ -141,21 +150,32 @@ internal object DigitalWorldLifeEventStore {
             pair.second
         } ?: return null
 
-        val experienceId = "world-fact-${result.incidentId}-$characterId-${now.toEpochMilli()}"
+        recordObservedTick(characterId, result, now)
+        return result
+    }
+
+    /** This is the single timeline/continuation commit for a confirmed world tick.
+     * Keep all mundane events visible to the role without queueing extra paid
+     * follow-up decisions or inflating its sharing urge.
+     */
+    internal fun recordObservedTick(characterId: String, tick: DigitalWorldLifeTick,
+        at: Instant = tick.occurredAt): String {
+        val evidenceId = "world-fact-${tick.incidentId}-$characterId-${at.toEpochMilli()}"
         SharedExperienceTimeline.record(
-            eventId = experienceId,
+            eventId = evidenceId,
             characterId = characterId,
-            channel = "数字世界事件·${result.locationName}",
+            channel = "数字世界事件·${tick.locationName}",
             speaker = "数字世界",
-            content = result.summary,
-            occurredAt = now,
+            content = tick.summary,
+            occurredAt = at,
             source = "digital-world",
             evidenceKind = EventEvidenceKind.Observation,
+            triggerExtraction = warrantsLifeFollowThrough(tick),
         )
-        if (result.status == STATUS_ACTIVE && !isAmbientMoment(result)) {
-            CharacterLifeFollowThroughStore.markSignificant(characterId, experienceId)
+        if (tick.status == STATUS_ACTIVE && !isAmbientMoment(tick)) {
+            CharacterLifeFollowThroughStore.markSignificant(characterId, evidenceId)
         }
-        return result
+        return evidenceId
     }
 
     /** Director-curated *actual* tiny world incident, not literary prose.
