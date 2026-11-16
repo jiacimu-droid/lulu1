@@ -1776,7 +1776,10 @@ internal object LuluVoiceCallSession {
                     } ?: speech
                     // Reserve a stable ID BEFORE playback. The exact streamed
                     // performance and the chat transcript must share this ID.
-                    val voiceMessageId = "voice-${if (latest.sleepMode) "sleep-" else ""}${latest.callExperienceId}-agent-${UUID.randomUUID()}"
+                    // A bedtime switch can be selected in this same phone turn.
+                    // Identify the mode at speech delivery, not the earlier snapshot,
+                    // so long bedtime narration never becomes autobiographical history.
+                    val voiceMessageId = "voice-${if (mutableState.value.sleepMode) "sleep-" else ""}${latest.callExperienceId}-agent-${UUID.randomUUID()}"
                     val promiseTaskId = latest.incomingCommitmentTaskId.takeIf { opening && wakeOpening }
                     if (promiseTaskId != null) pendingWakeOpeningAudioTaskId = promiseTaskId
                     speechQueue?.enqueue(
