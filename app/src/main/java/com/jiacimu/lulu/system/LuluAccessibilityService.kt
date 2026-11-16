@@ -90,7 +90,7 @@ class LuluAccessibilityService : AccessibilityService() {
         val state: StateFlow<AccessibilitySnapshot> = mutableState.asStateFlow()
 
         /** Obtain one Android 11+ screen frame; this service never stores or uploads it. */
-        suspend fun captureBitmap(): Bitmap = suspendCancellableCoroutine { cont ->
+        suspend fun captureBitmap(displayId: Int = Display.DEFAULT_DISPLAY): Bitmap = suspendCancellableCoroutine { cont ->
             val service = instance
             if (service == null || Build.VERSION.SDK_INT < 30) {
                 cont.resumeWithException(IllegalStateException("无障碍服务未连接或系统版本不支持"))
@@ -99,7 +99,7 @@ class LuluAccessibilityService : AccessibilityService() {
             Handler(Looper.getMainLooper()).post {
                 if (!cont.isActive) return@post
                 try {
-                    service.takeScreenshot(Display.DEFAULT_DISPLAY,
+                    service.takeScreenshot(displayId,
                         screenshotCopyExecutor, object : TakeScreenshotCallback {
                             override fun onSuccess(result: ScreenshotResult) {
                                 try {
