@@ -220,16 +220,17 @@ fun QqStyleChatDetailScreen(
     // items. They must participate in scroll indexes rather than float above text.
     val chatListHeaderCount = (if (groupChat?.announcement.isNullOrBlank()) 0 else 1) +
         (if (loadMoreVisible) 1 else 0)
-    var pendingWindowRestore by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    // After the window grows, keep the run the user was reading at the
-    // same viewport position instead of jumping to the top or bottom.
-    LaunchedEffect(windowedRuns.size) {
+    var pendingWindowRestore by remember(conversationId) { mutableStateOf<Pair<String, Int>?>(null) }
+    // Anchor by the stable run key, not its old absolute index: incoming
+    // messages, grouping changes or a recalled message can shift indices
+    // between the tap and the next layout.
+    LaunchedEffect(windowedRuns, chatListHeaderCount) {
         val restore = pendingWindowRestore ?: return@LaunchedEffect
         pendingWindowRestore = null
-        val newStart = displayRuns.size - windowedRuns.size
-        val lazyIndex = (restore.first - newStart + chatListHeaderCount)
-            .coerceIn(chatListHeaderCount, chatListHeaderCount + windowedRuns.size - 1)
-        listState.scrollToItem(lazyIndex, restore.second)
+        val runIndex = windowedRuns.indexOfFirst { it.key == restore.first }
+        if (runIndex >= 0) {
+            listState.scrollToItem(runIndex + chatListHeaderCount, restore.second)
+        }
     }
     val showJumpToLatest by remember(listState) {
         derivedStateOf {
@@ -967,8 +968,9 @@ fun QqStyleChatDetailScreen(
                             onClick = {
                                 val firstRun = listState.layoutInfo.visibleItemsInfo
                                     .firstOrNull { it.index >= chatListHeaderCount }
-                                pendingWindowRestore = firstRun?.let {
-                                    (it.index - chatListHeaderCount + windowStart) to it.offset
+                                pendingWindowRestore = firstRun?.let { item ->
+                                    windowedRuns.getOrNull(item.index - chatListHeaderCount)
+                                        ?.let { run -> run.key to item.offset }
                                 }
                                 runWindow += 120
                             },
