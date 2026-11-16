@@ -691,18 +691,30 @@ class LocalMemoryRepository : MemoryRepository {
             .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
-    /** Bounded recent raw context; extraction backlogs stay in their persistent queue. */
-    fun contextTimelineEvents(characterId: String): List<SharedTimelineEvent> {
-        val snapshot = state.value
-        val policy = snapshot.resolvedPolicy(characterId)
+    /**
+     * Select complete semantic turns, NOT the last N raw action/perception
+     * receipts. A long co-op game or phone navigation can contain hundreds of
+     * immutable facts but must not evict the owner's last real exchange.
+     */
+    internal fun contextTimelineTurns(characterId: String): List<RecentSemanticTimeline.Turn> {
+        val policy = state.value.resolvedPolicy(characterId)
         val eligible = memoryEligibleTimelineEvents(characterId)
-        val baselineIds = eligible
-            .takeLast(policy.rawContextMessageCount.coerceAtLeast(0))
-            .mapTo(linkedSetOf(), SharedTimelineEvent::id)
-        // The durable extraction queue owns the backlog. Never copy every pending event into
-        // each chat/perception request: a failed extractor must not grow every model prompt.
-        return eligible.filter { event -> event.id in baselineIds }
+        // Read actual message batches from the authoritative chat store. Never
+        // guess a character reply boundary from time, speaker names or AI calls.
+        val cachedBatches = mutableMapOf<String, String?>()
+        return RecentSemanticTimeline.select(eligible, policy.rawContextMessageCount) { event ->
+            if (event.source != "message" || event.sessionId.isBlank()) null
+            else cachedBatches.getOrPut(event.id) {
+                val id = event.id.substringBefore(":group:")
+                MigratedDomainStores.chat.recordedMessage(event.sessionId, id)?.replyBatchId
+            }
+        }
     }
+
+    /** Legacy event API still returns real original IDs, never synthetic rows. */
+    fun contextTimelineEvents(characterId: String): List<SharedTimelineEvent> =
+        contextTimelineTurns(characterId).flatMap { it.events }
+
 
     private fun memoryEligibleTimelineEvents(characterId: String): List<SharedTimelineEvent> =
         SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId))
