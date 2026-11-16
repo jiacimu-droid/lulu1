@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:53:12.130989+00:00",
-  "commit": "82486439542bd59613946329b124937161b00ae3",
+  "generatedAt": "2026-11-16T05:53:50.236039+00:00",
+  "commit": "cbb38f16bafde3fcdeb06d463d574b9ad1026d40",
   "branch": "main",
-  "sourceFingerprint": "9e7c9d6e4db2dd5dca3e523bb527bd94970896d26591096d52ade6f8c6a77918",
+  "sourceFingerprint": "3957156500da1961a0ccc074610b2d06aea5261853bfaca4d800596573f69727",
   "summary": {
     "files": 1354,
-    "lines": 288567,
+    "lines": 288591,
     "symbols": 4082
   },
   "symbolIndex": {
@@ -61,7 +61,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-        "line": 65
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
@@ -8485,7 +8485,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-        "line": 67
+        "line": 71
       }
     ],
     "clearConversation": [
@@ -38519,8 +38519,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-      "lines": 76,
-      "sha256": "f353dc7df7510856c5b50998ac09ab128069ae0d34d3667dffee6948bd96ed8b",
+      "lines": 80,
+      "sha256": "4fbcca2ed46c122aaff2e7164f06e68c90a108ebe063de6139989fef4142405f",
       "symbols": [
         {
           "name": "tileAt",
@@ -38528,11 +38528,11 @@
         },
         {
           "name": "start",
-          "line": 65
+          "line": 69
         },
         {
           "name": "end",
-          "line": 67
+          "line": 71
         }
       ]
     },
@@ -47489,8 +47489,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
-      "lines": 109,
-      "sha256": "6a10ac660389ba831e605d5f0257d3084b90b837f7ed838e6399918f7c4a9069",
+      "lines": 129,
+      "sha256": "85d9770953458ebc4da96a583575457eeed5076b258588d8931ef9fa121cae06",
       "symbols": [
         {
           "name": "RelicMapCameraTest",
