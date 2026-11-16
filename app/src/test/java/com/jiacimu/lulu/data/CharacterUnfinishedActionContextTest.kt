@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.retractCharacterMessage
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
