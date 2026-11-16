@@ -118,13 +118,17 @@ object SharedExperienceTimeline {
             LuluChatMessage.Sender.Character -> "角色"
             LuluChatMessage.Sender.System -> "系统"
         }
+        // The phone's durable conversation keeps each actually delivered bedtime
+        // narration for subtitles/replay. These long guided stories and body scans
+        // are NOT lived events for the character's shared autobiographical
+        // timeline. The call's genuine sleep-mode start/end, user replies,
+        // delivery receipts and any real tools retain their separate evidence.
+        // Do not mistake an owner-authored message for generated narration.
+        if (!message.onBehalfByOwner &&
+            message.sender == LuluChatMessage.Sender.Character &&
+            message.id.startsWith("voice-sleep-")) return
         val readableContent = qqForwardContextText(message.content)
-        // Retain bedtime narration in raw call history, but do not launch
-        // expensive long-term extraction for every self-continuing whisper.
-        // User responses during bedtime are still evaluated normally.
-        val shouldExtract = triggerExtraction && !message.onBehalfByOwner &&
-            !(message.sender == LuluChatMessage.Sender.Character &&
-                message.id.startsWith("voice-sleep-"))
+        val shouldExtract = triggerExtraction && !message.onBehalfByOwner
         val attributedSpeaker = if (message.onBehalfByOwner) "主人（代$speaker）" else speaker
         record(message.id, characterId, channel, attributedSpeaker, readableContent,
             message.createdAt, shouldExtract,
