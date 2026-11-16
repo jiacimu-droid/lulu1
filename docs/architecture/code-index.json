@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:51:15.653094+00:00",
-  "commit": "abe5dcdd3412e0b5ebdb5d6bb21554c785ec6417",
+  "generatedAt": "2026-11-16T03:11:57.560688+00:00",
+  "commit": "7a58082fbb89c38c0090282805c80096d2fe9200",
   "branch": "main",
-  "sourceFingerprint": "192b5d9e6e6e2802271a5faded1ea9a11283f20c463e01c4a5fb464de9556fb6",
+  "sourceFingerprint": "84b28d40dfe5280e7a936ef81dd8763a94a93656c5e37a0c05115fe6ac2b1c49",
   "summary": {
     "files": 1342,
-    "lines": 286356,
+    "lines": 286341,
     "symbols": 4043
   },
   "symbolIndex": {
@@ -1697,7 +1697,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 803
+        "line": 788
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
@@ -23833,12 +23833,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 837,
-      "sha256": "eb5396da77b016a8a9a97547eb6934fd3b49f1016f559c2efeb3b53a74b9bf14",
+      "lines": 822,
+      "sha256": "5346ff5105dc13bcdca452453db3cd3d37d5f661625aabdcb5dc928ef478f506",
       "symbols": [
         {
           "name": "flush",
-          "line": 803
+          "line": 788
         }
       ]
     },
