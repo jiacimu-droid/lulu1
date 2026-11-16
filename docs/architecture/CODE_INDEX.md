@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`186afb4cde740cdbbbbdd62e388f5f5baf5089c7`
+- 基准提交：`ca64e6ffeeaa0a1784bb0f5a4c9cbff4f72b14fe`
 - 分支：`main`
 - 已索引文件：1376
-- 已索引代码/文本行：293642
-- 已发现符号：4137
+- 已索引代码/文本行：293697
+- 已发现符号：4140
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -404,7 +404,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 138 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 377 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 326 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 334 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 867 | 1 |
@@ -1093,7 +1093,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 257 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 782 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 577 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 624 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatApplicationContextRebindTest.kt` | 54 | 2 |
