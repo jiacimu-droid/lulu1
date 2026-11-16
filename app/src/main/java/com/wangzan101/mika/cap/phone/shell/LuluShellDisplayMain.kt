@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ComponentName
 import android.graphics.Bitmap
+import android.graphics.Point
+import android.util.DisplayMetrics
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
@@ -47,8 +49,26 @@ object LuluShellDisplayMain {
     private var lastDeliveredFrameNanos = 0L
     private const val FRAME_WAIT_MS = 1_600L
     private const val FRAME_POLL_MS = 80L
-    private const val WIDTH = 720
-    private const val HEIGHT = 1280
+    internal data class ScreenGeometry(val width: Int, val height: Int, val densityDpi: Int)
+
+    /** Keep the main display's portrait aspect ratio AND logical dp size.
+     * Pixel transport stays capped at 720px wide to protect image memory and
+     * the existing JPEG budget. 720x1280/320 made modern tall phones render
+     * a different, zoomed-in WeChat layout in the virtual display. */
+    internal fun chooseGeometry(realWidth: Int, realHeight: Int, realDpi: Int): ScreenGeometry {
+        if (realWidth <= 0 || realHeight <= 0 || realDpi <= 0)
+            return ScreenGeometry(720, 1280, 320)
+        val short = minOf(realWidth, realHeight)
+        val long = maxOf(realWidth, realHeight)
+        val width = short.coerceAtMost(720)
+        val scale = width.toDouble() / short
+        return ScreenGeometry(width, (long * scale).toInt().coerceAtLeast(1),
+            (realDpi * scale).toInt().coerceAtLeast(1))
+    }
+
+    private var frameGeometry = ScreenGeometry(720, 1280, 320)
+    private val WIDTH: Int get() = frameGeometry.width
+    private val HEIGHT: Int get() = frameGeometry.height
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -96,9 +116,19 @@ object LuluShellDisplayMain {
         }
         if (action == "start") {
             if (virtual == null) {
-                val img = ImageReader.newInstance(WIDTH, HEIGHT, PixelFormat.RGBA_8888, 3)
+                val main = dm.getDisplay(Display.DEFAULT_DISPLAY)
+                val metrics = DisplayMetrics()
+                val real = Point()
+                val geometry = runCatching {
+                    checkNotNull(main) { "main display unavailable" }
+                    main.getRealSize(real)
+                    main.getRealMetrics(metrics)
+                    chooseGeometry(real.x, real.y, metrics.densityDpi)
+                }.getOrDefault(ScreenGeometry(720, 1280, 320))
+                val img = ImageReader.newInstance(
+                    geometry.width, geometry.height, PixelFormat.RGBA_8888, 3)
                 val disp = try {
-                    dm.createVirtualDisplay("lulu-companion", WIDTH, HEIGHT, 320,
+                    dm.createVirtualDisplay("lulu-companion", geometry.width, geometry.height, geometry.densityDpi,
                         img.surface, flags())
                 } catch (e: Exception) {
                     img.close()
@@ -121,12 +151,14 @@ object LuluShellDisplayMain {
                     img.close()
                     error("系统未授予后台屏独立焦点（displayFlags=$observedFlags）；拒绝抢占主人主屏")
                 }
+                frameGeometry = geometry
                 virtual = disp
                 reader = img
             }
             return JSONObject().put("success", true)
                 .put("displayId", virtual!!.display.displayId)
                 .put("width", WIDTH).put("height", HEIGHT)
+                .put("densityDpi", frameGeometry.densityDpi)
                 .put("ownFocus", true)
                 .put("ownFocusVerifiedByDisplayFlags", true)
         }
@@ -323,5 +355,6 @@ object LuluShellDisplayMain {
         runCatching { reader?.close() }
         virtual = null
         reader = null
+        frameGeometry = ScreenGeometry(720, 1280, 320)
     }
 }
