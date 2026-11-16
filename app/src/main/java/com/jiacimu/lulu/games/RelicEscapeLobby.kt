@@ -280,10 +280,11 @@ internal fun RelicEscapeLobby(
                             }
                         }
                         Text(when(difficulty) {
-                            RelicDifficulty.EASY->"适合熟悉操作 · 守卫更少、血量与伤害更低"
-                            RelicDifficulty.NORMAL->"标准探索 · 正常数量与强度的守卫"
-                            RelicDifficulty.HARD->"更危险的遗迹 · 守卫更多、更强，也更容易倒地"
-                        },color=campMuted,fontSize=11.sp)
+                            RelicDifficulty.EASY->"入门探索 · 第一层1只守卫，精英怪晚出现，适合轻松收宝"
+                            RelicDifficulty.NORMAL->"循序渐进 · 第一层2只分散守卫，第三层起逐渐加强"
+                            RelicDifficulty.HARD->"险境挑战 · 第一层5只守卫，精英怪直接登场"
+                        }+" · 越深入层数，危险越高",
+                            color=campMuted,fontSize=11.sp,lineHeight=16.sp)
                     }
                     RelicLobbyPanel {
                         Text("✦ 选择本局探险委托",color=Color.White,fontSize=17.sp,
