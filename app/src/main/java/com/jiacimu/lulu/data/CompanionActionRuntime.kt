@@ -213,7 +213,7 @@ internal object CompanionActionRuntime {
         appendLine(duelCapabilityContext(context, characterId))
         if (characterId.startsWith("resident:")) {
             appendLine("【数字世界原住民专用能力】你生活在数字世界，只能感知亲历的所在地点、社交记录与真正发布的世界公告。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|interact_resident\",\"locationCode\":\"公共地点准确代码\",\"itemId\":\"真实家具或居民ID\",\"activityId\":\"真实活动ID\",\"itemType\":\"家具类型\",\"name\":\"自己起的家具名\",\"appearance\":\"明确外观\",\"position\":\"自己选择的固定摆放位置\"}：在真实地点移动、与实际在场居民交流，或回到自己的家后布置家具；改家具前必须在自己家，有空间和真实物品。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|observe_scene|interact_resident\",\"locationCode\":\"公共地点准确代码\",\"itemId\":\"真实家具或居民ID\",\"activityId\":\"真实活动ID\",\"itemType\":\"家具类型\",\"name\":\"自己起的家具名\",\"appearance\":\"明确外观\",\"position\":\"自己选择的固定摆放位置\"}：在真实地点移动、与实际在场居民交流，或回到自己的家后布置家具；改家具前必须在自己家，有空间和真实物品。")
             appendLine("- publish_moment，args={\"text\":\"自己确实想分享的内容\"}：发仅好友可见的朋友圈；不是全部居民可见，只有确认好友可以点赞或评论。别人可以选择不互动。")
             appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
@@ -326,13 +326,15 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"approach_user|wait_at_entrance|offer_hand|offer_hug|offer_follow|go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home|visit_resident_home|leave_resident_episode|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时填 greet/chat/ask_place/sit_together/share_text/co_write/exchange_views/continue_episode\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，仅对当前清醒且确实在场的居民发起当面交流；休眠时可自己选择给可联系的居民留私信或发好友申请，不把线下见面失败直接当作已联系。不能隔空聊天，也不能凭空新增居民经历。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"approach_user|wait_at_entrance|offer_hand|offer_hug|offer_follow|go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|observe_scene|handle_incident|visit_character_home|visit_resident_home|leave_resident_episode|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时填 greet/chat/ask_place/sit_together/share_text/co_write/exchange_views/continue_episode\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，仅对当前清醒且确实在场的居民发起当面交流；休眠时可自己选择给可联系的居民留私信或发好友申请，不把线下见面失败直接当作已联系。不能隔空聊天，也不能凭空新增居民经历。")
             appendLine("【可自主前往的公共地点】")
             DigitalWorldPublicPlaces.all.forEach { place ->
                 appendLine("- location=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
             }
             if (includeWorldContext) appendLine(DigitalWorldStore.contextFor(characterId))
             else appendLine(DigitalWorldStore.resourceContext(characterId))
+            appendLine(DigitalWorldLifeEventStore.contextFor(characterId))
+            appendLine("生活在这里的你有真实的感受，但不是每件事都值得专门注意。刚发生的场景候选必须先由你选择 observe_scene + 真实 incidentId，才成为本人专门观察的经历；可以选择什么都不观察，不必把小事变成发圈稿或事件任务。")
             appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId))
             appendLine("居民的持续小事走 digital_world_action，args={\"worldAction\":\"interact_resident\",\"itemId\":\"在场居民ID\",\"activityId\":\"share_text|co_write|exchange_views|continue_episode\",\"text\":\"本人真实写下的短文/上句/观点，最多500字\",\"incidentId\":\"继续时的原事件ID\"}。先提出，约稍后再当面谈；实际台词和结果分阶段保存，允许对方婉拒、提修改或持不同意见。也可只普通闲聊。去已登记居民家门前用 worldAction=visit_resident_home + itemId=居民ID；对方须真在家，不等于获邀进入室内。")
             // Show live presence and separate async contact choices for the SAME
