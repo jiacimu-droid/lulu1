@@ -590,10 +590,11 @@ class LuluAccessibilityService : AccessibilityService() {
          */
         private suspend fun verifiedChatHeader(
             service: LuluAccessibilityService, displayId: Int, packageName: String,
-            recipient: String, height: Int,
+            recipient: String, height: Int, forceFresh: Boolean = false,
         ): Boolean = virtualChatHeaderMatches(
             service, displayId, packageName, recipient, height
-        ) || LuluVirtualChatTitleOcr.matches(displayId, packageName, recipient)
+        ) || LuluVirtualChatTitleOcr.matches(
+            displayId, packageName, recipient, forceFresh = forceFresh)
 
         /** WeChat voice-composer recovery is a deliberately narrow navigation
          * action chosen by the role. It never types or clicks a send control.
@@ -847,8 +848,9 @@ class LuluAccessibilityService : AccessibilityService() {
             val dimensions = virtualDimensions(service, displayId)
                 ?: return denied("chat_display_unavailable")
             val roots = ownedVirtualRoots(service, displayId, packageName)
-            suspend fun uniqueRecipientInHeader(): Boolean = verifiedChatHeader(
-                service, displayId, packageName, recipient, dimensions.second)
+            suspend fun uniqueRecipientInHeader(forceFresh: Boolean = false): Boolean =
+                verifiedChatHeader(service, displayId, packageName, recipient,
+                    dimensions.second, forceFresh = forceFresh)
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
                 .put("observedChatHeaderTexts",
                     virtualChatHeaderTexts(service, displayId, packageName))
@@ -889,7 +891,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     .put("messageInputReadbackVerified", false)
             if (!stillAuthorized() ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                !uniqueRecipientInHeader())
+                !uniqueRecipientInHeader(forceFresh = true))
                 return denied("chat_changed_before_send")
                     .put("messageInputReadbackVerified", true)
             // The Send control can appear only AFTER text was entered. Locate
