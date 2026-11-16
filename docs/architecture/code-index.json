@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:12:48.980678+00:00",
-  "commit": "c0ab48c898e7d94f4122a688adb5728faa6633c4",
+  "generatedAt": "2026-11-16T11:13:58.482505+00:00",
+  "commit": "6f8c99040186fa8a0f974565415268b7867bd8d0",
   "branch": "main",
-  "sourceFingerprint": "14d3985af70764ff2dd29e8c80afcc5520c32702216f99a8f877abce10776489",
+  "sourceFingerprint": "8b4f839752e20325c5524ba8356c92fedc24a461cc2e0d1d9251a8ee6f6c0523",
   "summary": {
     "files": 1359,
-    "lines": 290357,
+    "lines": 290361,
     "symbols": 4092
   },
   "symbolIndex": {
@@ -43724,8 +43724,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
-      "lines": 219,
-      "sha256": "1424c6510b027631eb0b587a8b965bb313d2e5eb4809a1d97f930ad985a56056",
+      "lines": 223,
+      "sha256": "341b0e7e318fd990d854f87a246b9e8189420674588c280f25aee3f12d4c6c6e",
       "symbols": [
         {
           "name": "CharacterContinuityGatewayTest",
