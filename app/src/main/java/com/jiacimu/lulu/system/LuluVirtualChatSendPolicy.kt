@@ -37,20 +37,48 @@ internal object LuluVirtualChatSendPolicy {
         }
     }
 
+    /** An exact Android window title is useful when a custom WeChat toolbar
+     * exposes no text node. Generic application titles prove nothing about the
+     * current conversation. Never accept a partial nickname or a guessed title. */
+    fun windowTitleMatches(title: String?, recipient: String): Boolean =
+        title?.trim()?.lowercase() !in setOf("微信", "wechat", "聊天", "聊天信息") &&
+            headerMatches(title, null, recipient)
+
+    /** A title TextView and its large accessibility wrapper commonly have
+     * different centres. Count them as ONE title only when their rectangles
+     * really overlap the same small title, never across different rows. */
+    fun uniqueHeaderTitle(bounds: List<ComposerBounds>, screenHeight: Int): Boolean {
+        if (bounds.isEmpty() || screenHeight <= 0) return false
+        val smallest = bounds.minByOrNull { it.width.toLong() * it.height } ?: return false
+        if (smallest.width <= 0 || smallest.height <= 0) return false
+        return bounds.all { other ->
+            other.width > 0 && other.height > 0 &&
+                ((smallest.centerX in other.left..other.right &&
+                  smallest.centerY in other.top..other.bottom) ||
+                 (kotlin.math.abs(smallest.centerY - other.centerY) <=
+                    (screenHeight / 65).coerceAtLeast(8) &&
+                  maxOf(smallest.left, other.left) < minOf(smallest.right, other.right)))
+        }
+    }
+
     /** Both a clickable label and its wrapping layout may be exposed as
-     * separate accessibility nodes for a single physical Send button. */
+     * separate accessibility nodes for the ONE physical Send button. Their
+     * centres may differ: accept genuine containment but reject two buttons. */
     fun uniqueSendTarget(
         controls: List<ComposerBounds>, screenWidth: Int, screenHeight: Int,
     ): Int? {
         if (controls.isEmpty() || screenWidth <= 0 || screenHeight <= 0) return null
-        val reference = controls[0]
-        if (controls.any {
-                kotlin.math.abs(it.centerX - reference.centerX) > screenWidth / 45 ||
-                kotlin.math.abs(it.centerY - reference.centerY) > screenHeight / 65
-            }) return null
-        return controls.indices.minByOrNull {
+        val smallestIndex = controls.indices.minByOrNull {
             controls[it].width.toLong() * controls[it].height
-        }
+        } ?: return null
+        val target = controls[smallestIndex]
+        if (target.width <= 0 || target.height <= 0) return null
+        if (controls.any { other ->
+                other.width <= 0 || other.height <= 0 ||
+                    !(target.centerX in other.left..other.right &&
+                      target.centerY in other.top..other.bottom)
+            }) return null
+        return smallestIndex
     }
 
     /** The send button must be on the same bottom composer row as the
