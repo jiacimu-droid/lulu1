@@ -51,6 +51,7 @@ fun DigitalWorldMeetingApp(
 
     var activeSessionId by remember { mutableStateOf<String?>(null) }
     var browsingMap by remember { mutableStateOf(false) }
+    var openWalkableStreetOnReturn by remember { mutableStateOf(false) }
     var inviteHandled by remember(invitedCharacterId, invitationId) { mutableStateOf(false) }
     var input by remember { mutableStateOf("") }
     var errorText by remember { mutableStateOf("") }
@@ -367,6 +368,8 @@ fun DigitalWorldMeetingApp(
                 onOpenModelPicker = { showModelPicker = true },
                 onOpenWritingPicker = { showWritingPicker = true },
                 onOpenVoiceSettings = { showVoiceSettings = true },
+                launchInStreet = openWalkableStreetOnReturn,
+                onEnterStreetScene = { openWalkableStreetOnReturn = false },
             )
 
             else -> DigitalWorldMeetingSceneExperience(
@@ -381,6 +384,12 @@ fun DigitalWorldMeetingApp(
                 onBackToMap = {
                     activeSessionId = null
                     browsingMap = true
+                    openWalkableStreetOnReturn = false
+                },
+                onExitToStreet = {
+                    activeSessionId = null
+                    browsingMap = true
+                    openWalkableStreetOnReturn = true
                 },
                 onEnd = finishActiveMeeting,
                 onDelete = { pendingDeleteSession = activeSession },
