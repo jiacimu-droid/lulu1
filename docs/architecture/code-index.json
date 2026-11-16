@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:30:55.479961+00:00",
-  "commit": "87028602af017a58029e802fa78891ccb7128e8c",
+  "generatedAt": "2026-11-16T11:31:33.309777+00:00",
+  "commit": "e57adbb1ae70c86be0b21860758a86258004d056",
   "branch": "main",
-  "sourceFingerprint": "4d8f022fac18e3c2c703fc722f2cb412ab86ab178c42338677057bf7be8c1de6",
+  "sourceFingerprint": "b38fc662cad0f2ce4dc45b5acc9f25588755cd302c9c8c8531c071593c6e2573",
   "summary": {
     "files": 1360,
-    "lines": 290426,
+    "lines": 290427,
     "symbols": 4092
   },
   "symbolIndex": {
@@ -477,7 +477,7 @@
     "context": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 38
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt",
@@ -23371,8 +23371,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-      "lines": 50,
-      "sha256": "e709cb7d5131dcd023c19501b2addfa95eb6a2b13830b715b1afe513e4c35eac",
+      "lines": 51,
+      "sha256": "95e6e2fb7eb63ccd32b0869d1b245b111e06ae5f3fc768c01b21d4f7a629df56",
       "symbols": [
         {
           "name": "shouldRecoverStuckCapture",
@@ -23388,7 +23388,7 @@
         },
         {
           "name": "context",
-          "line": 38
+          "line": 39
         }
       ]
     },
@@ -24089,7 +24089,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
       "lines": 649,
-      "sha256": "31bd1263258a03521e68de8aa6694e092d2454e53e466da03bd33629b83df946",
+      "sha256": "a9aa64692619cba8d5b085e26a7889ea458567d3d02f96758e57972749671649",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -34092,7 +34092,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
       "lines": 174,
-      "sha256": "d3fa6d2e01164562f30194ca1bef52e7537bc35be6e58038618fc33500de2e8d",
+      "sha256": "8927cdbcb273adfd88547b71c1774b9cc915e099b9ff46c30d8471fc3af193f4",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -37123,7 +37123,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
       "lines": 75,
-      "sha256": "0fb534e0273e6278f4ef6cdaa07d6a1748fb7dccc7cc3d9f7917868138941a05",
+      "sha256": "4bd57ef15e0f97c453f947eff40e4b2c123f9920230aa997acfc1b537ac8ffcc",
       "symbols": [
         {
           "name": "canTick",
