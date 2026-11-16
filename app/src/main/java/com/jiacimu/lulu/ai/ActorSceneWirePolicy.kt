@@ -35,7 +35,7 @@ internal object ActorSceneWirePolicy {
      * dialogueRequest=false. The verbatim speech stays in scene facts.
      */
     fun interactiveTurn(): String =
-        "$INTERACTION_TURN\\n依据上面的实际现场与本轮真实互动，遵守本轮任务指令作出自己的决定；已收到的语音或事件并不是沉默的自主唤醒。"
+        "$INTERACTION_TURN\n依据上面的实际现场与本轮真实互动，遵守本轮任务指令作出自己的决定；已收到的语音或事件并不是沉默的自主唤醒。"
 
     /** Fixed scene placement is shared; only actual chat turns are an adapter. */
     fun history(
