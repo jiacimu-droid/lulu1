@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:59:03.767741+00:00",
-  "commit": "9d253de9dc91a8c06618e1b3b1e395ed8b92f1cc",
+  "generatedAt": "2026-11-16T08:02:09.322204+00:00",
+  "commit": "6f1ad63dba8cee21b48701dfe7da3687f958e8a5",
   "branch": "main",
-  "sourceFingerprint": "f308778846e8cf2eeca4db4935b4248fe3019908129d9508afc490f1ddcf674e",
+  "sourceFingerprint": "5946707ba158a97302560c791b59c9bff13ccff5d1130a8d0fc8b9298f202ad2",
   "summary": {
     "files": 1357,
-    "lines": 289678,
+    "lines": 289690,
     "symbols": 4087
   },
   "symbolIndex": {
@@ -31503,8 +31503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 863,
-      "sha256": "7bf6ae25387b2aed386169ef11ec930f704f2d3f988e9b29a58b16a4af7c6b4b",
+      "lines": 875,
+      "sha256": "c367375bfef3636a7ae2ab287c89c39b73ef52b6da3ca80a5cc66349506227de",
       "symbols": [
         {
           "name": "isAmbientMoment",
