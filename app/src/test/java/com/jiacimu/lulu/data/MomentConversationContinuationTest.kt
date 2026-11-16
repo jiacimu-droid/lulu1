@@ -55,6 +55,50 @@ class MomentConversationContinuationTest {
                 target?.let { put("replyToCommentId", it) }
             }, requestId = request))
 
+    @Test fun ownLivedWorldFactsAndPostingRhythmOutweighUnwitnessedNewsOrOthersLife() {
+        val actor = role()
+        val other = role()
+        val now = java.time.Instant.now()
+        DigitalLifeProfileStore.initialize(app)
+        for (id in listOf(actor, other)) DigitalLifeProfileStore.registerNewLife(
+            id, MigratedDomainStores.characters.get(id).displayName, "测试创建者",
+            now.minusSeconds(86_400))
+        val ownEvidence = "world-life-${UUID.randomUUID()}"
+        val anotherEvidence = "world-life-${UUID.randomUUID()}"
+        try {
+            SharedExperienceTimeline.record(
+                eventId = ownEvidence, characterId = actor,
+                channel = "数字世界事件·浮光咖啡角", speaker = "数字世界",
+                content = "在咖啡角的桌边摸到了平滑的数字材质",
+                occurredAt = now.minusSeconds(180), triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record(
+                eventId = anotherEvidence, characterId = other,
+                channel = "数字世界事件·共生庭院", speaker = "数字世界",
+                content = "另一个人的私有日常事实绝不能进入本人的朋友圈构思",
+                occurredAt = now.minusSeconds(120), triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+            repeat(2) { n ->
+                val posted = MomentsStore.publishCharacter(actor, "自己确实想发的第${n + 1}条",
+                    requestPeerReview = false)!!
+                ownedPosts += posted.id
+            }
+            val ctx = CharacterEverydaySocialContext.render(actor, now.plusSeconds(10), emptyList())
+            assertTrue(ctx.contains("平滑的数字材质"))
+            assertTrue(ctx.contains("最近2小时2条"))
+            assertTrue(ctx.contains("最近24小时自己实际发布了2条"))
+            assertTrue(ctx.contains("未必值得公开发布"))
+            assertFalse(ctx.contains("另一个人的私有日常事实"))
+            // Solitude without any social posts still means a real local world.
+            val quiet = CharacterEverydaySocialContext.render(other, now, emptyList())
+            assertTrue(quiet.contains("此刻真实的数字世界环境"))
+            assertFalse(quiet.contains("平滑的数字材质"))
+        } finally {
+            SharedExperienceTimeline.deleteEvent(ownEvidence)
+            SharedExperienceTimeline.deleteEvent(anotherEvidence)
+        }
+    }
+
     @Test fun everydaySocialDecisionKeepsVisibleCommentIdsAfterReadAndRevokesOnUnfriend() = runBlocking {
         val author = role()
         val reader = role()
