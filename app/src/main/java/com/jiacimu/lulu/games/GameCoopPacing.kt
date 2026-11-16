@@ -10,7 +10,7 @@ import kotlin.math.abs
  * what a speaker "meant", creates a target, or buys a Game-model request.
  */
 internal object GameCoopPacing {
-    const val PLANNED_STEP_MS: Long = 6_000L
+    const val PLANNED_STEP_MS: Long = com.jiacimu.lulu.data.CharacterSceneCadence.GAME_PLANNED_STEP_MS
 
     fun canTick(
         hasPlan: Boolean,
