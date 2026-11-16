@@ -111,10 +111,12 @@ internal data class RelicSite(val id:Int,val x:Int,val y:Int,val kind:String,val
     companion object { fun read(j:JSONObject)=RelicSite(j.getInt("id"),j.getInt("x"),
         j.getInt("y"),j.getString("kind"),j.optBoolean("spent")) }
 }
-internal data class RelicEvent(val who:String,val action:String,val text:String,val turn:Int) {
+internal data class RelicEvent(val who:String,val action:String,val text:String,val turn:Int,
+    val teamStep:Int=0) {
     fun json()=JSONObject().put("who",who).put("action",action).put("text",text).put("turn",turn)
+        .put("teamStep",teamStep)
     companion object { fun read(j:JSONObject)=RelicEvent(j.getString("who"),j.getString("action"),
-        j.getString("text"),j.getInt("turn")) }
+        j.getString("text"),j.getInt("turn"),j.optInt("teamStep",0)) }
 }
 internal fun JSONArray.lootList()=(0 until length()).map{RelicLoot.read(getJSONObject(it))}
 private fun JSONArray.actors()=(0 until length()).map{RelicActor.read(getJSONObject(it))}
@@ -154,7 +156,10 @@ internal data class RelicRun(
     val professionReadyTurn:Int = 0,
     /** Three class ability charges per real expedition; prevents limitless free healing. */
     val professionCharges:Int = 3,
+    /** Teammates' autonomous physical steps, independent of the owner's combat turns. */
+    val teamSteps:Int = 0,
 ) {
+    val logicalStep:Long get()=turns.toLong()+teamSteps.toLong()
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
     fun tile(x:Int,y:Int)=if(bounds(x,y))tiles[index(x,y)] else 1
@@ -163,7 +168,7 @@ internal data class RelicRun(
     val carried get()=hero.bag+allies.flatMap{it.bag}
     val value get()=carried.sumOf{it.value}
     fun log(who:String,action:String,text:String)=copy(notice=text,
-        events=(events+RelicEvent(who,action,text,turns)).takeLast(300))
+        events=(events+RelicEvent(who,action,text,turns,teamSteps)).takeLast(300))
     fun json()=JSONObject().put("v",2).put("id",id).put("seed",seed).put("level",level)
         .put("w",w).put("h",h).put("tiles",JSONArray(tiles)).put("phase",phase.name)
         .put("hero",hero.json()).put("allies",JSONArray(allies.map{it.json()}))
@@ -186,6 +191,7 @@ internal data class RelicRun(
         .put("contract",contract.name).put("sweepReadyTurn",sweepReadyTurn)
         .put("profession",profession.name).put("professionReadyTurn",professionReadyTurn)
         .put("professionCharges",professionCharges)
+        .put("teamSteps",teamSteps)
         .put("chestProgress",JSONObject().apply {
             chestProgress.forEach { (id,progress) -> put(id.toString(),progress) }
         })
@@ -239,6 +245,7 @@ internal data class RelicRun(
                     .getOrDefault(RelicProfession.SCOUT),
                 professionReadyTurn=j.optInt("professionReadyTurn",0).coerceIn(0,result.turns+100),
                 professionCharges=j.optInt("professionCharges",3).coerceIn(0,3),
+                teamSteps=j.optInt("teamSteps",0).coerceIn(0,Int.MAX_VALUE-result.turns),
                 chestProgress=j.optJSONObject("chestProgress")?.let { progress ->
                     val available=result.chests.filterNot { it.opened }.map { it.id }.toSet()
                     buildMap {
@@ -674,8 +681,8 @@ internal object RelicEscapeRules {
                         RelicCoopTravel.hasPendingStep(s, it) }) return s
                 // Keep action ordering for a teammate already in motion, but a
                 // local teammate step is not the player's combat/wait turn.
-                val tick = s.copy(turns = s.turns + 1)
-                return RelicCoopTravel.advance(tick, autonomousIds)
+                val tick = s.copy(teamSteps = s.teamSteps + 1)
+                return RelicCoopTravel.advance(tick, autonomousIds, companionOnly=true)
                     .takeUnless { it == tick } ?: s
             }
             "wait"->next=s.log("player","wait",if(s.phase==RelicPhase.DOWNED)"倒地等待救援" else "原地观察")
