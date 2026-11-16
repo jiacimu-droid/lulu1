@@ -106,10 +106,13 @@ internal class RelicEscapeLedger(context:Context) {
     }
     @Synchronized fun buyKit():RelicSnapshot {
         val old=read()
+        // Camp purchases must not mutate supplies while an expedition is live.
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
         return if(old.coins>=70)write(old.copy(coins=old.coins-70,kits=old.kits+1))else old
     }
     @Synchronized fun upgradeWeapon():RelicSnapshot {
         val old=read()
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
         return if(old.weapon==1 && old.coins>=350)
             write(old.copy(weapon=2,coins=old.coins-350,
                 purchasedWeapons=old.purchasedWeapons+"spear"))else old
