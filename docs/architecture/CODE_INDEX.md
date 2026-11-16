@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`20c7a691eec234eb84f6230426ba3794a038af02`
+- 基准提交：`949a8ef1ccf6252b0c346711da32c3ba41cea89a`
 - 分支：`main`
 - 已索引文件：1374
-- 已索引代码/文本行：293461
+- 已索引代码/文本行：293468
 - 已发现符号：4134
 
 | 文件 | 行数 | 符号数 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt` | 486 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 939 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 1339 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 239 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 244 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicMenuSections.kt` | 17 | 2 |
@@ -804,7 +804,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1388 | 47 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1390 | 47 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
