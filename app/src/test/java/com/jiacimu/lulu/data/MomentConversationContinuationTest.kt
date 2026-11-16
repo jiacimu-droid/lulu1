@@ -63,21 +63,21 @@ class MomentConversationContinuationTest {
         for (id in listOf(actor, other)) DigitalLifeProfileStore.registerNewLife(
             id, MigratedDomainStores.characters.get(id).displayName, "测试创建者",
             now.minusSeconds(86_400))
-        val ownEvidence = "world-fact-${UUID.randomUUID()}"
+        val ownEvidence = "world-observe-$actor-${UUID.randomUUID()}"
         val dialogueEvidence = "meeting-${UUID.randomUUID()}-self-speech"
         val anotherEvidence = "world-life-${UUID.randomUUID()}"
         try {
             SharedExperienceTimeline.record(
                 eventId = ownEvidence, characterId = actor,
                 channel = "数字世界事件·浮光咖啡角", speaker = "数字世界",
-                content = "在咖啡角的桌边摸到了平滑的数字材质",
+                content = "江渡留意到咖啡角的灯光落在窗边，慢慢由亮变暗",
                 occurredAt = now.minusSeconds(180), triggerExtraction = false,
-                source = "legacy", evidenceKind = EventEvidenceKind.Legacy)
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
             SharedExperienceTimeline.record(
                 eventId = dialogueEvidence, characterId = actor,
                 channel = "数字世界见面·浮光咖啡角",
                 speaker = MigratedDomainStores.characters.get(actor).displayName,
-                content = "刚才跟朋友说起了那张滑滑的咖啡桌",
+                content = "刚才跟朋友说起了窗边那阵忽明忽暗的光",
                 occurredAt = now.minusSeconds(150), triggerExtraction = false,
                 sessionId = "meeting-test-${UUID.randomUUID()}",
                 source = "meeting", evidenceKind = EventEvidenceKind.CharacterStatement)
@@ -93,8 +93,8 @@ class MomentConversationContinuationTest {
                 ownedPosts += posted.id
             }
             val ctx = CharacterEverydaySocialContext.render(actor, now.plusSeconds(10), emptyList())
-            assertTrue(ctx.contains("平滑的数字材质"))
-            assertTrue(ctx.contains("刚才跟朋友说起了那张滑滑的咖啡桌"))
+            assertTrue(ctx, ctx.contains("由亮变暗"))
+            assertTrue(ctx, ctx.contains("刚才跟朋友说起了窗边那阵忽明忽暗的光"))
             assertTrue(ctx.contains("最近2小时2条"))
             assertTrue(ctx.contains("最近24小时自己实际发布了2条"))
             assertTrue(ctx.contains("未必值得公开发布"))
@@ -102,7 +102,7 @@ class MomentConversationContinuationTest {
             // Solitude without any social posts still means a real local world.
             val quiet = CharacterEverydaySocialContext.render(other, now, emptyList())
             assertTrue(quiet.contains("此刻真实的数字世界环境"))
-            assertFalse(quiet.contains("平滑的数字材质"))
+            assertFalse(quiet.contains("由亮变暗"))
         } finally {
             SharedExperienceTimeline.deleteEvent(ownEvidence)
             SharedExperienceTimeline.deleteEvent(dialogueEvidence)
