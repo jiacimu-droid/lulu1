@@ -348,7 +348,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     RelicDifficulty.NORMAL -> 520L
                     else -> 340L
                 },
-                stopWhen = run?.hero?.hp to run?.phase,
+                // A new nearby windup stops a held travel gesture so the player
+                // can see the warning and decide rather than auto-walk into a hit.
+                stopWhen = Triple(run?.hero?.hp,run?.phase,
+                    run?.let(GameCoopPacing::relicImmediateThreat)),
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
                 onHoldChange = { joystickHeld = RelicCombatSkills.isContinuousTravelGesture(it,aimOnly) },
