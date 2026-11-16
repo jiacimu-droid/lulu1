@@ -32,6 +32,14 @@ class GameOrientationPolicyTest {
         }
     }
 
+    @Test fun relicAndIslandUseTheEntireGameViewport() {
+        // Preserve the immersive behavior even if the game orientation is changed.
+        assertTrue(worldGameOwnsSystemNavigation("relic_escape"))
+        assertTrue(worldGameOwnsSystemNavigation("block_island"))
+        assertFalse(worldGameOwnsSystemNavigation("deep_sea_journey"))
+        assertFalse(worldGameOwnsSystemNavigation("home"))
+    }
+
     @Test fun pickerAndManualPortraitNeverLockTheHostInLandscape() {
         assertEquals(
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
