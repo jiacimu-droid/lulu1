@@ -132,35 +132,28 @@ internal object PresenceHistoryPresentation {
      * The general "Current" tab instead shows the newest actually authored
      * voice, labelled with that voice's real time.
      */
+    /**
+     * A current/message card must contain only private words actually authored
+     * for that moment. An omitted heart voice is valid; older words belong to
+     * history and cannot silently become this reply's thoughts.
+     */
     fun latestVoice(
         current: CompanionPresenceState?,
         history: List<CompanionPresenceState>,
         messageAnchored: Boolean,
-    ): CompanionPresenceState? =
-        if (messageAnchored) {
-            current?.takeIf { it.innerThought.isNotBlank() } ?: history
-                .asSequence().filter { it.innerThought.isNotBlank() && current != null &&
-                    !it.updatedAt.isAfter(current.updatedAt) &&
-                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0L..5L }
-                .maxByOrNull { it.updatedAt }
-        } else history.asSequence().sortedByDescending { it.updatedAt }
-            .firstOrNull { it.innerThought.isNotBlank() }
-            ?: current?.takeIf { it.innerThought.isNotBlank() }
+    ): CompanionPresenceState? {
+        val at = current?.updatedAt ?: return null
+        return history.firstOrNull { it.updatedAt == at && it.innerThought.isNotBlank() }
+    }
 
     fun latestReflection(
         current: CompanionPresenceState?,
         history: List<CompanionPresenceState>,
         messageAnchored: Boolean,
-    ): CompanionPresenceState? =
-        if (messageAnchored) {
-            current?.takeIf { it.momentReflection.isNotBlank() } ?: history
-                .asSequence().filter { it.momentReflection.isNotBlank() && current != null &&
-                    !it.updatedAt.isAfter(current.updatedAt) &&
-                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0L..5L }
-                .maxByOrNull { it.updatedAt }
-        } else history.asSequence().sortedByDescending { it.updatedAt }
-            .firstOrNull { it.momentReflection.isNotBlank() }
-            ?: current?.takeIf { it.momentReflection.isNotBlank() }
+    ): CompanionPresenceState? {
+        val at = current?.updatedAt ?: return null
+        return history.firstOrNull { it.updatedAt == at && it.momentReflection.isNotBlank() }
+    }
 
     fun entries(history: List<CompanionPresenceState>): List<PresenceHistoryMoment> {
         val chronological = history.sortedBy { it.updatedAt }
