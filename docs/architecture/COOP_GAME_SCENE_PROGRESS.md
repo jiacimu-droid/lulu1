@@ -505,3 +505,9 @@
 
 - 根因：`RelicEscapeLedger.buyKit` 与 `upgradeWeapon` 未像弓和背包升级那样阻止正在探索/撤离/倒地的局中购买，导致营地补给与实际在场状态不一致。生产 `65d31ddbf64551e8553ed2adbc0d63d9b7530a23`（blob `21092612e81d3eea96b4b57f8cc359e798f28a09`）统一使用现有局中 phase 守卫；没有改动模型选择、掉落或战斗。
 - 根因测试 `b7b39ca31f32bd206f9724ea646612b25f23839f`（`RelicEscapeRulesTest.kt` blob `ffec1749a80f443f16ff357a46baffb85f3377fa`）覆盖局中购买不扣币、不增物资、重新创建 Ledger 仍一致；结算后正常购买并持久保存。提交后按测试 SHA 查询 main push Actions runs 为 0，JVM/APK/index 未证成功；测试本轮未实际运行。下一入口 `RelicEscapeRulesTest.campPurchasesCannotSpendCoinsDuringLiveExpeditionAndResumeAfterSettlement` JVM 首错、`RelicEscapeLobby.kt` 营地购买入口以及真正撤离→藏宝馆重新进入；Redmi 操作、帧率和美术仍待验。
+
+
+## 2026-11-16 G-03.5 · 旧藏宝馆出售确认不能跨局卖出实物（JVM/APK 待验）
+
+- 正式藏宝馆 `RelicVaultPage.kt` 已在局中禁用出售，但旧确认或异步调用仍可直接到 `RelicEscapeLedger.sellLoot`，原权威账本缺少局中阶段守卫。生产 `d945bdf56b0638eddc3c52f9711e1a0da31e3056`（`RelicEscapeLedger.kt` blob `e6865a5af7ddc2d2d8f3b9750f0329d31d7a6891`）拒绝 EXPLORE/EXTRACT/DOWNED 时卖出永久馆藏，防止跨页面竞态将实物变铜币；结算后仍可正常出售、清除展品并持久化，不动模型决定或掉落。
+- 根因测试 `51b33c58986a670ba8f2b1ad4b5f01412231b4ab`（`RelicMuseumSaleGuardTest.kt`）：分别验证三种局中阶段不改馆藏/铜币/展品，成功结算后真实出售及重载幂等。尚未取得 main push JVM/APK/index 终态，不得标绿；真机 360/412dp 横屏、帧率与美术独立待验。下一文件 `RelicMuseumSaleGuardTest.kt` 的 JVM 首错、`RelicVaultPage.kt` 确认弹窗与开始新局竞态；之后推进实物撤离→藏宝馆复进的完整游玩回归。
