@@ -66,6 +66,9 @@ internal fun DigitalWorldWalkableStreet(
     hudTopPadding: Dp = 10.dp,
     canEnterScene: Boolean = true,
     spawnAtLocationCode: String? = null,
+    streetDestinations: Map<String, String> = emptyMap(),
+    handHoldingCharacterId: String? = null,
+    onReachedStreetDoor: ((characterId: String, code: String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val preferences = remember(context) {
@@ -148,6 +151,20 @@ internal fun DigitalWorldWalkableStreet(
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
     var tapTarget by remember { mutableStateOf<WorldVector?>(null) }
     var tapPath by remember { mutableStateOf<List<WorldVector>>(emptyList()) }
+    var guidePath by remember { mutableStateOf<List<WorldVector>>(emptyList()) }
+    var nextGuideRouteAt by remember { mutableLongStateOf(0L) }
+    var cancelledGuideKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var companionRoutes by remember { mutableStateOf<Map<String, List<WorldVector>>>(emptyMap()) }
+    var companionRouteAt by remember { mutableStateOf<Map<String, Long>>(emptyMap()) }
+    var reachedDoorKeys by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val latestDoorArrival by rememberUpdatedState(onReachedStreetDoor)
+    LaunchedEffect(streetDestinations) {
+        val active = streetDestinations.map { (id, code) -> "$id:$code" }.toSet()
+        cancelledGuideKeys = cancelledGuideKeys.intersect(active)
+        reachedDoorKeys = reachedDoorKeys.intersect(active)
+        companionRoutes = emptyMap()
+        companionRouteAt = emptyMap()
+    }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
     val scale = if (viewport.width > 0) viewport.width / worldWidth else 1f
     val visibleHeight = if (scale > 0f) viewport.height / scale else worldHeight
