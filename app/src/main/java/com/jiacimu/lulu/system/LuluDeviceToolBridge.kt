@@ -529,8 +529,8 @@ object LuluDeviceToolBridge {
                 }
                 appendLine("当前真实互动场景：$sceneContext")
                 inWorldMoment?.let { event ->
-                    appendLine("【程序刚记录的本轮数字世界小事】${event.summary}")
-                    appendLine("角色可按自身意愿回应、主动分享或不提；不能伪造后续结果。")
+                    appendLine("【你所在世界刚发生的一幕｜不是自动替你选中的私人体验】${event.summary}")
+                    appendLine("这是真实发生的环境或身体事件；普通光影和气息不等于你已经专门留意，若有真实现场 incidentId 可自行选择 observe_scene。你可以有自己的感觉、继续活动、留意或不留意，更不必因此发朋友圈。")
                 }
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(characterId, observedWorld))
