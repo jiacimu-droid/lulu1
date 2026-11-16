@@ -55,6 +55,75 @@ class RelicEscapeRulesTest {
         assertEquals(6,glows.last())
     }
 
+    @Test fun connectedDungeonMechanismsOpenRealShortcutsWithoutBlockingOldRoutes() {
+        val worlds=(1..50).map { seed -> RelicEscapeWorld.create(seed,2,emptyList(),1,1) }
+        val chosen=worlds.firstOrNull { s ->
+            s.sites.any { it.kind=="seal_switch" } &&
+                s.sites.any { it.kind=="lens" } && s.sites.any { it.kind=="echo" }
+        }
+        assertNotNull("New connected rooms should offer all three mechanics",chosen)
+        val s=checkNotNull(chosen).copy(mobs=emptyList())
+        for(chest in s.chests) assertNotNull(
+            "Original route to chest must remain open before the optional gate",
+            RelicEscapeRules.path(s,s.hero.x,s.hero.y,chest.x,chest.y))
+        assertNotNull(RelicEscapeRules.path(s,s.hero.x,s.hero.y,s.exitX,s.exitY))
+        val control=s.sites.first { it.kind=="seal_switch" }
+        val gate=s.sites.first { it.id==control.linkId }
+        assertEquals("seal_gate",gate.kind)
+        assertEquals(control.id,gate.linkId)
+        assertFalse(s.walk(gate.x,gate.y))
+        val near=RelicEscapeRules.reveal(s.copy(hero=s.hero.copy(x=control.x,y=control.y)))
+        val command=relicQuickAction(near,control.x to control.y)
+        assertEquals("unseal",command?.action)
+        assertEquals(near.turns,near.turns)
+        val opened=RelicEscapeRules.act(near,"unseal",control.x,control.y)
+        assertEquals(near.turns+1,opened.turns)
+        assertTrue(opened.walk(gate.x,gate.y))
+        assertTrue(opened.sites.first { it.id==gate.id }.spent)
+        assertTrue(opened.sites.first { it.id==control.id }.spent)
+        assertEquals(opened,RelicRun.read(JSONObject(opened.json().toString())))
+        val duplicate=RelicEscapeRules.act(opened,"unseal",control.x,control.y)
+        assertEquals(opened.turns,duplicate.turns)
+        // The authoritative old save did not store paired IDs or team epochs.
+        val oldJson=JSONObject(s.json().toString())
+        oldJson.remove("teamSteps")
+        val oldSites=oldJson.getJSONArray("sites")
+        for(i in 0 until oldSites.length())oldSites.getJSONObject(i).remove("linkId")
+        assertEquals(0,RelicRun.read(oldJson)?.teamSteps)
+    }
+
+    @Test fun ancientLensAndEchoPlateOfferDifferentRealExplorationChoices() {
+        val world=(1..50).asSequence().map { RelicEscapeWorld.create(it,2,emptyList(),1,1) }
+            .first { s -> s.sites.any { it.kind=="lens" } &&
+                s.sites.any { it.kind=="echo" } }.copy(mobs=emptyList())
+        val lens=world.sites.first { it.kind=="lens" }
+        val nearLens=RelicEscapeRules.reveal(world.copy(
+            seen=setOf(world.index(lens.x,lens.y)),
+            hero=world.hero.copy(x=lens.x,y=lens.y)))
+        assertEquals("observe_lens",
+            relicQuickAction(nearLens,lens.x to lens.y)?.action)
+        val viewed=RelicEscapeRules.act(nearLens,"observe_lens",lens.x,lens.y)
+        assertTrue(viewed.seen.size>nearLens.seen.size)
+        assertTrue(viewed.sites.first { it.id==lens.id }.spent)
+        assertEquals(viewed.turns,
+            RelicEscapeRules.act(viewed,"observe_lens",lens.x,lens.y).turns)
+        val plate=world.sites.first { it.kind=="echo" }
+        val start=listOf(1 to 0,-1 to 0,0 to 1,0 to -1)
+            .map { (dx,dy)->(plate.x+dx) to (plate.y+dy) }
+            .first { (x,y)->world.walk(x,y) }
+        val atPlate=RelicEscapeRules.reveal(world.copy(
+            hero=world.hero.copy(x=start.first,y=start.second)))
+        assertEquals("sneak",relicQuickAction(atPlate,plate.x to plate.y)?.action)
+        val silent=RelicEscapeRules.act(atPlate,"sneak",plate.x,plate.y)
+        assertFalse(silent.sites.first { it.id==plate.id }.spent)
+        assertFalse(silent.events.any { it.action=="echo" })
+        val noisy=RelicEscapeRules.act(atPlate,"move",plate.x,plate.y)
+        assertTrue(noisy.sites.first { it.id==plate.id }.spent)
+        assertTrue(noisy.events.any { it.action=="echo" })
+        assertEquals(atPlate.turns+1,noisy.turns)
+        assertEquals(atPlate.turns+1,silent.turns)
+    }
+
     @Test fun persistedLedgerForwardsAdjacentChestCoordinatesAndNeverMintsEarlyLoot() {
         val context=RuntimeEnvironment.getApplication()
         val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
