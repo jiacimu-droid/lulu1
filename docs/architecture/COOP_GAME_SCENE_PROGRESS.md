@@ -604,3 +604,7 @@
 - `09490e6` 新增工作台木镐配方（2木0石）；`815d3f7` 让权威 `BlockIslandRules` 接受 `craft_wood_pickaxe`、旧存档加载新工具 ID，普通矿徒手2石/木镐3石/石镐4石，蓝晶矿仍仅石镐可采且实际获得晶石；`f2a6622` 正式小岛 HUD 显示木镐采石3。没有给角色预设选择、伪造掉落或更改旧档格式。
 - `c9d684e` 扩展 `IslandWorkbenchRecipesTest`，覆盖配方费用/重复制作/工作台距离、木镐存档重载、普通矿差异、蓝晶矿拒绝与石镐解锁；测试 blob `8076ddd42f2b49591bc5350ab06337acb7c07e5b`。生产 blob：配方 `61c36ca73d274d00dc62e2e762b6c2e31cb7d9e0`、规则 `ed89c1148e64d84a47e2471a9fae3d90dd063e30`、HUD `2d6af71c00ccb503999b108fe6bbd259da1aa45b`。
 - 最新提交 `f2a6622` 的 commit combined status 返回空，不代表 Actions 成功；必须核同 SHA main push 的 JVM/APK/index jobs，若红先修首错。Redmi 横屏工作台菜单/普通矿与蓝晶矿辨识、真实 FPS、角色劳动仍待验。下一入口 `IslandWorkbenchRecipesTest.kt`、`BlockIslandScreen.kt` 的工作台可见列表及 `BlockIslandRules.kt` 采集事件。
+
+## 2026-11-17 G-03.5 · 封门实物阻挡与旧地图回归一致性（CI 待验）
+- 核查 main push `f2a6622` 的 APK/JVM #43924462403：3307 tests、5 failed，G 段 `RelicEscapeRulesTest.everySpawnHasOptionalLandmarksAndTrapsAreNeverUnderChests` 在第1167行失败；此前新增的 `seal_gate` 是未解封的真实石墙，旧断言却要求所有 site 初始可行走，与新玩法冲突。
+- 根因回归修正 `805f03d1c9a354d851d96e92ac8f38740a86c03a`，`RelicEscapeRulesTest.kt` blob `167b22ac1b8b8871d65e3db74742956c4b369051`：对 seal_gate 必须为实体墙并拥有双向关联 seal_switch，其他地点仍须可行走；保留离入口距离、宝箱不重叠、可抵达邻格的原有检查。不修改生产地图、奖励或人物决定。下一入口：该测试 main push JVM 首错；若仍失败按实际断言定位，随后验证开机关→石墙变可走→地图复进及 Redmi 横屏触控。JVM/APK/index 尚未取得新 SHA 终态，真机/FPS/模型未验。
