@@ -5,6 +5,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MemoryTestEnvironment
 import com.jiacimu.lulu.data.ToolRouter
+import com.jiacimu.lulu.data.SearchReceiptFeedback
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
@@ -181,7 +182,7 @@ class SelfTodoRoleReadTest {
         assertTrue(afterChecking, afterChecking.contains("今天先复习民法"))
     }
 
-    @Test fun briefContextIsBoundedAndFullTodoRemainsAvailableThroughExistingTool() {
+    @Test fun briefContextIncludesEverySavedTitleWithoutExposingPrivateNotes() {
         val date = LocalDate.of(2026, 11, 15)
         val now = date.atTime(20, 0).atZone(ZoneId.systemDefault()).toInstant()
         fun item(id: Int, due: LocalDate): TodoTask =
@@ -189,22 +190,62 @@ class SelfTodoRoleReadTest {
         val tasks = (1..7).map { item(it, date) } +
             (8..10).map { item(it, date.minusDays(1)) } + item(11, date.plusDays(1))
         val brief = SelfTodoRoleRead.briefContext(tasks, now)
-        for (id in 1..4) assertTrue(brief, brief.contains("计划$id"))
+        for (id in 1..11) assertTrue(brief, brief.contains("计划$id"))
         assertTrue(brief.contains("今天未完成7项"))
         assertTrue(brief.contains("逾期3项"))
         assertTrue(brief.contains("未来待办1项"))
-        assertTrue(brief.contains("另有4项"))
+        assertFalse(brief.contains("另有4项"))
         assertTrue(brief.contains("read_self_todo"))
         // A capability hint mentioning note fields is fine; the owner's actual
         // private note *values* must never leak into the ambient context.
         for (id in 1..11) assertFalse(brief, brief.contains("备注$id"))
-        assertFalse(brief.contains("计划7"))
+        assertTrue(brief.contains("计划7"))
         val full = SelfTodoRoleRead.snapshot(tasks, date, now,
             JSONObject().put("scope", "all"))
         assertEquals(11, full.getJSONArray("pending").length())
         assertTrue(full.toString().contains("计划7"))
         assertTrue(full.toString().contains("备注7"))
     }
+    @Test fun allSmallOwnerListsAreReturnedWithoutPageOrReceiptTruncation() {
+        val day = LocalDate.of(2026, 11, 16)
+        val now = day.atTime(21, 0).atZone(ZoneId.systemDefault()).toInstant()
+        val checkedMillis = day.atTime(20, 0).atZone(ZoneId.systemDefault())
+            .toInstant().toEpochMilli()
+        fun task(index: Int, done: Boolean): TodoTask = TodoTask(
+            "item-$index", if (done) "完成$index" else "待办$index",
+            "完整私人备注$index：" + "字".repeat(280),
+            day, null, TodoRepeat.ONCE, index.toLong(),
+            if (done) listOf(TodoCompletion(day, checkedMillis)) else emptyList(),
+        )
+        val tasks = (1..42).map { task(it, false) } +
+            (43..77).map { task(it, true) }
+        val output = SelfTodoRoleRead.snapshot(tasks, day, now)
+        assertEquals(42, output.getJSONArray("pending").length())
+        assertEquals(35, output.getJSONArray("completedToday").length())
+        assertEquals(35, output.getInt("checkedTodayCount"))
+        assertTrue(output.isNull("nextOffset"))
+        assertEquals(42, output.getInt("pendingTotalInScope"))
+        assertTrue(output.getString("summary").contains("待办42"))
+        assertTrue(output.getString("summary").contains("完成77"))
+        assertEquals("完整私人备注42：" + "字".repeat(280),
+            output.getJSONArray("pending").getJSONObject(41).getString("note"))
+        val fromLaterOffset = SelfTodoRoleRead.snapshot(tasks, day, now,
+            JSONObject().put("offset", 30))
+        assertEquals(12, fromLaterOffset.getJSONArray("pending").length())
+        assertTrue(fromLaterOffset.isNull("nextOffset"))
+
+        val ambient = SelfTodoRoleRead.briefContext(tasks, now)
+        assertTrue(ambient.contains("待办42"))
+        assertTrue(ambient.contains("完成77"))
+        assertFalse(ambient.contains("完整私人备注"))
+        val verified = SearchReceiptFeedback.from("read_self_todo",
+            JSONObject().put("scope", "today"), output)
+        assertNotNull(verified)
+        assertTrue(verified!!.details.contains("待办42"))
+        assertTrue(verified.details.contains("完成77"))
+        assertTrue(verified.details.contains("完整私人备注42"))
+    }
+
     @Test fun unreadableOwnerDataIsAnErrorNotAFalseEmptyPlan() {
         val prefs = app.getSharedPreferences("lulu_self_todo_v2",
             android.content.Context.MODE_PRIVATE)
