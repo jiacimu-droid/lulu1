@@ -102,7 +102,10 @@ internal object AutonomousSocialRuntime {
         }
 
         val participantIds = (listOf(characterId) + coLocatedIds).distinct()
-        worldTick?.let { tick ->
+        // Being in the same place does not mean every person noticed a brief
+        // change of lighting. Real interpersonal mishaps and unresolved events
+        // remain shared; harmless ambience stays a scene each may select.
+        worldTick?.takeIf(DigitalWorldLifeEventStore::warrantsLifeFollowThrough)?.let { tick ->
             coLocatedIds.forEach { id -> DigitalWorldLifeEventStore.recordWitness(id, tick, now) }
         }
         val location = locationLabel(currentLocation)
