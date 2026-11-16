@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:28:41.387666+00:00",
-  "commit": "d4257ff589c176e2045190dab8772a8e81966921",
+  "generatedAt": "2026-11-16T16:30:23.368876+00:00",
+  "commit": "f4ed029d28787978e45e8260e2570287ff806659",
   "branch": "main",
-  "sourceFingerprint": "be0761dd30f6722305e8d5f897875bc2e8a42b65f4100367c3260b9234929bf9",
+  "sourceFingerprint": "4deeb127ecf19579cc0264e77247c29f059fac2a2aaa253c754ff59934275ae0",
   "summary": {
     "files": 1367,
-    "lines": 292126,
-    "symbols": 4119
+    "lines": 292159,
+    "symbols": 4123
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4627,7 +4627,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 9
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -15938,10 +15938,34 @@
         "line": 257
       }
     ],
+    "monsterCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
+        "line": 13
+      }
+    ],
+    "safeSpawnDistance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
+        "line": 18
+      }
+    ],
+    "separation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
+        "line": 20
+      }
+    ],
+    "eliteUnlocked": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
+        "line": 22
+      }
+    ],
     "carve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 19
+        "line": 42
       }
     ],
     "forPhase": [
@@ -38798,16 +38822,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 138,
-      "sha256": "c919a7cd117025f8ea92355c9bcd1523bea776f75ac1cd6c4f0cd71f8a9202cc",
+      "lines": 171,
+      "sha256": "316daf7d3013b6b705d31ce39cf75fda5b6892f755553fb91e5ac83b21c693c5",
       "symbols": [
         {
+          "name": "monsterCount",
+          "line": 13
+        },
+        {
+          "name": "safeSpawnDistance",
+          "line": 18
+        },
+        {
+          "name": "separation",
+          "line": 20
+        },
+        {
+          "name": "eliteUnlocked",
+          "line": 22
+        },
+        {
           "name": "create",
-          "line": 9
+          "line": 32
         },
         {
           "name": "carve",
-          "line": 19
+          "line": 42
         }
       ]
     },
