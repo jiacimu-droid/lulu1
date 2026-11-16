@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:26:06.022124+00:00",
-  "commit": "68f1910d90dfc355a27387e905a55e8318e66192",
+  "generatedAt": "2026-11-16T07:28:12.147737+00:00",
+  "commit": "4d02c6f18966aee532bb8127a9dfd83758c29880",
   "branch": "main",
-  "sourceFingerprint": "2cf8a570687439945a13a8f95d357384e08e404a5347852325c2e93798648cf5",
+  "sourceFingerprint": "f369a699eed4854dada0c6275d624ed8d28278878f785305b3f5582afb233cf8",
   "summary": {
     "files": 1355,
-    "lines": 289291,
+    "lines": 289305,
     "symbols": 4084
   },
   "symbolIndex": {
@@ -2433,7 +2433,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 195
+        "line": 206
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -9505,7 +9505,7 @@
     "locationActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 209
+        "line": 210
       }
     ],
     "briefContextFor": [
@@ -19369,7 +19369,7 @@
     "game": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 217
+        "line": 228
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -31259,8 +31259,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 269,
-      "sha256": "a484cc8e00f1ef8fe967d962f942eae9583a12c31a49fddcef69ffc5ea10e3c5",
+      "lines": 272,
+      "sha256": "ef9aacb6857b2f0d01d8029fd94eab9d668324a023274fda4c14e5be4755e54d",
       "symbols": [
         {
           "name": "optionsFor",
@@ -31280,7 +31280,7 @@
         },
         {
           "name": "locationActivitySummary",
-          "line": 209
+          "line": 210
         }
       ]
     },
@@ -43236,8 +43236,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 256,
-      "sha256": "62b98b0f592b7f45f97f2154e3394ca6451fefcbf429a386a53825d650086deb",
+      "lines": 267,
+      "sha256": "2a753c67b10ccffd23cc66156bf5ebc3e4b4156338df8c59760a42b5d22fafbc",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -43245,11 +43245,11 @@
         },
         {
           "name": "record",
-          "line": 195
+          "line": 206
         },
         {
           "name": "game",
-          "line": 217
+          "line": 228
         }
       ]
     },
