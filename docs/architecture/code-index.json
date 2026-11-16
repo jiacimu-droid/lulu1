@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T10:56:59.329529+00:00",
-  "commit": "cea2c275a2cef8e708bb79208ba478a522f0f106",
+  "generatedAt": "2026-11-16T11:09:47.406368+00:00",
+  "commit": "7b16c7884840df83cb2393776a09f0a1ac3e63e6",
   "branch": "main",
-  "sourceFingerprint": "fd21bc23e49f2978ca5cb244721d540978d488394d95d4226cc94044c87e3f5e",
+  "sourceFingerprint": "518a8c44267ed0d25179894eda9e9828b7d5612e8f3ffa106e310758a76debed",
   "summary": {
     "files": 1359,
-    "lines": 290346,
+    "lines": 290352,
     "symbols": 4091
   },
   "symbolIndex": {
@@ -7273,7 +7273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 157
+        "line": 163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -7755,7 +7755,7 @@
     "latestReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 148
+        "line": 153
       }
     ],
     "canonicalInnerLife": [
@@ -29369,8 +29369,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 175,
-      "sha256": "3167d9441d18dd4ecfe9e15ddef6df32bb502a78821e5b3fbdddc66caf8817f2",
+      "lines": 181,
+      "sha256": "03e526d037242420362bcd7658a5676bbe55771771207140a6687bce15ca4521",
       "symbols": [
         {
           "name": "reflection",
@@ -29386,11 +29386,11 @@
         },
         {
           "name": "latestReflection",
-          "line": 148
+          "line": 153
         },
         {
           "name": "entries",
-          "line": 157
+          "line": 163
         }
       ]
     },

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cea2c275a2cef8e708bb79208ba478a522f0f106`
+- 基准提交：`7b16c7884840df83cb2393776a09f0a1ac3e63e6`
 - 分支：`main`
 - 已索引文件：1359
-- 已索引代码/文本行：290346
+- 已索引代码/文本行：290352
 - 已发现符号：4091
 
 | 文件 | 行数 | 符号数 |
@@ -396,7 +396,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 271 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 242 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 184 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 175 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 181 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 118 | 7 |
