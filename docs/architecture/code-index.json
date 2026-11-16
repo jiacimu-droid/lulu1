@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:28:10.931174+00:00",
-  "commit": "712e5ce678bb01f65b2e6cfbfaf619920e1dfa4a",
+  "generatedAt": "2026-11-16T08:31:18.128787+00:00",
+  "commit": "81562556a16011f56574b3bf018f5fa1b14f86d1",
   "branch": "main",
-  "sourceFingerprint": "89a1ae664b95a4fb2a9146da74f060370389648df459df8fe985982ce57df622",
+  "sourceFingerprint": "b6f4278bd30bbd9b5f10afeef773dd7c704be02065cd1f53518ca1c33466e83d",
   "summary": {
     "files": 1358,
-    "lines": 289814,
-    "symbols": 4088
+    "lines": 289851,
+    "symbols": 4089
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14718,10 +14718,16 @@
         "line": 28
       }
     ],
+    "recordEngineAcceptedAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
+        "line": 79
+      }
+    ],
     "recentLines": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 70
+        "line": 107
       }
     ],
     "vectorFor": [
@@ -37184,8 +37190,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-      "lines": 78,
-      "sha256": "162d511070c968945153e9f265e2c2f18d3db284cc8f727475a29a5b648b23e6",
+      "lines": 115,
+      "sha256": "fd6b8be485a0e04986f6a86f932b0163763bb8bfbe3c7168aa23594e755d5220",
       "symbols": [
         {
           "name": "recordOwner",
@@ -37196,8 +37202,12 @@
           "line": 28
         },
         {
+          "name": "recordEngineAcceptedAction",
+          "line": 79
+        },
+        {
           "name": "recentLines",
-          "line": 70
+          "line": 107
         }
       ]
     },
