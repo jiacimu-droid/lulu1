@@ -715,7 +715,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = ::sendOwner, enabled = input.isNotBlank() && !busy &&
-                            (!composingQuestion || room.canAsk) &&
+                            (room.host == SoupHost.USER || composingSolution || !composingQuestion || room.canAsk) &&
                             room.pendingQuestion < 0 && room.pendingSolution < 0,
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = gold, contentColor = background)) {
