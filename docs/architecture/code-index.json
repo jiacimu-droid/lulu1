@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T06:22:44.517364+00:00",
-  "commit": "a828888208c9e20209de43d4bfb14885904f4b16",
+  "generatedAt": "2026-11-16T06:23:22.377586+00:00",
+  "commit": "56e65e91296f311a0f069058e872871a57e4ef51",
   "branch": "main",
-  "sourceFingerprint": "87844af906ac1b81255272aac2213a43b45e0c11e01f4c7a7723a22d7d5ddbc3",
+  "sourceFingerprint": "7bd1193b5ab5007aed392fdaf1af5436e0e55daf0231a45e8f0cf64050c4b550",
   "summary": {
     "files": 1355,
-    "lines": 288982,
+    "lines": 289027,
     "symbols": 4084
   },
   "symbolIndex": {
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 312
+        "line": 316
       }
     ],
     "replyTextPrefix": [
@@ -1879,7 +1879,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 89
+        "line": 93
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -15145,7 +15145,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 82
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbMessage.kt",
@@ -15969,49 +15969,49 @@
     "hostName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 84
+        "line": 88
       }
     ],
     "conclude": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 98
+        "line": 102
       }
     ],
     "sendOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 191
+        "line": 195
       }
     ],
     "sendOwnerVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 216
+        "line": 220
       }
     ],
     "sendOwnerSolutionVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 222
+        "line": 226
       }
     ],
     "companionStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 232
+        "line": 236
       }
     ],
     "requestHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 305
+        "line": 309
       }
     ],
     "startNew": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 317
+        "line": 321
       }
     ],
     "walkable": [
@@ -38763,52 +38763,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 609,
-      "sha256": "4cac3374d74022ab72c05d0ebd66e2bcd060536aa8ee12f74d9650b7cb19b166",
+      "lines": 654,
+      "sha256": "2dc2ccf8902f08f3db750abcc2ea2b77a18e63fe4622d9aa04ab7b947dad06ef",
       "symbols": [
         {
           "name": "name",
-          "line": 82
+          "line": 86
         },
         {
           "name": "hostName",
-          "line": 84
+          "line": 88
         },
         {
           "name": "commit",
-          "line": 89
+          "line": 93
         },
         {
           "name": "conclude",
-          "line": 98
+          "line": 102
         },
         {
           "name": "sendOwner",
-          "line": 191
+          "line": 195
         },
         {
           "name": "sendOwnerVerdict",
-          "line": 216
+          "line": 220
         },
         {
           "name": "sendOwnerSolutionVerdict",
-          "line": 222
+          "line": 226
         },
         {
           "name": "companionStep",
-          "line": 232
+          "line": 236
         },
         {
           "name": "requestHint",
-          "line": 305
+          "line": 309
         },
         {
           "name": "finish",
-          "line": 312
+          "line": 316
         },
         {
           "name": "startNew",
-          "line": 317
+          "line": 321
         }
       ]
     },
