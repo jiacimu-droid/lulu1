@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:23:27.906588+00:00",
-  "commit": "731ad8bf1f1bec8caaa1bf915b30aff8af4714f4",
+  "generatedAt": "2026-11-16T08:26:12.816355+00:00",
+  "commit": "e07eb124e5a00677efbd884186ab415effcbba45",
   "branch": "main",
-  "sourceFingerprint": "ea04ddbc8ff10086323fb92de59611e9e7759fd0158a500c450ce7656915e7f9",
+  "sourceFingerprint": "a65b9622a8bbde189b85494b3dfcf27fe82d7a6100cb5478e525783c83c525e3",
   "summary": {
-    "files": 1357,
-    "lines": 289693,
-    "symbols": 4087
+    "files": 1358,
+    "lines": 289819,
+    "symbols": 4088
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20042,6 +20042,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
         "line": 77
+      }
+    ],
+    "CharacterOwnedSceneGatewayTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOwnedSceneGatewayTest.kt",
+        "line": 27
       }
     ],
     "CharacterPerceptionContextTest": [
@@ -44247,6 +44253,17 @@
         {
           "name": "boundContext",
           "line": 77
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOwnedSceneGatewayTest.kt",
+      "lines": 126,
+      "sha256": "1582cc41a20b7af8446e205109e424cd5282f34afa7a0e67fc82d18f81dbb908",
+      "symbols": [
+        {
+          "name": "CharacterOwnedSceneGatewayTest",
+          "line": 27
         }
       ]
     },
