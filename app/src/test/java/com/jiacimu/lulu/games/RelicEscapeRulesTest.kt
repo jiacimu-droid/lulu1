@@ -1074,4 +1074,31 @@ class RelicEscapeRulesTest {
             }
         }
     }
+    @Test fun campPurchasesCannotSpendCoinsDuringLiveExpeditionAndResumeAfterSettlement() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val active=RelicEscapeWorld.create(7481,2,emptyList(),0,1)
+        val initial=RelicSnapshot(run=active,coins=500,kits=2,weapon=1)
+        assertTrue(prefs.edit().putString("ledger",initial.json().toString()).commit())
+        val ledger=RelicEscapeLedger(context)
+        val blockedKit=ledger.buyKit()
+        val blockedWeapon=ledger.upgradeWeapon()
+        assertEquals(500,blockedKit.coins)
+        assertEquals(2,blockedKit.kits)
+        assertEquals(500,blockedWeapon.coins)
+        assertEquals(1,blockedWeapon.weapon)
+        assertEquals(initial,RelicEscapeLedger(context).read())
+
+        // A completed run no longer owns the camp: purchases persist across app re-entry.
+        val settled=initial.copy(run=active.copy(phase=RelicPhase.FAILURE))
+        assertTrue(prefs.edit().putString("ledger",settled.json().toString()).commit())
+        val bought=ledger.buyKit()
+        assertEquals(430,bought.coins)
+        assertEquals(3,bought.kits)
+        val armed=ledger.upgradeWeapon()
+        assertEquals(80,armed.coins)
+        assertEquals(2,armed.weapon)
+        assertTrue("spear" in RelicEscapeLedger(context).read().purchasedWeapons)
+    }
+
 }
