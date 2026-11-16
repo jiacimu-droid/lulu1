@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:49:29.077602+00:00",
-  "commit": "df52a2d28163e866e852126ea13dc38549ecfce9",
+  "generatedAt": "2026-11-16T03:50:29.579060+00:00",
+  "commit": "020c3ff7c336c6d179db67cffbe67735ef29eb4c",
   "branch": "main",
-  "sourceFingerprint": "1b7db330abada43430594baa2f2131890148c4f274c17359d27a705ee9237706",
+  "sourceFingerprint": "b71e1bd16258e1e20bc5d9f151d678f0a533d7eb0b19e08176299f4a068ac765",
   "summary": {
     "files": 1346,
-    "lines": 287251,
+    "lines": 287269,
     "symbols": 4053
   },
   "symbolIndex": {
@@ -1679,7 +1679,7 @@
     "list": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-        "line": 144
+        "line": 148
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -23872,8 +23872,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 450,
-      "sha256": "29ae81ff95e4b04452b2d64b5f8eeb1ca94275ad91f9090c80fc9df07e4af37c",
+      "lines": 468,
+      "sha256": "640932bf90bc1d5f5d9382e42806e0785d7f9aba0ea0cb2f81d35f823c81f315",
       "symbols": [
         {
           "name": "ledgerText",
@@ -23881,7 +23881,7 @@
         },
         {
           "name": "list",
-          "line": 144
+          "line": 148
         }
       ]
     },
@@ -45044,7 +45044,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingCausalEvidenceTest.kt",
       "lines": 154,
-      "sha256": "d38c8765c3fb003e602c8df541ee5f4c709304b2377b79493c3e8b5b385e34a9",
+      "sha256": "b27a8fa4ffa1d80a7951c67573b213b785f02273326f37f09c0dc7bd6d44e9a6",
       "symbols": [
         {
           "name": "MeetingCausalEvidenceTest",
