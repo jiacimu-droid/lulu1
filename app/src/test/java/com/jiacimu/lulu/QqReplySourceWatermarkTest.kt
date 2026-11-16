@@ -149,9 +149,10 @@ class QqReplySourceWatermarkTest {
         assertFalse(isReplySourceWatermarkCurrent(second, store))
     }
 
-    @Test fun userCorrectionDuringTypingLeadStopsOldBubblesBeforeAnyDelivery() = runBlocking {
+    @Test fun groupCorrectionDuringTypingLeadStopsOldBubblesBeforeAnyDelivery() = runBlocking {
         val role = MigratedDomainStores.characters.create("慢回复水位角色").characterId
-        val conversation = MigratedDomainStores.chat.ensureConversation(role, "慢回复")
+        val peer = MigratedDomainStores.characters.create("群聊另一角色").characterId
+        val conversation = MigratedDomainStores.chat.createGroupConversation("慢回复群", listOf(role, peer))
         val first = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先回答这个")
         val captured = captureReplySourceWatermark(conversation.id, role, setOf(first.id))!!
         val pending = async {
@@ -160,6 +161,8 @@ class QqReplySourceWatermarkTest {
                 actionableUserMessageIds = setOf(first.id),
                 sourceWatermark = captured)
         }
+        // Group chat still has a real typing lead. Private first bubbles are
+        // intentionally immediate, so a no-bubble typing race belongs here.
         delay(100)
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "不对，我改主意了")
         assertEquals("", pending.await())
@@ -201,22 +204,26 @@ class QqReplySourceWatermarkTest {
         val role = MigratedDomainStores.characters.create("动作回执水位角色").characterId
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "动作回执")
         val first = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先说原问题")
+        val oldWatermark = captureReplySourceWatermark(conversation.id, role, setOf(first.id))!!
         val args = JSONObject().put("text", "针对旧问题的回复")
             .put("_replyEvidenceIds", JSONArray().put(first.id))
-        val pending = async {
-            CompanionActionRuntime.execute(app, role, "send_private_message", args)
-        }
-        // Wait for the real sender to enter its paced-delivery lease,
-        // rather than racing the executor's synchronous setup.
-        withTimeout(8_000) {
-            while (!ChatGenerationActivity.isRunning(conversation.id)) delay(10)
-        }
-        MigratedDomainStores.chat.sendUserMessage(conversation.id, "刚才说错了，按这条来")
-        val result = pending.await()
+        // The owner corrects the premise while the model is still generating.
+        // No typing delay now exists for the first private bubble; executing
+        // the old tool AFTER correction must not mint a new source watermark.
+        val correction = MigratedDomainStores.chat.sendUserMessage(conversation.id, "刚才说错了，按这条来")
+        assertFalse(isReplySourceWatermarkCurrent(oldWatermark))
+        assertNull(captureReplySourceWatermark(conversation.id, role, setOf(first.id)))
+        val result = CompanionActionRuntime.execute(app, role, "send_private_message", args)
         assertFalse("Stale reply cannot be marked as a successful action", result.success)
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.none {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         })
+        // The same reply tool remains usable for the corrected, latest turn.
+        val fresh = CompanionActionRuntime.execute(app, role, "send_private_message",
+            JSONObject().put("text", "收到新的问题。")
+                .put("_replyEvidenceIds", JSONArray().put(correction.id)))
+        assertTrue(fresh.summary, fresh.success)
+        assertEquals(1, fresh.deliveredMessageIds.size)
     }
 
     @Test fun privateActionPartialDeliveryReportsOnlyPersistedBubbleIdsAfterCorrection() = runBlocking {
