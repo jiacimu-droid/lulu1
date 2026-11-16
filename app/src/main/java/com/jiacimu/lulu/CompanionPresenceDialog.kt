@@ -174,7 +174,18 @@ internal fun CompanionPresenceDialog(
                                     modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 12.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                 ) {
-                                    PresenceStateContent(displayState, latestHeartMoment)
+                                    if (messageAnchor == null &&
+                                        displayState.updatedAt.isBefore(now.minus(Duration.ofMinutes(15)))) {
+                                        val recordedAt = displayState.updatedAt.atZone(ZoneId.systemDefault())
+                                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                                        Text(
+                                            "最近一次状态记录：$recordedAt。之后尚无新的状态快照，旧心情、动作和心声不代表现在；可在「心声历史」查看。",
+                                            color = Color(0xFF8C888C), fontSize = 13.sp,
+                                            lineHeight = 21.sp,
+                                        )
+                                    } else {
+                                        PresenceStateContent(displayState, latestHeartMoment)
+                                    }
                                     if (messageAnchor == null) {
                                         TextButton(
                                             onClick = { deleteCurrentConfirm = true },
