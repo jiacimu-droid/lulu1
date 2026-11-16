@@ -32,10 +32,16 @@ internal object RelicObjectiveGuide {
     fun visibleChest(run:RelicRun):RelicObjectiveTarget? {
         if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT))return null
         val hero=run.hero
-        return run.chests.filter { !it.opened && run.visible(it.x,it.y) }
-            .minWithOrNull(compareBy<RelicChest> {
-                RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)
-            }.thenBy { it.id })
+        val discovered = run.chests.filter { !it.opened && run.visible(it.x,it.y) }
+        // Suggest a physically reachable discovered chest before a nearer one
+        // sealed behind a wall or a live guard. This only ranks HUD choices;
+        // it never moves the player or authorizes opening a chest.
+        return discovered.minWithOrNull(compareBy<RelicChest> {
+            val target = RelicObjectiveTarget(it.x,it.y,"已发现的宝箱")
+            knownRouteTiles(run,target)?.size?.minus(1) ?: Int.MAX_VALUE
+        }.thenBy {
+            RelicEscapeRules.distance(hero.x,hero.y,it.x,it.y)
+        }.thenBy { it.id })
             ?.let { RelicObjectiveTarget(it.x,it.y,"已发现的宝箱") }
     }
 
