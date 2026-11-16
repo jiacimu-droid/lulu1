@@ -68,6 +68,36 @@ class GameCoopPacingTest {
             autonomousIds=roster))
     }
 
+    @Test fun heldRelicTravelReobservesInsteadOfLeavingAFreeTeammateFrozen() {
+        val base=RelicEscapeWorld.create(7,1,listOf("alice"),1,1)
+            .copy(mobs=emptyList(),coopPlans=emptyMap())
+        assertFalse(GameCoopPacing.relicHeldDecisionDue(base,base.turns))
+        assertFalse(GameCoopPacing.relicHeldDecisionDue(base.copy(turns=7),0))
+        assertTrue(GameCoopPacing.relicHeldDecisionDue(base.copy(turns=8),0))
+        val threatened=base.copy(turns=4,
+            mobs=listOf(RelicMob(77,base.hero.x+1,base.hero.y,5,0)))
+        assertTrue(GameCoopPacing.relicHeldDecisionDue(threatened,0))
+        assertFalse(GameCoopPacing.relicHeldDecisionDue(
+            base.copy(turns=18,coopPlans=mapOf(
+                "alice" to RelicCoopPlan("regroup",lastStepTurn=0))),0))
+    }
+
+    @Test fun combatDoesNotFreezeASpecificallyChosenSupportPlan() {
+        val base=RelicEscapeWorld.create(7,1,listOf("alice","bob"),1,1)
+        val s=base.copy(tiles=List(base.w*base.h){0},sites=emptyList(),
+            hero=base.hero.copy(x=2,y=2),
+            allies=base.allies.map { if(it.id=="alice")it.copy(x=8,y=8)
+                else it.copy(x=10,y=8) },
+            mobs=listOf(RelicMob(1,5,5,6,0)),
+            coopPlans=mapOf(
+                "alice" to RelicCoopPlan("support",targetId=1,lastStepTurn=-1),
+                "bob" to RelicCoopPlan("regroup",lastStepTurn=-1)))
+        // Hero is actively in danger, but a planned attack approach is still allowed.
+        val dangerous=s.copy(mobs=s.mobs+RelicMob(2,3,2,6,0))
+        assertTrue(GameCoopPacing.relicThreat(dangerous))
+        assertEquals(setOf("alice"),GameCoopPacing.relicTickActors(dangerous))
+    }
+
     @Test fun downedPlayerDoesNotFreezeAnExplicitlyChosenRescueRoute() {
         val base=RelicEscapeWorld.create(77,1,roster.toList(),1,1)
         val down=base.copy(
