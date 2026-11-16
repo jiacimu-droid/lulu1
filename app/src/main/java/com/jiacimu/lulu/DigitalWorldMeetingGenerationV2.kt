@@ -233,11 +233,9 @@ internal suspend fun meetingGenerateReplyV2(
     val lengthInstruction = if (autonomous) {
         "自主在场：尊重安静，可一句话、一个小动作或一段内心想法。不要为凑篇幅制造事件；自然主动表达时通常不超过180字。"
     } else when (writing.length) {
-        MeetingProseLength.BRIEF -> "简略：推进一个清楚的小动作或一句回应，通常1—3句描写、1—3个片段；保留因果，不铺陈。"
-        MeetingProseLength.BALANCED -> "适中：把当前小情节自然展开，通常3—6句描写、2—5个片段，兼顾动作与氛围。"
-        MeetingProseLength.RICH -> if (session.reality == MeetingReality.DIGITAL_WORLD)
-            "丰富：有具体感受和关系变化，但这是一边走一边说的真实现场，不是锁住摇杆的小说。优先1—3个可真实落实的动作与自然短对话；不要为了字数硬写700字长段，更不要宣布尚未实际抵达的目的地。"
-        else "丰富：即使主人只输入几个字，也发展成真正有剧情的完整现场，通常约700—1200中文字符、12—20句、6—12片段；角色主动连续完成3—6个有因果的动作，推动1—2个小事件，形成承接→行动→变化→新回应点。"
+        MeetingProseLength.BRIEF -> "简略：像日常私聊一样自然说一两句；只有现场确实需要时才添一个短动作或神态。"
+        MeetingProseLength.BALANCED -> "适中：保留自然口语与对话节奏，穿插少量有意义的动作、目光和环境反应；不强求事件推进。"
+        MeetingProseLength.RICH -> "丰富：允许更细腻的身体感受、停顿和空间细节，但仍是同一个人在和主人自然聊天；动作、情绪与篇幅由当时的真实需要决定，不强制长篇小说、固定字数或每轮发生事件。"
     }
     val styleInstruction = when (writing.style) {
         MeetingProseStyle.NATURAL -> "自然：清楚、生活化、克制，优先动作与对话顺畅。"
@@ -279,7 +277,7 @@ internal suspend fun meetingGenerateReplyV2(
             你正在以${character.displayName}的身份参与一场连续见面。
             ${com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples}
             ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(com.jiacimu.lulu.data.CharacterSpeechChannel.MEETING)}
-            ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
+            ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "这是同一个人从普通私聊走进真实见面现场：人格、记忆、情绪和心声保持连续。先自然接住主人的话，像平常聊天一样选择说什么；只有本人确实想动、现场需要时才穿插动作和神态。普通的一句回答或安静相伴已经足够，不必每轮强制制造事件、转场或长篇叙事。"}
 
             只返回一个 JSON 对象：
             {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY","destinationItemId":"现场家具准确ID或空字符串","destinationActivityId":"可选的对应家具activityId或空字符串"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
@@ -293,14 +291,14 @@ internal suspend fun meetingGenerateReplyV2(
             ${VoicePerformance.direction}
             - 同一个喷嚏、巴掌声、吸气等事件只在发生的片段标一次，不在相邻台词重复播放；动作页可以只有音效，台词页可以带持续情绪和发声变化。
             - sequence 是双方共享的唯一时间顺序；speaker=user 是主人，speaker=character 是${character.displayName}。界面严格按数组顺序展示。
-            - expandUserDraft=$expandUserDraft。false 时 sequence 只能有 character；true 时按主人草稿真实顺序补全一来一回，可以 user→character→user→character，不能把主人所有内容堆完才写角色。
+            - expandUserDraft=$expandUserDraft。false 时 sequence 只能有 character；true 时只可把主人确实输入的原话/动作按原顺序拆分为 user 片段，再让角色自然回应。没有在草稿中出现的主人后续台词、动作、心境一律不补写；不要为了凑一来一回而虚构主人说了下一句。
             - autonomous=$autonomous。true 时你只可描写自己真实执行的动作或自己说的话，也允许 sequence=[]（选择暂时不行动）；任何情况下都禁止伪造主人没说过的台词、动作和感受。
             - 主动选择牵手时可以先靠近、伸手邀请；只有真的与主人处于可接触范围且动作在场景里落实，contact 才可使用 handholding:user，explorationMode 才可写 FOLLOW_USER；不能隔空牵手。
-            - 主人草稿即使很短也要补成有现场感的叙事，但只能补自然衔接、说话方式、已暗示的小动作和可直接感知环境；不得替主人新增重大决定、强烈情绪、亲密行为、内心想法或后续台词。
+            - 主人的输入就是权威原始时间线。可以用环境和角色自己的动作营造现场，但不得把模型润色或扩写的用户片段当作主人新说过/做过的事；不要替主人补情绪、决定、亲密行为、回答或后续台词。
             - 主人明确写出的言语和动作是不可移动的时间锚点。角色反应必须放在原因之后，绝不能提前回应后面才发生的动作。
             - type=action 是小说式叙事，可融合该speaker的连续动作链、神态、呼吸、声音变化、角色自己的限知心理、直接感受到的环境与触感；type=dialogue 只放真正说出口的话，不加引号。每次开口独立成项。
-            - ${character.displayName}有主动性。回应主人后，可以依据人设、关系、地点和记忆继续做属于角色自己的小事，不必每一步都等许可；但需要主人选择、接受接触或行动时，停在邀请、伸手或准备完成的那一刻。
-            - 如果删掉形容词后只剩“看了、笑了、说一句”，说明没有推进。丰富模式至少出现一个可辨认的小事件或现场/关系状态变化。
+            - ${character.displayName}有主动性。回应主人后，可以依据人设、关系、地点和记忆继续做属于角色自己的小事，不必每一步都等许可；也可以只陪她聊天。需要主人选择、接受接触或行动时，停在邀请、伸手或准备完成的那一刻。
+            - 一次平凡的看、笑、回答或安静陪伴完全可以是有意义的真实相处。不要为了看起来丰富而强制制造新事件、关系结论、主观心声或动作。
             - 连续动作必须遵守空间、距离、朝向、接触、重心、物品与位置因果；拉开距离前仍接触的手要先松开/滑开/带开，不能瞬移、悬空或同时处于矛盾位置。
             - 情节丰富度：$lengthInstruction
             - 描写风格：$styleInstruction
