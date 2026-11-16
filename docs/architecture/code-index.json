@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:58:46.876509+00:00",
-  "commit": "18bea5cfdd02efd43e63d828743fa1edb7de9d0c",
+  "generatedAt": "2026-11-16T17:00:09.369010+00:00",
+  "commit": "e7b8b3000fd03182750308fa2048e61f829c6a46",
   "branch": "main",
-  "sourceFingerprint": "e753492c6d7a4b8464a274b251bfd3a7e968e8a2fcd41b7107797f502184bb20",
+  "sourceFingerprint": "cbc17acb6a53f592993cee7ec4aa6270d301fa91e5d5dab81ea194d4cf0c4d36",
   "summary": {
-    "files": 1369,
-    "lines": 292690,
-    "symbols": 4124
+    "files": 1370,
+    "lines": 292836,
+    "symbols": 4128
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3603,7 +3603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 159
+        "line": 171
       }
     ],
     "reachedItem": [
@@ -14471,7 +14471,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 347
+        "line": 388
       }
     ],
     "near": [
@@ -14835,7 +14835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 300
+        "line": 322
       }
     ],
     "cycle": [
@@ -14881,7 +14881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 275
+        "line": 316
       }
     ],
     "reached": [
@@ -15870,70 +15870,82 @@
         "line": 174
       }
     ],
-    "heroCapacity": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 274
-      }
-    ],
-    "allyReadyToExtract": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 277
-      }
-    ],
-    "reveal": [
+    "observeLens": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 279
       }
     ],
+    "unseal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 295
+      }
+    ],
+    "heroCapacity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 315
+      }
+    ],
+    "allyReadyToExtract": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 318
+      }
+    ],
+    "reveal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 320
+      }
+    ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 289
+        "line": 330
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 298
+        "line": 339
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 300
+        "line": 341
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 309
+        "line": 350
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 812
+        "line": 822
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 813
+        "line": 823
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 890
+        "line": 900
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 926
+        "line": 936
       }
     ],
     "change": [
@@ -17942,6 +17954,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
         "line": 178
+      }
+    ],
+    "Line": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
+        "line": 23
+      }
+    ],
+    "hasExactToolbarTitle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
+        "line": 28
       }
     ],
     "canSendToRole": [
@@ -38317,8 +38341,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 339,
-      "sha256": "d0e6615bac56fb486c997819c6e982e86216be47a279c3fb08c2d0cd93f32426",
+      "lines": 361,
+      "sha256": "8e5c49285377ecc17deacf204933943f50caee55d08e5ab20d3fc95c06f0ee27",
       "symbols": [
         {
           "name": "acted",
@@ -38330,11 +38354,11 @@
         },
         {
           "name": "apply",
-          "line": 159
+          "line": 171
         },
         {
           "name": "facts",
-          "line": 300
+          "line": 322
         }
       ]
     },
@@ -38680,8 +38704,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 929,
-      "sha256": "68d3b03d9697f7ebf1f8ae222d56d7f41721e23ce8541fe8a67079128bcf5614",
+      "lines": 939,
+      "sha256": "3328bc91498fae193d4d10abd269a17603a65c9c7d377df84676cafe43c03fc0",
       "symbols": [
         {
           "name": "at",
@@ -38760,56 +38784,64 @@
           "line": 204
         },
         {
-          "name": "heroCapacity",
-          "line": 274
-        },
-        {
-          "name": "distance",
-          "line": 275
-        },
-        {
-          "name": "allyReadyToExtract",
-          "line": 277
-        },
-        {
-          "name": "reveal",
+          "name": "observeLens",
           "line": 279
         },
         {
+          "name": "unseal",
+          "line": 295
+        },
+        {
+          "name": "heroCapacity",
+          "line": 315
+        },
+        {
+          "name": "distance",
+          "line": 316
+        },
+        {
+          "name": "allyReadyToExtract",
+          "line": 318
+        },
+        {
+          "name": "reveal",
+          "line": 320
+        },
+        {
           "name": "canSurvey",
-          "line": 289
+          "line": 330
         },
         {
           "name": "openSteps",
-          "line": 298
+          "line": 339
         },
         {
           "name": "openingGlowGrade",
-          "line": 300
+          "line": 341
         },
         {
           "name": "treasure",
-          "line": 309
+          "line": 350
         },
         {
           "name": "act",
-          "line": 347
+          "line": 388
         },
         {
           "name": "enemyThreatRange",
-          "line": 812
+          "line": 822
         },
         {
           "name": "canEnemyStrike",
-          "line": 813
+          "line": 823
         },
         {
           "name": "path",
-          "line": 890
+          "line": 900
         },
         {
           "name": "abandon",
-          "line": 926
+          "line": 936
         }
       ]
     },
@@ -40168,7 +40200,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
       "lines": 1369,
-      "sha256": "02a4954ee344cc6659ee6debc63760af6a4171ef2c1d4cad8d666902d35ac14a",
+      "sha256": "5e1825b028f9b20e7323f5cad58fc460c0614294a31d98e15240aa551f4ce39d",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -41266,6 +41298,21 @@
         {
           "name": "sendButton",
           "line": 178
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
+      "lines": 114,
+      "sha256": "544983c6596450c4cfe33a3e389d06631ea78e2670abee5bab73061097977ecc",
+      "symbols": [
+        {
+          "name": "Line",
+          "line": 23
+        },
+        {
+          "name": "hasExactToolbarTitle",
+          "line": 28
         }
       ]
     },
