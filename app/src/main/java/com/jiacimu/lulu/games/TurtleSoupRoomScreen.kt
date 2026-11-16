@@ -217,6 +217,13 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         if (room.lines.isNotEmpty()) listState.animateScrollToItem(listState.layoutInfo.totalItemsCount.coerceAtLeast(1) - 1)
     }
 
+    fun requestHint() {
+        if (busy || room.revealed) return
+        val used = room.lines.count { it.speaker == "系统提示" }
+        val nextHint = room.puzzle.hints.getOrNull(used) ?: return
+        commit(room.copy(lines = room.lines + SoupLine("系统提示", SoupKind.DISCUSSION, nextHint)))
+    }
+
     fun finish() {
         if (room.revealed || busy) return
         val finished = room.copy(revealed = true)
@@ -430,6 +437,13 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                 modifier = Modifier.weight(1f), color = Color(0xFFB9C7D9), fontSize = 11.sp)
                             Switch(checked = autoThink, onCheckedChange = { autoThink = it })
                         }
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val usedHints = room.lines.count { it.speaker == "系统提示" }
+                        TextButton(onClick = ::requestHint, enabled = !busy && usedHints < room.puzzle.hints.size) {
+                            Text("提示 " + usedHints + "/" + room.puzzle.hints.size, color = gold, fontSize = 12.sp)
+                        }
+                        Spacer(Modifier.width(4.dp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(if (busy) "正在推理或裁定…" else "所有提问、裁定、讨论都会存进本局",
