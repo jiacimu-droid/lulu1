@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:13:26.938111+00:00",
-  "commit": "55c55a11eef02dcd66789716f687bf56ea57e151",
+  "generatedAt": "2026-11-16T08:22:56.334073+00:00",
+  "commit": "e8b49c18c5e3f944fec12578f12b488a37fa3ec8",
   "branch": "main",
-  "sourceFingerprint": "35f110f6a74023b7155a8d7ea377dc26925b466a52b7c45c5a5b76fbaa1e19b0",
+  "sourceFingerprint": "4ad608c7bad7377222c6fc2dd90d39bd9f6c7226f073264f29ac21bacb901a69",
   "summary": {
     "files": 1357,
-    "lines": 289712,
+    "lines": 289717,
     "symbols": 4087
   },
   "symbolIndex": {
@@ -915,7 +915,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1602
+        "line": 1607
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5501,31 +5501,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 752
+        "line": 757
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 758
+        "line": 763
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1342
+        "line": 1347
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1354
+        "line": 1359
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1592
+        "line": 1597
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -27311,8 +27311,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1610,
-      "sha256": "1c343a1b3b0c65d8b22cf913d192180c93523b30146caa9ebe82a9b1e3088491",
+      "lines": 1615,
+      "sha256": "75d11caf1dc4ca91c621abacc0f512f2c74df839ff1ecf77e9164abbc246ac52",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -27412,27 +27412,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 752
+          "line": 757
         },
         {
           "name": "positionedBooks",
-          "line": 758
+          "line": 763
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1342
+          "line": 1347
         },
         {
           "name": "consumeEvent",
-          "line": 1354
+          "line": 1359
         },
         {
           "name": "LuluAiServices",
-          "line": 1592
+          "line": 1597
         },
         {
           "name": "initialize",
-          "line": 1602
+          "line": 1607
         }
       ]
     },
@@ -31410,7 +31410,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
       "lines": 233,
-      "sha256": "fcfac74921bf79e754a6917f0c05ebc77ca9afa1241d8b7c5068436b589b8fa8",
+      "sha256": "73c9f6ecdb846628df8a013dee26f34e257a481a8e7211d3ce28bb5a64c698e5",
       "symbols": [
         {
           "name": "initialize",
@@ -34606,7 +34606,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2518,
-      "sha256": "105c0e15e972461ae5ca01c6f8ea80dcff10456fde77438a9d7c376ad3529176",
+      "sha256": "36b66eebc80ac8dfe0bc85aa399847d56b938e234dbf384e852b656a99f7c650",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -37240,7 +37240,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
       "lines": 349,
-      "sha256": "8a3db47a6aa3c3705efdcd3a7032e1df872c5ab7b89f7a58c8a436a3b986b286",
+      "sha256": "f2da996e90279522790f0868899bf841908008045de0d509b7f583aedcf512bf",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -38023,7 +38023,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
       "lines": 310,
-      "sha256": "a89c10cae1b8987be32418e8a1098120b8cbb452d82141b3cab9305783ce10d8",
+      "sha256": "33a57adbf4b48f4f3540fadebd592cbc3c81e2fdaea86cbfce448b1d53c8d8e3",
       "symbols": [
         {
           "name": "acted",
