@@ -66,6 +66,8 @@ internal fun GameSceneDeck(
     openToolsSignal: Any? = null,
     /** Island voice controls use the free space between the two thumb zones. */
     companionCenterBottom: Boolean = false,
+    /** Game-specific HUD may detach transparent captions and mic controls from the team card. */
+    companionFullScreen: Boolean = false,
     /** Island management opens a temporary top sheet, never a permanent sidebar. */
     toolsFromTop: Boolean = false,
     scene: @Composable () -> Unit,
@@ -241,23 +243,29 @@ internal fun GameSceneDeck(
             }
         }
         if (companionAvailable) {
-            // Landscape co-op voice lives between the left and right thumb zones.
-            // Only on-demand details expand; captions appear over world characters.
-            // Keep composition alive through inventory opens, so the microphone,
-            // model response and speech queue never restart.
-            val teamPlacement = if (companionCenterBottom && wide)
-                Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
-                    .padding(bottom = 8.dp)
-            else if (companionCenterBottom)
-                Modifier.align(Alignment.TopCenter).padding(top = 100.dp)
-            else Modifier.align(Alignment.TopEnd)
-                .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)
-            Column(teamPlacement.width(sideWidth)) {
-                Box(Modifier.then(
-                    if (!drawer) Modifier.heightIn(max = panelHeight)
-                    else Modifier.height(0.dp),
-                ).clipToBounds()) {
-                    teamPanel()
+            if (companionFullScreen) {
+                // A transparent, event-driven overlay: subtitles are not a panel
+                // and independent controls stay in their own safe screen region.
+                // Empty space has no pointer handler and never blocks the map.
+                Box(Modifier.matchParentSize()) {
+                    teamState.SaveableStateProvider("team") { companion() }
+                }
+            } else {
+                // The classic island sidebar remains completely unchanged.
+                val teamPlacement = if (companionCenterBottom && wide)
+                    Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
+                        .padding(bottom = 8.dp)
+                else if (companionCenterBottom)
+                    Modifier.align(Alignment.TopCenter).padding(top = 100.dp)
+                else Modifier.align(Alignment.TopEnd)
+                    .padding(top = gameHudChromeSafeTopDp().dp, end = 8.dp)
+                Column(teamPlacement.width(sideWidth)) {
+                    Box(Modifier.then(
+                        if (!drawer) Modifier.heightIn(max = panelHeight)
+                        else Modifier.height(0.dp),
+                    ).clipToBounds()) {
+                        teamPanel()
+                    }
                 }
             }
         }
