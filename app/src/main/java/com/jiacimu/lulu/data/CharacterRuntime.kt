@@ -28,15 +28,8 @@ data class CharacterDefinitionSnapshot(
         "【当前人物关系｜只适用于相应对象与原世界，不是对所有人的共同性格】\n$it"
     }.orEmpty()
 
-    fun promptSection(includeRelationships: Boolean = true): String = listOf(
-        "【当前角色设定｜以本次读取的用户设定为准，旧台词、记忆摘要与成长记录不得覆盖或补回旧设定】",
-        "角色名称：$displayName",
-        identity.takeIf(String::isNotBlank)?.let { "身份与背景事实：\n$it" }.orEmpty(),
-        personaPromptSection(),
-        relationshipPromptSection().takeIf { includeRelationships }.orEmpty(),
-        // A hobby in someone's editable profile is not a shipped game.
-        // Read the real invitation catalog instead of copying a second list
-        // into prompts, and expose it equally to chat, call and meeting.
+    /** Dynamic system capability, deliberately separate from editable identity and interests. */
+    fun gameCapabilityPromptSection(): String =
         "【当前真实游戏邀约能力｜系统事实，不是人设兴趣或已玩经历】" +
             "目前可实际向用户发出游戏馆邀约的项目：" +
             com.jiacimu.lulu.games.GameInvitationCatalog.titles.values.joinToString("、") + "。" +
@@ -44,7 +37,15 @@ data class CharacterDefinitionSnapshot(
             "但人物兴趣、故事设定、口头猜谜不证明游戏馆存在对应入口，" +
             "不能把尚未接入的项目描述为现在可开局、可组队或已有真实战绩。" +
             "当用户说明某玩法目前不能玩时，承接这条新事实，不要继续声称可以在游戏馆玩。" +
-            "是否改提其他真实玩法由本人决定，不必朗读能力清单。",
+            "是否改提其他真实玩法由本人决定，不必朗读能力清单。"
+
+    fun promptSection(includeRelationships: Boolean = true): String = listOf(
+        "【当前角色设定｜以本次读取的用户设定为准，旧台词、记忆摘要与成长记录不得覆盖或补回旧设定】",
+        "角色名称：$displayName",
+        identity.takeIf(String::isNotBlank)?.let { "身份与背景事实：\n$it" }.orEmpty(),
+        personaPromptSection(),
+        relationshipPromptSection().takeIf { includeRelationships }.orEmpty(),
+        gameCapabilityPromptSection(),
     ).filter(String::isNotBlank).joinToString("\n\n")
 }
 
