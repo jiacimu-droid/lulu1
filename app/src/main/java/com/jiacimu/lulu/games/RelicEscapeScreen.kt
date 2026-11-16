@@ -286,7 +286,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         helpAction = { rulesTab = "入门"; showRulesDialog = true },
         notice = error,
         status = if (run == null) "遗迹营地" else
-            "❤ ${run.hero.hp}/10   ◇ ${run.value}   ${run.turns}回合" +
+            "❤ ${run.hero.hp}/10   ◇ ${run.value}   ${run.turns}次行动" +
                 if (run.phase == RelicPhase.EXTRACT) " · 撤离 ${run.extraction}/3"
                 else "",
         scene = {
@@ -599,7 +599,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         }
         if(menuSection=="设置")RelicPanel {
             Text("回合与战斗",color=Color.White,fontWeight=FontWeight.Bold,fontSize=14.sp)
-            Text("这不是按秒计时的技能 CD：走一格、攻击一次、格挡一次，通常各算 1 次行动回合；每次行动后守卫也可能移动或蓄力。按住方向键会连续走格，也会连续推进回合。",
+            Text("怪物按你的有效行动反应：每走一格、攻击或格挡一次通常推进1次；这不是现实秒数。队友独立移动不会让你的技能冷却、敌人进攻或撤离倒数偷偷前进。遇到守卫蓄力，连续移动会停下供你应对。",
                 color=relicMuted,fontSize=12.sp,lineHeight=18.sp)
             Text("技能旁的数字表示还需行动几次才能恢复，不是等待几秒；怪物蓄力会先警告，下一次行动时才可能攻击。",
                 color=relicGreen,fontSize=12.sp,lineHeight=18.sp)
@@ -727,7 +727,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     RelicValue("负重",hero.load.toString()+"/"+RelicEscapeRules.heroCapacity(run),relicGold)
                     RelicValue("药剂",hero.kits.toString(),relicGreen)
                     RelicValue("估值",run.value.toString(),relicGold)
-                    RelicValue("回合",run.turns.toString(),Color.White)
+                    RelicValue("我的行动",run.turns.toString(),Color.White)
                 }
                 Row(verticalAlignment=Alignment.CenterVertically) {
                     Text(when(run.phase){
@@ -1327,11 +1327,11 @@ private fun relicDirection(dx:Int,dy:Int):String=
                 else run.allies.firstOrNull{it.id==event.who}?.let{
                     MigratedDomainStores.characters.get(it.id).displayName
                 }?:event.who
-            Text("第"+event.turn+"回合 · "+actor+"："+event.text,
+            Text("第"+event.turn+"次玩家行动期间 · "+actor+"："+event.text,
                 color=if(event.action=="hurt" || event.action=="failure")relicRed else relicMuted,
                 fontSize=11.sp)
         }
-        Text("回合 "+run.turns+" · 本局宝物的结算已锁定，不可重复领取",
+        Text("玩家行动 "+run.turns+" 次 · 本局宝物的结算已锁定，不可重复领取",
             fontSize=11.sp,color=relicMuted)
     }
 }
