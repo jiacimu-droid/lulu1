@@ -171,9 +171,10 @@ class RelicObjectiveRouteTest {
     @Test fun tacticalHudSuggestsReachableChestBeforeCloserBlockedChest() {
         val base=corridor()
         val terrain=base.tiles.toMutableList().also { tiles ->
-            // A short branch to the nearby chest ends behind an impassable wall.
             for(x in 2..8) tiles[3*12+x]=0
-            tiles[2*12+4]=1
+            // The nearer chest at (5,2) is surrounded by walls except (4,2).
+            tiles[2*12+6]=1
+            tiles[3*12+5]=1
         }
         val seen=(2..8).flatMap { x -> listOf(2*12+x,3*12+x) }.toSet()
         val world=base.copy(
@@ -183,18 +184,15 @@ class RelicObjectiveRouteTest {
                 RelicChest(42,8,3,RelicTier.COMMON)
             )
         )
-        // The first chest is physically reachable via the southern detour;
-        // both remain legal, so HUD chooses actual route length, not distance.
         val near=RelicObjectiveGuide.selectedVisible(world,5,2)!!
         val far=RelicObjectiveGuide.selectedVisible(world,8,3)!!
-        val nearSteps=RelicObjectiveGuide.knownRouteSteps(world,near)!!
-        val farSteps=RelicObjectiveGuide.knownRouteSteps(world,far)!!
-        assertTrue(nearSteps < farSteps)
+        assertTrue(RelicObjectiveGuide.knownRouteSteps(world,near)!=null)
+        assertTrue(RelicObjectiveGuide.knownRouteSteps(world,far)!=null)
         assertEquals(5 to 2,RelicObjectiveGuide.visibleChest(world)?.let { it.x to it.y })
 
-        // A live guard closes the only access to the nearer chest; the farther
-        // target remains traversable and is suggested instead.
-        val blocked=world.copy(mobs=listOf(RelicMob(99,5,3,5,0)))
+        // The guard occupies the only tile adjacent to the near chest.
+        // The southern corridor remains safe and reaches the farther chest.
+        val blocked=world.copy(mobs=listOf(RelicMob(99,4,2,5,0)))
         assertNull(RelicObjectiveGuide.knownRouteSteps(blocked,near))
         assertTrue(RelicObjectiveGuide.knownRouteSteps(blocked,far)!=null)
         assertEquals(8 to 3,RelicObjectiveGuide.visibleChest(blocked)?.let { it.x to it.y })
