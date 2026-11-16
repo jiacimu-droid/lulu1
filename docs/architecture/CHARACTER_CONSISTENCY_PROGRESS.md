@@ -1,3 +1,12 @@
+## 2026-11-16 · 主人反馈：见面聊天追齐私聊（源码与回归已提交，CI/真机待验）
+
+- **源头缺口**：见面 `recordMeetingTimeline` 将所有非角色名的事件记作观察，主人的真实输入没有独立 `UserStatement`；生成场景里的用户行动/台词可能与原始输入混存；`commitMeetingDecision` 的 `meeting-turn:` / `meeting-living:` 伪来源未对应 `SharedExperienceTimeline` 的真实 ID，撤回后心声/人物决定可能留孤儿。
+- **正式修复**：`14da1d6` 写入每位在场角色的原始主人发言，显式分隔模型扩展的场景 `Observation`；记录到统一原始时间线，按角色/会话/交换 ID 明确归属。 `18b4fca` 将普通/邀请/自主见面中的情绪、内在状态、心声、因果决定全部绑定确实存在的权威原事件，并以主人原文而非占位文本进行内在观察。 `cb2b8cf` 中断回滚后的恢复交换改用新 ID，避免已撤回证据墓碑挡住重新持久化。 `ef65ea6` 取消模型扩展的主人现场片段重复触发经历提取。 `f06cec3` 抽出私聊/电话现有 `CharacterTurnStateCommit.recordDurableDecision` 共用提交顺序，`36419b6` 见面正式复用，保留其原本的实时场景与 Presence 回执。
+- **表达对齐**：`cf7089c` 去掉见面“丰富”模式强制 700–1200 字和连续制造多个事件的旧提示词；维持普通私聊式语言、个性与心声，场景动作、空间及声音是自然附加能力；模型不得替主人新增未说出口的台词/行为。现有风格、实际走位及音轨保持可选。
+- **回归**：`fbe9267` 与 `c63ae1c` 的 `MeetingCausalEvidenceTest` 覆盖多人会话原话与 `UserStatement` 严格归属、模型扩展仅观察、同一交换幂等、回滚撤回实际证据和心理因果、保留其他原文、新交换来源以及身体观察的生命周期。仅提交测试源码，不等于已执行通过。
+- **工程边界**：本批 `main` 并行更新连续取消了较早的 APK 构建。 `14da1d6` 首次失败在 `DigitalWorldMeetingSceneExperience.kt` 对 `isWorldCompanionRole` 的函数引用，当前 `main` 已由其他并行提交改正，非本次心声更改引起；最新包含本批代码的 APK/JVM 及 Redmi 真实场景交流、动作→心声→原始时间线→私聊召回需要后续独立成功证据。不要将源码提交、被取消的工作流或索引成功当 APK/真机通过。
+- **下一次查验**：对含 `cf7089c` 的后继 `main` 核 `Lulu APK` 的完整 JVM 测试与 APK job 首错；真机测两人见面原文、不同角色见证隔离、自然短回复与自主心声、返回私聊/电话召回、重启/修改/撤回来源，以及动作和原文不互相冒充。
+
 ## 2026-11-13 · UI-02.2 群成员通知写入拒绝（总接力）
 - 正式 [9a9e0b7](https://github.com/jiacimu-droid/lulu1/commit/9a9e0b7feb1d2ee223ad0a63ed92cc60f1e486c0) 将群成员变更通知从异步 apply 改为 durable commit，通知提交失败时原 append 回滚消息投影，不触发后续邀请/移除意识回执。
 - 回归 [1b9b211](https://github.com/jiacimu-droid/lulu1/commit/1b9b21102f5e60c0d658cc4cc76f6f9d04b946af) `ChatHistoryLegacyCompatibilityTest.rejectedMembershipNoticeMustNotPublishUndurableMessageAfterSavedRoster`：首笔群成员提交成功、第二笔通知提交失败，检查内存/重开均不出现幽灵通知，成员变更仍存在。**JVM/APK/Refresh 尚未核实**；不称跨提交原子性。
