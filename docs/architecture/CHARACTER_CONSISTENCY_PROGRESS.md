@@ -1,3 +1,10 @@
+## 2026-11-17 · P-08b.1 无新消息的自主感知与私聊共用人物栏目
+
+- [36063ce](https://github.com/jiacimu-droid/lulu1/commit/36063cec7ddb0881709ac77483f1afeb6c41cc17) 扩展 `ConversationExpressionGatewayTest.normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers`。现有 `ActorSceneWirePolicyTest` 已验装配函数，原 HTTP 回归只走私聊；本次同一角色完成私聊并清除未读后，再用正式 `ProactivePerceptionRuntime.runDueCycle` 手动唤醒无新消息的自主决定，直接检查第二次 HTTP。
+- 两个请求的系统栏目都有该角色完整的用户手改关系条款与心声指引，不含另一角色的专属条款。两次都把同一真实亲历及原始事件 ID 放在世界书之后的现场资料栏目。私聊末尾为真实原话，自主感知末尾为程序触发且没有冒充新的用户发言。每个入口恰好一次模拟模型请求，后台选择 silent 后聊天记录不新增气泡。仅增加工程回归，未改变角色数据、运行时或调用频率。
+- 精确 SHA [原索引 #43961397076](https://github.com/jiacimu-droid/lulu1/actions/runs/43961397076) 成功，[JVM/APK #43961397263](https://github.com/jiacimu-droid/lulu1/actions/runs/43961397263) 新回归通过。全量 3308 项，2 项既有失败、1 项跳过，失败与改动前 [#43954245648](https://github.com/jiacimu-droid/lulu1/actions/runs/43954245648) 相同（`MemoryEvidenceCommitIntegrationTest` 和 `RecentSemanticTimelineTest`），APK 未发布。上轮精确 [#43940227387](https://github.com/jiacimu-droid/lulu1/actions/runs/43940227387) 私聊回归复核通过。真机、真实模型与长输入体量仍待验。
+- 下一步沿 P-03.1 打开 `CompanionModelGateway` 的 Relay 503 压力恢复分支及 `RelayRequestPressurePolicyTest.compactProjectionRetainsSourceLabelsAndExactWireBytes`，核真实重发 HTTP 是否仍保留完整条件、否定和原角色身份，已有覆盖则选择实际电话或后台错误响应的尚缺反例。
+
 ## 2026-11-17 · P-08b.1 私聊请求的联想证据与心声规则
 
 - [d51e440](https://github.com/jiacimu-droid/lulu1/commit/d51e440b7400cec84686f4585d439a1cb24cdecc) 只改正式私聊 HTTP 回归。改动前 [#43933272141](https://github.com/jiacimu-droid/lulu1/actions/runs/43933272141) 在 `normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers` 第 2270 行失败：旧断言从现场资料查 `SpontaneousInnerVoiceGuide` 的规则句，正式路径由 `proactiveDecisionInstruction` 组装到系统消息；本人联想事实来自原时间线 `CharacterAssociativeRecall.render`，仍经共用 `ActorSceneWirePolicy.history` 进入现场资料。
