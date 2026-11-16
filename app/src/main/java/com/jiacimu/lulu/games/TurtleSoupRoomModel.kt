@@ -100,7 +100,7 @@ internal object SoupLibrary {
             "这不是餐厅用来吃的汤，而是一家以海龟汤推理为主题的沉浸式体验店。空白菜单本来应当用遇水显影的墨水显示当场的谜题汤面；当天店里停水，连展示题面的喷雾都无法使用。客人是推理游戏爱好者，知道看不到公平的谜题就没法玩，主动离开了游戏场。主人公没有受到威胁。",
             listOf("海龟汤不一定是菜。", "这张纸本来应该显示文字。", "离开不是为了逃命，只是游戏无法正常开始。"),
         ),
-    )
+    ) + SoupExpansionCases.cases
     fun find(id: String): SoupCase? = cases.firstOrNull { it.id == id }
 }
 
