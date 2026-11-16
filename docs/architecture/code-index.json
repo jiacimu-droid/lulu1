@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:31:18.128787+00:00",
-  "commit": "81562556a16011f56574b3bf018f5fa1b14f86d1",
+  "generatedAt": "2026-11-16T08:32:38.193495+00:00",
+  "commit": "919eb3670d013985046a0255da4e9abe2c59261d",
   "branch": "main",
-  "sourceFingerprint": "b6f4278bd30bbd9b5f10afeef773dd7c704be02065cd1f53518ca1c33466e83d",
+  "sourceFingerprint": "8283f22c14b52dcb4153819c30cdde03ad991559d79b5dd0b0653758d151e682",
   "summary": {
     "files": 1358,
-    "lines": 289851,
+    "lines": 289904,
     "symbols": 4089
   },
   "symbolIndex": {
@@ -37316,8 +37316,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 405,
-      "sha256": "14329fd29adb0e26bc11fa3364cbbdce6e967401ef1dbcaca20924dc587b5718",
+      "lines": 416,
+      "sha256": "a3addcef7600906db960a30f967a78216b7617b32dbf2454a9e70f9a9ff229c0",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -38268,8 +38268,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 268,
-      "sha256": "43ab6b879cc03f533796b58f2b2ff1204fd778d46ce46dcbecf5c3b951422d48",
+      "lines": 280,
+      "sha256": "34e8c1292730c8507661cd8b2e12176d2e18f69c2709522e8f6a83bd9eec56b6",
       "symbols": [
         {
           "name": "send",
@@ -47263,8 +47263,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt",
-      "lines": 64,
-      "sha256": "2bfff2f7014fe700226268498a7189dd8fc44f9a73a34a669c691caeb6b5a6e9",
+      "lines": 94,
+      "sha256": "fd69c4ec1bfe8509a62a994b019373a3bc5bdf7cc0cfe82e3014c42eded770a0",
       "symbols": [
         {
           "name": "GameTeamConversationTimelineTest",
