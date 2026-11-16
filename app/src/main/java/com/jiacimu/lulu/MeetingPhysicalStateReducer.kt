@@ -33,6 +33,15 @@ internal object MeetingPhysicalStateReducer {
             else participant
         }, updatedAt = at)
 
+    fun reachedStreetDoor(
+        scene: MeetingSceneSnapshot, characterId: String, doorCode: String, label: String, at: Instant,
+    ): MeetingSceneSnapshot =
+        scene.copy(participants = scene.participants.map { participant ->
+            if (participant.participantId == characterId && participant.destinationStreetCode == doorCode)
+                participant.copy(destinationStreetCode = "", position = "在${label}的门口")
+            else participant
+        }, updatedAt = at)
+
     fun userDeparted(scene: MeetingSceneSnapshot, at: Instant): MeetingSceneSnapshot =
         scene.copy(participants = scene.participants.map {
             if (it.participantId == "user") it.copy(contact = emptyList(), posture = "已离开当前场景")
@@ -41,6 +50,7 @@ internal object MeetingPhysicalStateReducer {
                 explorationMode = if (it.explorationMode == "FOLLOW_USER") "STAY" else it.explorationMode,
                 destinationItemId = "",
                 destinationActivityId = "",
+                destinationStreetCode = "",
             )
         }, updatedAt = at)
 }
