@@ -18,6 +18,24 @@ class DigitalWorldEnvironmentTest {
         assertTrue(night.context().contains("不是用户现实天气"))
     }
 
+    @Test fun oneRealSceneRespondsToSeasonAndLightWithoutScriptedCharacterFeelings() {
+        val spring = DigitalWorldLifeEventStore.openingSummary(
+            "season_pixels", "江渡", "", Instant.parse("2026-04-15T06:00:00Z"))
+        val autumn = DigitalWorldLifeEventStore.openingSummary(
+            "season_pixels", "江渡", "", Instant.parse("2026-11-15T06:00:00Z"))
+        assertTrue(spring.contains("浅绿"))
+        assertTrue(autumn.contains("浅金"))
+        assertNotEquals(spring, autumn)
+        assertFalse(autumn.contains("像素叶"))
+        val daylight = DigitalWorldLifeEventStore.openingSummary(
+            "sun_patch", "江渡", "", Instant.parse("2026-11-15T06:00:00Z"))
+        val night = DigitalWorldLifeEventStore.openingSummary(
+            "sun_patch", "江渡", "", Instant.parse("2026-11-15T16:00:00Z"))
+        assertTrue(daylight.contains("暖光"))
+        assertTrue(night.contains("灯影"))
+        assertFalse(night.contains("放晴"))
+    }
+
     @Test fun temperatureChangesGraduallyInsteadOfRandomlyEachHour() {
         val start = Instant.parse("2026-10-10T00:00:00Z")
         for (hour in 1L..48L) {
