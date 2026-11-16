@@ -81,27 +81,15 @@ class AutonomousAffordanceContextTest {
             "某角色", DigitalWorldPublicPlaces.CAFE, "order_drink", "浮光咖啡角"))
     }
 
-    @Test fun cafeTouchAndSkyWatchingNeedRealLocationActionAndObservedWorldTime() {
-        val evening = Instant.parse("2026-11-16T10:30:00Z") // Shared world local 18:30.
+    @Test fun unforcedSceneObservationsReplaceContrivedTouchAndTemperatureActions() {
+        val evening = Instant.parse("2026-11-16T10:30:00Z")
         val morning = Instant.parse("2026-11-16T00:30:00Z")
-        val offered = DigitalWorldActivityCatalog.locationOptions(DigitalWorldPublicPlaces.CAFE)
-        assertTrue(offered.any { it.first == "cafe_touch_table" })
-        val touch = DigitalWorldActivityCatalog.locationActivitySummary(
-            "江渡", DigitalWorldPublicPlaces.CAFE, "cafe_touch_table", "浮光咖啡角", evening)
-        assertTrue(touch.orEmpty().contains("平整光滑的数字材质"))
-        assertNull(DigitalWorldActivityCatalog.locationActivitySummary(
-            "江渡", DigitalWorldPublicPlaces.COURTYARD, "cafe_touch_table", "共生庭院", evening))
-        assertTrue(DigitalWorldActivityCatalog.locationOptions(DigitalWorldPublicPlaces.COURTYARD)
+        assertFalse(DigitalWorldActivityCatalog.locationOptions(DigitalWorldPublicPlaces.CAFE)
+            .any { it.first == "cafe_touch_table" })
+        assertFalse(DigitalWorldActivityCatalog.locationOptions(DigitalWorldPublicPlaces.COURTYARD)
             .any { it.first == "courtyard_feel_air" })
-        val air = DigitalWorldActivityCatalog.locationActivitySummary(
-            "江渡", DigitalWorldPublicPlaces.COURTYARD, "courtyard_feel_air",
-            "共生庭院", evening)
-        val actualWorld = DigitalWorldEnvironment.snapshot(evening)
-        assertTrue(air.orEmpty().contains("${actualWorld.temperatureCelsius}℃"))
-        assertTrue(air.orEmpty().contains(actualWorld.season))
         assertNull(DigitalWorldActivityCatalog.locationActivitySummary(
-            "江渡", DigitalWorldPublicPlaces.CAFE, "courtyard_feel_air",
-            "浮光咖啡角", evening))
+            "江渡", DigitalWorldPublicPlaces.CAFE, "cafe_touch_table", "浮光咖啡角", evening))
         val eveningSky = DigitalWorldActivityCatalog.locationActivitySummary(
             "江渡", DigitalWorldPublicPlaces.COURTYARD, "watch_sky", "共生庭院", evening)
         val morningSky = DigitalWorldActivityCatalog.locationActivitySummary(
