@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:17:20.389317+00:00",
-  "commit": "a5c6d53f9aabc0e9d827592c5c3cdfbf9fded88d",
+  "generatedAt": "2026-11-16T02:17:49.954650+00:00",
+  "commit": "b765394d7421c7415945d0165e2bef5638b7b317",
   "branch": "main",
-  "sourceFingerprint": "d78bb7f25c6aa3dca525ba0904857000992224185720743cf102c83641f32ed3",
+  "sourceFingerprint": "07eb338c668323ea620eb62c72496e86a504f405fa8ff27a99633330ff7f16d2",
   "summary": {
     "files": 1341,
-    "lines": 286161,
+    "lines": 286160,
     "symbols": 4042
   },
   "symbolIndex": {
@@ -46270,8 +46270,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 437,
-      "sha256": "a89cc4ed5386c69b3607036c35db9e63020e03087ada162cb106ae4916904b0b",
+      "lines": 436,
+      "sha256": "d8de32c53fff67adf58c1518cf1a51d49ad603846374037d7c3dfd8159085b00",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
