@@ -69,7 +69,10 @@ class LuluVirtualChatSendPolicyTest {
         val talk = b(125, 1040, 610, 1100)
         assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住 说话"))
         assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住讲话"))
+        assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("可按住 转文字"))
+        assertTrue(LuluVirtualChatSendPolicy.isPressToTalk("按住转文字"))
         assertFalse(LuluVirtualChatSendPolicy.isPressToTalk("聊天记录：按住说话就行"))
+        assertFalse(LuluVirtualChatSendPolicy.isPressToTalk("可按住转文字后点击发消息"))
         val controls = listOf(
             c(b(50, 1040, 103, 1100), "", "", true),
             c(b(640, 1038, 695, 1100), "表情", "", true),
@@ -103,6 +106,18 @@ class LuluVirtualChatSendPolicyTest {
             "佳辞的聊天", null, "佳辞"))
         assertFalse(LuluVirtualChatSendPolicy.headerMatches(
             null, null, "文件传输助手"))
+        // Real WeChat: the unread badge "4" is rendered next to the title.
+        // A provider may combine them into one accessibility description.
+        assertTrue(LuluVirtualChatSendPolicy.headerMatches(
+            "4 文件传输助手", null, "文件传输助手"))
+        assertTrue(LuluVirtualChatSendPolicy.headerMatches(
+            null, "返回 (4) 文件传输助手", "文件传输助手"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            "文件传输助手的聊天记录", null, "文件传输助手"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            "4 文件传输助手 王五", null, "文件传输助手"))
+        assertFalse(LuluVirtualChatSendPolicy.headerMatches(
+            "14 文件传输助手", null, "14 文件"))
     }
 
     @Test fun actualWindowTitleCanVerifyCustomWeChatToolbarWithoutMatchingTextNodes() {
