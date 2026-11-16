@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:59:22.517789+00:00",
-  "commit": "83c8a98ac41173d032be4e0798e6bc1a1fe7237d",
+  "generatedAt": "2026-11-16T15:17:17.769475+00:00",
+  "commit": "bddb901573063eec83e3f7ef99415f5cb7433faf",
   "branch": "main",
-  "sourceFingerprint": "42f86f292dd12c5ffee185209083cc41ac581c5315cc7d9a83a72cff46dc8699",
+  "sourceFingerprint": "5de3c5c39d81a8ab2ec4b2b8e790249906d721d3b7fbfd99436582c571dd6016",
   "summary": {
     "files": 1365,
-    "lines": 291776,
-    "symbols": 4110
+    "lines": 291798,
+    "symbols": 4112
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5634,28 +5634,40 @@
         "line": 53
       }
     ],
+    "actorSceneFacts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
+        "line": 195
+      }
+    ],
+    "actorExceedsEnvelope": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
+        "line": 200
+      }
+    ],
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 186
+        "line": 208
       }
     ],
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 210
+        "line": 232
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 226
+        "line": 248
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 229
+        "line": 251
       }
     ],
     "ScopedModelSelections": [
@@ -27707,8 +27719,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 233,
-      "sha256": "d368a7f60b7f3a3b06e4b43d1a514357389f94e6d18e95b575a1207219f7cabf",
+      "lines": 255,
+      "sha256": "5b775c9d7ecfcdb24d8b1cab3a72cf3eeb31045fb4c6a7c957da8c7e020cd515",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -27727,20 +27739,28 @@
           "line": 53
         },
         {
+          "name": "actorSceneFacts",
+          "line": 195
+        },
+        {
+          "name": "actorExceedsEnvelope",
+          "line": 200
+        },
+        {
           "name": "compactHistory",
-          "line": 186
+          "line": 208
         },
         {
           "name": "compactSectionPairs",
-          "line": 210
+          "line": 232
         },
         {
           "name": "compactSections",
-          "line": 226
+          "line": 248
         },
         {
           "name": "savesEnough",
-          "line": 229
+          "line": 251
         }
       ]
     },
