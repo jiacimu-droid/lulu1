@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:53:59.678671+00:00",
-  "commit": "13c666c54cd31d822f94d31138146a08ef8780ae",
+  "generatedAt": "2026-11-16T08:55:07.986588+00:00",
+  "commit": "e8e583fb80a42c2216968d80f2a308dae63cc2ed",
   "branch": "main",
-  "sourceFingerprint": "4b32d8475515e6ac7ea1a23aae4b45ff446898dd49db6353f2875f9f44ba6a68",
+  "sourceFingerprint": "25c2dc3e14fa1d91ef8f5053be919bd94f175274174cd5e1c1bdd8b97e3e4724",
   "summary": {
     "files": 1358,
-    "lines": 290005,
-    "symbols": 4089
+    "lines": 290010,
+    "symbols": 4090
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -915,7 +915,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1621
+        "line": 1625
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5501,31 +5501,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 757
+        "line": 760
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 763
+        "line": 766
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1361
+        "line": 1365
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1373
+        "line": 1377
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1611
+        "line": 1615
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -6477,7 +6477,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 30
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
@@ -8112,52 +8112,58 @@
         "line": 26
       }
     ],
+    "gameCapabilityPromptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 32
+      }
+    ],
     "CharacterRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "definition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 109
+        "line": 110
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 119
+        "line": 120
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 212
+        "line": 213
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 223
+        "line": 224
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 242
+        "line": 243
       }
     ],
     "offer": [
@@ -27323,8 +27329,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1629,
-      "sha256": "60d55c54d2ca63308584634b33ca63bc7aa006c15ab43697c48a5d2b574b2200",
+      "lines": 1633,
+      "sha256": "5a8967997a3a6858f31b7ca824fa9223336da14b83202ef1053b3a06ebff5c82",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -27424,27 +27430,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 757
+          "line": 760
         },
         {
           "name": "positionedBooks",
-          "line": 763
+          "line": 766
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1361
+          "line": 1365
         },
         {
           "name": "consumeEvent",
-          "line": 1373
+          "line": 1377
         },
         {
           "name": "LuluAiServices",
-          "line": 1611
+          "line": 1615
         },
         {
           "name": "initialize",
-          "line": 1621
+          "line": 1625
         }
       ]
     },
@@ -29766,8 +29772,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 249,
-      "sha256": "caf9d80144dfefa6636aa0a7ee95cdb316a34c38405848cf8632018d48d7dc86",
+      "lines": 250,
+      "sha256": "2f05deb2171684f04fbf19dc6a839c3b0e23cba9163a372475e2171ee65d4706",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -29786,40 +29792,44 @@
           "line": 26
         },
         {
+          "name": "gameCapabilityPromptSection",
+          "line": 32
+        },
+        {
           "name": "promptSection",
-          "line": 30
+          "line": 41
         },
         {
           "name": "CharacterRuntime",
-          "line": 52
+          "line": 53
         },
         {
           "name": "definition",
-          "line": 54
+          "line": 55
         },
         {
           "name": "definitionChanges",
-          "line": 79
+          "line": 80
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 109
+          "line": 110
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 119
+          "line": 120
         },
         {
           "name": "learningContext",
-          "line": 212
+          "line": 213
         },
         {
           "name": "leanExpressionContext",
-          "line": 223
+          "line": 224
         },
         {
           "name": "developmentContext",
-          "line": 242
+          "line": 243
         }
       ]
     },
