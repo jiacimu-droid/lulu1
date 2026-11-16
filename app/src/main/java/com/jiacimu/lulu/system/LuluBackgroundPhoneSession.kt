@@ -1015,9 +1015,36 @@ internal object LuluBackgroundPhoneSession {
                 // repeat it when pixels/UI acknowledgement are unavailable.
                 lastObservedUi = null
                 val dispatched = applied?.optBoolean("messageSendClicked") == true
-                return JSONObject().put("success", false)
+                val outgoingBefore = applied?.optInt("outgoingVisibleBefore", -1) ?: -1
+                val recipient = args.optString("recipient")
+                val message = args.optString("text")
+                // WeChat redraws the chat asynchronously after accepting
+                // Send. Poll READ-ONLY local UI evidence, never click twice.
+                var appearedInChat = false
+                if (dispatched && outgoingBefore >= 0) {
+                    for (attempt in 0 until 7) {
+                        if (ownerHasPaused(context) ||
+                            !LuluRolePhoneAuthorization.isGranted(context, characterId) ||
+                            context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
+                            break
+                        val after = withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.virtualChatOutgoingTextCount(
+                                id, activeApp, recipient, message)
+                        }
+                        if (after > outgoingBefore) {
+                            appearedInChat = true
+                            break
+                        }
+                        if (attempt < 6) kotlinx.coroutines.delay(180)
+                    }
+                }
+                return JSONObject().put("success", appearedInChat)
                     .put("accepted", dispatched)
-                    .put("status", "unverified")
+                    .put("status", when {
+                        appearedInChat -> "client_message_visible"
+                        dispatched -> "send_clicked_delivery_unverified"
+                        else -> "unverified"
+                    })
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("packageName", activeApp)
                     .put("messageInputReadbackVerified",
@@ -1025,13 +1052,16 @@ internal object LuluBackgroundPhoneSession {
                     .put("chatRecipientVerified",
                         applied?.optBoolean("chatRecipientVerified") == true)
                     .put("messageSendClicked", dispatched)
+                    .put("messageAppearedInChat", appearedInChat)
                     .put("inputModeSwitchClicked",
                         applied?.optBoolean("inputModeSwitchClicked") == true)
                     .put("messageDeliveryVerified", false)
                     .put("taskCompleted", false)
                     .put("errorCode", applied?.optString("errorCode").orEmpty())
-                    .put("verification", if (dispatched)
-                        "当前微信聊天对象和正文已核实，并且发送按钮已被设备接受一次；尚无服务器送达证据，禁止以不确定为理由再次点击发送"
+                    .put("verification", if (appearedInChat)
+                        "已在真实微信会话中观察到新增的右侧消息气泡，确认客户端显示发出；服务器或对方是否收到尚无独立证据"
+                    else if (dispatched)
+                        "当前微信聊天对象和正文已核实，发送按钮仅被点击一次，但未观察到新消息气泡；结果不确定，不得重复点击发送"
                     else if (applied?.optBoolean("messageInputReadbackVerified") == true)
                         "聊天文字已写入并读回，但发送按钮或收件人未能再次核实；没有确认发送，请先只读观察"
                     else applied?.optString("verification")?.takeIf(String::isNotBlank)
