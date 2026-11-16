@@ -9,7 +9,7 @@ class LuluVirtualA11yTraversalTest {
     private data class Node(
         val label: String = "",
         val visible: Boolean = true,
-        val protected: Boolean = false,
+        val isProtected: Boolean = false,
         val children: List<Node> = emptyList(),
     )
 
@@ -19,7 +19,7 @@ class LuluVirtualA11yTraversalTest {
             roots = roots.toList(),
             childCount = { it.children.size },
             childAt = { node, i -> node.children.getOrNull(i) },
-            isProtected = { it.protected },
+            isProtected = { it.isProtected },
             isVisible = { it.visible },
         ) { node ->
             if (node.label.isNotBlank()) result += node.label
@@ -38,7 +38,7 @@ class LuluVirtualA11yTraversalTest {
     @Test fun doesNotReadOrTraverseProtectedSubtree() {
         val tree = Node(children = listOf(
             Node(label = "返回"),
-            Node(protected = true, children = listOf(Node(label = "聊天密码"))),
+            Node(isProtected = true, children = listOf(Node(label = "聊天密码"))),
             Node(visible = false, children = listOf(Node(label = "文件传输助手"))),
         ))
         val text = read(tree)
