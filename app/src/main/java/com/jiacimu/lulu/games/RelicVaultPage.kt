@@ -20,8 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 private val museumBg=Color(0xFF111B25)
 private val museumInk=Color(0xFFF1EEE7)
@@ -132,10 +130,10 @@ internal fun RelicVaultPage(
             }
         }
     }
-    Dialog(onDismissRequest=onClose,properties=DialogProperties(usePlatformDefaultWidth=false)) {
-        BoxWithConstraints(Modifier.fillMaxSize().background(museumBg)) {
+    // Standalone content in the game's root viewport, not a separate clipped Dialog window.
+    BoxWithConstraints(Modifier.fillMaxSize().background(museumBg)) {
             val landscape=maxWidth>maxHeight
-            Column(Modifier.fillMaxSize().padding(horizontal=14.dp,vertical=8.dp),
+            Column(Modifier.fillMaxSize().padding(start=14.dp,end=14.dp,top=42.dp,bottom=8.dp),
                 verticalArrangement=Arrangement.spacedBy(7.dp)) {
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                     TextButton(onClick=onClose) {
@@ -208,7 +206,6 @@ internal fun RelicVaultPage(
                 }
             }
         }
-    }
     pendingSale?.let { item ->
         AlertDialog(onDismissRequest={pendingSale=null},
             containerColor=Color(0xFF1D2935),
