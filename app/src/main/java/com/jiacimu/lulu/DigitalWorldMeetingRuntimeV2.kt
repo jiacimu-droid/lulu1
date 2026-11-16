@@ -17,6 +17,10 @@ private fun commitMeetingDecision(
 ) {
     if (reply.appraisal == null && reply.innerLife == null &&
         reply.innerThought.isBlank() && reply.decisionReason.isBlank()) return
+    // Reuse the same canonical witnessed evidence that private chat uses.
+    // Synthetic decision IDs cannot be withdrawn with the raw scene input.
+    val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(sourceId))
+        .singleOrNull() ?: return
     val action = when {
         reply.moveTo.isNotBlank() -> "digital_world"
         reply.segments.isNotEmpty() -> "reply"
@@ -25,11 +29,6 @@ private fun commitMeetingDecision(
     val motive = CharacterBehaviorMotivation.resolve(
         action, reply.decisionReason, reply.appraisal, reply.innerLife,
     )
-    CharacterInnerLifeStore.observe(
-        characterId, sourceId, "这次见面中已经落库的真实现场互动",
-        reply.innerLife, emptySet(), at,
-    )
-    CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reply.innerThought, at)
     CharacterInnerLifeStore.recordCausalTransition(
         characterId = characterId, evidenceId = sourceId,
         appraisal = reply.appraisal, innerLife = reply.innerLife,
@@ -38,6 +37,12 @@ private fun commitMeetingDecision(
         innerThought = reply.innerThought,
         reason = motive?.reason.orEmpty(), now = at,
     )
+    CharacterInnerLifeStore.observe(
+        characterId, sourceId, source.content, reply.innerLife,
+        if (source.evidenceKind == EventEvidenceKind.UserStatement) setOf("user") else emptySet(),
+        at,
+    )
+    CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reply.innerThought, at)
 }
 
 
@@ -76,7 +81,11 @@ internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: St
             false,
         )
     }
-    commitMeetingDecision(inviterId, reply, "meeting-arrival:$sessionId:$exchangeId:$inviterId", now)
+    val sourceId = DigitalWorldStore.recordMeetingExchangeObservation(
+        session, exchangeId, inviterId,
+        "主人已接受${character.displayName}的见面邀请，双方在“${session.location}”真实会合；这不是主人新增的发言。", now,
+    )
+    commitMeetingDecision(inviterId, reply, sourceId, now)
     CompanionPresenceStore.update(
         characterId = inviterId,
         statusText = reply.statusText,
@@ -103,6 +112,8 @@ internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: St
 internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, exchangeId: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
         ?: error("见面记录不存在")
+    // The exact owner draft is the first-class user evidence, not a model expansion.
+    DigitalWorldStore.recordMeetingOriginalInput(session, exchangeId, userText)
     val director = meetingPlanDirectionV2(session, userText)
     val participantOrder = director.order.ifEmpty { session.participantIds }
     val firstCharacterId = participantOrder.firstOrNull() ?: error("见面参与者不存在")
@@ -129,7 +140,6 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
     }
     val groups = meetingGroupExchangeV2(sequence)
     val completedMoment = sequence.meetingExchangeTranscriptV2(userName, firstCharacter.displayName)
-    var rawInputRecorded = false
     var moved = false
 
     groups.forEachIndexed { groupIndex, group ->
@@ -156,13 +166,8 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
             exchangeId = exchangeId,
         )
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
-        val recorded = buildString {
-            if (isUser && !rawInputRecorded) {
-                appendLine("主人原始输入：${userText.trim()}")
-                rawInputRecorded = true
-            }
-            append(group.segments.meetingTranscript())
-        }.trim()
+        // Model-expanded user gestures remain scene observations, not authored speech.
+        val recorded = group.segments.meetingTranscript()
         session.participantIds.forEach { viewerId ->
             DigitalWorldStore.recordMeetingTimeline(
                 session,
@@ -172,6 +177,7 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
                 recorded,
                 occurredAt,
                 groupIndex == groups.lastIndex && session.participantIds.size == 1 && viewerId == session.participantIds.last(),
+                evidenceKind = if (isUser) EventEvidenceKind.Observation else EventEvidenceKind.CharacterStatement,
             )
         }
     }
@@ -183,7 +189,7 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
     }
     val firstAt = Instant.now()
     commitMeetingDecision(firstCharacterId, firstReply,
-        "meeting-turn:$sessionId:$exchangeId:$firstCharacterId", firstAt)
+        DigitalWorldStore.meetingInputEvidenceId(sessionId, exchangeId, firstCharacterId), firstAt)
     CompanionPresenceStore.update(
         characterId = firstCharacterId,
         statusText = firstReply.statusText,
@@ -245,10 +251,11 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
                 recorded,
                 replyAt,
                 additionalIndex == participantOrder.drop(1).lastIndex,
+                evidenceKind = EventEvidenceKind.CharacterStatement,
             )
         }
         commitMeetingDecision(characterId, reply,
-            "meeting-turn:$sessionId:$exchangeId:$characterId", replyAt)
+            DigitalWorldStore.meetingInputEvidenceId(sessionId, exchangeId, characterId), replyAt)
         CompanionPresenceStore.update(
             characterId = characterId,
             statusText = reply.statusText,
@@ -352,6 +359,12 @@ internal suspend fun meetingRunLivingMomentV2(
     // No model-created 'user' reply may enter the timeline.
     val segments = reply.segments.filter { it.text.isNotBlank() }
     val now = Instant.now()
+    val sourceId = DigitalWorldStore.recordMeetingExchangeObservation(
+        session, exchangeId, characterId,
+        if (spontaneous) "主人确实仍在“${session.location}”的见面现场；这一刻没有新增发言或身体动作。"
+        else actualMoment,
+        now,
+    )
     if (segments.isNotEmpty()) {
         val character = MigratedDomainStores.characters.get(characterId)
         val turn = MeetingTurn(
@@ -370,13 +383,13 @@ internal suspend fun meetingRunLivingMomentV2(
                 session, viewerId, "turn-${turn.id}-$characterId",
                 character.displayName, segments.meetingTranscript(), now,
                 viewerId == session.participantIds.last(),
+                evidenceKind = EventEvidenceKind.CharacterStatement,
             )
         }
     }
     // Existing presence/personality store is the sole owner of inner thoughts,
     // mood, visible gesture and commitments, including spontaneous moments.
-    commitMeetingDecision(characterId, reply,
-        "meeting-living:$sessionId:$exchangeId:$characterId", now)
+    commitMeetingDecision(characterId, reply, sourceId, now)
     if (reply.innerThought.isNotBlank() || reply.mood.isNotBlank() ||
         reply.gesture.isNotBlank() || reply.statusText.isNotBlank() ||
         reply.appraisal != null || reply.innerLife != null) {
