@@ -93,4 +93,27 @@ class TurtleSoupRoomTest {
             assertFalse(puzzle.surface == puzzle.truth)
         }
     }
+    @Test fun caseSelectionAndExplicitStartSurviveReloadWithoutLosingLegacyPlay() {
+        val lobby = SoupRoom(caseId = "caption_sos", host = SoupHost.AI,
+            companions = listOf("jiangdu"))
+        assertFalse(lobby.started)
+        val reopenedLobby = SoupRoom.fromJson(lobby.toJson())!!
+        assertEquals(lobby, reopenedLobby)
+        assertEquals("caption_sos", reopenedLobby.caseId)
+        assertFalse(reopenedLobby.started)
+        assertTrue(SoupRoom.fromJson(lobby.copy(started = true).toJson())!!.started)
+
+        // Old rooms created before the lobby upgrade had no started flag.
+        // Their public turns mean they must resume as active instead of locking players out.
+        val old = org.json.JSONObject(lobby.copy(
+            lines = listOf(SoupLine("你", SoupKind.QUESTION, "有其他人在场吗？"))
+        ).toJson())
+        old.remove("started")
+        val restored = SoupRoom.fromJson(old.toString())!!
+        assertTrue(restored.started)
+        assertEquals(1, restored.questionCount)
+        assertEquals(0, restored.pendingQuestion)
+        assertFalse(restored.publicContext().contains(restored.puzzle.truth))
+    }
+
 }
