@@ -307,13 +307,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                     readRun={snapshot.run ?: run},
                     onTeamPulse = { expectedId ->
                         val current = ledger.read().run
-                        if (current == null || current.id != expectedId ||
-                            !GameCoopPacing.relicHasPlan(current))
+                        val actors = current?.let(GameCoopPacing::relicTickActors).orEmpty()
+                        if (current == null || current.id != expectedId || actors.isEmpty())
                             null
                         else {
                             val next = runCatching {
                                 ledger.perform("companion_tick",
-                                    autonomousIds = current.allies.map { it.id }.toSet(),
+                                    autonomousIds = actors,
                                     expectedRunId = expectedId)
                             }.getOrElse {
                                 error = it.message ?: "队伍行动无法保存"
