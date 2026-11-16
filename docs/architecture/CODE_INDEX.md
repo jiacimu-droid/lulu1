@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`df997336239dc333ef7a341662fbc584555443b5`
+- 基准提交：`9cd41b6edb367507e61d684cf9444716a6651809`
 - 分支：`main`
 - 已索引文件：1343
-- 已索引代码/文本行：286398
-- 已发现符号：4044
+- 已索引代码/文本行：286412
+- 已发现符号：4045
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -143,7 +143,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 364 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt` | 192 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 202 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 206 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 324 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
@@ -211,7 +211,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 46 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |

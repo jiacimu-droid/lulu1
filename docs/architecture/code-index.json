@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:17:39.885007+00:00",
-  "commit": "df997336239dc333ef7a341662fbc584555443b5",
+  "generatedAt": "2026-11-16T03:19:16.223641+00:00",
+  "commit": "9cd41b6edb367507e61d684cf9444716a6651809",
   "branch": "main",
-  "sourceFingerprint": "203288f2ed2cff5ba5980d3664e2460717704f53f61e678ebd7eed35d3b1d762",
+  "sourceFingerprint": "5e43894e003297c26d7a45f852f1288bef2405b63b3b96dd8fbade2fa8c3a6c4",
   "summary": {
     "files": 1343,
-    "lines": 286398,
-    "symbols": 4044
+    "lines": 286412,
+    "symbols": 4045
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3524,10 +3524,16 @@
         "line": 143
       }
     ],
+    "reachedItem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
+        "line": 28
+      }
+    ],
     "userDeparted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
-        "line": 26
+        "line": 35
       }
     ],
     "MeetingReplyTaskManager": [
@@ -23880,8 +23886,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 202,
-      "sha256": "0f4c386858ee4efc5135c796011f045e7a59d8c6629a031c14f98731255b955f",
+      "lines": 206,
+      "sha256": "7278b0d935f06336a618eda6444a4aaa57ecd0b77bbfe5477afbee88865534af",
       "symbols": []
     },
     {
@@ -25334,16 +25340,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
-      "lines": 36,
-      "sha256": "2f853fca8a8ffc333c15c247bbb13dd721e26df813bebe8d834f4dbc536bdddf",
+      "lines": 46,
+      "sha256": "495152fc3270374e9c124abab7af7df66bd55d74dd247202cc220dc83d1e0b2d",
       "symbols": [
         {
           "name": "apply",
           "line": 9
         },
         {
+          "name": "reachedItem",
+          "line": 28
+        },
+        {
           "name": "userDeparted",
-          "line": 26
+          "line": 35
         }
       ]
     },
