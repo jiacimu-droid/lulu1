@@ -9,10 +9,10 @@ import java.time.Instant
  * never one API/perception tick. Raw messages, tools and game steps remain
  * individually persisted, addressable and revocable in SharedExperienceTimeline.
  */
-internal object RecentSemanticTimeline {
-    internal enum class Kind { SPEECH, EXPERIENCE, SINGLE }
+object RecentSemanticTimeline {
+    enum class Kind { SPEECH, EXPERIENCE, SINGLE }
 
-    internal data class Turn(val key: String, val kind: Kind,
+    data class Turn(val key: String, val kind: Kind,
                              val events: List<SharedTimelineEvent>) {
         val lastAt: Instant get() = events.last().occurredAt
     }
