@@ -153,6 +153,52 @@ internal object RelicEscapeWorld {
             occupied+=x to y
             sites+=RelicSite(sites.size,x,y,"alarm")
         }
+        // Exploration landmarks have complementary rules, not decorative loot:
+        // a lens reveals real unknown tiles, an echo plate punishes rushing but
+        // can be crossed silently, and a reachable switch opens a wall shortcut.
+        val lens=possibleSites.filter { it !in occupied &&
+            abs(it.first-2)+abs(it.second-2) in 5..10 }
+            .minByOrNull { abs(abs(it.first-2)+abs(it.second-2)-7) }
+        if(lens!=null) {
+            occupied+=lens
+            sites+=RelicSite(sites.size,lens.first,lens.second,"lens")
+        }
+        val echo=possibleSites.filter { it !in occupied &&
+            abs(it.first-2)+abs(it.second-2)>=9 &&
+            chests.any { chest ->
+                abs(chest.x-it.first)+abs(chest.y-it.second) in 2..6
+            } }.firstOrNull()
+        if(echo!=null) {
+            occupied+=echo
+            sites+=RelicSite(sites.size,echo.first,echo.second,"echo")
+        }
+        // A sealed gate is an *existing wall* between two already reachable
+        // passages. It never closes a guaranteed route or traps a chest.
+        // The switch is on the walkable side and has its own persistent ID.
+        val gatedWalls=(3 until w-3).flatMap { x ->
+            (3 until h-3).map { y -> x to y }
+        }.filter { (gx,gy) ->
+            cells[gy*w+gx]==1 && abs(gx-2)+abs(gy-2)>7 &&
+                (gx-1 to gy in reachable && gx+1 to gy in reachable ||
+                    gx to gy-1 in reachable && gx to gy+1 in reachable) &&
+                chests.any { chest -> abs(chest.x-gx)+abs(chest.y-gy)<=7 }
+        }.shuffled(rng)
+        val pairedGate=gatedWalls.firstNotNullOfOrNull { (gx,gy) ->
+            val sides=listOf(gx-1 to gy,gx+1 to gy,gx to gy-1,gx to gy+1)
+            sides.firstOrNull { it in reachable && it !in occupied &&
+                sites.none { site -> !site.spent && site.x==it.first && site.y==it.second } }
+                ?.let { (gx to gy) to it }
+        }
+        if(pairedGate!=null) {
+            val gate=pairedGate.first
+            val switch=pairedGate.second
+            val gateId=sites.size
+            sites+=RelicSite(gateId,gate.first,gate.second,"seal_gate",linkId=gateId+1)
+            sites+=RelicSite(gateId+1,switch.first,switch.second,
+                "seal_switch",linkId=gateId)
+            occupied+=gate
+            occupied+=switch
+        }
         val allies=companions.distinct().filter{it.isNotBlank()}.take(3).mapIndexed{index,id->
             val positions=listOf(3 to 2,2 to 3,3 to 3)
             val (x,y)=positions[index]
