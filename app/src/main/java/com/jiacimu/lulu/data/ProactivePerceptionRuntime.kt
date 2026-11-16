@@ -1229,9 +1229,10 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine("\n【长期上下文层】")
-                // The unified gateway already provides CharacterContinuityRuntime
-                // once, to private chat, calls, and independent decisions alike.
-                if (privateDialogue.isEmpty()) appendLine(CharacterExpressionContinuity.guide(characterId))
+                // The same expression habits belong to this person both when
+                // replying to a real message and when deciding autonomously.
+                // CharacterContinuityRuntime itself still comes from the gateway.
+                appendLine(CharacterExpressionContinuity.guide(characterId))
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
                 appendLine(CharacterUnfinishedActionContext.renderWithBody(unfinishedChoices, characterId, now))
