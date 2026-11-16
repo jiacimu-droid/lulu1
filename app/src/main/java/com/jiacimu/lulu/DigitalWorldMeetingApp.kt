@@ -386,11 +386,6 @@ fun DigitalWorldMeetingApp(
                     browsingMap = true
                     openWalkableStreetOnReturn = false
                 },
-                onExitToStreet = {
-                    activeSessionId = null
-                    browsingMap = true
-                    openWalkableStreetOnReturn = true
-                },
                 onEnd = finishActiveMeeting,
                 onDelete = { pendingDeleteSession = activeSession },
                 onInputChanged = { input = it.take(2_000) },
