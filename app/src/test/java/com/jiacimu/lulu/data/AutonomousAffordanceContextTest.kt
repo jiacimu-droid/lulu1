@@ -81,6 +81,27 @@ class AutonomousAffordanceContextTest {
             "某角色", DigitalWorldPublicPlaces.CAFE, "order_drink", "浮光咖啡角"))
     }
 
+    @Test fun cafeTouchAndSkyWatchingNeedRealLocationActionAndObservedWorldTime() {
+        val evening = Instant.parse("2026-11-16T10:30:00Z") // Shared world local 18:30.
+        val morning = Instant.parse("2026-11-16T00:30:00Z")
+        val offered = DigitalWorldActivityCatalog.locationOptions(DigitalWorldPublicPlaces.CAFE)
+        assertTrue(offered.any { it.first == "cafe_touch_table" })
+        val touch = DigitalWorldActivityCatalog.locationActivitySummary(
+            "江渡", DigitalWorldPublicPlaces.CAFE, "cafe_touch_table", "浮光咖啡角", evening)
+        assertTrue(touch.orEmpty().contains("平整光滑的数字材质"))
+        assertNull(DigitalWorldActivityCatalog.locationActivitySummary(
+            "江渡", DigitalWorldPublicPlaces.COURTYARD, "cafe_touch_table", "共生庭院", evening))
+        val eveningSky = DigitalWorldActivityCatalog.locationActivitySummary(
+            "江渡", DigitalWorldPublicPlaces.COURTYARD, "watch_sky", "共生庭院", evening)
+        val morningSky = DigitalWorldActivityCatalog.locationActivitySummary(
+            "江渡", DigitalWorldPublicPlaces.COURTYARD, "watch_sky", "共生庭院", morning)
+        assertTrue(eveningSky.orEmpty().contains("暮色"))
+        assertTrue(morningSky.orEmpty().contains("晨光"))
+        val window = DigitalWorldActivityCatalog.locationActivitySummary(
+            "江渡", DigitalWorldPublicPlaces.CAFE, "window_cafe", "浮光咖啡角", evening)
+        assertTrue(window.orEmpty().contains("暮色"))
+    }
+
     @Test fun furnitureOptionsAppearOnlyWhenActorIsActuallyHomeWithCapacity() {
         val atHome = AutonomousAffordanceContext.render(
             digital = true, location = "resident-home:homeowner",
