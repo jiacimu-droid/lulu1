@@ -46,6 +46,11 @@ internal fun LuluGameRecord.canWatchCharacterSoloProcess(): Boolean =
                 summary.startsWith("独自完成一局")
         ))
 
+/** Route to the real game renderer only when actual committed snapshots exist. */
+internal fun LuluGameRecord.canOpenImmersiveRelicReplay(): Boolean =
+    type == LuluGameType.RelicEscape && canWatchCharacterSoloProcess() &&
+        RelicSoloReplay.read(detailsJson) != null
+
 /** Game hall history: outcomes for all, optional process only for real character solo runs. */
 @Composable
 fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
@@ -147,8 +152,7 @@ private fun UniversalReplayCenter(
             UniversalGameResult(record = selected!!,
                 onBack = { onSelectRecord(null) }, onReplay = {
                     // A physical relic run deserves the actual game viewport, not a sheet.
-                    if (selected!!.type == LuluGameType.RelicEscape &&
-                        RelicSoloReplay.read(selected!!.detailsJson) != null) {
+                    if (selected!!.canOpenImmersiveRelicReplay()) {
                         onOpenFullscreenReplay(selected!!.id)
                     } else showReplay = true
                 })
