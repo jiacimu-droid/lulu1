@@ -127,11 +127,6 @@ internal fun QqMessageRow(
     val timeText = remember(message.createdAt) {
         message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
     }
-    val anchorCharacterId = remember(message.authorCharacterId, message.conversationId, mine) {
-        if (mine) null else message.authorCharacterId
-            ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId
-    }
-
     Box(Modifier.fillMaxWidth()) {
         if (swipeOffset < -6f) {
             Row(
@@ -170,10 +165,7 @@ internal fun QqMessageRow(
                         44,
                         characterAvatarUri,
                         Modifier.combinedClickable(
-                            onClick = {
-                                anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt, message.id) }
-                                onCharacterAvatarClick()
-                            },
+                            onClick = onCharacterAvatarClick,
                             onDoubleClick = {
                                 MigratedDomainStores.chat.appendSystemMessage(message.conversationId, "[戳一戳] 你戳了戳$characterLabel。")
                             },
