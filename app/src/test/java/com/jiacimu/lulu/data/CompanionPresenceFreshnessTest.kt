@@ -103,6 +103,26 @@ class CompanionPresenceFreshnessTest {
         }
     }
 
+    @Test fun processRestartRepairsAbandonedCallWithoutFakingCurrentTime() {
+        val role = "abandoned-phone"
+        val at = Instant.parse("2026-11-16T00:00:00Z")
+        val abandoned = CompanionPresenceState(
+            characterId = role,
+            statusText = "电话接通中，等着刚开麦的她出声",
+            gesture = "正在接听电话",
+            innerThought = "她应该快要说话了",
+            mood = "轻松",
+            updatedAt = at,
+        )
+        val repaired = CompanionPresenceStore.recoverAbandonedCallState(abandoned)
+        assertEquals("通话已结束", repaired.statusText)
+        assertEquals("", repaired.gesture)
+        assertEquals(at, repaired.updatedAt)
+        assertEquals(abandoned.innerThought, repaired.innerThought)
+        assertEquals("轻松", repaired.mood)
+        assertEquals(repaired, CompanionPresenceStore.recoverAbandonedCallState(repaired))
+    }
+
     @Test fun newPrivateIdeasDisplayEvenWhenThereIsNoHeartVoice() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
