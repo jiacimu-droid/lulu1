@@ -603,17 +603,32 @@ class CompanionModelGateway(
             val dialogueRequest = conversation.isNotEmpty() && contextMode in setOf(
                 CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario,
             )
-            // The same background worker handles both owner messages and
-            // independent life. A chat bubble is NOT a different/memory-starved
-            // person: both use the same full-life tier, with slightly more
-            // relevant autobiographical recall reserved for the live DM.
-            // Only concrete world/quote/tool demands expand specific sources.
+            // A scene is NOT a different person. Every Full-mode primary
+            // character decision (DM, phone, group, meeting, game, Moments,
+            // resident or independent life) gets one common actor memory tier.
+            // The context may still contain different, authoritative scene
+            // evidence; we never pad the request to a token quota.
+            //
+            // Rendering, bedtime narration and narrow repair steps only
+            // complete a decision already made. They must not purchase a
+            // second full autobiographical recall just to format its output.
+            val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
+            val repairOrRendering = expressionOnly ||
+                source == com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING ||
+                source.startsWith("同次") ||
+                source.startsWith("聊天发送前·") ||
+                source.startsWith("聊天决策结构补全") ||
+                source.startsWith("聊天重大关系反馈·") ||
+                source.startsWith("电话口语·") ||
+                source.startsWith("角色本人·后台手机任务真实结果") ||
+                source == "自序所行真实读取回执" ||
+                source == "真实联网工具结果回流" ||
+                instruction.trimStart().startsWith("【通话哄睡：单次完整长篇语音】")
+            val fullActorDecision = contextMode == CompanionContextMode.Full && !repairOrRendering
             val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(
                 source, request, hasLiveConversation = dialogueRequest,
+                fullCharacterDecision = fullActorDecision,
             )
-            // A simple conversational expression already has the planner's researched
-            // intent. Recalling all stores again adds cost but no new decision authority.
-            val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
             if (dialogueRequest) require(conversation.last().role == ModelConversationMessage.Role.USER) {
                 "聊天必须从当前用户消息接话"
             }
