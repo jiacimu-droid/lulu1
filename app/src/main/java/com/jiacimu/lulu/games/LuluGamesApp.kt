@@ -726,7 +726,8 @@ private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
     GameRoute.DeepSea -> 0 to 1
     GameRoute.BlockIsland, GameRoute.RelicEscape -> 0 to 3
     GameRoute.Roleplay -> 1 to 4
-    GameRoute.TurtleSoup, GameRoute.RapportQuiz -> 1 to 3
+    GameRoute.TurtleSoup -> 0 to 3
+    GameRoute.RapportQuiz -> 1 to 3
     GameRoute.YachtDice -> 0 to 3
     GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
     else -> 1 to 1
