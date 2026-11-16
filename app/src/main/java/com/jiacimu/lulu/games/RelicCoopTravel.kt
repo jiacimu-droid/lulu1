@@ -141,7 +141,7 @@ internal object RelicCoopTravel {
                 if(speech.isEmpty())"" else "；他说：「"+speech+"」")
     }
     /** One authoritative movement check for AI actor steps and continued routes. */
-    fun moveStep(s:RelicRun,id:String,x:Int,y:Int):RelicRun? {
+    fun moveStep(s:RelicRun,id:String,x:Int,y:Int,silent:Boolean=false):RelicRun? {
         val a=s.allies.firstOrNull { it.id==id && it.hp>0 } ?:return null
         if(!s.bounds(x,y) || !s.walk(x,y) ||
             RelicEscapeRules.distance(a.x,a.y,x,y)!=1 ||
@@ -149,13 +149,22 @@ internal object RelicCoopTravel {
             s.allies.any { it.id!=id && it.hp>0 && it.x==x && it.y==y } ||
             s.mobs.any { it.hp>0 && it.x==x && it.y==y })return null
         val trap=s.sites.firstOrNull { it.kind=="trap" && !it.spent && it.x==x && it.y==y }
+        val echo=s.sites.firstOrNull {
+            it.kind=="echo" && !it.spent && it.x==x && it.y==y && !silent
+        }
         val damage=(if(s.tile(x,y)==2)1 else 0)+(if(trap!=null)2 else 0)
-        return s.copy(allies=s.allies.map { if(it.id==id)it.copy(x=x,y=y,
+        val moved=s.copy(allies=s.allies.map { if(it.id==id)it.copy(x=x,y=y,
             hp=(it.hp-damage).coerceAtLeast(0),
             downs=it.downs+if(it.hp>0 && it.hp<=damage)1 else 0)else it },
-            sites=if(trap==null)s.sites else s.sites.map {
-                if(it.id==trap.id)it.copy(spent=true)else it
+            sites=if(trap==null && echo==null)s.sites else s.sites.map {
+                if(it.id==trap?.id || it.id==echo?.id)it.copy(spent=true)else it
+            },
+            mobs=if(echo==null)s.mobs else s.mobs.map { mob ->
+                if(mob.hp>0 && RelicEscapeRules.distance(mob.x,mob.y,x,y)<=8)
+                    mob.copy(alert=4)else mob
             })
+        return if(echo==null)moved else moved.log(id,"echo",
+            "同伴踏响共鸣石板，附近守卫已经察觉动静")
     }
     /**
      * Reach a free square beside the character's chosen target, recalculating
