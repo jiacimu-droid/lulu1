@@ -22,7 +22,7 @@ internal object RelicCoopTravel {
                     j.optInt("lastStepTurn",-1),j.optString("itemId"))
             }.getOrNull() ?:return@mapNotNull null
             if(plan.kind !in setOf("support","regroup","chest","rescue","deliver","exit") ||
-                plan.lastStepTurn !in -1..s.turns ||
+                plan.lastStepTurn !in -1..s.logicalStep ||
                 (plan.kind in setOf("support","chest") && plan.targetId<0) ||
                 (plan.kind=="deliver" &&
                     (plan.itemId.isBlank() || actor.bag.none { it.id==plan.itemId })))null
@@ -58,12 +58,12 @@ internal object RelicCoopTravel {
     fun afterChoice(before:RelicRun,after:RelicRun,id:String,option:IslandActorOption):RelicRun {
         val plan=when(option.kind) {
             "support"->before.mobs.firstOrNull { it.x==option.x && it.y==option.y && it.hp>0 }
-                ?.let { RelicCoopPlan("support",it.id,after.turns) }
+                ?.let { RelicCoopPlan("support",it.id,after.logicalStep) }
             "approach_chest"->before.chests.firstOrNull {
                 it.x==option.x && it.y==option.y && !it.opened
-            }?.let { RelicCoopPlan("chest",it.id,after.turns) }
-            "regroup"->RelicCoopPlan("regroup",lastStepTurn=after.turns)
-            "rush_rescue"->RelicCoopPlan("rescue",lastStepTurn=after.turns)
+            }?.let { RelicCoopPlan("chest",it.id,after.logicalStep) }
+            "regroup"->RelicCoopPlan("regroup",lastStepTurn=after.logicalStep)
+            "rush_rescue"->RelicCoopPlan("rescue",lastStepTurn=after.logicalStep)
             "none","reserve"->return after
             else->null
         }
@@ -85,24 +85,24 @@ internal object RelicCoopTravel {
                 if(parts.size!=1 || s.hero.hp<=0 ||
                     RelicEscapeRules.distance(actor.x,actor.y,s.hero.x,s.hero.y)<=1)
                     return null
-                RelicCoopPlan("regroup",lastStepTurn=s.turns)
+                RelicCoopPlan("regroup",lastStepTurn=s.logicalStep)
             }
             "plan_support" -> {
                 if(parts.size!=2)return null
                 val enemy=parts[1].toIntOrNull()?.let { key ->
                     s.mobs.firstOrNull { it.id==key && it.hp>0 && s.visible(it.x,it.y) }
                 } ?:return null
-                RelicCoopPlan("support",enemy.id,s.turns)
+                RelicCoopPlan("support",enemy.id,s.logicalStep)
             }
             "plan_rescue" -> {
                 if(parts.size!=1 || actor.kits<=0 || s.hero.hp>0 ||
                     RelicEscapeRules.distance(actor.x,actor.y,s.hero.x,s.hero.y)<=1)
                     return null
-                RelicCoopPlan("rescue",lastStepTurn=s.turns)
+                RelicCoopPlan("rescue",lastStepTurn=s.logicalStep)
             }
             "plan_exit" -> {
                 if(parts.size!=1 || !canPlanExit(s,actor))return null
-                RelicCoopPlan("exit",lastStepTurn=s.turns)
+                RelicCoopPlan("exit",lastStepTurn=s.logicalStep)
             }
             "plan_chest" -> {
                 if(parts.size!=2)return null
@@ -110,14 +110,14 @@ internal object RelicCoopTravel {
                     s.chests.firstOrNull { it.id==key && !it.opened &&
                         it.id !in s.playerChestMarks && s.visible(it.x,it.y) }
                 } ?:return null
-                RelicCoopPlan("chest",chest.id,s.turns)
+                RelicCoopPlan("chest",chest.id,s.logicalStep)
             }
             "plan_deliver" -> {
                 val itemId=action.removePrefix("plan_deliver:")
                 if(!action.startsWith("plan_deliver:") ||
                     itemId.isBlank() || s.hero.hp<=0 ||
                     actor.bag.none { it.id==itemId })return null
-                RelicCoopPlan("deliver",lastStepTurn=s.turns,itemId=itemId)
+                RelicCoopPlan("deliver",lastStepTurn=s.logicalStep,itemId=itemId)
             }
             else -> return null
         }
@@ -201,13 +201,14 @@ internal object RelicCoopTravel {
         return step%s.w to step/s.w
     }
     /** Advance once using the actual board, not a free teleport or new AI decision. */
-    fun advance(original:RelicRun,autonomousIds:Set<String>):RelicRun {
+    fun advance(original:RelicRun,autonomousIds:Set<String>,companionOnly:Boolean=false):RelicRun {
         var s=original
         for(id in original.coopPlans.keys) {
             val plan=s.coopPlans[id] ?:continue
             if(id !in autonomousIds || s.phase !in
                 setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED) ||
-                plan.lastStepTurn>=s.turns || RelicActorPlay.acted(s,id))continue
+                plan.lastStepTurn>=s.logicalStep ||
+                (!companionOnly && RelicActorPlay.acted(s,id)))continue
             val a=s.allies.firstOrNull { it.id==id && it.hp>0 }
             if(a==null) { s=s.copy(coopPlans=s.coopPlans-id);continue }
             // Downing the player invalidates an old scavenging/combat route.
@@ -278,7 +279,7 @@ internal object RelicCoopTravel {
             val remaining=actor.hp>0 && (exitPlan || plan.kind in setOf("deliver","rescue") ||
                 !arrived)
             s=stepState.copy(coopPlans=if(remaining)stepState.coopPlans+
-                (id to plan.copy(lastStepTurn=stepState.turns))
+                (id to plan.copy(lastStepTurn=stepState.logicalStep))
                 else stepState.coopPlans-id)
                 .log(id,"decision","沿自己决定的"+when(plan.kind) {
                     "support"->"支援";"chest"->"找宝箱"
