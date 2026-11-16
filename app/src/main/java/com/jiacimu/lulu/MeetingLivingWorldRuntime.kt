@@ -102,6 +102,43 @@ internal object MeetingLivingWorldRuntime {
         return fact
     }
 
+    /** Physical arrival, not model narration, is the authority for finishing room navigation. */
+    @Synchronized
+    fun reachedSceneItem(session: MeetingSession, characterId: String, itemId: String): Boolean {
+        val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
+            ?: return false
+        if (current.endedAt != null || !isPresent(session.id) || characterId !in current.participantIds ||
+            current.location != session.location) return false
+        val code = DigitalWorldStore.meetingLocationCode(current.location)
+        val ownerId = code.takeIf { it.startsWith("home:") }?.removePrefix("home:") ?: return false
+        val item = DigitalWorldStore.state.value.items.firstOrNull {
+            it.id == itemId && it.ownerCharacterId == ownerId
+        } ?: return false
+        val before = MeetingExperienceStore.sceneFor(current)
+        if (before.participants.none {
+            it.participantId == characterId && it.destinationItemId == itemId
+        }) return false
+        val now = Instant.now()
+        MeetingExperienceStore.updateScene(
+            current.id, MeetingPhysicalStateReducer.reachedItem(before, characterId, itemId, item.name, now))
+        val name = MigratedDomainStores.characters.get(characterId).displayName
+        val fact = "${name}在“${current.location}”沿真实场景路线走到了${item.name}旁。已实际抵达；没有代替主人决定是否停留、坐下或做其他动作。"
+        val turn = MeetingTurn(
+            id = UUID.randomUUID().toString(),
+            speakerId = "system",
+            speakerName = "数字世界",
+            sceneText = fact,
+            dialogue = "",
+            occurredAt = now,
+            segments = listOf(MeetingSegment(MeetingSegmentType.ACTION, fact)),
+        )
+        DigitalWorldStore.appendMeetingTurn(current.id, turn)
+        recordObservation(current, fact, "arrived-${turn.id}")
+        pendingTouches[current.id] = (pendingTouches[current.id].orEmpty() +
+            PendingTouch(turn.id, characterId, fact)).takeLast(12)
+        return true
+    }
+
     private fun recordObservation(session: MeetingSession, fact: String, suffix: String) {
         val now = Instant.now()
         session.participantIds.forEach { id ->
