@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d26e926ec430f5c565fc65749f7aeece36cef6dd`
+- 基准提交：`6d020d8aeef77fd93f6cdcbbd2430194c1c17a10`
 - 分支：`main`
-- 已索引文件：1349
-- 已索引代码/文本行：287868
-- 已发现符号：4064
+- 已索引文件：1350
+- 已索引代码/文本行：287899
+- 已发现符号：4065
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -894,6 +894,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopLauncherMoveTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/DigitalStreetCollisionTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
