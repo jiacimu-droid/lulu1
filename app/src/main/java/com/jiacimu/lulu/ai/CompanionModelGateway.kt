@@ -603,12 +603,14 @@ class CompanionModelGateway(
             val dialogueRequest = conversation.isNotEmpty() && contextMode in setOf(
                 CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario,
             )
-            // The same background worker handles both autonomous life and a just-received
-            // private message. A private reply should be recalled as a conversation,
-            // not as a complete world-planning cycle. Explicit history, responsibility,
-            // world and tool questions still promote themselves via forRequest().
-            val promptScene = if (dialogueRequest && source == "后台主动感知") "私聊" else source
-            val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(promptScene, request)
+            // The same background worker handles both owner messages and
+            // independent life. A chat bubble is NOT a different/memory-starved
+            // person: both use the same full-life tier, with slightly more
+            // relevant autobiographical recall reserved for the live DM.
+            // Only concrete world/quote/tool demands expand specific sources.
+            val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(
+                source, request, hasLiveConversation = dialogueRequest,
+            )
             // A simple conversational expression already has the planner's researched
             // intent. Recalling all stores again adds cost but no new decision authority.
             val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
