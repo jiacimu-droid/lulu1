@@ -87,12 +87,15 @@ internal fun DigitalWorldMapLobby(
     onOpenModelPicker: () -> Unit = {},
     onOpenWritingPicker: () -> Unit = {},
     onOpenVoiceSettings: () -> Unit = {},
+    launchInStreet: Boolean = false,
+    onEnterStreetScene: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     var openSceneCode by remember { mutableStateOf<String?>(null) }
+    var walkingStreet by remember(launchInStreet) { mutableStateOf(launchInStreet) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showRelationships by remember { mutableStateOf(false) }
@@ -182,6 +185,7 @@ internal fun DigitalWorldMapLobby(
     // The collectible is a clean fullscreen model: Android back returns to the map.
     val immersiveDiorama = activeSceneCode == "preview:rainy-konbini"
     BackHandler(enabled = immersiveDiorama) { openSceneCode = null }
+    BackHandler(enabled = walkingStreet && activeSceneCode == null) { walkingStreet = false }
     Column(modifier.fillMaxSize()
         .then(if (immersiveDiorama) Modifier else Modifier.statusBarsPadding())
         .background(LuluColors.Paper).clipToBounds()) {
@@ -242,12 +246,36 @@ internal fun DigitalWorldMapLobby(
         )
 
         if (activeSceneCode == null) {
-            DigitalWorldMapPage(
+            if (walkingStreet) {
+                val addresses = buildList {
+                    add(DigitalStreetAddress(DigitalWorldStore.CLOUD_MEADOW, "云眠原"))
+                    DigitalWorldPublicPlaces.all.forEach { add(DigitalStreetAddress(it.code, it.label)) }
+                    DigitalWorldExpansionStore.places().forEach { add(DigitalStreetAddress(it.code, it.label)) }
+                    mapCompanionCharacters(characters, profiles).forEach { character ->
+                        add(DigitalStreetAddress(DigitalWorldStore.homeLocation(character.characterId),
+                            world.homes[character.characterId]?.name ?: "${character.displayName}的家"))
+                    }
+                    DigitalWorldExpansionStore.residents().forEach { resident ->
+                        add(DigitalStreetAddress(resident.homeLocationCode, "${resident.name}的家"))
+                    }
+                }.distinctBy(DigitalStreetAddress::code)
+                DigitalWorldWalkableStreet(
+                    addresses = addresses,
+                    onEnterScene = { code ->
+                        walkingStreet = false
+                        onEnterStreetScene()
+                        openScene(code)
+                    },
+                    onReturnToAtlas = { walkingStreet = false },
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                )
+            } else DigitalWorldMapPage(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 characters = characters,
                 profiles = profiles,
                 world = world,
                 onOpenScene = ::openScene,
+                onWalkStreet = { walkingStreet = true },
             )
         } else if (activeSceneCode == "preview:3d-room") {
             // Completely isolated visual sandbox: does not impersonate persistent world props.
@@ -267,6 +295,10 @@ internal fun DigitalWorldMapLobby(
                     world = world,
                     onCharacterClick = { talkTo(it, activeSceneLabel ?: "数字世界") },
                     controlsBottomPadding = 92.dp,
+                    onExitToStreet = {
+                        openSceneCode = null
+                        walkingStreet = true
+                    },
                 )
                 DigitalWorldRouteDock(
                     activeSceneCode = activeSceneCode,
@@ -274,7 +306,7 @@ internal fun DigitalWorldMapLobby(
                     profiles = profiles,
                     world = world,
                     sceneLabel = ::sceneLabel,
-                    onOpenMap = { openSceneCode = null },
+                    onOpenMap = { openSceneCode = null; walkingStreet = true },
                     onOpenScene = ::openScene,
                     modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 10.dp, vertical = 8.dp),
                 )
@@ -400,6 +432,7 @@ private fun DigitalWorldMapPage(
     profiles: Map<String, DigitalLifeProfile>,
     world: DigitalWorldState,
     onOpenScene: (String) -> Unit,
+    onWalkStreet: () -> Unit,
 ) {
     val digitalCharacters = mapCompanionCharacters(characters, profiles)
     val expansionRevision by DigitalWorldExpansionStore.revisions.collectAsState()
@@ -413,6 +446,17 @@ private fun DigitalWorldMapPage(
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item {
+            FilledTonalButton(onClick = onWalkStreet, modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = Color(0xFF254C3E), contentColor = Color.White,
+                )) {
+                Icon(Icons.Outlined.DirectionsWalk, null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("进入可步行的小镇 · 从家门口逛到咖啡厅")
+            }
+        }
         item {
             DigitalWorldAtlas(
                 characters = digitalCharacters,
