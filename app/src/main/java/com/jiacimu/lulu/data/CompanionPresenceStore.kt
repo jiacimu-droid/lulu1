@@ -360,7 +360,11 @@ object CompanionPresenceStore {
             },
         )
         if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() &&
-            next.mood.isBlank() && next.momentReflection.isBlank()) {
+            next.mood.isBlank() && next.momentReflection.isBlank() &&
+            // Clearing an ended call/old activity is a meaningful, factual
+            // transition even if no new mood or private thought was authored.
+            (previous == null || (previous.statusText.isBlank() && previous.gesture.isBlank() &&
+                previous.innerThought.isBlank() && previous.mood.isBlank()))) {
             recordPerceptionAttempt(characterId, "模型返回了空状态", now)
             return
         }
