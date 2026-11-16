@@ -330,7 +330,7 @@ object CompanionPresenceStore {
             characterId = characterId,
             statusText = (statusText?.trim()?.replace(Regex("\\s+"), " ")?.take(120)
                 ?: previous?.statusText.orEmpty().takeUnless {
-                    source.contains("聊天") && previous?.source == "通话结束"
+                    source.contains("聊天") && previous?.statusText == "通话已结束"
                 }.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
             },
