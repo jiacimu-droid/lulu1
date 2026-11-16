@@ -180,9 +180,9 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         val decor = window?.decorView
         val oldSystemUi = decor?.systemUiVisibility
         if (immersivePlay) window?.addFlags(flag)
-        // The island should reach the bottom edge, instead of losing another
-        // horizontal band to the Android navigation pill.
-        if (route == GameRoute.BlockIsland && decor != null) {
+        // Both world-map games own the screen, including the navigation-pillar band.
+        // Restore the host system UI when returning to the game hall or caller.
+        if (route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape) && decor != null) {
             @Suppress("DEPRECATION")
             decor.systemUiVisibility = (oldSystemUi ?: 0) or
                 android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -192,7 +192,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         }
         onDispose {
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
-            if (route == GameRoute.BlockIsland && decor != null && oldSystemUi != null) {
+            if (route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape) && decor != null && oldSystemUi != null) {
                 @Suppress("DEPRECATION")
                 decor.systemUiVisibility = oldSystemUi
             }
