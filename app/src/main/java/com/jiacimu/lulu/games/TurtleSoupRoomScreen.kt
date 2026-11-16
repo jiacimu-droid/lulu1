@@ -68,6 +68,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     var composingQuestion by remember(room.id) { mutableStateOf(true) }
     var composingSolution by remember(room.id) { mutableStateOf(false) }
     var caseSearch by remember(room.id) { mutableStateOf("") }
+    var libraryExpanded by remember(room.id) { mutableStateOf(false) }
     var customExpanded by remember(room.id) { mutableStateOf(room.caseId == CUSTOM_CASE_ID) }
     var customTitle by remember(room.id) { mutableStateOf(room.customTitle) }
     var customSurface by remember(room.id) { mutableStateOf(room.customSurface) }
@@ -441,7 +442,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         Text("按自己的喜好选题；开始前不会调用队友模型。",
                             color = Color(0xFFB9C7D9), fontSize = 12.sp)
                         OutlinedTextField(
-                            value = caseSearch, onValueChange = { caseSearch = it },
+                            value = caseSearch, onValueChange = { caseSearch = it; if (it.isNotBlank()) libraryExpanded = true },
                             modifier = Modifier.fillMaxWidth(), maxLines = 1,
                             label = { Text("搜索名称、类型或难度") },
                             textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
@@ -453,21 +454,38 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             val selection = (unseen.ifEmpty { SoupLibrary.cases }).random()
                             commit(room.copy(caseId = selection.id))
                             caseSearch = ""
+                            libraryExpanded = false
                         }) { Text("随机一碗没玩过的汤", color = gold) }
-                        Text("共 " + SoupLibrary.cases.size + " 碗原创汤",
-                            color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                        Text("当前选择 · " + room.puzzle.title + "（" + room.puzzle.difficulty + "）",
+                            color = gold, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        TextButton(onClick = { libraryExpanded = !libraryExpanded }) {
+                            Text((if (libraryExpanded) "收起" else "展开") + "精选题库 · " +
+                                SoupLibrary.cases.size + "碗原创汤", color = gold)
+                        }
+                        if (libraryExpanded) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                listOf("全部", "黑汤", "温情", "进阶").forEach { filter ->
+                                    FilterChip(selected = if (filter == "全部") caseSearch.isBlank() else caseSearch == filter,
+                                        onClick = { caseSearch = if (filter == "全部") "" else filter },
+                                        label = { Text(filter, fontSize = 11.sp) })
+                                }
+                            }
+                        }
                         val filteredCases = SoupLibrary.cases.filter { candidate ->
                             caseSearch.isBlank() || candidate.title.contains(caseSearch, ignoreCase = true) ||
                                 candidate.category.contains(caseSearch, ignoreCase = true) ||
                                 candidate.difficulty.contains(caseSearch, ignoreCase = true)
                         }
-                        filteredCases.chunked(2).forEach { pair ->
+                        if (libraryExpanded) filteredCases.chunked(2).forEach { pair ->
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 pair.forEach { candidate ->
                                     FilterChip(
                                         modifier = Modifier.weight(1f),
                                         selected = room.caseId == candidate.id,
-                                        onClick = { if (!busy && commit(room.copy(caseId = candidate.id))) customExpanded = false },
+                                        onClick = { if (!busy && commit(room.copy(caseId = candidate.id))) {
+                                            customExpanded = false
+                                            libraryExpanded = false
+                                        } },
                                         label = {
                                             Text(candidate.title + " · " + candidate.difficulty,
                                                 maxLines = 1, fontSize = 11.sp)
@@ -512,6 +530,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                         customTruth = customTruth.trim(),
                                     ))
                                     caseSearch = ""
+                                    libraryExpanded = false
                                 }, modifier = Modifier.fillMaxWidth(),
                             ) { Text("锁定我的原创汤") }
                             if (room.caseId == CUSTOM_CASE_ID) {
@@ -605,9 +624,20 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         }
                     }
                 }
-                items(SoupLibrary.cases.filter { it.id != room.caseId }) { other ->
-                    TextButton(onClick = { startNew(other.id) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("下一碗 · " + other.title + "（" + other.category + "）", color = gold)
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick = {
+                            val played = state.records.filter { it.type == LuluGameType.TurtleSoup }
+                                .map { it.title.removePrefix("海龟汤 · ") }.toSet()
+                            val other = SoupLibrary.cases.filter { it.id != room.caseId }
+                            val unseen = other.filterNot { it.title in played }
+                            startNew((unseen.ifEmpty { other }).random().id)
+                        }, modifier = Modifier.weight(1f)) {
+                            Text("下一碗随机汤", color = gold)
+                        }
+                        TextButton(onClick = { startNew(room.caseId) }, modifier = Modifier.weight(1f)) {
+                            Text("返回选题", color = gold)
+                        }
                     }
                 }
             }
