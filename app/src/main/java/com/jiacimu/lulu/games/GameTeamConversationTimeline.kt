@@ -66,6 +66,43 @@ internal object GameTeamConversationTimeline {
         }
     }
 
+    /**
+     * The game engine has accepted and applied this role's concrete choice.
+     * A model's wish alone is NOT a world event; callers only invoke this AFTER
+     * the real game state save/acceptance path succeeds. A chosen multi-turn
+     * plan is recorded as a plan, never as its future completion.
+     *
+     * One actor owns this raw receipt. Other participants learn about visible
+     * game changes through their authoritative game state, not a copy of the
+     * actor's private intentions. No second memory store or model call.
+     */
+    fun recordEngineAcceptedAction(
+        context: Context, game: String, run: String, actorId: String,
+        turn: Int, actionId: String, receipt: String, at: Instant = Instant.now(),
+    ): Boolean {
+        val title = titles[game] ?: return false
+        val summary = receipt.trim()
+        if (run.isBlank() || actorId.isBlank() || actionId.isBlank() ||
+            turn < 0 || summary.isBlank()) return false
+        SharedExperienceTimeline.initialize(context.applicationContext)
+        val signature = (actionId + "\n" + summary).hashCode().toUInt().toString(16)
+        val id = "game-accepted-$game-$run-$actorId-$turn-$signature"
+        if (SharedExperienceTimeline.eventsByIds(actorId, listOf(id)).isEmpty()) {
+            SharedExperienceTimeline.record(
+                eventId = id, characterId = actorId,
+                channel = "共同游戏《$title》·本人行动",
+                speaker = "游戏规则实际执行回执",
+                content = "本回合已接受本人选择的动作 $actionId；实际游戏状态：${summary.take(500)}。" +
+                    "持续计划仅表示已排定，不等于沿途行动或目标完成。",
+                occurredAt = at, sessionId = room(game, run),
+                source = "game-team-action", evidenceKind = EventEvidenceKind.ToolResult,
+                triggerExtraction = false,
+            )
+        }
+        return SharedExperienceTimeline.eventsByIds(actorId, listOf(id))
+            .any { it.source == "game-team-action" && it.evidenceKind == EventEvidenceKind.ToolResult }
+    }
+
     /** Bounded first-hand session conversation for this role's existing game-model call. */
     fun recentLines(characterId: String, game: String, run: String): List<String> {
         if (characterId.isBlank() || game !in titles || run.isBlank()) return emptyList()
