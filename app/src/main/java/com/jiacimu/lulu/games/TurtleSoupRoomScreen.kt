@@ -68,6 +68,10 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     var composingQuestion by remember(room.id) { mutableStateOf(true) }
     var composingSolution by remember(room.id) { mutableStateOf(false) }
     var caseSearch by remember(room.id) { mutableStateOf("") }
+    var customExpanded by remember(room.id) { mutableStateOf(room.caseId == CUSTOM_CASE_ID) }
+    var customTitle by remember(room.id) { mutableStateOf(room.customTitle) }
+    var customSurface by remember(room.id) { mutableStateOf(room.customSurface) }
+    var customTruth by remember(room.id) { mutableStateOf(room.customTruth) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
     var confirmReveal by remember { mutableStateOf(false) }
@@ -424,7 +428,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                     FilterChip(
                                         modifier = Modifier.weight(1f),
                                         selected = room.caseId == candidate.id,
-                                        onClick = { if (!busy) commit(room.copy(caseId = candidate.id)) },
+                                        onClick = { if (!busy && commit(room.copy(caseId = candidate.id))) customExpanded = false },
                                         label = {
                                             Text(candidate.title + " · " + candidate.difficulty,
                                                 maxLines = 1, fontSize = 11.sp)
@@ -432,6 +436,47 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                     )
                                 }
                                 if (pair.size == 1) Spacer(Modifier.weight(1f))
+                            }
+                        }
+                        HorizontalDivider(color = Color.White.copy(alpha = .12f))
+                        TextButton(onClick = { customExpanded = !customExpanded }) {
+                            Text(if (customExpanded) "收起自己出题" else "自己写一碗汤（主持人可选）", color = gold)
+                        }
+                        if (customExpanded) {
+                            Text("汤面和汤底将锁定在本局存档里；只有主持人负责裁定，猜题队友看不到汤底。",
+                                color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                            OutlinedTextField(
+                                value = customTitle, onValueChange = { customTitle = it },
+                                label = { Text("题目名称") }, modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1, textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                            )
+                            OutlinedTextField(
+                                value = customSurface, onValueChange = { customSurface = it },
+                                label = { Text("汤面（所有玩家看到）") }, modifier = Modifier.fillMaxWidth(),
+                                minLines = 2, maxLines = 5,
+                                textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                            )
+                            OutlinedTextField(
+                                value = customTruth, onValueChange = { customTruth = it },
+                                label = { Text("固定汤底（仅主持人裁判读取）") },
+                                modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8,
+                                textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                            )
+                            Button(
+                                enabled = !busy && customTitle.isNotBlank() &&
+                                    customSurface.length >= 20 && customTruth.length >= 35,
+                                onClick = {
+                                    commit(room.copy(
+                                        caseId = CUSTOM_CASE_ID,
+                                        customTitle = customTitle.trim(),
+                                        customSurface = customSurface.trim(),
+                                        customTruth = customTruth.trim(),
+                                    ))
+                                    caseSearch = ""
+                                }, modifier = Modifier.fillMaxWidth(),
+                            ) { Text("锁定我的原创汤") }
+                            if (room.caseId == CUSTOM_CASE_ID) {
+                                Text("已选择原创题 · " + room.puzzle.title, color = gold)
                             }
                         }
                         Button(
