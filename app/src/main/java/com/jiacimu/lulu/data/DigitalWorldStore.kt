@@ -775,6 +775,15 @@ object DigitalWorldStore {
             current.participantIds to removedTurns
         }
         deleteMeetingTurnEvents(sessionId, result.first, result.second)
+        // The original owner input and witnessed exchange context are real evidence
+        // recorded before a generated scene turn. Rewinding the scene must also
+        // withdraw these precise evidence IDs and their dependent thoughts/memories.
+        result.first.forEach { viewerId ->
+            exchangeIds.forEach { exchangeId ->
+                SharedExperienceTimeline.deleteEvent(meetingInputEvidenceId(sessionId, exchangeId, viewerId))
+                SharedExperienceTimeline.deleteEvent(meetingExchangeEvidenceId(sessionId, exchangeId, viewerId))
+            }
+        }
         val provenanceIds = exchangeIds.map { "meeting-$sessionId-$it" }.toSet()
         CompanionPresenceStore.rollbackMeetingProvenance(provenanceIds, records.first().beforePresence)
         MeetingExperienceStore.removeRecords(sessionId, exchangeIds, restoredScene)
@@ -811,6 +820,41 @@ object DigitalWorldStore {
             .forEach(::deleteMeeting)
     }
 
+    /** Every witness gets a separately owned immutable copy of the owner's actual draft.
+     * Model-expanded user actions/lines are scene projections, not owner-authored facts. */
+    fun meetingInputEvidenceId(sessionId: String, exchangeId: String, viewerId: String): String =
+        "meeting-$sessionId-input-$exchangeId-viewer-$viewerId"
+
+    fun meetingExchangeEvidenceId(sessionId: String, exchangeId: String, viewerId: String): String =
+        "meeting-$sessionId-exchange-$exchangeId-viewer-$viewerId"
+
+    fun recordMeetingOriginalInput(
+        session: MeetingSession, exchangeId: String, rawInput: String, at: Instant = Instant.now(),
+    ) {
+        if (exchangeId.isBlank() || rawInput.isBlank()) return
+        session.participantIds.distinct().forEach { viewerId ->
+            recordMeetingTimeline(
+                session, viewerId, "input-$exchangeId",
+                UserProfileContext.displayLabel(), rawInput, at, true,
+                evidenceKind = EventEvidenceKind.UserStatement,
+            )
+        }
+    }
+
+    fun recordMeetingExchangeObservation(
+        session: MeetingSession, exchangeId: String, viewerId: String,
+        observedFact: String, at: Instant = Instant.now(),
+    ): String {
+        val evidenceId = meetingExchangeEvidenceId(session.id, exchangeId, viewerId)
+        if (viewerId in session.participantIds && observedFact.isNotBlank()) {
+            recordMeetingTimeline(
+                session, viewerId, "exchange-$exchangeId", "见面现场",
+                observedFact, at, false, evidenceKind = EventEvidenceKind.Observation,
+            )
+        }
+        return evidenceId
+    }
+
     fun recordMeetingTimeline(
         session: MeetingSession,
         viewerCharacterId: String,
@@ -819,6 +863,7 @@ object DigitalWorldStore {
         content: String,
         occurredAt: Instant,
         triggerExtraction: Boolean,
+        evidenceKind: EventEvidenceKind? = null,
     ) {
         val channel = if (session.reality == MeetingReality.DIGITAL_WORLD) {
             "数字世界见面·${session.location}"
@@ -829,7 +874,7 @@ object DigitalWorldStore {
             eventId = "meeting-${session.id}-$suffix-viewer-$viewerCharacterId",
             sessionId = session.id,
             source = "meeting",
-            evidenceKind = if (speaker == MigratedDomainStores.characters.get(viewerCharacterId).displayName)
+            evidenceKind = evidenceKind ?: if (speaker == MigratedDomainStores.characters.get(viewerCharacterId).displayName)
                 EventEvidenceKind.CharacterStatement else EventEvidenceKind.Observation,
             characterId = viewerCharacterId,
             channel = channel,
