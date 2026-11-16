@@ -73,6 +73,7 @@ internal object MeetingLivingWorldRuntime {
         val name = MigratedDomainStores.characters.get(characterId).displayName
         val fact = when (action) {
             "HOLD_HANDS" -> "主人在“${session.location}”主动牵住了${name}的手，双方现在以真实数字身体保持牵手，并可以继续一起移动。"
+            "ACCEPT_HAND_OFFER" -> "主人接受了${name}刚刚主动提出的牵手邀请，双方在“${session.location}”实际牵住了手，可以一起行走。"
             "RELEASE_HANDS" -> "主人在“${session.location}”松开了${name}的手，牵手已实际结束。"
             "FOLLOW" -> "主人邀请${name}在“${session.location}”同行，场景已进入跟随移动状态。"
             "STOP_FOLLOW" -> "主人在“${session.location}”结束了与${name}的同行跟随，双方恢复自由移动。"
