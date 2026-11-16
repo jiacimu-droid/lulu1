@@ -22,7 +22,7 @@ data class ProactivePerceptionPolicy(
     val quietEndMinutesOfDay: Int = 7 * 60,
     val intervalValue: Int = 2,
     /** Price-aware autonomous thinking cadence while online; incoming events are independent. */
-    val onlinePulseSeconds: Int = 300,
+    val onlinePulseSeconds: Int = CharacterSceneCadence.PRIVATE_ONLINE_PULSE_SECONDS,
     val intervalUnit: PerceptionIntervalUnit = PerceptionIntervalUnit.Hours,
 ) {
     val baseIntervalMinutes: Long
