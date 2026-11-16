@@ -8,7 +8,7 @@ import org.junit.Test
 class RelicMenuSectionsTest {
     @Test fun activeRunSeparatesLiveStateTacticsInventoryAndEvents() {
         val names=RelicMenuSections.forPhase(RelicPhase.EXPLORE)
-        assertEquals(listOf("现场","战术","背包","记录"),names)
+        assertEquals(listOf("现场","战术","背包","记录","设置"),names)
         assertEquals(names,RelicMenuSections.forPhase(RelicPhase.EXTRACT))
         assertEquals(names,RelicMenuSections.forPhase(RelicPhase.DOWNED))
         assertEquals(names.size,names.toSet().size)
@@ -22,6 +22,7 @@ class RelicMenuSectionsTest {
             assertEquals("准备",RelicMenuSections.defaultFor(phase))
         }
         assertFalse("仓库" in RelicMenuSections.expedition)
+        assertTrue("设置" in RelicMenuSections.expedition)
         assertTrue("图鉴" in RelicMenuSections.camp)
     }
 }
