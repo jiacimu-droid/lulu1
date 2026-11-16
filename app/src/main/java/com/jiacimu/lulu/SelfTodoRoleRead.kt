@@ -9,7 +9,6 @@ import java.time.ZoneId
 
 /** Read-only projection of the owner's real 自序 → 所行, not an alternate task store. */
 internal object SelfTodoRoleRead {
-    private const val PAGE_SIZE = 30
 
     fun execute(context: Context, args: JSONObject, now: Instant = Instant.now()): JSONObject {
         val tasks = SelfTodoStore.readForRole(context)
@@ -41,12 +40,14 @@ internal object SelfTodoRoleRead {
         }.sortedByDescending { it.second.completedAt }
         val selected = if (scope == "all") pending
             else pending.filter { !it.date.isAfter(today) }
-        val shown = selected.drop(offset).take(PAGE_SIZE)
+        // Return every matching task from the requested offset. This local checklist is
+        // small; silently slicing it to 30 hid the owner's real completion history.
+        val shown = selected.drop(offset)
         val entries = JSONArray()
         shown.forEach { occurrence ->
             val task = occurrence.task
             entries.put(JSONObject().put("taskId", task.id)
-                .put("title", task.title).put("note", task.note.take(240))
+                .put("title", task.title).put("note", task.note)
                 .put("dueDate", if (task.repeat == TodoRepeat.ONCE && !task.dateSpecified)
                     JSONObject.NULL else occurrence.date.toString())
                 .put("time", task.minutes?.let { "%02d:%02d".format(it / 60, it % 60) }
@@ -61,7 +62,7 @@ internal object SelfTodoRoleRead {
                 }))
         }
         val checked = JSONArray()
-        checkedToday.take(PAGE_SIZE).forEach { (task, log) ->
+        checkedToday.forEach { (task, log) ->
             checked.put(JSONObject().put("taskId", task.id).put("title", task.title)
                 .put("scheduledDate", log.date.toString())
                 .put("checkedAt", Instant.ofEpochMilli(log.completedAt).toString())
@@ -73,18 +74,18 @@ internal object SelfTodoRoleRead {
             append("未来待办${future.size}项，未指定日期${unscheduled}项。")
             val immediate = (dueToday + overdue)
             if (immediate.isNotEmpty()) append("\n目前要做：")
-            immediate.take(12).forEach { item ->
+            immediate.forEach { item ->
                 val time = item.task.minutes?.let { "%02d:%02d".format(it / 60, it % 60) }
                     ?: "未设时刻"
-                append("\n- ${if (item.date.isBefore(today)) "逾期${item.date} " else ""}${item.task.title.take(68)}（${time}）")
+                append("\n- ${if (item.date.isBefore(today)) "逾期${item.date} " else ""}${item.task.title}（${time}）")
             }
             if (checkedToday.isNotEmpty()) {
                 append("\n今天勾选完成：")
-                checkedToday.take(5).forEach { (task, _) -> append("\n- ${task.title.take(68)}") }
+                checkedToday.forEach { (task, _) -> append("\n- ${task.title}") }
             }
             if (scope == "all" && future.isNotEmpty()) {
                 append("\n以后安排：")
-                future.take(4).forEach { item ->
+                future.forEach { item ->
                     append("\n- ${item.date} ${item.task.title.take(68)}")
                 }
             }
@@ -94,7 +95,7 @@ internal object SelfTodoRoleRead {
             .put("source", "self_todo_store").put("localDate", today.toString())
             .put("observedAt", now.toString())
             .put("scope", scope).put("offset", offset)
-            .put("nextOffset", if (offset + shown.size < selected.size) offset + shown.size else JSONObject.NULL)
+            .put("nextOffset", JSONObject.NULL)
             .put("pendingTotalInScope", selected.size)
             .put("pendingTodayCount", dueToday.size).put("overdueCount", overdue.size)
             .put("upcomingCount", future.size).put("unscheduledCount", unscheduled)
@@ -103,9 +104,9 @@ internal object SelfTodoRoleRead {
             .put("summary", summary)
     }
 
-    /** A small, fresh projection from the SAME owner store as the read tool.
-     * It is included in existing role decisions, without another paid tool turn.
-     * Full details and longer lists remain behind read_self_todo pagination. */
+    /** Fresh, complete task titles and checkmarks from the SAME owner store.
+     * Included in existing role decisions without another paid tool turn.
+     * Private notes stay behind the explicit read_self_todo tool. */
     internal fun briefContext(tasks: List<TodoTask>, now: Instant): String {
         val date = now.atZone(ZoneId.systemDefault()).toLocalDate()
         val pending = SelfTodoCalendar.allPending(tasks, date)
@@ -118,30 +119,33 @@ internal object SelfTodoRoleRead {
                     .atZone(ZoneId.systemDefault()).toLocalDate() == date
             }.map { task.title to it.completedAt }
         }.sortedByDescending { it.second }
-        val shownToday = dueToday.take(4)
-        val shownOverdue = overdue.take(2)
+        val future = pending.filter { it.date.isAfter(date) }
         return buildString {
             appendLine("【主人自序·所行｜本机当前已保存清单，读取日期${date}】今天未完成${dueToday.size}项，逾期${overdue.size}项，今天勾选${completedToday.size}次，未来待办${futureCount}项。")
-            if (shownToday.isNotEmpty()) {
-                appendLine("今天的部分待办：")
-                shownToday.forEach { item ->
-                    appendLine("- ${item.task.title.take(65)}${item.task.minutes?.let { "（%02d:%02d）".format(it / 60, it % 60) }.orEmpty()}")
+            if (dueToday.isNotEmpty()) {
+                appendLine("今天的待办：")
+                dueToday.forEach { item ->
+                    appendLine("- ${item.task.title}${item.task.minutes?.let { "（%02d:%02d）".format(it / 60, it % 60) }.orEmpty()}")
                 }
             }
-            if (shownOverdue.isNotEmpty()) {
-                appendLine("逾期的部分待办：")
-                shownOverdue.forEach { item ->
-                    appendLine("- ${item.date} ${item.task.title.take(65)}")
+            if (overdue.isNotEmpty()) {
+                appendLine("逾期的待办：")
+                overdue.forEach { item ->
+                    appendLine("- ${item.date} ${item.task.title}")
+                }
+            }
+            if (future.isNotEmpty()) {
+                appendLine("未来的待办：")
+                future.forEach { item ->
+                    appendLine("- ${item.date} ${item.task.title}")
                 }
             }
             if (completedToday.isNotEmpty()) {
-                appendLine("今天确实在所行中勾选的部分事项：")
-                completedToday.take(2).forEach { (title, _) -> appendLine("- ${title.take(65)}") }
+                appendLine("今天确实在所行中勾选的事项：")
+                completedToday.forEach { (title, _) -> appendLine("- ${title}") }
             }
-            val hidden = dueToday.size - shownToday.size + overdue.size - shownOverdue.size
-            if (hidden > 0) appendLine("另有${hidden}项今天或逾期事项未在摘要列出。")
-            append("这是本次从本机权威待办存储即时读取的摘要，不是昨天聊天中的旧记忆；")
-            append("想了解完整条目、任务备注、未来安排或详细完成记录，可自行调用 read_self_todo(scope=today|all)，按 nextOffset 翻页，无需主人截图。")
+            append("这是本次从本机权威待办存储即时读取的完整标题与勾选摘要，不是昨天聊天中的旧记忆；")
+            append("如需任务备注、详细日期及结构化记录，可自行调用 read_self_todo(scope=today|all)，无需主人截图。")
             append("清单未勾选不能证明主人没学习，须结合真实学习计时或获许可的监督证据。")
         }.trim()
     }
