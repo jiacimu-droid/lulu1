@@ -62,7 +62,7 @@ internal object MemoryWorkingSet {
             // the game remains separate turns. Work only from original event
             // revisions; do not write a second narrative or summarize per tick.
             context.ownedRecentTurns.asReversed().forEachIndexed { index, turn ->
-                val unique = turn.events.filter { deliveredEventIds.add(it.id) }
+                val unique = turn.events.filterNot { it.id in deliveredEventIds }
                 if (unique.isEmpty()) return@forEachIndexed
                 val scoped = turn.copy(events = unique)
                 val previewBudget = when {
@@ -72,6 +72,12 @@ internal object MemoryWorkingSet {
                 }
                 val preview = RecentSemanticTimeline.render(scoped, previewBudget, context.retrievalFocus)
                 if (preview.isNotBlank()) {
+                    // Only exact original rows visibly present in this compact
+                    // excerpt can suppress a later relevance-selected source
+                    // citation. All other game/tool steps remain recallable.
+                    unique.filter { event ->
+                        preview.contains("eventId=${event.id}@${event.revision}")
+                    }.forEach { deliveredEventIds.add(it.id) }
                     add(MemoryPromptCandidate(
                         "recent-turn:${scoped.key}", RECENT, preview, 965 - index.coerceAtMost(35),
                         payload = preview, sources = unique.mapTo(linkedSetOf()) { it.id },
