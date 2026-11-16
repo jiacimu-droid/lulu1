@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:50:09.956904+00:00",
-  "commit": "53b46b21824c83c84034115230981747aafe314e",
+  "generatedAt": "2026-11-16T16:51:28.632153+00:00",
+  "commit": "4bd99e8ce61d912162cae62ff801ec8a64101965",
   "branch": "main",
-  "sourceFingerprint": "4fef6f5aba83b3b935352eb6f51f63492ef883324052e3110a9456cee7ffb483",
+  "sourceFingerprint": "61edb51ae8f7105959e25cf6df096706605da52da506d891430099a9e7bf445d",
   "summary": {
     "files": 1369,
-    "lines": 292425,
+    "lines": 292429,
     "symbols": 4124
   },
   "symbolIndex": {
@@ -2527,7 +2527,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 200
+        "line": 204
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
@@ -10997,7 +10997,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 166
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -14471,7 +14471,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 341
+        "line": 345
       }
     ],
     "near": [
@@ -14649,7 +14649,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 163
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -14881,7 +14881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 269
+        "line": 273
       }
     ],
     "reached": [
@@ -14981,15 +14981,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 110
+        "line": 113
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 116
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 172
+        "line": 176
       }
     ],
     "season": [
@@ -15845,13 +15845,13 @@
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 164
+        "line": 168
       }
     ],
     "tile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 165
+        "line": 169
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
@@ -15861,79 +15861,79 @@
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 167
+        "line": 171
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 170
+        "line": 174
       }
     ],
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 268
+        "line": 272
       }
     ],
     "allyReadyToExtract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 271
+        "line": 275
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 273
+        "line": 277
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 283
+        "line": 287
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 292
+        "line": 296
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 294
+        "line": 298
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 303
+        "line": 307
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 748
+        "line": 752
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 749
+        "line": 753
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 826
+        "line": 830
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 862
+        "line": 866
       }
     ],
     "change": [
@@ -38680,8 +38680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 865,
-      "sha256": "1f3ac85b8705fbd54087caf68034301ee1abfd171b3d9c7a80d006a05eca6555",
+      "lines": 869,
+      "sha256": "ba3b828320cff7992dde6346465f64302c2d6d4e657ea6098b6ade84ed94afd3",
       "symbols": [
         {
           "name": "at",
@@ -38721,95 +38721,95 @@
         },
         {
           "name": "json",
-          "line": 110
+          "line": 113
         },
         {
           "name": "json",
-          "line": 116
+          "line": 120
         },
         {
           "name": "index",
-          "line": 163
-        },
-        {
-          "name": "bounds",
-          "line": 164
-        },
-        {
-          "name": "tile",
-          "line": 165
-        },
-        {
-          "name": "walk",
-          "line": 166
-        },
-        {
-          "name": "visible",
           "line": 167
         },
         {
-          "name": "log",
+          "name": "bounds",
+          "line": 168
+        },
+        {
+          "name": "tile",
+          "line": 169
+        },
+        {
+          "name": "walk",
           "line": 170
         },
         {
+          "name": "visible",
+          "line": 171
+        },
+        {
+          "name": "log",
+          "line": 174
+        },
+        {
           "name": "json",
-          "line": 172
+          "line": 176
         },
         {
           "name": "read",
-          "line": 200
+          "line": 204
         },
         {
           "name": "heroCapacity",
-          "line": 268
+          "line": 272
         },
         {
           "name": "distance",
-          "line": 269
-        },
-        {
-          "name": "allyReadyToExtract",
-          "line": 271
-        },
-        {
-          "name": "reveal",
           "line": 273
         },
         {
+          "name": "allyReadyToExtract",
+          "line": 275
+        },
+        {
+          "name": "reveal",
+          "line": 277
+        },
+        {
           "name": "canSurvey",
-          "line": 283
+          "line": 287
         },
         {
           "name": "openSteps",
-          "line": 292
+          "line": 296
         },
         {
           "name": "openingGlowGrade",
-          "line": 294
+          "line": 298
         },
         {
           "name": "treasure",
-          "line": 303
+          "line": 307
         },
         {
           "name": "act",
-          "line": 341
+          "line": 345
         },
         {
           "name": "enemyThreatRange",
-          "line": 748
+          "line": 752
         },
         {
           "name": "canEnemyStrike",
-          "line": 749
+          "line": 753
         },
         {
           "name": "path",
-          "line": 826
+          "line": 830
         },
         {
           "name": "abandon",
-          "line": 862
+          "line": 866
         }
       ]
     },
