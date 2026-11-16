@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T13:58:07.092242+00:00",
-  "commit": "9981b455aa6f546090de2605c86b8c2a35753087",
+  "generatedAt": "2026-11-16T14:16:20.946261+00:00",
+  "commit": "9e3ea9df46ced6f8cec08ee54ca0354e3fd4c80e",
   "branch": "main",
-  "sourceFingerprint": "d548498fbe0844fedc3d9cba1e2482df1b7659b8e6208a4c788c25e54ce85dde",
+  "sourceFingerprint": "6126f87de215282145e486bd6bc249b55ea08d54c42763429f0b200ccee15429",
   "summary": {
     "files": 1362,
-    "lines": 290826,
-    "symbols": 4099
+    "lines": 290983,
+    "symbols": 4103
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -265,7 +265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 118
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -817,7 +817,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 544
+        "line": 546
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -2299,7 +2299,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 131
+        "line": 148
       }
     ],
     "errors": [
@@ -2369,7 +2369,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 167
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -2377,7 +2377,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 64
+        "line": 78
       }
     ],
     "prepare": [
@@ -2515,7 +2515,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 28
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandWildlife.kt",
@@ -3603,7 +3603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 154
+        "line": 158
       }
     ],
     "reachedItem": [
@@ -5189,7 +5189,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 230
+        "line": 247
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandRareEvents.kt",
@@ -5205,7 +5205,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 179
+        "line": 204
       }
     ],
     "watchedThrough": [
@@ -14339,13 +14339,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 162
+        "line": 164
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 166
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -14359,7 +14359,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 167
+        "line": 169
       }
     ],
     "next": [
@@ -14439,7 +14439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 331
+        "line": 334
       }
     ],
     "near": [
@@ -14489,13 +14489,13 @@
     "dot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1129
+        "line": 1137
       }
     ],
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 1284
+        "line": 1292
       }
     ],
     "persistMatch": [
@@ -14785,7 +14785,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 295
+        "line": 299
       }
     ],
     "cycle": [
@@ -14831,7 +14831,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 261
+        "line": 262
       }
     ],
     "reached": [
@@ -14887,7 +14887,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 22
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
@@ -15006,76 +15006,82 @@
         "line": 71
       }
     ],
+    "withoutPart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
+        "line": 30
+      }
+    ],
     "styleName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 53
+        "line": 64
       }
     ],
     "canStartPlayer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 57
+        "line": 68
       }
     ],
     "nextPlayerPart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 71
+        "line": 82
       }
     ],
     "canPlayerBuildNext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 77
+        "line": 88
       }
     ],
     "canPlacePart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 85
+        "line": 96
       }
     ],
     "partCost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 96
+        "line": 107
       }
     ],
     "placePart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 100
+        "line": 111
       }
     ],
     "totalSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 116
+        "line": 133
       }
     ],
     "progressFraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 122
+        "line": 139
       }
     ],
     "progress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 126
+        "line": 143
       }
     ],
     "sites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 140
+        "line": 157
       }
     ],
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 163
+        "line": 180
       }
     ],
     "blockedHint": [
@@ -15171,7 +15177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 44
+        "line": 58
       }
     ],
     "stopAll": [
@@ -15732,16 +15738,28 @@
         "line": 31
       }
     ],
+    "canPlanExit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
+        "line": 45
+      }
+    ],
+    "hasPendingStep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
+        "line": 52
+      }
+    ],
     "moveStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 125
+        "line": 144
       }
     ],
     "inViewport": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 488
+        "line": 490
       }
     ],
     "satchelCost": [
@@ -15805,61 +15823,67 @@
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 260
+        "line": 261
+      }
+    ],
+    "allyReadyToExtract": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 264
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 263
+        "line": 266
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 273
+        "line": 276
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 282
+        "line": 285
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 284
+        "line": 287
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 293
+        "line": 296
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 738
+        "line": 741
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 739
+        "line": 742
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 816
+        "line": 819
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 852
+        "line": 855
       }
     ],
     "change": [
@@ -36746,20 +36770,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 1436,
-      "sha256": "ce64ea48cbff6f29da36c035f30372a09efcebb4bc93d4c2ebae7d52978d6fa8",
+      "lines": 1445,
+      "sha256": "ac3f1ce28a9abb6971f935051ae4ca7721b4fef161538837568d2c57e2a2d2e2",
       "symbols": [
         {
           "name": "origin",
-          "line": 162
+          "line": 164
         },
         {
           "name": "center",
-          "line": 166
+          "line": 168
         },
         {
           "name": "actorCenter",
-          "line": 167
+          "line": 169
         }
       ]
     },
@@ -36772,7 +36796,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
       "lines": 954,
-      "sha256": "75a0fed9eb8faf9a20b0a82ad43ca5baab35b644c8903610a2477914e1d0b120",
+      "sha256": "f32d2b52053a308d0891b7c095f2fe2060c6cb0556ed1e462904ee5efc312000",
       "symbols": [
         {
           "name": "toJson",
@@ -36850,8 +36874,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 1330,
-      "sha256": "d62fabe1b9bf9d3564e554e90fbc117ee3ec043b0e136aeedfdcc6bce6bcdf9a",
+      "lines": 1338,
+      "sha256": "60b9f2709e86b8f62b13be8e429b192240bc5b9ecfae8c5cf3d8de4c36c6286e",
       "symbols": [
         {
           "name": "playSound",
@@ -36867,11 +36891,11 @@
         },
         {
           "name": "dot",
-          "line": 1129
+          "line": 1137
         },
         {
           "name": "targetFor",
-          "line": 1284
+          "line": 1292
         }
       ]
     },
@@ -37169,7 +37193,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt",
       "lines": 75,
-      "sha256": "4bd57ef15e0f97c453f947eff40e4b2c123f9920230aa997acfc1b537ac8ffcc",
+      "sha256": "cb96c4e9c29a9be3388c9ea4a7e221177140d161c1e9a8656cbfa4d93d7c603b",
       "symbols": [
         {
           "name": "canTick",
@@ -37334,7 +37358,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
       "lines": 382,
-      "sha256": "4685814eb7ad53eb81c0fd9e57bc20e38416aa36d7ee855857ff235b28372548",
+      "sha256": "6e8231c8b1e76d5ba48add6390254a6072cac80c3f0490a8097933dfa93e9d34",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -37595,76 +37619,80 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 292,
-      "sha256": "0d66b6c99aad1f1b2ec2a9392d184ac91ad2ea216256138d41bf812747f12a81",
+      "lines": 309,
+      "sha256": "779804b909dbadf4115a4223e83cbe95d0b2d8f6cd77a99f6ad610125a8cd4fe",
       "symbols": [
         {
           "name": "json",
-          "line": 22
+          "line": 23
+        },
+        {
+          "name": "withoutPart",
+          "line": 30
         },
         {
           "name": "read",
-          "line": 28
+          "line": 34
         },
         {
           "name": "styleName",
-          "line": 53
+          "line": 64
         },
         {
           "name": "canStartPlayer",
-          "line": 57
+          "line": 68
         },
         {
           "name": "nextPlayerPart",
-          "line": 71
+          "line": 82
         },
         {
           "name": "canPlayerBuildNext",
-          "line": 77
+          "line": 88
         },
         {
           "name": "canPlacePart",
-          "line": 85
-        },
-        {
-          "name": "partCost",
           "line": 96
         },
         {
+          "name": "partCost",
+          "line": 107
+        },
+        {
           "name": "placePart",
-          "line": 100
+          "line": 111
         },
         {
           "name": "totalSteps",
-          "line": 116
+          "line": 133
         },
         {
           "name": "progressFraction",
-          "line": 122
+          "line": 139
         },
         {
           "name": "progress",
-          "line": 126
+          "line": 143
         },
         {
           "name": "parts",
-          "line": 131
+          "line": 148
         },
         {
           "name": "sites",
-          "line": 140
+          "line": 157
         },
         {
           "name": "isChangeAction",
-          "line": 163
+          "line": 180
         },
         {
           "name": "choose",
-          "line": 167
+          "line": 184
         },
         {
           "name": "advance",
-          "line": 230
+          "line": 247
         }
       ]
     },
@@ -38128,8 +38156,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 331,
-      "sha256": "236e2d759fc2bf4843f53bfa416147275775e921b1fd67a2940232076a18ff86",
+      "lines": 338,
+      "sha256": "c6e4a51981ae7ffbbc644cd75bc2ba596e074fda538ecd53e7764cd6e07b7815",
       "symbols": [
         {
           "name": "acted",
@@ -38141,11 +38169,11 @@
         },
         {
           "name": "apply",
-          "line": 154
+          "line": 158
         },
         {
           "name": "facts",
-          "line": 295
+          "line": 299
         }
       ]
     },
@@ -38392,8 +38420,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 261,
-      "sha256": "30382ecbdea2f760c921a089394695986078ec0e7e88d309b8d1fbbe86450a09",
+      "lines": 294,
+      "sha256": "22d22ae9cc41ee07cde576db9bf9bf06a7baafc7bc3fcd11f0116be0e4e512fd",
       "symbols": [
         {
           "name": "json",
@@ -38408,31 +38436,39 @@
           "line": 32
         },
         {
+          "name": "canPlanExit",
+          "line": 45
+        },
+        {
+          "name": "hasPendingStep",
+          "line": 52
+        },
+        {
           "name": "afterChoice",
-          "line": 44
+          "line": 58
         },
         {
           "name": "choose",
-          "line": 64
+          "line": 78
         },
         {
           "name": "cancel",
-          "line": 118
+          "line": 137
         },
         {
           "name": "moveStep",
-          "line": 125
+          "line": 144
         },
         {
           "name": "advance",
-          "line": 179
+          "line": 204
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 727,
-      "sha256": "7b99f21c3556ee6b24d133ac973189fb03cf1f9a86321f33f9fcfd0d55a7d216",
+      "lines": 729,
+      "sha256": "862d011ff62d7a0145b0919177a1e9aea4791667e3bebceb4358029fb1891c53",
       "symbols": [
         {
           "name": "cell",
@@ -38444,11 +38480,11 @@
         },
         {
           "name": "inViewport",
-          "line": 488
+          "line": 490
         },
         {
           "name": "label",
-          "line": 544
+          "line": 546
         }
       ]
     },
@@ -38483,8 +38519,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 855,
-      "sha256": "59574ee4736c0ff83e989d1ff2c8aeac87be1775528f0e5fd1b82b4340befb9a",
+      "lines": 858,
+      "sha256": "9c7dc20a5862ae98b0a78b8c132bcd82b1669574bdf2068a3e66f837bfa01ea9",
       "symbols": [
         {
           "name": "at",
@@ -38564,58 +38600,62 @@
         },
         {
           "name": "heroCapacity",
-          "line": 260
-        },
-        {
-          "name": "distance",
           "line": 261
         },
         {
+          "name": "distance",
+          "line": 262
+        },
+        {
+          "name": "allyReadyToExtract",
+          "line": 264
+        },
+        {
           "name": "reveal",
-          "line": 263
+          "line": 266
         },
         {
           "name": "canSurvey",
-          "line": 273
+          "line": 276
         },
         {
           "name": "openSteps",
-          "line": 282
+          "line": 285
         },
         {
           "name": "openingGlowGrade",
-          "line": 284
+          "line": 287
         },
         {
           "name": "treasure",
-          "line": 293
+          "line": 296
         },
         {
           "name": "act",
-          "line": 331
+          "line": 334
         },
         {
           "name": "enemyThreatRange",
-          "line": 738
+          "line": 741
         },
         {
           "name": "canEnemyStrike",
-          "line": 739
+          "line": 742
         },
         {
           "name": "path",
-          "line": 816
+          "line": 819
         },
         {
           "name": "abandon",
-          "line": 852
+          "line": 855
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1268,
-      "sha256": "dbe1da5dd18497e427cca51030c7e6f201729178d7cf5cfe54d6fb171c886a09",
+      "lines": 1290,
+      "sha256": "533699a839b3f73ebe16be1dfde32955d9f0e75d7fd4a51e913fd955c86cfbb0",
       "symbols": [
         {
           "name": "change",
@@ -47445,8 +47485,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt",
-      "lines": 638,
-      "sha256": "9fdd29e9b26db5459e78b121992f3f6027fc5e0bb25b6eee15415909271be91d",
+      "lines": 650,
+      "sha256": "04cb472c490608772e49d168fde5307f09ae7bab30eb6ac097166e6fc9953890",
       "symbols": [
         {
           "name": "IslandHouseProjectsTest",
@@ -47592,8 +47632,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt",
-      "lines": 253,
-      "sha256": "821713d1e5d1872afc0d6e3cd068611238e26683b090beb098674f96616df614",
+      "lines": 297,
+      "sha256": "b133bd48ef5f0a577f22b2de4b88ea635ebe171120fc12414feeec35d3494388",
       "symbols": [
         {
           "name": "RelicActorPlayTest",
