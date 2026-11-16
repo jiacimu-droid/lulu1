@@ -138,7 +138,11 @@ internal class RelicEscapeLedger(context:Context) {
         return write(old.copy(featuredLootId=id))
     }
     @Synchronized fun sellLoot(id:String):RelicSnapshot {
-        val old=read();val item=old.vault.firstOrNull{it.id==id}?:return old
+        val old=read()
+        // A delayed museum confirmation cannot sell inventory after an expedition starts.
+        // The camp UI also disables this action, but the ledger owns the authoritative guard.
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
+        val item=old.vault.firstOrNull{it.id==id}?:return old
         return write(old.copy(vault=old.vault.filterNot{it.id==id},
             featuredLootId=old.featuredLootId?.takeUnless { it==id },
             coins=old.coins+item.value))
