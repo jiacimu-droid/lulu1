@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T06:19:17.416316+00:00",
-  "commit": "078aa165c30663c1ecd2f98014c1627dede7c261",
+  "generatedAt": "2026-11-16T06:19:54.481538+00:00",
+  "commit": "51b61cdeb8c8662ea2f53b0374730fd1061cd879",
   "branch": "main",
-  "sourceFingerprint": "a619e75b67c0d6f11751834074347f7fde9ecc1f9683ab7862c93acb67d842a1",
+  "sourceFingerprint": "4d46b12ba9bba651f19552561611de6d59f9ab5f278e3ba63d182ca939d59fd1",
   "summary": {
     "files": 1355,
-    "lines": 288828,
-    "symbols": 4083
+    "lines": 288853,
+    "symbols": 4084
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 286
+        "line": 311
       }
     ],
     "replyTextPrefix": [
@@ -15987,25 +15987,31 @@
     "sendOwnerVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 207
+        "line": 215
+      }
+    ],
+    "sendOwnerSolutionVerdict": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
+        "line": 221
       }
     ],
     "companionStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 213
+        "line": 231
       }
     ],
     "requestHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 279
+        "line": 304
       }
     ],
     "startNew": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 291
+        "line": 316
       }
     ],
     "walkable": [
@@ -38757,8 +38763,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 532,
-      "sha256": "3ca7e7027be89317d20b40366a9b323dbe973cf2941e80811ab9133b15968489",
+      "lines": 557,
+      "sha256": "0dde1d53d1ce873e6f300a4bbfab7beb732904e96c40ba5ef74cc0988c3ecaf7",
       "symbols": [
         {
           "name": "name",
@@ -38782,23 +38788,27 @@
         },
         {
           "name": "sendOwnerVerdict",
-          "line": 207
+          "line": 215
+        },
+        {
+          "name": "sendOwnerSolutionVerdict",
+          "line": 221
         },
         {
           "name": "companionStep",
-          "line": 213
+          "line": 231
         },
         {
           "name": "requestHint",
-          "line": 279
+          "line": 304
         },
         {
           "name": "finish",
-          "line": 286
+          "line": 311
         },
         {
           "name": "startNew",
-          "line": 291
+          "line": 316
         }
       ]
     },
