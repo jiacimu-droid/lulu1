@@ -228,6 +228,8 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.belerweb:pinyin4j:2.5.1")
+    // Bundled/offline Chinese OCR for verified virtual WeChat header text when A11y omits the title.
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
