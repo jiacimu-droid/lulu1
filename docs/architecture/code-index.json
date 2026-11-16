@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:47:58.209989+00:00",
-  "commit": "36cafa8fcc0d6a147eb05176dca164a0fb28900f",
+  "generatedAt": "2026-11-16T05:48:28.972829+00:00",
+  "commit": "1bff7e50581a589cc49d03191ff22d1a4aa3aff2",
   "branch": "main",
-  "sourceFingerprint": "75819ac04f17313df67953db7735c885dd62b41ae736c40d4bffaffafa178534",
+  "sourceFingerprint": "d877e014060591ab2bec7db9afde3bd22d216c2f959773c6666192f5c3fd5a43",
   "summary": {
-    "files": 1354,
-    "lines": 288610,
-    "symbols": 4088
+    "files": 1355,
+    "lines": 288707,
+    "symbols": 4089
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22364,6 +22364,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt",
         "line": 7
+      }
+    ],
+    "TurtleSoupRoomTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt",
+        "line": 12
       }
     ],
     "YachtMatchContinuityTest": [
@@ -47629,6 +47635,17 @@
         {
           "name": "RelicTensionPresentationTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt",
+      "lines": 97,
+      "sha256": "1d46f8f0b252836bf016319e7919656915839f82e5e29a071a5d34017ca630a0",
+      "symbols": [
+        {
+          "name": "TurtleSoupRoomTest",
+          "line": 12
         }
       ]
     },
