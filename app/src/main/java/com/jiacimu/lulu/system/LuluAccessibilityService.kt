@@ -425,6 +425,16 @@ class LuluAccessibilityService : AccessibilityService() {
                 return JSONArray()
             val (_, height) = virtualDimensions(service, displayId) ?: return JSONArray()
             val labels = linkedSetOf<String>()
+            // Mika's ScreenReader carries the actual AccessibilityWindowInfo.title.
+            // A WeChat custom toolbar may expose its chat title at the WINDOW
+            // level while its TextView is missing from the node tree.
+            val topWindow = service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION &&
+                    it.root?.packageName?.toString() == packageName }
+                .maxByOrNull { it.layer }
+            topWindow?.title?.toString()?.takeIf {
+                LuluVirtualChatSendPolicy.windowTitleMatches(it, it.trim())
+            }?.let(labels::add)
             var visited = 0
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
                 if (depth > 24 || visited++ >= 460 ||
@@ -440,7 +450,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 for (i in 0 until node.childCount)
                     node.getChild(i)?.let { scan(it, depth + 1) }
             }
-            ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
+            topWindow?.root?.let { scan(it, 0) }
             return JSONArray().apply { labels.take(12).forEach { put(it) } }
         }
 
@@ -536,31 +546,39 @@ class LuluAccessibilityService : AccessibilityService() {
             service: LuluAccessibilityService, displayId: Int, packageName: String,
             recipient: String, height: Int,
         ): Boolean {
-            val titleBounds = mutableListOf<Rect>()
             val width = virtualDimensions(service, displayId)?.first ?: return false
+            // Inspect only the top verified WeChat application window. Never
+            // read a covered/older chat behind another same-package window.
+            val topWindow = service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION &&
+                    it.root?.packageName?.toString() == packageName }
+                .maxByOrNull { it.layer } ?: return false
+            if (LuluVirtualChatSendPolicy.windowTitleMatches(
+                    topWindow.title?.toString(), recipient)) return true
+            val titleBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
                 if (depth > 24 || visited++ > 460 ||
                     !node.isVisibleToUser || node.isPassword) return
                 val bounds = Rect().also(node::getBoundsInScreen)
-                if (bounds.top >= 0 && bounds.bottom <= height * 3 / 10 &&
-                    bounds.width() > 0 && bounds.width() <= width * 4 / 5 &&
-                    bounds.height() in 1..(height / 10).coerceAtLeast(1) &&
+                // A toolbar title can be a wide, tall accessibility wrapper;
+                // the previous 80%-width/10%-height filters hid valid titles.
+                // Still exclude full-page containers and chat history.
+                if (bounds.top >= 0 && bounds.top <= height / 5 &&
+                    bounds.bottom <= height / 3 &&
+                    bounds.width() in 1..width &&
+                    bounds.height() in 1..(height / 6).coerceAtLeast(1) &&
                     !node.isEditable && LuluVirtualChatSendPolicy.headerMatches(
                         node.text?.toString(), node.contentDescription?.toString(), recipient))
-                    titleBounds.add(bounds)
+                    titleBounds.add(LuluVirtualChatSendPolicy.ComposerBounds(
+                        bounds.left, bounds.top, bounds.right, bounds.bottom))
                 for (i in 0 until node.childCount)
                     node.getChild(i)?.let { visit(it, depth + 1) }
             }
-            ownedVirtualRoots(service, displayId, packageName).forEach { visit(it, 0) }
-            // Duplicate text + accessibility wrapper nodes at the SAME
-            // physical title are normal on WeChat. Different title locations
-            // remain ambiguous: never send to an inferred recipient.
-            val first = titleBounds.firstOrNull() ?: return false
-            return titleBounds.all {
-                kotlin.math.abs(it.centerX() - first.centerX()) <= 12 &&
-                kotlin.math.abs(it.centerY() - first.centerY()) <= 12
-            }
+            topWindow.root?.let { visit(it, 0) }
+            // Nested title wrappers are the same physical label; two different
+            // visible header positions must remain ambiguous (no send).
+            return LuluVirtualChatSendPolicy.uniqueHeaderTitle(titleBounds, height)
         }
 
         /** WeChat voice-composer recovery is a deliberately narrow navigation
