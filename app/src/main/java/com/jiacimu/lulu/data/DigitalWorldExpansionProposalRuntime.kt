@@ -114,7 +114,7 @@ internal object DigitalWorldExpansionProposalRuntime {
             title = "${character.displayName}的低频世界提案",
             maxTokens = 700,
             connectionOverride = connection,
-            contextMode = CompanionContextMode.CharacterAndScenario,
+            contextMode = CompanionContextMode.Full,
         ).getOrNull() ?: return null
         val proposal = parseObject(result.text) ?: return null
         // The owner can stop auto generation while an asynchronous proposal is in flight.
