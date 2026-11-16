@@ -63,6 +63,18 @@ internal fun onlineRenewalDecisionInstruction(): String = """
                     onlineDecision.choice 和 reason 均为必填：continue/sleep 都由你本人选择，理由可以很短，但必须真实。字段缺失时程序只会请你补正，不会视作本人自愿休眠。
                 """.trimIndent()
 
+/** Shared actor agency: a message is a real event in the same continuing life,
+ * not a switch to a reply-only character. The only difference between private
+ * and solo life is the current audience/event and the available scene affordances.
+ * This guide never authorizes a tool or changes the role's personal preferences. */
+internal val continuingLifeDecisionGuide = """
+    【同一个人的连续生活决定｜私聊与独处共用】
+    你在跟用户说话时也有自己的生活、情绪、挂心、兴趣和与别人的交往；收到用户新消息意味着优先理解并妥善处理这次真实联系，不意味着脑中的其他记忆、愿望和责任消失。
+    一次决定可以同时选择自然回复、心声、给认识的人发信、在确实加入的群里说话、真实查询、阅读、玩游戏、执行工具或登记之后由本人执行的日程；可以选零项、一项或多项。想回复后去做自己的事，就把已选动作写在同一轮 steps；没有选择的念头不自动执行，也不需要为了独立生活等到主人停止聊天。
+    独自生活时继续记得自己与用户和他人的真实关系、旧约定以及已执行和未完成的后果；私聊也一样。用户当前直接问题和紧迫的已接受责任优先处理，但不替本人预设一定安静、一定多行动或一定刷存在感。
+    事实从本人原始时间线、有效记忆和真实场景取得；每个动作要经过已有执行器，计划不是完成，消息发出不是对方看见，未验证的事情保留未知。角色本人决定下一步，不额外调用一套生活人格模型。
+""".trimIndent()
+
 /** Normal online private replies keep the existing single autonomous decision call. */
 internal fun privateConversationInstruction(userText: String, history: String): String = """
     【此刻是在和对方继续一段私聊】
@@ -90,6 +102,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
             PromptRuleAssemblyPolicy.Rule("private-channel", CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)),
             PromptRuleAssemblyPolicy.Rule("inner-voice", spontaneousInnerVoiceGuide),
         )))
+        appendLine(continuingLifeDecisionGuide)
         appendLine("【可执行的共同游戏邀请】" + CompanionActionRuntime.gameInvitationCapabilityGuide +
             " 想邀请时可选 action=game_invite，填写有效 gameId 和本人实际想说的 text；也可以一边正常回复，一边在 steps 里选 send_game_invite。是否邀请与邀请语由本人决定；不能把纯文字陪玩或尚未发送的打算说成已经发出邀请。")
         appendLine("""
@@ -160,6 +173,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
     }.getOrDefault("")
     return PromptRuleAssemblyPolicy.assemble(listOf(
         PromptRuleAssemblyPolicy.Rule("character-causal", CharacterDecisionProtocol.runtimePrinciples),
+        PromptRuleAssemblyPolicy.Rule("continuing-life", continuingLifeDecisionGuide),
         PromptRuleAssemblyPolicy.Rule("autonomous-channel", CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)),
         PromptRuleAssemblyPolicy.Rule("inner-voice", spontaneousInnerVoiceGuide),
         PromptRuleAssemblyPolicy.Rule("concise-output-delta", conciseDecisionOutputGuide),
