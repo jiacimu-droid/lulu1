@@ -535,7 +535,7 @@ internal fun DigitalWorldGameScene(
                     val pendingActivityId: String? = null
                     var activityLabel = motion.activityLabel
                     if (itemPoint != null && !following) {
-                        if (now >= nextDecision || followPath.isEmpty() || motion.pendingItemId != chosenItem?.item?.id) {
+                        if (now >= nextDecision || followPath.isEmpty()) {
                             followPath = com.jiacimu.lulu.games.worldFollowPath(
                                 motion.position, itemPoint, DIGITAL_WORLD_BOUNDS, obstacles, 28f)
                             nextDecision = now + 750L
