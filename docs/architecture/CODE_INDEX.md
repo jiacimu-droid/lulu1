@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d187b7a4b3ba7725109790a78d1a67cbbc5dccb0`
+- 基准提交：`4c06162650edaf78340bf8bcb7a11d04acb67a63`
 - 分支：`main`
-- 已索引文件：1362
-- 已索引代码/文本行：291299
-- 已发现符号：4104
+- 已索引文件：1363
+- 已索引代码/文本行：291352
+- 已发现符号：4107
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -833,7 +833,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 149 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 177 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
@@ -958,6 +958,7 @@
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ScreenRecordViewerGeometryTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 332 | 2 |

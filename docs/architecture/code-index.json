@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:34:26.229566+00:00",
-  "commit": "d187b7a4b3ba7725109790a78d1a67cbbc5dccb0",
+  "generatedAt": "2026-11-16T14:35:10.288749+00:00",
+  "commit": "4c06162650edaf78340bf8bcb7a11d04acb67a63",
   "branch": "main",
-  "sourceFingerprint": "37e8bf9db0886718f2041d8c6a2da75aa21d9d4b71eaff3e593d9c2c50426b65",
+  "sourceFingerprint": "d11afbb4d1395ee28b09578793ad0338c9891fab4e91fe69cc8a11ce2971c9d1",
   "summary": {
-    "files": 1362,
-    "lines": 291299,
-    "symbols": 4104
+    "files": 1363,
+    "lines": 291352,
+    "symbols": 4107
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17806,52 +17806,64 @@
         "line": 31
       }
     ],
+    "windowTitleMatches": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 43
+      }
+    ],
+    "uniqueHeaderTitle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 50
+      }
+    ],
     "uniqueSendTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 42
+        "line": 67
       }
     ],
     "sendControlNearEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 58
+        "line": 86
       }
     ],
     "chatEditorCandidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 70
+        "line": 98
       }
     ],
     "isPressToTalk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 80
+        "line": 108
       }
     ],
     "ComposerBounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 85
+        "line": 113
       }
     ],
     "ComposerControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 94
+        "line": 122
       }
     ],
     "voiceToTextControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 105
+        "line": 133
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 142
+        "line": 170
       }
     ],
     "canSendToRole": [
@@ -19034,6 +19046,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RoleScreenObservationArchiveTest.kt",
         "line": 20
+      }
+    ],
+    "ScreenRecordViewerGeometryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ScreenRecordViewerGeometryTest.kt",
+        "line": 7
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -41007,8 +41025,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 149,
-      "sha256": "10bf38bf9e87d40a48ba22fca7f59b8e1a16fc80282c875b028ae3be094ecbe2",
+      "lines": 177,
+      "sha256": "d18531623f5084a4a4a2f1b36f4469a736c5052cf0f4ce71faf13040b507664d",
       "symbols": [
         {
           "name": "isEnabled",
@@ -41031,36 +41049,44 @@
           "line": 33
         },
         {
+          "name": "windowTitleMatches",
+          "line": 43
+        },
+        {
+          "name": "uniqueHeaderTitle",
+          "line": 50
+        },
+        {
           "name": "uniqueSendTarget",
-          "line": 42
+          "line": 67
         },
         {
           "name": "sendControlNearEditor",
-          "line": 58
+          "line": 86
         },
         {
           "name": "chatEditorCandidate",
-          "line": 70
+          "line": 98
         },
         {
           "name": "isPressToTalk",
-          "line": 80
+          "line": 108
         },
         {
           "name": "ComposerBounds",
-          "line": 85
+          "line": 113
         },
         {
           "name": "ComposerControl",
-          "line": 94
+          "line": 122
         },
         {
           "name": "voiceToTextControl",
-          "line": 105
+          "line": 133
         },
         {
           "name": "sendButton",
-          "line": 142
+          "line": 170
         }
       ]
     },
@@ -42830,6 +42856,17 @@
         {
           "name": "RoleScreenObservationArchiveTest",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ScreenRecordViewerGeometryTest.kt",
+      "lines": 25,
+      "sha256": "d6b29f0b126d29ec3be5086a10777be14367a27cb980b8c7f32ff1d932f6a9d8",
+      "symbols": [
+        {
+          "name": "ScreenRecordViewerGeometryTest",
+          "line": 7
         }
       ]
     },
