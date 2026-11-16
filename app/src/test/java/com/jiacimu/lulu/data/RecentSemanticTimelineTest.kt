@@ -121,4 +121,22 @@ class RecentSemanticTimelineTest {
         assertEquals(listOf("b"), afterDelete.flatMap { it.events }.map { it.id })
         assertFalse(afterDelete.any { turn -> RecentSemanticTimeline.render(turn).contains("旧话") })
     }
+    @Test fun persistentIslandWorldSplitsSeparateVisitsButNotEveryAction() {
+        val session = "game-session-block_island-seed42"
+        val rows = (0 until 60).map { index ->
+            row("island-action-$index", index.toLong(), "game-team-action",
+                EventEvidenceKind.ToolResult, session,
+                content = "一次实际采集或移动 $index", channel = "共同游戏《方块小岛》·本人行动")
+        } + (0 until 40).map { index ->
+            row("island-next-day-$index", 20_000L + index,
+                "game-team-action", EventEvidenceKind.ToolResult, session,
+                content = "第二次上线的实际行动 $index",
+                channel = "共同游戏《方块小岛》·本人行动")
+        }
+        val turns = RecentSemanticTimeline.select(rows, 35)
+        assertEquals(2, turns.size)
+        assertEquals(listOf(60, 40), turns.map { it.events.size })
+        assertNotEquals(turns[0].key, turns[1].key)
+    }
+
 }
