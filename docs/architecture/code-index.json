@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:08:16.853561+00:00",
-  "commit": "f1f0729d91b13e7981797f0501ea54ce054c600d",
+  "generatedAt": "2026-11-16T17:09:19.881488+00:00",
+  "commit": "20c7a691eec234eb84f6230426ba3794a038af02",
   "branch": "main",
-  "sourceFingerprint": "cf62728e9dc8cc851024a04dd0845edff8c84ea10544758ac1010e9664dc756e",
+  "sourceFingerprint": "5b3b3bc0c9912a6ee42649767b6ad82345d3f688f95563454f624257208c2da6",
   "summary": {
-    "files": 1373,
-    "lines": 293359,
-    "symbols": 4133
+    "files": 1374,
+    "lines": 293461,
+    "symbols": 4134
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17963,13 +17963,13 @@
     "Line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
-        "line": 23
+        "line": 26
       }
     ],
     "hasExactToolbarTitle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
-        "line": 28
+        "line": 31
       }
     ],
     "canSendToRole": [
@@ -21762,6 +21762,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt",
         "line": 6
+      }
+    ],
+    "RecentSemanticTimelineIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt",
+        "line": 17
       }
     ],
     "RecentSemanticTimelineTest": [
@@ -41338,16 +41344,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt",
-      "lines": 114,
-      "sha256": "544983c6596450c4cfe33a3e389d06631ea78e2670abee5bab73061097977ecc",
+      "lines": 164,
+      "sha256": "a693db267ab07b1695a81abd4f3264af844baa111081361fe8954d55a929a645",
       "symbols": [
         {
           "name": "Line",
-          "line": 23
+          "line": 26
         },
         {
           "name": "hasExactToolbarTitle",
-          "line": 28
+          "line": 31
         }
       ]
     },
@@ -46699,6 +46705,17 @@
         {
           "name": "ReanswerMemoryBoundaryTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt",
+      "lines": 52,
+      "sha256": "045f83786d12367287017d1a5b2da3f07e13cfb9759f54b9d4ab53e57bf67213",
+      "symbols": [
+        {
+          "name": "RecentSemanticTimelineIntegrationTest",
+          "line": 17
         }
       ]
     },

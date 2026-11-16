@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f1f0729d91b13e7981797f0501ea54ce054c600d`
+- 基准提交：`20c7a691eec234eb84f6230426ba3794a038af02`
 - 分支：`main`
-- 已索引文件：1373
-- 已索引代码/文本行：293359
-- 已发现符号：4133
+- 已索引文件：1374
+- 已索引代码/文本行：293461
+- 已发现符号：4134
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -839,7 +839,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 208 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt` | 114 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt` | 164 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
@@ -1202,6 +1202,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
