@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T01:27:41.369945+00:00",
-  "commit": "7be9c057b8eef6b164a2f7dfca463c19818a79f6",
+  "generatedAt": "2026-11-16T01:28:55.905980+00:00",
+  "commit": "22fc72208c10c52dc47a9295b4144a8515add6c4",
   "branch": "main",
-  "sourceFingerprint": "ab3d9e935d3e6e845195f05f12b303b4529df9fd612883f7eebc4b483926cd65",
+  "sourceFingerprint": "c802526f843d21720e1bd2da0696e995ba6f126dc4f351d05663407c729e5e6b",
   "summary": {
     "files": 1341,
-    "lines": 286140,
+    "lines": 286147,
     "symbols": 4042
   },
   "symbolIndex": {
@@ -16919,13 +16919,13 @@
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 157
+        "line": 164
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 180
+        "line": 187
       }
     ],
     "showPaymentHandoff": [
@@ -39706,8 +39706,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 487,
-      "sha256": "3f7f2727d9c087b86ab1bed78e4f323a60e53544b50713220927639023cc3599",
+      "lines": 494,
+      "sha256": "ee55bea000bc5c83ea2a3e0ef9333c65f0629bcb5cdd185e39e698eb77211843",
       "symbols": [
         {
           "name": "Outcome",
@@ -39719,11 +39719,11 @@
         },
         {
           "name": "ownerHasNewInput",
-          "line": 157
+          "line": 164
         },
         {
           "name": "rememberGesture",
-          "line": 180
+          "line": 187
         }
       ]
     },
