@@ -10,7 +10,7 @@ internal object MeetingPhysicalStateReducer {
         scene.copy(participants = scene.participants.map { participant ->
             if (participant.participantId != characterId) participant
             else when (action) {
-                "HOLD_HANDS" -> participant.copy(
+                "HOLD_HANDS", "ACCEPT_HAND_OFFER" -> participant.copy(
                     contact = (participant.contact - "handholding:user" + "handholding:user"),
                     explorationMode = "FOLLOW_USER",
                 )
