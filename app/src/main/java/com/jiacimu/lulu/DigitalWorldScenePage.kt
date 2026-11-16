@@ -183,6 +183,7 @@ internal fun DigitalWorldSceneCanvas(
     initiatedHandHoldingId: String? = null,
     sceneDestinations: Map<String, String> = emptyMap(),
     onReachedSceneItem: ((characterId: String, itemId: String) -> Unit)? = null,
+    onExitToStreet: (() -> Unit)? = null,
 ) {
     DigitalWorldGameScene(
         modifier = modifier,
@@ -201,5 +202,6 @@ internal fun DigitalWorldSceneCanvas(
         initiatedHandHoldingId = initiatedHandHoldingId,
         sceneDestinations = sceneDestinations,
         onReachedSceneItem = onReachedSceneItem,
+        onExitToStreet = onExitToStreet,
     )
 }
