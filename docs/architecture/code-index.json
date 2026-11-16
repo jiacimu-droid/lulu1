@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:53:16.459742+00:00",
-  "commit": "54a527ce54197d3a7ce4ea5bcddd9b936f33743a",
+  "generatedAt": "2026-11-16T14:58:53.517488+00:00",
+  "commit": "f1bffd4f1d2a3c616a0807fcdd32bd9d4af37bd7",
   "branch": "main",
-  "sourceFingerprint": "25946aecf3f68da0eb0470135d9382b93a66bf4cc2db1294c5f5aba8282326d8",
+  "sourceFingerprint": "8c3625dc784bb19b06c2f3b3ca77c0f3f99217ed05e365f9862f82636b44e081",
   "summary": {
     "files": 1365,
-    "lines": 291742,
+    "lines": 291774,
     "symbols": 4110
   },
   "symbolIndex": {
@@ -359,7 +359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 114
+        "line": 128
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -15955,7 +15955,7 @@
     "knownRouteSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 112
+        "line": 126
       }
     ],
     "kind": [
@@ -38771,8 +38771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 129,
-      "sha256": "c77e9062d16b1b733b64aba009b32ea91c82e277522a368a308705a9f8342f9c",
+      "lines": 143,
+      "sha256": "6993b3908300ba29e0325a902c4b1a2a5276c4a3f1ceb45bab4e09e7e0f14fff",
       "symbols": [
         {
           "name": "nextVisible",
@@ -38800,11 +38800,11 @@
         },
         {
           "name": "knownRouteSteps",
-          "line": 112
+          "line": 126
         },
         {
           "name": "prompt",
-          "line": 114
+          "line": 128
         }
       ]
     },
@@ -47846,8 +47846,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-      "lines": 208,
-      "sha256": "6a0f5f190415228c0e8a2349b1d9806524a4bba4e5e39129b0fdb8d7730f1883",
+      "lines": 226,
+      "sha256": "0395892b81d2d728eae073dbe9c959d1fbd8a81562e346ecb7e0b183637b90ba",
       "symbols": [
         {
           "name": "RelicObjectiveRouteTest",
