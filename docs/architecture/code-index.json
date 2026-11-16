@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T06:44:08.147782+00:00",
-  "commit": "c83c5759d9a38c152505ce6703ee336b9f52372c",
+  "generatedAt": "2026-11-16T06:45:14.566257+00:00",
+  "commit": "0874e463eac8e2f149408c72ae29bc58fc30cab1",
   "branch": "main",
-  "sourceFingerprint": "135e9c60aadc1651bc726af4cc28a91f1673cce8ed491396dec5f57ae7b1a2b8",
+  "sourceFingerprint": "346581acecd4a032743fad0ec46c7f6cc66772748600aec8504a472cb93ef18e",
   "summary": {
     "files": 1355,
-    "lines": 289073,
+    "lines": 289146,
     "symbols": 4084
   },
   "symbolIndex": {
@@ -22071,7 +22071,7 @@
     "CharacterSoloWorldPlayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "CompanionCoopCombatTest": [
@@ -47082,12 +47082,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 111,
-      "sha256": "82cffbc396eacf8cddb3d5e459ce1eb2182c607f543612e345b0bb95787cedad",
+      "lines": 184,
+      "sha256": "bacd2fc86b439a1d9d887c9578a0c31383a36c0a692e81336f724d31cde5076f",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",
-          "line": 14
+          "line": 15
         }
       ]
     },
