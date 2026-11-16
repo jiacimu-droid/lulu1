@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`448236631aa93c90510d791d77e1d2811c1d9be7`
+- 基准提交：`18bea5cfdd02efd43e63d828743fa1edb7de9d0c`
 - 分支：`main`
 - 已索引文件：1369
-- 已索引代码/文本行：292688
+- 已索引代码/文本行：292690
 - 已发现符号：4124
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 234 | 0 |
+| `app/build.gradle.kts` | 236 | 0 |
 | `app/src/main/AndroidManifest.xml` | 196 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
