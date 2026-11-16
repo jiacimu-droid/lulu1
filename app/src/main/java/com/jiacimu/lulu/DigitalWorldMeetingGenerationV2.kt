@@ -124,6 +124,10 @@ internal fun meetingValidatedDestinationItemId(
 ): String = (if (explicitlySupplied) candidate else existing).trim()
     .takeIf { it in allowedItemIds }.orEmpty()
 
+/** Only activities listed for the same installed room item can be executed on arrival. */
+internal fun meetingValidatedDestinationActivityId(candidate: String, allowedIds: Set<String>): String =
+    candidate.trim().takeIf { it in allowedIds }.orEmpty()
+
 internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingSceneSnapshot? {
     json ?: return null
     val allowedIds = listOf("user") + session.participantIds.distinct()
@@ -131,10 +135,10 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
     val beforeById = before.participants.associateBy(MeetingParticipantSceneState::participantId)
     val roomOwnerId = DigitalWorldStore.meetingLocationCode(session.location)
         .takeIf { it.startsWith("home:") }?.removePrefix("home:")
-    val validItemIds = if (session.reality == MeetingReality.DIGITAL_WORLD && roomOwnerId != null)
+    val roomItems = if (session.reality == MeetingReality.DIGITAL_WORLD && roomOwnerId != null)
         DigitalWorldStore.state.value.items.filter { it.ownerCharacterId == roomOwnerId }
-            .mapTo(hashSetOf()) { it.id }
-    else emptySet()
+    else emptyList()
+    val validItemIds = roomItems.mapTo(hashSetOf()) { it.id }
     val proposed = buildMap {
         val array = json.optJSONArray("participants") ?: JSONArray()
         for (index in 0 until minOf(array.length(), allowedIds.size * 2)) {
@@ -146,6 +150,23 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                 for (valueIndex in 0 until minOf(values.length(), 8)) {
                     values.optString(valueIndex).trim().take(120).takeIf(String::isNotBlank)?.let(::add)
                 }
+            }
+            val selectedItemId = if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD)
+                meetingValidatedDestinationItemId(
+                    candidate = item.optString("destinationItemId"),
+                    existing = beforeById[id]?.destinationItemId.orEmpty(),
+                    explicitlySupplied = item.has("destinationItemId"),
+                    allowedItemIds = validItemIds,
+                )
+            else beforeById[id]?.destinationItemId.orEmpty()
+            val selectedItem = roomItems.firstOrNull { it.id == selectedItemId }
+            val offeredActivities = selectedItem?.let(DigitalWorldActivityCatalog::optionsFor)
+                ?.mapTo(hashSetOf()) { it.first } ?: emptySet()
+            val previousActivity = beforeById[id]?.destinationActivityId.orEmpty()
+            val offeredActivity = when {
+                item.has("destinationActivityId") -> item.optString("destinationActivityId")
+                selectedItemId == beforeById[id]?.destinationItemId -> previousActivity
+                else -> ""
             }
             put(
                 id,
@@ -160,14 +181,11 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                         item.optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }
                             ?: beforeById[id]?.explorationMode.orEmpty()
                     } else beforeById[id]?.explorationMode.orEmpty(),
-                    destinationItemId = if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD) {
-                        meetingValidatedDestinationItemId(
-                            candidate = item.optString("destinationItemId"),
-                            existing = beforeById[id]?.destinationItemId.orEmpty(),
-                            explicitlySupplied = item.has("destinationItemId"),
-                            allowedItemIds = validItemIds,
-                        )
-                    } else beforeById[id]?.destinationItemId.orEmpty(),
+                    destinationItemId = selectedItemId,
+                    destinationActivityId = if (id == respondingCharacterId &&
+                        session.reality == MeetingReality.DIGITAL_WORLD && selectedItem != null)
+                        meetingValidatedDestinationActivityId(offeredActivity, offeredActivities)
+                    else beforeById[id]?.destinationActivityId.orEmpty(),
                 ),
             )
         }
@@ -241,10 +259,8 @@ internal suspend fun meetingGenerateReplyV2(
                 val roomOwner = roomCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
                 val furniture = DigitalWorldStore.state.value.items.filter { it.ownerCharacterId == roomOwner }
                 if (furniture.isNotEmpty()) {
-                    appendLine("【当前房间有实际碰撞与坐标的家具｜可选结构化 destinationItemId】")
-                    furniture.forEach { item ->
-                        appendLine("- ID=${item.id}；名称=${item.name}；类型=${DigitalFurnitureCatalog.resolve(item).kind}")
-                    }
+                    appendLine("【当前房间真实家具与可执行活动｜可选 destinationItemId 和 destinationActivityId】")
+                    appendLine(DigitalWorldActivityCatalog.promptFor(furniture))
                 }
                 WorldFirstExplorationMemory.promptSectionIfAvailable("digital-world", limit = 10)
                     .takeIf(String::isNotBlank)
@@ -265,7 +281,7 @@ internal suspend fun meetingGenerateReplyV2(
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
 
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY","destinationItemId":"现场家具准确ID或空字符串"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY","destinationItemId":"现场家具准确ID或空字符串","destinationActivityId":"可选的对应家具activityId或空字符串"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
 
             规则：
             ${spontaneousInnerVoiceGuide}
@@ -292,6 +308,7 @@ internal suspend fun meetingGenerateReplyV2(
             - moveTo 只有主人明确提出去可用地点时才填写准确名称，并写出移动过程；否则留空。
             - explorationMode 只更新你自己的字段：FOLLOW_USER 表示你已经同意并开始跟随主人探索，地图上的身体会实际跟随；STAY 表示你停止跟随。邀请、犹豫、拒绝不能标成已跟随。是否答应由你的人设、关系和当时安排决定；不替其他角色决定，不改变主人的字段。没有变化时保留当前值。现实场景留空。
             - destinationItemId 是你想真实走向的当前房间家具 ID，必须从现场家具清单选择，不能填家具名称、想象地点或其他角色家里的东西。只有决定现在真的动身时才填，不要把“要不要去？”的邀请冒充已经拉着主人到达；等对方同意牵手后，场景可以一起寻路，主人可以随时自己走或松手。取消原目标可显式填空；未决定新目标时可以省略字段保留未完成目标。
+            - 如果你不仅想走到家具旁，还想在那里做具体的事，可以同时设置 destinationActivityId 为【该件家具】提供的 activityId，例如整理、照料、坐下、开灯；到达后程序才会真正执行并写回活动结果。仅仅接近或邀请对方去坐坐可以不填 activityId，**不能提前写成已经做完**。跨家具不能借用其他物品的活动，取消目标就同时取消活动；用户移动、松手或现场变化不会被程序解释成主人同意了新动作。
             - 场景正文不能代替身体行动的成功回执：走向床边等结果必须等地图真实走到对应家具旁再被当成已完成。你可以走着说话、走着等待、边探索边感知。
             - sceneState 只保存持续到下一轮的事实，必须包含user与所有参与者，使用准确participantId。
             - 数字世界见面是真正发生的数字共同体验，不是梦，也不是物理肉身进入手机。数字生命使用原生数字身体；现实角色和用户使用感官投影身体，可真实传递触觉、温度、重量与拥抱感觉。云眠原的云是可承托身体的感官云质。
