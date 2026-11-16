@@ -182,7 +182,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         if (immersivePlay) window?.addFlags(flag)
         // Both world-map games own the screen, including the navigation-pillar band.
         // Restore the host system UI when returning to the game hall or caller.
-        if (route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape) && decor != null) {
+        if (worldGameOwnsSystemNavigation(route.savedGameId()) && decor != null) {
             @Suppress("DEPRECATION")
             decor.systemUiVisibility = (oldSystemUi ?: 0) or
                 android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -192,7 +192,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         }
         onDispose {
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
-            if (route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape) && decor != null && oldSystemUi != null) {
+            if (worldGameOwnsSystemNavigation(route.savedGameId()) && decor != null && oldSystemUi != null) {
                 @Suppress("DEPRECATION")
                 decor.systemUiVisibility = oldSystemUi
             }
@@ -988,6 +988,10 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
         }
     }
 }
+
+/** A full-viewport world scene must not leave the system navigation pill over its HUD. */
+internal fun worldGameOwnsSystemNavigation(routeId: String): Boolean =
+    routeId in setOf("block_island", "relic_escape")
 
 /** Pure display contract: every non-world screen, including pickers, must be portrait. */
 internal fun gameSupportsLandscape(routeId: String): Boolean =
