@@ -56,6 +56,27 @@ class RelicMapCameraTest {
         assertEquals(0 to 0, RelicMapCamera(20f, 0f, 0f).tileAt(10f, 10f, 18, 15))
     }
 
+    @Test fun invalidViewportAndGestureCannotCreateSelectableTiles() {
+        val invalid = listOf(
+            relicMapCamera(0f, 360f, 18, 15, true, 4 to 5),
+            relicMapCamera(800f, 0f, 18, 15, true, 4 to 5),
+            relicMapCamera(800f, 360f, 18, 0, true, 4 to 5),
+            relicMapCamera(800f, 360f, 0, 15, false, 4 to 5),
+            relicMapCamera(Float.NaN, 360f, 18, 15, true, 4 to 5),
+            relicMapCamera(800f, 360f, 18, 15, true, Float.NaN, 5f),
+            relicMapCamera(800f, 360f, 18, 15, true, 4f, 5f, panX = Float.NaN)
+        )
+        invalid.forEach { camera ->
+            assertEquals(0f, camera.tileSize, 0f)
+            assertNull(camera.tileAt(400f, 180f, 18, 15))
+        }
+        // Invalid pinch zoom must not make an otherwise valid map untouchable.
+        val recovered = relicMapCamera(800f, 360f, 18, 15, true,
+            4f, 5f, zoom = Float.NaN)
+        assertTrue(recovered.tileSize > 0f)
+        assertEquals(4 to 5, recovered.tileAt(400f, 180f, 18, 15))
+    }
+
     @Test fun invalidGestureCoordinatesNeverSelectARealMapTile() {
         val camera = relicMapCamera(800f, 360f, 18, 15, true, 4 to 5)
         for (bad in listOf(Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)) {
