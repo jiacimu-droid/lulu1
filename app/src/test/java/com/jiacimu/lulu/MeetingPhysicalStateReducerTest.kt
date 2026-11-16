@@ -23,6 +23,19 @@ class MeetingPhysicalStateReducerTest {
         assertTrue(released.participants[1].contact.isEmpty())
     }
 
+    @Test fun furnitureArrivalRequiresMatchingPhysicalGoal() {
+        val awaiting = original.copy(participants = original.participants.map {
+            if (it.participantId == "role-a") it.copy(destinationItemId = "bed-01")
+            else it.copy(destinationItemId = "desk-02")
+        })
+        val wrong = MeetingPhysicalStateReducer.reachedItem(awaiting, "role-a", "table-03", "餐桌", Instant.EPOCH)
+        assertEquals("bed-01", wrong.participants[1].destinationItemId)
+        val arrived = MeetingPhysicalStateReducer.reachedItem(awaiting, "role-a", "bed-01", "床", Instant.EPOCH)
+        assertEquals("", arrived.participants[1].destinationItemId)
+        assertEquals("在床旁", arrived.participants[1].position)
+        assertEquals("desk-02", arrived.participants[2].destinationItemId)
+    }
+
     @Test fun departureEndsContactAndFollowingWithoutInventingOtherChanges() {
         val held = MeetingPhysicalStateReducer.apply(original, "role-a", "HOLD_HANDS", Instant.EPOCH)
         val departed = MeetingPhysicalStateReducer.userDeparted(held, Instant.EPOCH)
