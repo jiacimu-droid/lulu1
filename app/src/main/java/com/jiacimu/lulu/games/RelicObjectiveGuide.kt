@@ -73,36 +73,50 @@ internal object RelicObjectiveGuide {
             selectedVisible(run,target.x,target.y)==null ||
             !run.bounds(run.hero.x,run.hero.y)) return null
         val start=run.index(run.hero.x,run.hero.y)
-        val previous=IntArray(run.w*run.h){-1}
-        val visited=BooleanArray(run.w*run.h)
-        val frontier=java.util.ArrayDeque<Pair<Int,Int>>()
+        val cellCount=run.w*run.h
+        val previous=IntArray(cellCount){-1}
+        val visited=BooleanArray(cellCount)
+        // HUD route projection runs frequently while panning. Snapshot live
+        // blockers once instead of scanning every monster/trap on every tile.
+        val blocked=BooleanArray(cellCount)
+        run.mobs.forEach { mob ->
+            if(mob.hp>0 && run.bounds(mob.x,mob.y))
+                blocked[run.index(mob.x,mob.y)]=true
+        }
+        run.sites.forEach { site ->
+            if(!site.spent && site.kind=="trap" && run.bounds(site.x,site.y))
+                blocked[run.index(site.x,site.y)]=true
+        }
+        val frontier=java.util.ArrayDeque<Int>()
         visited[start]=true
-        frontier.add(run.hero.x to run.hero.y)
+        frontier.add(start)
         while(frontier.isNotEmpty()) {
-            val (x,y)=frontier.removeFirst()
+            val cell=frontier.removeFirst()
+            val x=cell%run.w
+            val y=cell/run.w
             if(RelicEscapeRules.distance(x,y,target.x,target.y)<=1) {
                 val path=mutableListOf<Pair<Int,Int>>()
-                var index=run.index(x,y)
-                while(index!=start) {
-                    path.add(index%run.w to index/run.w)
-                    index=previous[index]
-                    if(index<0)return null
+                var cursor=cell
+                while(cursor!=start) {
+                    path.add(cursor%run.w to cursor/run.w)
+                    cursor=previous[cursor]
+                    if(cursor<0)return null
                 }
                 path.add(run.hero.x to run.hero.y)
                 path.reverse()
                 return path
             }
-            for((nx,ny) in listOf(x+1 to y,x-1 to y,x to y+1,x to y-1)) {
-                if(!run.visible(nx,ny) || !run.walk(nx,ny))continue
-                if(run.tile(nx,ny)==2)continue // corrosive ground is not a shortcut
-                if(run.mobs.any { it.hp>0 && it.x==nx && it.y==ny })continue
-                if(run.sites.any { !it.spent && it.kind=="trap" &&
-                        it.x==nx && it.y==ny })continue
+            // No temporary Pair/list allocation per expanded map cell.
+            for(direction in 0..3) {
+                val nx=x+when(direction){0->1;1->-1;else->0}
+                val ny=y+when(direction){2->1;3->-1;else->0}
+                if(!run.bounds(nx,ny))continue
                 val index=run.index(nx,ny)
-                if(visited[index])continue
+                if(visited[index] || blocked[index] || !run.visible(nx,ny) ||
+                    !run.walk(nx,ny) || run.tile(nx,ny)==2)continue
                 visited[index]=true
-                previous[index]=run.index(x,y)
-                frontier.add(nx to ny)
+                previous[index]=cell
+                frontier.add(index)
             }
         }
         return null
