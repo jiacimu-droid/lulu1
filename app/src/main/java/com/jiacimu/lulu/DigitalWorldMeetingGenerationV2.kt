@@ -94,6 +94,10 @@ internal suspend fun meetingPlanDirectionV2(session: MeetingSession, userText: S
             title = "多人见面导演",
             maxTokens = 420,
             connectionOverride = connection,
+            // The director orders publicly witnessed turns; it is not the
+            // first participant's personal cognition. Individual participants
+            // get their own Full-mode memory and psychology below.
+            contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
                 sceneContext = "多人连续见面；地点=${session.location}；参与者=${names.values.joinToString("、")}",
