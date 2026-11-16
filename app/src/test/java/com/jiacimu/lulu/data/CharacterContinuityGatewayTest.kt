@@ -5,6 +5,7 @@ import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
+import com.jiacimu.lulu.ai.ModelConversationMessage
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -74,6 +75,73 @@ class CharacterContinuityGatewayTest {
             }
             assertEquals(2, server.requestCount)
             assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
+        } finally { server.shutdown() }
+    }
+
+    @Test fun livePrivateMessageAndIndependentLifeUseComparableFullOwnedMemory() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        CharacterInnerLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
+        CharacterInnerLifeStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("跨入口心事保持").characterId
+        val anchor = "海风铃诗集" + System.nanoTime().toString().takeLast(5)
+        val eventId = "full-life-" + java.util.UUID.randomUUID()
+        val at = Instant.now().minusSeconds(200)
+        SharedExperienceTimeline.record(
+            eventId = eventId, characterId = role, channel = "普通私聊",
+            speaker = "用户", content = "我和你真正聊过$anchor，还一起选了下一本要看的书",
+            occurredAt = at, triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.UserStatement, source = "message",
+        )
+        CharacterInnerLifeStore.observe(role, eventId, "我们聊过$anchor，想接着阅读",
+            JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "想把$anchor读完")
+                .put("why", "自己真的对书里的故事感兴趣"))), now = at)
+        val server = MockWebServer()
+        repeat(2) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"{\"action\":\"silent\"}"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val requested = UnifiedMemoryRequest(
+                currentInput = anchor,
+                sceneContext = "同一个人物的生活正在继续",
+                taskIntent = "延续真实阅读兴趣，自己选择此刻做什么",
+            )
+            val prompts = mutableListOf<String>()
+            for (withOwner in listOf(false, true)) {
+                LuluAiServices.gateway.generate(
+                    characterId = role, facts = "此刻有一份真实的本人生活时间线",
+                    instruction = "按真实关系与本人心愿选择是否说话或行动",
+                    source = "后台主动感知", title = if (withOwner) "新消息" else "生活回顾",
+                    contextMode = CompanionContextMode.Full, connectionOverride = connection,
+                    memoryRequest = requested, maxTokens = 350,
+                    conversation = if (withOwner) listOf(
+                        ModelConversationMessage(ModelConversationMessage.Role.USER,
+                            "我们刚才聊的那本书，你还想接着看吗？")
+                    ) else emptyList(),
+                ).getOrThrow()
+                val wire = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                val system = wire.getJSONArray("messages").getJSONObject(0).getString("content")
+                prompts += system
+                assertTrue("Both entrypoints must recall their OWN lived event", system.contains(anchor))
+                assertTrue("Both entrypoints must retain ongoing personal desire",
+                    system.contains("想把$anchor读完"))
+                assertTrue("One person should retain the full rich inner life in every context",
+                    system.contains("【角色持续内在生活"))
+            }
+            // This is the SAME gateway with an equivalent bounded scene;
+            // full production turns can still add legitimately different tools
+            // and concrete context, so this checks the common foundation only.
+            val difference = kotlin.math.abs(prompts[0].length - prompts[1].length)
+            assertTrue("A new user message must not remove half of the actor's memory",
+                difference <= 5_000)
+            assertEquals("Neither path may buy a second model call just to recall", 2, server.requestCount)
         } finally { server.shutdown() }
     }
 
