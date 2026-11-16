@@ -98,7 +98,14 @@ internal object LuluBackgroundPhoneContinuation {
             if (ref.isBlank() || label.isBlank()) null
             else "$ref=$label" + if (element.optBoolean("clickable")) "（可点）" else ""
         }
-        return "当前后台屏幕控件快照编号=$token；可识别控件：" +
+        val headers = json.optJSONArray("chatHeaderTexts")
+        val headerText = if (headers == null || headers.length() == 0) "" else {
+            val visible = (0 until minOf(headers.length(), 12))
+                .map { headers.optString(it).take(80) }
+                .filter(String::isNotBlank)
+            "；微信会话顶部实际可见文字候选=" + visible.joinToString("、")
+        }
+        return "当前后台屏幕控件快照编号=$token$headerText；可识别控件：" +
             items.joinToString("；").take(1_800) +
             "。编号只在刚观察到的这块后台屏上有效，页面变化必须重观察。"
     }
@@ -231,7 +238,7 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine(history.toString().takeLast(9_000))
                     appendLine("可选择的本机工具：background_phone")
                     appendLine(if (LuluVirtualChatSendPolicy.isEnabled(context, characterId))
-                        "主人已开启本角色虚拟屏幕总授权（包括微信发送）：可自行判断是否、向谁和说什么，但必须先真实打开微信与目标对话，取得screenSnapshotId；取得真实微信聊天页与最新screenSnapshotId后，可一次选择send_chat_message(recipient,text,screenSnapshotId)。若当前为「按住说话」，本机在核实聊天标题、输入区和左下键盘图标后自动切换文字模式，全文一次性ACTION_SET_TEXT并读回；这些本地微操作不再向模型逐字请求，也不额外发逐字截图。看不到唯一切换控件则拒绝而不是盲点；只在输入和发送键均核实后尝试一次发送。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
+                        "主人已开启本角色虚拟屏幕总授权（包括微信发送）：可自行判断是否、向谁和说什么，必须先真实打开微信与目标对话；观察结果的chatHeaderTexts只是标题区候选文字，recipient必须严格对应实际目标会话标题，不能在文件传输助手页面向别的收件人发送；取得screenSnapshotId后取得真实微信聊天页与最新screenSnapshotId后，可一次选择send_chat_message(recipient,text,screenSnapshotId)。若当前为「按住说话」，本机在核实聊天标题、输入区和左下键盘图标后自动切换文字模式，全文一次性ACTION_SET_TEXT并读回；这些本地微操作不再向模型逐字请求，也不额外发逐字截图。看不到唯一切换控件则拒绝而不是盲点；只在输入和发送键均核实后尝试一次发送。messageSendClicked只表示一次点击被接受，不等于送达；不确定时不能重复点击。"
                         else "主人未开启本角色虚拟屏幕总授权：可浏览微信，但send_chat_message会被拒绝；如想发送，可以自然提出让主人开启虚拟屏幕总授权。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
                         "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendProductLinkToChat=true执行；只有productLinkSent=true说明链接已发私聊。付款阶段停下交给主人。"
