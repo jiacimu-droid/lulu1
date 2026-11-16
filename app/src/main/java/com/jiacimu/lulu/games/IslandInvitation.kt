@@ -35,7 +35,10 @@ internal object IslandInvitation {
             source = "游戏 · 方块小岛组队邀请",
             title = "方块小岛 · 同行邀请",
             usage = ModelUsage.Game,
-            contextMode = CompanionContextMode.CharacterAndScenario,
+            // Joining is a real decision by this same person, not an isolated
+            // game character. Full mode recalls prior lived experiences and
+            // current motivations from the shared timeline.
+            contextMode = CompanionContextMode.Full,
             maxTokens = 180,
         ).mapCatching { response ->
             parse(response.text) ?: error("角色的邀请答复格式无效，请重新邀请")
