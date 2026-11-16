@@ -134,6 +134,9 @@ internal class RelicEscapeLedger(context:Context) {
     }
     @Synchronized fun featureLoot(id:String):RelicSnapshot {
         val old=read()
+        // Museum curation belongs to camp, not to a live expedition. A delayed
+        // pedestal tap must not mutate the permanent collection mid-run.
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
         if(old.vault.none { it.id==id })return old
         return write(old.copy(featuredLootId=id))
     }
