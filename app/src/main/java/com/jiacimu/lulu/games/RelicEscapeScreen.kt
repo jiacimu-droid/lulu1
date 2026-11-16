@@ -342,7 +342,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         movement = {
             val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
             val adjacentAction = run?.let { relicNearbyAction(it, facing, selected) }
-            GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 340L,
+            GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs =
+                when(run?.difficulty) {
+                    RelicDifficulty.EASY -> 650L
+                    RelicDifficulty.NORMAL -> 520L
+                    else -> 340L
+                },
                 stopWhen = run?.hero?.hp to run?.phase,
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
@@ -474,7 +479,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         modifier=Modifier.weight(1.15f).height(34.dp),
                         contentPadding=PaddingValues(horizontal=2.dp)) {
                         val cd=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
-                        Text(RelicCombatSkills.weaponSkillName(run)+if(cd>0)" $cd" else " 技",
+                        Text(RelicCombatSkills.weaponSkillName(run)+if(cd>0)" · 冷${cd}回合" else " · 可用",
                             color=relicGold,fontSize=10.sp,maxLines=1)
                     }
                     TextButton(onClick={
@@ -485,7 +490,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         modifier=Modifier.weight(1.05f).height(34.dp),
                         contentPadding=PaddingValues(horizontal=2.dp)) {
                         val cd=(run.professionReadyTurn-run.turns).coerceAtLeast(0)
-                        Text(run.profession.skill+" "+run.professionCharges+"次"+if(cd>0)" $cd" else "",
+                        Text(run.profession.skill+" "+run.professionCharges+"次"+if(cd>0)" · 冷${cd}回合" else "",
                             color=relicGreen,fontSize=10.sp,maxLines=1)
                     }
                     TextButton(onClick={aimOnly=!aimOnly; joystickHeld=false},
@@ -1165,11 +1170,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                                 color=Color.White,fontSize=12.sp)
                             Text("② 走到宝箱附近按右侧「开箱」或中心互动键；稀有箱可选择稳妥开箱，或消耗工具破封并面对额外守卫。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("③ 怪物会随回合行动。右手「攻击／格挡／治疗」固定可见；蓄力敌人要躲避、格挡或打断。",
+                            Text("③ 每走一格、攻击一次、格挡一次，通常各推进1回合；不是现实中的1秒。按住方向会连续走格，怪物也会随这些行动移动。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("④ 带着宝物走到绿色撤离门附近，启动撤离并守住3回合。倒地失败会失去本局未带出的东西。",
+                            Text("④ 怪物会先蓄力警告，下一次行动才可能攻击：可以走出射程、举盾格挡，或尝试短剑打断普通守卫一次蓄力。短剑近战1格，长矛直线2格，弩弓直线4格。",
                                 color=relicMuted,fontSize=12.sp)
-                            Text("武器距离：短剑相邻1格、长矛直线2格、弩弓直线4格（消耗弩箭）。侦察消耗1回合。",
+                            Text("⑤ 技能的冷却数字是“还需行动多少回合”，不是秒数。出门先分开应对守卫，带着宝物走到绿色撤离门附近，启动撤离并守住3回合。",
                                 color=relicGreen,fontSize=11.sp)
                             Text("右侧「行囊／更多」是背包、战术与收藏；点「七档品级」可随时查看什么最珍贵。",
                                 color=relicGold,fontSize=11.sp)
