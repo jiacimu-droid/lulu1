@@ -45,7 +45,16 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
+    // Default ON for a newly installed game. Explicit changes in the centralized
+    // game settings apply to the live scene without reopening the expedition.
     var voice by remember { mutableStateOf(prefs.getBoolean("voice",true)) }
+    DisposableEffect(prefs) {
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "voice") voice = prefs.getBoolean("voice",true)
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
     var busy by remember { mutableStateOf(false) }
     var line by remember(run.id) { mutableStateOf("") }
     var failure by remember(run.id) { mutableStateOf("") }
@@ -218,24 +227,11 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
             else maxWidth * .86f
         val subtitleStyle = TextStyle(shadow = Shadow(
             color = Color(0xFF000000), offset = Offset(0f, 2f), blurRadius = 5f))
-        // Independent 44dp microphone in the *top* safe area, never nested in
-        // captions; the nearby icons are only game audio and team details.
+        // Mic and chat are in the top safe strip; partner volume belongs in Settings.
         Row(Modifier.align(Alignment.TopCenter)
-                .padding(top = if (landscape) 5.dp else 56.dp),
+                .padding(top = if (landscape) 52.dp else 58.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            Surface(onClick = {
-                    voice = !voice
-                    prefs.edit().putBoolean("voice", voice).apply()
-                    if (!voice) speaker.stop()
-                }, modifier = Modifier.size(44.dp),
-                color = Color(0xC0162935), shape = CircleShape) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(if (voice) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                        if (voice) "关闭伙伴语音" else "开启伙伴语音",
-                        tint = Color.White, modifier = Modifier.size(22.dp))
-                }
-            }
             Surface(onClick = toggleOpenMic, modifier = Modifier.size(48.dp),
                 color = if (openMic.active) Color(0xFFFFD7BA) else Color(0xCC1A303C),
                 shape = CircleShape,
@@ -256,13 +252,12 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                 }
             }
         }
-        // Only two lines of borderless, shadowed subtitle; no card, progress
-        // strip or full-width pointer target over the fight and the team.
-        Column(Modifier.align(Alignment.BottomCenter)
-                .navigationBarsPadding()
+        // Subtitle floats near the top of the scene under the game chrome
+        // and mic. Bottom fingers, movement and combat remain completely clear.
+        Column(Modifier.align(Alignment.TopCenter)
+                .padding(top = if (landscape) 105.dp else 116.dp)
                 .widthIn(max = captionWidth)
-                .padding(horizontal = 6.dp,
-                    bottom = if (landscape) 8.dp else 156.dp),
+                .padding(horizontal = 6.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
             if (line.isNotBlank()) Text(line,
