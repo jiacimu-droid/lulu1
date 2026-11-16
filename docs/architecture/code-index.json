@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:35:27.692563+00:00",
-  "commit": "624732fcb84979d48463f3feccce8b11e4095a56",
+  "generatedAt": "2026-11-16T03:36:08.112883+00:00",
+  "commit": "1028e78e26511969decc7937b7d3df4b368b692c",
   "branch": "main",
-  "sourceFingerprint": "a9796f7d5164e93b349957b3994d5812faacc6bf2888e2761d3442af9fd12331",
+  "sourceFingerprint": "6ace5babeac27c273d26e616c9464014d6c3dce01a61bd94b117b77d06709425",
   "summary": {
     "files": 1345,
-    "lines": 286906,
-    "symbols": 4047
+    "lines": 286956,
+    "symbols": 4048
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1694,10 +1694,16 @@
         "line": 86
       }
     ],
+    "relocatePhysically": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
+        "line": 200
+      }
+    ],
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 796
+        "line": 851
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
@@ -23809,8 +23815,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 649,
-      "sha256": "352efeb7327b9a5d1b66820c0a6032a5c119313076af30b50bd9f11cd0cb2c17",
+      "lines": 644,
+      "sha256": "89b532b0d773ce2d84d3ac820dec50e9935dcc2d295c8fb56812e293bdbded85",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -23857,12 +23863,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 830,
-      "sha256": "5751c4c4e5e67c09524cfc682b4066dfa3ca4d5cac3d15966359357946af7d53",
+      "lines": 885,
+      "sha256": "704b3f8c87340fd06af044f63a99a884fd3b9a9bc6aeefab526e7f2b48b23f62",
       "symbols": [
         {
+          "name": "relocatePhysically",
+          "line": 200
+        },
+        {
           "name": "flush",
-          "line": 796
+          "line": 851
         }
       ]
     },
