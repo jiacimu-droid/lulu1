@@ -101,7 +101,7 @@ class MeetingCausalEvidenceTest {
             CharacterInnerLifeStore.historySnapshot(role.characterId)
                 .optJSONArray("causalTransitions")!!.length() > 0)
 
-        val later = MeetingExperienceStore.beginExchange(session, "后来新的原话", now.minusSeconds(5))
+        val later = MeetingExperienceStore.beginExchange(session, "后来新的原话", now = now.minusSeconds(5))
         DigitalWorldStore.recordMeetingOriginalInput(session, later.id, later.rawDraft, now.minusSeconds(4))
         val laterId = DigitalWorldStore.meetingInputEvidenceId(session.id, later.id, role.characterId)
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role.characterId, listOf(laterId)).size)
