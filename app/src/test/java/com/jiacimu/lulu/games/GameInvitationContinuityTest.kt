@@ -50,7 +50,8 @@ class GameInvitationContinuityTest {
             context, role, messageId, "block_island", whenAccepted.plusSeconds(90)))
         val event = SharedExperienceTimeline.eventsByIds(
             role, listOf("game-invite-accepted-$role-$messageId")).single()
-        assertEquals(whenAccepted, event.occurredAt)
+        // The durable shared timeline intentionally stores millisecond precision.
+        assertEquals(whenAccepted.truncatedTo(java.time.temporal.ChronoUnit.MILLIS), event.occurredAt)
         assertTrue(event.content.contains("gameId=block_island"))
         assertFalse(event.content.contains("gameId=relic_escape"))
     }
