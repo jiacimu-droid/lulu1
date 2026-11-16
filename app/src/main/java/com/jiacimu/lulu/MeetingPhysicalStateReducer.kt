@@ -29,7 +29,7 @@ internal object MeetingPhysicalStateReducer {
                     at: Instant): MeetingSceneSnapshot =
         scene.copy(participants = scene.participants.map { participant ->
             if (participant.participantId == characterId && participant.destinationItemId == itemId)
-                participant.copy(destinationItemId = "", position = "在${itemName}旁")
+                participant.copy(destinationItemId = "", destinationActivityId = "", position = "在${itemName}旁")
             else participant
         }, updatedAt = at)
 
@@ -40,6 +40,7 @@ internal object MeetingPhysicalStateReducer {
                 contact = it.contact - "handholding:user",
                 explorationMode = if (it.explorationMode == "FOLLOW_USER") "STAY" else it.explorationMode,
                 destinationItemId = "",
+                destinationActivityId = "",
             )
         }, updatedAt = at)
 }
