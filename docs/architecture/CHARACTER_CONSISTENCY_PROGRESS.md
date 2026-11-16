@@ -1,3 +1,10 @@
+## 2026-11-17 · P-03.1 挂心后续只读取仍有效的真实回执
+
+- 正式后台链 `ProactivePerceptionRuntime → CharacterUnfinishedActionContext.candidates` 和心事正文 `CharacterOpenConcernRuntime.contextForRole` 原先只核回执 ID 是否在原始时间线。关联的群消息撤回后，工具流水与心事里的旧摘要都还在，下一次本人决定仍会读到已经失效的结果。
+- [生产与回归 ca64e6f](https://github.com/jiacimu-droid/lulu1/commit/ca64e6ffeeaa0a1784bb0f5a4c9cbff4f72b14fe) 给两个投影共用 `CharacterPerceptionContext.liveEvidenceIds`，沿本人时间线和现有撤回投影核实结果依据。沿用原心事 ID，失效的结果显示为不可用，原执行流水与心事仍保留，无新增模型请求。回归 `CharacterUnfinishedActionContextTest.withdrawnToolResultDoesNotReachTheNextConcernDecision` 使用真实 ChatStore 群消息撤回和结构化工具回执夹具，分别验证未竟事和心事正文在撤回前后的内容。
+- [首轮索引 #43920832987](https://github.com/jiacimu-droid/lulu1/actions/runs/43920832987) 成功；[首轮 JVM/APK #43920832618](https://github.com/jiacimu-droid/lulu1/actions/runs/43920832618) 卡在测试编译，缺群聊撤回扩展函数导入，已由 [b6c539f](https://github.com/jiacimu-droid/lulu1/commit/b6c539feb8fe637f98a12f66ea43d9c8e844cdb9) 修正，并重跑[索引 #43921835280](https://github.com/jiacimu-droid/lulu1/actions/runs/43921835280)及[JVM/APK #43921835220](https://github.com/jiacimu-droid/lulu1/actions/runs/43921835220)。上一轮统一输入 [索引 #43858576422](https://github.com/jiacimu-droid/lulu1/actions/runs/43858576422) 成功，[JVM/APK #43858576377](https://github.com/jiacimu-droid/lulu1/actions/runs/43858576377) 卡在 `ProactiveQuietDecisionTest`，无 APK。真机与真实模型待验。
+- 下一步先核修正提交的本用例及最终 APK。若本用例通过，查 `ConversationExpressionGatewayTest.normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers` 的真实 HTTP 共用输入投影。它在改动前的 [#43916996842](https://github.com/jiacimu-droid/lulu1/actions/runs/43916996842) 已在本人联想材料断言失败，先确认栏目迁移或真实输入丢失。
+
 ## 2026-11-16 · P-08b/P-03 全场景输入额度与感知节拍统一（源码、回归已提交；真机/真实模型待验）
 
 - **主人要求**：凡原世界人物本人决策（私聊、后台、电话、群聊、见面、游戏等）沿同一人格、原始时间线、心理、意愿和行动能力，输入工作集分项、召回名额与字符上限相同；场景只能添加权威现场、话语媒介和感知节拍。感知机会不等于强迫说话；普通任务目标约 5 万 token，但不为凑数重复输入。
