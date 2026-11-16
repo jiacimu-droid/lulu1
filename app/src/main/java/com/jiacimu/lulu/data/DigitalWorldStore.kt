@@ -426,7 +426,9 @@ object DigitalWorldStore {
                 else -> error("未知数字世界动作：$action")
             }
         }
-        if (normalizedAction !in setOf("use_home_item", "use_location")) DigitalWorldActivityStateStore.endActivity(characterId)
+        // Looking at the surroundings doesn't interrupt an ongoing rest.
+        if (normalizedAction !in setOf("use_home_item", "use_location", "observe_scene"))
+            DigitalWorldActivityStateStore.endActivity(characterId)
         synchronized(lock) {
             appendEventLocked(characterId, normalizedAction, summary, now)
             persistLocked()
