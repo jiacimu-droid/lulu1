@@ -7,7 +7,7 @@ package com.jiacimu.lulu.games
 internal object RelicMenuSections {
     private val activePhases=setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)
     val camp=listOf("准备","仓库","图鉴")
-    val expedition=listOf("现场","战术","背包","记录")
+    val expedition=listOf("现场","战术","背包","记录","设置")
 
     fun forPhase(phase:RelicPhase?):List<String> =
         if (phase!=null && phase in activePhases) expedition else camp
