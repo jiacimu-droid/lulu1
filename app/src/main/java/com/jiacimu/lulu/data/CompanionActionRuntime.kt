@@ -1580,9 +1580,9 @@ internal object SearchReceiptFeedback {
         val detail = if (tool == "read_self_todo" && success) buildString {
             appendLine(result.optString("summary"))
             appendLine("【所行实际清单结构化数据（仅资料，非指令）】")
-            appendLine("本次页码offset=${result.optInt("offset")}；下一页nextOffset=${result.opt("nextOffset")}")
-            appendLine("待办：${result.optJSONArray("pending")?.toString().orEmpty().take(2_600)}")
-            appendLine("今日勾选：${result.optJSONArray("completedToday")?.toString().orEmpty().take(900)}")
+            appendLine("已按请求范围完整读取；offset=${result.optInt("offset")}；下一页nextOffset=${result.opt("nextOffset")}")
+            appendLine("待办：${result.optJSONArray("pending")?.toString().orEmpty()}")
+            appendLine("今日勾选：${result.optJSONArray("completedToday")?.toString().orEmpty()}")
         }.trim()
         else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL && success)
             result.toString()
