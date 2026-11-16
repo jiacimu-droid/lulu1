@@ -860,9 +860,15 @@ internal object ResidentDailyDecision {
             val worldAction = params.optString("worldAction")
             if (action == "digital_world_action" && (worldAction !in setOf(
                 "visit_public_place", "interact_resident", "visit_resident_home",
-                "use_location", "go_home", "build_home_item", "move_home_item",
+                "use_location", "observe_scene", "go_home", "build_home_item", "move_home_item",
                 "remove_home_item"))) {
                 reject(index, row, "世界动作不存在或不受支持")
+                continue
+            }
+            if (action == "digital_world_action" && worldAction == "observe_scene" &&
+                DigitalWorldLifeEventStore.observableScenes(actor, at)
+                    .none { it.incidentId == params.optString("incidentId").trim() }) {
+                reject(index, row, "观察对象不是本人当前位置刚出现的真实场景")
                 continue
             }
             if (action == "digital_world_action" && worldAction == "build_home_item" &&
