@@ -12,7 +12,7 @@ internal data class DigitalEnvironmentSnapshot(
     val light: String,
     val temperatureCelsius: Int,
 ) {
-    fun context(): String = "数字世界环境：$season；$light；室外体感约${temperatureCelsius}℃。这是数字世界的共同环境，不是用户现实天气；室内外的感受会有差异。"
+    fun context(): String = "你所生活的世界此刻：$season；$light；室外体感约${temperatureCelsius}℃。这是身处此地真实可感的共同环境，不是用户现实天气；室内外的感受会有差异。"
 }
 
 /** One shared world clock, smooth yearly/daytime cycles; retries never reroll weather. */
