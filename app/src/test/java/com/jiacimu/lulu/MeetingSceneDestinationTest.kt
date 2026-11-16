@@ -15,6 +15,15 @@ class MeetingSceneDestinationTest {
             "furniture-from-another-home", "", true, roomFurniture))
     }
 
+    @Test fun furnitureActionMustBeOfferedByExactTargetItem() {
+        val bedOffers = setOf("sit_on_bed", "make_bed", "inspect_item")
+        assertEquals("make_bed", meetingValidatedDestinationActivityId("make_bed", bedOffers))
+        assertEquals("", meetingValidatedDestinationActivityId("toggle_lamp", bedOffers))
+        assertEquals("", meetingValidatedDestinationActivityId("invented_activity", bedOffers))
+        assertEquals("", meetingValidatedDestinationActivityId("", bedOffers))
+        assertEquals("", meetingValidatedDestinationActivityId("sit_on_bed", emptySet()))
+    }
+
     @Test fun omissionPreservesExistingDestinationWhileExplicitEmptyCancels() {
         assertEquals("sofa-02", meetingValidatedDestinationItemId(
             "", "sofa-02", false, roomFurniture))
