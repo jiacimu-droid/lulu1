@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T16:44:39.113313+00:00",
-  "commit": "91f158e57ce84f4dab134a7659308071f23df9a4",
+  "generatedAt": "2026-11-16T16:46:51.480343+00:00",
+  "commit": "08348340e430a4a8a54249ebdc5cfa77e09990a0",
   "branch": "main",
-  "sourceFingerprint": "4e284a5b686117f9755c2c1bf50ee451ffe6fbaf1d5a6e9de4ea7043fc5d8968",
+  "sourceFingerprint": "6ea93f74dfca58592159fa2c6f6d072e60d7dfbc045edf54ed5cea2481d4c37e",
   "summary": {
-    "files": 1367,
-    "lines": 292285,
-    "symbols": 4124
+    "files": 1368,
+    "lines": 292324,
+    "symbols": 4125
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11006,6 +11006,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 1354
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt",
+        "line": 24
       }
     ],
     "validateZip": [
@@ -41194,6 +41198,17 @@
         {
           "name": "text",
           "line": 86
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt",
+      "lines": 39,
+      "sha256": "626aabb45e9f229ba06964c20d2c82d3466d07612e0afc6dfe9ef089f7522f19",
+      "symbols": [
+        {
+          "name": "walk",
+          "line": 24
         }
       ]
     },
