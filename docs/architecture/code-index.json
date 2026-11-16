@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T11:32:14.843874+00:00",
-  "commit": "cda8334f02bc9da731729bea799c8bbfa4df33aa",
+  "generatedAt": "2026-11-16T11:46:29.809212+00:00",
+  "commit": "b659b212649809df8a4665e7ac77af11c5acaf64",
   "branch": "main",
-  "sourceFingerprint": "41915be567c5a5317352adf7846eb072e9b9dff983b06de89df76e17f112b41a",
+  "sourceFingerprint": "8d948b7cc108cae3dd2ea175844e15e8ddbf3704ed9e7c1024efbcab4215c8b1",
   "summary": {
     "files": 1361,
-    "lines": 290480,
+    "lines": 290491,
     "symbols": 4093
   },
   "symbolIndex": {
@@ -477,7 +477,7 @@
     "context": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 39
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt",
@@ -3459,7 +3459,7 @@
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2557
+        "line": 2559
       }
     ],
     "returnToList": [
@@ -23377,8 +23377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-      "lines": 51,
-      "sha256": "95e6e2fb7eb63ccd32b0869d1b245b111e06ae5f3fc768c01b21d4f7a629df56",
+      "lines": 52,
+      "sha256": "5ea92f78d3ab3bf6c921ef9ac48adcc60735e5a6b5430cff24acf19467ba46f5",
       "symbols": [
         {
           "name": "shouldRecoverStuckCapture",
@@ -23394,7 +23394,7 @@
         },
         {
           "name": "context",
-          "line": 39
+          "line": 40
         }
       ]
     },
@@ -25459,8 +25459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2707,
-      "sha256": "64c55d1ab6904e7bed6dea0f14c3d134a435a2216d13cfb093d5279c8e93bb02",
+      "lines": 2709,
+      "sha256": "9fe84777b6521f2f07ba7b39d7cd2f688ebae43e94ce56557ab7b53c15aef2d8",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -25552,7 +25552,7 @@
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2557
+          "line": 2559
         }
       ]
     },
@@ -29857,8 +29857,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt",
-      "lines": 42,
-      "sha256": "306bf8243564fe4c00d35d0362f9229aaee82c938847809ace75cd161f6880b4",
+      "lines": 43,
+      "sha256": "c2d21a5000c9530ab4c680533591266fc6d4a580b56a26fa4c3b9f29723bd887",
       "symbols": []
     },
     {
@@ -33990,8 +33990,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 167,
-      "sha256": "5c90b2c35438ecd104167f50eb3fa53dfe1a0f74d9645323aad06c9f0eb88897",
+      "lines": 170,
+      "sha256": "44a78b025f6b4c04bee424848e024995a4f8f6504e33f7a529e49964384ce965",
       "symbols": []
     },
     {
@@ -41853,8 +41853,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt",
-      "lines": 74,
-      "sha256": "81662f8b9b9567f3d3f15498f7472cad40f979d1b35ec58e743be6711d99f702",
+      "lines": 78,
+      "sha256": "28b91d5de5eabf2f2a20627559609744a8d285d77c35e1cac90be293b14a150f",
       "symbols": [
         {
           "name": "CallSilencePolicyTest",
@@ -44428,7 +44428,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSceneCadenceTest.kt",
       "lines": 53,
-      "sha256": "178758621fde61d3a9475c9dcf3a2f62f5a0e59319f96d444ba2453d2a776acc",
+      "sha256": "69802d24da1be6abc4cef4cab390a5c5547429171e93b8f8b00946d419eb6ba9",
       "symbols": [
         {
           "name": "CharacterSceneCadenceTest",
