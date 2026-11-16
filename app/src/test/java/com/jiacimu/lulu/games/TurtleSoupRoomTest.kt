@@ -163,7 +163,7 @@ class TurtleSoupRoomTest {
     }
 
     @Test fun expandedOriginalCasesAreStableUniqueAndWellFormed() {
-        assertEquals(28, SoupLibrary.cases.size)
+        assertEquals(38, SoupLibrary.cases.size)
         val ids = SoupLibrary.cases.map { it.id }
         assertEquals(ids.size, ids.distinct().size)
         assertTrue(SoupLibrary.cases.count { it.category.contains("惊悚") || it.category.contains("恐怖") } >= 3)
@@ -194,6 +194,93 @@ class TurtleSoupRoomTest {
         val invalid = org.json.JSONObject(encoded).put("custom_truth", "").toString()
         assertNull(SoupRoom.fromJson(invalid))
         assertEquals(SoupLibrary.cases.first().id, SoupRoom().caseId)
+    }
+
+    @Test fun newCuratedCasesHaveProgressiveHintsAndExplicitFairSolutionMilestones() {
+        assertEquals(10, SoupCuratedCases.cases.size)
+        assertEquals(10, SoupCuratedCases.cases.map { it.id }.distinct().size)
+        assertTrue(SoupCuratedCases.cases.any { it.category.contains("黑汤") })
+        assertTrue(SoupCuratedCases.cases.any { it.category.contains("温情") })
+        assertTrue(SoupCuratedCases.cases.any { it.category.contains("规则") })
+        SoupCuratedCases.cases.forEach { puzzle ->
+            assertTrue("汤面太短: " + puzzle.id, puzzle.surface.length >= 30)
+            assertTrue("汤底太短: " + puzzle.id, puzzle.truth.length >= 100)
+            assertEquals("必须四级渐进提示: " + puzzle.id, 4, puzzle.hints.size)
+            assertTrue("主持核验缺关键因果: " + puzzle.id, puzzle.milestones.size >= 3)
+            assertTrue(puzzle.milestones.all { it.isNotBlank() })
+            assertEquals(puzzle, SoupLibrary.find(puzzle.id))
+        }
+    }
+
+    @Test fun challengeUsesOneSharedBudgetWithoutClippingHistoricalEvidence() {
+        val lines = buildList {
+            repeat(12) { i ->
+                add(SoupLine(if (i % 2 == 0) "你" else "江渡",
+                    SoupKind.QUESTION, "第" + i + "问：这与时间有关吗？"))
+                add(SoupLine("固定主持人", SoupKind.ANSWER,
+                    if (i % 2 == 0) "否" else "部分是", size - 1))
+            }
+            add(SoupLine("你", SoupKind.DISCUSSION, "我认为顺序是关键"))
+            add(SoupLine("你", SoupKind.SOLUTION, "我尝试还原真相"))
+        }
+        val challenge = SoupRoom(caseId = "silent_high_bid", questionBudget = 12,
+            started = true, companions = listOf("jiangdu"), lines = lines)
+        assertEquals(12, challenge.questionCount)
+        assertFalse(challenge.canAsk)
+        assertEquals(12, challenge.evidence.size)
+        assertEquals(6, challenge.evidence.count { it.verdict == "否" })
+        assertEquals(6, challenge.evidence.count { it.verdict == "部分是" })
+        assertTrue(challenge.publicContext().contains("问数用尽"))
+        val restored = SoupRoom.fromJson(challenge.toJson())!!
+        assertEquals(challenge, restored)
+        assertFalse(restored.canAsk)
+        assertEquals(challenge.evidence, restored.evidence)
+        assertFalse(restored.publicContext().contains(restored.puzzle.truth))
+        assertFalse(restored.publicContext().contains("提前书面委托竞价"))
+        assertTrue(restored.publicContext().contains("我尝试还原真相"))
+    }
+
+    @Test fun unlimitedModeAndLegacyWithoutQuestionBudgetStayUnlimited() {
+        val room = SoupRoom(questionBudget = 0, started = true,
+            lines = List(14) { SoupLine("你", SoupKind.QUESTION, "问题" + it) })
+        assertTrue(room.canAsk)
+        assertTrue(SoupRoom.fromJson(room.toJson())!!.canAsk)
+        val legacy = org.json.JSONObject(room.toJson()).apply { remove("question_budget") }.toString()
+        assertEquals(0, SoupRoom.fromJson(legacy)!!.questionBudget)
+        assertTrue(SoupRoom.fromJson(legacy)!!.canAsk)
+        val invalid = org.json.JSONObject(room.toJson()).put("question_budget", -10).toString()
+        assertEquals(0, SoupRoom.fromJson(invalid)!!.questionBudget)
+    }
+
+    @Test fun evidenceBoardUsesAnsweredQuestionIndicesNotAdjacentDiscussion() {
+        val room = SoupRoom(lines = listOf(
+            SoupLine("江渡", SoupKind.QUESTION, "有人离开了吗？"),
+            SoupLine("你", SoupKind.DISCUSSION, "还不能确定"),
+            SoupLine("主持", SoupKind.ANSWER, "部分是", questionIndex = 0),
+            SoupLine("你", SoupKind.QUESTION, "是真正的月亮吗？"),
+            SoupLine("主持", SoupKind.ANSWER, "否", questionIndex = 3),
+        ))
+        assertEquals(listOf(
+            SoupEvidence(0, "江渡", "有人离开了吗？", "部分是"),
+            SoupEvidence(3, "你", "是真正的月亮吗？", "否"),
+        ), room.evidence)
+        assertEquals(room.evidence, SoupRoom.fromJson(room.toJson())!!.evidence)
+    }
+
+    @Test fun hostInstructionsGroundJudgmentsAndKeepRolesSeparate() {
+        val judge = SoupHostGuide.question(SoupHost.AI)
+        assertTrue(judge.contains("固定汤底"))
+        assertTrue(judge.contains("部分是"))
+        assertTrue(judge.contains("已经公开的裁定"))
+        assertTrue(judge.contains("不能因为不知道就编"))
+        assertTrue(judge.contains("固定主持人"))
+        val characterJudge = SoupHostGuide.question(SoupHost.CHARACTER)
+        assertTrue(characterJudge.contains("指定的角色主持人"))
+        assertTrue(characterJudge.contains("不抢玩家推理"))
+        val finalJudge = SoupHostGuide.solution(SoupHost.AI)
+        assertTrue(finalJudge.contains("关键因果点"))
+        assertTrue(finalJudge.contains("禁止补充新的隐藏事实"))
+        assertTrue(finalJudge.contains("允许同义词"))
     }
 
 }
