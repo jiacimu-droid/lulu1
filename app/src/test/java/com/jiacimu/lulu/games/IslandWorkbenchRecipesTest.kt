@@ -99,10 +99,19 @@ class IslandWorkbenchRecipesTest {
         assertEquals(blocked.world.turns, denied.world.turns)
         assertEquals(blocked.crystals, denied.crystals)
         assertEquals(blocked.world.tiles, denied.world.tiles)
-        val upgraded = blocked.copy(tools = blocked.tools + "pickaxe")
+        // Upgrade through the same workbench action as the player, never inject a tool into state.
+        val upgradedAtBench = BlockIslandRules.act(restored, "craft_pickaxe", world.x, world.y)
+        assertTrue("pickaxe" in upgradedAtBench.tools)
+        assertEquals(restored.world.wood - 2, upgradedAtBench.world.wood)
+        assertEquals(restored.world.stone - 2, upgradedAtBench.world.stone)
+        val upgraded = beside(BlockIslandState.fromJson(upgradedAtBench.toJson())!!, crystal)
         val extracted = BlockIslandRules.act(upgraded, "gather", crystal % world.width, crystal / world.width)
         assertEquals(upgraded.world.stone + 4, extracted.world.stone)
         assertEquals(upgraded.crystals + 1, extracted.crystals)
+        val savedOre = BlockIslandState.fromJson(extracted.toJson())!!
+        assertEquals(extracted.crystals, savedOre.crystals)
+        assertEquals(extracted.world.tiles, savedOre.world.tiles)
+        assertTrue("pickaxe" in savedOre.tools)
     }
 
 }
