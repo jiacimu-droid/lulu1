@@ -150,6 +150,9 @@ internal object RelicActorPlay {
             } else if (s.walk(x, y) && !(s.hero.x == x && s.hero.y == y) &&
                 s.allies.none { it.id != id && it.hp > 0 && it.x == x && it.y == y }) {
                 result += IslandActorOption("move:$x:$y", "走到($x,$y)", "move", x, y)
+                if(s.sites.any { it.kind=="echo" && !it.spent && it.x==x && it.y==y })
+                    result += IslandActorOption("sneak:$x:$y",
+                        "轻声越过共鸣石板，不惊动附近的巡逻者","sneak",x,y)
             }
         }
         s.chests.filter { !it.opened && it.id !in s.playerChestMarks && s.visible(it.x,it.y) &&
@@ -260,12 +263,14 @@ internal object RelicActorPlay {
                 "主动去支援围攻"+RelicArsenal.monsterName(enemy.kind)+
                     "，前进到("+step.first+","+step.second+")"
             }
-            "move" -> {
-                val moved=RelicCoopTravel.moveStep(s,id,option.x,option.y) ?:return null
+            "move", "sneak" -> {
+                val quiet=option.kind=="sneak"
+                val moved=RelicCoopTravel.moveStep(s,id,option.x,option.y,
+                    silent=quiet) ?:return null
                 actor=moved.allies.first { it.id==id }
                 next=moved
                 val damage=(a.hp-actor.hp).coerceAtLeast(0)
-                "前进到("+option.x+","+option.y+")"+
+                (if(quiet)"轻声前进到(" else "前进到(")+option.x+","+option.y+")"+
                     if(damage>0)"，地形伤害"+damage else ""
             }
             "attack", "interrupt" -> {
