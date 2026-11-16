@@ -204,6 +204,12 @@ internal fun DigitalWorldMeetingSceneExperience(
                 showExplorationHud = exploring,
                 followerIds = followers,
                 initiatedHandHoldingId = roleInitiatedHandHolding,
+                sceneDestinations = participantsInScene
+                    .filter { it.participantId in session.participantIds && it.destinationItemId.isNotBlank() }
+                    .associate { it.participantId to it.destinationItemId },
+                onReachedSceneItem = { characterId, itemId ->
+                    MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
+                },
             )
         } else {
             RealisticMeetingStage(
