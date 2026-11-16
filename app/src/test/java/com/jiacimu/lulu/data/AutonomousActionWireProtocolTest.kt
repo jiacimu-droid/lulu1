@@ -213,6 +213,65 @@ class AutonomousActionWireProtocolTest {
         assertFalse(notGuessed.getJSONObject("args").has("action"))
     }
 
+    @Test fun missingPhoneStepVerbNeedsRoleCorrectionAndNeverGuessesLaunchFromWechat() {
+        val original = org.json.JSONArray().put(JSONObject()
+            .put("tool", "background_phone").put("action", "tool")
+            .put("args", JSONObject().put("appName", "微信")))
+        assertEquals(listOf("steps[0].args.action"),
+            AutonomousActionWireProtocol.invalidBackgroundPhoneStepActions(original))
+        assertNull(AutonomousActionWireProtocol.repairBackgroundPhoneSteps(
+            original, JSONObject().put("repairs", org.json.JSONArray().put(JSONObject()
+                .put("index", 0).put("action", "open")))))
+        assertFalse(original.getJSONObject(0).getJSONObject("args").has("action"))
+        val fixed = AutonomousActionWireProtocol.repairBackgroundPhoneSteps(
+            original, JSONObject().put("repairs", org.json.JSONArray().put(JSONObject()
+                .put("index", 0).put("action", "launch"))))!!
+        assertEquals("launch", fixed.getJSONObject(0).getJSONObject("args").getString("action"))
+        assertEquals("微信", fixed.getJSONObject(0).getJSONObject("args").getString("appName"))
+        assertTrue(AutonomousActionWireProtocol.invalidBackgroundPhoneStepActions(fixed).isEmpty())
+    }
+
+    @Test fun phoneCorrectionDoesNotMutateOtherStepsOrOverrideAuthoredTarget() {
+        val original = org.json.JSONArray()
+            .put(JSONObject().put("tool", "send_private_message")
+                .put("args", JSONObject().put("text", "我先检查一下")))
+            .put(JSONObject().put("tool", "background_phone")
+                .put("args", JSONObject().put("appName", "微信")))
+            .put(JSONObject().put("tool", "background_phone")
+                .put("args", JSONObject().put("action", "observe")))
+        val before = original.toString()
+        val repaired = AutonomousActionWireProtocol.repairBackgroundPhoneSteps(original,
+            JSONObject().put("repairs", org.json.JSONArray()
+                .put(JSONObject().put("index", 0).put("action", "stop"))
+                .put(JSONObject().put("index", 1).put("action", "launch")
+                    .put("appName", "抖音"))
+                .put(JSONObject().put("index", 2).put("action", "stop"))))!!
+        assertEquals(before, original.toString())
+        assertEquals("send_private_message", repaired.getJSONObject(0).getString("tool"))
+        assertEquals("我先检查一下", repaired.getJSONObject(0)
+            .getJSONObject("args").getString("text"))
+        assertEquals("launch", repaired.getJSONObject(1).getJSONObject("args").getString("action"))
+        assertEquals("微信", repaired.getJSONObject(1).getJSONObject("args").getString("appName"))
+        assertEquals("observe", repaired.getJSONObject(2).getJSONObject("args").getString("action"))
+    }
+
+    @Test fun primaryPhoneCorrectionMergesExplicitVerbWithOriginalArgs() {
+        val initial = JSONObject().put("appName", "微信")
+        assertNull(AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
+            JSONObject().put("action", "launch").put("appName", "支付宝")))
+        // The original target is never replaced. The role's own valid verb is enough.
+        val fixed = AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
+            JSONObject().put("action", "launch"))!!
+        assertEquals("微信", fixed.getString("appName"))
+        assertEquals("launch", fixed.getString("action"))
+        assertFalse(initial.has("action"))
+        assertNull(AutonomousActionWireProtocol.repairBackgroundPhoneArgs(initial,
+            JSONObject().put("action", "open")))
+        assertNull(AutonomousActionWireProtocol.repairBackgroundPhoneArgs(
+            JSONObject().put("appName", "微信").put("action", "observe"),
+            JSONObject().put("action", "stop")))
+    }
+
     @Test fun socialStepAndPrimaryToolKeepAuthoredIdsAndDecisionFields() {
         val acceptedStep = AutonomousActionWireProtocol.normalizeStep(
             JSONObject().put("tool", "respond_friend_request")
