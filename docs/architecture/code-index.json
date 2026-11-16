@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:15:03.476590+00:00",
-  "commit": "f1df7c9580374ea2daa6a0f5c696ed9495bccabf",
+  "generatedAt": "2026-11-16T17:19:05.219601+00:00",
+  "commit": "186afb4cde740cdbbbbdd62e388f5f5baf5089c7",
   "branch": "main",
-  "sourceFingerprint": "3ff802f99f65c4f4ac79421acac1fcf53f93fc968e35bbaee0d6fd24eeb216b3",
+  "sourceFingerprint": "7ebfd25ab9a841506e2757cc0dd110b225a997d0ebe90ed087c93aea199b8f40",
   "summary": {
     "files": 1376,
-    "lines": 293611,
+    "lines": 293642,
     "symbols": 4137
   },
   "symbolIndex": {
@@ -3727,7 +3727,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 79
+        "line": 84
       }
     ],
     "Loading": [
@@ -4227,7 +4227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 133
+        "line": 146
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -34767,8 +34767,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 187,
-      "sha256": "5293a206b8907acee9f58089bf48e76bbe956432937f1a9eed9abb5db3d0fef3",
+      "lines": 200,
+      "sha256": "bcdd9a23b84e426e1e43ebfa1b4671cc7ead1f8fe210153d05b0810af9c4f4a8",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -34788,11 +34788,11 @@
         },
         {
           "name": "accept",
-          "line": 79
+          "line": 84
         },
         {
           "name": "render",
-          "line": 133
+          "line": 146
         }
       ]
     },
@@ -46754,8 +46754,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
-      "lines": 125,
-      "sha256": "0806047c2acb4f44a5d35c15b63901643c323b0c8a0bdc6121bd3b87d0ec719c",
+      "lines": 143,
+      "sha256": "1ba0cf50ddf4a589e25507578d9847a06e59ea0358d48b9c9622d06cf4798527",
       "symbols": [
         {
           "name": "RecentSemanticTimelineTest",
