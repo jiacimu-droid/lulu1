@@ -17,6 +17,7 @@ internal data class IslandToolRecipe(
 internal object IslandWorkbenchRecipes {
     val all: List<IslandToolRecipe> = listOf(
         IslandToolRecipe("axe", "木斧", 2, 1, "伐木4木/次；徒手仅2木"),
+        IslandToolRecipe("wood_pickaxe", "木镐", 2, 0, "采普通石矿3石/次；蓝色晶矿需石镐"),
         IslandToolRecipe("pickaxe", "石镐", 2, 2, "采矿4石/次，能开采蓝色晶矿"),
         IslandToolRecipe("sword", "石剑", 1, 3, "伤害4"),
         IslandToolRecipe("rod", "鱼竿", 2, 1, "靠水边钓鱼，篝火可烤鱼"),
