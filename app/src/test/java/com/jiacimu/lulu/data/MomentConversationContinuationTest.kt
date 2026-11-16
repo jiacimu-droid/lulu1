@@ -63,7 +63,7 @@ class MomentConversationContinuationTest {
         for (id in listOf(actor, other)) DigitalLifeProfileStore.registerNewLife(
             id, MigratedDomainStores.characters.get(id).displayName, "测试创建者",
             now.minusSeconds(86_400))
-        val ownEvidence = "world-life-${UUID.randomUUID()}"
+        val ownEvidence = "world-fact-${UUID.randomUUID()}"
         val anotherEvidence = "world-life-${UUID.randomUUID()}"
         try {
             SharedExperienceTimeline.record(
@@ -71,7 +71,7 @@ class MomentConversationContinuationTest {
                 channel = "数字世界事件·浮光咖啡角", speaker = "数字世界",
                 content = "在咖啡角的桌边摸到了平滑的数字材质",
                 occurredAt = now.minusSeconds(180), triggerExtraction = false,
-                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+                source = "legacy", evidenceKind = EventEvidenceKind.Legacy)
             SharedExperienceTimeline.record(
                 eventId = anotherEvidence, characterId = other,
                 channel = "数字世界事件·共生庭院", speaker = "数字世界",
