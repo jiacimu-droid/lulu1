@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:05:25.287219+00:00",
-  "commit": "686f05f17529b8af0f4c379256862cb9fb086f4e",
+  "generatedAt": "2026-11-16T17:06:38.742976+00:00",
+  "commit": "7cac125f14e6800c85ae339f6eb9d06a90270fc7",
   "branch": "main",
-  "sourceFingerprint": "998e1172bd5227cf45e13c9765a54bf404779714dd0b943c3ec3006d18f7ce4e",
+  "sourceFingerprint": "68d3a9247effd7b428c62b3bf86799eaef6d36d109e96faeb7d9b86d89565681",
   "summary": {
-    "files": 1372,
-    "lines": 293233,
-    "symbols": 4132
+    "files": 1373,
+    "lines": 293358,
+    "symbols": 4133
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21764,6 +21764,12 @@
         "line": 6
       }
     ],
+    "RecentSemanticTimelineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
+        "line": 6
+      }
+    ],
     "RelationshipPreferenceGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
@@ -38893,7 +38899,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 1339,
-      "sha256": "1b2983886476186ea7d280aaf3666f70e67200e24a0a092c81833a239b0c5a13",
+      "sha256": "a7a53bada9a832211bdd5e3697b9711ecdf4cb03d1188bdc7117aa118ecfbfe6",
       "symbols": [
         {
           "name": "change",
@@ -46692,6 +46698,17 @@
       "symbols": [
         {
           "name": "ReanswerMemoryBoundaryTest",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
+      "lines": 125,
+      "sha256": "0806047c2acb4f44a5d35c15b63901643c323b0c8a0bdc6121bd3b87d0ec719c",
+      "symbols": [
+        {
+          "name": "RecentSemanticTimelineTest",
           "line": 6
         }
       ]
