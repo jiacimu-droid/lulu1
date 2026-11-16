@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T01:18:11.234609+00:00",
-  "commit": "28aee8fd1f2633a1557119081ed473e848451d03",
+  "generatedAt": "2026-11-16T01:19:10.209272+00:00",
+  "commit": "71b0d263fb20dc35ad43cbaaa1177407e1527ca7",
   "branch": "main",
-  "sourceFingerprint": "b6deaaa98a2e001fcc12360326d886490017d803f2c01b67c3782456f16f6ddb",
+  "sourceFingerprint": "a9d30c36e12d1dd4c543c796ee6f78597dc5deb7fc0c19b97534f6b1a2fa1b8d",
   "summary": {
     "files": 1341,
-    "lines": 285915,
-    "symbols": 4034
+    "lines": 285956,
+    "symbols": 4038
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2772,6 +2772,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 33
       }
     ],
     "publish": [
@@ -17534,40 +17538,58 @@
         "line": 17
       }
     ],
+    "headerMatches": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 31
+      }
+    ],
+    "uniqueSendTarget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 42
+      }
+    ],
+    "sendControlNearEditor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 58
+      }
+    ],
     "chatEditorCandidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 29
+        "line": 70
       }
     ],
     "isPressToTalk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 39
+        "line": 80
       }
     ],
     "ComposerBounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 44
+        "line": 85
       }
     ],
     "ComposerControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 53
+        "line": 94
       }
     ],
     "voiceToTextControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 64
+        "line": 105
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 101
+        "line": 142
       }
     ],
     "canSendToRole": [
@@ -40388,8 +40410,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 108,
-      "sha256": "23efdb6788360130ca86f5a2ffcb6e041dabcb365fbafb7d734534bf6502d237",
+      "lines": 149,
+      "sha256": "10bf38bf9e87d40a48ba22fca7f59b8e1a16fc80282c875b028ae3be094ecbe2",
       "symbols": [
         {
           "name": "isEnabled",
@@ -40404,28 +40426,44 @@
           "line": 17
         },
         {
+          "name": "headerMatches",
+          "line": 31
+        },
+        {
+          "name": "normalized",
+          "line": 33
+        },
+        {
+          "name": "uniqueSendTarget",
+          "line": 42
+        },
+        {
+          "name": "sendControlNearEditor",
+          "line": 58
+        },
+        {
           "name": "chatEditorCandidate",
-          "line": 29
+          "line": 70
         },
         {
           "name": "isPressToTalk",
-          "line": 39
+          "line": 80
         },
         {
           "name": "ComposerBounds",
-          "line": 44
+          "line": 85
         },
         {
           "name": "ComposerControl",
-          "line": 53
+          "line": 94
         },
         {
           "name": "voiceToTextControl",
-          "line": 64
+          "line": 105
         },
         {
           "name": "sendButton",
-          "line": 101
+          "line": 142
         }
       ]
     },
