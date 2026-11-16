@@ -190,9 +190,13 @@ internal object LuluBackgroundPhoneContinuation {
         }
         val firstAction = initialArgs.optString("action")
         if (firstAction == "send_chat_message") {
-            history.appendLine(if (lastScreenReceipt?.optBoolean("messageSendClicked") == true)
-                "微信消息发送按钮已经尝试点击一次，结果未证实送达；本轮不重发"
-            else "微信发送尚未确认成功，保留实际失败回执；本轮不重发")
+            history.appendLine(when {
+                lastScreenReceipt?.optBoolean("messageAppearedInChat") == true ->
+                    "微信客户端已显示新增右侧发出消息；服务器送达仍未知，本轮不重复发送"
+                lastScreenReceipt?.optBoolean("messageSendClicked") == true ->
+                    "微信发送按钮已尝试点击一次，未确认客户端显示或服务器送达；本轮不重复发送"
+                else -> "微信发送尚未确认成功，保留实际失败回执；本轮不重发"
+            })
             return Outcome(history.toString().takeLast(5_000), image, false, 0)
         }
         rememberGesture(firstAction, gestureTarget(firstAction, initialArgs, null), lastScreenReceipt)
@@ -365,9 +369,13 @@ internal object LuluBackgroundPhoneContinuation {
                 // Message delivery cannot be inferred from a click or a frame.
                 // Never give this loop an opportunity to send the same text
                 // again as a purported recovery from an ambiguous result.
-                history.appendLine(if (result?.optBoolean("messageSendClicked") == true)
-                    "微信发送控件只点击了一次；送达状态仍未知。后续需只读观察，不得自动重复发送"
-                else "微信消息未确认发送；保留实际输入与拦截回执，不自动重试")
+                history.appendLine(when {
+                    result?.optBoolean("messageAppearedInChat") == true ->
+                        "已看到微信客户端新增右侧发出消息；服务器送达仍未知，不重复发送"
+                    result?.optBoolean("messageSendClicked") == true ->
+                        "微信发送控件只点击了一次，未核实新消息气泡；送达仍未知，不重复发送"
+                    else -> "微信消息未确认发送；保留实际输入与拦截回执，不自动重试"
+                })
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             val currentScreen = screen(result, image)
