@@ -1,11 +1,14 @@
 package com.jiacimu.lulu.system
 
 import android.graphics.Bitmap
-import android.graphics.Rect
+import android.os.SystemClock
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -73,40 +76,87 @@ internal object LuluVirtualChatTitleOcr {
             }
         }
 
-    /** Strict fresh-screen check on BOTH sides of the OCR call. In particular,
-     * never reuse a header read before a keyboard toggle as send authority. */
-    suspend fun matches(displayId: Int, packageName: String, recipient: String): Boolean {
+    private data class Proof(
+        val displayId: Int, val packageName: String, val recipient: String,
+        val fingerprint: String, val capturedAtMs: Long,
+    )
+    private val screenshotGate = Mutex()
+    private var latestProof: Proof? = null
+    private var lastScreenshotAtMs = 0L
+
+    /** Cached evidence is only a short-lived convenience between adjacent
+     * read-only checks of the SAME accessibility fingerprint. A send always
+     * requests new pixels after text has been filled. */
+    private fun proofUsable(
+        proof: Proof?, displayId: Int, packageName: String, recipient: String,
+        fingerprint: String, now: Long,
+    ): Boolean = proof != null && now - proof.capturedAtMs in 0..1_000 &&
+        proof.displayId == displayId && proof.packageName == packageName &&
+        proof.recipient == recipient && proof.fingerprint == fingerprint
+
+    /** Android may throttle rapid AccessibilityService.takeScreenshot calls.
+     * A second READ-ONLY capture can be attempted after an interval; there
+     * is never an implicit retry of any tap, input, or sending action. */
+    private suspend fun captureRateLimited(displayId: Int): Bitmap? {
+        repeat(2) { attempt ->
+            val gap = 460 - (SystemClock.uptimeMillis() - lastScreenshotAtMs)
+            if (gap > 0) delay(gap)
+            lastScreenshotAtMs = SystemClock.uptimeMillis()
+            try {
+                return LuluAccessibilityService.captureBitmap(displayId)
+            } catch (_: Exception) {
+                if (attempt == 1) return null
+            }
+        }
+        return null
+    }
+
+    /** Check the verified WeChat window before and after reading new pixels.
+     * Fresh evidence is mandatory just before an irreversible send click. */
+    suspend fun matches(
+        displayId: Int, packageName: String, recipient: String,
+        forceFresh: Boolean = false,
+    ): Boolean {
         if (displayId <= 0 || packageName != LuluVirtualChatSendPolicy.WECHAT ||
             !LuluVirtualChatSendPolicy.validRecipient(recipient)) return false
-        return withTimeoutOrNull(4_500) {
-            val before = withContext(Dispatchers.Main) {
-                if (LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
-                        .optString("kind") != "target") return@withContext ""
-                LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
-                    .optString("fingerprint")
-            }
-            if (before.isBlank()) return@withTimeoutOrNull false
-            val screenshot = try {
-                LuluAccessibilityService.captureBitmap(displayId)
-            } catch (_: Exception) { return@withTimeoutOrNull false }
-            val width = screenshot.width
-            val height = screenshot.height
-            val top = if (height > 0) (height * 18 / 100).coerceAtLeast(1) else 0
-            if (width <= 0 || top <= 0) {
-                screenshot.recycle()
-                return@withTimeoutOrNull false
-            }
-            val crop = try {
-                Bitmap.createBitmap(screenshot, 0, 0, width, top)
-            } finally { screenshot.recycle() }
-            val lines = readLines(crop)
-            if (!hasExactToolbarTitle(lines, recipient, width, height))
-                return@withTimeoutOrNull false
-            withContext(Dispatchers.Main) {
-                LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
-                    .optString("kind") == "target" &&
+        return withTimeoutOrNull(6_000) {
+            screenshotGate.withLock {
+                val before = withContext(Dispatchers.Main) {
+                    if (LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
+                            .optString("kind") != "target") return@withContext ""
                     LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
-                        .optString("fingerprint") == before
+                        .optString("fingerprint")
+                }
+                if (before.isBlank()) return@withLock false
+                if (!forceFresh && proofUsable(latestProof, displayId, packageName,
+                        recipient, before, SystemClock.uptimeMillis())) return@withLock true
+                latestProof = null
+                val screenshot = captureRateLimited(displayId)
+                    ?: return@withLock false
+                val width = screenshot.width
+                val height = screenshot.height
+                val top = height * 18 / 100
+                if (width <= 0 || top <= 0) {
+                    screenshot.recycle()
+                    return@withLock false
+                }
+                val crop = try {
+                    Bitmap.createBitmap(screenshot, 0, 0, width, top)
+                } catch (_: Exception) {
+                    return@withLock false
+                } finally { screenshot.recycle() }
+                val lines = readLines(crop)
+                if (!hasExactToolbarTitle(lines, recipient, width, height))
+                    return@withLock false
+                val stillSame = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
+                        .optString("kind") == "target" &&
+                        LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
+                            .optString("fingerprint") == before
+                }
+                if (stillSame) latestProof = Proof(
+                    displayId, packageName, recipient, before, SystemClock.uptimeMillis())
+                stillSame
             }
         } ?: false
     }
