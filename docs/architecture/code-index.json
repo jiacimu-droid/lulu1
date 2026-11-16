@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T05:55:02.708054+00:00",
-  "commit": "8c2069fe5fbe2946cad2c57a26e2a2409eee25b4",
+  "generatedAt": "2026-11-16T05:56:08.876725+00:00",
+  "commit": "53fbadac7efed14a6d76ddcb85f71734a5a4d3c6",
   "branch": "main",
-  "sourceFingerprint": "8bacb30b994e50bb56ae6832f5c0d1358d88e51e18015b2bc286f731b0cf5271",
+  "sourceFingerprint": "bc7283fda0587bc5c0681e9cd31f4da6f66470a276236ab6bcf3f0d75518b544",
   "summary": {
     "files": 1354,
-    "lines": 288594,
+    "lines": 288621,
     "symbols": 4082
   },
   "symbolIndex": {
@@ -38745,8 +38745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 465,
-      "sha256": "84947f886f18cbb8e144de11478e3c1c8eaed5e40ba07039cb95797d8c66ae34",
+      "lines": 492,
+      "sha256": "01310f4aa9ff2e1ee1743ac30ba6fe33b65a3b068a29864d101ebd997d2f16be",
       "symbols": [
         {
           "name": "name",
