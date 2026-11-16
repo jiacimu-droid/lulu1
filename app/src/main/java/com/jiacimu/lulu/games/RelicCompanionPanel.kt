@@ -161,6 +161,18 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                         failure = "伙伴行动未能保存，请在行囊中查看错误"
                         continue
                     }
+                    if (canApply && choice.actionId != "none") {
+                        val appliedRun = currentRun()
+                        val actual = appliedRun.events.lastOrNull {
+                            it.who == id && it.action == "decision" && it.turn >= snapshot.turns
+                        }?.text
+                        GameTeamConversationTimeline.recordEngineAcceptedAction(
+                            context, "relic_escape", snapshot.id, id, snapshot.turns,
+                            choice.actionId,
+                            actual?.takeIf(String::isNotBlank)
+                                ?: "游戏规则已接受 ${choice.actionId}；持续计划仍待实际推进",
+                        )
+                    }
                     if(message.isNotBlank())inbox=inbox.acknowledge(id,unread.messages.size)
                     val name = MigratedDomainStores.characters.get(id).displayName
                     line = name + "：" + choice.speech.ifBlank {
