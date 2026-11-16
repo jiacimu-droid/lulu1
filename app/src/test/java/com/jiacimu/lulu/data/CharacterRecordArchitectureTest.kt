@@ -49,6 +49,25 @@ class CharacterRecordArchitectureTest {
     }
     private fun insight(text: String) = JSONObject().put("topic", "表达方式").put("understanding", text)
 
+    @Test fun editableInterestsDoNotPretendUnshippedGamesExist() {
+        val snapshot = CharacterDefinitionSnapshot(
+            displayName = "星禾", identity = "闺蜜",
+            persona = "喜欢剧本杀与推理", configurationKey = listOf("星禾"),
+        )
+        val prompt = snapshot.promptSection()
+        assertTrue(prompt.contains("喜欢剧本杀与推理"))
+        assertTrue(prompt.contains("当前真实游戏邀约能力"))
+        com.jiacimu.lulu.games.GameInvitationCatalog.titles.values.forEach { title ->
+            assertTrue("Missing real invitation: $title", prompt.contains(title))
+        }
+        assertTrue(prompt.contains("不能把尚未接入的项目描述为现在可开局"))
+        assertTrue(prompt.contains("当用户说明某玩法目前不能玩时"))
+        assertFalse(com.jiacimu.lulu.games.GameInvitationCatalog.titles.values.contains("剧本杀"))
+        // Missing capability does not erase an authored interest or turn it
+        // into a scripted refusal; the character can still talk about it.
+        assertTrue(prompt.contains("角色可以喜欢、畅想或讨论尚未推出的玩法"))
+    }
+
     @Test fun oldLinksHaveOneOwnerAndTargetedExpressionsKeepTheirAnchors() {
         assertEquals(CharacterRecordDestination.Memory, CharacterRecordDestination.fromLegacy("Concern"))
         assertEquals(CharacterRecordDestination.LifeNotes, CharacterRecordDestination.fromLegacy("Life"))
