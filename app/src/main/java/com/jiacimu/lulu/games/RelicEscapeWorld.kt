@@ -69,6 +69,28 @@ internal object RelicEscapeWorld {
             for((dx,dy) in listOf(1 to 0,-1 to 0,0 to 1,0 to -1))
                 if(rng.nextBoolean())carve(tx+dx,ty+dy)
         }
+        // Three seeded, connected silhouettes rather than a uniform shuffle of
+        // isolated floor tiles. These are playable rooms, not just recolours.
+        // Existing guaranteed passages remain open in every layout.
+        when(((seed xor (level*127)) and Int.MAX_VALUE)%3) {
+            0 -> { // broad central atrium, with open sight lines
+                for(yy in 5..9)for(xx in 7..11)carve(xx,yy)
+                for(xx in 5..13)carve(xx,7)
+            }
+            1 -> { // two gallery wings joined by a transversal
+                for(xx in 3..14) {
+                    carve(xx,4)
+                    carve(xx,10)
+                }
+                for(yy in 4..10)carve(8,yy)
+            }
+            else -> { // clustered vault chambers and offset connecting corridors
+                for(yy in 3..5)for(xx in 10..13)carve(xx,yy)
+                for(yy in 9..11)for(xx in 4..7)carve(xx,yy)
+                for(xx in 7..10)carve(xx,5)
+                for(yy in 5..9)carve(7,yy)
+            }
+        }
         val chestPositions=targets.dropLast(1)
         val chests=chestPositions.mapIndexed { index,(x,y)->
             // Real seven-colour chest catalogue: common to prismatic, with
