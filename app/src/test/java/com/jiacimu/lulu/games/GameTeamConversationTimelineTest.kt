@@ -60,4 +60,34 @@ class GameTeamConversationTimelineTest {
         assertEquals(initial.revision, replay.revision)
         assertEquals("game-team-owner-text", replay.source)
     }
+
+    @Test fun onlyAcceptedEngineActionIsAFirstHandRoleReceiptAndReplayIsIdempotent() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val actor = "game-role-" + UUID.randomUUID()
+        val teammate = "game-role-" + UUID.randomUUID()
+        val run = UUID.randomUUID().toString()
+        assertFalse(GameTeamConversationTimeline.recordEngineAcceptedAction(
+            context, "block_island", run, actor, 4, "plan_harvest_wood", ""))
+        assertTrue(GameTeamConversationTimeline.recordEngineAcceptedAction(
+            context, "block_island", run, actor, 4, "plan_harvest_wood",
+            "已排定去采集三份木材；尚未实际砍到树"))
+        assertTrue(GameTeamConversationTimeline.recordEngineAcceptedAction(
+            context, "block_island", run, actor, 4, "plan_harvest_wood",
+            "已排定去采集三份木材；尚未实际砍到树"))
+        val own = SharedExperienceTimeline.sessionEvents(actor, "game-session-block_island-" + run)
+            .filter { it.source == "game-team-action" }
+        assertEquals(1, own.size)
+        assertEquals(EventEvidenceKind.ToolResult, own.single().evidenceKind)
+        assertTrue(own.single().content.contains("尚未实际砍到树"))
+        assertTrue(own.single().content.contains("不等于沿途行动或目标完成"))
+        assertTrue(SharedExperienceTimeline.sessionEvents(
+            teammate, "game-session-block_island-" + run).isEmpty())
+        assertTrue(GameTeamConversationTimeline.recordEngineAcceptedAction(
+            context, "relic_escape", run, teammate, 7, "plan_deliver",
+            "已确认送宝目标，下一回合才开始走向玩家"))
+        val other = SharedExperienceTimeline.sessionEvents(
+            teammate, "game-session-relic_escape-" + run)
+        assertEquals(1, other.size)
+        assertTrue(other.single().content.contains("下一回合才开始"))
+    }
 }
