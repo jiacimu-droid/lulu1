@@ -76,6 +76,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     var error by remember { mutableStateOf("") }
     var confirmReveal by remember { mutableStateOf(false) }
     var autoThink by remember(room.id) { mutableStateOf(true) }
+    var evidenceExpanded by remember(room.id) { mutableStateOf(false) }
     // A bounded burst prevents a phone left open from paying for an infinite AI-vs-AI loop.
     // The user can keep the companion thinking with one tap, without a fixed sensor timer.
     var remainingAutonomousSteps by remember(room.id) { mutableIntStateOf(3) }
@@ -111,8 +112,10 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             reward = 0,
             summary = "《" + finished.puzzle.title + "》由" + hostName() +
                 "主持，共提问" + finished.questionCount + "次，尝试还原" +
-                finished.solutionAttempts + "次，参与同伴" + finished.companions.size +
-                "位；" + if (solved) "成功还原真相。" else "主动揭晓汤底。",
+                finished.solutionAttempts + "次，使用提示" +
+                finished.lines.count { it.speaker == "系统提示" } + "条，参与同伴" + finished.companions.size +
+                "位；" + (if (finished.questionBudget > 0) "12问挑战；" else "经典不限问；") +
+                (if (solved) "成功还原真相。" else "主动揭晓汤底。"),
             detailsJson = finished.toJson(),
             characterIdOverride = finished.companions.firstOrNull() ?: state.selectedCharacterId,
             playedWithCharacterOverride = finished.companions.isNotEmpty(),
@@ -135,11 +138,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                 append("待回答问题编号：").append(questionIndex + 1).append('\n')
                 append("待回答问题：").append(line.text)
             },
-            instruction = "你现在只执行海龟汤的公平裁判职责。只按锁定汤底与事实限定回答当前问题。" +
-                "只能输出【是】【否】【部分是】【无关】四个词之一，禁止解释、暗示、泄底、讲故事。" +
-                "复杂问题中部分成立就回答部分是；与核心因果无关回答无关。" +
-                "不得擅自改写既有裁定，不确定的问题保守判无关。" +
-                if (snapshot.host == SoupHost.AI) "这是独立的固定主持人，不是同伴角色。" else "你是指定的角色主持人，不能参与猜题。",
+            instruction = SoupHostGuide.question(snapshot.host),
             source = "游戏",
             title = "海龟汤 · 公平裁定",
             maxTokens = 40,
@@ -167,12 +166,11 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             characterId = if (snapshot.host == SoupHost.AI) "lulu" else requireNotNull(snapshot.hostId),
             facts = "固定汤底（只给裁判，玩家不能看到）：" + snapshot.puzzle.truth +
                 "\n事实边界：" + snapshot.puzzle.boundaries +
+                "\n还原关键因果点（只给裁判，不能泄给玩家）：" +
+                snapshot.puzzle.milestones.joinToString("；") +
                 "\n" + snapshot.publicContext() +
                 "\n正在核验的完整还原：" + solution.text,
-            instruction = "你是海龟汤最终答案裁判。只按照固定汤底判断玩家是否还原了核心事实、关键机制与因果链。" +
-                "允许同义表述，不要求人物名字或无关时间。若只猜到题材、说对局部但缺少关键解释，判false。" +
-                "错误答案的反馈只能指出玩家已有描述中还没说完整的部分，不得透露汤底中新线索。" +
-                "只输出JSON对象：{\"correct\":true或false,\"feedback\":\"一句简短、不泄底的反馈\"}。",
+            instruction = SoupHostGuide.solution(snapshot.host),
             source = "游戏", title = "海龟汤 · 还原核验",
             maxTokens = 140, usage = ModelUsage.Game,
             contextMode = if (snapshot.host == SoupHost.AI) CompanionContextMode.Isolated else CompanionContextMode.PersonaAndScenario,
@@ -202,6 +200,10 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
             composingSolution -> SoupKind.SOLUTION
             composingQuestion -> SoupKind.QUESTION
             else -> SoupKind.DISCUSSION
+        }
+        if (kind == SoupKind.QUESTION && !room.canAsk) {
+            error = "12问挑战已用尽提问次数，可讨论、看线索板或还原真相。"
+            return
         }
         val next = room.copy(lines = room.lines + SoupLine("你", kind, message))
         if (!commit(next)) return
@@ -253,7 +255,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     characterId = actor,
                     facts = snapshot.publicContext() +
                         "\n你在本局中的身份：与其他猜题者同桌的玩家；主持人是" + hostName() +
-                        "。你只知道公开题面、公共问答及讨论，没有汤底。",
+                        "。你只知道公开题面、公共问答及讨论，没有汤底。" +
+                        (if (snapshot.canAsk) "" else "12问挑战已用尽提问次数，只能选discussion、solve或wait。"),
                     instruction = "你是正在真实参与海龟汤的角色本人，不是主持人，不可读取或假装知道汤底。" +
                         "你过去的亲身经历和人格只能影响思考风格、关系与交流；本局隐藏汤底只能用这局公开的题面和问答推理，不能借用旧题答案或其他角色的私密记忆。" +
                         "用人设和已公开证据形成假设，选择下一步：向主持人提一个可用是/否判断的新问题，" +
@@ -275,6 +278,10 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     if (parsed == null) {
                         error = "同伴的本轮决定格式不正确，未写入对局。可以再试。"
                     } else if (room.id == snapshot.id) {
+                        if (parsed.type == "question" && !room.canAsk) {
+                            error = "同伴想继续提问，但12问挑战已满；本轮未写入对局，可重新决定。"
+                            return@onSuccess
+                        }
                         when (parsed.type) {
                             "wait" -> Unit
                             "discussion", "question", "solve" -> {
@@ -373,7 +380,9 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     Text("TURTLE SOUP / 推理聊天室", color = gold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     Text(room.puzzle.title, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(room.puzzle.category + " · " + room.puzzle.difficulty + " · " +
-                        room.questionCount + "次提问", color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                        room.questionCount + "次提问" + (if (room.questionBudget > 0)
+                            " · 剩余" + (room.questionBudget - room.questionCount).coerceAtLeast(0) + "问"
+                        else " · 经典不限问"), color = Color(0xFFB9C7D9), fontSize = 12.sp)
                 }
             }
             item {
@@ -415,6 +424,17 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             Text("你已获得汤底查看权；同伴的提问由你按四种裁定回答。",
                                 color = gold, fontSize = 12.sp)
                         }
+                        Text("玩法模式（开局前可选）", color = Color.White, fontWeight = FontWeight.SemiBold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            FilterChip(selected = room.questionBudget == 0,
+                                onClick = { if (!busy) commit(room.copy(questionBudget = 0)) },
+                                label = { Text("经典 · 不限问") })
+                            FilterChip(selected = room.questionBudget == 12,
+                                onClick = { if (!busy) commit(room.copy(questionBudget = 12)) },
+                                label = { Text("挑战 · 12问") })
+                        }
+                        Text("挑战模式全队合计12问；用尽后仍可讨论、使用提示或还原真相。",
+                            color = Color(0xFFB9C7D9), fontSize = 12.sp)
                         Spacer(Modifier.height(9.dp))
                         Text("开局前选一碗汤", color = Color.White,
                             fontWeight = FontWeight.SemiBold)
@@ -517,6 +537,34 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     }
                 }
             }
+            if (room.started && room.evidence.isNotEmpty()) {
+                item {
+                    Surface(color = Color(0xFF1D3444), shape = RoundedCornerShape(14.dp)) {
+                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            TextButton(onClick = { evidenceExpanded = !evidenceExpanded }) {
+                                Text((if (evidenceExpanded) "收起" else "展开") + "线索板 · " +
+                                    room.evidence.size + "条已裁定证据", color = gold)
+                            }
+                            if (evidenceExpanded) {
+                                Text("只整理已裁定问答，不把未经证实的猜测当作事实。",
+                                    color = Color(0xFFB9C7D9), fontSize = 11.sp)
+                                listOf("是", "否", "部分是", "无关").forEach { verdict ->
+                                    val answered = room.evidence.filter { it.verdict == verdict }
+                                    if (answered.isNotEmpty()) {
+                                        Text(verdict + " · " + answered.size + "条", color = gold,
+                                            fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                        answered.forEach { evidence ->
+                                            Text("#" + (evidence.questionIndex + 1) + " " +
+                                                evidence.speaker + "：" + evidence.question,
+                                                color = Color.White, fontSize = 12.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             itemsIndexed(room.lines) { index, line ->
                 val isOwner = line.speaker.startsWith("你")
                 Surface(color = when {
@@ -548,7 +596,12 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             Text(if (room.solved) "还原成功 · 完整汤底" else "主动揭晓 · 完整汤底",
                                 color = gold, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             Text(room.puzzle.truth, color = Color.White, fontSize = 14.sp, lineHeight = 23.sp)
-                            Text("本局原始问答与讨论已随游戏记录保存。", color = Color(0xFFB9C7D9), fontSize = 11.sp)
+                            Text("本局共" + room.questionCount + "问，使用" +
+                                room.lines.count { it.speaker == "系统提示" } + "条提示、" +
+                                room.solutionAttempts + "次还原" +
+                                (if (room.questionBudget > 0) " · 12问挑战" else "") + "。",
+                                color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                            Text("原始问答与讨论已随游戏记录保存。", color = Color(0xFFB9C7D9), fontSize = 11.sp)
                         }
                     }
                 }
@@ -610,7 +663,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             FilterChip(selected = !composingSolution && composingQuestion,
                                 onClick = { composingQuestion = true; composingSolution = false },
-                                label = { Text("提问") })
+                                label = { Text("提问") }, enabled = room.canAsk)
                             FilterChip(selected = !composingSolution && !composingQuestion,
                                 onClick = { composingQuestion = false; composingSolution = false },
                                 label = { Text("讨论") })
@@ -632,6 +685,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = ::sendOwner, enabled = input.isNotBlank() && !busy &&
+                            (!composingQuestion || room.canAsk) &&
                             room.pendingQuestion < 0 && room.pendingSolution < 0,
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = gold, contentColor = background)) {
