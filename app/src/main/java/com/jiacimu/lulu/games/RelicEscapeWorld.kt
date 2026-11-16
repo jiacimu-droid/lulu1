@@ -4,6 +4,29 @@ import kotlin.math.abs
 import kotlin.random.Random
 import java.util.UUID
 
+/**
+ * Difficulty is about a readable *progression*, not just bigger HP numbers.
+ * First floor standard is a learning expedition; higher levels graduate from
+ * separated small encounters to denser groups. No existing save is mutated.
+ */
+internal object RelicThreatProgression {
+    fun monsterCount(level:Int, difficulty:RelicDifficulty):Int {
+        val stage=level.coerceIn(1,5)
+        val standard=if(stage<=2) 2 else stage
+        return (standard+difficulty.extraMobs).coerceAtLeast(1)
+    }
+    fun safeSpawnDistance(difficulty:RelicDifficulty):Int =
+        if(difficulty==RelicDifficulty.HARD) 5 else 8
+    fun separation(difficulty:RelicDifficulty):Int =
+        if(difficulty==RelicDifficulty.HARD) 3 else 5
+    fun eliteUnlocked(level:Int,difficulty:RelicDifficulty):Boolean =
+        when(difficulty) {
+            RelicDifficulty.EASY -> level>=4
+            RelicDifficulty.NORMAL -> level>=3
+            RelicDifficulty.HARD -> level>=1
+        }
+}
+
 /** Every run builds a new, connected physical board, not a narrated map. */
 internal object RelicEscapeWorld {
     fun create(seed:Int,level:Int,companions:List<String>,kits:Int,weapon:Int,satchelLevel:Int=0,
@@ -80,17 +103,27 @@ internal object RelicEscapeWorld {
         }
         val occupied=(chestPositions+exit+(2 to 2)).toMutableSet()
         val mobs=mutableListOf<RelicMob>()
-        for(index in 0 until (2+level.coerceIn(1,5)+difficulty.extraMobs)) {
-            val candidates=(1 until w-1).flatMap{x->(1 until h-1).map{y->x to y}}
-                .filter{(x,y)->x to y in reachable && x to y !in occupied &&
-                    abs(x-2)+abs(y-2)>4}
-            if(candidates.isEmpty())break
-            val (x,y)=candidates[rng.nextInt(candidates.size)]
+        val monsterCount=RelicThreatProgression.monsterCount(level,difficulty)
+        val entrySafety=RelicThreatProgression.safeSpawnDistance(difficulty)
+        val preferredSpacing=RelicThreatProgression.separation(difficulty)
+        val spawnCells=(1 until w-1).flatMap{x->(1 until h-1).map{y->x to y}}
+            .filter{(x,y)->x to y in reachable && x to y !in occupied &&
+                abs(x-2)+abs(y-2)>entrySafety}
+        for(index in 0 until monsterCount) {
+            // Distribute early encounters. When the late floors are crowded,
+            // relax inter-enemy spacing but never breach the safe entry radius.
+            val spaced=spawnCells.filter { (x,y) -> x to y !in occupied &&
+                mobs.all { abs(it.x-x)+abs(it.y-y)>preferredSpacing } }
+            val options=if(spaced.isNotEmpty())spaced
+                else spawnCells.filter { it !in occupied }
+            if(options.isEmpty())break
+            val (x,y)=options[rng.nextInt(options.size)]
             occupied+=x to y
-            val kind=if((level>=2 || difficulty==RelicDifficulty.HARD) &&
-                index==(2+level.coerceIn(1,5)+difficulty.extraMobs)-1)3
+            val kind=if(RelicThreatProgression.eliteUnlocked(level,difficulty) &&
+                index==monsterCount-1)3
                 else if(level<=1)index%2 else rng.nextInt(3)
-            mobs+=RelicMob(index,x,y,(if(kind==3)12+level*2 else 7+kind*3+level)+difficulty.monsterHp,kind)
+            mobs+=RelicMob(index,x,y,
+                (if(kind==3)12+level*2 else 7+kind*3+level)+difficulty.monsterHp,kind)
         }
         // Optional danger rooms and one-use traps are world entities, not narrative rewards.
         val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
