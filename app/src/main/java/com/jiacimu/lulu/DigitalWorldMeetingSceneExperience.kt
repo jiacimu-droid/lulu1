@@ -210,7 +210,9 @@ internal fun DigitalWorldMeetingSceneExperience(
             MeetingExperienceStore.updateScene(session.id, oldScene.copy(
                 location = moved.location,
                 participants = oldScene.participants.map {
-                    it.copy(position = "在${moved.location}入口", destinationItemId = "")
+                    it.copy(position = "在${moved.location}入口",
+                        destinationItemId = "", destinationActivityId = "",
+                        destinationStreetCode = "")
                 },
                 updatedAt = java.time.Instant.now(),
             ))
@@ -238,6 +240,16 @@ internal fun DigitalWorldMeetingSceneExperience(
                 hudTopPadding = if (storyVisible) 224.dp else 14.dp,
                 canEnterScene = !generating && !viewOnly,
                 spawnAtLocationCode = streetEntryCode,
+                streetDestinations = participantsInScene
+                    .filter { it.participantId in session.participantIds &&
+                        it.destinationStreetCode.isNotBlank() }
+                    .associate { it.participantId to it.destinationStreetCode },
+                handHoldingCharacterId = roleInitiatedHandHolding,
+                onReachedStreetDoor = { characterId, code ->
+                    arrivalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        MeetingLivingWorldRuntime.reachedStreetDoor(session, characterId, code)
+                    }
+                },
             )
         } else if (isDigitalWorld) {
             DigitalWorldSceneCanvas(
