@@ -1020,8 +1020,13 @@ internal fun DigitalWorldGameScene(
             )
         }
 
-        if (controlsEnabled && onExitToStreet != null &&
-            playerPosition.distanceTo(WorldVector(800f, 935f)) < 145f) {
+        // The home doorway is visibly on the north wall, not at the player's spawn.
+        val isIndoorExit = homeCharacterId != null || nativeHome != null ||
+            sceneCode in setOf(DigitalWorldPublicPlaces.CAFE, DigitalWorldPublicPlaces.GAME_HALL)
+        val doorCenter = if (homeCharacterId != null || nativeHome != null)
+            WorldVector(800f, 250f) else WorldVector(800f, 925f)
+        if (controlsEnabled && onExitToStreet != null && isIndoorExit &&
+            playerPosition.distanceTo(doorCenter) < 145f) {
             Surface(
                 onClick = onExitToStreet,
                 modifier = Modifier.align(Alignment.BottomCenter)
