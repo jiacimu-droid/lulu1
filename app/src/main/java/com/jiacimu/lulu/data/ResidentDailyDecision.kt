@@ -708,7 +708,9 @@ internal object ResidentDailyDecision {
         sourceEvidence: SharedTimelineEvent? = null): List<RoleDayPlan> {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
-        val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
+        // visibleContacts is a bounded prompt/UI list, NOT the permission authority.
+        // A real contact beyond its first 16 entries is still allowed to plan.
+        // The executor will recheck live permission at the actual due time.
         // The owner may change the global budget after this day's paid
         // decision. Replay must use the budget accepted WITH that decision,
         // rather than reject a formerly valid saved row as a new violation.
@@ -834,7 +836,7 @@ internal object ResidentDailyDecision {
                 continue
             }
             if (action in setOf("send_character_message", "send_friend_request", "invite_duel_game") &&
-                (target !in known || target == actor)) {
+                (!ResidentSocialMailbox.canContact(actor, target) || target == actor)) {
                 reject(index, row, "当前没有对目标角色的真实联系权限")
                 continue
             }
@@ -2094,7 +2096,8 @@ internal object ResidentDailyDecision {
         val decisionEvidenceId = decisionSource.id
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
-        val known = ResidentSocialMailbox.visibleContacts(id).toSet()
+        // Do not use a 16-item visible-contacts projection as an ACL. A genuine
+        // witnessed letter can come from a real contact outside that shortlist.
         val incomingEvents = SharedExperienceTimeline.eventsByIds(id,
             pending.map { ResidentSocialMailbox.evidenceId(it, id) })
         val scopedInnerLife = json.optJSONObject("innerLife")?.let { JSONObject(it.toString()) }
@@ -2107,7 +2110,7 @@ internal object ResidentDailyDecision {
                 .lastOrNull { target in it.socialIds }
             // Merely knowing a name is not a new encounter. Use an actual
             // supplied letter/meeting as provenance, so withdrawal works.
-            if (target !in known || encounter == null) scoped.remove("social")
+            if (!ResidentSocialMailbox.canContact(id, target) || encounter == null) scoped.remove("social")
             if (scoped.has("social") && encounter != null) mentalEvidenceId = encounter.evidenceId
             CharacterInnerLifeStore.observe(
                 id, mentalEvidenceId,
