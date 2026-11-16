@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`84f5bbd2b89a0f3c68109b2b34ddfd933c4db59f`
+- 基准提交：`6fc50b3d4e13494ee3b78f30fd7b58c61a4af938`
 - 分支：`main`
 - 已索引文件：1349
-- 已索引代码/文本行：287698
-- 已发现符号：4062
+- 已索引代码/文本行：287737
+- 已发现符号：4064
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -212,8 +212,8 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2700 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 180 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 47 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 209 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 57 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |

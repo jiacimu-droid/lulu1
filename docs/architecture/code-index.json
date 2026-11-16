@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:04:13.568977+00:00",
-  "commit": "84f5bbd2b89a0f3c68109b2b34ddfd933c4db59f",
+  "generatedAt": "2026-11-16T04:04:54.450666+00:00",
+  "commit": "6fc50b3d4e13494ee3b78f30fd7b58c61a4af938",
   "branch": "main",
-  "sourceFingerprint": "4a0e84538c90dc10ca91744a10c895f9d1e95a093a0df96766f664a4d3407a65",
+  "sourceFingerprint": "56ba4a8e0f9bed64149687eb230b99f7e0f783a4a39e995988b4e18b0bf25427",
   "summary": {
     "files": 1349,
-    "lines": 287698,
-    "symbols": 4062
+    "lines": 287737,
+    "symbols": 4064
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3546,6 +3546,16 @@
         "line": 107
       }
     ],
+    "reachedStreetDoor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 164
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
+        "line": 35
+      }
+    ],
     "apply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
@@ -3581,7 +3591,7 @@
     "userDeparted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
-        "line": 35
+        "line": 44
       }
     ],
     "MeetingReplyTaskManager": [
@@ -25448,8 +25458,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 180,
-      "sha256": "d43ad7d6b353239f8cd752ea63606320a653bb6fec16730f4823a3a40ac8b254",
+      "lines": 209,
+      "sha256": "d0339798fe4319d5772ddaf1a74e6c6eade21c0579ebe99168352de6c4b6e62d",
       "symbols": [
         {
           "name": "PendingTouch",
@@ -25482,13 +25492,17 @@
         {
           "name": "reachedSceneItem",
           "line": 107
+        },
+        {
+          "name": "reachedStreetDoor",
+          "line": 164
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
-      "lines": 47,
-      "sha256": "c749785463bbaf9abaa4c553537c410808f5a5a0a811a4822ab51f8801640a06",
+      "lines": 57,
+      "sha256": "007a9db992febe213a9e608624168e3d77ab4a78e3ae7eaa945adabc7e5e97d8",
       "symbols": [
         {
           "name": "apply",
@@ -25499,8 +25513,12 @@
           "line": 28
         },
         {
-          "name": "userDeparted",
+          "name": "reachedStreetDoor",
           "line": 35
+        },
+        {
+          "name": "userDeparted",
+          "line": 44
         }
       ]
     },
