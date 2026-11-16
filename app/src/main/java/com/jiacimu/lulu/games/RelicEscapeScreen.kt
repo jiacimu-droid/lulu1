@@ -134,7 +134,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
         val before=run?.turns
         val openingRun=run
         // A rejected action must not erase the last committed physical loot receipt.
-        if (!change{ledger.perform(effectiveType,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}) return
+        if (!change{ledger.perform(effectiveType,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet(),
+            expectedRunId=openingRun?.id)}) return
         // A successful walk must carry the implicit cursor with the hero.
         // Do not erase a deliberate map selection or move the cursor on rejection.
         if (effectiveType == "move") {
@@ -297,7 +298,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         else {
                             val next = runCatching {
                                 ledger.perform("companion_tick",
-                                    autonomousIds = current.allies.map { it.id }.toSet())
+                                    autonomousIds = current.allies.map { it.id }.toSet(),
+                                    expectedRunId = expectedId)
                             }.getOrElse {
                                 error = it.message ?: "队伍行动无法保存"
                                 null
