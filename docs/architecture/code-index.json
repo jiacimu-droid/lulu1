@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:06:38.742976+00:00",
-  "commit": "7cac125f14e6800c85ae339f6eb9d06a90270fc7",
+  "generatedAt": "2026-11-16T17:08:16.853561+00:00",
+  "commit": "f1f0729d91b13e7981797f0501ea54ce054c600d",
   "branch": "main",
-  "sourceFingerprint": "68d3a9247effd7b428c62b3bf86799eaef6d36d109e96faeb7d9b86d89565681",
+  "sourceFingerprint": "cf62728e9dc8cc851024a04dd0845edff8c84ea10544758ac1010e9664dc756e",
   "summary": {
     "files": 1373,
-    "lines": 293358,
+    "lines": 293359,
     "symbols": 4133
   },
   "symbolIndex": {
@@ -3727,7 +3727,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 78
+        "line": 79
       }
     ],
     "Loading": [
@@ -4227,7 +4227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 132
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -4461,7 +4461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 66
+        "line": 67
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -34743,8 +34743,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 161,
-      "sha256": "ad5ee5b17591ec7c06df02f1428c9dc18d46e8a4348452a3502be822e2a8ec95",
+      "lines": 162,
+      "sha256": "5878da3bab5b4ba59661eb24b347c2c372e3c0a260011b4ba61f29bd23f6dfaa",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -34760,15 +34760,15 @@
         },
         {
           "name": "select",
-          "line": 66
+          "line": 67
         },
         {
           "name": "accept",
-          "line": 78
+          "line": 79
         },
         {
           "name": "render",
-          "line": 132
+          "line": 133
         }
       ]
     },
