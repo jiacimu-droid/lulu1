@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:05:10.295768+00:00",
-  "commit": "5830ed8f726f8a611e47287b117ee91d43a009bd",
+  "generatedAt": "2026-11-16T04:05:43.694482+00:00",
+  "commit": "63b682997aa0fc31a051c177cd7d3f67b7aee6c5",
   "branch": "main",
-  "sourceFingerprint": "56ba4a8e0f9bed64149687eb230b99f7e0f783a4a39e995988b4e18b0bf25427",
+  "sourceFingerprint": "5d13b59e68dfd7dffa44dbd44895d1d6ff1ac15c16426ad90c5e19b6122d64ae",
   "summary": {
     "files": 1349,
-    "lines": 287737,
+    "lines": 287754,
     "symbols": 4064
   },
   "symbolIndex": {
@@ -24089,8 +24089,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt",
-      "lines": 428,
-      "sha256": "41f781abc48d1e935623c94f8e85c1db660a8c809c83029d063dc8f16a753121",
+      "lines": 445,
+      "sha256": "cea7d8ac3e134751d1a05a08b138afb6c78b657cdbcf6f6bc1175594b1668727",
       "symbols": []
     },
     {
