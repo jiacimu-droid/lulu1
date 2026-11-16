@@ -334,10 +334,15 @@ object CompanionPresenceStore {
         val next = CompanionPresenceState(
             characterId = characterId,
             statusText = (statusText?.trim()?.replace(Regex("\\s+"), " ")?.take(120)
+                ?.takeUnless { it.isBlank() && characterId in activeCalls &&
+                    describesOngoingCall(previous?.statusText.orEmpty()) }
                 ?: previous?.statusText.orEmpty().takeUnless { freshChatMoment }.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
             },
-            gesture = (if (gesture == null) {
+            gesture = (if (gesture.isNullOrBlank() && characterId in activeCalls &&
+                describesOngoingCall(previous?.gesture.orEmpty())) {
+                previous?.gesture.orEmpty()
+            } else if (gesture == null) {
                 if (freshChatMoment) "" else inheritedGesture(previous, now)
             } else gesture.cleanPresence(500).orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
