@@ -511,3 +511,9 @@
 
 - 正式藏宝馆 `RelicVaultPage.kt` 已在局中禁用出售，但旧确认或异步调用仍可直接到 `RelicEscapeLedger.sellLoot`，原权威账本缺少局中阶段守卫。生产 `d945bdf56b0638eddc3c52f9711e1a0da31e3056`（`RelicEscapeLedger.kt` blob `e6865a5af7ddc2d2d8f3b9750f0329d31d7a6891`）拒绝 EXPLORE/EXTRACT/DOWNED 时卖出永久馆藏，防止跨页面竞态将实物变铜币；结算后仍可正常出售、清除展品并持久化，不动模型决定或掉落。
 - 根因测试 `51b33c58986a670ba8f2b1ad4b5f01412231b4ab`（`RelicMuseumSaleGuardTest.kt`）：分别验证三种局中阶段不改馆藏/铜币/展品，成功结算后真实出售及重载幂等。尚未取得 main push JVM/APK/index 终态，不得标绿；真机 360/412dp 横屏、帧率与美术独立待验。下一文件 `RelicMuseumSaleGuardTest.kt` 的 JVM 首错、`RelicVaultPage.kt` 确认弹窗与开始新局竞态；之后推进实物撤离→藏宝馆复进的完整游玩回归。
+
+
+## 2026-11-16 G-03.5 · 馆藏展台旧点击跨局隔离（源码/回归提交，CI 待验）
+
+- 根因：`RelicEscapeLedger.featureLoot` 原来只校验物品存在，未检查探险阶段；迟到的藏宝馆展台点击可以在 EXPLORE/EXTRACT/DOWNED 中改写永久展台选择。生产 `51d71eb8de7c90a134e8e460056c1c4f98d63143`，`RelicEscapeLedger.kt` blob `a656ea393cd9501663925ca37a2e141bd617533d`：局中拒绝旧展台选择，结算后仍可更换真实已拥有展品，不伪造馆藏或奖励。
+- 回归 `fffed30fd99126e66711edafc52b29b1a27bcb19`，`RelicMuseumSaleGuardTest.kt` blob `1495331144fcadbcbdd2d08325a5e7e8c5f7e275`：三个局中阶段保留原展品及重载一致，成功结算后更换展台并持久化。最终测试 SHA 查询 Actions main push runs=0，JVM/APK/index 未证成功，真机与帧率未验；下一文件 `RelicMuseumSaleGuardTest.kt` JVM 首错与 `RelicVaultPage.kt` 迟到点击真实 UI 路径，再推进实物拾取→撤离→藏宝馆→重进端到端。
