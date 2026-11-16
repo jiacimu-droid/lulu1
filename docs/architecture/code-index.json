@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:14:29.565300+00:00",
-  "commit": "8fda59a9c62cc3be15f3f1dafcb466ec7d781756",
+  "generatedAt": "2026-11-16T17:15:03.476590+00:00",
+  "commit": "f1df7c9580374ea2daa6a0f5c696ed9495bccabf",
   "branch": "main",
-  "sourceFingerprint": "ed836240ef5561c562185dbdba9f236e15a1faf23b162ad2f4907ec79c7c09e3",
+  "sourceFingerprint": "3ff802f99f65c4f4ac79421acac1fcf53f93fc968e35bbaee0d6fd24eeb216b3",
   "summary": {
-    "files": 1375,
-    "lines": 293553,
-    "symbols": 4136
+    "files": 1376,
+    "lines": 293611,
+    "symbols": 4137
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21767,6 +21767,12 @@
     "ReanswerMemoryBoundaryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt",
+        "line": 6
+      }
+    ],
+    "RecentSemanticPromptTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt",
         "line": 6
       }
     ],
@@ -46720,6 +46726,17 @@
       "symbols": [
         {
           "name": "ReanswerMemoryBoundaryTest",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt",
+      "lines": 58,
+      "sha256": "7f134c3c67bd1c104fc4204e612a342512a379d68e5423a4e17985cbe6a2caa8",
+      "symbols": [
+        {
+          "name": "RecentSemanticPromptTest",
           "line": 6
         }
       ]

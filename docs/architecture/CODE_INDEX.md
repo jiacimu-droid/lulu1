@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8fda59a9c62cc3be15f3f1dafcb466ec7d781756`
+- 基准提交：`f1df7c9580374ea2daa6a0f5c696ed9495bccabf`
 - 分支：`main`
-- 已索引文件：1375
-- 已索引代码/文本行：293553
-- 已发现符号：4136
+- 已索引文件：1376
+- 已索引代码/文本行：293611
+- 已发现符号：4137
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1202,6 +1202,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |
