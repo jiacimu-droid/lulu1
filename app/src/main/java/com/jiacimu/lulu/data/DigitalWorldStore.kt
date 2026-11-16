@@ -393,6 +393,12 @@ object DigitalWorldStore {
                         now = now,
                     ).summary
                 }
+                "observe_scene" -> {
+                    val incidentId = args.optString("incidentId").trim()
+                    require(incidentId.isNotBlank()) { "必须选择眼前真实出现的 incidentId" }
+                    DigitalWorldLifeEventStore.chooseObservation(characterId, incidentId, now)
+                        ?: error("这一幕已过去、角色不在场、本人已经观察过或场景从未出现")
+                }
                 "leave_resident_episode" -> DigitalWorldResidentEpisodeStore.leave(characterId, args.optString("incidentId"), now)
                 "visit_resident_home" -> {
                     val resident = DigitalWorldExpansionStore.residents().firstOrNull { it.id == args.optString("itemId") }
@@ -436,9 +442,11 @@ object DigitalWorldStore {
                 }
             }
         }
-        val evidenceId = if (normalizedAction == "handle_incident")
-            "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}"
-        else "world-fact-${UUID.randomUUID()}"
+        val evidenceId = when (normalizedAction) {
+            "observe_scene" -> "world-observe-$characterId-${args.optString("incidentId").trim()}"
+            "handle_incident" -> "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}"
+            else -> "world-fact-${UUID.randomUUID()}"
+        }
         SharedExperienceTimeline.record(
             eventId = evidenceId,
             characterId = characterId,
@@ -452,8 +460,11 @@ object DigitalWorldStore {
             // retain the existing evidence-driven follow-through.
             triggerExtraction = normalizedAction !in setOf(
                 "visit_public_place", "visit_cloud_meadow", "go_home",
-                "use_location", "use_home_item",
+                "use_location", "use_home_item", "observe_scene",
             ),
+            source = if (normalizedAction == "observe_scene") "digital-world" else "legacy",
+            evidenceKind = if (normalizedAction == "observe_scene")
+                EventEvidenceKind.Observation else EventEvidenceKind.Legacy,
         )
         DigitalWorldActionResult(true, summary, evidenceId)
     }.getOrElse { DigitalWorldActionResult(false, it.message ?: it::class.java.simpleName) }
