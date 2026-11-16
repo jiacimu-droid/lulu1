@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:10:25.343486+00:00",
-  "commit": "68ab50f3416ebb920b13a8c9fe92dcdce6cbdc3f",
+  "generatedAt": "2026-11-16T04:11:32.726852+00:00",
+  "commit": "287ac20ff001623721001fbfd8a6800976ffb721",
   "branch": "main",
-  "sourceFingerprint": "3e5ce90baca370fa5849305270e86a41a93c9507a0d93a55c9898f23cc2139fb",
+  "sourceFingerprint": "2529f8e79697526ca86e42f9e22c621228111eeb83a2a77158ce0b67b86f61db",
   "summary": {
     "files": 1350,
-    "lines": 287899,
+    "lines": 287902,
     "symbols": 4065
   },
   "symbolIndex": {
@@ -23973,8 +23973,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 498,
-      "sha256": "9f12187d389ef79e0e730f9bf2df5eed8c1ac02999303a10844cb7f132cb5ff8",
+      "lines": 501,
+      "sha256": "1f3a3f738b17bf3910b58a91d9eb442a05ab5cad1872c2f314796f9010b7b2cf",
       "symbols": [
         {
           "name": "ledgerText",
@@ -25508,7 +25508,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
       "lines": 57,
-      "sha256": "007a9db992febe213a9e608624168e3d77ab4a78e3ae7eaa945adabc7e5e97d8",
+      "sha256": "c8049fa969774cfaf29d3dbac040361a24ec14b3c7491062c48018e9d16b90bd",
       "symbols": [
         {
           "name": "apply",
