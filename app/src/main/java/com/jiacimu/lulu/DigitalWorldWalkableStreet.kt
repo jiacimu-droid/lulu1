@@ -111,6 +111,11 @@ internal fun DigitalWorldWalkableStreet(
         }
     }
     var visited by remember { mutableStateOf(preferences.getStringSet("found", emptySet()).orEmpty().toSet()) }
+    var companionPositions by remember(companions.map { it.characterId }) {
+        mutableStateOf(companions.mapIndexed { index, _ ->
+            WorldVector(720f + index * 65f, 235f + index * 40f)
+        })
+    }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
     var tapTarget by remember { mutableStateOf<WorldVector?>(null) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
@@ -154,6 +159,19 @@ internal fun DigitalWorldWalkableStreet(
                         (player.x + delta.x).coerceIn(86f, worldWidth - 86f),
                         (player.y + delta.y).coerceIn(90f, worldHeight - 100f),
                     )
+                }
+                if (companionPositions.isNotEmpty()) {
+                    val before = companionPositions
+                    companionPositions = before.mapIndexed { index, position ->
+                        val leader = if (index == 0) player else before[index - 1]
+                        val desired = WorldVector(
+                            (leader.x + if (index % 2 == 0) 80f else -80f).coerceIn(90f, worldWidth - 90f),
+                            (leader.y + 85f).coerceIn(90f, worldHeight - 95f),
+                        )
+                        val toLeader = desired - position
+                        if (toLeader.length <= 10f) position
+                        else position + toLeader.normalized() * minOf(toLeader.length, dt * 300f)
+                    }
                 }
             }
         }
@@ -214,7 +232,8 @@ internal fun DigitalWorldWalkableStreet(
                 drawCircle(Color(0xFF547E72), 27f, you)
                 drawCircle(Color(0xFFF6FFF0), 7f, Offset(you.x - 9f, you.y - 6f))
                 companions.take(3).forEachIndexed { index, person ->
-                    val companion = Offset(you.x + 85f + index * 63f, you.y + 26f + index * 28f)
+                    val body = companionPositions.getOrNull(index) ?: player
+                    val companion = Offset(body.x, body.y)
                     drawOval(Color(0xFF456254).copy(alpha = .17f),
                         Offset(companion.x - 27f, companion.y + 12f), Size(54f, 16f))
                     drawCircle(Color(0xFF8DA6A0), 27f, companion)
