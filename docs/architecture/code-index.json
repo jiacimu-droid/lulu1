@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T18:42:39.417184+00:00",
-  "commit": "c0a8b4df7d3379a428b3bc31f778f7087f6b446f",
+  "generatedAt": "2026-11-16T18:52:03.992234+00:00",
+  "commit": "0ec4e2a9097f17c21b139f67f1f174a5c3e0cfb3",
   "branch": "main",
-  "sourceFingerprint": "4e6b1e56f521ac4b5f9f03b313b944eb7c3cd4c2af540bf9448ee52befd32b6c",
+  "sourceFingerprint": "b7cc7aa4cc18f4919e88825169e43af0617877a6a8203ef48b00ea76a183298b",
   "summary": {
     "files": 1376,
-    "lines": 293749,
+    "lines": 293755,
     "symbols": 4141
   },
   "symbolIndex": {
@@ -48129,8 +48129,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 1203,
-      "sha256": "2be69ddb0509da106e44d25662713dd36efe4102ba98dfa93ad14a17f2cca8a9",
+      "lines": 1209,
+      "sha256": "d15b2908189f06011974a130a02bd29a8f5ca1ae3a45757d07a432502ef728ba",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
