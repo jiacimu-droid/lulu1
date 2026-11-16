@@ -60,6 +60,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     canSend: Boolean,
     errorText: String,
     onBackToMap: () -> Unit,
+    onExitToStreet: () -> Unit,
     onEnd: () -> Unit,
     onDelete: () -> Unit,
     onInputChanged: (String) -> Unit,
@@ -210,6 +211,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 onReachedSceneItem = { characterId, itemId ->
                     MeetingLivingWorldRuntime.reachedSceneItem(session, characterId, itemId)
                 },
+                onExitToStreet = onExitToStreet,
             )
         } else {
             RealisticMeetingStage(
