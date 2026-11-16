@@ -579,8 +579,10 @@ private fun RelicImmersiveReplay(
                     }
                     Spacer(Modifier.width(12.dp))
                     IconButton(onClick = {
-                        if (frameIndex >= last) frameIndex = 0
-                        playing = !playing || frameIndex == 0
+                        if (frameIndex >= last) {
+                            frameIndex = 0
+                            playing = true
+                        } else playing = !playing
                     }, modifier = Modifier.size(42.dp)) {
                         Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
                             if (playing) "暂停" else "播放", tint = Color.White)
