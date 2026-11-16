@@ -414,6 +414,36 @@ class LuluAccessibilityService : AccessibilityService() {
             return LuluVirtualUiPolicy.fingerprint(parts)
         }
 
+        /** Give the character real top-of-conversation text rather than
+         * making it guess the recipient from a scaled screenshot. Only this
+         * verified virtual WeChat window contributes candidate titles. */
+        private fun virtualChatHeaderTexts(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+        ): JSONArray {
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return JSONArray()
+            val (_, height) = virtualDimensions(service, displayId) ?: return JSONArray()
+            val labels = linkedSetOf<String>()
+            var visited = 0
+            fun scan(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 24 || visited++ >= 460 ||
+                    !node.isVisibleToUser || node.isPassword) return
+                val r = Rect().also(node::getBoundsInScreen)
+                if (r.top >= 0 && r.bottom <= height * 3 / 10 &&
+                    !node.isEditable && r.width() > 0) {
+                    listOf(node.text?.toString(), node.contentDescription?.toString())
+                        .filterNotNull().map(String::trim)
+                        .filter { it.length in 1..80 && !it.contains('\\n') }
+                        .forEach { labels.add(it) }
+                }
+                for (i in 0 until node.childCount)
+                    node.getChild(i)?.let { scan(it, depth + 1) }
+            }
+            ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
+            return JSONArray().apply { labels.take(12).forEach(::put) }
+        }
+
         fun virtualUiSnapshot(displayId: Int, packageName: String): JSONObject {
             val service = instance ?: return JSONObject()
             val nodes = virtualUiNodes(service, displayId, packageName)
@@ -428,6 +458,7 @@ class LuluAccessibilityService : AccessibilityService() {
             return JSONObject()
                 .put("fingerprint", fingerprint)
                 .put("elements", elements)
+                .put("chatHeaderTexts", virtualChatHeaderTexts(service, displayId, packageName))
         }
 
         /** Mika ClickFallback.pickTarget adapted for a single safe FIRST tap.
