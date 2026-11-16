@@ -598,3 +598,9 @@
 - 同伴可自主选择解观测镜、开封门和在有回声石板的路线上潜行（不是默认强制做）：RelicActorPlay e7b8b30/6bdb9e9，RelicCoopTravel b2ff62b，回归 ceb0fd4/4275db9/37fa43f。地图互动、角色独自物理动作与事件回执共用同一权威存档；无新模型调用类型，无抽奖/实物伪造。
 - 长按方向移动碰到真实邻近守卫蓄力时中断重复移动，防止玩家一按到底连续挨打：bb5c2c9。HUD 与设置明确标玩家行动而非共同“回合”：7cac125，快捷潜行 tuple 编译消歧266c386。
 - 验收未冒认：上述代码均为 GitHub main 源码层提交；频繁并行推送导致多次原有 APK run cancelled，不能当 success。仍需核包含本组源码/测试的新 head 的 phone JVM/assemble job 及 code-index 终态；Redmi 横屏检查封门绘制与可点击、潜行/站位可达、图层遮挡及新机制在旧档上不误触，完整探宝撤离+队友真模型操作另测。
+
+## 2026-11-17 G-02.6 · 木镐到石镐真实采矿成长（提交待 CI/真机）
+
+- `09490e6` 新增工作台木镐配方（2木0石）；`815d3f7` 让权威 `BlockIslandRules` 接受 `craft_wood_pickaxe`、旧存档加载新工具 ID，普通矿徒手2石/木镐3石/石镐4石，蓝晶矿仍仅石镐可采且实际获得晶石；`f2a6622` 正式小岛 HUD 显示木镐采石3。没有给角色预设选择、伪造掉落或更改旧档格式。
+- `c9d684e` 扩展 `IslandWorkbenchRecipesTest`，覆盖配方费用/重复制作/工作台距离、木镐存档重载、普通矿差异、蓝晶矿拒绝与石镐解锁；测试 blob `8076ddd42f2b49591bc5350ab06337acb7c07e5b`。生产 blob：配方 `61c36ca73d274d00dc62e2e762b6c2e31cb7d9e0`、规则 `ed89c1148e64d84a47e2471a9fae3d90dd063e30`、HUD `2d6af71c00ccb503999b108fe6bbd259da1aa45b`。
+- 最新提交 `f2a6622` 的 commit combined status 返回空，不代表 Actions 成功；必须核同 SHA main push 的 JVM/APK/index jobs，若红先修首错。Redmi 横屏工作台菜单/普通矿与蓝晶矿辨识、真实 FPS、角色劳动仍待验。下一入口 `IslandWorkbenchRecipesTest.kt`、`BlockIslandScreen.kt` 的工作台可见列表及 `BlockIslandRules.kt` 采集事件。
