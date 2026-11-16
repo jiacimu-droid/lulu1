@@ -89,7 +89,9 @@ class CharacterContinuityGatewayTest {
         val role = MigratedDomainStores.characters.create("跨入口心事保持").characterId
         val anchor = "海风铃诗集" + System.nanoTime().toString().takeLast(5)
         val eventId = "full-life-" + java.util.UUID.randomUUID()
-        val at = Instant.now().minusSeconds(200)
+        // A newly created digital person must not be given a fake memory
+        // from before its recorded creation time.
+        val at = Instant.now()
         SharedExperienceTimeline.record(
             eventId = eventId, characterId = role, channel = "普通私聊",
             speaker = "用户", content = "我和你真正聊过$anchor，还一起选了下一本要看的书",
