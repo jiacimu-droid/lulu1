@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:45:38.108054+00:00",
-  "commit": "ecabea0ca0b92644d04cddeac9b32f49d9b71479",
+  "generatedAt": "2026-11-16T08:53:59.678671+00:00",
+  "commit": "13c666c54cd31d822f94d31138146a08ef8780ae",
   "branch": "main",
-  "sourceFingerprint": "27bb34f992e5f41deb14d158af8156999ec27d959c7d9970de397d533ff1b501",
+  "sourceFingerprint": "4b32d8475515e6ac7ea1a23aae4b45ff446898dd49db6353f2875f9f44ba6a68",
   "summary": {
     "files": 1358,
-    "lines": 289975,
+    "lines": 290005,
     "symbols": 4089
   },
   "symbolIndex": {
@@ -8115,49 +8115,49 @@
     "CharacterRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 41
+        "line": 52
       }
     ],
     "definition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 43
+        "line": 54
       }
     ],
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 68
+        "line": 79
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 98
+        "line": 109
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 108
+        "line": 119
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 201
+        "line": 212
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 212
+        "line": 223
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 231
+        "line": 242
       }
     ],
     "offer": [
@@ -19097,7 +19097,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-        "line": 496
+        "line": 515
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -29766,8 +29766,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 238,
-      "sha256": "5ff7983b11f83683c233c777b72b06ec4d2c5ce3b05b116d4f27d72a12ca3c14",
+      "lines": 249,
+      "sha256": "caf9d80144dfefa6636aa0a7ee95cdb316a34c38405848cf8632018d48d7dc86",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -29791,35 +29791,35 @@
         },
         {
           "name": "CharacterRuntime",
-          "line": 41
+          "line": 52
         },
         {
           "name": "definition",
-          "line": 43
+          "line": 54
         },
         {
           "name": "definitionChanges",
-          "line": 68
+          "line": 79
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 98
+          "line": 109
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 108
+          "line": 119
         },
         {
           "name": "learningContext",
-          "line": 201
-        },
-        {
-          "name": "leanExpressionContext",
           "line": 212
         },
         {
+          "name": "leanExpressionContext",
+          "line": 223
+        },
+        {
           "name": "developmentContext",
-          "line": 231
+          "line": 242
         }
       ]
     },
@@ -44352,8 +44352,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 578,
-      "sha256": "14377205a1f7781c0b91b7a13997416879b5afa20724944c0633d27541a6c34a",
+      "lines": 597,
+      "sha256": "4835545342fa1489fab168100fbdb2b4fa30f00923817253cb6d1a412a368fc0",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
@@ -44361,7 +44361,7 @@
         },
         {
           "name": "item",
-          "line": 496
+          "line": 515
         }
       ]
     },
