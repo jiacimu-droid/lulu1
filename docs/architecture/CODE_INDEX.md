@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0869d9f37d5c41103ab2af2b42ed21f35e656962`
+- 基准提交：`d18ae5078637429e759185151fba70d586bd5513`
 - 分支：`main`
 - 已索引文件：1341
-- 已索引代码/文本行：285665
+- 已索引代码/文本行：285673
 - 已发现符号：4033
 
 | 文件 | 行数 | 符号数 |
@@ -265,7 +265,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 48 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1243 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1251 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 782 | 6 |
