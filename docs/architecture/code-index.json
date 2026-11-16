@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T07:32:43.910971+00:00",
-  "commit": "0278bdab3aebee09d5b812631c31660f7917038b",
+  "generatedAt": "2026-11-16T07:41:57.054845+00:00",
+  "commit": "054d0f96075a05dd826d021c545d9965d0dea647",
   "branch": "main",
-  "sourceFingerprint": "355447da28bd014310a5267ce34f0a32da6d241d5dcda145dd5621231b5473cd",
+  "sourceFingerprint": "7a6aa1be49b7797dafdcd4bc52d79ae4a999ef211dbb25ca8af93c8e8f204d82",
   "summary": {
     "files": 1355,
-    "lines": 289366,
+    "lines": 289386,
     "symbols": 4084
   },
   "symbolIndex": {
@@ -1015,7 +1015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 82
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -7075,7 +7075,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 269
+        "line": 289
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -9525,7 +9525,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 246
+        "line": 266
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -9691,13 +9691,13 @@
     "isNoticeableLifeMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 60
+        "line": 69
       }
     ],
     "tick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 91
+        "line": 100
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
@@ -9711,25 +9711,25 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 228
+        "line": 248
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 278
+        "line": 298
       }
     ],
     "canHandle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 292
+        "line": 312
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 300
+        "line": 320
       }
     ],
     "witnessed": [
@@ -31485,8 +31485,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 785,
-      "sha256": "9ea48ba188819b7fede62af739254c8c4984e954e0f31ae98f33e6ce1ea2af96",
+      "lines": 805,
+      "sha256": "7c557ec83ef34babc0a7ae16431623e9043467ccfb4c10f8e5e464cd039561d3",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -31494,39 +31494,39 @@
         },
         {
           "name": "isNoticeableLifeMoment",
-          "line": 60
+          "line": 69
         },
         {
           "name": "initialize",
-          "line": 82
-        },
-        {
-          "name": "tick",
           "line": 91
         },
         {
+          "name": "tick",
+          "line": 100
+        },
+        {
           "name": "recordWitness",
-          "line": 228
+          "line": 248
         },
         {
           "name": "contextFor",
-          "line": 246
+          "line": 266
         },
         {
           "name": "clearCharacter",
-          "line": 269
+          "line": 289
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 278
+          "line": 298
         },
         {
           "name": "canHandle",
-          "line": 292
+          "line": 312
         },
         {
           "name": "handle",
-          "line": 300
+          "line": 320
         }
       ]
     },
