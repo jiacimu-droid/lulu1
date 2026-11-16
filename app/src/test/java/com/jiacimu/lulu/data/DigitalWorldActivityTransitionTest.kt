@@ -61,6 +61,38 @@ class DigitalWorldActivityTransitionTest {
     private fun act(id: String, at: Instant) = DigitalWorldStore.performAction(role, "use_home_item",
         JSONObject().put("itemId", table.id).put("activityId", id), at)
 
+    @Test fun livedCafeAndCourtyardSensationsRequireExecutedWorldReceipts() {
+        val at = now.plusSeconds(100)
+        val missingPlace = DigitalWorldStore.performAction(role, "use_location",
+            JSONObject().put("activityId", "cafe_touch_table"), at)
+        assertFalse(missingPlace.success)
+        assertFalse(SharedExperienceTimeline.all(role).any {
+            it.content.contains("平整光滑的数字材质")
+        })
+        assertTrue(DigitalWorldStore.performAction(role, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.CAFE), at).success)
+        val touch = DigitalWorldStore.performAction(role, "use_location",
+            JSONObject().put("activityId", "cafe_touch_table"), at.plusSeconds(10))
+        assertTrue(touch.summary, touch.success)
+        assertTrue(touch.summary.contains("平整光滑的数字材质"))
+        val stored = SharedExperienceTimeline.eventsByIds(role, listOf(touch.evidenceId)).single()
+        assertEquals(touch.summary, stored.content)
+        assertEquals("数字世界", stored.channel)
+        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(15), emptyList())
+            .contains("平整光滑的数字材质"))
+
+        assertTrue(DigitalWorldStore.performAction(role, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD),
+            at.plusSeconds(20)).success)
+        val air = DigitalWorldStore.performAction(role, "use_location",
+            JSONObject().put("activityId", "courtyard_feel_air"), at.plusSeconds(30))
+        assertTrue(air.summary, air.success)
+        val world = DigitalWorldEnvironment.snapshot(at.plusSeconds(30))
+        assertTrue(air.summary.contains("${world.temperatureCelsius}℃"))
+        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(40), emptyList())
+            .contains("室外体感约${world.temperatureCelsius}℃"))
+    }
+
     @Test fun rejectedActionDoesNotEndRestOrCreateAWorldOutcome() {
         val before = activity()
         val body = CharacterLifeStore.bodyState(role).toString()
