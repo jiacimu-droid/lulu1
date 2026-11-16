@@ -477,3 +477,9 @@
 
 - 正式 `RelicEscapeArt.kt` 的 `drawRect(Color(0xFF070D16))` 原先在 `translate(ox, oy)` 内，拖拽/缩放时背景跟随世界偏移，地图边缘可能露出 Surface 底色。生产提交 `332b00813ebc1b4365e6e0efd4af4e56c26ca059` 将全屏背景绘制移到相机平移之前，地形、怪物、实物掉落和标签仍在原相机空间；不修改奖励、碰撞、存档或角色决策。源码 blob `25ef3856eb245349905613d96b1be918f0adb2ff`。
 - 本轮未新增测试 SHA；Compose Canvas 视觉行为需 Android 截图/帧时间验收。源码变更后 `scripts/generate_code_index.py` 尚未在本环境执行，必须核后续原有索引工作流并同步 CODE_INDEX/code-index.json；不得把索引绿当 APK 绿。下一文件 `RelicEscapeArt.kt` 360/412dp 横屏极端平移、地图边缘背景对比及新 push 的 JVM/APK/index 终态，随后转向撤离→藏宝馆实物存档重入。
+
+
+## 2026-11-16 G-03.5 · 极端平移时地图视口不再饱和误绘（JVM/APK 待验）
+
+- 根因：正式 `RelicEscapeArt.kt` 视口裁剪先将 Float 投影转 Int 再 ±1；极端平移时 Int 饱和可错误绘制屏幕外边缘图层。新增 `RelicMapCamera.visibleBounds` 以 Double 投影、先裁剪到实际地图边界，返回独占上界；正式地形/宝物/人物/路线/标签共用此边界。生产 `417d9438`（相机 blob `87ae1033`）、`df69c548`（渲染 blob `324884e9`）。
+- 根因回归 `7c966f0e`（`RelicMapCameraTest.kt` blob `39fcfaa7`）验证正常边缘预留、极远双向平移、无效视口，不改变掉落、人物决定或存档。新 push JVM/APK/index 尚未确认终态，Redmi 横屏 FPS、视觉、操作仍待真机。下一文件 `RelicMapCameraTest.kt` 先查 JVM 首错；随后 `RelicEscapeArt.kt` 360/412dp 横屏边界截图及地图点选，继续实物撤离→藏宝馆复进闭环。
