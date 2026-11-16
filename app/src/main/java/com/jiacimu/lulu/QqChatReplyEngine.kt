@@ -252,7 +252,7 @@ internal fun captureReplySourceWatermark(
         it.sender == LuluChatMessage.Sender.User &&
             it.status == LuluChatMessage.Status.Sent
     }?.id
-    if (latestSentUserMessageId !in userMessageIds) return null
+    if (latestSentUserMessageId == null || latestSentUserMessageId !in userMessageIds) return null
     val evidenceIds = userMessageIds.associateWith { id ->
         if (group == null) id else "${id}:group:$characterId"
     }
