@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T15:17:17.769475+00:00",
-  "commit": "bddb901573063eec83e3f7ef99415f5cb7433faf",
+  "generatedAt": "2026-11-16T15:22:05.104929+00:00",
+  "commit": "66fa36391ab9eab6539cd3f56d07a6f50a37478e",
   "branch": "main",
-  "sourceFingerprint": "5de3c5c39d81a8ab2ec4b2b8e790249906d721d3b7fbfd99436582c571dd6016",
+  "sourceFingerprint": "d96f8ad9146ef9a8705a77ab859c1a62f663b31ca3979c8a5f45c01dd8d318fe",
   "summary": {
-    "files": 1365,
-    "lines": 291798,
-    "symbols": 4112
+    "files": 1366,
+    "lines": 291836,
+    "symbols": 4115
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5352,6 +5352,28 @@
         "line": 174
       }
     ],
+    "sceneMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
+        "line": 16
+      }
+    ],
+    "autonomousTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
+        "line": 26
+      }
+    ],
+    "history": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
+        "line": 64
+      }
+    ],
     "ApiConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
@@ -6966,12 +6988,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
         "line": 36
-      }
-    ],
-    "history": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 64
       }
     ],
     "active": [
@@ -27443,6 +27459,25 @@
       "lines": 114,
       "sha256": "8b02381edb2e61187e4c041ab60245fb2b19041993bbbf98446a31930d8daf97",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt",
+      "lines": 38,
+      "sha256": "5684d5f6246e1e47f7335990eb0579e3bfa4670245ccb9d18e62c917ebd18a8e",
+      "symbols": [
+        {
+          "name": "sceneMessage",
+          "line": 16
+        },
+        {
+          "name": "autonomousTurn",
+          "line": 26
+        },
+        {
+          "name": "history",
+          "line": 31
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
