@@ -121,6 +121,7 @@ internal data class SoupRoom(
     val host: SoupHost = SoupHost.AI,
     val companions: List<String> = emptyList(),
     val lines: List<SoupLine> = emptyList(),
+    val started: Boolean = false,
     val revealed: Boolean = false,
 ) {
     val puzzle: SoupCase get() = requireNotNull(SoupLibrary.find(caseId))
@@ -156,6 +157,7 @@ internal data class SoupRoom(
         .put("case_id", caseId)
         .put("host", host.name)
         .put("companions", JSONArray(companions))
+        .put("started", started)
         .put("revealed", revealed)
         .put("lines", JSONArray().apply {
             lines.forEach { line ->
@@ -179,6 +181,7 @@ internal data class SoupRoom(
                 host = SoupHost.valueOf(raw.getString("host")),
                 companions = (0 until roster.length()).map { roster.getString(it) }.distinct(),
                 revealed = raw.optBoolean("revealed"),
+                started = raw.optBoolean("started", entries.length() > 0),
                 lines = (0 until entries.length()).map { index ->
                     val line = entries.getJSONObject(index)
                     SoupLine(line.getString("speaker"),
