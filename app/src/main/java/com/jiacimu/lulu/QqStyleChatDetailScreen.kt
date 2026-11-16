@@ -43,6 +43,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -638,7 +640,13 @@ fun QqStyleChatDetailScreen(
         return
     }
 
-    LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
+    // markConversationRead durably commits SharedPreferences. Keep disk I/O off
+    // Compose's main dispatcher when opening a conversation or returning from IME.
+    LaunchedEffect(conversationId) {
+        withContext(Dispatchers.IO) {
+            MigratedDomainStores.chat.markConversationRead(conversationId)
+        }
+    }
     LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat) {
         val count = visibleMessages.size
         if (count == 0) {
