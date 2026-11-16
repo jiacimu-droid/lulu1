@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T02:20:02.156775+00:00",
-  "commit": "35a0a9dda84fc1143a80e7f6d80c005d9e30ffde",
+  "generatedAt": "2026-11-16T02:21:39.050822+00:00",
+  "commit": "87a5e56c2b28d50d57254d7a2720dc476e90981f",
   "branch": "main",
-  "sourceFingerprint": "468b8d6a5b269da9854d70183ca8fb991daec7f3048ffff8dbfb3ddbddeb3e05",
+  "sourceFingerprint": "d173958c2b675f9e4bbc6bded9b52c541b81f96c99ca3d6b468e4b71f04f78c4",
   "summary": {
     "files": 1342,
-    "lines": 286263,
+    "lines": 286269,
     "symbols": 4043
   },
   "symbolIndex": {
@@ -6975,7 +6975,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 523
+        "line": 529
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -9035,25 +9035,25 @@
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 434
+        "line": 440
       }
     ],
     "forgetEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 465
+        "line": 471
       }
     ],
     "forgetTimelineMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 480
+        "line": 486
       }
     ],
     "deleteMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 496
+        "line": 502
       }
     ],
     "planningGuidance": [
@@ -30507,8 +30507,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 659,
-      "sha256": "e2e5b26d6bf9e4db6ad0a8cc9ce863c54628aa0ec0a99fdb2189139e6ebbe7c5",
+      "lines": 665,
+      "sha256": "31d7412dfa7a20a4d37e6f79abf04174edfe96060193411d38753089314442ac",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -30576,23 +30576,23 @@
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 434
+          "line": 440
         },
         {
           "name": "forgetEvidence",
-          "line": 465
+          "line": 471
         },
         {
           "name": "forgetTimelineMoment",
-          "line": 480
+          "line": 486
         },
         {
           "name": "deleteMoment",
-          "line": 496
+          "line": 502
         },
         {
           "name": "clearCharacter",
-          "line": 523
+          "line": 529
         }
       ]
     },
