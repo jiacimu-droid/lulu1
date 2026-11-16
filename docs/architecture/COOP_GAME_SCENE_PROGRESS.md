@@ -499,3 +499,9 @@
 - 生产 `91de7ce`（`RelicMapCamera.kt` blob `f811340e2bacd0c2c1a87d9a38a11d6df06930e7`）：有限输入在极端旋转尺寸/缩放或焦点乘法中仍可溢出为无穷；现在校验派生 tile/offset，失效时返回不可点选、不可绘制的空相机。正常横屏相机、实体物理和掉落不变。
 - 根因回归 `8e301bae`（`RelicMapCameraTest.kt` blob `c1b1105125466a1471db7fd01731be81a93440dc`）：有限巨大单行视口乘缩放溢出、有限极端焦点投影溢出、正常横屏点选；修正首版夹具 `d064c98` 的尺寸不足以溢出问题。
 - 只确认生产/测试写入 main；最新 push 的 JVM/APK/index 终态及 Redmi 真机旋转、帧率、美术待验。下一实际文件：`RelicMapCameraTest.kt` JVM 首错，`RelicEscapeArt.kt` 正式相机接线及真实拾取→撤离→藏宝馆重入。
+
+
+## 2026-11-16 G-03.5 · 营地补给不再允许局中远程购买（CI/真机待验）
+
+- 根因：`RelicEscapeLedger.buyKit` 与 `upgradeWeapon` 未像弓和背包升级那样阻止正在探索/撤离/倒地的局中购买，导致营地补给与实际在场状态不一致。生产 `65d31ddbf64551e8553ed2adbc0d63d9b7530a23`（blob `21092612e81d3eea96b4b57f8cc359e798f28a09`）统一使用现有局中 phase 守卫；没有改动模型选择、掉落或战斗。
+- 根因测试 `b7b39ca31f32bd206f9724ea646612b25f23839f`（`RelicEscapeRulesTest.kt` blob `ffec1749a80f443f16ff357a46baffb85f3377fa`）覆盖局中购买不扣币、不增物资、重新创建 Ledger 仍一致；结算后正常购买并持久保存。提交后按测试 SHA 查询 main push Actions runs 为 0，JVM/APK/index 未证成功；测试本轮未实际运行。下一入口 `RelicEscapeRulesTest.campPurchasesCannotSpendCoinsDuringLiveExpeditionAndResumeAfterSettlement` JVM 首错、`RelicEscapeLobby.kt` 营地购买入口以及真正撤离→藏宝馆重新进入；Redmi 操作、帧率和美术仍待验。
