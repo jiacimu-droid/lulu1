@@ -150,8 +150,12 @@ internal class RelicEscapeLedger(context:Context) {
             featuredLootId=old.featuredLootId?.takeUnless { it==id },
             coins=old.coins+item.value))
     }
-    @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet()):RelicSnapshot {
+    @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet(),
+        expectedRunId:String?=null):RelicSnapshot {
         val old=read();val current=old.run?:return old
+        // Reject callbacks from an earlier expedition at the authoritative write boundary.
+        // A preflight UI check alone races with begin/settlement on another callback.
+        if(expectedRunId!=null && current.id!=expectedRunId)return old
         val result=if(action=="abandon")RelicEscapeRules.abandon(current)
             else RelicEscapeRules.act(current,action,
                 if(action in setOf("move","sneak","pry","open","channel","attack","weapon_skill","invoke","disarm","silence","lure","resupply","fountain"))x else current.hero.x,
