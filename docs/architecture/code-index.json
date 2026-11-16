@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:40:46.865869+00:00",
-  "commit": "ca64e6ffeeaa0a1784bb0f5a4c9cbff4f72b14fe",
+  "generatedAt": "2026-11-16T17:46:31.548968+00:00",
+  "commit": "b6c539feb8fe637f98a12f66ea43d9c8e844cdb9",
   "branch": "main",
-  "sourceFingerprint": "334924e8f25fc38c66bd8b75842046cdf045421f8ca24b1c53dca49993b15855",
+  "sourceFingerprint": "d2d3d87b69b2db67af426fdbdcafbf5167bca7bc433f90b65c29e57c5f56a282",
   "summary": {
     "files": 1376,
-    "lines": 293697,
+    "lines": 293698,
     "symbols": 4140
   },
   "symbolIndex": {
@@ -7863,7 +7863,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-        "line": 374
+        "line": 375
       }
     ],
     "eligibleAt": [
@@ -20487,13 +20487,13 @@
     "CharacterUnfinishedActionContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "concernContext": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-        "line": 376
+        "line": 377
       }
     ],
     "CharacterVoicePreferenceStoreTest": [
@@ -45045,20 +45045,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 624,
-      "sha256": "254ac6ca91ba514429ccaa9d51e4d1ba09c421fdb010b97543cdbc31c6fc65db",
+      "lines": 625,
+      "sha256": "fccf05825b1397f77e17f97fcd1bf135d80a41553e162c1c840fca327825241f",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",
-          "line": 20
+          "line": 21
         },
         {
           "name": "candidate",
-          "line": 374
+          "line": 375
         },
         {
           "name": "concernContext",
-          "line": 376
+          "line": 377
         }
       ]
     },
