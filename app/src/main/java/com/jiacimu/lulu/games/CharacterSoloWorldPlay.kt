@@ -182,6 +182,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
         val old=prefs.getString(key,null)
         var s=if(old==null)BlockIslandRules.newWorld(Random.nextInt(),emptyList())
             else requireNotNull(BlockIslandState.fromJson(old)){"小岛个人存档损坏，拒绝覆盖"}
+        require(!s.world.finished) { "小岛存档已结算，不能把零行动当作新的一段游玩" }
         val initial=s.world.turns
         repeat(turns){
             if(s.world.finished)return@repeat
@@ -189,7 +190,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
             val next=BlockIslandRules.act(s,cmd.first,cmd.second.first,cmd.second.second)
             if(next.world.turns>s.world.turns)s=next
         }
-        require(s.world.turns>initial || s.world.finished) {
+        require(s.world.turns>initial) {
             "没有合法的小岛行动发生，本段游玩不计为完成"
         }
         check(prefs.edit().putString(key,s.toJson()).commit()){"小岛进度未成功保存"}
@@ -250,23 +251,48 @@ internal class CharacterSoloWorldPlay(context: Context) {
                         !IslandProgression.crystalVein(w.seed,w.index(x,y)))}?.let{
                     return "gather" to it
                 }
+        // A chosen focus may already be exhausted in a long-lived world.
+        // Do not strand the actor just because the first landmark/chest/animal
+        // is done: continue with reachable, physical exploration and supplies.
+        val resources=(1 until w.height-1).flatMap{y->
+            (1 until w.width-1).mapNotNull{x->
+                val tile=w.cell(x,y)
+                if(tile in setOf(1,2) && (tile==1 || "pickaxe" in s.tools ||
+                    !IslandProgression.crystalVein(w.seed,w.index(x,y))))
+                    x to y else null
+            }
+        }
+        val caches=s.supplyCaches.filter{it !in s.openedSupplies}
+            .map{it%w.width to it/w.width}
         val places=when(focus){
             "explore"->listOfNotNull(IslandExpeditionTrail.next(s)?.let{
                 IslandExpeditionTrail.position(s,it)
-            })+s.supplyCaches.filter{it !in s.openedSupplies}
-                .map{it%w.width to it/w.width}
-            "wildlife"->s.animals.filter{!it.befriended}.map{it.x to it.y}
-            else->(1 until w.height-1).flatMap{y->
-                (1 until w.width-1).mapNotNull{x->
-                    val tile=w.cell(x,y)
-                    if(tile in setOf(1,2) && (tile==1 || "pickaxe" in s.tools ||
-                        !IslandProgression.crystalVein(w.seed,w.index(x,y))))
-                        x to y else null
-                }}
+            })+caches+resources
+            "wildlife"->s.animals.filter{!it.befriended &&
+                IslandWildlife.canFeed(s,it)}.map{it.x to it.y}+caches+resources
+            else->caches+resources
         }
         for((x,y)in places.sortedBy{dist(it.first,it.second)}){
             if(dist(x,y)<=1 && w.cell(x,y) in setOf(1,2) &&
-                focus !in setOf("wildlife","explore"))return "gather" to (x to y)
+                (w.cell(x,y)==1 || "pickaxe" in s.tools ||
+                    !IslandProgression.crystalVein(w.seed,w.index(x,y))))
+                return "gather" to (x to y)
+            val step=BlockIslandRules.nextStep(s,w.x,w.y,x,y)?:continue
+            if(step!=here && BlockIslandRules.isWalkable(s,step.first,step.second) &&
+                w.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second} &&
+                s.animals.none{it.x==step.first && it.y==step.second})
+                return "move" to step
+        }
+        // After visible objectives and resources are depleted, scouting still
+        // moves on real traversable tiles. A successful move advances the
+        // authoritative survival clock, which can replenish resources; blocked
+        // worlds still return null and MUST NOT be recorded as successful play.
+        val patrol=listOf(
+            (w.width-3) to 3, (w.width-3) to (w.height-3),
+            3 to (w.height-3), 3 to 3,
+        )
+        for(offset in patrol.indices){
+            val (x,y)=patrol[((w.turns/12)+offset)%patrol.size]
             val step=BlockIslandRules.nextStep(s,w.x,w.y,x,y)?:continue
             if(step!=here && BlockIslandRules.isWalkable(s,step.first,step.second) &&
                 w.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second} &&
