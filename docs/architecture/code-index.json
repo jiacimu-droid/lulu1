@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:53:45.768470+00:00",
-  "commit": "f06cec32e7e7fdffbda2ff4da8b1b010ea4a63fa",
+  "generatedAt": "2026-11-16T03:54:25.380574+00:00",
+  "commit": "4d8543ebfde5d9a8e421659e4b09f862c90fb784",
   "branch": "main",
-  "sourceFingerprint": "20dd95239d90b903045978ea3b6348e3a463d84623f0688f36dc57c55e4d811f",
+  "sourceFingerprint": "4c419f6d7bfee1798d571421c29e20ff75c9b28efa5e8a119284db91cd8728a1",
   "summary": {
-    "files": 1346,
-    "lines": 287386,
-    "symbols": 4054
+    "files": 1347,
+    "lines": 287427,
+    "symbols": 4060
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1378,6 +1378,42 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt",
         "line": 29
+      }
+    ],
+    "nextClue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 13
+      }
+    ],
+    "visibleClues": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 14
+      }
+    ],
+    "isMementoUnlocked": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 17
+      }
+    ],
+    "progressText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 19
+      }
+    ],
+    "participantKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 28
+      }
+    ],
+    "mementoText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+        "line": 30
       }
     ],
     "setStick": [
@@ -23680,6 +23716,37 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt",
+      "lines": 37,
+      "sha256": "44432a30a0d2eb8ea90147e036253a7af133a953d0262734651877a3d5858010",
+      "symbols": [
+        {
+          "name": "nextClue",
+          "line": 13
+        },
+        {
+          "name": "visibleClues",
+          "line": 14
+        },
+        {
+          "name": "isMementoUnlocked",
+          "line": 17
+        },
+        {
+          "name": "progressText",
+          "line": 19
+        },
+        {
+          "name": "participantKey",
+          "line": 28
+        },
+        {
+          "name": "mementoText",
+          "line": 30
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
       "lines": 338,
       "sha256": "585861830a8fe9029f15ecc26c2771de151635203b5d792ef1df7b98c26b02fe",
@@ -23893,8 +23960,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt",
-      "lines": 425,
-      "sha256": "dddaae655e570b0134f4567507e9e137d4d6fbaf44a836e906a080445ca79956",
+      "lines": 429,
+      "sha256": "3b618917ecfa6613e0104cf5ee0c1ecc0a26bfa7d74db4774652978805f34c88",
       "symbols": []
     },
     {
