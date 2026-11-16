@@ -2264,9 +2264,11 @@ class ConversationExpressionGatewayTest {
                 .put("text", current.content).toString()))
             assertTrue(system.contains("从本人的性格、所知、立场与在意之处"))
             assertTrue(system.contains("选择此刻真正想对这个人说什么"))
-            assertTrue(system.contains("web_search 尚未配置"))
-            assertTrue(system.contains("任何具体特质都能单独引出一个念头"))
-            assertTrue(system.contains("沿着本人的真实特质和当前情境自由联想"))
+            // Live capabilities and the person's lived associative context are
+            // factual scene evidence, not elevated to system-level authority.
+            assertTrue(scene.contains("web_search 尚未配置"))
+            assertTrue(scene.contains("任何具体特质都能单独引出一个念头"))
+            assertTrue(scene.contains("沿着本人的真实特质和当前情境自由联想"))
             assertTrue(CharacterMessageFavorites.hasFavorite(role.characterId, current.id))
             val receipts = SharedExperienceTimeline.all(role.characterId)
                 .filter { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
