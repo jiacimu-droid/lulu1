@@ -76,6 +76,70 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun relayMemoryGuardRetryKeepsTheSameActorAndCompleteUserTurn() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val actor = MigratedDomainStores.characters.create("青禾压测角色", "习惯独自修复旧乐器")
+        val peer = MigratedDomainStores.characters.create("隔离压测角色", "热衷和朋友结伴写生")
+        val agreement = "只有我明确同意时才帮我整理旧笔记；未答复不等于同意。"
+        val peerAgreement = "只和另一位角色约在每周五交换画稿。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user", "互留空间", agreement))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(peer.characterId, "user", "同去写生", peerAgreement))
+        val ownerTurn = "如果我还没回复，就先保留原安排。不要替我发送消息，也别删除旧笔记。"
+        val observed = "待核实的日程仍在，尚未撤销，也没有获得对外发送许可。"
+        val disposableMarker = "obsolete-optional-evidence-0"
+        val facts = buildString {
+            appendLine("【自己先前真正安排、现在待处理的日程】")
+            appendLine(observed)
+            appendLine("【可选的早期现场材料】")
+            repeat(500) { appendLine("obsolete-optional-evidence-$it with a short old scene detail") }
+        }
+        val decision = """{"action":"silent","reason":"等明确答复","steps":[]}"""
+        val response = JSONObject().put("choices", JSONArray().put(JSONObject()
+            .put("message", JSONObject().put("content", decision)).put("finish_reason", "stop")))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(503)
+            .setBody("""{"error":{"message":"Relay 请求体内存保护已触发"}}"""))
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString()))
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val reply = LuluAiServices.gateway.generate(actor.characterId, facts,
+                instruction = "根据本人约定和实际状态作出本轮决定",
+                source = "后台主动感知", title = "角色私聊新消息",
+                connectionOverride = connection,
+                conversation = listOf(ModelConversationMessage(ModelConversationMessage.Role.USER, ownerTurn)),
+            ).getOrThrow()
+            assertEquals(decision, reply.text)
+            assertEquals(2, server.requestCount)
+            val first = server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()
+            val retried = server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()
+            assertTrue(retried.toByteArray(Charsets.UTF_8).size < first.toByteArray(Charsets.UTF_8).size)
+            for (body in listOf(first, retried)) {
+                val messages = JSONObject(body).getJSONArray("messages")
+                val system = messages.getJSONObject(0).getString("content")
+                assertTrue(system.contains(actor.displayName))
+                assertTrue(system.contains("习惯独自修复旧乐器"))
+                assertTrue(system.contains(agreement))
+                assertFalse(system.contains(peerAgreement))
+                val scene = (1 until messages.length() - 1).map(messages::getJSONObject)
+                    .single { it.getString("content").startsWith(com.jiacimu.lulu.ai.ActorSceneWirePolicy.SCENE_HEADING) }
+                assertEquals("user", scene.getString("role"))
+                assertTrue(scene.getString("content").contains(observed))
+                val finalTurn = messages.getJSONObject(messages.length() - 1)
+                assertEquals("user", finalTurn.getString("role"))
+                assertEquals(ownerTurn, finalTurn.getString("content"))
+            }
+            assertTrue(first.contains(disposableMarker))
+            assertFalse(retried.contains(disposableMarker))
+        } finally { server.shutdown() }
+    }
+
     @Test fun realLeanRendererReceivesOnlyThatCharactersActualListenerPreference() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
