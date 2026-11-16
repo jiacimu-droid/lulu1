@@ -284,7 +284,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val editors = mutableListOf<AccessibilityNodeInfo>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 28 || visited++ >= 450) return
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 if (safeEditable(node)) editors.add(node)
                 for (index in 0 until node.childCount) {
                     node.getChild(index)?.let { visit(it, depth + 1) }
@@ -354,15 +354,17 @@ class LuluAccessibilityService : AccessibilityService() {
             val collected = mutableListOf<VirtualUiNode>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 25 || visited++ >= 460) return
-                if (!node.isVisibleToUser || !node.isEnabled || node.isPassword) return
+                // Follow Mika: invisible layout wrappers do not hide their visible children.
+                // WeChat's real toolbar and editor may be nested much deeper than 25 levels.
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
                 val usable = rect.width() >= 6 && rect.height() >= 6 &&
                     rect.right > 0 && rect.bottom > 0 &&
                     rect.left < width && rect.top < height
                 val editable = safeEditable(node)
                 val interactive = node.isClickable || node.isScrollable || editable
-                if (usable && interactive && collected.size < 40) {
+                if (node.isVisibleToUser && node.isEnabled &&
+                    usable && interactive && collected.size < 64) {
                     // Never emit a search box's typed content as a control label.
                     val ownLabel = (if (editable) node.hintText?.toString()
                         ?: node.contentDescription?.toString()
@@ -373,7 +375,9 @@ class LuluAccessibilityService : AccessibilityService() {
                             clickableDescendantLabel(node) else ""
                     }.take(90)
                     val rid = node.viewIdResourceName.orEmpty().substringAfterLast('/').take(70)
-                    if (label.isNotBlank() || rid.isNotBlank()) {
+                    // Include actual unnamed clickable icons as snapshot evidence.
+                    // Tap eligibility remains controlled by LuluVirtualUiPolicy.
+                    if (label.isNotBlank() || rid.isNotBlank() || node.isClickable) {
                         val ref = "e" + (collected.size + 1)
                         val x = (rect.centerX().coerceIn(0, width - 1) * 1000L /
                             (width - 1).coerceAtLeast(1)).toInt()
@@ -437,10 +441,9 @@ class LuluAccessibilityService : AccessibilityService() {
             }?.let(labels::add)
             var visited = 0
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 24 || visited++ >= 460 ||
-                    !node.isVisibleToUser || node.isPassword) return
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 val r = Rect().also(node::getBoundsInScreen)
-                if (r.top >= 0 && r.bottom <= height * 3 / 10 &&
+                if (node.isVisibleToUser && r.top >= 0 && r.bottom <= height * 3 / 10 &&
                     !node.isEditable && r.width() > 0) {
                     listOf(node.text?.toString(), node.contentDescription?.toString())
                         .filterNotNull().map { it.trim() }
@@ -558,13 +561,13 @@ class LuluAccessibilityService : AccessibilityService() {
             val titleBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var visited = 0
             fun visit(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 24 || visited++ > 460 ||
-                    !node.isVisibleToUser || node.isPassword) return
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 val bounds = Rect().also(node::getBoundsInScreen)
                 // A toolbar title can be a wide, tall accessibility wrapper;
                 // the previous 80%-width/10%-height filters hid valid titles.
                 // Still exclude full-page containers and chat history.
-                if (bounds.top >= 0 && bounds.top <= height / 5 &&
+                if (node.isVisibleToUser &&
+                    bounds.top >= 0 && bounds.top <= height / 5 &&
                     bounds.bottom <= height / 3 &&
                     bounds.width() in 1..width &&
                     bounds.height() in 1..(height / 6).coerceAtLeast(1) &&
@@ -628,12 +631,12 @@ class LuluAccessibilityService : AccessibilityService() {
             val voiceRegions = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var visited = 0
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 26 || visited++ >= 640 || !node.isVisibleToUser ||
-                    !node.isEnabled || node.isPassword) return
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
-                if (rect.width() > 0 && rect.height() > 0) {
-                    val label = (node.contentDescription?.toString()
-                        ?: node.text?.toString()).orEmpty()
+                if (node.isVisibleToUser && node.isEnabled &&
+                    rect.width() > 0 && rect.height() > 0) {
+                    val label = node.contentDescription?.toString().orEmpty()
+                        .ifBlank { node.text?.toString().orEmpty() }
                     if (rect.top >= dimensions.second / 2 &&
                         LuluVirtualChatSendPolicy.isPressToTalk(label)) {
                         voiceRegions.add(LuluVirtualChatSendPolicy.ComposerBounds(
@@ -740,10 +743,9 @@ class LuluAccessibilityService : AccessibilityService() {
                     !node.isVisibleToUser || !node.isEnabled || node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
                 if (rect.width() > 0 && rect.height() > 0 && node.isClickable) {
-                    val label = (node.contentDescription?.toString()
-                        ?: node.text?.toString()).orEmpty().ifBlank {
-                        clickableDescendantLabel(node)
-                    }.trim().take(90)
+                    val label = node.contentDescription?.toString().orEmpty()
+                        .ifBlank { node.text?.toString().orEmpty() }
+                        .ifBlank { clickableDescendantLabel(node) }.trim().take(90)
                     hints.add(LuluVirtualUiPolicy.AppBarControl(
                         rect.left, rect.top, rect.right, rect.bottom, label,
                         node.viewIdResourceName.orEmpty(), clickable = true))
@@ -790,10 +792,9 @@ class LuluAccessibilityService : AccessibilityService() {
             val positions = mutableListOf<Rect>()
             var scanned = 0
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 26 || scanned++ >= 720 ||
-                    !node.isVisibleToUser || node.isPassword) return
+                if (depth > 80 || scanned++ >= 1600 || node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
-                if (!node.isEditable && node.text?.toString() == message &&
+                if (node.isVisibleToUser && !node.isEditable && node.text?.toString() == message &&
                     rect.top >= dimensions.second / 10 &&
                     rect.bottom <= dimensions.second * 9 / 10 &&
                     rect.right > dimensions.first * 3 / 5 &&
@@ -833,6 +834,9 @@ class LuluAccessibilityService : AccessibilityService() {
             fun uniqueRecipientInHeader(): Boolean = virtualChatHeaderMatches(
                 service, displayId, packageName, recipient, dimensions.second)
             if (!uniqueRecipientInHeader()) return denied("chat_recipient_unverified")
+                .put("observedChatHeaderTexts",
+                    virtualChatHeaderTexts(service, displayId, packageName))
+                .put("targetWindowVerified", true)
             val editors = roots.flatMap(::visibleEditors).distinctBy { node ->
                 val rect = Rect().also(node::getBoundsInScreen)
                 Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
@@ -884,14 +888,13 @@ class LuluAccessibilityService : AccessibilityService() {
             val buttonBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var inspected = 0
             fun locate(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 25 || inspected++ >= 640 || !node.isVisibleToUser ||
-                    !node.isEnabled || node.isPassword) return
+                if (depth > 80 || inspected++ >= 1600 || node.isPassword) return
                 val bounds = Rect().also(node::getBoundsInScreen)
-                if (node.isClickable && bounds.centerY() > dimensions.second / 2) {
-                    val label = (node.contentDescription?.toString()
-                        ?: node.text?.toString()).orEmpty().ifBlank {
-                        clickableDescendantLabel(node)
-                    }
+                if (node.isVisibleToUser && node.isEnabled &&
+                    node.isClickable && bounds.centerY() > dimensions.second / 2) {
+                    val label = node.contentDescription?.toString().orEmpty()
+                        .ifBlank { node.text?.toString().orEmpty() }
+                        .ifBlank { clickableDescendantLabel(node) }
                     val control = LuluVirtualChatSendPolicy.ComposerBounds(
                         bounds.left, bounds.top, bounds.right, bounds.bottom)
                     if (LuluVirtualChatSendPolicy.sendButton(label, node.viewIdResourceName) &&
