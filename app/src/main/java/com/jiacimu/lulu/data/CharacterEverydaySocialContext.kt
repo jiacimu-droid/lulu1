@@ -94,7 +94,13 @@ internal object CharacterEverydaySocialContext {
             .asSequence().filter { event ->
                 !event.occurredAt.isAfter(now) && (
                     (event.evidenceKind == EventEvidenceKind.Observation &&
-                        event.source in setOf("digital-world", "meeting", "digital-environment")) ||
+                        event.source in setOf("digital-world", "digital-environment")) ||
+                    // A genuine meeting contains both what the actor spoke
+                    // and the replies they personally witnessed. Character
+                    // speech is not an invented story when it has a session.
+                    (event.source == "meeting" && event.sessionId.isNotBlank() &&
+                        event.evidenceKind in setOf(
+                            EventEvidenceKind.CharacterStatement, EventEvidenceKind.Observation)) ||
                     // DigitalWorldStore.execute currently saves a verified
                     // world-fact-* raw action with Legacy metadata. Preserve
                     // its canonical receipt without reclassifying it into a
@@ -104,10 +110,14 @@ internal object CharacterEverydaySocialContext {
                         event.id.startsWith("world-fact-"))
                 )
             }.sortedByDescending { it.occurredAt }.toList()
+        // Allocate a few slots to each kind of life. Otherwise several
+        // lighting effects can crowd out the actual joke shared with a friend.
         val recentWorldMoments = (
-            livedMoments.filter { it.source != "digital-environment" }.take(3) +
-                livedMoments.filter { it.source == "digital-environment" }.take(1)
-        ).sortedByDescending { it.occurredAt }
+            livedMoments.filter { it.source == "meeting" }.take(2) +
+                livedMoments.filter { it.source == "digital-environment" }.take(1) +
+                livedMoments.filter { it.source != "meeting" &&
+                    it.source != "digital-environment" }.take(2)
+        ).distinctBy { it.id }.sortedByDescending { it.occurredAt }
         // The unread cursor is not the end of a conversation. A post already
         // seen yesterday can receive a reply today; give the same character a
         // small, live, ACL-filtered view of those threads in their next normal
