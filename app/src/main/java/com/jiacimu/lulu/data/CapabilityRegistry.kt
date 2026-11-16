@@ -140,6 +140,9 @@ object CapabilityRegistry {
             appendLine("主人统一手机操作授权涵盖微信消息=" +
                 com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId) +
                 "；若已开启，可由本人自主选择是否在微信给谁发什么消息；必须先真实导航至唯一聊天对象，" +
+                "观察结果中的chatHeaderTexts是后台微信标题区的真实可见文字候选；" +
+                "recipient必须与当前真正要发的聊天标题完全一致（例如页面是文件传输助手，就不能把recipient写成主人的昵称）；" +
+                "如果尚未进入想联系的聊天对象，先自行导航到正确会话并重新observe获取新screenSnapshotId，不能在错误会话强行发。" +
                 "用最新screenSnapshotId调用send_chat_message并提供recipient和整段text。" +
                 "微信若是按住说话模式，本机会核对左下键盘图标并一次切换文字模式，再整段输入并读回，" +
                 "无需逐字模型调用或截图；只有核实聊天标题、非搜索输入框读回、发送按钮后才单次派发，点击不等于送达。" +
