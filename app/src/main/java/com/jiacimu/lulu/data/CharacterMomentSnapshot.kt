@@ -143,6 +143,11 @@ internal object PresenceHistoryPresentation {
         messageAnchored: Boolean,
     ): CompanionPresenceState? {
         val at = current?.updatedAt ?: return null
+        // Message avatars carry a frozen delivery snapshot, not a history delta.
+        // The delivery can precede the presence write by seconds, so filtering
+        // history at message.createdAt may exclude that very turn's heart voice.
+        // Never substitute an older heart voice: this is the exact anchor only.
+        if (messageAnchored && current.innerThought.isNotBlank()) return current
         return history.firstOrNull { it.updatedAt == at && it.innerThought.isNotBlank() }
     }
 
@@ -152,6 +157,7 @@ internal object PresenceHistoryPresentation {
         messageAnchored: Boolean,
     ): CompanionPresenceState? {
         val at = current?.updatedAt ?: return null
+        if (messageAnchored && current.momentReflection.isNotBlank()) return current
         return history.firstOrNull { it.updatedAt == at && it.momentReflection.isNotBlank() }
     }
 
