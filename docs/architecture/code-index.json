@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:23:04.536148+00:00",
-  "commit": "329892c54e7ef1348fea55a5ce26c6d7affd0422",
+  "generatedAt": "2026-11-16T03:23:28.942328+00:00",
+  "commit": "149965586ebf034b671c9961ffe51f9729c1017f",
   "branch": "main",
-  "sourceFingerprint": "963f75de0be066fdf2b5c34520857af3a231f15db0082227b9592d390ea046f3",
+  "sourceFingerprint": "f0baf4e363e5e643d8df5ca4972a33999f605d9aef13471accf178e037436850",
   "summary": {
     "files": 1343,
     "lines": 286533,
@@ -23684,7 +23684,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
       "lines": 1610,
-      "sha256": "c737e8e6e7c2f669d638a8a6bd7336d4bbfed641bd1ffb3d8152c011a72c7fa3",
+      "sha256": "390f3e43be9fde57627bd9d1f7a176c2b02926f49666efe84ad796a5869fc903",
       "symbols": [
         {
           "name": "Resident",
