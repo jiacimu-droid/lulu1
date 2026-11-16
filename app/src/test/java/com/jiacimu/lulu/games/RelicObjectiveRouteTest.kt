@@ -196,6 +196,10 @@ class RelicObjectiveRouteTest {
         assertNull(RelicObjectiveGuide.knownRouteSteps(blocked,near))
         assertTrue(RelicObjectiveGuide.knownRouteSteps(blocked,far)!=null)
         assertEquals(8 to 3,RelicObjectiveGuide.visibleChest(blocked)?.let { it.x to it.y })
+        // The primary in-world objective banner must agree with the tactical
+        // HUD; previously it still selected the nearer blocked chest.
+        assertEquals(8 to 3,RelicObjectiveGuide.nextVisible(blocked)?.let { it.x to it.y })
+        assertTrue(RelicObjectiveGuide.prompt(blocked).contains("已探明路线约"))
         assertTrue(blocked.chests.none { it.opened })
         assertEquals(2 to 2,blocked.hero.x to blocked.hero.y)
     }
