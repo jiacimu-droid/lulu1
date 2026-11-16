@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`346dfd3509424cfda22610668537793de9995b5d`
+- 基准提交：`d26e926ec430f5c565fc65749f7aeece36cef6dd`
 - 分支：`main`
 - 已索引文件：1349
-- 已索引代码/文本行：287834
+- 已索引代码/文本行：287868
 - 已发现符号：4064
 
 | 文件 | 行数 | 符号数 |
@@ -921,9 +921,9 @@
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 66 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt` | 59 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
@@ -1256,7 +1256,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 113 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 128 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T04:07:29.970957+00:00",
-  "commit": "346dfd3509424cfda22610668537793de9995b5d",
+  "generatedAt": "2026-11-16T04:08:58.777867+00:00",
+  "commit": "d26e926ec430f5c565fc65749f7aeece36cef6dd",
   "branch": "main",
-  "sourceFingerprint": "86bf86a9b2617eaaa29ad86bf73255f9fe3fccdf790a026babdb1e79d7244f4c",
+  "sourceFingerprint": "3f2fae46d341b2edd9cf09ddeb4058ef5d5d483757f57002b5e4bc52e409818f",
   "summary": {
     "files": 1349,
-    "lines": 287834,
+    "lines": 287868,
     "symbols": 4064
   },
   "symbolIndex": {
@@ -42112,8 +42112,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
-      "lines": 66,
-      "sha256": "8bdbd2b39d9df6034e7032cd56e4b7c66266b32f5cbd9c604b53c4affaea90c3",
+      "lines": 85,
+      "sha256": "5576e856e9b133838f6728423e6ba74c4a96bbbb89901208a4d39e5fd1c62a37",
       "symbols": [
         {
           "name": "MeetingPhysicalStateReducerTest",
@@ -42134,8 +42134,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt",
-      "lines": 36,
-      "sha256": "c06358ef8705b9520c05885f2cd4d8d11b3e6331ff2c730ace4dfdb744563eec",
+      "lines": 50,
+      "sha256": "36831c08d43be5f7064774598d723239ae02c057bbe313e0c84e5e1b71d8e369",
       "symbols": [
         {
           "name": "MeetingSceneDestinationTest",
@@ -46949,8 +46949,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 128,
-      "sha256": "8f83890fb95f7bc972304cffb5a990a02d91e538bf1a9ca0e7eb0e460699148b",
+      "lines": 129,
+      "sha256": "39d53ad766a1b0ae1f5e7077a6e34e6f1f1de35ad875ee5bc6e0306975d0c104",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
