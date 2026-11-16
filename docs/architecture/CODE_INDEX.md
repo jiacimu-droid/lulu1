@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9dd45237c631d4c92707275ef0e015add314e360`
+- 基准提交：`bdad9fcb3a223b053aa26ab4042510ece9138649`
 - 分支：`main`
-- 已索引文件：1366
-- 已索引代码/文本行：291845
-- 已发现符号：4114
+- 已索引文件：1367
+- 已索引代码/文本行：291919
+- 已发现符号：4115
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -986,6 +986,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 299 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 82 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ActorSceneWirePolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterClockAuthorityTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt` | 37 | 1 |

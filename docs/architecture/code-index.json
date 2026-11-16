@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T15:24:17.078013+00:00",
-  "commit": "9dd45237c631d4c92707275ef0e015add314e360",
+  "generatedAt": "2026-11-16T15:25:10.132242+00:00",
+  "commit": "bdad9fcb3a223b053aa26ab4042510ece9138649",
   "branch": "main",
-  "sourceFingerprint": "a23674354fba48f0b280c218d59eea7bd4d9afbe883bcbd330c930b49069113a",
+  "sourceFingerprint": "6cd495e7eebd0121eb56a137df4de71329f75e38a1e44b0b2a67121a6824ec9c",
   "summary": {
-    "files": 1366,
-    "lines": 291845,
-    "symbols": 4114
+    "files": 1367,
+    "lines": 291919,
+    "symbols": 4115
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19337,6 +19337,12 @@
     "WorldLifeEpisodeParagraphsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
+        "line": 5
+      }
+    ],
+    "ActorSceneWirePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/ActorSceneWirePolicyTest.kt",
         "line": 5
       }
     ],
@@ -43288,6 +43294,17 @@
       "symbols": [
         {
           "name": "WorldLifeEpisodeParagraphsTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/ActorSceneWirePolicyTest.kt",
+      "lines": 74,
+      "sha256": "9ab6c1b5114406db63e3c429a74ed14d6e039b33ac52bbc9996d11d712288529",
+      "symbols": [
+        {
+          "name": "ActorSceneWirePolicyTest",
           "line": 5
         }
       ]
