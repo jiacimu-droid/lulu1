@@ -342,7 +342,7 @@ start_house 是你本人决定要不要为玩家亲手盖房以及挑选 warm �
             source="游戏 · 方块小岛自主同行",
             title="方块小岛伙伴自主决策",
             usage=ModelUsage.Game,
-            contextMode=CompanionContextMode.CharacterAndScenario,
+            contextMode=CompanionContextMode.Full,
             maxTokens=320,
         ).mapCatching { parse(it.text) ?: error("游戏模型未返回有效的结构化选择") }
 }
