@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f588a48934fdc5a47343b8d5b75dc89f4cb3a7b3`
+- 基准提交：`962de06f27c4af8d5812190a7c77bf441ece05eb`
 - 分支：`main`
 - 已索引文件：1362
-- 已索引代码/文本行：290778
+- 已索引代码/文本行：290791
 - 已发现符号：4099
 
 | 文件 | 行数 | 符号数 |
@@ -257,7 +257,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1044 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 946 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 952 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -949,7 +949,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 876 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 883 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RainyDioramaOrbitTest.kt` | 37 | 1 |

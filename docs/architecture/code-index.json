@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T12:53:01.599757+00:00",
-  "commit": "f588a48934fdc5a47343b8d5b75dc89f4cb3a7b3",
+  "generatedAt": "2026-11-16T13:05:19.530532+00:00",
+  "commit": "962de06f27c4af8d5812190a7c77bf441ece05eb",
   "branch": "main",
-  "sourceFingerprint": "d8a67fae1cfb99ad23a61ce78fbac0c941f72d32eadcdedf02c203c73ea167cd",
+  "sourceFingerprint": "36eaaecff9dd6173f9cd5845e2715adb60278b29ee06ecdeb279c9c4da0a53f8",
   "summary": {
     "files": 1362,
-    "lines": 290778,
+    "lines": 290791,
     "symbols": 4099
   },
   "symbolIndex": {
@@ -4145,13 +4145,13 @@
     "isAvailable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 652
+        "line": 658
       }
     ],
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 920
+        "line": 926
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
@@ -26367,16 +26367,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 946,
-      "sha256": "08ea2598e0d81f9037eff5a3e9ec32f9960c54db8d2ddf6629702266e7e23d06",
+      "lines": 952,
+      "sha256": "100eb9b92f9e0f4a4a814e32dc0f8ab1dbe0e9b685fe3db1082b3f1cba508af2",
       "symbols": [
         {
           "name": "isAvailable",
-          "line": 652
+          "line": 658
         },
         {
           "name": "render",
-          "line": 920
+          "line": 926
         }
       ]
     },
@@ -42692,8 +42692,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 876,
-      "sha256": "818f1e445c4905480e4da2bd8f75f3b2f28d3d96ec96ac90a7fcf7dfcd810910",
+      "lines": 883,
+      "sha256": "080ee5b86b0bc25fd4cd020d4a3da4803f7f07af2b7bf1f1780e0d6b50746241",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
