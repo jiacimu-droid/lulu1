@@ -59,7 +59,8 @@ class CharacterContinuityGatewayTest {
         server.start()
         try {
             val conn = ModelConnection(server.url("/").toString(), "test-only", "test")
-            // Ordinary chat uses compact inner life; world discussion uses full.
+            // Owner chat and self-directed life both preserve the same full
+            // private psychology; only the world inventory is scene-dependent.
             for (facts in listOf("海边灯塔重新亮起了", "数字世界里的海边灯塔重新亮起了")) {
                 LuluAiServices.gateway.generate(role, facts, "自然回应", "私聊", "test",
                     connectionOverride = conn, contextMode = CompanionContextMode.Full,
@@ -68,7 +69,8 @@ class CharacterContinuityGatewayTest {
                 val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
                 assertTrue(prompt.contains("正在等待：海边灯塔重新亮起"))
                 assertTrue(prompt.contains(hidden.getString("id")))
-                assertEquals(facts.contains("数字世界"), prompt.contains("【角色持续内在生活"))
+                assertTrue("The character must not forget its inner life while chatting",
+                    prompt.contains("【角色持续内在生活"))
             }
             assertEquals(2, server.requestCount)
             assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
