@@ -547,3 +547,9 @@
 - 摸金在已有角色决策里提供附近可见掉落的精确 ID。实际拾取时从地面转到伙伴背包；玩家满包依旧能分工搬运，伙伴实际赶上撤离才计入现有结算。场内开箱入口统一进入已有鉴赏，攻击键可打当前射程合法的敌人，选中地图目标与攻击键各自负责。路线快捷定位留在局内，装备、队伍负重、警戒和细节归原战术页。
 - 视觉参考 MotionSites `faa30d5` 的 Interactive Discovery、3D Collectible Hero、Stillmind，分别借鉴有方向的光层、把展示主体从周围信息里腾出来、安静的边缘控件。小岛用同一地形增加浅滩与水沫对比，摸金用连贯石墙轮廓和随距离渐暗的实景照明。两个 HUD 都让边缘遮罩更轻；本轮只有正式源码修改，尚未取得 Android 真机截图和帧时间。
 - 本地 Kotlin/JUnit 摘取原有五组规则测试运行，共 90 项成功，含同屋施工后重载、满包伙伴捡取后撤离、旧物品抢先取走/未见/超重，模型和时间线服务在本地规则验证中替换为无网络夹具。下一轮核主分支 APK/JVM，再用 Redmi 在低横屏及放大字体下实测两个拇指区、多人语音和场景对比度。
+
+
+## 2026-11-16 G-03.5 · 战术宝箱推荐优先实际可达目标（JVM/APK/真机待验）
+
+- 生产 `919c68c341aba9ce7ad6032f52f89631ee7823db`，`RelicObjectiveGuide.kt` blob `744f283cc76086d5d02926c270978782ce572e09`：原战术 HUD 按曼哈顿距离推荐最近已见宝箱，即使守卫/墙挡住，仍把不可达箱置于可达箱之前；现用既有仅已探明安全地块的 `knownRouteTiles` 排序，优先可达目标，均不可达时保留最近已见箱并明确「路径未探明」。不移动玩家、不揭雾、不改开箱/掉率/角色决策；地图仍由玩家显式选择目标。
+- `RelicObjectiveRouteTest.kt` 测试最终提交 `8df1b6c3a03862dac7fb2cabf76949e2e867c73a`，blob `4b711ab192cca5f62f39a8cf8bf2aa8abf092a4b`：近箱通路被实际守卫占据、远箱可绕行时战术推荐切换，原实体和位置不变。**测试尚未取得 JVM 实际通过证据**；最新 main push 的 JVM/APK/index 与真机另核。下一实际入口：`RelicObjectiveRouteTest.tacticalHudSuggestsReachableChestBeforeCloserBlockedChest` 的 JVM 首错、`RelicEscapeScreen.kt` 战术宝箱点击/镜头定位及 Redmi 横屏目标切换。
