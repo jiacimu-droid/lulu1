@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T13:07:18.235457+00:00",
-  "commit": "32dd3e23eeba9b1dfb49bf3e3de262b862d4a380",
+  "generatedAt": "2026-11-16T13:58:07.092242+00:00",
+  "commit": "9981b455aa6f546090de2605c86b8c2a35753087",
   "branch": "main",
-  "sourceFingerprint": "3002048707cadedcd640044bd68318de8f83e2daf1d5199591acc573839657ed",
+  "sourceFingerprint": "d548498fbe0844fedc3d9cba1e2482df1b7659b8e6208a4c788c25e54ce85dde",
   "summary": {
     "files": 1362,
-    "lines": 290829,
+    "lines": 290826,
     "symbols": 4099
   },
   "symbolIndex": {
@@ -359,7 +359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 121
+        "line": 114
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -15901,37 +15901,37 @@
     "visibleChest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 32
+        "line": 25
       }
     ],
     "visibleExit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 47
+        "line": 40
       }
     ],
     "selectedVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 56
+        "line": 49
       }
     ],
     "optionLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 63
+        "line": 56
       }
     ],
     "knownRouteTiles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 78
+        "line": 71
       }
     ],
     "knownRouteSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-        "line": 119
+        "line": 112
       }
     ],
     "kind": [
@@ -38693,8 +38693,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicObjectiveGuide.kt",
-      "lines": 136,
-      "sha256": "d2bfcd01cae3a1c9a00fee81cfb46da0a6da0af20c17fc2d549be8591f680019",
+      "lines": 129,
+      "sha256": "c77e9062d16b1b733b64aba009b32ea91c82e277522a368a308705a9f8342f9c",
       "symbols": [
         {
           "name": "nextVisible",
@@ -38702,31 +38702,31 @@
         },
         {
           "name": "visibleChest",
-          "line": 32
+          "line": 25
         },
         {
           "name": "visibleExit",
-          "line": 47
+          "line": 40
         },
         {
           "name": "selectedVisible",
-          "line": 56
+          "line": 49
         },
         {
           "name": "optionLabel",
-          "line": 63
+          "line": 56
         },
         {
           "name": "knownRouteTiles",
-          "line": 78
+          "line": 71
         },
         {
           "name": "knownRouteSteps",
-          "line": 119
+          "line": 112
         },
         {
           "name": "prompt",
-          "line": 121
+          "line": 114
         }
       ]
     },
@@ -47724,8 +47724,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-      "lines": 204,
-      "sha256": "e31a6bc95305532d3b4e957bb6a53de7cc7bc04ed341e634ab4749a09476a47a",
+      "lines": 208,
+      "sha256": "6a0f5f190415228c0e8a2349b1d9806524a4bba4e5e39129b0fdb8d7730f1883",
       "symbols": [
         {
           "name": "RelicObjectiveRouteTest",
