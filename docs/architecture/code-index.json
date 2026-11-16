@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T08:34:52.415103+00:00",
-  "commit": "ee8ae694e56d67078b58d76df767fa3edc40f160",
+  "generatedAt": "2026-11-16T08:42:37.324833+00:00",
+  "commit": "ddeaf304685f0466d3484eaa60814ec6d3b916b9",
   "branch": "main",
-  "sourceFingerprint": "b5fdc119deceef0a765010a9f65f7ad335042eb5c41cb054c0b8a726db4837bf",
+  "sourceFingerprint": "38dcf1c6d19a1f7930119390105ce9d56637412b3a79356640db0bfe50432b5e",
   "summary": {
     "files": 1358,
-    "lines": 289918,
+    "lines": 289972,
     "symbols": 4089
   },
   "symbolIndex": {
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 316
+        "line": 335
       }
     ],
     "replyTextPrefix": [
@@ -14709,25 +14709,25 @@
     "recordOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 20
+        "line": 24
       }
     ],
     "recordCompanion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 28
+        "line": 32
       }
     ],
     "recordEngineAcceptedAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 79
+        "line": 83
       }
     ],
     "recentLines": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 107
+        "line": 111
       }
     ],
     "vectorFor": [
@@ -15993,31 +15993,31 @@
     "sendOwnerVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 220
+        "line": 226
       }
     ],
     "sendOwnerSolutionVerdict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 226
+        "line": 232
       }
     ],
     "companionStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 236
+        "line": 242
       }
     ],
     "requestHint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 309
+        "line": 328
       }
     ],
     "startNew": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-        "line": 321
+        "line": 340
       }
     ],
     "walkable": [
@@ -37190,24 +37190,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-      "lines": 115,
-      "sha256": "fd6b8be485a0e04986f6a86f932b0163763bb8bfbe3c7168aa23594e755d5220",
+      "lines": 119,
+      "sha256": "a457f650f10effce9d96279a0f15763b25d5ede120d5f1159e79ae267240e6b0",
       "symbols": [
         {
           "name": "recordOwner",
-          "line": 20
+          "line": 24
         },
         {
           "name": "recordCompanion",
-          "line": 28
+          "line": 32
         },
         {
           "name": "recordEngineAcceptedAction",
-          "line": 79
+          "line": 83
         },
         {
           "name": "recentLines",
-          "line": 107
+          "line": 111
         }
       ]
     },
@@ -38797,8 +38797,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
-      "lines": 654,
-      "sha256": "0b52c1b025cf10c1d8e8c2e7ac3991122a37b2727f5c082c89987b64a0bc8ad9",
+      "lines": 673,
+      "sha256": "5317c20a10248565befb59a23d73a785266c659b64c1155b2ba796aaffb95c39",
       "symbols": [
         {
           "name": "name",
@@ -38822,27 +38822,27 @@
         },
         {
           "name": "sendOwnerVerdict",
-          "line": 220
-        },
-        {
-          "name": "sendOwnerSolutionVerdict",
           "line": 226
         },
         {
+          "name": "sendOwnerSolutionVerdict",
+          "line": 232
+        },
+        {
           "name": "companionStep",
-          "line": 236
+          "line": 242
         },
         {
           "name": "requestHint",
-          "line": 309
+          "line": 328
         },
         {
           "name": "finish",
-          "line": 316
+          "line": 335
         },
         {
           "name": "startNew",
-          "line": 321
+          "line": 340
         }
       ]
     },
@@ -47263,8 +47263,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt",
-      "lines": 94,
-      "sha256": "fd69c4ec1bfe8509a62a994b019373a3bc5bdf7cc0cfe82e3014c42eded770a0",
+      "lines": 125,
+      "sha256": "fb625cb0e7e2404464949170cbd57dc139bfd9731f1886a330b2c8c900ac0223",
       "symbols": [
         {
           "name": "GameTeamConversationTimelineTest",
