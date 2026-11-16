@@ -326,22 +326,28 @@ object CompanionPresenceStore {
     ) {
         if (characterId.isBlank()) return
         val previous = mutableStates.value[characterId]
+        // A new delivered chat turn is a new moment. Absent fields must not
+        // silently import a former activity or mood; phone state persists
+        // only while the real call still owns this character.
+        val freshChatMoment = (source.contains("聊天") || source.contains("群聊")) &&
+            characterId !in activeCalls
         val next = CompanionPresenceState(
             characterId = characterId,
             statusText = (statusText?.trim()?.replace(Regex("\\s+"), " ")?.take(120)
-                ?: previous?.statusText.orEmpty().takeUnless {
-                    source.contains("聊天") && previous?.statusText == "通话已结束"
-                }.orEmpty()).let {
+                ?: previous?.statusText.orEmpty().takeUnless { freshChatMoment }.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
             },
-            gesture = (if (gesture == null) inheritedGesture(previous, now) else gesture.cleanPresence(500).orEmpty()).let {
+            gesture = (if (gesture == null) {
+                if (freshChatMoment) "" else inheritedGesture(previous, now)
+            } else gesture.cleanPresence(500).orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
             },
             gestureVerified = if (gesture != null) gestureVerified
                 else previous?.gestureVerified == true &&
                     inheritedGesture(previous, now) == previous.gesture,
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(1_200).orEmpty(),
-            mood = mood.cleanPresence(80) ?: previous?.mood.orEmpty(),
+            mood = mood?.trim()?.replace(Regex("\\s+"), " ")?.take(80)
+                ?: previous?.mood.orEmpty().takeUnless { freshChatMoment }.orEmpty(),
             updatedAt = now,
             source = source.take(40),
             lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
