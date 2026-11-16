@@ -93,6 +93,52 @@ class DigitalWorldActivityTransitionTest {
             .contains("室外体感约${world.temperatureCelsius}℃"))
     }
 
+    @Test fun ordinaryWorldAmbienceRemainsLivedEvidenceWithoutCreatingShareChores() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val at = now.plusSeconds(300)
+        fun worldTick(kind: String, status: String = "resolved"): DigitalWorldLifeTick =
+            DigitalWorldLifeTick(
+                incidentId = "living-${java.util.UUID.randomUUID()}",
+                locationCode = DigitalWorldPublicPlaces.CAFE,
+                locationName = "浮光咖啡角",
+                kind = kind,
+                anchorItemId = "",
+                anchorItemName = "",
+                status = status,
+                stage = 0,
+                summary = "角色真正见过的一次${kind}小场景",
+                occurredAt = at,
+            )
+
+        val ordinary = worldTick("warm_mist")
+        assertFalse(DigitalWorldLifeEventStore.warrantsLifeFollowThrough(ordinary))
+        val ordinaryId = DigitalWorldLifeEventStore.recordObservedTick(role, ordinary)
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(ordinaryId)).any {
+            it.evidenceKind == EventEvidenceKind.Observation &&
+                it.source == "digital-world" && it.content == ordinary.summary
+        })
+        assertFalse(CharacterLifeFollowThroughStore.auditSnapshot(role).any {
+            it.optString("id") == ordinaryId
+        })
+        assertTrue(CharacterEverydaySocialContext.render(role, at.plusSeconds(1), emptyList())
+            .contains(ordinary.summary))
+
+        // A real bodily surprise remains a possible personal follow-up, never
+        // a pre-authorized post. An unresolved incident is also significant.
+        val sneeze = worldTick("digital_sneeze")
+        assertTrue(DigitalWorldLifeEventStore.warrantsLifeFollowThrough(sneeze))
+        val sneezeId = DigitalWorldLifeEventStore.recordObservedTick(role, sneeze, at.plusSeconds(1))
+        assertTrue(CharacterLifeFollowThroughStore.auditSnapshot(role).any {
+            it.optString("id") == sneezeId
+        })
+        val incident = worldTick("surface_ripple", status = "active")
+        assertTrue(DigitalWorldLifeEventStore.warrantsLifeFollowThrough(incident))
+        val incidentId = DigitalWorldLifeEventStore.recordObservedTick(role, incident, at.plusSeconds(2))
+        assertTrue(CharacterLifeFollowThroughStore.auditSnapshot(role).any {
+            it.optString("id") == incidentId && it.optBoolean("significant")
+        })
+    }
+
     @Test fun rejectedActionDoesNotEndRestOrCreateAWorldOutcome() {
         val before = activity()
         val body = CharacterLifeStore.bodyState(role).toString()
