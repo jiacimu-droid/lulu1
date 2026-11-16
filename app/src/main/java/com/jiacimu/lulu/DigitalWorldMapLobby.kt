@@ -96,6 +96,7 @@ internal fun DigitalWorldMapLobby(
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     var openSceneCode by remember { mutableStateOf<String?>(null) }
     var walkingStreet by remember(launchInStreet) { mutableStateOf(launchInStreet) }
+    var streetEntryCode by remember { mutableStateOf<String?>(null) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showRelationships by remember { mutableStateOf(false) }
@@ -267,6 +268,7 @@ internal fun DigitalWorldMapLobby(
                         openScene(code)
                     },
                     onReturnToAtlas = { walkingStreet = false },
+                    spawnAtLocationCode = streetEntryCode,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
             } else DigitalWorldMapPage(
@@ -296,6 +298,7 @@ internal fun DigitalWorldMapLobby(
                     onCharacterClick = { talkTo(it, activeSceneLabel ?: "数字世界") },
                     controlsBottomPadding = 92.dp,
                     onExitToStreet = {
+                        streetEntryCode = activeSceneCode
                         openSceneCode = null
                         walkingStreet = true
                     },
