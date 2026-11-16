@@ -727,6 +727,13 @@ object SharedExperienceTimeline {
         if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
         else query(characterId, limit, sessionId).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Query speech BEFORE applying the limit: game combat/movement/tool ticks must
+     * not evict the latest actual player/companion dialogue from a live session. */
+    fun sessionStatementEvents(characterId: String, sessionId: String, limit: Int = 12): List<SharedTimelineEvent> =
+        if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
+        else query(characterId, limit, sessionId, statementOnly = true)
+            .sortedBy(SharedTimelineEvent::occurredAt)
+
     fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
         val events = recentEvents(characterId, limit)
         if (events.isEmpty()) return ""
