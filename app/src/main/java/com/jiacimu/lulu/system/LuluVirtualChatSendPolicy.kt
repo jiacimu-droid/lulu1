@@ -135,6 +135,29 @@ internal object LuluVirtualChatSendPolicy {
         val clickable: Boolean,
     )
 
+    /** WeChat may expose text, TextView and clickable wrapping layout for
+     * one press-to-talk bar. Treat overlapping bottom rectangles as one
+     * physical composer, but never merge separated chat-history labels. */
+    fun uniqueVoiceComposer(
+        regions: List<ComposerBounds>, screenWidth: Int, screenHeight: Int,
+    ): ComposerBounds? {
+        if (screenWidth <= 0 || screenHeight <= 0) return null
+        val eligible = regions.distinct().filter {
+            it.width >= screenWidth / 3 && it.height > 0 &&
+                it.centerY >= screenHeight / 2 &&
+                it.left >= 0 && it.right <= screenWidth
+        }
+        val smallest = eligible.minByOrNull { it.width.toLong() * it.height }
+            ?: return null
+        // Nested accessibility wrappers need not have identical rectangles.
+        // They must still overlap the SAME physical input row.
+        if (eligible.any { other ->
+                maxOf(smallest.left, other.left) >= minOf(smallest.right, other.right) ||
+                    maxOf(smallest.top, other.top) >= minOf(smallest.bottom, other.bottom)
+            }) return null
+        return smallest
+    }
+
     /** The keyboard toggle is the compact control immediately LEFT of a
      * verified bottom press-to-talk composer. Never use a fixed coordinate,
      * guess an unidentified page button, or select a Send/Add control. */
