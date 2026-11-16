@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:19:32.507032+00:00",
-  "commit": "47043fb6b668e0cf657b6062bd1d2c679306ebe4",
+  "generatedAt": "2026-11-16T03:21:59.641809+00:00",
+  "commit": "dac50f7cb22b7674c2d10e73b2f82e9895894e05",
   "branch": "main",
-  "sourceFingerprint": "5e43894e003297c26d7a45f852f1288bef2405b63b3b96dd8fbade2fa8c3a6c4",
+  "sourceFingerprint": "43c8102dbf6bb02aa6d573aa20621baecb2af875c164e6680721953f3195ef6a",
   "summary": {
     "files": 1343,
-    "lines": 286412,
-    "symbols": 4045
+    "lines": 286449,
+    "symbols": 4046
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3496,6 +3496,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
         "line": 71
+      }
+    ],
+    "reachedSceneItem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 107
       }
     ],
     "apply": [
@@ -25305,8 +25311,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 123,
-      "sha256": "7a7698acda996248c90d2942c7f4a5b367667d3c298fc59385bb98309c90d0a8",
+      "lines": 160,
+      "sha256": "3a27f087dac64f1acc157208cbffa9c74cea4318eb8202dbb165973eb6176f8f",
       "symbols": [
         {
           "name": "PendingTouch",
@@ -25335,6 +25341,10 @@
         {
           "name": "physicalAction",
           "line": 71
+        },
+        {
+          "name": "reachedSceneItem",
+          "line": 107
         }
       ]
     },
