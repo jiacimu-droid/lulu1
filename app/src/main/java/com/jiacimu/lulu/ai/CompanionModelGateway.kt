@@ -815,6 +815,19 @@ class CompanionModelGateway(
                     characterId, request.currentInput, includeMotives = false,
                     excludedEventIds = request.unavailableEventIds)
             else ""
+            // The same live digital-world social observations are available to
+            // real character decisions in a call, private/group chat, meeting,
+            // game or spontaneous life. Previously ONLY the background worker
+            // supplied this view, making other scenes seem like another person.
+            // The view is read-only, actor/ACL scoped and selected inside the
+            // existing bounded working-set; never purchase an extra model turn.
+            // Workers that already handed off this exact observed view do not
+            // need a duplicate.
+            val socialAwarenessSection = if (fullContext &&
+                com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId) &&
+                !facts.contains("【自己的数字世界来往｜真实事件与可选的下一步】"))
+                com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
+            else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
                     characterId, compact = !budget.richInnerLife,
@@ -836,7 +849,8 @@ class CompanionModelGateway(
                 com.jiacimu.lulu.data.CharacterLearningLedger.context(characterId, request.actionContext, compact = true)
             else ""
             val auxiliary = listOf("当前状态" to presenceSection, "跨场景连续性锚点" to continuitySection,
-                "成长与持续动机" to developmentSection, "已读材料与可修订的理解" to learningSection)
+                "成长与持续动机" to developmentSection, "已读材料与可修订的理解" to learningSection,
+                "本人可见的社交与数字世界现场" to socialAwarenessSection)
             val working = if (fullContext) com.jiacimu.lulu.data.MemoryWorkingSet.assemble(
                 unifiedMemory, lexicon, auxiliary, budget, deliveredCoreSection) else null
             val memorySections = if (working != null) listOf(
