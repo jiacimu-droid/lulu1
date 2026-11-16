@@ -128,7 +128,7 @@ internal fun meetingValidatedDestinationItemId(
 internal fun meetingValidatedDestinationActivityId(candidate: String, allowedIds: Set<String>): String =
     candidate.trim().takeIf { it in allowedIds }.orEmpty()
 
-internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingSceneSnapshot? {
+internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull(), atRequest: MeetingSceneSnapshot? = null): MeetingSceneSnapshot? {
     json ?: return null
     val allowedIds = listOf("user") + session.participantIds.distinct()
     val before = MeetingExperienceStore.sceneFor(session)
@@ -195,7 +195,7 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
         location = session.location,
         ambience = json.optString("ambience").trim().take(500).ifBlank { before.ambience },
         participants = allowedIds.map { proposed[it] ?: beforeById[it] ?: MeetingParticipantSceneState(it) },
-        updatedAt = Instant.now(),
+        updatedAt = atRequest?.updatedAt ?: Instant.now(),
     )
 }
 
@@ -207,7 +207,12 @@ internal fun meetingAuthoritativeSceneV2(
     val current = MeetingExperienceStore.sceneFor(session)
     val allowedIds = listOf("user") + session.participantIds.distinct()
     val currentById = current.participants.associateBy(MeetingParticipantSceneState::participantId)
-    val proposalById = proposal?.participants.orEmpty().associateBy(MeetingParticipantSceneState::participantId)
+    // Physical changes recorded during remote generation outrank stale fiction
+    // from the beginning of that request. Keep the actual user touch/position,
+    // completed furniture action and elected companion movement intact.
+    val stale = proposal != null && current.updatedAt.isAfter(proposal.updatedAt)
+    val proposalById = if (stale) emptyMap()
+        else proposal?.participants.orEmpty().associateBy(MeetingParticipantSceneState::participantId)
     return MeetingSceneSnapshot(
         location = session.location,
         ambience = proposal?.ambience?.takeIf(String::isNotBlank) ?: current.ambience,
@@ -330,7 +335,7 @@ internal suspend fun meetingGenerateReplyV2(
             },
         ),
     ).getOrThrow()
-    meetingGuardRelationshipV2(meetingParseReplyV2(result.text, session, characterId), characterId)
+    meetingGuardRelationshipV2(meetingParseReplyV2(result.text, session, characterId, sceneBefore), characterId)
 }
 
 /** Keep visible dialogue and the audio track consistent before either is delivered. */
@@ -361,7 +366,7 @@ internal fun meetingGuardRelationshipV2(reply: MeetingV2Reply, characterId: Stri
         dialogue = role.filter { it.type == MeetingSegmentType.DIALOGUE }.joinToString("\n") { it.text })
 }
 
-internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingV2Reply {
+internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull(), atRequest: MeetingSceneSnapshot? = null): MeetingV2Reply {
     val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim().let { value ->
         val start = value.indexOf('{')
         val end = value.lastIndexOf('}')
@@ -408,7 +413,7 @@ internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondin
                 json.optJSONObject("appraisal"), json.optJSONObject("innerLife"),
             ) != null
         }.orEmpty(),
-        sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session, respondingCharacterId),
+        sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session, respondingCharacterId, atRequest),
         appraisal = json.optJSONObject("appraisal"),
         innerLife = json.optJSONObject("innerLife"),
         decisionReason = json.optString("reason").ifBlank { json.optString("decisionReason") }.trim().take(240),
