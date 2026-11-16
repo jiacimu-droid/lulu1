@@ -266,6 +266,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             else -> "❤ ${run.hero.hp}/10 · ◇${run.value}"
         },
         companionCenterBottom = true,
+        companionFullScreen = true,
         toolsFromTop = true,
         healthFraction = run?.hero?.hp?.div(10f),
         secondaryFraction = run?.let { state ->
