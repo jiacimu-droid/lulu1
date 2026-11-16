@@ -86,7 +86,7 @@ internal object SelfTodoRoleRead {
             if (scope == "all" && future.isNotEmpty()) {
                 append("\n以后安排：")
                 future.forEach { item ->
-                    append("\n- ${item.date} ${item.task.title.take(68)}")
+                    append("\n- ${item.date} ${item.task.title}")
                 }
             }
             append("\n重要：所行是主人自行填写的计划与勾选，不等于已证实的学习时长、专注状态或睡眠；核实要依真实计时记录和主人同意的监督观察。")
