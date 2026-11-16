@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T14:25:20.617289+00:00",
-  "commit": "a134c7f11e3725d4c99e8aaf15c0f99eb87d499b",
+  "generatedAt": "2026-11-16T14:25:53.222981+00:00",
+  "commit": "9bc774647d9a472523aec359f300c222eed6f841",
   "branch": "main",
-  "sourceFingerprint": "0a371fc746570c3fbb6a465ccc9dcb6cb460c18780be8f194cd870ddd272c25e",
+  "sourceFingerprint": "746f694ac91aa92dd7800a4d93de9598bfc3132703710c3a2bd82dee5be2e293",
   "summary": {
     "files": 1362,
-    "lines": 291205,
+    "lines": 291233,
     "symbols": 4104
   },
   "symbolIndex": {
@@ -19157,13 +19157,13 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 214
+        "line": 213
       }
     ],
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 188
+        "line": 186
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
@@ -42942,8 +42942,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 265,
-      "sha256": "1d38b734d850935a4c020747c4f35efa6f174df6acd1284dbebaa80a7fe63497",
+      "lines": 293,
+      "sha256": "5bd724c4315265f615c51e341d30c0c9787a7fb43c09f1bbe482bd5ae62783cd",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
@@ -42955,11 +42955,11 @@
         },
         {
           "name": "item",
-          "line": 188
+          "line": 186
         },
         {
           "name": "task",
-          "line": 214
+          "line": 213
         }
       ]
     },
