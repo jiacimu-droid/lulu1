@@ -72,7 +72,11 @@ internal object RelicEscapeWorld {
         // Three seeded, connected silhouettes rather than a uniform shuffle of
         // isolated floor tiles. These are playable rooms, not just recolours.
         // Existing guaranteed passages remain open in every layout.
-        when(((seed xor (level*127)) and Int.MAX_VALUE)%3) {
+        val architecture=((seed xor (level*127)) and Int.MAX_VALUE)%3
+        val architectureName=when(architecture) {
+            0->"中央穹厅";1->"回环长廊";else->"错层宝库"
+        }
+        when(architecture) {
             0 -> { // broad central atrium, with open sight lines
                 for(yy in 5..9)for(xx in 7..11)carve(xx,yy)
                 for(xx in 5..13)carve(xx,7)
@@ -232,7 +236,8 @@ internal object RelicEscapeWorld {
             RelicActor("player",2,2,kits=kits),allies,chests,mobs,emptyList(),
             exit.first,exit.second,weapon=weapon,sites=sites,satchelLevel=satchelLevel.coerceIn(0,2),
             weapons=loadout,equipped=startingWeapon.takeIf{it in loadout} ?: "blade",
-            notice="深入遗迹。远处有一处绿色撤离信标。",difficulty=difficulty)
-        return RelicEscapeRules.reveal(run).log("player","enter","进入第"+level+"层遗迹，同行"+allies.size+"人")
+            notice="踏入"+architectureName+"。探索墙后机关与隐藏道路。",difficulty=difficulty)
+        return RelicEscapeRules.reveal(run).log("player","enter",
+            "进入第"+level+"层·"+architectureName+"，同行"+allies.size+"人")
     }
 }
