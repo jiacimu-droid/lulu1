@@ -130,32 +130,57 @@ object RecentSemanticTimeline {
      * An activity gives its opening, most recent steps and verified ending;
      * all omitted action receipts remain retrievable by their original IDs.
      */
-    fun render(turn: Turn, budget: Int = 1_600): String {
+    fun render(turn: Turn, budget: Int = 1_600, focus: String = ""): String {
         if (budget < 90 || turn.events.isEmpty()) return ""
         val evidence = turn.events.filter { it.source != "presence" }
-        val moments = if (turn.kind == Kind.EXPERIENCE && evidence.size > 5) {
-            (evidence.take(1) + evidence.takeLast(4)).distinctBy { it.id }
+        if (evidence.isEmpty()) return ""
+        // A short old-episode preview should contain its ACTUAL outcome, not
+        // five half-rendered movement receipts with no result.
+        val maxMoments = when {
+            budget < 260 -> 1
+            budget < 500 -> 2
+            else -> 5
+        }
+        val moments = if (turn.kind == Kind.EXPERIENCE && evidence.size > maxMoments) {
+            if (maxMoments == 1) evidence.takeLast(1)
+            else (evidence.take(1) + evidence.takeLast(maxMoments - 1)).distinctBy { it.id }
         } else evidence
         val heading = when (turn.kind) {
-            Kind.SPEECH -> "【完整交流｜${turn.events.size}条原始片段】"
-            Kind.EXPERIENCE -> "【同一经历｜${evidence.size}条原始事件；未列出的步骤仍保存在原始时间线】"
+            Kind.SPEECH -> "【完整交流｜${evidence.size}条发言】"
+            Kind.EXPERIENCE -> "【同一经历｜${evidence.size}条原始事件；以下为真实片段】"
             Kind.SINGLE -> "【原始事实】"
         }
         val b = StringBuilder(heading)
         val room = budget - heading.length
-        if (room <= 80) return ""
-        val perEvent = (room / moments.size.coerceAtLeast(1)).coerceAtMost(650).coerceAtLeast(70)
+        if (room <= 50) return ""
+        val perEvent = (room / moments.size.coerceAtLeast(1)).coerceAtMost(650).coerceAtLeast(50)
+        var written = 0
         for (event in moments) {
-            val prefix = "\n- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}]" +
+            // Very old previews are intentionally compact. The unabridged
+            // event ID and revision remain in the original ledger and recall;
+            // larger previews retain explicit IDs to aid inspection.
+            val prefix = if (budget < 300)
+                "\n- [${event.occurredAt}] ${event.speaker}："
+            else "\n- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}]" +
                 " eventId=${event.id}@${event.revision} ${event.speaker}："
             val left = budget - b.length - prefix.length
-            if (left < 35) break
+            if (left < 12) break
             val raw = event.evidenceContent.replace("\n", " ")
-            val max = minOf(perEvent, left, raw.length)
-            if (max <= 0) continue
-            b.append(prefix).append(raw.take(max))
-            if (max < raw.length && b.length < budget) b.append("…")
+            val limit = minOf(perEvent, left, raw.length)
+            if (limit <= 0) continue
+            val span = if (raw.length > limit && focus.isNotBlank())
+                OriginalEvidenceSpans.ranked(raw, focus, maxSpans = 6)
+                    .maxByOrNull { it.relevance }
+                    ?.takeIf { it.relevance > 0 } else null
+            val excerpt = span?.text ?: raw
+            val offsetNote = if (span != null && span.start > 0 && budget >= 300)
+                "【原文字符${span.start + 1}起的片段】" else ""
+            val available = (limit - offsetNote.length).coerceAtLeast(0)
+            if (available == 0) continue
+            b.append(prefix).append(offsetNote).append(excerpt.take(available))
+            written++
+            if (available < excerpt.length && b.length < budget) b.append("…")
         }
-        return b.toString()
+        return if (written == 0) "" else b.toString()
     }
 }
