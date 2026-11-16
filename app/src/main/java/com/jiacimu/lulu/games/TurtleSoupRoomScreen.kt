@@ -67,6 +67,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
     var input by remember(room.id) { mutableStateOf("") }
     var composingQuestion by remember(room.id) { mutableStateOf(true) }
     var composingSolution by remember(room.id) { mutableStateOf(false) }
+    var caseSearch by remember(room.id) { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
     var confirmReveal by remember { mutableStateOf(false) }
@@ -396,7 +397,28 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             fontWeight = FontWeight.SemiBold)
                         Text("按自己的喜好选题；开始前不会调用队友模型。",
                             color = Color(0xFFB9C7D9), fontSize = 12.sp)
-                        SoupLibrary.cases.chunked(2).forEach { pair ->
+                        OutlinedTextField(
+                            value = caseSearch, onValueChange = { caseSearch = it },
+                            modifier = Modifier.fillMaxWidth(), maxLines = 1,
+                            label = { Text("搜索名称、类型或难度") },
+                            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                        )
+                        TextButton(onClick = {
+                            val played = state.records.filter { it.type == LuluGameType.TurtleSoup }
+                                .map { it.title.removePrefix("海龟汤 · ") }.toSet()
+                            val unseen = SoupLibrary.cases.filterNot { it.title in played }
+                            val selection = (unseen.ifEmpty { SoupLibrary.cases }).random()
+                            commit(room.copy(caseId = selection.id))
+                            caseSearch = ""
+                        }) { Text("随机一碗没玩过的汤", color = gold) }
+                        Text("共 " + SoupLibrary.cases.size + " 碗原创汤",
+                            color = Color(0xFFB9C7D9), fontSize = 12.sp)
+                        val filteredCases = SoupLibrary.cases.filter { candidate ->
+                            caseSearch.isBlank() || candidate.title.contains(caseSearch, ignoreCase = true) ||
+                                candidate.category.contains(caseSearch, ignoreCase = true) ||
+                                candidate.difficulty.contains(caseSearch, ignoreCase = true)
+                        }
+                        filteredCases.chunked(2).forEach { pair ->
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 pair.forEach { candidate ->
                                     FilterChip(
@@ -447,6 +469,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             SoupKind.ANSWER -> "裁定"
                             SoupKind.QUESTION -> "提问"
                             SoupKind.DISCUSSION -> "讨论"
+                            SoupKind.SOLUTION -> "还原真相"
+                            SoupKind.SOLUTION_RESULT -> "还原裁定"
                         } + "  #" + (index + 1),
                             color = gold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Text(line.text, color = Color.White, fontSize = 14.sp, lineHeight = 21.sp)
@@ -457,7 +481,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                 item {
                     Surface(color = Color(0xFF2A3446), shape = RoundedCornerShape(18.dp)) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                            Text("真相揭晓", color = gold, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(if (room.solved) "还原成功 · 完整汤底" else "主动揭晓 · 完整汤底",
+                                color = gold, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             Text(room.puzzle.truth, color = Color.White, fontSize = 14.sp, lineHeight = 23.sp)
                             Text("本局原始问答与讨论已随游戏记录保存。", color = Color(0xFFB9C7D9), fontSize = 11.sp)
                         }
@@ -489,6 +514,26 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                             }
                         }
                     }
+                    if (room.host == SoupHost.USER && room.pendingSolution >= 0) {
+                        Text("同伴提交了完整真相：" + room.lines[room.pendingSolution].text,
+                            color = gold, fontSize = 12.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            TextButton(onClick = { sendOwnerSolutionVerdict(true) }, enabled = !busy) {
+                                Text("还原成功", color = gold)
+                            }
+                            TextButton(onClick = { sendOwnerSolutionVerdict(false) }, enabled = !busy) {
+                                Text("还差一点", color = gold)
+                            }
+                        }
+                    }
+                    if (room.host != SoupHost.USER && room.pendingSolution >= 0 && !busy) {
+                        TextButton(onClick = {
+                            busy = true
+                            scope.launch {
+                                try { judgeSolution(room.pendingSolution) } finally { busy = false }
+                            }
+                        }) { Text("重试完整真相核验", color = gold) }
+                    }
                     if (room.host != SoupHost.USER && room.pendingQuestion >= 0 && !busy) {
                         TextButton(onClick = {
                             busy = true
@@ -499,16 +544,22 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     }
                     if (room.host != SoupHost.USER) {
                         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            FilterChip(selected = composingQuestion, onClick = { composingQuestion = true },
-                                label = { Text("向主持人提问") })
-                            FilterChip(selected = !composingQuestion, onClick = { composingQuestion = false },
-                                label = { Text("跟同伴讨论") })
+                            FilterChip(selected = !composingSolution && composingQuestion,
+                                onClick = { composingQuestion = true; composingSolution = false },
+                                label = { Text("提问") })
+                            FilterChip(selected = !composingSolution && !composingQuestion,
+                                onClick = { composingQuestion = false; composingSolution = false },
+                                label = { Text("讨论") })
+                            FilterChip(selected = composingSolution,
+                                onClick = { composingSolution = true },
+                                label = { Text("还原真相") })
                         }
                     }
                     OutlinedTextField(
                         value = input,
                         onValueChange = { input = it },
                         label = { Text(if (room.host == SoupHost.USER) "以主持人身份讨论" else
+                            if (composingSolution) "完整描述你推出来的原因和过程" else
                             if (composingQuestion) "用是/否能回答的问题" else "说出你的想法") },
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 3,
@@ -517,13 +568,14 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = ::sendOwner, enabled = input.isNotBlank() && !busy &&
-                            room.pendingQuestion < 0, modifier = Modifier.weight(1f),
+                            room.pendingQuestion < 0 && room.pendingSolution < 0,
+                            modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = gold, contentColor = background)) {
                             Text(if (busy) "思考中" else "发送")
                         }
                         if (room.guessers.isNotEmpty()) {
                             TextButton(onClick = { remainingAutonomousSteps = 3; companionStep() },
-                                enabled = !busy && room.pendingQuestion < 0) {
+                                enabled = !busy && room.pendingQuestion < 0 && room.pendingSolution < 0) {
                                 Text("让同伴思考", color = gold, fontSize = 12.sp)
                             }
                         }
