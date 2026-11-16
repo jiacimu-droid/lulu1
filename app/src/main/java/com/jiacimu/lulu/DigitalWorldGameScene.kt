@@ -1010,6 +1010,12 @@ internal fun DigitalWorldGameScene(
                             }
                             stateStore.saveCompanionship(handHoldingId, requestedFollowers,
                                 suspendedFollowers)
+                            if (proposal.action == "offer_hand") {
+                                // The owner explicitly accepted the actor's offer.
+                                // Commit to the same meeting physical/timeline ledger,
+                                // rather than relying on model-invented contact.
+                                onPhysicalInteraction?.invoke(proposal.characterId, "ACCEPT_HAND_OFFER")
+                            }
                         }
                     }) { Text("接受") }
                 },
