@@ -116,4 +116,64 @@ class TurtleSoupRoomTest {
         assertFalse(restored.publicContext().contains(restored.puzzle.truth))
     }
 
+    @Test fun fullSolutionMayFailWithoutSpoilingTruthAndThenSucceedAfterReopen() {
+        val initial = SoupRoom(caseId = "caption_sos", started = true,
+            companions = listOf("jiangdu"), host = SoupHost.AI)
+        val submitted = initial.copy(lines = listOf(
+            SoupLine("你", SoupKind.QUESTION, "画面是在实时拍摄吗？"),
+            SoupLine("固定主持人", SoupKind.ANSWER, "否", 0),
+            SoupLine("江渡", SoupKind.DISCUSSION, "也许是一段录制"),
+            SoupLine("你", SoupKind.SOLUTION, "这段直播可能是录好的"),
+        ))
+        assertEquals(3, submitted.pendingSolution)
+        assertEquals(-1, submitted.pendingQuestion)
+        assertEquals(1, submitted.solutionAttempts)
+        assertFalse(submitted.publicContext().contains(submitted.puzzle.truth))
+
+        val failed = submitted.copy(lines = submitted.lines +
+            SoupLine("固定主持人", SoupKind.SOLUTION_RESULT, "还差一点 · 核心因果没解释完整", 3))
+        assertEquals(-1, failed.pendingSolution)
+        assertFalse(failed.revealed)
+        assertFalse(failed.solved)
+
+        val retry = failed.copy(lines = failed.lines + SoupLine("你", SoupKind.SOLUTION,
+            "这其实是预录的画面，主播通过录制时留下的硬字幕求救"))
+        assertEquals(5, retry.pendingSolution)
+        val victory = retry.copy(lines = retry.lines + SoupLine(
+            "固定主持人", SoupKind.SOLUTION_RESULT, "还原成功", 5
+        ), revealed = true, solved = true)
+        val restored = SoupRoom.fromJson(victory.toJson())!!
+        assertEquals(victory, restored)
+        assertTrue(restored.solved)
+        assertEquals(2, restored.solutionAttempts)
+        assertEquals(-1, restored.pendingSolution)
+        assertTrue(restored.publicContext().contains("核心因果没解释完整"))
+    }
+
+    @Test fun strictFinalJudgeJsonRejectsAmbiguousOrNonBooleanDecisions() {
+        assertEquals(SoupSolutionJudgment(true, "你说清楚了字幕求救与预录直播"),
+            parseSoupSolutionJudgment("""{"correct":true,"feedback":"你说清楚了字幕求救与预录直播"}"""))
+        assertEquals(SoupSolutionJudgment(false, "你还缺少核心原因"),
+            parseSoupSolutionJudgment("""{"correct":false,"feedback":"你还缺少核心原因"}"""))
+        assertNull(parseSoupSolutionJudgment("可能猜对了"))
+        assertNull(parseSoupSolutionJudgment("""{"correct":"true","feedback":"猜对"}"""))
+        assertNull(parseSoupSolutionJudgment("""{"correct":true}"""))
+        assertEquals(SoupCompanionDecision("solve", "这不是实时画面"),
+            parseSoupCompanionDecision("""{"type":"solve","text":"这不是实时画面"}"""))
+    }
+
+    @Test fun expandedOriginalCasesAreStableUniqueAndWellFormed() {
+        assertEquals(28, SoupLibrary.cases.size)
+        val ids = SoupLibrary.cases.map { it.id }
+        assertEquals(ids.size, ids.distinct().size)
+        assertTrue(SoupLibrary.cases.count { it.category.contains("惊悚") || it.category.contains("恐怖") } >= 3)
+        SoupLibrary.cases.forEach { puzzle ->
+            assertTrue("短汤面: " + puzzle.id, puzzle.surface.length >= 25)
+            assertTrue("解释过短: " + puzzle.id, puzzle.truth.length >= 50)
+            assertTrue("缺渐进提示: " + puzzle.id, puzzle.hints.size >= 3)
+            assertTrue("有空提示: " + puzzle.id, puzzle.hints.none { it.isBlank() })
+            assertEquals(puzzle, SoupLibrary.find(puzzle.id))
+        }
+    }
+
 }
