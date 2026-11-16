@@ -1,3 +1,9 @@
+## 2026-11-17 · P-03.1 Relay 内存 503 的真实重发请求
+
+- [178db89](https://github.com/jiacimu-droid/lulu1/commit/178db89222ae9620da396552513d90dde856a3a5) 新增 `ConversationExpressionGatewayTest.relayMemoryGuardRetryKeepsTheSameActorAndCompleteUserTurn`。已有 `RelayRequestPressurePolicyTest` 只验证投影和分类。新增回归让真实网关首个 HTTP 被明确的 Relay 内存 503 拒收，同一请求仅重发一次。重发体确实更小，仍含角色身份、稳定人格、本人手改条件/否定、现场日程事实和完整的最新用户原话，未带入另一个角色的约定。网关返回的模型决定原文等于模拟响应。仅补回归，生产路径和普通请求调用次数没有变化。
+- 精确 SHA 的[原索引 #43980745996](https://github.com/jiacimu-droid/lulu1/actions/runs/43980745996) 成功，[JVM/APK #43980745968](https://github.com/jiacimu-droid/lulu1/actions/runs/43980745968) 确认该回归及上一轮私聊/自主感知回归均通过。全量 3309 项，1 项失败、1 项跳过，唯一失败是改动前 [#43963049059](https://github.com/jiacimu-droid/lulu1/actions/runs/43963049059) 已失败的 `RecentSemanticTimelineTest.hundredRelicActionsDoNotEvictRealConversationAndGameSpeechCountsSeparately`，APK 未发布。上轮精确 [#43961397263](https://github.com/jiacimu-droid/lulu1/actions/runs/43961397263) 的跨入口用例也复核通过。真机、实际中转和真实模型质量仍待验。
+- 下一步打开 `CompanionModelGateway.openAiCompatible` 内的 `shouldRetryWithoutStreaming` 和 `PhoneModelTransportPolicyTest`，核电话遇明确不支持流式、普通拒绝或取消时，实际 HTTP 回退是否保留原本人、语音转写及决定；已有覆盖则只做缺少的失败反例。已验的 503 重发用例不重做。
+
 ## 2026-11-17 · P-08b.1 无新消息的自主感知与私聊共用人物栏目
 
 - [36063ce](https://github.com/jiacimu-droid/lulu1/commit/36063cec7ddb0881709ac77483f1afeb6c41cc17) 扩展 `ConversationExpressionGatewayTest.normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers`。现有 `ActorSceneWirePolicyTest` 已验装配函数，原 HTTP 回归只走私聊；本次同一角色完成私聊并清除未读后，再用正式 `ProactivePerceptionRuntime.runDueCycle` 手动唤醒无新消息的自主决定，直接检查第二次 HTTP。
