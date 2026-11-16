@@ -2687,8 +2687,12 @@ class LuluVoiceCallService : Service(), androidx.lifecycle.LifecycleOwner {
     }
 }
 
-private fun buildCallHistory(messages: List<LuluChatMessage>, characterName: String): String = messages
-    .filter { it.sender != LuluChatMessage.Sender.System }
+internal fun buildCallHistory(messages: List<LuluChatMessage>, characterName: String): String = messages
+    // Audible bedtime prose stays in the conversation transcript for the owner.
+    // It is not the person's ordinary spoken life or an example to imitate
+    // after waking. SleepNarrativeStore separately supplies same-call bedtime
+    // story continuity only while bedtime mode is enabled.
+    .filter { it.sender != LuluChatMessage.Sender.System && !it.id.startsWith("voice-sleep-") }
     .takeLast(24)
     .joinToString("\n") { message ->
         val role = if (message.sender == LuluChatMessage.Sender.User) "用户" else characterName
