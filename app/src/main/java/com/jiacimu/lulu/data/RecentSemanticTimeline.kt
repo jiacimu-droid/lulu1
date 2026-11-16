@@ -76,6 +76,11 @@ object RecentSemanticTimeline {
         val pendingUser = mutableMapOf<String, String>()
         val idToTurn = mutableMapOf<String, String>()
         val unlinkedPresence = mutableListOf<SharedTimelineEvent>()
+        // Persistent island worlds reuse one seed across days. Only continuous
+        // play belongs to one visit; an actual long inactivity gap starts the
+        // next visit without changing or deleting any original game state.
+        val islandLastAction = mutableMapOf<String, Instant>()
+        val islandVisit = mutableMapOf<String, Int>()
 
         fun accept(key: String, kind: Kind, event: SharedTimelineEvent) {
             groups.getOrPut(key) { mutableListOf() }.add(event)
@@ -100,7 +105,15 @@ object RecentSemanticTimeline {
                 accept(key, Kind.SPEECH, event)
                 continue
             }
-            val key = experienceKey(event, runIds)
+            var key = experienceKey(event, runIds)
+            if (key != null && event.source == "game-team-action" &&
+                event.sessionId.startsWith("game-session-block_island-")) {
+                val last = islandLastAction[event.sessionId]
+                if (last != null && java.time.Duration.between(last, event.occurredAt).toMinutes() > 120)
+                    islandVisit[event.sessionId] = (islandVisit[event.sessionId] ?: 0) + 1
+                islandLastAction[event.sessionId] = event.occurredAt
+                key += ":visit:" + (islandVisit[event.sessionId] ?: 0)
+            }
             if (key != null) accept(key, Kind.EXPERIENCE, event)
             else accept("single:${event.id}", Kind.SINGLE, event)
         }
