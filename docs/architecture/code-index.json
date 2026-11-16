@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T03:52:53.013116+00:00",
-  "commit": "2e641f3f05158d1138b2e99a36eb7986cd6fbab4",
+  "generatedAt": "2026-11-16T03:53:20.886321+00:00",
+  "commit": "27ebcfa36aeebfb1c5fa6caf1b35f38cdcd4bea4",
   "branch": "main",
-  "sourceFingerprint": "db9b9a1ad43e0518cdfdfa165f04345ef232a40a21f58cbb24a443ebf48218f8",
+  "sourceFingerprint": "2ca4611ce5e84b7548b39979a79154494d4d4b638ef533e09c0c587656972463",
   "summary": {
     "files": 1346,
-    "lines": 287328,
+    "lines": 287343,
     "symbols": 4053
   },
   "symbolIndex": {
@@ -1697,13 +1697,13 @@
     "relocatePhysically": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 201
+        "line": 203
       }
     ],
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 857
+        "line": 862
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
@@ -23887,22 +23887,22 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt",
-      "lines": 424,
-      "sha256": "4171784a3ff1f08700837ee94dd5066388c4f3adf738ad8c2bfcfff03f6f16c4",
+      "lines": 425,
+      "sha256": "dddaae655e570b0134f4567507e9e137d4d6fbaf44a836e906a080445ca79956",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 891,
-      "sha256": "bfc74be640988061c2161dcd4ef9b976f183445865d63d3471868cf7bb314bed",
+      "lines": 896,
+      "sha256": "a0f120ad583b035bd92cd1a093dd18cf8a231f39c1f81c4bb52be9408a31f964",
       "symbols": [
         {
           "name": "relocatePhysically",
-          "line": 201
+          "line": 203
         },
         {
           "name": "flush",
-          "line": 857
+          "line": 862
         }
       ]
     },
@@ -42005,8 +42005,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MeetingSceneDestinationTest.kt",
-      "lines": 27,
-      "sha256": "0a74a87e399b5ca3d879e57859d03b9236334415547ed4441a10d22393d785d7",
+      "lines": 36,
+      "sha256": "c06358ef8705b9520c05885f2cd4d8d11b3e6331ff2c730ace4dfdb744563eec",
       "symbols": [
         {
           "name": "MeetingSceneDestinationTest",
