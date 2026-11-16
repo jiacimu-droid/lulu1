@@ -122,8 +122,8 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                     nearbyThreat = false,
                 )) continue
             val after = latestPulse(now.id)
-            if (after != null && after.id == now.id && after.turns > now.turns) {
-                lastTeamPulseTurn = after.turns
+            if (after != null && after.id == now.id && after.teamSteps > now.teamSteps) {
+                lastTeamPulseTurn = after.logicalStep
                 lastTeamPulseFinished = now.coopPlans.keys - after.coopPlans.keys
             }
         }
@@ -131,7 +131,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
     // Moving on a held joystick may create many local movement turns.
     // Do not charge a fresh companion decision for every tile of one gesture.
     // Explicit player messages still wake the real role while traveling.
-    LaunchedEffect(run.id,run.turns,speechVersion,continuousTravel) {
+    LaunchedEffect(run.id,run.turns,run.teamSteps,speechVersion,continuousTravel) {
         val windup = GameCoopPacing.relicImmediateThreat(run)
         if (windup && !lastNearbyWindup) threatAlertVersion++
         lastNearbyWindup = windup
@@ -149,7 +149,7 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
         var requestedThreat = 0
         for (signal in signals) {
             if (currentRun().phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
-            val turn = currentRun().turns
+            val turn = currentRun().logicalStep
             val version = latestSpeech
             val alertVersion = latestThreatAlert
             val urgentCombat = alertVersion > requestedThreat
@@ -173,9 +173,9 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                         it.who=="player" && it.action=="down" && it.turn==snapshot.turns
                     }
                     if (!GameCoopPacing.mayReplanAfterTick(
-                            snapshot.turns, lastTeamPulseTurn, id,
+                            snapshot.logicalStep, lastTeamPulseTurn, id,
                             lastTeamPulseFinished, message.isNotBlank())) continue
-                    val finishedOwnGoal = snapshot.turns == lastTeamPulseTurn &&
+                    val finishedOwnGoal = snapshot.logicalStep == lastTeamPulseTurn &&
                         id in lastTeamPulseFinished
                     if (message.isBlank() &&
                         (RelicActorPlay.acted(snapshot,id) || id in snapshot.coopPlans) &&
