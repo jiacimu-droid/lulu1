@@ -648,10 +648,12 @@ class LuluAccessibilityService : AccessibilityService() {
                 val rect = Rect().also(node::getBoundsInScreen)
                 if (node.isVisibleToUser && node.isEnabled &&
                     rect.width() > 0 && rect.height() > 0) {
-                    val label = node.contentDescription?.toString().orEmpty()
-                        .ifBlank { node.text?.toString().orEmpty() }
+                    val text = node.text?.toString().orEmpty()
+                    val description = node.contentDescription?.toString().orEmpty()
+                    val label = description.ifBlank { text }
                     if (rect.top >= dimensions.second / 2 &&
-                        LuluVirtualChatSendPolicy.isPressToTalk(label)) {
+                        (LuluVirtualChatSendPolicy.isPressToTalk(text) ||
+                            LuluVirtualChatSendPolicy.isPressToTalk(description))) {
                         voiceRegions.add(LuluVirtualChatSendPolicy.ComposerBounds(
                             rect.left, rect.top, rect.right, rect.bottom))
                     }
@@ -666,9 +668,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 for (i in 0 until node.childCount) node.getChild(i)?.let { scan(it, depth + 1) }
             }
             roots.forEach { scan(it, 0) }
-            val voice = voiceRegions.distinct().singleOrNull()
+            val voice = LuluVirtualChatSendPolicy.uniqueVoiceComposer(
+                voiceRegions, dimensions.first, dimensions.second)
                 ?: return result(false, "chat_voice_composer_unverified",
-                    "未找到唯一的底部按住说话输入区，不猜测按钮位置")
+                    "底部语音输入区不存在或出现多个不同位置，不猜测按钮位置")
             val index = LuluVirtualChatSendPolicy.voiceToTextControl(
                 voice, controls, dimensions.first, dimensions.second)
                 ?: return result(false, "chat_keyboard_toggle_unverified",
@@ -905,12 +908,16 @@ class LuluAccessibilityService : AccessibilityService() {
                 val bounds = Rect().also(node::getBoundsInScreen)
                 if (node.isVisibleToUser && node.isEnabled &&
                     node.isClickable && bounds.centerY() > dimensions.second / 2) {
-                    val label = node.contentDescription?.toString().orEmpty()
-                        .ifBlank { node.text?.toString().orEmpty() }
-                        .ifBlank { clickableDescendantLabel(node) }
+                    val candidates = listOf(
+                        node.contentDescription?.toString().orEmpty(),
+                        node.text?.toString().orEmpty(),
+                        clickableDescendantLabel(node),
+                    )
                     val control = LuluVirtualChatSendPolicy.ComposerBounds(
                         bounds.left, bounds.top, bounds.right, bounds.bottom)
-                    if (LuluVirtualChatSendPolicy.sendButton(label, node.viewIdResourceName) &&
+                    if (candidates.any {
+                            LuluVirtualChatSendPolicy.sendButton(it, node.viewIdResourceName)
+                        } &&
                         LuluVirtualChatSendPolicy.sendControlNearEditor(
                             control, composer, dimensions.first, dimensions.second)) {
                         buttons.add(node)
