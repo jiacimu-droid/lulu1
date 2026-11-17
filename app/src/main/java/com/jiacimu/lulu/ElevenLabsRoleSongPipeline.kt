@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -58,6 +59,19 @@ internal object ElevenLabsRoleSongPipeline {
         }
         val target = convertedFile(original, voiceId)
         if (target.isFile && target.length() > 44L) return target
+        // Check duration BEFORE paying for separation or voice conversion.
+        val durationMs = runCatching {
+            val metadata = MediaMetadataRetriever()
+            try {
+                metadata.setDataSource(original.absolutePath)
+                metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            } finally {
+                metadata.release()
+            }
+        }.getOrNull()
+        require(durationMs == null || durationMs <= 185_000L) {
+            "已保存歌曲超过角色换声的180秒上限，未发起分轨或变声调用"
+        }
         val preferences = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         val apiKey = preferences.getString("eleven_api_key", "").orEmpty().trim()
         require(apiKey.isNotEmpty()) { "请在语音设置中配置 ElevenLabs API Key" }
