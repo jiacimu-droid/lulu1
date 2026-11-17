@@ -1630,7 +1630,8 @@ internal object LuluVoiceCallSession {
             (spoken.isNotBlank() || alreadyPersisted)) {
             flushPendingLive2DTouchBatch(current.characterId, current.callExperienceId)
         }
-        sleepContinuationJob?.cancel()
+        SleepCallContinuationPolicy.cancelPendingForTurn(
+            sleepContinuationJob, hasExternalObservation = externalToolResult != null)
         if (!opening && !autonomousSleep && !autonomousSilence &&
             spoken.isNotBlank()) {
             // Any actual user speech interrupts an in-call ringing cue.

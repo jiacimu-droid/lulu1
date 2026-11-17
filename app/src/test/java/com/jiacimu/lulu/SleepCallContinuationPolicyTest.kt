@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import kotlinx.coroutines.Job
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -97,6 +98,28 @@ class SleepCallContinuationPolicyTest {
         assertFalse(due(deadline, deadlineAt = null))
         // Unlike the old policy, false STT, in-flight TTS, or sleepMode
         // disabled by a prior error cannot postpone an armed deadline.
+    }
+
+    @Test fun externalObservationKeepsTheOriginalContinuationPendingUntilCallIsFree() {
+        val pending = Job()
+        fun eligible(thinking: Boolean = false, speaking: Boolean = false) =
+            SleepCallContinuationPolicy.canContinue(
+                connected = true, sleepMode = true, thinking = thinking, speaking = speaking,
+                opening = false, userSpeaking = false, realtime = false,
+            )
+        try {
+            SleepCallContinuationPolicy.cancelPendingForTurn(pending, hasExternalObservation = true)
+            assertTrue(pending.isActive)
+            assertFalse(eligible(thinking = true))
+            assertFalse(eligible(speaking = true))
+            assertTrue(eligible())
+            assertTrue(pending.isActive)
+
+            SleepCallContinuationPolicy.cancelPendingForTurn(pending, hasExternalObservation = false)
+            assertTrue(pending.isCancelled)
+        } finally {
+            pending.cancel()
+        }
     }
 
     @Test fun doNotAutogenerateOverActualSpeechOrAudioOrWhileDisconnected() {

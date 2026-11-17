@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import kotlinx.coroutines.Job
+
 /**
  * Opt-in bedtime pacing. Lack of speech is NOT proof the listener is asleep.
  * Progressive quiet pauses save needless model/TTS calls and the call
@@ -75,6 +77,12 @@ internal object SleepCallContinuationPolicy {
         connected: Boolean,
     ): Boolean = connected && deadlineElapsedMillis != null &&
         nowElapsedMillis >= deadlineElapsedMillis
+
+    /** A queued observation borrows the turn slot. The pending continuation
+     * already waits for thinking, speech, and audio to clear. */
+    fun cancelPendingForTurn(pending: Job?, hasExternalObservation: Boolean) {
+        if (!hasExternalObservation) pending?.cancel()
+    }
 
     fun canContinue(
         connected: Boolean,
