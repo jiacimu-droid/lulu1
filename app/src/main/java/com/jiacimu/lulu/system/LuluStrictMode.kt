@@ -156,7 +156,8 @@ internal object LuluStrictMode {
             .put("id", previous?.optString("id") ?: UUID.randomUUID().toString())
             .put("characterId", role).put("mode", mode)
             .put("startedAt", previous?.optLong("startedAt") ?: now)
-            .put("endsAt", now + duration * 60_000L)
+            .put("endsAt", minOf(now + duration * 60_000L,
+                (previous?.optLong("startedAt") ?: now) + 120L * 60_000L))
             .put("exceptPackages", JSONArray(exceptions.toList()))
         if (!prefs(context).edit().putString(ACTIVE, session.toString()).commit())
             return response(false, "failed", "无法持久化强制监督会话")
@@ -166,7 +167,7 @@ internal object LuluStrictMode {
         showNotice(context, session)
         // Expiry is a local time limit, not a character decision to continue watching.
         val expiry = OneTimeWorkRequestBuilder<LuluStrictExpiryWorker>()
-            .setInitialDelay(duration.toLong(), TimeUnit.MINUTES)
+            .setInitialDelay(session.optLong("endsAt") - now + 2_000L, TimeUnit.MILLISECONDS)
             .setInputData(Data.Builder().putString("sessionId", session.optString("id")).build())
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
@@ -278,7 +279,8 @@ internal object LuluStrictMode {
         val current = stored(context)
         val sessionId = current.optString("id")
         if (sessionId.isBlank() || (id.isNotBlank() && id != sessionId)) return false
-        if (!prefs(context).edit().remove(ACTIVE).commit()) return false
+        if (!prefs(context).edit().remove(ACTIVE)
+                .remove("recent_" + sessionId).commit()) return false
         lastPackage = ""
         lastAt = 0L
         context.getSystemService(NotificationManager::class.java).cancel(NOTICE_ID)
@@ -322,8 +324,8 @@ class LuluStrictModeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "lulu.strict.STOP") {
             val id = intent.getStringExtra("sessionId").orEmpty()
-            if (id.isNotBlank() && LuluStrictMode.active(context)?.optString("id") == id) {
-                LuluStrictMode.stop(context, id, "主人从通知栏主动停止")
+            if (id.isNotBlank() &&
+                LuluStrictMode.stop(context, id, "主人从通知栏主动停止")) {
                 // An explicit STOP also revokes future auto-restarts by the role.
                 LuluScreenAwareness.preferences(context).edit()
                     .putBoolean(LuluStrictMode.GRANT, false).commit()
