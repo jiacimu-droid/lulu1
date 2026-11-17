@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:42:31.253541+00:00",
-  "commit": "17b42e472f1a93b764c96d3650be4fffc1e5a89c",
+  "generatedAt": "2026-11-17T16:43:01.682074+00:00",
+  "commit": "fc805b02ab3851368a5f85aaaba80048f9ea8cb5",
   "branch": "main",
-  "sourceFingerprint": "dac9311f1bea015016d9d109f48cc43e299d0edd42cecfdbe166733ac1c2db86",
+  "sourceFingerprint": "e7b31ea3f58e9a42fe3cc1702ea82704865da9ae438c67a417b5ae9ce0f91cab",
   "summary": {
-    "files": 1421,
-    "lines": 299999,
-    "symbols": 4288
+    "files": 1422,
+    "lines": 300104,
+    "symbols": 4289
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17130,6 +17130,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
         "line": 116
+      }
+    ],
+    "importBook": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingTxtLibrary.kt",
+        "line": 21
       }
     ],
     "promptText": [
@@ -40946,6 +40952,17 @@
         {
           "name": "books",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingTxtLibrary.kt",
+      "lines": 105,
+      "sha256": "03bb55bd816e0d9c9d2c1b8212accd5f0f2840dc7f5a5f533889323f002077a4",
+      "symbols": [
+        {
+          "name": "importBook",
+          "line": 21
         }
       ]
     },
