@@ -41,6 +41,7 @@ internal class LuluShellClipboard(context: Context) {
         }.getOrNull()
     }
     private val readClip by lazy { method("getPrimaryClip") }
+    private val readDescription by lazy { method("getPrimaryClipDescription") }
     private val hasClip by lazy { method("hasPrimaryClip") }
 
     private fun method(name: String): Method? {
@@ -70,8 +71,14 @@ internal class LuluShellClipboard(context: Context) {
 
     fun snapshot(): ClipData? {
         val present = hasClip?.let { call(it) as? Boolean } ?: manager.hasPrimaryClip()
-        val saved = if (present) readClip?.let { call(it) as? ClipData } ?: manager.primaryClip else null
-        check(!present || saved != null) { "existing clipboard unreadable; refusing replacement" }
+        val description = readDescription?.let { call(it) } ?: manager.primaryClipDescription
+        val saved = if (present || description != null)
+            readClip?.let { call(it) as? ClipData } ?: manager.primaryClip else null
+        // Android can report no clip to this background process while its
+        // description still says the owner's private clipboard is populated.
+        check((!present && description == null) || saved != null) {
+            "existing clipboard unreadable; refusing replacement"
+        }
         return saved
     }
 
