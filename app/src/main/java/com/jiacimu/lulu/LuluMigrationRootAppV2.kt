@@ -440,6 +440,7 @@ fun LuluMigrationRootAppV2(
                                     gameStore = LuluGames.store,
                                     onBack = ::popRoute,
                                 )
+                                MigrationRoute.Guide -> LuluOnboardingGuideScreen(onBack = ::popRoute, onOpen = ::pushRoute)
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                                 MigrationRoute.Appearance -> LuluAppearanceScreen(::popRoute)
                                 // Playground is opened as an Activity from the
