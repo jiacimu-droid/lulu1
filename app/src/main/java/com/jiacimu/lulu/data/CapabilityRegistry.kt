@@ -16,6 +16,7 @@ object CapabilityRegistry {
         Capability("cancel_alarm", "phone", "alarm", "character-owned alarm cancellation", false),
         Capability("list_media_sessions", "phone", "device_read", "active Android media sessions via user-enabled notification listener", true),
         Capability("control_music", "phone", "media", "Android MediaController dispatch and observable playback state; app support varies", false),
+        Capability("sing_song", "music", "music_generation", "Eleven Music original audio saved locally and playback start reported separately", false),
         Capability("control_volume", "phone", "media", "Observed, capped STREAM_MUSIC volume; restores previous volume on request", false),
         Capability("ring_in_call_wake", "phone", "alarm", "short native ringtone inside the current connected call; never redials", false),
         Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
@@ -63,6 +64,8 @@ object CapabilityRegistry {
                 "send_private_message", "send_group_message", "create_group_chat", "send_character_message",
                 "write_phone_memo", "play_solo_game", "invite_duel_game", "respond_duel_invite", "go_offline", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity")
         }
+        if (capability.name == "sing_song")
+            return com.jiacimu.lulu.ElevenLabsMusic.isEnabledAndConfigured(context, characterId)
         if (capability.name == com.jiacimu.lulu.ai.JevDirections.TOOL)
             return com.jiacimu.lulu.ai.JevDirections.configured()
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
@@ -178,6 +181,7 @@ object CapabilityRegistry {
         return device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
         "- ${cap.name}；主动允许=${allows(context, characterId, cap, false)}；依据=${cap.successEvidence}" +
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
+            else if (cap.name == "sing_song") "；args={prompt:原创歌曲的语言/歌词/曲风/唱法要求,durationSeconds:3..600}；不使用普通TTS Voice ID，需单独配置 Music Finetune ID 才有专属歌声；生成消耗Music额度"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
             else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|send_chat_message|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或长按朋友圈相机所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
