@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`aec63331d5fa8abb050bc7136aeb0ee717cc62c8`
+- 基准提交：`b08fa70503634e55698a1b0e20c91b2022df0e63`
 - 分支：`main`
-- 已索引文件：1396
-- 已索引代码/文本行：299514
+- 已索引文件：1397
+- 已索引代码/文本行：299688
 - 已发现符号：4234
 
 | 文件 | 行数 | 符号数 |
@@ -1402,5 +1402,6 @@
 | `scripts/test_xhs_reader.js` | 744 | 1 |
 | `scripts/verify_phone_apk_bytecode.py` | 51 | 0 |
 | `preview/app.js` | 54 | 0 |
-| `preview/index.html` | 99 | 0 |
+| `preview/index.html` | 100 | 0 |
+| `preview/play.html` | 173 | 0 |
 | `preview/styles.css` | 2 | 0 |
