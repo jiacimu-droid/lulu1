@@ -1216,10 +1216,11 @@ class LuluAccessibilityService : AccessibilityService() {
                 .put("targetWindowVerified", true)
             recipientVerified = true
             val root = liveRoot() ?: return denied("chat_window_unverified")
-            val editors = visibleEditors(root).distinctBy { node ->
-                val rect = Rect().also(node::getBoundsInScreen)
-                Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
-            }
+            // Search and other non-chat fields can coexist in the same
+            // app window. They cannot make the one real composer ambiguous.
+            val editors = visibleEditors(root)
+                .filter { virtualChatEditor(it, packageName, dimensions.second) }
+                .distinctBy(::composerBounds)
             if (editors.size != 1) return denied(
                 if (root.collectVisibleText(maxNodes = 460, maxChars = 3_000)
                         .lineSequence().any(LuluVirtualChatSendPolicy::isPressToTalk)) "chat_voice_mode_requires_text_switch" else "chat_editor_ambiguous"
@@ -1230,6 +1231,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
                 liveRoot()?.windowId != root.windowId)
                 return denied("chat_editor_unverified")
+            val editorSlot = composerBounds(editor)
             if (!LuluVirtualChatSendPolicy.draftMatches(editor.text, editor.isShowingHintText, message)) {
                 if (!beforeTextInput() || !stillAuthorized() ||
                     virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
@@ -1246,7 +1248,10 @@ class LuluAccessibilityService : AccessibilityService() {
             fun liveDraftEditor(): AccessibilityNodeInfo? = liveRoot()
                 ?.takeIf { it.windowId == root.windowId }?.let(::visibleEditors)
                 ?.filter {
-                    it == editor || (!editorId.isNullOrBlank() && it.viewIdResourceName == editorId)
+                    it == editor || (!editorId.isNullOrBlank() && it.viewIdResourceName == editorId) ||
+                        (packageName == LuluVirtualChatSendPolicy.WECHAT &&
+                            virtualChatEditor(it, packageName, dimensions.second) &&
+                            composerBounds(it) == editorSlot)
                 }?.distinctBy(::composerBounds)
                 ?.singleOrNull()?.takeIf {
                     LuluVirtualChatSendPolicy.draftMatches(it.text, it.isShowingHintText, message)
