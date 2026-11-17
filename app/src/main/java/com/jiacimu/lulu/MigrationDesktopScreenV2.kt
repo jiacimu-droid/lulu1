@@ -350,7 +350,10 @@ internal fun MigrationHomeV2(
                         },
                 ) {
                     val density = LocalDensity.current
-                    val cellWidth = maxWidth / DESKTOP_COLUMNS
+                    // Capture constraints before nested layout scopes hide this receiver.
+                    val desktopViewportWidth = maxWidth
+                    val desktopViewportHeight = maxHeight
+                    val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
                     // The page root is the drag surface so a long press can cross a
                     // page boundary without destroying its pointer gesture owner.
                     HorizontalPager(
@@ -506,7 +509,7 @@ internal fun MigrationHomeV2(
                         val activePage = pagerState.currentPage
                         val cellHeight = if (activePage == 0) {
                             with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                        } else maxHeight / DESKTOP_ROWS
+                        } else desktopViewportHeight / DESKTOP_ROWS
                         DesktopV2LauncherItem(
                             launcher = active,
                             modifier = Modifier.width(cellWidth).height(cellHeight)
@@ -524,10 +527,10 @@ internal fun MigrationHomeV2(
                     }
                     draggingWidgetId?.let { id ->
                         widgets.firstOrNull { it.id == id }?.let { w ->
-                            val cellWidth = maxWidth / DESKTOP_COLUMNS
+                            val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
                             val cellHeight = if (pagerState.currentPage == 0) {
                                 with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                            } else maxHeight / DESKTOP_ROWS
+                            } else desktopViewportHeight / DESKTOP_ROWS
                             LuluDesktopWidgetCard(
                                 widget = w, today = today,
                                 characterName = widgetCharacterNames[w.characterId],
@@ -768,7 +771,7 @@ private fun DesktopLauncherGrid(
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = maxHeight / DESKTOP_ROWS
+        val cellHeight = desktopViewportHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
