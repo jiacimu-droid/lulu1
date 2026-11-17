@@ -270,6 +270,7 @@ internal object CompanionActionRuntime {
             val vocal = com.jiacimu.lulu.ElevenLabsMusic.finetuneId(context, characterId)
             appendLine("- sing_song，args={\"prompt\":\"本人想创作的原创歌曲，注明语言、曲风、歌词方向\",\"durationSeconds\":30}：自主选择为主人唱原创歌，真实调用 Eleven Music，生成成功保存到本机再开始播放；可3～600秒，会消耗 Music API 额度。" +
                 if (vocal.isNotBlank()) "当前角色已配置独立 Music Finetune，可尝试自己的固定歌声；不能把普通TTS Voice ID当歌声。" else "尚未配置角色 Music Finetune，生成的是模型歌声，不得声称用了本人现有的TTS音色。")
+            appendLine("- play_saved_song，args={}：重播本人最近一次成功保存的原创歌曲，不再消耗Music生成额度。- stop_song，args={}：停止本机音乐播放。")
             appendLine("不能保证复现现成热门歌曲的原版旋律或原唱；如无合法使用权，请创作新歌，而不是假装生成了某歌曲翻唱。")
         }
 
