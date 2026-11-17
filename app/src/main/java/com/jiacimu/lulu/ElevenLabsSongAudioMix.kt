@@ -36,8 +36,27 @@ internal object ElevenLabsSongAudioMix {
         }
     }
 
+    /** Keep the sum below full-scale: the former 0.65 + 0.90 routinely clipped. */
     internal fun blend(backing: Int, vocal: Int): Short =
-        (backing * 0.65 + vocal * 0.90).roundToInt().coerceIn(-32768, 32767).toShort()
+        (backing * 0.32 + vocal * 0.58).roundToInt()
+            .coerceIn(-32768, 32767).toShort()
+
+    /**
+     * Gentle voice-only shelving: reduce excessive chest/bass energy and add
+     * presence, without pitch shifting or manipulating the source melody.
+     * Each stereo channel has independent filter history.
+     * This can reduce muddiness; it cannot fix an incorrect singing F0.
+     */
+    private class VoiceClarity {
+        private val low = DoubleArray(2)
+        private val mid = DoubleArray(2)
+        fun sample(value: Int, channel: Int): Int {
+            low[channel] += 0.034 * (value - low[channel])
+            mid[channel] += 0.28 * (value - mid[channel])
+            return (value - low[channel] * 0.14 +
+                (value - mid[channel]) * 0.12).roundToInt()
+        }
+    }
 
     private fun decodeToStereoPcm(input: File, pcmOutput: File) {
         val extractor = MediaExtractor()
@@ -170,9 +189,10 @@ internal object ElevenLabsSongAudioMix {
                     write16(wav, 16)
                     wav.write("data".toByteArray(Charsets.US_ASCII))
                     write32(wav, outLength)
-                    repeat(outLength / 2) {
+                    val clarity = VoiceClarity()
+                    repeat(outLength / 2) { sampleIndex ->
                         val b = nextSample(backingIn)
-                        val v = nextSample(voiceIn)
+                        val v = clarity.sample(nextSample(voiceIn), sampleIndex % CHANNELS)
                         write16(wav, blend(b, v).toInt())
                     }
                 }
