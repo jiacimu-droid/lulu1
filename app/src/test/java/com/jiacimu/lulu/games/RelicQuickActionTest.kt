@@ -12,6 +12,20 @@ class RelicQuickActionTest {
     private fun run() = RelicEscapeWorld.create(915, 2, emptyList(), 2, 2)
         .copy(mobs = emptyList())
 
+    @Test fun attackFeedbackMatchesTheEquippedWeaponAndAvailableArrows() {
+        val base = run().copy(seen = (0 until run().w*run().h).toSet())
+        val atHero = base.hero.x to base.hero.y
+        assertTrue(relicAttackHint(base,atHero).contains("上下左右相邻1格"))
+        val spear = base.copy(equipped="spear")
+        assertTrue(relicAttackHint(spear,atHero).contains("直线攻击2格"))
+        assertFalse(relicAttackHint(spear,atHero).contains("短剑只能"))
+        val bow = base.copy(equipped="bow",bolts=2)
+        assertTrue(relicAttackHint(bow,atHero).contains("直线攻击4格"))
+        val emptyBow = bow.copy(bolts=0)
+        assertTrue(relicAttackHint(emptyBow,atHero).contains("弩箭已耗尽"))
+        assertFalse(relicAttackHint(emptyBow,atHero).contains("短剑只能"))
+    }
+
     @Test fun centerInteractionHonorsTappedNearbyChestBeforeJoystickFacing() {
         val base = run()
         val h = base.hero
