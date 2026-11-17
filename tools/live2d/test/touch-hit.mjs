@@ -816,11 +816,25 @@ for (const region of TOUCH_REGIONS)
   }
 assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-left', { force: .85 }), { group: 'LuluWolf', index: 1 })
 assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-right', { force: .85 }), { group: 'LuluWolf', index: 2 })
-assert.deepEqual(touchMotionFor('cheek-right', 'slap-left', { force: .9 }),
-  { group: 'LuluWolf', index: 33 })
-assert.deepEqual(touchMotionFor('cheek-right', 'slap-right', { force: .9 }),
-  { group: 'LuluWolf', index: 9 })
-assert.equal(touchMotionFor('cheek-right', 'slap-right', { force: .15 }), null)
+for (const cheek of ['cheek-left', 'cheek-right']) {
+  for (const force of [.25, .9]) {
+    assert.equal(touchMotionFor(cheek, 'slap-left', { force }), null)
+    assert.equal(touchMotionFor(cheek, 'slap-right', { force }), null,
+      'both palms use the same mirrored neck reflex, not distinct 33/09 clips')
+    const left = enhanceWolfTouch(touchReflexFor(cheek, 'slap-left', 0, { force }, 160),
+      cheek, 'slap-left', { force }, 160)
+    const right = enhanceWolfTouch(touchReflexFor(cheek, 'slap-right', 0, { force }, 160),
+      cheek, 'slap-right', { force }, 160)
+    for (const axis of ['yaw', 'roll']) {
+      assert.ok(Math.abs(left[axis] + right[axis]) < 1e-8,
+        'opposite slap must mirror the same head ' + axis + ' trajectory')
+      assert.ok(Math.abs(left.body[axis] + right.body[axis]) < 1e-8,
+        'opposite slap must mirror the same body ' + axis + ' trajectory')
+    }
+    assert.equal(left.pitch, right.pitch, 'mirrored cheek strikes share one vertical pitch')
+    assert.equal(left.body.pitch, right.body.pitch, 'body vertical response must not flip')
+  }
+}
 assert.equal(touchMotionFor('beast-ear-left', 'stroke-right', { force: .35 }), null,
   'light strokes remain local without a pronounced full-neck/body tilt')
 assert.equal(touchMotionFor('arm-left', 'tap', { force: 1 }), null)
