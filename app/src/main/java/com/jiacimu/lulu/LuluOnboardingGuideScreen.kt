@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +16,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -330,33 +333,46 @@ private fun GuideNote(icon: ImageVector, title: String, detail: String) {
     }
 }
 
-/** Redacted screenshot-shaped diagrams, never a packaged private chat/API capture. */
+/** Real images supplied by the product owner are cropped and irreversibly redacted.
+ * A drawn placeholder is used where only personal character-list screenshots exist. */
 @Composable
 private fun GuideSafeScreen(kind: String) {
-    Surface(shape = RoundedCornerShape(15.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+    val screenshot = when (kind) {
+        "api" -> R.drawable.lulu_guide_api
+        "model" -> R.drawable.lulu_guide_model
+        "chat" -> R.drawable.lulu_guide_chat
+        else -> null
+    }
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            val lines = when (kind) {
-                "api" -> listOf("←  API 设置", "新配置", "配置名称   ·····",
-                    "API 地址    ███████████", "API 密钥    •••••••••••",
-                    "▣  保存配置", "☁  获取模型  →  加入存档")
-                "role" -> listOf("←  聊天                     ＋", "人物与原住民",
-                    "○  创建自己的第一位角色", "＋  新建角色",
-                    "角色名称  /  角色核心设定", "◉ 数字生命     ○ 现实角色")
-                "model" -> listOf("当前角色聊天模型", "○  已保存的模型 A",
-                    "◉  已保存的模型 B", "私聊 → ＋ → 模型")
-                else -> listOf("←  角色昵称                 ···",
-                    "○   你好，很高兴认识你。", "               我的第一条消息",
-                    "♩   发消息…             ☺      ＋")
+        shape = RoundedCornerShape(15.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        if (screenshot != null) {
+            Column(Modifier.padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = screenshot),
+                    contentDescription = "露露机真实操作截图，私人内容已打码",
+                    modifier = Modifier.fillMaxWidth().height(194.dp),
+                    contentScale = ContentScale.Fit,
+                )
+                Spacer(Modifier.height(5.dp))
+                Text("真实页面截图 · 已遮盖个人信息", fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            lines.forEachIndexed { index, line ->
-                Text(line, color = if (index == 0) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = if (index == 0) 12.sp else 11.sp,
-                    fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+        } else {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("←  聊天                  ＋", "人物与原住民",
+                    "○  创建自己的第一位角色", "＋  新建角色",
+                    "角色名称 / 角色核心设定",
+                    "◉ 数字生命      ○ 现实角色").forEachIndexed { index, line ->
+                    Text(line, color = if (index == 0)
+                        MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = if (index == 0) 12.sp else 11.sp,
+                        fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal)
+                }
             }
         }
     }
