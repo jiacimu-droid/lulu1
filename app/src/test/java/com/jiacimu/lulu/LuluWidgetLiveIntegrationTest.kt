@@ -84,6 +84,21 @@ class LuluWidgetLiveIntegrationTest {
         assertTrue(LuluWidgetRoleActions.execute(app, "role-A",
             "decorate_desktop_widget", skinArgs).getBoolean("success"))
         assertEquals(2, LuluDesktopWidgetStore.load(app).first { it.id == stars.id }.skin)
+        val customPalette = JSONObject().put("widgetId", stars.id)
+            .put("backgroundColor", "#203044").put("textColor", "#FFFFFF")
+            .put("cornerDp", 12)
+        assertTrue(LuluWidgetRoleActions.execute(app, "role-A",
+            "decorate_desktop_widget", customPalette).getBoolean("success"))
+        val styled = LuluDesktopWidgetStore.load(app).first { it.id == stars.id }
+        assertEquals("#203044", styled.roleBackground)
+        assertEquals("#FFFFFF", styled.roleInk)
+        assertEquals(12, styled.roleCornerDp)
+        assertFalse(LuluWidgetRoleActions.execute(app, "role-A",
+            "decorate_desktop_widget", customPalette.put("backgroundColor", "https://unsafe.example"))
+                .getBoolean("success"))
+        assertEquals("#203044", LuluDesktopWidgetStore.load(app)
+            .first { it.id == stars.id }.roleBackground)
+
     }
 
     @Test fun interpretationParsingKeepsActualModelWordsAndRejectsFakeFields() {
