@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:22:06.061173+00:00",
-  "commit": "1dad2e22dd16fe051599b4e114be888a7340f4eb",
+  "generatedAt": "2026-11-17T11:26:06.528480+00:00",
+  "commit": "d5fab663ae83e9e104efc2ac8067207078ef5878",
   "branch": "main",
-  "sourceFingerprint": "57f037d19766cc71490919ffe06491e9eac3c279fa7b30d1b71c6eb222f6172e",
+  "sourceFingerprint": "2b477c8f9e866c872f4a966793f4679cb05f9c4d172505b4f20741c71c07d09a",
   "summary": {
     "files": 1402,
-    "lines": 296608,
+    "lines": 296685,
     "symbols": 4215
   },
   "symbolIndex": {
@@ -1289,19 +1289,19 @@
     "CharacterHubScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-        "line": 36
+        "line": 39
       }
     ],
     "MomentsPlaceholderScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-        "line": 120
+        "line": 128
       }
     ],
     "MyProfileScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-        "line": 147
+        "line": 155
       }
     ],
     "ChatReplyTaskManager": [
@@ -1825,7 +1825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 96
+        "line": 101
       }
     ],
     "latest": [
@@ -4397,7 +4397,7 @@
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 102
+        "line": 107
       }
     ],
     "lastReadStatus": [
@@ -24399,20 +24399,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-      "lines": 232,
-      "sha256": "9abfed8baf630ecab8c02953ec56fc3126ccbd1737b1bfecc7ee35f9cfa73697",
+      "lines": 240,
+      "sha256": "cb6d904482a7c86ed7e09d145c49f810301f8783e8d03d7f038930e106f84e71",
       "symbols": [
         {
           "name": "CharacterHubScreen",
-          "line": 36
+          "line": 39
         },
         {
           "name": "MomentsPlaceholderScreen",
-          "line": 120
+          "line": 128
         },
         {
           "name": "MyProfileScreen",
-          "line": 147
+          "line": 155
         }
       ]
     },
@@ -27062,16 +27062,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 317,
-      "sha256": "76cdc5dfb5e0fb274e82e9d819e1c88ddbf3fdfe1b8f4846a9d1e4eb9f1f2c8f",
+      "lines": 386,
+      "sha256": "690a3cedb0db97354c2e069a5cbe2a35f3fb15508cf3b06b0db8fdfc8108e160",
       "symbols": [
         {
           "name": "payload",
-          "line": 96
+          "line": 101
         },
         {
           "name": "clearAttachment",
-          "line": 102
+          "line": 107
         }
       ]
     },
@@ -27219,7 +27219,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 1266,
-      "sha256": "d69e7dbbc85c1ab75b5348d526732ef89ab24c56482e01298308b7a5f521a5ba",
+      "sha256": "499a007b078756c1eb87fa850e60ad34fad474ebc0ee565a42a3751204d8bee7",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -36962,7 +36962,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
       "lines": 374,
-      "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
+      "sha256": "e96eb9fb50e7b93973b4f3ebd7d54b0410dc632c81fa0b00d0c07cb44e562e69",
       "symbols": []
     },
     {

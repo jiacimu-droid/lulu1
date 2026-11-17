@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1dad2e22dd16fe051599b4e114be888a7340f4eb`
+- 基准提交：`d5fab663ae83e9e104efc2ac8067207078ef5878`
 - 分支：`main`
 - 已索引文件：1402
-- 已索引代码/文本行：296608
+- 已索引代码/文本行：296685
 - 已发现符号：4215
 
 | 文件 | 行数 | 符号数 |
@@ -109,7 +109,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 716 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 44 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 240 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatPresencePresentation.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
@@ -255,7 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 317 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 386 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
