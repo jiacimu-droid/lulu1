@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:05:30.829466+00:00",
-  "commit": "a24b249623593e61aa61c7edcf19c349c7877a75",
+  "generatedAt": "2026-11-17T16:06:31.716493+00:00",
+  "commit": "35c7ee8f6e048fee4e9eba685c2bc0b1c6cd6678",
   "branch": "main",
-  "sourceFingerprint": "5137d4286a1ea3936ba2db6ba59648807cd6b788f4472c2c19c182fc7743f8f1",
+  "sourceFingerprint": "9a6d0dbacec176bc4418afbe329850b3413ffd77b701ac979649fb16b17c4726",
   "summary": {
     "files": 1414,
-    "lines": 299263,
-    "symbols": 4270
+    "lines": 299299,
+    "symbols": 4271
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 264
+        "line": 277
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4107,7 +4107,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 179
+        "line": 187
       }
     ],
     "errorNote": [
@@ -5503,7 +5503,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 280
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -8335,7 +8335,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 290
+        "line": 305
       }
     ],
     "requestContext": [
@@ -18305,19 +18305,25 @@
     "onWindowChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 194
+        "line": 202
       }
     ],
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 305
+        "line": 320
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 313
+        "line": 334
+      }
+    ],
+    "LuluStrictExpiryWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 354
       }
     ],
     "canObserve": [
@@ -42230,8 +42236,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 331,
-      "sha256": "90b67eb03fcd581a7915d2a92bef2a3c7a1c5256d1e685834972f6f51bc3812a",
+      "lines": 367,
+      "sha256": "f02ed87b8ff909043d900c2e43d5602908d576c77efc3adfbab8aac6d929aa23",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -42247,31 +42253,35 @@
         },
         {
           "name": "status",
-          "line": 179
+          "line": 187
         },
         {
           "name": "onWindowChanged",
-          "line": 194
+          "line": 202
         },
         {
           "name": "stop",
-          "line": 264
+          "line": 277
         },
         {
           "name": "restore",
-          "line": 280
+          "line": 295
         },
         {
           "name": "modelContext",
-          "line": 290
-        },
-        {
-          "name": "LuluStrictModeReceiver",
           "line": 305
         },
         {
+          "name": "LuluStrictModeReceiver",
+          "line": 320
+        },
+        {
           "name": "LuluStrictReviewWorker",
-          "line": 313
+          "line": 334
+        },
+        {
+          "name": "LuluStrictExpiryWorker",
+          "line": 354
         }
       ]
     },
