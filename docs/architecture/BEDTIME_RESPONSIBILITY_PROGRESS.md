@@ -1,5 +1,18 @@
 # 主动关心与哄睡监督：执行核查
 
+## 2026-11-18 跨日睡眠周期：前夜提醒动作和持续结果责任分离
+
+主人反馈：23:00 角色已执行睡前提醒，日程可能标记完成，但主人没有睡着，次日 03:00 再叫醒角色时，角色因新一天的 23:00 日程而没自然接续前夜督睡。此前 11-02 修复了 WaitingForFeedback 跨日丢失，但「已完成的 delivery-only 日程/已滚动的每日任务」依然容易从正常人物上下文中消失。**不是新增固定凌晨闹钟**。
+
+- `CommitmentTask.recentDailyOutcomeContext`：对于 16 小时内的上一轮 daily attempt，将真正未确认的结果，或仅完成投递的动作历史，带回同一任务的阅读上下文。结果已核实成功的 outcome 轮次不复活；取消任务不进入活动责任；新 23:00 时刻保持原样。
+- `PersistentResponsibilityAttention`：有超过 12 个活跃约定时，为有时效的上一轮未核实结果/纯投递回执保留最多 2 个注意力位置；`ActiveCommitmentAttention` 区分旧轮次已送达、生活目标未知和下一次约定，不把 03:00 变成新的每日 23:00。
+- `RoleDayPlan.recentExecutionReceiptContext`：展示 16 小时内真实已执行并有 resultEvidenceId 的个人日程动作；无论一次性已完成还是每日已滚动，不因自然日变化吞掉回执，绝不由工具送达推断主人已睡着。
+- `CommitmentDecisionProtocol` 同一场景模型提示明确 23:00 已提醒、03:00 主人又亲口说明未入睡的因果关系。若**此前实际接受**持续督睡，角色继续按原责任和可得证据选择合理下一步；若只承诺一次投递，不未经同意擅自提升为强制持续监督。行动/静默/下一次复查时刻由同一角色选择，复用 `schedule_commitment_review`；不引入固定每分钟 API、无限催睡或无许可查屏。
+- 新增 `ProactiveQuietDecisionTest.lastNightDeliveredReminderStaysInRoleAttentionAfterDailyRollover` 与 `RoleDayScheduleStoreTest.yesterdayExecutedPlanReceiptDoesNotProveOwnerSlept`：模拟 23:00 发送、03:00 继续讨论、次晚日程仍保留、旧轮次未证实与已结案区分，以及取消、过期、无证据门禁。
+- 生产提交：`040779ea`、`c3c4de01`、`07d50d91`；测试：`89206c65`、`b9602de1`。首次对应新主分支 [APK/JVM #44158433831](https://github.com/jiacimu-droid/lulu1/actions/runs/44158433831) 检查时为 pending；并行 push 可能取消该次运行，需核含上述提交的后继 main APK/JVM 与索引，不能以 pending/cancelled 当成功。本轮未取得手机安装版/原人物任务存档与真实模型行为的实机验证。
+- 待验：真正角色只对已接受的持续督睡形成跨日跟进，不强制睡眠结论；03:00 主人再次发言进入同一人物决策后，角色自然理解昨晚和今夜的区别，若选择稍后再看必须有真实 review/plan 的持久回执；再次确认入睡后停止无需的额外打扰。原生屏幕/通话/通知权限保持既有授权门禁。
+
+
 ## 2026-11-02 本轮
 
 用户场景：23:30已提醒，用户还要学习、洗澡；角色要求用户准备好再主动告知，随后仅在心声里关心、怕打扰，没有继续落实监督。截图仅证明当时的展示与心声，未取得用户手机任务库、实际安装提交或运行日志，不能据此认定所有原因已复现。
