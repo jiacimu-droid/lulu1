@@ -224,6 +224,33 @@ object RecentSemanticTimeline {
      * An activity gives its opening, most recent steps and verified ending;
      * all omitted action receipts remain retrievable by their original IDs.
      */
+    /**
+     * Exact recent context requested by the owner. A configured semantic turn
+     * means ALL its surviving source events, not a fixed preview character count
+     * or a handful of action receipts. This affects only the model projection;
+     * the original timeline and its per-character visibility remain authoritative.
+     */
+    fun renderComplete(turn: Turn): String {
+        if (turn.events.isEmpty()) return ""
+        val heading = when (turn.kind) {
+            Kind.SPEECH -> "【完整交流｜${turn.events.size}条原始记录】"
+            Kind.EXPERIENCE -> "【同一经历｜${turn.events.size}条原始记录；各项仍按证据类型判断】"
+            Kind.SINGLE -> "【原始事实】"
+        }
+        return buildString {
+            append(heading)
+            turn.events.forEach { event ->
+                append("\n- [").append(event.occurredAt).append("] [")
+                    .append(event.channel).append("] [").append(event.evidenceKind)
+                    .append("] eventId=").append(event.id).append("@").append(event.revision)
+                    .append(" ").append(event.speaker).append("：")
+                if (event.source == "presence")
+                    append("【本人当时的主观感受/心声，并非当前状态或客观执行结果】")
+                append(event.evidenceContent)
+            }
+        }
+    }
+
     fun render(turn: Turn, budget: Int = 1_600, focus: String = ""): String {
         if (budget < 90 || turn.events.isEmpty()) return ""
         val independentPresence = turn.kind == Kind.EXPERIENCE &&
