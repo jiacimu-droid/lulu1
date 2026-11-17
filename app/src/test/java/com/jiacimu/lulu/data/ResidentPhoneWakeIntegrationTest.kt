@@ -94,6 +94,42 @@ class ResidentPhoneWakeIntegrationTest {
         assertFalse(CharacterEverydaySocialContext.render(actor).contains("postId=${post.id}"))
     }
 
+    @Test fun liveSocialDirectoryExcludesUncreatedResidentsAndRetiredFriends() {
+        val actor = role()
+        val friend = role()
+        val ghostId = "resident:unused-template-${UUID.randomUUID()}"
+        val ghostName = "未注册居民样板-${UUID.randomUUID()}"
+        // A leftover persona/config or built-in template is not a native
+        // resident: registration is an independent, authoritative operation.
+        MigratedDomainStores.characters.update(
+            CharacterSettings(characterId = ghostId, displayName = ghostName))
+        DigitalLifeProfileStore.registerNewLife(ghostId, ghostName,
+            "数字世界原住民", Instant.now())
+        assertFalse(MomentFriendAccess.isActiveCharacter(ghostId))
+        val before = CharacterEverydaySocialContext.currentSocialAuthority(actor)
+        assertFalse(before, before.contains(ghostName))
+        assertFalse(before, before.contains(ghostId))
+        assertTrue(before, before.contains(friend))
+        assertTrue(before.contains("没有申请通过记录") ||
+            before.contains("没有；手动建立好友不等于收到或通过了申请"))
+
+        assertTrue(MomentFriendAccess.setFriends(actor, friend, true))
+        val linked = CharacterEverydaySocialContext.currentSocialAuthority(actor)
+        assertTrue(linked, linked.contains("我当前确实确认的数字人物QQ好友"))
+        assertTrue(linked, linked.contains(friend))
+        assertTrue(MomentFriendAccess.areFriends(actor, friend))
+
+        // Removing a role does not rewrite yesterday's relationship ledger,
+        // but it must not remain a live friend or visible current identity.
+        MigratedDomainStores.characters.delete(friend)
+        DigitalLifeProfileStore.remove(friend)
+        assertFalse(MomentFriendAccess.areFriends(actor, friend))
+        val after = CharacterEverydaySocialContext.currentSocialAuthority(actor)
+        assertFalse(after, after.contains(friend))
+        MigratedDomainStores.characters.delete(ghostId)
+        DigitalLifeProfileStore.remove(ghostId)
+    }
+
     @Test fun phonePromptRejectsOtherCharactersPrivateAndForgedMomentsSnapshots() {
         val viewer = role()
         val another = role()
