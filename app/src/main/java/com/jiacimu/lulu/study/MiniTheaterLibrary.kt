@@ -59,7 +59,7 @@ internal object MiniTheaterContinuation {
 }
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
-internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniTheaterItem>? = null) {
+internal class MiniTheaterLibrary(context: Context, @Suppress("UNUSED_PARAMETER") initialTemplates: List<MiniTheaterItem>? = null) {
     private val app = context.applicationContext
     private val prefs = app.getSharedPreferences("lulu_mini_theaters_v1", Context.MODE_PRIVATE)
     private val changes = MutableStateFlow(load())
@@ -68,20 +68,15 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     val creativeIdeas: StateFlow<List<PersonalMiniTheater.Idea>> = ideaChanges
 
     init {
-        // Public installs must never import a private author's story templates.
-        // On upgrade discard only untouched auto-seeded entries; user-imported
-        // templates and stories already started or written remain local.
+        // Remove every legacy built-in story on upgrade, including generated
+        // versions. User-imported templates and independent fanfics stay local.
         synchronized(this) {
-            val retained = changes.value.filterNot { item ->
-                item.builtIn && item.characterId.isBlank() &&
-                    item.text.isBlank() && item.status == "new"
-            }
-            val known = retained.mapTo(mutableSetOf()) { it.title to it.prompt }
-            val explicitFixtures = initialTemplates.orEmpty().filter {
-                known.add(it.title to it.prompt)
-            }.map { it.copy(builtIn = true) }
-            if (retained.size != changes.value.size || explicitFixtures.isNotEmpty()) {
-                save(retained + explicitFixtures)
+            val legacy = changes.value.filter { it.builtIn && it.characterId.isBlank() }
+            if (legacy.isNotEmpty()) {
+                save(changes.value.filterNot { it.builtIn && it.characterId.isBlank() })
+                legacy.forEach { item ->
+                    WorkManager.getInstance(app).cancelUniqueWork("single-theater-${item.id}")
+                }
             }
         }
     }
