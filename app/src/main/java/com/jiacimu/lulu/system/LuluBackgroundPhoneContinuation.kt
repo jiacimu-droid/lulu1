@@ -358,6 +358,14 @@ internal object LuluBackgroundPhoneContinuation {
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
             // The model may have spent minutes waiting for this reply.
+            // STOP/revocation can arrive while the paid model is thinking.
+            // Recheck at the execution boundary, not only before the request:
+            // a stale decision must never click after the owner has stopped.
+            if (LuluBackgroundPhoneSession.ownerHasPaused(context) ||
+                !LuluRolePhoneAuthorization.isGranted(context, characterId)) {
+                history.appendLine("模型等待期间主人停止或撤销了后台手机授权；旧决定未执行")
+                return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
             // Before ANY additional side effect, re-check newer user input.
             if (ownerHasNewInput()) {
                 history.appendLine("等待下一步模型期间主人有新消息或通话轮次变化；未执行旧决定，手机任务暂缓并保留已有回执")
