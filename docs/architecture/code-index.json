@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:42:26.196785+00:00",
-  "commit": "e942dc979e1b306769a0b039c3c5b2ba95f9b582",
+  "generatedAt": "2026-11-17T15:42:46.722159+00:00",
+  "commit": "76cb54cc27ef569512cc745e1eb87ada84356a71",
   "branch": "main",
-  "sourceFingerprint": "6cfab92b892e70ce582e0a6513be5faf0053dfb59f1783e79bae3823d208740e",
+  "sourceFingerprint": "bd5372db14e678eb252fb14fdbdb900276531759b36c7117a6e772ff5fc50fd5",
   "summary": {
     "files": 1414,
-    "lines": 298903,
+    "lines": 298911,
     "symbols": 4257
   },
   "symbolIndex": {
@@ -17113,25 +17113,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 524
+        "line": 532
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 870
+        "line": 878
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 877
+        "line": 885
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 884
+        "line": 892
       }
     ],
     "saveProgress": [
@@ -40824,24 +40824,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1525,
-      "sha256": "323e27c7bad5702029315484e850759053a64d930e9df524433982484fe29f65",
+      "lines": 1533,
+      "sha256": "8c946b46556e06560cb31245ebfb40bf745be5dfac60a5aa9ec4d3c72cad8d3c",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 524
+          "line": 532
         },
         {
           "name": "appendOneChapter",
-          "line": 870
+          "line": 878
         },
         {
           "name": "appendThreeChapters",
-          "line": 877
+          "line": 885
         },
         {
           "name": "attemptBack",
-          "line": 884
+          "line": 892
         }
       ]
     },
