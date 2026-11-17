@@ -27,6 +27,10 @@ object RecentSemanticTimeline {
      */
     private fun worldResultEvidenceId(tool: SharedTimelineEvent): String? {
         if (tool.source != "tool-router" || tool.taskId.isBlank()) return null
+        // Do not parse every unrelated screenshot, web lookup or phone
+        // receipt when rebuilding a large long-lived timeline.
+        if (!tool.content.contains("world-fact-") &&
+            !tool.content.contains("world-observe-")) return null
         val receipt = runCatching { JSONObject(tool.content) }.getOrNull() ?: return null
         if (receipt.optString("status") != "succeeded") return null
         val result = receipt.optJSONObject("result") ?: runCatching {
