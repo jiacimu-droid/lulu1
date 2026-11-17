@@ -47,6 +47,30 @@ class LuluVirtualA11yTraversalTest {
         assertFalse(text.contains("聊天密码"))
     }
 
+    @Test fun bottomFirstComposerScanDoesNotSpendEntireBudgetOnChatHistory() {
+        val history = Node(label = "chat_history", children = (1..1800).map {
+            Node(label = "old message $it")
+        })
+        val composer = Node(label = "bottom_input")
+        val root = Node(children = listOf(history, composer))
+        val plain = read(root)
+        assertFalse("The legacy top-first scan exhausts before the footer",
+            plain.contains("bottom_input"))
+        val observed = mutableListOf<String>()
+        val complete = LuluVirtualA11yTraversal.forEachVisible(
+            roots = listOf(root),
+            childCount = { it.children.size },
+            childAt = { node, index -> node.children.getOrNull(index) },
+            isProtected = { it.isProtected || it.label == "chat_history" },
+            isVisible = { it.visible },
+            priority = { if (it.label == "bottom_input") 1000 else 0 },
+        ) { node ->
+            if (node.label.isNotBlank()) observed += node.label
+        }
+        assertTrue("Composer tree is complete once the irrelevant transcript is pruned", complete)
+        assertEquals(listOf("bottom_input"), observed)
+    }
+
     @Test fun scanLimitsDepthAndTotalNodes() {
         val beyondDepth = (1..81).fold(Node(label = "隐藏的标题")) { child, _ ->
             Node(children = listOf(child))
