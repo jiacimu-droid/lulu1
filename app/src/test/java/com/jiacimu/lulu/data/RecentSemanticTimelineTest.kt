@@ -69,18 +69,19 @@ class RecentSemanticTimelineTest {
             row("game-raw-a", 3, "legacy", EventEvidenceKind.Observation,
                 content = "第一局原件:{\"id\":\"run-a\"}", channel = "共同游戏《迷雾摸金》"),
         )
+        // Prefix-related IDs used to collide when replay matching used contains().
         val two = listOf(
-            row("relic:run-b:role:join", 4, "game-relic",
+            row("relic:run-a-extended:role:join", 4, "game-relic",
                 EventEvidenceKind.ToolResult, channel = "共同游戏《迷雾摸金》"),
-            row("game-accepted-relic_escape-run-b-1", 5, "game-team-action",
-                EventEvidenceKind.ToolResult, "game-session-relic_escape-run-b",
+            row("game-accepted-relic_escape-run-a-extended-1", 5, "game-team-action",
+                EventEvidenceKind.ToolResult, "game-session-relic_escape-run-a-extended",
                 content = "第二局行动", channel = "共同游戏《迷雾摸金》·本人行动"),
             row("game-raw-b", 6, "legacy", EventEvidenceKind.Observation,
-                content = "第二局原件:{\"id\":\"run-b\"}", channel = "共同游戏《迷雾摸金》"),
+                content = "第二局原件:{\"id\":\"run-a-extended\"}", channel = "共同游戏《迷雾摸金》"),
         )
         val turns = RecentSemanticTimeline.select(one + two, 35)
         assertEquals(2, turns.size)
-        assertEquals(setOf("game:relic_escape:run-a", "game:relic_escape:run-b"),
+        assertEquals(setOf("game:relic_escape:run-a", "game:relic_escape:run-a-extended"),
             turns.map { it.key }.toSet())
         assertTrue(turns.all { it.kind == RecentSemanticTimeline.Kind.EXPERIENCE })
         assertTrue(turns.all { it.events.size == 3 })
