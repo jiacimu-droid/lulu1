@@ -97,6 +97,7 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = current.entries.filterNot { it.characterId == characterId },
                 processedMessageIds = current.processedMessageIds - characterId,
+                extractionContinuationTurns = current.extractionContinuationTurns - characterId,
                 immediateProcessedIds = current.immediateProcessedIds - characterId,
                 forgottenSourceIds = current.forgottenSourceIds - characterId,
                 deletedMemoryIds = current.deletedMemoryIds - characterId,
@@ -241,11 +242,12 @@ class LocalMemoryRepository : MemoryRepository {
         var processedThisRun = 0
         var processedTurnsThisRun = 0
         var extractedThisRun = 0
-        // After fifteen turns have made a batch eligible, a size-based split
-        // must drain ALL remaining turns from that triggered batch during the
-        // current run. Otherwise a large voice transcript would leave the
-        // trailing turns waiting for another fifteen unrelated messages.
-        var triggeredTurnsRemaining = 0
+        // A size-bounded subrequest may finish only part of an eligible
+        // 15-turn batch. The continuation count lives in the SAME durable
+        // memory checkpoint, atomically committed with processed source IDs:
+        // a crash after the first request cannot abandon the remaining turns.
+        var triggeredTurnsRemaining =
+            state.value.extractionContinuationTurns[characterId].orEmptyCount()
 
         while (true) {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
@@ -276,6 +278,13 @@ class LocalMemoryRepository : MemoryRepository {
             val batch = batchTurns.flatMap { it.events }
 
             if (pending.isEmpty() || !ready) {
+                if (pending.isEmpty() &&
+                    state.value.extractionContinuationTurns.containsKey(characterId)) {
+                    mutate { current -> current.copy(
+                        extractionContinuationTurns =
+                            current.extractionContinuationTurns - characterId,
+                    ) }
+                }
                 if (processedThisRun > 0) maintain(characterId, silent = true)
                 refreshDebug(
                     message = if (processedThisRun == 0) {
@@ -411,6 +420,8 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
             val liveBatchIds = batchEvents.mapTo(mutableSetOf()) { it.id }
+            val continuationAfterCommit =
+                (triggeredTurnsRemaining - batchTurns.size).coerceAtLeast(0)
             var added = 0
             check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, batchEvents) {
                 mutate { current ->
@@ -423,6 +434,10 @@ class LocalMemoryRepository : MemoryRepository {
                         entries = merged,
                         processedMessageIds = current.processedMessageIds +
                             (characterId to (current.processedMessageIds[characterId].orEmpty() + liveBatchIds)),
+                        extractionContinuationTurns = if (continuationAfterCommit == 0)
+                            current.extractionContinuationTurns - characterId
+                        else current.extractionContinuationTurns +
+                            (characterId to continuationAfterCommit),
                     )
                 }
                 applyUnderstandingUpdates(characterId, parsed.getOrThrow(), prior, expectedRevisions)
@@ -431,7 +446,7 @@ class LocalMemoryRepository : MemoryRepository {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             processedThisRun += liveBatchIds.size
             processedTurnsThisRun += batchTurns.size
-            triggeredTurnsRemaining = (triggeredTurnsRemaining - batchTurns.size).coerceAtLeast(0)
+            triggeredTurnsRemaining = continuationAfterCommit
             extractedThisRun += added
             val freshReadable = extractableTurns(characterId, policy, flushTail)
             val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
@@ -987,6 +1002,11 @@ class LocalMemoryRepository : MemoryRepository {
         .put("personalPolicies", JSONObject().apply {
             value.personalPolicies.forEach { (id, policy) -> put(id, encodePolicy(policy)) }
         })
+        .put("extractionContinuationTurns", JSONObject().apply {
+            value.extractionContinuationTurns.forEach { (id, remaining) ->
+                if (remaining > 0) put(id, remaining)
+            }
+        })
         .put(
             "processedMessageIds",
             JSONObject().apply {
@@ -1068,6 +1088,11 @@ class LocalMemoryRepository : MemoryRepository {
                 policies = policies,
                 globalPolicy = globalPolicy,
                 personalPolicies = personalPolicies,
+                extractionContinuationTurns = root.optJSONObject("extractionContinuationTurns")
+                    ?.let { saved -> saved.keys().asSequence()
+                        .associateWith { key -> saved.optInt(key, 0) }
+                        .filterValues { it > 0 }
+                    }.orEmpty(),
                 processedMessageIds = processed,
                 immediateProcessedIds = immediateProcessed,
                 forgottenSourceIds = forgotten,
@@ -1175,11 +1200,14 @@ private data class MemoryStoreState(
     val globalPolicy: MemoryPolicy? = null,
     val personalPolicies: Map<String, MemoryPolicy> = emptyMap(),
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
+    val extractionContinuationTurns: Map<String, Int> = emptyMap(),
     val immediateProcessedIds: Map<String, Set<String>> = emptyMap(),
     val forgottenSourceIds: Map<String, Set<String>> = emptyMap(),
     val deletedMemoryKeys: Set<String> = emptySet(),
     val deletedMemoryIds: Map<String, Set<String>> = emptyMap(),
 )
+
+private fun Int?.orEmptyCount(): Int = (this ?: 0).coerceAtLeast(0)
 
 private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =
     personalPolicies[characterId] ?: globalPolicy ?: policies[characterId] ?: MemoryPolicy()
