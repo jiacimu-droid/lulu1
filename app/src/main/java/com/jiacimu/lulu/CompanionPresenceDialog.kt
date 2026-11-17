@@ -170,7 +170,7 @@ internal fun CompanionPresenceDialog(
                             if (displayState == null) {
                                 Text(
                                     if (messageAnchor == null) "还没有留下心情或心声。"
-                                    else "这条消息之前还没有状态记录。",
+                                    else "这条消息没有绑定独立的状态快照。若当时有心声，可在「心声历史」查看。",
                                     color = Color(0xFF8C888C), fontSize = 14.sp,
                                     modifier = Modifier.padding(vertical = 18.dp),
                                 )
