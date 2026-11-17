@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:33:01.299644+00:00",
-  "commit": "54e77c77a0c98a5366f486f84f109eddddd3b4bb",
+  "generatedAt": "2026-11-17T16:36:07.586355+00:00",
+  "commit": "40563a00cf5e4477b97331f3f19e129948270d50",
   "branch": "main",
-  "sourceFingerprint": "461ae377b062acae028e9cbb5f7634827fcae784e13f1a84af9ea7d8a8e5f555",
+  "sourceFingerprint": "d6bfd999be38f1b9ac9cd07ce9c9452477d659edc8a9d5de2f73b073e81aada7",
   "summary": {
-    "files": 1418,
-    "lines": 299606,
-    "symbols": 4276
+    "files": 1420,
+    "lines": 299878,
+    "symbols": 4293
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1074,6 +1074,10 @@
         "line": 19
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 151
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
         "line": 117
       },
@@ -1634,6 +1638,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
         "line": 95
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 160
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
@@ -6402,6 +6410,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
         "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
@@ -11276,6 +11288,82 @@
         "line": 80
       }
     ],
+    "LuluCssRule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 12
+      }
+    ],
+    "LuluCssSheet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 13
+      }
+    ],
+    "page": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 19
+      }
+    ],
+    "element": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 25
+      }
+    ],
+    "imageToken": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 32
+      }
+    ],
+    "profile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 35
+      }
+    ],
+    "color": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
+        "line": 38
+      }
+    ],
+    "parseColor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 128
+      }
+    ],
+    "dp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 137
+      }
+    ],
+    "LuluCssStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 144
+      }
+    ],
+    "importImage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 171
+      }
+    ],
+    "assetFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 210
+      }
+    ],
     "LuluDataBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
@@ -14298,6 +14386,26 @@
         "line": 150
       }
     ],
+    "Modifier": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
+        "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 85
+      }
+    ],
+    "LuluCssBackground": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
+        "line": 33
+      }
+    ],
     "LuluColors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
@@ -14344,16 +14452,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt",
         "line": 92
-      }
-    ],
-    "Modifier": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
-        "line": 47
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
-        "line": 85
       }
     ],
     "JournalWashiTape": [
@@ -16448,12 +16546,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
         "line": 37
-      }
-    ],
-    "color": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
-        "line": 38
       }
     ],
     "stroke": [
@@ -33932,6 +34024,73 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+      "lines": 218,
+      "sha256": "1bed146578372f1f5cbb6dacd96ea2d4fc4eba1cc6d9996f634a178ea93aea8b",
+      "symbols": [
+        {
+          "name": "LuluCssRule",
+          "line": 12
+        },
+        {
+          "name": "LuluCssSheet",
+          "line": 13
+        },
+        {
+          "name": "page",
+          "line": 19
+        },
+        {
+          "name": "element",
+          "line": 25
+        },
+        {
+          "name": "imageToken",
+          "line": 32
+        },
+        {
+          "name": "profile",
+          "line": 35
+        },
+        {
+          "name": "color",
+          "line": 39
+        },
+        {
+          "name": "parse",
+          "line": 81
+        },
+        {
+          "name": "parseColor",
+          "line": 128
+        },
+        {
+          "name": "dp",
+          "line": 137
+        },
+        {
+          "name": "LuluCssStore",
+          "line": 144
+        },
+        {
+          "name": "initialize",
+          "line": 151
+        },
+        {
+          "name": "save",
+          "line": 160
+        },
+        {
+          "name": "importImage",
+          "line": 171
+        },
+        {
+          "name": "assetFile",
+          "line": 210
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
       "lines": 236,
       "sha256": "cdd04b40ecb007041a8b97f7869130534de1f6dd22b536db462924616a8ded36",
@@ -37210,6 +37369,21 @@
         {
           "name": "LuluSettingRow",
           "line": 150
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
+      "lines": 54,
+      "sha256": "c18aa99e562eb847f2e6acbd60c3bb158c60bb7b37eca3d1cbb6d5b9f96397b0",
+      "symbols": [
+        {
+          "name": "Modifier",
+          "line": 23
+        },
+        {
+          "name": "LuluCssBackground",
+          "line": 33
         }
       ]
     },

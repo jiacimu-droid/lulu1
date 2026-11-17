@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`54e77c77a0c98a5366f486f84f109eddddd3b4bb`
+- 基准提交：`40563a00cf5e4477b97331f3f19e129948270d50`
 - 分支：`main`
-- 已索引文件：1418
-- 已索引代码/文本行：299606
-- 已发现符号：4276
+- 已索引文件：1420
+- 已索引代码/文本行：299878
+- 已发现符号：4293
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -520,6 +520,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt` | 218 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 456 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 628 | 38 |
@@ -630,6 +631,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt` | 114 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 311 | 9 |
