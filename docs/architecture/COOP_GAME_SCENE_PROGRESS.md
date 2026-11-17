@@ -669,3 +669,7 @@
 - **G-03 手机战斗 HUD**：`RelicEscapeScreen.kt` 的技能/职业/转向三键由 34dp 单行挤字改为 46dp 双行状态，与既有拇指区隔离，冷却与不可用条件直接可见；原普通攻击/格挡/治疗、方向盘动作与真实技能回执不变。生产 `c543c0fc`、`0ac89c07`。针对无目标攻击提示会错误统一写成“短剑”的问题，`RelicQuickAction.kt` 按实际短剑/长矛/弩弓射程及无箭状态提示（`62ac9c61`），`RelicQuickActionTest.kt` 回归 `a28b485c`。
 - **G-02 岛屿 HUD/按钮**：保留原生小岛地图和生存权威，移除横屏长期占位的饱食进度条，只在 hunger<=3 提醒食物与危机；地图仍展示生命/资源，行囊与实际饥饿规则不伪造删除（`de34ad9e`）。工作台与建造列表原 38dp 行动按钮增为至少48dp、调整字阶与留白，建造芯片增至至少44dp（`c7d8ca51`），弹层仍可滚动，不增加地图上常驻浮层。
 - **验收分级**：以上均为真实正式源码提交，不是网页原型；本轮读取 MotionSites 主文档/INDEX/craft/review 和三个参考案例，采用保留原有游戏气质、少遮地图、加强触控可见性的克制式界面调整。最新 `main` 包含 `0ac89c07`，对应 APK/JVM [#44164720505](https://github.com/jiacimu-droid/lulu1/actions/runs/44164720505) 查询时 pending；并行 push 的旧 CI 有 cancelled 不算成功。**Android Gradle/真机 FPS、截图、实际触摸/模型协作与完整游戏结果尚未验通**；下一轮先检查最新 CI 的首错，再看 Redmi 横屏 360/412dp 技能行是否遮挡、饱食低值提示、G-03 三难度新局安全出生/敌人实际分布、真开箱撤离和 G-02 工作台制作/建造完整回执。
+
+## 2026-11-18 G-03.5 · 倒地后不绘制虚假可走目标路线（CI/真机待验）
+- 正式 `RelicObjectiveGuide.knownRouteTiles` 原只检查 phase 与地图，英雄 hp=0 倒地时仍可能给出可行走的路径；`prompt` 也继续显示“点击定位/已探明路线”，与当前无法移动的物理事实不符。生产提交 `9bf64776eed4bdbc36248950760644edf2a25a02`，源码 blob `4666016178ea19e94e8c229226f171e623d69512`：倒地只隐藏可走路线并明确等待真实救援，不自动救起、不移动、不改变掉落或存档。测试提交 `2d9670c1286298014d1b176be67fdab745defe02`，测试 blob `ea915125b2394fbb67d27bc78f1714a07131ee9f`：倒地前有三步已知路线→hp0 不再显示路线→真实生命恢复后路线重新可见，宝箱仍未打开。
+- 连接器对 main push 的工作流查询返回空（仅支持 PR 触发关联）；未执行 Gradle/JVM/APK/index，也未进行 Redmi/模型/FPS/审图。下一入口 `RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 的 JVM 首错与 `RelicEscapeArt.kt` 实际倒地路线叠层、救援后重显真机截图。该轮不是完整玩法闭环。
