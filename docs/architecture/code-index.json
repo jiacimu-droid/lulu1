@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:18:25.076517+00:00",
-  "commit": "5312f90cdbe69856d758cb0d1881a6215c67566f",
+  "generatedAt": "2026-11-17T02:18:56.870183+00:00",
+  "commit": "3d50e4f29ba27b58b3436ba29db46140a8522e4e",
   "branch": "main",
-  "sourceFingerprint": "09c95c1bab709165754c5358b6ae844cc387e10ecf98b78e4afa44247aa0cf60",
+  "sourceFingerprint": "45c5a4886c19f8af8ec54f66a1022bbe81c049f02c413eb19174121e17eb4bd6",
   "summary": {
     "files": 1381,
-    "lines": 295227,
+    "lines": 295224,
     "symbols": 4169
   },
   "symbolIndex": {
@@ -6993,7 +6993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1249
+        "line": 1246
       }
     ],
     "DevelopmentKind": [
@@ -10703,19 +10703,19 @@
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1143
+        "line": 1140
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1218
+        "line": 1215
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1278
+        "line": 1275
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -32874,8 +32874,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1326,
-      "sha256": "d1e0c2cf068dec4421da243f548e852fcd1cbb39d7c75d1318061c4807660d09",
+      "lines": 1323,
+      "sha256": "a94463d3dc6e050d636fce0f64f5283153b90955fff43901eedc9eb6e8f79596",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -32927,19 +32927,19 @@
         },
         {
           "name": "MemoryDebugState",
-          "line": 1143
+          "line": 1140
         },
         {
           "name": "grams",
-          "line": 1218
+          "line": 1215
         },
         {
           "name": "ids",
-          "line": 1249
+          "line": 1246
         },
         {
           "name": "valid",
-          "line": 1278
+          "line": 1275
         }
       ]
     },
