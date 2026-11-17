@@ -647,3 +647,9 @@
 ## 2026-11-17 G-02.6 · 同格怪物/遗失背包的地图标题与权威操作一致
 - 正式地图 `BlockIslandScreen.kt` 先前 `targetTitle` 优先显示补给箱/动物，而 `islandTargetAction` 已按活怪→倒地队友→遗失背包优先执行，导致同格 HUD 可能显示“打开补给”旁却是攻击。生产提交 `135a58b75dfdc1fbb93ee4b505efb6acd8047148`（blob `2b5ac7883b5e07b0401b33e336d713e9ef4c2a5f`）将这三类标题直接从权威 action 投影；未修改怪物、奖励、人物选择或掉包存档。既有 `IslandTargetActionTest.guardedLostPackRequiresRealCombatThenRecoversExactlyOnceAcrossReload` 覆盖权威动作/资源；本轮未重复造同类规则测试。
 - CI：本次提交的 main push JVM/APK/index 尚未取得可核终态，不称通过。下一实际文件 `BlockIslandScreen.kt`（同格怪物/补给/动物 HUD 真机触控）与 `IslandTargetActionTest.kt`（现有规则回归的 JVM 首错）；Redmi 横屏、帧时间、美术审图和真实模型协作另验。
+
+
+### 2026-11-18 · G-03.5 · 网页试玩重选目标/互动立即取消旧寻路
+- **根因**：`preview/worlds.js` 地图点击只有成功找到新路径才覆盖旧 `path`；新目标不可达时，旧路径继续驱动角色移动。走路途中点近身目标直接互动，旧路径也会在下一帧继续移动，导致玩家已改意图仍走向旧目标。
+- **生产**：`baa98183be5ce7688ab9fc61f5ea5d3f3481ba9c`，`preview/worlds.js` blob `c980615e742f248b37688e10869e2c171472dd3a`。地图每次新点击先取消旧路线，按钮互动先取消旧路线；新路径可达才重新排队，不改变 `LuluWorldCore` 权威背包、战斗、撤离或存档。此修复只针对网页试玩，不冒充 Android 正式游戏修复。
+- **验证边界**：本轮未执行浏览器触控/Node 测试；最新 main push 对应 JVM/APK/index 未确认成功，Redmi 横屏与帧率另验。下一实际入口 `preview/worlds.js` 与 `preview/tests/world-core.test.cjs`：长路径行走中点不可达地面/邻近实体，确认立即停步；随后检查 Android `RelicEscapeScreen.kt` 是否存在同类过期目标问题。
