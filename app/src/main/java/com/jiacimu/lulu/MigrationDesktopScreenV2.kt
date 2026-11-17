@@ -771,7 +771,7 @@ private fun DesktopLauncherGrid(
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = desktopViewportHeight / DESKTOP_ROWS
+        val cellHeight = maxHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
