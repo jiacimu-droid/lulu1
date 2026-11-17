@@ -175,15 +175,16 @@ object CommitmentTaskStore {
                     // A missed RESULT check is also a missed time-bound
                     // responsibility, not an action to quietly forget. The
                     // original check must not be replayed or deemed successful.
-                    if (task.followUpKind == "verification")
-                        missedByRole.putIfAbsent(task.characterId, task.nextCheckAt)
+                    if (task.followUpKind in setOf("verification", "retry"))
+                        task.nextCheckAt?.let { missedByRole.putIfAbsent(task.characterId, it) }
                     task.linkedAlarmId.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
-                        // Missing a passive review must not expire the underlying
-                        // care promise. No late extra call is silently placed.
+                        // A late verification or role-selected retry is NOT a
+                        // verified outcome or an invitation to blindly redial.
+                        // Keep the goal actionable under its original task ID.
                         status = if (task.followUpKind == "verification")
-                            CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
+                            CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
                         nextCheckAt = null,
                         linkedAlarmId = null,
                         followUpKind = "",
@@ -257,7 +258,7 @@ object CommitmentTaskStore {
                 // Only a completed/expired initial attempt may advance the
                 // daily clock; otherwise the original responsibility vanishes.
                 task.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Expired) &&
-                !task.dueAt.isAfter(now.minusSeconds(120)) &&
+                !task.dueAt.isAfter(now.minusSeconds(CommitmentAlarmTiming.DELIVERY_WINDOW_SECONDS)) &&
                 (task.executionToken == null || inFlight[task.id] != task.executionToken) &&
                 task.dailyNextAlarmId == null
         }
