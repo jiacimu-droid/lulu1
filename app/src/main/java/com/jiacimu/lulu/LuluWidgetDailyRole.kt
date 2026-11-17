@@ -69,7 +69,7 @@ internal object LuluWidgetDailyRole {
         }.getOrNull()
     }
 
-    suspend fun refresh(context: Context, widget: LuluDesktopWidget, date: LocalDate = LocalDate.now()) =
+    suspend fun refresh(context: Context, widget: LuluDesktopWidget, date: LocalDate = LocalDate.now(), manual: Boolean = false) =
         gate.withLock {
             if (widget.kind != LuluWidgetKind.HOROSCOPE || !widget.dailyReadingEnabled ||
                 widget.characterId.isBlank()) return@withLock
@@ -90,7 +90,7 @@ internal object LuluWidgetDailyRole {
             val fp = fingerprint(current, date)
             val oldAttempt = prefs.getString("attempt_" + fp, "")
             val oldTime = prefs.getLong("attemptAt_" + fp, 0L)
-            if (oldAttempt == fp && System.currentTimeMillis() - oldTime < 3600_000L) return@withLock
+            if (!manual && oldAttempt == fp && System.currentTimeMillis() - oldTime < 3600_000L) return@withLock
             if (!MigratedDomainStores.characters.settings.value.containsKey(current.characterId))
                 return@withLock
             // Durable retry cooldown prevents navigation loops from repeatedly paying for Full inputs.
