@@ -959,10 +959,7 @@ class LocalMemoryRepository : MemoryRepository {
                 value.policies.forEach { (characterId, policy) ->
                     put(
                         characterId,
-                        JSONObject()
-                            .put("excludedRecentMessages", policy.excludedRecentMessages)
-                            .put("readableThreshold", policy.readableThreshold)
-                            .put("autoSummarize", policy.autoSummarize),
+                        encodePolicy(policy),
                     )
                 }
             },
