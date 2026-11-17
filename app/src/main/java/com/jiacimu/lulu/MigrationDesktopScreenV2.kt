@@ -154,6 +154,19 @@ internal fun MigrationHomeV2(
     var widgets by remember { mutableStateOf(LuluDesktopWidgetStore.load(context)) }
     var showWidgetPicker by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<String?>(null) }
+    var showingWidgetPlanner by remember { mutableStateOf(false) }
+    val todoRevision by SelfTodoStore.revision.collectAsState()
+    val widgetTodayTasks = remember(todoRevision, today) {
+        SelfTodoStore.readForRole(context)?.let { saved ->
+            SelfTodoCalendar.allPending(saved, today).filter { it.date == today }
+        }.orEmpty()
+    }
+    val onWidgetTodoCheck: (TodoOccurrence) -> Unit = { occurrence ->
+        if (!SelfTodoStore.completeFromWidget(context, occurrence.task.id, occurrence.date)) {
+            android.widget.Toast.makeText(context, "待办未更新，原记录已变化或保存失败",
+                android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
     val widgetCharacterNames = characters.mapValues { it.value.displayName }
     val widgetConversationTexts = ownerChats.associate { it.characterId to it.lastMessage }
     val desktopPrefs = remember { context.getSharedPreferences("lulu_desktop_moment", Context.MODE_PRIVATE) }
@@ -434,10 +447,12 @@ internal fun MigrationHomeV2(
                                     today = today,
                                     characterNames = widgetCharacterNames,
                                     conversationTexts = widgetConversationTexts,
+                                    plannerTasks = widgetTodayTasks,
+                                    onCompleteTask = onWidgetTodoCheck,
                                     modifier = Modifier.fillMaxSize(),
                                     onOpenWidget = { widget ->
                                         when (widget.kind) {
-                                            LuluWidgetKind.PLANNER -> onOpen(MigrationRoute.SelfPreface)
+                                            LuluWidgetKind.PLANNER -> showingWidgetPlanner = true
                                             LuluWidgetKind.HOROSCOPE, LuluWidgetKind.NOTE -> {
                                                 ownerChats.firstOrNull {
                                                     it.characterId == widget.characterId &&
@@ -568,6 +583,14 @@ internal fun MigrationHomeV2(
             onClose = { editingWidgetId = null },
         )
     }
+    if (showingWidgetPlanner) LuluDesktopPlannerDialog(
+        tasks = widgetTodayTasks, onCheck = onWidgetTodoCheck,
+        onOpenSelfPreface = {
+            showingWidgetPlanner = false
+            onOpen(MigrationRoute.SelfPreface)
+        },
+        onClose = { showingWidgetPlanner = false },
+    )
 }
 
 @Composable
