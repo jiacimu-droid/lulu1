@@ -6,7 +6,12 @@ import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createMotionTransition } from '../src/motion-transition.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
-import { KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
+import {
+  KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
+  WOLF_APPROACH_MOTION_INDEX, screenProximityDuration, screenProximityPeak,
+  isScreenProximityMotion, WOLF_APPROACH_MOTION_INDEX,
+  screenProximityDuration, screenProximityPeak, isScreenProximityMotion,
+} from '../src/kiss-camera.mjs'
 import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
@@ -44,12 +49,12 @@ const bridge = {
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
-  kissCameraLease: null, pendingPostSpeechKiss: null,
+  proximityCameraLease: null, pendingPostSpeechKiss: null,
   KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
-  cancelKissCamera: (soft = false) => {
-    if (soft && bridge.kissCameraLease) {
-      bridge.kissCameraLease.handoff ||= { at: clock, zoom: 2.1 }
-    } else bridge.kissCameraLease = null
+  cancelProximityCamera: (soft = false) => {
+    if (soft && bridge.proximityCameraLease) {
+      bridge.proximityCameraLease.handoff ||= { at: clock, zoom: 2.1 }
+    } else bridge.proximityCameraLease = null
   },
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
@@ -1004,57 +1009,57 @@ assert.equal(bridge.playing, false,
 // speech must release mouth contact; a later Motion3 beat cannot extend it.
 {
   bridge.playing = true
-  bridge.kissCameraLease = { model: bridge.model, revision: 555,
+  bridge.proximityCameraLease = { model: bridge.model, index: 48, revision: 555,
     startedAt: clock - 1200 }
   bridge.authoredMotion = { model: bridge.model, revision: 555,
     group: 'LuluWolf', index: 48, started: true, source: 'character' }
   bridge.perform({ visualSequence: 94001, expression: 'star' })
-  assert.equal(bridge.kissCameraLease?.revision, 555,
+  assert.equal(bridge.proximityCameraLease?.revision, 555,
     'an expression-only next phrase must preserve the ongoing kiss')
   assert.equal(bridge.authoredMotion?.index, 48,
     'the active kiss Motion3 must not be hard-stopped by a new voice cue')
   bridge.perform({ visualSequence: 94002, face: { smile: .2 } })
-  assert.equal(bridge.kissCameraLease?.revision, 555,
+  assert.equal(bridge.proximityCameraLease?.revision, 555,
     'a second speech-only fragment cannot instantly withdraw the kiss')
   bridge.perform({ visualSequence: 94003, motion: { group: 'Gesture', index: 12 } })
-  assert.equal(bridge.kissCameraLease?.revision, 555,
+  assert.equal(bridge.proximityCameraLease?.revision, 555,
     'a selected next Motion3 cannot withdraw the kiss before its own TTS starts')
-  assert.equal(bridge.kissCameraLease?.handoff, undefined,
+  assert.equal(bridge.proximityCameraLease?.handoff, undefined,
     'TTS network latency is not an authored camera handoff')
   assert.equal(bridge.pendingSpeechParts?.motion?.index, 12,
     'next chosen Motion3 remains queued for its own audible fragment')
   bridge.onPlaybackEvent('playing', 0, 94003)
-  assert.equal(bridge.kissCameraLease, null,
+  assert.equal(bridge.proximityCameraLease, null,
     'the next audible phrase releases lip contact before speaking')
   await Promise.resolve()
 
   // A timed Motion3 beat does not occur at the first syllable. Let the
   // camera remain while queued, then release contact at real audible start.
-  bridge.kissCameraLease = { model: bridge.model, revision: 556,
+  bridge.proximityCameraLease = { model: bridge.model, index: 48, revision: 556,
     startedAt: clock - 1400 }
   bridge.authoredMotion = { model: bridge.model, revision: 556,
     group: 'LuluWolf', index: 48, started: true, source: 'character' }
   bridge.perform({ visualSequence: 94004, beats: [
     { atMs: 1200, motion: { group: 'Gesture', index: 14 }, durationMs: 900 },
   ] })
-  assert.equal(bridge.kissCameraLease?.handoff, undefined,
+  assert.equal(bridge.proximityCameraLease?.handoff, undefined,
     'a deferred score beat must not withdraw the kiss while TTS is queued')
   bridge.onPlaybackEvent('playing', 0, 94004)
-  assert.equal(bridge.kissCameraLease, null,
+  assert.equal(bridge.proximityCameraLease, null,
     'first audible syllable releases lip contact even when the next beat is later')
   clock += 1220
   assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1,
     'scheduled beat runs against real audio time')
-  assert.equal(bridge.kissCameraLease, null,
+  assert.equal(bridge.proximityCameraLease, null,
     'the later Motion3 beat must not revive an already released kiss camera')
   await Promise.resolve()
 
-  bridge.kissCameraLease = { model: bridge.model, revision: 557,
+  bridge.proximityCameraLease = { model: bridge.model, index: 48, revision: 557,
     startedAt: clock - 1400 }
   bridge.authoredMotion = { model: bridge.model, revision: 557,
     group: 'LuluWolf', index: 48, started: true, source: 'character' }
   bridge.clearSpeechMoment({ cancelKiss: true })
-  assert.equal(bridge.kissCameraLease, null,
+  assert.equal(bridge.proximityCameraLease, null,
     'a genuine interruption or hidden call releases the kiss immediately')
 }
 
@@ -1066,7 +1071,7 @@ assert.equal(bridge.playing, false,
   bridge.audioVisualSequence = 0
   bridge.scoreVisualSequence = 0
   bridge.pendingPostSpeechKiss = null
-  bridge.kissCameraLease = null
+  bridge.proximityCameraLease = null
   bridge.authoredMotion = null
   bridge.wolfRigActive = true
   bridge.cameraBasePose = { x: 350, y: 600, width: 700, height: 700, scale: 2 }
@@ -1093,13 +1098,13 @@ assert.equal(bridge.playing, false,
     'completed audio starts exactly one silent kiss motion')
   assert.deepEqual(motions.at(-1), ['LuluWolf', 48])
   assert.equal(bridge.playing, false, 'no spoken mouth during the kiss')
-  assert.ok(bridge.kissCameraLease, 'face camera starts only when Motion3 succeeds')
+  assert.ok(bridge.proximityCameraLease, 'face camera starts only when Motion3 succeeds')
 
   bridge.perform({ visualSequence: 95002, expression: 'star' })
-  assert.ok(bridge.kissCameraLease,
+  assert.ok(bridge.proximityCameraLease,
     'a merely queued new sentence is not yet audible')
   bridge.onPlaybackEvent('playing', 0, 95002, 'next')
-  assert.equal(bridge.kissCameraLease, null,
+  assert.equal(bridge.proximityCameraLease, null,
     'new audible words interrupt prior mouth contact instead of talking while kissing')
   bridge.onPlaybackEvent('finished', 0, 95002, 'next')
 
@@ -1112,6 +1117,39 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.pendingPostSpeechKiss, null)
   assert.equal(motions.length, countBeforeCancel,
     'a failed or interrupted TTS must not kiss in silence afterward')
+  // A distinct body-only close-up starts during actual words and can keep
+  // expressive face/mouth independent. It is not queued until TTS ends.
+  const countBeforeApproach = motions.length
+  bridge.perform({ visualSequence: 95004,
+    motion: { group: 'LuluWolf', index: WOLF_APPROACH_MOTION_INDEX } })
+  assert.equal(motions.length, countBeforeApproach,
+    'approach waits for the first real TTS sample')
+  bridge.onPlaybackEvent('playing', 0, 95004, 'look')
+  await Promise.resolve()
+  assert.deepEqual(motions.at(-1), ['LuluWolf', 49])
+  assert.equal(bridge.playing, true,
+    'a neutral close-up may accompany real speech unlike kissing')
+  assert.equal(bridge.pendingPostSpeechKiss, null,
+    'neutral approach must never be mistaken for a kiss')
+  assert.equal(bridge.proximityCameraLease?.index, 49)
+  assert.equal(bridge.proximityCameraLease?.peakZoom, screenProximityPeak(49))
+  const approachRevision = bridge.proximityCameraLease.revision
+  bridge.onPlaybackEvent('finished', 0, 95004, 'look')
+  assert.equal(bridge.proximityCameraLease?.revision, approachRevision,
+    'spoken face expression and body close-up release independently')
+  bridge.perform({ visualSequence: 95005, expression: 'star' })
+  assert.equal(bridge.proximityCameraLease?.index, 49,
+    'queued next sentence must not snap a close-up before new audio starts')
+  bridge.onPlaybackEvent('playing', 0, 95005, 'next')
+  assert.equal(bridge.proximityCameraLease?.index, 49,
+    'starting new audible words must not forcibly cancel neutral eye contact')
+  bridge.onPlaybackEvent('finished', 0, 95005, 'next')
+  bridge.perform({ visualSequence: 95006, motion: { group: 'Gesture', index: 1 } })
+  bridge.onPlaybackEvent('playing', 0, 95006, 'different')
+  await Promise.resolve()
+  assert.equal(bridge.proximityCameraLease?.handoff?.zoom, 2.1,
+    'a different body motion gets a soft camera withdrawal')
+  bridge.onPlaybackEvent('finished', 0, 95006, 'different')
   bridge.wolfRigActive = false
 }
 
