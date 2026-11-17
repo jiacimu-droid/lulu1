@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:55:50.322955+00:00",
-  "commit": "e388e4c1e8dd1472a6f4ff2569bb55bb13ddc92d",
+  "generatedAt": "2026-11-17T17:57:47.078864+00:00",
+  "commit": "619e4cef55018fb88011b68f73470f1b01e81193",
   "branch": "main",
-  "sourceFingerprint": "cdce7e0c72e48bfedfc95c58daba2b31764e6446a76dd061ad707a810f96ff6b",
+  "sourceFingerprint": "3ef6908d4b2c7df07703c653ad1f474ca25255e6c05414436bc588e6524ac132",
   "summary": {
     "files": 1442,
-    "lines": 303167,
+    "lines": 303172,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -51316,8 +51316,8 @@
     },
     {
       "path": "preview/worlds.js",
-      "lines": 155,
-      "sha256": "d883e89aefe952524fb30d35451764c05f565ed67b8746cd7ff806cc1fdee050",
+      "lines": 160,
+      "sha256": "d10dcb2b56b5f80d0ece238a0374592cf1e4c858ee65c4c6101f7cab543a2bbd",
       "symbols": []
     }
   ]
