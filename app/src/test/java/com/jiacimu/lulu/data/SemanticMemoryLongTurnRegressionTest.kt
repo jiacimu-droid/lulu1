@@ -184,6 +184,24 @@ class SemanticMemoryLongTurnRegressionTest {
                 disk.getJSONObject("extractionContinuationTurns").getInt(role))
             val reloaded = LocalMemoryRepository().apply { initialize(app) }
             assertEquals(remaining, reloaded.pendingMessageCount(role))
+            // A malformed (potentially billable) response must not be sent again
+            // immediately just because the app or repository was reopened.
+            val premature = runCatching { reloaded.summarizeNow(role) }.exceptionOrNull()
+            assertTrue(premature is BackgroundModelBudgetDeferred)
+            assertEquals(2, server.requestCount)
+            assertEquals(remaining, reloaded.pendingMessageCount(role))
+
+            // Simulate the documented retry window elapsing without disabling
+            // the production idempotence gate or skipping the remaining turn.
+            val attempts = app.getSharedPreferences(
+                "lulu_background_model_requests_v1", Context.MODE_PRIVATE)
+            val claimKeys = attempts.all.keys.filter { it.startsWith("evidence-attempt:") }
+            assertTrue("The failed paid request must have a durable attempt", claimKeys.isNotEmpty())
+            val eligibleAt = System.currentTimeMillis() -
+                BackgroundModelRequestBudget.SAME_EVIDENCE_RETRY_MS - 1_000L
+            assertTrue(attempts.edit().apply {
+                claimKeys.forEach { putLong(it, eligibleAt) }
+            }.commit())
             reloaded.summarizeNow(role)
             assertEquals(0, reloaded.pendingMessageCount(role))
             assertEquals(3, server.requestCount)
