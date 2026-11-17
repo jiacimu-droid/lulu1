@@ -58,7 +58,7 @@ object MomentFriendAccess {
         activeEndpoint(id, MigratedDomainStores.characters.settings.value.keys,
             DigitalWorldExpansionStore.residents().mapTo(hashSetOf()) {
                 ResidentCharacterBridge.characterId(it.id)
-            })
+            }) && (!id.startsWith("resident:") || DigitalLifeProfileStore.isEnabled(id))
 
     @Synchronized fun areFriends(a: String, b: String): Boolean =
         isActiveCharacter(a) && isActiveCharacter(b) &&
