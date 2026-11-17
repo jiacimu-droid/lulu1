@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:36:37.977108+00:00",
-  "commit": "be86ad2aff330604899020d1921b5532bdbae446",
+  "generatedAt": "2026-11-17T17:37:35.426819+00:00",
+  "commit": "0e3cf619ec04673cbec1fcd84399860a39948995",
   "branch": "main",
-  "sourceFingerprint": "2c9081fd17b7845fdfbecd5634baf2c5737ebe445ffcdab4f9137ef07fd4d89a",
+  "sourceFingerprint": "6dfd3eb27858d793d29d2ccf0ba9964fb9f92094a6a363e541034288f0599a97",
   "summary": {
     "files": 1436,
-    "lines": 302270,
-    "symbols": 4333
+    "lines": 302320,
+    "symbols": 4334
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1621,7 +1621,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 184
+        "line": 195
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3529,13 +3529,13 @@
     "profileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 151
+        "line": 159
       }
     ],
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 154
+        "line": 162
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -3582,10 +3582,16 @@
         "line": 9
       }
     ],
+    "roleApplySkin": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 228
+      }
+    ],
     "setProfileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 207
+        "line": 237
       }
     ],
     "saveGroupCall": [
@@ -26723,24 +26729,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 665,
-      "sha256": "d4978c60f7651b2b9795e174b2a68a6662d329dbe2215d3ea5b81196fdafe8e0",
+      "lines": 715,
+      "sha256": "438300f198a02e0f5d70b6875cf9fa6450c74aaf14d39dd1847e9a0cb3dc4d7e",
       "symbols": [
         {
           "name": "profileSign",
-          "line": 151
+          "line": 159
         },
         {
           "name": "load",
-          "line": 154
+          "line": 162
         },
         {
           "name": "save",
-          "line": 184
+          "line": 195
+        },
+        {
+          "name": "roleApplySkin",
+          "line": 228
         },
         {
           "name": "setProfileSign",
-          "line": 207
+          "line": 237
         }
       ]
     },
