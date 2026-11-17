@@ -59,6 +59,10 @@ internal object LuluBackgroundPhoneContinuation {
         )
     }
 
+    /** A model reply is stale if STOP or authorization revocation happened while waiting. */
+    internal fun mustAbortAfterModel(ownerPaused: Boolean, authorized: Boolean): Boolean =
+        ownerPaused || !authorized
+
     data class Outcome(
         val notes: String,
         val lastImage: String?,
@@ -361,8 +365,9 @@ internal object LuluBackgroundPhoneContinuation {
             // STOP/revocation can arrive while the paid model is thinking.
             // Recheck at the execution boundary, not only before the request:
             // a stale decision must never click after the owner has stopped.
-            if (LuluBackgroundPhoneSession.ownerHasPaused(context) ||
-                !LuluRolePhoneAuthorization.isGranted(context, characterId)) {
+            if (mustAbortAfterModel(
+                    LuluBackgroundPhoneSession.ownerHasPaused(context),
+                    LuluRolePhoneAuthorization.isGranted(context, characterId))) {
                 history.appendLine("模型等待期间主人停止或撤销了后台手机授权；旧决定未执行")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
