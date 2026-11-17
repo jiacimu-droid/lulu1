@@ -170,8 +170,17 @@ object CommitmentTaskStore {
                 }
                 task.status == CommitmentTaskStatus.WaitingForFeedback &&
                     task.nextCheckAt != null &&
-                    CommitmentAlarmTiming.expired(task.nextCheckAt, now) &&
-                    task.linkedAlarmId != null -> {
+                    task.linkedAlarmId != null &&
+                    (CommitmentAlarmTiming.expired(task.nextCheckAt, now) ||
+                        // Twenty minutes is a grace period for a genuinely
+                        // scheduled Android delivery, not permission to keep
+                        // a ghost result check whose physical alarm vanished.
+                        (!task.nextCheckAt.isAfter(now) &&
+                            LuluAlarmSystem.list().none { alarm ->
+                                alarm.id == task.linkedAlarmId &&
+                                    alarm.characterId == task.characterId &&
+                                    alarm.commitmentTaskId == task.id
+                            })) -> {
                     // A missed RESULT check is also a missed time-bound
                     // responsibility, not an action to quietly forget. The
                     // original check must not be replayed or deemed successful.
@@ -576,7 +585,15 @@ object CommitmentTaskStore {
             if (original == null) {
                 kept.add(task)
             } else if (task.status == CommitmentTaskStatus.Completed ||
-                (task.lastAlarmReceivedAt != null && original.lastAlarmReceivedAt != null)) {
+                (task.lastAlarmReceivedAt != null && original.lastAlarmReceivedAt != null) ||
+                // Two separately claimed/delivered occurrences are real
+                // independent receipts even when an old repeated goal has
+                // identical text and clock time. Only *unexecuted* duplicate
+                // registrations may be safely retired here.
+                (task.attemptCount > 0 && original.attemptCount > 0 &&
+                    !task.executionToken.isNullOrBlank() &&
+                    !original.executionToken.isNullOrBlank() &&
+                    task.executionToken != original.executionToken)) {
                 // Two independently executed calls must retain their separate
                 // factual results; de-duplication cannot rewrite real history.
                 kept.add(task)
