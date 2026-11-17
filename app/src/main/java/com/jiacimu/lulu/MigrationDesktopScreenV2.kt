@@ -143,6 +143,10 @@ internal fun MigrationHomeV2(
         in 14..17 -> "下午好"
         else -> "晚上好"
     }
+    // Do not address a brand-new user as somebody else's "master".
+    val ownerDisplayName = context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+        .getString("display_name", null)?.trim()?.takeUnless { it.isBlank() || it == "我" }
+    val personalizedGreeting = ownerDisplayName?.let { "$greeting，$it" } ?: greeting
     var slots by remember { mutableStateOf(loadDesktopSlots(context)) }
     val desktopPrefs = remember { context.getSharedPreferences("lulu_desktop_moment", Context.MODE_PRIVATE) }
     var momentPhotoUri by remember { mutableStateOf(desktopPrefs.getString("photo_uri", null)) }
@@ -279,7 +283,7 @@ internal fun MigrationHomeV2(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "$greeting，主人",
+                        personalizedGreeting,
                         color = DesktopInk,
                         fontSize = if (journal) 28.sp else 31.sp,
                         fontWeight = FontWeight.SemiBold,
