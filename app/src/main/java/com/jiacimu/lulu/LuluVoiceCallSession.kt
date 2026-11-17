@@ -332,7 +332,8 @@ internal object LuluVoiceCallSession {
                 if (!live.connected || live.characterId != role || live.callExperienceId != callId) break
                 if (!CallExternalResultPolicy.canDeliver(role, callId, live.characterId, live.callExperienceId,
                         live.connected, live.opening, live.thinking, live.speaking,
-                        live.userSpeaking || confirmedSpeechInProgress(), speechQueue?.hasPendingAudio == true)) {
+                        live.userSpeaking || confirmedSpeechInProgress(), speechQueue?.hasPendingAudio == true,
+                        hangupPending = pendingCharacterHangupJob?.isActive == true)) {
                     delay(400L)
                     continue
                 }
