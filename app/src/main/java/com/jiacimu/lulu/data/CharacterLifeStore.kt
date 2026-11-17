@@ -295,11 +295,7 @@ object CharacterLifeStore {
         }.trim()
     }
 
-    /**
-     * Explicitly requested v9 rewrite, not an additive default refresh. Older
-     * installations can jump here directly, without old migrations touching
-     * identity or appending contradictory personality rules. Later edits win.
-     */
+    /** Apply this role\u0027s CURRENT chosen intention, without any bundled persona migrations. */
     @Synchronized fun consider(characterId: String, proposal: JSONObject?, now: Instant = Instant.now()) {
         if (proposal == null) return
         val root = state(characterId)
