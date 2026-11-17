@@ -281,9 +281,10 @@ internal fun LuluDesktopWidgetCard(
         shadowElevation = 1.dp,
         onClick = onOpen,
     ) {
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
+        BoxWithConstraints(Modifier.fillMaxSize().background(Brush.verticalGradient(
             listOf(backing.copy(alpha = .55f), backing.copy(alpha = .86f)),
         ))) {
+            val compact = maxHeight < 145.dp
             if (artImage != null) Image(
                 bitmap = artImage,
                 contentDescription = null,
@@ -295,7 +296,7 @@ internal fun LuluDesktopWidgetCard(
                 if (defaultDark) Color(0x33000000) else Color(0x18FFFFFF),
             ))
             Column(
-                modifier = Modifier.fillMaxSize().padding(15.dp),
+                modifier = Modifier.fillMaxSize().padding(if (compact) 8.dp else 15.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -317,42 +318,48 @@ internal fun LuluDesktopWidgetCard(
                         val sign = widget.sign.coerceIn(0, 11)
                         val (good, caution) = luluDailyFortune(today, sign)
                         Text(luluZodiacSymbols[sign] + "  " + luluZodiacNames[sign],
-                            color = foreground, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
-                        Text("宜 · " + good + "      忌 · " + caution,
+                            color = foreground, fontSize = if (compact) 17.sp else 23.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        if (!compact) Text("宜 · " + good + "      忌 · " + caution,
                             color = foreground, fontSize = 12.sp, maxLines = 2,
                             overflow = TextOverflow.Ellipsis)
-                        Text(if (characterName == null) "每日灵感 · 娱乐参考"
+                        Text(if (compact) "宜 · " + good
+                            else if (characterName == null) "每日灵感 · 娱乐参考"
                             else characterName + " · 点开聊聊今日灵感",
                             color = foreground.copy(alpha = .84f), fontSize = 10.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     LuluWidgetKind.NOTE -> {
                         Text(characterName ?: "一封等待署名的信",
-                            color = foreground, fontSize = 17.sp, fontWeight = FontWeight.SemiBold,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            color = foreground, fontSize = if (compact) 13.sp else 17.sp,
+                            fontWeight = FontWeight.SemiBold, maxLines = 1,
+                            overflow = TextOverflow.Ellipsis)
                         Text(lastConversationText?.takeIf(String::isNotBlank)
                             ?: "绑定一个角色，把真实的最近对话留在桌面。",
                             color = foreground, fontSize = 12.sp, lineHeight = 17.sp,
-                            maxLines = 3, overflow = TextOverflow.Ellipsis)
-                        Text(if (characterName != null) "最近对话 · 点击继续" else "点击设置角色",
+                            maxLines = if (compact) 1 else 3, overflow = TextOverflow.Ellipsis)
+                        if (!compact) Text(if (characterName != null) "最近对话 · 点击继续"
+                            else "点击设置角色",
                             color = foreground.copy(alpha = .8f), fontSize = 10.sp)
                     }
                     LuluWidgetKind.COUNTDOWN -> {
                         val date = runCatching { LocalDate.parse(widget.targetDate) }.getOrNull()
                         val remaining = date?.let { ChronoUnit.DAYS.between(today, it) }
                         Text(widget.title.ifBlank { "值得期待的日子" },
-                            color = foreground, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                            maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            color = foreground, fontSize = if (compact) 13.sp else 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis)
                         Text(remaining?.let { if (it >= 0) "还有 " + it + " 天" else "已过去 " + (-it) + " 天" }
                             ?: "点这里设置日期",
-                            color = foreground, fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
-                        Text(widget.targetDate.ifBlank { "COUNTDOWN" },
+                            color = foreground, fontSize = if (compact) 16.sp else 21.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        if (!compact) Text(widget.targetDate.ifBlank { "COUNTDOWN" },
                             color = foreground.copy(alpha = .80f), fontSize = 10.sp)
                     }
                     LuluWidgetKind.PLANNER -> {
                         Text("把今天，留给重要的事。", color = foreground,
-                            fontSize = 20.sp, fontWeight = FontWeight.Medium)
-                        Text("打开「自序」查看和勾选真实待办，不会生成虚假的完成记录。",
+                            fontSize = if (compact) 14.sp else 20.sp, fontWeight = FontWeight.Medium)
+                        if (!compact) Text("打开「自序」查看和勾选真实待办，不会生成虚假的完成记录。",
                             color = foreground, fontSize = 12.sp, maxLines = 2)
                         Text("今日计划  ·  点击进入自序",
                             color = foreground.copy(alpha = .82f), fontSize = 10.sp)
