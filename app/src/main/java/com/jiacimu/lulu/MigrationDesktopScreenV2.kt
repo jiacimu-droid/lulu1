@@ -7,6 +7,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.pager.PagerState
@@ -329,7 +330,9 @@ internal fun MigrationHomeV2(
                             Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(12.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
+                    detectTapGestures(onLongPress = { showWidgetPicker = true })
+                },
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(Modifier.weight(1f)) {
@@ -425,12 +428,6 @@ internal fun MigrationHomeV2(
                             }
                         } else {
                             Box(Modifier.fillMaxSize()) {
-                                DesktopLauncherGrid(
-                                    slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
-                                    modifier = Modifier.fillMaxSize(),
-                                    draggedLauncherId = draggingSource?.let(slots::get),
-                                    onOpen = onOpen,
-                                )
                                 LuluDesktopWidgetCanvas(
                                     page = page, widgets = widgets,
                                     launcherSlots = slots,
@@ -440,6 +437,14 @@ internal fun MigrationHomeV2(
                                     modifier = Modifier.fillMaxSize(),
                                     onOpenWidget = { editingWidgetId = it.id },
                                     onBlankLongPress = { showWidgetPicker = true },
+                                )
+                                // Draw the launchers over the widget canvas: transparent
+                                // background long-press handling must not steal icon taps.
+                                DesktopLauncherGrid(
+                                    slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
+                                    modifier = Modifier.fillMaxSize(),
+                                    draggedLauncherId = draggingSource?.let(slots::get),
+                                    onOpen = onOpen,
                                 )
                             }
                         }
@@ -526,13 +531,18 @@ internal fun MigrationHomeV2(
         LuluDesktopWidgetEditor(
             initial = selected, characters = widgetCharacterNames,
             onSave = { next ->
-                val changed = widgets.map { if (it.id == next.id) next else it }
-                if (LuluDesktopWidgetStore.save(context, changed)) {
-                    widgets = changed
-                    if (next.kind == LuluWidgetKind.HOROSCOPE) {
-                        LuluDesktopWidgetStore.setProfileSign(context, next.sign)
-                    }
-                    editingWidgetId = null
+                if (!luluWidgetFits(next, widgets, slots)) {
+                    false
+                } else {
+                    val changed = widgets.map { if (it.id == next.id) next else it }
+                    if (LuluDesktopWidgetStore.save(context, changed)) {
+                        widgets = changed
+                        if (next.kind == LuluWidgetKind.HOROSCOPE) {
+                            LuluDesktopWidgetStore.setProfileSign(context, next.sign)
+                        }
+                        editingWidgetId = null
+                        true
+                    } else false
                 }
             },
             onDelete = {
