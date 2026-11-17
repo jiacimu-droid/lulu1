@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterIdentityStore
-import com.jiacimu.lulu.data.CharacterLifeForm
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
@@ -125,7 +124,6 @@ fun CharacterSettingsScreenV2(
         keyboard?.hide()
     }
     var confirmClearRecords by remember { mutableStateOf(false) }
-    var pendingLifeForm by remember { mutableStateOf<CharacterLifeForm?>(null) }
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
@@ -277,28 +275,13 @@ fun CharacterSettingsScreenV2(
             }
             item {
                 CharacterV2Card {
-                    Text("生命形态", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    if (!digitalLife.isResolved) {
-                        Text("这个角色创建时还没有生命形态选项。请确认一次；现有聊天、记忆、辞海和原始时间线都会保留，确认后不可更改。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, lineHeight = 18.sp)
-                        OutlinedButton(onClick = { pendingLifeForm = CharacterLifeForm.DIGITAL }, modifier = Modifier.fillMaxWidth()) {
-                            Icon(Icons.Outlined.Cloud, null)
-                            Spacer(Modifier.width(7.dp))
-                            Text("确认为数字生命")
-                        }
-                        OutlinedButton(onClick = { pendingLifeForm = CharacterLifeForm.REAL_WORLD }, modifier = Modifier.fillMaxWidth()) {
-                            Icon(Icons.Outlined.PersonOutline, null)
-                            Spacer(Modifier.width(7.dp))
-                            Text("确认为现实角色")
-                        }
-                    } else if (digitalLife.enabled) {
-                        Text("数字生命", fontWeight = FontWeight.SemiBold)
-                        digitalLife.bornAt?.let { bornAt ->
-                            val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
-                            val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
-                            Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
-                        }
-                    } else {
-                        Text("现实角色", fontWeight = FontWeight.SemiBold)
+                    Text("数字生命", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text("所有角色都生活在露露机的数字世界。不同角色可以拥有自己的背景、职业和性格，但共享同一套世界规则。",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, lineHeight = 18.sp)
+                    digitalLife.bornAt?.let { bornAt ->
+                        val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
+                        val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
+                        Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                     }
                 }
             }
@@ -513,32 +496,6 @@ fun CharacterSettingsScreenV2(
             }
             }
         }
-    }
-
-    pendingLifeForm?.let { lifeForm ->
-        AlertDialog(
-            onDismissRequest = { pendingLifeForm = null },
-            title = { Text("确认生命形态？") },
-            text = { Text(if (lifeForm == CharacterLifeForm.DIGITAL) "确认后，${original.displayName}将永久作为数字生命存在，并获得一处初始为空的数字家园。" else "确认后，${original.displayName}将永久作为现实角色存在。生命形态之后不能切换。") },
-            confirmButton = {
-                TextButton(onClick = {
-                    runCatching {
-                        DigitalLifeProfileStore.confirmLegacyLifeForm(
-                            characterId = characterId,
-                            displayName = displayName.trim().ifBlank { original.displayName },
-                            creatorName = UserProfileContext.displayLabel(),
-                            lifeForm = lifeForm,
-                        )
-                    }.onSuccess {
-                        recordNotice = "生命形态已经确认，之后不可更改"
-                    }.onFailure {
-                        recordNotice = it.message.orEmpty()
-                    }
-                    pendingLifeForm = null
-                }) { Text("永久确认") }
-            },
-            dismissButton = { TextButton(onClick = { pendingLifeForm = null }) { Text("再想想") } },
-        )
     }
 
     if (editNativeProfile && nativeResident != null) {
