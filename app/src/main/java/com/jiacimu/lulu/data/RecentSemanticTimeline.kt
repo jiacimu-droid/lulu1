@@ -19,8 +19,18 @@ object RecentSemanticTimeline {
 
     /** No text/name interpretation: only producer-assigned IDs and evidence kinds. */
     private fun experienceKey(event: SharedTimelineEvent, relicRuns: Set<String>): String? {
-        if (event.source == "game-team-action" && event.sessionId.startsWith("game-session-"))
-            return "game:" + event.sessionId.removePrefix("game-session-")
+        if (event.source == "game-team-action" && event.sessionId.startsWith("game-session-")) {
+            val session = event.sessionId.removePrefix("game-session-")
+            // All relic witnesses (actor actions, the legacy ledger and replay)
+            // share one physical-run key. The original session uses
+            // "relic_escape-<runId>", while ledger IDs use "relic:<runId>:...".
+            // Keep island visit grouping separate below.
+            if (session.startsWith("relic_escape-")) {
+                val run = session.removePrefix("relic_escape-")
+                if (run.isNotBlank()) return "game:relic_escape:$run"
+            }
+            return "game:" + session
+        }
         if (event.source == "game-relic" && event.id.startsWith("relic:")) {
             val run = event.id.removePrefix("relic:").substringBefore(':')
             if (run.isNotBlank()) return "game:relic_escape:$run"
