@@ -170,12 +170,13 @@ internal val luluGuideFeatures = listOf(
 
 internal data class LuluGuideHeroHighlight(
     val title: String, val subtitle: String, val icon: ImageVector,
+    val featureKey: String,
 )
 internal val luluGuideHeroHighlights = listOf(
-    LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology),
-    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome),
-    LuluGuideHeroHighlight("连麦一起玩", "边说边玩，合作或对战", Icons.Outlined.SportsEsports),
-    LuluGuideHeroHighlight("自主使用手机", "刷视频、逛商品、分享链接", Icons.Outlined.Smartphone),
+    LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology, "memory"),
+    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "groups"),
+    LuluGuideHeroHighlight("连麦一起玩", "边说边玩，合作或对战", Icons.Outlined.SportsEsports, "games"),
+    LuluGuideHeroHighlight("自主使用手机", "刷视频、逛商品、分享链接", Icons.Outlined.Smartphone, "phone"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -185,6 +186,7 @@ internal fun LuluOnboardingGuideScreen(
     onOpen: (MigrationRoute) -> Unit,
 ) {
     var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
+    var showSetupSteps by rememberSaveable { mutableStateOf(false) }
     val overviewScrollState = rememberLazyListState()
     val selected = luluGuideFeatures.firstOrNull { it.key == selectedKey }
     BackHandler(enabled = selected != null) { selectedKey = null }
@@ -234,6 +236,7 @@ internal fun LuluOnboardingGuideScreen(
                                 horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                                 pair.forEach { highlight ->
                                     Surface(
+                                        onClick = { selectedKey = highlight.featureKey },
                                         modifier = Modifier.weight(1f).heightIn(min = 112.dp),
                                         shape = RoundedCornerShape(18.dp),
                                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.53f),
