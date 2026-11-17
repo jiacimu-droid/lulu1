@@ -844,7 +844,8 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "分享商品链接必须选择刚观察到的复制链接控件，不能通过坐标或其他动作读取剪贴板")
                     .toString()
             }
-            if (LuluBackgroundPhoneArgumentPolicy.needsSnapshot(action)) {
+            if (LuluBackgroundPhoneArgumentPolicy.needsSnapshot(action) ||
+                (action == "type" && args.has("inputX") && args.has("inputY"))) {
                 val snapshot = lastObservedUi
                 val requestedSnapshot = args.optString("screenSnapshotId")
                 val requestedElement = args.optString("elementRef")
