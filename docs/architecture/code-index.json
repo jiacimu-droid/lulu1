@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:53:51.817176+00:00",
-  "commit": "64e2d9b7a08328c896c6ea786d2eb9895d2d8da6",
+  "generatedAt": "2026-11-17T17:55:50.322955+00:00",
+  "commit": "e388e4c1e8dd1472a6f4ff2569bb55bb13ddc92d",
   "branch": "main",
-  "sourceFingerprint": "9ec86a727fa5327c23c3200a7c5d870314eba11dc8e69e3a57ddc3a80499930a",
+  "sourceFingerprint": "cdce7e0c72e48bfedfc95c58daba2b31764e6446a76dd061ad707a810f96ff6b",
   "summary": {
     "files": 1442,
-    "lines": 303154,
+    "lines": 303167,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -51304,8 +51304,8 @@
     },
     {
       "path": "preview/worlds.css",
-      "lines": 68,
-      "sha256": "fce76389575d13a92493b9d352460faedbfc589b4fb2455b907040f5527b2212",
+      "lines": 70,
+      "sha256": "d273c8abc50cda659da179e0d83f249eee15b075e750f897c67f2278acabaefa",
       "symbols": []
     },
     {
@@ -51316,8 +51316,8 @@
     },
     {
       "path": "preview/worlds.js",
-      "lines": 144,
-      "sha256": "e2e12710fb6cf8714b01e58c768a59ce4bb61e225a6f0068c7ef59a09f32ce23",
+      "lines": 155,
+      "sha256": "d883e89aefe952524fb30d35451764c05f565ed67b8746cd7ff806cc1fdee050",
       "symbols": []
     }
   ]
