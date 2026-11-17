@@ -308,6 +308,8 @@
 
 ## 二、跨窗口接力看板（仅列未完成项）
 
+**2026-11-18 · 心声 JSON 与稍后联系落空（已提交，CI/真机/真实模型待验）**：主人提供 11-17 23:54 心声与 11-18 00:28 截图：心情把 `{"label":...,"valence":...,"arousal":...}` 当正文展示；江渡仅在心声写“再等几分钟、待会打过去”，未见真实来电。已查 `CompanionPresenceStore.update` 旧逻辑直接截取 mood，新增 `CompanionPresenceMood` 在写入/读历史时提取 label 并兼容截断旧 JSON，`PresencePresentation` 守护内存投影，配 `PresencePresentationTest`。未来联络需同轮 `plan_personal_activity` 的真实保存回执，不能把私人文字视作定时动作；已在唯一 `spontaneousInnerVoiceGuide` 加入共用约束，且 `CharacterMotiveReview` 原超 30 分钟直接放弃专项复盘改为保留 3 小时内的晚到再判断，之后仍只按正常周期复议，不强制迟到拨号；回归 `CharacterDecisionProtocolTest` / `CharacterMotiveReviewTest`。最新提交 `54e77c77`；**未能读取主人设备实际 motive/plan/worker/来电回执，不能断言该条旧心声已排期或已修复真机复现**。下一验收：同轮决定“几分钟后联系”必须存有 dueAt/planId；到期及晚到检查同一人物决策与工具回执，拒绝/安静仍可由本人选择；复核 CI 与实际 APK。
+
 **PH-01 · 2026-11-17 · 角色自选的一次性主屏直接切回（已提交源码与测试，APK/Redmi 待验）**：主人希望在约定睡觉等场景，角色查到真实当前 App 后可选择把正在看的第三方 App 切到后台、直接把露露机带到前台，而不是只发“返回”通知。新增独立默认关闭、可撤销的 `DIRECT_RETURN` 授权；`bring_lulu_front` 复用原 ToolRouter→LuluDeviceToolBridge，角色自行决定是否选用，不自动定时封锁抖音或替角色判断睡眠意图。仅针对主显示器 displayId=0、手机已解锁/屏幕唤醒/无障碍在线/真实前台应用可核验/非敏感或排除的 App；服务端（本机 Android 无障碍服务）请求启动 MigrationActivity，再通过主屏前台包名新观察判成功；Android 拒绝或验证不充分只给 unverified，不把 accepted、历史回执当成已切换；不强停第三方 App。源码提交 `3699ff6`、`39a7c44`、`d294e03`、`971233e`、`1db9973`，权限/保护包测试 `569899c`；[本批 APK/JVM #44095209434](https://github.com/jiacimu-droid/lulu1/actions/runs/44095209434) 待验，Redmi 还需从抖音真实前台触发、核显示切换成功、授权撤回/锁屏/敏感页拒绝及 MIUI/Android 背景启动限制，不能宣称真机已成功。
 
 
