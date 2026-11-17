@@ -546,7 +546,7 @@ fun CharacterSettingsScreenV2(
 }
 
 @Composable
-private fun CharacterV2IntervalRow(
+internal fun CharacterV2IntervalRow(
     value: String,
     unit: PerceptionIntervalUnit,
     onValueChange: (String) -> Unit,
@@ -574,7 +574,7 @@ private fun CharacterV2IntervalRow(
 }
 
 @Composable
-private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int) -> Unit) {
+internal fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int) -> Unit) {
     val context = LocalContext.current
     val hour = minutesOfDay / 60
     val minute = minutesOfDay % 60
