@@ -48,7 +48,19 @@ internal object ReadingBackgroundBridge {
             }
             .sortedWith(compareBy<Pair<BackgroundReadingBook, Long>> { it.first.seriesId }.thenBy { it.first.chapterNumber })
             .map { (book, _) -> book }
-        val personalLibrary = interleave(theaterChapters, uploaded)
+        // Reuse earlier saved one-shot and character-authored story texts. The
+        // studio is still available, but its finished works also live on the reading shelf.
+        val savedStories = MiniTheaterLibrary.get(context).items.value
+            .filter { it.text.isNotBlank() && !it.builtIn }
+            .map { item ->
+                BackgroundReadingBook(
+                    id = "saved-theater:${item.id}",
+                    title = item.title,
+                    content = item.text,
+                    source = if (item.characterId.isBlank()) "已保存故事" else "角色番外",
+                )
+            }
+        val personalLibrary = (interleave(theaterChapters, uploaded) + savedStories)
             .distinctBy(BackgroundReadingBook::id)
         // An empty reading library used to make autonomous reading literally
         // impossible. Keep user-provided content authoritative whenever any
