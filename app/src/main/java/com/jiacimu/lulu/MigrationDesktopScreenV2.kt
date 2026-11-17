@@ -154,8 +154,14 @@ internal fun MigrationHomeV2(
     var widgets by remember { mutableStateOf(LuluDesktopWidgetStore.load(context)) }
     val widgetRevision by LuluDesktopWidgetStore.revision.collectAsState()
     val dailyReadingRevision by LuluWidgetDailyRole.revision.collectAsState()
+    val authoredNoteRevision by LuluWidgetRoleActions.revision.collectAsState()
     LaunchedEffect(widgetRevision) {
         if (widgetRevision > 0L) widgets = LuluDesktopWidgetStore.load(context)
+    }
+    val roleNotes = remember(widgets, authoredNoteRevision) {
+        widgets.mapNotNull { card ->
+            LuluWidgetRoleActions.readNote(context, card)?.let { card.id to it.content }
+        }.toMap()
     }
     val dailyReadings = remember(widgets, today, dailyReadingRevision) {
         widgets.mapNotNull { card ->
@@ -471,6 +477,7 @@ internal fun MigrationHomeV2(
                                     characterNames = widgetCharacterNames,
                                     conversationTexts = widgetConversationTexts,
                                     roleReadings = dailyReadings,
+                                    roleNotes = roleNotes,
                                     plannerTasks = widgetTodayTasks,
                                     onCompleteTask = onWidgetTodoCheck,
                                     modifier = Modifier.fillMaxSize(),
@@ -536,6 +543,7 @@ internal fun MigrationHomeV2(
                                 characterName = widgetCharacterNames[w.characterId],
                                 lastConversationText = widgetConversationTexts[w.characterId],
                                 roleReading = dailyReadings[w.id],
+                                roleNote = roleNotes[w.id],
                                 modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
                                     .offset {
                                         IntOffset(
