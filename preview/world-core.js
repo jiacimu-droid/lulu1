@@ -40,7 +40,21 @@
     for(const p of props)terrain[p.y*WIDTH+p.x]=kind==='relic'?'floor':(kind==='meet'?'path':'grass');
     return {version:1,kind,seed,width:WIDTH,height:HEIGHT,terrain,props,player:{x:5,y:6},companion:{x:6,y:6,following:kind!=='meet'},inventory:{wood:0,stone:0,relic:0},hp:12,turns:0,holding:false,finished:false,notes:[]};
   }
-  function valid(state){return !!state&&state.version===1&&Object.prototype.hasOwnProperty.call(labels,state.kind)&&state.width===WIDTH&&state.height===HEIGHT&&Array.isArray(state.terrain)&&state.terrain.length===WIDTH*HEIGHT&&Array.isArray(state.props)&&Number.isInteger(state.player?.x)&&Number.isInteger(state.player?.y)}
+  function valid(state){
+    const point=p=>p&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<WIDTH&&p.y<HEIGHT;
+    const count=n=>Number.isSafeInteger(n)&&n>=0;
+    return !!state&&state.version===1&&Object.prototype.hasOwnProperty.call(labels,state.kind)&&
+      state.width===WIDTH&&state.height===HEIGHT&&
+      Array.isArray(state.terrain)&&state.terrain.length===WIDTH*HEIGHT&&
+      state.terrain.every(t=>typeof t==='string'&&['border','water','wall','stone','floor','grass','path'].includes(t))&&
+      Array.isArray(state.props)&&state.props.length<=WIDTH*HEIGHT&&
+      state.props.every(p=>point(p)&&typeof p.id==='string'&&typeof p.kind==='string'&&typeof p.solid==='boolean'&&typeof p.used==='boolean')&&
+      new Set(state.props.map(p=>p.id)).size===state.props.length&&
+      point(state.player)&&point(state.companion)&&typeof state.companion.following==='boolean'&&
+      state.inventory&&count(state.inventory.wood)&&count(state.inventory.stone)&&count(state.inventory.relic)&&
+      count(state.turns)&&count(state.hp)&&typeof state.finished==='boolean'&&typeof state.holding==='boolean'&&
+      Array.isArray(state.notes);
+  }
   function inBounds(s,x,y){return x>0&&y>0&&x<s.width-1&&y<s.height-1}
   function blocked(s,x,y){if(!inBounds(s,x,y))return true;const t=s.terrain[y*s.width+x];return ['border','water','wall'].includes(t)||s.props.some(p=>p.solid&&!p.used&&p.x===x&&p.y===y)}
   function nearest(s,range=1){return s.props.filter(p=>!p.used&&Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)<=range).sort((a,b)=>Math.abs(a.x-s.player.x)+Math.abs(a.y-s.player.y)-Math.abs(b.x-s.player.x)-Math.abs(b.y-s.player.y))[0]||null}
