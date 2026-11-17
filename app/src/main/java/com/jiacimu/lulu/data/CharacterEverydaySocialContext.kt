@@ -89,9 +89,15 @@ internal object CharacterEverydaySocialContext {
         }.takeLast(6)
         // Browser and mailbox claims must likewise come from delivered/observed
         // originals, not plausible prose in an old conversation or a model plan.
+        val visibleReadIds = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+            .flatMapTo(hashSetOf()) { post ->
+                listOf("moment-${post.id}-$characterId",
+                    "moment-own-activity-${post.id}-$characterId")
+            }
         val recentRead = SharedExperienceTimeline.recentEvents(characterId, 120)
             .asSequence().filter {
-                it.source == "moment:phone-read" &&
+                it.id in visibleReadIds &&
+                    it.source == "moment:phone-read" &&
                     it.evidenceKind == EventEvidenceKind.Observation &&
                     it.revision == 1L
             }.sortedByDescending { it.occurredAt }.take(3).toList()
