@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`71173d1fd7ec8a4001a92302ad17cce2c594622b`
+- 基准提交：`2475922a6d2b02588117d519068e34786b54fd8e`
 - 分支：`main`
 - 已索引文件：1414
-- 已索引代码/文本行：298792
+- 已索引代码/文本行：298784
 - 已发现符号：4255
 
 | 文件 | 行数 | 符号数 |
@@ -491,7 +491,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 270 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1274 | 41 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1266 | 41 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 341 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
