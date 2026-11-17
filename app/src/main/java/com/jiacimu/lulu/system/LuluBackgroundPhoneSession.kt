@@ -609,21 +609,26 @@ internal object LuluBackgroundPhoneSession {
                 LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
             } != before) return denied("visual_chat_window_changed",
             "输入框聚焦后微信窗口身份已变，未粘贴")
-        val paste = command(JSONObject().put("action", "paste_text")
-            .put("packageName", packageName).put("text", message))
-        if (!paste.optBoolean("accepted")) {
-            // A partial key injection may have put a draft into the editor.
-            // Never retry or click Send until an entirely new user/model
-            // decision with real visual proof is made.
-            return denied(paste.optString("errorCode").ifBlank { "visual_chat_paste_unverified" },
-                "已尝试指定微信进程的输入通道，但未核实文字完整派发和剪贴板还原；不重复输入或发送")
-                .put("inputDispatched", paste.optBoolean("inputDispatched"))
-        }
-        val proof = LuluVirtualChatTitleOcr.inspectVisualDraft(
+        // If a previous PRE-SEND attempt left precisely this text in the
+        // verified composer, never paste it twice. Only an exact fresh visual
+        // proof (recipient + full draft + app Send button) can reuse it.
+        val existingDraft = LuluVirtualChatTitleOcr.inspectVisualDraft(
             id, packageName, recipient, message, frameSource)
-            ?: return denied("visual_chat_draft_or_send_unverified",
-                "指定后台微信已接收按键，但截图未同时确认顶部收件人、输入正文及右侧发送键，未点发送")
-                .put("inputDispatched", true)
+        val proof = if (existingDraft != null) existingDraft else {
+            val paste = command(JSONObject().put("action", "paste_text")
+                .put("packageName", packageName).put("text", message))
+            if (!paste.optBoolean("accepted")) {
+                // Even partial injection is unknown: read before doing more.
+                return denied(paste.optString("errorCode").ifBlank { "visual_chat_paste_unverified" },
+                    "指定微信进程的文字派发未核实；不重复输入或发送")
+                    .put("inputDispatched", paste.optBoolean("inputDispatched"))
+            }
+            LuluVirtualChatTitleOcr.inspectVisualDraft(
+                id, packageName, recipient, message, frameSource)
+                ?: return denied("visual_chat_draft_or_send_unverified",
+                    "指定后台微信已接收文字，但截图未同时确认顶部收件人、全文和唯一发送键，未点发送")
+                    .put("inputDispatched", true)
+        }
         if (!authorized() || windowGate(id, packageName).optString("kind") != "target" ||
             withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
@@ -645,6 +650,7 @@ internal object LuluBackgroundPhoneSession {
             .put("messageSendAttempted", attempted)
             .put("messageSendClicked", clicked)
             .put("messageSendMethod", "fresh_visual_ocr_unique_send")
+            .put("messageReusedExistingDraft", existingDraft != null)
             .put("messageInputReadbackVerified", true)
             .put("chatRecipientVerified", true)
             .put("visualOutgoingBefore", proof.previousOutgoing)
