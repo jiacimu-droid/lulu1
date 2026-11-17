@@ -39,6 +39,20 @@ class ElevenLabsMusicTest {
         }
     }
 
+    @Test fun missingMusicScopeUsesActionableChineseErrorNotRawJson() {
+        val json = """{"detail":{"type":"authentication_error","code":"unauthorized","message":"The API key you used is missing the permission music_generation to execute this operation.","status":"missing_permissions","request_id":"private-id"}}"""
+        val text = ElevenLabsMusic.explainHttpError(401, json)
+        assertTrue(text.contains("Music Generation"))
+        assertTrue(text.contains("API Keys"))
+        assertTrue(text.contains("编辑"))
+        assertFalse(text.contains("private-id"))
+        assertFalse(text.contains("authentication_error"))
+        assertFalse(text.contains("请更换"))
+        assertTrue(ElevenLabsMusic.explainHttpError(403, "{}").contains("权限"))
+        assertTrue(ElevenLabsMusic.explainHttpError(402, "{}").contains("额度"))
+        assertTrue(ElevenLabsMusic.explainHttpError(429, "{}").contains("频繁"))
+    }
+
     @Test fun oneStoredElevenLabsKeyServesSpeechScribeAndMusicIndependently() {
         val context = RuntimeEnvironment.getApplication()
         val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
