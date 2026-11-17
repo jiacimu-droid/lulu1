@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b97d09422b4fc0416d6bd37d73f603c16d6562aa`
+- 基准提交：`0ef68aa1b68f00db8664cf8073e3318827782126`
 - 分支：`main`
-- 已索引文件：1407
-- 已索引代码/文本行：297629
-- 已发现符号：4236
+- 已索引文件：1408
+- 已索引代码/文本行：297677
+- 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -818,7 +818,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1761 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2383 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2387 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
@@ -1341,6 +1341,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicSceneIndexTest.kt` | 22 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicStaleRunActionTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt` | 55 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt` | 287 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 201 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 70 | 1 |

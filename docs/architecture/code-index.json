@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:54:03.322669+00:00",
-  "commit": "b97d09422b4fc0416d6bd37d73f603c16d6562aa",
+  "generatedAt": "2026-11-17T12:55:10.848879+00:00",
+  "commit": "0ef68aa1b68f00db8664cf8073e3318827782126",
   "branch": "main",
-  "sourceFingerprint": "f301025031ae9a6827029144abbaf08182595f1f668b711abacbd165568e7604",
+  "sourceFingerprint": "f6d5d2aa830f0aba7a8accd7adab76ee47710638b749d9a103127b62794e054e",
   "summary": {
-    "files": 1407,
-    "lines": 297629,
-    "symbols": 4236
+    "files": 1408,
+    "lines": 297677,
+    "symbols": 4237
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23138,6 +23138,12 @@
         "line": 7
       }
     ],
+    "RelicVaultPersistenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt",
+        "line": 15
+      }
+    ],
     "TurtleSoupRoomTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt",
@@ -41416,8 +41422,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2383,
-      "sha256": "866e88a5b180df771c79b004a7f12eaf358552eebc1e4525038f7d8472431237",
+      "lines": 2387,
+      "sha256": "fffc7181114b0ef8bc3e5443a1b0febced2860ee3e1d7582088db859674b1cc8",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -49280,6 +49286,17 @@
         {
           "name": "RelicTensionPresentationTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt",
+      "lines": 44,
+      "sha256": "f4e9817582efcda8bd917257c57b6718f329bd5b03a58f8e1151a4ab5e6d131b",
+      "symbols": [
+        {
+          "name": "RelicVaultPersistenceTest",
+          "line": 15
         }
       ]
     },
