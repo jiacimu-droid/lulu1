@@ -39,6 +39,19 @@ class MomentConversationContinuationTest {
 
     @After fun cleanup() { ownedPosts.forEach(MomentsStore::delete) }
 
+    /** Replaying a saved comment restores its exact identity, never a new post. */
+    private fun assertHistoricalReplay(original: JSONObject, replay: JSONObject) {
+        assertTrue(replay.optBoolean("replayedHistoricalReceipt"))
+        assertFalse(replay.optBoolean("executedThisInvocation", true))
+        assertTrue(replay.optString("originalRequestId").isNotBlank())
+        val actual = JSONObject(replay.toString())
+        actual.remove("replayedHistoricalReceipt")
+        actual.remove("executedThisInvocation")
+        actual.remove("originalFinishedAt")
+        actual.remove("originalRequestId")
+        assertEquals(original.toString(), actual.toString())
+    }
+
     private fun role(): String = MigratedDomainStores.characters
         .create("评论来往-${UUID.randomUUID()}").characterId
 
@@ -183,7 +196,7 @@ class MomentConversationContinuationTest {
         assertEquals(1, live(original.id).comments.size)
         MomentsStore.markVisiblePostsSeen(listOf(live(original.id)))
         assertEquals(0, MomentsStore.unreadCharacterPosts.value)
-        assertEquals(result.toString(), speak(actor, original.id, "我看到这里了", request = request).toString())
+        assertHistoricalReplay(result, speak(actor, original.id, "我看到这里了", request = request))
         assertEquals(0, MomentsStore.unreadCharacterPosts.value)
         val ownerComment = MomentsStore.addUserComment(original.id, "还有这一句")!!
         assertEquals(0, MomentsStore.unreadCharacterPosts.value)
@@ -294,8 +307,8 @@ class MomentConversationContinuationTest {
         assertEquals(initial.id, written.replyToCommentId)
         assertEquals(first, written.replyToCharacterId)
         assertEquals("moment-public-comment-${written.id}-$second", reply.optString("evidenceId"))
-        assertEquals(reply.toString(), speak(second, original.id,
-            "你觉得他会再回来吗？", initial.id, request).toString())
+        assertHistoricalReplay(reply, speak(second, original.id,
+            "你觉得他会再回来吗？", initial.id, request))
         assertEquals(2, live(original.id).comments.size)
         // Reading the frozen earlier snapshot does not consume the later reply.
         assertTrue(CharacterPhoneInbox.acknowledgeObserved(first, listOf(presented)))
