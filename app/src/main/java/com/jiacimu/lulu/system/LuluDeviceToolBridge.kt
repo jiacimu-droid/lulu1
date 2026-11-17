@@ -1762,7 +1762,11 @@ object LuluDeviceToolBridge {
         // The model receives actual screenshot pixels + the same screen's
         // accessibility words in the SAME post-tool character request.
         // There is no separate vision-summary request on this direct path.
-        val roleScreenImage = if (plan.tool in setOf("capture_screen", "background_phone"))
+        // A cached tool result never carries NEW pixels. In-memory handoff
+        // can survive an earlier use of this request ID, but reusing it here
+        // would make an old screen appear to have been captured this turn.
+        val roleScreenImage = if (!recoveredHistoricalReceipt &&
+            plan.tool in setOf("capture_screen", "background_phone"))
             LuluScreenFrameHandoff.take(characterId, requestId) else null
         // The role already selected a genuine phone action in the original
         // planner. Its own selected chat model may continue on the SAME task
