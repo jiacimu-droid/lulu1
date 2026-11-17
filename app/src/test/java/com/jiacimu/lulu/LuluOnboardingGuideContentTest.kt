@@ -18,21 +18,36 @@ class LuluOnboardingGuideContentTest {
         assertTrue(guideScreenRows("unknown").isEmpty())
     }
 
-    @Test fun onboardingRunsFromApiToOwnRoleToModelToChat() {
-        assertEquals(listOf("api", "role", "model", "chat"), luluGuideSteps.map { it.screen })
+    @Test fun onboardingPreparesVoiceMemoryAndPermissionsBeforeChat() {
+        assertEquals(listOf("api", "role", "model", "voice", "memory", "permissions", "chat"), luluGuideSteps.map { it.screen })
         assertEquals(
-            listOf(MigrationRoute.Settings, MigrationRoute.CharacterCreate, MigrationRoute.Chat, MigrationRoute.Chat),
+            listOf(MigrationRoute.Settings, MigrationRoute.CharacterCreate, MigrationRoute.Chat,
+                MigrationRoute.Settings, MigrationRoute.Settings, MigrationRoute.Settings, MigrationRoute.Chat),
             luluGuideSteps.map { it.destination },
         )
         assertTrue(luluGuideSteps.all { it.tips.isNotEmpty() && it.location.isNotBlank() })
         assertTrue(luluGuideSteps[1].tips.any { it.contains("保存并创建角色") })
         assertTrue(guideScreenRows("role").any { it.contains("资料") && it.contains("人格") })
+        assertTrue(luluGuideSteps[3].tips.any { it.contains("语音合成") && it.contains("语音识别") })
+        assertTrue(luluGuideSteps[4].tips.any { it.contains("记忆抽取模型") })
+        assertTrue(luluGuideSteps[5].tips.any { it.contains("虚拟屏幕授权") })
+        assertTrue(luluGuideSteps.last().tips.any { it.contains("开始") || it.contains("第一条消息") })
         assertFalse(luluGuideSteps[0].tips.any { it.contains("使用第三方 API 可能收费") })
     }
 
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
         assertEquals(luluGuideFeatures.size, luluGuideFeatures.map { it.key }.distinct().size)
-        assertTrue(luluGuideFeatures.size >= 10)
+        assertTrue(luluGuideFeatures.size >= 17)
+        assertTrue(luluGuideFeatures.all { it.highlights.isNotEmpty() })
+        val byKey = luluGuideFeatures.associateBy { it.key }
+        assertTrue(byKey.getValue("call").instructions.any { it.contains("30 分钟") })
+        assertTrue(byKey.getValue("call").highlights.any { it.contains("铃声") })
+        assertTrue(byKey.getValue("live2d").instructions.any { it.contains("切换") })
+        assertTrue(byKey.getValue("memory").instructions.any { it.contains("轮") && it.contains("15") })
+        assertTrue(byKey.getValue("memory").instructions.any { it.contains("气泡") && it.contains("一轮") })
+        assertTrue(byKey.getValue("phone").instructions.any { it.contains("小红书") && it.contains("微信") })
+        assertTrue(byKey.getValue("phone").warning.contains("发送"))
+        assertTrue(luluGuideFeatures.none { it.warning.contains("内测提醒") })
         assertTrue(luluGuideFeatures.all {
             it.where.isNotBlank() && it.instructions.isNotEmpty() && it.warning.isNotBlank()
         })
@@ -40,7 +55,7 @@ class LuluOnboardingGuideContentTest {
 
     @Test fun publicGuideDoesNotShipOwnersPrivateNamesOrKeys() {
         val publicWords = luluGuideSteps.flatMap { listOf(it.name, it.location) + it.tips } +
-            luluGuideFeatures.flatMap { listOf(it.name, it.description, it.where, it.warning) + it.instructions }
+            luluGuideFeatures.flatMap { listOf(it.name, it.description, it.where, it.warning) + it.instructions + it.highlights }
         val text = publicWords.joinToString("\n")
         assertFalse(text.contains("江渡"))
         assertFalse(text.contains("星禾"))
