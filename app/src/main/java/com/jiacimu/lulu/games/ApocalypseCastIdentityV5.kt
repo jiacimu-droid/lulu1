@@ -65,7 +65,7 @@ private fun apocalypseLatinIdentityKeyV5(raw: String): String = raw
 
 /**
  * Models sometimes transliterate a configured Chinese role name and then return that pinyin as a
- * new NPC id (for example 江渡 -> jiangdu). These keys are only used to recover the immutable
+ * new NPC id (for example a configured Chinese name -> its pinyin). The keys recover the immutable
  * configured identity; pinyin is never a player-facing name.
  */
 private fun apocalypseCastIdentityKeysV5(raw: String): Set<String> {
