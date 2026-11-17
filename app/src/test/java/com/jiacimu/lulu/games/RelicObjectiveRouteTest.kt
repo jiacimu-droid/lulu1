@@ -204,6 +204,19 @@ class RelicObjectiveRouteTest {
         assertEquals(2 to 2,blocked.hero.x to blocked.hero.y)
     }
 
+    @Test fun downedHeroCannotReceiveAFalseWalkableObjectiveRoute() {
+        val world=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
+        val chest=RelicObjectiveGuide.visibleChest(world)!!
+        assertEquals(3,RelicObjectiveGuide.knownRouteSteps(world,chest))
+        val downed=world.copy(hero=world.hero.copy(hp=0))
+        assertNull(RelicObjectiveGuide.knownRouteTiles(downed,chest))
+        assertTrue(RelicObjectiveGuide.prompt(downed).contains("等待真实救援"))
+        // Recovery uses the same physical world, not a fabricated movement.
+        val revived=downed.copy(hero=downed.hero.copy(hp=1))
+        assertEquals(3,RelicObjectiveGuide.knownRouteSteps(revived,chest))
+        assertTrue(revived.chests.none { it.opened })
+    }
+
     @Test fun routeIndexIgnoresSpentTrapsAndDeadMobsButBlocksLiveHazards() {
         val base=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
         val target=RelicObjectiveGuide.visibleChest(base)!!
