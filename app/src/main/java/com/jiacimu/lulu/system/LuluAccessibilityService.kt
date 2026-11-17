@@ -1099,6 +1099,20 @@ class LuluAccessibilityService : AccessibilityService() {
                 else "wechat_voice_to_text_accessibility_node")
         }
 
+        /** A system keyboard on THIS independent display is the minimum
+         * focus evidence for zero-tree visual text entry. IME on the owner's
+         * display 0 does not count; a system dialog blocks the window gate. */
+        fun virtualChatKeyboardVisible(displayId: Int, packageName: String): Boolean {
+            val service = instance ?: return false
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return false
+            return service.windowsOnAllDisplays.get(displayId).orEmpty().any {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD &&
+                    it.root != null
+            }
+        }
+
         /** Evidence for OEMs where a virtual display has real pixels but
          * Android exposes no useful accessibility children. Counts and flags
          * only: never serialize message text, private editor content, or nodes
