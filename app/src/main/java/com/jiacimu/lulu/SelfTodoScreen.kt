@@ -306,14 +306,14 @@ internal object SelfTodoStore {
     fun loadWithLegacy(context: Context, legacy: List<LegacySelfTodo>): List<TodoTask> = synchronized(mutationLock) {
         val stored = read(context)
         val prefs = preferences(context)
-        if (prefs.getBoolean(MIGRATED, false)) return stored
+        if (prefs.getBoolean(MIGRATED, false)) return@synchronized stored
         val additions = legacyAdditions(legacy, stored)
         val merged = stored + additions
         // Mark the migration only together with its data. Failed commits can retry.
         val committed = prefs.edit().putString(TASKS, encode(merged))
             .putBoolean(MIGRATED, true).commit()
         if (committed) revisions.value += 1L
-        return merged
+        merged
     }
 }
 
