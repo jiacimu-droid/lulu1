@@ -9,7 +9,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class MiniTheaterLibraryTest {
-    @Test fun publicInstallHasNoBundledScenesAndUpgradeKeepsOnlyUserWork() {
+    @Test fun publicInstallAndUpgradeRemoveEveryLegacyBuiltInScene() {
         val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
         val prefs = context.getSharedPreferences("lulu_mini_theaters_v1", android.content.Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
@@ -26,10 +26,10 @@ class MiniTheaterLibraryTest {
             .put(item("written-old-preset", true, "complete", "用户生成的正文"))
         assertTrue(prefs.edit().putString("items", stored.toString()).commit())
         val reopened = MiniTheaterLibrary(context)
-        assertEquals(setOf("saved-user-import", "started-old-preset", "written-old-preset"),
+        assertEquals(setOf("saved-user-import"),
             reopened.items.value.mapTo(mutableSetOf()) { it.id })
-        assertEquals("用户生成的正文",
-            MiniTheaterLibrary(context).items.value.first { it.id == "written-old-preset" }.text)
+        assertEquals(listOf("saved-user-import"),
+            MiniTheaterLibrary(context).items.value.map { it.id })
         prefs.edit().clear().commit()
     }
 
