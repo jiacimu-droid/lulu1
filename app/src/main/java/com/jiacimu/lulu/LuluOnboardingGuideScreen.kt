@@ -1,8 +1,6 @@
 package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,9 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -247,7 +242,7 @@ internal fun LuluOnboardingGuideScreen(
                     }
                 }
                 item {
-                    Text("界面示意已隐藏私人角色、聊天与 API 信息。帮助内容会随版本更新。",
+                    Text("操作位置示意不包含私人角色、聊天与 API 信息。帮助内容会随版本更新。",
                         color = muted, fontSize = 11.sp, lineHeight = 18.sp,
                         modifier = Modifier.padding(top = 10.dp))
                 }
@@ -345,60 +340,45 @@ private fun GuideNote(icon: ImageVector, title: String, detail: String) {
     }
 }
 
-/** Real images supplied by the product owner are cropped and irreversibly redacted.
- * A drawn placeholder is used where only personal character-list screenshots exist. */
+/** Built-in, privacy-safe explanation of the real UI controls.
+ * Never decode binary files in the LazyColumn: broken JPEGs previously crashed
+ * the whole app as soon as the user scrolled to their first item. */
+internal fun guideScreenRows(kind: String): List<String> = when (kind) {
+    "api" -> listOf("←  API 设置", "新配置         ＋ 新建",
+        "配置名称", "API 地址", "API 密钥  ••••••••",
+        "▣  保存配置", "☁  获取模型", "已配置模型")
+    "role" -> listOf("←  聊天                  ＋", "人物与原住民",
+        "新建数字生命", "角色名称", "角色核心设定", "创建角色")
+    "model" -> listOf("当前角色聊天模型", "○  模型 A", "◉  模型 B",
+        "提示：这里只修改当前角色")
+    "chat" -> listOf("←  角色昵称               ···",
+        "你好，很高兴认识你。", "               我也很高兴！",
+        "🎙   发消息…           ☺    ＋",
+        "图片     表情     模型     电话")
+    else -> emptyList()
+}
+
 @Composable
 private fun GuideSafeScreen(kind: String) {
-    val screenshot = when (kind) {
-        "api" -> R.drawable.lulu_guide_api
-        "model" -> R.drawable.lulu_guide_model
-        "chat" -> R.drawable.lulu_guide_chat
-        else -> null
-    }
-    // A drawable resource ID is not proof that the JPEG decoder can open its bytes.
-    // The previous painterResource() path threw ResourceResolutionException during
-    // lazy-list measurement and crashed the entire app. Decode defensively here;
-    // missing/corrupt screenshots must never prevent users from reading the guide.
-    val resources = LocalContext.current.resources
-    val bitmap = remember(screenshot, resources) {
-        if (screenshot == null) null
-        else try {
-            BitmapFactory.decodeResource(resources, screenshot)?.asImageBitmap()
-        } catch (_: Exception) {
-            null
-        }
-    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        if (bitmap != null) {
-            Column(Modifier.padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
-                    bitmap = bitmap,
-                    contentDescription = "露露机真实操作截图，私人内容已打码",
-                    modifier = Modifier.fillMaxWidth().height(194.dp),
-                    contentScale = ContentScale.Fit,
-                )
-                Spacer(Modifier.height(5.dp))
-                Text("真实页面截图 · 已遮盖个人信息", fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("←  聊天                  ＋", "人物与原住民",
-                    "○  创建自己的第一位角色", "＋  新建角色",
-                    "角色名称 / 角色核心设定",
-                    "数字生命 · 在同一个世界中生活").forEachIndexed { index, line ->
-                    Text(line, color = if (index == 0)
-                        MaterialTheme.colorScheme.onSurface
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            guideScreenRows(kind).forEachIndexed { index, line ->
+                Text(
+                    line,
+                    fontSize = if (index == 0) 12.sp else 11.sp,
+                    fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (index == 0) MaterialTheme.colorScheme.onSurface
                         else MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = if (index == 0) 12.sp else 11.sp,
-                        fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal)
-                }
+                    maxLines = 2, overflow = TextOverflow.Ellipsis,
+                )
             }
+            Text("操作位置示意 · 不包含私人数据",
+                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
         }
     }
 }
