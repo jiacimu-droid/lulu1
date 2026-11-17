@@ -1062,6 +1062,44 @@ class ResidentDailyContinuityTest {
         assertNull(ScopedModelSelections.selectedArchiveId(ResidentDailyDecision.SCOPE))
     }
 
+    @Test fun futureEveningDutyRecordsIntentWithoutPretendingItWasPerformed() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        // A future slot is still untouched by all wall-clock context readers.
+        // The persisted plan exists BEFORE the deterministic world transition.
+        val evening = java.time.LocalDate.now().plusDays(1)
+            .atTime(18, 30).atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "晚间排程验收${UUID.randomUUID().toString().take(5)}",
+            identity = "书籍修补员",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = evening.minusSeconds(3 * 86_400),
+        ))
+        ResidentCharacterBridge.sync(app, evening.minusSeconds(600))
+        val id = ResidentCharacterBridge.characterId(native.id)
+        val intention = "在庭院整理旧地图并邀请朋友讨论"
+        val daily = JSONObject().put("date", ResidentDailyDecision.date(evening))
+            .put("evening", "courtyard").put("eveningActivity", intention)
+        assertTrue(app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            .edit().putString("plan:${native.id}", daily.toString()).commit())
+        val plan = ResidentDailyRoutine.plan(native, evening, context = app)
+        assertEquals("evening", plan.slot)
+        assertEquals(intention, plan.intendedActivity)
+        assertFalse(plan.activity.contains(intention))
+        val dutyEventId =
+            "native-routine-${native.id}-${ResidentDailyDecision.date(evening)}:evening"
+        assertTrue(SharedExperienceTimeline.eventsByIds(id, listOf(dutyEventId)).isEmpty())
+        assertEquals(1, ResidentDailyRoutine.refresh(app, evening))
+        val first = SharedExperienceTimeline.eventsByIds(id, listOf(dutyEventId)).single()
+        assertEquals("resident-duty", first.source)
+        assertTrue(first.content.contains("接下来想做：$intention"))
+        assertTrue(first.content.contains("具体活动尚待实际执行"))
+        assertEquals(0, ResidentDailyRoutine.refresh(app, evening))
+        val repeated = SharedExperienceTimeline.eventsByIds(id, listOf(dutyEventId)).single()
+        assertEquals(first.revision, repeated.revision)
+        assertEquals(first.content, repeated.content)
+    }
+
     @Test(timeout = 60_000) fun dailyDecisionKeepsIdentityMotivesAndMailAndSavesIndependentReceipts() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
