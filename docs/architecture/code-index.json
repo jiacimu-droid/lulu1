@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T07:08:14.933847+00:00",
-  "commit": "65959ca692755a5bd9965f615358724464e6365a",
+  "generatedAt": "2026-11-17T07:08:35.364089+00:00",
+  "commit": "b3bd77f1337ed178efe7272f1cd24e04278756a1",
   "branch": "main",
-  "sourceFingerprint": "d573b79f8818d9e8a01c040226be5a65eb0dcbf210095020a0748f66a9143b9c",
+  "sourceFingerprint": "cb52ea960ec47632bade2069475042a44f7c1858f2751b13bcb0940e86648eba",
   "summary": {
-    "files": 1395,
-    "lines": 299269,
-    "symbols": 4229
+    "files": 1396,
+    "lines": 299347,
+    "symbols": 4230
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19188,6 +19188,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "ElevenLabsDirectSingingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsDirectSingingTest.kt",
+        "line": 16
       }
     ],
     "ElevenLabsMusicTest": [
@@ -43381,6 +43387,17 @@
         {
           "name": "ElevenLabsBatchLatencyPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsDirectSingingTest.kt",
+      "lines": 78,
+      "sha256": "dc58f78561b861c7f0a8438b08520a3a446ddc7ba8dd675789e52b8f61d6a088",
+      "symbols": [
+        {
+          "name": "ElevenLabsDirectSingingTest",
+          "line": 16
         }
       ]
     },
