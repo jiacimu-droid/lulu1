@@ -3,3 +3,47 @@
 .chat-panel{position:absolute;left:13px;right:13px;bottom:12px;max-width:520px;background:#172c27e8;border:1px solid #b6d3c277;border-radius:15px;padding:12px;z-index:2;box-shadow:0 13px 40px #081d1844}.chat-head{font-weight:700;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.chat-head small{font-weight:400;font-size:10px;color:#b4cdc1}.chat-lines{min-height:42px;max-height:100px;overflow:auto;padding:9px 0;color:#d8e8db;font-size:11px;line-height:1.5}.chat-lines>div{padding:4px 0}.chat-form{display:flex;gap:8px}.chat-form input{background:#2a4239;border:1px solid #536d5e;border-radius:8px;outline:0;padding:9px 10px;color:#fff;min-width:0;flex:1;font-size:12px}.chat-form button{background:#d4e8d5;border-radius:8px;padding:9px 11px;color:#174734;font-weight:700;font-size:12px}.chat-form input:focus{border-color:#b6d3b9}
 
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+
+[hidden]{display:none!important}
+/* Island and Relic are landscape-native in Android. Meeting remains in its existing portrait flow.
+ * The demo is a browser fixture, never an Android screenshot or authoritative rules state. */
+body.world-immersive{overflow:hidden;overscroll-behavior:none;touch-action:none;background:#14231f}
+body.world-immersive .shell{max-width:none;padding:0}
+body.world-immersive .shell>.header,body.world-immersive .shell>.scenes,body.world-immersive .shell>.notice,body.world-immersive .shell>.bottom{display:none}
+body.world-immersive .game{position:fixed;inset:0;z-index:30;width:100vw;height:100dvh;border:0;border-radius:0;box-shadow:none;background:#192c28;display:flex;flex-direction:column;overflow:hidden}
+body.world-immersive .game-head{height:49px;flex:0 0 49px;align-items:center;padding:7px max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));gap:8px;min-width:0}
+body.world-immersive .game-head .chapter{display:none}
+body.world-immersive .game-head h1{margin:0;font-size:15px;white-space:nowrap}
+body.world-immersive .world-header-title{min-width:0}
+.world-top-actions{display:flex;align-items:center;gap:7px;margin-left:auto}
+.world-switch{display:flex;gap:3px;align-items:center;padding:3px;border:1px solid #587464;border-radius:10px;background:#223a33}
+.world-switch button{background:transparent;color:#cbded1;font-size:11px;font-weight:700;padding:6px 9px;border-radius:7px;min-height:28px}
+.world-switch button.active{color:#1d4634;background:#d6ebdc}
+.world-button{background:#2e4a3f;color:#e0eddf;border:1px solid #587365;border-radius:9px;padding:8px 11px;min-height:33px;font-size:11px;white-space:nowrap}
+body.world-immersive .stats{flex:none;gap:5px}
+body.world-immersive .stats span{font-size:10px;padding:5px 7px}
+body.world-immersive .viewport{flex:1 1 auto;min-height:0;max-height:none;height:auto;width:100%;touch-action:none}
+body.world-immersive .toolbar{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;justify-content:space-between;align-items:flex-end;padding:40px max(13px,env(safe-area-inset-right)) max(13px,env(safe-area-inset-bottom)) max(13px,env(safe-area-inset-left));gap:10px;pointer-events:none;background:linear-gradient(0deg,#0d241db8 0%,#10241a44 65%,transparent 100%)}
+body.world-immersive .toolbar .pad,body.world-immersive .toolbar .action-panel{pointer-events:auto}
+body.world-immersive .pad{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px);gap:2px;flex:none}
+body.world-immersive .pad button{font-size:18px;background:#1e4035cb;border:1px solid #c6dfc382;border-radius:12px;min-height:40px}
+body.world-immersive .action-panel{flex:0 1 auto;max-width:48%;display:flex;align-items:end;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+body.world-immersive .focus{flex-basis:100%;max-width:none;min-width:0;text-align:right;gap:0;margin:0 0 1px;text-shadow:0 2px 4px #000}
+body.world-immersive .focus span{font-size:12px}
+body.world-immersive .focus small{font-size:10px}
+body.world-immersive .action-panel button{min-height:43px;padding:10px 13px;font-size:12px}
+body.world-immersive .scene-corner{display:none}
+body.world-immersive .floating{top:6px;left:50%;transform:translateX(-50%);max-width:60%;padding:6px 12px;font-size:11px}
+/* Browsers cannot guarantee orientation lock without fullscreen + a user gesture.
+ * Rotate the whole playable canvas on portrait devices, NOT just the picture: controls stay interactive. */
+@media(orientation:portrait){
+ body.world-immersive .game{top:0;left:100vw;right:auto;bottom:auto;width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg)}
+ body.world-immersive .game-head{height:45px;flex-basis:45px}
+}
+@media(max-height:430px) and (orientation:landscape){
+ body.world-immersive .game-head{height:43px;flex-basis:43px;padding-top:4px;padding-bottom:4px}
+ body.world-immersive .pad{grid-template-columns:repeat(3,37px);grid-template-rows:repeat(3,37px)}
+ body.world-immersive .pad button{min-height:37px}
+ body.world-immersive .toolbar{padding-top:25px;padding-bottom:7px}
+}
