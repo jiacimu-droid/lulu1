@@ -1149,25 +1149,34 @@ class ResidentDailyContinuityTest {
                 it.fromId == id && it.content == chosenMessage })
             assertTrue(MomentsStore.posts.value.any {
                 it.authorCharacterId == id && it.content == chosenPost })
-            // The daily plan's prose is an intention, not an executor receipt.
-            // Do not start the real catch-up WorkManager here: after local 08:00
-            // it may tick at the wall clock's evening slot BEFORE this test's
-            // controlled 18:30 observation. That makes refresh correctly skip
-            // the already-committed slot, hiding the receipt being tested.
-            // Scheduler/worker execution is covered by separate tests.
+            // Today's choice is an INTENTION, not a retrospective duty receipt.
+            // The shared Full context may call DigitalWorldActivityStateStore.contextFor,
+            // which legitimately advances the real world clock before the paid
+            // daily decision is saved. If that evening slot already occurred,
+            // never rewrite its observed evidence to claim the later plan was
+            // present or carried out at the earlier transition.
             val evening = now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                 .atTime(18, 30).atZone(java.time.ZoneId.systemDefault()).toInstant()
             val slot = ResidentDailyRoutine.plan(native, evening)
             assertEquals("读完整本河流图册并与朋友聊一晚", slot.intendedActivity)
             assertFalse(slot.activity.contains("读完整本"))
-            assertTrue("controlled evening slot must commit a real duty transition",
-                ResidentDailyRoutine.refresh(app, evening) > 0)
             val dutyKey = "${ResidentDailyDecision.date(evening)}:evening"
             val dutyEventId = "native-routine-${native.id}-${dutyKey}"
+            val before = SharedExperienceTimeline.eventsByIds(id, listOf(dutyEventId)).singleOrNull()
+            val transitions = ResidentDailyRoutine.refresh(app, evening)
             val dutyReceipt = SharedExperienceTimeline.eventsByIds(id, listOf(dutyEventId)).single()
             assertEquals("resident-duty", dutyReceipt.source)
-            assertTrue(dutyReceipt.content.contains("接下来想做：读完整本河流图册并与朋友聊一晚"))
-            assertTrue(dutyReceipt.content.contains("具体活动尚待实际执行"))
+            assertTrue(dutyReceipt.content.contains("原住民本人已完成这一日程切换"))
+            if (before == null) {
+                assertTrue("an unobserved slot must commit its real duty transition",
+                    transitions > 0)
+                assertTrue(dutyReceipt.content.contains("接下来想做：读完整本河流图册并与朋友聊一晚"))
+                assertTrue(dutyReceipt.content.contains("具体活动尚待实际执行"))
+            } else {
+                assertEquals("a later plan must not rewrite prior duty evidence",
+                    before.content, dutyReceipt.content)
+                assertEquals(before.revision, dutyReceipt.revision)
+            }
             // Idempotent replay does not fabricate a second physical outing.
             ResidentDailyRoutine.refresh(app, evening)
             assertEquals(dutyReceipt.revision,
