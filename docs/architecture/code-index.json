@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:30:42.824639+00:00",
-  "commit": "032bdd37d17c9ba8fc8ac349f62b2c42fec8b8bd",
+  "generatedAt": "2026-11-17T14:40:17.547376+00:00",
+  "commit": "6bc22c1195993bc915e3938201dc9c5199387314",
   "branch": "main",
-  "sourceFingerprint": "f5551a5395cad24a6c6fb7c0eb5314432e3bd56b9289da2c5fd8db81ff4f8e57",
+  "sourceFingerprint": "db766ef6e4496261f3ab270bd83f59e2e63bd61eb17db239a98c50aa0eec6c21",
   "summary": {
     "files": 1414,
-    "lines": 298828,
+    "lines": 298847,
     "symbols": 4255
   },
   "symbolIndex": {
@@ -46878,8 +46878,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/FreshInstallNeutralDefaultsTest.kt",
-      "lines": 54,
-      "sha256": "1654c5c64d8240f15a057cb5fa6c4e6f44a4d6780261c20a17966c8b9a108fd3",
+      "lines": 73,
+      "sha256": "74f8b12703edac894755e4baa081492ff0174ed78b2a9c30ae78fd3d14f64659",
       "symbols": [
         {
           "name": "FreshInstallNeutralDefaultsTest",
