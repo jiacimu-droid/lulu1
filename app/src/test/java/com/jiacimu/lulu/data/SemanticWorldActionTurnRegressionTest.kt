@@ -115,7 +115,7 @@ class SemanticWorldActionTurnRegressionTest {
         // protected. A diagnostic heartbeat must not shift that boundary.
         fun speech(i: Int, sec: Long) {
             val row = row("speech-$i", sec, "私聊", "message",
-                "第$i轮真实说出口的话", EventEvidenceKind.UserStatement,
+                "第${i}轮真实说出口的话", EventEvidenceKind.UserStatement,
                 sessionId = "conversation-$i")
             SharedExperienceTimeline.record(row.id, row.characterId, row.channel,
                 row.speaker, row.content, row.occurredAt,
