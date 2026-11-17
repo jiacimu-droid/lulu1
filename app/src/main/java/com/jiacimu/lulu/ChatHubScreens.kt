@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import com.jiacimu.lulu.data.MigratedDomainStores
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +36,13 @@ private data class CharacterPreview(
 
 @Composable
 fun CharacterHubScreen() {
-    val characters = listOf(
-        CharacterPreview("露露", "当前角色 · 正在陪伴用户", "露", true),
-    )
+    val savedCharacters by MigratedDomainStores.characters.settings.collectAsState()
+    val characters = savedCharacters.values.map { character ->
+        CharacterPreview(
+            character.displayName, "已在本机创建",
+            character.displayName.take(1).ifBlank { "角" }, false,
+        )
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -54,6 +60,7 @@ fun CharacterHubScreen() {
                 ) { Icon(Icons.Outlined.Add, "新建角色", tint = HubInk) }
             }
         }
+        if (characters.isEmpty()) item { Text("暂无角色。请从聊天页创建自己的第一位角色。", color = HubBlueGray) }
         items(characters) { character ->
             Card(
                 modifier = Modifier.fillMaxWidth().clickable { },
