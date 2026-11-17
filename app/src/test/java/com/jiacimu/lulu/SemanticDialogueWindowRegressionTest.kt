@@ -3,6 +3,8 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.data.ConversationHistoryWindow
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.PrivateChatExpressionContext
+import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import java.time.Instant
 import org.junit.Assert.*
 import org.junit.Test
@@ -49,6 +51,8 @@ class SemanticDialogueWindowRegressionTest {
 
     @Test fun privateDecisionAndExpressionBothRetainThirtyFiveActualTurns() {
         val app = RuntimeEnvironment.getApplication()
+        MigratedDomainStores.initialize(app)
+        DigitalLifeProfileStore.initialize(app)
         val messages = transcript()
         val reply = PrivateChatExpressionContext.conversation(
             characterId = "role", messages = messages,
