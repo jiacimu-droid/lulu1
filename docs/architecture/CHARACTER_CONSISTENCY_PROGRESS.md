@@ -1,3 +1,9 @@
+## 2026-11-17 · P-03.1 通话取消与下一句纠正
+
+- [e89d250](https://github.com/jiacimu-droid/lulu1/commit/e89d250ccc5e03bf6426e954e46e8da75f0ff262) 增加 `PhoneModelTransportPolicyTest.interruptedPhoneRequestDoesNotCommitAndNextUtteranceCanRespond`。正式 `LuluDeviceToolBridge.respond` 发出第一条真实 HTTP 后暂停响应，取消电话决策协程，再交给同一角色一条明确修正的原话。检查旧轮未交付、无挂断、心声快照及本人发言/工具回执不变、没有额外 POST，下一轮能读取更正并正常返回。此工作包只改测试，真机从麦克风插话到取消协程的链路待验。
+- 首个精确 [JVM/APK #44011152942](https://github.com/jiacimu-droid/lulu1/actions/runs/44011152942) 被后继取代。包含相同电话源码和测试 blob 的 [#44011776301](https://github.com/jiacimu-droid/lulu1/actions/runs/44011776301) 暴露 localhost 连接拒绝；[29f5402](https://github.com/jiacimu-droid/lulu1/commit/29f5402d7286412dbfa2850ee9325ed6672e4e96) 固定 IPv4 后，[#44013086340](https://github.com/jiacimu-droid/lulu1/actions/runs/44013086340) 暴露 MockWebServer 关闭时等待延迟响应队列超时。[53b1a11](https://github.com/jiacimu-droid/lulu1/commit/53b1a11e21c41be6be3382f48da20038b6c1b035) 改为测试在取消完成后主动释放模拟响应，异常时也释放。精确[原索引 #44014223552](https://github.com/jiacimu-droid/lulu1/actions/runs/44014223552)成功，最终[JVM/APK #44014223599](https://github.com/jiacimu-droid/lulu1/actions/runs/44014223599)待验。上轮[电话流式回退 #43996698859](https://github.com/jiacimu-droid/lulu1/actions/runs/43996698859)目标回归已复核通过。
+- 下一步先核最终 JVM 中上述方法和 APK。如果通过，沿 `LuluDeviceToolBridge` 的 `phoneSideCancellation`／`shouldYield` 检查首项工具已经落回执之后才插话的分界，具体核实已执行回执保留、未开始动作停止及新原话仍能接管。真实模型质量待验。
+
 ## 2026-11-17 · P-03.1 电话流式协议拒绝后的同轮回退
 
 - [c02de79](https://github.com/jiacimu-droid/lulu1/commit/c02de7976694136ba2fe59dd5f4a37385dde77e0) 修正 `CompanionModelGateway.openAiCompatible`：获得明确流式协议拒绝后，普通 JSON 重发同时移除 `stream` 与 `stream_options`。此前官方 Gemini 端点的流式用量选项可能留在非流式请求中。仍沿既有窄拒绝判定与一次回退边界，不增加正常请求或普通拒绝下的调用。
