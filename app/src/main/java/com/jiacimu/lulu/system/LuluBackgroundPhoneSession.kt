@@ -1220,11 +1220,16 @@ internal object LuluBackgroundPhoneSession {
                 if (!attempted && !dispatched && stillAuthorized() &&
                     windowGate(id, activeApp).optString("kind") == "target") {
                     receipt.put("targetWindowVerified", true)
-                    val current = withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.observeDisplay(id)
+                    val (current, textMode) = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.observeDisplay(id) to
+                            LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                     }
-                    if (current.connected && current.packageName == activeApp)
+                    if (current.connected && current.packageName == activeApp) {
                         receipt.put("visibleText", current.visibleText.take(3_000))
+                            .put("chatTextInputVisible", textMode)
+                        if (textMode && stage == "recipient_check") receipt.put("verification",
+                            "当前已出现文字输入框，发送停在收件人标题核实；尚未点发送")
+                    }
                     attachUiEvidence(receipt, characterId, id, activeApp)
                 }
                 return receipt.toString()

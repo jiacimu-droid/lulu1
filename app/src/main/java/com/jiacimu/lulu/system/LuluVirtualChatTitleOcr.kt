@@ -30,14 +30,18 @@ internal object LuluVirtualChatTitleOcr {
      * The composer, app window and the send control are checked independently. */
     fun hasExactToolbarTitle(
         lines: List<Line>, recipient: String, width: Int, height: Int,
+        centeredToolbar: Boolean = false,
     ): Boolean {
         if (width <= 0 || height <= 0 ||
             !LuluVirtualChatSendPolicy.validRecipient(recipient)) return false
         val candidates = lines.filter { line ->
             val b = line.bounds
+            val usualToolbar = b.centerY >= height * 3 / 100
+            val edgeToEdgeTitle = centeredToolbar &&
+                b.centerX in (width * 35 / 100)..(width * 65 / 100) && b.top >= 0
             b.width > 0 && b.height > 0 &&
                 b.left >= width / 10 && b.centerX <= width * 92 / 100 &&
-                b.centerY in (height * 3 / 100)..(height * 14 / 100) &&
+                b.centerY <= height * 14 / 100 && (usualToolbar || edgeToEdgeTitle) &&
                 b.bottom < height * 18 / 100 &&
                 LuluVirtualChatSendPolicy.headerMatches(line.text, null, recipient)
         }.map { it.bounds }
@@ -75,6 +79,32 @@ internal object LuluVirtualChatTitleOcr {
                 if (continuation.isActive) continuation.resume(emptyList())
             }
         }
+
+    /** Keep clipped names from becoming a falsely exact hit after cropping
+     * away the back badge and the overflow button on WeChat's title row. */
+    fun interiorToolbarLines(lines: List<Line>, left: Int, right: Int): List<Line> =
+        lines.filter { it.bounds.left > 2 && it.bounds.right < right - left - 2 }
+            .map { line -> line.copy(bounds = line.bounds.copy(
+                left = line.bounds.left + left, right = line.bounds.right + left)) }
+
+    private suspend fun screenshotHasTitle(
+        screenshot: Bitmap, packageName: String, recipient: String,
+    ): Boolean {
+        val width = screenshot.width
+        val height = screenshot.height
+        val top = height * 18 / 100
+        if (width <= 0 || top <= 0) return false
+        val wechat = packageName == LuluVirtualChatSendPolicy.WECHAT
+        val complete = readLines(Bitmap.createBitmap(screenshot, 0, 0, width, top))
+        if (hasExactToolbarTitle(complete, recipient, width, height, centeredToolbar = wechat))
+            return true
+        if (!wechat) return false
+        val left = width / 5
+        val right = width - left
+        val centered = readLines(Bitmap.createBitmap(screenshot, left, 0, right - left, top))
+        return hasExactToolbarTitle(interiorToolbarLines(centered, left, right),
+            recipient, width, height, centeredToolbar = true)
+    }
 
     private data class Proof(
         val displayId: Int, val packageName: String, val recipient: String,
@@ -135,21 +165,12 @@ internal object LuluVirtualChatTitleOcr {
                 latestProof = null
                 val screenshot = frameSource() ?: captureRateLimited(displayId)
                     ?: return@withLock false
-                val width = screenshot.width
-                val height = screenshot.height
-                val top = height * 18 / 100
-                if (width <= 0 || top <= 0) {
+                val recognized = try {
+                    screenshotHasTitle(screenshot, packageName, recipient)
+                } finally {
                     screenshot.recycle()
-                    return@withLock false
                 }
-                val crop = try {
-                    Bitmap.createBitmap(screenshot, 0, 0, width, top)
-                } catch (_: Exception) {
-                    return@withLock false
-                } finally { screenshot.recycle() }
-                val lines = readLines(crop)
-                if (!hasExactToolbarTitle(lines, recipient, width, height))
-                    return@withLock false
+                if (!recognized) return@withLock false
                 val stillSame = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
                         .optString("kind") == "target" &&

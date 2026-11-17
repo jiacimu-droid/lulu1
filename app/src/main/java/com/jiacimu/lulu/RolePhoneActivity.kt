@@ -69,6 +69,10 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                 "focus_search" -> "定位搜索框"
                 "submit" -> "提交搜索"
                 "search" -> "搜索"
+                "navigate" -> "导航"
+                "send_chat_message" -> "发送消息"
+                "open_wechat_moments_composer" -> "打开朋友圈编辑"
+                "publish_wechat_moment" -> "发表朋友圈"
                 "stop" -> "停止"
                 else -> ""
             }
@@ -88,13 +92,15 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                     "尚未确认成功 · " + result?.optString("verification")
                         .orEmpty().take(62).replace("\n", " ")
                 "observed", "captured" -> "已取得画面，任务结果仍需核实"
+                "client_message_visible" -> "已看到本次新发出的消息气泡"
+                "send_clicked_delivery_unverified" -> "已点发送，尚未看到新消息气泡"
                 "succeeded", "completed" -> result?.optString("summary").orEmpty()
                     .take(110).replace("\n", " ").ifBlank { "本步工具已返回成功回执" }
                 else -> "已留下工具执行回执 · ${status.ifBlank { "状态未知" }}"
             }
             val authored = attempt.optString("reason").replace("\n", " ").take(84)
             InspectedPhoneAction(label, authored, outcome, event.occurredAt,
-                status !in setOf("succeeded", "completed", "observed", "captured"))
+                status !in setOf("succeeded", "completed", "observed", "captured", "client_message_visible"))
         }.take(48).toList()
 }
 

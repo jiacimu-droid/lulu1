@@ -65,6 +65,21 @@ class RolePhoneActivityTest {
         assertTrue(list.single().purpose.isBlank())
     }
 
+    @Test fun sendHistoryDistinguishesAnObservedBubbleFromATitleCheck() {
+        val event = tool("background_phone", "unverified", 5)
+        fun send(status: String, detail: String) = event.copy(content = JSONObject(event.content)
+            .put("fingerprint", """background_phone:{"action":"send_chat_message"}""")
+            .put("result", JSONObject().put("status", status).put("verification", detail).toString())
+            .toString())
+        val blocked = inspectedPhoneActions(listOf(send("unverified", "发送停在收件人标题核实"))).single()
+        assertEquals("后台手机 · 发送消息", blocked.label)
+        assertTrue(blocked.outcome.contains("收件人标题核实"))
+        assertTrue(blocked.isUnverified)
+        val visible = inspectedPhoneActions(listOf(send("client_message_visible", ""))).single()
+        assertFalse(visible.isUnverified)
+        assertTrue(visible.outcome.contains("消息气泡"))
+    }
+
     @Test fun recentRealReceiptsAreSortedAndBounded() {
         val rows = inspectedPhoneActions((1L..80L).map {
             tool("web_search", "succeeded", it)

@@ -325,8 +325,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 ?: node.text?.toString()?.takeIf { node.isShowingHintText }
                 ?: node.contentDescription?.toString(),
             node.viewIdResourceName, packageName,
-        ) && (packageName == LuluVirtualChatSendPolicy.WECHAT ||
-            LuluVirtualChatSendPolicy.composerInLowerHalf(composerBounds(node), height))
+            hasEditableAction = node.isEditable && node.actionList.any {
+                it.id == AccessibilityNodeInfo.ACTION_SET_TEXT
+            },
+        ) && LuluVirtualChatSendPolicy.composerInLowerHalf(composerBounds(node), height)
 
         private fun composerBounds(node: AccessibilityNodeInfo): LuluVirtualChatSendPolicy.ComposerBounds {
             val r = Rect().also(node::getBoundsInScreen)
@@ -858,7 +860,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 roots = listOfNotNull(topWindow.root),
                 childCount = { it.childCount },
                 childAt = { node, index -> node.getChild(index) },
-                isProtected = { it.isPassword },
+                isProtected = { node ->
+                    node.isPassword || (node.isScrollable && node.isVisibleToUser &&
+                        Rect().also(node::getBoundsInScreen).top >= height * 14 / 100)
+                },
                 isVisible = { it.isVisibleToUser },
             ) { node ->
                 val bounds = Rect().also(node::getBoundsInScreen)
@@ -929,10 +934,7 @@ class LuluAccessibilityService : AccessibilityService() {
                         virtualChatHeaderTexts(service, displayId, packageName))
             val root = topVirtualAppWindow(service, displayId, packageName)?.root
                 ?: return result(false, "chat_window_unverified", "微信会话窗口已变化")
-            if (visibleEditors(root).any { editor ->
-                    LuluVirtualChatSendPolicy.chatEditorCandidate(
-                        editor.className?.toString(), editor.hintText?.toString(),
-                        editor.viewIdResourceName) }) {
+            if (visibleEditors(root).any { virtualChatEditor(it, packageName, dimensions.second) }) {
                 return result(true, "", "当前会话已经有可输入文字的编辑框，未重复切换",
                     ready = true)
             }

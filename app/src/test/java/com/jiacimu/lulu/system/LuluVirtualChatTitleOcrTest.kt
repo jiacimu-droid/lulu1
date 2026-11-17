@@ -28,6 +28,26 @@ class LuluVirtualChatTitleOcrTest {
             "小雨", 720, 1280))
     }
 
+    @Test fun wechatTitleFitsAtTheTopWithoutAStatusBar() {
+        val centered = line("目标联系人", 225, 9, 481, 48)
+        val statusArea = line("目标联系人", 73, 9, 184, 48)
+        assertTrue(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            listOf(centered), "目标联系人", 720, 1600, centeredToolbar = true))
+        assertFalse(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            listOf(statusArea), "目标联系人", 720, 1600, centeredToolbar = true))
+    }
+
+    @Test fun centerCropCannotTurnAClippedNicknameIntoAnExactMatch() {
+        val clipped = line("目标联系人", 0, 20, 261, 61)
+        val whole = line("目标联系人", 36, 20, 271, 61)
+        val cropped = LuluVirtualChatTitleOcr.interiorToolbarLines(listOf(clipped, whole), 144, 576)
+        assertTrue(cropped.size == 1 && cropped.single().bounds.left == 180)
+        assertTrue(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            cropped, "目标联系人", 720, 1600, centeredToolbar = true))
+        assertFalse(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            cropped, "目标联系人甲", 720, 1600, centeredToolbar = true))
+    }
+
     @Test fun textInChatHistoryOrSearchBelowToolbarIsNeverTitleProof() {
         assertFalse(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
             listOf(line("文件传输助手", 165, 395, 440, 470)),

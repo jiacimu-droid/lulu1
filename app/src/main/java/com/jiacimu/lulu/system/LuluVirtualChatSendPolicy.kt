@@ -120,8 +120,10 @@ internal object LuluVirtualChatSendPolicy {
 
     fun chatEditorCandidate(
         className: String?, hint: String?, resourceId: String?, packageName: String = WECHAT,
+        hasEditableAction: Boolean = false,
     ): Boolean {
-        if (!supports(packageName) || !className.orEmpty().contains("EditText", true)) return false
+        if (!supports(packageName) || (!className.orEmpty().contains("EditText", true) &&
+                !(packageName == WECHAT && hasEditableAction))) return false
         val fieldHint = hint.orEmpty().trim().trimEnd('…', '.', '。', ' ', '～', '~')
         val id = resourceId.orEmpty().substringAfterLast('/')
         if (nonChatEditor.containsMatchIn("$fieldHint $id")) return false

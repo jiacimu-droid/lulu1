@@ -55,6 +55,16 @@ class LuluVirtualSocialActionsTest {
             ComposerBounds(25, 900, 695, 960), publish, width, height, "输入", ""))
     }
 
+    @Test fun wechatCustomEditorUsesItsWritableAndroidAction() {
+        val app = LuluVirtualChatSendPolicy.WECHAT
+        assertTrue(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "", "id/custom_editor", app, hasEditableAction = true))
+        assertFalse(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "搜索", "id/custom_editor", app, hasEditableAction = true))
+        assertFalse(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "", "id/custom_editor", app))
+    }
+
     @Test fun visibleKeyboardCanBeTappedWhenNoClickableNodeIsExposed() {
         val voiceBar = ComposerBounds(86, 1050, 560, 1132)
         val keyboard = LuluVirtualChatSendPolicy.ComposerControl(
