@@ -38,7 +38,7 @@ class SemanticWorldActionTurnRegressionTest {
         speaker = when (source) {
             "tool-router" -> "执行器"
             "online-awareness" -> "实际观察"
-            else -> "江渡"
+            else -> if (kind == EventEvidenceKind.UserStatement) "主人" else "江渡"
         }, content = content, occurredAt = at.plusSeconds(atSecond),
         sessionId = sessionId, source = source, evidenceKind = kind, taskId = taskId,
     )
@@ -50,7 +50,8 @@ class SemanticWorldActionTurnRegressionTest {
     )
 
     private fun receipt(nativeEvidenceId: String = nativeId,
-                        success: Boolean = true, owner: String = role): SharedTimelineEvent {
+                        success: Boolean = true, owner: String = role,
+                        atSecond: Long = 2): SharedTimelineEvent {
         val result = JSONObject().put("success", success)
             .put("evidenceId", nativeEvidenceId)
             .put("summary", "江渡从云眠原 回到了自己的空中家园。")
@@ -59,7 +60,7 @@ class SemanticWorldActionTurnRegressionTest {
             .put("status", if (success) "succeeded" else "failed")
             // Production ToolRouter writes the result as a JSON STRING.
             .put("result", result.toString())
-        return row(toolId, 2, "实际工具执行", "tool-router",
+        return row(toolId, atSecond, "实际工具执行", "tool-router",
             envelope.toString(), EventEvidenceKind.ToolResult,
             taskId = "request-home-1", owner = owner)
     }
@@ -127,7 +128,7 @@ class SemanticWorldActionTurnRegressionTest {
             native.channel, native.speaker, native.content, native.occurredAt,
             triggerExtraction = false, source = native.source,
             evidenceKind = native.evidenceKind)
-        val wrapper = receipt()
+        val wrapper = receipt(atSecond = 15)
         SharedExperienceTimeline.record(wrapper.id, wrapper.characterId,
             wrapper.channel, wrapper.speaker, wrapper.content, wrapper.occurredAt,
             triggerExtraction = false, source = wrapper.source,
