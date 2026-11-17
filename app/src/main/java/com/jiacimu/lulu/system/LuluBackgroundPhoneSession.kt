@@ -449,6 +449,80 @@ internal object LuluBackgroundPhoneSession {
     }
 
     /**
+     * Shared visual typing for ALL owner-authorized third-party apps.
+     * Unlike a chat send, this only writes a draft. It never presses Enter,
+     * Send, Publish, Search or any purchase/confirmation action.
+     *
+     * For zero-tree WebViews/HyperOS the model chooses a field point from
+     * its latest real screenshot. The platform then proves this display's
+     * actual IME and targets only the verified App UID for a Unicode paste.
+     * Key injection is not equivalent to a successful text readback.
+     */
+    private suspend fun typeVisualVirtualField(
+        id: Int, packageName: String, text: String,
+        x: Int, y: Int, authorized: () -> Boolean,
+    ): JSONObject {
+        fun stopped(code: String, detail: String): JSONObject = JSONObject()
+            .put("accepted", false).put("inputTextReadbackVerified", false)
+            .put("inputVerification", "unverified")
+            .put("inputMethod", "visual_target_uid_unicode")
+            .put("errorCode", code).put("taskCompleted", false)
+            .put("verification", detail)
+        if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
+            return stopped("visual_input_window_unverified",
+                "未核实当前独立屏目标App归属或主人授权，未输入")
+        val imeBefore = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualInputImeTopPermille(id, packageName)
+        }
+        if (!LuluVirtualTextInputPolicy.inputPointSafe(x, y, imeBefore))
+            return stopped("visual_input_field_point_invalid",
+                "本次真实截图的输入点落在状态栏、键盘或屏幕外，未输入")
+        // If Android exposes controls, avoid clicking a protected password,
+        // payment or irreversible button. If OEM hides ALL nodes, ownership,
+        // fresh snapshot, role-selected input point and live IME remain mandatory.
+        val ui = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualUiSnapshot(id, packageName)
+        }
+        if ((ui.optJSONArray("elements")?.length() ?: 0) > 0 &&
+            withContext(Dispatchers.Main) {
+                LuluAccessibilityService.isSensitiveVirtualTap(id, packageName, x, y)
+            }) return stopped("visual_input_sensitive_field",
+            "当前输入位置与受保护控件重合，拒绝按文字输入处理")
+        val tap = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.tapVirtualDisplay(id, packageName, x, y)
+        }
+        if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
+            "目标输入位置的单次聚焦手势未完成，没有粘贴文字")
+        var imeVisible = false
+        for (attempt in 0 until 8) {
+            if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
+                break
+            imeVisible = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualInputKeyboardVisible(id, packageName)
+            }
+            if (imeVisible) break
+            if (attempt < 7) kotlinx.coroutines.delay(150)
+        }
+        if (!imeVisible || !authorized()) return stopped("visual_input_ime_unverified",
+            "独立屏没有出现可确认的本地输入法窗口，拒绝向其他焦点粘贴")
+        // This is an internal shell command, never a raw model capability.
+        // It also checks display > 0, the launched package and target UID.
+        val pasted = command(JSONObject().put("action", "paste_text")
+            .put("packageName", packageName).put("text", text))
+        return JSONObject().put("accepted", pasted.optBoolean("accepted"))
+            .put("inputDispatched", pasted.optBoolean("inputDispatched"))
+            .put("inputTextReadbackVerified", false)
+            .put("inputVerification", "unverified")
+            .put("inputMethod", "visual_target_uid_unicode")
+            .put("actionMethod", pasted.optString("actionMethod"))
+            .put("errorCode", pasted.optString("errorCode"))
+            .put("taskCompleted", false)
+            .put("verification", if (pasted.optBoolean("accepted"))
+                "已在本角色独立屏对指定App派发一次完整Unicode草稿；仍须从新画面核实文字，未提交或发送"
+                else "定向中文输入未被完整核实，不会重复输入，也未提交或发送")
+    }
+
+    /**
      * One verified visual WeChat transaction for ROMs where a real virtual
      * screenshot exists but no chat EditText / ACTION_SET_TEXT node does.
      *
@@ -1099,15 +1173,18 @@ internal object LuluBackgroundPhoneSession {
                     check(prepared.optBoolean("accepted")) {
                         "无法建立后台屏文字输入的画面核验屏障"
                     }
-                    // Direct Mika Accuracy.typeAndVerify port: write, await
-                    // local input settling, read exact field back and retry
-                    // ACTION_SET_TEXT once. This never targets a message box,
-                    // never alters global clipboard, and costs no model calls.
-                    val verified = typeSearchText(id, activeApp, value)
-                    JSONObject().put("accepted",
-                        verified != LuluMikaTextAccuracy.Verification.MISMATCH)
-                        .put("inputVerification", verified.wire)
-                        .put("displayId", id)
+                    // One generic phone text operation across apps.
+                    // Standard focused editors use ACTION_SET_TEXT and exact
+                    // field readback. Zero-tree apps use a model-chosen point
+                    // in the currently observed frame, then the isolated
+                    // keyboard + shell target UID, without auto-submitting.
+                    if (args.has("inputX") && args.has("inputY")) {
+                        typeVisualVirtualField(id, activeApp, value,
+                            args.getInt("inputX"), args.getInt("inputY"),
+                            ::stillAuthorized)
+                    } else withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.typeFocusedVirtualEditor(id, activeApp, value)
+                    }
                 }
                 LuluWeChatMomentsPolicy.OPEN_COMPOSER -> {
                     val fingerprint = checkNotNull(lastObservedUi).fingerprint
