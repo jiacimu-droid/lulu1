@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3f805651ea669ff3e824c7b6c75739aee9a59801`
+- 基准提交：`ecd0b71f4ee830adb1c9e812d9a6f48111a8ffb2`
 - 分支：`main`
 - 已索引文件：1411
-- 已索引代码/文本行：298117
+- 已索引代码/文本行：298127
 - 已发现符号：4248
 
 | 文件 | 行数 | 符号数 |
@@ -813,7 +813,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2014 | 62 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 115 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 116 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 566 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
@@ -852,7 +852,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 21 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 26 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 77 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 144 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 45 | 6 |
@@ -865,7 +865,7 @@
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 120 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 408 | 2 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 131 | 4 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 132 | 4 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
@@ -1396,7 +1396,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 83 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 96 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 99 | 1 |

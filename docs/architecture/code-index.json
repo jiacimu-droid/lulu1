@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:24:35.756638+00:00",
-  "commit": "3f805651ea669ff3e824c7b6c75739aee9a59801",
+  "generatedAt": "2026-11-17T13:26:22.203137+00:00",
+  "commit": "ecd0b71f4ee830adb1c9e812d9a6f48111a8ffb2",
   "branch": "main",
-  "sourceFingerprint": "2a67c99b5e7deb3b45a7540d81cad0c1f1fc599e81e327d4f2fe9d4d05b44406",
+  "sourceFingerprint": "1418290a000ca93124ad44eeca57cff0c10c2f66edb26e0dcd038532508b4b33",
   "summary": {
     "files": 1411,
-    "lines": 298117,
+    "lines": 298127,
     "symbols": 4248
   },
   "symbolIndex": {
@@ -4991,7 +4991,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-        "line": 14
+        "line": 19
       }
     ],
     "ready": [
@@ -7525,7 +7525,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 83
+        "line": 84
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -9587,7 +9587,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "DevelopmentMaturity": [
@@ -18499,13 +18499,13 @@
     "inputPointSafe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-        "line": 9
+        "line": 13
       }
     ],
     "requiresVisualSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-        "line": 12
+        "line": 17
       }
     ],
     "TextLine": [
@@ -18729,13 +18729,13 @@
     "mayPaste": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "paste": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "AndroidAdb": [
@@ -41383,8 +41383,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-      "lines": 115,
-      "sha256": "9adb82ac182aeb501e35591b912d7f74b4b12c33bfb036909dd9395369de8239",
+      "lines": 116,
+      "sha256": "9b28b8462c9147b4d76b2a8592cee70f61003e9a2c979220dea4409c36641452",
       "symbols": [
         {
           "name": "isSupportedAction",
@@ -41460,7 +41460,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
       "lines": 1864,
-      "sha256": "41e52cbc75e5d2b4d9fa9f45c45d72c39ec092e4ec3863d1c095dfc997c372c2",
+      "sha256": "1dd5a4cb377b7fa7bd5009bf5c42cdae1f4422bf8cf4bc3519448a510fb96442",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42419,20 +42419,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-      "lines": 21,
-      "sha256": "7631e4ac720041087f65bd6857b9b81fd01098bd01b30a7b86e7036b11319d7a",
+      "lines": 26,
+      "sha256": "7513e5144931c1a884c97ee8aba16f7380f9e270508f2bee545fc7723f2399bd",
       "symbols": [
         {
           "name": "inputPointSafe",
-          "line": 9
+          "line": 13
         },
         {
           "name": "requiresVisualSnapshot",
-          "line": 12
+          "line": 17
         },
         {
           "name": "stage",
-          "line": 14
+          "line": 19
         }
       ]
     },
@@ -42693,24 +42693,24 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-      "lines": 131,
-      "sha256": "af6a1a835358486268bade07f605ecc7739a1fc69d91f39d21c9036074e017ff",
+      "lines": 132,
+      "sha256": "a1a35aa2eec0cf22425fc601ebf4c2414e674b0224291c3d15f445b040c4c940",
       "symbols": [
         {
           "name": "mayPaste",
-          "line": 33
+          "line": 34
         },
         {
           "name": "key",
-          "line": 55
+          "line": 56
         },
         {
           "name": "paste",
-          "line": 79
+          "line": 80
         },
         {
           "name": "result",
-          "line": 83
+          "line": 84
         }
       ]
     },
@@ -50036,8 +50036,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt",
-      "lines": 83,
-      "sha256": "c79700e3779bdef5054a2603da8d21767170f56fc21a17f0e81857937b69dbcb",
+      "lines": 86,
+      "sha256": "7cbb2996be7d66ec30e490377a2931c95ad1b4103b7e65f604e09f2b003b6a08",
       "symbols": [
         {
           "name": "LuluVirtualTextInputPolicyTest",
