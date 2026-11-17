@@ -354,6 +354,10 @@ object ToolRouter {
                             chatCaption = args.optString("caption"))
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
+                    } else if (name == "write_desktop_widget_note" ||
+                        name == "decorate_desktop_widget") {
+                        com.jiacimu.lulu.LuluWidgetRoleActions.execute(
+                            context, characterId, name, args).toString()
                     } else if (name == "strict_supervision") {
                         com.jiacimu.lulu.system.LuluStrictMode.command(context, characterId, args)
                     } else if (name == "start_study_watch") {
