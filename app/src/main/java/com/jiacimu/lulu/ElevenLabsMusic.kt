@@ -70,6 +70,9 @@ internal object ElevenLabsMusic {
                 ElevenLabsRoleSongPipeline.roleVoiceId(application, characterId)
                     ?: error("该角色还没有 ElevenLabs Voice ID；请先选择已有角色音色，或关闭「角色原声唱歌」")
             } else null
+            require(roleVoice == null || durationSeconds <= 180) {
+                "角色原声转换目前只支持最长180秒；未发起收费的音乐生成请求"
+            }
             val request = body(prompt, durationSeconds, model, finetune)
             val connection = (URL(API).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
