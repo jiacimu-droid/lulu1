@@ -90,6 +90,18 @@ internal fun resolveTheaterReadingDestination(
     return TheaterReadingDestination(title, chapterId, record?.id)
 }
 
+/** Recover user-worked legacy stories from local data; never publish old private presets. */
+internal fun savedTheaterSeeds(state: StarWishState): List<StarWishTheaterSeed> {
+    val titles = (state.theaterChapters.keys + state.theaterGuides.keys +
+        state.theaterPlans.keys + state.theaterBibles.keys).filter(String::isNotBlank)
+    return titles.distinct().map { title ->
+        val guide = state.theaterGuides[title].orEmpty().ifBlank {
+            state.theaterBibles[title]?.promptText().orEmpty()
+        }
+        StarWishTheaterSeed(title, guide)
+    }
+}
+
 @Composable
 internal fun StarWishTheaterContentV2(
     state: StarWishState,
@@ -113,8 +125,9 @@ internal fun StarWishTheaterContentV2(
     var deleteTheaterTitle by remember { mutableStateOf<String?>(null) }
     var draftWorldBookIds by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-    val allTheaters = remember(customTheaters, hiddenTitles) {
-        (customTheaters + StarWishRules.theaters).distinctBy { it.title }.filterNot { it.title in hiddenTitles }
+    val allTheaters = remember(customTheaters, hiddenTitles, state) {
+        (customTheaters + savedTheaterSeeds(state)).distinctBy { it.title }
+            .filterNot { it.title in hiddenTitles }
     }
     val openedSeed = allTheaters.firstOrNull { it.title == openedTitle }
     val readingDestination = remember(initialReadingTarget, state.theaterChapters) {
@@ -373,15 +386,14 @@ private fun TheaterBookshelfV2(
             }
             item {
                 OutlinedButton(onClick = onMini, modifier = Modifier.fillMaxWidth()) {
-                    Text("单篇小剧场 · 内置玩法与多选导入")
+                    Text("单篇小剧场 · 导入我的模板")
                 }
             }
             items(theaters, key = { it.title }) { seed ->
             val chapters = state.theaterChapters[seed.title].orEmpty()
             val chapterCount = chapters.size
             val task = generationTasks[seed.title]
-            val custom = seed !in StarWishRules.theaters
-            var menu by remember { mutableStateOf(false) }
+             var menu by remember { mutableStateOf(false) }
             Surface(
                 modifier = Modifier.fillMaxWidth().combinedClickable(onClick = { onOpen(seed.title) }, onLongClick = { onDelete(seed.title) }),
                 shape = RoundedCornerShape(22.dp),
@@ -419,13 +431,12 @@ private fun TheaterBookshelfV2(
                         )
                         Spacer(Modifier.height(7.dp))
                         Text(
-                            if (custom) "自定义" else "内置故事",
+                            "我的故事",
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }
-                    if (custom) {
-                        Box {
+                    Box {
                             IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
                             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                                 DropdownMenuItem(
@@ -435,9 +446,6 @@ private fun TheaterBookshelfV2(
                                 )
                             }
                         }
-                    } else {
-                        Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = StudyDesign.muted, modifier = Modifier.padding(end = 10.dp))
-                    }
                 }
             }
             }
