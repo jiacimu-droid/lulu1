@@ -23,6 +23,7 @@ internal object LuluVisualChatDraftPolicy {
      * Strict bounds prevent picking a quoted '发送' inside a message. */
     fun sendLabel(
         lines: List<LuluVirtualChatTitleOcr.Line>, width: Int, height: Int,
+        imeTopY: Int = height,
     ): LuluVirtualChatTitleOcr.Line? {
         if (width <= 0 || height <= 0) return null
         return lines.filter { item ->
@@ -32,7 +33,10 @@ internal object LuluVisualChatDraftPolicy {
                 b.width in 1..(width * 24 / 100).coerceAtLeast(1) &&
                 b.height in 1..(height * 7 / 100).coerceAtLeast(1) &&
                 b.centerX >= width * 70 / 100 &&
-                b.centerY in (height * 46 / 100)..(height * 96 / 100)
+                b.centerY in (height * 46 / 100)..(height * 96 / 100) &&
+                // The keyboard may itself offer a visually identical Send
+                // action. Only the verified APP composer area may be tapped.
+                b.bottom < imeTopY
         }.singleOrNull()
     }
 
@@ -54,13 +58,13 @@ internal object LuluVisualChatDraftPolicy {
 
     fun verifiedDraft(
         lines: List<LuluVirtualChatTitleOcr.Line>, recipient: String, message: String,
-        width: Int, height: Int,
+        width: Int, height: Int, imeTopY: Int = height,
     ): Proof? {
         if (!LuluVirtualChatSendPolicy.validRecipient(recipient) ||
             !LuluVirtualChatSendPolicy.validMessage(message) ||
             !LuluVirtualChatTitleOcr.hasExactToolbarTitle(
                 lines, recipient, width, height, centeredToolbar = true)) return null
-        val send = sendLabel(lines, width, height) ?: return null
+        val send = sendLabel(lines, width, height, imeTopY) ?: return null
         val b = send.bounds
         // Text from the actual input area is to the LEFT of the send button
         // and close to its row, even when the keyboard resized the app.
