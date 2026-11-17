@@ -4,8 +4,7 @@ import {
   kissCameraHorizontalPosition, kissMouthLocalOffsetX,
   screenFaceLocalOffsetX,
   kissCameraVerticalPosition, kissFaceLocalOffsetY,
-  WOLF_KISS_MOTION_INDEX, WOLF_APPROACH_MOTION_INDEX,
-  KISS_CAMERA_DURATION_MS, screenProximityFrame, isScreenProximityMotion,
+  WOLF_KISS_MOTION_INDEX, screenProximityFrame, isScreenProximityMotion,
   screenProximityDuration, screenProximityPeak,
 } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
@@ -355,9 +354,9 @@ function applyProximityCameraPose(now = performance.now()) {
     : active ? screenProximityFrame(active.index, now - active.startedAt) :
       { zoom: 1, finished: true }
   if (frame.finished) {
-    // The renderer-only soft exit outlives the 3.35s authored Motion3.
-    // A stale static face preset must not linger after the exit finishes.
-    // Complete only this exact clip's short facial lease.
+    // Renderer-only exit outlives the authored Motion3, whether it was
+    // close eye contact or a kiss. Only the kiss owns a closed-mouth face
+    // score; neutral proximity must not erase the model's chosen expression.
     if (active && authoredMotion?.model === model &&
         authoredMotion.revision === active.revision &&
         active.index === WOLF_KISS_MOTION_INDEX &&
@@ -367,9 +366,8 @@ function applyProximityCameraPose(now = performance.now()) {
     proximityCameraLease = null
   }
   const zoom = frame.zoom
-  // Zoom and slide around the lips, not the torso pivot. The anchor comes
-  // from the model's calibrated mouth, or the wolf-specific visual fallback.
-  // Track the real face instead of zooming upward around the torso.
+  // Follow the actual face rather than enlarging around the torso pivot:
+  // eye center for neutral proximity, lips for an explicitly chosen kiss.
   model.scale.set(base.scale * zoom)
   const nuzzle = active && !active.handoff &&
     active.index === WOLF_KISS_MOTION_INDEX
@@ -1830,8 +1828,8 @@ function resetSpeechExpression() {
 function clearSpeechMoment({
   preserveCurrentMotion = false, cancelKiss = false, softenKiss = false,
 } = {}) {
-  // An audible next phrase isn't a command to break an already-started kiss.
-  // Hold the bounded physical lease through speech-only/expression-only cues;
+  // A queued sentence isn't permission to discard an already-started
+  // close-up. Hold its bounded lease through speech/expression-only cues;
   // explicit new Motion3, interruption, hide and disposal always release it.
   const carryProximity = !cancelKiss && proximityCameraLease?.model === model &&
     authoredMotion?.started && authoredMotion?.revision === proximityCameraLease.revision &&
