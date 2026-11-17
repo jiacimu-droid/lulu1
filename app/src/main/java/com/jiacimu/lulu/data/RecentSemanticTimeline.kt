@@ -38,7 +38,13 @@ object RecentSemanticTimeline {
         if (event.id.startsWith("game-raw-") && event.channel.contains("迷雾摸金")) {
             // The final replay row contains the true serialized run ID; it is not
             // a second match when the actual run actions are already recorded.
-            val run = relicRuns.firstOrNull { id -> event.content.contains(id) }
+            // Match the serialized run's actual ID field, not a loose UUID
+            // substring: a run ID that prefixes another must not steal its
+            // final replay or invent a combined game memory.
+            val run = relicRuns.firstOrNull { id ->
+                val field = Regex("\\\"id\\\"\\s*:\\s*\\\""+Regex.escape(id)+"\\\"")
+                field.containsMatchIn(event.content)
+            }
             if (run != null) return "game:relic_escape:$run"
         }
         if ((event.id.startsWith("game-raw-") || event.id.startsWith("game-solo-")) &&
