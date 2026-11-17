@@ -547,14 +547,14 @@ internal fun LuluDesktopWidgetCanvas(
             // opens the picker without falsely selecting a clamped last-row icon.
             if (y !in 0..3) {
                 onBlankLongPress()
-                return@detectTapGestures
+            } else {
+                val occupiedByIcon = launcherSlots.getOrNull(page * 16 + y * 4 + x) != null
+                val occupiedByWidget = widgets.any {
+                    it.page == page && x in it.col until it.col + it.columns &&
+                        y in it.row until it.row + it.rows
+                }
+                if (!occupiedByIcon && !occupiedByWidget) onBlankLongPress()
             }
-            val occupiedByIcon = launcherSlots.getOrNull(page * 16 + y * 4 + x) != null
-            val occupiedByWidget = widgets.any {
-                it.page == page && x in it.col until it.col + it.columns &&
-                    y in it.row until it.row + it.rows
-            }
-            if (!occupiedByIcon && !occupiedByWidget) onBlankLongPress()
         })
     }) {
         val cellWidth = maxWidth / 4
