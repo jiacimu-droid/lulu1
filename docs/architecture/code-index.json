@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:31:37.235776+00:00",
-  "commit": "8cc878c6f0e918a2b297c176759a3af1af1b3830",
+  "generatedAt": "2026-11-17T05:40:44.040140+00:00",
+  "commit": "4feb565baea37e34760f5e685e15a8630b5fc0e7",
   "branch": "main",
-  "sourceFingerprint": "961ce817502f4aa4f68d5468465b8de2faa445e42cd2f9181d8ed5422054be85",
+  "sourceFingerprint": "1aba59ea2cbc8889c8b80e973db5d51bb6cb6edeff34a65831f5b1c86021f90c",
   "summary": {
     "files": 1390,
-    "lines": 297540,
+    "lines": 297589,
     "symbols": 4200
   },
   "symbolIndex": {
@@ -2127,7 +2127,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 174
+        "line": 223
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -3929,7 +3929,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 100
+        "line": 144
       }
     ],
     "Loading": [
@@ -4581,7 +4581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 83
+        "line": 115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
@@ -12805,13 +12805,13 @@
     "RecentSemanticTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 12
+        "line": 13
       }
     ],
     "Kind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 13
+        "line": 14
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
@@ -12829,7 +12829,7 @@
     "Turn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "requiresBufferedSpeech": [
@@ -35240,32 +35240,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 254,
-      "sha256": "dc8492f7e5e30cab1e0135e6f09a439a7949ebe53ca6609866ff1319fb3ad19c",
+      "lines": 303,
+      "sha256": "aa1651b25352329ed420c1259b0395ad89dace1f63252e1be28f158c91bb8893",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
-          "line": 12
-        },
-        {
-          "name": "Kind",
           "line": 13
         },
         {
-          "name": "Turn",
+          "name": "Kind",
           "line": 14
         },
         {
+          "name": "Turn",
+          "line": 15
+        },
+        {
           "name": "select",
-          "line": 83
+          "line": 115
         },
         {
           "name": "accept",
-          "line": 100
+          "line": 144
         },
         {
           "name": "render",
-          "line": 174
+          "line": 223
         }
       ]
     },
