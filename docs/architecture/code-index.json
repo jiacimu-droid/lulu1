@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:40:01.698264+00:00",
-  "commit": "15a81d5744aebb7d179ea825cdd94b3a0d31644e",
+  "generatedAt": "2026-11-17T16:40:41.995447+00:00",
+  "commit": "e0ae7630147fc306c3670b197d2530bbcd959d15",
   "branch": "main",
-  "sourceFingerprint": "90a30a008ca8de27902772852e7c9cd71fbe7ffd66f7585d047438e7a34275bf",
+  "sourceFingerprint": "d19481b9ed0c21dc27046d6241c7414588ab262de43840f76a31dec43474816e",
   "summary": {
     "files": 1421,
-    "lines": 299790,
+    "lines": 299795,
     "symbols": 4288
   },
   "symbolIndex": {
@@ -3317,7 +3317,7 @@
     "LuluAppearanceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "LuluBackupScreen": [
@@ -26286,12 +26286,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 290,
-      "sha256": "9207b417ccb9867ffd74b7f669f53e5e72b4fa1ae527a22535f6877b0f5b07ef",
+      "lines": 288,
+      "sha256": "102070f75bfdf5383ce89c5a667c05d67d8b9f6d5ed9900976b1c80681fe5040",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",
-          "line": 37
+          "line": 38
         }
       ]
     },
@@ -41026,8 +41026,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 67,
-      "sha256": "f53628ad68ac63db72ae0b82bcb2b567bb1e4fff58a6cc10eae0dc0fc8c69062",
+      "lines": 74,
+      "sha256": "cc02457fd7ff7d55d6a1ac38e47a8d3bd1db2ce437fa5164455334e42dccb4f4",
       "symbols": []
     },
     {
