@@ -21,6 +21,15 @@ import java.util.concurrent.TimeUnit
 internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, val token: String,
                                         val fallback: Boolean = false) {
     companion object {
+        /**
+         * WorkManager/OEM battery restrictions often delay a review well past
+         * half an hour. A delayed review only asks the SAME character to assess
+         * fresh evidence; it does not execute the originally imagined contact.
+         * Retain the bounded window for genuine overnight stale appointments.
+         */
+        fun tooLateForDedicatedReview(dueAt: Instant, now: Instant): Boolean =
+            Duration.between(dueAt, now) > Duration.ofHours(3)
+
         fun from(motive: JSONObject): CharacterMotiveReview? {
             if (!CharacterMotiveState.isActive(motive)) return null
             val id = motive.optString("id").takeIf(String::isNotBlank) ?: return null
@@ -116,11 +125,12 @@ class CharacterMotiveReviewWorker(context: Context, params: WorkerParameters) : 
         val due = CharacterMotiveReview.eligibleAt(pending.dueAt, policy, ZoneId.systemDefault())
         val now = Instant.now()
         if (now.isBefore(due)) return Result.retry()
-        if (Duration.between(due, now).toMinutes() > 30) {
-            // Expiry is not an actual appraisal. Retain the goal, but mark
-            // this obsolete alarm as skipped and offer it at normal cadence.
+        if (CharacterMotiveReview.tooLateForDedicatedReview(due, now)) {
+            // An hours-old check is not an order to contact someone. Retain
+            // its still-open motive for ordinary perception, without marking
+            // an appraisal that never happened.
             CharacterInnerLifeStore.deferStaleMotiveReview(role, id, token, now)
-            return Result.success() // Never call a model hours after a missed alarm.
+            return Result.success()
         }
         // The ordinary per-person owner claims the exact plan after checking
         // call/unread ownership. A busy conversation defers, never consumes it.
