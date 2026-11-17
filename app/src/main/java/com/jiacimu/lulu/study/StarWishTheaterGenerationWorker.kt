@@ -44,6 +44,17 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishTheaterTask>> = mutable.asStateFlow()
 
+    init {
+        val old = mutable.value.keys.filter(LegacyBuiltInTheaters::matches)
+        if (old.isNotEmpty()) {
+            old.forEach { title ->
+                runCatching { WorkManager.getInstance(appContext).cancelUniqueWork(workName(title)) }
+            }
+            mutable.value = mutable.value - old.toSet()
+            persist()
+        }
+    }
+
     @Synchronized fun enqueue(theater: String, influence: String, repairChapterId: String = ""): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
         require(cleanTheater.isNotBlank()) { "故事名称不能为空" }
@@ -177,6 +188,17 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
     private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishPlanTask>> = mutable.asStateFlow()
+
+    init {
+        val old = mutable.value.keys.filter(LegacyBuiltInTheaters::matches)
+        if (old.isNotEmpty()) {
+            old.forEach { title ->
+                runCatching { WorkManager.getInstance(appContext).cancelUniqueWork(workName(title)) }
+            }
+            mutable.value = mutable.value - old.toSet()
+            persist()
+        }
+    }
 
     @Synchronized fun enqueue(theater: String, characterId: String, chapterCount: Int, bibleOnly: Boolean = false): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
