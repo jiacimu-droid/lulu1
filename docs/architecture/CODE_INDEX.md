@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1db9973b094f34349327e2b46b448d0129032b13`
+- 基准提交：`569899c273d61aafb242ac7acf9ae8e4cdc01a2e`
 - 分支：`main`
-- 已索引文件：1411
-- 已索引代码/文本行：298318
-- 已发现符号：4253
+- 已索引文件：1412
+- 已索引代码/文本行：298392
+- 已发现符号：4254
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1364,6 +1364,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluDirectReturnPolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluInstalledAppResolverTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
