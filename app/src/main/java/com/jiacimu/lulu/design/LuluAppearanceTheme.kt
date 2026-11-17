@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
@@ -20,14 +23,26 @@ import com.jiacimu.lulu.data.LuluAppearance
 import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.LuluAppearanceFont
 import com.jiacimu.lulu.data.LuluAppearanceMotif
+import com.jiacimu.lulu.data.LuluCssSheet
+import com.jiacimu.lulu.data.LuluCssStore
 import kotlin.math.floor
 
 val LocalLuluAppearance = compositionLocalOf { LuluAppearanceCatalog.builtIns.first() }
 
 @Composable
-fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit) {
-    val p = profile.palette
-    val background = Color(p.paper.toInt())
+fun LuluAppearanceTheme(
+    profile: LuluAppearance,
+    scope: String = "Home",
+    sheetOverride: LuluCssSheet? = null,
+    content: @Composable () -> Unit,
+) {
+    val savedCss by LuluCssStore.css.collectAsState()
+    val savedSheet = remember(savedCss) { LuluCssSheet.parse(savedCss) }
+    val activeSheet = sheetOverride ?: savedSheet
+    val themedProfile = activeSheet.profile(scope, profile)
+    val p = themedProfile.palette
+    val hasImage = LuluCssStore.assetFile(activeSheet.imageToken(scope)) != null
+    val background = if (hasImage) Color.Transparent else Color(p.paper.toInt())
     val card = Color(p.card.toInt())
     val cardStrong = Color(p.cardStrong.toInt())
     val ink = Color(p.ink.toInt())
@@ -36,7 +51,7 @@ fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit
     val accent = Color(p.accent.toInt())
     val onAccent = Color(p.onAccent.toInt())
     val soft = Color(p.soft.toInt())
-    val scheme = if (profile.dark) darkColorScheme(
+    val scheme = if (themedProfile.dark) darkColorScheme(
         primary = accent, onPrimary = onAccent,
         primaryContainer = soft, onPrimaryContainer = ink,
         secondary = muted, onSecondary = background,
@@ -55,7 +70,7 @@ fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit
         outline = border, outlineVariant = border,
         surfaceTint = Color.Transparent,
     )
-    val family = when (profile.font) {
+    val family = when (themedProfile.font) {
         LuluAppearanceFont.SANS -> FontFamily.SansSerif
         LuluAppearanceFont.SERIF -> FontFamily.Serif
         LuluAppearanceFont.MONO -> FontFamily.Monospace
@@ -71,8 +86,8 @@ fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit
         labelLarge = LuluTypography.labelLarge.copy(fontFamily = family),
         labelMedium = LuluTypography.labelMedium.copy(fontFamily = family),
     )
-    val radius = profile.corner.coerceIn(4, 32)
-    val shapes = if (profile.isJournal()) Shapes(
+    val radius = themedProfile.corner.coerceIn(0, 60)
+    val shapes = if (themedProfile.isJournal()) Shapes(
         small = RoundedCornerShape(radius.dp, (radius / 2).dp, radius.dp, (radius / 2).dp),
         medium = RoundedCornerShape(radius.dp, (radius / 2).dp, radius.dp, (radius / 2).dp),
         large = RoundedCornerShape((radius + 6).dp, radius.dp, radius.dp, (radius + 6).dp),
@@ -81,7 +96,11 @@ fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit
         medium = RoundedCornerShape(radius.dp),
         large = RoundedCornerShape((radius + 6).coerceAtMost(40).dp),
     )
-    CompositionLocalProvider(LocalLuluAppearance provides profile) {
+    CompositionLocalProvider(
+        LocalLuluAppearance provides themedProfile,
+        LocalLuluCssSheet provides activeSheet,
+        LocalLuluCssScope provides scope,
+    ) {
         MaterialTheme(colorScheme = scheme, typography = styled, shapes = shapes, content = content)
     }
 }
