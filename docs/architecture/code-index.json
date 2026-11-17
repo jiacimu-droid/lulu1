@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:06:31.716493+00:00",
-  "commit": "35c7ee8f6e048fee4e9eba685c2bc0b1c6cd6678",
+  "generatedAt": "2026-11-17T16:07:30.612343+00:00",
+  "commit": "e91f56b77da050b9963673486966bb0f77b6362e",
   "branch": "main",
-  "sourceFingerprint": "9a6d0dbacec176bc4418afbe329850b3413ffd77b701ac979649fb16b17c4726",
+  "sourceFingerprint": "cc9037c80c720999328f8739624774f591b00dbcae603caaa59aee1a8c19cf02",
   "summary": {
-    "files": 1414,
-    "lines": 299299,
-    "symbols": 4271
+    "files": 1415,
+    "lines": 299386,
+    "symbols": 4272
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23570,6 +23570,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
         "line": 13
+      }
+    ],
+    "LuluStrictModeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt",
+        "line": 16
       }
     ],
     "LuluStudyWatchTest": [
@@ -50106,6 +50112,17 @@
         {
           "name": "LuluShoppingLinkShareTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt",
+      "lines": 87,
+      "sha256": "eee6877169b959a45d1ffec82dd2f51ebe7f22a87010c936ee9794a0e7df2ac5",
+      "symbols": [
+        {
+          "name": "LuluStrictModeTest",
+          "line": 16
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`35c7ee8f6e048fee4e9eba685c2bc0b1c6cd6678`
+- 基准提交：`e91f56b77da050b9963673486966bb0f77b6362e`
 - 分支：`main`
-- 已索引文件：1414
-- 已索引代码/文本行：299299
-- 已发现符号：4271
+- 已索引文件：1415
+- 已索引代码/文本行：299386
+- 已发现符号：4272
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1387,6 +1387,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 166 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 50 | 1 |
