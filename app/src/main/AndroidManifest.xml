@@ -90,6 +90,11 @@
             android:exported="false" />
 
         <receiver
+            android:name=".system.LuluStrictModeReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".system.LuluStudyWatchReceiver"
             android:enabled="true"
             android:exported="false" />
