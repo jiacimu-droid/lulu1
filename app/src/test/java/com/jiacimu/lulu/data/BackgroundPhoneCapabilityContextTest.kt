@@ -94,8 +94,14 @@ class BackgroundPhoneCapabilityContextTest {
             val capability = CapabilityRegistry.context(context, characterId)
             assertTrue("background search requires an explicit submit",
                 capability.contains("type|submit|search|send_chat_message|stop"))
-            assertTrue("do not call typing a completed search",
-                capability.contains("submit再由本人选择按后台屏回车提交搜索"))
+            // Type drafts do not submit. Search is a separately verified action,
+            // and submit must not be mistaken for a chat-message send.
+            assertTrue("typing never auto-submits",
+                capability.contains("type只输入草稿，绝不自动搜索/发送/发布"))
+            assertTrue("search must explicitly verify and submit the search box",
+                capability.contains("search(text)，系统自动聚焦、读回并提交搜索"))
+            assertTrue("submit cannot impersonate chat sending",
+                capability.contains("submit仍只针对可确认的搜索框，不能拿回车替代发送消息"))
             assertTrue(status.contains("绝不会把主屏截图当后台图"))
             assertTrue(status.contains("这不是capture_screen"))
             assertTrue(CapabilityRegistry.find("background_phone") != null)
