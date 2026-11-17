@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:47:34.404032+00:00",
-  "commit": "462323b5bc69eed734fb42c7cb7a224facc2a8ab",
+  "generatedAt": "2026-11-17T17:47:59.222272+00:00",
+  "commit": "074722daa3dc778ad820070c23d942e4f8e032c5",
   "branch": "main",
-  "sourceFingerprint": "6c71aa7f0f448d5c710041557b22372f18bceffe8d65253729b99551df23cf90",
+  "sourceFingerprint": "2cbbb2d317e788078db0b84ab52261017fe939b0a44951e64d780ad3eaa512e1",
   "summary": {
     "files": 1439,
-    "lines": 302945,
+    "lines": 302960,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -44912,8 +44912,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
-      "lines": 103,
-      "sha256": "60874422cef45da235b7279b5a1651d6965b2408fb59e7209c0aeb8f7a540f06",
+      "lines": 118,
+      "sha256": "e96c85d9259fc8b5dd2b10a539afcd67df55a5cbe10dba62d032c492f01af36f",
       "symbols": [
         {
           "name": "LuluWidgetLiveIntegrationTest",
