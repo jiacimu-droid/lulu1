@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T10:46:27.844450+00:00",
-  "commit": "decdbac4cc85443f62032c0a5afdc0f18fb06926",
+  "generatedAt": "2026-11-17T10:47:04.221703+00:00",
+  "commit": "cb2a4075a239a7b1de90df6e9f3e4b3808ff239c",
   "branch": "main",
-  "sourceFingerprint": "35a6a3f0164108e82e69e1b5c51cf04654bf1a2dc938223482867b8bffb6d6d0",
+  "sourceFingerprint": "bf0cad2817cbaff6053abce6755c93d3effbe5261a2da9ee85c61b90e5a9f84f",
   "summary": {
     "files": 1398,
-    "lines": 299958,
+    "lines": 299967,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -17595,19 +17595,19 @@
     "connected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 105
+        "line": 114
       }
     ],
     "OwnerPreviewFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 114
+        "line": 123
       }
     ],
     "fingerprint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 179
+        "line": 188
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
@@ -17617,13 +17617,13 @@
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 466
+        "line": 475
       }
     ],
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 817
+        "line": 826
       }
     ],
     "LuluDeviceToolBridge": [
@@ -41397,8 +41397,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1623,
-      "sha256": "8fb50197b9e6bb6360bf569ddada536530423bba19842808e9b5cbae28a6ddf5",
+      "lines": 1632,
+      "sha256": "688d9c77f584a26a152db2a810193e75b3866027acfc25053e486b6f590748f7",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -41410,23 +41410,23 @@
         },
         {
           "name": "connected",
-          "line": 105
-        },
-        {
-          "name": "OwnerPreviewFrame",
           "line": 114
         },
         {
+          "name": "OwnerPreviewFrame",
+          "line": 123
+        },
+        {
           "name": "fingerprint",
-          "line": 179
+          "line": 188
         },
         {
           "name": "stopped",
-          "line": 466
+          "line": 475
         },
         {
           "name": "stillAuthorized",
-          "line": 817
+          "line": 826
         }
       ]
     },
