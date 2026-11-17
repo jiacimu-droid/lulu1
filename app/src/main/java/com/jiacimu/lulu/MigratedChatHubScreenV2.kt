@@ -82,6 +82,7 @@ fun MigratedChatHubScreenV2(
     onBack: () -> Unit,
     onOpenConversation: (String) -> Unit,
     onCharacterSettings: (String) -> Unit,
+    onCreateCharacter: () -> Unit,
     onWorldBook: (String) -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -103,7 +104,6 @@ fun MigratedChatHubScreenV2(
     }
     var showFavorites by rememberSaveable { mutableStateOf(false) }
     var showCreateGroup by remember { mutableStateOf(false) }
-    var showCreateCharacter by remember { mutableStateOf(false) }
 
     if (showFavorites) {
         UserMessageFavoritesScreen(onBack = { showFavorites = false })
@@ -120,7 +120,7 @@ fun MigratedChatHubScreenV2(
                         if (selectedTab == 0 || selectedTab == 1) {
                             IconButton(
                                 onClick = {
-                                    if (selectedTab == 0) showCreateGroup = true else showCreateCharacter = true
+                                    if (selectedTab == 0) showCreateGroup = true else onCreateCharacter()
                                 },
                                 enabled = selectedTab != 0 || characters.size >= 2,
                             ) {
@@ -141,7 +141,7 @@ fun MigratedChatHubScreenV2(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
             when (selectedTab) {
-                0 -> ChatHubV2Messages(onOpenConversation, onCreateCharacter = { showCreateCharacter = true })
+                0 -> ChatHubV2Messages(onOpenConversation, onCreateCharacter = onCreateCharacter)
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
                 2 -> MomentsScreen()
                 else -> ChatHubV2Profile(onFavorites = { showFavorites = true })
@@ -161,22 +161,7 @@ fun MigratedChatHubScreenV2(
         )
     }
 
-    if (showCreateCharacter) {
-        ChatHubV2CreateCharacterDialog(
-            onDismiss = { showCreateCharacter = false },
-            onCreate = { name, persona ->
-                val created = MigratedDomainStores.characters.create(name, persona)
-                DigitalLifeProfileStore.registerNewLife(
-                    characterId = created.characterId,
-                    displayName = created.displayName,
-                    creatorName = UserProfileContext.displayLabel(),
-                )
-                MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
-                showCreateCharacter = false
-                onCharacterSettings(created.characterId)
-            },
-        )
-    }
+
 }
 
 /** Shared QQ session card: both the owner and digital residents render the same component. */
@@ -607,34 +592,6 @@ private fun ChatHubV2Profile(onFavorites: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun ChatHubV2CreateCharacterDialog(
-    onDismiss: () -> Unit,
-    onCreate: (String, String) -> Unit,
-) {
-    var name by remember { mutableStateOf("") }
-    var persona by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("新建数字生命") },
-        text = {
-            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-                OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-                Text("你的角色将作为数字生命诞生在露露机的数字世界，拥有自己的家园、记忆和生活。性格、职业与背景由你自由设定。",
-                    color = LuluColors.Muted, fontSize = 12.sp)
-            }
-        },
-        confirmButton = {
-            TextButton(enabled = name.isNotBlank(), onClick = { onCreate(name.trim(), persona.trim()) }) {
-                Text("创建并设置")
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
-    )
 }
 
 @Composable
