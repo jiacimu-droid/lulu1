@@ -71,7 +71,7 @@ internal object RelicObjectiveGuide {
     fun knownRouteTiles(run:RelicRun,target:RelicObjectiveTarget):List<Pair<Int,Int>>? {
         if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT) ||
             selectedVisible(run,target.x,target.y)==null ||
-            !run.bounds(run.hero.x,run.hero.y)) return null
+            !run.bounds(run.hero.x,run.hero.y) || run.hero.hp<=0) return null
         val start=run.index(run.hero.x,run.hero.y)
         val cellCount=run.w*run.h
         val previous=IntArray(cellCount){-1}
@@ -127,6 +127,7 @@ internal object RelicObjectiveGuide {
         knownRouteTiles(run,target)?.size?.minus(1)
 
     fun prompt(run:RelicRun):String {
+        if(run.hero.hp<=0) return "◈ 已倒地 · 等待真实救援，暂不能沿路线前进"
         val target=nextVisible(run)
         if(target!=null) {
             val steps=knownRouteSteps(run,target)
