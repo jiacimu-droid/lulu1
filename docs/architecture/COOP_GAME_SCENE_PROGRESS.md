@@ -656,3 +656,8 @@
 
 ### 2026-11-18 G-03.5 · 网页试玩损坏存档的物理出生点拒载
 - `preview/world-core.js` 原 `valid` 仅检查玩家/同伴坐标在地图范围内，允许载入角色站在墙、水域或尚未采集的实体树上，导致刷新后无法正常行动。生产 `59ccab6c1b05e483b52daa041362c3e15eac65f5`（blob `35fc87aa358ed29f1220626b60a26491edf6836b`）在试玩存档恢复前拒绝阻挡地形上的玩家/同伴及活实体重叠的玩家；由既有 `loadWorld` 重新生成试玩世界，不改正式 Android 存档。测试 `767b3b74a7fc6cf1c576faca7988d97a91355380`（blob `45974a4e75c0f051815a19e4dc514f79c7eebf5e`）覆盖两款游戏的墙/水/实体占位及正常档。尚未实际运行 Node 回归；对应 main SHA 查询 Actions 0 条，JVM/APK/index 均未验，真机/FPS/角色模型待验。下一入口 `preview/tests/world-core.test.cjs` 实跑及 `preview/worlds.js` 恢复反馈，随后回正式 Android `RelicEscapeScreen.kt`。
+
+
+### 2026-11-18 G-02.6 · 网页试玩真实采木→建屋→存档重进回归（待执行）
+- 新增 `preview/tests/world-core.test.cjs` 的 `island harvests physical trees into a shelter that survives reload without duplicating wood`：按地图路径真实走到两棵树、逐棵采集且实体消失，走到工作台真实建屋扣除 2 木，序列化后检查小屋保留、已采树无法重复产木。与此前直接注入 2 木的工作台测试不同，验证资源来源到持久建筑的整段闭环；仅针对浏览器试玩，正式 Android 不共用该权威状态。
+- 测试提交 `283ffe76a274cb8a9f021e4ae2772c4ef5c98e74`，blob `b13a9ee26dace7011074341668bc4f9497f6498b`。生产源码未修改，尚无 Node 执行通过证据；下一入口 `node --test preview/tests/world-core.test.cjs`，若路径不可达先核 `Core.approaches/route` 与建屋碰撞，随后回正式 `BlockIslandScreen.kt` 触控/横屏。main push JVM/APK/index、Redmi FPS/真实模型待独立核实。
