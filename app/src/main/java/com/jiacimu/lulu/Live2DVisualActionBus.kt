@@ -84,14 +84,25 @@ internal object Live2DVisualActionBus {
         }
     }
 
+    /**
+     * Minimizing the renderer is not hanging up the call. Invalidate only
+     * actual onscreen/capability receipts; keep this call's latest authored
+     * score so a NEW WebView can reattach during the same audible utterance.
+     */
     @Synchronized
-    fun stageClosed(characterId: String, callId: String) {
+    fun stageDetached(characterId: String, callId: String) {
         if (visibleStages[characterId] == callId) {
             visibleStages.remove(characterId)
             availableParameters.remove(characterId)
         }
         if (recentMotionReceipts[characterId]?.any { it.callId == callId } == true)
             recentMotionReceipts.remove(characterId)
+    }
+
+    /** Full call end or model replacement invalidates even pending cues. */
+    @Synchronized
+    fun stageClosed(characterId: String, callId: String) {
+        stageDetached(characterId, callId)
         if (mutableCues.value[characterId]?.callId == callId) {
             mutableCues.value = mutableCues.value - characterId
         }
