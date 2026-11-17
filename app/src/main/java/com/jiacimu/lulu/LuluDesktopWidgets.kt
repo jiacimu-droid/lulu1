@@ -443,7 +443,7 @@ internal fun LuluDesktopWidgetPicker(onAdd: (LuluWidgetKind) -> Unit, onClose: (
 internal fun LuluDesktopWidgetEditor(
     initial: LuluDesktopWidget,
     characters: Map<String, String>,
-    onSave: (LuluDesktopWidget) -> Unit,
+    onSave: (LuluDesktopWidget) -> Boolean,
     onDelete: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -452,6 +452,7 @@ internal fun LuluDesktopWidgetEditor(
     var openCharacters by remember { mutableStateOf(false) }
     var openSigns by remember { mutableStateOf(false) }
     var importError by remember { mutableStateOf<String?>(null) }
+    var layoutError by remember { mutableStateOf<String?>(null) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             runCatching { LuluCssStore.importImage(context, uri) }
@@ -467,6 +468,20 @@ internal fun LuluDesktopWidgetEditor(
                 Modifier.fillMaxWidth().heightIn(max = 470.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                Text("尺寸", fontWeight = FontWeight.Medium)
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf(2 to 1, 2 to 2, 4 to 2).forEach { (width, height) ->
+                        FilterChip(
+                            selected = draft.columns == width && draft.rows == height,
+                            onClick = {
+                                draft = draft.copy(columns = width, rows = height)
+                                layoutError = null
+                            },
+                            label = { Text(width.toString() + "×" + height.toString()) },
+                        )
+                    }
+                }
                 Text("选择插画", fontWeight = FontWeight.Medium)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -489,6 +504,7 @@ internal fun LuluDesktopWidgetEditor(
                     }) { Text("恢复内置") }
                 }
                 importError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 11.sp) }
+                layoutError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 11.sp) }
                 if (initial.kind == LuluWidgetKind.HOROSCOPE) {
                     Text("个人资料 · 星座（仅保存在本机）", fontWeight = FontWeight.Medium)
                     Box {
@@ -552,7 +568,7 @@ internal fun LuluDesktopWidgetEditor(
                 if (initial.kind != LuluWidgetKind.COUNTDOWN ||
                     draft.targetDate.isBlank() ||
                     runCatching { LocalDate.parse(draft.targetDate) }.isSuccess) {
-                    onSave(draft)
+                    if (!onSave(draft)) layoutError = "目标尺寸与其他图标或组件重叠，请改小尺寸或先移动组件。"
                 }
             }) { Text("保存") }
         },
