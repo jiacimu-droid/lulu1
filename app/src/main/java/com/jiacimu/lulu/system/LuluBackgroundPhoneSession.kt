@@ -72,6 +72,8 @@ internal object LuluBackgroundPhoneSession {
         val packageName: String,
     )
     private var lastObservedUi: ObservedUi? = null
+    // Scoped to the one authorized virtual session and cleared when navigating away.
+    private var openedMomentsComposer = false
 
     /** No pixels are invented: every semantic ref comes from the owned
      * virtual App's CURRENT accessibility tree. A new observation supersedes
@@ -90,6 +92,10 @@ internal object LuluBackgroundPhoneSession {
         }
         val token = java.util.UUID.randomUUID().toString().substring(0, 12)
         lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName)
+        if (openedMomentsComposer && packageName == LuluVirtualChatSendPolicy.WECHAT)
+            output.put("momentComposerVerified", withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualWeChatMomentsComposerVisible(id)
+            })
         return output.put("screenSnapshotId", token)
             .put("uiTreeFingerprint", fingerprint)
             .put("interactiveElements", elements)
@@ -306,6 +312,7 @@ internal object LuluBackgroundPhoneSession {
         appContext = null
         displayId = -1
         activeApp = ""
+        openedMomentsComposer = false
         ownerCharacterId = ""
         lastObservedUi = null
         runCatching { stream?.close() }
@@ -497,6 +504,21 @@ internal object LuluBackgroundPhoneSession {
             }
     }
 
+    private fun JSONObject.attachMomentReceipt(applied: JSONObject?): JSONObject {
+        if (applied == null) return this
+        val attempted = applied.optBoolean("momentPublishAttempted")
+        val clicked = applied.optBoolean("momentPublishClicked")
+        return put("momentPublishAttempted", attempted)
+            .put("momentPublishClicked", clicked)
+            .put("momentInputReadbackVerified", applied.optBoolean("momentInputReadbackVerified"))
+            .put("momentPublishError", applied.optString("errorCode"))
+            .put("momentVerification", when {
+                clicked -> "正文已读回，微信接受了一次发表点击；需在朋友圈查看结果。"
+                attempted -> "已尝试一次发表，微信未确认接收点击。发表结果未知，请只读核对。"
+                else -> "尚未点击发表，请根据当前编辑页和实际错误继续判断。"
+            })
+    }
+
     suspend fun execute(
         context: Context, characterId: String, requestId: String, args: JSONObject,
     ): String = duringWork(characterId) { executeOwned(context, characterId, requestId, args) }
@@ -509,6 +531,7 @@ internal object LuluBackgroundPhoneSession {
             CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet() else emptySet()
         mutex.lock()
         var searchReceipt: JSONObject? = null
+        var momentReceipt: JSONObject? = null
         var failureStage = "owner_authorization"
         try {
             check(!ownerHasPaused(context)) {
@@ -660,19 +683,21 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "分享商品链接必须选择刚观察到的复制链接控件，不能通过坐标或其他动作读取剪贴板")
                     .toString()
             }
-            if (action == "tap_element" || action == "send_chat_message") {
+            if (LuluBackgroundPhoneArgumentPolicy.needsSnapshot(action)) {
                 val snapshot = lastObservedUi
                 val requestedSnapshot = args.optString("screenSnapshotId")
                 val requestedElement = args.optString("elementRef")
                 val owned = snapshot != null && snapshot.characterId == characterId &&
                     snapshot.displayId == id && snapshot.packageName == activeApp
-                if (!owned || (action == "tap_element" && requestedElement.isBlank()) ||
+                if (!owned || (LuluBackgroundPhoneArgumentPolicy.needsElement(action) && requestedElement.isBlank()) ||
                     !LuluVirtualUiPolicy.sameSnapshot(
                         requestedSnapshot, snapshot?.token.orEmpty(),
                         snapshot?.fingerprint.orEmpty(), snapshot?.fingerprint.orEmpty())) {
                     return JSONObject().put("success", false).put("accepted", false)
                         .put("status", "unverified").put("taskCompleted", false)
                         .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("errorCode", if (action == "send_chat_message") "chat_snapshot_expired"
+                            else "virtual_snapshot_expired")
                         .put("verification", "控件编号已经过期或不属于此角色的后台App；请先observe重新读取，拒绝按旧位置点击")
                         .toString()
                 }
@@ -746,6 +771,12 @@ internal object LuluBackgroundPhoneSession {
                 withContext(Dispatchers.Main) {
                     LuluAccessibilityService.observeDisplay(id).visibleText.take(5_000)
                 } else ""
+            if (action !in setOf("observe", LuluWeChatMomentsPolicy.PUBLISH)) openedMomentsComposer = false
+            fun stillAuthorized(): Boolean =
+                !ownerHasPaused(context) &&
+                    LuluRolePhoneAuthorization.isGranted(context, characterId) &&
+                    context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
+                    !LuluScreenAwareness.isExcluded(context, activeApp)
             val request = JSONObject().put("action", action)
             if (action == "launch") {
                 // Pass Android's actual exported launcher component, not just a
@@ -894,9 +925,44 @@ internal object LuluBackgroundPhoneSession {
                         .put("inputVerification", verified.wire)
                         .put("displayId", id)
                 }
+                LuluWeChatMomentsPolicy.OPEN_COMPOSER -> {
+                    val fingerprint = checkNotNull(lastObservedUi).fingerprint
+                    lastObservedUi = null
+                    val prepared = activeApp == LuluVirtualChatSendPolicy.WECHAT &&
+                        command(JSONObject().put("action", "prepare_type")).optBoolean("accepted")
+                    openedMomentsComposer = prepared && withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.openVirtualWeChatMomentsComposer(
+                            id, fingerprint, args.getString("elementRef"), ::stillAuthorized)
+                    }
+                    JSONObject().put("accepted", openedMomentsComposer)
+                        .put("actionMethod", "wechat_moments_camera_long_press")
+                        .put("errorCode", if (openedMomentsComposer) "" else "moments_camera_unverified")
+                }
+                LuluWeChatMomentsPolicy.PUBLISH -> {
+                    val fingerprint = checkNotNull(lastObservedUi).fingerprint
+                    lastObservedUi = null
+                    val prepared = activeApp == LuluVirtualChatSendPolicy.WECHAT &&
+                        openedMomentsComposer &&
+                        command(JSONObject().put("action", "prepare_type")).optBoolean("accepted")
+                    val result = if (prepared) withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.publishVirtualWeChatMoment(
+                            id, fingerprint, args.getString("text"), ::stillAuthorized)
+                    } else JSONObject().put("accepted", false)
+                        .put("errorCode", "moments_open_composer_first")
+                    if (result.optBoolean("momentPublishAttempted")) openedMomentsComposer = false
+                    momentReceipt = result
+                    result
+                }
                 "send_chat_message" -> {
                     val recipient = args.getString("recipient")
                     val message = args.getString("text")
+                    if (!LuluVirtualChatSendPolicy.supports(activeApp))
+                        return JSONObject().put("success", false).put("accepted", false)
+                            .put("status", "unverified").put("errorCode", "chat_app_unsupported")
+                            .put("mode", "independent_virtual_display").put("displayId", id)
+                            .put("taskCompleted", false)
+                            .put("verification", "当前后台应用没有接入会话发送；微信和抖音可用")
+                            .toString()
                     // The model chose the whole message once. WeChat sometimes
                     // starts in voice/press-to-talk mode, so prepare its editor
                     // locally instead of paying for another vision-model turn.
@@ -904,15 +970,14 @@ internal object LuluBackgroundPhoneSession {
                     // restricted to the verified recipient and current display.
                     var fingerprint = checkNotNull(lastObservedUi).fingerprint
                     val alreadyText = withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.virtualChatTextInputVisible(
-                            id, activeApp, recipient)
+                        LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                     }
                     var toggleClicked = false
                     var switchFailure: JSONObject? = null
-                    val editorReady = if (alreadyText) true else {
+                    val editorReady = if (alreadyText || activeApp != LuluVirtualChatSendPolicy.WECHAT) true else {
                         val switched = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.switchVirtualChatToText(
-                                id, activeApp, recipient, fingerprint)
+                                id, activeApp, recipient, fingerprint, ::stillAuthorized)
                         }
                         toggleClicked = switched.optBoolean("inputModeSwitchClicked")
                         if (!switched.optBoolean("accepted")) {
@@ -922,8 +987,7 @@ internal object LuluBackgroundPhoneSession {
                             var ready = false
                             for (attempt in 0 until 6) {
                                 ready = withContext(Dispatchers.Main) {
-                                    LuluAccessibilityService.virtualChatTextInputVisible(
-                                        id, activeApp, recipient)
+                                    LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                                 }
                                 if (ready) break
                                 if (attempt < 5) kotlinx.coroutines.delay(160)
@@ -938,7 +1002,7 @@ internal object LuluBackgroundPhoneSession {
                             .put("accepted", false).put("messageSendClicked", false)
                             .put("inputModeSwitchClicked", toggleClicked)
                     } else {
-                        fingerprint = withContext(Dispatchers.Main) {
+                        if (toggleClicked) fingerprint = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.virtualUiSnapshot(
                                 id, activeApp).optString("fingerprint")
                         }
@@ -950,14 +1014,7 @@ internal object LuluBackgroundPhoneSession {
                         } else {
                             withContext(Dispatchers.Main) {
                                 LuluAccessibilityService.sendVirtualChatMessage(
-                                    id, activeApp, recipient, message, fingerprint,
-                                ) {
-                                    LuluVirtualChatSendPolicy.isEnabled(context, characterId) &&
-                                        !ownerHasPaused(context) &&
-                                        LuluRolePhoneAuthorization.isGranted(context, characterId) &&
-                                        context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
-                                        !LuluScreenAwareness.isExcluded(context, activeApp)
-                                }
+                                    id, activeApp, recipient, message, fingerprint, ::stillAuthorized)
                             }.put("inputModeSwitchClicked", toggleClicked)
                         }
                     }
@@ -1038,6 +1095,7 @@ internal object LuluBackgroundPhoneSession {
                         if (attempt < 6) kotlinx.coroutines.delay(180)
                     }
                 }
+                val appName = LuluVirtualChatSendPolicy.appName(activeApp)
                 return JSONObject().put("success", appearedInChat)
                     .put("accepted", dispatched)
                     .put("status", when {
@@ -1059,13 +1117,15 @@ internal object LuluBackgroundPhoneSession {
                     .put("taskCompleted", false)
                     .put("errorCode", applied?.optString("errorCode").orEmpty())
                     .put("verification", if (appearedInChat)
-                        "已在真实微信会话中观察到新增的右侧消息气泡，确认客户端显示发出；服务器或对方是否收到尚无独立证据"
+                        "已在真实${appName}会话中观察到新增的右侧消息气泡，确认客户端显示发出；服务器或对方是否收到尚无独立证据"
                     else if (dispatched)
-                        "当前微信聊天对象和正文已核实，发送按钮仅被点击一次，但未观察到新消息气泡；结果不确定，不得重复点击发送"
+                        "当前${appName}聊天对象和正文已核实，发送按钮仅被点击一次，但未观察到新消息气泡；结果不确定，不得重复点击发送"
                     else if (applied?.optBoolean("messageInputReadbackVerified") == true)
                         "聊天文字已写入并读回，但发送按钮或收件人未能再次核实；没有确认发送，请先只读观察"
                     else applied?.optString("verification")?.takeIf(String::isNotBlank)
-                        ?: "本次微信聊天发送未执行；详情见errorCode")
+                        ?: "${appName}消息尚未确认发送；详情见errorCode")
+                    .put("observedChatHeaderTexts", applied?.optJSONArray("observedChatHeaderTexts")
+                        ?: org.json.JSONArray())
                     .toString()
             }
             if (action == "search") searchReceipt = applied
@@ -1077,7 +1137,8 @@ internal object LuluBackgroundPhoneSession {
             }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted") &&
-                action !in setOf("type", "focus_search", "tap_element", "search")) {
+                action !in setOf("type", "focus_search", "tap_element", "search",
+                    LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH)) {
                 // A rejected Android shell command is a REAL execution
                 // failure, not an ordinary awaiting-screen observation.
                 // Preserve am/input stderr instead of erasing it with a
@@ -1105,7 +1166,8 @@ internal object LuluBackgroundPhoneSession {
             // A new frame is observed after the action. A successful dispatch
             // is never mistaken for a finished user task.
             val uiSettled = if (applied?.optBoolean("accepted") == true &&
-                action in setOf("tap", "tap_element", "swipe", "submit", "search", "back"))
+                action in setOf("tap", "tap_element", "swipe", "submit", "search", "back",
+                    LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH))
                 awaitStableUi(id, activeApp, beforeUiFingerprint) else false
             val backOutcome = if (action == "back" && applied?.optBoolean("accepted") == true)
                 when {
@@ -1119,7 +1181,7 @@ internal object LuluBackgroundPhoneSession {
                 val top = windowGate(id, activeApp)
                 if (top.optString("kind") != "target") {
                     lastObservedUi = null
-                    return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).toString()
+                    return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
                 }
                 // Mika can still verify a UI tree when ImageReader has no new
                 // frame. Preserve accessibility facts without fabricating pixels.
@@ -1131,13 +1193,13 @@ internal object LuluBackgroundPhoneSession {
                 if (observed.connected && observed.packageName != activeApp) {
                     lastObservedUi = null
                     return JSONObject(humanOnlyReceipt(id, observed.packageName, "window_changed"))
-                        .attachSearchReceipt(applied).toString()
+                        .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
                 }
                 if (owned) {
                     val human = humanOnlyPage(id, activeApp)
                     if (human != null) {
                         lastObservedUi = null
-                        return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).toString()
+                        return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
                     }
                 }
                 val search = if (owned) withContext(Dispatchers.Main) {
@@ -1171,7 +1233,7 @@ internal object LuluBackgroundPhoneSession {
                     ) + frame.optString("verification", "后台屏幕暂无可确认画面") +
                         if (owned) "；目标App仍在；返回是否成功未证实时先核对真实页面与可点返回控件"
                         else "；目标App窗口未核实，禁止盲点")
-                    .attachSearchReceipt(applied)
+                    .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt)
                 if (!owned) {
                     lastObservedUi = null
                     return unverified.put("effectKind", "unknown").toString()
@@ -1192,7 +1254,7 @@ internal object LuluBackgroundPhoneSession {
             val top = windowGate(id, activeApp)
             if (top.optString("kind") != "target") {
                 lastObservedUi = null
-                return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).toString()
+                return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
             }
             val visible = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.observeDisplay(id)
@@ -1203,7 +1265,7 @@ internal object LuluBackgroundPhoneSession {
             if (visible.connected && visible.packageName != activeApp) {
                 lastObservedUi = null
                 return JSONObject(humanOnlyReceipt(id, visible.packageName, "window_changed"))
-                    .attachSearchReceipt(applied).toString()
+                    .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
             }
             if (!visible.connected || visible.packageName != activeApp ||
                 LuluScreenAwareness.isExcluded(context, visible.packageName)) {
@@ -1211,12 +1273,12 @@ internal object LuluBackgroundPhoneSession {
                     .put("accepted", applied?.optBoolean("accepted") ?: true)
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("verification", "无法核实独立屏幕的前台窗口属于已授权目标应用；已丢弃截图")
-                    .also { lastObservedUi = null }.attachSearchReceipt(applied).toString()
+                    .also { lastObservedUi = null }.attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
             }
             val human = humanOnlyPage(id, activeApp)
             if (human != null) {
                 lastObservedUi = null
-                return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).toString()
+                return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).toString()
             }
             val pixels = frame.optString("imageDataUrl")
             val frameFresh = frame.optBoolean("frameFreshAfterAction", false)
@@ -1354,7 +1416,7 @@ internal object LuluBackgroundPhoneSession {
                     else if (observed)
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
                     else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
-                .attachSearchReceipt(applied)
+                .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt)
             attachUiEvidence(finalReceipt, characterId, id, activeApp)
             if (action == "swipe") {
                 finalReceipt.put("scrollOutcome", LuluVirtualScrollOutcome.classify(
@@ -1387,7 +1449,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("diagnosticStage", failureStage)
                 .put("error", detail.take(220))
                 .put("accepted", searchReceipt?.optBoolean("searchSubmitted") == true)
-                .attachSearchReceipt(searchReceipt).toString()
+                .attachSearchReceipt(searchReceipt).attachMomentReceipt(momentReceipt).toString()
         } finally { mutex.unlock() }
     }
 }

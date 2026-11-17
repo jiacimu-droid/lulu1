@@ -137,16 +137,19 @@ object CapabilityRegistry {
             appendLine("主人全局按需屏幕授权=$screenConsent；本角色自主操作屏幕授权=$roleScreenGrant；" +
                 "本机无线调试已保存配对密钥=$adbPaired；主人已暂停后台操作=$stopped；" +
                 "当前系统支持独立焦点屏的版本要求=$supported。")
-            appendLine("主人统一手机操作授权涵盖微信消息=" +
+            appendLine("主人统一手机操作授权涵盖微信与抖音私信、微信朋友圈文字发表=" +
                 com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId) +
-                "；若已开启，可由本人自主选择是否在微信给谁发什么消息；必须先真实导航至唯一聊天对象，" +
-                "观察结果中的chatHeaderTexts是后台微信标题区的真实可见文字候选；" +
+                "；若已开启，可由本人自主选择是否在微信或抖音给谁发什么消息；必须先真实导航至唯一聊天对象，" +
+                "观察结果中的chatHeaderTexts是后台会话标题区的真实可见文字候选；" +
                 "recipient必须与当前真正要发的聊天标题完全一致（例如页面是文件传输助手，就不能把recipient写成主人的昵称）；" +
                 "如果尚未进入想联系的聊天对象，先自行导航到正确会话并重新observe获取新screenSnapshotId，不能在错误会话强行发。" +
                 "用最新screenSnapshotId调用send_chat_message并提供recipient和整段text。" +
                 "微信若是按住说话模式，本机会核对左下键盘图标并一次切换文字模式，再整段输入并读回，" +
                 "无需逐字模型调用或截图；只有核实聊天标题、非搜索输入框读回、发送按钮后才单次派发，点击不等于送达。" +
                 "总授权未开启时请提出开启虚拟屏幕总授权，不要把一刀切禁发当成人物性格。")
+            appendLine("微信朋友圈用真实界面导航，可经发现进入动态列表，也可打开联系人的资料页看对方的朋友圈。" +
+                "要发文字动态，在动态列表选相机的最新elementRef与screenSnapshotId调用open_wechat_moments_composer；" +
+                "确认文字编辑页后，把新screenSnapshotId和完整正文text交给publish_wechat_moment。点击回执只代表尝试发表，随后只读核对。")
             appendLine("主人统一手机操作授权涵盖购物导航=" +
                 com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId) +
                 "；开启时可依据真实商品与后台控件，自主挑选、加购、选规格、点击进入结算；" +
@@ -164,7 +167,7 @@ object CapabilityRegistry {
             appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
                 "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
-                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/send_chat_message/back/stop；找不到或重名就报告，不能猜包名。微信已到真实收件人会话时，即使为按住说话模式也可由本人一次选定send_chat_message的收件人和全文，系统在同一次工具调用内核实并切换文字模式、全文写入与读回，再尝试单次发送，不要另开模型调用逐字打字。" +
+                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/send_chat_message/open_wechat_moments_composer/publish_wechat_moment/back/stop；找不到或重名就报告，不能猜包名。微信已到真实收件人会话时，即使为按住说话模式也可由本人一次选定send_chat_message的收件人和全文，系统在同一次工具调用内核实并切换文字模式、全文写入与读回，再尝试单次发送，不要另开模型调用逐字打字。" +
                 "目标App有唯一可核实的搜索框时，可一次选择search并传text，手机会核实焦点、读回关键词后提交，再由本人核对真实结果。搜索框还未出现时先打开搜索入口；普通浏览先观察回执里的screenSnapshotId与interactiveElements，优先用tap_element指定elementRef精准点控件并验证下一屏，不能拿旧编号盲点；也可根据真实图片tap。也可分别选择focus_search、type、submit；submit只准用于可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若想把选中的商品链接发给主人，先在真实商家页面找到分享/复制链接按钮，看到新的复制链接控件后选择tap_element并附sendProductLinkToChat=true、caption=本人配文；收到productLinkSent=true才算商品卡片送达，不能用商品名搜索页冒充链接。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
         }.trim()
     }
@@ -177,7 +180,7 @@ object CapabilityRegistry {
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|send_chat_message|stop,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:tap_element所需当前快照编号,elementRef:tap_element所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,text:send_chat_message必填的正文(微信发消息需统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|swipe|back|focus_search|type|submit|search|send_chat_message|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或长按朋友圈相机所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type只填入,submit再由本人选择按后台屏回车提交搜索,search一次核实焦点、填入并读回后提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }

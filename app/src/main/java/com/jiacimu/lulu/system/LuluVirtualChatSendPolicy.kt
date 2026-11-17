@@ -7,6 +7,18 @@ import android.content.Context
  */
 internal object LuluVirtualChatSendPolicy {
     const val WECHAT = "com.tencent.mm"
+    const val DOUYIN = "com.ss.android.ugc.aweme"
+
+    fun supports(packageName: String): Boolean = packageName == WECHAT || packageName == DOUYIN
+
+    fun appName(packageName: String): String = when (packageName) {
+        WECHAT -> "微信"
+        DOUYIN -> "抖音"
+        else -> "当前应用"
+    }
+
+    fun isDouyinChatEntry(label: String): Boolean =
+        label.trim() in setOf("发消息", "发送消息", "私信")
 
     fun isEnabled(context: Context, characterId: String): Boolean =
         LuluRolePhoneAuthorization.isGranted(context, characterId)
@@ -48,7 +60,7 @@ internal object LuluVirtualChatSendPolicy {
      * exposes no text node. Generic application titles prove nothing about the
      * current conversation. Never accept a partial nickname or a guessed title. */
     fun windowTitleMatches(title: String?, recipient: String): Boolean =
-        title?.trim()?.lowercase() !in setOf("微信", "wechat", "聊天", "聊天信息") &&
+        title?.trim()?.lowercase() !in setOf("微信", "wechat", "抖音", "douyin", "聊天", "聊天信息", "消息", "私信") &&
             headerMatches(title, null, recipient)
 
     /** A title TextView and its large accessibility wrapper commonly have
@@ -102,12 +114,24 @@ internal object LuluVirtualChatSendPolicy {
 
     /** Only one writable non-search/non-password editor on a verified
      * WeChat conversation page may be used. Generic search stays unchanged. */
-    fun chatEditorCandidate(className: String?, hint: String?, resourceId: String?): Boolean {
-        val cls = className.orEmpty()
-        if (!cls.contains("EditText", true)) return false
-        val metadata = hint.orEmpty() + " " + resourceId.orEmpty()
-        return !nonChatEditor.containsMatchIn(metadata)
+    private val douyinChatEditorId = Regex(
+        "(^|_)(chat|im|message|msg)_(input|edit|editor|edittext)(_|$)", RegexOption.IGNORE_CASE,
+    )
+
+    fun chatEditorCandidate(
+        className: String?, hint: String?, resourceId: String?, packageName: String = WECHAT,
+    ): Boolean {
+        if (!supports(packageName) || !className.orEmpty().contains("EditText", true)) return false
+        val fieldHint = hint.orEmpty().trim().trimEnd('…', '.', '。', ' ', '～', '~')
+        val id = resourceId.orEmpty().substringAfterLast('/')
+        if (nonChatEditor.containsMatchIn("$fieldHint $id")) return false
+        if (packageName == WECHAT) return true
+        return fieldHint in setOf("发消息", "发送消息", "输入消息", "输入私信") ||
+            douyinChatEditorId.containsMatchIn(id)
     }
+
+    fun composerInLowerHalf(bounds: ComposerBounds, screenHeight: Int): Boolean =
+        bounds.width > 0 && bounds.height > 0 && bounds.centerY in screenHeight / 2 until screenHeight
 
     /** The WeChat voice composer exposes a press-to-talk control instead of
      * an EditText. Only the model-selected switch_chat_input may switch modes.
@@ -201,7 +225,7 @@ internal object LuluVirtualChatSendPolicy {
     fun sendButton(label: String?, resourceId: String?): Boolean {
         val text = label.orEmpty().trim()
         val id = resourceId.orEmpty().substringAfterLast('/').lowercase()
-        return text.equals("发送", true) || text.equals("Send", true) ||
+        return text in setOf("发送", "发送消息") || text.equals("Send", true) ||
             (text.isBlank() && id in setOf("send", "send_btn", "btn_send"))
     }
 }

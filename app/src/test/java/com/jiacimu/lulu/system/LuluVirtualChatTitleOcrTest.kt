@@ -19,6 +19,15 @@ class LuluVirtualChatTitleOcrTest {
             "文件传输助手", 720, 1280))
     }
 
+    @Test fun shortLeftAlignedChatNameFitsBetweenBackAndToolbarActions() {
+        assertTrue(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            listOf(line("小雨", 90, 75, 147, 110)),
+            "小雨", 720, 1280))
+        assertFalse(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
+            listOf(line("小雨", 15, 75, 70, 110)),
+            "小雨", 720, 1280))
+    }
+
     @Test fun textInChatHistoryOrSearchBelowToolbarIsNeverTitleProof() {
         assertFalse(LuluVirtualChatTitleOcr.hasExactToolbarTitle(
             listOf(line("文件传输助手", 165, 395, 440, 470)),

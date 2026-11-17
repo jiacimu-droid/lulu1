@@ -15,12 +15,12 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 /**
- * Read an actual rendered WeChat title when Android accessibility omits that
+ * Read an actual rendered chat title when Android accessibility omits that
  * TextView. This is a narrowly scoped, offline, read-only supplement to the
  * existing semantic node path, NOT an alternative authority to click/send.
  *
  * Only screenshot pixels belonging to the role's already verified independent
- * WeChat display are processed. Nothing is persisted or sent to an OCR server.
+ * app display are processed. Nothing is persisted or sent to an OCR server.
  */
 internal object LuluVirtualChatTitleOcr {
     data class Line(val text: String, val bounds: LuluVirtualChatSendPolicy.ComposerBounds)
@@ -36,7 +36,7 @@ internal object LuluVirtualChatTitleOcr {
         val candidates = lines.filter { line ->
             val b = line.bounds
             b.width > 0 && b.height > 0 &&
-                b.centerX in (width * 24 / 100)..(width * 92 / 100) &&
+                b.left >= width / 10 && b.centerX <= width * 92 / 100 &&
                 b.centerY in (height * 3 / 100)..(height * 14 / 100) &&
                 b.bottom < height * 18 / 100 &&
                 LuluVirtualChatSendPolicy.headerMatches(line.text, null, recipient)
@@ -111,13 +111,13 @@ internal object LuluVirtualChatTitleOcr {
         return null
     }
 
-    /** Check the verified WeChat window before and after reading new pixels.
+    /** Check the verified app window before and after reading new pixels.
      * Fresh evidence is mandatory just before an irreversible send click. */
     suspend fun matches(
         displayId: Int, packageName: String, recipient: String,
         forceFresh: Boolean = false,
     ): Boolean {
-        if (displayId <= 0 || packageName != LuluVirtualChatSendPolicy.WECHAT ||
+        if (displayId <= 0 || !LuluVirtualChatSendPolicy.supports(packageName) ||
             !LuluVirtualChatSendPolicy.validRecipient(recipient)) return false
         return withTimeoutOrNull(6_000) {
             screenshotGate.withLock {

@@ -15,10 +15,17 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     private val supportedActions = setOf(
         "start", "launch", "tap", "tap_element", "swipe", "back",
         "type", "focus_search", "submit", "search", "send_chat_message",
-        "observe", "stop",
+        "observe", "stop", LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
     )
 
     fun isSupportedAction(action: String): Boolean = action in supportedActions
+
+    fun needsSnapshot(action: String): Boolean =
+        action == "tap_element" || action == "send_chat_message" ||
+            action == LuluWeChatMomentsPolicy.OPEN_COMPOSER || action == LuluWeChatMomentsPolicy.PUBLISH
+
+    fun needsElement(action: String): Boolean =
+        action == "tap_element" || action == LuluWeChatMomentsPolicy.OPEN_COMPOSER
 
     private fun unsupportedActionReason(action: String): String =
         "后台手机 args.action=${action.ifBlank { "（缺失）" }.take(64)} 不在支持的操作中。" +
@@ -26,7 +33,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             "args={\"action\":\"launch\",\"appName\":\"微信\"}；" +
             "只创建虚拟屏用start，读取已有页面用observe；" +
             "其他可选操作为tap/tap_element/swipe/back/type/focus_search/submit/search/" +
-            "send_chat_message/stop。动作不合法时没有操作手机，保留已有会话。" 
+            "send_chat_message/open_wechat_moments_composer/publish_wechat_moment/stop。动作不合法时没有操作手机，保留已有会话。"
 
     private fun integer(args: JSONObject, key: String): Int? {
         val raw = args.opt(key)
@@ -72,6 +79,13 @@ internal object LuluBackgroundPhoneArgumentPolicy {
                 "发送聊天消息必须提供最近一次真实聊天界面的screenSnapshotId"
             else -> null
         }
+        LuluWeChatMomentsPolicy.OPEN_COMPOSER -> if (
+            args.optString("screenSnapshotId").isBlank() || args.optString("elementRef").isBlank())
+            "打开微信朋友圈文字编辑页需要最新screenSnapshotId和相机elementRef" else null
+        LuluWeChatMomentsPolicy.PUBLISH -> if (
+            args.optString("screenSnapshotId").isBlank() ||
+            !LuluVirtualChatSendPolicy.validMessage(args.optString("text")))
+            "发表微信朋友圈需要最新编辑页screenSnapshotId和1到500字符正文" else null
         "launch" -> if (args.optString("packageName").isBlank() &&
             args.optString("appName").isBlank())
             "launch 必须提供已安装应用的准确 packageName 或 appName" else null

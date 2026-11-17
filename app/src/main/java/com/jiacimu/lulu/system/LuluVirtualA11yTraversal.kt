@@ -19,20 +19,26 @@ internal object LuluVirtualA11yTraversal {
         isProtected: (N) -> Boolean,
         isVisible: (N) -> Boolean,
         inspect: (N) -> Unit,
-    ) {
+    ): Boolean {
+        var complete = true
         var visited = 0
         fun walk(node: N, depth: Int) {
-            if (depth > MAX_DEPTH || visited >= MAX_NODES) return
+            if (depth > MAX_DEPTH || visited >= MAX_NODES) {
+                complete = false
+                return
+            }
             visited++
             if (isProtected(node)) return
             if (isVisible(node)) inspect(node)
             for (index in 0 until childCount(node)) {
-                if (visited >= MAX_NODES) break
+                if (visited >= MAX_NODES) {
+                    complete = false
+                    break
+                }
                 childAt(node, index)?.let { walk(it, depth + 1) }
             }
         }
-        roots.forEach { root ->
-            if (visited < MAX_NODES) walk(root, 0)
-        }
+        roots.forEach { walk(it, 0) }
+        return complete
     }
 }

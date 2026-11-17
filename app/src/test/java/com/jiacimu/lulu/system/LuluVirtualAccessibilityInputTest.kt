@@ -22,13 +22,13 @@ class LuluVirtualAccessibilityInputTest {
     @Test fun wechatComposerRecoveryNeverGuessesKeyboardWithoutOwnedAccessibility() = runBlocking {
         val receipt = LuluAccessibilityService.switchVirtualChatToText(
             displayId = 71, packageName = "com.tencent.mm",
-            recipient = "文件传输助手", expectedFingerprint = "observed-real-tree")
+            recipient = "文件传输助手", expectedFingerprint = "observed-real-tree", stillAuthorized = { true })
         assertFalse(receipt.optBoolean("accepted"))
         assertFalse(receipt.optBoolean("inputModeSwitchClicked"))
         assertFalse(receipt.optBoolean("inputModeTextVerified"))
         assertEquals("accessibility_disconnected", receipt.optString("errorCode"))
         assertFalse(LuluAccessibilityService.virtualChatTextInputVisible(
-            71, "com.tencent.mm", "文件传输助手"))
+            71, "com.tencent.mm"))
     }
 
     @Test fun appBackWithoutAccessibilityNeverTouchesAnotherDisplay() {

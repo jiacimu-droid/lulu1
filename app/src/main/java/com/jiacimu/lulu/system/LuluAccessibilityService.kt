@@ -244,7 +244,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 .mapNotNull { it.root }
                 .firstOrNull { it.packageName?.toString() == packageName } ?: return true
             val risky = Regex(
-                "(付款|支付|转账|立即购买|确认购买|购买|下单|购物车|加购|去结算|结算|发送|发布|提交|永久删除|清空|解绑|注销|授权支付|确认交易|" +
+                "(付款|支付|转账|立即购买|确认购买|购买|下单|购物车|加购|去结算|结算|发送|发布|发表|提交|永久删除|清空|解绑|注销|授权支付|确认交易|" +
                     "buy|purchase|shopping.?cart|checkout|payment|pay|place.?order|submit.?order|transfer|send|publish|delete)",
                 RegexOption.IGNORE_CASE,
             )
@@ -310,6 +310,29 @@ class LuluAccessibilityService : AccessibilityService() {
             .sortedByDescending { it.layer }.mapNotNull { it.root }
             .filter { it.packageName?.toString() == packageName }
 
+        private fun topVirtualAppWindow(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+        ): android.view.accessibility.AccessibilityWindowInfo? =
+            service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION }
+                .maxByOrNull { it.layer }
+                ?.takeIf { it.root?.packageName?.toString() == packageName }
+
+        private fun virtualChatEditor(
+            node: AccessibilityNodeInfo, packageName: String, height: Int,
+        ): Boolean = safeEditable(node) && LuluVirtualChatSendPolicy.chatEditorCandidate(
+            node.className?.toString(), node.hintText?.toString()
+                ?: node.text?.toString()?.takeIf { node.isShowingHintText }
+                ?: node.contentDescription?.toString(),
+            node.viewIdResourceName, packageName,
+        ) && (packageName == LuluVirtualChatSendPolicy.WECHAT ||
+            LuluVirtualChatSendPolicy.composerInLowerHalf(composerBounds(node), height))
+
+        private fun composerBounds(node: AccessibilityNodeInfo): LuluVirtualChatSendPolicy.ComposerBounds {
+            val r = Rect().also(node::getBoundsInScreen)
+            return LuluVirtualChatSendPolicy.ComposerBounds(r.left, r.top, r.right, r.bottom)
+        }
+
         /** Mika's descendant-label idea for clickable card containers.
          * Do not traverse private/password nodes or unbounded WebView trees. */
         private fun clickableDescendantLabel(container: AccessibilityNodeInfo): String {
@@ -362,7 +385,8 @@ class LuluAccessibilityService : AccessibilityService() {
                     rect.right > 0 && rect.bottom > 0 &&
                     rect.left < width && rect.top < height
                 val editable = safeEditable(node)
-                val interactive = node.isClickable || node.isScrollable || editable
+                val longClickable = packageName == LuluVirtualChatSendPolicy.WECHAT && node.isLongClickable
+                val interactive = node.isClickable || longClickable || node.isScrollable || editable
                 if (node.isVisibleToUser && node.isEnabled &&
                     usable && interactive && collected.size < 64) {
                     // Never emit a search box's typed content as a control label.
@@ -377,7 +401,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     val rid = node.viewIdResourceName.orEmpty().substringAfterLast('/').take(70)
                     // Include actual unnamed clickable icons as snapshot evidence.
                     // Tap eligibility remains controlled by LuluVirtualUiPolicy.
-                    if (label.isNotBlank() || rid.isNotBlank() || node.isClickable) {
+                    if (label.isNotBlank() || rid.isNotBlank() || node.isClickable || longClickable) {
                         val ref = "e" + (collected.size + 1)
                         val x = (rect.centerX().coerceIn(0, width - 1) * 1000L /
                             (width - 1).coerceAtLeast(1)).toInt()
@@ -388,9 +412,10 @@ class LuluAccessibilityService : AccessibilityService() {
                             .put("ref", ref).put("name", label).put("role", role)
                             .put("resourceId", rid).put("x", x).put("y", y)
                             .put("clickable", node.isClickable)
+                            .put("longClickable", longClickable)
                             .put("editable", editable).put("scrollable", node.isScrollable)
                         val identity = listOf(ref, label, rid, role,
-                            rect.flattenToString(), node.isClickable.toString(),
+                            rect.flattenToString(), node.isClickable.toString(), longClickable.toString(),
                             node.isEnabled.toString(), node.isFocused.toString(),
                             node.isChecked.toString(), node.isSelected.toString()).joinToString("|")
                         collected.add(VirtualUiNode(node, ref, label, rid, identity, Rect(rect), descriptor))
@@ -420,11 +445,11 @@ class LuluAccessibilityService : AccessibilityService() {
 
         /** Give the character real top-of-conversation text rather than
          * making it guess the recipient from a scaled screenshot. Only this
-         * verified virtual WeChat window contributes candidate titles. */
+         * verified virtual app window contributes candidate titles. */
         private fun virtualChatHeaderTexts(
             service: LuluAccessibilityService, displayId: Int, packageName: String,
         ): JSONArray {
-            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+            if (!LuluVirtualChatSendPolicy.supports(packageName) ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return JSONArray()
             val (_, height) = virtualDimensions(service, displayId) ?: return JSONArray()
@@ -432,10 +457,7 @@ class LuluAccessibilityService : AccessibilityService() {
             // Mika's ScreenReader carries the actual AccessibilityWindowInfo.title.
             // A WeChat custom toolbar may expose its chat title at the WINDOW
             // level while its TextView is missing from the node tree.
-            val topWindow = service.windowsOnAllDisplays.get(displayId).orEmpty()
-                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION &&
-                    it.root?.packageName?.toString() == packageName }
-                .maxByOrNull { it.layer }
+            val topWindow = topVirtualAppWindow(service, displayId, packageName)
             topWindow?.title?.toString()?.takeIf {
                 LuluVirtualChatSendPolicy.windowTitleMatches(it, it.trim())
             }?.let(labels::add)
@@ -447,7 +469,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 isVisible = { it.isVisibleToUser },
             ) { node ->
                 val r = Rect().also(node::getBoundsInScreen)
-                if (r.top >= 0 && r.bottom <= height * 3 / 10 &&
+                if (r.top >= 0 && r.bottom <= height * 18 / 100 &&
                     !node.isEditable && r.width() > 0) {
                     listOf(node.text?.toString(), node.contentDescription?.toString())
                         .filterNotNull().map { it.trim() }
@@ -537,11 +559,158 @@ class LuluAccessibilityService : AccessibilityService() {
                 for (i in 0 until n.childCount) n.getChild(i)?.let { labels(it, depth + 1) }
             }
             labels(node, 0)
-            if (!LuluVirtualUiPolicy.mayClick(
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return false
+            if (node.windowId != root.windowId ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return false
+            val exactLabel = node.contentDescription?.toString().orEmpty()
+                .ifBlank { node.text?.toString().orEmpty() }.ifBlank { chosen.label }.trim()
+            // "发消息" on a profile opens a conversation. A live composer on
+            // the same page means the label can instead be a submit button.
+            val namedNavigation = when (packageName) {
+                LuluVirtualChatSendPolicy.DOUYIN ->
+                    LuluVirtualChatSendPolicy.isDouyinChatEntry(exactLabel)
+                LuluVirtualChatSendPolicy.WECHAT ->
+                    LuluWeChatMomentsPolicy.isNavigation(exactLabel)
+                else -> false
+            } && visibleEditors(root).isEmpty() &&
+                content.lineSequence().none { it.trim() in setOf("password", "支付", "付款", "转账", "删除") }
+            if (!namedNavigation && !LuluVirtualUiPolicy.mayClick(
                     chosen.label, chosen.resourceId, content.toString(),
                     shoppingAllowed = shoppingAllowed,
                 )) return false
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+
+        private fun snapshotRoot(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+            fingerprint: String,
+        ): AccessibilityNodeInfo? {
+            if (fingerprint.isBlank() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                virtualUiSnapshot(displayId, packageName).optString("fingerprint") != fingerprint)
+                return null
+            return topVirtualAppWindow(service, displayId, packageName)?.root
+        }
+
+        fun openVirtualWeChatMomentsComposer(
+            displayId: Int, fingerprint: String, elementRef: String, stillAuthorized: () -> Boolean,
+        ): Boolean {
+            val service = instance ?: return false
+            val app = LuluVirtualChatSendPolicy.WECHAT
+            val root = snapshotRoot(service, displayId, app, fingerprint) ?: return false
+            val (width, height) = virtualDimensions(service, displayId) ?: return false
+            val nodes = virtualUiNodes(service, displayId, app)
+            if (virtualUiFingerprint(displayId, app, nodes) != fingerprint) return false
+            val camera = nodes.singleOrNull { it.ref == elementRef } ?: return false
+            if (camera.node.windowId != root.windowId || !camera.node.isLongClickable ||
+                !LuluWeChatMomentsPolicy.isCameraControl(composerBounds(camera.node), width, height, camera.label))
+                return false
+            var hasFeedTitle = LuluWeChatMomentsPolicy.isFeedTitle(
+                topVirtualAppWindow(service, displayId, app)?.title?.toString().orEmpty())
+            val complete = forEachVirtualNode(root) { node ->
+                if (LuluWeChatMomentsPolicy.isTopToolbar(composerBounds(node), height) &&
+                    listOf(node.text, node.contentDescription).any {
+                        LuluWeChatMomentsPolicy.isFeedTitle(it?.toString().orEmpty())
+                    }) hasFeedTitle = true
+            }
+            val eligible = nodes.filter {
+                it.node.windowId == root.windowId && it.node.isLongClickable &&
+                    LuluWeChatMomentsPolicy.isCameraControl(composerBounds(it.node), width, height, it.label)
+            }
+            if (!complete || !hasFeedTitle || eligible.size != 1 || !stillAuthorized() ||
+                !camera.node.refresh() || !camera.node.isVisibleToUser || !camera.node.isLongClickable ||
+                !camera.node.isEnabled || camera.node.isPassword ||
+                snapshotRoot(service, displayId, app, fingerprint)?.windowId != root.windowId)
+                return false
+            return camera.node.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK)
+        }
+
+        private fun forEachVirtualNode(
+            root: AccessibilityNodeInfo, inspect: (AccessibilityNodeInfo) -> Unit,
+        ): Boolean = LuluVirtualA11yTraversal.forEachVisible(
+            roots = listOf(root), childCount = { it.childCount },
+            childAt = { node, index -> node.getChild(index) },
+            isProtected = { it.isPassword }, isVisible = { it.isVisibleToUser }, inspect = inspect,
+        )
+
+        private data class MomentsComposer(
+            val windowId: Int, val editor: AccessibilityNodeInfo, val publish: AccessibilityNodeInfo,
+        )
+
+        private fun momentsComposer(root: AccessibilityNodeInfo, width: Int, height: Int): MomentsComposer? {
+            val cancel = mutableListOf<AccessibilityNodeInfo>()
+            val publish = mutableListOf<AccessibilityNodeInfo>()
+            val editors = mutableListOf<AccessibilityNodeInfo>()
+            if (!forEachVirtualNode(root) { node ->
+                    val bounds = composerBounds(node)
+                    if (LuluWeChatMomentsPolicy.isTopToolbar(bounds, height) && node.isClickable) {
+                        val labels = listOf(node.text, node.contentDescription, clickableDescendantLabel(node))
+                        if (labels.any { LuluWeChatMomentsPolicy.isCancel(it?.toString().orEmpty()) })
+                            cancel.add(node)
+                        if (labels.any { LuluWeChatMomentsPolicy.isPublish(it?.toString().orEmpty()) })
+                            publish.add(node)
+                    }
+                    if (safeEditable(node)) editors.add(node)
+                }) return null
+            val left = cancel.distinctBy(::composerBounds).singleOrNull() ?: return null
+            val right = publish.distinctBy(::composerBounds).singleOrNull() ?: return null
+            val toolbar = composerBounds(right)
+            if (!LuluWeChatMomentsPolicy.composerToolbar(composerBounds(left), toolbar, width, height))
+                return null
+            val editor = editors.distinctBy(::composerBounds).singleOrNull() ?: return null
+            if (!LuluWeChatMomentsPolicy.composerEditor(
+                    composerBounds(editor), toolbar, width, height,
+                    editor.hintText?.toString(), editor.viewIdResourceName,
+                )) return null
+            return MomentsComposer(root.windowId, editor, right)
+        }
+
+        fun virtualWeChatMomentsComposerVisible(displayId: Int): Boolean {
+            val service = instance ?: return false
+            val app = LuluVirtualChatSendPolicy.WECHAT
+            if (virtualWindowStatus(displayId, app).optString("kind") != "target") return false
+            val (width, height) = virtualDimensions(service, displayId) ?: return false
+            val root = topVirtualAppWindow(service, displayId, app)?.root ?: return false
+            return momentsComposer(root, width, height) != null
+        }
+
+        fun publishVirtualWeChatMoment(
+            displayId: Int, fingerprint: String, text: String, stillAuthorized: () -> Boolean,
+        ): JSONObject {
+            val result = JSONObject().put("accepted", false).put("momentPublishAttempted", false)
+            val service = instance ?: return result.put("errorCode", "accessibility_disconnected")
+            val app = LuluVirtualChatSendPolicy.WECHAT
+            val (width, height) = virtualDimensions(service, displayId)
+                ?: return result.put("errorCode", "moments_display_unavailable")
+            val root = snapshotRoot(service, displayId, app, fingerprint)
+                ?: return result.put("errorCode", "moments_snapshot_expired")
+            val composer = momentsComposer(root, width, height)
+                ?: return result.put("errorCode", "moments_composer_unverified")
+            if (!stillAuthorized() || !composer.editor.refresh() || !safeEditable(composer.editor))
+                return result.put("errorCode", "moments_editor_unavailable")
+            val input = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+            }
+            if (!composer.editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
+                return result.put("errorCode", "moments_input_rejected")
+            val after = topVirtualAppWindow(service, displayId, app)?.root
+                ?.let { momentsComposer(it, width, height) }
+            if (after == null || after.windowId != composer.windowId ||
+                after.editor != composer.editor || after.editor.isShowingHintText ||
+                after.editor.text?.toString() != text)
+                return result.put("errorCode", "moments_input_unverified")
+            result.put("momentInputReadbackVerified", true)
+            if (!stillAuthorized() || virtualWindowStatus(displayId, app).optString("kind") != "target" ||
+                !after.publish.refresh() || !after.publish.isVisibleToUser || !after.publish.isEnabled ||
+                !after.publish.isClickable || after.publish.isPassword)
+                return result.put("errorCode", "moments_publish_control_unverified")
+            result.put("momentPublishAttempted", true)
+            val clicked = runCatching {
+                after.publish.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }.getOrDefault(false)
+            return result.put("accepted", clicked).put("momentPublishClicked", clicked)
+                .put("errorCode", if (clicked) "" else "moments_publish_click_unverified")
         }
 
         /** Exact live chat-header verification on the owned virtual display.
@@ -553,14 +722,11 @@ class LuluAccessibilityService : AccessibilityService() {
             val width = virtualDimensions(service, displayId)?.first ?: return false
             // Inspect only the top verified WeChat application window. Never
             // read a covered/older chat behind another same-package window.
-            val topWindow = service.windowsOnAllDisplays.get(displayId).orEmpty()
-                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION &&
-                    it.root?.packageName?.toString() == packageName }
-                .maxByOrNull { it.layer } ?: return false
+            val topWindow = topVirtualAppWindow(service, displayId, packageName) ?: return false
             if (LuluVirtualChatSendPolicy.windowTitleMatches(
                     topWindow.title?.toString(), recipient)) return true
             val titleBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
-            LuluVirtualA11yTraversal.forEachVisible(
+            val complete = LuluVirtualA11yTraversal.forEachVisible(
                 roots = listOfNotNull(topWindow.root),
                 childCount = { it.childCount },
                 childAt = { node, index -> node.getChild(index) },
@@ -569,8 +735,8 @@ class LuluAccessibilityService : AccessibilityService() {
             ) { node ->
                 val bounds = Rect().also(node::getBoundsInScreen)
                 // Keep actual title inside the top toolbar, never chat history.
-                if (bounds.top >= 0 && bounds.top <= height / 5 &&
-                    bounds.bottom <= height / 3 &&
+                if (bounds.top >= 0 && bounds.centerY() <= height * 14 / 100 &&
+                    bounds.bottom <= height * 18 / 100 &&
                     bounds.width() in 1..width &&
                     bounds.height() in 1..(height / 6).coerceAtLeast(1) &&
                     !node.isEditable && LuluVirtualChatSendPolicy.headerMatches(
@@ -580,7 +746,7 @@ class LuluAccessibilityService : AccessibilityService() {
             }
             // Nested title wrappers are the same physical label; two different
             // visible header positions must remain ambiguous (no send).
-            return LuluVirtualChatSendPolicy.uniqueHeaderTitle(titleBounds, height)
+            return complete && LuluVirtualChatSendPolicy.uniqueHeaderTitle(titleBounds, height)
         }
 
         /**
@@ -602,7 +768,7 @@ class LuluAccessibilityService : AccessibilityService() {
          * left of it must be witnessed on this exact virtual display. */
         suspend fun switchVirtualChatToText(
             displayId: Int, packageName: String, recipient: String,
-            expectedFingerprint: String,
+            expectedFingerprint: String, stillAuthorized: () -> Boolean,
         ): JSONObject {
             fun result(accepted: Boolean, code: String, detail: String,
                 clicked: Boolean = false, ready: Boolean = false): JSONObject =
@@ -632,8 +798,9 @@ class LuluAccessibilityService : AccessibilityService() {
                     "微信顶部没有找到与收件人一致的可验证标题，未切换也未发送")
                     .put("observedChatHeaderTexts",
                         virtualChatHeaderTexts(service, displayId, packageName))
-            val roots = ownedVirtualRoots(service, displayId, packageName)
-            if (roots.flatMap(::visibleEditors).any { editor ->
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root
+                ?: return result(false, "chat_window_unverified", "微信会话窗口已变化")
+            if (visibleEditors(root).any { editor ->
                     LuluVirtualChatSendPolicy.chatEditorCandidate(
                         editor.className?.toString(), editor.hintText?.toString(),
                         editor.viewIdResourceName) }) {
@@ -668,7 +835,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 }
                 for (i in 0 until node.childCount) node.getChild(i)?.let { scan(it, depth + 1) }
             }
-            roots.forEach { scan(it, 0) }
+            scan(root, 0)
             val voice = LuluVirtualChatSendPolicy.uniqueVoiceComposer(
                 voiceRegions, dimensions.first, dimensions.second)
                 ?: return result(false, "chat_voice_composer_unverified",
@@ -684,9 +851,10 @@ class LuluAccessibilityService : AccessibilityService() {
                     "文字切换控件已失效，未点击")
             // The final gate runs again AFTER scanning, because a system dialog
             // or another chat may replace the target while the tree is read.
-            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                !verifiedChatHeader(service, displayId, packageName,
-                    recipient, dimensions.second))
+            if (!verifiedChatHeader(service, displayId, packageName, recipient, dimensions.second) ||
+                !stillAuthorized() ||
+                snapshotRoot(service, displayId, packageName, expectedFingerprint)?.windowId != root.windowId ||
+                !button.refresh())
                 return result(false, "chat_changed_before_toggle",
                     "聊天界面发生变化，没有点击")
             val clicked = button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -696,29 +864,15 @@ class LuluAccessibilityService : AccessibilityService() {
                 clicked = clicked)
         }
 
-        /** A live, read-only editor check for the exact WeChat conversation.
-         * Never use the owner's display or general search editor evidence. */
-        suspend fun virtualChatTextInputVisible(
-            displayId: Int, packageName: String, recipient: String,
-        ): Boolean {
+        /** Inspect the composer before attempting WeChat's voice switch. */
+        fun virtualChatTextInputVisible(displayId: Int, packageName: String): Boolean {
             val service = instance ?: return false
-            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
-                !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
+            if (!LuluVirtualChatSendPolicy.supports(packageName) ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return false
-            val dimensions = virtualDimensions(service, displayId) ?: return false
-            if (!verifiedChatHeader(service, displayId, packageName,
-                    recipient, dimensions.second)) return false
-            val editors = ownedVirtualRoots(service, displayId, packageName)
-                .flatMap(::visibleEditors).distinctBy { node ->
-                    val rect = Rect().also(node::getBoundsInScreen)
-                    Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
-                }
-            return editors.size == 1 && safeEditable(editors.single()) &&
-                LuluVirtualChatSendPolicy.chatEditorCandidate(
-                    editors.single().className?.toString(),
-                    editors.single().hintText?.toString(),
-                    editors.single().viewIdResourceName)
+            val height = virtualDimensions(service, displayId)?.second ?: return false
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return false
+            return visibleEditors(root).any { virtualChatEditor(it, packageName, height) }
         }
 
         /** Resolve the role's explicit BACK request on the OWNED virtual
@@ -806,7 +960,7 @@ class LuluAccessibilityService : AccessibilityService() {
             displayId: Int, packageName: String, recipient: String, message: String,
         ): Int {
             val service = instance ?: return -1
-            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+            if (!LuluVirtualChatSendPolicy.supports(packageName) ||
                 !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return -1
@@ -826,7 +980,8 @@ class LuluAccessibilityService : AccessibilityService() {
                 for (i in 0 until node.childCount)
                     node.getChild(i)?.let { scan(it, depth + 1) }
             }
-            ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return -1
+            scan(root, 0)
             return positions.distinctBy { it.centerX() / 12 to it.centerY() / 12 }.size
         }
 
@@ -841,7 +996,7 @@ class LuluAccessibilityService : AccessibilityService() {
             fun denied(reason: String): JSONObject = JSONObject()
                 .put("accepted", false).put("messageSendClicked", false)
                 .put("errorCode", reason).put("taskCompleted", false)
-            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+            if (!LuluVirtualChatSendPolicy.supports(packageName) ||
                 !LuluVirtualChatSendPolicy.validRecipient(recipient) ||
                 !LuluVirtualChatSendPolicy.validMessage(message) || !stillAuthorized())
                 return denied("chat_send_not_authorized")
@@ -854,7 +1009,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 return denied("chat_snapshot_expired")
             val dimensions = virtualDimensions(service, displayId)
                 ?: return denied("chat_display_unavailable")
-            val roots = ownedVirtualRoots(service, displayId, packageName)
+            fun liveRoot() = topVirtualAppWindow(service, displayId, packageName)?.root
             suspend fun uniqueRecipientInHeader(forceFresh: Boolean = false): Boolean =
                 verifiedChatHeader(service, displayId, packageName, recipient,
                     dimensions.second, forceFresh = forceFresh)
@@ -862,37 +1017,36 @@ class LuluAccessibilityService : AccessibilityService() {
                 .put("observedChatHeaderTexts",
                     virtualChatHeaderTexts(service, displayId, packageName))
                 .put("targetWindowVerified", true)
-            val editors = roots.flatMap(::visibleEditors).distinctBy { node ->
+            val root = liveRoot() ?: return denied("chat_window_unverified")
+            val editors = visibleEditors(root).distinctBy { node ->
                 val rect = Rect().also(node::getBoundsInScreen)
                 Triple(rect.centerX(), rect.centerY(), node.viewIdResourceName)
             }
             if (editors.size != 1) return denied(
-                if (roots.any { root ->
-                        root.collectVisibleText(maxNodes = 460, maxChars = 3_000)
-                            .lineSequence().any(LuluVirtualChatSendPolicy::isPressToTalk)
-                    }) "chat_voice_mode_requires_text_switch" else "chat_editor_ambiguous"
+                if (root.collectVisibleText(maxNodes = 460, maxChars = 3_000)
+                        .lineSequence().any(LuluVirtualChatSendPolicy::isPressToTalk)) "chat_voice_mode_requires_text_switch" else "chat_editor_ambiguous"
             )
             val editor = editors.single()
-            if (!LuluVirtualChatSendPolicy.chatEditorCandidate(
-                    editor.className?.toString(), editor.hintText?.toString(),
-                    editor.viewIdResourceName) ||
-                !safeEditable(editor)) return denied("chat_editor_unverified")
+            if (!virtualChatEditor(editor, packageName, dimensions.second) ||
+                !stillAuthorized() || !editor.refresh() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
+                return denied("chat_editor_unverified")
             val input = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, message)
             }
             if (!editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
                 return denied("chat_input_rejected")
             // A failed readback leaves only an unsent draft; never click Send.
-            val readback = if (editor.refresh() && editor.text?.toString() == message) true
-                else ownedVirtualRoots(service, displayId, packageName)
-                    .flatMap(::visibleEditors)
-                    .filter { LuluVirtualChatSendPolicy.chatEditorCandidate(
-                        it.className?.toString(), it.hintText?.toString(),
-                        it.viewIdResourceName) }
-                    .distinctBy { node ->
-                        val rect = Rect().also(node::getBoundsInScreen)
-                        rect.centerX() to rect.centerY()
-                    }.singleOrNull()?.text?.toString() == message
+            val editorId = editor.viewIdResourceName
+            fun liveDraftEditor(): AccessibilityNodeInfo? = liveRoot()
+                ?.takeIf { it.windowId == root.windowId }?.let(::visibleEditors)
+                ?.filter {
+                    it == editor || (!editorId.isNullOrBlank() && it.viewIdResourceName == editorId)
+                }?.distinctBy(::composerBounds)
+                ?.singleOrNull()?.takeIf { !it.isShowingHintText && it.text?.toString() == message }
+            val draft = liveDraftEditor()
+            val readback = draft != null
             if (!readback)
                 return denied("chat_input_unverified")
                     .put("messageInputReadbackVerified", false)
@@ -906,9 +1060,7 @@ class LuluAccessibilityService : AccessibilityService() {
             // The generic read-only UI inventory exposes at most 40 nodes.
             // Long chat histories can fill that quota before the bottom send
             // button, so inspect the live target tree directly here.
-            val editorBounds = Rect().also(editor::getBoundsInScreen)
-            val composer = LuluVirtualChatSendPolicy.ComposerBounds(
-                editorBounds.left, editorBounds.top, editorBounds.right, editorBounds.bottom)
+            val composer = composerBounds(checkNotNull(draft))
             val buttons = mutableListOf<AccessibilityNodeInfo>()
             val buttonBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
             var inspected = 0
@@ -937,7 +1089,9 @@ class LuluAccessibilityService : AccessibilityService() {
                     node.getChild(i)?.let { locate(it, depth + 1) }
                 }
             }
-            ownedVirtualRoots(service, displayId, packageName).forEach { locate(it, 0) }
+            liveRoot()?.let { locate(it, 0) }
+            if (inspected >= 1600) return denied("chat_send_button_or_context_unverified")
+                .put("messageInputReadbackVerified", true)
             val sendTarget = LuluVirtualChatSendPolicy.uniqueSendTarget(
                 buttonBounds, dimensions.first, dimensions.second)
             if (sendTarget == null || !stillAuthorized() ||
@@ -956,7 +1110,14 @@ class LuluAccessibilityService : AccessibilityService() {
             val outgoingBefore = virtualChatOutgoingTextCount(
                 displayId, packageName, recipient, message)
             // One click only; never retry an uncertain external side effect.
-            val clicked = button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            if (!stillAuthorized() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                liveDraftEditor() == null || !button.refresh() || !button.isVisibleToUser ||
+                !button.isEnabled || !button.isClickable || composerBounds(button) != buttonBounds[sendTarget])
+                return denied("chat_changed_before_send").put("messageInputReadbackVerified", true)
+            val clicked = runCatching {
+                button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }.getOrDefault(false)
             return JSONObject().put("accepted", clicked)
                 .put("messageInputReadbackVerified", true)
                 .put("chatRecipientVerified", true)
