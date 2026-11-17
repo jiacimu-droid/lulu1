@@ -41,6 +41,23 @@ class QqReplySourceWatermarkTest {
 
     @After fun cleanup() { MemoryTestEnvironment.release() }
 
+    /** A recovered idempotent request must have the SAME effect without being
+     * misrepresented as an action performed for this invocation. */
+    private fun assertHistoricalReplay(original: JSONObject, replayed: JSONObject) {
+        assertTrue("historical recovery marker absent: $replayed",
+            replayed.optBoolean("replayedHistoricalReceipt"))
+        assertFalse("old effect cannot become a fresh action",
+            replayed.optBoolean("executedThisInvocation", true))
+        assertTrue(replayed.optString("originalRequestId").isNotBlank())
+        val previous = JSONObject(replayed.toString())
+        previous.remove("replayedHistoricalReceipt")
+        previous.remove("executedThisInvocation")
+        previous.remove("originalFinishedAt")
+        previous.remove("originalRequestId")
+        assertEquals("original persisted effect must remain identical",
+            original.toString(), previous.toString())
+    }
+
 
     @Test fun groupRosterDoesNotImplyPeerAcquaintance() {
         val a = MigratedDomainStores.characters.create("陌生群成员甲").characterId
@@ -719,7 +736,7 @@ class QqReplySourceWatermarkTest {
         val replayed = JSONObject(ToolRouter.execute(app, role, "send_private_message",
             JSONObject().put("text", "这一条只应真实发送一次")
                 .put("_turnTraceId", "trace-after-retry"), requestId = requestId))
-        assertEquals(original.toString(), replayed.toString())
+        assertHistoricalReplay(original, replayed)
         val actual = MigratedDomainStores.chat.messages(conversation.id).value.filter {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character &&
                 it.content == "这一条只应真实发送一次"
@@ -762,7 +779,7 @@ class QqReplySourceWatermarkTest {
         val replayed = JSONObject(ToolRouter.execute(app, role, "send_private_message",
             JSONObject(args.toString()).put("_turnTraceId", "after-reopen"),
             requestId = requestId))
-        assertEquals(original.toString(), replayed.toString())
+        assertHistoricalReplay(original, replayed)
         val persisted = reopened.messages(conversation.id).value
             .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character }
         val live = MigratedDomainStores.chat.messages(conversation.id).value
@@ -817,7 +834,7 @@ class QqReplySourceWatermarkTest {
         val replayed = JSONObject(ToolRouter.execute(app, role, "send_group_message",
             JSONObject(args.toString()).put("_turnTraceId", "after-reopen"),
             requestId = requestId))
-        assertEquals(original.toString(), replayed.toString())
+        assertHistoricalReplay(original, replayed)
         val persisted = reopened.messages(group.id).value
             .filter { it.authorCharacterId == role }
         val live = MigratedDomainStores.chat.messages(group.id).value
@@ -841,7 +858,7 @@ class QqReplySourceWatermarkTest {
         val replay = JSONObject(ToolRouter.execute(app, role, "send_private_message",
             JSONObject().put("text", "此前选择的内容")
                 .put("_turnTraceId", "brand-new-diagnostic"), requestId = requestId))
-        assertEquals(prior.toString(), replay.toString())
+        assertHistoricalReplay(prior, replay)
         assertFalse(MigratedDomainStores.chat.conversations.value.any { it.characterId == role &&
             MigratedDomainStores.chat.messages(it.id).value.any { msg ->
                 msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
