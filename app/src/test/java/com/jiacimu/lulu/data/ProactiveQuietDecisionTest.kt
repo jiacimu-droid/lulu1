@@ -58,6 +58,50 @@ class ProactiveQuietDecisionTest {
                 .any { it.id == ongoing.first().id })
     }
 
+    @Test fun lastNightDeliveredReminderStaysInRoleAttentionAfterDailyRollover() {
+        val now = java.time.Instant.parse("2026-11-17T19:00:00Z") // 11/18 03:00 +08
+        val lastNight = java.time.Instant.parse("2026-11-17T15:00:00Z") // 23:00
+        val nextNight = java.time.Instant.parse("2026-11-18T15:00:00Z")
+        val reminder = CommitmentTask(
+            id = "last-night-reminder", characterId = "role",
+            goal = "每晚23点提醒休息",
+            status = CommitmentTaskStatus.Scheduled,
+            dueAt = nextNight, dailyBaseDueAt = lastNight, repeat = "daily",
+            verificationMode = "delivery",
+            dailyAttempts = listOf(DailyCommitmentAttempt(
+                lastNight, "Completed", "23点的提醒实际送达", 1)),
+        )
+        assertEquals(lastNight, reminder.recentDailyOutcomeContext(now)?.dueAt)
+        val cue = ActiveCommitmentAttention.render(listOf(reminder), now)
+        assertTrue(cue, cue.contains("taskId=last-night-reminder"))
+        assertTrue(cue, cue.contains("23点的提醒实际送达"))
+        assertTrue(cue, cue.contains("不是用户已入睡"))
+        assertTrue(cue, cue.contains("最近一次每日轮次=$lastNight"))
+        // The next 23:00 is not moved to 03:00 just because the owner woke up.
+        assertEquals(nextNight, reminder.dueAt)
+        assertEquals("", ActiveCommitmentAttention.render(
+            listOf(reminder.copy(verificationMode = "outcome")), now))
+        val unverified = reminder.copy(
+            verificationMode = "outcome",
+            dailyAttempts = listOf(DailyCommitmentAttempt(
+                lastNight, "WaitingForFeedback", "提醒已发，但效果未核实", 1)),
+        )
+        assertNotNull(unverified.recentDailyOutcomeContext(now))
+        assertTrue(ActiveCommitmentAttention.render(listOf(unverified), now)
+            .contains("新的每日执行时刻不替代旧轮次的结果"))
+        assertNull(reminder.recentDailyOutcomeContext(now.plusSeconds(17 * 3600)))
+        val competing = (1..18).map { i ->
+            CommitmentTask(id = "other-$i", characterId = "role",
+                goal = "另一项待办$i", status = CommitmentTaskStatus.Scheduled,
+                dueAt = now.plusSeconds(i * 60L))
+        }
+        assertTrue(PersistentResponsibilityAttention.select(competing + reminder, now)
+            .any { it.id == reminder.id })
+        assertFalse(PersistentResponsibilityAttention.select(
+            competing + reminder.copy(status = CommitmentTaskStatus.Cancelled), now)
+            .any { it.id == reminder.id })
+    }
+
     @Test fun leanAttentionKeepsEvidenceWithoutDuplicatingAuthoritativeTaskDetails() {
         val now = java.time.Instant.parse("2026-11-13T00:00:00Z")
         val task = CommitmentTask(id = "attention-1", characterId = "role",
