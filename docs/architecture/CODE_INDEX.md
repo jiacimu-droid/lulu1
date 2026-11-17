@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`290adae5d05087e43c0cca9a10f17c41cef81dc8`
+- 基准提交：`15a81d5744aebb7d179ea825cdd94b3a0d31644e`
 - 分支：`main`
-- 已索引文件：1420
-- 已索引代码/文本行：299739
-- 已发现符号：4293
+- 已索引文件：1421
+- 已索引代码/文本行：299790
+- 已发现符号：4288
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1172,8 +1172,9 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingCausalEvidenceTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |

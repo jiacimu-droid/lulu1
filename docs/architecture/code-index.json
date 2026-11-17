@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:39:18.082812+00:00",
-  "commit": "290adae5d05087e43c0cca9a10f17c41cef81dc8",
+  "generatedAt": "2026-11-17T16:40:01.698264+00:00",
+  "commit": "15a81d5744aebb7d179ea825cdd94b3a0d31644e",
   "branch": "main",
-  "sourceFingerprint": "608c8d382e78f81f1e54cf3181436e620eac247170ec3e9bdfa7225d1ddeeddb",
+  "sourceFingerprint": "90a30a008ca8de27902772852e7c9cd71fbe7ffd66f7585d047438e7a34275bf",
   "summary": {
-    "files": 1420,
-    "lines": 299739,
-    "symbols": 4293
+    "files": 1421,
+    "lines": 299790,
+    "symbols": 4288
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21767,43 +21767,7 @@
     "LuluAppearanceLibraryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 8
-      }
-    ],
-    "handcraftedJournalVisualsOnlyApplyToJournalFamily": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 11
-      }
-    ],
-    "switchingOneAppDoesNotChangeOtherApps": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 21
-      }
-    ],
-    "recentlyUsedRecipesStayAvailableToSwitchBack": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 33
-      }
-    ],
-    "savedCopyDoesNotMutateItsSourceRecipe": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 44
-      }
-    ],
-    "activeOrBuiltInRecipeCannotBeDeleted": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 61
-      }
-    ],
-    "unknownRecipeNeverDestroysAnExistingBinding": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 75
+        "line": 10
       }
     ],
     "LuluCloudBackupTest": [
@@ -21840,6 +21804,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
         "line": 201
+      }
+    ],
+    "LuluCssRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt",
+        "line": 8
       }
     ],
     "LuluDataBackupTest": [
@@ -47392,36 +47362,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-      "lines": 81,
-      "sha256": "67169c5d05b8e75407e70f3b2443e4f2f175d86df1052f739af43b1974f12477",
+      "lines": 71,
+      "sha256": "a518005d021c54b2d94afe6334bc568afced814876158a016b9fd72daa710daa",
       "symbols": [
         {
           "name": "LuluAppearanceLibraryTest",
-          "line": 8
-        },
-        {
-          "name": "handcraftedJournalVisualsOnlyApplyToJournalFamily",
-          "line": 11
-        },
-        {
-          "name": "switchingOneAppDoesNotChangeOtherApps",
-          "line": 21
-        },
-        {
-          "name": "recentlyUsedRecipesStayAvailableToSwitchBack",
-          "line": 33
-        },
-        {
-          "name": "savedCopyDoesNotMutateItsSourceRecipe",
-          "line": 44
-        },
-        {
-          "name": "activeOrBuiltInRecipeCannotBeDeleted",
-          "line": 61
-        },
-        {
-          "name": "unknownRecipeNeverDestroysAnExistingBinding",
-          "line": 75
+          "line": 10
         }
       ]
     },
@@ -47461,6 +47407,17 @@
         {
           "name": "wrongCredentialsFailWithReadableReason",
           "line": 201
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt",
+      "lines": 61,
+      "sha256": "c3b69c9f760f714a11bf24b28e4228070af5df6180d3f1d4e2e86cd702f996bd",
+      "symbols": [
+        {
+          "name": "LuluCssRuntimeTest",
+          "line": 8
         }
       ]
     },
