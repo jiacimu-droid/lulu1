@@ -68,13 +68,21 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     val creativeIdeas: StateFlow<List<PersonalMiniTheater.Idea>> = ideaChanges
 
     init {
-        val seeds = initialTemplates ?: parse(app.assets.open("theater/wanxiang_mini_scenes.json")
-            .bufferedReader().use { it.readText() })
+        // Public installs must never import a private author's story templates.
+        // On upgrade discard only untouched auto-seeded entries; user-imported
+        // templates and stories already started or written remain local.
         synchronized(this) {
-            val known = changes.value.mapTo(mutableSetOf()) { it.title to it.prompt }
-            val newItems = seeds.filter { known.add(it.title to it.prompt) }
-                .map { it.copy(builtIn = true) }
-            if (newItems.isNotEmpty()) save(changes.value + newItems)
+            val retained = changes.value.filterNot { item ->
+                item.builtIn && item.characterId.isBlank() &&
+                    item.text.isBlank() && item.status == "new"
+            }
+            val known = retained.mapTo(mutableSetOf()) { it.title to it.prompt }
+            val explicitFixtures = initialTemplates.orEmpty().filter {
+                known.add(it.title to it.prompt)
+            }.map { it.copy(builtIn = true) }
+            if (retained.size != changes.value.size || explicitFixtures.isNotEmpty()) {
+                save(retained + explicitFixtures)
+            }
         }
     }
 
