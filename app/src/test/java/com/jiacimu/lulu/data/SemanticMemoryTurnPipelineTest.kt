@@ -53,12 +53,12 @@ class SemanticMemoryTurnPipelineTest {
                 "第${i}次动作实际完成", at.plusSeconds(i + 1L), false,
                 source = "game-relic", evidenceKind = EventEvidenceKind.ToolResult)
         }
-        // Actual back-and-forth speech: 19 turns, not 19 raw gameplay ticks.
-        (1..19).forEach { index ->
+        // Actual back-and-forth speech: 18 subsequent turns + opening turn.
+        (1..18).forEach { index ->
             SharedExperienceTimeline.record(
                 "talk-$index", role, "私聊",
                 if (index % 2 == 0) "主人" else "江渡",
-                if (index == 19) "后来继续聊刚才的冒险" else "对话第 $index 轮",
+                if (index == 18) "后来继续聊刚才的冒险" else "对话第 $index 轮",
                 at.plusSeconds(150 + index.toLong()), false,
                 sessionId = "dm-1", source = "message",
                 evidenceKind = if (index % 2 == 0)
@@ -78,7 +78,7 @@ class SemanticMemoryTurnPipelineTest {
         val pending = repository.pendingTimelineEvents(role)
         assertEquals(134, pending.size) // 14 speech source rows plus 120 game receipts
         assertTrue(pending.any { it.id == "talk-0" })
-        assertFalse(pending.any { it.id == "talk-19" })
+        assertFalse(pending.any { it.id == "talk-18" })
         val view = MemoryExtractionTurnView.build(turns.take(15))
         assertEquals(15, view.turnCount)
         assertEquals(134, view.rawEventCount)
@@ -113,7 +113,7 @@ class SemanticMemoryTurnPipelineTest {
             val request = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8()
             assertTrue(request.contains("eventId=talk-0@"))
             assertTrue(request.contains("同一经历"))
-            assertFalse(request.contains("eventId=talk-19@")) // protected tail
+            assertFalse(request.contains("eventId=talk-18@")) // protected tail
             assertEquals(20, repository.contextTimelineTurns(role).size)
             // The protected tail is not accidentally certified as processed.
             assertTrue(repository.hasUnprocessedEvents(role))
