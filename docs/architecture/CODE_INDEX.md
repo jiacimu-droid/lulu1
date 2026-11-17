@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1681f28c0edf33f1139125dcd2e475dad4d19e1d`
+- 基准提交：`9ef8a3c395a643c5461b5724e5cc24040bf11cc6`
 - 分支：`main`
-- 已索引文件：1402
-- 已索引代码/文本行：296685
-- 已发现符号：4215
+- 已索引文件：1403
+- 已索引代码/文本行：296715
+- 已发现符号：4216
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -255,7 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 386 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 390 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
@@ -962,6 +962,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 102 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqChatComposerDisplayTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
