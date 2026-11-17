@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:45:46.083620+00:00",
-  "commit": "6db313e83547e67f1acd5608d392290a70e837ba",
+  "generatedAt": "2026-11-17T05:46:22.321014+00:00",
+  "commit": "697d96f5698ab3a30c5ed87c539e7c0e16383e02",
   "branch": "main",
-  "sourceFingerprint": "0a96d1a35d8039de89f06ca30bc56fcb3368d0d1268c8d1589c3e23589a236c1",
+  "sourceFingerprint": "b36bd223585e7f1e28784065efa3fb45692fac5ad8e7995530a63d8514371dd8",
   "summary": {
     "files": 1391,
-    "lines": 297847,
+    "lines": 297841,
     "symbols": 4203
   },
   "symbolIndex": {
@@ -11691,7 +11691,7 @@
     "evidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 32
+        "line": 42
       }
     ],
     "auxiliaryCandidates": [
@@ -28338,7 +28338,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
       "lines": 242,
-      "sha256": "3c5d155d6a1e69a7748197d76d57c4a8ab3f1da3aa8da1a8be67866a303d7164",
+      "sha256": "5e71ef46d29ee8fcce88abd20f03a611fd8af9429a5c8b65826e59011728d3f8",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -34132,8 +34132,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 141,
-      "sha256": "2b778a0b1b094a90125e2dbb60155ebbdadf0fbf80029fa76184d82284d3eb93",
+      "lines": 135,
+      "sha256": "03acbb5658362a990ae559f55e9384f75ef71c64b13addbdeb700293e909c3b5",
       "symbols": [
         {
           "name": "assemble",
@@ -34141,7 +34141,7 @@
         },
         {
           "name": "evidence",
-          "line": 32
+          "line": 42
         }
       ]
     },
