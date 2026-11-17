@@ -21,7 +21,7 @@ internal object MemoryWorkingSet {
             lexiconOwners.singleOrNull().orEmpty()
         }
         // The owner-selected recent N semantic turns are a complete transcript,
-        // not ranked memory candidates. They must not compete with the 28k
+        // not ranked memory candidates. They must not compete with the 33k
         // recall/inner-state working set or inherit its per-section character cap.
         val completeRecent = context.ownedRecentTurns.mapNotNull { turn ->
             val rendered = RecentSemanticTimeline.renderComplete(turn)
@@ -115,7 +115,10 @@ internal object MemoryWorkingSet {
             .joinToString("\n\n").length.let { if (it == 0) 0 else it + 2 }
         val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, protected,
             mapOf(EVIDENCE to budget.evidenceCharacters,
-                SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters))
+                SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters),
+            // Targets reserve variety first; spare room then accommodates the
+            // most relevant remaining original evidence or lived memories.
+            borrowUnusedSectionBudget = true)
         // This separate protected transcript is on top of the bounded memory
         // family. Do not mark any excerpt as delivered unless the final HTTP
         // system sections actually contained the complete turn.
