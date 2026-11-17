@@ -260,6 +260,12 @@ internal fun LuluOnboardingGuideScreen(
                     Spacer(Modifier.height(15.dp))
                     Text(selected.description, color = ink, fontSize = 16.sp, lineHeight = 25.sp)
                 }
+                if (selected.key == "call" || selected.key == "watch" || selected.key == "music") {
+                    item {
+                        Text("入口截图", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        GuideSafeScreen("chat")
+                    }
+                }
                 item {
                     GuidePanel {
                         Text("在哪里找？", color = ink, fontSize = 16.sp,
