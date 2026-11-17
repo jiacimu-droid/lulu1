@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:14:11.731684+00:00",
-  "commit": "f1491dd4ce03333d6c8dd24ba35d49f67e611018",
+  "generatedAt": "2026-11-17T04:14:33.825200+00:00",
+  "commit": "0d6f743c6a332faa606dc98b61438ea67da8b277",
   "branch": "main",
-  "sourceFingerprint": "c5a5e0fe7bb9ce8345559466d89e002a682dc538304dd651c015d5443e73d2f6",
+  "sourceFingerprint": "8b2b0caf642ce35f5104ea78f1099417754b5102be3255402e90f07a3ebb9b48",
   "summary": {
-    "files": 1386,
-    "lines": 296862,
-    "symbols": 4189
+    "files": 1387,
+    "lines": 296953,
+    "symbols": 4190
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19020,6 +19020,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
         "line": 14
+      }
+    ],
+    "ElevenLabsRoleSongPipelineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt",
+        "line": 17
       }
     ],
     "GameInviteMessageParserTest": [
@@ -43022,6 +43028,17 @@
         {
           "name": "ElevenLabsMusicTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt",
+      "lines": 91,
+      "sha256": "75e13ea4d945322012248f440823c0bca965935a21c7f31826e95cdc8ca55d64",
+      "symbols": [
+        {
+          "name": "ElevenLabsRoleSongPipelineTest",
+          "line": 17
         }
       ]
     },
