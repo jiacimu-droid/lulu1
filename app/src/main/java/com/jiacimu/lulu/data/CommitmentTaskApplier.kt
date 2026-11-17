@@ -58,7 +58,8 @@ private suspend fun createCommitmentTask(
         // A clock and broad topic are not a task identity: "remind me to study"
         // and "check how studying went" can share both yet remain independent.
         // The model should name targetTaskId to update an existing obligation.
-        task.goal.sameTaskText(draft.goal) && (
+        task.goal.sameTaskText(draft.goal) &&
+            task.deliveryAction == draft.deliveryAction.ifBlank { "send_private_message" } && (
             (task.dueAt == null && draft.dueAt == null) ||
                 (task.dueAt != null && draft.dueAt != null && sameTimedReminderTask(task, draft))
         )
@@ -362,12 +363,29 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
     }
 }
 
+/** Date annotations only clarify an already structured dueAt. They do not create
+ * another obligation when the action and actual instant are identical. This
+ * strips ONLY a parenthetical calendar date, never an arbitrary goal phrase. */
 private fun String.sameTaskText(other: String): Boolean {
-    val left = lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
-    val right = other.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
-    if (left.isBlank() || right.isBlank()) return false
-    return left == right
+    val calendarNote = Regex("[（(]\\s*(?:20\\d{2}年)?\\d{1,2}月\\d{1,2}日\\s*[)）]")
+    fun normalize(value: String): String = value.lowercase()
+        .replace(calendarNote, "")
+        .replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
+    val left = normalize(this)
+    val right = normalize(other)
+    return left.isNotBlank() && left == right
 }
+
+/** Conservative identity for persisted legacy rows. Do not merge two different
+ * outcomes/intentions merely because they both mention studying or sleeping. */
+internal fun sameRecordedTimedCommitment(first: CommitmentTask, second: CommitmentTask): Boolean =
+    first.id != second.id &&
+    first.characterId == second.characterId &&
+    first.dueAt != null && first.dueAt == second.dueAt &&
+    first.repeat == second.repeat &&
+    first.deliveryAction == second.deliveryAction &&
+    first.verificationMode == second.verificationMode &&
+    first.goal.sameTaskText(second.goal)
 
 /** Exact local clock slot and shared subject; unrelated appointments stay independent. */
 internal fun sameDailyClockAndPurpose(
