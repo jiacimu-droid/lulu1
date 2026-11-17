@@ -65,7 +65,7 @@ internal fun RelicVaultPage(
             RelicTreasureGalleryCard(selected,selected.id==snapshot.featuredLootId)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
                 OutlinedButton(onClick={onFeature(selected.id)},
-                    enabled=selected.id!=snapshot.featuredLootId,
+                    enabled=!live && selected.id!=snapshot.featuredLootId,
                     modifier=Modifier.weight(1f),contentPadding=PaddingValues(horizontal=4.dp)) {
                     Text(if(selected.id==snapshot.featuredLootId)"✓ 已展出" else "✦ 展出",
                         color=museumGold,fontSize=11.sp)
@@ -79,7 +79,7 @@ internal fun RelicVaultPage(
                     Text("出售",color=Color(0xFFE9B4A8),fontSize=11.sp)
                 }
             }
-            Text("出售只移走当前实物，永久图鉴不会消失。",
+            Text(if(live) "探险进行中，展出与出售都需回营后操作。" else "出售只移走当前实物，永久图鉴不会消失。",
                 color=museumMuted,fontSize=10.sp)
         }
     }
