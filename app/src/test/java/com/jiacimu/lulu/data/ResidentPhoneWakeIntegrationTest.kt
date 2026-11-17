@@ -131,6 +131,22 @@ class ResidentPhoneWakeIntegrationTest {
         DigitalLifeProfileStore.remove(ghostId)
     }
 
+    @Test fun currentSocialEvidenceOnlyClaimsActualAndStillVisiblePhoneReads() {
+        val viewer = role()
+        val author = role()
+        assertTrue(MomentFriendAccess.setFriends(viewer, author, true))
+        val post = MomentsStore.publishCharacter(author,
+            "社交已读权限回归-${UUID.randomUUID()}")!!
+        val before = CharacterEverydaySocialContext.currentSocialAuthority(viewer)
+        assertFalse(before, before.contains("postId=${post.id}"))
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(viewer, listOf(post)))
+        val afterRead = CharacterEverydaySocialContext.currentSocialAuthority(viewer)
+        assertTrue(afterRead, afterRead.contains("postId=${post.id}"))
+        assertTrue(MomentFriendAccess.setFriends(viewer, author, false))
+        val afterRevoked = CharacterEverydaySocialContext.currentSocialAuthority(viewer)
+        assertFalse(afterRevoked, afterRevoked.contains("postId=${post.id}"))
+    }
+
     @Test fun phonePromptRejectsOtherCharactersPrivateAndForgedMomentsSnapshots() {
         val viewer = role()
         val another = role()
