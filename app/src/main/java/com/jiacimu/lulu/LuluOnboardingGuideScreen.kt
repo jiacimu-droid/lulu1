@@ -181,14 +181,14 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 items(luluGuideSteps.size) { index ->
                     val step = luluGuideSteps[index]
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                        Column(Modifier.width(60.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.Top) {
+                        Column(Modifier.width(60.dp).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("STEP " + (index + 1), color = ink, fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp)
                             Spacer(Modifier.height(9.dp))
                             Surface(Modifier.size(10.dp), CircleShape, color = ink) {}
                             Spacer(Modifier.height(6.dp))
-                            Surface(Modifier.width(1.dp).height(208.dp),
+                            Surface(Modifier.width(1.dp).weight(1f),
                                 color = MaterialTheme.colorScheme.outlineVariant) {}
                         }
                         GuidePanel(modifier = Modifier.weight(1f)) {
