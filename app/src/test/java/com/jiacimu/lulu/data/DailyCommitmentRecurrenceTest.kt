@@ -171,6 +171,61 @@ class DailyCommitmentRecurrenceTest {
         assertFalse(sameTimedReminderTask(old, same.copy(goal = "提醒早点休息")))
     }
 
+    @Test fun sameWakeCallWithParentheticalDateIsOneConcreteAppointment() {
+        val due = at(2026, 11, 17, 7, 0)
+        val first = CommitmentTask(characterId = "jiangdu", goal = "明早7点打电话叫佳辞起床",
+            dueAt = due, timezone = shanghai.id, status = CommitmentTaskStatus.Scheduled,
+            deliveryAction = "start_call")
+        val dated = first.copy(id = "second",
+            goal = "明早（11月17日）7点打电话叫佳辞起床")
+        assertTrue("A date annotation cannot create another call", sameRecordedTimedCommitment(first, dated))
+        assertFalse(sameRecordedTimedCommitment(first, dated.copy(dueAt = due.plusSeconds(86400))))
+        assertFalse(sameRecordedTimedCommitment(first, dated.copy(goal = "明早7点打电话提醒佳辞吃早餐")))
+        assertFalse(sameRecordedTimedCommitment(first, dated.copy(deliveryAction = "alarm_only")))
+        assertFalse(sameRecordedTimedCommitment(first, dated.copy(characterId = "someone-else")))
+    }
+
+    @Test fun legacyDuplicateWakeIsRetiredWithoutDeletingRealReceiptOrDistinctTask() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "dedup-wake-" + java.util.UUID.randomUUID()
+        val due = at(2026, 11, 17, 7, 0)
+        val actuallyReceived = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "明早7点打电话叫佳辞起床",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            lastAlarmReceivedAt = due.plusSeconds(181), attemptCount = 1,
+            lastActionResult = "迟到回调，未真正拨号"))
+        val stale = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "明早（11月17日）7点打电话叫佳辞起床",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            status = CommitmentTaskStatus.Expired, lastActionResult = "旧系统恢复发现错过"))
+        val separate = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "明早7点打电话提醒佳辞吃早餐",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            status = CommitmentTaskStatus.Scheduled))
+        try {
+            CommitmentTaskStore.mergeDuplicateTimedCommitments()
+            val kept = CommitmentTaskStore.snapshot(role).first { it.id == actuallyReceived.id }
+            val merged = CommitmentTaskStore.snapshot(role).first { it.id == stale.id }
+            assertEquals(CommitmentTaskStatus.WaitingForFeedback, kept.status)
+            assertEquals(due.plusSeconds(181), kept.lastAlarmReceivedAt)
+            assertEquals(CommitmentTaskStatus.Cancelled, merged.status)
+            assertTrue(merged.lastActionResult.startsWith("重复定时约定已整理"))
+            assertTrue(merged.lastActionResult.contains("旧系统恢复发现错过"))
+            val day = java.time.LocalDate.of(2026, 11, 17)
+            assertFalse(merged.visibleOnScheduleDate(day, shanghai, day))
+            assertTrue(kept.visibleOnScheduleDate(day, shanghai, day))
+            assertEquals(CommitmentTaskStatus.Scheduled,
+                CommitmentTaskStore.snapshot(role).first { it.id == separate.id }.status)
+            CommitmentTaskStore.mergeDuplicateTimedCommitments()
+            assertEquals(1, CommitmentTaskStore.snapshot(role)
+                .count { it.status == CommitmentTaskStatus.Cancelled })
+        } finally {
+            listOf(actuallyReceived, stale, separate).forEach { CommitmentTaskStore.remove(it.id) }
+        }
+    }
+
     @Test fun sameClockAndPurposeMustMatchToDeduplicate() {
         val a = at(2026, 10, 24, 23, 30)
         assertTrue(sameDailyClockAndPurpose("每晚监督她睡觉", a,
