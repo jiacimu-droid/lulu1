@@ -108,6 +108,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var singingEngine by remember {
         mutableStateOf(ElevenLabsSingingSvc.engine(context))
     }
+    var singingAdvancedOpen by remember { mutableStateOf(false) }
     var singingServiceUrl by remember {
         mutableStateOf(prefs.getString(ElevenLabsSingingSvc.KEY_ENDPOINT, "").orEmpty())
     }
@@ -401,14 +402,23 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     (ElevenLabsSingingSvc.endpointIsSafe(singingServiceUrl) &&
                         singingServiceToken.isNotBlank())
                 if (musicUseRoleVoice) {
-                    AdvancedChoiceField("角色唱歌转换方式", singingEngine,
-                        listOf(
-                            "歌声专用 · Seed-VC（推荐）" to ElevenLabsSingingSvc.ENGINE_SVC,
-                            "普通语音变声（旧版实验）" to ElevenLabsSingingSvc.ENGINE_LEGACY,
-                        ),
-                        { singingEngine = it },
-                    )
-                    if (singingEngine == ElevenLabsSingingSvc.ENGINE_SVC) {
+                    Text("只用 ElevenLabs 会员即可继续唱歌；已有 API Key 和角色音色自动复用。" +
+                        "这套普通变声不能保证唱歌不跑调，先用原版/角色版对比试听。",
+                        color = AdvancedMuted, fontSize = 12.sp)
+                    TextButton(onClick = { singingAdvancedOpen = !singingAdvancedOpen }) {
+                        Text(if (singingAdvancedOpen) "收起专业歌声实验设置" else
+                            "专业歌声转换（高级可选，不需要就别设置）")
+                    }
+                    if (singingAdvancedOpen) {
+                        AdvancedChoiceField("歌声转换引擎", singingEngine,
+                            listOf(
+                                "ElevenLabs（现有会员可用）" to ElevenLabsSingingSvc.ENGINE_LEGACY,
+                                "自建 Seed-VC（需额外 GPU，不推荐当前使用）" to ElevenLabsSingingSvc.ENGINE_SVC,
+                            ),
+                            { singingEngine = it },
+                        )
+                    }
+                    if (singingAdvancedOpen && singingEngine == ElevenLabsSingingSvc.ENGINE_SVC) {
                         Text("保留原唱旋律、节奏与音高曲线；首次自动用角色现有 ElevenLabs Voice ID 生成短参考音频。" +
                             "需要独立 GPU 服务，未配置绝不偷偷调用旧变声或扣音乐生成费。",
                             color = AdvancedMuted, fontSize = 12.sp)
@@ -427,8 +437,8 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                                 "首次音色参考会少量消耗 ElevenLabs TTS 额度。",
                                 color = AdvancedMuted, fontSize = 12.sp)
                         }
-                    } else {
-                        Text("旧版 Speech-to-Speech 是说话变声，可能产生跑调、压嗓和水牛音；" +
+                    } else if (singingAdvancedOpen && singingEngine == ElevenLabsSingingSvc.ENGINE_LEGACY) {
+                        Text("Speech-to-Speech 是说话变声，可能产生跑调、压嗓和水牛音；" +
                             "仅供对比实验，不再作为推荐的歌声转换方式。",
                             color = AdvancedMuted, fontSize = 12.sp)
                         AdvancedChoiceField(
