@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:39:19.004965+00:00",
-  "commit": "39a7c443633aeb145f7aa2e482b2e5a51309f8e5",
+  "generatedAt": "2026-11-17T13:39:51.802063+00:00",
+  "commit": "d294e0323a477f504a8878da7c8c695cb5f53322",
   "branch": "main",
-  "sourceFingerprint": "60f2b3e52e111a9d34937b914ae6475cdfe143d46ecd3f2b05d3fe014bb2d649",
+  "sourceFingerprint": "445877849336510070fd959b1a5d33bf682b05fc50d7eff90acb67b8fdb48a41",
   "summary": {
     "files": 1411,
-    "lines": 298292,
+    "lines": 298298,
     "symbols": 4253
   },
   "symbolIndex": {
@@ -505,7 +505,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 185
+        "line": 190
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -6511,7 +6511,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 41
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -6545,31 +6545,31 @@
     "canChoose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 50
+        "line": 52
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 91
+        "line": 95
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 128
+        "line": 133
       }
     ],
     "isWakeExplanation": [
@@ -29223,8 +29223,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 202,
-      "sha256": "4fb7f65d563385f0ddf512eb1bcf605ec48882c0d4f996b73fb153d37405bd27",
+      "lines": 208,
+      "sha256": "9209554887103991534805a36d3458e9a1c33706fdec081a2b7cea91a6cfa353",
       "symbols": [
         {
           "name": "Capability",
@@ -29236,31 +29236,31 @@
         },
         {
           "name": "find",
-          "line": 41
+          "line": 43
         },
         {
           "name": "canChoose",
-          "line": 42
+          "line": 44
         },
         {
           "name": "scheduledActionName",
-          "line": 50
+          "line": 52
         },
         {
           "name": "allows",
-          "line": 61
+          "line": 63
         },
         {
           "name": "screenVisionContext",
-          "line": 91
+          "line": 95
         },
         {
           "name": "phoneOperationContext",
-          "line": 128
+          "line": 133
         },
         {
           "name": "context",
-          "line": 185
+          "line": 190
         }
       ]
     },
