@@ -52,13 +52,13 @@ internal object LuluWidgetDailyRole {
     val revision = changes.asStateFlow()
 
     private fun fingerprint(widget: LuluDesktopWidget, date: LocalDate): String =
-        widget.id + "|" + date + "|" + widget.sign + "|" + widget.characterId
+        date.toString() + "|" + widget.sign + "|" + widget.characterId
 
     fun read(context: Context, widget: LuluDesktopWidget, date: LocalDate): LuluWidgetDailyReading? {
         if (widget.kind != LuluWidgetKind.HOROSCOPE ||
             !widget.dailyReadingEnabled || widget.characterId.isBlank()) return null
         val raw = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
-            .getString("reading_" + widget.id, null) ?: return null
+            .getString("reading_" + fingerprint(widget, date), null) ?: return null
         return runCatching {
             val obj = JSONObject(raw)
             if (obj.optString("fingerprint") != fingerprint(widget, date)) return@runCatching null
@@ -79,19 +79,23 @@ internal object LuluWidgetDailyRole {
             if (current.characterId != widget.characterId || current.sign != widget.sign ||
                 !current.dailyReadingEnabled) return@withLock
             read(app, current, date)?.let {
+                if (current.allowRoleStyle && it.chosenSkin in 0..3) {
+                    LuluDesktopWidgetStore.roleApplySkin(
+                        app, current.id, current.characterId, it.chosenSkin)
+                }
                 deliverIfConsented(app, current, it)
                 return@withLock
             }
             val prefs = app.getSharedPreferences(PREF, Context.MODE_PRIVATE)
             val fp = fingerprint(current, date)
-            val oldAttempt = prefs.getString("attempt_" + widget.id, "")
-            val oldTime = prefs.getLong("attemptAt_" + widget.id, 0L)
+            val oldAttempt = prefs.getString("attempt_" + fp, "")
+            val oldTime = prefs.getLong("attemptAt_" + fp, 0L)
             if (oldAttempt == fp && System.currentTimeMillis() - oldTime < 3600_000L) return@withLock
             if (!MigratedDomainStores.characters.settings.value.containsKey(current.characterId))
                 return@withLock
             // Durable retry cooldown prevents navigation loops from repeatedly paying for Full inputs.
-            if (!prefs.edit().putString("attempt_" + widget.id, fp)
-                    .putLong("attemptAt_" + widget.id, System.currentTimeMillis()).commit())
+            if (!prefs.edit().putString("attempt_" + fp, fp)
+                    .putLong("attemptAt_" + fp, System.currentTimeMillis()).commit())
                 return@withLock
             val (good, caution) = luluDailyFortune(date, current.sign)
             val answer = try {
@@ -133,7 +137,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
                 ?: return@withLock
             if (fingerprint(latest, date) != fp || !latest.dailyReadingEnabled ||
                 LocalDate.now() != date) return@withLock
-            val stored = prefs.edit().putString("reading_" + latest.id, JSONObject()
+            val stored = prefs.edit().putString("reading_" + fp, JSONObject()
                 .put("fingerprint", fp).put("message", parsed.message)
                 .put("notify", parsed.wantsNotify).put("skin", parsed.chosenSkin)
                 .toString()).commit()
@@ -175,7 +179,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
             !current.dailyNotifyEnabled || !current.dailyReadingEnabled) return
         val prefs = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
         val notificationKey = reading.date + "|" + reading.characterId + "|" + reading.sign
-        if (prefs.getString("notified_" + widget.id, "") == notificationKey) return
+        if (prefs.getString("notified_" + notificationKey, "") == "sent") return
         val name = MigratedDomainStores.characters.settings.value[reading.characterId]
             ?.displayName ?: return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
@@ -198,7 +202,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
             .setAutoCancel(true).setContentIntent(pending).build()
         try {
             NotificationManagerCompat.from(context).notify(widget.id.hashCode(), notice)
-            prefs.edit().putString("notified_" + widget.id, notificationKey).commit()
+            prefs.edit().putString("notified_" + notificationKey, "sent").commit()
         } catch (_: SecurityException) {
             // A denied notification is not a successful delivery.
         }
