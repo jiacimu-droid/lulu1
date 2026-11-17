@@ -101,6 +101,24 @@ internal fun CommitmentTask.needsUnverifiedDailyRecovery(now: Instant): Boolean 
         !hasPendingOutcomeReview(now) &&
         !(followUpKind == "retry" && linkedAlarmId != null && nextCheckAt?.isAfter(now) == true)
 
+/**
+ * A daily appointment may already have moved to tomorrow while the last
+ * occurrence still matters now. Keep the actual attempt (including a
+ * delivery-only completion) available to the SAME role for a bounded
+ * after-midnight continuation; never turn it into a second alarm or claim
+ * the owner has/has not slept.
+ */
+internal fun CommitmentTask.recentDailyOutcomeContext(now: Instant): DailyCommitmentAttempt? {
+    if (repeat != "daily") return null
+    val last = dailyAttempts.lastOrNull { !it.dueAt.isAfter(now) } ?: return null
+    val elapsed = Duration.between(last.dueAt, now)
+    if (elapsed.isNegative || elapsed > Duration.ofHours(16)) return null
+    // An outcome-verified completion is closed. A delivery-only success
+    // proves the reminder happened, not a separately promised life outcome.
+    return last.takeIf { it.status !in setOf("Cancelled", "Completed") ||
+        (it.status == "Completed" && verificationMode == "delivery") }
+}
+
 /** Calendar projection keeps past unverified duties visible without duplicating them. */
 internal fun CommitmentTask.visibleOnScheduleDate(
     date: LocalDate, zone: ZoneId, today: LocalDate,
@@ -222,19 +240,27 @@ internal object PersistentResponsibilityAttention {
         if (limit <= 0) return emptyList()
         val active = tasks.filter { it.status.isActive() }
         if (active.size <= limit) return active
-        val ongoing = active.filter { it.dueAt == null }
-        val timed = active.filter { it.dueAt != null }
-        if (ongoing.isEmpty()) return timed.take(limit)
+        // Tomorrow's scheduled slot must not starve a still-relevant receipt
+        // from last night behind many unrelated future alarms.
+        val recent = active.filter { it.recentDailyOutcomeContext(now) != null }
+            .take(minOf(2, limit))
+        val recentIds = recent.map(CommitmentTask::id).toSet()
+        val candidates = active.filterNot { it.id in recentIds }
+        val room = limit - recent.size
+        if (room == 0) return recent
+        val ongoing = candidates.filter { it.dueAt == null }
+        val timed = candidates.filter { it.dueAt != null }
+        if (ongoing.isEmpty()) return recent + timed.take(room)
 
         // Preserve most of the window for time-bound commitments while never
         // starving duties without a clock, even if there are many old alarms.
-        val reserved = if (timed.isEmpty()) limit else minOf(3, (limit / 4).coerceAtLeast(1))
-        val timedCount = minOf(timed.size, limit - reserved)
-        val ongoingCount = minOf(ongoing.size, limit - timedCount)
+        val reserved = if (timed.isEmpty()) room else minOf(3, (room / 4).coerceAtLeast(1))
+        val timedCount = minOf(timed.size, room - reserved)
+        val ongoingCount = minOf(ongoing.size, room - timedCount)
         val offset = ((now.epochSecond / 300L) * ongoingCount.toLong())
             .mod(ongoing.size.toLong()).toInt()
         val sampled = (0 until ongoingCount).map { ongoing[(offset + it) % ongoing.size] }
-        return timed.take(timedCount) + sampled
+        return recent + timed.take(timedCount) + sampled
     }
 }
 
@@ -245,7 +271,8 @@ internal object ActiveCommitmentAttention {
             task.status == CommitmentTaskStatus.WaitingForFeedback ||
                 task.status == CommitmentTaskStatus.Blocked ||
                 task.dueAt == null ||
-                !task.dueAt.isAfter(now)
+                !task.dueAt.isAfter(now) ||
+                task.recentDailyOutcomeContext(now) != null
         }
         if (needsAttention.isEmpty()) return ""
         return buildString {
@@ -258,6 +285,7 @@ internal object ActiveCommitmentAttention {
                     CommitmentTaskStatus.Running -> "执行中，先等真实执行回执"
                     else -> "约定已到期或尚无具体行动时刻"
                 }
+                val previous = task.recentDailyOutcomeContext(now)
                 val next = task.nextCheckAt?.takeIf { it.isAfter(now) }
                 val line = if (summaryAlreadyListed) {
                     // The caller already delivered the complete goal, condition,
@@ -271,6 +299,13 @@ internal object ActiveCommitmentAttention {
                         " ${CommitmentClockFacts.render(task, now)}"
                 }
                 appendLine(line)
+                if (previous != null) {
+                    appendLine("  最近一次每日轮次=${previous.dueAt}; 记录状态=${previous.status}; 实际回执=${previous.result.take(140)}")
+                    appendLine(if (previous.status == "Completed")
+                        "  该轮只核实了指定动作的投递；它不是用户已入睡等其他目标的证据。是否另有尚未完成的持续责任，须依原约定与最新事实由本人判断。"
+                    else
+                        "  该轮结果尚未核实；新的每日执行时刻不替代旧轮次的结果，也不能把未确认当作完成。")
+                }
                 task.dailyAttempts.takeLast(3).forEach { old ->
                     appendLine("  旧轮次=${old.dueAt}; 状态=${old.status}; 已尝试=${old.attemptCount}; " +
                         "未确认的结果=${old.result.take(160)}; 原复查=${old.reviewAt ?: "无"}; " +
