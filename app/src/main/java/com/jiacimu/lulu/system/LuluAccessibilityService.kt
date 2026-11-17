@@ -325,7 +325,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 ?: node.text?.toString()?.takeIf { node.isShowingHintText }
                 ?: node.contentDescription?.toString(),
             node.viewIdResourceName, packageName,
-            hasEditableAction = node.isEditable && node.actionList.any {
+            hasEditableAction = node.actionList.any {
                 it.id == AccessibilityNodeInfo.ACTION_SET_TEXT
             },
         ) && LuluVirtualChatSendPolicy.composerInLowerHalf(composerBounds(node), height)
