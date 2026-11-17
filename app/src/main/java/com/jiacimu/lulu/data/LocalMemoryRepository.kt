@@ -241,6 +241,11 @@ class LocalMemoryRepository : MemoryRepository {
         var processedThisRun = 0
         var processedTurnsThisRun = 0
         var extractedThisRun = 0
+        // After fifteen turns have made a batch eligible, a size-based split
+        // must drain ALL remaining turns from that triggered batch during the
+        // current run. Otherwise a large voice transcript would leave the
+        // trailing turns waiting for another fifteen unrelated messages.
+        var triggeredTurnsRemaining = 0
 
         while (true) {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
@@ -260,8 +265,13 @@ class LocalMemoryRepository : MemoryRepository {
             // boundary to fit the extraction request's evidence-character
             // budget. Do not mistake that smaller physical sub-batch for a
             // shortage of eligible semantic turns or stop without processing.
-            val ready = flushTail || pending.size >= threshold
-            val batchTurns = if (ready) MemoryExtractionTurnView.fit(pending.take(threshold))
+            if (triggeredTurnsRemaining == 0 && pending.size >= threshold) {
+                triggeredTurnsRemaining = threshold
+            }
+            val ready = flushTail || triggeredTurnsRemaining > 0
+            val requestedCount = if (flushTail && triggeredTurnsRemaining == 0) threshold
+                else triggeredTurnsRemaining.coerceAtLeast(1)
+            val batchTurns = if (ready) MemoryExtractionTurnView.fit(pending.take(requestedCount))
                 else pending.take(threshold)
             val batch = batchTurns.flatMap { it.events }
 
@@ -421,6 +431,7 @@ class LocalMemoryRepository : MemoryRepository {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             processedThisRun += liveBatchIds.size
             processedTurnsThisRun += batchTurns.size
+            triggeredTurnsRemaining = (triggeredTurnsRemaining - batchTurns.size).coerceAtLeast(0)
             extractedThisRun += added
             val freshReadable = extractableTurns(characterId, policy, flushTail)
             val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
