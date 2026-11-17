@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:37:35.426819+00:00",
-  "commit": "0e3cf619ec04673cbec1fcd84399860a39948995",
+  "generatedAt": "2026-11-17T17:39:25.565667+00:00",
+  "commit": "338120d85077c99b6da458e2920c142d6506b97c",
   "branch": "main",
-  "sourceFingerprint": "6dfd3eb27858d793d29d2ccf0ba9964fb9f92094a6a363e541034288f0599a97",
+  "sourceFingerprint": "e853605af7f89f9c07c1d53ca531b2e888815dea54dd8931d679f84aa210c421",
   "summary": {
-    "files": 1436,
-    "lines": 302320,
-    "symbols": 4334
+    "files": 1437,
+    "lines": 302591,
+    "symbols": 4337
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2266,6 +2266,10 @@
         "line": 17
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
+        "line": 206
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
         "line": 83
       },
@@ -2617,19 +2621,19 @@
     "spokenText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "visual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "parts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 23
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
@@ -2639,7 +2643,7 @@
     "errors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 59
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt",
@@ -2649,13 +2653,13 @@
     "beats": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 74
+        "line": 76
       }
     ],
     "queuedParts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 95
+        "line": 100
       }
     ],
     "Sample": [
@@ -2842,6 +2846,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
         "line": 454
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -3884,6 +3892,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
         "line": 179
+      }
+    ],
+    "LuluWidgetDailyWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
+        "line": 220
       }
     ],
     "failure": [
@@ -19863,7 +19877,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-        "line": 119
+        "line": 142
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
@@ -26059,8 +26073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-      "lines": 98,
-      "sha256": "c4efe4cbf1bbd5a01632c7137af4f74da4787e43a994a61c378e45f343ff83f0",
+      "lines": 103,
+      "sha256": "a5dcecafcd191e2c2098be67e4d122840e01ea2bb7790a66048949f1e4e2869b",
       "symbols": [
         {
           "name": "FollowUp",
@@ -26072,27 +26086,27 @@
         },
         {
           "name": "spokenText",
-          "line": 14
+          "line": 15
         },
         {
           "name": "visual",
-          "line": 19
+          "line": 20
         },
         {
           "name": "parts",
-          "line": 23
+          "line": 24
         },
         {
           "name": "errors",
-          "line": 59
+          "line": 61
         },
         {
           "name": "beats",
-          "line": 74
+          "line": 76
         },
         {
           "name": "queuedParts",
-          "line": 95
+          "line": 100
         }
       ]
     },
@@ -27054,6 +27068,25 @@
         {
           "name": "routeToReader",
           "line": 179
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
+      "lines": 238,
+      "sha256": "cfbbbd583933affb03333384c4688c34d04819fb8a572d482e8b391e55166793",
+      "symbols": [
+        {
+          "name": "read",
+          "line": 56
+        },
+        {
+          "name": "schedule",
+          "line": 206
+        },
+        {
+          "name": "LuluWidgetDailyWorker",
+          "line": 220
         }
       ]
     },
@@ -31282,8 +31315,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 56,
-      "sha256": "0c54d5507efb64d28c224e4cf6491b84e131d5bbd693d4f9afd1eefbe67cfcc4",
+      "lines": 61,
+      "sha256": "57c237a724f7459c633e8177bdc7fcc21d7f585a7b24a7cdc625dc27f61bb699",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -44603,8 +44636,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-      "lines": 175,
-      "sha256": "c40fa890b9f9425bbb88e224d5e448311269f38962b28bbf350a19b8bfa0d982",
+      "lines": 198,
+      "sha256": "6c4b10bcf2c6c181932da1aac4376d7aea7b44648f9d2290d012c291eb96c246",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
@@ -44612,7 +44645,7 @@
         },
         {
           "name": "event",
-          "line": 119
+          "line": 142
         }
       ]
     },
