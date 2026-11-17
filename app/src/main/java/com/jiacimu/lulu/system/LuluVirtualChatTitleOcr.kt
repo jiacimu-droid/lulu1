@@ -106,6 +106,59 @@ internal object LuluVirtualChatTitleOcr {
             recipient, width, height, centeredToolbar = true)
     }
 
+    /**
+     * Strict visual route when a WeChat virtual window renders pixels but no
+     * accessibility editor. A full screenshot is mandatory: never synthesize
+     * a Send coordinate or infer typed text from a shell key dispatch.
+     */
+    suspend fun inspectVisualDraft(
+        displayId: Int, packageName: String, recipient: String, message: String,
+        frameSource: suspend () -> Bitmap?,
+    ): LuluVisualChatDraftPolicy.Proof? = withTimeoutOrNull(8_000L) {
+        screenshotGate.withLock {
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT) return@withLock null
+            val before = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
+            }
+            if (before.isBlank()) return@withLock null
+            val image = frameSource() ?: return@withLock null
+            val width = image.width
+            val height = image.height
+            val lines = readLines(image) // ownership recycled on ML Kit completion
+            val after = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
+            }
+            if (before != after || after.isBlank()) return@withLock null
+            LuluVisualChatDraftPolicy.verifiedDraft(lines, recipient, message, width, height)
+        }
+    }
+
+    /** Read-only, fresh-image client-bubble proof. One click remains one
+     * click even if OCR fails: an ambiguous result must NOT trigger retries. */
+    suspend fun outgoingAppearedVisually(
+        displayId: Int, packageName: String, recipient: String, message: String,
+        previousOutgoing: Int, frameSource: suspend () -> Bitmap?,
+    ): Boolean = withTimeoutOrNull(8_000L) {
+        screenshotGate.withLock {
+            if (packageName != LuluVirtualChatSendPolicy.WECHAT || previousOutgoing < 0)
+                return@withLock false
+            val before = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
+            }
+            if (before.isBlank()) return@withLock false
+            val image = frameSource() ?: return@withLock false
+            val width = image.width
+            val height = image.height
+            val lines = readLines(image)
+            val after = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
+            }
+            before == after && after.isNotBlank() &&
+                hasExactToolbarTitle(lines, recipient, width, height, centeredToolbar = true) &&
+                LuluVisualChatDraftPolicy.outgoingCount(lines, message, width, height) > previousOutgoing
+        }
+    } ?: false
+
     private data class Proof(
         val displayId: Int, val packageName: String, val recipient: String,
         val fingerprint: String, val capturedAtMs: Long,
