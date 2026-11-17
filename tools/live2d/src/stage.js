@@ -1068,6 +1068,21 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
         }
       }
     }
+    // Speaking and kissing are mutually exclusive physical mouth states.
+    // If a NEW audible fragment really starts before the previous kiss has
+    // finished retreating, release its camera and real Motion3 immediately.
+    // Never let a still-zoomed/pursed face talk through the next TTS phrase.
+    if (newAudioFragment && kissCameraLease?.model === model) {
+      const finishedKiss = kissCameraLease
+      cancelKissCamera()
+      if (authoredMotion?.model === model &&
+          authoredMotion.revision === finishedKiss.revision &&
+          authoredMotion.index === WOLF_KISS_MOTION_INDEX) {
+        motionRevision++
+        try { model.internalModel?.motionManager?.stopAllMotions?.() } catch (_) {}
+        authoredMotion = null
+      }
+    }
     // The exact utterance event, not a coarse Compose status snapshot, owns
     // the audible fragment. A new segment must refresh mouth timing even if
     // the previous segment was still marked as playing.
