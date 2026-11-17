@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:42:12.086393+00:00",
-  "commit": "6418c6a0a163533b0f14433fe623cbe84aa65766",
+  "generatedAt": "2026-11-17T05:42:40.306055+00:00",
+  "commit": "25887179ad496454e7900979a6e23e862aa7f343",
   "branch": "main",
-  "sourceFingerprint": "00131f6471924b82819efb70615b6d5480de21062a91e8d446966fdf71a4ff2d",
+  "sourceFingerprint": "681a5256d59221bb2d2ac61057be3022b084ecd75fb4d66faf2c8ffa54406f05",
   "summary": {
     "files": 1391,
-    "lines": 297789,
+    "lines": 297796,
     "symbols": 4202
   },
   "symbolIndex": {
@@ -7091,7 +7091,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1293
+        "line": 1300
       }
     ],
     "DevelopmentKind": [
@@ -10793,43 +10793,43 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 781
+        "line": 788
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 787
+        "line": 794
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 831
+        "line": 838
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 917
+        "line": 924
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1184
+        "line": 1191
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1262
+        "line": 1269
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1322
+        "line": 1329
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -33149,8 +33149,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1370,
-      "sha256": "5fc29b8a42b879d1644b5a3969fff6c0ea35f2cc0513ed73eca12132f0104866",
+      "lines": 1377,
+      "sha256": "5545c129894d540dbb6b570fea4d59bf18a638e2bf91a4f458d5934d3e660118",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -33186,35 +33186,35 @@
         },
         {
           "name": "pendingMessageCount",
-          "line": 781
+          "line": 788
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 787
+          "line": 794
         },
         {
           "name": "contextTimelineEvents",
-          "line": 831
+          "line": 838
         },
         {
           "name": "refreshInspection",
-          "line": 917
+          "line": 924
         },
         {
           "name": "MemoryDebugState",
-          "line": 1184
+          "line": 1191
         },
         {
           "name": "grams",
-          "line": 1262
+          "line": 1269
         },
         {
           "name": "ids",
-          "line": 1293
+          "line": 1300
         },
         {
           "name": "valid",
-          "line": 1322
+          "line": 1329
         }
       ]
     },
