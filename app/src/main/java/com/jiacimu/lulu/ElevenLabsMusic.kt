@@ -155,7 +155,8 @@ internal object ElevenLabsMusic {
                     // The billed original remains available for manual retry. Never
                     // play a stranger's generated voice as if it were the role's.
                     val converted = try {
-                        ElevenLabsRoleSongPipeline.convert(application, finalFile, roleVoice)
+                        ElevenLabsRoleSongPipeline.convert(application, finalFile, roleVoice,
+                            ElevenLabsRoleSongPipeline.voiceStyle(application, characterId))
                     } catch (failure: Throwable) {
                         throw IllegalStateException(
                             "原曲已保存，但角色音色转换失败：${failure.message}。可点「只重试换声」，不必重新生成歌曲。",
@@ -187,7 +188,8 @@ internal object ElevenLabsMusic {
                 ?.filter { it.isFile && it.name.endsWith(".mp3") }
                 ?.maxByOrNull(File::lastModified)
                 ?: error("请先生成一首原创歌曲")
-            val result = ElevenLabsRoleSongPipeline.convert(context, original, voice)
+            val result = ElevenLabsRoleSongPipeline.convert(context, original, voice,
+                ElevenLabsRoleSongPipeline.voiceStyle(context, characterId))
             Song(result, DEFAULT_MODEL, false, "", usedRoleVoice = true)
         }
 
@@ -205,7 +207,8 @@ internal object ElevenLabsMusic {
     fun latestRoleVoiceSong(context: Context, characterId: String): Song? {
         val source = latestOriginalSong(context, characterId) ?: return null
         val voice = ElevenLabsRoleSongPipeline.roleVoiceId(context, characterId) ?: return null
-        val converted = ElevenLabsRoleSongPipeline.convertedFile(source.file, voice)
+        val converted = ElevenLabsRoleSongPipeline.convertedFile(source.file, voice,
+            ElevenLabsRoleSongPipeline.voiceStyle(context, characterId))
         return converted.takeIf { it.isFile && it.length() > 44L }
             ?.let { Song(it, DEFAULT_MODEL, false, "", usedRoleVoice = true) }
     }
