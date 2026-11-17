@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T09:59:32.141885+00:00",
-  "commit": "b08fa70503634e55698a1b0e20c91b2022df0e63",
+  "generatedAt": "2026-11-17T10:38:00.285335+00:00",
+  "commit": "032bd527be2c034936e3139c5246d2e7fbeccac7",
   "branch": "main",
-  "sourceFingerprint": "3c356fc533c05c373256923def7883ced66393fa6f3ab69a90903c8e0ed35d92",
+  "sourceFingerprint": "927b9611c48587dabb8d09b6390e9e551b7c745b0bc83b18a3fa78e8cd98e2b4",
   "summary": {
-    "files": 1397,
-    "lines": 299688,
+    "files": 1398,
+    "lines": 299740,
     "symbols": 4234
   },
   "symbolIndex": {
@@ -49990,6 +49990,12 @@
       "path": "preview/app.js",
       "lines": 54,
       "sha256": "f1970a23411084fb2da03eef1f0f47a4bd105349f13f7444c66bd2f5c34e830d",
+      "symbols": []
+    },
+    {
+      "path": "preview/compare.html",
+      "lines": 52,
+      "sha256": "bacc02b70501d73cf0886ccbff94678d17b73a57e6c620b98091f9d0d4aa5ab4",
       "symbols": []
     },
     {
