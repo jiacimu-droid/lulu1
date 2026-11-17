@@ -41,6 +41,25 @@ class FreshInstallNeutralDefaultsTest {
         assertFalse(MigratedDomainStores.characters.settings.value.containsKey("bundled-jiangdu"))
     }
 
+    @Test fun deletedUserCharacterDoesNotReappearWhenLifeStoresInitializeAgain() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+
+        val created = MigratedDomainStores.characters.create("待删除的自建角色", "仅属于本机用户")
+        assertTrue(MigratedDomainStores.characters.settings.value.containsKey(created.characterId))
+        assertTrue(MigratedDomainStores.characters.delete(created.characterId))
+
+        CharacterLifeStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        assertFalse("Life store initialization must never resurrect a deleted companion",
+            MigratedDomainStores.characters.settings.value.containsKey(created.characterId))
+        assertFalse("Old bundled characters must not be reintroduced during initialization",
+            MigratedDomainStores.characters.settings.value.containsKey("bundled-jiangdu"))
+    }
+
     @Test fun freshDigitalWorldHasOnlyOneCafeWorkerAndNoCompanionPersona() {
         val context = RuntimeEnvironment.getApplication() as Context
         DigitalWorldExpansionStore.initialize(context)
