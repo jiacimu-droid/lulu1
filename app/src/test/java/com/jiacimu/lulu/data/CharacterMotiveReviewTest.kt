@@ -83,6 +83,16 @@ class CharacterMotiveReviewTest {
         assertFalse(next.single { it.id == "future" }.fallback)
     }
 
+    @Test fun lateByHalfAnHourStillGetsARealCharacterReviewInsteadOfVanishing() {
+        val due = Instant.parse("2026-11-17T15:54:00Z")
+        assertFalse(CharacterMotiveReview.tooLateForDedicatedReview(
+            due, due.plusSeconds(35 * 60)))
+        assertFalse(CharacterMotiveReview.tooLateForDedicatedReview(
+            due, due.plusSeconds(3 * 3600)))
+        assertTrue(CharacterMotiveReview.tooLateForDedicatedReview(
+            due, due.plusSeconds(3 * 3600 + 1)))
+    }
+
     @Test fun lateAlarmDefersWithoutFalselyRecordingAnActualReview() {
         val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
         CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
