@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:20:43.052763+00:00",
-  "commit": "fa0334eef944e9400e36c0c03cede511bbf649bd",
+  "generatedAt": "2026-11-17T03:21:23.550861+00:00",
+  "commit": "ca7f9c8bdd81f2f840a4373306f019447377a8b4",
   "branch": "main",
-  "sourceFingerprint": "96aede3c7b4c9b88a85f5595c73d097a6517fa85e168a4703b0a627103215dd3",
+  "sourceFingerprint": "6d834c207e4b1b74654593e8dace12ede652e6fffbb58a369f801efaf25054de",
   "summary": {
     "files": 1382,
-    "lines": 295518,
+    "lines": 295575,
     "symbols": 4173
   },
   "symbolIndex": {
@@ -47397,8 +47397,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 402,
-      "sha256": "bd28e016a13c037908db55ae451acb1651aa3ceff33c8ed3f817b9a53f501066",
+      "lines": 438,
+      "sha256": "90f7ec858c14ebd3fa455a31aa03cf0abe3322d5afdc69e0990249b5ff94d36c",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
@@ -47523,8 +47523,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
-      "lines": 126,
-      "sha256": "7512d1f3d435b6c0a34d93755af35169f8cceca090c0744707bcdc7e6ca147e8",
+      "lines": 147,
+      "sha256": "0f3d7cf0b07b8a74db8d105cd830b6a2e783f9fb983e398647ca266442457302",
       "symbols": [
         {
           "name": "SemanticMemoryLongTurnRegressionTest",
