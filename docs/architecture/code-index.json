@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T20:02:03.384449+00:00",
-  "commit": "a13bba8a0d4fab3bf4391c9ab177ce03f850b880",
+  "generatedAt": "2026-11-17T21:47:03.586402+00:00",
+  "commit": "04a23e26cca43f61add1136136a81720c9f6b9ea",
   "branch": "main",
-  "sourceFingerprint": "8ab18bd564aa196b7d8d16b9faa82f166960d3a6ca5123f94d999e9ee3063b02",
+  "sourceFingerprint": "ad34de77003bcceb709592327c9efdce367bff516dc377279929743c985f8244",
   "summary": {
     "files": 1443,
-    "lines": 304270,
+    "lines": 304296,
     "symbols": 4345
   },
   "symbolIndex": {
@@ -6529,7 +6529,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 61
+        "line": 65
       }
     ],
     "contractError": [
@@ -17921,19 +17921,19 @@
     "decodeDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 69
+        "line": 73
       }
     ],
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 223
+        "line": 227
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 247
+        "line": 251
       }
     ],
     "showPaymentHandoff": [
@@ -42174,24 +42174,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 641,
-      "sha256": "f9f9dd12eca1094583d8fa4b1115ea93d285420df87544406afbe9bfc856e6a7",
+      "lines": 654,
+      "sha256": "08a80c2b36db5b9dc9eb3270cb41e29f8eef34abda7c10daba0146312ce18deb",
       "symbols": [
         {
           "name": "Outcome",
-          "line": 61
+          "line": 65
         },
         {
           "name": "decodeDecision",
-          "line": 69
+          "line": 73
         },
         {
           "name": "ownerHasNewInput",
-          "line": 223
+          "line": 227
         },
         {
           "name": "rememberGesture",
-          "line": 247
+          "line": 251
         }
       ]
     },
@@ -50642,8 +50642,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-      "lines": 105,
-      "sha256": "2532a5e3d252ff675ce862400b76dd245f912d1d786edc8574656ef9ca6a1c08",
+      "lines": 118,
+      "sha256": "5830c0671f749cc0d43cd0d3def595f5254e158fcdaf767100fb95f1f998db83",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneContinuationYieldTest",
