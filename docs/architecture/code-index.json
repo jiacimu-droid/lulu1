@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:19:59.437198+00:00",
-  "commit": "4cf6bf2f27da25ad8f778c1346f8d1ce4a8574e2",
+  "generatedAt": "2026-11-17T03:20:43.052763+00:00",
+  "commit": "fa0334eef944e9400e36c0c03cede511bbf649bd",
   "branch": "main",
-  "sourceFingerprint": "162943f19a9e20428ea09ee93e2dce7f0fcac4dde3d044eadedeed0c5ef8fa34",
+  "sourceFingerprint": "96aede3c7b4c9b88a85f5595c73d097a6517fa85e168a4703b0a627103215dd3",
   "summary": {
-    "files": 1381,
-    "lines": 295314,
-    "symbols": 4170
+    "files": 1382,
+    "lines": 295518,
+    "symbols": 4173
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -915,7 +915,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1656
+        "line": 1665
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4179,7 +4179,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 46
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -5557,19 +5557,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1396
+        "line": 1405
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1408
+        "line": 1417
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1646
+        "line": 1655
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -7160,6 +7160,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
         "line": 132
+      }
+    ],
+    "currentSocialAuthority": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
+        "line": 53
+      }
+    ],
+    "labels": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
+        "line": 65
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 554
       }
     ],
     "Receipt": [
@@ -17098,12 +17114,6 @@
         "line": 537
       }
     ],
-    "labels": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 554
-      }
-    ],
     "openVirtualWeChatMomentsComposer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -22218,6 +22228,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
         "line": 17
+      }
+    ],
+    "SemanticMemoryLongTurnRegressionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
+        "line": 23
       }
     ],
     "SemanticMemoryTurnPipelineTest": [
@@ -27808,8 +27824,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1664,
-      "sha256": "6bc14dfec20f4d3f8e81781539c0c6ce001fd9047df34f69b1449ef242e3771b",
+      "lines": 1673,
+      "sha256": "faf3dafa32163d6671c6a4b1fb66db8420b0900e1a7e8f2e5864a1e47f44b7f2",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -27917,19 +27933,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1396
+          "line": 1405
         },
         {
           "name": "consumeEvent",
-          "line": 1408
+          "line": 1417
         },
         {
           "name": "LuluAiServices",
-          "line": 1646
+          "line": 1655
         },
         {
           "name": "initialize",
-          "line": 1656
+          "line": 1665
         }
       ]
     },
@@ -29230,12 +29246,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 314,
-      "sha256": "2f01295101a3161d41d25995809e856138f97778a5e62fb71dfd243cf93420ec",
+      "lines": 366,
+      "sha256": "7c81ffb31fb3edbd2b9ffbff655c6469e6e4fe9892277b34597677dc5ea62473",
       "symbols": [
         {
+          "name": "currentSocialAuthority",
+          "line": 53
+        },
+        {
+          "name": "labels",
+          "line": 65
+        },
+        {
           "name": "render",
-          "line": 46
+          "line": 98
         }
       ]
     },
@@ -46551,8 +46575,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt",
-      "lines": 43,
-      "sha256": "121b2b01bf438e53483f4edacd4743730d3714a4b1aa331adc22bbc865a977bd",
+      "lines": 60,
+      "sha256": "0c14bb115d04cea4c395ee880cd661e022ef9e876dae6449a280d76bf0d6da21",
       "symbols": [
         {
           "name": "MomentFriendAccessTest",
@@ -47494,6 +47518,17 @@
         {
           "name": "receipt",
           "line": 167
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
+      "lines": 126,
+      "sha256": "7512d1f3d435b6c0a34d93755af35169f8cceca090c0744707bcdc7e6ca147e8",
+      "symbols": [
+        {
+          "name": "SemanticMemoryLongTurnRegressionTest",
+          "line": 23
         }
       ]
     },
