@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:08:20.136464+00:00",
-  "commit": "8423438f61dc99e54584843440c9e3517d386fc2",
+  "generatedAt": "2026-11-17T02:09:58.150639+00:00",
+  "commit": "e50f5afb2014e51f98fcb91e948b86e80bd76827",
   "branch": "main",
-  "sourceFingerprint": "9f994b68ec3746b5a4cd6eca5fc86731a7e59a6a75d13d0e3cce9513a2db2b89",
+  "sourceFingerprint": "238e5ce6d9accd70a042fe1aa8db5121f5b89e3f43add2d204ec32c1c609437d",
   "summary": {
-    "files": 1377,
-    "lines": 294378,
-    "symbols": 4143
+    "files": 1378,
+    "lines": 294427,
+    "symbols": 4145
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2642,6 +2642,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
         "line": 72
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
@@ -5937,115 +5941,115 @@
     "MemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 95
+        "line": 100
       }
     ],
     "observeMemories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 97
+        "line": 102
       }
     ],
     "observePolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 98
+        "line": 103
       }
     ],
     "LexiconSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 102
+        "line": 107
       }
     ],
     "PromiseKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 104
+        "line": 109
       }
     ],
     "LexiconStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 105
+        "line": 110
       }
     ],
     "LexiconEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 107
+        "line": 112
       }
     ],
     "LexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 122
+        "line": 127
       }
     ],
     "observeEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 124
+        "line": 129
       }
     ],
     "WorldBookPromptPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 130
+        "line": 135
       }
     ],
     "WorldBookEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 131
+        "line": 136
       }
     ],
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 145
+        "line": 150
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 147
+        "line": 152
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 151
+        "line": 156
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 158
+        "line": 163
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 164
+        "line": 169
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 166
+        "line": 171
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 167
+        "line": 172
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 168
+        "line": 173
       }
     ],
     "Reading": [
@@ -11398,6 +11402,16 @@
         "line": 72
       }
     ],
+    "Batch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
+        "line": 12
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
+        "line": 20
+      }
+    ],
     "MemoryRecallInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -12016,12 +12030,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
         "line": 94
-      }
-    ],
-    "Batch": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 20
       }
     ],
     "userBubbleVersion": [
@@ -28087,8 +28095,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 172,
-      "sha256": "0a658fc82f4508b48015e371c0ba7b3c51a53b62fd3713860a6d4de0d5f7a3a0",
+      "lines": 177,
+      "sha256": "4eb58ab72279506500efa1a514a667a32085553a9332fc786afeca7c331d2ed4",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -28144,79 +28152,79 @@
         },
         {
           "name": "MemoryRepository",
-          "line": 95
+          "line": 100
         },
         {
           "name": "observeMemories",
-          "line": 97
-        },
-        {
-          "name": "observePolicy",
-          "line": 98
-        },
-        {
-          "name": "LexiconSection",
           "line": 102
         },
         {
-          "name": "PromiseKind",
-          "line": 104
+          "name": "observePolicy",
+          "line": 103
         },
         {
-          "name": "LexiconStatus",
-          "line": 105
-        },
-        {
-          "name": "LexiconEntry",
+          "name": "LexiconSection",
           "line": 107
         },
         {
+          "name": "PromiseKind",
+          "line": 109
+        },
+        {
+          "name": "LexiconStatus",
+          "line": 110
+        },
+        {
+          "name": "LexiconEntry",
+          "line": 112
+        },
+        {
           "name": "LexiconRepository",
-          "line": 122
+          "line": 127
         },
         {
           "name": "observeEntries",
-          "line": 124
+          "line": 129
         },
         {
           "name": "WorldBookPromptPosition",
-          "line": 130
+          "line": 135
         },
         {
           "name": "WorldBookEntry",
-          "line": 131
+          "line": 136
         },
         {
           "name": "WorldBookRepository",
-          "line": 145
+          "line": 150
         },
         {
           "name": "observeWorldBooks",
-          "line": 147
+          "line": 152
         },
         {
           "name": "TokenUsage",
-          "line": 151
+          "line": 156
         },
         {
           "name": "DurationSummary",
-          "line": 158
+          "line": 163
         },
         {
           "name": "PerformanceRepository",
-          "line": 164
+          "line": 169
         },
         {
           "name": "observeErrors",
-          "line": 166
+          "line": 171
         },
         {
           "name": "observeTokenUsage",
-          "line": 167
+          "line": 172
         },
         {
           "name": "observeDurations",
-          "line": 168
+          "line": 173
         }
       ]
     },
@@ -33466,6 +33474,21 @@
         {
           "name": "clearCharacter",
           "line": 123
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
+      "lines": 44,
+      "sha256": "f2c3d1d69a71cd523fe0d453e24066344971065fd6ab7ca7475fae8caf79a5b1",
+      "symbols": [
+        {
+          "name": "Batch",
+          "line": 12
+        },
+        {
+          "name": "build",
+          "line": 18
         }
       ]
     },

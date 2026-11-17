@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8423438f61dc99e54584843440c9e3517d386fc2`
+- 基准提交：`e50f5afb2014e51f98fcb91e948b86e80bd76827`
 - 分支：`main`
-- 已索引文件：1377
-- 已索引代码/文本行：294378
-- 已发现符号：4143
+- 已索引文件：1378
+- 已索引代码/文本行：294427
+- 已发现符号：4145
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -335,7 +335,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 242 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 208 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 411 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 172 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 177 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 142 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 469 | 2 |
@@ -524,6 +524,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 177 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt` | 44 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
