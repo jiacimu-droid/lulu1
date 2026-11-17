@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a704e2bd5c660f70a654c349dc2dd0b19e023909`
+- 基准提交：`5815d96025f1bf8ba8220e9ed220526b54dae902`
 - 分支：`main`
 - 已索引文件：1417
-- 已索引代码/文本行：299526
+- 已索引代码/文本行：299530
 - 已发现符号：4274
 
 | 文件 | 行数 | 符号数 |
@@ -1350,7 +1350,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt` | 287 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 201 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 94 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 581 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 585 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
